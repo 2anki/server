@@ -71,5 +71,6 @@ See the [package.json](./package.json) file for anything I missed.
 ## Backlog
 
 - [ ] Fix image sizing or consider proper Markdown support
+- [ ] Reduce the script out via Webpack
 - [ ] Support other formats like HTML
 - [ ] Add Dark Mode
