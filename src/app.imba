@@ -104,7 +104,7 @@ tag app-root
 						"Currently only the Markdown & CSV option is supported."
 						<br>
 						"If you are missing a feature or format, let me know on "
-						<a href="https://github.com/alemayhu/n2a"> "GitHub"
+						<a href="https://github.com/aalemayhu/notion2anki"> "GitHub"
 						"."
 
 			<section .section>
@@ -127,7 +127,7 @@ tag app-root
 						"In case you are curious how this is possible see the links in the footer. "
 					<p .subtitle>
 						"You can also read the source code at "
-						<a href="https://github.com/alemayhu/n2a"> "alemayhu/n2a"
+						<a href="https://github.com/alemayhu/notion2anki"> "alemayhu/notion2anki"
 							
 			<footer .footer>
 				"This project was developed by "
