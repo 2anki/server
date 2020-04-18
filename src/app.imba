@@ -104,7 +104,7 @@ tag app-root
 						"Currently only the Markdown & CSV option is supported."
 						<br>
 						"If you are missing a feature or format, let me know on "
-						<a href="https://github.com/aalemayhu/notion2anki"> "GitHub"
+						<a href="https://github.com/alemayhu/notion2anki"> "GitHub"
 						"."
 
 			<section .section>
