@@ -1,15 +1,20 @@
+
 import ExpressionHelper from './ExpressionHelper'
+import MarkdownHandler from './MarkdownHandler'
+
 export default class DeckHandler
 
-	def build contents
-		const titleMatch = ExpressionHelper.titleMatch(contents)
-		let lines = contents.split('\n')
-		var name = ''
-		if titleMatch			
-			name = ExpressionHelper.cleanTitle(titleMatch[0])
+	def pickDefaultDeckName firstLine
+		if firstLine and firstLine.trim().length > 0
+			self.converter.makeHtml(firstLine)
 		else
-			name = lines[0]
-		lines.shift()
+			'Untitled Deck'
+
+	def build contents, deckName = null
+		self.converter = self.converter || MarkdownHandler()
+
+		let lines = contents.split('\n')
+		const name = deckName ? deckName : pickDefaultDeckName(lines.shift())
 		if lines[0] == ''
 			lines.shift()
 		let cards = []
@@ -18,7 +23,9 @@ export default class DeckHandler
 		for line in lines
 			if ExpressionHelper.toggleList?(line) # Card match on the toggle list
 				i = i + 1
-				cards[i] = {name: ExpressionHelper.cleanToggleName(line), backSide: ''}
+				// Before converting to HTML, replace the first dash so we don't end up with a dot on the left side in Anki
+				cards[i] = {name: self.converter.makeHtml(line.replace(/^-\s?/, '')), backSide: ''}
 			else
-				cards[i].backSide += line
+				// Prevent Notion from producing crappy Markdown
+				cards[i].backSide += "{line.trim()}\n"
 		{name, cards}

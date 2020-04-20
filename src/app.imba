@@ -95,7 +95,7 @@ tag app-root
 								<p .subtilte> progressText
 							else
 								<label .file-label>
-									<input#upload .file-input type="file" name="resume">
+									<input#upload .file-input type="file" name="resume" accept=".zip">
 									<span .file-cta>
 										<span .file-icon>
 											<i .fas .fa-upload>

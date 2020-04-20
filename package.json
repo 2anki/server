@@ -6,6 +6,7 @@
     "imba": "^2.0.0-alpha.41",
     "jszip": "^3.3.0",
     "script-loader": "^0.7.2",
+    "showdown": "^1.9.1",
     "uglifyjs-webpack-plugin": "^1.2.2",
     "webpack-assets-manifest": "^1.0.0"
   },

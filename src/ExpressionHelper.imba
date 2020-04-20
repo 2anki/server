@@ -7,7 +7,8 @@ export default class ExpressionHelper
 		input.match(/\.[0-9a-z]+$/i)[0]
 
 	static def imageMatch input
-		input.match(/(?:__|[*#])|\[(.*?)\]\(.*?\)/)	
+		// https://stackoverflow.com/questions/44227270/regex-to-parse-image-link-in-markdown
+		input.match(/!\[[^\]]*\]\((?<filename>.*?)(?=\"|\))(?<optionalpart>\".*\")?\)/)	
 
 	static def titleMatch input
 		input.match(/#.*\n/)
