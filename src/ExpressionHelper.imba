@@ -24,3 +24,7 @@ export default class ExpressionHelper
 
 	static def cleanTitle input
 		input.replace(/#\s?/, '')
+	
+	static def isLatex backSide
+		const l = backSide.trim()
+		l.match(/^\\/) or l.match(/^\$\$/) or l.match(/{{/)

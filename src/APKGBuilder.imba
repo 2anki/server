@@ -25,8 +25,15 @@ export default class APKGBuilder
 				exporter.addMedia(newName, image)
 				card.backSide = card.backSide.replace(imageMatch[0], "<img src='{newName}' />")
 
+			// For now treat Latex as text and wrap it around.
+			// This is fragile thougg and won't handle multiline properly
+			if ExpressionHelper.latex?(card.backSide)
+				card.backSide = "[latex]{card.backSide.trim()}[/latex]"
+			else
+				card.backSide = converter.makeHtml(card.backSide)
+
 			// Hopefully this should perserve headings and other things
-			exporter.addCard(card.name, converter.makeHtml(card.backSide))
+			exporter.addCard(card.name, card.backSide)
 		
 		const zip = await exporter.save()
 		return zip if not output
