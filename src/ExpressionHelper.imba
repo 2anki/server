@@ -7,8 +7,11 @@ export default class ExpressionHelper
 		input.match(/\.[0-9a-z]+$/i)[0]
 
 	static def imageMatch input
-		// https://stackoverflow.com/questions/44227270/regex-to-parse-image-link-in-markdown
-		input.match(/!\[[^\]]*\]\((?<filename>.*?)(?=\"|\))(?<optionalpart>\".*\")?\)/)	
+		// Below does not work on Firefox so using the second one
+		// https://stackoverflow.com/questions/44227270/regex-to-parse-image-link-in-markdown		
+		// input.match(/!\[[^\]]*\]\((?<filename>.*?)(?=\"|\))(?<optionalpart>\".*\")?\)/)
+		// https://stackoverflow.com/questions/20128238/regex-to-match-markdown-image-pattern-with-the-given-filename	
+		input.match(/!\[(.*?)\]\((.*?)\)/)
 
 	static def titleMatch input
 		input.match(/#.*\n/)
