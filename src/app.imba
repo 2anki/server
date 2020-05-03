@@ -5,6 +5,8 @@ import DeckHandler from './DeckHandler'
 import ExpressionHelper from './ExpressionHelper'
 import APKGBuilder from './APKGBuilder'
 
+import './components/header'
+
 ### css
 body {
 	text-align: center;
@@ -67,13 +69,11 @@ tag app-root
 
 	def render
 		<self>
+			<n2a-header>
 			<section .section>
 				<div .container .is-centered>
 					// File Upload
 					<div .has-text-centered>
-						<br>
-						<h1 .title> "Notion 2 Anki"
-						<hr>
 						<p .subtitle> 
 							"This is a simple web app to convert your Notion "
 							<a href="https://www.notion.so/Toggles-c720af26b4bd4789b736c140b2dc73fe"> "Toggle lists "
