@@ -1,9 +1,9 @@
 const FileSaver = require('file-saver')
 
-import ZipHandler from './ZipHandler'
-import DeckHandler from './DeckHandler'
-import ExpressionHelper from './ExpressionHelper'
-import APKGBuilder from './APKGBuilder'
+import ZipHandler from './handlers/ZipHandler'
+import DeckHandler from './handlers/DeckHandler'
+import ExpressionHelper from './handlers/ExpressionHelper'
+import APKGBuilder from './handlers/APKGBuilder'
 
 // Components
 import './components/header'
