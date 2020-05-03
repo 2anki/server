@@ -5,7 +5,9 @@ import DeckHandler from './DeckHandler'
 import ExpressionHelper from './ExpressionHelper'
 import APKGBuilder from './APKGBuilder'
 
+// Components
 import './components/header'
+import './components/footer'
 
 ### css
 body {
@@ -128,12 +130,4 @@ tag app-root
 					<p .subtitle>
 						"You can also read the source code at "
 						<a href="https://github.com/alemayhu/notion2anki"> "alemayhu/notion2anki"
-							
-			<footer .footer>
-				"This project was developed by "
-				<a href="https://alemayhu.com"> "Alexander Alemayhu"
-				<div .is-pulled-right>
-					"Built with "
-					<a href="https://imba.io"> " Imba "
-					"using the "
-					<a .is-1 href="https://jamstack.org/"> "JAMstack"
+			<n2a-footer>
