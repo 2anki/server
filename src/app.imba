@@ -10,65 +10,44 @@ import './components/meta-section'
 import './components/header'
 import './components/footer'
 
-### css
-body {
-	text-align: center;
-}
-###
-
-### css scoped
-.container {
-	width: 80%;
-	margin: 0 auto;
-}
-
-.center-file {
-	justify-content: center;
-	flex-direction: column;
-}
-
-.file-label {
-	align-items: center;
-}
-###
-
 let progressText = ''
 tag app-root
 
-	def log msg
-		console.log(msg)
-		window.panelMessages ||= []
-		window.panelMessages.push(msg)
-		imba.commit()
+	prop state = 'ready'
+
+	
+	def onfileuploaded evt, files
+		console.log('files', files)
 
 	def handleFileUpload event
+		self.state = 'uploading'
 		imba.commit()
+		console.log('state', self.state)
 		const packages = []
-		window.panelLog('Reading uploads locally')
-		window.panelLog("You have {event.target.files.length} files")
+		console.log('Reading uploads locally')
+		console.log("You have {event.target.files.length} files")
 		for file in event.target.files
 			const zip_handler = ZipHandler.new()
 			const _ = await zip_handler.build(file)
-			window.panelLog("Found {zip_handler.filenames()}")
+			console.log("Found {zip_handler.filenames()}")
 			for file_name in zip_handler.filenames()
-				window.panelLog("Reading {file_name}")
+				console.log("Reading {file_name}")
 				if ExpressionHelper.markdown?(file_name)
-					window.panelLog("Building deck {file_name}")
+					console.log("Building deck {file_name}")
 					const deck = DeckHandler.new().build(zip_handler.files[file_name])
 					const apkg = await APKGBuilder.new().build(null, deck, zip_handler.files)
 					packages.push({name: "{file_name}.apkg", apkg: apkg})
-					window.panelLog("Done building {file_name}")
+				console.log("Done building {file_name}")
 		
-		window.panelLog("Preparing download from memory")
+		console.log("Preparing download from memory")
 		for pkg in packages
 			FileSaver.saveAs(pkg.apkg, pkg.name)
-		window.panelMessages = []
 
 	def mount
-		window.panelLog = self.log
 		setTimeout(&, 1000) do
 			const input = document.getElementById('upload')
 			input.addEventListener("change", self.handleFileUpload, false)
+
 
 	def render
 		<self>
@@ -87,22 +66,23 @@ tag app-root
 							// "Upload your exported Notion zip file. "
 							"If you are worried about sharing your data, "
 							"please read the "
-							<a href="#privacy"> "privacy section below."			
-						<div .has-text-centered .file .is-boxed .center-file>
-							if window.panelMessages and window.panelMessages.length > 0
-								<p .subtitle> "Loading, please wait. This might take a while depending on the size."
-								<div .tags>
-									for msg in window.panelMessages
-										<span .tag> msg
-								<button .button .is-loading>
-								<p .subtilte> progressText
-							else
+							<a href="#privacy"> "privacy section below."
+						// <h1> "STATE: {state}"
+						if state == 'ready'
+							<div .has-text-centered .file .is-boxed .center-file>
 								<label .file-label>
-									<input#upload .file-input type="file" name="resume" accept=".zip">
-									<span .file-cta>
-										<span .file-icon>
-											<i .fas .fa-upload>
-									<span .file-label> "Choose a exported Notion file…"						
+										<input#upload .file-input type="file" name="resume" accept=".zip">
+										<span .file-cta>
+											<span .file-icon>
+												<i .fas .fa-upload>
+										<span .file-label> "Choose a exported Notion file…"	
+						elif state == 'uploading'
+							<p> 'Uploading message'
+						else		
+							<div .has-text-centered .file .is-boxed .center-file>
+								<p .subtitle> "Loading, please wait. This might take a while depending on the size."
+								<button .button .is-loading>
+								<p .subtilte> progressText													
 						<br>
 						"Currently only the Markdown & CSV option is supported."
 						<br>

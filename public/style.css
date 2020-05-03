@@ -1,0 +1,27 @@
+body {
+	text-align: center;
+}
+
+.header {
+    background: #2D8CFF;
+    text-align: center;
+    padding: 1rem;		
+}
+.header h1 {
+    color: white;
+}
+
+
+.container {
+	width: 80%;
+	margin: 0 auto;
+}
+
+.center-file {
+	justify-content: center;
+	flex-direction: column;
+}
+
+.file-label {
+	align-items: center;
+}
