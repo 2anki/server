@@ -1,22 +1,33 @@
-# Notion 2 Anki [![Netlify Status](https://api.netlify.com/api/v1/badges/5da03a4d-2c54-4343-8949-33124d2211e5/deploy-status)](https://app.netlify.com/sites/vibrant-swirles-654fce/deploys)
+![Notion 2 Anki](public/banner.png)
 
-![Banner](https://i.imgur.com/lZKZTnT.png)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/5da03a4d-2c54-4343-8949-33124d2211e5/deploy-status)](https://app.netlify.com/sites/vibrant-swirles-654fce/deploys)
 
-This is tool to let you convert your Notion toggle lists to Anki cards easily.
+This is tool a to let you convert your Notion [toggle lists][tl] to Anki cards easily.
+
+[tl]: https://www.notion.so/Toggles-c720af26b4bd4789b736c140b2dc73fe
+
+## Background
 
 This project was hacked together after seeing this post on Reddit 
 https://www.reddit.com/r/Anki/comments/g29mzk/cards_imported_from_notion/
 
+
+## Roadmap
+
+The dream is to have a powerful and easy to use process for producing high quality flashcards. Notion is super easy to use and Notion 2 Anki is just going to make the importing process and controlling the look of the cards / decks. See the [projects page][pa] for the specific topics https://github.com/alemayhu/notion2anki/projects/1
+
+[pa]: https://github.com/alemayhu/notion2anki/projects/1
+
 ## Contributing
 
 Your contributions are welcome but please try to be constructive and follow the
-[CoC](./CODE_OF_CONDUCT.md).
+[code of conduct](./CODE_OF_CONDUCT.md).
+
+## Development
 
 Please note that the Imba programming language v2 is currently in alpha so expect
 to see things breaking when you try stuff. When that is said, see below on how
 to actually run this :smile:
-
-## Development
 
 > I am assuming you have Node.js already installed, if not then see their website on how todo that https://nodejs.org/en/
 
@@ -43,9 +54,7 @@ of these to
 Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...
 ```
 
-2)
-
-Run the [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) in vscode.
+2) Run the [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) in vscode.
 
 ## License
 
