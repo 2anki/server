@@ -42,6 +42,8 @@ tag app-root
 		console.log("Preparing download from memory")
 		for pkg in packages
 			FileSaver.saveAs(pkg.apkg, pkg.name)
+		state = 'ready'
+		imba.commit()
 
 	def render
 		<self>
@@ -61,7 +63,6 @@ tag app-root
 							"If you are worried about sharing your data, "
 							"please read the "
 							<a href="#privacy"> "privacy section below."
-						<h1> "STATE: {state}"
 						if state == 'ready'
 							<div .has-text-centered .file .is-boxed .center-file>
 								<label .file-label>
@@ -71,7 +72,7 @@ tag app-root
 												<i .fas .fa-upload>
 										<span .file-label> "Choose a exported Notion file…"	
 						elif state == 'uploading'
-							<p> 'Uploading message'
+							<p> 'One moment local upload in progress'
 						else		
 							<div .has-text-centered .file .is-boxed .center-file>
 								<p .subtitle> "Loading, please wait. This might take a while depending on the size."
