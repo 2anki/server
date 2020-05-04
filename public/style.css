@@ -1,4 +1,7 @@
+/* Typography */
+
 body {
+	font-family: 'Baloo 2', cursive;
 	text-align: center;
 }
 
@@ -11,7 +14,7 @@ body {
     color: white;
 }
 
-
+/* Layout  */
 .container {
 	width: 80%;
 	margin: 0 auto;
