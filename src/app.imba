@@ -43,12 +43,6 @@ tag app-root
 		for pkg in packages
 			FileSaver.saveAs(pkg.apkg, pkg.name)
 
-	def mount
-		setTimeout(&, 1000) do
-			const input = document.getElementById('upload')
-			input.addEventListener("change", self.handleFileUpload, false)
-
-
 	def render
 		<self>
 			<n2a-header>
@@ -67,11 +61,11 @@ tag app-root
 							"If you are worried about sharing your data, "
 							"please read the "
 							<a href="#privacy"> "privacy section below."
-						// <h1> "STATE: {state}"
+						<h1> "STATE: {state}"
 						if state == 'ready'
 							<div .has-text-centered .file .is-boxed .center-file>
 								<label .file-label>
-										<input#upload .file-input type="file" name="resume" accept=".zip">
+										<input :change.handleFileUpload .file-input type="file" name="resume" accept=".zip">
 										<span .file-cta>
 											<span .file-icon>
 												<i .fas .fa-upload>
