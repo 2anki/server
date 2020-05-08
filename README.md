@@ -72,6 +72,5 @@ This would be super hard if it were not for the following projects:
 - [FileSaver.js](https://github.com/eligrey/FileSaver.js/)
 - [jszip](https://github.com/Stuk/jszip)
 - [Imba](https://github.com/imba/imba)
-- [Bulma](https://bulma.io)
 
 See the [package.json](./package.json) file for anything I missed.
