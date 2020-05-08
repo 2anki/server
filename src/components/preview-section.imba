@@ -1,3 +1,11 @@
+tag n2a-button
+
+	def render
+		<self .block>
+			<button .bg-blue-700 .hover:bg-transparent .hover:text-black .p-2 .rounded .text-white>
+				<slot>
+
+
 tag preview-section
 
 	prop cards
@@ -11,35 +19,32 @@ tag preview-section
 			side = 'front'
 	
 	def nextCard
+		return if index + 1 >= cards.length
 		index = index + 1
 	
 	def previousCard
+		return if index - 1 < 0
 		index = index - 1
-
-	def navigation-buttons
-		if cards.length > 1
-			<button :click.nextCard disabled=(index < cards.length - 1)> "Next"
-			<button :click.previousCard disabled=(index > cards.length - 1)> "Previous"
-		<button :click.downloadDeck> "Download"
-
 
 	# TODO: support latex and other markup not covered by using innerHTML
 	def render
-		<self>
+		<self .block .p-8>
 			if !cards
 				<div .has-text-centered .file .is-boxed .center-file>
 					<p .subtitle> "Reading uploads locally"
 					<p .subtitle> "Loading, please wait. This might take a while depending on the size."
 					<button .button .is-loading>
 			else
-				<h2> "Card previews"
-				<p> "Everything within the border below is what will be sent to Anki."
-				<p> "Use the bottoms below to inspect the cards"
-				<h2> "Card {side}"
-				<button :click.toggleSide> "Switch side"
-				navigationButtons()
-				<div .card-preview>
+				<h2 .text-4xl .text-center> "Card previews"
+				<p .text-2xl> "Everything within the border below is what will be sent to Anki. Use the bottoms below to inspect the cards"
+				<.flex .justify-between .p-4>
+					<n2a-button :click.toggleSide> "Switch side"
+					<h3 .self-center .m-2> "Card showing {side} ({index + 1}/{cards.length})"
+					<n2a-button :click.nextCard> "Next"
+					<n2a-button :click.previousCard> "Previous"
+					<n2a-button :click.downloadDeck> "Download"
+				<div .h-48 .flex .justify-center .p-4 .border .border-black .rounded>
 					if side == 'front'
-						<div innerHTML=cards[index].name>
+						<div .overflow-auto innerHTML=cards[index].name>
 					else
-						<div innerHTML=cards[index].backSide>
+						<div .overflow-auto innerHTML=cards[index].backSide>

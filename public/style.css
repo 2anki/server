@@ -1,41 +1,6 @@
 /* Typography */
 
-body {
-	font-family: 'Baloo 2', cursive;
+.title {
+	font-family: 'Baloo 2';
 	text-align: center;
-}
-
-.header {
-    background: #2D8CFF;
-    text-align: center;
-    padding: 1rem;		
-}
-.header h1 {
-    color: white;
-}
-
-.card-preview h2 {
-	text-transform: uppercase;
-}
-
-/* Layout  */
-.container {
-	width: 80%;
-	margin: 0 auto;
-}
-
-.center-file {
-	justify-content: center;
-	flex-direction: column;
-}
-
-.file-label {
-	align-items: center;
-}
-
-.card-preview {
-	margin: 0 auto;
-	width: 80%;
-	padding: 1rem;
-	border: thick double #32a1ce;
 }

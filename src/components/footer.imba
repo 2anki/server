@@ -1,10 +1,10 @@
 tag n2a-footer
-	<self>
-		<footer .footer>
+	<self .block .bg-gray-200 .p-3 .flex .justify-between>
+		<div>
 			"This project was developed by "
-			<a href="https://alemayhu.com"> "Alexander Alemayhu"
-			<div .is-pulled-right>
-				"Built with "
-				<a href="https://imba.io"> " Imba "
-				"using the "
-				<a .is-1 href="https://jamstack.org/"> "JAMstack"	
+			<a .text-blue-700 .underline href="https://alemayhu.com"> "Alexander Alemayhu"
+		<div>
+			"Built with "
+			<a .text-blue-700 .underline href="https://imba.io"> " Imba "
+			"using the "
+			<a .text-blue-700 .underline href="https://jamstack.org/"> "JAMstack"	
