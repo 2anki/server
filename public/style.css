@@ -14,6 +14,10 @@ body {
     color: white;
 }
 
+.card-preview h2 {
+	text-transform: uppercase;
+}
+
 /* Layout  */
 .container {
 	width: 80%;
@@ -27,4 +31,11 @@ body {
 
 .file-label {
 	align-items: center;
+}
+
+.card-preview {
+	margin: 0 auto;
+	width: 80%;
+	padding: 1rem;
+	border: thick double #32a1ce;
 }
