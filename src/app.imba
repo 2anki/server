@@ -52,11 +52,12 @@ tag app-root
 	def render
 		<self>
 			<n2a-header>
-			if state == 'ready'
-				<upload-section>
-			elif state == 'uploading'
-				<preview-section cards=self.cards>
-			else		
-					<p .subtilte> progressText	
-			<meta-section>
+			<.container css:width="80%" css:margin="0 auto" css:max-width="720px">
+				if state == 'ready'
+					<upload-section>
+				elif state == 'uploading'
+					<preview-section cards=self.cards>
+				else		
+						<p .subtilte> progressText	
+				<meta-section>
 			<n2a-footer>
