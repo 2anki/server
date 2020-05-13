@@ -35,5 +35,8 @@ module.exports = {
     new ExtractTextPlugin({
       filename: 'app.css'
     })
-  ]
+  ],
+  node: {
+    fs: "empty"
+  }
 }
