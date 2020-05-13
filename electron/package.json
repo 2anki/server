@@ -1,13 +1,15 @@
 {
-  "name": "imba-electron-hello-world",
-  "description": "Imba Electron Hello World",
+  "name": "n2a",
+  "description": "Go from Notion toggle list to Anki Cards easily!",
   "keywords": [
+    "notion",
+    "anki",
+    "notion2anki",
     "imba",
-    "electron",
-    "sass"
+    "electron"
   ],
-  "author": "Tomasz Wegrzanowski",
-  "version": "1.0.0",
+  "author": "Alexander Alemayhu",
+  "version": "0.0.0",
   "engines": {
     "node": ">=6.0.0"
   },
@@ -15,32 +17,32 @@
   "scripts": {
     "build": "webpack --mode=production",
     "dev": "webpack-dev-server --mode=development --content-base dist/",
-    "package-linux": "electron-packager . 'Hello World' --platform=linux",
-    "package-osx": "electron-packager . 'Hello World' --platform=darwin",
-    "package-windows": "electron-packager . 'Hello World' --platform=win32",
+    "package-linux": "electron-packager . 'Notion 2 Anki' --platform=linux",
+    "package-osx": "electron-packager . 'Notion 2 Anki' --platform=darwin",
+    "package-windows": "electron-packager . 'Notion 2 Anki' --platform=win32",
     "start": "electron .",
     "watch": "webpack --watch --progress --colors --display-modules"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/taw/imba-electron-hello-world.git"
+    "url": "git://github.com/alemayhu/notion2anki.git"
   },
   "license": "MIT",
   "dependencies": {
+    "imba": "1.5.2"
+  },
+  "devDependencies": {
+    "electron": "^6.0.0",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.1.2",
+    "autoprefixer": "^9.7.6",
     "css-loader": "^1.0.1",
     "electron-packager": "^14.0.5",
     "express": "^4.16.2",
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
-    "imba": "1.5.2",
-    "normalize-scss": "^7.0.1",
+    "postcss-loader": "^3.0.0",
     "style-loader": "^0.23.1",
+    "tailwindcss": "^1.4.6",
     "webpack-dev-server": "^3.7.1"
-  },
-  "devDependencies": {
-    "electron": "^6.0.0",
-    "node-sass": "^4.12.0",
-    "sass-loader": "^7.1.0",
-    "webpack": "^4.26.0",
-    "webpack-cli": "^3.1.2"
   }
 }
