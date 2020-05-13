@@ -1,17 +1,6 @@
-tag App
-  def setup
-    @n = 0
+tag app-root
 
-  def score
-    @n += 1
-
-  def render
-    <self>
-      <header>
-        "Hello, world!"
-      <header>
-        "Score: {@n}"
-      <button :tap.score>
-        "Get a point"
-
-Imba.mount <App>
+	def render
+		<self>
+			<div .h-screen .flex .justify-center .items-center .text-6xl>
+				<h1> "In progress.."

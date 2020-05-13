@@ -29,20 +29,20 @@
   },
   "license": "MIT",
   "dependencies": {
-    "imba": "1.5.2"
+    "imba": "^2.0.0-alpha.45"
   },
   "devDependencies": {
-    "electron": "^6.0.0",
-    "webpack": "^4.43.0",
-    "webpack-cli": "^3.1.2",
     "autoprefixer": "^9.7.6",
     "css-loader": "^1.0.1",
+    "electron": "^6.0.0",
     "electron-packager": "^14.0.5",
     "express": "^4.16.2",
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "postcss-loader": "^3.0.0",
     "style-loader": "^0.23.1",
     "tailwindcss": "^1.4.6",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.1.2",
     "webpack-dev-server": "^3.7.1"
   }
 }

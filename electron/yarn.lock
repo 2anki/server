@@ -2546,10 +2546,10 @@ iferr@^0.1.5:
   resolved "https://registry.yarnpkg.com/iferr/-/iferr-0.1.5.tgz#c60eed69e6d8fdb6b3104a1fcbca1c192dc5b501"
   integrity sha1-xg7taebY/bazEEofy8ocGS3FtQE=
 
-imba@1.5.2:
-  version "1.5.2"
-  resolved "https://registry.yarnpkg.com/imba/-/imba-1.5.2.tgz#2aecfa74e2919fb1899b9b56bef552c254d2e2b9"
-  integrity sha512-q8LSiaqo9gz/Md7F9AB4mMmhUk5It3RjSvNNW0XOLwXbxQ1Bqq7IXbaltjxxKyf0yBMMMFTzRbGADbcTqmkTGg==
+imba@^2.0.0-alpha.45:
+  version "2.0.0-alpha.45"
+  resolved "https://registry.yarnpkg.com/imba/-/imba-2.0.0-alpha.45.tgz#843df3acd8237cfd61a44c02505590b2e756d71b"
+  integrity sha512-azz2gEFVAB158ghhCId/YdEyKtGOZJbqkDR8PzcRQq0yJbRNX68CIEoIfVRhrihmn6/A2JDURhQtfv/SrNZEEw==
 
 import-cwd@^2.0.0:
   version "2.1.0"
