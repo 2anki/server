@@ -1,6 +1,6 @@
-public/bundle.*
-public/*.imba.js
-public/*.imba.js.map
+dist/bundle.*
+dist/*.imba.js
+dist/*.imba.js.map
 
 .DS_Store
 
@@ -112,5 +112,5 @@ dist
 test/artifacts/*.zip
 test/artifacts/*.apkg
 
-public/*.js
+dist/*.js
 

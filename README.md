@@ -43,22 +43,16 @@ yarn # npm run install
 Then in another terminal run 
 
 ```
-yarn watch
+yarn dev
 ```
 
 The previous command will continously build the project.
 
-To actually see the app running you need to serve the `public` directory,
-which you can do with many different tools but I usually end up using one
-of these to
+To actually see the app running you need to either visit the local url in a browser or launch the app with
 
-1) In another terminal shell run
 ```
-➜ cd public && python3 -m http.server
-Serving HTTP on 0.0.0.0 port 8000 (http://0.0.0.0:8000/) ...
+yarn start
 ```
-
-2) Run the [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) in vscode.
 
 ## License
 

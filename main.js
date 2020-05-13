@@ -1,5 +1,7 @@
 let { app, BrowserWindow } = require("electron")
 
+var win;
+
 function createWindow () {
   // Create the browser window.
   win = new BrowserWindow({

@@ -1,36 +1,42 @@
-// Taken from https://raw.githubusercontent.com/imba/imba.io/v2/webpack.config.js
-var path = require('path');
+const ExtractTextPlugin = require('extract-text-webpack-plugin')
 
-module.exports = [{
-	entry: {
-		index: "./src/app.imba",
-	},
-	plugins: [
-	],
-	resolve: {
-		extensions: [".imba",".js",".json"]
-	},
-
-	module: {
-		rules: [{
-			test: /\.imba$/,
-			loader: 'imba/loader'
-		}]
-	},
-
-	devServer: {
-		contentBase: path.resolve(__dirname, 'public'),
-		compress: true,
-		port: 8080,
-		// https: false
-	},
-
-	output: {
-		path: path.resolve(__dirname, 'public'),
-		filename: 'app.[name].js'
-	},
-
-    node: {
-        fs: "empty"
-     }
-}]
+module.exports = {
+  module: {
+    rules: [
+      { test: /\.imba$/, loader: 'imba/loader' },
+      {
+        test: /\.css$/,
+        exclude: /node_modules/,
+        use: ExtractTextPlugin.extract({
+          fallback: 'style-loader',
+          use: [
+            {
+              loader: 'postcss-loader',
+              options: {
+                sourceMap: true,
+                ident: 'postcss',
+                plugins: () => [
+                  require('tailwindcss'),
+                  require('autoprefixer')
+                ]
+              }
+            }
+          ]
+        })
+      },
+    ],
+  },
+  resolve: {
+    extensions: [".imba", ".js", ".css"]
+  },
+  entry: ["./src/app.imba", "./src/app.css"],
+  output: {  path: __dirname + '/dist', filename: "app.js" },
+  plugins: [
+    new ExtractTextPlugin({
+      filename: 'app.css'
+    })
+  ],
+  node: {
+    fs: "empty"
+  }
+}

@@ -23,10 +23,11 @@ export default class APKGBuilder
 				# Also it breaks if we can't find the suffix so temporary workaround.
 				if !imagePath.includes('http')
 					const suffix = ExpressionHelper.suffix(imagePath)
-					let image = files["{imagePath}"]
-					const newName = self.newImageName(imagePath) + suffix
-					exporter.addMedia(newName, image)
-					card.backSide = card.backSide.replace(imageMatch[0], "<img src='{newName}' />")
+					if suffix
+						let image = files["{imagePath}"]
+						const newName = self.newImageName(imagePath) + suffix
+						exporter.addMedia(newName, image)
+						card.backSide = card.backSide.replace(imageMatch[0], "<img src='{newName}' />")
 
 			// For now treat Latex as text and wrap it around.
 			// This is fragile thougg and won't handle multiline properly

@@ -4,7 +4,8 @@ export default class ExpressionHelper
 		name.match(/\.md$/)
 	
 	static def suffix input
-		input.match(/\.[0-9a-z]+$/i)[0]
+		const m = input.match(/\.[0-9a-z]+$/i)
+		return m[0] if m
 
 	static def imageMatch input
 		// Below does not work on Firefox so using the second one
