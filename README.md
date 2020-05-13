@@ -14,7 +14,7 @@ https://www.reddit.com/r/Anki/comments/g29mzk/cards_imported_from_notion/
 
 ## Roadmap
 
-The dream is to have a powerful and easy to use process for producing high quality flashcards. Notion is super easy to use and Notion 2 Anki is just going to make the importing process and controlling the look of the cards / decks. See the [projects page][pa] for the specific topics https://github.com/alemayhu/notion2anki/projects/1
+The dream is to have a powerful and easy to use process for producing high quality flashcards. Notion is super easy to use and Notion 2 Anki is just going to make the importing process and controlling the look of the cards / decks smooth. See the [projects page][pa] for the specific topics https://github.com/alemayhu/notion2anki/projects/1
 
 [pa]: https://github.com/alemayhu/notion2anki/projects/1
 
@@ -22,6 +22,10 @@ The dream is to have a powerful and easy to use process for producing high quali
 
 Your contributions are welcome but please try to be constructive and follow the
 [code of conduct](./CODE_OF_CONDUCT.md).
+
+## Support
+
+You can support the project by [becoming a sponsor / backer on Patreon](http://patreon.com/scanf).
 
 ## Development
 

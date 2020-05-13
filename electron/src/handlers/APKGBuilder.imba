@@ -19,11 +19,14 @@ export default class APKGBuilder
 		for card in deck.cards
 			if let imageMatch = ExpressionHelper.imageMatch(card.backSide)		
 				const imagePath = global.decodeURIComponent(imageMatch[1])
-				const suffix = ExpressionHelper.suffix(imagePath)
-				let image = files["{imagePath}"]
-				const newName = self.newImageName(imagePath) + suffix
-				exporter.addMedia(newName, image)
-				card.backSide = card.backSide.replace(imageMatch[0], "<img src='{newName}' />")
+				# For now leave image urls untouched, maybe this can be reconsidered or an option later
+				# Also it breaks if we can't find the suffix so temporary workaround.
+				if !imagePath.includes('http')
+					const suffix = ExpressionHelper.suffix(imagePath)
+					let image = files["{imagePath}"]
+					const newName = self.newImageName(imagePath) + suffix
+					exporter.addMedia(newName, image)
+					card.backSide = card.backSide.replace(imageMatch[0], "<img src='{newName}' />")
 
 			// For now treat Latex as text and wrap it around.
 			// This is fragile thougg and won't handle multiline properly
