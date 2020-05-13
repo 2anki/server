@@ -1,0 +1,46 @@
+{
+  "name": "imba-electron-hello-world",
+  "description": "Imba Electron Hello World",
+  "keywords": [
+    "imba",
+    "electron",
+    "sass"
+  ],
+  "author": "Tomasz Wegrzanowski",
+  "version": "1.0.0",
+  "engines": {
+    "node": ">=6.0.0"
+  },
+  "main": "main.js",
+  "scripts": {
+    "build": "webpack --mode=production",
+    "dev": "webpack-dev-server --mode=development --content-base dist/",
+    "package-linux": "electron-packager . 'Hello World' --platform=linux",
+    "package-osx": "electron-packager . 'Hello World' --platform=darwin",
+    "package-windows": "electron-packager . 'Hello World' --platform=win32",
+    "start": "electron .",
+    "watch": "webpack --watch --progress --colors --display-modules"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/taw/imba-electron-hello-world.git"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "css-loader": "^1.0.1",
+    "electron-packager": "^14.0.5",
+    "express": "^4.16.2",
+    "extract-text-webpack-plugin": "^4.0.0-beta.0",
+    "imba": "1.5.2",
+    "normalize-scss": "^7.0.1",
+    "style-loader": "^0.23.1",
+    "webpack-dev-server": "^3.7.1"
+  },
+  "devDependencies": {
+    "electron": "^6.0.0",
+    "node-sass": "^4.12.0",
+    "sass-loader": "^7.1.0",
+    "webpack": "^4.26.0",
+    "webpack-cli": "^3.1.2"
+  }
+}
