@@ -1,6 +1,4 @@
-# imba-electron-hello-world
-
-Hello World app with Electron and Imba.
+# Notion 2 Anki
 
 ## Install dependencies
 
