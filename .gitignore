@@ -112,4 +112,4 @@ test/artifacts/*.zip
 test/artifacts/*.apkg
 
 dist/*.js
-
+dist/app.css
