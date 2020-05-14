@@ -4,7 +4,7 @@ tag contact-section
 			<h2 .font-bold .text-4xl>
 				<a href="#contact" name="contact"> "Contact"			
 			<p .text-center .p-4 .text-xl>
-				"The easiest way to reach me is to send an email at "
+				"The easiest way to reach me is to send an email to "
 				<a .underline href="mailto:alexander@alemayhu.com"> "alexander@alemayhu.com"
 				<br>
 				<br>
