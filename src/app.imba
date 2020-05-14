@@ -14,41 +14,42 @@ import './components/preview-section'
 import './components/privacy-section'
 import './components/contact-section'
 
-let progressText = ''
 tag app-root
 
 	prop state = 'ready'
 	prop progress = '0'
+	prop info = ['Ready']
 	
 	def fileuploaded event
 		const files = event.target.files
 		self.state = 'uploading'
+		info.push("Read Notion file")
 		const packages = []
-		console.log('files', files)
 		for file in files
 			const zip_handler = ZipHandler.new()
 			const _ = await zip_handler.build(file)
-			console.log("Found {zip_handler.filenames()}")
+			// info.push("Found {zip_handler.filenames()}")
 			for file_name in zip_handler.filenames()
-				console.log("Reading {file_name}")
+				// info.push("Reading {file_name}")
 				if ExpressionHelper.markdown?(file_name)
-					console.log("Building deck {file_name}")
+					info.push("Building deck {file_name}")
 					const deck = DeckHandler.new().build(zip_handler.files[file_name])
 					const apkg = await APKGBuilder.new().build(null, deck, zip_handler.files)
 					packages.push({name: "{file_name}.apkg", apkg: apkg, deck})
-				console.log("Done building {file_name}")
+				info.push("Done building {file_name}")
 
 		self.packages = packages	
-		// TODO: we should handle subpages / multi decks too.
+		if packages.length > 1
+			info.push('Sorry subpages are not supported yet.')
 		self.cards = packages[0].deck.cards
-		console.log('self.cards', self.cards)
 		imba.commit()
-		// console.log("Preparing download from memory")
+		info.push("Preparing download from memory")
 
 
 	def downloadDeck
 		for pkg in self.packages
 			FileSaver.saveAs(pkg.apkg, pkg.name)
+		info.push('Download available')
 		state = 'ready'
 
 	def render
@@ -58,9 +59,9 @@ tag app-root
 				if state == 'ready'
 					<upload-section>
 				elif state == 'uploading'
+					// <ul .p-4 .flex .flex-col .justify-center .items-center> for l in info
+					// 	<li> "✅ {l}"
 					<preview-section cards=self.cards>
-				else		
-						<p .subtilte> progressText	
 				<meta-section>
 				<privacy-section>
 				<contact-section>
