@@ -5,6 +5,16 @@
   text-align: center;
 }
 
+/* Colors */
+
+.n2a-blue-bg {
+  color: #3B83F7;
+}
+
+.n2a-blue-text {
+  color: #3B83F7;
+}
+
 /* Tailwind CSS */
 
 /*! normalize.css v8.0.1 | MIT License | github.com/necolas/normalize.css */

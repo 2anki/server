@@ -1,6 +1,6 @@
 tag n2a-header
 	<self>
-		<nav .flex .items-center .justify-around .flex-wrap .bg-blue-500 .w-screen .p6>
+		<nav .flex .items-center .justify-around .flex-wrap .n2a-blue-bg .w-screen .p6>
 			<.flex.items-center.flex-shrink-0.text-white.mr-6.mr-2 .px-2 .py-3>
 				<h1 .title .font-semibold.text-4xl.tracking-tight> "Notion 2 Anki"
 			<div>

@@ -1,10 +1,15 @@
 tag n2a-footer
-	<self .block .bg-gray-200 .p-3 .flex .justify-between>
+	<self .block .p-3 .flex .justify-between .n2a-blue-text>
 		<div>
 			"This project was developed by "
 			<a .text-blue-700 .underline href="https://alemayhu.com"> "Alexander Alemayhu"
-		<div>
-			"Built with "
+			" in 🇳🇴 with ❤️"
+			"using "
 			<a .text-blue-700 .underline href="https://imba.io"> " Imba "
-			"using the "
-			<a .text-blue-700 .underline href="https://jamstack.org/"> "JAMstack"	
+			" and  the "
+			<a .text-blue-700 .underline href="https://jamstack.org/"> "JAMstack"
+		<div>
+			<p> 
+				"You can support the project by "
+				<a href="http://patreon.com/scanf"> "becoming a sponsor / backer on "
+				<span .text-orange-700> "Patreon"

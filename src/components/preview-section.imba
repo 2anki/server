@@ -29,11 +29,12 @@ tag preview-section
 	# TODO: support latex and other markup not covered by using innerHTML
 	def render
 		<self .block .p-8>
-			if !cards
-				<div .has-text-centered .file .is-boxed .center-file>
-					<p .subtitle> "Reading uploads locally"
-					<p .subtitle> "Loading, please wait. This might take a while depending on the size."
-					<button .button .is-loading>
-			else
-				<h3 .text-xl .p-2> "File ready to download just click the button to export your deck file"
-				<n2a-button :click.downloadDeck> "Download"
+			<div css:max-width="720px" css:margin="0 auto">
+				if !cards
+					<div .has-text-centered .file .is-boxed .center-file>
+						<p .subtitle> "Reading uploads locally"
+						<p .subtitle> "Loading, please wait. This might take a while depending on the size."
+						<button .button .is-loading>
+				else
+					<h3 .text-xl .p-2> "File ready to download just click the button to export your deck file"
+					<n2a-button :click.downloadDeck> "Download"

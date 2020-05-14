@@ -11,6 +11,8 @@ import './components/header'
 import './components/footer'
 import './components/upload-section'
 import './components/preview-section'
+import './components/privacy-section'
+import './components/contact-section'
 
 let progressText = ''
 tag app-root
@@ -52,7 +54,7 @@ tag app-root
 	def render
 		<self>
 			<n2a-header>
-			<.container css:width="80%" css:margin="0 auto" css:max-width="720px">
+			<.container>
 				if state == 'ready'
 					<upload-section>
 				elif state == 'uploading'
@@ -60,4 +62,6 @@ tag app-root
 				else		
 						<p .subtilte> progressText	
 				<meta-section>
+				<privacy-section>
+				<contact-section>
 			<n2a-footer>
