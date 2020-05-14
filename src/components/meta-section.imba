@@ -2,7 +2,7 @@ tag meta-section
 	<self .block .p-4>
 		<div .container .p-4 .flex .flex-col>
 			<h2 .text-4xl>
-				<a href="#usage" name="usage"> "Usage"
+				<a href="#usage" name="usage"> "How it works"
 			<hr>					
 			<p .py-2 .text-2xl> "Confused by how to use this? See the video for how to create your lists and export them."
 			<iframe .self-center .p-4 width="560" height="315" src="https://www.youtube.com/embed/b3eQ0exhdz4" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
