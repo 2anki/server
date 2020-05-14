@@ -8,7 +8,7 @@ tag privacy-section
 					"In case you are worried about privacy, let me explain how this site runs:"
 					<br>
 					<strong> "This tool is a static site which runs totally on your browser."
-					"That means all of the file handling is done on your machine, I never see any off it. "
+					"That means all of the file handling is done on your machine, I never see any of it. "
 					<br>
 					"In case you are curious how this is possible see the links in the footer. "
 					<br>
