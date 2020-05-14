@@ -5,15 +5,17 @@ tag upload-section
 		button.click()
 
 	def render
-		<self .block .p-4 .text-2xl>
+		<self .block .p-4 .text-2xl .w-screen>
 			<div css:max-width="720px" css:margin="0 auto">
-				// File Upload
-				// "Upload your exported Notion zip file. "
-				// "Choose a exported Notion file…"	
+				<h2 .text-4xl .n2a-blue-text .text-center> "Hello 👋 Welcome to"
+				<h1 .text-center .text-6xl .n2a-blue-text> "Notion 2 Anki"
 				<p .p-4>
-					"This is a simple web app to convert your Notion "
+					<span .n2a-blue-text> "Notion 2 Anki "
+					"is a open source project and available for free. "
+					"It is a simple web app to convert your Notion "
 					<a .text-blue-700 .underline href="https://www.notion.so/Toggles-c720af26b4bd4789b736c140b2dc73fe"> "Toggle lists "
 					" to Anki cards. Image support is included 😉"
+					<br>
 					"If you are worried about sharing your data, "
 					"please read the "
 					<a .underline .text-blue-700 href="#privacy"> "privacy section below."
