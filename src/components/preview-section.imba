@@ -2,7 +2,7 @@ tag n2a-button
 
 	def render
 		<self .block .p-2>
-			<button .bg-blue-700 .hover:bg-transparent .hover:text-black .p-2 .rounded .text-white>
+			<button .text-4xl .bg-blue-700 .hover:bg-transparent .hover:text-black font-bold .px-8 .py-2 .rounded .text-white>
 				<slot>
 
 
@@ -28,8 +28,8 @@ tag preview-section
 
 	# TODO: support latex and other markup not covered by using innerHTML
 	def render
-		<self .block .p-8>
-			<div css:max-width="720px" css:margin="0 auto">
+		<self .block .p-8 .w-screen>
+			<div css:max-width="720px" css:margin="0 auto" .flex .flex-col .justify-center .items-center>
 				if !cards
 					<div .has-text-centered .file .is-boxed .center-file>
 						<p .subtitle> "Reading uploads locally"
