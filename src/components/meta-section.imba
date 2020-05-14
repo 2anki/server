@@ -1,5 +1,5 @@
 tag meta-section
-	<self .block .p-4 .n2a-blue-bg>
+	<self .block .p-4 .n2a-blue-bg .w-screen>
 		<div .text-white .p-4 .flex .flex-col .items-center css:max-width="720px" css:margin="0 auto">
 			<h2 .font-bold .text-4xl>
 				<a href="#usage" name="usage"> "How it works"
