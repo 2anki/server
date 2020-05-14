@@ -18,9 +18,8 @@
     "test": "imba test/create_deck.imba",
     "build": "webpack --mode=production",
     "dev": "webpack-dev-server --mode=development --content-base dist/",
-    "package-linux": "electron-packager . 'Notion 2 Anki' --platform=linux",
-    "package-osx": "electron-packager . 'Notion 2 Anki' --platform=darwin",
-    "package-windows": "electron-packager . 'Notion 2 Anki' --platform=win32",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
     "start": "electron .",
     "watch": "webpack --watch --progress --colors --display-modules"
   },
@@ -30,9 +29,9 @@
   },
   "license": "MIT",
   "dependencies": {
-    "imba": "^2.0.0-alpha.45",
     "anki-apkg-export": "^4.0.3",
     "file-saver": "^2.0.2",
+    "imba": "^2.0.0-alpha.45",
     "jszip": "^3.3.0",
     "script-loader": "^0.7.2",
     "showdown": "^1.9.1"
@@ -41,7 +40,7 @@
     "autoprefixer": "^9.7.6",
     "css-loader": "^1.0.1",
     "electron": "^6.0.0",
-    "electron-packager": "^14.0.5",
+    "electron-builder": "^22.6.0",
     "express": "^4.16.2",
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "postcss-loader": "^3.0.0",
@@ -50,5 +49,19 @@
     "webpack": "^4.43.0",
     "webpack-cli": "^3.1.2",
     "webpack-dev-server": "^3.7.1"
+  },
+  "build": {
+    "appId": "com.alemayhu.notion2anki",
+    "mac": {
+      "category": "public.app-category.utilities"
+    },
+    "files": [
+      "main.js",
+      "dist/app.js",
+      "dist/app.css",
+      "dist/index.html",
+      "build",
+      "node_modules"
+    ]
   }
 }
