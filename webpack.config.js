@@ -38,5 +38,10 @@ module.exports = {
   ],
   node: {
     fs: "empty"
+  },
+  devServer: {
+    historyApiFallback: {
+      index: 'index.html'
+    }
   }
 }
