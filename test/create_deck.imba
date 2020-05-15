@@ -1,4 +1,3 @@
-const assert = require('assert')
 const path = require('path')
 const fs = require('fs')
 
@@ -7,18 +6,22 @@ import APKGBuilder from '../src/handlers/APKGBuilder'
 import ZipHandler from '../src/handlers/ZipHandler'
 import ExpressionHelper from '../src/handlers/ExpressionHelper'
 
+def eq lhs, rhs
+	console.log("{JSON.stringify(lhs)} is not equal {JSON.stringify(rhs)}")
+	process.exit(1)
+
 def test_fixture file_name, deck_name, card_count, files = {}
 	console.log('test', file_name)
 	const file_path = path.join(__dirname, "fixtures", file_name)
 	const example = fs.readFileSync(file_path).toString()
 	const deck = DeckHandler.new().build(example)
-	assert.equal(deck.name, deck_name)
-	assert.equal(deck.cards.length, card_count)
+	eq(deck.name, deck_name)
+	eq(deck.cards.length, card_count)
 
 	if card_count > 0
 		const zip_file_path = path.join(__dirname, "artifacts", "{deck.name}.apkg")
 		await APKGBuilder.new().build(zip_file_path, deck, files)
-		assert.equal(fs.existsSync(zip_file_path), true)
+		eq(fs.existsSync(zip_file_path), true)
 
 def main
 	console.time('execution time')
@@ -45,7 +48,7 @@ def main
 	// const zip_data = fs.readFileSync(zip_path)
 	// const zipHandler = ZipHandler.new()	
 	// const _ = await zipHandler.build(zip_data)
-	// assert.equal(zipHandler.filenames().length, 4)
+	// eq(zipHandler.filenames().length, 4)
 	
 	// for file in zipHandler.filenames()
 	// 	if ExpressionHelper.markdown?(file)
@@ -56,6 +59,7 @@ def main
 
 	console.log('All assertions done 👍🏽')
 	console.timeEnd('execution time')
+	process.exit(0)
 
 if process.main != module
 	main()
