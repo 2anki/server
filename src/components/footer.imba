@@ -1,9 +1,7 @@
 tag n2a-footer
 	<self .block .p-3 .flex .justify-between .n2a-blue-text>
 		<div>
-			"This project was developed by "
-			<a .text-blue-700 .underline href="https://alemayhu.com"> "Alexander Alemayhu"
-			" in 🇳🇴 with ❤️"
+			"Developed in 🇳🇴 with ❤️"
 			"using "
 			<a .text-blue-700 .underline href="https://imba.io"> " Imba "
 			" and  the "
