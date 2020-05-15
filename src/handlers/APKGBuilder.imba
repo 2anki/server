@@ -18,12 +18,17 @@ export default class APKGBuilder
 
 	// TODO: refactor
 	def build output, deck, files
+		let exporter
 		// TODO: fix twemoji pdf font issues
 		if deck.style
 			deck.style = deck.style.split('\n').filter do |line|
 				!line.includes('.pdf')
 			deck.style = deck.style.join('\n')
-		let exporter = AnkiExport.new(deck.name, {css: deck.style})	
+			exporter = AnkiExport.new(deck.name, {css: deck.style})	
+		else
+			// TODO: provide our own default amazing style
+			exporter = AnkiExport.new(deck.name)	
+
 		const converter = MarkdownHandler()
 		for card in deck.cards
 			// Try getting Markdown image, should it be recursive for HTML and Markdown?
