@@ -2,10 +2,10 @@ const assert = require('assert')
 const path = require('path')
 const fs = require('fs')
 
-import DeckHandler from '../src/DeckHandler'
-import APKGBuilder from '../src/APKGBuilder'
-import ZipHandler from '../src/ZipHandler'
-import ExpressionHelper from '../src/ExpressionHelper'
+import DeckHandler from '../src/handlers/DeckHandler'
+import APKGBuilder from '../src/handlers/APKGBuilder'
+import ZipHandler from '../src/handlers/ZipHandler'
+import ExpressionHelper from '../src/handlers/ExpressionHelper'
 
 def test_fixture file_name, deck_name, card_count, files = {}
 	console.log('test', file_name)
