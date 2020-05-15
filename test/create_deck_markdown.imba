@@ -24,6 +24,21 @@ def test_fixture file_name, deck_name, card_count, files = {}
 		await APKGBuilder.new().build(zip_file_path, deck, files)
 		eq(fs.existsSync(zip_file_path), true)
 
+def slow_test artifacts_dir
+	// TODO: fix this test
+	const zip_path = path.join(artifacts_dir, 'Export-952356ce-4c7a-4416-9aaa-6abe99917124.zip')
+	const zip_data = fs.readFileSync(zip_path)
+	const zipHandler = ZipHandler.new()	
+	const _ = await zipHandler.build(zip_data)
+	eq(zipHandler.filenames().length, 4)
+	
+	for file in zipHandler.filenames()
+		if ExpressionHelper.markdown?(file)
+			const deck = DeckHandler.new().build(zipHandler.files[file])
+			const apkgOutput = await APKGBuilder.new().build(null, deck, zipHandler.files)
+			eq(apkgOutput != undefined, true)
+
+
 def main
 	console.time('execution time')
 	console.log('Running tests')
@@ -44,19 +59,7 @@ def main
 		files["Notion Questions/{img}"] = fs.readFileSync(img_path)
 	test_fixture('with-images.md', 'Notion Questions', 3, files)
 
-	// TODO: fix this test
-	// const zip_path = path.join(artifacts_dir, 'Export-952356ce-4c7a-4416-9aaa-6abe99917124.zip')
-	// const zip_data = fs.readFileSync(zip_path)
-	// const zipHandler = ZipHandler.new()	
-	// const _ = await zipHandler.build(zip_data)
-	// eq(zipHandler.filenames().length, 4)
-	
-	// for file in zipHandler.filenames()
-	// 	if ExpressionHelper.markdown?(file)
-	// 		const deck = DeckHandler.new().build(zipHandler.files[file])
-	// 		const apkgOutput = await APKGBuilder.new().build(null, deck, zipHandler.files)
-	// 		assert.notEqual(apkgOutput, undefined)
-
+	// slow_test(artifacts_dir)
 
 	console.log('All assertions done 👍🏽')
 	console.timeEnd('execution time')
