@@ -6,23 +6,34 @@ import APKGBuilder from '../src/handlers/APKGBuilder'
 import ZipHandler from '../src/handlers/ZipHandler'
 import ExpressionHelper from '../src/handlers/ExpressionHelper'
 
-def eq lhs, rhs	
+def eq lhs, rhs, msg = null
+	console.log('comparing', lhs, rhs, msg ? "reason: {msg}" : '')
 	return if lhs == rhs
 	console.log("{JSON.stringify(lhs)} is not equal {JSON.stringify(rhs)}")
 	process.exit(1)
 
 def test_fixture file_name, deck_name, card_count, files = {}
-	console.log('test', file_name)
+	console.log('test_fixture', arguments)
 	const file_path = path.join(__dirname, "fixtures", file_name)
 	const example = fs.readFileSync(file_path).toString()
-	const deck = DeckHandler.new().build(example)
-	eq(deck.name, deck_name)
-	eq(deck.cards.length, card_count)
+	const isMarkdown = ExpressionHelper.document?(example)
+	try
+		let builder = DeckHandler.new(isMarkdown)
+		const deck = builder.build(example)
+		
+		eq(deck.style != undefined, true, "Style is not set")
 
-	if card_count > 0
-		const zip_file_path = path.join(__dirname, "artifacts", "{deck.name}.apkg")
-		await APKGBuilder.new().build(zip_file_path, deck, files)
-		eq(fs.existsSync(zip_file_path), true)
+		console.log('cards', deck.cards)
+		eq(deck.name, deck_name)
+		eq(deck.cards.length, card_count)
+
+		if card_count > 0
+			const zip_file_path = path.join(__dirname, "artifacts", "{deck.name}.apkg")
+			await APKGBuilder.new().build(zip_file_path, deck, files)
+			eq(fs.existsSync(zip_file_path), true)
+	catch e
+		console.error(e)
+		process.exit(1)
 
 def main
 	console.time('execution time')
@@ -31,6 +42,10 @@ def main
 	const artifacts_dir = path.join(__dirname, "artifacts")
 	if not fs.existsSync(artifacts_dir)
 		fs.mkdirSync(artifacts_dir)
+
+	test_fixture('no-images.html', 'HTML test', 2)
+	test_fixture('with-image.html', 'HTML test', 3)
+	process.exit(0)
 
 	test_fixture('simple-deck.md', 'Notion Questions', 3)
 	test_fixture('empty-deck.md', 'Empty Deck', 0)
@@ -52,7 +67,7 @@ def main
 	// eq(zipHandler.filenames().length, 4)
 	
 	// for file in zipHandler.filenames()
-	// 	if ExpressionHelper.markdown?(file)
+	// 	if ExpressionHelper.document?(file)
 	// 		const deck = DeckHandler.new().build(zipHandler.files[file])
 	// 		const apkgOutput = await APKGBuilder.new().build(null, deck, zipHandler.files)
 	// 		assert.notEqual(apkgOutput, undefined)

@@ -14,7 +14,7 @@ export default class ZipHandler
 
 		for file_name in self.file_names
 			const contents = loadedZip.files[file_name]._data.compressedContent
-			if ExpressionHelper.markdown?(file_name)
+			if ExpressionHelper.document?(file_name)
 				self.files["{file_name}"] = await loadedZip.files[file_name].async('text')
 			else
 				self.files["{file_name}"] = await loadedZip.files[file_name].async('uint8array')

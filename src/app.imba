@@ -21,22 +21,26 @@ tag app-root
 	prop info = ['Ready']
 	
 	def fileuploaded event
-		const files = event.target.files
-		self.state = 'uploading'
-		const packages = []
-		for file in files
-			const zip_handler = ZipHandler.new()
-			const _ = await zip_handler.build(file)
-			for file_name in zip_handler.filenames()
-				if ExpressionHelper.markdown?(file_name)
-					const deck = DeckHandler.new().build(zip_handler.files[file_name])
-					const apkg = await APKGBuilder.new().build(null, deck, zip_handler.files)
-					packages.push({name: "{file_name}.apkg", apkg: apkg, deck})
+		try
+			const files = event.target.files
+			self.state = 'uploading'
+			const packages = []
+			for file in files
+				const zip_handler = ZipHandler.new()
+				const _ = await zip_handler.build(file)
+				for file_name in zip_handler.filenames()
+					if ExpressionHelper.document?(file_name)
+						const deck = DeckHandler.new(file_name.match(/\.md$/)).build(zip_handler.files[file_name])
+						const apkg = await APKGBuilder.new().build(null, deck, zip_handler.files)
+						packages.push({name: "{file_name}.apkg", apkg: apkg, deck})
 
-		self.packages = packages	
-		self.cards = packages[0].deck.cards
-		state = 'download'
-		imba.commit()
+			self.packages = packages	
+			self.cards = packages[0].deck.cards
+			state = 'download'
+			imba.commit()
+		catch e
+			console.error(e)
+			window.alert("Sorry something went wrong. Send this message to the developer. Error: {e.message}")
 
 	def downloadDeck
 		for pkg in self.packages

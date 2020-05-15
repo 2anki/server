@@ -1,12 +1,13 @@
 export default class ExpressionHelper
 
-	static def isMarkdown name
-		name.match(/\.md$/)
+	static def isDocument name
+		name.match(/\.md$/) or name.match(/\.html$/)
 	
 	static def suffix input
 		const m = input.match(/\.[0-9a-z]+$/i)
 		return m[0] if m
 
+	// TODO: rename to be markdown specific
 	static def imageMatch input
 		// Below does not work on Firefox so using the second one
 		// https://stackoverflow.com/questions/44227270/regex-to-parse-image-link-in-markdown		
@@ -29,3 +30,6 @@ export default class ExpressionHelper
 	static def isLatex backSide
 		const l = backSide.trim()
 		l.match(/^\\/) or l.match(/^\$\$/) or l.match(/{{/)
+	
+	static def isImgur backSide
+		backSide.match(/\<img.+src\=(?:\"|\')(.+?)(?:\"|\')(?:.+?)\>/)
