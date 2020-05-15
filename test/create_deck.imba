@@ -6,7 +6,8 @@ import APKGBuilder from '../src/handlers/APKGBuilder'
 import ZipHandler from '../src/handlers/ZipHandler'
 import ExpressionHelper from '../src/handlers/ExpressionHelper'
 
-def eq lhs, rhs
+def eq lhs, rhs	
+	return if lhs == rhs
 	console.log("{JSON.stringify(lhs)} is not equal {JSON.stringify(rhs)}")
 	process.exit(1)
 
@@ -41,7 +42,7 @@ def main
 		const img_path = path.join(example_dir, img)
 		console.log('img', img_path)
 		files["Notion Questions/{img}"] = fs.readFileSync(img_path)
-	test_fixture('with-images.md', 'Notion Questions\n', 3, files)
+	test_fixture('with-images.md', 'Notion Questions', 3, files)
 
 	// TODO: fix this test
 	// const zip_path = path.join(artifacts_dir, 'Export-952356ce-4c7a-4416-9aaa-6abe99917124.zip')

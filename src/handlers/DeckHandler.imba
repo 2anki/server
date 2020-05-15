@@ -5,10 +5,8 @@ import MarkdownHandler from './MarkdownHandler'
 export default class DeckHandler
 
 	def pickDefaultDeckName firstLine
-		if firstLine and firstLine.trim().length > 0
-			self.converter.makeHtml(firstLine)
-		else
-			'Untitled Deck'
+		const name = firstLine ? firstLine.trim() : 'Untitled Deck'
+		firstLine.trim().replace(/^# /, '')
 
 	def build contents, deckName = null
 		self.converter = self.converter || MarkdownHandler()
