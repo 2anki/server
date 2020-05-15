@@ -14,7 +14,7 @@ tag home-page
 			<page-content .justify-center=(state == 'uploading') .items-center=(state == 'uploading')>
 				if state == 'ready'
 					<div>
-						<p .py-6 .text-center .text-lg>
+						<p .py-6 .text-center .text-xl>
 							"Convert Notion "
 							<a .text-blue-700 .underline href="https://www.notion.so/Toggles-c720af26b4bd4789b736c140b2dc73fe"> "Toggle lists "
 							" to Anki cards. Image support is included 😉"

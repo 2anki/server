@@ -2,7 +2,7 @@ tag n2a-footer
 	<self .block .p-3 .flex .justify-between .n2a-blue-text>
 		<div>
 			"Developed in 🇳🇴 with ❤️"
-			"using "
+			" using "
 			<a .text-blue-700 .underline href="https://imba.io"> " Imba "
 			" and  the "
 			<a .text-blue-700 .underline href="https://jamstack.org/"> "JAMstack"
