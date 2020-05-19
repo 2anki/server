@@ -19,7 +19,17 @@ tag app-root
 	prop state = 'ready'
 	prop progress = '0'
 	prop info = ['Ready']
-	
+
+	def export-count
+		window.parseInt(window.localStorage.getItem('export-count'))
+
+	def increment-export-count
+		let localStorage = window.localStorage
+		return if !localStorage
+
+		let count = exportCount! || 0
+		localStorage.setItem('export-count', count + 1)
+
 	def fileuploaded event
 		try
 			const files = event.target.files
@@ -38,9 +48,11 @@ tag app-root
 			self.cards = packages[0].deck.cards
 			state = 'download'
 			imba.commit()
+			incrementExportCount()
+
 		catch e
 			console.error(e)
-			window.alert("Sorry something went wrong. Send this message to the developer. Error: {e.message}")
+			window.alert("Sorry something went wrong. Send this message to the developer. Error: {e.message}")		
 
 	def downloadDeck
 		for pkg in self.packages
@@ -49,6 +61,10 @@ tag app-root
 	
 	def render
 		<self>
+			if exportCount! > 2
+				<p .text-center .p-4 .text-lg> 
+					"Would you like to help make Notion 2 Anki better? "
+					<a .rounded .bg-green-400 .text-white .px-2 .mx-4 href="https://alexander208805.typeform.com/to/wMSzba"> "Give feedback"
 			<n2a-header>
 			if window.location.pathname == '/contact'
 				<contact-page>
