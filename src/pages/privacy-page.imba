@@ -17,3 +17,8 @@ tag privacy-page
 						<br>
 						"You can also read the source code at "
 						<a .text-blue-600 href="https://github.com/alemayhu/notion2anki"> "alemayhu/notion2anki"
+						<br>
+						"This site is being served via"
+						<a href="https://netlify.com"> " Netlify"
+						"You can read their Privacy policy here "
+						<a .text-blue-600 href="https://www.netlify.com/privacy/"> "https://www.netlify.com/privacy/"

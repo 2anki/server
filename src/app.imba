@@ -20,8 +20,12 @@ tag app-root
 	prop progress = '0'
 	prop info = ['Ready']
 
+	// TODO: refactor away the local storage stuff into a own class
 	def export-count
 		window.parseInt(window.localStorage.getItem('export-count'))
+	
+	def should-show-banner
+		!window.localStorage.getItem('hide-banner')
 
 	def increment-export-count
 		let localStorage = window.localStorage
@@ -29,6 +33,11 @@ tag app-root
 
 		let count = exportCount! || 0
 		localStorage.setItem('export-count', count + 1)
+	
+	def hideBanner
+		let localStorage = window.localStorage
+		return if !localStorage
+		localStorage.setItem('hide-banner', true)
 
 	def fileuploaded event
 		try
@@ -61,10 +70,11 @@ tag app-root
 	
 	def render
 		<self>
-			if exportCount! > 2
+			if exportCount! > 2 && shouldShowBanner!
 				<p .text-center .p-4 .text-lg> 
 					"Would you like to help make Notion 2 Anki better? "
-					<a .rounded .bg-green-400 .text-white .px-2 .mx-4 href="https://alexander208805.typeform.com/to/wMSzba"> "Give feedback"
+					<a .rounded .bg-green-400 .text-white .px-2 .mx-4 target="_blank" href="https://alexander208805.typeform.com/to/wMSzba"> "Give feedback"
+					<a .rounded .bg-gray-500 .px-2 .text-white :click.hideBanner> "Done"
 			<n2a-header>
 			if window.location.pathname == '/contact'
 				<contact-page>
