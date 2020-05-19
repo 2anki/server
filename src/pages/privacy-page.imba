@@ -20,5 +20,5 @@ tag privacy-page
 						<br>
 						"This site is being served via"
 						<a href="https://netlify.com"> " Netlify"
-						"You can read their Privacy policy here "
+						".You can read their Privacy policy here "
 						<a .text-blue-600 href="https://www.netlify.com/privacy/"> "https://www.netlify.com/privacy/"
