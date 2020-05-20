@@ -70,7 +70,7 @@ tag app-root
 	
 	def render
 		<self>
-			if exportCount! > 2 && shouldShowBanner!
+			if shouldShowBanner!
 				<p .text-center .p-4 .text-lg> 
 					"Would you like to help make Notion 2 Anki better? "
 					<a .rounded .bg-green-400 .text-white .px-2 .mx-4 target="_blank" href="https://alexander208805.typeform.com/to/wMSzba"> "Give feedback"
