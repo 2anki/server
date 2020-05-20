@@ -5,11 +5,11 @@ import DeckHandler from './handlers/DeckHandler'
 import ExpressionHelper from './handlers/ExpressionHelper'
 import APKGBuilder from './handlers/APKGBuilder'
 
-// Components
+# Components
 import './components/header'
 import './components/footer'
 
-// Pages
+# Pages
 import './pages/contact-page'
 import './pages/home-page'
 import './pages/privacy-page'
