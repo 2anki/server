@@ -9,7 +9,10 @@ import ExpressionHelper from '../src/handlers/ExpressionHelper'
 def eq lhs, rhs, msg = null
 	console.log('comparing', lhs, rhs, msg ? "reason: {msg}" : '')
 	return if lhs == rhs
-	console.log("{JSON.stringify(lhs)} is not equal {JSON.stringify(rhs)}")
+	try
+		console.log("{JSON.stringify(lhs)} is not equal {JSON.stringify(rhs)}")
+	catch e
+		console.log('failed to show comparison failure')
 	process.exit(1)
 
 def test_fixture file_name, deck_name, card_count, files = {}
@@ -23,14 +26,13 @@ def test_fixture file_name, deck_name, card_count, files = {}
 		
 		eq(deck.style != undefined, true, "Style is not set")
 
-		console.log('cards', deck.cards)
-		eq(deck.name, deck_name)
-		eq(deck.cards.length, card_count)
+		eq(deck.name, deck_name, 'comparing deck names')
+		eq(deck.cards.length, card_count, 'comparing deck count')
 
 		if card_count > 0
 			const zip_file_path = path.join(__dirname, "artifacts", "{deck.name}.apkg")
 			await APKGBuilder.new().build(zip_file_path, deck, files)
-			eq(fs.existsSync(zip_file_path), true)
+			eq(fs.existsSync(zip_file_path), true, 'ensuring output was created')
 	catch e
 		console.error(e)
 		process.exit(1)

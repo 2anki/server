@@ -1,4 +1,4 @@
-import {JSDOM} from 'jsdom'
+import cheerio from 'cheerio'
 
 import ExpressionHelper from './ExpressionHelper'
 import MarkdownHandler from './MarkdownHandler'
@@ -20,22 +20,17 @@ export default class DeckHandler
 
 	def handleHTML contents, deckName = null
 		const inputType = 'HTML'
-		const dom = JSDOM.new(contents)
-		const name = dom.window.document.title
-		const cards = []
-		let style = dom.window.document.querySelector('style').textContent
+		const dom = cheerio.load(contents)
+		const name = dom('title').text()
+		let style = /<style[^>]*>([^<]+)<\/style>/i.exec(contents)[1]
+		const toggleList = dom('.toggle li').toArray()
+		const cards = toggleList.map do |t|
+			const toggle = dom(t).find('details')
+			const summary = toggle.find('summary').html()
+			const backSide = toggle.html()
+			return {name: summary, backSide: backSide}
 
-		const listElement = dom.window.document.querySelectorAll('.toggle')
-		let i = -1
-		for toggle in listElement
-			const listItem = toggle.querySelector('li')
-			for details in listItem.children
-				for part in details.children
-					if part.tagName == 'SUMMARY'
-						i = i + 1
-						cards[i] = {name: part.innerHTML, backSide: ''}
-					else
-						cards[i].backSide += part.innerHTML				
+		console.log('cards')
 		{name, cards, inputType, style}
 
 	def handleMarkdown contents, deckName = null

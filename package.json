@@ -30,9 +30,9 @@
   "license": "MIT",
   "dependencies": {
     "anki-apkg-export": "^4.0.3",
+    "cheerio": "^1.0.0-rc.3",
     "file-saver": "^2.0.2",
     "imba": "^2.0.0-alpha.49",
-    "jsdom": "^16.2.2",
     "jszip": "^3.3.0",
     "script-loader": "^0.7.2",
     "showdown": "^1.9.1"
