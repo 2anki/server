@@ -17,12 +17,18 @@ export default class DeckHandler
 		if self.converter
 			return handleMarkdown(contents, deckName)
 		self.handleHTML(contents, deckName)
+	
+	def appendDefaultStyle s
+		const a = '.card {\nfont-family: arial;\name\nfont-size: 20px;\ntext-align: center;\ncolor: black;\nbackground-color: white;\n'
+		"{s}\n{a}"
 
 	def handleHTML contents, deckName = null
 		const inputType = 'HTML'
 		const dom = cheerio.load(contents)
 		const name = dom('title').text()
 		let style = /<style[^>]*>([^<]+)<\/style>/i.exec(contents)[1]
+		if style
+			style = appendDefaultStyle(style)
 		const toggleList = dom('.toggle li').toArray()
 		const cards = toggleList.map do |t|
 			const toggle = dom(t).find('details')
