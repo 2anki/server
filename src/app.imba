@@ -20,25 +20,11 @@ tag app-root
 	prop progress = '0'
 	prop info = ['Ready']
 
-	// TODO: refactor away the local storage stuff into a own class
-	def export-count
-		window.parseInt(window.localStorage.getItem('export-count'))
+	def mount
+		window.onbeforeunload = do
+			if state != 'ready'
+				return "Conversion in progress. Are you sure you want to stop it?"
 	
-	def should-show-banner
-		!window.localStorage.getItem('hide-banner')
-
-	def increment-export-count
-		let localStorage = window.localStorage
-		return if !localStorage
-
-		let count = exportCount! || 0
-		localStorage.setItem('export-count', count + 1)
-	
-	def hideBanner
-		let localStorage = window.localStorage
-		return if !localStorage
-		localStorage.setItem('hide-banner', true)
-
 	def fileuploaded event
 		try
 			const files = event.target.files
@@ -57,7 +43,6 @@ tag app-root
 			self.cards = packages[0].deck.cards
 			state = 'download'
 			imba.commit()
-			incrementExportCount()
 
 		catch e
 			console.error(e)
