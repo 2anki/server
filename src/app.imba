@@ -70,11 +70,6 @@ tag app-root
 	
 	def render
 		<self>
-			if shouldShowBanner!
-				<p .text-center .p-4 .text-lg> 
-					"Would you like to help make Notion 2 Anki better? "
-					<a .bg-green-400 .text-white .px-2 .mx-4 target="_blank" href="https://alexander208805.typeform.com/to/wMSzba"> "Give feedback"
-					<a .bg-gray-500 .px-2 .text-white :click.hideBanner> "Done"
 			<n2a-header>
 			if window.location.pathname == '/contact'
 				<contact-page>
