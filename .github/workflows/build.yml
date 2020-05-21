@@ -1,31 +1,25 @@
-name: Build/release
+name: Build
 
-on: push
+on: [push]
 
 jobs:
-  release:
-    runs-on: ${{ matrix.os }}
+  build:
+
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        os: [macos-latest, windows-latest]
+        node-version: [10.x, 12.x]
 
     steps:
-      - name: Check out Git repository
-        uses: actions/checkout@v1
-
-      - name: Install Node.js, NPM and Yarn
-        uses: actions/setup-node@v1
-        with:
-          node-version: 10
-
-      - name: Build/release Electron app
-        uses: samuelmeuli/action-electron-builder@v1
-        with:
-          # GitHub token, automatically provided to the action
-          # (No need to define this secret in the repo settings)
-          github_token: ${{ secrets.github_token }}
-
-          # If the commit is tagged with a version (e.g. "v1.0.0"),
-          # release the app after building
-          release: ${{ startsWith(github.ref, 'refs/tags/v') }}
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: npm install, build, and test
+      run: |
+        yarn
+        yarn build
+      env:
+        CI: true
