@@ -32,5 +32,3 @@ tag home-page
 					<div .flex .flex-col .justify-center .items-center .h-screen>
 						<h3 .text-xl .p-2> "Your deck is ready to. Download it and import it into Anki"
 						<n2a-button :click.downloadDeck> "Download"
-						<p .text-center .p-4 .text-lg> "Would you like to help make Notion 2 Anki better? Your feedback is very appreciated 🙇🏾‍♂️"
-						<a .bg-green-400 .text-white .px-2 .mx-4 target="_blank" href="https://alexander208805.typeform.com/to/wMSzba"> "Give feedback"
