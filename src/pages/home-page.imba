@@ -20,7 +20,7 @@ tag home-page
 							" to Anki cards. Image support is included 😉"
 						<div .h-32 .flex .items-center .justify-center :click.clickButton>
 							<n2a-button> "Upload Notion export"
-							<input #upload-button .hidden :change.fileuploaded type="file" name="resume" accept=".zip">
+							<input #upload-button .hidden :change.fileuploaded type="file" name="resume" accept=".zip,.html">
 						<.flex .flex-col .items-center>
 							<h2 .font-bold .text-4xl>
 								<a href="#usage" name="usage"> "How it works"

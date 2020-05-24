@@ -22,7 +22,8 @@ export default class APKGBuilder
 		// TODO: fix twemoji pdf font issues
 		if deck.style
 			deck.style = deck.style.split('\n').filter do |line|
-				!line.includes('.pdf')
+				# TODO: fix font-family breaking with workflowy, maybe upstream bug?
+				!line.includes('.pdf') && !line.includes('font-family')
 			deck.style = deck.style.join('\n')
 			exporter = AnkiExport.new(deck.name, {css: deck.style})	
 		else

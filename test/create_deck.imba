@@ -16,16 +16,16 @@ def eq lhs, rhs, msg = null
 	process.exit(1)
 
 def test_fixture file_name, deck_name, card_count, files = {}
-	console.log('test_fixture', arguments)
-	const file_path = path.join(__dirname, "fixtures", file_name)
-	const example = fs.readFileSync(file_path).toString()
-	const isMarkdown = ExpressionHelper.document?(example)
 	try
+		const file_path = path.join(__dirname, "fixtures", file_name)
+		const example = fs.readFileSync(file_path).toString()
+		const isMarkdown = ExpressionHelper.document?(example)
 		let builder = DeckHandler.new(isMarkdown)
 		const deck = builder.build(example)
 		
 		eq(deck.style != undefined, true, "Style is not set")
 
+		console.log('deck.name', deck.name)
 		eq(deck.name, deck_name, 'comparing deck names')
 		eq(deck.cards.length, card_count, 'comparing deck count')
 
@@ -45,6 +45,7 @@ def main
 	if not fs.existsSync(artifacts_dir)
 		fs.mkdirSync(artifacts_dir)
 
+	test_fixture('workflowy-export.html', 'DNS flashcards', 2)
 	test_fixture('no-images.html', 'HTML test', 2)
 	test_fixture('with-image.html', 'HTML test', 3)
 	process.exit(0)
