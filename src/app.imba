@@ -55,6 +55,7 @@ tag app-root
 					self.packages.push({name: "{file_name}.apkg", apkg: apkg, deck})
 					self.cards = packages[0].deck.cards
 					state = 'download'
+					imba.commit()
 				reader.readAsText(file)
 
 		catch e
