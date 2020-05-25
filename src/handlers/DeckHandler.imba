@@ -53,6 +53,9 @@ export default class DeckHandler
 		sanityCheck(cards)
 		{name, cards, inputType, style}
 
+	def  findNullIndex coll, field
+		return coll.findIndex do |x| x[field] == null
+
 	def handleMarkdown contents, deckName = null
 		const inputType = 'md'
 		let lines = contents.split('\n')
@@ -64,17 +67,22 @@ export default class DeckHandler
 		let cards = []
 
 		let i = -1
-		for line in lines
+		for line of lines
+			continue if !line
 			console.log('line', line)
-			if ExpressionHelper.toggleList?(line) # Card match on the toggle list
-				i = i + 1
-				// Before converting to HTML, replace the first dash so we don't end up with a dot on the left side in Anki
-				cards[i] = {name: self.converter.makeHtml(line.replace(/^-\s?/, '')), backSide: ''}
-			elif cards[i]
-				// Prevent Notion from producing crappy Markdown
-				cards[i].backSide += "{line.trim()}\n"
+			if line.match(/^\s{4}-/)	
+				const unsetBackSide = self.findNullIndex(cards, 'backSide')
+				if unsetBackSide > -1
+					cards[unsetBackSide].backSide = line.replace('- ', '').trim()
+				else
+					cards.push({name: self.converter.makeHtml(line.replace('- ', '').trim()), backSide: null})
 			else
-				console.log('warn unsupported', line)
+				const unsetBackSide = self.findNullIndex(cards, 'backSide')
+				if unsetBackSide > -1
+					# Don't make backside HTML just yet, the image rewriting will happen later
+					cards[unsetBackSide].backSide = line.replace('- ', '').trim()
+				else
+					console.log('warn unsupported', line)
 
 		sanityCheck(cards)
 		{name, cards, inputType, style}
