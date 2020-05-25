@@ -50,6 +50,7 @@ export default class DeckHandler
 				const back = el.find('ul').first().html()
 				return {name: front, backSide: back}
 
+		sanityCheck(cards)
 		{name, cards, inputType, style}
 
 	def handleMarkdown contents, deckName = null
@@ -64,11 +65,23 @@ export default class DeckHandler
 
 		let i = -1
 		for line in lines
+			console.log('line', line)
 			if ExpressionHelper.toggleList?(line) # Card match on the toggle list
 				i = i + 1
 				// Before converting to HTML, replace the first dash so we don't end up with a dot on the left side in Anki
 				cards[i] = {name: self.converter.makeHtml(line.replace(/^-\s?/, '')), backSide: ''}
-			else
+			elif cards[i]
 				// Prevent Notion from producing crappy Markdown
 				cards[i].backSide += "{line.trim()}\n"
+			else
+				console.log('warn unsupported', line)
+
+		sanityCheck(cards)
 		{name, cards, inputType, style}
+
+
+	def sanityCheck cards
+		let empty = cards.find do |x|
+			!x.name or x.backSide
+		if empty
+			console.log('warn Detected empty card, please report bug to developer with an example')
