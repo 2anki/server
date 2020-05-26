@@ -8,11 +8,7 @@ import APKGBuilder from './handlers/APKGBuilder'
 # Components
 import './components/header'
 import './components/footer'
-
-# Pages
-import './pages/contact-page'
-import './pages/home-page'
-import './pages/privacy-page'
+import './home-page'
 
 tag app-root
 
@@ -70,10 +66,5 @@ tag app-root
 	def render
 		<self>
 			<n2a-header>
-			if window.location.pathname == '/contact'
-				<contact-page>
-			elif window.location.pathname == '/privacy'
-				<privacy-page>
-			else
-				<home-page state=state>
+			<home-page state=state>
 			<n2a-footer>
