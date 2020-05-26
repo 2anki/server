@@ -56,36 +56,57 @@ export default class DeckHandler
 	def  findNullIndex coll, field
 		return coll.findIndex do |x| x[field] == null
 
+
+	def deck_name_for parent = null, name
+		name = name.replace('#', '').trim()
+		return "{parent}::{name}" if parent 
+		return name
+
 	def handleMarkdown contents, deckName = null
-		const inputType = 'md'
 		let lines = contents.split('\n')
-		const name = deckName ? deckName : pickDefaultDeckName(lines.shift())
+		const inputType = 'md'
+		const decks = []
 		let style = null
 
+		const name = deckName ? deckName : pickDefaultDeckName(lines.shift())
+		lines.shift()
+
+		decks.push({name: name, cards:[]})
 		if lines[0] == ''
 			lines.shift()
 		let cards = []
 
-		let i = -1
 		for line of lines
-			continue if !line
-			console.log('line', line)
-			if line.match(/^\s{4}-/)	
-				const unsetBackSide = self.findNullIndex(cards, 'backSide')
-				if unsetBackSide > -1
-					cards[unsetBackSide].backSide = line.replace('- ', '').trim()
-				else
-					cards.push({name: self.converter.makeHtml(line.replace('- ', '').trim()), backSide: null})
-			else
-				const unsetBackSide = self.findNullIndex(cards, 'backSide')
-				if unsetBackSide > -1
-					# Don't make backside HTML just yet, the image rewriting will happen later
-					cards[unsetBackSide].backSide = line.replace('- ', '').trim()
-				else
-					console.log('warn unsupported', line)
+			continue if !line || !(line.trim())
 
-		sanityCheck(cards)
-		{name, cards, inputType, style}
+			if line.match(/^#/)
+				decks.push({name: deck_name_for(name, line), cards: []})
+				i = i + 1
+				continue
+
+			if line.match(/^-\s/)
+				const last_deck = decks[decks.length - 1]
+				let parent = name
+				if last_deck
+					parent = last_deck.name
+				decks.push({name: deck_name_for(parent, line), cards: []})
+				i = i + 1
+				continue
+
+			const cd = decks[decks.length - 1]
+			if line.match(/^\s{4}-/)	
+				const front = self.converter.makeHtml(line.replace('- ', '').trim())
+				cd.cards.push({name: front, backSide: null})
+				continue
+
+			# Don't make backside HTML just yet, the image rewriting will happen later
+			const unsetBackSide = self.findNullIndex(cd.cards, 'backSide')
+			if unsetBackSide > -1
+				cd.cards[unsetBackSide].backSide = line.trim() + '\n'
+			else
+				cd.cards[cd.cards.length - 1].backSide += line.trim() + '\n'
+
+		return decks
 
 
 	def sanityCheck cards

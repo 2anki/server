@@ -21,6 +21,19 @@ tag app-root
 			if state != 'ready'
 				return "Conversion in progress. Are you sure you want to stop it?"
 
+	def prepare_deck file_name, files
+		const deck = DeckHandler.new(file_name.match(/\.md$/)).build(files[file_name])
+		if Array.isArray(deck)
+			for d in deck
+				continue if d.cards.length == 0
+				const apkg = await APKGBuilder.new().build(null, d, files)
+				self.packages.push({name: "{d.name}.apkg", apkg: apkg, deck})
+		else
+				const apkg = await APKGBuilder.new().build(null, deck, files)
+				self.packages.push({name: "{files[0]}.apkg", apkg: apkg, deck})
+		state = 'download'
+		imba.commit()
+
 	// TODO: refactor DRY
 	def fileuploaded event
 		try
@@ -34,11 +47,7 @@ tag app-root
 					const _ = await zip_handler.build(file)
 					for file_name in zip_handler.filenames()
 						if ExpressionHelper.document?(file_name)
-							const deck = DeckHandler.new(file_name.match(/\.md$/)).build(zip_handler.files[file_name])
-							const apkg = await APKGBuilder.new().build(null, deck, zip_handler.files)
-							self.packages.push({name: "{file_name}.apkg", apkg: apkg, deck})
-							self.cards = packages[0].deck.cards
-							state = 'download'
+							await self.prepare_deck(file_name, zip_handler.files)
 			if packages.length == 0
 				# Handle workflowy
 				const file = files[0]
@@ -46,12 +55,7 @@ tag app-root
 				console.log(file.toString())
 				const reader = FileReader.new()
 				reader.onload = do 
-					const deck = DeckHandler.new(file_name.match(/\.md$/)).build(reader.result)
-					const apkg = await APKGBuilder.new().build(null, deck, [file_name])
-					self.packages.push({name: "{file_name}.apkg", apkg: apkg, deck})
-					self.cards = packages[0].deck.cards
-					state = 'download'
-					imba.commit()
+					await self.prepare_deck(file_name, {file_name: reader.result})
 				reader.readAsText(file)
 
 		catch e
@@ -59,9 +63,13 @@ tag app-root
 			window.alert("Sorry something went wrong. Send this message to the developer. Error: {e.message}")		
 
 	def downloadDeck
-		for pkg in self.packages
-			FileSaver.saveAs(pkg.apkg, pkg.name)
+		try
+			for pkg in self.packages
+				FileSaver.saveAs(pkg.apkg, pkg.name)
+		catch err
+			window.alert('Sorry, something went wrong during opening. Have you allowed multi-file downloads?')
 		state = 'ready'
+		self.packages = []
 	
 	def render
 		<self>
