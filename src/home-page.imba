@@ -6,7 +6,6 @@ tag home-page
 	prop state = 'ready'
 
 	def clickButton
-		console.log('called!')
 		const button = document.getElementById('upload-button')
 		button.click()
 	

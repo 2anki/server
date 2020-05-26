@@ -9,6 +9,7 @@ export default class ExpressionHelper
 
 	// TODO: rename to be markdown specific
 	static def imageMatch input
+		return false if !input
 		// Below does not work on Firefox so using the second one
 		// https://stackoverflow.com/questions/44227270/regex-to-parse-image-link-in-markdown		
 		// input.match(/!\[[^\]]*\]\((?<filename>.*?)(?=\"|\))(?<optionalpart>\".*\")?\)/)
@@ -28,6 +29,7 @@ export default class ExpressionHelper
 		input.replace(/#\s?/, '')
 	
 	static def isLatex backSide
+		return false if !backSide
 		const l = backSide.trim()
 		l.match(/^\\/) or l.match(/^\$\$/) or l.match(/{{/)
 	

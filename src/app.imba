@@ -41,7 +41,6 @@ tag app-root
 			self.state = 'uploading'
 			self.packages = []
 			for file in files
-				console.log('file', file)
 				if file.name.match(/\.zip$/)
 					const zip_handler = ZipHandler.new()
 					const _ = await zip_handler.build(file)
@@ -52,7 +51,6 @@ tag app-root
 				# Handle workflowy
 				const file = files[0]
 				const file_name = file.name
-				console.log(file.toString())
 				const reader = FileReader.new()
 				reader.onload = do 
 					await self.prepare_deck(file_name, {file_name: reader.result})

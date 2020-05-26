@@ -61,7 +61,7 @@ export default class APKGBuilder
 				card.backSide = converter.makeHtml(card.backSide)
 
 			// Hopefully this should perserve headings and other things
-			exporter.addCard(card.name, card.backSide)
+			exporter.addCard(card.name, card.backSide || 'empty backside')
 
 		const zip = await exporter.save()
 		return zip if not output

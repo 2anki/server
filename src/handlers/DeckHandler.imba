@@ -68,6 +68,7 @@ export default class DeckHandler
 		const decks = []
 		let style = null
 
+		const is_multi_deck = lines.find do $1.match(/^\s{8}-/)
 		const name = deckName ? deckName : pickDefaultDeckName(lines.shift())
 		lines.shift()
 
@@ -78,13 +79,12 @@ export default class DeckHandler
 
 		for line of lines
 			continue if !line || !(line.trim())
-
-			if line.match(/^#/)
+			if line.match(/^#/) && is_multi_deck
 				decks.push({name: deck_name_for(name, line), cards: []})
 				i = i + 1
 				continue
 
-			if line.match(/^-\s/)
+			if line.match(/^-\s/) && is_multi_deck
 				const last_deck = decks[decks.length - 1]
 				let parent = name
 				if last_deck
@@ -94,7 +94,7 @@ export default class DeckHandler
 				continue
 
 			const cd = decks[decks.length - 1]
-			if line.match(/^\s{4}-/)	
+			if (line.match(/^\s{4}-/) && is_multi_deck) || (line.match(/^-/) && !is_multi_deck)
 				const front = self.converter.makeHtml(line.replace('- ', '').trim())
 				cd.cards.push({name: front, backSide: null})
 				continue
