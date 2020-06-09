@@ -1,96 +1,129 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- HTML Meta Tags -->
+    <title>
+      Notion 2 Anki | Go from Notion toggle list to Anki Cards easily!
+    </title>
+    <meta
+      name="description"
+      content="This simple web app creates decks for you to import into Anki from your Notion pages."
+    />
+    <!-- Google / Search Engine Tags -->
+    <meta
+      itemprop="name"
+      content="Go from Notion toggle list to Anki Cards easily!"
+    />
+    <meta
+      itemprop="description"
+      content="This simple web app creates decks for you to import into Anki from your Notion pages."
+    />
+    <meta itemprop="image" content="https://i.imgur.com/lZKZTnT.png" />
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- HTML Meta Tags -->
-  <title>Notion 2 Anki | Go from Notion toggle list to Anki Cards easily!
-  </title>
-  <meta name="description"
-    content="This simple web app creates decks for you to import into Anki from your Notion pages.">
-  <!-- Google / Search Engine Tags -->
-  <meta itemprop="name"
-    content="Go from Notion toggle list to Anki Cards easily!">
-  <meta itemprop="description"
-    content="This simple web app creates decks for you to import into Anki from your Notion pages.">
-  <meta itemprop="image" content="https://i.imgur.com/lZKZTnT.png">
+    <!-- Facebook Meta Tags -->
+    <meta property="og:url" content="https://notion2anki.alemayhu.com" />
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:title"
+      content="Go from Notion toggle list to Anki Cards easily!"
+    />
+    <meta
+      property="og:description"
+      content="This simple web app creates decks for you to import into Anki from your Notion pages."
+    />
+    <meta property="og:image" content="https://i.imgur.com/lZKZTnT.png" />
 
-  <!-- Facebook Meta Tags -->
-  <meta property="og:url" content="https://notion2anki.alemayhu.com">
-  <meta property="og:type" content="website">
-  <meta property="og:title"
-    content="Go from Notion toggle list to Anki Cards easily!">
-  <meta property="og:description"
-    content="This simple web app creates decks for you to import into Anki from your Notion pages.">
-  <meta property="og:image" content="https://i.imgur.com/lZKZTnT.png">
+    <!-- Twitter Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="Go from Notion toggle list to Anki Cards easily!"
+    />
+    <meta
+      name="twitter:description"
+      content="This simple web app creates decks for you to import into Anki from your Notion pages."
+    />
+    <meta name="twitter:image" content="https://i.imgur.com/lZKZTnT.png" />
+    <!-- Meta Tags Generated via http://heymeta.com -->
 
-  <!-- Twitter Meta Tags -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title"
-    content="Go from Notion toggle list to Anki Cards easily!">
-  <meta name="twitter:description"
-    content="This simple web app creates decks for you to import into Anki from your Notion pages.">
-  <meta name="twitter:image" content="https://i.imgur.com/lZKZTnT.png">
-  <!-- Meta Tags Generated via http://heymeta.com -->
+    <!-- The Favicon are from favicon.io -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="manifest" href="/site.webmanifest" />
 
-  <!-- The Favicon are from favicon.io -->
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-  <link rel="manifest" href="/site.webmanifest">
+    <link rel="stylesheet" href="app.css" />
 
-  <link rel="stylesheet" href="app.css">
+    <!-- Typography -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
 
-  <!-- Typography -->
-  <link
-    href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;700&display=swap"
-    rel="stylesheet">
-</head>
-
-<body class="flex flex-col justify-between h-screen">
-  <header>
-    <nav
-      class="flex items-center justify-around flex-wrap n2a-blue-bg w-screen p6">
-      <a class="flex items-center flex-shrink-0 text-white mr-6 mr-2 px-2 py-3"
-        href="/">
-        <h1 class="font-semibold text-2xl tracking-tight">Notion 2 Anki</h1>
-      </a>
-      <div>
-        <div class="text-xl flex justify-around items-center"><a
-            class="text-white mr-4 hover:underline"
-            href="/contact">Contact</a><a
-            class="text-white mr-4 hover:underline" href="/privacy">Privacy</a>
+  <body class="flex flex-col justify-between h-screen">
+    <header>
+      <nav
+        class="flex items-center justify-around flex-wrap n2a-blue-bg w-screen p6"
+      >
+        <a
+          class="flex items-center flex-shrink-0 text-white mr-6 mr-2 px-2 py-3"
+          href="/"
+        >
+          <h1 class="font-semibold text-2xl tracking-tight">Notion 2 Anki</h1>
+        </a>
+        <div>
+          <div class="text-xl flex justify-around items-center">
+            <a class="text-white mr-4" href="/home">Home</a>
+            <a class="text-white mr-4 hover:underline" href="/contact"
+              >Contact</a
+            ><a class="text-white mr-4 hover:underline" href="/privacy"
+              >Privacy</a
+            >
+          </div>
+        </div>
+      </nav>
+    </header>
+    <main>
+      <div class="block w-screen flex flex-col h-screen justify-between">
+        <div
+          class="p-4 flex flex-col items-center"
+          style="max-width: 720px; margin: 0px auto;"
+        >
+          <h2 class="font-bold text-4xl">
+            <a href="#contact" name="contact">Contact</a>
+          </h2>
+          <p class="text-center p-4 text-xl">
+            The easiest way to reach me is to send an email to
+            <a class="underline" href="mailto:alexander@alemayhu.com"
+              >alexander@alemayhu.com</a
+            ><br /><br />Currently only the Markdown and HTML is supported. If
+            you are missing a feature or format, let me know on
+            <a class="underline" href="https://github.com/alemayhu/notion2anki"
+              >GitHub</a
+            >.
+          </p>
         </div>
       </div>
-    </nav>
-  </header>
-  <main>
-    <div class="block w-screen flex flex-col h-screen justify-between">
-      <div class="p-4 flex flex-col items-center"
-        style="max-width: 720px; margin: 0px auto;">
-        <h2 class="font-bold text-4xl"><a href="#contact"
-            name="contact">Contact</a></h2>
-        <p class="text-center p-4 text-xl">The easiest way to reach me is to
-          send an email to <a class="underline"
-            href="mailto:alexander@alemayhu.com">alexander@alemayhu.com</a><br><br>Currently
-          only the Markdown and HTML is supported. If you are missing a feature
-          or format, let me know on <a class="underline"
-            href="https://github.com/alemayhu/notion2anki">GitHub</a>.</p>
+    </main>
+    <footer class="block p-3 flex justify-between n2a-blue-text">
+      <div>
+        Developed in 🇳🇴 with ❤️ using
+        <a class="text-blue-700 underline" href="https://imba.io"> Imba </a> and
+        the
+        <a class="text-blue-700 underline" href="https://jamstack.org/"
+          >JAMstack</a
+        >
       </div>
-    </div>
-  </main>
-  <footer class="block p-3 flex justify-between n2a-blue-text">
-    <div>Developed in 🇳🇴 with ❤️ using <a class="text-blue-700 underline"
-        href="https://imba.io"> Imba </a> and the <a
-        class="text-blue-700 underline"
-        href="https://jamstack.org/">JAMstack</a></div>
-    <div>
-      <p>You can support the project by <a
-          href="http://patreon.com/scanf">becoming a sponsor / backer on
-        </a><span class="text-orange-700">Patreon</span></p>
-    </div>
-  </footer>
-</body>
-
+      <div>
+        <p>
+          You can support the project by
+          <a href="http://patreon.com/scanf">becoming a sponsor / backer on </a
+          ><span class="text-orange-700">Patreon</span>
+        </p>
+      </div>
+    </footer>
+  </body>
 </html>
