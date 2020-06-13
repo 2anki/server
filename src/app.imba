@@ -9,7 +9,7 @@ import { PrepareDeck } from './actions/PrepareDeck'
 # Components
 import './components/header'
 import './components/footer'
-import './home-page'
+import './upload-page'
 
 tag app-root
 
@@ -65,5 +65,5 @@ tag app-root
 	def render
 		<self>
 			<n2a-header>
-			<home-page state=state>
+			<upload-page state=state>
 			<n2a-footer>
