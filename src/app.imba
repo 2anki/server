@@ -41,6 +41,7 @@ tag app-root
 							imba.commit()
 			if packages.length == 0
 				# Handle workflowy
+				# TODO: add event to track how many people are using this code path
 				const file = files[0]
 				const file_name = file.name
 				const reader = FileReader.new()
