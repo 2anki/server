@@ -21,30 +21,26 @@ export default class APKGBuilder
 		const m = input.match(/\.[0-9a-z]+$/i)
 		return null if !m
 		
-		return m[0] if m		
+		return m[0] if m
 
-
-	// TODO: rename to be markdown specific
-	def imageMatch input
+	// https://stackoverflow.com/questions/20128238/regex-to-match-markdown-image-pattern-with-the-given-filename	
+	def mdImageMatch input
 		return false if !input
-		// Below does not work on Firefox so using the second one
-		// https://stackoverflow.com/questions/44227270/regex-to-parse-image-link-in-markdown		
-		// input.match(/!\[[^\]]*\]\((?<filename>.*?)(?=\"|\))(?<optionalpart>\".*\")?\)/)
-		// https://stackoverflow.com/questions/20128238/regex-to-match-markdown-image-pattern-with-the-given-filename	
+
 		input.match(/!\[(.*?)\]\((.*?)\)/)
 
 	def isLatex backSide
 		return false if !backSide
+
 		const l = backSide.trim()
 		l.match(/^\\/) or l.match(/^\$\$/) or l.match(/{{/)
 
-	
 	def isImgur backSide
-		backSide.match(/\<img.+src\=(?:\"|\')(.+?)(?:\"|\')(?:.+?)\>/)
+		return false if !backSide
 
-	// TODO: refactor
-	def build output, deck, files
-		let exporter
+		backSide.match(/\<img.+src\=(?:\"|\')(.+?)(?:\"|\')(?:.+?)\>/)
+	
+	def setupExporter deck
 		// TODO: fix twemoji pdf font issues
 		if deck.style
 			deck.style = deck.style.split('\n').filter do |line|
@@ -56,10 +52,14 @@ export default class APKGBuilder
 			// TODO: provide our own default amazing style
 			exporter = AnkiExport.new(deck.name)	
 
+	// TODO: refactor
+	def build output, deck, files
+		let exporter = self.setupExporter(deck)
 		const converter = MarkdownHandler()
+		
 		for card in deck.cards
 			// Try getting Markdown image, should it be recursive for HTML and Markdown?
-			let imageMatch = self.imageMatch(card.backSide)
+			let imageMatch = self.mdImageMatch(card.backSide)
 			if !imageMatch && deck.inputType == 'HTML'
 				imageMatch = self.imgur?(card.backSide)
 			if imageMatch
