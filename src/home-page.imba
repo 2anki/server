@@ -14,7 +14,6 @@ tag home-page
 	def render
 		<self>
 			<page-content .justify-center=(state == 'uploading') .items-center=(state == 'uploading')>
-				<h3> "PROGRESS {progress}"
 				if state == 'ready'
 					<div .flex .flex-col .justify-center .items-center .h-screen>
 						<input .m-4 .p-4 .border-dashed .border-4 .border-gray-600 #upload-button :change.fileuploaded type="file" name="resume" accept=".zip,.html">
