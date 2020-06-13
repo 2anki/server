@@ -1,7 +1,6 @@
 const FileSaver = require('file-saver')
 
 import ZipHandler from './handlers/ZipHandler'
-import ExpressionHelper from './handlers/ExpressionHelper'
 
 # Actions
 import { PrepareDeck } from './actions/PrepareDeck'
@@ -37,7 +36,7 @@ tag app-root
 				const zip_handler = ZipHandler.new()
 				const _ = await zip_handler.build(file)
 				for file_name in zip_handler.filenames()
-					if ExpressionHelper.document?(file_name)
+					if file_name.match(/.(md|html)$/)
 						self.packages = await PrepareDeck(file_name, zip_handler.files, self.settings)
 						state = 'download'
 						imba.commit()

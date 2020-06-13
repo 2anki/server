@@ -1,4 +1,3 @@
-import ExpressionHelper from './ExpressionHelper'
 const JSZip = require("jszip")
 
 export default class ZipHandler
@@ -14,7 +13,7 @@ export default class ZipHandler
 
 		for file_name in self.file_names
 			const contents = loadedZip.files[file_name]._data.compressedContent
-			if ExpressionHelper.document?(file_name)
+			if file_name.match(/.(md|html)$/)
 				self.files["{file_name}"] = await loadedZip.files[file_name].async('text')
 			else
 				self.files["{file_name}"] = await loadedZip.files[file_name].async('uint8array')

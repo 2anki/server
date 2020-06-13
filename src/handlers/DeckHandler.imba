@@ -1,6 +1,5 @@
 import cheerio from 'cheerio'
 
-import ExpressionHelper from './ExpressionHelper'
 import MarkdownHandler from './MarkdownHandler'
 
 export default class DeckHandler

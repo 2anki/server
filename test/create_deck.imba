@@ -4,7 +4,6 @@ const fs = require('fs')
 import DeckHandler from '../src/handlers/DeckHandler'
 import APKGBuilder from '../src/handlers/APKGBuilder'
 import ZipHandler from '../src/handlers/ZipHandler'
-import ExpressionHelper from '../src/handlers/ExpressionHelper'
 
 def eq lhs, rhs, msg = null
 	console.log('comparing', lhs, rhs, msg ? "reason: {msg}" : '')
@@ -19,7 +18,7 @@ def test_fixture file_name, deck_name, card_count, files = {}
 	try
 		const file_path = path.join(__dirname, "fixtures", file_name)
 		const example = fs.readFileSync(file_path).toString()
-		const isMarkdown = ExpressionHelper.document?(example)
+		const isMarkdown = example.match(/.(md|html)$/)
 		const deck = DeckHandler.new(isMarkdown, example).payload
 		
 		eq(deck.style != undefined, true, "Style is not set")

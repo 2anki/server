@@ -2,7 +2,6 @@ var crypto = require('crypto')
 const fs = require('fs')
 
 import AnkiExport from 'anki-apkg-export'
-import ExpressionHelper from './ExpressionHelper'
 import MarkdownHandler from './MarkdownHandler'
 
 export default class APKGBuilder
@@ -15,6 +14,33 @@ export default class APKGBuilder
 		var shasum = crypto.createHash('sha1')
 		shasum.update(input)
 		shasum.digest('hex')
+
+	def suffix input
+		return null if !input
+
+		const m = input.match(/\.[0-9a-z]+$/i)
+		return null if !m
+		
+		return m[0] if m		
+
+
+	// TODO: rename to be markdown specific
+	def imageMatch input
+		return false if !input
+		// Below does not work on Firefox so using the second one
+		// https://stackoverflow.com/questions/44227270/regex-to-parse-image-link-in-markdown		
+		// input.match(/!\[[^\]]*\]\((?<filename>.*?)(?=\"|\))(?<optionalpart>\".*\")?\)/)
+		// https://stackoverflow.com/questions/20128238/regex-to-match-markdown-image-pattern-with-the-given-filename	
+		input.match(/!\[(.*?)\]\((.*?)\)/)
+
+	def isLatex backSide
+		return false if !backSide
+		const l = backSide.trim()
+		l.match(/^\\/) or l.match(/^\$\$/) or l.match(/{{/)
+
+	
+	def isImgur backSide
+		backSide.match(/\<img.+src\=(?:\"|\')(.+?)(?:\"|\')(?:.+?)\>/)
 
 	// TODO: refactor
 	def build output, deck, files
@@ -33,15 +59,15 @@ export default class APKGBuilder
 		const converter = MarkdownHandler()
 		for card in deck.cards
 			// Try getting Markdown image, should it be recursive for HTML and Markdown?
-			let imageMatch = ExpressionHelper.imageMatch(card.backSide)
+			let imageMatch = self.imageMatch(card.backSide)
 			if !imageMatch && deck.inputType == 'HTML'
-				imageMatch = ExpressionHelper.imgur?(card.backSide)
+				imageMatch = self.imgur?(card.backSide)
 			if imageMatch
 				const imagePath = global.decodeURIComponent(imageMatch[1])
 				# For now leave image urls untouched, maybe this can be reconsidered or an option later
 				# Also it breaks if we can't find the suffix so temporary workaround.
 				if !imagePath.includes('http')
-					const suffix = ExpressionHelper.suffix(imagePath)
+					const suffix = self.suffix(imagePath)
 					if suffix
 						let image = files["{imagePath}"]
 						const newName = self.newImageName(imagePath) + suffix
@@ -55,7 +81,7 @@ export default class APKGBuilder
 
 			// For now treat Latex as text and wrap it around.
 			// This is fragile thougg and won't handle multiline properly
-			if ExpressionHelper.latex?(card.backSide)
+			if self.latex?(card.backSide)
 				card.backSide = "[latex]{card.backSide.trim()}[/latex]"
 			elif card.inputType != 'HTML'
 				card.backSide = converter.makeHtml(card.backSide)
