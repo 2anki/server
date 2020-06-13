@@ -11,6 +11,6 @@ export def PrepareDeck file_name, files
 				packages.push({name: "{d.name}.apkg", apkg: apkg, deck})
 			packages				
 		else
-				const apkg = await APKGBuilder.new().build(null, deck, files)
-				packages.push({name: "{files[0]}.apkg", apkg: apkg, deck})
-				packages
+			const apkg = await APKGBuilder.new().build(null, deck, files)
+			packages.push({name: "{deck.name}.apkg", apkg: apkg, deck})
+			packages

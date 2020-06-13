@@ -45,7 +45,7 @@ tag app-root
 			const file_name = file.name
 			const reader = FileReader.new()
 			reader.onload = do 
-				self.packages = await PrepareDeck(file_name, {file_name: reader.result})
+				self.packages = await PrepareDeck(file_name, [{file_name: reader.result}])
 			reader.readAsText(file)
 						
 	def downloadDeck
