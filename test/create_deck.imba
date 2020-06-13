@@ -2,7 +2,6 @@ const path = require('path')
 const fs = require('fs')
 
 import DeckHandler from '../src/handlers/DeckHandler'
-import APKGBuilder from '../src/handlers/APKGBuilder'
 import ZipHandler from '../src/handlers/ZipHandler'
 
 def eq lhs, rhs, msg = null
@@ -29,7 +28,7 @@ def test_fixture file_name, deck_name, card_count, files = {}
 
 		if card_count > 0
 			const zip_file_path = path.join(__dirname, "artifacts", "{deck.name}.apkg")
-			await APKGBuilder.new().build(zip_file_path, deck, files)
+			await deck.build(zip_file_path, deck, files)
 			eq(fs.existsSync(zip_file_path), true, 'ensuring output was created')
 	catch e
 		console.error(e)
@@ -70,7 +69,7 @@ def main
 	// for file in zipHandler.filenames()
 	// 	if file.match(/.(md|html)$/)
 	// 		const deck = DeckHandler.new().build(zipHandler.files[file])
-	// 		const apkgOutput = await APKGBuilder.new().build(null, deck, zipHandler.files)
+	// 		const apkgOutput = await deck.build(null, deck, zipHandler.files)
 	// 		assert.notEqual(apkgOutput, undefined)
 
 

@@ -13,7 +13,7 @@ import './upload-page'
 tag app-root
 
 	prop state = 'ready'
-	prop progress = '0'
+	prop progress = 0
 	prop info = ['Ready']
 	# TODO: expose more card template stuff
 	prop settings = {'font-size': 20}
@@ -55,9 +55,10 @@ tag app-root
 			FileSaver.saveAs(pkg.apkg, pkg.name)
 		state = 'ready'
 		self.packages = []
+		self.progress = 0
 	
 	def render
 		<self>
 			<n2a-header>
-			<upload-page state=state>
+			<upload-page state=state progress=progress>
 			<n2a-footer>

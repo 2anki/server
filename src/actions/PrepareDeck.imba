@@ -1,5 +1,4 @@
 import DeckHandler from '../handlers/DeckHandler'
-import APKGBuilder from '../handlers/APKGBuilder'
 
 def isMarkdown file
 	return false if !file
@@ -8,15 +7,16 @@ def isMarkdown file
 
 // TODO: clean up duplication
 export def PrepareDeck file_name, files, settings
-		const deck = DeckHandler.new(isMarkdown(file_name), files[file_name], settings).payload
+		const decks = DeckHandler.new(isMarkdown(file_name), files[file_name], settings)
 		let packages = []
-		if Array.isArray(deck)
-			for d in deck
+		if Array.isArray(decks.payload)
+			for d in decks.payload
 				continue if d.cards.length == 0
-				const apkg = await APKGBuilder.new().build(null, d, files)
-				packages.push({name: "{d.name}.apkg", apkg: apkg, deck})
+				const apkg = await decks.build(null, d, files)
+				packages.push({name: "{d.name}.apkg", apkg: apkg, d})
 			packages				
 		else
-			const apkg = await APKGBuilder.new().build(null, deck, files)
+			const deck = decks.payload
+			const apkg = await decks.build(null, deck, files)
 			packages.push({name: "{deck.name}.apkg", apkg: apkg, deck})
 			packages

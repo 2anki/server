@@ -1,12 +1,18 @@
+import crypto from 'crypto'
+import fs from 'fs'
+
 import cheerio from 'cheerio'
 
 import MarkdownHandler from './MarkdownHandler'
+import AnkiExport from 'anki-apkg-export'
 
 export default class DeckHandler
 
 	def constructor md, contents, settings = {}
 		const deckName = settings.deckName
 		self.settings = settings
+		// TODO: rename converter to be more md specific
+		self.converter = MarkdownHandler()
 
 		if md
 			self.payload = handleMarkdown(contents, deckName)
@@ -17,6 +23,7 @@ export default class DeckHandler
 		const name = firstLine ? firstLine.trim() : 'Untitled Deck'
 		firstLine.trim().replace(/^# /, '')
 
+	// TODO: provide our own default amazing style
 	def defaultStyle
 		let a = '.card {\nfont-family: arial;\nfont-size: 20px;\ntext-align: center;\ncolor: black;\nbackground-color: white;\n}'
 		if let settings = self.settings
@@ -68,7 +75,6 @@ export default class DeckHandler
 
 	def handleMarkdown contents, deckName = null
 		let style = self.defaultStyle()
-		const converter = MarkdownHandler()
 		let lines = contents.split('\n')
 		const inputType = 'md'
 		const decks = []
@@ -121,3 +127,86 @@ export default class DeckHandler
 			!x.name or x.backSide
 		if empty
 			console.log('warn Detected empty card, please report bug to developer with an example')
+
+	// Try to avoid name conflicts and invalid characters by hashing
+	def newImageName input
+		var shasum = crypto.createHash('sha1')
+		shasum.update(input)
+		shasum.digest('hex')
+
+	def suffix input
+		return null if !input
+
+		const m = input.match(/\.[0-9a-z]+$/i)
+		return null if !m
+		
+		return m[0] if m
+
+	// https://stackoverflow.com/questions/20128238/regex-to-match-markdown-image-pattern-with-the-given-filename	
+	def mdImageMatch input
+		return false if !input
+
+		input.match(/!\[(.*?)\]\((.*?)\)/)
+
+	def isLatex backSide
+		return false if !backSide
+
+		const l = backSide.trim()
+		l.match(/^\\/) or l.match(/^\$\$/) or l.match(/{{/)
+
+	def isImgur backSide
+		return false if !backSide
+
+		backSide.match(/\<img.+src\=(?:\"|\')(.+?)(?:\"|\')(?:.+?)\>/)
+	
+	def setupExporter deck
+		// TODO: fix twemoji pdf font issues
+		if deck.style
+			deck.style = deck.style.split('\n').filter do |line|
+				# TODO: fix font-family breaking with workflowy, maybe upstream bug?
+				!line.includes('.pdf') && !line.includes('font-family')
+			deck.style = deck.style.join('\n')
+			return AnkiExport.new(deck.name, {css: deck.style})	
+		AnkiExport.new(deck.name)	
+
+	// TODO: refactor
+	def build output, deck, files
+		let exporter = self.setupExporter(deck)
+		const converter = MarkdownHandler()
+
+		for card in deck.cards
+			// Try getting Markdown image, should it be recursive for HTML and Markdown?
+			let imageMatch = self.mdImageMatch(card.backSide)
+			if !imageMatch && deck.inputType == 'HTML'
+				imageMatch = self.imgur?(card.backSide)
+			if imageMatch
+				const imagePath = global.decodeURIComponent(imageMatch[1])
+				# For now leave image urls untouched, maybe this can be reconsidered or an option later
+				# Also it breaks if we can't find the suffix so temporary workaround.
+				if !imagePath.includes('http')
+					const suffix = self.suffix(imagePath)
+					if suffix
+						let image = files["{imagePath}"]
+						const newName = self.newImageName(imagePath) + suffix
+						exporter.addMedia(newName, image)
+						if deck.inputType == 'HTML'
+							// Run twice in case there is a link tag as well
+							card.backSide = card.backSide.replace(imageMatch[1], newName)
+							card.backSide = card.backSide.replace(imageMatch[1], newName)
+						else
+							card.backSide = card.backSide.replace(imageMatch[0], "<img src='{newName}' />")
+
+			// For now treat Latex as text and wrap it around.
+			// This is fragile thougg and won't handle multiline properly
+			if self.latex?(card.backSide)
+				card.backSide = "[latex]{card.backSide.trim()}[/latex]"
+			elif card.inputType != 'HTML'
+				card.backSide = converter.makeHtml(card.backSide)
+
+			// Hopefully this should perserve headings and other things
+			exporter.addCard(card.name, card.backSide || 'empty backside')
+
+		const zip = await exporter.save()
+		return zip if not output
+		// This code path will normally only run during local testing
+		fs.writeFileSync(output, zip, 'binary');			
