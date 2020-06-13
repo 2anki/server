@@ -5,19 +5,16 @@ import MarkdownHandler from './MarkdownHandler'
 
 export default class DeckHandler
 
-	def constructor md
+	def constructor md, contents, deckName = null
 		if md
-			self.converter = MarkdownHandler()
+			self.payload = handleMarkdown(contents, deckName)
+		else 
+			self.payload = handleHTML(contents, deckName)
 
 	def pickDefaultDeckName firstLine
 		const name = firstLine ? firstLine.trim() : 'Untitled Deck'
 		firstLine.trim().replace(/^# /, '')
 
-	def build contents, deckName = null
-		if self.converter
-			return handleMarkdown(contents, deckName)
-		self.handleHTML(contents, deckName)
-	
 	def appendDefaultStyle s
 		const a = '.card {\nfont-family: arial;\name\nfont-size: 20px;\ntext-align: center;\ncolor: black;\nbackground-color: white;\n'
 		"{s}\n{a}"
@@ -63,6 +60,7 @@ export default class DeckHandler
 		return name
 
 	def handleMarkdown contents, deckName = null
+		const convert = MarkdownHandler()
 		let lines = contents.split('\n')
 		const inputType = 'md'
 		const decks = []
@@ -95,7 +93,7 @@ export default class DeckHandler
 
 			const cd = decks[decks.length - 1]
 			if (line.match(/^\s{4}-/) && is_multi_deck) || (line.match(/^-/) && !is_multi_deck)
-				const front = self.converter.makeHtml(line.replace('- ', '').trim())
+				const front = converter.makeHtml(line.replace('- ', '').trim())
 				cd.cards.push({name: front, backSide: null})
 				continue
 

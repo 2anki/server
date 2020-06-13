@@ -20,8 +20,7 @@ def test_fixture file_name, deck_name, card_count, files = {}
 		const file_path = path.join(__dirname, "fixtures", file_name)
 		const example = fs.readFileSync(file_path).toString()
 		const isMarkdown = ExpressionHelper.document?(example)
-		let builder = DeckHandler.new(isMarkdown)
-		const deck = builder.build(example)
+		const deck = DeckHandler.new(isMarkdown, example).payload
 		
 		eq(deck.style != undefined, true, "Style is not set")
 

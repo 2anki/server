@@ -1,8 +1,14 @@
 import DeckHandler from '../handlers/DeckHandler'
 import APKGBuilder from '../handlers/APKGBuilder'
 
+def isMarkdown file
+	return false if !file
+
+	file.match(/\.md$/)
+
+// TODO: clean up duplication
 export def PrepareDeck file_name, files
-		const deck = DeckHandler.new(file_name.match(/\.md$/)).build(files[file_name])
+		const deck = DeckHandler.new(isMarkdown(file_name), files[file_name]).payload
 		let packages = []
 		if Array.isArray(deck)
 			for d in deck
