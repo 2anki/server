@@ -57,7 +57,7 @@ export default class APKGBuilder
 			// This is fragile thougg and won't handle multiline properly
 			if ExpressionHelper.latex?(card.backSide)
 				card.backSide = "[latex]{card.backSide.trim()}[/latex]"
-			elif inputType != 'HTML'
+			elif card.inputType != 'HTML'
 				card.backSide = converter.makeHtml(card.backSide)
 
 			// Hopefully this should perserve headings and other things
