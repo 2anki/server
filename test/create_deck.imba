@@ -68,7 +68,7 @@ def main
 	// eq(zipHandler.filenames().length, 4)
 	
 	// for file in zipHandler.filenames()
-	// 	if ExpressionHelper.document?(file)
+	// 	if file.match(/.(md|html)$/)
 	// 		const deck = DeckHandler.new().build(zipHandler.files[file])
 	// 		const apkgOutput = await APKGBuilder.new().build(null, deck, zipHandler.files)
 	// 		assert.notEqual(apkgOutput, undefined)
