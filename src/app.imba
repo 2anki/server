@@ -1,9 +1,10 @@
 const FileSaver = require('file-saver')
 
 import ZipHandler from './handlers/ZipHandler'
-import DeckHandler from './handlers/DeckHandler'
 import ExpressionHelper from './handlers/ExpressionHelper'
-import APKGBuilder from './handlers/APKGBuilder'
+
+# Actions
+import { PrepareDeck } from './actions/PrepareDeck'
 
 # Components
 import './components/header'
@@ -21,18 +22,7 @@ tag app-root
 			if state != 'ready'
 				return "Conversion in progress. Are you sure you want to stop it?"
 
-	def prepare_deck file_name, files
-		const deck = DeckHandler.new(file_name.match(/\.md$/)).build(files[file_name])
-		if Array.isArray(deck)
-			for d in deck
-				continue if d.cards.length == 0
-				const apkg = await APKGBuilder.new().build(null, d, files)
-				self.packages.push({name: "{d.name}.apkg", apkg: apkg, deck})
-		else
-				const apkg = await APKGBuilder.new().build(null, deck, files)
-				self.packages.push({name: "{files[0]}.apkg", apkg: apkg, deck})
-		state = 'download'
-		imba.commit()
+	
 
 	// TODO: refactor DRY
 	def fileuploaded event
@@ -46,14 +36,16 @@ tag app-root
 					const _ = await zip_handler.build(file)
 					for file_name in zip_handler.filenames()
 						if ExpressionHelper.document?(file_name)
-							await self.prepare_deck(file_name, zip_handler.files)
+							self.packages = await PrepareDeck(file_name, zip_handler.files)
+							state = 'download'
+							imba.commit()
 			if packages.length == 0
 				# Handle workflowy
 				const file = files[0]
 				const file_name = file.name
 				const reader = FileReader.new()
 				reader.onload = do 
-					await self.prepare_deck(file_name, {file_name: reader.result})
+					self.packages = await PrepareDeck(file_name, {file_name: reader.result})
 				reader.readAsText(file)
 
 		catch e
