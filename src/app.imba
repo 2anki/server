@@ -16,13 +16,16 @@ tag app-root
 	prop state = 'ready'
 	prop progress = '0'
 	prop info = ['Ready']
+	# TODO: expose more card template stuff
+	prop settings = {'font-size': 20}
 
 	def mount
 		window.onbeforeunload = do
 			if state != 'ready'
 				return "Conversion in progress. Are you sure you want to stop it?"
 
-	
+	def fontSizeChanged fontSize
+		self.settings['font-size'] = fontSize
 
 	// TODO: refactor DRY
 	def fileuploaded event
@@ -35,7 +38,7 @@ tag app-root
 				const _ = await zip_handler.build(file)
 				for file_name in zip_handler.filenames()
 					if ExpressionHelper.document?(file_name)
-						self.packages = await PrepareDeck(file_name, zip_handler.files)
+						self.packages = await PrepareDeck(file_name, zip_handler.files, self.settings)
 						state = 'download'
 						imba.commit()
 		if packages.length == 0
@@ -45,7 +48,7 @@ tag app-root
 			const file_name = file.name
 			const reader = FileReader.new()
 			reader.onload = do 
-				self.packages = await PrepareDeck(file_name, [{file_name: reader.result}])
+				self.packages = await PrepareDeck(file_name, [{file_name: reader.result}], self.settings)
 			reader.readAsText(file)
 						
 	def downloadDeck

@@ -5,7 +5,10 @@ import MarkdownHandler from './MarkdownHandler'
 
 export default class DeckHandler
 
-	def constructor md, contents, deckName = null
+	def constructor md, contents, settings = {}
+		const deckName = settings.deckName
+		self.settings = settings
+
 		if md
 			self.payload = handleMarkdown(contents, deckName)
 		else 
@@ -15,9 +18,14 @@ export default class DeckHandler
 		const name = firstLine ? firstLine.trim() : 'Untitled Deck'
 		firstLine.trim().replace(/^# /, '')
 
+	def defaultStyle
+		let a = '.card {\nfont-family: arial;\nfont-size: 20px;\ntext-align: center;\ncolor: black;\nbackground-color: white;\n}'
+		if let settings = self.settings
+			a = a.replace(/font-size: 20px/g, "font-size: {settings['font-size']}px")
+		a
+
 	def appendDefaultStyle s
-		const a = '.card {\nfont-family: arial;\name\nfont-size: 20px;\ntext-align: center;\ncolor: black;\nbackground-color: white;\n'
-		"{s}\n{a}"
+		"{s}\n{defaultStyle()}"
 
 	def worklflowyName dom
 		const names = dom('.name .innerContentContainer')
@@ -60,17 +68,19 @@ export default class DeckHandler
 		return name
 
 	def handleMarkdown contents, deckName = null
-		const convert = MarkdownHandler()
+		let style = self.defaultStyle()
+		const converter = MarkdownHandler()
 		let lines = contents.split('\n')
 		const inputType = 'md'
 		const decks = []
-		let style = null
 
 		const is_multi_deck = lines.find do $1.match(/^\s{8}-/)
 		const name = deckName ? deckName : pickDefaultDeckName(lines.shift())
 		lines.shift()
 
-		decks.push({name: name, cards:[]})
+		# TODO: do we really need to add the style to all of the decks?
+		# ^ Would it be better to add a custom css file and include it?
+		decks.push({name: name, cards:[], style: style})
 		if lines[0] == ''
 			lines.shift()
 		let cards = []
@@ -78,7 +88,7 @@ export default class DeckHandler
 		for line of lines
 			continue if !line || !(line.trim())
 			if line.match(/^#/) && is_multi_deck
-				decks.push({name: deck_name_for(name, line), cards: []})
+				decks.push({name: deck_name_for(name, line), cards: [], style: style})
 				i = i + 1
 				continue
 
@@ -87,7 +97,7 @@ export default class DeckHandler
 				let parent = name
 				if last_deck
 					parent = last_deck.name
-				decks.push({name: deck_name_for(parent, line), cards: []})
+				decks.push({name: deck_name_for(parent, line), cards: [], style: style})
 				i = i + 1
 				continue
 

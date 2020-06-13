@@ -7,8 +7,8 @@ def isMarkdown file
 	file.match(/\.md$/)
 
 // TODO: clean up duplication
-export def PrepareDeck file_name, files
-		const deck = DeckHandler.new(isMarkdown(file_name), files[file_name]).payload
+export def PrepareDeck file_name, files, settings
+		const deck = DeckHandler.new(isMarkdown(file_name), files[file_name], settings).payload
 		let packages = []
 		if Array.isArray(deck)
 			for d in deck
