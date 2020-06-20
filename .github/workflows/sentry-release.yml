@@ -29,4 +29,4 @@ jobs:
         sentry-cli releases finalize $SENTRY_RELEASE
         
         # Create new deploy for this Sentry release
-        sentry-cli releases deploys $SENTRY_RELEASE new
+        sentry-cli releases deploys $SENTRY_RELEASE new -e prod
