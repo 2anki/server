@@ -1,0 +1,20 @@
+jobs:
+  release:
+    runs-on: ubuntu-18.04
+    env:
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+    steps:
+      - uses: actions/checkout@v1.0.0
+      - name: Create new Sentry release and deploy
+    run: |
+      # Install Sentry CLI
+      curl -sL https://sentry.io/get-cli/ | bash
+    
+      # Create new Sentry release
+      export SENTRY_RELEASE=$(sentry-cli releases propose-version)
+      sentry-cli releases new -p $SENTRY_PROJECT $SENTRY_RELEASE
+      sentry-cli releases set-commits --auto $SENTRY_RELEASE
+      sentry-cli releases finalize $SENTRY_RELEASE
+    
+      # Create new deploy for this Sentry release
+      sentry-cli releases deploys $SENTRY_RELEASE new -e $SENTRY_DEPLOY_ENVIRONMENT
