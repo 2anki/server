@@ -15,13 +15,11 @@
   },
   "main": "main.js",
   "scripts": {
+    "dev": "webpack-dev-server --mode=development --content-base dist/",
+    "watch": "webpack --watch --progress --colors --display-modules",
     "test": "imba test/create_deck.imba",
     "build": "webpack --mode=production",
-    "dev": "webpack-dev-server --mode=development --content-base dist/",
-    "pack": "electron-builder --dir",
-    "dist": "electron-builder",
-    "start": "electron .",
-    "watch": "webpack --watch --progress --colors --display-modules"
+    "start": "yarn dev"
   },
   "repository": {
     "type": "git",
