@@ -18,7 +18,7 @@
     "dev": "webpack-dev-server --mode=development --content-base dist/",
     "watch": "webpack --watch --progress --colors --display-modules",
     "test": "imba test/create_deck.imba",
-    "build": "webpack --mode=production",
+    "build": "imba build.imba",
     "start": "yarn dev"
   },
   "repository": {
