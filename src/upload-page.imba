@@ -14,7 +14,7 @@ tag upload-page
 	
 	def render
 		<self>
-			<page-content .justify-center=(state == 'uploading') .items-center=(state == 'uploading')>				
+			<page-content .justify-center=(state == 'uploading') .items-center=(state == 'uploading')>
 				<div .flex .flex-col .justify-center .items-center .h-screen>
 					if state == 'ready'
 						<input .m-4 .p-4 .border-dashed .border-4 .border-gray-600 #upload-button :change.fileuploaded type="file" name="resume" accept=".zip,.html">
