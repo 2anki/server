@@ -16,9 +16,6 @@ tag upload-page
 		<self>
 			<page-content .justify-center=(state == 'uploading') .items-center=(state == 'uploading')>
 				<div .flex .flex-col .justify-center .items-center .h-screen>
-					<p> 
-						"Join the Community on "
-						<a .(background: #7289da px: 2 text: white) .rounded .mr-4 href="https://discord.gg/PSKC3uS" target="_blank"> "Discord"
 					if state == 'ready'
 						<input .m-4 .p-4 .border-dashed .border-4 .border-gray-600 #upload-button :change.fileuploaded type="file" name="resume" accept=".zip,.html">
 						<div .text-center>

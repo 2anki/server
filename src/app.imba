@@ -60,5 +60,8 @@ tag app-root
 	def render
 		<self>
 			<n2a-header>
+			<p .(py: 2 text-align: center bg: whitesmoke)> 
+				"Join the Community on "
+				<a .(background: #7289da px: 2 text: white) .rounded .mr-4 href="https://discord.gg/PSKC3uS" target="_blank"> "Discord"
 			<upload-page state=state progress=progress>
 			<n2a-footer>
