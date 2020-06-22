@@ -1,10 +1,9 @@
 import crypto from 'crypto'
 import fs from 'fs'
 
-import cheerio from 'cheerio'
-
-import MarkdownHandler from './MarkdownHandler'
 import AnkiExport from 'anki-apkg-export'
+import showdown from 'showdown'
+import cheerio from 'cheerio'
 
 export default class DeckParser
 
@@ -12,7 +11,7 @@ export default class DeckParser
 		const deckName = settings.deckName
 		self.settings = settings
 		// TODO: rename converter to be more md specific
-		self.converter = MarkdownHandler()
+		self.converter = showdown.Converter.new()
 
 		if md
 			self.payload = handleMarkdown(contents, deckName)
@@ -92,6 +91,7 @@ export default class DeckParser
 
 		for line of lines
 			continue if !line || !(line.trim())
+			console.log('line', line)
 			if line.match(/^#/) && is_multi_deck
 				decks.push({name: deck_name_for(name, line), cards: [], style: style})
 				i = i + 1
@@ -172,8 +172,6 @@ export default class DeckParser
 	// TODO: refactor
 	def build output, deck, files
 		let exporter = self.setupExporter(deck)
-		const converter = MarkdownHandler()
-
 		for card in deck.cards
 			// Try getting Markdown image, should it be recursive for HTML and Markdown?
 			let imageMatch = self.mdImageMatch(card.backSide)
