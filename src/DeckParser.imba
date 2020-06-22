@@ -78,7 +78,8 @@ export default class DeckParser
 		const inputType = 'md'
 		const decks = []
 
-		const is_multi_deck = lines.find do $1.match(/^\s{8}-/)
+		# TODO: expose this to the user
+		let is_multi_deck = lines.find do $1.match(/^\s{8}-/)
 		const name = deckName ? deckName : pickDefaultDeckName(lines.shift())
 		lines.shift()
 
@@ -91,7 +92,7 @@ export default class DeckParser
 
 		for line of lines
 			continue if !line || !(line.trim())
-			console.log('line', line)
+			console.log('line', line, 'is_multi_deck', is_multi_deck)
 			if line.match(/^#/) && is_multi_deck
 				decks.push({name: deck_name_for(name, line), cards: [], style: style})
 				i = i + 1
@@ -117,7 +118,16 @@ export default class DeckParser
 			if unsetBackSide > -1
 				cd.cards[unsetBackSide].backSide = line.trim() + '\n'
 			else
-				cd.cards[cd.cards.length - 1].backSide += line.trim() + '\n'
+				console.log('cd.cards', cd.cards, unsetBackSide)
+				try 
+					cd.cards[cd.cards.length - 1].backSide += line.trim() + '\n'
+				catch e
+					console.error(e)
+					console.log('i', i)
+					# Parsing failed, try multi deck
+					is_multi_deck = !is_multi_deck
+					i = i - 1
+					continue
 
 		return decks
 
