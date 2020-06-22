@@ -1,4 +1,4 @@
-import DeckHandler from '../handlers/DeckHandler'
+import DeckParser from '../DeckParser'
 
 def isMarkdown file
 	return false if !file
@@ -7,7 +7,7 @@ def isMarkdown file
 
 // TODO: clean up duplication
 export def PrepareDeck file_name, files, settings
-		const decks = DeckHandler.new(isMarkdown(file_name), files[file_name], settings)
+		const decks = DeckParser.new(isMarkdown(file_name), files[file_name], settings)
 		let packages = []
 		if Array.isArray(decks.payload)
 			for d in decks.payload

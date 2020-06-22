@@ -1,7 +1,7 @@
 const path = require('path')
 const fs = require('fs')
 
-import DeckHandler from '../src/handlers/DeckHandler'
+import DeckParser from '../src/DeckParser'
 import ZipHandler from '../src/handlers/ZipHandler'
 
 def eq lhs, rhs, msg = null
@@ -18,7 +18,7 @@ def test_fixture file_name, deck_name, card_count, files = {}
 		const file_path = path.join(__dirname, "fixtures", file_name)
 		const example = fs.readFileSync(file_path).toString()
 		const isMarkdown = example.match(/.(md|html)$/)
-		const deck = DeckHandler.new(isMarkdown, example).payload
+		const deck = DeckParser.new(isMarkdown, example).payload
 		
 		eq(deck.style != undefined, true, "Style is not set")
 
@@ -68,7 +68,7 @@ def main
 	
 	// for file in zipHandler.filenames()
 	// 	if file.match(/.(md|html)$/)
-	// 		const deck = DeckHandler.new().build(zipHandler.files[file])
+	// 		const deck = DeckParser.new().build(zipHandler.files[file])
 	// 		const apkgOutput = await deck.build(null, deck, zipHandler.files)
 	// 		assert.notEqual(apkgOutput, undefined)
 

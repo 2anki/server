@@ -6,7 +6,7 @@ import cheerio from 'cheerio'
 import MarkdownHandler from './MarkdownHandler'
 import AnkiExport from 'anki-apkg-export'
 
-export default class DeckHandler
+export default class DeckParser
 
 	def constructor md, contents, settings = {}
 		const deckName = settings.deckName
