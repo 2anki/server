@@ -17,8 +17,9 @@ def yarn options
 			resolve(code)
 
 def build_process
-	await yarn(['run', 'webpack', '--mode=production'])
-	await yarn(['run', 'imbac', '-o', 'functions', 'src/handlers/UploadHandler.imba'])
+	if !process.env.SKIP_WEBPACK
+		await yarn(['run', 'webpack', '--mode=production'])
+	await yarn(['run', 'imbac', '-o', 'functions', 'server/src/upload.imba'])
 	await yarn(['netlify-lambda', 'build', 'functions'])
 
 # yarn run imbac -o functions src/handlers/UploadHandler.imba

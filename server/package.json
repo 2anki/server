@@ -1,0 +1,13 @@
+{
+  "name": "notion2anki-server",
+  "version": "0.0.0",
+  "description": "mostly a serverless package to handle Notion 2 Anki uploads",
+  "main": "index.js",
+  "repository": "https://github.com/alemayhu/notion2anki",
+  "author": "Alexander Alemayhu",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1",
+    "serverless-http": "^2.5.0"
+  }
+}
