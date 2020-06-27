@@ -1,11 +1,13 @@
 import {spawn} from 'child_process'
+import path from 'path'
+import fs from 'fs'
 
 # build the html pages
 # webpack --mode=production
 
-def build_process
+def yarn options
 	Promise.new do |resolve, reject|
-		const wc = spawn('yarn', ['run', 'webpack', '--mode=production'])
+		const wc = spawn('yarn', options)
 		wc.stdout.on('data') do |data|
 			console.log data.toString!
 		wc.stderr.on('data') do |data|
@@ -14,4 +16,23 @@ def build_process
 		wc.on('close') do |code|
 			resolve(code)
 
+def build_process
+	await yarn(['run', 'webpack', '--mode=production'])
+	await yarn(['run', 'imbac', '-o', 'functions', 'src/handlers/UploadHandler.imba'])
+
+# yarn run imbac -o functions src/handlers/UploadHandler.imba
+
+def make_pages
+	console.log('skipping make_pages')
+	# TODO: make it dynamic?
+	# const cwd = path.join(__dirname, 'src/pages')
+	# const directories = fs.readdirSync(cwd)
+	# const pages = directories.filter do $1.match(/\.imba$/)
+
+	# import './src/pages/test-page>'
+	# console.log(<test-page>)
+	# const pages 
+	# for page in pages
+
+make_pages!
 build_process!

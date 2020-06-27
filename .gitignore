@@ -122,3 +122,8 @@ dist/mac/
 dist/n2a-0.0.0-mac.zip
 dist/n2a-0.0.0.dmg
 dist/n2a-0.0.0.dmg.blockmap
+
+
+# Serverless
+functions/*.js
+lambda

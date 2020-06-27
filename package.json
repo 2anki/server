@@ -32,6 +32,7 @@
     "file-saver": "^2.0.2",
     "imba": "^2.0.0-alpha.58",
     "jszip": "^3.3.0",
+    "netlify-lambda": "^1.6.3",
     "script-loader": "^0.7.2",
     "showdown": "^1.9.1"
   },
