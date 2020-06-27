@@ -126,3 +126,4 @@ dist/n2a-0.0.0.dmg.blockmap
 
 # Serverless
 functions/*.js
+lambda
