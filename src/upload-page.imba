@@ -15,13 +15,14 @@ tag upload-page
 	def render
 		<self>
 			<page-content .justify-center=(state == 'uploading') .items-center=(state == 'uploading')>
-				<div .flex .flex-col .justify-center .items-center .h-screen>
+				<form enctype="multipart/form-data" method="post" action="http://localhost:9000/.netlify/functions/upload" .flex .flex-col .justify-center .items-center .h-screen>
 					if state == 'ready'
-						<input .m-4 .p-4 .border-dashed .border-4 .border-gray-600 #upload-button :change.fileuploaded type="file" name="resume" accept=".zip,.html">
+						<input .m-4 .p-4 .border-dashed .border-4 .border-gray-600 #upload-button type="file" name="pkg" accept=".zip,.html">
 						<div .text-center>
 							<h2> "Font size: {fontSize}"
 							<input[fontSize] min='20' type="range" :change.fontSizeChanged(fontSize)>
 							<p #user-font-size css:font-size="{fontSize}px"> "a A あ　ア　万"
+						<button type="submit"> "Submit"
 					elif state == 'uploading'
 						<h2 .text-4xl> "One moment, building your deck 👷🏾‍♀️"
 						<progress-bar value=progress>

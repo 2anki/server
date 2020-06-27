@@ -7,7 +7,12 @@
   "author": "Alexander Alemayhu",
   "license": "MIT",
   "dependencies": {
+    "anki-apkg-export": "^4.0.3",
+    "cheerio": "^1.0.0-rc.3",
     "express": "^4.17.1",
-    "serverless-http": "^2.5.0"
+    "jszip": "^3.5.0",
+    "multer": "^1.4.2",
+    "serverless-http": "^2.5.0",
+    "showdown": "^1.9.1"
   }
 }
