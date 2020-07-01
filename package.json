@@ -19,7 +19,8 @@
     "watch": "webpack --watch --progress --colors --display-modules",
     "test": "imba test/create_deck.imba",
     "build": "imba build.imba",
-    "start": "yarn dev"
+    "start": "yarn dev",
+    "lambda-server": "yarn run netlify-lambda serve functions"
   },
   "repository": {
     "type": "git",
