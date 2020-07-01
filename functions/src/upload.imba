@@ -272,8 +272,8 @@ const app = express()
 app.post('/.netlify/functions/upload', upload.single('pkg'), &) do |req, res|
 	# TODO: handle user settings
 	try
-		console.log('req', req)
-		const payload = req.file.buffer.toString!
+		const payload = req.file.buffer
+		console.log('payload', payload)
 		const filename = req.file.originalname
 		const settings = req.settings || {}
 

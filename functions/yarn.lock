@@ -416,6 +416,11 @@ iconv-lite@0.4.24:
   dependencies:
     safer-buffer ">= 2.1.2 < 3"
 
+imba@^2.0.0-alpha.66:
+  version "2.0.0-alpha.66"
+  resolved "https://registry.yarnpkg.com/imba/-/imba-2.0.0-alpha.66.tgz#56bfb2380de694609940cb7d20fc11ce3fae8f05"
+  integrity sha512-0JzDcUI+Fw/gNFsyWtTn0npDqKmmxjh1oDp4T57SrRodbd4TUD5/dIHl3Gy8xudGu6GVkG7AshD0C1Wd0R1ZDw==
+
 immediate@~3.0.5:
   version "3.0.6"
   resolved "https://registry.yarnpkg.com/immediate/-/immediate-3.0.6.tgz#9db1dbd0faf8de6fbe0f5dd5e56bb606280de69b"
