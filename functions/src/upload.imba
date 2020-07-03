@@ -11,7 +11,7 @@ import AnkiExport from 'anki-apkg-export'
 import showdown from 'showdown'
 import cheerio from 'cheerio'
 
-class ZipHandler
+export class ZipHandler
 
 	def filenames()
 		self.file_names
@@ -29,7 +29,7 @@ class ZipHandler
 			else
 				self.files["{file_name}"] = await loadedZip.files[file_name].async('uint8array')
 
-class DeckParser
+export class DeckParser
 	def constructor md, contents, settings = {}
 		const deckName = settings.deckName
 		self.settings = settings
