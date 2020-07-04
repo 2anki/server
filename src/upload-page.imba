@@ -12,12 +12,15 @@ tag upload-page
 		const button = document.getElementById('upload-button')
 		button.click()
 	
+	def fileupload file
+		console.log('file', file)
+	
 	def render
 		<self>
 			<page-content .justify-center=(state == 'uploading') .items-center=(state == 'uploading')>
 				<form enctype="multipart/form-data" method="post" action="http://localhost:9000/.netlify/functions/upload" .flex .flex-col .justify-center .items-center .h-screen>
 					if state == 'ready'
-						<input .m-4 .p-4 .border-dashed .border-4 .border-gray-600 #upload-button type="file" name="pkg" accept=".zip,.html">
+						<input$input .m-4 .p-4 .border-dashed .border-4 .border-gray-600 #upload-button type="file" name="pkg" accept=".zip,.html">
 						<div .text-center>
 							<h2> "Font size: {fontSize}"
 							<input[fontSize] min='20' type="range" :change.fontSizeChanged(fontSize)>

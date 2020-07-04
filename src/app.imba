@@ -29,12 +29,6 @@ tag app-root
 		self.state = 'uploading'
 		self.packages = []
 						
-	def downloadDeck
-		for pkg in self.packages
-			FileSaver.saveAs(pkg.apkg, pkg.name)
-		state = 'ready'
-		self.packages = []
-		self.progress = 0
 	
 	def render
 		<self>

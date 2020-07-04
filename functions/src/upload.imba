@@ -275,25 +275,30 @@ app.get('/version') do |req, res|
 app.post('/.netlify/functions/upload', upload.single('pkg'), &) do |req, res|
 	# TODO: handle user settings
 	try
-		const payload = req.file.buffer
-		console.log('payload', payload)
-		const filename = req.file.originalname
 		const settings = req.settings || {}
+		const payload = req.file.buffer
 
 		# TODO: merge the zip handler constructor and build method
 		const zip_handler = ZipHandler.new()
 		const _ = await zip_handler.build(payload)
-		let state = 'download'
 		let packages = []
 
+		# TODO: only allow uploading one deck tree at a time.
 		for file_name in zip_handler.filenames()
 			if file_name.match(/.(md|html)$/)
 				packages = await PrepareDeck(file_name, zip_handler.files, settings)
-				state = 'download'
-		res.status(200).send({ state: state, packages: packages })
+						
+		res.set("Content-Type", "application/zip")
+		const pkg = packages[0]
+		res.set("Content-Length": Buffer.byteLength(pkg.apkg))		
+		res.attachment(pkg.name)
+		res.status(200).send(pkg.apkg)		
 	catch err
 		console.error(err)
 		res.status(400).send({state: 'failed', message: err.message})
+
+process.on('uncaughtException') do |err, origin|
+	console.log(process.stderr.fd,`Caught exception: ${err}\n Exception origin: ${origin}`)
 
 const port = process.env.PORT || 2020
 const server = app.listen(port) do
