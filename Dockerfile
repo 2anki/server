@@ -2,6 +2,8 @@ FROM node:12-slim
 
 COPY src /app
 WORKDIR /app
+
+COPY package.json /app/package.json
 RUN npm install
 
 ENV PORT 8080
