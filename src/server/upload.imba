@@ -275,7 +275,7 @@ app.get('/version') do |req, res|
 
 # TODO: consider adding support for uploading single Markdown or HTML file
 
-# TODO: Use security policy that only allows notion2anki.alemayhu.com to use the upload handler
+# TODO: Use security policy that only allows notion.2anki.com to use the upload handler
 app.post('/f/upload', upload.single('pkg'), &) do |req, res|
 	# TODO: handle user settings
 	try
