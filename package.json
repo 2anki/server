@@ -9,7 +9,7 @@
     "electron"
   ],
   "author": "Alexander Alemayhu",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "engines": {
     "node": ">=6.0.0"
   },
@@ -22,7 +22,7 @@
     "start": "yarn dev",
     "build-server": "yarn run imbac src/server/upload.imba -o .",
     "watch-server": "yarn run imbac -w src/server/upload.imba -o .",
-    "dev-server": "yarn run imba src/server/upload.imba"   
+    "dev-server": "yarn run imba src/server/upload.imba"
   },
   "repository": {
     "type": "git",
@@ -48,7 +48,7 @@
     "express": "^4.17.1",
     "jszip": "^3.5.0",
     "multer": "^1.4.2",
-    "showdown": "^1.9.1"    
+    "showdown": "^1.9.1"
   },
   "build": {
     "appId": "com.alemayhu.notion2anki",
