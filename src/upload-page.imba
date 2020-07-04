@@ -8,10 +8,17 @@ tag upload-page
 	prop progress = 0
 	prop fontSize = 20
 	
+	def isDebug
+		window.location.hostname == 'localhost'
+
+	def actionUrl
+		let baseUrl = isDebug ? "http://localhost:9000" : "https://notion.2anki.com"
+		"{baseUrl}/f/upload"
+
 	def render
 		<self>
 			<page-content .justify-center=(state == 'uploading') .items-center=(state == 'uploading')>
-				<form enctype="multipart/form-data" method="post" action="http://localhost:9000/.netlify/functions/upload" .flex .flex-col .justify-center .items-center .h-screen>
+				<form enctype="multipart/form-data" method="post" action=actionUrl .flex .flex-col .justify-center .items-center .h-screen>
 					if state == 'ready'
 						<input$input .m-4 .p-4 .border-dashed .border-4 .border-gray-600 #upload-button type="file" name="pkg" accept=".zip,.html">
 						<div .text-center>
