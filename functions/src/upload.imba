@@ -1,15 +1,13 @@
 import crypto from 'crypto'
+import path from 'path'
 import fs from 'fs'
-
-
-import serverless from 'serverless-http'
-import express from 'express'
-import multer from 'multer'
-import JSZip from 'jszip'
 
 import AnkiExport from 'anki-apkg-export'
 import showdown from 'showdown'
 import cheerio from 'cheerio'
+import express from 'express'
+import multer from 'multer'
+import JSZip from 'jszip'
 
 export class ZipHandler
 
@@ -266,6 +264,11 @@ def PrepareDeck file_name, files, settings
 var upload = multer({ storage: multer.memoryStorage() })
 const app = express()
 
+const appInfo = JSON.parse(fs.readFileSync(path.join(__dirname, '../package.json')).toString!)
+app.get('/version') do |req, res|
+	const v = appInfo.version
+	res.status(200).send(v)
+
 # TODO: consider adding support for uploading single Markdown or HTML file
 
 # TODO: Use security policy that only allows notion2anki.alemayhu.com to use the upload handler
@@ -292,4 +295,6 @@ app.post('/.netlify/functions/upload', upload.single('pkg'), &) do |req, res|
 		console.error(err)
 		res.status(400).send({state: 'failed', message: err.message})
 
-export var handler = serverless(app)
+const port = process.env.PORT || 2020
+const server = app.listen(port) do
+	console.log("🟢 Running on port {port}")

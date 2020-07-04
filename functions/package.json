@@ -13,11 +13,11 @@
     "imba": "^2.0.0-alpha.66",
     "jszip": "^3.5.0",
     "multer": "^1.4.2",
-    "serverless-http": "^2.5.0",
     "showdown": "^1.9.1"
   },
   "scripts": {
     "build": "yarn run imbac src/upload.imba -o .",
-    "watch": "yarn run imbac -w src/upload.imba -o ."
+    "watch": "yarn run imbac -w src/upload.imba -o .",
+    "dev": "yarn run imba src/upload.imba"    
   }
 }
