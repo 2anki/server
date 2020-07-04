@@ -17,19 +17,7 @@ tag app-root
 	def mount
 		window.onbeforeunload = do
 			if state != 'ready'
-				return "Conversion in progress. Are you sure you want to stop it?"
-
-	def fontSizeChanged fontSize
-		self.settings['font-size'] = fontSize
-
-	// TODO: refactor DRY
-	def fileuploaded event
-		const files = event.target.files
-		console.log('files', files)
-		self.state = 'uploading'
-		self.packages = []
-						
-	
+				return "Conversion in progress. Are you sure you want to stop it?"				
 	def render
 		<self>
 			<n2a-header>
