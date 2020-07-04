@@ -18,9 +18,11 @@
     "dev": "webpack-dev-server --mode=development --content-base dist/",
     "watch": "webpack --watch --progress --colors --display-modules",
     "test": "imba test/create_deck.imba",
-    "build": "echo disabled for imba build.imba",
+    "build": "imba build.imba",
     "start": "yarn dev",
-    "lambda-server": "yarn run netlify-lambda serve functions"
+    "build-server": "yarn run imbac src/server/upload.imba -o .",
+    "watch-server": "yarn run imbac -w src/server/upload.imba -o .",
+    "dev-server": "yarn run imba src/server/upload.imba"   
   },
   "repository": {
     "type": "git",
@@ -29,13 +31,10 @@
   "license": "MIT",
   "dependencies": {
     "file-saver": "^2.0.2",
-    "imba": "^2.0.0-alpha.58",
-    "netlify-lambda": "^1.6.3",
+    "imba": "2.0.0-alpha.58",
     "remove": "^0.1.5",
     "script-loader": "^0.7.2",
-    "tailwindcss": "^1.4.6"
-  },
-  "devDependencies": {
+    "tailwindcss": "^1.4.6",
     "autoprefixer": "^9.7.6",
     "css-loader": "^1.0.1",
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
@@ -43,7 +42,13 @@
     "style-loader": "^0.23.1",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.1.2",
-    "webpack-dev-server": "^3.7.1"
+    "webpack-dev-server": "^3.7.1",
+    "anki-apkg-export": "^4.0.3",
+    "cheerio": "^1.0.0-rc.3",
+    "express": "^4.17.1",
+    "jszip": "^3.5.0",
+    "multer": "^1.4.2",
+    "showdown": "^1.9.1"    
   },
   "build": {
     "appId": "com.alemayhu.notion2anki",

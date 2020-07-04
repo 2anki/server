@@ -19,10 +19,7 @@ def yarn options
 def build_process
 	if !process.env.SKIP_WEBPACK
 		await yarn(['run', 'webpack', '--mode=production'])
-	await yarn(['--cwd', 'functions', 'run', 'build'])
-	await yarn(['netlify-lambda', 'build', 'functions'])
-
-# yarn run imbac -o functions src/handlers/UploadHandler.imba
+	await yarn(['run', 'build-server'])
 
 def make_pages
 	console.log('skipping make_pages')

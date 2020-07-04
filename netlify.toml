@@ -1,4 +1,3 @@
 [build]
-  functions = "lambda" #  netlify-lambda reads this
   publish = "dist"
   command = "npm run build"

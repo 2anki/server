@@ -264,7 +264,11 @@ def PrepareDeck file_name, files, settings
 var upload = multer({ storage: multer.memoryStorage() })
 const app = express()
 
-const appInfo = JSON.parse(fs.readFileSync(path.join(__dirname, '../package.json')).toString!)
+const distDir = path.join(__dirname, "../../dist")
+
+app.use(express.static(distDir))
+
+const appInfo = JSON.parse(fs.readFileSync(path.join(__dirname, '../../package.json')).toString!)
 app.get('/version') do |req, res|
 	const v = appInfo.version
 	res.status(200).send(v)
@@ -272,7 +276,7 @@ app.get('/version') do |req, res|
 # TODO: consider adding support for uploading single Markdown or HTML file
 
 # TODO: Use security policy that only allows notion2anki.alemayhu.com to use the upload handler
-app.post('/.netlify/functions/upload', upload.single('pkg'), &) do |req, res|
+app.post('/f/upload', upload.single('pkg'), &) do |req, res|
 	# TODO: handle user settings
 	try
 		const settings = req.body || {}
