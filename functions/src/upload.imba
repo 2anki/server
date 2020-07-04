@@ -275,7 +275,7 @@ app.get('/version') do |req, res|
 app.post('/.netlify/functions/upload', upload.single('pkg'), &) do |req, res|
 	# TODO: handle user settings
 	try
-		const settings = req.settings || {}
+		const settings = req.body || {}
 		const payload = req.file.buffer
 
 		# TODO: merge the zip handler constructor and build method
