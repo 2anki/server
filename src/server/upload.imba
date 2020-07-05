@@ -80,8 +80,8 @@ export class DeckParser
 				const front = el.find('.name .innerContentContainer').first()
 				const back = el.find('ul').first().html()
 				return {name: front, backSide: back}
-
-		sanityCheck(cards)
+		# Prevent bad cards from leaking out
+		cards = sanityCheck(cards)
 		{name, cards, inputType, style}
 
 	def  findNullIndex coll, field
@@ -158,6 +158,8 @@ export class DeckParser
 			!x.name or x.backSide
 		if empty
 			console.log('warn Detected empty card, please report bug to developer with an example')
+			console.log('cards', cards)
+		cards.filter do $1.name and $1.backSide
 
 	// Try to avoid name conflicts and invalid characters by hashing
 	def newImageName input
