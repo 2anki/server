@@ -12,7 +12,7 @@ tag upload-page
 		window.location.hostname == 'localhost'
 
 	def actionUrl
-		let baseUrl = isDebug ? "http://localhost:9000" : "https://notion.2anki.com"
+		let baseUrl = isDebug() ? "http://localhost:9000" : "https://notion.2anki.com"
 		"{baseUrl}/f/upload"
 
 	def render
