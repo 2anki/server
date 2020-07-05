@@ -18,7 +18,7 @@ tag upload-page
 	def render
 		<self>
 			<page-content .justify-center=(state == 'uploading') .items-center=(state == 'uploading')>
-				<form enctype="multipart/form-data" method="post" action=actionUrl .flex .flex-col .justify-center .items-center .h-screen>
+				<form enctype="multipart/form-data" method="post" action=actionUrl() .flex .flex-col .justify-center .items-center .h-screen>
 					if state == 'ready'
 						<input$input .m-4 .p-4 .border-dashed .border-4 .border-gray-600 #upload-button type="file" name="pkg" accept=".zip,.html">
 						<div .text-center>
