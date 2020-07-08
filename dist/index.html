@@ -56,6 +56,13 @@
 
     gtag('config', 'UA-162974703-3');
   </script>
+
+  <style>
+    /* TODO: move more stuff out of TailwindCSS to vanilla CSS */
+    .description {
+      font-size: 1.75rem;
+    }
+  </style>
 </head>
 
 <body class="flex flex-col justify-between h-screen">
@@ -94,8 +101,19 @@
         </a>
       </div>
       <div class="flex flex-col items-center">
-        <h2 class="font-bold text-4xl"><a href="#usage" name="usage">How it
-            works</a></h2><iframe class="self-center" width="560" height="315"
+        <h2 class="font-bold text-4xl">
+          <a href="#usage" name="usage">How it
+            works</a>
+            </h2>
+            <ul class="description">
+              <li>
+                One Notion page is one deck 🙂
+              </li>
+              <li>
+                Headings are treated as tags 🏷
+              </li>
+            </ul>
+            <iframe class="self-center" width="560" height="315"
           src="https://www.youtube.com/embed/b3eQ0exhdz4"
           allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>
       </div>

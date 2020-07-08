@@ -11,9 +11,6 @@ import JSZip from 'jszip'
 
 export class ZipHandler
 
-	def filenames()
-		self.file_names
-
 	def build zip_data
 		const loadedZip = await JSZip.loadAsync(zip_data)
 		self.file_names = Object.keys(loadedZip.files)
@@ -25,7 +22,10 @@ export class ZipHandler
 			if file_name.match(/.(md|html)$/)
 				self.files["{file_name}"] = await loadedZip.files[file_name].async('text')
 			else
-				self.files["{file_name}"] = await loadedZip.files[file_name].async('uint8array')
+				self.files["{file_name}"] = await loadedZip.files[file_name].async('uint8array')	
+
+	def filenames()
+		self.file_names
 
 export class DeckParser
 	def constructor md, contents, settings = {}
@@ -109,11 +109,11 @@ export class DeckParser
 		decks.push({name: name, cards:[], style: style})
 		if lines[0] == ''
 			lines.shift()
-		let cards = []
 
 		for line of lines
 			continue if !line || !(line.trim())
 			console.log('line', line, 'is_multi_deck', is_multi_deck)
+			# TODO: add heading as tag
 			if line.match(/^#/) && is_multi_deck
 				decks.push({name: deck_name_for(name, line), cards: [], style: style})
 				i = i + 1
@@ -149,6 +149,21 @@ export class DeckParser
 					is_multi_deck = !is_multi_deck
 					i = i - 1
 					continue
+			
+		if decks.length > 0
+			let single = decks.shift()
+			console.log('make it one')
+			for d in decks
+				for card in d.cards
+					const didMatch = single.cards.find do |s|
+						s.name == card.name && s.backSide == card.backSide
+					# We don't want duplicates
+					if !didMatch
+						card.tags = [d.name]
+						single.cards.push(card)
+			
+			return single
+
 
 		return decks
 
@@ -235,7 +250,7 @@ export class DeckParser
 				card.backSide = converter.makeHtml(card.backSide)
 
 			// Hopefully this should perserve headings and other things
-			exporter.addCard(card.name, card.backSide || 'empty backside')
+			exporter.addCard(card.name, card.backSide || 'empty backside', card.tags ? {tags: card.tags} : {})
 
 		const zip = await exporter.save()
 		return zip if not output
