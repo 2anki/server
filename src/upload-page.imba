@@ -16,13 +16,11 @@ tag upload-page
 		"{baseUrl}/f/upload"
 
 	def render
-		<self>
-			<page-content .justify-center=(state == 'uploading') .items-center=(state == 'uploading')>
-				<form enctype="multipart/form-data" method="post" action=actionUrl() .flex .flex-col .justify-center .items-center .h-screen>
-					if state == 'ready'
-						<input$input .m-4 .p-4 .border-dashed .border-4 .border-gray-600 #upload-button type="file" name="pkg" accept=".zip,.html">
-						<div .text-center>
-							<h2> "Font size: {fontSize}"
-							<input bind=fontSize name="font-size" min='20' type="range">
-							<p[fs: {fontSize}px]> "a A あ　ア　万"
-						<button :click .text-4xl .font-bold .text-white .n2a-blue-bg .rounded-full .px-8 .py-2 type="submit"> "Download"
+		<self> <page-content[jc: center]>
+			<form enctype="multipart/form-data" method="post" action=actionUrl() .flex .flex-col .justify-center .items-center .h-screen>
+				<input[m: 10 p: 10 bd: 4px dashed gray600] type="file" name="pkg" accept=".zip,.html">
+			<h2> "⚙️ Style Setting"
+			<h3> "Font size: {fontSize}"
+			<input$file bind=fontSize name="font-size" min='20' type="range">
+			<p[fs: {fontSize}px]> "a A あ　ア　万"
+			<button[fs: 4xl fw: bold c: white br: 0.25rem px: 8 py: 2]  .n2a-blue-bg  type="submit"> "⬇️ Download"

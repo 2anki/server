@@ -67,7 +67,6 @@ Copyright (c) 2020, Alexander Alemayhu
 This would be super hard if it were not for the following projects:
 
 - [anki-apkg-export](https://github.com/repeat-space/anki-apkg-export)
-- [FileSaver.js](https://github.com/eligrey/FileSaver.js/)
 - [jszip](https://github.com/Stuk/jszip)
 - [Imba](https://github.com/imba/imba)
 
