@@ -298,11 +298,13 @@ app.get('/version') do |req, res|
 
 # TODO: Use security policy that only allows notion.2anki.com to use the upload handler
 app.post('/f/upload', upload.single('pkg'), &) do |req, res|
+	console.log('POST', req.originalUrl)
 	# TODO: handle user settings
 	try
 		const settings = req.body || {}
 		const payload = req.file.buffer
 
+		console.log('settings is', JSON.stringify(settings, null, 2))
 		# TODO: merge the zip handler constructor and build method
 		const zip_handler = ZipHandler.new()
 		const _ = await zip_handler.build(payload)
