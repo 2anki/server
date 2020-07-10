@@ -28,6 +28,9 @@ export class ZipHandler
 		self.file_names
 
 export class DeckParser
+
+	prop defaultDeckStyle
+
 	def constructor md, contents, settings = {}
 		const deckName = settings.deckName
 		self.settings = settings
@@ -43,12 +46,13 @@ export class DeckParser
 		const name = firstLine ? firstLine.trim() : 'Untitled Deck'
 		firstLine.trim().replace(/^# /, '')
 
-	// TODO: provide our own default amazing style
 	def defaultStyle
-		let a = '.card {\nfont-family: arial;\nfont-size: 20px;\ntext-align: center;\ncolor: black;\nbackground-color: white;\n}'
+		const name = 'default'
+		let style = fs.readFileSync(path.join(__dirname, "templates/{name}.css")).toString()
+		# Use the user's supplied settings
 		if let settings = self.settings
-			a = a.replace(/font-size: 20px/g, "font-size: {settings['font-size']}px")
-		a
+			style = style.replace(/font-size: 20px/g, "font-size: {settings['font-size']}px")
+		style
 
 	def appendDefaultStyle s
 		"{s}\n{defaultStyle()}"
