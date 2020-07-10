@@ -1,10 +1,9 @@
 # Components
-import './components/call-for-action'
 import './components/n2a-header'
-import './components/footer'
-import './upload-page'
+import './components/n2a-footer'
+import './pages/upload-page'
 
-css body d: flex fld:  column jc: space-between height: 100vh m: 0 ff: 'Baloo 2'
+css body height: 100vh w: 100vw m: 0 ff: 'Baloo 2', Helvetica, Arial
 
 css .app-root
 	m: 0
@@ -25,12 +24,7 @@ tag app-root
 			if state != 'ready'
 				return "Conversion in progress. Are you sure you want to stop it?"				
 	def render
-		<self>
+		<self[d: flex fld: column jc: space-between]>
 			<n2a-header>
-			<call-for-action>
-				<p> 
-					"For more tools like this checkout {<a[bg: blue700 px: 2 c: white mr: 1 border-radius: 0.25rem td: none] .underline href="https://2anki.net"> "2Anki.net"} and "
-					"join the Community on "
-					<a[bg: #7289da px: 2 c: white mr: 4 border-radius: 0.25rem td: none] href="https://discord.gg/PSKC3uS" target="_blank"> "Discord"
 			<upload-page state=state progress=progress>
 			<n2a-footer>

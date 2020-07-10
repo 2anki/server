@@ -319,7 +319,7 @@ app.post('/f/upload', upload.single('pkg'), &) do |req, res|
 		const pkg = packages[0]
 		res.set("Content-Length": Buffer.byteLength(pkg.apkg))		
 		res.attachment(pkg.name)
-		res.status(200).send(pkg.apkg)		
+		res.status(200).send(pkg.apkg)
 	catch err
 		console.error(err)
 		res.status(400).send({state: 'failed', message: err.message})
