@@ -4,6 +4,7 @@ import './components/n2a-footer'
 import './pages/upload-page'
 import './pages/home-page'
 import './pages/contact-page'
+import './pages/privacy-page'
 
 css .rounded border: 0.1px solid white br: 0.25rem td: none  p: 0.1rem 2 my: 2 c: white mr: 4 bg: none  @hover: blue	
 css body height: 100vh w: 100vw m: 0 ff: 'Baloo 2', Helvetica, Arial
@@ -36,6 +37,8 @@ tag app-root
 				<upload-page state=state progress=progress>
 			elif page().includes('contact')
 				<contact-page>
+			elif page().includes('privacy')
+				<privacy-page>
 			else
 				<home-page>
 			<n2a-footer>
