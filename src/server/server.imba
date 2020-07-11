@@ -294,6 +294,11 @@ app.get('/version') do |req, res|
 	const v = appInfo.version
 	res.status(200).send(v)
 
+const old = ['/index', '/contact', '/privacy', 'upload']
+for p in old
+	app.get (old) do |req, res| res.sendFile(path.join(distDir, 'index.html'))
+	app.get ("{old}.html") do |req, res| res.sendFile(path.join(distDir, 'index.html'))
+
 # TODO: consider adding support for uploading single Markdown or HTML file
 
 # TODO: Use security policy that only allows notion.2anki.com to use the upload handler

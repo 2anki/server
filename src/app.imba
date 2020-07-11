@@ -2,7 +2,10 @@
 import './components/n2a-header'
 import './components/n2a-footer'
 import './pages/upload-page'
+import './pages/home-page'
+import './pages/contact-page'
 
+css .rounded border: 0.1px solid white br: 0.25rem td: none  p: 0.1rem 2 my: 2 c: white mr: 4 bg: none  @hover: blue	
 css body height: 100vh w: 100vw m: 0 ff: 'Baloo 2', Helvetica, Arial
 
 css .app-root
@@ -19,6 +22,9 @@ tag app-root
 	# TODO: expose more card template stuff
 	prop settings = {'font-size': 20}
 
+	def page
+		window.location.pathname
+
 	def mount
 		window.onbeforeunload = do
 			if state != 'ready'
@@ -26,5 +32,10 @@ tag app-root
 	def render
 		<self[d: flex fld: column jc: space-between]>
 			<n2a-header>
-			<upload-page state=state progress=progress>
+			if page().includes('upload')
+				<upload-page state=state progress=progress>
+			elif page().includes('contact')
+				<contact-page>
+			else
+				<home-page>
 			<n2a-footer>

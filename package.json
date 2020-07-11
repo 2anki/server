@@ -20,9 +20,9 @@
     "test": "imba test/create_deck.imba",
     "build": "imba build.imba",
     "start": "yarn dev",
-    "build-server": "yarn run imbac src/server/upload.imba -o .",
-    "watch-server": "yarn run imbac -w src/server/upload.imba -o .",
-    "dev-server": "yarn run imba src/server/upload.imba"
+    "build-server": "yarn run imbac src/server/server.imba -o .",
+    "watch-server": "yarn run imbac -w src/server/server.imba -o .",
+    "dev-server": "yarn run imba src/server/server.imba"
   },
   "repository": {
     "type": "git",

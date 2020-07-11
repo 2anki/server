@@ -1,7 +1,7 @@
 const path = require('path')
 const fs = require('fs')
 
-import {ZipHandler,DeckParser} from '../src/server/upload'
+import {ZipHandler,DeckParser} from '../src/server/server'
 
 def eq lhs, rhs, msg = null
 	console.log('comparing', lhs, rhs, msg ? "reason: {msg}" : '')
