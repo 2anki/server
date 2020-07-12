@@ -269,18 +269,9 @@ def isMarkdown file
 // TODO: clean up duplication
 def PrepareDeck file_name, files, settings
 		const decks = DeckParser.new(isMarkdown(file_name), files[file_name], settings)
-		let packages = []
-		if Array.isArray(decks.payload)
-			for d in decks.payload
-				continue if d.cards.length == 0
-				const apkg = await decks.build(null, d, files)
-				packages.push({name: "{d.name}.apkg", apkg: apkg, d})
-			packages				
-		else
-			const deck = decks.payload
-			const apkg = await decks.build(null, deck, files)
-			packages.push({name: "{deck.name}.apkg", apkg: apkg, deck})
-			packages
+		const deck = decks.payload
+		const apkg = await decks.build(null, deck, files)
+		{name: "{deck.name}.apkg", apkg: apkg, deck}
 
 var upload = multer({ storage: multer.memoryStorage() })
 const app = express()
