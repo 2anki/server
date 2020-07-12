@@ -2,7 +2,9 @@
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/5da03a4d-2c54-4343-8949-33124d2211e5/deploy-status)](https://app.netlify.com/sites/vibrant-swirles-654fce/deploys)
 
-This is tool a to let you convert your Notion [toggle lists][tl] to Anki cards easily.
+Notion2Anki is a passion project. We are trying to make this a good way to make Anki flashcards easier,
+better and faster. This is tool a to let you convert your Notion [toggle lists][tl] to Anki cards easily.
+No technical skills required and 100% free to use by anyone anywhere 🤗
 
 [tl]: https://www.notion.so/Toggles-c720af26b4bd4789b736c140b2dc73fe
 
@@ -10,7 +12,6 @@ This is tool a to let you convert your Notion [toggle lists][tl] to Anki cards e
 
 This project was hacked together after seeing this post on Reddit 
 https://www.reddit.com/r/Anki/comments/g29mzk/cards_imported_from_notion/
-
 
 ## Roadmap
 
