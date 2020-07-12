@@ -9,7 +9,7 @@
     "electron"
   ],
   "author": "Alexander Alemayhu",
-  "version": "0.0.24",
+  "version": "0.0.25",
   "engines": {
     "node": ">=6.0.0"
   },
