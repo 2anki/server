@@ -93,6 +93,7 @@ export class DeckParser
 				const back = el.find('ul').first().html()
 				return {name: front, backSide: back}
 		# Prevent bad cards from leaking out
+		console.log('cards', cards)
 		cards = sanityCheck(cards)
 		if cards.length > 0
 			return {name, cards, inputType, style}
@@ -313,28 +314,32 @@ app.use do |err, req, res, next|
 # TODO: Use security policy that only allows notion.2anki.com to use the upload handler
 app.post('/f/upload', upload.single('pkg'), &) do |req, res|
 	console.log('POST', req.originalUrl)
-	# TODO: handle user settings
 	try
 		const filename = req.file.originalname		
 		const settings = req.body || {}
 		const payload = req.file.buffer
 		let deck
-		if filename.match(/.(md|html)/) # We have a non zip upload
+
+		console.log('filename', filename, 'with settings', settings)
+		if filename.match(/.(md|html)$/)
+			console.log('We have a non zip upload')
 			deck = await PrepareDeck(filename, {"{filename}": req.file.buffer.toString!}, settings)
 		else
+			console.log('zip upload')
 			const zip_handler = ZipHandler.new()
 			const _ = await zip_handler.build(payload)
 			for file_name in zip_handler.filenames()
 				if file_name.match(/.(md|html)$/)
 					deck = await PrepareDeck(file_name, zip_handler.files, settings)
 					# TODO: add support for merging multiple files into one deck
-					break
+					# break
 						
 		res.set("Content-Type", "application/zip")
 		res.set("Content-Length": Buffer.byteLength(deck.apkg))		
 		res.attachment(deck.name)
 		res.status(200).send(deck.apkg)
 	catch err
+		console.err(err)
 		useErrorHandler(res, err)
 
 process.on('uncaughtException') do |err, origin|
