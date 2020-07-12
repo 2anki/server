@@ -1,5 +1,5 @@
 tag n2a-footer
-	<self[d: flex p: 2 jc: space-around fld: column @xs:row bg: whitesmoke ai: center] .n2a-blue-text>
+	<self[d: flex flex-shrink: 0 p: 2 jc: space-around fld: column @xs:row bg: whitesmoke ai: center] .n2a-blue-text>
 		<div>
 			<p>
 				"Developed in 🇳🇴 with ❤️ using {<a .text-blue-700 .underline href="https://imba.io"> "Imba"}"

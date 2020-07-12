@@ -16,7 +16,7 @@ tag n2a-header
 					<a[bg: #7289da @hover: blue].rounded href="https://discord.gg/PSKC3uS" target="_blank"> "Discord"
 
 	def render
-		<self[d: inline-block]>
+		<self[d: block flex-shrink: 0]>
 			<nav[d: flex jc: space-around w: 100vw c: white ai: center fld: column @md: row].n2a-blue-bg>
 				<a[c:white td:none] href="/"> <h1[fs:2xl fw: bold ls: -0.025rem m: 0 p: 0 c: white @hover: blue]> "notion.2anki.net"
 				<div[w: 20% js: flex-end]>

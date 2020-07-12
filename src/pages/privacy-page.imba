@@ -6,7 +6,7 @@ tag privacy-page
 
 	def render
 		<self[d: inline-block]> <page-content>
-			<div[w: 100vw h: 100vh d: flex fld: column jc: space-between]>
+			<div[w: 100vw d: flex fld: column jc: space-between]>
 				<div[py: 4 max-width: 720px m: 0px auto]>
 					<div[d: flex fld: column ai: center]>
 						<h2[fs: 4xl]>

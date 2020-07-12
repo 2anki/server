@@ -17,7 +17,7 @@ tag upload-page
 
 	def render
 		<self[d: inline-block]> <page-content>
-			<form[d: flex fld: column jc: center ai: center h: 100vh] enctype="multipart/form-data" method="post" action=actionUrl()>
+			<form[d: flex fld: column jc: center ai: center] enctype="multipart/form-data" method="post" action=actionUrl()>
 				<h2> "⚙️ Style Setting"
 				<h3> "Font size: {fontSize}"
 				<input$file bind=fontSize name="font-size" min='20' type="range">
