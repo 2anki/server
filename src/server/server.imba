@@ -9,6 +9,11 @@ import express from 'express'
 import multer from 'multer'
 import JSZip from 'jszip'
 
+# TODO: clean up this file
+console.log('__dirname', __dirname)
+
+const TEMPLATE_DIR = path.join(__dirname, "templates")
+
 export class ZipHandler
 
 	def build zip_data
@@ -26,6 +31,9 @@ export class ZipHandler
 
 	def filenames()
 		self.file_names
+
+
+const NoCardsError = new Error('Could not create any cards. Did you write any togglelists?')
 
 export class DeckParser
 
@@ -48,7 +56,7 @@ export class DeckParser
 
 	def defaultStyle
 		const name = 'default'
-		let style = fs.readFileSync(path.join(__dirname, "templates/{name}.css")).toString()
+		let style = fs.readFileSync(path.join(TEMPLATE_DIR, "{name}.css")).toString()
 		# Use the user's supplied settings
 		if let settings = self.settings
 			style = style.replace(/font-size: 20px/g, "font-size: {settings['font-size']}px")
@@ -86,7 +94,9 @@ export class DeckParser
 				return {name: front, backSide: back}
 		# Prevent bad cards from leaking out
 		cards = sanityCheck(cards)
-		{name, cards, inputType, style}
+		if cards.length > 0
+			return {name, cards, inputType, style}
+		throw new NoCardsError()
 
 	def  findNullIndex coll, field
 		return coll.findIndex do |x| x[field] == null
@@ -167,9 +177,7 @@ export class DeckParser
 						single.cards.push(card)
 			
 			return single
-
-
-		return decks
+		throw new NoCardsError()
 
 
 	def sanityCheck cards
@@ -273,6 +281,13 @@ def PrepareDeck file_name, files, settings
 		const apkg = await decks.build(null, deck, files)
 		{name: "{deck.name}.apkg", apkg: apkg, deck}
 
+const errorPage = fs.readFileSync(path.join(TEMPLATE_DIR, 'error-message.html')).toString!
+
+def useErrorHandler res, err
+	res.set('Content-Type', 'text/html');
+	let info = errorPage.replace('{err.message}', err.message).replace('{err?.stack}', err.stack)
+	res.status(400).send(new Buffer(info))	
+
 var upload = multer({ storage: multer.memoryStorage() })
 const app = express()
 
@@ -281,6 +296,7 @@ const distDir = path.join(__dirname, "../../dist")
 app.use(express.static(distDir))
 
 const appInfo = JSON.parse(fs.readFileSync(path.join(__dirname, '../../package.json')).toString!)
+
 app.get('/version') do |req, res|
 	const v = appInfo.version
 	res.status(200).send(v)
@@ -291,7 +307,8 @@ for p in old
 	app.get (p) do |req, res| res.sendFile(path.join(distDir, 'index.html'))
 	app.get ("{p}.html") do |req, res| res.sendFile(path.join(distDir, 'index.html'))
 
-# TODO: consider adding support for uploading single Markdown or HTML file
+app.use do |err, req, res, next|
+	useErrorHandler(res, err)
 
 # TODO: Use security policy that only allows notion.2anki.com to use the upload handler
 app.post('/f/upload', upload.single('pkg'), &) do |req, res|
@@ -301,7 +318,6 @@ app.post('/f/upload', upload.single('pkg'), &) do |req, res|
 		const filename = req.file.originalname		
 		const settings = req.body || {}
 		const payload = req.file.buffer
-		console.log('file', req.file)
 		let deck
 		if filename.match(/.(md|html)/) # We have a non zip upload
 			deck = await PrepareDeck(filename, {"{filename}": req.file.buffer.toString!}, settings)
@@ -319,8 +335,7 @@ app.post('/f/upload', upload.single('pkg'), &) do |req, res|
 		res.attachment(deck.name)
 		res.status(200).send(deck.apkg)
 	catch err
-		console.error(err)
-		res.status(400).send({state: 'failed', message: err.message})
+		useErrorHandler(res, err)
 
 process.on('uncaughtException') do |err, origin|
 	console.log(process.stderr.fd,`Caught exception: ${err}\n Exception origin: ${origin}`)
