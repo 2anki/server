@@ -307,25 +307,26 @@ app.post('/f/upload', upload.single('pkg'), &) do |req, res|
 	console.log('POST', req.originalUrl)
 	# TODO: handle user settings
 	try
+		const filename = req.file.originalname		
 		const settings = req.body || {}
 		const payload = req.file.buffer
-
-		console.log('settings is', JSON.stringify(settings, null, 2))
-		# TODO: merge the zip handler constructor and build method
-		const zip_handler = ZipHandler.new()
-		const _ = await zip_handler.build(payload)
-		let packages = []
-
-		# TODO: only allow uploading one deck tree at a time.
-		for file_name in zip_handler.filenames()
-			if file_name.match(/.(md|html)$/)
-				packages = await PrepareDeck(file_name, zip_handler.files, settings)
+		console.log('file', req.file)
+		let deck
+		if filename.match(/.(md|html)/) # We have a non zip upload
+			deck = await PrepareDeck(filename, {"{filename}": req.file.buffer.toString!}, settings)
+		else
+			const zip_handler = ZipHandler.new()
+			const _ = await zip_handler.build(payload)
+			for file_name in zip_handler.filenames()
+				if file_name.match(/.(md|html)$/)
+					deck = await PrepareDeck(file_name, zip_handler.files, settings)
+					# TODO: add support for merging multiple files into one deck
+					break
 						
 		res.set("Content-Type", "application/zip")
-		const pkg = packages[0]
-		res.set("Content-Length": Buffer.byteLength(pkg.apkg))		
-		res.attachment(pkg.name)
-		res.status(200).send(pkg.apkg)
+		res.set("Content-Length": Buffer.byteLength(deck.apkg))		
+		res.attachment(deck.name)
+		res.status(200).send(deck.apkg)
 	catch err
 		console.error(err)
 		res.status(400).send({state: 'failed', message: err.message})
