@@ -1,8 +1,7 @@
 const path = require('path')
 const fs = require('fs')
 
-import DeckParser from '../src/DeckParser'
-import ZipHandler from '../src/handlers/ZipHandler'
+import {ZipHandler,DeckParser} from '../src/server/server'
 
 def eq lhs, rhs, msg = null
 	console.log('comparing', lhs, rhs, msg ? "reason: {msg}" : '')
@@ -18,16 +17,17 @@ def test_fixture file_name, deck_name, card_count, files = {}
 		const file_path = path.join(__dirname, "fixtures", file_name)
 		const example = fs.readFileSync(file_path).toString()
 		const isMarkdown = example.match(/.(md|html)$/)
-		const deck = DeckParser.new(isMarkdown, example).payload
-		
-		eq(deck.style != undefined, true, "Style is not set")
+		const deck = DeckParser.new(isMarkdown, example)		
+		const payload = deck.payload
 
-		console.log('deck.name', deck.name)
-		eq(deck.name, deck_name, 'comparing deck names')
-		eq(deck.cards.length, card_count, 'comparing deck count')
+		eq(payload.style != undefined, true, "Style is not set")
+
+		console.log('deck.name', payload.name)
+		eq(payload.name, deck_name, 'comparing deck names')
+		eq(payload.cards.length, card_count, 'comparing deck count')
 
 		if card_count > 0
-			const zip_file_path = path.join(__dirname, "artifacts", "{deck.name}.apkg")
+			const zip_file_path = path.join(__dirname, "artifacts", "{payload.name}.apkg")
 			await deck.build(zip_file_path, deck, files)
 			eq(fs.existsSync(zip_file_path), true, 'ensuring output was created')
 	catch e

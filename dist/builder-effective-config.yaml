@@ -8,7 +8,6 @@ files:
   - filter:
       - main.js
       - dist/app.js
-      - dist/app.css
       - dist/index.html
       - build
       - node_modules

@@ -1,3 +1,2 @@
 tag page-content
-	<self .block .w-screen .flex .flex-col .h-screen .justify-between>
-		<slot>
+	<self[d: flex flex-grow: 1 w: 100vw fld: column jc: space-between ai: center]> <slot>

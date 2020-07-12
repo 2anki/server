@@ -1,11 +1,43 @@
 import crypto from 'crypto'
+import path from 'path'
 import fs from 'fs'
 
 import AnkiExport from 'anki-apkg-export'
 import showdown from 'showdown'
 import cheerio from 'cheerio'
+import express from 'express'
+import multer from 'multer'
+import JSZip from 'jszip'
 
-export default class DeckParser
+# TODO: clean up this file
+console.log('__dirname', __dirname)
+
+const TEMPLATE_DIR = path.join(__dirname, "templates")
+
+export class ZipHandler
+
+	def build zip_data
+		const loadedZip = await JSZip.loadAsync(zip_data)
+		self.file_names = Object.keys(loadedZip.files)
+		self.file_names = self.file_names.filter do |f| !f.endsWith('/')
+		self.files = {}
+
+		for file_name in self.file_names
+			const contents = loadedZip.files[file_name]._data.compressedContent
+			if file_name.match(/.(md|html)$/)
+				self.files["{file_name}"] = await loadedZip.files[file_name].async('text')
+			else
+				self.files["{file_name}"] = await loadedZip.files[file_name].async('uint8array')	
+
+	def filenames()
+		self.file_names
+
+
+const NoCardsError = new Error('Could not create any cards. Did you write any togglelists?')
+
+export class DeckParser
+
+	prop defaultDeckStyle
 
 	def constructor md, contents, settings = {}
 		const deckName = settings.deckName
@@ -22,12 +54,13 @@ export default class DeckParser
 		const name = firstLine ? firstLine.trim() : 'Untitled Deck'
 		firstLine.trim().replace(/^# /, '')
 
-	// TODO: provide our own default amazing style
 	def defaultStyle
-		let a = '.card {\nfont-family: arial;\nfont-size: 20px;\ntext-align: center;\ncolor: black;\nbackground-color: white;\n}'
+		const name = 'default'
+		let style = fs.readFileSync(path.join(TEMPLATE_DIR, "{name}.css")).toString()
+		# Use the user's supplied settings
 		if let settings = self.settings
-			a = a.replace(/font-size: 20px/g, "font-size: {settings['font-size']}px")
-		a
+			style = style.replace(/font-size: 20px/g, "font-size: {settings['font-size']}px")
+		style
 
 	def appendDefaultStyle s
 		"{s}\n{defaultStyle()}"
@@ -59,9 +92,11 @@ export default class DeckParser
 				const front = el.find('.name .innerContentContainer').first()
 				const back = el.find('ul').first().html()
 				return {name: front, backSide: back}
-
-		sanityCheck(cards)
-		{name, cards, inputType, style}
+		# Prevent bad cards from leaking out
+		cards = sanityCheck(cards)
+		if cards.length > 0
+			return {name, cards, inputType, style}
+		throw new NoCardsError()
 
 	def  findNullIndex coll, field
 		return coll.findIndex do |x| x[field] == null
@@ -88,11 +123,11 @@ export default class DeckParser
 		decks.push({name: name, cards:[], style: style})
 		if lines[0] == ''
 			lines.shift()
-		let cards = []
 
 		for line of lines
 			continue if !line || !(line.trim())
 			console.log('line', line, 'is_multi_deck', is_multi_deck)
+			# TODO: add heading as tag
 			if line.match(/^#/) && is_multi_deck
 				decks.push({name: deck_name_for(name, line), cards: [], style: style})
 				i = i + 1
@@ -128,8 +163,21 @@ export default class DeckParser
 					is_multi_deck = !is_multi_deck
 					i = i - 1
 					continue
-
-		return decks
+			
+		if decks.length > 0
+			let single = decks.shift()
+			console.log('make it one')
+			for d in decks
+				for card in d.cards
+					const didMatch = single.cards.find do |s|
+						s.name == card.name && s.backSide == card.backSide
+					# We don't want duplicates
+					if !didMatch
+						card.tags = [d.name]
+						single.cards.push(card)
+			
+			return single
+		throw new NoCardsError()
 
 
 	def sanityCheck cards
@@ -137,6 +185,8 @@ export default class DeckParser
 			!x.name or x.backSide
 		if empty
 			console.log('warn Detected empty card, please report bug to developer with an example')
+			console.log('cards', cards)
+		cards.filter do $1.name and $1.backSide
 
 	// Try to avoid name conflicts and invalid characters by hashing
 	def newImageName input
@@ -212,9 +262,84 @@ export default class DeckParser
 				card.backSide = converter.makeHtml(card.backSide)
 
 			// Hopefully this should perserve headings and other things
-			exporter.addCard(card.name, card.backSide || 'empty backside')
+			exporter.addCard(card.name, card.backSide || 'empty backside', card.tags ? {tags: card.tags} : {})
 
 		const zip = await exporter.save()
 		return zip if not output
 		// This code path will normally only run during local testing
 		fs.writeFileSync(output, zip, 'binary');			
+
+def isMarkdown file
+	return false if !file
+
+	file.match(/\.md$/)
+
+// TODO: clean up duplication
+def PrepareDeck file_name, files, settings
+		const decks = DeckParser.new(isMarkdown(file_name), files[file_name], settings)
+		const deck = decks.payload
+		const apkg = await decks.build(null, deck, files)
+		{name: "{deck.name}.apkg", apkg: apkg, deck}
+
+const errorPage = fs.readFileSync(path.join(TEMPLATE_DIR, 'error-message.html')).toString!
+
+def useErrorHandler res, err
+	res.set('Content-Type', 'text/html');
+	let info = errorPage.replace('{err.message}', err.message).replace('{err?.stack}', err.stack)
+	res.status(400).send(new Buffer(info))	
+
+var upload = multer({ storage: multer.memoryStorage() })
+const app = express()
+
+const distDir = path.join(__dirname, "../../dist")
+
+app.use(express.static(distDir))
+
+const appInfo = JSON.parse(fs.readFileSync(path.join(__dirname, '../../package.json')).toString!)
+
+app.get('/version') do |req, res|
+	const v = appInfo.version
+	res.status(200).send(v)
+
+const old = ['/index', '/contact', '/privacy', '/upload']
+for p in old
+	console.log('setting up request handler for ', p)
+	app.get (p) do |req, res| res.sendFile(path.join(distDir, 'index.html'))
+	app.get ("{p}.html") do |req, res| res.sendFile(path.join(distDir, 'index.html'))
+
+app.use do |err, req, res, next|
+	useErrorHandler(res, err)
+
+# TODO: Use security policy that only allows notion.2anki.com to use the upload handler
+app.post('/f/upload', upload.single('pkg'), &) do |req, res|
+	console.log('POST', req.originalUrl)
+	# TODO: handle user settings
+	try
+		const filename = req.file.originalname		
+		const settings = req.body || {}
+		const payload = req.file.buffer
+		let deck
+		if filename.match(/.(md|html)/) # We have a non zip upload
+			deck = await PrepareDeck(filename, {"{filename}": req.file.buffer.toString!}, settings)
+		else
+			const zip_handler = ZipHandler.new()
+			const _ = await zip_handler.build(payload)
+			for file_name in zip_handler.filenames()
+				if file_name.match(/.(md|html)$/)
+					deck = await PrepareDeck(file_name, zip_handler.files, settings)
+					# TODO: add support for merging multiple files into one deck
+					break
+						
+		res.set("Content-Type", "application/zip")
+		res.set("Content-Length": Buffer.byteLength(deck.apkg))		
+		res.attachment(deck.name)
+		res.status(200).send(deck.apkg)
+	catch err
+		useErrorHandler(res, err)
+
+process.on('uncaughtException') do |err, origin|
+	console.log(process.stderr.fd,`Caught exception: ${err}\n Exception origin: ${origin}`)
+
+const port = process.env.PORT || 2020
+const server = app.listen(port) do
+	console.log("🟢 Running on port {port}")

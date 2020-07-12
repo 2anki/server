@@ -1,67 +1,39 @@
-const FileSaver = require('file-saver')
-
-import ZipHandler from './handlers/ZipHandler'
-
-# Actions
-import { PrepareDeck } from './actions/PrepareDeck'
-
 # Components
-import './components/header'
-import './components/footer'
-import './upload-page'
+import './components/n2a-header'
+import './components/n2a-footer'
+import './pages/upload-page'
+import './pages/home-page'
+import './pages/contact-page'
+import './pages/privacy-page'
+
+css .rounded border: 0.1px solid white br: 0.25rem td: none  p: 0.1rem 2 my: 2 c: white mr: 4 bg: none  @hover: blue	
+css body height: 100% w: 100% m: 0 ff: 'Baloo 2', Helvetica, Arial
+css html w: 100% h: 100%
+
+css .n2a-blue-bg bg: #3B83F7
+css .n2a-blue-bg c: #3B83F7
 
 tag app-root
-
 	prop state = 'ready'
-	prop progress = 0
-	prop info = ['Ready']
 	# TODO: expose more card template stuff
 	prop settings = {'font-size': 20}
+
+	def page
+		window.location.pathname
 
 	def mount
 		window.onbeforeunload = do
 			if state != 'ready'
-				return "Conversion in progress. Are you sure you want to stop it?"
-
-	def fontSizeChanged fontSize
-		self.settings['font-size'] = fontSize
-
-	// TODO: refactor DRY
-	def fileuploaded event
-		const files = event.target.files
-		self.state = 'uploading'
-		self.packages = []
-		for file in files
-			if file.name.match(/\.zip$/)
-				const zip_handler = ZipHandler.new()
-				const _ = await zip_handler.build(file)
-				for file_name in zip_handler.filenames()
-					if file_name.match(/.(md|html)$/)
-						self.packages = await PrepareDeck(file_name, zip_handler.files, self.settings)
-						state = 'download'
-						imba.commit()
-		if packages.length == 0
-			# Handle workflowy
-			# TODO: add event to track how many people are using this code path
-			const file = files[0]
-			const file_name = file.name
-			const reader = FileReader.new()
-			reader.onload = do 
-				self.packages = await PrepareDeck(file_name, [{file_name: reader.result}], self.settings)
-			reader.readAsText(file)
-						
-	def downloadDeck
-		for pkg in self.packages
-			FileSaver.saveAs(pkg.apkg, pkg.name)
-		state = 'ready'
-		self.packages = []
-		self.progress = 0
-	
+				return "Conversion in progress. Are you sure you want to stop it?"				
 	def render
-		<self>
+		<self[d: flex fld: column jc: space-between ai: stretch m: 0 p: 0 w: 100% h: 100%]>
 			<n2a-header>
-			<p .(py: 2 text-align: center bg: whitesmoke)> 
-				"Join the Community on "
-				<a .(background: #7289da px: 2 text: white) .rounded .mr-4 href="https://discord.gg/PSKC3uS" target="_blank"> "Discord"
-			<upload-page state=state progress=progress>
+			if page().includes('upload')
+				<upload-page state=state progress=progress>
+			elif page().includes('contact')
+				<contact-page>
+			elif page().includes('privacy')
+				<privacy-page>
+			else
+				<home-page>
 			<n2a-footer>

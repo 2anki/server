@@ -9,7 +9,7 @@
     "electron"
   ],
   "author": "Alexander Alemayhu",
-  "version": "0.0.5",
+  "version": "0.0.170",
   "engines": {
     "node": ">=6.0.0"
   },
@@ -19,7 +19,10 @@
     "watch": "webpack --watch --progress --colors --display-modules",
     "test": "imba test/create_deck.imba",
     "build": "imba build.imba",
-    "start": "yarn dev"
+    "start": "yarn dev",
+    "build-server": "yarn run imbac src/server/server.imba -o .",
+    "watch-server": "yarn run imbac -w src/server/server.imba -o .",
+    "dev-server": "yarn run imba src/server/server.imba"
   },
   "repository": {
     "type": "git",
@@ -29,21 +32,11 @@
   "dependencies": {
     "anki-apkg-export": "^4.0.3",
     "cheerio": "^1.0.0-rc.3",
-    "file-saver": "^2.0.2",
-    "imba": "^2.0.0-alpha.58",
-    "jszip": "^3.3.0",
-    "script-loader": "^0.7.2",
-    "showdown": "^1.9.1"
-  },
-  "devDependencies": {
-    "autoprefixer": "^9.7.6",
-    "css-loader": "^1.0.1",
-    "electron-builder": "^22.6.0",
-    "express": "^4.16.2",
-    "extract-text-webpack-plugin": "^4.0.0-beta.0",
-    "postcss-loader": "^3.0.0",
-    "style-loader": "^0.23.1",
-    "tailwindcss": "^1.4.6",
+    "express": "^4.17.1",
+    "imba": "^2.0.0-alpha.68",
+    "jszip": "^3.5.0",
+    "multer": "^1.4.2",
+    "showdown": "^1.9.1",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.1.2",
     "webpack-dev-server": "^3.7.1"
@@ -56,7 +49,6 @@
     "files": [
       "main.js",
       "dist/app.js",
-      "dist/app.css",
       "dist/index.html",
       "build",
       "node_modules"

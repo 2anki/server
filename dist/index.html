@@ -1,117 +1,96 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- HTML Meta Tags -->
+    <title>
+      Notion 2 Anki | Go from Notion toggle list to Anki Cards easily!
+    </title>
+    <meta
+      name="description"
+      content="This simple web app creates decks for you to import into Anki from your Notion pages."
+    />
+    <!-- Google / Search Engine Tags -->
+    <meta
+      itemprop="name"
+      content="Go from Notion toggle list to Anki Cards easily!"
+    />
+    <meta
+      itemprop="description"
+      content="This simple web app creates decks for you to import into Anki from your Notion pages."
+    />
+    <meta itemprop="image" content="https://i.imgur.com/lZKZTnT.png" />
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- HTML Meta Tags -->
-  <title>Notion 2 Anki | Go from Notion toggle list to Anki Cards easily!
-  </title>
-  <meta name="description"
-    content="This simple web app creates decks for you to import into Anki from your Notion pages.">
-  <!-- Google / Search Engine Tags -->
-  <meta itemprop="name"
-    content="Go from Notion toggle list to Anki Cards easily!">
-  <meta itemprop="description"
-    content="This simple web app creates decks for you to import into Anki from your Notion pages.">
-  <meta itemprop="image" content="https://i.imgur.com/lZKZTnT.png">
+    <!-- Facebook Meta Tags -->
+    <meta property="og:url" content="https://notion.2anki.com" />
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:title"
+      content="Go from Notion toggle list to Anki Cards easily!"
+    />
+    <meta
+      property="og:description"
+      content="This simple web app creates decks for you to import into Anki from your Notion pages."
+    />
+    <meta property="og:image" content="https://i.imgur.com/lZKZTnT.png" />
 
-  <!-- Facebook Meta Tags -->
-  <meta property="og:url" content="https://notion2anki.alemayhu.com">
-  <meta property="og:type" content="website">
-  <meta property="og:title"
-    content="Go from Notion toggle list to Anki Cards easily!">
-  <meta property="og:description"
-    content="This simple web app creates decks for you to import into Anki from your Notion pages.">
-  <meta property="og:image" content="https://i.imgur.com/lZKZTnT.png">
+    <!-- Twitter Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="Go from Notion toggle list to Anki Cards easily!"
+    />
+    <meta
+      name="twitter:description"
+      content="This simple web app creates decks for you to import into Anki from your Notion pages."
+    />
+    <meta name="twitter:image" content="https://i.imgur.com/lZKZTnT.png" />
+    <!-- Meta Tags Generated via http://heymeta.com -->
 
-  <!-- Twitter Meta Tags -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title"
-    content="Go from Notion toggle list to Anki Cards easily!">
-  <meta name="twitter:description"
-    content="This simple web app creates decks for you to import into Anki from your Notion pages.">
-  <meta name="twitter:image" content="https://i.imgur.com/lZKZTnT.png">
-  <!-- Meta Tags Generated via http://heymeta.com -->
+    <!-- The Favicon are from favicon.io -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="manifest" href="/site.webmanifest" />
 
-  <!-- The Favicon are from favicon.io -->
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-  <link rel="manifest" href="/site.webmanifest">
+    <!-- Typography -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
 
-  <link rel="stylesheet" href="app.css">
-
-  <!-- Typography -->
-  <link
-    href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;700&display=swap"
-    rel="stylesheet">
+    <!-- Sentry -->
+    <script
+      src="https://browser.sentry-cdn.com/5.17.0/bundle.min.js"
+      integrity="sha384-lowBFC6YTkvMIWPORr7+TERnCkZdo5ab00oH5NkFLeQUAmBTLGwJpFjF6djuxJ/5"
+      crossorigin="anonymous"
+    ></script>
 
     <!-- Global site tag (gtag.js) - Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162974703-3"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=UA-162974703-3"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
 
-    gtag('config', 'UA-162974703-3');
-  </script>
-</head>
-
-<body class="flex flex-col justify-between h-screen">
-  <header>
-    <nav
-      class="flex items-center justify-around flex-wrap n2a-blue-bg w-screen p6">
-      <a class="flex items-center flex-shrink-0 text-white mr-6 mr-2 px-2 py-3"
-        href="/">
-        <h1 class="font-semibold text-2xl tracking-tight">Notion 2 Anki</h1>
-      </a>
-      <div>
-        <div class="text-xl flex justify-around items-center"><a
-            class="text-white mr-4 hover:underline"
-            href="/contact.html">Contact</a><a
-            class="text-white mr-4 hover:underline"
-            href="/privacy.html">Privacy</a>
-        </div>
-      </div>
-    </nav>
-  </header>
-  <main>
-    <div>
-      <div class="py-6 text-center text-xl">Convert Notion <a
-          class="text-blue-700 underline"
-          href="https://www.notion.so/Toggles-c720af26b4bd4789b736c140b2dc73fe">Toggle
-          lists </a> to Anki cards. Image support is included 😉
-        <p>Please report any bugs you experience to
-          <a class="text-blue-700 underline"
-            href="mailto:alexander@alemayhu.com">alexander@alemayhu.com</a>
-        </p>
-      </div>
-      <div class="h-32 flex items-center justify-center">
-        <a href="/upload.html"
-          class="text-4xl font-bold text-white n2a-blue-bg rounded-full px-8 py-2">
-          Upload Notion export
-        </a>
-      </div>
-      <div class="flex flex-col items-center">
-        <h2 class="font-bold text-4xl"><a href="#usage" name="usage">How it
-            works</a></h2><iframe class="self-center" width="560" height="315"
-          src="https://www.youtube.com/embed/b3eQ0exhdz4"
-          allow="fullscreen; accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"></iframe>
-      </div>
-    </div>
-  </main>
-  <footer class="block p-3 flex justify-between n2a-blue-text">
-    <div>Developed in 🇳🇴 with ❤️ using <a class="text-blue-700 underline"
-        href="https://imba.io"> Imba </a> and the <a
-        class="text-blue-700 underline"
-        href="https://jamstack.org/">JAMstack</a></div>
-    <div>
-      <p>You can support the project by <a
-          href="http://patreon.com/scanf">becoming a sponsor / backer on
-        </a><span class="text-orange-700">Patreon</span></p>
-    </div>
-  </footer>
-</body>
-
+      gtag("config", "UA-162974703-3");
+    </script>
+  </head>
+  <body>
+    <noscript>Sorry, JavaScript is required!</noscript>
+    <script>
+      Sentry.init({
+        dsn:
+          "https://51340c448337477aa4e98134f7229ba6@o404766.ingest.sentry.io/5269366",
+      });
+    </script>
+    <script src="./app.js"></script>
+    <app-root></app-root>
+  </body>
 </html>
