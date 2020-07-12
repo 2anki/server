@@ -5,6 +5,8 @@ tag home-page
 	prop notionLink = "https://www.notion.so/Toggles-c720af26b4bd4789b736c140b2dc73fe"
 	prop contactAdress = "alexander@alemayhu.com"
 
+	prop tutorial = "https://www.youtube.com/embed/b3eQ0exhdz4"
+
 	def render
 		<self[d: inline-block]> <page-content>
 			<div>
@@ -26,7 +28,8 @@ tag home-page
 					<ul[fs: 1.75rem]>
 						<li> "One Notion page is one deck 🙂"
 						<li> "Headings are treated as tags 🏷"
-					<iframe.self-center width="560" height="315" src="https://www.youtube.com/embed/b3eQ0exhdz4" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture">
+					<a[fs: xl] href=tutorial> "Tutorial: Creating Anki Decks from Notion Toggle Lists"
+					<iframe.self-center width="560" height="315" src=tutorial allowFullScreen="allowFullScreen" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen;">
 
 
 
