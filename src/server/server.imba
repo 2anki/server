@@ -298,6 +298,7 @@ app.use(express.static(distDir))
 
 const appInfo = JSON.parse(fs.readFileSync(path.join(__dirname, '../../package.json')).toString!)
 
+app.get('/checks') do $2.status(200).send('Notion 2 Anki')
 app.get('/version') do |req, res|
 	const v = appInfo.version
 	res.status(200).send(v)
