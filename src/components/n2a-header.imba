@@ -21,7 +21,7 @@ tag n2a-header
 				<a[c:white td:none] href="/" target="_blank"> <h1[fs:2xl fw: bold ls: -0.025rem m: 0 p: 0.5rem 1rem c: #1E1D1C bg: #FCF4A7 @hover: blue]> "notion2anki"
 				<div[w: 20% js: flex-end]>
 					<div[text: xl d: flex jc: space-around]>
-						<a.rounded target="_blank" href="https://2anki.net"> "2Anki.net"
+						<a.rounded target="_blank" href="/faq"> "FAQ"
 						<a.rounded href="/contact"> "Contact"
 						<a.rounded href="/privacy"> "Privacy"
 			showTheCTA()

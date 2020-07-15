@@ -303,7 +303,7 @@ app.get('/version') do |req, res|
 	const v = appInfo.version
 	res.status(200).send(v)
 
-const old = ['/index', '/contact', '/privacy', '/upload']
+const old = ['/index', '/contact', '/privacy', '/upload', '/faq']
 for p in old
 	console.log('setting up request handler for ', p)
 	app.get (p) do |req, res| res.sendFile(path.join(distDir, 'index.html'))

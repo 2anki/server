@@ -5,6 +5,7 @@ import './pages/upload-page'
 import './pages/home-page'
 import './pages/contact-page'
 import './pages/privacy-page'
+import './pages/faq-page'
 
 css .rounded border: 0.1px solid white br: 0.25rem td: none  p: 0.1rem 2 my: 2 c: white mr: 4 bg: none  @hover: blue	
 css body height: 100% w: 100% m: 0 ff: 'Baloo 2', Helvetica, Arial
@@ -34,6 +35,8 @@ tag app-root
 				<contact-page>
 			elif page().includes('privacy')
 				<privacy-page>
+			elif page().includes('faq')
+				<faq-page>
 			else
 				<home-page>
 			<n2a-footer>
