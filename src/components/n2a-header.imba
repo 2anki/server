@@ -5,15 +5,10 @@ tag n2a-header
 	def showTheCTA		
 		<call-for-action>
 			if window.innerWidth <= 600
-				<p> "For more tools like this checkout {<a[bg: transparent c: black m: 0 p: 0 td: underline].rounded .underline href="https://2anki.net" target="_blank"> "2Anki.net"} and "
-				<p>
-					"join the Community on "
-					<a[bg: #7289da  @hover: blue].rounded href="https://discord.gg/PSKC3uS" target="_blank"> "Discord"
+				<p> "Join the Community on {<a[bg: #7289da  @hover: blue].rounded href="https://discord.gg/PSKC3uS" target="_blank"> "Discord"}"
 			else
 				<p>
-					"For more tools like this checkout {<a[mr: 0 bg: blue700  @hover: blue].rounded .underline href="https://2anki.net" target="_blank"> "2Anki.net"} and "
-					"join the Community on "
-					<a[bg: #7289da @hover: blue].rounded href="https://discord.gg/PSKC3uS" target="_blank"> "Discord"
+					"Join the Community on {<a[bg: #7289da @hover: blue].rounded href="https://discord.gg/PSKC3uS" target="_blank"> "Discord"}"
 
 	def render
 		<self[d: block flex-shrink: 0]>
