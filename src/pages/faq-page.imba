@@ -16,7 +16,7 @@ tag faq-page
 
 	def render
 		<self[d: inline-block]> <page-content[jc: start]>
-			<h2[fw: bold fs: 4xl]> <a[c: black td: none] href="#contact" name="contact"> "Frequently Asked Questions"
+			<h2[fw: bold fs: 4xl]> <a[c: black td: none] href="#faq" name="faq"> "Frequently Asked Questions"
 			<q-w-a question="Will notion2anki be around in the next six years" answer="Yes, it's a open source project.">
 			<q-w-a question="How do I get colors, font and backgrounds" answer="Use the HTML export instead of Markdown.">
 			<q-w-a question="Where are the servers running" answer="DigitalOcean via the Frankfurt datacenter (FRA1) and Netlify for CDN.">
