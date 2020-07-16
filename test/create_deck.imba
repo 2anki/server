@@ -1,7 +1,8 @@
 const path = require('path')
 const fs = require('fs')
 
-import {ZipHandler,DeckParser} from '../src/server/server'
+import {DeckParser} from '../src/server/parser/deck'
+import {ZipHandler} from '../src/server/files/zip'
 
 def eq lhs, rhs, msg = null
 	console.log('comparing', lhs, rhs, msg ? "reason: {msg}" : '')
@@ -17,7 +18,7 @@ def test_fixture file_name, deck_name, card_count, files = {}
 		const file_path = path.join(__dirname, "fixtures", file_name)
 		const example = fs.readFileSync(file_path).toString()
 		const isMarkdown = example.match(/.(md|html)$/)
-		const deck = DeckParser.new(isMarkdown, example)		
+		const deck = new DeckParser(isMarkdown, example)		
 		const payload = deck.payload
 
 		eq(payload.style != undefined, true, "Style is not set")
