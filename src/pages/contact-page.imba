@@ -12,4 +12,4 @@ tag contact-page
 			<p[ta: center p: 0 4 fs: xl m: 2 0]> "I read my personal inbox every Saturday and see all messages."
 			<div[d: flex fld: row mb: 1rem jc: space-between]>
 				<iframe src="https://discordapp.com/widget?id=723998078201495642&theme=dark" width="350" height="500" allowtransparency="true" frameborder="0">
-				<iframe#chat_embed frameborder="0" scrolling="no" src="https://www.twitch.tv/embed/ccscanf/chat?parent=streamernews.example.com" height="500" width="350">
+				<iframe src="https://player.twitch.tv/?ccscanf&parent=streamernews.example.com" height="350" width="500" frameborder="0" scrolling="no" allowfullscreen="true">
