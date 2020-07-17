@@ -24,21 +24,21 @@ tag privacy-page
 						
 						<div>
 							<h2> "Hosting"
-							<p> "This site is being served via DigitalOcean servers and Netlify CDN"
+							<p> "This site is being served via DigitalOcean servers and Netlify CDN."
 							<p> "You can read their respective privacy policies here: "
 							<ul>
-								<li> <a[c: blue600] href=doPP target="_blank">  doPP
-								<li> <a[c: blue600] href=netlifyPP target="_blank">  netlifyPP
+								<li> <a href=doPP target="_blank">  doPP
+								<li> <a href=netlifyPP target="_blank">  netlifyPP
 
 						<div>
 							<h2> "Error Reporter"
 							<p> "This site uses {<a href="https://sentry.io"> "Sentry"} for crash reports."
-							<p> "You can read their Privacy policy here {<a[c: blue600] href="https://sentry.io/privacy/" target="_blank"> "https://sentry.io/privacy/"}"
+							<p> "You can read their Privacy policy here {<a href="https://sentry.io/privacy/" target="_blank"> "https://sentry.io/privacy/"}"
 
 						<div>
 							<h2> "Analytics"
 							<p> "In order to better understand the usage (number of visitors) of the site and how to better serve users Google Analytics is used."
-							<p> "See their privacy policy here {<a[c: blue600] href="https://policies.google.com/privacy"> "https://policies.google.com"}"
+							<p> "See their privacy policy here {<a href="https://policies.google.com/privacy"> "https://policies.google.com"}"
 
 
 
