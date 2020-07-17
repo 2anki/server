@@ -9,9 +9,9 @@
     "electron"
   ],
   "author": "Alexander Alemayhu",
-  "version": "0.0.170",
+  "version": "0.0.172",
   "engines": {
-    "node": ">=6.0.0"
+    "node": ">=12.0.0"
   },
   "main": "main.js",
   "scripts": {
