@@ -13,6 +13,7 @@ css html w: 100% h: 100%
 
 css .n2a-blue-bg bg: #3B83F7
 css .n2a-blue-bg c: #3B83F7
+css p py: 2 fs: xl
 
 tag app-root
 	prop state = 'ready'

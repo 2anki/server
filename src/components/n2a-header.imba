@@ -2,6 +2,8 @@ import './call-for-action'
 
 tag n2a-header
 
+	css p p: 0 m: 0.5rem
+
 	def showTheCTA		
 		<call-for-action>
 			if window.innerWidth <= 600
