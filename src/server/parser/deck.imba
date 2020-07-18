@@ -17,11 +17,7 @@ export class DeckParser
 		self.settings = settings
 		// TODO: rename converter to be more md specific
 		self.converter = showdown.Converter.new()
-
-		if md
-			self.payload = handleMarkdown(contents, deckName)
-		else 
-			self.payload = handleHTML(contents, deckName)
+		self.payload = md ? handleMarkdown(contents, deckName) : handleHTML(contents, deckName)
 
 	def pickDefaultDeckName firstLine
 		const name = firstLine ? firstLine.trim() : 'Untitled Deck'
@@ -103,7 +99,7 @@ export class DeckParser
 			console.log('line', line, 'is_multi_deck', is_multi_deck)
 			# TODO: add heading as tag
 			if line.match(/^#/) && is_multi_deck
-				decks.push({name: deck_name_for(name, line), cards: [], style: style})
+				decks.push({name: deck_name_for(name, line), cards: [], style: style, inputType: inputType})
 				i = i + 1
 				continue
 
@@ -112,13 +108,13 @@ export class DeckParser
 				let parent = name
 				if last_deck
 					parent = last_deck.name
-				decks.push({name: deck_name_for(parent, line), cards: [], style: style})
+				decks.push({name: deck_name_for(parent, line), cards: [], style: style, inputType: inputType})
 				i = i + 1
 				continue
 
 			const cd = decks[decks.length - 1]
 			if (line.match(/^\s{4}-/) && is_multi_deck) || (line.match(/^-/) && !is_multi_deck)
-				const front = converter.makeHtml(line.replace('- ', '').trim())
+				const front = self.converter.makeHtml(line.replace('- ', '').trim())
 				cd.cards.push({name: front, backSide: null})
 				continue
 
@@ -201,39 +197,45 @@ export class DeckParser
 				!line.includes('.pdf') && !line.includes('font-family')
 			deck.style = deck.style.join('\n')
 			return AnkiExport.new(deck.name, {css: deck.style})	
-		AnkiExport.new(deck.name)	
+		AnkiExport.new(deck.name)
+
+	def embedImage exporter, files, imagePath
+		console.log('EMBED IMAGE')
+		console.log('embedding', imagePath, 'files is', Object.keys(files))
+		const suffix = self.suffix(imagePath)
+		return null if !suffix
+
+		let image = files["{imagePath}"]
+		const newName = self.newImageName(imagePath) + suffix
+		console.log('addMedia', newName, image)
+		exporter.addMedia(newName, image)
+		return newName
 
 	// TODO: refactor
 	def build output, deck, files
-		let exporter = self.setupExporter(deck)
-		for card in deck.cards
-			// Try getting Markdown image, should it be recursive for HTML and Markdown?
-			let imageMatch = self.mdImageMatch(card.backSide)
-			if !imageMatch && deck.inputType == 'HTML'
-				imageMatch = self.imgur?(card.backSide)
-			if imageMatch
-				const imagePath = global.decodeURIComponent(imageMatch[1])
-				# For now leave image urls untouched, maybe this can be reconsidered or an option later
-				# Also it breaks if we can't find the suffix so temporary workaround.
-				if !imagePath.includes('http')
-					const suffix = self.suffix(imagePath)
-					if suffix
-						let image = files["{imagePath}"]
-						const newName = self.newImageName(imagePath) + suffix
-						exporter.addMedia(newName, image)
-						if deck.inputType == 'HTML'
-							// Run twice in case there is a link tag as well
-							card.backSide = card.backSide.replace(imageMatch[1], newName)
-							card.backSide = card.backSide.replace(imageMatch[1], newName)
-						else
-							card.backSide = card.backSide.replace(imageMatch[0], "<img src='{newName}' />")
+		console.log('building deck of type', deck.inputType)
+		let exporter = self.setupExporter(deck)		
+		const card_count = deck.cards.length
 
+		for card in deck.cards
+			console.log("exporting {deck.name} {deck.cards.indexOf(card)} / {card_count}")
 			// For now treat Latex as text and wrap it around.
 			// This is fragile thougg and won't handle multiline properly
 			if self.latex?(card.backSide)
 				card.backSide = "[latex]{card.backSide.trim()}[/latex]"
-			elif card.inputType != 'HTML'
-				card.backSide = converter.makeHtml(card.backSide)
+
+			// Prepare the Markdown for image path transformations
+			if card.inputType != 'HTML'
+				card.backSide = self.converter.makeHtml(card.backSide || '<p>empty backside</p>')
+			const dom = cheerio.load(card.backSide)
+			const mangle = dom('img').replaceWith do
+				const src = dom(this).attr('src')
+				// TODO: allow user to override this to force download image urls
+				return dom(this) if src.includes('http')	
+				if let newName = self.embedImage(exporter, files, global.decodeURIComponent(src))
+					return dom(this).attr('src', src.replace(src, newName))
+				return dom(this)
+			card.backSide = dom.html()
 
 			// Hopefully this should perserve headings and other things
 			exporter.addCard(card.name, card.backSide || 'empty backside', card.tags ? {tags: card.tags} : {})
