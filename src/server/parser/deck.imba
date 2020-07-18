@@ -90,7 +90,7 @@ export class DeckParser
 
 		# TODO: do we really need to add the style to all of the decks?
 		# ^ Would it be better to add a custom css file and include it?
-		decks.push({name: name, cards:[], style: style})
+		decks.push({name: name, cards:[], style: style, inputType: inputType})
 		if lines[0] == ''
 			lines.shift()
 
@@ -200,14 +200,11 @@ export class DeckParser
 		AnkiExport.new(deck.name)
 
 	def embedImage exporter, files, imagePath
-		console.log('EMBED IMAGE')
-		console.log('embedding', imagePath, 'files is', Object.keys(files))
 		const suffix = self.suffix(imagePath)
 		return null if !suffix
 
 		let image = files["{imagePath}"]
 		const newName = self.newImageName(imagePath) + suffix
-		console.log('addMedia', newName, image)
 		exporter.addMedia(newName, image)
 		return newName
 
@@ -225,20 +222,26 @@ export class DeckParser
 				card.backSide = "[latex]{card.backSide.trim()}[/latex]"
 
 			// Prepare the Markdown for image path transformations
-			if card.inputType != 'HTML'
+			if deck.inputType != 'HTML'
 				card.backSide = self.converter.makeHtml(card.backSide || '<p>empty backside</p>')
-			const dom = cheerio.load(card.backSide)
-			const mangle = dom('img').replaceWith do
-				const src = dom(this).attr('src')
-				// TODO: allow user to override this to force download image urls
-				return dom(this) if src.includes('http')	
-				if let newName = self.embedImage(exporter, files, global.decodeURIComponent(src))
-					return dom(this).attr('src', src.replace(src, newName))
-				return dom(this)
-			card.backSide = dom.html()
-
+				console.log('card.backSide to html', card.backSide)
+			const dom = cheerio.load(card.backSide, {xmlMode: false, recognizeSelfClosing: true})
+			const images = dom('img')
+			if images.length > 0
+				console.log('Number of images', images.length)
+				const mangle = images.each do |i, elem|
+					dom(elem).replaceWith do
+						const src = dom(this).attr('src')
+						// TODO: allow user to override this to force download image urls
+						return dom(this) if src.includes('http')	
+						if let newName = self.embedImage(exporter, files, global.decodeURIComponent(src))
+							console.log('replacing', src, 'with', newName)
+							return dom(this).attr('src', src.replace(src, newName))
+						return dom(this)
+				card.backSide = dom('body').html()
+				console.log('x', card.backSide)
 			// Hopefully this should perserve headings and other things
-			exporter.addCard(card.name, card.backSide || 'empty backside', card.tags ? {tags: card.tags} : {})
+			exporter.addCard(card.name, card.backSide, card.tags ? {tags: card.tags} : {})
 
 		const zip = await exporter.save()
 		return zip if not output
