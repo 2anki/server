@@ -216,6 +216,7 @@ export class DeckParser
 		console.log('building deck of type', deck.inputType)
 		let exporter = self.setupExporter(deck)		
 		const card_count = deck.cards.length
+		deck.image_count = 0
 
 		for card in deck.cards
 			console.log("exporting {deck.name} {deck.cards.indexOf(card)} / {card_count}")
@@ -227,6 +228,7 @@ export class DeckParser
 			// Prepare the Markdown for image path transformations
 			if card.inputType != 'HTML'
 				card.backSide = self.converter.makeHtml(card.backSide || '<p>empty backside</p>')
+
 			const dom = cheerio.load(card.backSide)
 			const mangle = dom('img').replaceWith do
 				const src = dom(this).attr('src')
@@ -236,6 +238,7 @@ export class DeckParser
 					return dom(this).attr('src', src.replace(src, newName))
 				return dom(this)
 			card.backSide = dom.html()
+			deck.image_count += (card.backSide.match(/\<+\s?img/g) || []).length
 
 			// Hopefully this should perserve headings and other things
 			exporter.addCard(card.name, card.backSide || 'empty backside', card.tags ? {tags: card.tags} : {})
@@ -254,4 +257,4 @@ export def PrepareDeck file_name, files, settings
 		const decks = DeckParser.new(isMarkdown(file_name), files[file_name], settings)
 		const deck = decks.payload
 		const apkg = await decks.build(null, deck, files)
-		{name: "{deck.name}.apkg", apkg: apkg, deck}
+		{name: "{deck.name}.apkg", apkg: apkg, deck: deck}

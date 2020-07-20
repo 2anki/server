@@ -1,7 +1,7 @@
 const path = require('path')
 const fs = require('fs')
 
-import {DeckParser} from '../src/server/parser/deck'
+import {DeckParser, PrepareDeck} from '../src/server/parser/deck'
 import {ZipHandler} from '../src/server/files/zip'
 
 def eq lhs, rhs, msg = null
@@ -31,9 +31,23 @@ def test_fixture file_name, deck_name, card_count, files = {}
 			const zip_file_path = path.join(__dirname, "artifacts", "{payload.name}.apkg")
 			await deck.build(zip_file_path, deck, files)
 			eq(fs.existsSync(zip_file_path), true, 'ensuring output was created')
+		return deck
 	catch e
 		console.error(e)
 		process.exit(1)
+
+def test_multiple_images
+	console.log 'test multiple images in toggle list'	
+	const n = 'Export-e28339bf-3a17-4e09-9d2d-a3c649a33873.zip'
+	const payload = fs.readFileSync(path.join(__dirname, 'fixtures', n))
+	const zip_handler = ZipHandler.new()
+	const _ = await zip_handler.build(payload)
+	let deck
+	for file_name in zip_handler.filenames()
+		console.log('found', file_name)
+		if file_name.match(/.(md|html)$/)
+			deck = await PrepareDeck(file_name, zip_handler.files, {})
+			eq(deck.deck.image_count, 6)
 
 def main
 	console.time('execution time')
@@ -60,6 +74,8 @@ def main
 		files["Notion Questions/{img}"] = fs.readFileSync(img_path)
 	test_fixture('with-images.md', 'Notion Questions', 3, files)
 
+
+
 	// TODO: fix this test
 	// const zip_path = path.join(artifacts_dir, 'Export-952356ce-4c7a-4416-9aaa-6abe99917124.zip')
 	// const zip_data = fs.readFileSync(zip_path)
@@ -78,5 +94,9 @@ def main
 	console.timeEnd('execution time')
 	process.exit(0)
 
+process.on('uncaughtException') do |err, origin|
+	console.log(process.stderr.fd,`Caught exception: ${err}\n Exception origin: ${origin}`)
+
 if process.main != module
-	main()
+	test_multiple_images()
+	# main()

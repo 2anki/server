@@ -20,7 +20,7 @@ tag upload-page
 			<div[d: flex fld: column a: center pb: 2rem bg: yellow200 px: 4]>
 				<p[fs: sm]> "This project is 100% free and will remain free but please considering supporting it by"
 				<div>
-					<a.patreon-button href="https://www.patreon.com/ccscanf" patreon-widget-type="become-patron-button"> "Become a Patron!"
+					<a.patreon-button href="https://www.patreon.com/ccscanf" patreon-widget-type="become-patron-button"> "Become a Patron"
 			<strong[fs: xl]> "Only ZIP, HTML and Markdown uploads"
 			<p> "Make your style changes for Markdown below."
 			<form[d: flex fld: column jc: start ai: center h: 100%] enctype="multipart/form-data" method="post" action=actionUrl()>
