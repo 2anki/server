@@ -3,7 +3,7 @@ import path from 'path'
 import fs from 'fs'
 
 import AnkiExport from 'anki-apkg-export'
-import showdown from 'showdown'
+import marked from 'marked'
 import cheerio from 'cheerio'
 
 import {TEMPLATE_DIR, NoCardsError} from '../constants'
@@ -15,8 +15,6 @@ export class DeckParser
 	def constructor md, contents, settings = {}
 		const deckName = settings.deckName
 		self.settings = settings
-		// TODO: rename converter to be more md specific
-		self.converter = showdown.Converter.new()
 		self.payload = md ? handleMarkdown(contents, deckName) : handleHTML(contents, deckName)
 
 	def pickDefaultDeckName firstLine
@@ -24,7 +22,7 @@ export class DeckParser
 		firstLine.trim().replace(/^# /, '')
 
 	def defaultStyle
-		const name = 'default'
+		const name = 'markdown'
 		let style = fs.readFileSync(path.join(TEMPLATE_DIR, "{name}.css")).toString()
 		# Use the user's supplied settings
 		if let settings = self.settings
@@ -83,8 +81,6 @@ export class DeckParser
 		const inputType = 'md'
 		const decks = []
 
-		# TODO: expose this to the user
-		let is_multi_deck = lines.find do $1.match(/^\s{8}-/)
 		const name = deckName ? deckName : pickDefaultDeckName(lines.shift())
 		lines.shift()
 
@@ -96,41 +92,27 @@ export class DeckParser
 
 		for line of lines
 			continue if !line || !(line.trim())
-			console.log('line', line, 'is_multi_deck', is_multi_deck)
-			# TODO: add heading as tag
-			if line.match(/^#/) && is_multi_deck
-				decks.push({name: deck_name_for(name, line), cards: [], style: style, inputType: inputType})
-				i = i + 1
-				continue
-
-			if line.match(/^-\s/) && is_multi_deck
-				const last_deck = decks[decks.length - 1]
-				let parent = name
-				if last_deck
-					parent = last_deck.name
-				decks.push({name: deck_name_for(parent, line), cards: [], style: style, inputType: inputType})
-				i = i + 1
-				continue
-
+			console.log('line', line)
+			# NB: Only top level toggle lists are considered the front
 			const cd = decks[decks.length - 1]
-			if (line.match(/^\s{4}-/) && is_multi_deck) || (line.match(/^-/) && !is_multi_deck)
-				const front = self.converter.makeHtml(line.replace('- ', '').trim())
+			if line.match(/^-/)
+				const front = marked(line.replace('- ', ''))
 				cd.cards.push({name: front, backSide: null})
 				continue
 
+			# NB: Assume everything after toggle marker is on the backside
 			# Don't make backside HTML just yet, the image rewriting will happen later
 			const unsetBackSide = self.findNullIndex(cd.cards, 'backSide')
 			if unsetBackSide > -1
-				cd.cards[unsetBackSide].backSide = line.trim() + '\n'
+				cd.cards[unsetBackSide].backSide = line + '\n'
 			else
 				console.log('cd.cards', cd.cards, unsetBackSide)
 				try 
-					cd.cards[cd.cards.length - 1].backSide += line.trim() + '\n'
+					cd.cards[cd.cards.length - 1].backSide += line + '\n'
 				catch e
 					console.error(e)
 					console.log('i', i)
 					# Parsing failed, try multi deck
-					is_multi_deck = !is_multi_deck
 					i = i - 1
 					continue
 			
@@ -224,7 +206,7 @@ export class DeckParser
 
 			// Prepare the Markdown for image path transformations
 			if deck.inputType != 'HTML'
-				card.backSide = self.converter.makeHtml(card.backSide || '<p>empty backside</p>')
+				card.backSide = marked(card.backSide || '<p>empty backside</p>')
 				console.log('card.backSide to html', card.backSide)
 
 			const dom = cheerio.load(card.backSide)

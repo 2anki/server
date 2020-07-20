@@ -99,4 +99,4 @@ process.on('uncaughtException') do |err, origin|
 
 if process.main != module
 	test_multiple_images()
-	# main()
+	main()
