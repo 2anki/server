@@ -15,6 +15,7 @@ css .n2a-blue-bg bg: #3B83F7
 css .n2a-blue-bg c: #3B83F7
 css p py: 2 fs: xl
 css a c: blue600 bg: transparent @hover: green400
+css .patreon-button bg: orange600 @hover:green400 p: 2 c: white m: 0 border-radius: 0.25rem td: none
 
 tag app-root
 	prop state = 'ready'
