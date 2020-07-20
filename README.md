@@ -38,7 +38,7 @@ Your contributions are welcome but please try to be constructive and follow the 
 
 ## Support
 
-You can support the project by [becoming a sponsor / backer on Patreon](http://patreon.com/scanf).
+You can support the project by [becoming a sponsor / backer on Patreon](http://patreon.com/ccscanf).
 
 ## Development
 
