@@ -27,7 +27,8 @@ tag home-page
 						<a[bg: #7289da @hover: green400].rounded href="https://discord.gg/PSKC3uS" target="_blank"> "Discord"
 					<ul[fs: 1.75rem]>
 						<li> "One Notion page is one deck 🙂"
-						<li> "Headings are treated as tags 🏷"
+						# <li> "Headings are treated as tags 🏷"
+						<li> "One toggle list is one card 🗂"
 					<a[fs: xl] href=tutorial> "Tutorial: Creating Anki Decks from Notion Toggle Lists"
 					<iframe.self-center width="560" height="315" src=tutorial allowFullScreen="allowFullScreen" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen;">
 
