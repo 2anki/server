@@ -22,7 +22,7 @@ export class DeckParser
 		firstLine.trim().replace(/^# /, '')
 
 	def defaultStyle
-		const name = 'markdown'
+		const name = 'default'
 		let style = fs.readFileSync(path.join(TEMPLATE_DIR, "{name}.css")).toString()
 		# Use the user's supplied settings
 		if let settings = self.settings
