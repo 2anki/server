@@ -83,8 +83,6 @@ export class DeckParser
 		const inputType = 'md'
 		const decks = []
 
-		# TODO: expose this to the user
-		let is_multi_deck = lines.find do $1.match(/^\s{8}-/)
 		const name = deckName ? deckName : pickDefaultDeckName(lines.shift())
 		lines.shift()
 
@@ -96,28 +94,15 @@ export class DeckParser
 
 		for line of lines
 			continue if !line || !(line.trim())
-			console.log('line', line, 'is_multi_deck', is_multi_deck)
-			# TODO: add heading as tag
-			if line.match(/^#/) && is_multi_deck
-				decks.push({name: deck_name_for(name, line), cards: [], style: style, inputType: inputType})
-				i = i + 1
-				continue
-
-			if line.match(/^-\s/) && is_multi_deck
-				const last_deck = decks[decks.length - 1]
-				let parent = name
-				if last_deck
-					parent = last_deck.name
-				decks.push({name: deck_name_for(parent, line), cards: [], style: style, inputType: inputType})
-				i = i + 1
-				continue
-
+			console.log('line', line)
+			# NB: Only top level toggle lists are considered the front
 			const cd = decks[decks.length - 1]
-			if (line.match(/^\s{4}-/) && is_multi_deck) || (line.match(/^-/) && !is_multi_deck)
+			if line.match(/^-/)
 				const front = self.converter.makeHtml(line.replace('- ', '').trim())
 				cd.cards.push({name: front, backSide: null})
 				continue
 
+			# NB: Assume everything after toggle marker is on the backside
 			# Don't make backside HTML just yet, the image rewriting will happen later
 			const unsetBackSide = self.findNullIndex(cd.cards, 'backSide')
 			if unsetBackSide > -1
@@ -130,7 +115,6 @@ export class DeckParser
 					console.error(e)
 					console.log('i', i)
 					# Parsing failed, try multi deck
-					is_multi_deck = !is_multi_deck
 					i = i - 1
 					continue
 			
