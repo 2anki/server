@@ -208,7 +208,9 @@ export class DeckParser
 
 			// Prepare the Markdown for image path transformations
 			if deck.inputType != 'HTML'
-				card.backSide = self.converter.makeHtml(card.backSide || '<p>empty backside</p>')
+				card.backSide ||= '<p>empty backside</p>'
+				# TODO: investigate why strikethrough is not working ~~colored~~
+				card.backSide = self.converter.makeHtml(card.backSide.trim())
 				console.log('card.backSide to html', card.backSide)
 
 			const dom = cheerio.load(card.backSide)
