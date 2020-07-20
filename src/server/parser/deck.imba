@@ -226,22 +226,18 @@ export class DeckParser
 			if deck.inputType != 'HTML'
 				card.backSide = self.converter.makeHtml(card.backSide || '<p>empty backside</p>')
 				console.log('card.backSide to html', card.backSide)
-			const dom = cheerio.load(card.backSide, {xmlMode: false, recognizeSelfClosing: true})
+
+			const dom = cheerio.load(card.backSide)
 			const images = dom('img')
 			if images.length > 0
 				console.log('Number of images', images.length)
-				const mangle = images.each do |i, elem|
-					dom(elem).replaceWith do
-						const src = dom(this).attr('src')
-						// TODO: allow user to override this to force download image urls
-						return dom(this) if src.includes('http')	
-						if let newName = self.embedImage(exporter, files, global.decodeURIComponent(src))
-							console.log('replacing', src, 'with', newName)
-							return dom(this).attr('src', src.replace(src, newName))
-						return dom(this)
-				card.backSide = dom('body').html()
+				const oldNames = []
+				images.each do |i, elem|
+					const originalName = dom(elem).attr('src')
+					if let newName = self.embedImage(exporter, files, global.decodeURIComponent(originalName))
+						console.log('replacing', originalName, 'with', newName)
+						card.backSide = card.backSide.replace(originalName, newName)
 				deck.image_count += (card.backSide.match(/\<+\s?img/g) || []).length
-				console.log('x', card.backSide)
 			// Hopefully this should perserve headings and other things
 			exporter.addCard(card.name, card.backSide, card.tags ? {tags: card.tags} : {})
 
