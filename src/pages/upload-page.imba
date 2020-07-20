@@ -17,10 +17,10 @@ tag upload-page
 
 	def render
 		<self[d: inline-block]> <page-content>
-			<div[d: flex fld: column a: center pb: 2rem bg: yellow200 px: 4]>
+			<div[d: flex fld: column a: center bg: yellow200 px: 4]>
 				<p[fs: sm]> "This project is 100% free and will remain free but please considering supporting it by"
 				<div>
-					<a.patreon-button href="https://www.patreon.com/ccscanf" patreon-widget-type="become-patron-button"> "Become a Patron"					
+					<a[fw: bold].patreon-button href="https://www.patreon.com/ccscanf" patreon-widget-type="become-patron-button"> "Become a Patron"					
 			<h2> "Only ZIP, HTML and Markdown uploads (one file per upload)"
 			<form[d: flex fld: column jc: start ai: center h: 100%] enctype="multipart/form-data" method="post" action=actionUrl()>
 				<input[m: 10 p: 10 bd: 4px dashed gray600 fs: 2xl] type="file" name="pkg" accept=".zip,.html,.md">
