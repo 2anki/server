@@ -101,7 +101,6 @@ export class DeckParser
 		input.replace(re, changed)
 
 
-	// TODO: refactor
 	def build output, deck, files
 		console.log('building deck')
 		let exporter = self.setupExporter(deck)		
@@ -117,10 +116,11 @@ export class DeckParser
 				const oldNames = []
 				images.each do |i, elem|
 					const originalName = dom(elem).attr('src')
-					if let newName = self.embedImage(exporter, files, global.decodeURIComponent(originalName))
-						console.log('replacing', originalName, 'with', newName)
-						# We have to replace globally since Notion can add the filename as alt value
-						card.back = self.replaceAll(originalName, newName, card.back)
+					if !originalName.startsWith('http')						
+						if let newName = self.embedImage(exporter, files, global.decodeURIComponent(originalName))
+							console.log('replacing', originalName, 'with', newName)
+							# We have to replace globally since Notion can add the filename as alt value
+							card.back = self.replaceAll(originalName, newName, card.back)
 				deck.image_count += (card.back.match(/\<+\s?img/g) || []).length
 			// Hopefully this should perserve headings and other things
 			exporter.addCard(card.name, card.back, card.tags ? {tags: card.tags} : {})
