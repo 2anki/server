@@ -17,6 +17,10 @@ export class DeckParser
 		self.settings = settings
 		// TODO: rename converter to be more md specific
 		self.converter = showdown.Converter.new()
+
+		if md
+			throw new Error('Markdown support has been removed, please use HTML.')
+
 		self.payload = md ? handleMarkdown(contents, deckName) : handleHTML(contents, deckName)
 
 	def pickDefaultDeckName firstLine
