@@ -57,13 +57,9 @@ def main
 	if not fs.existsSync(artifacts_dir)
 		fs.mkdirSync(artifacts_dir)
 
-	test_fixture('workflowy-export.html', 'DNS flashcards', 2)
 	test_fixture('no-images.html', 'HTML test', 2)
 	test_fixture('with-image.html', 'HTML test', 3)
 	process.exit(0)
-
-	test_fixture('simple-deck.md', 'Notion Questions', 3)
-	test_fixture('empty-deck.md', 'Empty Deck', 0)
 
 	const example_dir = path.join(artifacts_dir, 'files')
 	const images = ["Untitled.png", "Untitled 1.png", "Untitled 2.png"]
@@ -72,9 +68,6 @@ def main
 		const img_path = path.join(example_dir, img)
 		console.log('img', img_path)
 		files["Notion Questions/{img}"] = fs.readFileSync(img_path)
-	test_fixture('with-images.md', 'Notion Questions', 3, files)
-
-
 
 	// TODO: fix this test
 	// const zip_path = path.join(artifacts_dir, 'Export-952356ce-4c7a-4416-9aaa-6abe99917124.zip')

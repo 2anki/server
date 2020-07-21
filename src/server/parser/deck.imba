@@ -3,7 +3,6 @@ import path from 'path'
 import fs from 'fs'
 
 import AnkiExport from 'anki-apkg-export'
-import showdown from 'showdown'
 import cheerio from 'cheerio'
 
 import {TEMPLATE_DIR, NoCardsError} from '../constants'
@@ -15,9 +14,6 @@ export class DeckParser
 	def constructor md, contents, settings = {}
 		const deckName = settings.deckName
 		self.settings = settings
-		// TODO: rename converter to be more md specific
-		self.converter = showdown.Converter.new()
-
 		if md
 			throw new Error('Markdown support has been removed, please use HTML.')
 
@@ -38,19 +34,14 @@ export class DeckParser
 	def appendDefaultStyle s
 		"{s}\n{defaultStyle()}"
 
-	def worklflowyName dom
-		const names = dom('.name .innerContentContainer')
-		return null if !names
-		names.first().text()
-
 	def handleHTML contents, deckName = null
 		const inputType = 'HTML'
 		const dom = cheerio.load(contents)
 		let name = dom('title').text()
-		name ||= worklflowyName(dom)
 		let style = /<style[^>]*>([^<]+)<\/style>/i.exec(contents)[1]
-		if style
-			style = appendDefaultStyle(style)
+		# TODO: delete default style?
+		# if style
+		# 	style = appendDefaultStyle(style)
 		const toggleList = dom('.toggle li').toArray()
 		let cards = toggleList.map do |t|
 			const toggle = dom(t).find('details')
@@ -58,6 +49,7 @@ export class DeckParser
 			const backSide = toggle.html()
 			return {name: summary, backSide: backSide}
 
+		# TODO: is this a workflowy leftover?
 		if cards.length == 0
 			const list_items = dom('body ul').first().children().toArray()
 			cards = list_items.map do |li|
@@ -71,72 +63,6 @@ export class DeckParser
 		if cards.length > 0
 			return {name, cards, inputType, style}
 		throw new NoCardsError()
-
-	def  findNullIndex coll, field
-		return coll.findIndex do |x| x[field] == null
-
-
-	def deck_name_for parent = null, name
-		name = name.replace('#', '').trim()
-		return "{parent}::{name}" if parent 
-		return name
-
-	def handleMarkdown contents, deckName = null
-		let style = self.defaultStyle()
-		let lines = contents.split('\n')
-		const inputType = 'md'
-		const decks = []
-
-		const name = deckName ? deckName : pickDefaultDeckName(lines.shift())
-		lines.shift()
-
-		# TODO: do we really need to add the style to all of the decks?
-		# ^ Would it be better to add a custom css file and include it?
-		decks.push({name: name, cards:[], style: style, inputType: inputType})
-		if lines[0] == ''
-			lines.shift()
-
-		for line of lines
-			continue if !line || !(line.trim())
-			console.log('line', line)
-			# NB: Only top level toggle lists are considered the front
-			const cd = decks[decks.length - 1]
-			if line.match(/^-/)
-				const front = self.converter.makeHtml(line.replace('- ', '').trim())
-				cd.cards.push({name: front, backSide: null})
-				continue
-
-			# NB: Assume everything after toggle marker is on the backside
-			# Don't make backside HTML just yet, the image rewriting will happen later
-			const unsetBackSide = self.findNullIndex(cd.cards, 'backSide')
-			if unsetBackSide > -1
-				cd.cards[unsetBackSide].backSide = line.trim() + '\n'
-			else
-				console.log('cd.cards', cd.cards, unsetBackSide)
-				try 
-					cd.cards[cd.cards.length - 1].backSide += line.trim() + '\n'
-				catch e
-					console.error(e)
-					console.log('i', i)
-					# Parsing failed, try multi deck
-					i = i - 1
-					continue
-			
-		if decks.length > 0
-			let single = decks.shift()
-			console.log('make it one')
-			for d in decks
-				for card in d.cards
-					const didMatch = single.cards.find do |s|
-						s.name == card.name && s.backSide == card.backSide
-					# We don't want duplicates
-					if !didMatch
-						card.tags = [d.name]
-						single.cards.push(card)
-			
-			return single
-		throw new NoCardsError()
-
 
 	def sanityCheck cards
 		let empty = cards.find do |x|
@@ -159,18 +85,6 @@ export class DeckParser
 		return null if !m
 		
 		return m[0] if m
-
-	// https://stackoverflow.com/questions/20128238/regex-to-match-markdown-image-pattern-with-the-given-filename	
-	def mdImageMatch input
-		return false if !input
-
-		input.match(/!\[(.*?)\]\((.*?)\)/)
-
-	def isLatex backSide
-		return false if !backSide
-
-		const l = backSide.trim()
-		l.match(/^\\/) or l.match(/^\$\$/) or l.match(/{{/)
 
 	def isImgur backSide
 		return false if !backSide
@@ -205,11 +119,6 @@ export class DeckParser
 
 		for card in deck.cards
 			console.log("exporting {deck.name} {deck.cards.indexOf(card)} / {card_count}")
-			// For now treat Latex as text and wrap it around.
-			// This is fragile thougg and won't handle multiline properly
-			if self.latex?(card.backSide)
-				card.backSide = "[latex]{card.backSide.trim()}[/latex]"
-
 			// Prepare the Markdown for image path transformations
 			if deck.inputType != 'HTML'
 				card.backSide ||= '<p>empty backside</p>'
@@ -236,13 +145,8 @@ export class DeckParser
 		// This code path will normally only run during local testing
 		fs.writeFileSync(output, zip, 'binary');			
 
-def isMarkdown file
-	return false if !file
-
-	file.match(/\.md$/)
-
 export def PrepareDeck file_name, files, settings
-		const decks = DeckParser.new(isMarkdown(file_name), files[file_name], settings)
+		const decks = DeckParser.new(file_name.match(/.md$/), files[file_name], settings)
 		const deck = decks.payload
 		const apkg = await decks.build(null, deck, files)
 		{name: "{deck.name}.apkg", apkg: apkg, deck: deck}

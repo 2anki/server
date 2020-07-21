@@ -21,7 +21,7 @@ tag upload-page
 				<p[fs: sm]> "This project is 100% free and will remain free but please considering supporting it by"
 				<div>
 					<a[fw: bold].patreon-button href="https://www.patreon.com/ccscanf" patreon-widget-type="become-patron-button"> "Become a Patron"					
-			<h2> "Only ZIP, HTML and Markdown uploads (one file per upload)"
+			<h2> "Only ZIP and HTML uploads (one file per upload for now)"
 			<form[d: flex fld: column jc: start ai: center h: 100%] enctype="multipart/form-data" method="post" action=actionUrl()>
 				<input[w: 80% min-height: 48px bd: 1.5px solid grey br: 0.3rem fs: xl p: 0.5 1.5rem] placeholder="optional deckname" name="deckName" type="text">
 				<input[m: 10 p: 10 bd: 4px dashed gray600 fs: 2xl] type="file" name="pkg" accept=".zip,.html,.md">
