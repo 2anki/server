@@ -34,12 +34,13 @@ export class DeckParser
 			// TODO: should we append instead of replacing it altogether?
 			if parentClass // Get same style as the enclosing <ul></ul>
 				dom('*').addClass(parentClass)
-			const toggle = parentUL.find("details").html();
-			const summaryMatch = toggle.match(/<\s*summary[^>]*>(.*?)<\s*\/\s*summary>/)
-			if summaryMatch
-				const front = summaryMatch[0]
-				let back = toggle.replace(front, "")
-				return { name: front, back: back }
+			const toggle = parentUL.find("details").html()
+			if toggle
+				const summaryMatch = toggle.match(/<\s*summary[^>]*>(.*?)<\s*\/\s*summary>/)
+				if summaryMatch
+					const front = summaryMatch[0]
+					let back = toggle.replace(front, "")
+					return { name: front, back: back }
 		# Prevent bad cards from leaking out
 		cards = cards.filter(Boolean)
 		console.log('cards', cards)
@@ -75,11 +76,6 @@ export class DeckParser
 		return null if !m
 		
 		return m[0] if m
-
-	def isImgur back
-		return false if !back
-
-		back.match(/\<img.+src\=(?:\"|\')(.+?)(?:\"|\')(?:.+?)\>/)
 	
 	def setupExporter deck
 		// TODO: fix twemoji pdf font issues
