@@ -5,7 +5,7 @@ import fs from 'fs'
 import AnkiExport from 'anki-apkg-export'
 import cheerio from 'cheerio'
 
-import {TEMPLATE_DIR, NoCardsError} from '../constants'
+import {TEMPLATE_DIR, TriggerNoCardsError, TriggerUnsupportedFormat} from '../constants'
 
 export class DeckParser
 
@@ -13,7 +13,7 @@ export class DeckParser
 		const deckName = settings.deckName
 		self.settings = settings
 		if md
-			throw new Error('Markdown support has been removed, please use HTML.')
+			TriggerUnsupportedFormat()
 
 		self.payload = md ? handleMarkdown(contents, deckName) : handleHTML(contents, deckName)
 
@@ -47,7 +47,7 @@ export class DeckParser
 		cards = sanityCheck(cards)
 		if cards.length > 0
 			return {name, cards, style}
-		throw new NoCardsError()
+		TriggerNoCardsError()
 
 	def sanityCheck cards
 		let empty = cards.find do |x|
