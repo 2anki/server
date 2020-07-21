@@ -135,7 +135,9 @@ export class DeckParser
 					const originalName = dom(elem).attr('src')
 					if let newName = self.embedImage(exporter, files, global.decodeURIComponent(originalName))
 						console.log('replacing', originalName, 'with', newName)
-						card.backSide = card.backSide.replace(originalName, newName)
+						# We have to replace globally since Notion can add the filename as alt value
+						const re = new RegExp(originalName, 'g')
+						card.backSide = card.backSide.replace(re, newName)
 				deck.image_count += (card.backSide.match(/\<+\s?img/g) || []).length
 			// Hopefully this should perserve headings and other things
 			exporter.addCard(card.name, card.backSide, card.tags ? {tags: card.tags} : {})
