@@ -122,6 +122,15 @@ export class DeckParser
 							# We have to replace globally since Notion can add the filename as alt value
 							card.back = self.replaceAll(originalName, newName, card.back)
 				deck.image_count += (card.back.match(/\<+\s?img/g) || []).length
+			
+			# Check YouTube
+			const ytRe = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/
+			const ytMatch = card.back.match(ytRe)
+			if ytMatch && ytMatch.length > 2
+				const id = ytMatch[2].split('<')[0]
+				if id
+					const video = "<iframe width='560' height='315' src='https://www.youtube.com/embed/{id}' frameborder='0' allowfullscreen></iframe>"
+					card.back += video
 			// Hopefully this should perserve headings and other things
 			exporter.addCard(card.name, card.back, card.tags ? {tags: card.tags} : {})
 
