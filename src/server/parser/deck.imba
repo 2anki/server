@@ -9,8 +9,6 @@ import {TEMPLATE_DIR, NoCardsError} from '../constants'
 
 export class DeckParser
 
-	prop defaultDeckStyle
-
 	def constructor md, contents, settings = {}
 		const deckName = settings.deckName
 		self.settings = settings
@@ -23,54 +21,46 @@ export class DeckParser
 		const name = firstLine ? firstLine.trim() : 'Untitled Deck'
 		firstLine.trim().replace(/^# /, '')
 
-	def defaultStyle
-		const name = 'default'
-		let style = fs.readFileSync(path.join(TEMPLATE_DIR, "{name}.css")).toString()
-		# Use the user's supplied settings
-		if let settings = self.settings
-			style = style.replace(/font-size: 20px/g, "font-size: {settings['font-size']}px")
-		style
-
-	def appendDefaultStyle s
-		"{s}\n{defaultStyle()}"
-
 	def handleHTML contents, deckName = null
-		const inputType = 'HTML'
 		const dom = cheerio.load(contents)
-		let name = dom('title').text()
+		let name = deckName || dom('title').text()
 		let style = /<style[^>]*>([^<]+)<\/style>/i.exec(contents)[1]
-		# TODO: delete default style?
-		# if style
-		# 	style = appendDefaultStyle(style)
-		const toggleList = dom('.toggle li').toArray()
-		let cards = toggleList.map do |t|
-			const toggle = dom(t).find('details')
-			const summary = toggle.find('summary').html()
-			const backSide = toggle.html()
-			return {name: summary, backSide: backSide}
 
-		# TODO: is this a workflowy leftover?
-		if cards.length == 0
-			const list_items = dom('body ul').first().children().toArray()
-			cards = list_items.map do |li|
-				const el = dom(li)
-				const front = el.find('.name .innerContentContainer').first()
-				const back = el.find('ul').first().html()
-				return {name: front, backSide: back}
+		const toggleList = dom(".page-body > ul").toArray()
+		let cards = toggleList.map do |t|
+			// We want to perserve the parent's style, so getting the class
+			const parentUL = dom(t)
+			const parentClass = dom(t).attr("class")
+			// TODO: should we append instead of replacing it altogether?
+			if parentClass // Get same style as the enclosing <ul></ul>
+				dom('*').addClass(parentClass)
+			const toggle = parentUL.find("details").html();
+			const summaryMatch = toggle.match(/<\s*summary[^>]*>(.*?)<\s*\/\s*summary>/)
+			if summaryMatch
+				const front = summaryMatch[0]
+				let back = toggle.replace(front, "")
+				return { name: front, back: back }
 		# Prevent bad cards from leaking out
+		cards = cards.filter(Boolean)
 		console.log('cards', cards)
 		cards = sanityCheck(cards)
 		if cards.length > 0
-			return {name, cards, inputType, style}
+			return {name, cards, style}
 		throw new NoCardsError()
 
 	def sanityCheck cards
 		let empty = cards.find do |x|
-			!x.name or x.backSide
+			if !x
+				console.log 'broken card'
+			if !x.name
+				console.log('card is missing name')
+			if !x.back
+				console.log('card is missing back')
+			!x  or !x.name or !x.back
 		if empty
 			console.log('warn Detected empty card, please report bug to developer with an example')
 			console.log('cards', cards)
-		cards.filter do $1.name and $1.backSide
+		cards.filter do $1.name and $1.back
 
 	// Try to avoid name conflicts and invalid characters by hashing
 	def newImageName input
@@ -86,10 +76,10 @@ export class DeckParser
 		
 		return m[0] if m
 
-	def isImgur backSide
-		return false if !backSide
+	def isImgur back
+		return false if !back
 
-		backSide.match(/\<img.+src\=(?:\"|\')(.+?)(?:\"|\')(?:.+?)\>/)
+		back.match(/\<img.+src\=(?:\"|\')(.+?)(?:\"|\')(?:.+?)\>/)
 	
 	def setupExporter deck
 		// TODO: fix twemoji pdf font issues
@@ -109,24 +99,22 @@ export class DeckParser
 		const newName = self.newImageName(imagePath) + suffix
 		exporter.addMedia(newName, image)
 		return newName
+	
+	def replaceAll original, changed, input
+		const re = new RegExp(original, 'g')
+		input.replace(re, changed)
+
 
 	// TODO: refactor
 	def build output, deck, files
-		console.log('building deck of type', deck.inputType)
+		console.log('building deck')
 		let exporter = self.setupExporter(deck)		
 		const card_count = deck.cards.length
 		deck.image_count = 0
 
 		for card in deck.cards
 			console.log("exporting {deck.name} {deck.cards.indexOf(card)} / {card_count}")
-			// Prepare the Markdown for image path transformations
-			if deck.inputType != 'HTML'
-				card.backSide ||= '<p>empty backside</p>'
-				# TODO: investigate why strikethrough is not working ~~colored~~
-				card.backSide = self.converter.makeHtml(card.backSide.trim())
-				console.log('card.backSide to html', card.backSide)
-
-			const dom = cheerio.load(card.backSide)
+			const dom = cheerio.load(card.back)
 			const images = dom('img')
 			if images.length > 0
 				console.log('Number of images', images.length)
@@ -136,11 +124,10 @@ export class DeckParser
 					if let newName = self.embedImage(exporter, files, global.decodeURIComponent(originalName))
 						console.log('replacing', originalName, 'with', newName)
 						# We have to replace globally since Notion can add the filename as alt value
-						const re = new RegExp(originalName, 'g')
-						card.backSide = card.backSide.replace(re, newName)
-				deck.image_count += (card.backSide.match(/\<+\s?img/g) || []).length
+						card.back = self.replaceAll(originalName, newName, card.back)
+				deck.image_count += (card.back.match(/\<+\s?img/g) || []).length
 			// Hopefully this should perserve headings and other things
-			exporter.addCard(card.name, card.backSide, card.tags ? {tags: card.tags} : {})
+			exporter.addCard(card.name, card.back, card.tags ? {tags: card.tags} : {})
 
 		const zip = await exporter.save()
 		return zip if not output
