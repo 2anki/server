@@ -3,6 +3,7 @@ import fs from 'fs'
 
 import express from 'express'
 import multer from 'multer'
+import cors from 'cors'
 
 import {DeckParser,PrepareDeck} from './parser/deck'
 import {TEMPLATE_DIR} from './constants'
@@ -17,6 +18,8 @@ def useErrorHandler res, err
 
 var upload = multer({ storage: multer.memoryStorage() })
 const app = express()
+
+app.use(cors())
 
 const distDir = path.join(__dirname, "../../dist")
 
