@@ -21,8 +21,9 @@ tag n2a-header
 				<a[c:white td:none] href="/" target="_blank"> <h1> "notion2anki"
 				<div[w: 20% js: flex-end]>
 					<div[text: xl d: flex jc: space-around]>
-						<a.nav-link target="_blank" href="/faq"> "FAQ"
+						<a.nav-link href="/faq"> "FAQ"
 						<a.nav-link href="/contact"> "Contact"
 						<a.nav-link href="/privacy"> "Privacy"
-			showTheCTA()
+			if window.location.pathname != '/'
+				showTheCTA()
 		
