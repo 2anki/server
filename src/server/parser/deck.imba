@@ -35,8 +35,12 @@ export class DeckParser
 				const summary = parentUL.find('summary').first()
 				const toggle = parentUL.find("details").first()
 				if summary and toggle
-					let back = toggle.html().replace(summary, "")
-					return { name: summary.html(), back: back }
+					const toggleHTML = toggle.html()
+					if toggleHTML
+						let back = toggleHTML.replace(summary, "")
+						return { name: summary.html(), back: back }
+					else
+						console.log('error in (missing valid detailts)', parentUL.html())
 		# Prevent bad cards from leaking out
 		cards = cards.filter(Boolean)
 		console.log('cards', cards)
@@ -90,6 +94,8 @@ export class DeckParser
 	
 	def replaceAll original, changed, input
 		const re = new RegExp(original, 'g')
+		if !original or !changed or !input
+			throw new Error("replaceAll received invalid arguments {arguments}")
 		input.replace(re, changed)
 
 
