@@ -2,8 +2,6 @@ import crypto from 'crypto'
 import path from 'path'
 import fs from 'fs'
 
-Module = { TOTAL_MEMORY: 536870912 }
-
 import AnkiExport from 'anki-apkg-export'
 import cheerio from 'cheerio'
 
