@@ -16,7 +16,7 @@ tag home-page
 					<p[ta: center p: 0 4 fs: xl m: 0.2rem 0]> 
 						"Please report any bugs you experience to {<a[bg: orange600 @hover: green400].rounded href="mailto:{contactAdress}"> contactAdress}"
 				<div[h: 8rem d: flex ai: center jc: center]>
-					<a[fs: 4xl fw: bold c: white br: 0.25rem px: 8 py: 2 td: none bg: #3B83F7 @hover: green400] href="/upload"> "Upload Notion export"
+					<a[fs: 4xl fw: bold c: white br: 0.25rem px: 8 py: 2 td: none bg: #83C9F5 @hover: green400] href="/upload"> "Upload Notion export"
 				<div[d: flex fld: column ai: center]>
 					<h2[fw: bold fs: 4xl]>
 						<a[ c: black td: none] href="#usage" name="usage"> "How it\n            works"
