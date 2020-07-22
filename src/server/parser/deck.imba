@@ -17,31 +17,35 @@ export class DeckParser
 
 		self.payload = md ? handleMarkdown(contents, deckName) : handleHTML(contents, deckName)
 
-	def pickDefaultDeckName firstLine
-		const name = firstLine ? firstLine.trim() : 'Untitled Deck'
-		firstLine.trim().replace(/^# /, '')
-
 	def handleHTML contents, deckName = null
 		const dom = cheerio.load(contents)
 		let name = deckName || dom('title').text()
-		let style = /<style[^>]*>([^<]+)<\/style>/i.exec(contents)[1]
+		let style = dom('style').html()
 
 		const toggleList = dom(".page-body > ul").toArray()
 		let cards = toggleList.map do |t|
 			// We want to perserve the parent's style, so getting the class
 			const parentUL = dom(t)
-			const summary = parentUL.find('summary').first()
-			const toggle = parentUL.find("details").first()
-			if summary and toggle
-				let back = toggle.html().replace(summary, "")
-				return { name: summary.html(), back: back }
+			const parentClass = dom(t).attr("class")
+
+			if parentUL
+				# TODO: fix details to be wrapped
+				dom('details').addClass(parentClass)
+				dom('summary').addClass(parentClass)
+				const summary = parentUL.find('summary').first()
+				const toggle = parentUL.find("details").first()
+				if summary and toggle
+					let back = toggle.html().replace(summary, "")
+					return { name: summary.html(), back: back }
 		# Prevent bad cards from leaking out
 		cards = cards.filter(Boolean)
 		console.log('cards', cards)
 		cards = sanityCheck(cards)
-		if cards.length > 0
-			return {name, cards, style}
-		TriggerNoCardsError()
+
+		unless cards.length > 0
+			TriggerNoCardsError()
+
+		return {name, cards, style}
 
 	def sanityCheck cards
 		let empty = cards.find do |x|
