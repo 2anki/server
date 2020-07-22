@@ -10,6 +10,15 @@ Notion2Anki is a passion project. We are going to make this a good way to make A
 
 [tl]: https://www.notion.so/Toggles-c720af26b4bd4789b736c140b2dc73fe
 
+## How it works
+
+notion2Anki treats toggle lists on the top level as Anki cards. The toggle list line is the front of the card
+and everything inside in the details is the back. 
+
+You can use flip mode to create a mix of the cards. Basic (front & back), basic + reversed and just reversed.
+
+TODO: mention notion styles
+
 ## Background
 
 This project was hacked together after seeing this post on Reddit by [jacksong97](https://www.reddit.com/user/jacksong97):
