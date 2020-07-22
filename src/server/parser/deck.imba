@@ -30,10 +30,6 @@ export class DeckParser
 		let cards = toggleList.map do |t|
 			// We want to perserve the parent's style, so getting the class
 			const parentUL = dom(t)
-			const parentClass = dom(t).attr("class")
-			// TODO: should we append instead of replacing it altogether?
-			if parentClass // Get same style as the enclosing <ul></ul>
-				dom('*').addClass(parentClass)
 			const toggle = parentUL.find("details").html()
 			if toggle
 				const summaryMatch = toggle.match(/<\s*summary[^>]*>(.*?)<\s*\/\s*summary>/)
