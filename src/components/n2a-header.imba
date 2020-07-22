@@ -18,7 +18,7 @@ tag n2a-header
 	def render
 		<self[d: block flex-shrink: 0]>
 			<nav[bg: #83C9F5 d: flex jc: space-around w: 100vw c: white ai: center fld: column @md: row]>
-				<a[c:white td:none] href="/" target="_blank"> <h1> "notion2anki"
+				<a[c:white td:none] href="/"> <h1> "notion2anki"
 				<div[w: 20% js: flex-end]>
 					<div[text: xl d: flex jc: space-around]>
 						<a.nav-link href="/faq"> "FAQ"
