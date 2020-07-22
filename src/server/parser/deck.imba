@@ -30,13 +30,11 @@ export class DeckParser
 		let cards = toggleList.map do |t|
 			// We want to perserve the parent's style, so getting the class
 			const parentUL = dom(t)
-			const toggle = parentUL.find("details").html()
-			if toggle
-				const summaryMatch = toggle.match(/<\s*summary[^>]*>(.*?)<\s*\/\s*summary>/)
-				if summaryMatch
-					const front = summaryMatch[0]
-					let back = toggle.replace(front, "")
-					return { name: front, back: back }
+			const summary = parentUL.find('summary').first()
+			const toggle = parentUL.find("details").first()
+			if summary and toggle
+				let back = toggle.html().replace(summary, "")
+				return { name: summary.html(), back: back }
 		# Prevent bad cards from leaking out
 		cards = cards.filter(Boolean)
 		console.log('cards', cards)
