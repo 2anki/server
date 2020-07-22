@@ -18,6 +18,8 @@ css a c: blue600 bg: transparent @hover: green400
 css .patreon-button bg: orange600 @hover:green400 p: 2 c: white m: 0 border-radius: 0.25rem td: none
 
 tag app-root
+	prop state = 'ready'
+	# TODO: expose more card template stuff
 	prop settings = {'font-size': 20}
 
 	def page
@@ -31,7 +33,7 @@ tag app-root
 		<self[d: flex fld: column jc: space-between ai: stretch m: 0 p: 0 w: 100% h: 100%]>
 			<n2a-header>
 			if page().includes('upload')
-				<upload-page>
+				<upload-page state=state progress=progress>
 			elif page().includes('contact')
 				<contact-page>
 			elif page().includes('privacy')
