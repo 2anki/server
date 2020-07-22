@@ -19,6 +19,12 @@ tag upload-page
 		<self[d: inline-block]> <page-content>
 			<form[d: flex fld: column jc: start ai: center h: 100%] enctype="multipart/form-data" method="post" action=actionUrl()>
 				<input[w: 90% min-height: 48px bdb: 1.5px solid grey fs: 2xl fw: bold c: #83C9F5 @placeholder: grey] placeholder="Enter deck name (optional)" name="deckName" type="text">
+				<.select-flip-type[mt: 1rem w: 90% c: black bdb: 1.5px solid grey d: flex jc: space-between].rounded>
+					<label[fs: xl] for="flip-mode"> "Flip Mode: "
+					<select[fs: xl w: 50%] name="flip-mode">
+						<option value="basic"> "Basic front and back"
+						<option value="basic-reversed"> "Basic and reversed"
+						<option value="reversed"> "Just the reversed"
 				<input[m: 10 p: 10 bd: 4px dashed gray600 fs: 2xl] type="file" name="pkg" accept=".zip,.html,.md" required>
 				<button[fs: 4xl fw: bold c: white br: 0.25rem px: 8 py: 2 bg: #83C9F5]  type="submit"> "Convert"
 			<div[m:4rem]>

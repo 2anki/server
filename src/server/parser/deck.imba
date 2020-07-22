@@ -131,8 +131,17 @@ export class DeckParser
 				if id
 					const video = "<iframe width='560' height='315' src='https://www.youtube.com/embed/{id}' frameborder='0' allowfullscreen></iframe>"
 					card.back += video
-			// Hopefully this should perserve headings and other things
-			exporter.addCard(card.name, card.back, card.tags ? {tags: card.tags} : {})
+
+			const tags = card.tags ? {tags: card.tags} : {}
+			const flipMode = self.settings['flip-mode']
+			switch flipMode
+				when 'Basic and reversed' or 'basic-reversed'
+					exporter.addCard(card.name, card.back, tags)
+					exporter.addCard(card.back, card.name, tags)
+				when 'Just the reversed' or 'reversed'
+					exporter.addCard(card.back, card.name, tags)
+				else
+					exporter.addCard(card.name, card.back, tags)
 
 		const zip = await exporter.save()
 		return zip if not output
