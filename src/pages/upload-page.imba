@@ -31,7 +31,8 @@ tag upload-page
 			a.click()
 			state = 'ready'
 		catch error
-			alert(error)
+			window.alert(error)
+			console.error(error)
 
 	def render
 		<self[d: inline-block]> <page-content>
