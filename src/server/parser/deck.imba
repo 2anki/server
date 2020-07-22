@@ -78,14 +78,8 @@ export class DeckParser
 		return m[0] if m
 	
 	def setupExporter deck
-		// TODO: fix twemoji pdf font issues
-		if deck.style
-			deck.style = deck.style.split('\n').filter do |line|
-				# TODO: fix font-family breaking with workflowy, maybe upstream bug?
-				!line.includes('.pdf') && !line.includes('font-family')
-			deck.style = deck.style.join('\n')
-			return AnkiExport.new(deck.name, {css: deck.style})	
-		AnkiExport.new(deck.name)
+		const css = self.replaceAll("'", '"', deck.style)
+		new AnkiExport(deck.name, {css: css})	
 
 	def embedImage exporter, files, imagePath
 		const suffix = self.suffix(imagePath)
