@@ -7,6 +7,16 @@ import cheerio from 'cheerio'
 
 import {TEMPLATE_DIR, TriggerNoCardsError, TriggerUnsupportedFormat} from '../constants'
 
+String.prototype.replaceAll = do |oldValue, newValue|
+	unless oldValue != newValue
+		return this
+	let temp = this
+	let index = temp.indexOf(oldValue)
+	while index != -1
+		temp = temp.replace(oldValue, newValue)
+		index = temp.indexOf(oldValue)
+	return temp
+
 export class DeckParser
 
 	def constructor md, contents, settings = {}
@@ -80,7 +90,7 @@ export class DeckParser
 		return m[0] if m
 	
 	def setupExporter deck
-		const css = self.replaceAll("'", '"', deck.style)
+		const css = deck.style.replaceAll("'", '"')
 		new AnkiExport(deck.name, {css: css})	
 
 	def embedImage exporter, files, imagePath
@@ -92,13 +102,6 @@ export class DeckParser
 		exporter.addMedia(newName, image)
 		return newName
 	
-	def replaceAll original, changed, input
-		const re = new RegExp(original, 'g')
-		if !original or !changed or !input
-			throw new Error("replaceAll received invalid arguments {arguments}")
-		input.replace(re, changed)
-
-
 	def build output, deck, files
 		console.log('building deck')
 		let exporter = self.setupExporter(deck)		
@@ -118,7 +121,7 @@ export class DeckParser
 						if let newName = self.embedImage(exporter, files, global.decodeURIComponent(originalName))
 							console.log('replacing', originalName, 'with', newName)
 							# We have to replace globally since Notion can add the filename as alt value
-							card.back = self.replaceAll(originalName, newName, card.back)
+							card.back = card.back.replaceAll(originalName, newName)
 				deck.image_count += (card.back.match(/\<+\s?img/g) || []).length
 			
 			# Check YouTube
