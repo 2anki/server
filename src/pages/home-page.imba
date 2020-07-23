@@ -20,16 +20,14 @@ tag home-page
 						<a[mt: 2rem].button.cta .is-large href="/upload"> "Upload Notion export"
 			<.section>
 				<.container>
-					<h1.title> "Benefits ✅ "
-						<hr>
-						<div>
-							<span .tag .is-info .is-large> "100% Free"
-							<span> " "
-							<span .tag .is-warning .is-large> "Emoji support"
-							<span> " "
-							<span .tag .is-danger .is-large> "YouTube embeds"
-							<span> " "
-							<span .tag .is-large> "Images and More!"
+					<h1.title> "Benefits"
+					<hr>
+					<.subtitle>
+						<ul>
+							<li> "✅ Images and More!"
+							<li> "✅ YouTube embeds"
+							<li> "✅ Emoji support"
+							<li> "✅ 100% Free"
 			<.section>
 				<.container>
 					<h2.title> <a[c: black td: none] href="#usage" name="usage"> "How it\n            works"
