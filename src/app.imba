@@ -8,7 +8,6 @@ import './pages/privacy-page'
 import './pages/faq-page'
 
 css .rounded border: 0.1px solid white br: 0.25rem td: none  p: 0.1rem 2 my: 2 c: white mr: 4 bg: none  	
-css body height: 100% w: 100% m: 0 ff: 'Baloo 2', Helvetica, Arial
 css html w: 100% h: 100%
 
 css .n2a-blue-bg bg: #3B83F7
