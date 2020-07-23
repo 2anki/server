@@ -153,7 +153,6 @@ export class DeckParser
 			if let soundCloudUrl = get_soundcloud_url(card.back)
 				const audio = "<iframe width='100%' height='166' scrolling='no' frameborder='no' src='https://w.soundcloud.com/player/?url={soundCloudUrl}'></iframe>"
 				card.back += audio
-				console.log('added audio', card.back)
 
 			const tags = card.tags ? {tags: card.tags} : {}
 			const flipMode = self.settings['flip-mode']
