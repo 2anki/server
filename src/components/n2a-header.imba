@@ -33,7 +33,9 @@ tag n2a-header
 								<a.navbar-item target="_blank" href="https://apps.apple.com/us/app/ankimobile-flashcards/id373493387"> " AnkiMobile Flashcards"
 								<a.navbar-item target="_blank" href="https://play.google.com/store/apps/details?id=com.ichi2.anki&hl=no"> "AnkiDroid Flashcards"
 								<a.navbar-item target="_blank" href="https://docs.ankiweb.net/#/"> "Anki Manual"
-
+								<hr.navbar-divider>
+								<a.navbar-item target="_blank" href="https://www.youtube.com/user/MATTvsJapan"> "Matt vs. Japan"
+								<a.navbar-item target="_blank" href="https://www.youtube.com/user/Sepharoth64"> "Ali Abdaal"
 
 
 					<div.navbar-end>
