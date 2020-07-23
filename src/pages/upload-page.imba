@@ -11,9 +11,17 @@ tag upload-page
 	def isDebug
 		window.location.hostname == 'localhost'
 
+	def baseUrl
+		switch window.location.hostname
+			when 'localhost'
+				return "http://localhost:2020"
+			when 'dev.notion2anki.alemayhu.com' or 'dev.notion.2anki.net'
+				return "https://dev.notion.2anki.net"
+			else
+				"https://notion.2anki.com"
+
 	def actionUrl
-		let baseUrl = isDebug() ? "http://localhost:2020" : "https://notion.2anki.com"
-		"{baseUrl}/f/upload"
+		"{baseUrl()}/f/upload"
 
 	def render
 		<self[d: inline-block]> <page-content>
