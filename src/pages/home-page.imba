@@ -47,4 +47,4 @@ tag home-page
 					<p.subtitle> "In this video, I show you how to use notion2anki"
 					<.has-text-centered>
 						<iframe.self-center width="80%" height="315" src=tutorial allowFullScreen="allowFullScreen" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen;">						
-						<a[mt: 2rem].button.cta .is-large href="/upload"> "I want to save mye time"
+						<a[mt: 2rem].button.cta .is-large href="/upload"> "I want to save my time"
