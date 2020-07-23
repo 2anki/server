@@ -102,6 +102,26 @@ export class DeckParser
 		exporter.addMedia(newName, image)
 		return newName
 	
+	# https://stackoverflow.com/questions/6903823/regex-for-youtube-id
+	def get_youtube_id input
+		console.log('get_youtube_id', arguments)
+		try
+			const m =  input.match(/(?:youtu\.be\/|youtube\.com(?:\/embed\/|\/v\/|\/watch\?v=|\/user\/\S+|\/ytscreeningroom\?v=|\/sandalsResorts#\w\/\w\/.*\/))([^\/&]{10,12})/)
+			# prevent swallowing of soundcloud embeds
+			if m[0].match(/https:\/\/soundcloud.com/)
+				return null
+			return m[1]
+		catch error
+				return null
+	
+	def get_soundcloud_url input
+		console.log('get_soundcloud_url', arguments)
+		try
+			const sre = /https?:\/\/soundcloud\.com\/\S*/gi
+			return input.match(sre)[0].split('">')[0]
+		catch error
+			return null
+
 	def build output, deck, files
 		console.log('building deck')
 		let exporter = self.setupExporter(deck)		
@@ -125,13 +145,15 @@ export class DeckParser
 				deck.image_count += (card.back.match(/\<+\s?img/g) || []).length
 			
 			# Check YouTube
-			const ytRe = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/
-			const ytMatch = card.back.match(ytRe)
-			if ytMatch && ytMatch.length > 2
-				const id = ytMatch[2].split('<')[0]
-				if id
-					const video = "<iframe width='560' height='315' src='https://www.youtube.com/embed/{id}' frameborder='0' allowfullscreen></iframe>"
-					card.back += video
+			if let id = get_youtube_id(card.back)
+				console.log('IDE', id)
+				const ytSrc = "https://www.youtube.com/embed/{id}?".replace(/"/, '')
+				const video = "<iframe width='560' height='315' src='{ytSrc}' frameborder='0' allowfullscreen></iframe>"
+				card.back += video
+			if let soundCloudUrl = get_soundcloud_url(card.back)
+				const audio = "<iframe width='100%' height='166' scrolling='no' frameborder='no' src='https://w.soundcloud.com/player/?url={soundCloudUrl}'></iframe>"
+				card.back += audio
+				console.log('added audio', card.back)
 
 			const tags = card.tags ? {tags: card.tags} : {}
 			const flipMode = self.settings['flip-mode']

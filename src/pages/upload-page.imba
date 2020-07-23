@@ -7,6 +7,7 @@ tag upload-page
 	prop state = 'ready'
 	prop progress = 0
 	prop fontSize = 20
+	prop autoplay = true
 
 	css .cta bg: #83C9F5 c: white fw: bold
 	
@@ -45,6 +46,10 @@ tag upload-page
 										<option value="reversed"> "Just the reversed"
 							<span.icon.is-large.is-left>
 								<i.fas.fa-chalkboard>
+						<h3[mt: 2rem] .title .is-3> "Media Options" 
+						<div .button .is-success=autoplay>
+							<label[us: none] .checkbox for="autoplay" .is-size-4 @click.{autoplay=!autoplay}> autoplay ? "Autoplay" : "Manualplay"
+							<input bind=autoplay type="checkbox" name="autoplay" checked="checked" hidden>
 
 						<h3[mt: 2rem] .title .is-3> "Notion Export File"
 						<p.subtitle[mt: 1rem]> "Not sure how to export? See this tutorial {<a target='_blank' href="https://youtu.be/b3eQ0exhdz4"> "Video Tutorial: Creating Anki Decks from Notion Toggle Lists"}."
@@ -59,6 +64,7 @@ tag upload-page
 									<span.file-name> "My Notion Export.zip"
 						<.has-text-centered>
 							<button[mt: 2rem].button.cta .is-large type="submit"> "Convert"
+
 			<.section>
 				<.container>
 					<div[m:4rem]>

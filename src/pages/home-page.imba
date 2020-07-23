@@ -24,8 +24,8 @@ tag home-page
 					<hr>
 					<.subtitle>
 						<ul>
+							<li> "✅ SoundCloud and YouTube embeds"
 							<li> "✅ Images and More!"
-							<li> "✅ YouTube embeds"
 							<li> "✅ Emoji support"
 							<li> "✅ 100% Free"
 			<.section>
