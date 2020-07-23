@@ -27,14 +27,20 @@ tag n2a-header
 							<div.navbar-dropdown.is-boxed>
 								<a.navbar-item href="/faq"> "FAQ"
 								<a.navbar-item href="/privacy"> "Privacy"
+								<a.navbar-item target="_blank" href="https://skl.sh/2WhV7F6"> "Skillshare"
 								<hr.navbar-divider>
-								<a.navbar-item target="_blank" target="_blank" href="https://docs.ankiweb.net/#/"> "Anki Manual"
-								<a.navbar-item.is-active target="_blank" target="_blank" href="https://skl.sh/2WhV7F6"> "Skillshare"
+								<a.navbar-item target="_blank" href="https://www.reddit.com/r/Anki/"> "Anki: a forum about the Anki flashcard app"
+								<a.navbar-item target="_blank" href="https://apps.apple.com/us/app/ankimobile-flashcards/id373493387"> " AnkiMobile Flashcards"
+								<a.navbar-item target="_blank" href="https://play.google.com/store/apps/details?id=com.ichi2.anki&hl=no"> "AnkiDroid Flashcards"
+								<a.navbar-item target="_blank" href="https://docs.ankiweb.net/#/"> "Anki Manual"
+
+
+
 					<div.navbar-end>
 						<div.navbar-item>
 							<div.field.is-grouped>
 								<p.control>
-									<a.bd-tw-button.button target="_blank" target="_blank" href="https://github.com/alemayhu/notion2anki">
+									<a.bd-tw-button.button target="_blank" href="https://github.com/alemayhu/notion2anki">
 										<span.icon>
 											<i.fab.fa-github>
 										<span> "Github"
