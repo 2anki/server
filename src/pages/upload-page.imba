@@ -7,6 +7,8 @@ tag upload-page
 	prop state = 'ready'
 	prop progress = 0
 	prop fontSize = 20
+
+	css .cta bg: #83C9F5 c: white fw: bold
 	
 	def isDebug
 		window.location.hostname == 'localhost'
@@ -24,19 +26,40 @@ tag upload-page
 		"{baseUrl()}/f/upload"
 
 	def render
-		<self[d: inline-block]> <page-content>
-			<form[d: flex fld: column jc: start ai: center h: 100%] enctype="multipart/form-data" method="post" action=actionUrl()>
-				<input[w: 90% min-height: 48px bdb: 1.5px solid grey fs: 2xl fw: bold c: #83C9F5 @placeholder: grey] placeholder="Enter deck name (optional)" name="deckName" type="text">
-				<.select-flip-type[mt: 1rem w: 90% c: black bdb: 1.5px solid grey d: flex jc: space-between].rounded>
-					<label[fs: xl] for="flip-mode"> "Flip Mode: "
-					<select[fs: xl w: 50%] name="flip-mode">
-						<option value="basic"> "Basic front and back"
-						<option value="basic-reversed"> "Basic and reversed"
-						<option value="reversed"> "Just the reversed"
-				<input[m: 10 p: 10 bd: 4px dashed gray600 fs: 2xl] type="file" name="pkg" accept=".zip,.html,.md" required>
-				<button[fs: 4xl fw: bold c: white br: 0.25rem px: 8 py: 2 bg: #83C9F5]  type="submit"> "Convert"
-			<div[m:4rem]>
-				<p[ta: center p: 0 4 fs: xl m: 0 max-width: 500px]> "If you are missing a feature or format, let me know on "
-					<a[mr: 0.2rem bg: black @hover: green400].rounded href="https://github.com/alemayhu/notion2anki"> "GitHub"
-					"or the "
-					<a[bg: #7289da @hover: green400].rounded href="https://discord.gg/PSKC3uS" target="_blank"> "Discord"
+		<self>
+			<.section>
+				<.container>
+					<h1.title> "Pick your options"
+					<hr>
+					<p.subtitle> "Only the zip or HTML file is required. Please use the exported ZIP file to get all your images."
+					<form enctype="multipart/form-data" method="post" action=actionUrl()>
+						<h3 .title .is-3> "Deck Name" 
+						<input.input[w: 90% min-height: 48px fs: 2xl fw: bold c: #83C9F5 @placeholder: grey] placeholder="Enter deck name (optional)" name="deckName" type="text">
+						<h3[mt: 2rem] .title .is-3> "Card Types" 
+						<div[mt: 1rem].control.has-icons-left>
+							<div.select.is-large>
+								<.select>
+									<select name="flip-mode">
+										<option value="basic"> "Basic front and back"
+										<option value="basic-reversed"> "Basic and reversed"
+										<option value="reversed"> "Just the reversed"
+							<span.icon.is-large.is-left>
+								<i.fas.fa-chalkboard>
+
+						<h3[mt: 2rem] .title .is-3> "Notion Export File"
+						<p.subtitle[mt: 1rem]> "Not sure how to export? See this tutorial {<a target='_blank' href="https://youtu.be/b3eQ0exhdz4"> "Video Tutorial: Creating Anki Decks from Notion Toggle Lists"}."
+						<div.field>
+							<div.file.is-centered.is-boxed.is-success.has-name>
+								<label.file-label>
+									<input.file-input type="file" name="pkg" accept=".zip,.html,.md" required>
+									<span.file-cta>
+										<span.file-icon>
+											<i.fas.fa-upload>
+										<span.file-label> "Centered file…"
+									<span.file-name> "My Notion Export.zip"
+						<.has-text-centered>
+							<button[mt: 2rem].button.cta .is-large type="submit"> "Convert"
+			<.section>
+				<.container>
+					<div[m:4rem]>
+						<p.subtitle> "If you are missing a feature or format, let me know on {<a href="https://github.com/alemayhu/notion2anki"> "GitHub"} or the {<a href="https://discord.gg/PSKC3uS" target="_blank"> "Discord"}"													

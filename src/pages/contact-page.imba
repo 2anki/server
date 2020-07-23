@@ -8,9 +8,24 @@ tag contact-page
 	css p ta: center p: 0 4 fs: xl m: 2 0
 
 	def render
-		<self[d: inline-block]> <page-content[jc: start]>
-			<h2[fw: bold fs: 4xl]> <a[c: black td: none] href="#contact" name="contact"> "Contact"
-			<p[tm: 0.2rem 0]> "The easiest way to reach me is to send an email to {<a[bg: orange600].rounded href="mailto:{contactAdress}"> contactAdress}" 
-			<p> "I read my personal inbox every Saturday and see all messages."
-			<p> "I live stream weekly my Twitch Channel {<a[bg: purple c: white br: 0.3rem p: 1 3 td: none] href="https://www.twitch.tv/ccscanf"> "ccscanf"}, come by sometime 😉"
-			<iframe src="https://discordapp.com/widget?id=723998078201495642&theme=dark" width="350" height="500" allowtransparency="true" frameborder="0">
+		<self>
+			<.section>
+				<.container>
+					<h1.title> "Contact"
+					<hr>
+					<p.subtitle> "The easiest way to reach me is to send an email to {<a.rounded href="mailto:{contactAdress}"> contactAdress}" 
+					<.notification>
+						<p.subtitle> "I read my personal inbox every Saturday and see all messages."
+			<.section>					
+				<.container>
+					<h2.title.is-2> "Discord"
+					<p.subtitle> "Another great alternative is to join the Discord server and get help from me and other community members."
+					<p.subtitle> "Here is a widget that should show you who is online right now"
+					<.has-text-centered>
+						<iframe src="https://discordapp.com/widget?id=723998078201495642&theme=dark" width="350" height="500" allowtransparency="true" frameborder="0">					
+			<.section>
+				<.container>
+					<h2.title.is-2> "Twitch"
+					<p.subtitle> "I live stream weekly on my Twitch Channel {<a[bg: #6441a5 c: white br: 0.3rem p: 1 3 td: none] href="https://www.twitch.tv/ccscanf"> "ccscanf"}"
+					<p.subtitle> "This is is a great place to get instant feedback on your problems."
+					<p.subtitle> "Be sure to subscribe so you get a notification when we go live 😉"
