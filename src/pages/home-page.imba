@@ -20,6 +20,18 @@ tag home-page
 						<a[mt: 2rem].button.cta .is-large href="/upload"> "Upload Notion export"
 			<.section>
 				<.container>
+					<h1.title> "Benefits ✅ "
+						<hr>
+						<div>
+							<span .tag .is-info .is-large> "100% Free"
+							<span> " "
+							<span .tag .is-warning .is-large> "Emoji support"
+							<span> " "
+							<span .tag .is-danger .is-large> "YouTube embeds"
+							<span> " "
+							<span .tag .is-large> "Images and More!"
+			<.section>
+				<.container>
 					<h2.title> <a[c: black td: none] href="#usage" name="usage"> "How it\n            works"
 					<hr>
 					<p.subtitle> "You export your page as a HTML from Notion and then let notion2anki convert it."
