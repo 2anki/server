@@ -22,12 +22,13 @@ tag home-page
 				<.container>
 					<h1.title> "Benefits"
 					<hr>
+					<p.subtitle> "This project is 100% free and open source!"
 					<.subtitle>
 						<ul>
 							<li> "✅ SoundCloud and YouTube embeds"
 							<li> "✅ Images and More!"
 							<li> "✅ Emoji support"
-							<li> "✅ 100% Free"
+							<li> "✅ MP3 files"
 			<.section>
 				<.container>
 					<h2.title> <a[c: black td: none] href="#usage" name="usage"> "How it\n            works"
