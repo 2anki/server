@@ -76,7 +76,7 @@ export class DeckParser
 		cards.filter do $1.name and $1.back
 
 	// Try to avoid name conflicts and invalid characters by hashing
-	def newImageName input
+	def newUniqueFileName input
 		var shasum = crypto.createHash('sha1')
 		shasum.update(input)
 		shasum.digest('hex')
@@ -93,13 +93,14 @@ export class DeckParser
 		const css = deck.style.replaceAll("'", '"')
 		new AnkiExport(deck.name, {css: css})	
 
-	def embedImage exporter, files, imagePath
-		const suffix = self.suffix(imagePath)
+	def embedFile exporter, files, filePath
+		console.log('embedFile', Object.keys(files), filePath)
+		const suffix = self.suffix(filePath)
 		return null if !suffix
 
-		let image = files["{imagePath}"]
-		const newName = self.newImageName(imagePath) + suffix
-		exporter.addMedia(newName, image)
+		let file = files["{filePath}"]
+		const newName = self.newUniqueFileName(filePath) + suffix
+		exporter.addMedia(newName, file)
 		return newName
 	
 	# https://stackoverflow.com/questions/6903823/regex-for-youtube-id
@@ -122,6 +123,15 @@ export class DeckParser
 		catch error
 			return null
 
+	def find_mp3_file input
+		try
+			const m = input.match(/<a\s+(?:[^>]*?\s+)?href=(["'])(.*?)\1/i)[2]
+			unless m.endsWith('.mp3') and !m.startsWith('http')
+				return null
+			return m
+		catch error
+			return null
+
 	def build output, deck, files
 		console.log('building deck')
 		let exporter = self.setupExporter(deck)		
@@ -138,12 +148,17 @@ export class DeckParser
 				images.each do |i, elem|
 					const originalName = dom(elem).attr('src')
 					if !originalName.startsWith('http')						
-						if let newName = self.embedImage(exporter, files, global.decodeURIComponent(originalName))
+						if let newName = self.embedFile(exporter, files, global.decodeURIComponent(originalName))
 							console.log('replacing', originalName, 'with', newName)
 							# We have to replace globally since Notion can add the filename as alt value
 							card.back = card.back.replaceAll(originalName, newName)
 				deck.image_count += (card.back.match(/\<+\s?img/g) || []).length
 			
+			if let audiofile = find_mp3_file(card.back)
+				if let newFileName = self.embedFile(exporter, files, global.decodeURIComponent(audiofile))
+					console.log('added sound', newFileName)
+					card.back += "[sound:{newFileName}]"
+
 			# Check YouTube
 			if let id = get_youtube_id(card.back)
 				console.log('IDE', id)
