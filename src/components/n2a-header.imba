@@ -13,7 +13,7 @@ tag n2a-header
 			<nav.navbar.is-info[bg: #83C9F5]>
 				<div.navbar-brand>
 					<a.navbar-item href="/">
-						<h1> "notion2anki"
+						<h1[br: 0.3rem]> "notion2anki"
 					<div.navbar-burger.burger.is-active=active data-target="navbarExampleTransparentExample" @click.{active=!active}>
 						<span>
 						<span>
