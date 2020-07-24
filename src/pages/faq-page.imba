@@ -24,3 +24,5 @@ tag faq-page
 					<q-w-a question="How do I get colors, font and backgrounds" answer="Use the HTML export instead of Markdown.">
 					<q-w-a question="Where are the servers running" answer="DigitalOcean via the Frankfurt datacenter (FRA1) and Netlify for CDN.">
 					<q-w-a question="Where are you based" answer="In the Kingdom of Norway.">
+					<q-w-a question="How do I become a successful developer" answer="Do things and tell people.">
+					<q-w-a question="How do I come up with ideas?" answer="Go and read about people's problems on Reddit and solve them.">
