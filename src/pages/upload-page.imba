@@ -58,12 +58,24 @@ tag upload-page
 									<span.file-cta>
 										<span.file-icon>
 											<i.fas.fa-upload>
-										<span.file-label> "Centered file…"
+										<span.file-label> "Click to Upload…"
 									<span.file-name> "My Notion Export.zip"
 						<.has-text-centered>
 							<button[mt: 2rem].button.cta .is-large type="submit"> "Convert"
-
 			<.section>
 				<.container>
-					<div[m:4rem]>
-						<p.subtitle> "If you are missing a feature or format, let me know on {<a href="https://github.com/alemayhu/notion2anki"> "GitHub"} or the {<a href="https://discord.gg/PSKC3uS" target="_blank"> "Discord"}"													
+					<h3 .title .is-3> "Support this project"
+					<hr>
+					<p.subtitle> "This project is 100% free and will remain free but please if you have the means you can support this project via these options:"
+					<.has-text-centered>
+						<a href="https://patreon.com/ccscanf"> <img src="become_a_patron_button.png">
+					<.has-text-centered>
+						<a.button .is-large href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=WUARHGVHUZ5FL&source=ur">
+							<span .icon .is-large> <i .fab .fa-paypal aria-hidden="true">
+							<span> "Paypal"
+					<div[mt: 2]>
+						<iframe src="https://github.com/sponsors/alemayhu/card" title="Sponsor alemayhu" height="225" width="600" style="border: 0;">
+					<h4 .title .is-4> "Other Ways to Contribute"
+					<p.subtitle> 
+						"If you know someone who can benefit from notion2anki, please share it with them. We want to save people time, anywhere in the world! "
+						"If you are missing a feature or format, let me know on {<a href="https://github.com/alemayhu/notion2anki"> "GitHub"} or the {<a href="https://discord.gg/PSKC3uS" target="_blank"> "Discord"}."													
