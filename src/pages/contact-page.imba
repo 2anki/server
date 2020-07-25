@@ -5,8 +5,6 @@ tag contact-page
 	prop notionLink = "https://www.notion.so/Toggles-c720af26b4bd4789b736c140b2dc73fe"
 	prop contactAdress = "alexander@alemayhu.com"
 
-	css p ta: center p: 0 4 fs: xl m: 2 0
-
 	def render
 		<self>
 			<.section>
@@ -14,7 +12,7 @@ tag contact-page
 					<h1.title> "Contact"
 					<hr>
 					<p.subtitle> "The easiest way to reach me is to send an email to {<a.rounded href="mailto:{contactAdress}"> contactAdress}" 
-					<.notification>
+					<.notification .has-text-centered>
 						<p.subtitle> "I read my personal inbox every Saturday and see all messages."
 			<.section>					
 				<.container>

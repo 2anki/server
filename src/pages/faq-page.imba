@@ -5,7 +5,7 @@ tag q-w-a # question-with-answer
 	prop answer
 
 	def render
-		<self[d: block] .box> <div[fs: xl]>
+		<self[d: block] .box> <div>
 				<p> "Q: {question}?"
 				<p> "A: {answer}"
 

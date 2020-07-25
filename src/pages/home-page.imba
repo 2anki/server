@@ -35,7 +35,7 @@ tag home-page
 					<hr>
 					<p.subtitle> "You export your page as a HTML from Notion and then let notion2anki convert it."
 					<.has-text-centered>
-						<ul[fs: 1.75rem]>
+						<ul>
 							<li> "One Notion page is one deck 🙂"
 							# <li> "Headings are treated as tags 🏷"
 							<li> "One toggle list is one card 🗂"

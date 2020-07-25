@@ -3,8 +3,6 @@ import './call-for-action'
 tag n2a-header
 
 	css h1 fs:2xl fw: bold ls: -0.025rem m: 0 p: 0.5rem 1rem c: #1E1D1C bg: #FCF4A7 @hover: green400
-	css p p: 0 m: 0.5rem
-	css .nav-link c: white p: 0.1rem 0.5rem m: 0.5rem 1rem 0.5rem 0 td: none ls: 2px fs: xl
 
 	prop active = false
 

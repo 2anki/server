@@ -35,10 +35,10 @@ tag upload-page
 					<p.subtitle> "Only the zip or HTML file is required. Please use the exported ZIP file to get all your images."
 					<form enctype="multipart/form-data" method="post" action=actionUrl()>
 						<h3 .title .is-3> "Deck Name" 
-						<input.input[w: 90% min-height: 48px fs: 2xl fw: bold c: #83C9F5 @placeholder: grey] placeholder="Enter deck name (optional)" name="deckName" type="text">
+						<input.input[w: 90% min-height: 48px fw: bold c: #83C9F5 @placeholder: grey] placeholder="Enter deck name (optional)" name="deckName" type="text">
 						<h3[mt: 2rem] .title .is-3> "Card Types" 
 						<div[mt: 1rem].control.has-icons-left>
-							<div.select.is-large>
+							<div.select.is-medium>
 								<.select>
 									<select name="flip-mode">
 										<option value="basic"> "Basic front and back"
