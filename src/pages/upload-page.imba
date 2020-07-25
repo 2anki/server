@@ -8,8 +8,6 @@ tag upload-page
 	prop progress = 0
 	prop fontSize = 20
 	prop autoplay = true
-
-	css .cta bg: #83C9F5 c: white fw: bold
 	
 	def isDebug
 		window.location.hostname == 'localhost'
@@ -35,7 +33,7 @@ tag upload-page
 					<p.subtitle> "Only the zip or HTML file is required. Please use the exported ZIP file to get all your images."
 					<form enctype="multipart/form-data" method="post" action=actionUrl()>
 						<h3 .title .is-3> "Deck Name" 
-						<input.input[w: 90% min-height: 48px fw: bold c: #83C9F5 @placeholder: grey] placeholder="Enter deck name (optional)" name="deckName" type="text">
+						<input.input[fw: bold c: #83C9F5 @placeholder: grey] placeholder="Enter deck name (optional)" name="deckName" type="text">
 						<h3[mt: 2rem] .title .is-3> "Card Types" 
 						<div[mt: 1rem].control.has-icons-left>
 							<div.select.is-medium>
@@ -61,7 +59,7 @@ tag upload-page
 										<span.file-label> "Click to Upload…"
 									<span.file-name> "My Notion Export.zip"
 						<.has-text-centered>
-							<button[mt: 2rem].button.cta .is-large type="submit"> "Convert"
+							<button[mt: 2rem].button.cta .is-large .is-primary type="submit"> "Convert"
 			<.section>
 				<.container>
 					<h3 .title .is-3> "Support this project"
