@@ -5,7 +5,7 @@ tag home-page
 	prop notionLink = "https://www.notion.so/Toggles-c720af26b4bd4789b736c140b2dc73fe"
 	prop contactAdress = "alexander@alemayhu.com"
 
-	prop tutorial = "https://www.youtube.com/embed/b3eQ0exhdz4"
+	prop tutorial = "https://www.youtube.com/embed/lpC7C9wJoTA"
 
 	css .cta bg: #83C9F5 c: white fw: bold
 
@@ -43,7 +43,7 @@ tag home-page
 						<a[mt: 2rem].button.cta.is-large href="/upload"> "Get started"
 			<.section>
 				<.container>
-					<h2.title> "Video Tutorial: Creating Anki Decks from Notion Toggle Lists"
+					<h2.title> "Video Tutorial: How to use notion2anki"
 					<hr>
 					<p.subtitle> "In this video, I show you how to use notion2anki"
 					<.has-text-centered>
