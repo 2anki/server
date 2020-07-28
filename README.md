@@ -17,7 +17,14 @@ and everything inside in the details is the back.
 
 You can use flip mode to create a mix of the cards. Basic (front & back), basic + reversed and just reversed.
 
-TODO: mention notion styles
+So by default we are reading in the Notion styles which does not necessarily look good on all devices. Especially on iOS you can see some weird text alignment issues. Those can be solved by adding this to your card template:
+
+```
+body {
+    padding: 1rem;
+    text-align: left;
+}
+```
 
 ## Background
 
