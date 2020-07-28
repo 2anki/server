@@ -73,9 +73,14 @@ tag upload-page
 										<option value="reversed"> "Just the reversed"
 							<span.icon.is-large.is-left>
 								<i.fas.fa-chalkboard>
-						<h3[mt: 2rem] .title .is-3> "Media Options" 
-							<p.has-text-centered .subtitle> "Coming soon"
-
+						<h3[mt: 2rem] .title .is-3> "Media Options & Cloze Support" 
+						<p.has-text-centered .subtitle> "Coming soon"
+						<.has-text-centered>
+							<p> "Join the Discord server to get notified of changes!"
+							<a.button target="_blank" href="https://discord.gg/PSKC3uS">
+								<span.icon>
+									<i.fab.fa-discord>
+								<span> "Discord"
 						<h3[mt: 2rem] .title .is-3> "Notion Export File"
 						<p.subtitle[mt: 1rem]> "Not sure how to export? See this tutorial {<a target='_blank' href="https://youtu.be/lpC7C9wJoTA "> "Video Tutorial: How to use notion2anki..."}."
 						if errorMessage
