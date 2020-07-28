@@ -5,8 +5,8 @@
 Notion2Anki is a passion project. We are going to make this a good way to make Anki flashcards easier, better and faster. 
 
 - You can convert your Notion [toggle lists][tl] to Anki cards easily.
-- We support both the Markdown and HTML output from Notion.
 - No technical skills required and 100% free to use by anyone anywhere 🤗
+- Support for embeds, audio files, images and more.
 
 [tl]: https://www.notion.so/Toggles-c720af26b4bd4789b736c140b2dc73fe
 
