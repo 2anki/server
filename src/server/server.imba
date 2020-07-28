@@ -41,6 +41,21 @@ app.use do |err, req, res, next|
 # TODO: Use security policy that only allows notion.2anki.com to use the upload handler
 app.post('/f/upload', upload.single('pkg'), &) do |req, res|
 	console.log('POST', req.originalUrl)
+	const allowed = [
+		'http://localhost:8080'
+		'http://localhost:2020'
+		'https://dev.notion2anki.alemayhu.com'
+		'https://dev.notion.2anki.net'
+		'https://notion.2anki.com'
+		'https://notion.2anki.net'
+	]
+	const origin = req.headers.origin
+	const permitted = allowed.includes(origin)
+	console.log('checking if', origin, 'is whitelisted', permitted)
+	unless permitted
+		return res.status(403).send()	
+	console.log('permitted access to', origin)	
+	res.set('Access-Control-Allow-Origin', origin)
 	try
 		const filename = req.file.originalname		
 		const settings = req.body || {}
@@ -64,6 +79,8 @@ app.post('/f/upload', upload.single('pkg'), &) do |req, res|
 		res.set("Content-Type", "application/zip")
 		res.set("Content-Length": Buffer.byteLength(deck.apkg))		
 		res.attachment(deck.name)
+		res.set('Anki-Deck', deck.name)
+		res.set('Access-Control-Expose-Headers', 'Anki-Deck')
 		res.status(200).send(deck.apkg)
 	catch err
 		console.error(err)
