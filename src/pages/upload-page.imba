@@ -12,17 +12,14 @@ tag upload-page
 	def isDebug
 		window.location.hostname == 'localhost'
 
-	def baseUrl
+	def actionUrl
 		switch window.location.hostname
 			when 'localhost'
-				return "http://localhost:2020"
+				return "http://localhost:2020/f/upload"
 			when 'dev.notion2anki.alemayhu.com' or 'dev.notion.2anki.net'
 				return "/dev/f/upload"
 			else
 				"/live/f/upload"
-
-	def actionUrl
-		"{baseUrl()}/f/upload"
 
 	def convertFile event
 		unless state == 'ready'
