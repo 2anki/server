@@ -17,9 +17,9 @@ tag upload-page
 			when 'localhost'
 				return "http://localhost:2020"
 			when 'dev.notion2anki.alemayhu.com' or 'dev.notion.2anki.net'
-				return "https://dev.notion.2anki.net"
+				return "/dev/f/upload"
 			else
-				"https://notion.2anki.com"
+				"/live/f/upload"
 
 	def actionUrl
 		"{baseUrl()}/f/upload"
