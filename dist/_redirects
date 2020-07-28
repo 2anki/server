@@ -1,5 +1,5 @@
 /* /index.html 200
 /contact /contact.html 200
 /privacy /index.html 200
-/live/f/upload https://notion.2anki.com/:splat 200
-/dev/f/upload https://dev.notion.2anki.net/:splat 200
+/live/* https://notion.2anki.com/:splat 200
+/dev/* https://dev.notion.2anki.net/:splat 200
