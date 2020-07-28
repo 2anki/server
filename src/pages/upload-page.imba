@@ -49,6 +49,7 @@ tag upload-page
 			a.click()
 			setTimeout(&, 3000) do
 				state = 'ready'
+				# TODO: use imba.commit? When this is resolved: Uncaught TypeError: can't access property "replaceChild", this.parentNode is null
 		catch error
 			# TODO: handle the exception and rendering on the client side
 			errorMessage = error ? "<h1 class='title is-4'>{error.message}</h1><pre>{error.stack}</pre>" : ""
@@ -108,6 +109,8 @@ tag upload-page
 										"Convert"
 									else
 										<i .fa .fa-spinner .fa-spin> ""
+								if state != 'ready'
+										<p> "Check your downloads folder for the file and refresh page before new uploads."
 			<.section>
 				<.container>
 					<h3 .title .is-3> "Support this project"
