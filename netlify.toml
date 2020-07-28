@@ -2,5 +2,5 @@
   publish = "dist"
   command = "npm run build"
 
-[redirects.headers]
+[headers]
   Access-Control-Allow-Origin = "*"
