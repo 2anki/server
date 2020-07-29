@@ -48,9 +48,9 @@ const allowed = [
 ]
 
 app.use do |req, res, next|
-  res.header("Access-Control-Allow-Origin", allowed.join(','));
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next()
+	res.header("Access-Control-Allow-Origin", allowed.join(','))
+	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+	next()
 
 # TODO: Use security policy that only allows notion.2anki.com to use the upload handler
 app.post('/f/upload', upload.single('pkg'), &) do |req, res|
