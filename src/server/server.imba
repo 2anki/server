@@ -38,17 +38,23 @@ for p in old
 app.use do |err, req, res, next|
 	useErrorHandler(res, err)
 
-# TODO: Use security policy that only allows notion.2anki.com to use the upload handler
-app.post('/f/upload', upload.single('pkg'), &) do |req, res|
-	console.log('POST', req.originalUrl)
-	const allowed = [
-		'http://localhost:8080'
+const allowed = [
+		'httplocalhost:8080'
 		'http://localhost:2020'
 		'https://dev.notion2anki.alemayhu.com'
 		'https://dev.notion.2anki.net'
 		'https://notion.2anki.com'
 		'https://notion.2anki.net'
-	]
+]
+
+app.use do |req, res, next|
+  res.header("Access-Control-Allow-Origin", allowed.join(','));
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next()
+
+# TODO: Use security policy that only allows notion.2anki.com to use the upload handler
+app.post('/f/upload', upload.single('pkg'), &) do |req, res|
+	console.log('POST', req.originalUrl)	
 	const origin = req.headers.origin
 	const permitted = allowed.includes(origin)
 	console.log('checking if', origin, 'is whitelisted', permitted)
