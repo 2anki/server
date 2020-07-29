@@ -147,7 +147,6 @@ export class DeckParser
 		# TODO: read user settings for is_cloze
 		const is_cloze = true
 		deck.image_count = 0
-		fs.writeFileSync('x.json', JSON.stringify(deck.cards, null, 2))
 		for card in deck.cards
 			console.log("exporting {deck.name} {deck.cards.indexOf(card)} / {card_count}")
 			# TODO: In the case we have a cloze type we need to read in the front
@@ -201,6 +200,8 @@ export class DeckParser
 					exporter.addCard(card.back, card.name, tags)
 				else
 					exporter.addCard(card.name, card.back, tags)
+
+		fs.writeFileSync('x.notion2anki.json', JSON.stringify(deck, null, 2))
 
 		const zip = await exporter.save()
 		return zip if not output
