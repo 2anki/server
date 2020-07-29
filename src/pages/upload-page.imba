@@ -12,18 +12,6 @@ tag upload-page
 	def isDebug
 		window.location.hostname == 'localhost'
 
-	def baseUrl
-		switch window.location.hostname
-			when 'localhost'
-				return "http://localhost:2020"
-			when 'dev.notion2anki.alemayhu.com' or 'dev.notion.2anki.net'
-				return "https://dev.notion.2anki.net"
-			else
-				"https://notion.2anki.com"
-
-	def actionUrl
-		"{baseUrl()}/f/upload"
-
 	def convertFile event
 		unless state == 'ready'
 			return
@@ -32,7 +20,7 @@ tag upload-page
 		try
 			const form = event.target
 			const formData = new FormData(form)
-			const request = await window.fetch(actionUrl(), {method: 'post', body: formData})
+			const request = await window.fetch("/f/upload", {method: 'post', body: formData})
 			console.log(request.headers)
 			if request.status != 200 # OK
 				const text = await request.text()
@@ -61,7 +49,7 @@ tag upload-page
 					<h1.title> "Pick your options"
 					<hr>
 					<p.subtitle> "Only the zip or HTML file is required. Please use the exported ZIP file to get all your images."
-					<form enctype="multipart/form-data" method="post" action=actionUrl() @submit.prevent=convertFile>
+					<form enctype="multipart/form-data" method="post" @submit.prevent=convertFile>
 						<h3 .title .is-3> "Deck Name" 
 						<input$input.input[fw: bold c: #83C9F5 @placeholder: grey] placeholder="Enter deck name (optional)" name="deckName" type="text">
 						<h3[mt: 2rem] .title .is-3> "Card Types" 
