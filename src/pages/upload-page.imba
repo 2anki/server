@@ -4,25 +4,43 @@ import '../components/progress-bar'
 
 tag upload-page
 
+	prop errorMessage = null
 	prop state = 'ready'
 	prop progress = 0
 	prop fontSize = 20
-	prop autoplay = true
 	
 	def isDebug
 		window.location.hostname == 'localhost'
 
-	def baseUrl
-		switch window.location.hostname
-			when 'localhost'
-				return "http://localhost:2020"
-			when 'dev.notion2anki.alemayhu.com' or 'dev.notion.2anki.net'
-				return "https://dev.notion.2anki.net"
-			else
-				"https://notion.2anki.com"
-
-	def actionUrl
-		"{baseUrl()}/f/upload"
+	def convertFile event
+		unless state == 'ready'
+			return
+		state = 'uploading'
+		errorMessage = null
+		try
+			const form = event.target
+			const formData = new FormData(form)
+			const request = await window.fetch("/f/upload", {method: 'post', body: formData})
+			console.log(request.headers)
+			if request.status != 200 # OK
+				const text = await request.text()
+				errorMessage = "status.code={request.status}\n{text}"
+				return errorMessage
+			console.log($input)
+			const inputName = $input.value
+			const filename = inputName ? "{inputName}.apkg" : "{window.btoa(new Date()).substring(0, 7)}.apkg".replace(/\s/g, '-')
+			const blob = await request.blob()
+			const url = window.URL.createObjectURL(blob)
+			const a = document.createElement('a')
+			a.href = url
+			a.download = filename
+			a.click()
+			setTimeout(&, 3000) do
+				state = 'ready'
+				# TODO: use imba.commit? When this is resolved: Uncaught TypeError: can't access property "replaceChild", this.parentNode is null
+		catch error
+			# TODO: handle the exception and rendering on the client side
+			errorMessage = error ? "<h1 class='title is-4'>{error.message}</h1><pre>{error.stack}</pre>" : ""
 
 	def render
 		<self>
@@ -31,9 +49,9 @@ tag upload-page
 					<h1.title> "Pick your options"
 					<hr>
 					<p.subtitle> "Only the zip or HTML file is required. Please use the exported ZIP file to get all your images."
-					<form enctype="multipart/form-data" method="post" action=actionUrl()>
+					<form enctype="multipart/form-data" method="post" @submit.prevent=convertFile>
 						<h3 .title .is-3> "Deck Name" 
-						<input.input[fw: bold c: #83C9F5 @placeholder: grey] placeholder="Enter deck name (optional)" name="deckName" type="text">
+						<input$input.input[fw: bold c: #83C9F5 @placeholder: grey] placeholder="Enter deck name (optional)" name="deckName" type="text">
 						<h3[mt: 2rem] .title .is-3> "Card Types" 
 						<div[mt: 1rem].control.has-icons-left>
 							<div.select.is-medium>
@@ -44,22 +62,43 @@ tag upload-page
 										<option value="reversed"> "Just the reversed"
 							<span.icon.is-large.is-left>
 								<i.fas.fa-chalkboard>
-						<h3[mt: 2rem] .title .is-3> "Media Options" 
-							<p.has-text-centered .subtitle> "Coming soon"
-
+						<h3[mt: 2rem] .title .is-3> "Media Options & Cloze Support" 
+						<p.has-text-centered .subtitle> "Coming soon"
+						<.has-text-centered>
+							<p> "Join the Discord server to get notified of changes!"
+							<a.button target="_blank" href="https://discord.gg/PSKC3uS">
+								<span.icon>
+									<i.fab.fa-discord>
+								<span> "Discord"
 						<h3[mt: 2rem] .title .is-3> "Notion Export File"
 						<p.subtitle[mt: 1rem]> "Not sure how to export? See this tutorial {<a target='_blank' href="https://youtu.be/lpC7C9wJoTA "> "Video Tutorial: How to use notion2anki..."}."
-						<div.field>
-							<div.file.is-centered.is-boxed.is-success.has-name>
-								<label.file-label>
-									<input.file-input type="file" name="pkg" accept=".zip,.html,.md" required>
-									<span.file-cta>
-										<span.file-icon>
-											<i.fas.fa-upload>
-										<span.file-label> "Click to Upload…"
-									<span.file-name> "My Notion Export.zip"
-						<.has-text-centered>
-							<button[mt: 2rem].button.cta .is-large .is-primary type="submit"> "Convert"
+						if errorMessage
+							<.has-text-centered[m: 2rem]>
+								<h1 .title .is-3> "Oh snap, just got an error 😢"
+								<p .subtitle> "Please refresh and try again otherwise report this bug to the developer on Discord with a screenshot 📸"
+								<.notification .is-danger innerHTML=errorMessage>
+								<a.button target="_blank" href="https://discord.gg/PSKC3uS">
+									<span.icon>
+										<i.fab.fa-discord>
+									<span> "Discord"
+						else
+							<div.field>
+								<div.file.is-centered.is-boxed.is-success.has-name>
+									<label.file-label>
+										<input.file-input type="file" name="pkg" accept=".zip,.html,.md" required>
+										<span.file-cta>
+											<span.file-icon>
+												<i.fas.fa-upload>
+											<span.file-label> "Click to Upload…"
+										<span.file-name> "My Notion Export.zip"
+							<.has-text-centered>
+								<button[mt: 2rem].button.cta .is-large .is-primary type="submit">
+									if state == 'ready'
+										"Convert"
+									else
+										<i .fa .fa-spinner .fa-spin> ""
+								if state != 'ready'
+										<p> "Check your downloads folder for the file and refresh page before new uploads."
 			<.section>
 				<.container>
 					<h3 .title .is-3> "Support this project"
