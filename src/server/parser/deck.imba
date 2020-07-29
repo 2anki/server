@@ -8,6 +8,7 @@ import cheerio from 'cheerio'
 import {TEMPLATE_DIR, TriggerNoCardsError, TriggerUnsupportedFormat} from '../constants'
 
 String.prototype.replaceAll = do |oldValue, newValue|
+	console.log('replaceAll', oldValue, newValue)
 	unless oldValue != newValue
 		return this
 	let temp = this
@@ -61,6 +62,11 @@ export class DeckParser
 
 		return {name, cards, style}
 
+	def has_cloze_deletions input
+		return false if !input
+
+		input.includes('code')
+
 	def sanityCheck cards
 		let empty = cards.find do |x|
 			if !x
@@ -69,11 +75,13 @@ export class DeckParser
 				console.log('card is missing name')
 			if !x.back
 				console.log('card is missing back')
+				return has_cloze_deletions(x.name)
 			!x  or !x.name or !x.back
 		if empty
 			console.log('warn Detected empty card, please report bug to developer with an example')
 			console.log('cards', cards)
-		cards.filter do $1.name and $1.back
+		cards.filter do |c|
+			c.name and (has_cloze_deletions(c.name) or c.back)
 
 	// Try to avoid name conflicts and invalid characters by hashing
 	def newUniqueFileName input
@@ -136,38 +144,52 @@ export class DeckParser
 		console.log('building deck')
 		let exporter = self.setupExporter(deck)		
 		const card_count = deck.cards.length
+		# TODO: read user settings for is_cloze
+		const is_cloze = true
 		deck.image_count = 0
-
+		fs.writeFileSync('x.json', JSON.stringify(deck.cards, null, 2))
 		for card in deck.cards
 			console.log("exporting {deck.name} {deck.cards.indexOf(card)} / {card_count}")
-			const dom = cheerio.load(card.back)
-			const images = dom('img')
-			if images.length > 0
-				console.log('Number of images', images.length)
-				const oldNames = []
-				images.each do |i, elem|
-					const originalName = dom(elem).attr('src')
-					if !originalName.startsWith('http')						
-						if let newName = self.embedFile(exporter, files, global.decodeURIComponent(originalName))
-							console.log('replacing', originalName, 'with', newName)
-							# We have to replace globally since Notion can add the filename as alt value
-							card.back = card.back.replaceAll(originalName, newName)
-				deck.image_count += (card.back.match(/\<+\s?img/g) || []).length
-			
-			if let audiofile = find_mp3_file(card.back)
-				if let newFileName = self.embedFile(exporter, files, global.decodeURIComponent(audiofile))
-					console.log('added sound', newFileName)
-					card.back += "[sound:{newFileName}]"
+			# TODO: In the case we have a cloze type we need to read in the front
+			const frontDom = cheerio.load(card.name)
+			const clozeDeletions = frontDom('code')
+			console.log('clozeDeletions.length', clozeDeletions.length)
+			clozeDeletions.each do |i, elem|
+				const v = frontDom(elem).html()
+				const old = "<code>{v}</code>"
+				const newValue = '{{c'+(i+1)+'::'+v+'}}'
+				card.name = card.name.replaceAll(old, newValue)
+				console.log('xxx', card.name)
+			console.log('reached?')
+			if !card.back
+				# TODO: handle cloze on the back extra stuff
+				const dom = cheerio.load(card.back)
+				const images = dom('img')
+				if images.length > 0
+					console.log('Number of images', images.length)
+					images.each do |i, elem|
+						const originalName = dom(elem).attr('src')
+						if !originalName.startsWith('http')						
+							if let newName = self.embedFile(exporter, files, global.decodeURIComponent(originalName))
+								console.log('replacing', originalName, 'with', newName)
+								# We have to replace globally since Notion can add the filename as alt value
+								card.back = card.back.replaceAll(originalName, newName)
+					deck.image_count += (card.back.match(/\<+\s?img/g) || []).length
+				
+				if let audiofile = find_mp3_file(card.back)
+					if let newFileName = self.embedFile(exporter, files, global.decodeURIComponent(audiofile))
+						console.log('added sound', newFileName)
+						card.back += "[sound:{newFileName}]"
 
-			# Check YouTube
-			if let id = get_youtube_id(card.back)
-				console.log('IDE', id)
-				const ytSrc = "https://www.youtube.com/embed/{id}?".replace(/"/, '')
-				const video = "<iframe width='560' height='315' src='{ytSrc}' frameborder='0' allowfullscreen></iframe>"
-				card.back += video
-			if let soundCloudUrl = get_soundcloud_url(card.back)
-				const audio = "<iframe width='100%' height='166' scrolling='no' frameborder='no' src='https://w.soundcloud.com/player/?url={soundCloudUrl}'></iframe>"
-				card.back += audio
+				# Check YouTube
+				if let id = get_youtube_id(card.back)
+					console.log('IDE', id)
+					const ytSrc = "https://www.youtube.com/embed/{id}?".replace(/"/, '')
+					const video = "<iframe width='560' height='315' src='{ytSrc}' frameborder='0' allowfullscreen></iframe>"
+					card.back += video
+				if let soundCloudUrl = get_soundcloud_url(card.back)
+					const audio = "<iframe width='100%' height='166' scrolling='no' frameborder='no' src='https://w.soundcloud.com/player/?url={soundCloudUrl}'></iframe>"
+					card.back += audio
 
 			const tags = card.tags ? {tags: card.tags} : {}
 			const flipMode = self.settings['flip-mode']
