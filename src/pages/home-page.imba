@@ -22,10 +22,12 @@ tag home-page
 				<.container>
 					<h1.title> "Benefits"
 					<hr>
-					<p.subtitle> "This project is 100% free and open source!"
+					<p.subtitle> "Stop wasting your time ⏳ Instead of copy pasting or typing in for hours and hours, let notion2anki do it in 10 seconds!"
+					<p.subtitle> "This project is 100% free and open source! It will remains forever, I promise you that my friend 👌🏾"
 					<.subtitle>
 						<ul>
 							<li> "✅ SoundCloud and YouTube embeds"
+							<li> "✅ Works with iOS and Android"
 							<li> "✅ Images and More!"
 							<li> "✅ Emoji support"
 							<li> "✅ MP3 files"
