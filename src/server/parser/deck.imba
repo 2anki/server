@@ -173,12 +173,14 @@ export class DeckParser
 								console.log('replacing', originalName, 'with', newName)
 								# We have to replace globally since Notion can add the filename as alt value
 								card.back = card.back.replaceAll(originalName, newName)
+								# TODO: add this to the card.media 
 					deck.image_count += (card.back.match(/\<+\s?img/g) || []).length
 				
 				if let audiofile = find_mp3_file(card.back)
 					if let newFileName = self.embedFile(exporter, files, global.decodeURIComponent(audiofile))
 						console.log('added sound', newFileName)
 						card.back += "[sound:{newFileName}]"
+						# TODO: add this to the card.media 
 
 				# Check YouTube
 				if let id = get_youtube_id(card.back)
