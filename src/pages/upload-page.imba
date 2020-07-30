@@ -105,7 +105,7 @@ tag upload-page
 					<hr>
 					<p.subtitle> "This project is 100% free and will remain free but please if you have the means you can support this project via these options:"
 					<.has-text-centered>
-						<a href="https://patreon.com/ccscanf"> <img src="become_a_patron_button.png">
+						<a href="https://patreon.com/alemayhu"> <img src="become_a_patron_button.png">
 					<.has-text-centered>
 						<a.button .is-large href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=WUARHGVHUZ5FL&source=ur">
 							<span .icon .is-large> <i .fab .fa-paypal aria-hidden="true">

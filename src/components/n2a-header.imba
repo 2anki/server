@@ -50,12 +50,12 @@ tag n2a-header
 											<i.fab.fa-discord>
 										<span> "Discord"		
 								<p.control>
-									<a.button target="_blank" href="https://twitch.tv/ccscanf">
+									<a.button target="_blank" href="https://twitch.tv/alemayhu">
 										<span.icon>
 											<i.fab.fa-twitch>
 										<span> "twitch"	
 								<p.control>
-									<a.button target="_blank" href="https://www.patreon.com/ccscanf">
+									<a.button target="_blank" href="https://www.patreon.com/alemayhu">
 										<span.icon>
 											<i.fab.fa-patreon>
 										<span> "Patreon"
