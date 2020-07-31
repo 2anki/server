@@ -1,6 +1,7 @@
 import crypto from 'crypto'
 import path from 'path'
 import fs from 'fs'
+import os from 'os'
 
 import AnkiExport from 'anki-apkg-export'
 import cheerio from 'cheerio'
@@ -17,6 +18,26 @@ String.prototype.replaceAll = do |oldValue, newValue|
 		temp = temp.replace(oldValue, newValue)
 		index = temp.indexOf(oldValue)
 	return temp
+
+class CustomExporter
+
+	prop deck
+	
+	def constructor deck, tmpDir
+		self.deck = deck
+
+	def addMedia newName, file
+		const rel_path = path.join(tmpDir, newName)
+		deck.media_files.push(rel_path)
+		fs.writeFileSync(rel_path, file)
+	
+	def addCard(card.name, card.back, tags)
+		console.log('addCard', arguments)
+
+	def save
+		throw new Error('not implemented yet')
+		# TODO: use genaki to create the APKG
+		# TODO: Pass it on to Express
 
 export class DeckParser
 
@@ -99,6 +120,9 @@ export class DeckParser
 	
 	def setupExporter deck
 		const css = deck.style.replaceAll("'", '"')
+		if self.settings.is_cloze
+			# TODO: Pass in a temporary working directory for the user
+			new CustomExporter(deck, {css: css})
 		new AnkiExport(deck.name, {css: css})	
 
 	def embedFile exporter, files, filePath
@@ -140,6 +164,18 @@ export class DeckParser
 		catch error
 			return null
 
+	def handleClozeDeletions input
+		const dom = cheerio.load(input)
+		const clozeDeletions = dom('code')
+		let mangle = input
+
+		clozeDeletions.each do |i, elem|
+			const v = dom(elem).html()
+			const old = "<code>{v}</code>"
+			const newValue = '{{c'+(i+1)+'::'+v+'}}'
+			mangle = mangle.replaceAll(old, newValue)		
+		mangle
+
 	def build output, deck, files
 		console.log('building deck')
 		let exporter = self.setupExporter(deck)		
@@ -147,21 +183,15 @@ export class DeckParser
 		# TODO: read user settings for is_cloze
 		const is_cloze = true
 		deck.image_count = 0
+		deck.flip_mode = self.settings['flip-mode']
+		deck.media = []
+
 		for card in deck.cards
 			console.log("exporting {deck.name} {deck.cards.indexOf(card)} / {card_count}")
-			# TODO: In the case we have a cloze type we need to read in the front
-			const frontDom = cheerio.load(card.name)
-			const clozeDeletions = frontDom('code')
-			console.log('clozeDeletions.length', clozeDeletions.length)
-			clozeDeletions.each do |i, elem|
-				const v = frontDom(elem).html()
-				const old = "<code>{v}</code>"
-				const newValue = '{{c'+(i+1)+'::'+v+'}}'
-				card.name = card.name.replaceAll(old, newValue)
-				console.log('xxx', card.name)
-			console.log('reached?')
+			if is_cloze
+				card.name = self.handleClozeDeletions(card.name)
+
 			if !card.back
-				# TODO: handle cloze on the back extra stuff
 				const dom = cheerio.load(card.back)
 				const images = dom('img')
 				if images.length > 0
@@ -170,17 +200,14 @@ export class DeckParser
 						const originalName = dom(elem).attr('src')
 						if !originalName.startsWith('http')						
 							if let newName = self.embedFile(exporter, files, global.decodeURIComponent(originalName))
-								console.log('replacing', originalName, 'with', newName)
 								# We have to replace globally since Notion can add the filename as alt value
 								card.back = card.back.replaceAll(originalName, newName)
-								# TODO: add this to the card.media 
 					deck.image_count += (card.back.match(/\<+\s?img/g) || []).length
 				
 				if let audiofile = find_mp3_file(card.back)
 					if let newFileName = self.embedFile(exporter, files, global.decodeURIComponent(audiofile))
 						console.log('added sound', newFileName)
 						card.back += "[sound:{newFileName}]"
-						# TODO: add this to the card.media 
 
 				# Check YouTube
 				if let id = get_youtube_id(card.back)
@@ -191,6 +218,10 @@ export class DeckParser
 				if let soundCloudUrl = get_soundcloud_url(card.back)
 					const audio = "<iframe width='100%' height='166' scrolling='no' frameborder='no' src='https://w.soundcloud.com/player/?url={soundCloudUrl}'></iframe>"
 					card.back += audio
+
+				if is_cloze
+					# TODO: investigate why cloze deletions are not handled properly on the back / extra
+					card.back = self.handleClozeDeletions(card.back)
 
 			const tags = card.tags ? {tags: card.tags} : {}
 			const flipMode = self.settings['flip-mode']

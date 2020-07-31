@@ -10,18 +10,16 @@ from genanki import Package
 import uuid
 import json
 
-def _wr_apkg(notes, deck_id, deck_name):
+def _wr_apkg(notes, deck_id, deck_name, media_files):
   """Write cloze cards to an Anki apkg file"""
   deck = Deck(deck_id=deck_id, name=deck_name)
   for note in notes:
     deck.add_note(note)
   fout_anki = '{NAME}.apkg'.format(NAME=deck_name)
   pkg = Package(deck)
-  # TODO: get all media files as argument
-  pkg.media_files = ['Skjermbilde_2020-07-30_kl._08.17.56.png']
+  pkg.media_files = media_files
   pkg.write_to_file(fout_anki)
   print(fout_anki, end='')
-
 
 if __name__ == '__main__':
   # print(sys.argv)
@@ -73,9 +71,8 @@ if __name__ == '__main__':
   with open(data_file) as json_file:
     data = json.load(json_file)
     for card in data['cards']:
-      # TODO: read media from cards
-      fields = [card['name'], card['back'], 'Skjermbilde_2020-07-30_kl._08.17.56.png']
+      fields = [card['name'], card['back'], card['media']]
       my_cloze_note = Note(model=MY_CLOZE_MODEL, fields=fields)
       notes.append(my_cloze_note)
 
-  _wr_apkg(notes, deck_id, deck_name)
+  _wr_apkg(notes, deck_id, deck_name, card['media'])
