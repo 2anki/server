@@ -65,7 +65,7 @@ class CustomExporter
 		fs.writeFileSync(payload_info, JSON.stringify(self.deck, null, 2))
 
 	def save
-		const python = '/usr/local/bin/python3'
+		const python = '/usr/bin/python3'
 		let cc_script_args = [
 			path.join(__dirname, '../../genanki/create_cloze.py')
 			path.join(self.workspace, 'deck_info.json')
