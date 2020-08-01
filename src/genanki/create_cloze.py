@@ -43,15 +43,15 @@ if __name__ == '__main__':
     color: black;
     background-color: white;
   }
-    
+
   .cloze {
     background: rgba(135,131,120,0.15);
     padding: 0.2em 0.4em;
     border-radius: 3px;
     font-weight: bold;
-    color: #EB5757;
+    color: blue;
   }
-  
+
   .nightMode .cloze {
     color: lightblue;
   }
