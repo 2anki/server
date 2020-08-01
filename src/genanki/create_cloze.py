@@ -45,8 +45,11 @@ if __name__ == '__main__':
   }
     
   .cloze {
+    background: rgba(135,131,120,0.15);
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
     font-weight: bold;
-    color: blue;
+    color: #EB5757;
   }
   
   .nightMode .cloze {
