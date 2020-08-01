@@ -2,16 +2,16 @@ import './call-for-action'
 
 tag n2a-header
 
-	css h1 fs:2xl fw: bold ls: -0.025rem m: 0 p: 0.5rem 1rem c: #1E1D1C bg: #FCF4A7 @hover: green400
+	css h1 fs:2xl fw: bold ls: -0.025rem m: 0 p: 0.5rem 1rem c: #1E1D1C 
 
 	prop active = false
 
 	def render
 		<self>
-			<nav.navbar.is-info[bg: #83C9F5]>
+			<nav.navbar>
 				<div.navbar-brand>
 					<a.navbar-item href="/">
-						<h1[br: 0.3rem]> "notion2anki"
+						<h1[br: 0.3rem]> "2anki.net"
 					<div.navbar-burger.burger.is-active=active data-target="navbarExampleTransparentExample" @click.{active=!active}>
 						<span>
 						<span>

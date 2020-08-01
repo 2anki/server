@@ -52,8 +52,8 @@ app.use do |req, res, next|
 	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Deck-Name")
 	next()
 
-# TODO: Use security policy that only allows notion.2anki.com to use the upload handler
-app.post('/f/upload', upload.single('pkg'), &) do |req, res|
+
+def handle_upload req, res
 	console.log('POST', req.originalUrl)	
 	const origin = req.headers.origin
 	const permitted = allowed.includes(origin)
@@ -79,8 +79,6 @@ app.post('/f/upload', upload.single('pkg'), &) do |req, res|
 			for file_name in zip_handler.filenames()
 				if file_name.match(/.(md|html)$/)
 					deck = await PrepareDeck(file_name, zip_handler.files, settings)
-					# TODO: add support for merging multiple files into one deck
-					# break
 						
 		res.set("Content-Type", "application/zip")
 		res.set("Content-Length": Buffer.byteLength(deck.apkg))		
@@ -88,9 +86,16 @@ app.post('/f/upload', upload.single('pkg'), &) do |req, res|
 		res.set('Anki-Deck', deck.name)
 		res.set('Access-Control-Expose-Headers', 'Anki-Deck')
 		res.status(200).send(deck.apkg)
+		# TODO: Schedule deletion?
 	catch err
 		console.error(err)
 		useErrorHandler(res, err)
+
+app.post('/f/upload', upload.single('pkg'), &) do |req, res|
+	handle_upload(req, res)
+
+app.post('/f-dev/upload', upload.single('pkg'), &) do |req, res|
+	handle_upload(req, res)
 
 process.on('uncaughtException') do |err, origin|
 	console.log(process.stderr.fd,`Caught exception: ${err}\n Exception origin: ${origin}`)
