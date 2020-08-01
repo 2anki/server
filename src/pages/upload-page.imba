@@ -59,7 +59,8 @@ tag upload-page
 										<option value="basic"> "Basic front and back"
 										<option value="basic-reversed"> "Basic and reversed"
 										<option value="reversed"> "Just the reversed"
-							<p.subtitle> "Cloze deletions are so powerful that they are now the default in notion2Anki"
+							<div[mt: 1rem]>
+								<p.subtitle> "Cloze deletions are so powerful that they are now the default in notion2Anki."
 							<span.icon.is-large.is-left>
 								<i.fas.fa-chalkboard>
 						<h3[mt: 2rem] .title .is-3> "Media Options" 
