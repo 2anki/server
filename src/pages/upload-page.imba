@@ -2,6 +2,8 @@ import '../components/page-content'
 import '../components/n2a-button'
 import '../components/progress-bar'
 
+import {upload_path} from '../server/endpoints'
+
 tag upload-page
 
 	prop errorMessage = null
@@ -20,7 +22,7 @@ tag upload-page
 		try
 			const form = event.target
 			const formData = new FormData(form)
-			const request = await window.fetch("/f/upload", {method: 'post', body: formData})
+			const request = await window.fetch(upload_path, {method: 'post', body: formData})
 			console.log(request.headers)
 			if request.status != 200 # OK
 				const text = await request.text()
