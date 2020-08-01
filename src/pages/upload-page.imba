@@ -11,9 +11,6 @@ tag upload-page
 	prop progress = 0
 	prop fontSize = 20
 	
-	def isDebug
-		window.location.hostname == 'localhost'
-
 	def convertFile event
 		unless state == 'ready'
 			return
@@ -22,7 +19,7 @@ tag upload-page
 		try
 			const form = event.target
 			const formData = new FormData(form)
-			const request = await window.fetch(upload_path, {method: 'post', body: formData})
+			const request = await window.fetch(upload_path(window.location.hostname), {method: 'post', body: formData})
 			console.log(request.headers)
 			if request.status != 200 # OK
 				const text = await request.text()
