@@ -52,7 +52,8 @@ app.use do |req, res, next|
 	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Deck-Name")
 	next()
 
-app.post('/f/upload', upload.single('pkg'), &) do |req, res|
+
+def handle_upload req, res
 	console.log('POST', req.originalUrl)	
 	const origin = req.headers.origin
 	const permitted = allowed.includes(origin)
@@ -89,6 +90,12 @@ app.post('/f/upload', upload.single('pkg'), &) do |req, res|
 	catch err
 		console.error(err)
 		useErrorHandler(res, err)
+
+app.post('/f/upload', upload.single('pkg'), &) do |req, res|
+	handle_upload(req, res)
+
+app.post('/f-dev/upload', upload.single('pkg'), &) do |req, res|
+	handle_upload(req, res)
 
 process.on('uncaughtException') do |err, origin|
 	console.log(process.stderr.fd,`Caught exception: ${err}\n Exception origin: ${origin}`)
