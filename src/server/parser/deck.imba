@@ -1,10 +1,14 @@
+import {execFile} from 'child_process'
 import crypto from 'crypto'
 import path from 'path'
 import fs from 'fs'
 import os from 'os'
 
+import { customAlphabet, nanoid } from 'nanoid'
 import AnkiExport from 'anki-apkg-export'
 import cheerio from 'cheerio'
+
+import sanitize from "sanitize-filename"
 
 import {TEMPLATE_DIR, TriggerNoCardsError, TriggerUnsupportedFormat} from '../constants'
 
@@ -21,33 +25,66 @@ String.prototype.replaceAll = do |oldValue, newValue|
 
 class CustomExporter
 
+	prop workspace
 	prop deck
 	
-	def constructor deck, tmpDir
+	def constructor deck, workspace
+		self.workspace = workspace
 		self.deck = deck
+		self.deck.media ||= []
 
 	def addMedia newName, file
-		const rel_path = path.join(tmpDir, newName)
-		deck.media_files.push(rel_path)
-		fs.writeFileSync(rel_path, file)
+		const abs = path.join(self.workspace, newName)
+		self.deck.media.push(abs)
+		fs.writeFileSync(abs, file)
 	
-	def addCard(card.name, card.back, tags)
+	def addCard back, tags
 		console.log('addCard', arguments)
 
+	def run cmd, input_args
+		console.log('run', arguments)
+		Promise.new do |resolve, reject|
+			execFile(cmd, input_args, {cwd: self.workspace}) do |err, stdout, stderr|
+				if err
+					console.log('stderr::', stderr)
+					console.error(err)
+					reject(err)
+				else
+					console.log('status from create_cloze', stdout)
+					resolve(stdout)
+
+	def generate_id
+		const nid = customAlphabet('1234567890', 16)
+		nid()
+
+	def prepareSave cards
+		const payload_info = path.join(self.workspace, 'deck_info.json')
+		self.deck.cards = cards
+
+		console.log('writing payload', payload_info)
+		fs.writeFileSync(payload_info, JSON.stringify(self.deck, null, 2))
+
 	def save
-		throw new Error('not implemented yet')
-		# TODO: use genaki to create the APKG
-		# TODO: Pass it on to Express
+		const python = '/usr/local/bin/python3'
+		let cc_script_args = [
+			path.join(__dirname, '../../genanki/create_cloze.py')
+			path.join(self.workspace, 'deck_info.json')
+			sanitize(self.deck.name),
+			self.generate_id!,
+			path.join(self.workspace, 'deck_style.css')
+		]
+		const z = await run(python, cc_script_args)
+		return fs.readFileSync(z)
 
 export class DeckParser
 
 	def constructor md, contents, settings = {}
 		const deckName = settings.deckName
 		self.settings = settings
+		self.use_cloze = self.is_cloze!
 		if md
 			TriggerUnsupportedFormat()
-
-		self.payload = md ? handleMarkdown(contents, deckName) : handleHTML(contents, deckName)
+		self.payload = handleHTML(contents, deckName)
 
 	def handleHTML contents, deckName = null
 		const dom = cheerio.load(contents)
@@ -61,7 +98,6 @@ export class DeckParser
 			const parentClass = dom(t).attr("class")
 
 			if parentUL
-				# TODO: fix details to be wrapped
 				dom('details').addClass(parentClass)
 				dom('summary').addClass(parentClass)
 				const summary = parentUL.find('summary').first()
@@ -118,12 +154,14 @@ export class DeckParser
 		
 		return m[0] if m
 	
-	def setupExporter deck
+	def setupExporter deck, workspace
 		const css = deck.style.replaceAll("'", '"')
-		if self.settings.is_cloze
-			# TODO: Pass in a temporary working directory for the user
-			new CustomExporter(deck, {css: css})
-		new AnkiExport(deck.name, {css: css})	
+		if self.use_cloze
+			console.log('creating workspace', workspace)
+			fs.mkdirSync(workspace)
+			fs.writeFileSync(path.join(workspace, 'deck_style.css'), css)
+			return new CustomExporter(deck, workspace)
+		return new AnkiExport(deck.name, {css: css})	
 
 	def embedFile exporter, files, filePath
 		console.log('embedFile', Object.keys(files), filePath)
@@ -176,22 +214,26 @@ export class DeckParser
 			mangle = mangle.replaceAll(old, newValue)		
 		mangle
 
+	def is_cloze
+		return true if self.settings['card-type'] == "Cloze deletion" 
+		return true if self.settings['card-type'] == 'cloze'
+		return false
+
 	def build output, deck, files
 		console.log('building deck')
-		let exporter = self.setupExporter(deck)		
+		const workspace = path.join(os.tmpdir(), nanoid())
+		let exporter = self.setupExporter(deck, workspace)		
 		const card_count = deck.cards.length
-		# TODO: read user settings for is_cloze
-		const is_cloze = true
 		deck.image_count = 0
-		deck.flip_mode = self.settings['flip-mode']
-		deck.media = []
+		deck.card_type = self.settings['card-type']
 
 		for card in deck.cards
 			console.log("exporting {deck.name} {deck.cards.indexOf(card)} / {card_count}")
-			if is_cloze
+			if self.use_cloze
 				card.name = self.handleClozeDeletions(card.name)
 
-			if !card.back
+			card.media = []
+			if card.back
 				const dom = cheerio.load(card.back)
 				const images = dom('img')
 				if images.length > 0
@@ -202,12 +244,14 @@ export class DeckParser
 							if let newName = self.embedFile(exporter, files, global.decodeURIComponent(originalName))
 								# We have to replace globally since Notion can add the filename as alt value
 								card.back = card.back.replaceAll(originalName, newName)
+								card.media.push(newName)
 					deck.image_count += (card.back.match(/\<+\s?img/g) || []).length
 				
 				if let audiofile = find_mp3_file(card.back)
 					if let newFileName = self.embedFile(exporter, files, global.decodeURIComponent(audiofile))
 						console.log('added sound', newFileName)
 						card.back += "[sound:{newFileName}]"
+						card.media.push(newFileName)
 
 				# Check YouTube
 				if let id = get_youtube_id(card.back)
@@ -219,13 +263,13 @@ export class DeckParser
 					const audio = "<iframe width='100%' height='166' scrolling='no' frameborder='no' src='https://w.soundcloud.com/player/?url={soundCloudUrl}'></iframe>"
 					card.back += audio
 
-				if is_cloze
+				if self.use_cloze
 					# TODO: investigate why cloze deletions are not handled properly on the back / extra
 					card.back = self.handleClozeDeletions(card.back)
 
 			const tags = card.tags ? {tags: card.tags} : {}
-			const flipMode = self.settings['flip-mode']
-			switch flipMode
+			const cardType = self.settings['card-type']
+			switch cardType
 				when 'Basic and reversed' or 'basic-reversed'
 					exporter.addCard(card.name, card.back, tags)
 					exporter.addCard(card.back, card.name, tags)
@@ -234,7 +278,8 @@ export class DeckParser
 				else
 					exporter.addCard(card.name, card.back, tags)
 
-		fs.writeFileSync('x.notion2anki.json', JSON.stringify(deck, null, 2))
+		if self.use_cloze
+			exporter.prepareSave(deck.cards)
 
 		const zip = await exporter.save()
 		return zip if not output

@@ -37,9 +37,7 @@ tag upload-page
 			a.click()
 			setTimeout(&, 3000) do
 				state = 'ready'
-				# TODO: use imba.commit? When this is resolved: Uncaught TypeError: can't access property "replaceChild", this.parentNode is null
 		catch error
-			# TODO: handle the exception and rendering on the client side
 			errorMessage = error ? "<h1 class='title is-4'>{error.message}</h1><pre>{error.stack}</pre>" : ""
 
 	def render
@@ -56,13 +54,15 @@ tag upload-page
 						<div[mt: 1rem].control.has-icons-left>
 							<div.select.is-medium>
 								<.select>
-									<select name="flip-mode">
+									<select name="card-type">
+										<option value="cloze"> "Cloze deletion"
 										<option value="basic"> "Basic front and back"
 										<option value="basic-reversed"> "Basic and reversed"
 										<option value="reversed"> "Just the reversed"
+							<p.subtitle> "Cloze deletions are so powerful that they are now the default in notion2Anki"
 							<span.icon.is-large.is-left>
 								<i.fas.fa-chalkboard>
-						<h3[mt: 2rem] .title .is-3> "Media Options & Cloze Support" 
+						<h3[mt: 2rem] .title .is-3> "Media Options" 
 						<p.has-text-centered .subtitle> "Coming soon"
 						<.has-text-centered>
 							<p> "Join the Discord server to get notified of changes!"

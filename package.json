@@ -36,6 +36,8 @@
     "imba": "^2.0.0-alpha.70",
     "jszip": "^3.5.0",
     "multer": "^1.4.2",
+    "nanoid": "^3.1.12",
+    "sanitize-filename": "^1.6.3",
     "webpack": "^4.43.0",
     "webpack-cli": "^3.1.2",
     "webpack-dev-server": "^3.7.1"

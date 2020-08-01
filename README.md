@@ -15,7 +15,9 @@ Notion2Anki is a passion project. We are going to make this a good way to make A
 notion2Anki treats toggle lists on the top level as Anki cards. The toggle list line is the front of the card
 and everything inside in the details is the back. 
 
-You can use flip mode to create a mix of the cards. Basic (front & back), basic + reversed and just reversed.
+TODO: mention cloze
+
+You can use the card type to flip which creates a mix of the cards. Basic (front & back), basic + reversed and just reversed.
 
 So by default we are reading in the Notion styles which does not necessarily look good on all devices. Especially on iOS you can see some weird text alignment issues. Those can be solved by adding this to your card template:
 
@@ -86,6 +88,7 @@ yarn dev-server # npm run dev-server
 This would be super hard if it were not for the following projects:
 
 - [anki-apkg-export](https://github.com/repeat-space/anki-apkg-export)
+- [genanki](https://github.com/kerrickstaley/genanki)
 - [jszip](https://github.com/Stuk/jszip)
 - [Imba](https://github.com/imba/imba)
 
