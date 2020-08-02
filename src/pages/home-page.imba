@@ -13,7 +13,7 @@ tag home-page
 		<self>
 			<.section>
 				<.container>
-					<h1[fs: 4.6rem fw: bold c: black]> "From Notion toggle list to Anki Cards easily!"
+					<h1[fs: 2.2rem @md: 4.6rem fw: bold c: black]> "From Notion toggle list to Anki Cards easily!"
 					<.has-text-centered>
 						<p[fs: 1.25rem lh: 1.5]> "Convert Notion {<a[c: blue700] href=notionLink> "Toggle lists"} to Anki cards fast and easy 😉"
 					<.has-text-centered>
