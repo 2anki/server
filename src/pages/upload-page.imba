@@ -6,7 +6,9 @@ import {upload_path} from '../server/endpoints'
 
 tag upload-page
 
+	prop downloadLink = null
 	prop errorMessage = null
+	prop deckName = null
 	prop state = 'ready'
 	prop progress = 0
 	prop fontSize = 20
@@ -27,17 +29,15 @@ tag upload-page
 				return errorMessage
 			console.log($input)
 			const inputName = $input.value
-			const filename = inputName ? "{inputName}.apkg" : "{window.btoa(new Date()).substring(0, 7)}.apkg".replace(/\s/g, '-')
+			deckName = inputName ? "{inputName}.apkg" : "{window.btoa(new Date()).substring(0, 7)}.apkg".replace(/\s/g, '-')
 			const blob = await request.blob()
-			const url = window.URL.createObjectURL(blob)
-			const a = document.createElement('a')
-			a.href = url
-			a.download = filename
-			a.click()
-			setTimeout(&, 3000) do
-				state = 'ready'
+			downloadLink = window.URL.createObjectURL(blob)
 		catch error
 			errorMessage = error ? "<h1 class='title is-4'>{error.message}</h1><pre>{error.stack}</pre>" : ""
+
+	def didDownload
+		downloadLink = null
+		state = 'ready'
 
 	def render
 		<self>
@@ -52,7 +52,7 @@ tag upload-page
 						<h3[mt: 2rem] .title .is-3> "Card Types" 
 						<div[mt: 1rem].control.has-icons-left>
 							<div.select.is-medium>
-								<.select>
+								<.select> 
 									<select$cardType name="card-type">
 										<option value="cloze"> "Cloze deletion"
 										<option value="basic"> "Basic front and back"
@@ -94,13 +94,12 @@ tag upload-page
 											<span.file-label> "Click to Upload…"
 										<span.file-name> "My Notion Export.zip"
 							<.has-text-centered>
-								<button[mt: 2rem].button.cta .is-large .is-primary type="submit">
-									if state == 'ready'
-										"Convert"
-									else
-										<i .fa .fa-spinner .fa-spin> ""
-								if state != 'ready'
-										<p> "Check your downloads folder for the file and refresh page before new uploads."
+								if downloadLink
+									<a href=downloadLink @click=didDownload download=deckName> "Click to Download"
+								elif state == 'ready'
+									<button[mt: 2rem].button.cta .is-large .is-primary type="submit"> "Convert"
+								else
+									<button[mt: 2rem].button.cta .is-large .is-primary type="submit"> <i .fa .fa-spinner .fa-spin> ""
 			<.section>
 				<.container>
 					<h3 .title .is-3> "Support this project"
