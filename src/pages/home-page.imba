@@ -47,7 +47,7 @@ tag home-page
 				<.container>
 					<h2.title> "Video Tutorial: How to use notion2anki"
 					<hr>
-					<p.subtitle> "In this video, I show you how to use notion2anki"
+					<p.subtitle> "In this video, {<a[c:blue700] href="https://alpkaanaksu.com"> "Alp Kaan"} shows you how to use notion2anki"
 					<.has-text-centered>
 						<a href=tutorial> tutorial
 						<iframe.self-center width="80%" height="315" src=tutorial allowFullScreen="allowFullScreen" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen;">						
