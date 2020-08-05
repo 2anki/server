@@ -74,7 +74,8 @@ tag upload-page
 								<span> "Discord"
 						<h3[mt: 2rem] .title .is-3> "Notion Export File"
 						<p.subtitle[mt: 1rem]> "Not sure how to export? See this tutorial {<a target='_blank' href="https://youtu.be/lpC7C9wJoTA "> "Video Tutorial: How to use notion2anki..."}."
-						<p[mt: 1rem]> "Make sure you export your Notion page as {<strong> "HTML"}!"
+						<p.subtitle[mt: 1rem]> "Nested toggle lists as multiple cards are not supported by notion2anki. Please convert the nested toggles to top level toggles before exporting your Notion page."
+						<p.subtitle[mt: 1rem]> "Make sure you export your Notion page as {<strong> "HTML"}!"
 						if errorMessage
 							<.has-text-centered[m: 2rem]>
 								<h1 .title .is-3> "Oh snap, just got an error 😢"
