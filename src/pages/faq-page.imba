@@ -22,7 +22,7 @@ tag faq-page
 					<hr>
 					<.has-text-centered[mb: 1rem]>
 						<p.subtitle> "If you are wondering how to use this, please checkout the YouTube {<a href="https://www.youtube.com/playlist?list=PLzOAzzqpDqukOtwH3IYWiOhr_sjBjfgCd"> "playlist"}"
-					<q-w-a question="I have an unanswered question!" answer="Great. I would love to hear it. Send an email to {<a href="mailto:alexander@alemayhu.com">"alexander@alemayhu.com"} or ask on the {<a href="https://discord.gg/PSKC3uS"> "Discord"}.">
+						<p.subtitle> "I have an unanswered question! Great. I would love to hear it. Send an email to {<a href="mailto:alexander@alemayhu.com"> "alexander@alemayhu.com"} or ask on the {<a href="https://discord.gg/PSKC3uS"> "Discord"}."
 					<q-w-a question="Will notion2anki be around in the next six years?" answer="Yes, it's an open source project.">
 					<q-w-a question="How do I transfer colors, font and backgrounds from Notion into notion2anki?" answer="They are included in the HTML export. Make sure you don't export your page as Markdown.">
 					<q-w-a question="Where are the servers running?" answer="DigitalOcean via the Frankfurt datacenter (FRA1) and Netlify for CDN.">
