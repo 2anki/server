@@ -12,10 +12,10 @@ Notion2Anki is a passion project. We are going to make this a good way to make A
 
 ## How it works
 
-notion2Anki treats toggle lists on the top level as Anki cards. The toggle list line is the front of the card
-and everything inside in the details is the back. 
+notion2Anki treats toggle lists on the top level as Anki cards. The toggle list line is the front of the card and everything inside in the details is the back. 
 
-TODO: mention cloze
+Considering how powerful [cloze deletions](https://docs.ankiweb.net/#/editing?id=cloze-deletion) are, they are the default note type. To see how this works in action check out this vide from [Alp Kaan](https://alpkaanaksu.com/): [How to use cloze deletions in notion2anki 🤩
+](https://youtu.be/r9pPNl8Mx_Q)
 
 You can use the card type to flip which creates a mix of the cards. Basic (front & back), basic + reversed and just reversed.
 
