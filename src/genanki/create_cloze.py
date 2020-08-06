@@ -62,14 +62,14 @@ if __name__ == '__main__':
 
   MY_CLOZE_MODEL = Model(
   998877661,
-  'Notion2Anki Cloze Model',
+  'notion2Anki Cloze Model',
   fields=[
     {'name': 'Text'},
     {'name': 'Extra'},
     {'name': 'MyMedia'},
   ],
   templates=[{
-    'name': 'Notion2Anki Cloze Card',
+    'name': 'notion2Anki Cloze Card',
     'qfmt': '{{cloze:Text}}',
     'afmt': '{{cloze:Text}}<br>{{Extra}}',
   },],
