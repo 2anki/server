@@ -38,6 +38,13 @@ tag upload-page
 	def didDownload
 		downloadLink = null
 		state = 'ready'
+	
+	def fileSelected
+		document.getElementById('selectorBackground').style.background="mediumseagreen"
+		document.getElementById('selectorLabel').textContent = "File Selected"
+		let filePath = document.getElementById('selectorInput').value
+		let selectedFile = filePath.split(/(\\|\/)/g).pop()
+		document.getElementById('selectorFileName').textContent = selectedFile
 
 	def render
 		<self>
@@ -89,12 +96,13 @@ tag upload-page
 							<div.field>
 								<div.file.is-centered.is-boxed.is-success.has-name>
 									<label.file-label>
-										<input.file-input type="file" name="pkg" accept=".zip,.html,.md" required>
-										<span.file-cta>
+										
+										<input#selectorInput.file-input type="file" name="pkg" accept=".zip,.html,.md" required @change=fileSelected>
+										<span#selectorBackground.file-cta[bg: gray]>
 											<span.file-icon>
 												<i.fas.fa-upload>
-											<span.file-label> "Click to Upload…"
-										<span.file-name> "My Notion Export.zip"
+											<span#selectorLabel.file-label> "Click to Upload…"
+										<span#selectorFileName.file-name> "My Notion Export.zip"
 							<.has-text-centered>
 								if downloadLink
 									<a href=downloadLink @click=didDownload download=deckName> "Click to Download"
