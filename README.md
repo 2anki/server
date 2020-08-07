@@ -2,7 +2,7 @@
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/5da03a4d-2c54-4343-8949-33124d2211e5/deploy-status)](https://app.netlify.com/sites/vibrant-swirles-654fce/deploys) [![Discord](https://img.shields.io/discord/723998078201495642)](https://discord.com/invite/PSKC3uS)
 
-Notion2Anki is a passion project. We are going to make this a good way to make Anki flashcards easier, better and faster. 
+Notion2Anki is a passion project. We are going to make this a good way to make Anki flashcards easier, better and faster.
 
 - You can convert your Notion [toggle lists][tl] to Anki cards easily.
 - No technical skills required and 100% free to use by anyone anywhere 🤗
@@ -13,7 +13,7 @@ Notion2Anki is a passion project. We are going to make this a good way to make A
 ## How it works
 
 notion2Anki treats toggle lists on the top level as Anki cards. The toggle list line is the front of the card
-and everything inside in the details is the back. 
+and everything inside in the details is the back.
 
 TODO: mention cloze
 
@@ -32,11 +32,11 @@ body {
 
 This project was hacked together after seeing this post on Reddit by [jacksong97](https://www.reddit.com/user/jacksong97):
 
-> Hey guys just need a little help with something. 
+> Hey guys just need a little help with something.
 >
-> I have a whole bunch of questions that I've written for myself within Notion (nested toggle questions). I was hoping I could transfer them into Anki cards fairly painlessly. I have done some just copying and pasting each side separately but it just took too long. 
+> I have a whole bunch of questions that I've written for myself within Notion (nested toggle questions). I was hoping I could transfer them into Anki cards fairly painlessly. I have done some just copying and pasting each side separately but it just took too long.
 >
-> Is there a way to import directly or copy and paste into a txt file or something that will create the cards for me? 
+> Is there a way to import directly or copy and paste into a txt file or something that will create the cards for me?
 >
 > Thanks!
 >
@@ -65,11 +65,18 @@ Please note that the [Imba](http://v2.imba.io/) programming language v2 is curre
 I am assuming you have Node.js already installed, if not then see their website on how install it https://nodejs.org/en/
 
 First make sure you have the dependencies installed
+
 ```bash
 yarn # npm run install
 ```
 
-Then in another terminal run 
+[Genanki](https://github.com/kerrickstaley/genanki) dependencies are also needed, make sure you install them
+
+```bash
+pip3 install -r src/genanki/requirements.txt
+```
+
+Then in another terminal run
 
 ```bash
 yarn watch # npm run watch
