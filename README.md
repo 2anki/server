@@ -2,7 +2,7 @@
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/5da03a4d-2c54-4343-8949-33124d2211e5/deploy-status)](https://app.netlify.com/sites/vibrant-swirles-654fce/deploys) [![Discord](https://img.shields.io/discord/723998078201495642)](https://discord.com/invite/PSKC3uS)
 
-Notion2Anki is a passion project. We are going to make this a good way to make Anki flashcards easier, better and faster.
+notion2Anki is a passion project. We are going to make this a good way to make Anki flashcards easier, better and faster. 
 
 - You can convert your Notion [toggle lists][tl] to Anki cards easily.
 - No technical skills required and 100% free to use by anyone anywhere 🤗
@@ -15,7 +15,8 @@ Notion2Anki is a passion project. We are going to make this a good way to make A
 notion2Anki treats toggle lists on the top level as Anki cards. The toggle list line is the front of the card
 and everything inside in the details is the back.
 
-TODO: mention cloze
+Considering how powerful [cloze deletions](https://docs.ankiweb.net/#/editing?id=cloze-deletion) are, they are the default note type. To see how this works in action check out this video by [Alp Kaan](https://alpkaanaksu.com/): [How to use cloze deletions in notion2anki 🤩
+](https://youtu.be/r9pPNl8Mx_Q)
 
 You can use the card type to flip which creates a mix of the cards. Basic (front & back), basic + reversed and just reversed.
 
