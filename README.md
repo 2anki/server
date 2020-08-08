@@ -12,9 +12,10 @@ notion2Anki is a passion project. We are going to make this a good way to make A
 
 ## How it works
 
-notion2Anki treats toggle lists on the top level as Anki cards. The toggle list line is the front of the card and everything inside in the details is the back. 
+notion2Anki treats toggle lists on the top level as Anki cards. The toggle list line is the front of the card
+and everything inside in the details is the back.
 
-Considering how powerful [cloze deletions](https://docs.ankiweb.net/#/editing?id=cloze-deletion) are, they are the default note type. To see how this works in action check out this vide from [Alp Kaan](https://alpkaanaksu.com/): [How to use cloze deletions in notion2anki 🤩
+Considering how powerful [cloze deletions](https://docs.ankiweb.net/#/editing?id=cloze-deletion) are, they are the default note type. To see how this works in action check out this video by [Alp Kaan](https://alpkaanaksu.com/): [How to use cloze deletions in notion2anki 🤩
 ](https://youtu.be/r9pPNl8Mx_Q)
 
 You can use the card type to flip which creates a mix of the cards. Basic (front & back), basic + reversed and just reversed.
@@ -32,11 +33,11 @@ body {
 
 This project was hacked together after seeing this post on Reddit by [jacksong97](https://www.reddit.com/user/jacksong97):
 
-> Hey guys just need a little help with something. 
+> Hey guys just need a little help with something.
 >
-> I have a whole bunch of questions that I've written for myself within Notion (nested toggle questions). I was hoping I could transfer them into Anki cards fairly painlessly. I have done some just copying and pasting each side separately but it just took too long. 
+> I have a whole bunch of questions that I've written for myself within Notion (nested toggle questions). I was hoping I could transfer them into Anki cards fairly painlessly. I have done some just copying and pasting each side separately but it just took too long.
 >
-> Is there a way to import directly or copy and paste into a txt file or something that will create the cards for me? 
+> Is there a way to import directly or copy and paste into a txt file or something that will create the cards for me?
 >
 > Thanks!
 >
@@ -65,11 +66,18 @@ Please note that the [Imba](http://v2.imba.io/) programming language v2 is curre
 I am assuming you have Node.js already installed, if not then see their website on how install it https://nodejs.org/en/
 
 First make sure you have the dependencies installed
+
 ```bash
 yarn # npm run install
 ```
 
-Then in another terminal run 
+[Genanki](https://github.com/kerrickstaley/genanki) dependencies are also needed, make sure you install them
+
+```bash
+pip3 install -r src/genanki/requirements.txt
+```
+
+Then in another terminal run
 
 ```bash
 yarn watch # npm run watch
