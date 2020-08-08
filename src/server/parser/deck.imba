@@ -8,8 +8,6 @@ import { customAlphabet, nanoid } from 'nanoid'
 import AnkiExport from 'anki-apkg-export'
 import cheerio from 'cheerio'
 
-import sanitize from "sanitize-filename"
-
 import {TEMPLATE_DIR, TriggerNoCardsError, TriggerUnsupportedFormat} from '../constants'
 
 String.prototype.replaceAll = do |oldValue, newValue|
@@ -69,7 +67,6 @@ class CustomExporter
 		let cc_script_args = [
 			path.join(__dirname, '../../genanki/create_cloze.py')
 			path.join(self.workspace, 'deck_info.json')
-			sanitize(self.deck.name),
 			self.generate_id!,
 			path.join(self.workspace, 'deck_style.css')
 		]

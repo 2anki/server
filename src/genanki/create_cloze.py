@@ -27,11 +27,10 @@ def _wr_apkg(notes, deck_id, deck_name, media_files):
   sys.stdout.write(os.getcwd()+'/'+fout_anki)
 
 if __name__ == '__main__':
-  # print(sys.argv)
   data_file = sys.argv[1]
-  deck_name = sys.argv[2]
-  deck_id = int(sys.argv[3])
-  deck_style = sys.argv[4]
+  deck_id = int(sys.argv[2])
+  deck_style = sys.argv[3]
+  deck_name = ''
   # TODO: error handling
 
   CSS = ""
@@ -99,6 +98,7 @@ if __name__ == '__main__':
 
   with open(data_file) as json_file:
     data = json.load(json_file)
+    deck_name = data['name']
     for card in data['cards']:
       fields = [card['name'], card['back'], ",".join(card['media'])]
       model = MY_CLOZE_MODEL
