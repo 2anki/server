@@ -6,6 +6,7 @@ import './pages/home-page'
 import './pages/contact-page'
 import './pages/privacy-page'
 import './pages/faq-page'
+import './pages/features-page'
 
 tag app-root
 	prop state = 'ready'
@@ -27,6 +28,8 @@ tag app-root
 			<n2a-header>
 			if page().includes('upload')
 				<upload-page state=state progress=progress>
+			elif page().includes('features')
+				<features-page>
 			elif page().includes('contact')
 				<contact-page>
 			elif page().includes('privacy')

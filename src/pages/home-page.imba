@@ -24,13 +24,7 @@ tag home-page
 					<hr>
 					<p.subtitle> "Stop wasting your time ⏳ Instead of copy pasting or typing in for hours and hours, {<strong> "let notion2anki do it in 10 seconds"}!"
 					<p.subtitle> "🆓 This project is 100% free and open source! It will remain free, I promise you that my friend 👌🏾"
-					<.subtitle>
-						<ul>
-							<li> "✅ SoundCloud and YouTube embeds"
-							<li> "✅ Works with iOS and Android"
-							<li> "✅ Images and More!"
-							<li> "✅ Emoji support"
-							<li> "✅ MP3 files"
+					<a[mt: 2rem].button.cta.is-large href="/features"> "Learn more about notion2anki features"
 			<.section>
 				<.container>
 					<h2.title> <a[c: black td: none] href="#usage" name="usage"> "How it\n            works"

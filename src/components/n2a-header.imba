@@ -19,9 +19,10 @@ tag n2a-header
 				<div#navbarExampleTransparentExample.navbar-menu.is-active=active>
 					<div.navbar-start>
 						<a.navbar-item href="/upload"> "Create"
+						<a.navbar-item href="/features"> "Features" 
 						<a.navbar-item href="/contact"> "Contact"
 						<a.navbar-item href="/faq"> "FAQ"
-						<a.navbar-item href="/privacy"> "Privacy"							
+						<a.navbar-item href="/privacy"> "Privacy"						
 						<div.navbar-item.has-dropdown.is-hoverable>
 							<a.navbar-link> "Useful links"
 							<div.navbar-dropdown.is-boxed>
