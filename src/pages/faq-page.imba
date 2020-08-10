@@ -12,7 +12,7 @@ tag q-w-a # question-with-answer
 					<.has-text-centered>
 						<youtube-embed video=answer>
 				else 
-					<p> "A: {answer}"
+					<p .tag .is-info> "A: {answer}"
 
 tag faq-page	
 
@@ -35,3 +35,4 @@ tag faq-page
 					<q-w-a question="How do I become a successful developer?" answer="Do things and tell people.">
 					<q-w-a question="How do I come up with ideas?" answer="Go and read about people's problems on Reddit and solve them.">
 					<q-w-a question="What is the goal of notion2anki?" answer="https://www.youtube.com/embed/FjifJG4FoXY">
+					<q-w-a question="How do I add images?" answer="https://www.youtube.com/embed/cSFvv3AVtIg">
