@@ -29,7 +29,7 @@ app.get('/version') do |req, res|
 	const v = appInfo.version
 	res.status(200).send(v)
 
-const old = ['/notion', '/index', '/contact', '/privacy', '/upload', '/faq']
+const old = ['/notion', '/index', '/contact', '/privacy', '/upload', '/faq', '/features']
 for p in old
 	console.log('setting up request handler for ', p)
 	app.get (p) do |req, res| res.sendFile(path.join(distDir, 'index.html'))
