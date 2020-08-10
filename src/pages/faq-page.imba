@@ -1,3 +1,4 @@
+import '../components/youtube-embed'
 import '../components/page-content'
 
 tag q-w-a # question-with-answer
@@ -7,7 +8,11 @@ tag q-w-a # question-with-answer
 	def render
 		<self[d: block] .box> <div>
 				<p> "Q: {question}"
-				<p> "A: {answer}"
+				if answer.match(/youtube.com/)
+					<.has-text-centered>
+						<youtube-embed video=answer>
+				else 
+					<p> "A: {answer}"
 
 tag faq-page	
 
@@ -29,3 +34,4 @@ tag faq-page
 					<q-w-a question="Where are you based?" answer="In the Kingdom of Norway.">
 					<q-w-a question="How do I become a successful developer?" answer="Do things and tell people.">
 					<q-w-a question="How do I come up with ideas?" answer="Go and read about people's problems on Reddit and solve them.">
+					<q-w-a question="What is the goal of notion2anki?" answer="https://www.youtube.com/embed/FjifJG4FoXY">
