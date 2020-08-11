@@ -1,14 +1,17 @@
 FROM node:12-slim
 
-COPY . /app
+RUN apt-get update
+RUN apt-get install python3 python3-pip -y
+RUN rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
+COPY ./src/genanki/requirements.txt .
+RUN pip3 install -r ./requirements.txt
 
-RUN apt-get update || : && apt-get install python3 python3-pip -y && rm -rf /var/lib/apt/lists/*
-
-RUN pip3 install -r /app/src/genanki/requirements.txt
-
+COPY package.json .
 RUN npm install
 
+COPY . .
 RUN npm run build
 
 ENV PORT 8080
