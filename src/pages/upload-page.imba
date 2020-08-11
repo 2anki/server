@@ -56,6 +56,12 @@ tag upload-page
 					<form enctype="multipart/form-data" method="post" @submit.prevent=convertFile>
 						<h3 .title .is-3> "Deck Name" 
 						<input$input.input[fw: bold c: #83C9F5 @placeholder: grey] placeholder="Enter deck name (optional)" name="deckName" type="text">
+						<h3[mt: 2rem] .title .is-3> "Font Size" 
+						<div[mt: 1rem d: flex fld: row j: center a: center]>
+							<input bind=fontSize name='font-size' hidden>
+							for fontPreset in [10, 12, 20, 26, 32, 64]
+								<div>
+									<span .tag[fs: {fontPreset}px m: 2rem] .is-primary=(fontPreset == fontSize) @click.{fontSize = fontPreset}> "a"
 						<h3[mt: 2rem] .title .is-3> "Card Types" 
 						<div[mt: 1rem].control.has-icons-left>
 							<div.select.is-medium>

@@ -87,6 +87,7 @@ def handle_upload req, res
 		res.set('Access-Control-Expose-Headers', 'Anki-Deck')
 		res.status(200).send(deck.apkg)
 		# TODO: Schedule deletion?
+		console.log('x settings', settings)
 	catch err
 		console.error(err)
 		useErrorHandler(res, err)

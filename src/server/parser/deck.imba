@@ -78,6 +78,7 @@ export class DeckParser
 	def constructor md, contents, settings = {}
 		const deckName = settings.deckName
 		self.settings = settings
+		self.settings['font-size'] = self.settings['font-size'] + 'px'
 		self.use_cloze = self.is_cloze!
 		if md
 			TriggerUnsupportedFormat()
@@ -87,6 +88,7 @@ export class DeckParser
 		const dom = cheerio.load(contents)
 		let name = deckName || dom('title').text()
 		let style = dom('style').html()
+		style += '\n' + '* { font-size:' + self.settings['font-size'] + '}'
 
 		const toggleList = dom(".page-body > ul").toArray()
 		let cards = toggleList.map do |t|
