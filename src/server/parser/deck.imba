@@ -88,7 +88,9 @@ export class DeckParser
 		const dom = cheerio.load(contents)
 		let name = deckName || dom('title').text()
 		let style = dom('style').html()
-		style += '\n' + '* { font-size:' + self.settings['font-size'] + '}'
+	
+		if self.settings['font-size'] != '20px'
+			style += '\n' + '* { font-size:' + self.settings['font-size'] + '}'
 
 		const toggleList = dom(".page-body > ul").toArray()
 		let cards = toggleList.map do |t|
