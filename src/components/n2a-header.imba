@@ -35,6 +35,7 @@ tag n2a-header
 								<hr.navbar-divider>
 								<a.navbar-item target="_blank" href="https://www.youtube.com/user/MATTvsJapan"> "Matt vs. Japan"
 								<a.navbar-item target="_blank" href="https://www.youtube.com/user/Sepharoth64"> "Ali Abdaal"
+								<a.navbar-item target="_blank" href="https://www.youtube.com/channel/UC-DExX14VBH75q9Fw7wVbAw"> "Philipp (German)"
 
 
 					<div.navbar-end>
