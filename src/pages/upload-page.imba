@@ -63,7 +63,6 @@ tag upload-page
 							<div[bd: 1px solid lightgray br: 5px p: 0]>
 								<p> for fontPreset in [32, 26, 20, 12, 10]
 										<span[fs: {fontPreset}px p: 3px br: 5px m: 0 8px] [c: #00d1b2]=(fontPreset == fontSize) @click.{fontSize = fontPreset}> "Aa"
-						<div[h: 50px]>
 							<p[fs: {fontSize}px white-space: nowrap mt: 1rem]> "👁 font size preview..."
 						<h3[mt: 2rem] .title .is-3> "Card Types" 
 						<div[mt: 1rem].control.has-icons-left>
