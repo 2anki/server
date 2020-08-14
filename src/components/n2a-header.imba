@@ -45,18 +45,15 @@ tag n2a-header
 					<div.navbar-end>
 						<div.navbar-item>
 							<div.field.is-grouped>
-								<p.control>
-									<a.bd-tw-button.button target="_blank" href="https://github.com/alemayhu/notion2anki">
+								<p.control[p: 2]>
+									<a[c: black] target="_blank" href="https://github.com/alemayhu/notion2anki">
 										<span.icon>
-											<i.fab.fa-github>
-										<span> "Github"
-								<p.control>
-									<a.button target="_blank" href="https://discord.gg/PSKC3uS">
+											<i .fa-2x .fab.fa-github>
+								<p.control[p: 2]>
+									<a[c: #7289da] target="_blank" href="https://discord.gg/PSKC3uS">
 										<span.icon>
-											<i.fab.fa-discord>
-										<span> "Discord"		
-								<p.control>
-									<a.button target="_blank" href="https://twitch.tv/alemayhu">
+											<i .fa-2x .fab.fa-discord>
+								<p.control[p: 2]>
+									<a[c: #6441a5] target="_blank" href="https://twitch.tv/alemayhu">
 										<span.icon>
-											<i.fab.fa-twitch>
-										<span> "twitch"
+											<i .fa-2x .fab.fa-twitch>
