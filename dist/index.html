@@ -1,103 +1,86 @@
 <!DOCTYPE html>
 <html style="width: 100%; height: 100%;">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="canonical" href="https://notion.2anki.net" />
-    <!-- HTML Meta Tags -->
-    <title>
-      Notion 2 Anki | Go from Notion toggle list to Anki Cards easily!
-    </title>
-    <meta
-      name="description"
-      content="This simple web app creates decks for you to import into Anki from your Notion pages."
-    />
-    <!-- Google / Search Engine Tags -->
-    <meta
-      itemprop="name"
-      content="Go from Notion toggle list to Anki Cards easily!"
-    />
-    <meta
-      itemprop="description"
-      content="This simple web app creates decks for you to import into Anki from your Notion pages."
-    />
-    <meta itemprop="image" content="./notion2anki.png" />
 
-    <!-- Facebook Meta Tags -->
-    <meta property="og:url" content="https://notion.2anki.com" />
-    <meta property="og:type" content="website" />
-    <meta
-      property="og:title"
-      content="Go from Notion toggle list to Anki Cards easily!"
-    />
-    <meta
-      property="og:description"
-      content="This simple web app creates decks for you to import into Anki from your Notion pages."
-    />
-    <meta property="og:image" content="./notion2anki.png" />
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="canonical" href="https://notion.2anki.net" />
+  <!-- HTML Meta Tags -->
+  <title>Create better Anki flashcards faster and easier today!</title>
+  <meta name="description"
+    content="notion2Anki is a free project to convert Notion toggle lists to Anki Flashcards fast and easy 😉😉😉">
 
-    <!-- Twitter Meta Tags -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta
-      name="twitter:title"
-      content="Go from Notion toggle list to Anki Cards easily!"
-    />
-    <meta
-      name="twitter:description"
-      content="This simple web app creates decks for you to import into Anki from your Notion pages."
-    />
-    <meta name="twitter:image" content="./notion2anki.png" />
-    <!-- Meta Tags Generated via http://heymeta.com -->
+  <!-- Google / Search Engine Tags -->
+  <meta itemprop="name" content="Create better Anki flashcards faster and easier today!">
+  <meta itemprop="description"
+    content="notion2Anki is a free project to convert Notion toggle lists to Anki Flashcards fast and easy 😉😉😉">
+  <meta itemprop="image" content="https://notion.2anki.net/notion2anki.png">
 
-    <!-- The Favicon are from favicon.io -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-    <link rel="manifest" href="/site.webmanifest" />
+  <!-- Facebook Meta Tags -->
+  <meta property="og:url" content="https://notion.2anki.net">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Create better Anki flashcards faster and easier today!">
+  <meta property="og:description"
+    content="notion2Anki is a free project to convert Notion toggle lists to Anki Flashcards fast and easy 😉😉😉">
+  <meta property="og:image" content="https://notion.2anki.net/notion2anki.png">
 
-    <!-- Bulma style -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.0/css/bulma.min.css">
+  <!-- Twitter Meta Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Create better Anki flashcards faster and easier today!">
+  <meta name="twitter:description"
+    content="notion2Anki is a free project to convert Notion toggle lists to Anki Flashcards fast and easy 😉😉😉">
+  <meta name="twitter:image" content="https://notion.2anki.net/notion2anki.png">
+  <!-- Meta Tags Generated via http://heymeta.com -->
 
-    <!-- Sentry -->
-    <script
-      src="https://browser.sentry-cdn.com/5.17.0/bundle.min.js"
-      integrity="sha384-lowBFC6YTkvMIWPORr7+TERnCkZdo5ab00oH5NkFLeQUAmBTLGwJpFjF6djuxJ/5"
-      crossorigin="anonymous"
-    ></script>
+  <!-- The Favicon are from favicon.io -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <link rel="manifest" href="/site.webmanifest" />
 
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script
-      async
-      src="https://www.googletagmanager.com/gtag/js?id=UA-162974703-3"
-    ></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        dataLayer.push(arguments);
-      }
-      gtag("js", new Date());
+  <!-- Bulma style -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.0/css/bulma.min.css">
 
-      gtag("config", "UA-162974703-3");
-    </script>
+  <!-- Sentry -->
+  <script src="https://browser.sentry-cdn.com/5.17.0/bundle.min.js"
+    integrity="sha384-lowBFC6YTkvMIWPORr7+TERnCkZdo5ab00oH5NkFLeQUAmBTLGwJpFjF6djuxJ/5"
+    crossorigin="anonymous"></script>
 
-    <!-- Bulma icons -->
-    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-162974703-3"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+    gtag("js", new Date());
 
-    <!-- Patreon -->
+    gtag("config", "UA-162974703-3");
+  </script>
+
+  <!-- Bulma icons -->
+  <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+
+  <!-- Patreon -->
+  <script async src="https://c6.patreon.com/becomePatronButton.bundle.js"></script>
+</head>
+
+<body
+  style='font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"'>
+  <noscript>Sorry, JavaScript is required!</noscript>
+  <script>
+    Sentry.init({
+      dsn:
+        "https://51340c448337477aa4e98134f7229ba6@o404766.ingest.sentry.io/5269366",
+    });
+  </script>
+  <script src="./app.js"></script>
+  <app-root></app-root>
+  <div style="text-align: center;">
+    <a href="https://www.patreon.com/bePatron?u=3466632" data-patreon-widget-type="become-patron-button">Become a
+      Patron!</a>
     <script async src="https://c6.patreon.com/becomePatronButton.bundle.js"></script>
-  </head>
-  <body style='font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"'>
-    <noscript>Sorry, JavaScript is required!</noscript>
-    <script>
-      Sentry.init({
-        dsn:
-          "https://51340c448337477aa4e98134f7229ba6@o404766.ingest.sentry.io/5269366",
-      });
-    </script>
-    <script src="./app.js"></script>
-    <app-root></app-root>
-    <div style="text-align: center;">
-      <a href="https://www.patreon.com/bePatron?u=3466632" data-patreon-widget-type="become-patron-button">Become a Patron!</a><script async src="https://c6.patreon.com/becomePatronButton.bundle.js"></script>    
-    </div>
-  </body>
+  </div>
+</body>
+
 </html>
