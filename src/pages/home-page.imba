@@ -6,20 +6,28 @@ tag home-page
 
 	prop notionLink = "https://www.notion.so/Toggles-c720af26b4bd4789b736c140b2dc73fe"
 	prop contactAdress = "alexander@alemayhu.com"
-
 	prop tutorial = "https://www.youtube.com/embed/lpC7C9wJoTA"
+	prop pitch = "https://www.youtube.com/embed/FjifJG4FoXY"
 
 	css .cta bg: #83C9F5 c: white fw: bold
 
 	def render
-		<self>
-			<.section>
-				<.container>
-					<h1[fs: 2.2rem @md: 4.6rem fw: bold c: black]> "From Notion toggle list to Anki Cards easily!"
-					<.has-text-centered>
-						<p[fs: 1.25rem lh: 1.5]> "Convert Notion {<a[c: blue700] href=notionLink> "Toggle lists"} to Anki cards fast and easy 😉"
-					<.has-text-centered>
-						<a[mt: 2rem].button.cta .is-large href="/upload"> "Upload Notion export"
+		<self[d: block my: 2rem]>
+			<section.hero.is-medium>
+				<div.hero-body>
+					<div.container>
+						<h1 .title .is-size-1> "Create better Anki flashcards faster and easier today!"
+						<h2.subtitle> "Convert Notion toggle lists to Anki Flashcards fast and easy 😉"					
+						<.columns>
+							<.column>
+								<p> "{<strong[fw: bold]> "notion2Anki"} is 100% free with no limitations on file size 🆓 It's a passion project 🕺🏾💃🏾 We are going to make this a good way to make Anki flashcards easier, better and faster for anyone anywhere around the world 🌎"
+								<.has-text-centered>
+									<a[mt: 2rem].button.cta .is-large href="/upload"> "Get Started"
+
+							<.column>
+								<.has-text-centered>
+									<youtube-embed video=pitch inline=false title="Video Tutorial: How to use notion2anki">
+
 			<.section>
 				<.container>
 					<h1.title> "Benefits"
@@ -45,5 +53,5 @@ tag home-page
 					<hr>
 					<p.subtitle> "In this video, {<a[c:blue700] href="https://alpkaanaksu.com"> "Alp Kaan"} shows you how to use notion2anki"
 					<.has-text-centered>
-						<youtube-embed video=tutorial inline=false title="Video Tutorial: How to use notion2anki">
+						<youtube-embed video=tutorial inline=false title="Video Tutorial: How to use notion2anki" inline=false>
 						<a[mt: 2rem].button.cta .is-large href="/upload"> "I want to save my time"
