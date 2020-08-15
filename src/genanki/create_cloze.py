@@ -56,7 +56,7 @@ if __name__ == '__main__':
   }
   """
 
-  with open(deck_style, 'r') as file:
+  with open(deck_style, 'r', encoding='utf-8') as file:
     CSS += file.read()
 
   MY_CLOZE_MODEL = Model(
@@ -96,7 +96,7 @@ if __name__ == '__main__':
 
   notes = []
 
-  with open(data_file) as json_file:
+  with open(data_file, 'r', encoding='utf-8') as json_file:
     data = json.load(json_file)
     deck_name = data['name']
     for card in data['cards']:
