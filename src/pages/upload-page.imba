@@ -121,16 +121,18 @@ tag upload-page
 				<.container>
 					<h3 .title .is-3> "Support this project"
 					<hr>
-					<p.subtitle> "This project is 100% free and will remain free but please if you have the means you can support this project via these options:"
+					<p.subtitle> "This project is 100% free and will remain free! Please if you have the means you can support this project via these options 🙏🏾"
+					<div[mt: 2] .has-text-centered>
+						<iframe src="https://github.com/sponsors/alemayhu/card" title="Sponsor alemayhu" height="225" width="600" style="border: 0;">
 					<.has-text-centered>
 						<a href="https://patreon.com/alemayhu"> <img src="become_a_patron_button.png">
 					<.has-text-centered>
 						<a.button .is-large href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=WUARHGVHUZ5FL&source=ur">
 							<span .icon .is-large> <i .fab .fa-paypal aria-hidden="true">
 							<span> "Paypal"
-					<div[mt: 2] .has-text-centered>
-						<iframe src="https://github.com/sponsors/alemayhu/card" title="Sponsor alemayhu" height="225" width="600" style="border: 0;">
 					<h4 .title .is-4> "Other Ways to Contribute"
 					<p.subtitle> 
-						"If you know someone who can benefit from notion2anki, please share it with them. We want to save people time, anywhere in the world! "
-						"If you are missing a feature or format, let me know on {<a href="https://github.com/alemayhu/notion2anki"> "GitHub"} or the {<a href="https://discord.gg/PSKC3uS" target="_blank"> "Discord"}."													
+						"If you know someone who can benefit from notion2anki, please share it with them. We want to save people time, anywhere in the world 🌎 "
+						"If you are missing a feature or format, let us know on {<a href="https://github.com/alemayhu/notion2anki"> "GitHub"} or the {<a href="https://discord.gg/PSKC3uS" target="_blank"> "Discord"}."
+					<p.subtitle>
+						"If you are ready for a challenge then make a video and show people how easy it is to create great flashcards! Remember to send us the link or video file!"
