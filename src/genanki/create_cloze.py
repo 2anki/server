@@ -14,13 +14,15 @@ from genanki import Model
 from genanki import Note
 from genanki import Deck
 from genanki import Package
+from genanki import guid_for
 
 def _wr_apkg(notes, deck_id, deck_name, media_files):
   """Write cloze cards to an Anki apkg file"""
   deck = Deck(deck_id=deck_id, name=deck_name)
   for note in notes:
     deck.add_note(note)
-  fout_anki = '{NAME}.apkg'.format(NAME=deck_name)
+
+  fout_anki = '{NAME}.apkg'.format(NAME=guid_for(deck_name))
   pkg = Package(deck)
   pkg.media_files = media_files
   pkg.write_to_file(fout_anki)
