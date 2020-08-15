@@ -1,5 +1,7 @@
 import '../components/page-content'
 import '../components/youtube-embed'
+
+
 tag home-page	
 
 	prop notionLink = "https://www.notion.so/Toggles-c720af26b4bd4789b736c140b2dc73fe"
@@ -43,6 +45,5 @@ tag home-page
 					<hr>
 					<p.subtitle> "In this video, {<a[c:blue700] href="https://alpkaanaksu.com"> "Alp Kaan"} shows you how to use notion2anki"
 					<.has-text-centered>
-						<a href=tutorial> tutorial
-						<youtube-embed video=tutorial>
+						<youtube-embed video=tutorial inline=false title="Video Tutorial: How to use notion2anki">
 						<a[mt: 2rem].button.cta .is-large href="/upload"> "I want to save my time"

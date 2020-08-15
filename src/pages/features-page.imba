@@ -52,6 +52,7 @@ tag features-page
 					<p> "You can add SoundCloud audio to your cards. Visit {<a href="https://soundcloud.com/"> "SoundCloud's website."}"
 					<h1#mp3.title> "🎧 MP3 Files"
 					<p> "You can also add MP3 files to your cards. You can watch {<a href="https://www.youtube.com/watch?v=lpC7C9wJoTA"> "this video"} to see it in action."
+					<youtube-embed video="https://www.youtube.com/embed/lpC7C9wJoTA" inline=true title="Video Tutorial: How to use notion2anki for learning languages">
 					<hr>
 					<h1#math.title> "🔢 Math"
 					<p> "notion2anki can convert math equations too. Notion uses KaTeX library for inline math and math blocks. Visit {<a href="https://www.notion.so/Math-equations-b4e9e4e03677413481a4910e8bd328c1"> "Notion's official website"} for more information on using math in Notion."
