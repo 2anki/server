@@ -128,7 +128,7 @@ tag upload-page
 						<a.button .is-large href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=WUARHGVHUZ5FL&source=ur">
 							<span .icon .is-large> <i .fab .fa-paypal aria-hidden="true">
 							<span> "Paypal"
-					<div[mt: 2]>
+					<div[mt: 2] .has-text-centered>
 						<iframe src="https://github.com/sponsors/alemayhu/card" title="Sponsor alemayhu" height="225" width="600" style="border: 0;">
 					<h4 .title .is-4> "Other Ways to Contribute"
 					<p.subtitle> 
