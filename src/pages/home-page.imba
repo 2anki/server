@@ -83,7 +83,7 @@ tag home-page
 						<.column .has-text-centered> for i in [1...13]
 							<img[m: 2rem w: 296px @sm: 320px @md:700px] .image loading="lazy" src="/user-feedback/{i}.png">
 					<.has-text-centered>							
-						<a .is-large .is-danger[c: #3273dc fw: bold white-space: normal p: 16px fs: 18pt] target="_blank" href="https://discord.gg/PSKC3uS"> "Join the community of winners on Discord 💪🏾"
+						<a .button .is-large .is-primary[bg: #3273dc fw: bold white-space: normal fs: 11pt fs@md: 16pt] target="_blank" href="https://discord.gg/PSKC3uS"> "Join the community of winners on Discord 💪🏾"
 
 			<.section .bd-easy .is-medium>
 				<.container>
