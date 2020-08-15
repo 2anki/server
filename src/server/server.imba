@@ -83,8 +83,6 @@ def handle_upload req, res
 		res.set("Content-Type", "application/zip")
 		res.set("Content-Length": Buffer.byteLength(deck.apkg))		
 		res.attachment(deck.name)
-		res.set('Anki-Deck', deck.name)
-		res.set('Access-Control-Expose-Headers', 'Anki-Deck')
 		res.status(200).send(deck.apkg)
 		# TODO: Schedule deletion?
 		console.log('x settings', settings)
