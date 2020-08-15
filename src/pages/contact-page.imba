@@ -1,5 +1,3 @@
-import '../components/page-content'
-
 tag contact-page	
 
 	prop notionLink = "https://www.notion.so/Toggles-c720af26b4bd4789b736c140b2dc73fe"

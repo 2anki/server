@@ -1,5 +1,4 @@
 import '../components/youtube-embed'
-import '../components/page-content'
 
 tag q-w-a # question-with-answer
 	prop question

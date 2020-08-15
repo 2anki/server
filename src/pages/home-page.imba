@@ -1,6 +1,4 @@
-import '../components/page-content'
 import '../components/youtube-embed'
-
 
 tag home-page	
 

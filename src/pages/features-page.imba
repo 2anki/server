@@ -1,5 +1,3 @@
-import '../components/page-content'
-
 tag features-page
 	def render
 		<self[d: block my: 2rem]>

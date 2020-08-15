@@ -1,5 +1,3 @@
-import '../components/page-content'
-
 tag privacy-page	
 	prop doPP = "https://www.digitalocean.com/legal/privacy-policy/"
 	prop netlifyPP = "https://www.netlify.com/privacy/"
