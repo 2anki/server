@@ -80,26 +80,16 @@ tag home-page
 					<.columns>
 						<.column .has-text-centered> for i in [1...13]
 							<img[m: 2rem max-width: 700px max-height: 108px] .image loading="lazy" src="/user-feedback/{i}.png">
+					<.has-text-centered>							
+						<a .button .is-large .is-danger[bg: #3273dc] target="_blank" href="https://discord.gg/PSKC3uS"> "Join the community of winners on Discord 💪🏾"
 
-			<.section>
+			<.section .bd-easy .is-medium>
 				<.container>
-					<h1.title> "Benefits"
-					<hr>
-					<p.subtitle> "Stop wasting your time ⏳ Instead of copy pasting or typing in for hours and hours, {<strong> "let notion2anki do it in 10 seconds"}!"
-					<p.subtitle> "🆓 This project is 100% free and open source! It will remain free, I promise you that my friend 👌🏾"
-					<a[mt: 2rem].button.cta.is-large href="/features"> "Learn more about notion2anki features"
-			<.section>
-				<.container>
-					<h2.title> <a[c: black td: none] href="#usage" name="usage"> "How it\n            works"
-					<hr>
-					<p.subtitle> "You export your page as a HTML from Notion and then let notion2anki convert it."
+					<h3 .title .is-3> "Save your {<span[c: #00D1B2]> "time"} today ⏳"
+					<h4 .subtitle .is-4> "Let notion2anki do it in 10 seconds for you"
+					# Stop wasting your time  Instead of copy pasting or typing in for hours and hours, 
 					<.has-text-centered>
-						<ul>
-							<li> "One Notion page is one deck 🙂"
-							# <li> "Headings are treated as tags 🏷"
-							<li> "One toggle list is one card 🗂"
-					<.has-text-centered>
-						<a[mt: 2rem].button.cta.is-large href="/upload"> "Get started"
+						<a[mt: 2rem fw: bold].button.is-info.is-medium href="/features"> "Learn more about notion2anki features"
 			<.section>
 				<.container>
 					<h2.title> "Video Tutorial: How to use notion2anki"
@@ -107,4 +97,4 @@ tag home-page
 					<p.subtitle> "In this video, {<a[c:blue700] href="https://alpkaanaksu.com"> "Alp Kaan"} shows you how to use notion2anki"
 					<.has-text-centered>
 						<youtube-embed video=tutorial inline=false title="Video Tutorial: How to use notion2anki" inline=false>
-						<a[mt: 2rem].button.cta .is-large href="/upload"> "I want to save my time"
+						<a[mt: 2rem].button .is-primary .is-large href="/upload"> "I want to save my time"
