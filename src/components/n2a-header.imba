@@ -41,20 +41,23 @@ tag n2a-header
 					<div.navbar-end>
 						<div.navbar-item>
 							<a.button[bg: rgb(232, 91, 70) c: white border-radius: 0.3rem] target="_blank" href="https://www.patreon.com/alemayhu">
-								<span.icon>
+								<span .icon .is-large>
 									<i.fab.fa-patreon>
 								<span[tt: uppercase fw: bold]> "Become a Patreon"							
 						<div.navbar-item>
 							<div.field.is-grouped>
+								<p.control[p:2]>
+									<a[c: blue] href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=WUARHGVHUZ5FL&source=ur">
+										<span .icon .is-large> <i .fa-2x .fab .fa-paypal aria-hidden="true">
 								<p.control[p: 2]>
 									<a[c: black] target="_blank" href="https://github.com/alemayhu/notion2anki">
-										<span.icon>
+										<span .icon .is-large>
 											<i .fa-2x .fab.fa-github>
 								<p.control[p: 2]>
 									<a[c: #7289da] target="_blank" href="https://discord.gg/PSKC3uS">
-										<span.icon>
+										<span.icon .is-large>
 											<i .fa-2x .fab.fa-discord>
 								<p.control[p: 2]>
 									<a[c: #6441a5] target="_blank" href="https://twitch.tv/alemayhu">
-										<span.icon>
+										<span.icon .is-large>
 											<i .fa-2x .fab.fa-twitch>
