@@ -4,7 +4,7 @@ tag contact-page
 	prop contactAdress = "alexander@alemayhu.com"
 
 	def render
-		<self[d: block my: 2rem]>
+		<self[d: block my: 4rem]>
 			<.section>
 				<.container>
 					<h1.title> "Contact"

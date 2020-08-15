@@ -3,7 +3,7 @@ tag useful-links-page
 	prop skillshare = "https://skl.sh/2WhV7F6"
 
 	def render
-		<self[d: block my: 2rem]>
+		<self[d: block my: 4rem]>
 			<.section>
 				<.container>
 					<h1.title> <a[c: black td: none] href="#useful" name="useful"> "Useful Links"

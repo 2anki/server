@@ -15,7 +15,7 @@ tag home-page
 	css .column m: 16px
 
 	def render
-		<self[d: block my: 2rem]>
+		<self[d: block my: 4rem]>
 			<section.hero.is-medium>
 				<div.hero-body>
 					<div.container>

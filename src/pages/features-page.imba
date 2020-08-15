@@ -1,6 +1,6 @@
 tag features-page
 	def render
-		<self[d: block my: 2rem]>
+		<self[d: block my: 4rem]>
 			<.section>
 				<.container>
 					<h1.title> "The features supported by notion2anki"

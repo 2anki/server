@@ -19,7 +19,7 @@ tag faq-page
 	prop contactAdress = "alexander@alemayhu.com"
 
 	def render
-		<self[d: block my: 2rem]>
+		<self[d: block my: 4rem]>
 			<.section>
 				<.container>
 					<h1.title> <a[c: black td: none] href="#faq" name="faq"> "Frequently Asked Questions"
