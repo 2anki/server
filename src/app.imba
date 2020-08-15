@@ -7,6 +7,7 @@ import './pages/contact-page'
 import './pages/privacy-page'
 import './pages/faq-page'
 import './pages/features-page'
+import './pages/useful-links'
 
 tag app-root
 	prop state = 'ready'
@@ -36,6 +37,8 @@ tag app-root
 				<privacy-page>
 			elif page().includes('faq')
 				<faq-page>
+			elif page().includes('links')
+				<useful-links-page>
 			else
 				<home-page>
 			<n2a-footer>

@@ -22,21 +22,8 @@ tag n2a-header
 						<a.navbar-item href="/features"> "Features" 
 						<a.navbar-item href="/contact"> "Contact"
 						<a.navbar-item href="/faq"> "FAQ"
-						<a.navbar-item href="/privacy"> "Privacy"						
-						<div.navbar-item.has-dropdown.is-hoverable>
-							<a.navbar-link> "Useful links"
-							<div.navbar-dropdown.is-boxed>
-								<a.navbar-item target="_blank" href="https://skl.sh/2WhV7F6"> "Skillshare"
-								<hr.navbar-divider>
-								<a.navbar-item target="_blank" href="https://www.reddit.com/r/Anki/"> "Anki: a forum about the Anki flashcard app"
-								<a.navbar-item target="_blank" href="https://apps.apple.com/us/app/ankimobile-flashcards/id373493387"> " AnkiMobile Flashcards"
-								<a.navbar-item target="_blank" href="https://play.google.com/store/apps/details?id=com.ichi2.anki&hl=no"> "AnkiDroid Flashcards"
-								<a.navbar-item target="_blank" href="https://docs.ankiweb.net/#/"> "Anki Manual"
-								<hr.navbar-divider>
-								<a.navbar-item target="_blank" href="https://www.youtube.com/user/MATTvsJapan"> "Matt vs. Japan"
-								<a.navbar-item target="_blank" href="https://www.youtube.com/user/Sepharoth64"> "Ali Abdaal"
-								<a.navbar-item target="_blank" href="https://www.youtube.com/channel/UC-DExX14VBH75q9Fw7wVbAw"> "Philipp (German)"
-
+						<a.navbar-item href="/privacy"> "Privacy"		
+						<a.navbar-item href="/links"> "Useful Links"				
 
 					<div.navbar-end>
 						<div.navbar-item>
