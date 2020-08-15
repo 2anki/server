@@ -14,6 +14,7 @@ tag home-page
 	prop patreon = "https://patreon.com/alemayhu"
 
 	css .cta bg: #83C9F5 c: white fw: bold
+	css .column m: 16px
 
 	def render
 		<self[d: block my: 2rem]>
@@ -27,13 +28,14 @@ tag home-page
 							<.column>
 								<p> "{<strong[fw: bold]> "notion2Anki"} is 100% free and open source with no limitations on file size 🆓 It's a passion project 🕺🏾💃🏾 We are going to make this a good way to make Anki flashcards easier, better and faster for anyone anywhere around the world 🌎"
 
-								<div[d: flex j: center a: center mt: 2rem]>
-									<div[mx: 2rem]>
+								<div[d: flex j: center a: center mt: 2rem flex-wrap: wrap].columns>
+									<div.column>
 										<a.button[fw: bold] .is-primary .is-large href="/upload"> "Get Started"
-									<a.button.is-light .is-large href="https://www.youtube.com/playlist?list=PLzOAzzqpDqukOtwH3IYWiOhr_sjBjfgCd" target="_blank">
-										<span.icon[c: red]>
-											<i.fab.fa-youtube>
-										<span[fw: bold]> "Tutorials"
+									<div.column>
+										<a.button.is-light .is-large href="https://www.youtube.com/playlist?list=PLzOAzzqpDqukOtwH3IYWiOhr_sjBjfgCd" target="_blank">
+											<span.icon[c: red]>
+												<i.fab.fa-youtube>
+											<span[fw: bold]> "Tutorials"
 							<.column>
 								<.has-text-centered>
 									<youtube-embed video=pitch inline=false title="Video Tutorial: How to use notion2anki">
@@ -81,7 +83,7 @@ tag home-page
 						<.column .has-text-centered> for i in [1...13]
 							<img[m: 2rem w: 296px @sm: 320px @md:700px] .image loading="lazy" src="/user-feedback/{i}.png">
 					<.has-text-centered>							
-						<a .button .is-large .is-danger[bg: #3273dc] target="_blank" href="https://discord.gg/PSKC3uS"> "Join the community of winners on Discord 💪🏾"
+						<a .is-large .is-danger[c: #3273dc fw: bold white-space: normal p: 16px fs: 18pt] target="_blank" href="https://discord.gg/PSKC3uS"> "Join the community of winners on Discord 💪🏾"
 
 			<.section .bd-easy .is-medium>
 				<.container>
@@ -89,7 +91,7 @@ tag home-page
 					<h4 .subtitle .is-4> "Let notion2anki do it in 10 seconds for you"
 					# Stop wasting your time  Instead of copy pasting or typing in for hours and hours, 
 					<.has-text-centered>
-						<a[mt: 2rem fw: bold].button.is-info.is-medium href="/features"> "Learn more about notion2anki features"
+						<a[mt: 2rem fw: bold fs: 16pt].button.is-info.is-medium href="/features"> "notion2anki features"
 			<.section>
 				<.container>
 					<h2.title> "Video Tutorial: How to use notion2anki"
