@@ -12,7 +12,7 @@ tag useful-links-page
 
 					<h3[my: 2rem] .title .is-3> "Refferals"
 					<hr>
-					<p.subtitle> "If you use the links to sign up to {<a href=digitalocean> "DigitalOcean"} or {<a href=skillshare> "Skillshare"} I get a reward. I am letting you know this for the sake of transparency 😉"
+					<p.subtitle> "If you use the links to sign up to {<a href=digitalocean> "DigitalOcean"} or {<a href=skillshare> "Skillshare"} we get a reward 🎁 I am letting you know this for the sake of transparency 😉"
 					<.columns>
 						<.column>
 							<a[bg: #6AB9BE c: white fw: bold] .is-large .tag target="_blank" href=skillshare> "Skillshare"
