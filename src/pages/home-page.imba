@@ -17,16 +17,48 @@ tag home-page
 				<div.hero-body>
 					<div.container>
 						<h1 .title .is-size-1> "Create better Anki flashcards faster and easier today!"
+						<hr>
 						<h2.subtitle> "Convert Notion toggle lists to Anki Flashcards fast and easy 😉"					
 						<.columns>
 							<.column>
-								<p> "{<strong[fw: bold]> "notion2Anki"} is 100% free with no limitations on file size 🆓 It's a passion project 🕺🏾💃🏾 We are going to make this a good way to make Anki flashcards easier, better and faster for anyone anywhere around the world 🌎"
-								<.has-text-centered>
-									<a[mt: 2rem].button.cta .is-large href="/upload"> "Get Started"
+								<p> "{<strong[fw: bold]> "notion2Anki"} is 100% free and open source with no limitations on file size 🆓 It's a passion project 🕺🏾💃🏾 We are going to make this a good way to make Anki flashcards easier, better and faster for anyone anywhere around the world 🌎"
 
+								<div[d: flex j: center a: center mt: 2rem]>
+									<div[mx: 2rem]>
+										<a.button[fw: bold] .is-primary .is-large href="/upload"> "Get Started"
+									<a.button.is-light .is-large href="https://www.youtube.com/playlist?list=PLzOAzzqpDqukOtwH3IYWiOhr_sjBjfgCd" target="_blank">
+										<span.icon[c: red]>
+											<i.fab.fa-youtube>
+										<span[fw: bold]> "Tutorials"
 							<.column>
 								<.has-text-centered>
 									<youtube-embed video=pitch inline=false title="Video Tutorial: How to use notion2anki">
+						<.bd-focus>
+							<.columns>
+								<.column .bd-focus-item .has-text-centered>
+									<p .title .is-4> "Free"
+									<p .subtitle .is-6> "The code is on {<strong> "GitHub"}"									
+									<figure .bd-focus-icon>
+										<span .bd-focus.github .icon .is-large>
+											<i.fa-4x.fab.fa-github>
+								<.column .bd-focus-item .has-text-centered>
+									<p .title .is-4> "Fast"
+									<p .subtitle .is-6> "Trade hours for seconds"									
+									<figure .bd-focus-icon>
+										<span .bd-focus.github .icon .is-large>
+											<i .fa-4x .fas .fa-shipping-fast>
+								<.column .bd-focus-item .has-text-centered>
+									<p .title .is-4> "Unlimited"
+									<p .subtitle .is-6> "No limitations on the file size"									
+									<figure .bd-focus-icon>
+										<span .bd-focus.github .icon .is-large>
+											<i .fa-4x .fas .fa-file-archive>												
+								<.column .bd-focus-item .has-text-centered>
+									<p .title .is-4> "Friendly"
+									<p .subtitle .is-6> "Join a community of winners 💪🏾"									
+									<figure .bd-focus-icon>
+										<span .bd-focus.github .icon .is-large>
+											<i .fa-4x .fas .fa-splotch>												
 
 			<.section>
 				<.container>
