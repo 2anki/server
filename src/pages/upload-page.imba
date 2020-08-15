@@ -47,7 +47,7 @@ tag upload-page
 		$selectorFileName.textContent = selectedFile
 
 	def render
-		<self>
+		<self[d: block my: 2rem]>
 			<.section>
 				<.container>
 					<h1.title> "Pick your options"

@@ -8,7 +8,7 @@ tag n2a-header
 
 	def render
 		<self>
-			<nav.navbar>
+			<nav.navbar .is-fixed-top>
 				<div.navbar-brand>
 					<a.navbar-item href="/">
 						<h1[br: 0.3rem]> "2anki.net"

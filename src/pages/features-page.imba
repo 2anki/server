@@ -2,7 +2,7 @@ import '../components/page-content'
 
 tag features-page
 	def render
-		<self>
+		<self[d: block my: 2rem]>
 			<.section>
 				<.container>
 					<h1.title> "The features supported by notion2anki"
