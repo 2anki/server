@@ -18,7 +18,7 @@ tag n2a-header
 						<span>
 				<div#navbarExampleTransparentExample.navbar-menu.is-active=active>
 					<div.navbar-start>
-						<a.navbar-item href="/upload"> "Create"
+						<a[my: 2rem] .navbar-item .button .is-primary href="/upload"> "Create"
 						<a.navbar-item href="/features"> "Features" 
 						<a.navbar-item href="/contact"> "Contact"
 						<a.navbar-item href="/faq"> "FAQ"
