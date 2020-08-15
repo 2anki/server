@@ -71,6 +71,16 @@ tag home-page
 					<div[d: flex jc: center]>
 						<p[mt: 2rem border: 3px solid black p: 4 w: 60%]> "Become a sponsor on Patreon to get your company listed here."
 					<a[mt:1.5rem].button .is-primary .is-medium href=bizSponsor target="_blank"> "Become a sponsor"
+
+			<.section .bd-tws-home .is-medium[bgc: #F9F9F9]>
+				<header .bd-index-header>
+					<h3 .title .is-3> "What people are saying about notion2anki"
+					<hr>
+					<p.subtitle> "These comments are taken from our YouTube videos."
+					<.columns>
+						<.column .has-text-centered> for i in [1...13]
+							<img[m: 2rem max-width: 700px max-height: 108px] .image loading="lazy" src="/user-feedback/{i}.png">
+
 			<.section>
 				<.container>
 					<h1.title> "Benefits"
