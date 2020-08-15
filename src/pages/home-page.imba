@@ -72,14 +72,14 @@ tag home-page
 						<p[mt: 2rem border: 3px solid black p: 4 w: 60%]> "Become a sponsor on Patreon to get your company listed here."
 					<a[mt:1.5rem].button .is-primary .is-medium href=bizSponsor target="_blank"> "Become a sponsor"
 
-			<.section .bd-tws-home .is-medium[bgc: #F9F9F9]>
+			<.section .bd-tws-home .is-medium[bgc: #F9F9F9 w: 100%]>
 				<header .bd-index-header>
 					<h3 .title .is-3> "What people are saying about notion2anki"
 					<hr>
 					<p.subtitle> "These comments are taken from our YouTube videos."
 					<.columns>
 						<.column .has-text-centered> for i in [1...13]
-							<img[m: 2rem max-width: 700px max-height: 108px] .image loading="lazy" src="/user-feedback/{i}.png">
+							<img[m: 2rem w: 296px @sm: 320px @md:700px] .image loading="lazy" src="/user-feedback/{i}.png">
 					<.has-text-centered>							
 						<a .button .is-large .is-danger[bg: #3273dc] target="_blank" href="https://discord.gg/PSKC3uS"> "Join the community of winners on Discord 💪🏾"
 
