@@ -1,3 +1,15 @@
+
+tag sub-reddit
+	prop name
+	prop url
+	
+	<self>
+		<.column>		
+			<a[bg: #FF5700 c: white] .is-large .tag target="_blank" href=url>
+				<span .icon .is-large>
+					<i .fa-1x .fab.fa-reddit>					
+				<span> name
+
 tag useful-links-page	
 	prop digitalocean = "https://m.do.co/c/c5a16996cd0e"
 	prop skillshare = "https://skl.sh/2WhV7F6"
@@ -81,3 +93,4 @@ tag useful-links-page
 								<span .icon .is-large>
 									<i .fa-1x .fab.fa-reddit>					
 								<span> "Medical School Anki"
+						<sub-reddit name="AnkiLatino" url="https://www.reddit.com/r/AnkiLatino/">
