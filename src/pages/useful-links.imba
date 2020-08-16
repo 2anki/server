@@ -33,12 +33,6 @@ tag useful-links-page
 								<span .icon .is-large>
 										<i .fa-1x .fab.fa-digital-ocean>	
 								<span> "DigitalOcean"
-						<.column>		
-							<a[bg: #FF5700 c: white] .is-large .tag target="_blank" href="https://www.reddit.com/r/Anki/">
-								<span .icon .is-large>
-									<i .fa-1x .fab.fa-reddit>					
-								<span> "Anki"
-
 					<h3[my: 2rem] .title .is-3> "YouTube"
 					<hr>
 					<p.subtitle> "YouTube is one of the most underrated education platforms on the planet. Use it wisely and you shall be rewarded 🙂"
