@@ -270,13 +270,12 @@ export class DeckParser
 
 			const tags = card.tags ? {tags: card.tags} : {}
 			const cardType = self.settings['card-type']
-			switch cardType
-				when 'Basic and reversed' or 'basic-reversed'
+			if cardType == 'Basic and reversed' or cardType == 'basic-reversed'
 					exporter.addCard(card.name, card.back, tags)
 					exporter.addCard(card.back, card.name, tags)
-				when 'Just the reversed' or 'reversed'
+			elif cardType == 'Just the reversed' or cardType == 'reversed'
 					exporter.addCard(card.back, card.name, tags)
-				else
+			else
 					exporter.addCard(card.name, card.back, tags)
 
 		if self.use_cloze
