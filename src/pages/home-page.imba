@@ -24,7 +24,7 @@ tag home-page
 						<h2.subtitle> "Convert Notion toggle lists to Anki Flashcards fast and easy 😉"					
 						<.columns>
 							<.column>
-								<p> "{<strong[fw: bold]> "notion2Anki"} is 100% 🆓 and open source with no limitations on file size. It's a passion project 🕺🏾💃🏾 We are going to make this a good way to make Anki flashcards easier, better and faster for anyone anywhere around the world 🌎"
+								<p.subtitle .is-2> "{<strong[fw: bold]> "notion2Anki"} is 100% 🆓 and open source with no limitations on file size. It's a passion project 🕺🏾💃🏾 We are going to make this a good way to make Anki flashcards easier, better and faster for anyone anywhere around the world 🌎"
 
 								<div[d: flex j: center a: center mt: 2rem flex-wrap: wrap].columns>
 									<div.column>
