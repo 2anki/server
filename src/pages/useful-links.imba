@@ -68,11 +68,7 @@ tag useful-links-page
 					<hr>
 					<p.subtitle> "The Anki community is huge and diverse. You can find lots of stuff around the web but here are some of the things we recommend you to check out."
 					<.columns>
-						<.column>		
-							<a[bg: #FF5700 c: white] .is-large .tag target="_blank" href="https://www.reddit.com/r/Anki/">
-								<span .icon .is-large>
-									<i .fa-1x .fab.fa-reddit>					
-								<span> "Anki"					
+						<sub-reddit name="Anki" url="https://www.reddit.com/r/Anki/">								
 						<.column>
 							<a[bg: #a4c639 c: white] .is-large .tag target="_blank" href="https://play.google.com/store/apps/details?id=com.ichi2.anki">
 								<span .icon .is-large>
@@ -88,9 +84,6 @@ tag useful-links-page
 								<span .icon .is-large>
 										<i .fa-1x .fas.fa-book-reader>	
 								<span> "Anki Manual"
-						<.column>		
-							<a[bg: #FF5700 c: white] .is-large .tag target="_blank" href="https://www.reddit.com/r/medicalschoolanki/">
-								<span .icon .is-large>
-									<i .fa-1x .fab.fa-reddit>					
-								<span> "Medical School Anki"
+
+						<sub-reddit name="Medical School Anki" url="https://www.reddit.com/r/medicalschoolanki/">								
 						<sub-reddit name="AnkiLatino" url="https://www.reddit.com/r/AnkiLatino/">
