@@ -74,7 +74,7 @@ tag useful-links-page
 										<i .fa-1x .fab.fa-apple>	
 								<span> "AnkiMobile"
 						<.column>
-							<a[bg: black c: white] .is-large .tag target="_blank" href="https://apps.apple.com/us/app/ankimobile-flashcards/id373493387">
+							<a[bg: black c: white] .is-large .tag target="_blank" href="https://docs.ankiweb.net/#/">
 								<span .icon .is-large>
 										<i .fa-1x .fas.fa-book-reader>	
 								<span> "Anki Manual"
