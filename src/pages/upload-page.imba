@@ -58,6 +58,8 @@ tag upload-page
 						<h3[mt: 2rem] .title .is-3> "Font Size" 
 						<input bind=fontSize name='font-size' hidden>
 						<p[mb: 1rem]> "Select a fonts size for your card by clicking on it."
+						<.has-text-centered>
+							<youtube-embed video="https://www.youtube.com/embed/XkPeUIM0JR8" inline=true title="Video: How to Set the Font Size in notion2anki">
 						<div[d: grid jc: start]>
 							<div[bd: 1px solid lightgray br: 5px p: 0]>
 								<p> for fontPreset in [32, 26, 20, 12, 10]
