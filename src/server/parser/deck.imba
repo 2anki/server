@@ -98,6 +98,12 @@ export class DeckParser
 			const parentUL = dom(t)
 			const parentClass = dom(t).attr("class")
 
+			const toggleMode = self.settings['toggle-mode']
+			if toggleMode == 'open_toggle'
+				dom('details').attr('open', '')							
+			elif toggleMode == 'close_toggle'							
+				dom('details').removeAttr('open')
+
 			if parentUL
 				dom('details').addClass(parentClass)
 				dom('summary').addClass(parentClass)

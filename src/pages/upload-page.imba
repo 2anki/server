@@ -66,6 +66,15 @@ tag upload-page
 										<span[fs: {fontPreset}px p: 3px br: 5px m: 0 8px] [c: #00d1b2]=(fontPreset == fontSize) @click.{fontSize = fontPreset}> "Aa"
 						<div[h: 50px]>
 								<p[fs: {fontSize}px white-space: nowrap mt: 1rem]> "👁 font size preview..."
+						<h3[mt: 2rem] .title .is-3> "Toggle Mode" 
+						<div[mt: 1rem].control.has-icons-left>
+							<div.select.is-medium>
+								<.select> 
+									<select$cardType name="toggle-mode">
+										<option value="open_toggle"> "Open nested toggles"
+										<option value="close_toggle"> "Close nested toggles"
+							<span.icon.is-large.is-left>
+								<i .fas .fa-stream>		
 						<h3[mt: 2rem] .title .is-3> "Card Types" 
 						<div[mt: 1rem].control.has-icons-left>
 							<div.select.is-medium>
