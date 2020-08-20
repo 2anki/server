@@ -87,7 +87,7 @@ tag upload-page
 							<div[mt: 1rem]>
 								<p.subtitle> "Cloze deletions are so powerful that they are now the default in notion2Anki but you can change that in the picker.  You can use them in the toggle header. No worries, basic cards still work and you can mix them. See example below:" 
 								<p.subtitle> "Code blocks are treated as cloze when you pick cloze deletion. On macOS the shortcut is {<strong> "CMD+E"} or {<strong> "CTRL+E"} for other platforms."
-								<img alt="screenshot of cloze example" src="/cloze_example.png">
+								<img alt="screenshot of cloze example" src="/cloze_example.png" loading="lazy">
 							<span.icon.is-large.is-left>
 								<i.fas.fa-chalkboard>
 						<h3[mt: 2rem] .title .is-3> "Media Options" 
@@ -136,7 +136,7 @@ tag upload-page
 					<div[mt: 2] .has-text-centered>
 						<iframe src="https://github.com/sponsors/alemayhu/card" title="Sponsor alemayhu" height="225" width="600" style="border: 0;">
 					<.has-text-centered>
-						<a href="https://patreon.com/alemayhu"> <img src="become_a_patron_button.png">
+						<a href="https://patreon.com/alemayhu"> <img src="become_a_patron_button.png" loading="lazy">
 					<.has-text-centered>
 						<a.button .is-large href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=WUARHGVHUZ5FL&source=ur">
 							<span .icon .is-large> <i .fab .fa-paypal aria-hidden="true">
