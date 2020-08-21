@@ -52,6 +52,7 @@ tag upload-page
 					<h1.title> "Pick your options"
 					<hr>
 					<p.subtitle> "Only the zip or HTML file is required. Please use the exported ZIP file to get all your images."
+					<p.subtitle> "Please see the {<a href="/faq"> "FAQ page"} for more information on how to use notion2anki"
 					<form enctype="multipart/form-data" method="post" @submit.prevent=convertFile>
 						<h3 .title .is-3> "Deck Name" 
 						<input$input.input[fw: bold c: #83C9F5 @placeholder: grey] placeholder="Enter deck name (optional)" name="deckName" type="text">
