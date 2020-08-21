@@ -22,7 +22,7 @@ def _wr_apkg(notes, deck_id, deck_name, media_files):
   for note in notes:
     deck.add_note(note)
 
-  fout_anki = '{NAME}.apkg'.format(NAME=guid_for(deck_name))
+  fout_anki = '{NAME}.apkg'.format(NAME=deck_id)
   pkg = Package(deck)
   pkg.media_files = media_files
   pkg.write_to_file(fout_anki)
