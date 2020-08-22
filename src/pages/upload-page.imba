@@ -85,7 +85,7 @@ tag upload-page
 										<option value="basic"> "Basic front and back"
 										<option value="basic-reversed"> "Basic and reversed"
 										<option value="reversed"> "Just the reversed"
-										<option value="enable-input"> "Treat underline as input"
+										<option value="enable-input"> "Treat bold text as input"
 							<div[mt: 1rem]>
 								<p.subtitle> "Cloze deletions are so powerful that they are now the default in notion2Anki but you can change that in the picker.  You can use them in the toggle header. No worries, basic cards still work and you can mix them. See example below:" 
 								<p.subtitle> "Code blocks are treated as cloze when you pick cloze deletion. On macOS the shortcut is {<strong> "CMD+E"} or {<strong> "CTRL+E"} for other platforms."

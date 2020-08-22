@@ -218,14 +218,14 @@ export class DeckParser
 			mangle = mangle.replaceAll(old, newValue)		
 		mangle
 
-	def treatUnderlineAsInput input, inline=false
+	def treatBoldAsInput input, inline=false
 		const dom = cheerio.load(input)
-		const underlines = dom('em')
+		const underlines = dom('strong')
 		let mangle = input
 		let answer = ''
 		underlines.each do |i, elem|
 			const v = dom(elem).html()
-			const old = "<em>{v}</em>"
+			const old = "<strong>{v}</strong>"
 			mangle = mangle.replaceAll(old, inline ? v : '{{type:Input}}')
 			answer = v
 		{mangle: mangle, answer: answer}
@@ -253,7 +253,7 @@ export class DeckParser
 			if self.use_cloze
 				card.name = self.handleClozeDeletions(card.name)
 			elif self.use_input
-				let inputInfo = self.treatUnderlineAsInput(card.name)
+				let inputInfo = self.treatBoldAsInput(card.name)
 				card.name = inputInfo.mangle
 				card.answer = inputInfo.answer
 
@@ -292,7 +292,7 @@ export class DeckParser
 					# TODO: investigate why cloze deletions are not handled properly on the back / extra
 					card.back = self.handleClozeDeletions(card.back)
 				elif self.use_input
-					let inputInfo = self.treatUnderlineAsInput(card.back, true)
+					let inputInfo = self.treatBoldAsInput(card.back, true)
 					card.back = inputInfo.mangle
 
 			const tags = card.tags ? {tags: card.tags} : {}
