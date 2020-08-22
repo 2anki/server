@@ -125,6 +125,7 @@ tag upload-page
 							<.has-text-centered>
 								if downloadLink
 									<a href=downloadLink @click=didDownload download=deckName> "Click to Download"
+									<p> "This deck is brought to you by our amazing {<a href="https://www.patreon.com/alemayhu"> "patrons"} 🧡"
 								elif state == 'ready'
 									<button[mt: 2rem].button.cta .is-large .is-primary type="submit"> "Convert"
 								else
