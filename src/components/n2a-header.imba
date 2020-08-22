@@ -30,7 +30,7 @@ tag n2a-header
 							<a.button[bg: rgb(232, 91, 70) c: white border-radius: 0.3rem] target="_blank" href="https://www.patreon.com/alemayhu">
 								<span .icon .is-large>
 									<i.fab.fa-patreon>
-								<span[tt: uppercase fw: bold]> "Become a Patreon"							
+								<span[tt: uppercase fw: bold]> "Become a Patron"							
 						<div.navbar-item>
 							<div.field.is-grouped>
 								<p.control[p:2]>
