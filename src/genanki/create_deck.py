@@ -109,7 +109,29 @@ if __name__ == '__main__':
       }
     ],
     css=CSS
-  )  
+  )
+
+  INPUT_MODEL = Model(
+    6394002335189144856, 'notion2anki-input-card',
+    fields=[
+      { 'name': 'Front' },
+      { 'name': 'Back' },
+      { 'name': 'Input' },
+      { 'name': 'MyMedia' },
+    ],
+    templates=[
+      {
+        'name': 'notion2anki-input-card',
+        'qfmt': '{{Front}}'
+                '<br>'
+                '{{type:Input}}',
+        'afmt': '{{FrontSide}}'
+                '<hr id="answer">'
+                '{{Back}}',
+      }
+    ],
+    css=CSS
+  )
 
   notes = []
 
@@ -119,9 +141,14 @@ if __name__ == '__main__':
     for card in data['cards']:
       fields = [card['name'], card['back'], ",".join(card['media'])]
       model = MY_CLOZE_MODEL
-      if not "{{c" in card['name']:
+
+      # TODO: sanity check the card fields
+      if not "{{c" in card['name'] and not "{{type" in card['name']:
         model = BASIC_MODEL
-      my_cloze_note = Note(model, fields=fields)
-      notes.append(my_cloze_note)
+      elif data['card_type'] == 'enable-input':
+        model = INPUT_MODEL
+        fields = [card['name'].replace('{{type:Input}}', ''), card['back'], card['answer'], ",".join(card['media'])]
+      my_note = Note(model, fields=fields)
+      notes.append(my_note)
 
   _wr_apkg(notes, deck_id, deck_name, data['media'])
