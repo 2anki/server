@@ -5,7 +5,9 @@ tag home-page
 	prop notionLink = "https://www.notion.so/Toggles-c720af26b4bd4789b736c140b2dc73fe"
 	prop contactAdress = "alexander@alemayhu.com"
 	prop tutorial = "https://www.youtube.com/embed/lpC7C9wJoTA"
-	prop welcome = "https://www.youtube.com/embed/reviIJj52ZA"
+
+	prop heroVideo = "https://www.youtube.com/embed/reviIJj52ZA"
+	prop heroVideoTitle = "Welcome 👋🏾"
 
 	prop bizSponsor = "https://www.patreon.com/join/alemayhu/checkout?rid=5599393"
 	prop githubSponsor = "https://github.com/sponsors/alemayhu"
@@ -36,7 +38,7 @@ tag home-page
 											<span[fw: bold]> "Tutorials"
 							<.column>
 								<.has-text-centered>
-									<youtube-embed video=welcome inline=false title="Welcome 👋🏾">
+									<youtube-embed video=heroVideo inline=false title=heroVideoTitle>
 						<.bd-focus[m: 6rem auto 0]>
 							<.columns>
 								<.column .bd-focus-item .has-text-centered>
