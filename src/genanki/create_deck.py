@@ -16,20 +16,8 @@ from genanki import Deck
 from genanki import Package
 from genanki import guid_for
 
-DESC = """
-<p>This deck was made with <a href="https://2anki.net/notion">notion2Anki</a>.
-<strong>notion2Anki</strong> is 100% 🆓 and open source with no limitations on file size. It's a passion project 🕺🏾💃🏾</p>
-
-<p>Brought to you by our amazing <a href="https://www.patreon.com/alemayhu">patrons</a>.
-We the hopes that it will help you in making Anki flashcards easier, better and faster
-for anyone anywhere around the world 🌎</p>
-
-<p>If you can afford it please support us on <a href="https://www.patreon.com/alemayhu">Patreon</a>
-and get exlusive access to private calls with us 🤙🏾 get motivated to challenge your limits ✨
-Checkout more on <a href="https://www.patreon.com/alemayhu">Patreon</a></p>
-
-<p>Don't like Patreon or want use Paypal? No worries, find other methods to support us on <a href="https://donate.alemayhu.com">donate.alemayhu.com</a>.</p>
-"""
+DESC = """<p><strong>notion2Anki</strong> is 100% 🆓 and open source FOREVER ✨
+This deck is brought to you by some amazing <a href="https://www.patreon.com/alemayhu">patrons</a> 🤩</p>"""
 
 def _wr_apkg(notes, deck_id, deck_name, media_files):
   """Write cloze cards to an Anki apkg file"""
