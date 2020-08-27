@@ -95,7 +95,6 @@ yarn dev-server # npm run dev-server
 
 This would be super hard if it were not for the following projects:
 
-- [anki-apkg-export](https://github.com/repeat-space/anki-apkg-export)
 - [genanki](https://github.com/kerrickstaley/genanki)
 - [jszip](https://github.com/Stuk/jszip)
 - [Imba](https://github.com/imba/imba)
