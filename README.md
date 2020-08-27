@@ -55,9 +55,28 @@ The dream is to have a powerful and easy to use process for producing high quali
 
 Your contributions are welcome but please try to be constructive and follow the [code of conduct](./CODE_OF_CONDUCT.md).
 
-## Support
+This project is brought to you by our amazing [patrons](http://patreon.com/alemayhu)
+and [GitHub sponsors](https://github.com/sponsors/alemayhu) 🤩
 
-You can support the project by [becoming a sponsor / backer on Patreon](http://patreon.com/alemayhu).
+You can also support the project financially and receive exclusive member benefits like ✨
+
+- Hand crafted motivational messages for your learning journey ✍🏾
+- Your name added to the [BACKERS](./BACKERS.md) file 📠
+- [Personal recorded video](https://www.youtube.com/playlist?list=PLzOAzzqpDqulq2A-yB0ydn3QgOpXtohkk) for you 🤳🏾
+- Private phone calls 🤙🏾
+- See [Patreon](https://patreon.com/alemayhu) for more.
+
+### Other ways to contribute
+
+If you know someone who can benefit from notion2anki, please share it with them today!
+
+- If you are missing a feature or format, let us know on GitHub or the Discord.
+- Make a video in your native language showing people how to use notion2anki
+- Write about notion2anki on your blog
+
+Join the [Discord](https://discord.gg/PSKC3uS) to find out more ways to contribute or send an email to [alexander@alemayhu.com](mailto:alexander@alemayhu.com)
+
+PS: Remember to send us links when you create a video or blog post, thanks 🙏🏾
 
 ## Development
 
@@ -87,11 +106,16 @@ The previous command will continously build the project.
 
 To actually see the app running you need to either visit the local url in a browser or launch the app with
 
-```
+```bash
 yarn dev-server # npm run dev-server
 ```
 
 ## Credits
+
+Special thanks to following developers / artistans
+
+- [Alp Kaan Aksu](https://alpkaanaksu.com)
+- [Mads Cordes](https://github.com/Mobilpadde)
 
 This would be super hard if it were not for the following projects:
 
@@ -105,9 +129,11 @@ See the [package.json](./package.json) file for anything I missed.
 
 Unless otherwise specified in the source:
 
-```
 The code is licensed under the [MIT](./LICENSE) Copyright (c) 2020, [Alexander Alemayhu][1]
 
+[1]: http://alemayhu.com
+
+```
 The MIT License
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
@@ -115,6 +141,4 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-[1]: http://alemayhu.com
 ```
