@@ -1,5 +1,6 @@
 import '../components/n2a-button'
 import '../components/progress-bar'
+import '../components/download-modal'
 
 import {upload_path} from '../server/endpoints'
 
@@ -126,8 +127,7 @@ tag upload-page
 										<span$selectorFileName.file-name> "My Notion Export.zip"
 							<.has-text-centered>
 								if downloadLink
-									<a href=downloadLink @click=didDownload download=deckName> "Click to Download"
-									<p> "This deck is brought to you by our amazing {<a href="https://www.patreon.com/alemayhu"> "patrons"} 🧡"
+									<download-modal title="Download Ready" downloadLink=downloadLink deckName=deckName>
 								elif state == 'ready'
 									<button[mt: 2rem].button.cta .is-large .is-primary type="submit"> "Convert"
 								else
