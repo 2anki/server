@@ -32,6 +32,11 @@ tag n2a-header
 									<i.fab.fa-patreon>
 								<span[tt: uppercase fw: bold]> "Become a Patron"							
 						<div.navbar-item>
+							<a.button.is-primary target="_blank" href="https://github.com/sponsors/alemayhu">
+								<span .icon .is-large>
+									<i.fab.fa-github>
+								<span[tt: uppercase fw: bold]> "Sponsor"							
+						<div.navbar-item>
 							<div.field.is-grouped>
 								<p.control[p:2]>
 									<a[c: blue] href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=WUARHGVHUZ5FL&source=ur">
