@@ -19,4 +19,4 @@ tag download-modal
 					<section.modal-card-body>
 						<.has-text-centered>
 							<p> "This deck is brought to you by our amazing {<a href="https://www.patreon.com/alemayhu"> "patrons"} 🧡"
-							<a[m: 2rem].button.is-primary href=downloadLink @click=didDownload download=deckName> "Click to Download"
+							<a[m: 2rem].button.is-primary href=downloadLink @click.didDownload download=deckName> "Click to Download"

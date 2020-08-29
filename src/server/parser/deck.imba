@@ -1,13 +1,13 @@
-import {execFile} from 'child_process'
 import crypto from 'crypto'
 import path from 'path'
 import fs from 'fs'
 import os from 'os'
 
-import { customAlphabet, nanoid } from 'nanoid'
+import { nanoid } from 'nanoid'
 import cheerio from 'cheerio'
 
 import {TEMPLATE_DIR, TriggerNoCardsError, TriggerUnsupportedFormat} from '../constants'
+import CardGenerator from '../service/generator'
 
 String.prototype.replaceAll = do |oldValue, newValue|
 	console.log('replaceAll', oldValue, newValue)
@@ -38,22 +38,6 @@ class CustomExporter
 	def addCard back, tags
 		console.log('addCard', arguments)
 
-	def run cmd, input_args
-		console.log('run', arguments)
-		Promise.new do |resolve, reject|
-			execFile(cmd, input_args, {cwd: self.workspace}) do |err, stdout, stderr|
-				if err
-					console.log('stderr::', stderr)
-					console.error(err)
-					reject(err)
-				else
-					console.log('status from create_deck', stdout)
-					resolve(stdout)
-
-	def generate_id
-		const nid = customAlphabet('1234567890', 16)
-		nid()
-
 	def prepareSave cards
 		const payload_info = path.join(self.workspace, 'deck_info.json')
 		self.deck.cards = cards
@@ -62,15 +46,9 @@ class CustomExporter
 		fs.writeFileSync(payload_info, JSON.stringify(self.deck, null, 2))
 
 	def save
-		const python = '/usr/bin/python3'
-		let cc_script_args = [
-			path.join(__dirname, '../../genanki/create_deck.py')
-			path.join(self.workspace, 'deck_info.json')
-			self.generate_id!,
-			path.join(self.workspace, 'deck_style.css')
-		]
-		const z = await run(python, cc_script_args)
-		return fs.readFileSync(z)
+		const gen = new CardGenerator(self.workspace)
+		const payload = await gen.run()
+		return fs.readFileSync(payload)
 
 export class DeckParser
 
