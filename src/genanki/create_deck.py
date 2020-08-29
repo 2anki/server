@@ -136,7 +136,7 @@ if __name__ == '__main__':
       elif data['card_type'] == 'enable-input':
         model = INPUT_MODEL
         fields = [card['name'].replace('{{type:Input}}', ''), card['back'], card['answer'], ",".join(card['media'])]
-      my_note = Note(model, fields=fields)
+      my_note = Note(model, fields=fields, sort_field=card['number'])
       notes.append(my_note)
 
   _wr_apkg(notes, deck_id, deck_name, data['media'])

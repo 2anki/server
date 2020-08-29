@@ -248,8 +248,11 @@ export class DeckParser
 		deck.image_count = 0
 		deck.card_type = self.settings['card-type']
 
+		# Counter for perserving the order in Anki deck.
+		let counter = 0
 		for card in deck.cards
 			console.log("exporting {deck.name} {deck.cards.indexOf(card)} / {card_count}")
+			card.number = counter++
 			if self.use_cloze
 				card.name = self.handleClozeDeletions(card.name)
 			elif self.use_input
