@@ -90,18 +90,9 @@ tag upload-page
 							<div[mt: 1rem]>
 								<p.subtitle> "Cloze deletions are so powerful that they are now the default in notion2Anki but you can change that in the picker.  You can use them in the toggle header. No worries, basic cards still work and you can mix them. See example below:" 
 								<p.subtitle> "Code blocks are treated as cloze when you pick cloze deletion. On macOS the shortcut is {<strong> "CMD+E"} or {<strong> "CTRL+E"} for other platforms."
-								<img alt="screenshot of cloze example" src="/cloze_example.png" loading="lazy">
 								<p.subtitle> "Input mode is a useful feature verifying spelling and writting skills. You can use it for foreign words, answering math problems, etc."
 							<span.icon.is-large.is-left>
 								<i.fas.fa-chalkboard>
-						<h3[mt: 2rem] .title .is-3> "Media Options" 
-						<p.has-text-centered .subtitle> "Coming soon"
-						<.has-text-centered>
-							<p> "Join the Discord server to get notified of changes!"
-							<a.button target="_blank" href="https://discord.gg/PSKC3uS">
-								<span.icon>
-									<i.fab.fa-discord>
-								<span> "Discord"
 						<h3[mt: 2rem] .title .is-3> "Notion Export File"
 						<p.subtitle[mt: 1rem]> "Not sure how to export? See this tutorial {<a target='_blank' href="https://youtu.be/lpC7C9wJoTA "> "Video Tutorial: How to use notion2anki..."}."
 						<p.subtitle[mt: 1rem]> "Nested toggle lists as multiple cards are not supported by notion2anki. Please convert the nested toggles to top level toggles before exporting your Notion page."
