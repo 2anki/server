@@ -16,8 +16,7 @@ from genanki import Deck
 from genanki import Package
 from genanki import guid_for
 
-DESC = """<p><strong><a href="https://notion.2anki.net">notion2Anki</a></strong> is 100% 🆓 and open source FOREVER ✨
-This deck is brought to you by some amazing <a href="https://www.patreon.com/alemayhu">patrons</a> 🤩</p>"""
+DESC = "<p>This deck is brought to you by some amazing <a href='https://www.patreon.com/alemayhu'>patrons</a> 🤩</p>"
 
 def _wr_apkg(notes, deck_id, deck_name, media_files):
   """Write cloze cards to an Anki apkg file"""
