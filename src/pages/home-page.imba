@@ -65,15 +65,6 @@ tag home-page
 									<figure .bd-focus-icon>
 										<span .bd-focus.github .icon .is-large>
 											<i .fa-4x .fas .fa-splotch>												
-
-			<.section>
-				<.bd.partnrs-list .has-text-centered>
-					<p .bd-partner-title>
-						"notion2anki is possible thanks to it's {<a href=patreon target="_blank"> "Patreon"} and {<a href=githubSponsor target="_blank"> "GitHub sponsors"}"
-					<div[d: flex jc: center]>
-						<p[mt: 2rem border: 3px solid black p: 4 w: 60%]> "Become a sponsor on Patreon to get your company listed here."
-					<a[mt:1.5rem].button .is-primary .is-medium href=bizSponsor target="_blank"> "Become a sponsor"
-
 			<.section .bd-tws-home .is-medium[bgc: #F9F9F9 w: 100%]>
 				<header .bd-index-header>
 					<.container>
