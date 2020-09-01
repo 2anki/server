@@ -257,6 +257,7 @@ export class DeckParser
 				if let audiofile = find_mp3_file(card.back)
 					if let newFileName = self.embedFile(exporter, files, global.decodeURIComponent(audiofile))
 						console.log('added sound', newFileName)
+						card.back.replace(/<a\shref=["'].*\.mp3["']>.*<\/a>/ , "")
 						card.back += "[sound:{newFileName}]"
 						card.media.push(newFileName)
 
