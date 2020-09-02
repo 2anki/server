@@ -1,5 +1,6 @@
 import '../components/n2a-button'
 import '../components/progress-bar'
+import '../components/download-modal'
 
 import {upload_path} from '../server/endpoints'
 
@@ -52,6 +53,7 @@ tag upload-page
 					<h1.title> "Pick your options"
 					<hr>
 					<p.subtitle> "Only the zip or HTML file is required. Please use the exported ZIP file to get all your images."
+					<p.subtitle> "Please see the {<a href="/faq"> "FAQ page"} for more information on how to use notion2anki"
 					<form enctype="multipart/form-data" method="post" @submit.prevent=convertFile>
 						<h3 .title .is-3> "Deck Name" 
 						<input$input.input[fw: bold c: #83C9F5 @placeholder: grey] placeholder="Enter deck name (optional)" name="deckName" type="text">
@@ -84,20 +86,13 @@ tag upload-page
 										<option value="basic"> "Basic front and back"
 										<option value="basic-reversed"> "Basic and reversed"
 										<option value="reversed"> "Just the reversed"
+										<option value="enable-input"> "Treat bold text as input"
 							<div[mt: 1rem]>
 								<p.subtitle> "Cloze deletions are so powerful that they are now the default in notion2Anki but you can change that in the picker.  You can use them in the toggle header. No worries, basic cards still work and you can mix them. See example below:" 
 								<p.subtitle> "Code blocks are treated as cloze when you pick cloze deletion. On macOS the shortcut is {<strong> "CMD+E"} or {<strong> "CTRL+E"} for other platforms."
-								<img alt="screenshot of cloze example" src="/cloze_example.png">
+								<p.subtitle> "Input mode is a useful feature verifying spelling and writting skills. You can use it for foreign words, answering math problems, etc."
 							<span.icon.is-large.is-left>
 								<i.fas.fa-chalkboard>
-						<h3[mt: 2rem] .title .is-3> "Media Options" 
-						<p.has-text-centered .subtitle> "Coming soon"
-						<.has-text-centered>
-							<p> "Join the Discord server to get notified of changes!"
-							<a.button target="_blank" href="https://discord.gg/PSKC3uS">
-								<span.icon>
-									<i.fab.fa-discord>
-								<span> "Discord"
 						<h3[mt: 2rem] .title .is-3> "Notion Export File"
 						<p.subtitle[mt: 1rem]> "Not sure how to export? See this tutorial {<a target='_blank' href="https://youtu.be/lpC7C9wJoTA "> "Video Tutorial: How to use notion2anki..."}."
 						<p.subtitle[mt: 1rem]> "Nested toggle lists as multiple cards are not supported by notion2anki. Please convert the nested toggles to top level toggles before exporting your Notion page."
@@ -123,7 +118,7 @@ tag upload-page
 										<span$selectorFileName.file-name> "My Notion Export.zip"
 							<.has-text-centered>
 								if downloadLink
-									<a href=downloadLink @click=didDownload download=deckName> "Click to Download"
+									<download-modal title="Download Ready" downloadLink=downloadLink deckName=deckName>
 								elif state == 'ready'
 									<button[mt: 2rem].button.cta .is-large .is-primary type="submit"> "Convert"
 								else
@@ -136,7 +131,7 @@ tag upload-page
 					<div[mt: 2] .has-text-centered>
 						<iframe src="https://github.com/sponsors/alemayhu/card" title="Sponsor alemayhu" height="225" width="600" style="border: 0;">
 					<.has-text-centered>
-						<a href="https://patreon.com/alemayhu"> <img src="become_a_patron_button.png">
+						<a href="https://patreon.com/alemayhu"> <img src="become_a_patron_button.png" loading="lazy">
 					<.has-text-centered>
 						<a.button .is-large href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=WUARHGVHUZ5FL&source=ur">
 							<span .icon .is-large> <i .fab .fa-paypal aria-hidden="true">

@@ -1,14 +1,13 @@
-import {execFile} from 'child_process'
 import crypto from 'crypto'
 import path from 'path'
 import fs from 'fs'
 import os from 'os'
 
-import { customAlphabet, nanoid } from 'nanoid'
-import AnkiExport from 'anki-apkg-export'
+import { nanoid } from 'nanoid'
 import cheerio from 'cheerio'
 
 import {TEMPLATE_DIR, TriggerNoCardsError, TriggerUnsupportedFormat} from '../constants'
+import CardGenerator from '../service/generator'
 
 String.prototype.replaceAll = do |oldValue, newValue|
 	console.log('replaceAll', oldValue, newValue)
@@ -39,22 +38,6 @@ class CustomExporter
 	def addCard back, tags
 		console.log('addCard', arguments)
 
-	def run cmd, input_args
-		console.log('run', arguments)
-		Promise.new do |resolve, reject|
-			execFile(cmd, input_args, {cwd: self.workspace}) do |err, stdout, stderr|
-				if err
-					console.log('stderr::', stderr)
-					console.error(err)
-					reject(err)
-				else
-					console.log('status from create_cloze', stdout)
-					resolve(stdout)
-
-	def generate_id
-		const nid = customAlphabet('1234567890', 16)
-		nid()
-
 	def prepareSave cards
 		const payload_info = path.join(self.workspace, 'deck_info.json')
 		self.deck.cards = cards
@@ -63,15 +46,9 @@ class CustomExporter
 		fs.writeFileSync(payload_info, JSON.stringify(self.deck, null, 2))
 
 	def save
-		const python = '/usr/bin/python3'
-		let cc_script_args = [
-			path.join(__dirname, '../../genanki/create_cloze.py')
-			path.join(self.workspace, 'deck_info.json')
-			self.generate_id!,
-			path.join(self.workspace, 'deck_style.css')
-		]
-		const z = await run(python, cc_script_args)
-		return fs.readFileSync(z)
+		const gen = new CardGenerator(self.workspace)
+		const payload = await gen.run()
+		return fs.readFileSync(payload)
 
 export class DeckParser
 
@@ -79,6 +56,7 @@ export class DeckParser
 		const deckName = settings.deckName
 		self.settings = settings
 		self.settings['font-size'] = self.settings['font-size'] + 'px'
+		self.use_input = self.enable_input!
 		self.use_cloze = self.is_cloze!
 		if md
 			TriggerUnsupportedFormat()
@@ -103,7 +81,7 @@ export class DeckParser
 				dom('details').attr('open', '')							
 			elif toggleMode == 'close_toggle'							
 				dom('details').removeAttr('open')
-
+			
 			if parentUL
 				dom('details').addClass(parentClass)
 				dom('summary').addClass(parentClass)
@@ -163,12 +141,9 @@ export class DeckParser
 	
 	def setupExporter deck, workspace
 		const css = deck.style.replaceAll("'", '"')
-		if self.use_cloze
-			console.log('creating workspace', workspace)
-			fs.mkdirSync(workspace)
-			fs.writeFileSync(path.join(workspace, 'deck_style.css'), css)
-			return new CustomExporter(deck, workspace)
-		return new AnkiExport(deck.name, {css: css})	
+		fs.mkdirSync(workspace)
+		fs.writeFileSync(path.join(workspace, 'deck_style.css'), css)
+		return new CustomExporter(deck, workspace)
 
 	def embedFile exporter, files, filePath
 		console.log('embedFile', Object.keys(files), filePath)
@@ -221,9 +196,26 @@ export class DeckParser
 			mangle = mangle.replaceAll(old, newValue)		
 		mangle
 
+	def treatBoldAsInput input, inline=false
+		const dom = cheerio.load(input)
+		const underlines = dom('strong')
+		let mangle = input
+		let answer = ''
+		underlines.each do |i, elem|
+			const v = dom(elem).html()
+			const old = "<strong>{v}</strong>"
+			mangle = mangle.replaceAll(old, inline ? v : '{{type:Input}}')
+			answer = v
+		{mangle: mangle, answer: answer}
+
 	def is_cloze
 		return true if self.settings['card-type'] == "Cloze deletion" 
 		return true if self.settings['card-type'] == 'cloze'
+		return false
+	
+	def enable_input
+		return true if self.settings['card-type'] == 'Enable checking answers'
+		return true if self.settings['card-type'] == 'enable-input'
 		return false
 
 	def build output, deck, files
@@ -234,10 +226,17 @@ export class DeckParser
 		deck.image_count = 0
 		deck.card_type = self.settings['card-type']
 
+		# Counter for perserving the order in Anki deck.
+		let counter = 0
 		for card in deck.cards
 			console.log("exporting {deck.name} {deck.cards.indexOf(card)} / {card_count}")
+			card.number = counter++
 			if self.use_cloze
 				card.name = self.handleClozeDeletions(card.name)
+			elif self.use_input
+				let inputInfo = self.treatBoldAsInput(card.name)
+				card.name = inputInfo.mangle
+				card.answer = inputInfo.answer
 
 			card.media = []
 			if card.back
@@ -263,7 +262,6 @@ export class DeckParser
 
 				# Check YouTube
 				if let id = get_youtube_id(card.back)
-					console.log('IDE', id)
 					const ytSrc = "https://www.youtube.com/embed/{id}?".replace(/"/, '')
 					const video = "<iframe width='560' height='315' src='{ytSrc}' frameborder='0' allowfullscreen></iframe>"
 					card.back += video
@@ -271,9 +269,13 @@ export class DeckParser
 					const audio = "<iframe width='100%' height='166' scrolling='no' frameborder='no' src='https://w.soundcloud.com/player/?url={soundCloudUrl}'></iframe>"
 					card.back += audio
 
+				console.log('xparse back', self.use_input)
 				if self.use_cloze
 					# TODO: investigate why cloze deletions are not handled properly on the back / extra
 					card.back = self.handleClozeDeletions(card.back)
+				elif self.use_input
+					let inputInfo = self.treatBoldAsInput(card.back, true)
+					card.back = inputInfo.mangle
 
 			const tags = card.tags ? {tags: card.tags} : {}
 			const cardType = self.settings['card-type']
@@ -284,9 +286,9 @@ export class DeckParser
 					exporter.addCard(card.back, card.name, tags)
 			else
 					exporter.addCard(card.name, card.back, tags)
+			console.log('log card', JSON.stringify(card, null, 2))
 
-		if self.use_cloze
-			exporter.prepareSave(deck.cards)
+		exporter.prepareSave(deck.cards)
 
 		const zip = await exporter.save()
 		return zip if not output

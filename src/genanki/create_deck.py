@@ -16,13 +16,15 @@ from genanki import Deck
 from genanki import Package
 from genanki import guid_for
 
+DESC = "<p>This deck is brought to you by some amazing <a href='https://www.patreon.com/alemayhu'>patrons</a> 🤩</p>"
+
 def _wr_apkg(notes, deck_id, deck_name, media_files):
   """Write cloze cards to an Anki apkg file"""
-  deck = Deck(deck_id=deck_id, name=deck_name)
+  deck = Deck(deck_id=deck_id, name=deck_name, description=DESC)
   for note in notes:
     deck.add_note(note)
 
-  fout_anki = '{NAME}.apkg'.format(NAME=guid_for(deck_name))
+  fout_anki = '{NAME}.apkg'.format(NAME=deck_id)
   pkg = Package(deck)
   pkg.media_files = media_files
   pkg.write_to_file(fout_anki)
@@ -94,7 +96,29 @@ if __name__ == '__main__':
       }
     ],
     css=CSS
-  )  
+  )
+
+  INPUT_MODEL = Model(
+    6394002335189144856, 'notion2anki-input-card',
+    fields=[
+      { 'name': 'Front' },
+      { 'name': 'Back' },
+      { 'name': 'Input' },
+      { 'name': 'MyMedia' },
+    ],
+    templates=[
+      {
+        'name': 'notion2anki-input-card',
+        'qfmt': '{{Front}}'
+                '<br>'
+                '{{type:Input}}',
+        'afmt': '{{FrontSide}}'
+                '<hr id="answer">'
+                '{{Back}}',
+      }
+    ],
+    css=CSS
+  )
 
   notes = []
 
@@ -104,9 +128,14 @@ if __name__ == '__main__':
     for card in data['cards']:
       fields = [card['name'], card['back'], ",".join(card['media'])]
       model = MY_CLOZE_MODEL
-      if not "{{c" in card['name']:
+
+      # TODO: sanity check the card fields
+      if not "{{c" in card['name'] and not "{{type" in card['name']:
         model = BASIC_MODEL
-      my_cloze_note = Note(model, fields=fields)
-      notes.append(my_cloze_note)
+      elif data['card_type'] == 'enable-input':
+        model = INPUT_MODEL
+        fields = [card['name'].replace('{{type:Input}}', ''), card['back'], card['answer'], ",".join(card['media'])]
+      my_note = Note(model, fields=fields, sort_field=card['number'])
+      notes.append(my_note)
 
   _wr_apkg(notes, deck_id, deck_name, data['media'])

@@ -5,7 +5,9 @@ tag home-page
 	prop notionLink = "https://www.notion.so/Toggles-c720af26b4bd4789b736c140b2dc73fe"
 	prop contactAdress = "alexander@alemayhu.com"
 	prop tutorial = "https://www.youtube.com/embed/lpC7C9wJoTA"
-	prop welcome = "https://www.youtube.com/embed/reviIJj52ZA"
+
+	prop heroVideo = "https://www.youtube.com/embed/r9pPNl8Mx_Q"
+	prop heroVideoTitle = "How to use cloze deletions in notion2anki 🤩"
 
 	prop bizSponsor = "https://www.patreon.com/join/alemayhu/checkout?rid=5599393"
 	prop githubSponsor = "https://github.com/sponsors/alemayhu"
@@ -19,12 +21,12 @@ tag home-page
 			<section.hero.is-medium>
 				<div.hero-body>
 					<div.container>
-						<h1 .title .is-size-1> "Create better Anki flashcards faster and easier today!"
+						<h1 .title .is-size-1> "Create better Anki flashcards faster and easier today ✨"
 						<hr>
 						<h2.subtitle> "Convert Notion toggle lists to Anki Flashcards fast and easy 😉"					
 						<.columns>
 							<.column>
-								<p.subtitle .is-2> "{<strong[fw: bold]> "notion2Anki"} is 100% 🆓 and open source with no limitations on file size. It's a passion project 🕺🏾💃🏾 We are going to make this a good way to make Anki flashcards easier, better and faster for anyone anywhere around the world 🌎"
+								<p.subtitle .is-3> "{<strong[fw: bold]> "notion2Anki"} is free and open source. It's a passion project 🕺🏾💃🏾 We are going to make this a good way to make Anki flashcards easier, better and faster for anyone anywhere around the world 🌎"
 
 								<div[d: flex j: center a: center mt: 2rem flex-wrap: wrap].columns>
 									<div.column>
@@ -36,7 +38,7 @@ tag home-page
 											<span[fw: bold]> "Tutorials"
 							<.column>
 								<.has-text-centered>
-									<youtube-embed video=welcome inline=false title="Welcome 👋🏾">
+									<youtube-embed video=heroVideo inline=false title=heroVideoTitle>
 						<.bd-focus[m: 6rem auto 0]>
 							<.columns>
 								<.column .bd-focus-item .has-text-centered>
@@ -52,8 +54,8 @@ tag home-page
 										<span .bd-focus.github .icon .is-large>
 											<i .fa-4x .fas .fa-shipping-fast>
 								<.column .bd-focus-item .has-text-centered>
-									<p .title .is-4> "Unlimited"
-									<p .subtitle .is-6> "No limitations on the file size"									
+									<p .title .is-4> "150mb"
+									<p .subtitle .is-6> "Free upload quota"									
 									<figure .bd-focus-icon>
 										<span .bd-focus.github .icon .is-large>
 											<i .fa-4x .fas .fa-file-archive>												
@@ -63,15 +65,6 @@ tag home-page
 									<figure .bd-focus-icon>
 										<span .bd-focus.github .icon .is-large>
 											<i .fa-4x .fas .fa-splotch>												
-
-			<.section>
-				<.bd.partnrs-list .has-text-centered>
-					<p .bd-partner-title>
-						"notion2anki is possible thanks to it's {<a href=patreon target="_blank"> "Patreon"} and {<a href=githubSponsor target="_blank"> "GitHub sponsors"}"
-					<div[d: flex jc: center]>
-						<p[mt: 2rem border: 3px solid black p: 4 w: 60%]> "Become a sponsor on Patreon to get your company listed here."
-					<a[mt:1.5rem].button .is-primary .is-medium href=bizSponsor target="_blank"> "Become a sponsor"
-
 			<.section .bd-tws-home .is-medium[bgc: #F9F9F9 w: 100%]>
 				<header .bd-index-header>
 					<.container>

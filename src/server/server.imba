@@ -101,4 +101,4 @@ process.on('uncaughtException') do |err, origin|
 
 const port = process.env.PORT || 2020
 const server = app.listen(port) do
-	console.log("🟢 Running on port {port}")
+	console.log("🟢 Running on http://localhost:{port}")
