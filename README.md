@@ -161,6 +161,7 @@ Special thanks to following developers / artistans
                 </sub></a><br />
                 <a href="#questions" title="Tests">⚠</a>
         </td>
+        <!-- Add Henrik (https://github.com/henrik-de), Abi, Boni when you get the necessary information -->
     </tr>
 </table>
 
