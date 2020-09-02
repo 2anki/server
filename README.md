@@ -115,8 +115,38 @@ yarn dev-server # npm run dev-server
 
 Special thanks to following developers / artistans
 
-- [Alp Kaan Aksu](https://alpkaanaksu.com)
-- [Mads Cordes](https://github.com/Mobilpadde)
+<table>
+    <tr>
+        <td align="center">
+            <a href="https://alemayhu.com">
+                <img src="https://avatars1.githubusercontent.com/u/925044?s=460&u=3bbe382e30dac01219f2423abcb7f6c1a47b9b5a&v=4" width="100px;" alt=""/>
+                <br /><sub>
+                <b>Alexander Alemayhu</b>
+                </sub></a><br />
+                <a href="https://github.com/alemayhu/notion2anki/commits?author=aalemayhu" title="Code">💻</a>
+                <a href="https://github.com/alemayhu/notion2anki/pulls?q=is%3Apr+reviewed-by%3Aaalemayhu" title="Reviewed Pull Requests">👀</a>
+                <a href="https://github.com/alemayhu/notion2anki/commits?author=aalemayhu" title="Documentation">📖</a>
+                <a href="https://www.youtube.com/channel/UCVuQ9KPLbb3bfhm-ZYsq-bQ" title="Videos">📹</a>
+        </td>
+        <td align="center">
+            <a href="https://alpkaanaksu.com">
+                <img src="https://avatars0.githubusercontent.com/u/68744864?s=460&u=14e5b70a520bf800b4ed942640b9f825bb3d997b&v=4" width="100px;" alt=""/>
+                <br /><sub>
+                <b>Alp Kaan Aksu</b>
+                </sub></a><br />
+                <a href="https://github.com/alemayhu/notion2anki/commits?author=alpkaanaksu" title="Code">💻</a>
+                <a href="https://www.youtube.com/channel/UCVuQ9KPLbb3bfhm-ZYsq-bQ" title="Videos">📹</a>
+        </td>
+        <td align="center">
+            <a href="https://github.com/Mobilpadde">
+                <img src="https://avatars2.githubusercontent.com/u/1170567?s=460&u=7fffacd722d6f39535f1b71a25e6b853a7451d80&v=4" width="100px;" alt=""/>
+                <br /><sub>
+                <b>Mads Cordes</b>
+                </sub></a><br />
+                <a href="https://github.com/alemayhu/notion2anki/commits?author=mobilpadde" title="Code">💻</a>
+        </td>
+    </tr>
+</table>
 
 This would be super hard if it were not for the following projects:
 
