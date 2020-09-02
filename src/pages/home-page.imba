@@ -9,7 +9,6 @@ tag home-page
 	prop heroVideo = "https://www.youtube.com/embed/r9pPNl8Mx_Q"
 	prop heroVideoTitle = "How to use cloze deletions in notion2anki 🤩"
 
-	prop bizSponsor = "https://www.patreon.com/join/alemayhu/checkout?rid=5599393"
 	prop githubSponsor = "https://github.com/sponsors/alemayhu"
 	prop patreon = "https://patreon.com/alemayhu"
 
