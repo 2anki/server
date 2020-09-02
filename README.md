@@ -2,8 +2,7 @@
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/5da03a4d-2c54-4343-8949-33124d2211e5/deploy-status)](https://app.netlify.com/sites/vibrant-swirles-654fce/deploys) [![Discord](https://img.shields.io/discord/723998078201495642)](https://discord.com/invite/PSKC3uS) [![Twitter](https://img.shields.io/twitter/url/https/twitter.com/cloudposse.svg?style=social&label=Follow%20%40aalemayhu)](https://twitter.com/aalemayhu)
 
-
-notion2Anki is a passion project 🕺🏾💃🏾 We are going to make this a good way to make [Anki](https://apps.ankiweb.net/) flashcards easier, better and faster. 
+notion2Anki is a passion project 🕺🏾💃🏾 We are going to make this a good way to make [Anki](https://apps.ankiweb.net/) flashcards easier, better and faster.
 
 - You can convert your Notion [toggle lists][tl] to Anki cards easily.
 - No technical skills required and 100% free to use by anyone anywhere 🤗
@@ -25,8 +24,8 @@ So by default we are reading in the Notion styles which does not necessarily loo
 
 ```css
 body {
-    padding: 1rem;
-    text-align: left;
+  padding: 1rem;
+  text-align: left;
 }
 ```
 
@@ -144,6 +143,23 @@ Special thanks to following developers / artistans
                 <b>Mads Cordes</b>
                 </sub></a><br />
                 <a href="https://github.com/alemayhu/notion2anki/commits?author=mobilpadde" title="Code">💻</a>
+        </td>
+        <td align="center">
+            <a href="https://www.guillempalausalva.com/">
+                <img src="https://avatars2.githubusercontent.com/u/8341295?s=460&u=14d22c0bb0bab69ac305b38ac6533158ad4ce8b3&v=4" width="100px;" alt=""/>
+                <br /><sub>
+                <b>Guillem Palau-Salvà</b>
+                </sub></a><br />
+                <a href="#questions" title="Answering Questions">💬</a>
+                <a href="#ideas" title="Ideas & Planning">🤔</a>
+        </td>
+        <td align="center">
+            <a href="https://nyasaki.dev/">
+                <img src="https://avatars1.githubusercontent.com/u/23500970?s=460&u=9d1f3847e7e960e436051b8d6e39885cf650d841&v=4" width="100px;" alt=""/>
+                <br /><sub>
+                <b>Marcel Walk</b>
+                </sub></a><br />
+                <a href="#questions" title="Tests">⚠</a>
         </td>
     </tr>
 </table>
