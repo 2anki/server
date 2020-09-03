@@ -87,7 +87,7 @@ tag home-page
 				<.container>
 					<h2.title> "Video Tutorial: How to use notion2anki"
 					<hr>
-					<p.subtitle> "In this video, {<a[c:blue700] href="https://alpkaanaksu.com"> "Alp Kaan"} shows you how to use notion2anki"
+					<p.subtitle> "In this video, {<a[c: #3273dc] href="https://alpkaanaksu.com"> "Alp Kaan"} shows you how to use notion2anki"
 					<.has-text-centered>
 						<youtube-embed video=tutorial inline=false title="Video Tutorial: How to use notion2anki" inline=false>
 						<a[mt: 2rem].button .is-primary .is-large href="/upload"> "I want to save my time"

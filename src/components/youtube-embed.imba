@@ -5,7 +5,6 @@ tag youtube-embed
 	prop inline = false	
 	prop video
 
-	css iframe w: 100% min-height: 320px max-width: 600px
 
 	def pressedIcon
 		showModal = true
