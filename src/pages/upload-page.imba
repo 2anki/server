@@ -19,17 +19,18 @@ tag upload-page
 		state = 'uploading'
 		errorMessage = null
 		try
+			console.log('$input', $input.value)
 			const form = event.target
 			const formData = new FormData(form)
 			const request = await window.fetch(upload_path(window.location.hostname), {method: 'post', body: formData})
-			console.log(request.headers)
+			const contentType = request.headers.get('Content-Type')
+
 			if request.status != 200 # OK
 				const text = await request.text()
 				errorMessage = "status.code={request.status}\n{text}"
 				return errorMessage
-			console.log($input)
-			const inputName = $input.value
-			deckName = inputName ? "{inputName}.apkg" : "{window.btoa(new Date()).substring(0, 7)}.apkg".replace(/\s/g, '-')
+
+			deckName = contentType == 'application/zip' ? "Your Decks.zip" : "Your deck.apkg"
 			const blob = await request.blob()
 			downloadLink = window.URL.createObjectURL(blob)
 		catch error
@@ -110,7 +111,7 @@ tag upload-page
 							<div.field>
 								<div.file.is-centered.is-boxed.is-success.has-name>
 									<label.file-label>
-										<input$selectorInput.file-input type="file" name="pkg" accept=".zip,.html,.md" required @change=fileSelected>
+										<input$selectorInput.file-input type="file" name="pakker" accept=".zip,.html,.md" required @change=fileSelected multiple="multiple">
 										<span$selectorBackground.file-cta[bg: gray]>
 											<span.file-icon>
 												<i.fas.fa-upload>

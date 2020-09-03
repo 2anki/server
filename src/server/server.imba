@@ -1,14 +1,17 @@
 import path from 'path'
 import fs from 'fs'
+import os from 'os'
 
+import { nanoid } from 'nanoid'
 import express from 'express'
 import multer from 'multer'
 
 import {DeckParser,PrepareDeck} from './parser/deck'
-import {TEMPLATE_DIR} from './constants'
+import {TEMPLATE_DIR, TriggerNoCardsError} from './constants'
 import {ZipHandler} from './files/zip'
 
 const errorPage = fs.readFileSync(path.join(TEMPLATE_DIR, 'error-message.html')).toString!
+const ADVERTISEMENT = fs.readFileSync(path.join(TEMPLATE_DIR, 'README.txt')).toString!
 
 def useErrorHandler res, err
 	res.set('Content-Type', 'text/html');
@@ -49,7 +52,7 @@ const allowed = [
 
 app.use do |req, res, next|
 	res.header("Access-Control-Allow-Origin", allowed.join(','))
-	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Deck-Name")
+	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Content-Disposition")
 	next()
 
 
@@ -63,37 +66,57 @@ def handle_upload req, res
 	console.log('permitted access to', origin)	
 	res.set('Access-Control-Allow-Origin', origin)
 	try
-		const filename = req.file.originalname		
-		const settings = req.body || {}
-		const payload = req.file.buffer
-		let deck
+		const files = req.files
+		let decks = []
+		for file in files
+			const filename = file.originalname		
+			const settings = req.body || {}
+			const payload = file.buffer
+			let deck
 
-		console.log('filename', filename, 'with settings', settings)
-		if filename.match(/.(md|html)$/)
-			console.log('We have a non zip upload')
-			deck = await PrepareDeck(filename, {"{filename}": req.file.buffer.toString!}, settings)
+			console.log('filename', filename, 'with settings', settings)
+			if filename.match(/.(md|html)$/)
+				console.log('We have a non zip upload')
+				deck = await PrepareDeck(filename, {"{filename}": file.buffer.toString!}, settings)				
+				decks.push(deck)
+			else
+				console.log('zip upload')
+				const zip_handler = ZipHandler.new()
+				const _ = await zip_handler.build(payload)
+				for file_name in zip_handler.filenames()
+					if file_name.match(/.(md|html)$/)
+						deck = await PrepareDeck(file_name, zip_handler.files, settings)
+						decks.push(deck)
+
+		let payload
+		let pname
+		let plen
+		if decks.length == 1
+			let deck = decks[0] 
+			payload = deck.apkg
+			plen = Buffer.byteLength(deck.apkg)
+			pname = "{deck.name}.apkg"
+			# If there is only one deck, just send it. Otherwise create new zip with all of them in one ;-)			
+			res.set("Content-Type", "application/apkg")
+			res.set("Content-Length": plen)	
+			res.attachment("/"+pname)
+			res.status(200).send(payload)
+		elif decks.length > 1
+			const pkg = path.join(os.tmpdir(), "Your decks-{nanoid()}.zip")
+			payload = await ZipHandler.toZip(decks, ADVERTISEMENT)
+			fs.writeFileSync(pkg, payload)
+			res.download(pkg)
 		else
-			console.log('zip upload')
-			const zip_handler = ZipHandler.new()
-			const _ = await zip_handler.build(payload)
-			for file_name in zip_handler.filenames()
-				if file_name.match(/.(md|html)$/)
-					deck = await PrepareDeck(file_name, zip_handler.files, settings)
-						
-		res.set("Content-Type", "application/zip")
-		res.set("Content-Length": Buffer.byteLength(deck.apkg))		
-		res.attachment(deck.name)
-		res.status(200).send(deck.apkg)
+			TriggerNoCardsError()
 		# TODO: Schedule deletion?
-		console.log('x settings', settings)
 	catch err
 		console.error(err)
 		useErrorHandler(res, err)
 
-app.post('/f/upload', upload.single('pkg'), &) do |req, res|
+app.post('/f/upload', upload.array('pakker'), &) do |req, res|
 	handle_upload(req, res)
 
-app.post('/f-dev/upload', upload.single('pkg'), &) do |req, res|
+app.post('/f-dev/upload', upload.array('pakker'), &) do |req, res|
 	handle_upload(req, res)
 
 process.on('uncaughtException') do |err, origin|
