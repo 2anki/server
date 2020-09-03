@@ -72,7 +72,7 @@ tag home-page
 						<p.subtitle> "These comments are taken from our YouTube videos."
 						<.columns >
 							<.column> for i in [1...13]
-								<img[m: 2rem w: 296px @sm: 320px @md:700px] .image loading="lazy" src="/user-feedback/{i}.png">
+								<img[m: 2rem w: 296px @sm: 320px @md:700px] .image loading="lazy" src="/user-feedback/{i}.png" alt="user feedback {i}">
 				<.has-text-centered>							
 					<a .button .is-large .is-primary[bg: #3273dc fw: bold white-space: normal fs: 11pt fs@md: 16pt] target="_blank" href="https://discord.gg/PSKC3uS"> "Let's grow the community, join us on Discord 🤗"
 

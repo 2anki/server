@@ -132,7 +132,7 @@ tag upload-page
 					<div[mt: 2] .has-text-centered>
 						<iframe src="https://github.com/sponsors/alemayhu/card" title="Sponsor alemayhu" height="225" width="600" style="border: 0;">
 					<.has-text-centered>
-						<a href="https://patreon.com/alemayhu"> <img src="become_a_patron_button.png" loading="lazy">
+						<a href="https://patreon.com/alemayhu"> <img src="become_a_patron_button.png" alt="Become a Patreon" loading="lazy">
 					<.has-text-centered>
 						<a.button .is-large href="https://paypal.me/alemayhu">
 							<span .icon .is-large> <i .fab .fa-paypal aria-hidden="true">
