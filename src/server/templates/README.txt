@@ -29,7 +29,7 @@ https://discord.gg/PSKC3uS
 
 Servers do cost money 🙂 If you can afford it, please support me financially on 
 
-- Paypal, https://www.paypal.com/donate/?cmd=_s-xclick&hosted_button_id=WUARHGVHUZ5FL&source=ur
+- Paypal, https://paypal.me/alemayhu
 - GitHub sponsors, https://github.com/sponsors/alemayhu
 - Patreon, https://www.patreon.com/alemayhu
 

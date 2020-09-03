@@ -40,7 +40,7 @@ tag n2a-header
 						<div.navbar-item>
 							<div.field.is-grouped>
 								<p.control[p:2]>
-									<a[c: blue] href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=WUARHGVHUZ5FL&source=ur">
+									<a[c: blue] href="https://paypal.me/alemayhu">
 										<span .icon .is-large> <i .fa-2x .fab .fa-paypal aria-hidden="true">
 								<p.control[p: 2]>
 									<a[c: black] target="_blank" href="https://github.com/alemayhu/notion2anki">
