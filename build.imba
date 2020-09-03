@@ -19,7 +19,6 @@ def run cmd, options
 def build_process
 	if !process.env.SKIP_WEBPACK
 		await run('yarn', ['run', 'webpack', '--mode=production'])		  
-	await run('/bin/cp', ['node_modules/sql.js/js/sql-memory-growth.js', 'node_modules/sql.js/js/sql.js'])
 	await run('yarn', ['run', 'build-server'])
 
 def make_pages
