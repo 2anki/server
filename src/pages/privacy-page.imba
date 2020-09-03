@@ -28,12 +28,6 @@ tag privacy-page
 
 			<.section>
 				<.container>
-					<h2 .title .is-2> "Error Reporter"
-					<p.subtitle> "This site uses {<a href="https://sentry.io"> "Sentry"} for crash reports."
-					<p.subtitle> "You can read their Privacy policy here {<a href="https://sentry.io/privacy/" target="_blank"> "https://sentry.io/privacy/"}"
-
-			<.section>
-				<.container>
 					<h2 .title .is-2> "Analytics"
 					<p.subtitle> "In order to better understand the usage (number of visitors) of the site and how to better serve users Google Analytics is used."
 					<p.subtitle> "See their privacy policy here {<a href="https://policies.google.com/privacy"> "https://policies.google.com"}"
