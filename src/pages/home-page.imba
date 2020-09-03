@@ -82,7 +82,7 @@ tag home-page
 					<h4 .subtitle .is-4> "Let notion2anki do it in 10 seconds for you"
 					# Stop wasting your time  Instead of copy pasting or typing in for hours and hours, 
 					<.has-text-centered>
-						<a[mt: 2rem fw: bold fs: 16pt].button.is-info.is-medium href="/features"> "notion2anki features"
+						<a[mt: 2rem fw: bold fs: 16pt].button.is-info.is-medium href="/benefits"> "notion2anki benefits"
 			<.section>
 				<.container>
 					<h2.title> "Video Tutorial: How to use notion2anki"
