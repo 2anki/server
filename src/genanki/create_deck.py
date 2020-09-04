@@ -143,7 +143,6 @@ if __name__ == '__main__':
     cik = 'image'
     if 'image' in data:
       image = data['image']
-      suffix = data['suffix']
       deck_desc += """
         <style>
         html {
@@ -151,7 +150,7 @@ if __name__ == '__main__':
           height: 100vh;
         }
         body {
-            background: url(data:image/%s;base64,%s) no-repeat;
+            background: url(%s) no-repeat;
             background-size: cover;
             color: white;
         }
@@ -184,6 +183,6 @@ if __name__ == '__main__':
             text-align: center;   
         }
         </style>
-      """ % (suffix, image)
+      """ % (image)
 
   _wr_apkg(notes, deck_id, deck_name, data['media'], deck_desc)
