@@ -2,8 +2,6 @@ import '../components/n2a-button'
 import '../components/progress-bar'
 import '../components/download-modal'
 
-import {upload_path} from '../server/endpoints'
-
 tag upload-page
 
 	prop downloadLink = null
@@ -22,7 +20,7 @@ tag upload-page
 			console.log('$input', $input.value)
 			const form = event.target
 			const formData = new FormData(form)
-			const request = await window.fetch(upload_path(window.location.hostname), {method: 'post', body: formData})
+			const request = await window.fetch('/upload', {method: 'post', body: formData})
 			const contentType = request.headers.get('Content-Type')
 
 			if request.status != 200 # OK
