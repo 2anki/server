@@ -45,9 +45,9 @@ const allowed = [
 		'http://localhost:8080'
 		'http://localhost:2020'
 		'https://dev.notion2anki.alemayhu.com'
-		'https://dev.notion.2anki.net'
+		'https://dev.2anki.net'
 		'https://notion.2anki.com'
-		'https://notion.2anki.net'
+		'https://2anki.net'
 ]
 
 app.use do |req, res, next|
