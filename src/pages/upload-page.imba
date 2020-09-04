@@ -19,17 +19,18 @@ tag upload-page
 		state = 'uploading'
 		errorMessage = null
 		try
+			console.log('$input', $input.value)
 			const form = event.target
 			const formData = new FormData(form)
 			const request = await window.fetch(upload_path(window.location.hostname), {method: 'post', body: formData})
-			console.log(request.headers)
+			const contentType = request.headers.get('Content-Type')
+
 			if request.status != 200 # OK
 				const text = await request.text()
 				errorMessage = "status.code={request.status}\n{text}"
 				return errorMessage
-			console.log($input)
-			const inputName = $input.value
-			deckName = inputName ? "{inputName}.apkg" : "{window.btoa(new Date()).substring(0, 7)}.apkg".replace(/\s/g, '-')
+
+			deckName = contentType == 'application/zip' ? "Your Decks.zip" : "Your deck.apkg"
 			const blob = await request.blob()
 			downloadLink = window.URL.createObjectURL(blob)
 		catch error
@@ -110,7 +111,7 @@ tag upload-page
 							<div.field>
 								<div.file.is-centered.is-boxed.is-success.has-name>
 									<label.file-label>
-										<input$selectorInput.file-input type="file" name="pkg" accept=".zip,.html,.md" required @change=fileSelected>
+										<input$selectorInput.file-input type="file" name="pakker" accept=".zip,.html,.md" required @change=fileSelected multiple="multiple">
 										<span$selectorBackground.file-cta[bg: gray]>
 											<span.file-icon>
 												<i.fas.fa-upload>
@@ -130,10 +131,10 @@ tag upload-page
 					<p.subtitle> "This project is 100% free and will remain free! Please if you have the means you can support this project via these options 🙏🏾"
 					<div[mt: 2] .has-text-centered>
 						<iframe src="https://github.com/sponsors/alemayhu/card" title="Sponsor alemayhu" height="225" width="600" style="border: 0;">
+				<.has-text-centered>
+						<a href="https://patreon.com/alemayhu"> <img src="become_a_patron_button.png" alt="Become a Patreon" loading="lazy">
 					<.has-text-centered>
-						<a href="https://patreon.com/alemayhu"> <img src="become_a_patron_button.png" loading="lazy">
-					<.has-text-centered>
-						<a.button .is-large href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=WUARHGVHUZ5FL&source=ur">
+						<a.button .is-large href="https://paypal.me/alemayhu">
 							<span .icon .is-large> <i .fab .fa-paypal aria-hidden="true">
 							<span> "Paypal"
 					<h4 .title .is-4> "Other Ways to Contribute"

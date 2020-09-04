@@ -16,11 +16,9 @@ from genanki import Deck
 from genanki import Package
 from genanki import guid_for
 
-DESC = "<p>This deck is brought to you by some amazing <a href='https://www.patreon.com/alemayhu'>patrons</a> 🤩</p>"
-
-def _wr_apkg(notes, deck_id, deck_name, media_files):
+def _wr_apkg(notes, deck_id, deck_name, media_files, desc):
   """Write cloze cards to an Anki apkg file"""
-  deck = Deck(deck_id=deck_id, name=deck_name, description=DESC)
+  deck = Deck(deck_id=deck_id, name=deck_name, description=desc)
   for note in notes:
     deck.add_note(note)
 
@@ -125,6 +123,9 @@ if __name__ == '__main__':
   with open(data_file, 'r', encoding='utf-8') as json_file:
     data = json.load(json_file)
     deck_name = data['name']
+    emoji = data['icon']
+    if emoji:
+      deck_name = emoji + ' ' + deck_name
     for card in data['cards']:
       fields = [card['name'], card['back'], ",".join(card['media'])]
       model = MY_CLOZE_MODEL
@@ -138,4 +139,51 @@ if __name__ == '__main__':
       my_note = Note(model, fields=fields, sort_field=card['number'])
       notes.append(my_note)
 
-  _wr_apkg(notes, deck_id, deck_name, data['media'])
+    deck_desc = "<p>This deck is brought to you by some amazing <a class='patreon-cta' href='https://www.patreon.com/alemayhu'>patrons</a> 🤩</p>"
+    cik = 'image'
+    if 'image' in data:
+      image = data['image']
+      suffix = data['suffix']
+      deck_desc += """
+        <style>
+        html {
+          width: 100vw;
+          height: 100vh;
+        }
+        body {
+            background: url(data:image/%s;base64,%s) no-repeat;
+            background-size: cover;
+            color: white;
+        }
+        center {
+            background: linear-gradient(45deg, black, transparent);
+            mix-blend-mode: difference;
+            border-radius: 0.2rem;
+            padding: 1rem;
+        }          
+        p {
+          color: white;
+        }
+        p:first-of-type {
+            text-align: center;
+        }
+        .review-count,
+        .learn-count,
+        .new-count {
+            padding: 0.1rem 0.3rem;
+            background: white;
+            border-radius: 0.3rem;
+        }
+
+        .patreon-cta {
+            text-decoration: none;
+            color: white;
+            background: tomato;
+            padding: 0.1rem 0.3rem;
+            border-radius: 0.3rem;
+            text-align: center;   
+        }
+        </style>
+      """ % (suffix, image)
+
+  _wr_apkg(notes, deck_id, deck_name, data['media'], deck_desc)

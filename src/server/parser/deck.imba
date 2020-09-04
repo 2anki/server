@@ -5,6 +5,7 @@ import os from 'os'
 
 import { nanoid } from 'nanoid'
 import cheerio from 'cheerio'
+import axios from 'axios'
 
 import {TEMPLATE_DIR, TriggerNoCardsError, TriggerUnsupportedFormat} from '../constants'
 import CardGenerator from '../service/generator'
@@ -38,10 +39,13 @@ class CustomExporter
 	def addCard back, tags
 		console.log('addCard', arguments)
 
-	def prepareSave cards
+	def prepareSave cards, opts
 		const payload_info = path.join(self.workspace, 'deck_info.json')
+		self.deck.suffix = opts.suffix
+		self.deck.image = opts.image
+		self.deck.icon = opts.emoji
 		self.deck.cards = cards
-
+		
 		console.log('writing payload', payload_info)
 		fs.writeFileSync(payload_info, JSON.stringify(self.deck, null, 2))
 
@@ -58,6 +62,9 @@ export class DeckParser
 		self.settings['font-size'] = self.settings['font-size'] + 'px'
 		self.use_input = self.enable_input!
 		self.use_cloze = self.is_cloze!
+		self.cover_suffix = null
+		self.image = null
+		self.emoji = null
 		if md
 			TriggerUnsupportedFormat()
 		self.payload = handleHTML(contents, deckName)
@@ -66,9 +73,17 @@ export class DeckParser
 		const dom = cheerio.load(contents)
 		let name = deckName || dom('title').text()
 		let style = dom('style').html()
-	
+		
 		if self.settings['font-size'] != '20px'
 			style += '\n' + '* { font-size:' + self.settings['font-size'] + '}'
+
+		let pageCoverImage = dom('.page-cover-image')
+		if pageCoverImage
+			self.image = pageCoverImage.attr('src')
+
+		let pageIcon = dom('.icon')
+		if let pi = pageIcon.html()
+			self.emoji = pi
 
 		const toggleList = dom(".page-body > ul").toArray()
 		let cards = toggleList.map do |t|
@@ -287,7 +302,19 @@ export class DeckParser
 					exporter.addCard(card.name, card.back, tags)
 			console.log('log card', JSON.stringify(card, null, 2))
 
-		exporter.prepareSave(deck.cards)
+
+		# save the cover image
+		if self.image
+			if self.image.includes('http')
+				let imageName = "{nanoid()}{self.suffix(self.image)}"
+				const req = await axios.get(self.image, responseType: 'arraybuffer')
+				self.image = Buffer.from(req.data, 'binary').toString('base64')
+				self.cover_suffix = suffix(imageName)
+			else
+				self.cover_suffix = suffix(self.image)
+				self.image =  Buffer.from(files[self.image], 'binary').toString('base64')
+		
+		exporter.prepareSave(deck.cards, {image: self.image, emoji: self.emoji, suffix: self.cover_suffix})
 
 		const zip = await exporter.save()
 		return zip if not output

@@ -72,7 +72,7 @@ tag home-page
 						<p.subtitle> "These comments are taken from our YouTube videos."
 						<.columns >
 							<.column> for i in [1...13]
-								<img[m: 2rem w: 296px @sm: 320px @md:700px] .image loading="lazy" src="/user-feedback/{i}.png">
+								<img[m: 2rem w: 296px @sm: 320px @md:700px] .image loading="lazy" src="/user-feedback/{i}.png" alt="user feedback {i}">
 				<.has-text-centered>							
 					<a .button .is-large .is-primary[bg: #3273dc fw: bold white-space: normal fs: 11pt fs@md: 16pt] target="_blank" href="https://discord.gg/PSKC3uS"> "Let's grow the community, join us on Discord 🤗"
 
@@ -82,12 +82,12 @@ tag home-page
 					<h4 .subtitle .is-4> "Let notion2anki do it in 10 seconds for you"
 					# Stop wasting your time  Instead of copy pasting or typing in for hours and hours, 
 					<.has-text-centered>
-						<a[mt: 2rem fw: bold fs: 16pt].button.is-info.is-medium href="/features"> "notion2anki features"
+						<a[mt: 2rem fw: bold fs: 16pt].button.is-info.is-medium href="/benefits"> "notion2anki benefits"
 			<.section>
 				<.container>
 					<h2.title> "Video Tutorial: How to use notion2anki"
 					<hr>
-					<p.subtitle> "In this video, {<a[c:blue700] href="https://alpkaanaksu.com"> "Alp Kaan"} shows you how to use notion2anki"
+					<p.subtitle> "In this video, {<a[c: #3273dc] href="https://alpkaanaksu.com"> "Alp Kaan"} shows you how to use notion2anki"
 					<.has-text-centered>
 						<youtube-embed video=tutorial inline=false title="Video Tutorial: How to use notion2anki" inline=false>
 						<a[mt: 2rem].button .is-primary .is-large href="/upload"> "I want to save my time"
