@@ -6,14 +6,22 @@ tag home-page
 	prop contactAdress = "alexander@alemayhu.com"
 	prop tutorial = "https://www.youtube.com/embed/lpC7C9wJoTA"
 
-	prop heroVideo = "https://www.youtube.com/embed/r9pPNl8Mx_Q"
-	prop heroVideoTitle = "How to use cloze deletions in notion2anki 🤩"
-
 	prop githubSponsor = "https://github.com/sponsors/alemayhu"
 	prop patreon = "https://patreon.com/alemayhu"
 
 	css .cta bg: #83C9F5 c: white fw: bold
 	css .column m: 16px
+
+	def isDe
+		window.location.host == "2anki.de"
+
+	get heroVideo
+		const id = isDe() ? "E51yLIIS3bk" : "r9pPNl8Mx_Q"
+		"https://www.youtube.com/embed/{id}"
+	
+	get heroVideoTitle 
+		isDe() ? "Philipp: Notion2Anki - Perfekter Workflow für's Lernen!!! 💫" : "How to use cloze deletions in notion2anki 🤩"
+
 
 	def render
 		<self[d: block my: 4rem]>
