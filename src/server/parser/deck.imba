@@ -62,7 +62,6 @@ export class DeckParser
 		self.settings['font-size'] = self.settings['font-size'] + 'px'
 		self.use_input = self.enable_input!
 		self.use_cloze = self.is_cloze!
-		self.cover_suffix = null
 		self.image = null
 		self.emoji = null
 		if md
@@ -301,20 +300,8 @@ export class DeckParser
 			else
 					exporter.addCard(card.name, card.back, tags)
 			console.log('log card', JSON.stringify(card, null, 2))
-
-
-		# save the cover image
-		if self.image
-			if self.image.includes('http')
-				let imageName = "{nanoid()}{self.suffix(self.image)}"
-				const req = await axios.get(self.image, responseType: 'arraybuffer')
-				self.image = Buffer.from(req.data, 'binary').toString('base64')
-				self.cover_suffix = suffix(imageName)
-			else
-				self.cover_suffix = suffix(self.image)
-				self.image =  Buffer.from(files[self.image], 'binary').toString('base64')
 		
-		exporter.prepareSave(deck.cards, {image: self.image, emoji: self.emoji, suffix: self.cover_suffix})
+		exporter.prepareSave(deck.cards, {image: self.image, emoji: self.emoji})
 
 		const zip = await exporter.save()
 		return zip if not output
