@@ -113,10 +113,7 @@ def handle_upload req, res
 		console.error(err)
 		useErrorHandler(res, err)
 
-app.post('/f/upload', upload.array('pakker'), &) do |req, res|
-	handle_upload(req, res)
-
-app.post('/f-dev/upload', upload.array('pakker'), &) do |req, res|
+app.post('/upload', upload.array('pakker'), &) do |req, res|
 	handle_upload(req, res)
 
 process.on('uncaughtException') do |err, origin|
