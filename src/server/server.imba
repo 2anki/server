@@ -25,6 +25,9 @@ const distDir = path.join(__dirname, "../../dist")
 
 app.use(express.static(distDir))
 
+app.use(require('prerender-node'))
+
+
 const appInfo = JSON.parse(fs.readFileSync(path.join(__dirname, '../../package.json')).toString!)
 
 app.get('/checks') do $2.status(200).send('Notion 2 Anki')
@@ -72,21 +75,21 @@ def handle_upload req, res
 			const filename = file.originalname		
 			const settings = req.body || {}
 			const payload = file.buffer
-			let deck
 
 			console.log('filename', filename, 'with settings', settings)
 			if filename.match(/.(md|html)$/)
 				console.log('We have a non zip upload')
-				deck = await PrepareDeck(filename, {"{filename}": file.buffer.toString!}, settings)				
-				decks.push(deck)
+				const d = await PrepareDeck(filename, {"{filename}": file.buffer.toString!}, settings)				
+				decks = decks.concat(d)
 			else
 				console.log('zip upload')
 				const zip_handler = ZipHandler.new()
 				const _ = await zip_handler.build(payload)
 				for file_name in zip_handler.filenames()
 					if file_name.match(/.(md|html)$/)
-						deck = await PrepareDeck(file_name, zip_handler.files, settings)
-						decks.push(deck)
+						console.log('21 21 21 detected payload', file_name)
+						const d = await PrepareDeck(file_name, zip_handler.files, settings)
+						decks.push(d)
 
 		let payload
 		let pname
@@ -96,7 +99,6 @@ def handle_upload req, res
 			payload = deck.apkg
 			plen = Buffer.byteLength(deck.apkg)
 			pname = "{deck.name}.apkg"
-			# If there is only one deck, just send it. Otherwise create new zip with all of them in one ;-)			
 			res.set("Content-Type", "application/apkg")
 			res.set("Content-Length": plen)	
 			res.attachment("/"+pname)

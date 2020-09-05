@@ -3,9 +3,8 @@ import path from 'path'
 import fs from 'fs'
 import os from 'os'
 
-import { nanoid } from 'nanoid'
+import { nanoid, customAlphabet } from 'nanoid'
 import cheerio from 'cheerio'
-import axios from 'axios'
 
 import {TEMPLATE_DIR, TriggerNoCardsError, TriggerUnsupportedFormat} from '../constants'
 import CardGenerator from '../service/generator'
@@ -24,30 +23,24 @@ String.prototype.replaceAll = do |oldValue, newValue|
 class CustomExporter
 
 	prop workspace
-	prop deck
+	prop media
 	
-	def constructor deck, workspace
+	def constructor workspace
 		self.workspace = workspace
-		self.deck = deck
-		self.deck.media ||= []
+		self.media ||= []
 
 	def addMedia newName, file
 		const abs = path.join(self.workspace, newName)
-		self.deck.media.push(abs)
+		self.media.push(abs)
 		fs.writeFileSync(abs, file)
 	
 	def addCard back, tags
 		console.log('addCard', arguments)
 
-	def prepareSave cards, opts
-		const payload_info = path.join(self.workspace, 'deck_info.json')
-		self.deck.suffix = opts.suffix
-		self.deck.image = opts.image
-		self.deck.icon = opts.emoji
-		self.deck.cards = cards
-		
+	def configure payload
+		const payload_info = path.join(self.workspace, 'deck_info.json')		
 		console.log('writing payload', payload_info)
-		fs.writeFileSync(payload_info, JSON.stringify(self.deck, null, 2))
+		fs.writeFileSync(payload_info, JSON.stringify(payload, null, 2))
 
 	def save
 		const gen = new CardGenerator(self.workspace)
@@ -56,33 +49,44 @@ class CustomExporter
 
 export class DeckParser
 
-	def constructor md, contents, settings = {}
+	get name do self.payload[0].name
+
+	def constructor md, contents, settings = {}, files
 		const deckName = settings.deckName
 		self.settings = settings
 		self.settings['font-size'] = self.settings['font-size'] + 'px'
 		self.use_input = self.enable_input!
 		self.use_cloze = self.is_cloze!
 		self.image = null
-		self.emoji = null
+		self.files = files || []
 		if md
 			TriggerUnsupportedFormat()
 		self.payload = handleHTML(contents, deckName)
 
-	def handleHTML contents, deckName = null
+	def handleHTML contents, deckName = null, decks = []
 		const dom = cheerio.load(contents)
 		let name = deckName || dom('title').text()
 		let style = dom('style').html()
+		let image = null
 		
 		if self.settings['font-size'] != '20px'
 			style += '\n' + '* { font-size:' + self.settings['font-size'] + '}'
 
 		let pageCoverImage = dom('.page-cover-image')
 		if pageCoverImage
-			self.image = pageCoverImage.attr('src')
+			image = pageCoverImage.attr('src')
 
 		let pageIcon = dom('.icon')
 		if let pi = pageIcon.html()
-			self.emoji = pi
+			if !name.includes(pi) and decks.length == 0
+				if !name.includes('::') and !name.startsWith(pi)
+					name = "{pi} {name}"
+				else
+					const names = name.split(/::/)
+					const end = names.length - 1
+					const last = names[end]
+					names[end] = "{pi} {last}"
+					name = names.join("::")
 
 		const toggleList = dom(".page-body > ul").toArray()
 		let cards = toggleList.map do |t|
@@ -113,10 +117,22 @@ export class DeckParser
 		console.log('cards', cards)
 		cards = sanityCheck(cards)
 
-		unless cards.length > 0
-			TriggerNoCardsError()
+		decks.push({name: name, cards: cards, image: image, style: style, id: self.generate_id!})
 
-		return {name, cards, style}
+		# unless cards.length > 0
+		# 	TriggerNoCardsError()
+		const subpages = dom(".link-to-page").toArray()
+		for page in subpages
+			const spDom = dom(page)
+			const ref = spDom.find('a').first()
+			const href = ref.attr('href')
+			if href.startsWith('http')
+				throw new Error('Unsupported sub page type')
+			const pageContent = self.files[global.decodeURIComponent(href)]
+			const subDeckName = spDom.find('title').text() || ref.text()
+			self.handleHTML(pageContent, "{name}::{subDeckName}", decks)
+
+		return decks
 
 	def has_cloze_deletions input
 		return false if !input
@@ -157,7 +173,7 @@ export class DeckParser
 		const css = deck.style.replaceAll("'", '"')
 		fs.mkdirSync(workspace)
 		fs.writeFileSync(path.join(workspace, 'deck_style.css'), css)
-		return new CustomExporter(deck, workspace)
+		return new CustomExporter(workspace)
 
 	def embedFile exporter, files, filePath
 		console.log('embedFile', Object.keys(files), filePath)
@@ -232,84 +248,89 @@ export class DeckParser
 		return true if self.settings['card-type'] == 'enable-input'
 		return false
 
-	def build output, deck, files
+	def generate_id
+		return parseInt(customAlphabet('1234567890', 16)())
+
+	def build
 		console.log('building deck')
 		const workspace = path.join(os.tmpdir(), nanoid())
-		let exporter = self.setupExporter(deck, workspace)		
-		const card_count = deck.cards.length
-		deck.image_count = 0
-		deck.card_type = self.settings['card-type']
+		let exporter = self.setupExporter(self.payload[0], workspace)
+	
+		for deck in self.payload
+			const card_count = deck.cards.length
+			deck.image_count = 0
+			deck.card_type = self.settings['card-type']
+			deck.card_count = card_count
+			deck.id = self.generate_id!
+			console.log('set deck id', deck.id)
+			delete deck.style
 
-		# Counter for perserving the order in Anki deck.
-		let counter = 0
-		for card in deck.cards
-			console.log("exporting {deck.name} {deck.cards.indexOf(card)} / {card_count}")
-			card.number = counter++
-			if self.use_cloze
-				card.name = self.handleClozeDeletions(card.name)
-			elif self.use_input
-				let inputInfo = self.treatBoldAsInput(card.name)
-				card.name = inputInfo.mangle
-				card.answer = inputInfo.answer
-
-			card.media = []
-			if card.back
-				const dom = cheerio.load(card.back)
-				const images = dom('img')
-				if images.length > 0
-					console.log('Number of images', images.length)
-					images.each do |i, elem|
-						const originalName = dom(elem).attr('src')
-						if !originalName.startsWith('http')						
-							if let newName = self.embedFile(exporter, files, global.decodeURIComponent(originalName))
-								# We have to replace globally since Notion can add the filename as alt value
-								card.back = card.back.replaceAll(originalName, newName)
-								card.media.push(newName)
-					deck.image_count += (card.back.match(/\<+\s?img/g) || []).length
-				
-				if let audiofile = find_mp3_file(card.back)
-					if let newFileName = self.embedFile(exporter, files, global.decodeURIComponent(audiofile))
-						console.log('added sound', newFileName)
-						card.back += "[sound:{newFileName}]"
-						card.media.push(newFileName)
-
-				# Check YouTube
-				if let id = get_youtube_id(card.back)
-					const ytSrc = "https://www.youtube.com/embed/{id}?".replace(/"/, '')
-					const video = "<iframe width='560' height='315' src='{ytSrc}' frameborder='0' allowfullscreen></iframe>"
-					card.back += video
-				if let soundCloudUrl = get_soundcloud_url(card.back)
-					const audio = "<iframe width='100%' height='166' scrolling='no' frameborder='no' src='https://w.soundcloud.com/player/?url={soundCloudUrl}'></iframe>"
-					card.back += audio
-
-				console.log('xparse back', self.use_input)
+			# Counter for perserving the order in Anki deck.
+			let counter = 0
+			for card in deck.cards
+				console.log("exporting {deck.name} {deck.cards.indexOf(card)} / {card_count}")
+				card.number = counter++
 				if self.use_cloze
-					# TODO: investigate why cloze deletions are not handled properly on the back / extra
-					card.back = self.handleClozeDeletions(card.back)
+					card.name = self.handleClozeDeletions(card.name)
 				elif self.use_input
-					let inputInfo = self.treatBoldAsInput(card.back, true)
-					card.back = inputInfo.mangle
+					let inputInfo = self.treatBoldAsInput(card.name)
+					card.name = inputInfo.mangle
+					card.answer = inputInfo.answer
 
-			const tags = card.tags ? {tags: card.tags} : {}
-			const cardType = self.settings['card-type']
-			if cardType == 'Basic and reversed' or cardType == 'basic-reversed'
-					exporter.addCard(card.name, card.back, tags)
-					exporter.addCard(card.back, card.name, tags)
-			elif cardType == 'Just the reversed' or cardType == 'reversed'
-					exporter.addCard(card.back, card.name, tags)
-			else
-					exporter.addCard(card.name, card.back, tags)
-			console.log('log card', JSON.stringify(card, null, 2))
-		
-		exporter.prepareSave(deck.cards, {image: self.image, emoji: self.emoji})
+				card.media = []
+				if card.back
+					const dom = cheerio.load(card.back)
+					const images = dom('img')
+					if images.length > 0
+						console.log('Number of images', images.length)
+						images.each do |i, elem|
+							const originalName = dom(elem).attr('src')
+							if !originalName.startsWith('http')						
+								if let newName = self.embedFile(exporter, self.files, global.decodeURIComponent(originalName))
+									# We have to replace globally since Notion can add the filename as alt value
+									card.back = card.back.replaceAll(originalName, newName)
+									card.media.push(newName)
+						deck.image_count += (card.back.match(/\<+\s?img/g) || []).length
+					
+					if let audiofile = find_mp3_file(card.back)
+						if let newFileName = self.embedFile(exporter, self.files, global.decodeURIComponent(audiofile))
+							console.log('added sound', newFileName)
+							card.back += "[sound:{newFileName}]"
+							card.media.push(newFileName)
 
-		const zip = await exporter.save()
-		return zip if not output
-		// This code path will normally only run during local testing
-		fs.writeFileSync(output, zip, 'binary');			
+					# Check YouTube
+					if let id = get_youtube_id(card.back)
+						const ytSrc = "https://www.youtube.com/embed/{id}?".replace(/"/, '')
+						const video = "<iframe width='560' height='315' src='{ytSrc}' frameborder='0' allowfullscreen></iframe>"
+						card.back += video
+					if let soundCloudUrl = get_soundcloud_url(card.back)
+						const audio = "<iframe width='100%' height='166' scrolling='no' frameborder='no' src='https://w.soundcloud.com/player/?url={soundCloudUrl}'></iframe>"
+						card.back += audio
+
+					console.log('xparse back', self.use_input)
+					if self.use_cloze
+						# TODO: investigate why cloze deletions are not handled properly on the back / extra
+						card.back = self.handleClozeDeletions(card.back)
+					elif self.use_input
+						let inputInfo = self.treatBoldAsInput(card.back, true)
+						card.back = inputInfo.mangle
+
+				const tags = card.tags ? {tags: card.tags} : {}
+				const cardType = self.settings['card-type']
+				if cardType == 'Basic and reversed' or cardType == 'basic-reversed'
+						exporter.addCard(deck.name, card.name, card.back, tags)
+						exporter.addCard(deck.name, card.back, card.name, tags)
+				elif cardType == 'Just the reversed' or cardType == 'reversed'
+						exporter.addCard(deck.name, card.back, card.name, tags)
+				else
+						exporter.addCard(deck.name, card.name, card.back, tags)
+				console.log('log card', JSON.stringify(card, null, 2))
+				
+		exporter.configure(self.payload)
+		exporter.save()
 
 export def PrepareDeck file_name, files, settings
-		const decks = DeckParser.new(file_name.match(/.md$/), files[file_name], settings)
-		const deck = decks.payload
-		const apkg = await decks.build(null, deck, files)
-		{name: "{deck.name}.apkg", apkg: apkg, deck: deck}
+		const parser = new DeckParser(file_name.match(/.md$/), files[file_name], settings, files)
+		const apkg = await parser.build()
+		# TODO: rename decks below to something more sensible
+		{name: "{parser.name}.apkg", apkg: apkg, deck: parser.payload}

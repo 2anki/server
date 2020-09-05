@@ -16,22 +16,25 @@ from genanki import Deck
 from genanki import Package
 from genanki import guid_for
 
-def _wr_apkg(notes, deck_id, deck_name, media_files, desc):
+def _wr_apkg(payload, media_files):
   """Write cloze cards to an Anki apkg file"""
-  deck = Deck(deck_id=deck_id, name=deck_name, description=desc)
-  for note in notes:
-    deck.add_note(note)
+  decks = []
+  for p in payload:
+    deck = Deck(deck_id=p['id'], name=p['name'], description=p['desc'])
+    for note in p['notes']:
+      deck.add_note(note)
+    decks.append(deck)
 
-  fout_anki = '{NAME}.apkg'.format(NAME=deck_id)
-  pkg = Package(deck)
-  pkg.media_files = media_files
+  pkg = Package(decks)
+  pkg.media_files = ",".join(media_files)
+  fout_anki = '{NAME}.apkg'.format(NAME=p['id'])
+
   pkg.write_to_file(fout_anki)
   sys.stdout.write(os.getcwd()+'/'+fout_anki)
 
 if __name__ == '__main__':
   data_file = sys.argv[1]
-  deck_id = int(sys.argv[2])
-  deck_style = sys.argv[3]
+  deck_style = sys.argv[2]
   deck_name = ''
   # TODO: error handling
 
@@ -118,71 +121,73 @@ if __name__ == '__main__':
     css=CSS
   )
 
-  notes = []
-
   with open(data_file, 'r', encoding='utf-8') as json_file:
     data = json.load(json_file)
-    deck_name = data['name']
-    emoji = data['icon']
-    if emoji:
-      deck_name = emoji + ' ' + deck_name
-    for card in data['cards']:
-      fields = [card['name'], card['back'], ",".join(card['media'])]
-      model = MY_CLOZE_MODEL
+    media_files = []
+    decks = []
+    for deck in data:
+      deck_name = deck['name']
+      deck_id = deck['id']
+      notes = []
+    
+      for card in deck['cards']:
+        fields = [card['name'], card['back'], ",".join(card['media'])]
+        model = MY_CLOZE_MODEL
 
-      # TODO: sanity check the card fields
-      if not "{{c" in card['name'] and not "{{type" in card['name']:
-        model = BASIC_MODEL
-      elif data['card_type'] == 'enable-input':
-        model = INPUT_MODEL
-        fields = [card['name'].replace('{{type:Input}}', ''), card['back'], card['answer'], ",".join(card['media'])]
-      my_note = Note(model, fields=fields, sort_field=card['number'])
-      notes.append(my_note)
-
-    deck_desc = "<p>This deck is brought to you by some amazing <a class='patreon-cta' href='https://www.patreon.com/alemayhu'>patrons</a> 🤩</p>"
-    cik = 'image'
-    if 'image' in data:
-      image = data['image']
-      deck_desc += """
-        <style>
-        html {
-          width: 100vw;
-          height: 100vh;
-        }
-        body {
-            background: url(%s) no-repeat;
-            background-size: cover;
+        # TODO: sanity check the card fields
+        if not "{{c" in card['name'] and not "{{type" in card['name']:
+          model = BASIC_MODEL
+        elif deck['card_type'] == 'enable-input':
+          model = INPUT_MODEL
+          fields = [card['name'].replace('{{type:Input}}', ''), card['back'], card['answer'], ",".join(card['media'])]
+        my_note = Note(model, fields=fields, sort_field=card['number'])
+        notes.append(my_note)
+        media_files = media_files + card['media']
+      deck_desc = "<p>This deck is brought to you by some amazing <a class='patreon-cta' href='https://www.patreon.com/alemayhu'>patrons</a> 🤩</p>"
+      cik = 'image'
+      if 'image' in deck:
+        image = deck['image']
+        deck_desc += """
+          <style>
+          html {
+            width: 100vw;
+            height: 100vh;
+          }
+          body {
+              background: url(%s) no-repeat;
+              background-size: cover;
+              color: white;
+          }
+          center {
+              background: linear-gradient(45deg, black, transparent);
+              mix-blend-mode: difference;
+              border-radius: 0.2rem;
+              padding: 1rem;
+          }          
+          p {
             color: white;
-        }
-        center {
-            background: linear-gradient(45deg, black, transparent);
-            mix-blend-mode: difference;
-            border-radius: 0.2rem;
-            padding: 1rem;
-        }          
-        p {
-          color: white;
-        }
-        p:first-of-type {
-            text-align: center;
-        }
-        .review-count,
-        .learn-count,
-        .new-count {
-            padding: 0.1rem 0.3rem;
-            background: white;
-            border-radius: 0.3rem;
-        }
+          }
+          p:first-of-type {
+              text-align: center;
+          }
+          .review-count,
+          .learn-count,
+          .new-count {
+              padding: 0.1rem 0.3rem;
+              background: white;
+              border-radius: 0.3rem;
+          }
 
-        .patreon-cta {
-            text-decoration: none;
-            color: white;
-            background: tomato;
-            padding: 0.1rem 0.3rem;
-            border-radius: 0.3rem;
-            text-align: center;   
-        }
-        </style>
-      """ % (image)
+          .patreon-cta {
+              text-decoration: none;
+              color: white;
+              background: tomato;
+              padding: 0.1rem 0.3rem;
+              border-radius: 0.3rem;
+              text-align: center;   
+          }
+          </style>
+        """ % (image)
+        decks.append({"notes": notes, "id": deck_id, "desc": deck_desc, "name": deck_name})
 
-  _wr_apkg(notes, deck_id, deck_name, data['media'], deck_desc)
+  _wr_apkg(decks, media_files)
