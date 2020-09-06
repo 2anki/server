@@ -28,12 +28,14 @@ tag home-page
 			<section.hero.is-medium>
 				<div.hero-body>
 					<div.container>
-						<h1 .title .is-size-1> "Create better Anki flashcards faster and easier today ✨"
+						<h1 .title .is-size-1> "Create beautiful Anki flashcards faster and easier today ✨"
 						<hr>
 						<h2.subtitle> "Convert Notion toggle lists to Anki Flashcards fast and easy 😉"					
 						<.columns>
 							<.column>
-								<p.subtitle .is-3> "{<strong[fw: bold]> "notion2Anki"} is free and open source. It's a passion project 🕺🏾💃🏾 We are going to make this a good way to make Anki flashcards easier, better and faster for anyone anywhere around the world 🌎"
+								<p.subtitle .is-3> "{<strong[fw: bold]> "notion2Anki"} is free and open source."
+								<p.subtitle .is-3> "It's a passion project 🕺🏾💃🏾"
+								<p.subtitle .is-4> "We are making it the easiest and fastest way to create beautiful Anki flashcards easier for anyone anywhere around the world 🌎"
 
 								<div[d: flex j: center a: center mt: 2rem flex-wrap: wrap].columns>
 									<div.column>
@@ -61,7 +63,7 @@ tag home-page
 										<span .bd-focus.github .icon .is-large>
 											<i .fa-4x .fas .fa-shipping-fast>
 								<.column .bd-focus-item .has-text-centered>
-									<p .title .is-4> "150mb"
+									<p .title .is-4> "150MB"
 									<p .subtitle .is-6> "Free upload quota"									
 									<figure .bd-focus-icon>
 										<span .bd-focus.github .icon .is-large>
