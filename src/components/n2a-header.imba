@@ -20,7 +20,7 @@ tag n2a-header
 					<div.navbar-start>
 						<.navbar-item>
 							<a[my: 2rem c@focus: #3273DC] .button .is-primary href="/upload"> "Create"
-						<a.navbar-item href="/benefits"> "benefits" 
+						<a.navbar-item href="/benefits"> "Benefits"
 						<a.navbar-item href="/contact"> "Contact"
 						<a.navbar-item href="/faq"> "FAQ"
 						<a.navbar-item href="/privacy"> "Privacy"		
