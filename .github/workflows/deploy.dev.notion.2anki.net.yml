@@ -1,9 +1,9 @@
-name: Deploy To Production
+name: Deploy To dev.notion.2anki.net
 
 on:
   push:
     branches:
-      - master
+      - dev
 
 jobs:
   build:
@@ -17,4 +17,4 @@ jobs:
       env:
         PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
         HOST: 2anki.net
-        PROJECT: notion
+        PROJECT: dev.notion
