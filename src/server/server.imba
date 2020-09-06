@@ -32,6 +32,10 @@ app.get('/version') do |req, res|
 	const v = appInfo.version
 	res.status(200).send(v)
 
+app.get('notion.2anki.net/*') do |req, res|
+	let sti = req.orginalUrl.split('notion.2anki.net')[1]
+	res.redirect("https://2anki.net/{sti}")
+
 const old = ['/notion', '/index', '/contact', '/privacy', '/upload', '/faq', '/benefits', '/useful-links', '/links']
 for p in old
 	console.log('setting up request handler for ', p)
