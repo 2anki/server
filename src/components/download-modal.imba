@@ -23,3 +23,8 @@ tag download-modal
 							<p> "This deck is brought to you by our amazing {<a href="https://www.patreon.com/alemayhu"> "patrons"} 🧡"
 							<a[m: 2rem].button.is-primary href=downloadLink @click.didDownload download=deckName> "Click to Download"
 							<youtube-embed video='https://www.youtube.com/embed/EoB_zj7jeEk' title="Patreon Intro 🧡" inline=false>
+							<.has-text-centered>
+								<a.button[bg: rgb(232, 91, 70) c: white border-radius: 0.3rem] target="_blank" href="https://www.patreon.com/alemayhu">
+									<span .icon .is-large>
+										<i.fab.fa-patreon>
+									<span[tt: uppercase fw: bold]> "Become a Patron"							
