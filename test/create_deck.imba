@@ -19,7 +19,7 @@ def test_fixture file_name, deck_name, card_count, files = {}
 		const example = fs.readFileSync(file_path).toString()
 		const isMarkdown = example.match(/.(md|html)$/)
 		const deck = new DeckParser(isMarkdown, example)		
-		const payload = deck.payload
+		const payload = deck.payload[0]
 
 		eq(payload.style != undefined, true, "Style is not set")
 
