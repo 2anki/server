@@ -17,4 +17,4 @@ jobs:
       env:
         PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
         HOST: 2anki.net
-        PROJECT: dev.notion
+        PROJECT: 2anki
