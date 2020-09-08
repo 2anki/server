@@ -19,23 +19,68 @@ from genanki import guid_for
 def _wr_apkg(payload, media_files):
   """Write cloze cards to an Anki apkg file"""
   decks = []
+  firstId = ''
   for p in payload:
     deck = Deck(deck_id=p['id'], name=p['name'], description=p['desc'])
+    if not firstId:
+      firstId = p['id']
     for note in p['notes']:
       deck.add_note(note)
     decks.append(deck)
 
   pkg = Package(decks)
-  pkg.media_files = ",".join(media_files)
-  fout_anki = '{NAME}.apkg'.format(NAME=p['id'])
+  pkg.media_files = media_files
+  fout_anki = '{NAME}.apkg'.format(NAME=firstId)
 
   pkg.write_to_file(fout_anki)
   sys.stdout.write(os.getcwd()+'/'+fout_anki)
 
+def _build_deck_description(image):
+        return """
+          <style>
+          html {
+            width: 100vw;
+            height: 100vh;
+          }
+          body {
+              background: url(%s) no-repeat;
+              background-size: cover;
+              color: white;
+          }
+          center {
+              background: linear-gradient(45deg, black, transparent);
+              mix-blend-mode: difference;
+              border-radius: 0.2rem;
+              padding: 1rem;
+          }          
+          p {
+            color: white;
+          }
+          p:first-of-type {
+              text-align: center;
+          }
+          .review-count,
+          .learn-count,
+          .new-count {
+              padding: 0.1rem 0.3rem;
+              background: white;
+              border-radius: 0.3rem;
+          }
+
+          .patreon-cta {
+              text-decoration: none;
+              color: white;
+              background: tomato;
+              padding: 0.1rem 0.3rem;
+              border-radius: 0.3rem;
+              text-align: center;   
+          }
+          </style>
+        """ % (image)
+
 if __name__ == '__main__':
   data_file = sys.argv[1]
   deck_style = sys.argv[2]
-  deck_name = ''
   # TODO: error handling
 
   CSS = ""
@@ -126,8 +171,6 @@ if __name__ == '__main__':
     media_files = []
     decks = []
     for deck in data:
-      deck_name = deck['name']
-      deck_id = deck['id']
       notes = []
     
       for card in deck['cards']:
@@ -146,48 +189,7 @@ if __name__ == '__main__':
       deck_desc = "<p>This deck is brought to you by some amazing <a class='patreon-cta' href='https://www.patreon.com/alemayhu'>patrons</a> 🤩</p>"
       cik = 'image'
       if 'image' in deck:
-        image = deck['image']
-        deck_desc += """
-          <style>
-          html {
-            width: 100vw;
-            height: 100vh;
-          }
-          body {
-              background: url(%s) no-repeat;
-              background-size: cover;
-              color: white;
-          }
-          center {
-              background: linear-gradient(45deg, black, transparent);
-              mix-blend-mode: difference;
-              border-radius: 0.2rem;
-              padding: 1rem;
-          }          
-          p {
-            color: white;
-          }
-          p:first-of-type {
-              text-align: center;
-          }
-          .review-count,
-          .learn-count,
-          .new-count {
-              padding: 0.1rem 0.3rem;
-              background: white;
-              border-radius: 0.3rem;
-          }
-
-          .patreon-cta {
-              text-decoration: none;
-              color: white;
-              background: tomato;
-              padding: 0.1rem 0.3rem;
-              border-radius: 0.3rem;
-              text-align: center;   
-          }
-          </style>
-        """ % (image)
-        decks.append({"notes": notes, "id": deck_id, "desc": deck_desc, "name": deck_name})
+        deck_desc += _build_deck_description(deck['image'])
+      decks.append({"notes": notes, "id": deck['id'], "desc": deck_desc, "name": deck['name']})
 
   _wr_apkg(decks, media_files)

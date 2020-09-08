@@ -22,10 +22,12 @@ String.prototype.replaceAll = do |oldValue, newValue|
 
 class CustomExporter
 
+	prop first_deck_name
 	prop workspace
 	prop media
 	
-	def constructor workspace
+	def constructor first_deck_name, workspace
+		self.first_deck_name = first_deck_name.replace('.html', '')
 		self.workspace = workspace
 		self.media ||= []
 
@@ -51,16 +53,16 @@ export class DeckParser
 
 	get name do self.payload[0].name
 
-	def constructor md, contents, settings = {}, files
+	def constructor file_name, settings = {}, files
 		const deckName = settings.deckName
+		const contents = files[file_name]
 		self.settings = settings
 		self.settings['font-size'] = self.settings['font-size'] + 'px'
 		self.use_input = self.enable_input!
 		self.use_cloze = self.is_cloze!
 		self.image = null
 		self.files = files || []
-		if md
-			TriggerUnsupportedFormat()
+		self.first_deck_name = file_name
 		self.payload = handleHTML(contents, deckName)
 
 	def handleHTML contents, deckName = null, decks = []
@@ -173,14 +175,17 @@ export class DeckParser
 		const css = deck.style.replaceAll("'", '"')
 		fs.mkdirSync(workspace)
 		fs.writeFileSync(path.join(workspace, 'deck_style.css'), css)
-		return new CustomExporter(workspace)
+		return new CustomExporter(self.first_deck_name, workspace)
 
 	def embedFile exporter, files, filePath
 		console.log('embedFile', Object.keys(files), filePath)
 		const suffix = self.suffix(filePath)
 		return null if !suffix
-
 		let file = files["{filePath}"]
+		if !file
+			file = files["{exporter.first_deck_name}/{filePath}"]
+			if !file
+				throw new Error("Missing relative path to {filePath} used {exporter.first_deck_name}")
 		const newName = self.newUniqueFileName(filePath) + suffix
 		exporter.addMedia(newName, file)
 		return newName
@@ -330,7 +335,7 @@ export class DeckParser
 		exporter.save()
 
 export def PrepareDeck file_name, files, settings
-		const parser = new DeckParser(file_name.match(/.md$/), files[file_name], settings, files)
+		const parser = new DeckParser(file_name, settings, files)
 		const apkg = await parser.build()
 		# TODO: rename decks below to something more sensible
 		{name: "{parser.name}.apkg", apkg: apkg, deck: parser.payload}
