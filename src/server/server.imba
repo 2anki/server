@@ -25,9 +25,6 @@ const distDir = path.join(__dirname, "../../dist")
 
 app.use(express.static(distDir))
 
-app.use(require('prerender-node'))
-
-
 const appInfo = JSON.parse(fs.readFileSync(path.join(__dirname, '../../package.json')).toString!)
 
 app.get('/checks') do $2.status(200).send('Notion 2 Anki')
