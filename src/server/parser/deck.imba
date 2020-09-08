@@ -271,6 +271,7 @@ export class DeckParser
 
 			# Counter for perserving the order in Anki deck.
 			let counter = 0
+			const addThese = []
 			for card in deck.cards
 				console.log("exporting {deck.name} {deck.cards.indexOf(card)} / {card_count}")
 				card.number = counter++
@@ -321,15 +322,13 @@ export class DeckParser
 
 				const tags = card.tags ? {tags: card.tags} : {}
 				const cardType = self.settings['card-type']
-				if cardType == 'Basic and reversed' or cardType == 'basic-reversed'
-						exporter.addCard(deck.name, card.name, card.back, tags)
-						exporter.addCard(deck.name, card.back, card.name, tags)
-				elif cardType == 'Just the reversed' or cardType == 'reversed'
-						exporter.addCard(deck.name, card.back, card.name, tags)
-				else
-						exporter.addCard(deck.name, card.name, card.back, tags)
-				console.log('log card', JSON.stringify(card, null, 2))
-				
+				if cardType == 'basic-reversed'
+						addThese.push({name: card.back, back: card.name, tags: tags, media: card.media, number: counter++})
+				elif cardType == 'reversed'
+					const tmp = card.back
+					card.back = card.name
+					card.name = tmp
+			deck.cards = deck.cards.concat(addThese)	
 		exporter.configure(self.payload)
 		exporter.save()
 

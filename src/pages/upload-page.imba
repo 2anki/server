@@ -28,6 +28,7 @@ tag upload-page
 				errorMessage = "status.code={request.status}\n{text}"
 				return errorMessage
 
+			# TODO: add unqiue timestamp to filename for uniqueness
 			deckName = contentType == 'application/zip' ? "Your Decks.zip" : "Your deck.apkg"
 			const blob = await request.blob()
 			downloadLink = window.URL.createObjectURL(blob)
@@ -71,7 +72,7 @@ tag upload-page
 						<div[mt: 1rem].control.has-icons-left>
 							<div.select.is-medium>
 								<.select> 
-									<select$cardType name="toggle-mode">
+									<select$toggleMode name="toggle-mode">
 										<option value="open_toggle"> "Open nested toggles"
 										<option value="close_toggle"> "Close nested toggles"
 							<span.icon.is-large.is-left>
