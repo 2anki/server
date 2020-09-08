@@ -87,6 +87,7 @@ tag home-page
 					<a .button .is-large .is-primary[bg: #3273dc fw: bold white-space: normal fs: 11pt fs@md: 16pt] target="_blank" href="https://discord.gg/PSKC3uS"> "Let's grow the community, join us on Discord 🤗"
 
 			<.section .bd-easy .is-medium>
+			
 				<.container>
 					<h3 .title .is-3> "Save your {<span[c: #00D1B2]> "time"} today ⏳"
 					<h4 .subtitle .is-4> "Let notion2anki do it in 10 seconds for you"
