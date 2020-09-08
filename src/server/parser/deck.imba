@@ -128,11 +128,10 @@ export class DeckParser
 			const spDom = dom(page)
 			const ref = spDom.find('a').first()
 			const href = ref.attr('href')
-			if href.startsWith('http')
-				throw new Error('Unsupported sub page type')
 			const pageContent = self.files[global.decodeURIComponent(href)]
-			const subDeckName = spDom.find('title').text() || ref.text()
-			self.handleHTML(pageContent, "{name}::{subDeckName}", decks)
+			if pageContent
+				const subDeckName = spDom.find('title').text() || ref.text()
+				self.handleHTML(pageContent, "{name}::{subDeckName}", decks)
 
 		return decks
 
