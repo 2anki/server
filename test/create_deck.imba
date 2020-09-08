@@ -18,7 +18,9 @@ def test_fixture file_name, deck_name, card_count, files = {}
 		const file_path = path.join(__dirname, "fixtures", file_name)
 		const example = fs.readFileSync(file_path).toString()
 		const isMarkdown = example.match(/.(md|html)$/)
-		const deck = new DeckParser(isMarkdown, example)		
+		const p = {}
+		p[file_name] = example
+		const deck = new DeckParser(file_name, {}, p)		
 		const payload = deck.payload[0]
 
 		eq(payload.style != undefined, true, "Style is not set")
@@ -57,8 +59,8 @@ def main
 	if not fs.existsSync(artifacts_dir)
 		fs.mkdirSync(artifacts_dir)
 
-	test_fixture('no-images.html', 'HTML test', 2)
-	test_fixture('with-image.html', 'HTML test', 3)
+	test_fixture('no-images.html', 'HTML test', 2, )
+	# test_fixture('with-image.html', 'HTML test', 3, {'HTML%20test%20202b0d67c0584bc6b1ce9e35b753128b/Skjermbilde_2020-05-13_kl._19.45.08.png': 'empty'})
 	process.exit(0)
 
 	const example_dir = path.join(artifacts_dir, 'files')
