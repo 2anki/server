@@ -61,7 +61,7 @@ if __name__ == "__main__":
     CLOZE_STYLE = _read_template(template_dir, "cloze_style.css", "", "")
 
     MY_CLOZE_MODEL = Model(
-        998877661,
+        6394002335189144858,
         "notion2Anki Cloze Model",
         fields=[
             {"name": "Text"},
@@ -80,7 +80,7 @@ if __name__ == "__main__":
     )
 
     BASIC_MODEL = Model(
-        2020,
+        6394002335189144859,
         "notion2anki",
         fields=[
             {"name": "AField"},
@@ -100,7 +100,7 @@ if __name__ == "__main__":
     )
 
     INPUT_MODEL = Model(
-        6394002335189144856,
+        6394002335189144857,
         "notion2anki-input-card",
         fields=[
             {"name": "Front"},
