@@ -10,6 +10,9 @@ tag upload-page
 	prop state = 'ready'
 	prop progress = 0
 	prop fontSize = 20
+
+	get canShowTwitchPromo
+		window.localStorage.getItem('canShowTwitchPromo')
 	
 	def convertFile event
 		unless state == 'ready'
@@ -46,12 +49,20 @@ tag upload-page
 		let selectedFile = filePath.split(/(\\|\/)/g).pop()
 		$selectorFileName.textContent = selectedFile
 
+	def hideTwitchPromo
+		window.localStorage.setItem('canShowTwitchPromo', false)
+
 	def render
 		<self[d: block my: 4rem]>
 			<.section>
 				<.container>
 					<h1.title> "Pick your options"
 					<hr>
+					if !canShowTwitchPromo
+						<.has-text-centered[p: 2]>
+							<.notification[d: inline-block]>
+								<button .delete @click.hideTwitchPromo>
+								"Going live on 💜 {<a target="_blank" href="https://www.twitch.tv/alemayhu"> "Twitch"} today!"
 					<p.subtitle> "Only the zip or HTML file is required. Please use the exported ZIP file to get all your images."
 					<p.subtitle> "Please see the {<a href="/faq"> "FAQ page"} for more information on how to use notion2anki"
 					<form enctype="multipart/form-data" method="post" @submit.prevent=convertFile>
