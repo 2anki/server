@@ -12,7 +12,7 @@ tag upload-page
 	prop fontSize = 20
 
 	get canShowTwitchPromo
-		window.localStorage.getItem('canShowTwitchPromo')
+		false # window.localStorage.getItem('canShowTwitchPromo')
 	
 	def convertFile event
 		unless state == 'ready'
