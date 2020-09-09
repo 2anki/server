@@ -255,6 +255,32 @@ export class DeckParser
 	def generate_id
 		return parseInt(customAlphabet('1234567890', 16)())
 
+	###
+	def treatBoldAsInput input, inline=false
+		const dom = cheerio.load(input)
+		const underlines = dom('strong')
+		let mangle = input
+		let answer = ''
+		underlines.each do |i, elem|
+			const v = dom(elem).html()
+			const old = "<strong>{v}</strong>"
+			mangle = mangle.replaceAll(old, inline ? v : '{{type:Input}}')
+			answer = v
+		{mangle: mangle, answer: answer}
+
+	###
+
+	def locate_tags card
+		let tags = []
+		# TODO: do we also want to create tags from the front card?
+		if card.back
+			const domBack = cheerio.load(card.back)
+			const deletions = domBack('del')
+			deletions.each do |i, elem|
+				const v = domBack(elem).text().replace(/\s/g, '')
+				tags = tags.concat(v.split(','))
+		return tags
+
 	def build
 		console.log('building deck')
 		const workspace = path.join(os.tmpdir(), nanoid())
@@ -320,10 +346,11 @@ export class DeckParser
 						let inputInfo = self.treatBoldAsInput(card.back, true)
 						card.back = inputInfo.mangle
 
-				const tags = card.tags ? {tags: card.tags} : {}
+				card.tags ||= self.locate_tags(card)
+
 				const cardType = self.settings['card-type']
 				if cardType == 'basic-reversed'
-						addThese.push({name: card.back, back: card.name, tags: tags, media: card.media, number: counter++})
+						addThese.push({name: card.back, back: card.name, tags: card.tags, media: card.media, number: counter++})
 				elif cardType == 'reversed'
 					const tmp = card.back
 					card.back = card.name
