@@ -12,9 +12,10 @@ export default class CardGenerator
 
 	def run
 		const dpayload = path.join(self.cwd, 'deck_info.json')
+		const tdir = path.join(__dirname, "../templates/")
 		const dsc = path.join(self.cwd, 'deck_style.css')
 
-		let ccs_args = [ self.ccs, dpayload, dsc]
+		let ccs_args = [ self.ccs, dpayload, dsc, tdir]
 		Promise.new do |resolve, reject|
 			execFile(PYTHON_INTERPRETER, ccs_args, {cwd: self.cwd}) do |err, stdout, stderr|
 				if err
