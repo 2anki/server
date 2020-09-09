@@ -62,7 +62,7 @@ if __name__ == "__main__":
 
     MY_CLOZE_MODEL = Model(
         6394002335189144858,
-        "notion2Anki Cloze Model",
+        "notion-2anki-cloze-model",
         fields=[
             {"name": "Text"},
             {"name": "Extra"},
@@ -81,7 +81,7 @@ if __name__ == "__main__":
 
     BASIC_MODEL = Model(
         6394002335189144859,
-        "notion2anki",
+        "notion-2anki-basic-model",
         fields=[
             {"name": "AField"},
             {"name": "BField"},
@@ -101,7 +101,7 @@ if __name__ == "__main__":
 
     INPUT_MODEL = Model(
         6394002335189144857,
-        "notion2anki-input-card",
+        "notion-2anki-input-card",
         fields=[
             {"name": "Front"},
             {"name": "Back"},
