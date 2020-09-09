@@ -61,8 +61,8 @@ if __name__ == "__main__":
     CLOZE_STYLE = _read_template(template_dir, "cloze_style.css", "", "")
 
     MY_CLOZE_MODEL = Model(
-        6394002335189144858,
-        "notion-2anki-cloze-model",
+        998877661,
+        "notion2Anki Cloze Model",
         fields=[
             {"name": "Text"},
             {"name": "Extra"},
@@ -80,8 +80,8 @@ if __name__ == "__main__":
     )
 
     BASIC_MODEL = Model(
-        6394002335189144859,
-        "notion-2anki-basic-model",
+        2020,
+        "notion2anki",
         fields=[
             {"name": "AField"},
             {"name": "BField"},
@@ -100,8 +100,8 @@ if __name__ == "__main__":
     )
 
     INPUT_MODEL = Model(
-        6394002335189144857,
-        "notion-2anki-input-card",
+        6394002335189144856,
+        "notion2anki-input-card",
         fields=[
             {"name": "Front"},
             {"name": "Back"},
@@ -140,7 +140,7 @@ if __name__ == "__main__":
                         card["answer"],
                         ",".join(card["media"]),
                     ]
-                my_note = Note(model, fields=fields, sort_field=card["number"])
+                my_note = qmodel, fields=fields, sort_field=card["number"], tags=card['tags'])
                 notes.append(my_note)
                 media_files = media_files + card["media"]
             deck_desc = "<p>This deck is brought to you by some amazing <a class='patreon-cta' href='https://www.patreon.com/alemayhu'>patrons</a> 🤩</p>"
