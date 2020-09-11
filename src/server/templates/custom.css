@@ -24,19 +24,17 @@ body {
 }
 
 .front-text-pre {
-  font-size: 18pt;
+  font-size: 1.5rem;
 }
 
 .front-text-post {
   color: gray;
-  font-size: 11pt;
-}
-.back-text {
-  font-size: 18pt;
+  font-size: 1rem;
 }
 
-.front-text-post:hover {
-  color: black;
+.back-text {
+  font-size: 1.5rem;
+  text-align: left;
 }
 
 .extra {
