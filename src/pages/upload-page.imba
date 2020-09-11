@@ -58,7 +58,7 @@ tag upload-page
 				<.container>
 					<h1.title> "Pick your options"
 					<hr>
-					if !canShowTwitchPromo
+					if canShowTwitchPromo
 						<.has-text-centered[p: 2]>
 							<.notification[d: inline-block]>
 								<button .delete @click.hideTwitchPromo>
