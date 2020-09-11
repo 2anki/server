@@ -48,6 +48,7 @@ const allowed = [
 		'https://dev.2anki.net'
 		'https://notion.2anki.com'
 		'https://2anki.net',
+		'https://2anki.com',
 		'https://notion.2anki.net'
 ]
 
