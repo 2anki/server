@@ -13,8 +13,10 @@ notion2Anki 💫 is a passion project 🕺🏾💃🏾 We are going to make this
 and [GitHub sponsors](https://github.com/sponsors/alemayhu) 🤩 Thank you!
 
 [![Patreon](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.herokuapp.com%2Falemayhu&style=for-the-badge)](https://patreon.com/alemayhu)
+[![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/W7W6QZNY)
+
+[![GitHub Sponsor](https://img.shields.io/badge/donate-sponsors-ea4aaa.svg?logo=github)](https://github.com/sponsors/alemayhu/)
 [![Paypal](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/alemayhu)
-[![GitHub Sponsor](https://img.shields.io/badge/donate-sponsors-ea4aaa.svg?logo=github)](https://github.com/sponsors/alemayhu/) [![Ko-Fi](https://img.shields.io/badge/donate-ko--fi-29abe0.svg?logo=ko-fi)](https://ko-fi.com/ptkdev)
 
 You can also support the project financially and receive exclusive member benefits like ✨
 
