@@ -272,15 +272,22 @@ export class DeckParser
 	###
 
 	def locate_tags card
-		let tags = []
-		# TODO: do we also want to create tags from the front card?
-		if card.back
-			const domBack = cheerio.load(card.back)
-			const deletions = domBack('del')
+		let input = [card.name, card.back]
+		card.tags ||= []
+
+		for i in input
+			continue if not i
+
+			const dom = cheerio.load(i)
+			const deletions = dom('del')
+
 			deletions.each do |i, elem|
-				const v = domBack(elem).text().replace(/\s/g, '')
-				tags = tags.concat(v.split(','))
-		return tags
+				const t = dom(elem).text()							
+				card.tags = t.split(',').map do $1.trim().replace(/\s/g, '-')
+				card.back = card.back.replaceAll("<del>{t}</del>", '')
+				card.name = card.name.replaceAll("<del>{t}</del>", '')
+				console.log('x1 tags', card.tags)
+		return card
 
 	def build
 		console.log('building deck')
@@ -347,7 +354,7 @@ export class DeckParser
 						let inputInfo = self.treatBoldAsInput(card.back, true)
 						card.back = inputInfo.mangle
 
-				card.tags ||= self.locate_tags(card)
+				card = self.locate_tags(card)
 
 				const cardType = self.settings['card-type']
 				if cardType == 'basic-reversed'
