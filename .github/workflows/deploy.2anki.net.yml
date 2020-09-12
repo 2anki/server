@@ -1,4 +1,4 @@
-name: Deploy To dev.notion.2anki.net
+name: Deploy to 2anki.net
 
 on:
   push:
