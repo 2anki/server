@@ -69,6 +69,7 @@ export class DeckParser
 		const dom = cheerio.load(contents)
 		let name = deckName || dom('title').text()
 		let style = dom('style').html()
+		style = style.replace(/white-space: pre-wrap;/g, '')
 		let image = null
 		
 		if self.settings['font-size'] != '20px'
