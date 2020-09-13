@@ -21,6 +21,7 @@ tag download-modal
 					<section.modal-card-body>
 						<.has-text-centered>
 							<p> "This deck is brought to you by our amazing {<a href="https://www.patreon.com/alemayhu"> "patrons"} 🧡"
+							<p> "Vipps til 401 04 387 (Alexander Alemayhu) 🙏🏾 "
 							<a[m: 2rem].button.is-primary href=downloadLink @click.didDownload download=deckName> "Click to Download"
 							<youtube-embed video='https://www.youtube.com/embed/EoB_zj7jeEk' title="Patreon Intro 🧡" inline=false>
 							<.has-text-centered>
