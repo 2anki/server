@@ -39,36 +39,22 @@ tag home-page
 								<.has-text-centered>
 									<youtube-embed video=heroVideo inline=false title=heroVideoTitle>
 									<a.button.is-light .is-large href="https://www.youtube.com/playlist?list=PLzOAzzqpDqukOtwH3IYWiOhr_sjBjfgCd" target="_blank">
-										<span.icon[c: red]>
-											<i.fab.fa-youtube>
-										<span[fw: bold]> "Tutorials"
+										<span[fw: bold]> "More Tutorials"
 
 						<.bd-focus[m: 3rem auto 0]>
 							<.columns>
 								<.column .bd-focus-item .has-text-centered>
 									<p .title .is-4> "Free"
 									<p .subtitle .is-6> "The code is on {<strong> "GitHub"}"									
-									<figure .bd-focus-icon>
-										<span .bd-focus.github .icon .is-large>
-											<i.fa-4x.fab.fa-github>
 								<.column .bd-focus-item .has-text-centered>
 									<p .title .is-4> "Fast"
 									<p .subtitle .is-6> "Trade hours for seconds"									
-									<figure .bd-focus-icon>
-										<span .bd-focus.github .icon .is-large>
-											<i .fa-4x .fas .fa-shipping-fast>
 								<.column .bd-focus-item .has-text-centered>
 									<p .title .is-4> "150MB"
 									<p .subtitle .is-6> "Free upload quota"									
-									<figure .bd-focus-icon>
-										<span .bd-focus.github .icon .is-large>
-											<i .fa-4x .fas .fa-file-archive>												
 								<.column .bd-focus-item .has-text-centered>
 									<p .title .is-4> "Friendly"
 									<p .subtitle .is-6> "Join a community of winners 💪🏾"									
-									<figure .bd-focus-icon>
-										<span .bd-focus.github .icon .is-large>
-											<i .fa-4x .fas .fa-splotch>												
 			<.section .bd-tws-home .is-medium[bgc: #F9F9F9 w: 100%]>
 				<header .bd-index-header>
 					<.container>

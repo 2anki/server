@@ -19,16 +19,7 @@ tag n2a-header < header
 				<div#navbarExampleTransparentExample.navbar-menu.is-active=active>
 					<div.navbar-start>
 						<.navbar-item>
-							<a[my: 2rem c@focus: #3273DC] .button .is-primary href="/upload"> "Create"
-						<.navbar-item>
-							<p.control[p: 2]>
-								<a[c: #7289da] target="_blank" href="https://discord.gg/PSKC3uS">
-									<span.icon .is-large>
-										<i .fa-2x .fab.fa-discord>
-							<p.control[p: 2]>
-								<a[c: #6441a5] target="_blank" href="https://twitch.tv/alemayhu">
-									<span.icon .is-large>
-										<i .fa-2x .fab.fa-twitch>							
+							<a[fw: bold my: 2rem c@focus: #3273DC] .button .is-primary href="/upload"> "Create"
 						<a.navbar-item href="/benefits"> "Benefits"
 						<a.navbar-item href="/contact"> "Contact"
 						<a.navbar-item href="/faq"> "FAQ"
@@ -38,21 +29,7 @@ tag n2a-header < header
 					<div.navbar-end>
 						<div.navbar-item>
 							<a.button[bd: 3px solid rgb(232, 91, 70) c: rgb(232, 91, 70) border-radius: 0.3rem] target="_blank" href="https://www.patreon.com/alemayhu">
-								<span .icon .is-large>
-									<i.fab.fa-patreon>
 								<span[tt: uppercase fw: bold]> "Become a Patron"							
 						<div.navbar-item>
 							<a.button[bd: 3px solid #00B1D2 c: #00B1D2] target="_blank" href="https://github.com/sponsors/alemayhu">
-								<span .icon .is-large>
-									<i.fab.fa-github>
-								<span[tt: uppercase fw: bold]> "Sponsor"				
-
-						<div.navbar-item>
-							<div.field.is-grouped>
-								<p.control[p:2]>
-									<a[c: blue] href="https://paypal.me/alemayhu">
-										<span .icon .is-large> <i .fa-2x .fab .fa-paypal aria-hidden="true">
-								<p.control[p: 2]>
-									<a[c: black] target="_blank" href="https://github.com/alemayhu/notion2anki">
-										<span .icon .is-large>
-											<i .fa-2x .fab.fa-github>
+								<span[tt: uppercase fw: bold]> "Sponsor"

@@ -22,9 +22,8 @@ tag youtube-embed
 							<iframe.self-center src=video allowFullScreen="allowFullScreen" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen;">
 		elif inline
 			<a href=video target="_target"> title
-			<button[c: red bg: transparent p: 2] @click.pressedIcon>
-				<span.icon>
-					<i .fa-2x .fab.fa-youtube>
+			<div>
+				<button[c: white rd: 0.3rem bg: red p: 2] @click.pressedIcon> "Click for Video"
 		else
 			<.is-video>
 				<iframe.self-center src=video allowFullScreen="allowFullScreen" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; fullscreen;">

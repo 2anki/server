@@ -42,9 +42,7 @@ tag download-modal
 							<.has-text-centered>
 									<a href="https://patreon.com/alemayhu"> <img src="become_a_patron_button.png" alt="Become a Patreon" loading="lazy">
 								<.has-text-centered>
-									<a.button .is-large href="https://paypal.me/alemayhu">
-										<span .icon .is-large> <i .fab .fa-paypal aria-hidden="true">
-										<span> "Paypal"
+									<a.button .is-large href="https://paypal.me/alemayhu"> <span> "Paypal"
 								<h4 .title .is-4> "Other Ways to Contribute"
 								<p.subtitle> 
 									"If you know someone who can benefit from notion2anki, please share it with them. We want to save people time, anywhere in the world 🌎 "

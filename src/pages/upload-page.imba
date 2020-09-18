@@ -72,7 +72,7 @@ tag upload-page
 								<input$input.input[fw: bold c: #83C9F5 @placeholder: grey] placeholder="Enter deck name (optional)" name="deckName" type="text">
 						<.field>	
 							<label.label> "Card Types" 
-							<.control[mt: 1rem].control.has-icons-left>
+							<.control[mt: 1rem].control>
 								<div.select.is-medium>
 									<.select> 
 										<select$cardType name="card-type">
@@ -81,18 +81,14 @@ tag upload-page
 											<option value="basic-reversed"> "Basic and reversed"
 											<option value="reversed"> "Just the reversed"
 											<option value="enable-input"> "Treat bold text as input"
-								<span.icon.is-large.is-left>
-									<i.fas.fa-chalkboard>
 						<.field>
 							<label.label> "Toggle Mode" 
-							<.control[mt: 1rem].control.has-icons-left>
+							<.control[mt: 1rem].control>
 								<div.select.is-medium>
 									<.select> 
 										<select$toggleMode name="toggle-mode">
 											<option value="open_toggle"> "Open nested toggles"
 											<option value="close_toggle"> "Close nested toggles"
-								<span.icon.is-large.is-left>
-									<i .fas .fa-stream>
 						<.field>
 							<label.label> "Font Size" 
 							<.control[d: grid jc: start]>
@@ -105,8 +101,6 @@ tag upload-page
 								<p .subtitle> "Please refresh and try again otherwise report this bug to the developer on Discord with a screenshot 📸"
 								<.notification .is-danger innerHTML=errorMessage>
 								<a.button target="_blank" href="https://discord.gg/PSKC3uS">
-									<span.icon>
-										<i.fab.fa-discord>
 									<span> "Discord"
 						else
 							<div.field>
@@ -114,8 +108,6 @@ tag upload-page
 									<label.file-label>
 										<input$selectorInput.file-input type="file" name="pakker" accept=".zip,.html,.md" required @change=fileSelected multiple="multiple">
 										<span$selectorBackground.file-cta[bg: gray]>
-											<span.file-icon>
-												<i.fas.fa-upload>
 											<span$selectorLabel.file-label> "Click to Upload…"
 										<span$selectorFileName.file-name> "My Notion Export.zip"
 							<.has-text-centered>
@@ -124,4 +116,4 @@ tag upload-page
 								elif state == 'ready'
 									<button[mt: 2rem].button.cta .is-large .is-primary type="submit"> "Convert"
 								else
-									<button[mt: 2rem].button.cta .is-large .is-primary type="submit"> <i .fa .fa-spinner .fa-spin> ""
+									<button[mt: 2rem].button.cta .is-large .is-primary type="submit"> "Please wait 🙏🏾"
