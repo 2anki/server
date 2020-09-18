@@ -70,24 +70,6 @@ tag upload-page
 							<label.label> "Deck Name"
 							<.control>
 								<input$input.input[fw: bold c: #83C9F5 @placeholder: grey] placeholder="Enter deck name (optional)" name="deckName" type="text">
-						<.field>
-							<label.label> "Font Size" 
-							<.control[d: grid jc: start]>
-								<div[bd: 1px solid lightgray br: 5px p: 0]>
-									<p> for fontPreset in [32, 26, 20, 12, 10]
-											<span[fs: {fontPreset}px p: 3px br: 5px m: 0 8px] [c: #00d1b2]=(fontPreset == fontSize) @click.{fontSize = fontPreset}> "Aa"
-								<div[h: 50px]>
-										<p[fs: {fontSize}px white-space: nowrap mt: 1rem]> "👁 font size preview..."
-						<.field>
-							<label.label> "Toggle Mode" 
-							<.control[mt: 1rem].control.has-icons-left>
-								<div.select.is-medium>
-									<.select> 
-										<select$toggleMode name="toggle-mode">
-											<option value="open_toggle"> "Open nested toggles"
-											<option value="close_toggle"> "Close nested toggles"
-								<span.icon.is-large.is-left>
-									<i .fas .fa-stream>
 						<.field>	
 							<label.label> "Card Types" 
 							<.control[mt: 1rem].control.has-icons-left>
@@ -101,6 +83,24 @@ tag upload-page
 											<option value="enable-input"> "Treat bold text as input"
 								<span.icon.is-large.is-left>
 									<i.fas.fa-chalkboard>
+						<.field>
+							<label.label> "Toggle Mode" 
+							<.control[mt: 1rem].control.has-icons-left>
+								<div.select.is-medium>
+									<.select> 
+										<select$toggleMode name="toggle-mode">
+											<option value="open_toggle"> "Open nested toggles"
+											<option value="close_toggle"> "Close nested toggles"
+								<span.icon.is-large.is-left>
+									<i .fas .fa-stream>
+						<.field>
+							<label.label> "Font Size" 
+							<.control[d: grid jc: start]>
+								<div[bd: 1px solid lightgray br: 5px p: 0]>
+									<p> for fontPreset in [32, 26, 20, 12, 10]
+											<span[fs: {fontPreset}px p: 3px br: 5px m: 0 8px] [c: #00d1b2]=(fontPreset == fontSize) @click.{fontSize = fontPreset}> "Aa"
+								<div[h: 50px]>
+										<p[fs: {fontSize}px white-space: nowrap mt: 1rem]> "👁 font size preview..."
 						if errorMessage
 							<.has-text-centered[m: 2rem]>
 								<h1 .title .is-3> "Oh snap, just got an error 😢"
