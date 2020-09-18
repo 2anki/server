@@ -1862,10 +1862,10 @@ iferr@^0.1.5:
   resolved "https://registry.yarnpkg.com/iferr/-/iferr-0.1.5.tgz#c60eed69e6d8fdb6b3104a1fcbca1c192dc5b501"
   integrity sha1-xg7taebY/bazEEofy8ocGS3FtQE=
 
-imba@^2.0.0-alpha.91:
-  version "2.0.0-alpha.91"
-  resolved "https://registry.yarnpkg.com/imba/-/imba-2.0.0-alpha.91.tgz#594a3d74e4aced753a3dede604893f51f791b761"
-  integrity sha512-ZItgw2leNdUVJzK+Kp9o3CudfK55XvpiBq2TAlnGryFZsUiMnr+uX4Cw2PMFw/wuHiirybPiHJKSbOuCfYxoPQ==
+imba@^2.0.0-alpha.95:
+  version "2.0.0-alpha.95"
+  resolved "https://registry.yarnpkg.com/imba/-/imba-2.0.0-alpha.95.tgz#755ef8fde3ba40ec8fe3bbc6b0b85158b543e84c"
+  integrity sha512-SEyPtJAH2IG5DI/z3HUzibHqa/JfeVaL45bib+u6AzcGV+uSRCrhg4fW0BEo8JTxAZ1DRxwZKTp6BsOpzpAPdw==
 
 immediate@~3.0.5:
   version "3.0.6"
