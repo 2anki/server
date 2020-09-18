@@ -120,25 +120,8 @@ tag upload-page
 										<span$selectorFileName.file-name> "My Notion Export.zip"
 							<.has-text-centered>
 								if downloadLink
-									<download-modal title="Download Ready" downloadLink=downloadLink deckName=deckName>
+									<download-modal title="Download Ready 🥳" downloadLink=downloadLink deckName=deckName>
 								elif state == 'ready'
 									<button[mt: 2rem].button.cta .is-large .is-primary type="submit"> "Convert"
 								else
 									<button[mt: 2rem].button.cta .is-large .is-primary type="submit"> <i .fa .fa-spinner .fa-spin> ""
-			<.section>
-				<.container>
-					<h3 .title .is-3> "Support this project"
-					<hr>
-					<p.subtitle> "This project is 100% free and will remain free! Please if you have the means you can support this project via these options 🙏🏾"
-					<.has-text-centered>
-							<a href="https://patreon.com/alemayhu"> <img src="become_a_patron_button.png" alt="Become a Patreon" loading="lazy">
-						<.has-text-centered>
-							<a.button .is-large href="https://paypal.me/alemayhu">
-								<span .icon .is-large> <i .fab .fa-paypal aria-hidden="true">
-								<span> "Paypal"
-						<h4 .title .is-4> "Other Ways to Contribute"
-						<p.subtitle> 
-							"If you know someone who can benefit from notion2anki, please share it with them. We want to save people time, anywhere in the world 🌎 "
-							"If you are missing a feature or format, let us know on {<a href="https://github.com/alemayhu/notion2anki"> "GitHub"} or the {<a href="https://discord.gg/PSKC3uS" target="_blank"> "Discord"}."
-						<p.subtitle>
-							"If you are ready for a challenge then make a video and show people how easy it is to create great flashcards! Remember to send us the link or video file!"
