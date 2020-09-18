@@ -28,12 +28,12 @@ tag n2a-header
 
 					<div.navbar-end>
 						<div.navbar-item>
-							<a.button[bg: rgb(232, 91, 70) c: white border-radius: 0.3rem] target="_blank" href="https://www.patreon.com/alemayhu">
+							<a.button[bd: 3px solid rgb(232, 91, 70) c: rgb(232, 91, 70) border-radius: 0.3rem] target="_blank" href="https://www.patreon.com/alemayhu">
 								<span .icon .is-large>
 									<i.fab.fa-patreon>
 								<span[tt: uppercase fw: bold]> "Become a Patron"							
 						<div.navbar-item>
-							<a.button.is-primary target="_blank" href="https://github.com/sponsors/alemayhu">
+							<a.button[bd: 3px solid #00B1D2 c: #00B1D2] target="_blank" href="https://github.com/sponsors/alemayhu">
 								<span .icon .is-large>
 									<i.fab.fa-github>
 								<span[tt: uppercase fw: bold]> "Sponsor"							
