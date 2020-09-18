@@ -10,8 +10,8 @@ tag benefits-page
 	css div py: 1rem
 
 	def render
-		<self[d: block my: 4rem]>
-			<.section>
+		<self[d: block]>
+			<.section[d: block m: 4rem]>
 				<.container>
 					<h1.title> "The benefits you get from using notion2anki 💫"
 					<hr>

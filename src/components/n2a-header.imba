@@ -1,13 +1,13 @@
 import './call-for-action'
 
-tag n2a-header
+tag n2a-header < header
 
 	css h1 fs:2xl fw: bold ls: -0.025rem m: 0 p: 0.5rem 1rem c: #1E1D1C 
 
 	prop active = false
 
 	def render
-		<self>
+		<self[d: block py: 1rem bg: red]>
 			<nav.navbar .is-fixed-top>
 				<div.navbar-brand>
 					<a.navbar-item href="/">
