@@ -24,31 +24,26 @@ tag home-page
 
 
 	def render
-		<self[d: block my: 4rem]>
+		<self[d: block my: 1rem]>
 			<section.hero.is-medium>
 				<div.hero-body>
 					<div.container>
-						<h1 .title .is-size-1> "Create beautiful Anki flashcards faster and easier today ✨"
-						<hr>
-						<h2.subtitle> "Convert Notion toggle lists to Anki Flashcards fast and easy 😉"					
 						<.columns>
 							<.column>
-								<p.subtitle .is-3> "{<strong[fw: bold]> "notion2Anki"} is free and open source."
-								<p.subtitle .is-3> "It's a passion project 🕺🏾💃🏾"
-								<p.subtitle .is-4> "We are making it the easiest and fastest way to create beautiful Anki flashcards easier for anyone anywhere around the world 🌎"
-
-								<div[d: flex j: center a: center mt: 2rem flex-wrap: wrap].columns>
-									<div.column>
-										<a.button[fw: bold] .is-primary .is-large href="/upload"> "Get Started"
-									<div.column>
-										<a.button.is-light .is-large href="https://www.youtube.com/playlist?list=PLzOAzzqpDqukOtwH3IYWiOhr_sjBjfgCd" target="_blank">
-											<span.icon[c: red]>
-												<i.fab.fa-youtube>
-											<span[fw: bold]> "Tutorials"
+								<h1 .title .is-size-1> "Create Anki flashcards ✨"								
+								<h2.subtitle> "Fast, simple, easy and 100% {<span[fw: bold td: underline tdc: green3]> "Free"}"					
+								<p.subtitle .is-4> "It's a passion project 🕺🏾💃🏾"
+								<a.button[fw: bold] .is-primary .is-large href="/upload"> "Get Started"
 							<.column>
+								<p.subtitle .is-4> "We are making it the easiest and fastest way to create beautiful ⭐️ Anki flashcards for anyone anywhere around the world 🌎"
 								<.has-text-centered>
 									<youtube-embed video=heroVideo inline=false title=heroVideoTitle>
-						<.bd-focus[m: 6rem auto 0]>
+									<a.button.is-light .is-large href="https://www.youtube.com/playlist?list=PLzOAzzqpDqukOtwH3IYWiOhr_sjBjfgCd" target="_blank">
+										<span.icon[c: red]>
+											<i.fab.fa-youtube>
+										<span[fw: bold]> "Tutorials"
+
+						<.bd-focus[m: 3rem auto 0]>
 							<.columns>
 								<.column .bd-focus-item .has-text-centered>
 									<p .title .is-4> "Free"
@@ -86,8 +81,7 @@ tag home-page
 				<.has-text-centered>							
 					<a .button .is-large .is-primary[bg: #3273dc fw: bold white-space: normal fs: 11pt fs@md: 16pt] target="_blank" href="https://discord.gg/PSKC3uS"> "Let's grow the community, join us on Discord 🤗"
 
-			<.section .bd-easy .is-medium>
-			
+			<.section .bd-easy .is-medium>			
 				<.container>
 					<h3 .title .is-3> "Save your {<span[c: #00D1B2]> "time"} today ⏳"
 					<h4 .subtitle .is-4> "Let notion2anki do it in 10 seconds for you"
