@@ -256,21 +256,6 @@ export class DeckParser
 	def generate_id
 		return parseInt(customAlphabet('1234567890', 16)())
 
-	###
-	def treatBoldAsInput input, inline=false
-		const dom = cheerio.load(input)
-		const underlines = dom('strong')
-		let mangle = input
-		let answer = ''
-		underlines.each do |i, elem|
-			const v = dom(elem).html()
-			const old = "<strong>{v}</strong>"
-			mangle = mangle.replaceAll(old, inline ? v : '{{type:Input}}')
-			answer = v
-		{mangle: mangle, answer: answer}
-
-	###
-
 	def locate_tags card
 		let input = [card.name, card.back]
 		card.tags ||= []
@@ -326,10 +311,10 @@ export class DeckParser
 							const originalName = dom(elem).attr('src')
 							if !originalName.startsWith('http')						
 								if let newName = self.embedFile(exporter, self.files, global.decodeURIComponent(originalName))
-									# We have to replace globally since Notion can add the filename as alt value
-									card.back = card.back.replaceAll(originalName, newName)
-									card.media.push(newName)
+									dom(elem).attr('src', newName)
+									card.media.push(newName)						
 						deck.image_count += (card.back.match(/\<+\s?img/g) || []).length
+						card.back = dom.html()
 					
 					if let audiofile = find_mp3_file(card.back)
 						if let newFileName = self.embedFile(exporter, self.files, global.decodeURIComponent(audiofile))
