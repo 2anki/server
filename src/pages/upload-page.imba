@@ -10,6 +10,15 @@ tag upload-page
 	prop state = 'ready'
 	prop progress = 0
 	prop fontSize = 20
+	prop cardTypes = [
+		{type: 'tags', label: "Treat strikethrough as tags", default: true}
+		{type: 'basic', label: "Basic front and back", default: true},
+		{type: 'cloze', label: "Cloze deletion", default: true}, 
+
+		{type: 'enable-input', label: "Treat bold text as input", default: false},
+		{type: 'basic-reversed', label: "Basic and reversed", default: false},
+		{type: 'reversed', label: "Just the reversed", default: false},
+	]
 
 	get canShowTwitchPromo
 		false # window.localStorage.getItem('canShowTwitchPromo')
@@ -70,17 +79,12 @@ tag upload-page
 							<label.label> "Deck Name"
 							<.control>
 								<input$input.input[fw: bold c: #83C9F5 @placeholder: grey] placeholder="Enter deck name (optional)" name="deckName" type="text">
-						<.field>	
-							<label.label> "Card Types" 
-							<.control[mt: 1rem].control>
-								<div.select.is-medium>
-									<.select> 
-										<select$cardType name="card-type">
-											<option value="cloze"> "Cloze deletion"
-											<option value="basic"> "Basic front and back"
-											<option value="basic-reversed"> "Basic and reversed"
-											<option value="reversed"> "Just the reversed"
-											<option value="enable-input"> "Treat bold text as input"
+
+						<label.label> "Card Options" 
+						<.div> for ct of self.cardTypes
+							<div>
+								<input[mr: 0.2rem] type="checkbox" name=ct.type checked=ct.default>
+								<span> ct.label
 						<.field>
 							<label.label> "Toggle Mode" 
 							<.control[mt: 1rem].control>
@@ -95,6 +99,7 @@ tag upload-page
 								<div[bd: 1px solid lightgray br: 5px p: 0]>
 									<p> for fontPreset in [32, 26, 20, 12, 10]
 											<span[fs: {fontPreset}px p: 3px br: 5px m: 0 8px] [c: #00d1b2]=(fontPreset == fontSize) @click.{fontSize = fontPreset}> "Aa"
+						<hr>											
 						if errorMessage
 							<.has-text-centered[m: 2rem]>
 								<h1 .title .is-3> "Oh snap, just got an error 😢"

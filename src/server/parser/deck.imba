@@ -244,21 +244,16 @@ export class DeckParser
 		{mangle: mangle, answer: answer}
 
 	def is_cloze
-		return true if self.settings['card-type'] == "Cloze deletion" 
-		return true if self.settings['card-type'] == 'cloze'
-		return false
+		self.settings['cloze']
 	
 	def enable_input
-		return true if self.settings['card-type'] == 'Enable checking answers'
-		return true if self.settings['card-type'] == 'enable-input'
-		return false
+		self.settings['enable-input']
 
 	def generate_id
 		return parseInt(customAlphabet('1234567890', 16)())
 
 	def locate_tags card
 		let input = [card.name, card.back]
-		card.tags ||= []
 
 		for i in input
 			continue if not i
@@ -282,7 +277,7 @@ export class DeckParser
 		for deck in self.payload
 			const card_count = deck.cards.length
 			deck.image_count = 0
-			deck.card_type = self.settings['card-type']
+
 			deck.card_count = card_count
 			deck.id = self.generate_id!
 			console.log('set deck id', deck.id)
@@ -293,6 +288,7 @@ export class DeckParser
 			const addThese = []
 			for card in deck.cards
 				console.log("exporting {deck.name} {deck.cards.indexOf(card)} / {card_count}")
+				card['enable-input'] = self.settings['enable-input'] || false
 				card.number = counter++
 				if self.use_cloze
 					card.name = self.handleClozeDeletions(card.name)
@@ -339,12 +335,13 @@ export class DeckParser
 						let inputInfo = self.treatBoldAsInput(card.back, true)
 						card.back = inputInfo.mangle
 
-				card = self.locate_tags(card)
+				card.tags ||= []
+				if self.settings['tags']
+					card = self.locate_tags(card)
 
-				const cardType = self.settings['card-type']
-				if cardType == 'basic-reversed'
+				if self.settings['basic-reversed']
 						addThese.push({name: card.back, back: card.name, tags: card.tags, media: card.media, number: counter++})
-				elif cardType == 'reversed'
+				if self.settings['reversed']
 					const tmp = card.back
 					card.back = card.name
 					card.name = tmp

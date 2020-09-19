@@ -132,7 +132,7 @@ if __name__ == "__main__":
                 # TODO: sanity check the card fields
                 if not "{{c" in card["name"] and not "{{type" in card["name"]:
                     model = BASIC_MODEL
-                elif deck["card_type"] == "enable-input":
+                elif card["enable-input"]:
                     model = INPUT_MODEL
                     fields = [
                         card["name"].replace("{{type:Input}}", ""),
