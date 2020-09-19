@@ -11,26 +11,25 @@ tag benefits-page
 
 	def render
 		<self[d: block]>
-			<.section[d: block m: 4rem]>
-				<.container>
-					<h1.title> "The benefits you get from using notion2anki 💫"
-					<hr>
-					<.subtitle .is-4> "✅ All of the Anki note types are supported."
-					<ul>
-						<li> <a href="#standard-reversed"> "Basic (+reversed)"
-						<li> <a href="#reversed"> "Reversed"
-						<li> <a href="#standard"> "Basic"
-						<li> <a href="#cloze-support"> "Cloze"
-					<.subtitle .is-4> "✅ Rich Media support"
-					<ul>
-						<li> <a href="#SoundCloud"> "SoundCloud"
-						<li> <a href="#YouTube"> "YouTube"
-						<li> <a href="#mp3"> "MP3 files"
-						<li> <a href="#images"> "Images"
-						<li> <a href="#emoji"> "Emoji"
-						<li> <a href="#math"> "Math"
-					<p[fs: 16pt]> "✅ Notion styles will automatically be transferred to your decks."
-					<p[fs: 16pt]> "⛔ HTML export is the {<strong> "only"} supported format."
+			<.section[d: block m: 4rem]> <.container>
+				<h1.title> "The benefits you get from using notion2anki 💫"
+				<hr>
+				<.subtitle .is-4> "✅ All of the Anki note types are supported."
+				<ul>
+					<li> <a href="#standard-reversed"> "Basic (+reversed)"
+					<li> <a href="#reversed"> "Reversed"
+					<li> <a href="#standard"> "Basic"
+					<li> <a href="#cloze-support"> "Cloze"
+				<.subtitle .is-4> "✅ Rich Media support"
+				<ul>
+					<li> <a href="#SoundCloud"> "SoundCloud"
+					<li> <a href="#YouTube"> "YouTube"
+					<li> <a href="#mp3"> "MP3 files"
+					<li> <a href="#images"> "Images"
+					<li> <a href="#emoji"> "Emoji"
+					<li> <a href="#math"> "Math"
+				<p[fs: 16pt]> "✅ Notion styles will automatically be transferred to your decks."
+				<p[fs: 16pt]> "⛔ HTML export is the {<strong> "only"} supported format."
 				<div[pt: 1rem]>
 					<div>
 						<h4 .is-4 #standard.title> "Basic cards"
