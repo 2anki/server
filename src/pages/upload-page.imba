@@ -72,7 +72,7 @@ tag upload-page
 				<.container[mb: 2rem]>
 					<.has-text-centered>
 							<h1.title .is-1[mb: 1rem]> "Upload a Notion export to create Anki flashcards"			
-							<p.subtitle[mt: 1rem]> "Not sure how to export? See this tutorial {<a target='_blank' href="https://youtu.be/lpC7C9wJoTA "> "Video Tutorial: How to use notion2anki..."}."
+							<p.subtitle[mt: 1rem]> "Not sure how to export? See our {<a target='_blank' href="https://www.youtube.com/playlist?list=PLzOAzzqpDqukOtwH3IYWiOhr_sjBjfgCd "> "💫 notion2anki YouTube Playlist"}."
 				<.container[p: 1rem max-width: 480px m: 0 auto].box>
 					<form enctype="multipart/form-data" method="post" @submit.prevent=convertFile>
 						<.field>
