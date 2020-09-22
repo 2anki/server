@@ -20,8 +20,11 @@ def build_process
 	if !process.env.SKIP_WEBPACK
 		await run('yarn', ['run', 'webpack', '--mode=production'])		  
 	await run('yarn', ['run', 'build-server'])
-	await run('/usr/bin/cd', ['blog.2anki.net', '&&', 'yarn', 'install', '&&', 'cd', '-'])
-	await run('/usr/bin/cd', ['blog.2anki.net', '&&', 'yarn', 'build', '&&', 'cd', '-'])
+
+	await run('git', ['submodule', 'update', '--init', '--recursive'])
+	const blogDir = path.join(__dirname, 'blog.2anki.net/')
+	await run('yarn', ['--cwd', blogDir, 'install'])
+	await run('yarn', ['--cwd', blogDir, 'build'])
 
 def make_pages
 	console.log('skipping make_pages')
