@@ -15,7 +15,7 @@ tag youtube-embed
 				<.modal-background>
 				<.modal-card>
 					<header.modal-card-head>
-						<p.modal-card-title> title
+						<p.modal-card-title[max-width: 95%]> title
 						<button.delete aria-label="close" @click.{showModal=false}>
 					<section.modal-card-body>
 						<.is-video>
