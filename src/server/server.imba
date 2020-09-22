@@ -24,6 +24,8 @@ const app = express()
 const distDir = path.join(__dirname, "../../dist")
 
 app.use(express.static(distDir))
+app.use('/blog', express.static(distDir + '/blog'));
+
 
 const appInfo = JSON.parse(fs.readFileSync(path.join(__dirname, '../../package.json')).toString!)
 
