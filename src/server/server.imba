@@ -57,6 +57,9 @@ app.use do |req, res, next|
 	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Content-Disposition")
 	next()
 
+def TriggerUnsupportedFormat
+	throw new Error ("Markdown is not supported. Please export your Notion page as HTML.")
+
 
 def handle_upload req, res
 	console.log('POST', req.originalUrl)	
@@ -76,19 +79,23 @@ def handle_upload req, res
 			const payload = file.buffer
 
 			console.log('filename', filename, 'with settings', settings)
-			if filename.match(/.(md|html)$/)
+			if filename.match(/.html$/)
 				console.log('We have a non zip upload')
 				const d = await PrepareDeck(filename, {"{filename}": file.buffer.toString!}, settings)				
 				decks = decks.concat(d)
+			elif filename.match(/.md$/)
+				TriggerUnsupportedFormat()
 			else
 				console.log('zip upload')
 				const zip_handler = ZipHandler.new()
 				const _ = await zip_handler.build(payload)
 				for file_name in zip_handler.filenames()
-					if file_name.match(/.(md|html)$/) and !file_name.includes('/')
+					if file_name.match(/.html$/) and !file_name.includes('/')
 						console.log('21 21 21 detected payload', file_name)
 						const d = await PrepareDeck(file_name, zip_handler.files, settings)
 						decks.push(d)
+					elif file_name.match(/.md$/)
+						TriggerUnsupportedFormat()
 
 		let payload
 		let pname
