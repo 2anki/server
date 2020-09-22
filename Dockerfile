@@ -1,7 +1,7 @@
 FROM node:12-slim
 
 RUN apt-get update
-RUN apt-get install python3 python3-pip -y
+RUN apt-get install python3 python3-pip git -y
 RUN rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
