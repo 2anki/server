@@ -21,11 +21,6 @@ def build_process
 		await run('yarn', ['run', 'webpack', '--mode=production'])		  
 	await run('yarn', ['run', 'build-server'])
 
-	await run('git', ['submodule', 'update', '--init', '--recursive'])
-	const blogDir = path.join(__dirname, 'blog.2anki.net/')
-	await run('yarn', ['--cwd', blogDir, 'install'])
-	await run('yarn', ['--cwd', blogDir, 'build'])
-
 def make_pages
 	console.log('skipping make_pages')
 	# TODO: make it dynamic?
