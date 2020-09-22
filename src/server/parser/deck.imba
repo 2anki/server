@@ -296,7 +296,7 @@ export class DeckParser
 				card.number = counter++
 				if self.use_cloze
 					card.name = self.handleClozeDeletions(card.name)
-				if self.use_input
+				if self.use_input && card.name.includes('<strong>')
 					let inputInfo = self.treatBoldAsInput(card.name)
 					card.name = inputInfo.mangle
 					card.answer = inputInfo.answer
@@ -335,7 +335,7 @@ export class DeckParser
 					if self.use_cloze
 						# TODO: investigate why cloze deletions are not handled properly on the back / extra
 						card.back = self.handleClozeDeletions(card.back)
-					if self.use_input
+					if self.use_input and card.back.includes('<strong>')
 						let inputInfo = self.treatBoldAsInput(card.back, true)
 						card.back = inputInfo.mangle
 
