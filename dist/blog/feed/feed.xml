@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+	<title>The notion2anki Blog</title>
+	<subtitle>Stay up to date with the notion2anki project! Learn more tips and tricks for Notion and Anki.</subtitle>
+	
+	<link href="https://2anki.net/feed/feed.xml" rel="self"/>
+	<link href="https://2anki.net/blog"/>
+	<updated>2020-09-21T22:00:00+02:00</updated>
+	<id>https://2anki.net</id>
+	<author>
+		<name>Alexander Alemayhu</name>
+		<email></email>
+	</author>
+	
+	<entry>
+		<title>Hei there!</title>
+		<link href="https://2anki.net/posts/firstpost/"/>
+		<updated>2020-09-21T22:00:00+02:00</updated>
+		<id>https://2anki.net/posts/firstpost/</id>
+		<content type="html">
+		  &lt;p&gt;The blog is still under construction, but more content is coming soon!&lt;br&gt;
+Feel free to send an email to let us know about your expectations.&lt;br&gt;
+&lt;a href=&quot;mailto:alexander@alemayhu.com&quot;&gt;alexander@alemayhu.com&lt;/a&gt;&lt;/p&gt;
+
+			
+				
+				
+				&lt;img src=&quot;https://2anki.net/blog/.netlify/functions/ga?v=1&amp;_v=j83&amp;t=pageview&amp;dr=https%3A%2F%2Frss-feed-reader.com&amp;_s=1&amp;dh=2anki.net&amp;dp=%2Fposts%2Ffirstpost%2F&amp;ul=en-us&amp;de=UTF-8&amp;dt=Hei%20there!&amp;tid=GA-162974703&quot; width=&quot;1&quot; height=&quot;1&quot; style=&quot;display:none&quot; alt=&quot;&quot;&gt;
+			
+		</content>
+	</entry>
+</feed>
