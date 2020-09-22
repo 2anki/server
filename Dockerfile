@@ -15,7 +15,7 @@ COPY . .
 RUN npm run build
 
 RUN apt-get purge -y git
-RUN apt-get autoremove
+RUN apt-get autoremove -y
 
 ENV PORT 8080
 EXPOSE 8080
