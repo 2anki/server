@@ -270,7 +270,6 @@ export class DeckParser
 				card.tags = t.split(',').map do $1.trim().replace(/\s/g, '-')
 				card.back = card.back.replaceAll("<del>{t}</del>", '')
 				card.name = card.name.replaceAll("<del>{t}</del>", '')
-				console.log('x1 tags', card.tags)
 		return card
 
 	def build
