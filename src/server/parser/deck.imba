@@ -264,12 +264,12 @@ export class DeckParser
 
 			const dom = cheerio.load(i)
 			const deletions = dom('del')
-
+			
 			deletions.each do |i, elem|
-				const t = dom(elem).text()							
-				card.tags = t.split(',').map do $1.trim().replace(/\s/g, '-')
-				card.back = card.back.replaceAll("<del>{t}</del>", '')
-				card.name = card.name.replaceAll("<del>{t}</del>", '')
+				const del = dom(elem)
+				card.tags = del.text().split(',').map do $1.trim().replace(/\s/g, '-')
+				card.back = card.back.replaceAll(del.html(), '')
+				card.name = card.name.replaceAll(del.html(), '')
 		return card
 
 	def build
