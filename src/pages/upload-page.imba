@@ -96,6 +96,7 @@ tag upload-page
 							<label.label> "Font Size" 
 							<.control[d: grid jc: start]>
 								<div[bd: 1px solid lightgray br: 5px p: 0]>
+									<input bind=fontSize name='font-size' hidden>								
 									<p> for fontPreset in [32, 26, 20, 12, 10]
 											<span[fs: {fontPreset}px p: 3px br: 5px m: 0 8px] [c: #00d1b2]=(fontPreset == fontSize) @click.{fontSize = fontPreset}> "Aa"
 						<hr>											
