@@ -29,7 +29,6 @@ tag upload-page
 		state = 'uploading'
 		errorMessage = null
 		try
-			console.log('$input', $input.value)
 			const form = event.target
 			const formData = new FormData(form)
 			const request = await window.fetch('/upload', {method: 'post', body: formData})
