@@ -20,8 +20,7 @@ def build_process
 	if !process.env.SKIP_WEBPACK
 		await run('yarn', ['run', 'webpack', '--mode=production'])		  
 	await run('yarn', ['run', 'build-server'])
-	await run('/bin/sh', ['build-blog.sh'])	
-
+	
 def make_pages
 	console.log('skipping make_pages')
 	# TODO: make it dynamic?

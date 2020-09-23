@@ -29,7 +29,6 @@ tag upload-page
 		state = 'uploading'
 		errorMessage = null
 		try
-			console.log('$input', $input.value)
 			const form = event.target
 			const formData = new FormData(form)
 			const request = await window.fetch('/upload', {method: 'post', body: formData})
@@ -70,11 +69,23 @@ tag upload-page
 						"Going live on 💜 {<a target="_blank" href="https://www.twitch.tv/alemayhu"> "Twitch"} today!"
 			<.section>
 				<.container[mb: 2rem]>
-					<.has-text-centered>
+					<.has-text-centered[max-width: 640px m: 0 auto]>
 							<h1.title .is-1[mb: 1rem]> "Upload a Notion export to create Anki flashcards"			
-							<p.subtitle[mt: 1rem]> "Not sure how to export? See our {<a target='_blank' href="https://www.youtube.com/playlist?list=PLzOAzzqpDqukOtwH3IYWiOhr_sjBjfgCd "> "💫 notion2anki YouTube Playlist"}."
+							<p[mt: 1rem]> "Not sure how to export? See our {<a target='_blank' href="https://www.youtube.com/playlist?list=PLzOAzzqpDqukOtwH3IYWiOhr_sjBjfgCd "> "💫 notion2anki YouTube Playlist"}."
+							<p> "If you are having issues with upload, please make sure you are using the HTML export from Notion 🙏🏾"
+							<div.button[bd: 0.6px solid #7289DA bg@hover: #2C2F33]>							
+								<a[c: #7289DA fw: bold] target="_blank" href="https://discord.gg/PSKC3uS"> "Discord"
+							<hr>								
 				<.container[p: 1rem max-width: 480px m: 0 auto].box>
 					<form enctype="multipart/form-data" method="post" @submit.prevent=convertFile>
+						<div.field>
+							<div.file.is-centered.is-boxed.is-success.has-name>
+								<label.file-label>
+									<input$selectorInput.file-input type="file" name="pakker" accept=".zip,.html,.md" required @change=fileSelected multiple="multiple">
+									<span$selectorBackground.file-cta[bg: gray]>
+										<span$selectorLabel.file-label> "Click to Upload…"
+									<span$selectorFileName.file-name> "My Notion Export.zip"
+
 						<.field>
 							<label.label> "Deck Name"
 							<.control>
@@ -97,9 +108,9 @@ tag upload-page
 							<label.label> "Font Size" 
 							<.control[d: grid jc: start]>
 								<div[bd: 1px solid lightgray br: 5px p: 0]>
+									<input bind=fontSize name='font-size' hidden>								
 									<p> for fontPreset in [32, 26, 20, 12, 10]
 											<span[fs: {fontPreset}px p: 3px br: 5px m: 0 8px] [c: #00d1b2]=(fontPreset == fontSize) @click.{fontSize = fontPreset}> "Aa"
-						<hr>											
 						if errorMessage
 							<.has-text-centered[m: 2rem]>
 								<h1 .title .is-3> "Oh snap, just got an error 😢"
@@ -108,13 +119,6 @@ tag upload-page
 								<a.button target="_blank" href="https://discord.gg/PSKC3uS">
 									<span> "Discord"
 						else
-							<div.field>
-								<div.file.is-centered.is-boxed.is-success.has-name>
-									<label.file-label>
-										<input$selectorInput.file-input type="file" name="pakker" accept=".zip,.html,.md" required @change=fileSelected multiple="multiple">
-										<span$selectorBackground.file-cta[bg: gray]>
-											<span$selectorLabel.file-label> "Click to Upload…"
-										<span$selectorFileName.file-name> "My Notion Export.zip"
 							<.has-text-centered>
 								if downloadLink
 									<download-modal title="Download Ready 🥳" downloadLink=downloadLink deckName=deckName>
