@@ -125,3 +125,6 @@ dist/n2a-0.0.0.dmg.blockmap
 *.js
 
 .vscode/settings.json
+
+blog.2anki.net
+dist/blog

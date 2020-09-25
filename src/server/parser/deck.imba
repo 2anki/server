@@ -141,6 +141,10 @@ export class DeckParser
 
 		input.includes('code')
 
+	def valid_input_card input
+		return false if !self.enable_input()
+		input.name and input.name.includes('strong')		
+
 	def sanityCheck cards
 		let empty = cards.find do |x|
 			if !x
@@ -155,7 +159,7 @@ export class DeckParser
 			console.log('warn Detected empty card, please report bug to developer with an example')
 			console.log('cards', cards)
 		cards.filter do |c|
-			c.name and (has_cloze_deletions(c.name) or c.back)
+			c.name and (has_cloze_deletions(c.name) or c.back or valid_input_card(c))
 
 	// Try to avoid name conflicts and invalid characters by hashing
 	def newUniqueFileName input
@@ -260,13 +264,12 @@ export class DeckParser
 
 			const dom = cheerio.load(i)
 			const deletions = dom('del')
-
+			
 			deletions.each do |i, elem|
-				const t = dom(elem).text()							
-				card.tags = t.split(',').map do $1.trim().replace(/\s/g, '-')
-				card.back = card.back.replaceAll("<del>{t}</del>", '')
-				card.name = card.name.replaceAll("<del>{t}</del>", '')
-				console.log('x1 tags', card.tags)
+				const del = dom(elem)
+				card.tags = del.text().split(',').map do $1.trim().replace(/\s/g, '-')
+				card.back = card.back.replaceAll(del.html(), '')
+				card.name = card.name.replaceAll(del.html(), '')
 		return card
 
 	def build
@@ -292,7 +295,7 @@ export class DeckParser
 				card.number = counter++
 				if self.use_cloze
 					card.name = self.handleClozeDeletions(card.name)
-				elif self.use_input
+				if self.use_input && card.name.includes('<strong>')
 					let inputInfo = self.treatBoldAsInput(card.name)
 					card.name = inputInfo.mangle
 					card.answer = inputInfo.answer
@@ -331,7 +334,7 @@ export class DeckParser
 					if self.use_cloze
 						# TODO: investigate why cloze deletions are not handled properly on the back / extra
 						card.back = self.handleClozeDeletions(card.back)
-					elif self.use_input
+					if self.use_input and card.back.includes('<strong>')
 						let inputInfo = self.treatBoldAsInput(card.back, true)
 						card.back = inputInfo.mangle
 

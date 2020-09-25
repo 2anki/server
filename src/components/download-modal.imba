@@ -12,14 +12,12 @@ tag download-modal
 
 	get navigator do window.navigator
 	
-	def isNorwegian
-		['no', 'nb', 'no-no', 'nb-no', ''].includes(navigator.language.toLowerCase())		
 
 	def patreonIntro
-		isNorwegian() ? 'https://www.youtube.com/embed/lbCQuDSbVGI' : 'https://www.youtube.com/embed/EoB_zj7jeEk'
+		'https://www.youtube.com/embed/EoB_zj7jeEk'
 	
 	def patreonIntroTitle
-		isNorwegian() ? "Pls send penger 🙏🏾" : "Patreon Intro 🧡"		
+		"Patreon Intro 🧡"		
 
 	<self[d: flex fld: column]>
 		if showModal
@@ -35,8 +33,6 @@ tag download-modal
 							<h3 .title .is-3> "Support this project"
 							<hr>
 							<p> "This deck is brought to you by our amazing {<a href="https://www.patreon.com/alemayhu"> "patrons"} 🧡"
-							if self.isNorwegian()
-								<p[fw: bold]> "Vipps til 401 04 387 (Alexander Alemayhu) 🙏🏾 "
 							<youtube-embed video=patreonIntro() title=patreonIntroTitle() inline=false>
 							<p.subtitle> "This project is 100% free and will remain free! Please if you have the means you can support this project via these options 🙏🏾"
 							<.has-text-centered>
