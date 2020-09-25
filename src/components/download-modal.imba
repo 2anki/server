@@ -31,8 +31,8 @@ tag download-modal
 						<.has-text-centered>
 							<a[m: 2rem].button.is-primary href=downloadLink @click.didDownload download=deckName> "Click to Download"
 							<hr>
-							<p> "This deck is brought to you by our amazing {<a href="https://www.patreon.com/alemayhu"> "patrons"} 🤩"
+							<p> "Please support me 🙏🏾 This deck is brought to you by our amazing {<a href="https://www.patreon.com/alemayhu"> "patrons"} 🤩"
 							<p> "You can directly support the development and accelerate the improvements!"
-							<p> "We have flexible tiers from $1 all the way up to $100. Please support me 🙏🏾"
+							<p> "We have flexible tiers from $1 all the way up to $100."
 							<a.button[bd: 1px solid rgb(45, 124, 218) bg: rgb(45, 124, 218) c: white border-radius: 0.3rem] target="_blank" href="https://www.patreon.com/alemayhu">
 								<span[fw: bold]> "Become a Patron"
