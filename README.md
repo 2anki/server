@@ -26,7 +26,7 @@ You can also support the project financially and receive exclusive member benefi
 - Your name will be added to the BACKERS file on GitHub 🔝
 - Exclusive access to a private channel for supporters 💬
 - Early access to the updates feed on the development 📰
-- Lots of encouragement on your your learning journey 
+- Lots of encouragement on your learning journey
 - Personal recorded thank you [video](https://www.youtube.com/playlist?list=PLzOAzzqpDqulq2A-yB0ydn3QgOpXtohkk) 🤳🏾
 
 [tl]: https://www.notion.so/Toggles-c720af26b4bd4789b736c140b2dc73fe
