@@ -11,13 +11,14 @@ tag upload-page
 	prop progress = 0
 	prop fontSize = 20
 	prop cardTypes = [
-		{type: 'tags', label: "Treat strikethrough as tags", default: true}
+		{type: 'cherry', label: "Only create flashcards from toggles which have the 🍒 emoji", default: false},
+		{type: 'tags', label: "Treat strikethrough as tags", default: true},
 		{type: 'basic', label: "Basic front and back", default: true},
 		{type: 'cloze', label: "Cloze deletion", default: true}, 
 
 		{type: 'enable-input', label: "Treat bold text as input", default: false},
 		{type: 'basic-reversed', label: "Basic and reversed", default: false},
-		{type: 'reversed', label: "Just the reversed", default: false},
+		{type: 'reversed', label: "Just the reversed", default: false}
 	]
 
 	get canShowTwitchPromo

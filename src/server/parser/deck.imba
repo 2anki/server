@@ -111,8 +111,12 @@ export class DeckParser
 				if summary and toggle
 					const toggleHTML = toggle.html()
 					if toggleHTML
-						let back = toggleHTML.replace(summary, "")
-						return { name: summary.html(), back: back }
+						const note = { name: summary.html(), back: toggleHTML.replace(summary, "") }
+						const cherry = '&#x1F352;' # 🍒
+						if settings['cherry'] and !note.name.includes(cherry) and !note.back.includes(cherry)
+							return null
+						else
+							return note												
 					else
 						console.log('error in (missing valid detailts)', parentUL.html())
 		# Prevent bad cards from leaking out
