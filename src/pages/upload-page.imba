@@ -141,8 +141,8 @@ tag upload-page
 									<.field> <button[mt: 2rem].button.cta .is-large .is-primary type="submit"> "Convert"
 								else
 									<.field> <button[mt: 2rem].button.cta .is-large .is-primary type="submit"> "Please wait 🙏🏾"
-						<.step-actions .columns .has-text-centered [d:none]=(step == 0)>
-							<.steps-action .column>
+						<.step-actions .columns .has-text-centered>
+							<.steps-action .column[d:none]=(step == 0)>
 								<a .button .is-light=(step==0) @click.{step -= 1}> "Previous"
-							<.steps-action .column>
-								<a .button .is-link=(step < 2) @click.{step += 1}> "next"
+							<.steps-action .column [d:none]=(step >= 2 || step == 0)>
+								<a .button .is-link @click.{step += 1}> "next"
