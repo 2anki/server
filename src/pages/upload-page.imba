@@ -11,7 +11,7 @@ tag upload-page
 	prop progress = 0
 	prop fontSize = 20
 	prop cardTypes = [
-		{type: 'cherry', label: "Only create flashcards from toggles which have the 🍒 emoji", default: false},
+		{type: 'cherry', label: "Enable cherry picking using 🍒 emoji", default: false},
 		{type: 'tags', label: "Treat strikethrough as tags", default: true},
 		{type: 'basic', label: "Basic front and back", default: true},
 		{type: 'cloze', label: "Cloze deletion", default: true}, 
@@ -20,6 +20,7 @@ tag upload-page
 		{type: 'basic-reversed', label: "Basic and reversed", default: false},
 		{type: 'reversed', label: "Just the reversed", default: false}
 	]
+	prop step = 0
 
 	get canShowTwitchPromo
 		false # window.localStorage.getItem('canShowTwitchPromo')
@@ -57,6 +58,7 @@ tag upload-page
 		let filePath = $selectorInput.value
 		let selectedFile = filePath.split(/(\\|\/)/g).pop()
 		$selectorFileName.textContent = selectedFile
+		step = 1
 
 	def hideTwitchPromo
 		window.localStorage.setItem('canShowTwitchPromo', false)
@@ -77,53 +79,70 @@ tag upload-page
 							<div.button[bd: 0.6px solid #7289DA bg@hover: #2C2F33]>							
 								<a[c: #7289DA fw: bold] target="_blank" href="https://discord.gg/PSKC3uS"> "Discord"
 							<hr>								
-				<.container[p: 1rem max-width: 480px m: 0 auto].box>
+				<.container[p: 1rem max-width: 480px m: 0 auto] .has-text-centered>
 					<form enctype="multipart/form-data" method="post" @submit.prevent=convertFile>
-						<div.field>
-							<div.file.is-centered.is-boxed.is-success.has-name>
-								<label.file-label>
-									<input$selectorInput.file-input type="file" name="pakker" accept=".zip,.html,.md" required @change=fileSelected multiple="multiple">
-									<span$selectorBackground.file-cta[bg: gray]>
-										<span$selectorLabel.file-label> "Click to Upload…"
-									<span$selectorFileName.file-name> "My Notion Export.zip"
+						<.steps>
+							<.step-item .is-active=(step==0)>
+								<.step-marker> "1"
+								<.step-details>
+									<p.step-title> "Upload"
+							<.step-item .is-active=(step==1)>
+								<.step-marker> "2"
+								<.step-details>
+									<p.step-title> "Options"
+							<.step-item.is-active=(step==2)>
+								<.step-marker> "3"
+								<.step-details>
+									<p.step-title> "Download"
+							<.step-content[m: 1rem auto]>
+								<div.field[d:none]=(step != 0)>
+									<div.file.is-centered.is-boxed.is-success.has-name>
+										<label.file-label>
+											<input$selectorInput.file-input type="file" name="pakker" accept=".zip,.html,.md" required @change=fileSelected multiple="multiple">
+											<span$selectorBackground.file-cta[bg: gray]>
+												<span$selectorLabel.file-label> "Click to Upload…"
+											<span$selectorFileName.file-name> "My Notion Export.zip"
+							<.step-content[d:none]=(step != 1) .box [ta: left m: 0 auto mt: 1rem max-width: 480px]>
+								<.field>
+									<label.label> "Deck Name"
+									<.control>
+										<input$input.input[fw: bold c: #83C9F5 @placeholder: grey] placeholder="Enter deck name (optional)" name="deckName" type="text">
 
-						<.field>
-							<label.label> "Deck Name"
-							<.control>
-								<input$input.input[fw: bold c: #83C9F5 @placeholder: grey] placeholder="Enter deck name (optional)" name="deckName" type="text">
-
-						<label.label> "Card Options" 
-						<.div> for ct of self.cardTypes
-							<div>
-								<input[mr: 0.2rem] type="checkbox" name=ct.type checked=ct.default>
-								<span> ct.label
-						<.field>
-							<label.label> "Toggle Mode" 
-							<.control[mt: 1rem].control>
-								<div.select.is-medium>
-									<.select> 
-										<select$toggleMode name="toggle-mode">
-											<option value="open_toggle"> "Open nested toggles"
-											<option value="close_toggle"> "Close nested toggles"
-						<.field>
-							<label.label> "Font Size" 
-							<.control[d: grid jc: start]>
-								<div[bd: 1px solid lightgray br: 5px p: 0]>
-									<input bind=fontSize name='font-size' hidden>								
-									<p> for fontPreset in [32, 26, 20, 12, 10]
-											<span[fs: {fontPreset}px p: 3px br: 5px m: 0 8px] [c: #00d1b2]=(fontPreset == fontSize) @click.{fontSize = fontPreset}> "Aa"
-						if errorMessage
-							<.has-text-centered[m: 2rem]>
-								<h1 .title .is-3> "Oh snap, just got an error 😢"
-								<p .subtitle> "Please refresh and try again otherwise report this bug to the developer on Discord with a screenshot 📸"
-								<.notification .is-danger innerHTML=errorMessage>
-								<a.button target="_blank" href="https://discord.gg/PSKC3uS">
-									<span> "Discord"
-						else
-							<.has-text-centered>
-								if downloadLink
-									<download-modal title="Download Ready 🥳" downloadLink=downloadLink deckName=deckName>
+								<label.label> "Card Options" 
+								<.div> for ct of self.cardTypes
+									<.field>
+										<input[mr: 0.2rem] .is-success=ct.default .is-checkradio .has-background-color type="checkbox" name=ct.type checked=ct.default>
+										<label> ct.label
+								<.field>
+									<label.label> "Toggle Mode" 
+									<.control[mt: 1rem].control>
+										<div.select.is-medium>
+											<.select> 
+												<select$toggleMode name="toggle-mode">
+													<option value="open_toggle"> "Open nested toggles"
+													<option value="close_toggle"> "Close nested toggles"
+								<.field>
+									<label.label> "Font Size" 
+									<.control[d: grid jc: start]>
+										<div[bd: 1px solid lightgray br: 5px p: 0]>
+											<input bind=fontSize name='font-size' hidden>								
+											<p> for fontPreset in [32, 26, 20, 12, 10]
+													<span[fs: {fontPreset}px p: 3px br: 5px m: 0 8px] [c: #00d1b2]=(fontPreset == fontSize) @click.{fontSize = fontPreset}> "Aa"
+							<.step-content[d:none]=(step != 2)>
+								if errorMessage
+									<h1 .title .is-3> "Oh snap, just got an error 😢"
+									<p .subtitle> "Please refresh and try again otherwise report this bug to the developer on Discord with a screenshot 📸"
+									<.notification .is-danger innerHTML=errorMessage>
+									<a.button target="_blank" href="https://discord.gg/PSKC3uS">
+										<span> "Discord"
+								elif downloadLink
+									<.field> <download-modal title="Download Ready 🥳" downloadLink=downloadLink deckName=deckName>
 								elif state == 'ready'
-									<button[mt: 2rem].button.cta .is-large .is-primary type="submit"> "Convert"
+									<.field> <button[mt: 2rem].button.cta .is-large .is-primary type="submit"> "Convert"
 								else
-									<button[mt: 2rem].button.cta .is-large .is-primary type="submit"> "Please wait 🙏🏾"
+									<.field> <button[mt: 2rem].button.cta .is-large .is-primary type="submit"> "Please wait 🙏🏾"
+						<.step-actions .columns .has-text-centered [d:none]=(step == 0)>
+							<.steps-action .column>
+								<a .button .is-light=(step==0) @click.{step -= 1}> "Previous"
+							<.steps-action .column>
+								<a .button .is-link=(step < 2) @click.{step += 1}> "next"
