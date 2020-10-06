@@ -72,20 +72,6 @@ The dream is to have a powerful and easy to use process for producing high quali
 
 [pa]: https://github.com/alemayhu/notion2anki/projects/1
 
-## Contributing
-
-Your contributions are welcome but please try to be constructive and follow the [code of conduct](./CODE_OF_CONDUCT.md).
-
-If you know someone who can benefit from notion2anki, please share it with them today!
-
-- If you are missing a feature or format, let us know on GitHub or the Discord.
-- Make a video in your native language showing people how to use notion2anki
-- Write about notion2anki on your blog
-
-Join the [Discord](https://discord.gg/PSKC3uS) to find out more ways to contribute or send an email to [alexander@alemayhu.com](mailto:alexander@alemayhu.com)
-
-PS: Remember to send us links when you create a video or blog post, thanks 🙏🏾
-
 ## Development
 
 Please note that the [Imba](http://v2.imba.io/) programming language v2 is currently in alpha so expect to see things breaking when you try stuff. When that is said, see below on how to actually run this :smile:
