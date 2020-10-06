@@ -2,6 +2,7 @@ import crypto from 'crypto'
 import path from 'path'
 import fs from 'fs'
 import os from 'os'
+import GA from 'ga'
 
 import { nanoid, customAlphabet } from 'nanoid'
 import cheerio from 'cheerio'
@@ -25,7 +26,7 @@ class CustomExporter
 	prop first_deck_name
 	prop workspace
 	prop media
-	
+
 	def constructor first_deck_name, workspace
 		self.first_deck_name = first_deck_name.replace('.html', '')
 		self.workspace = workspace
@@ -51,6 +52,8 @@ class CustomExporter
 
 export class DeckParser
 
+	prop ga
+
 	get name do self.payload[0].name
 
 	def constructor file_name, settings = {}, files
@@ -64,6 +67,7 @@ export class DeckParser
 		self.files = files || []
 		self.first_deck_name = file_name
 		self.payload = handleHTML(contents, deckName)
+		self.ga = new GA('UA-162974703-3', '2anki.net')
 
 	def handleHTML contents, deckName = null, decks = []
 		const dom = cheerio.load(contents)
@@ -330,9 +334,21 @@ export class DeckParser
 						const ytSrc = "https://www.youtube.com/embed/{id}?".replace(/"/, '')
 						const video = "<iframe width='560' height='315' src='{ytSrc}' frameborder='0' allowfullscreen></iframe>"
 						card.back += video
+
+						self.ga.trackEvent({
+							category: 'Youtube For Card',
+							action: 'Youtube For Card',
+							value: 1
+						})
 					if let soundCloudUrl = get_soundcloud_url(card.back)
 						const audio = "<iframe width='100%' height='166' scrolling='no' frameborder='no' src='https://w.soundcloud.com/player/?url={soundCloudUrl}'></iframe>"
 						card.back += audio
+
+						self.ga.trackEvent({
+							category: 'Soundcloud For Card',
+							action: 'Soundcloud For Card',
+							value: 1
+						})
 
 					console.log('xparse back', self.use_input)
 					if self.use_cloze
@@ -341,6 +357,12 @@ export class DeckParser
 					if self.use_input and card.back.includes('<strong>')
 						let inputInfo = self.treatBoldAsInput(card.back, true)
 						card.back = inputInfo.mangle
+
+					self.ga.trackEvent({
+						category: 'Images For Card',
+						action: 'Images For Card',
+						value: images.length
+					})
 
 				card.tags ||= []
 				if self.settings['tags']
@@ -352,7 +374,20 @@ export class DeckParser
 					const tmp = card.back
 					card.back = card.name
 					card.name = tmp
-			deck.cards = deck.cards.concat(addThese)	
+			deck.cards = deck.cards.concat(addThese)
+
+			self.ga.trackEvent({
+				category: 'Cards Per Deck',
+				action: 'Cards Per Deck',
+				value: deck.cards.length
+			})
+
+			self.ga.trackEvent({
+				category: 'Decks',
+				action: 'Decks',
+				value: deck.cards.length
+			})
+
 		exporter.configure(self.payload)
 		exporter.save()
 

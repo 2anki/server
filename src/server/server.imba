@@ -5,6 +5,7 @@ import os from 'os'
 import { nanoid } from 'nanoid'
 import express from 'express'
 import multer from 'multer'
+import GA from 'ga'
 
 import {DeckParser,PrepareDeck} from './parser/deck'
 import {TEMPLATE_DIR, TriggerNoCardsError} from './constants'
@@ -16,7 +17,7 @@ const ADVERTISEMENT = fs.readFileSync(path.join(TEMPLATE_DIR, 'README.txt')).toS
 def useErrorHandler res, err
 	res.set('Content-Type', 'text/html');
 	let info = errorPage.replace('{err.message}', err.message).replace('{err?.stack}', err.stack)
-	res.status(400).send(new Buffer(info))	
+	res.status(400).send(new Buffer(info))
 
 var upload = multer({ storage: multer.memoryStorage() })
 const app = express()
@@ -64,26 +65,26 @@ def TriggerUnsupportedFormat
 
 
 def handle_upload req, res
-	console.log('POST', req.originalUrl)	
+	console.log('POST', req.originalUrl)
 	const origin = req.headers.origin
 	const permitted = allowed.includes(origin)
 	console.log('checking if', origin, 'is whitelisted', permitted)
 	if !permitted
-		return res.status(403).send()	
-	console.log('permitted access to', origin)	
+		return res.status(403).send()
+	console.log('permitted access to', origin)
 	res.set('Access-Control-Allow-Origin', origin)
 	try
 		const files = req.files
 		let decks = []
 		for file in files
-			const filename = file.originalname		
+			const filename = file.originalname
 			const settings = req.body || {}
 			const payload = file.buffer
 
 			console.log('filename', filename, 'with settings', settings)
 			if filename.match(/.html$/)
 				console.log('We have a non zip upload')
-				const d = await PrepareDeck(filename, {"{filename}": file.buffer.toString!}, settings)				
+				const d = await PrepareDeck(filename, {"{filename}": file.buffer.toString!}, settings)
 				decks = decks.concat(d)
 			elif filename.match(/.md$/)
 				TriggerUnsupportedFormat()
@@ -103,12 +104,12 @@ def handle_upload req, res
 		let pname
 		let plen
 		if decks.length == 1
-			let deck = decks[0] 
+			let deck = decks[0]
 			payload = deck.apkg
 			plen = Buffer.byteLength(deck.apkg)
 			pname = "{deck.name}.apkg"
 			res.set("Content-Type", "application/apkg")
-			res.set("Content-Length": plen)	
+			res.set("Content-Length": plen)
 			res.attachment("/"+pname)
 			res.status(200).send(payload)
 		elif decks.length > 1
@@ -129,6 +130,13 @@ app.post('/upload', upload.array('pakker'), &) do |req, res|
 process.on('uncaughtException') do |err, origin|
 	console.log(process.stderr.fd,`Caught exception: ${err}\n Exception origin: ${origin}`)
 
+const ga = new GA('UA-162974703-3', '2anki.net')
+console.log ga
+console.log ga.trackEvent({
+	category: 'Decks',
+	action: 'Decks',
+	value: 42,
+})
 const port = process.env.PORT || 2020
 const server = app.listen(port) do
 	console.log("🟢 Running on http://localhost:{port}")
