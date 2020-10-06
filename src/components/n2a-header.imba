@@ -24,7 +24,9 @@ tag n2a-header < header
 						<a.navbar-item href="/contact"> "Contact"
 						<a.navbar-item href="/faq"> "FAQ"
 						<a.navbar-item href="/privacy"> "Privacy"		
-						<a.navbar-item href="/links"> "Useful Links"				
+						<a.navbar-item href="/links"> "Useful Links"
+						<.navbar-item>
+							<a[fw: bold my: 2rem c: #3273DC].button href="https://www.twitch.tv/alemayhu"> "Alemayhu on Twitch"			
 
 					<div.navbar-end>
 						<div.navbar-item>
