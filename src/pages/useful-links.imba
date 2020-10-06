@@ -20,7 +20,7 @@ tag useful-links-page
 					<hr>
 					<p.subtitle> "Here are some great resources to help you with your learning journey. Happy learning, my friend 🙂"
 
-					<h3[my: 2rem] .title .is-3> "Refferals"
+					<h3[my: 2rem] .title .is-3> "Referrals"
 					<hr>
 					<p.subtitle> "If you use the links to sign up to {<a href=digitalocean> "DigitalOcean"} or {<a href=skillshare> "Skillshare"} we get a reward 🎁 I am letting you know this for the sake of transparency 😉"
 					<.columns>
