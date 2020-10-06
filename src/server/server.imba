@@ -5,7 +5,6 @@ import os from 'os'
 import { nanoid } from 'nanoid'
 import express from 'express'
 import multer from 'multer'
-import GA from 'ga'
 
 import {DeckParser,PrepareDeck} from './parser/deck'
 import {TEMPLATE_DIR, TriggerNoCardsError} from './constants'
@@ -130,13 +129,6 @@ app.post('/upload', upload.array('pakker'), &) do |req, res|
 process.on('uncaughtException') do |err, origin|
 	console.log(process.stderr.fd,`Caught exception: ${err}\n Exception origin: ${origin}`)
 
-const ga = new GA('UA-162974703-3', '2anki.net')
-console.log ga
-console.log ga.trackEvent({
-	category: 'Decks',
-	action: 'Decks',
-	value: 42,
-})
 const port = process.env.PORT || 2020
 const server = app.listen(port) do
 	console.log("🟢 Running on http://localhost:{port}")
