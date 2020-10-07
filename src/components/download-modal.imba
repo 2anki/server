@@ -35,5 +35,6 @@ tag download-modal
 							<p> "You can directly support the development and accelerate the improvements!"
 							<p> "Pick your price ranging from {<strong> "$1"}, {<strong> "$2"}, {<strong> "$5"}, {<strong> "$14"} and {<strong> "$100"}."
 							<p> "This deck is brought to you by our amazing {<a href="https://www.patreon.com/alemayhu"> "patrons"} 🤩"
-							<a.button[bd: 1px solid rgb(45, 124, 218) bg: rgb(45, 124, 218) c: white border-radius: 0.3rem] target="_blank" href="https://www.patreon.com/alemayhu">
-								<span> "Become a Patron"
+							<div[p: 1rem mx: 1rem]>
+								<a target="_blank" href="https://www.patreon.com/alemayhu">
+									<img src="become_a_patron_button.png">
