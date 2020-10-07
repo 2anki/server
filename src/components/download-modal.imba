@@ -29,10 +29,11 @@ tag download-modal
 						<button.delete aria-label="close" @click.{showModal=false}>
 					<section.modal-card-body>
 						<.has-text-centered>
-							<a[m: 2rem].button.is-primary href=downloadLink @click.didDownload download=deckName> "Click to Download"
+							<a[m: 2rem fw: bold].button.is-primary href=downloadLink @click.didDownload download=deckName> "Download"
 							<hr>
-							<p> "Please support me 🙏🏾 This deck is brought to you by our amazing {<a href="https://www.patreon.com/alemayhu"> "patrons"} 🤩"
+							<h3.title .is-3> "Please Support Open Source 🙏🏾"
 							<p> "You can directly support the development and accelerate the improvements!"
-							<p> "We have flexible tiers from $1 all the way up to $100."
+							<p> "Pick your price ranging from {<strong> "$1"}, {<strong> "$2"}, {<strong> "$5"}, {<strong> "$14"} and {<strong> "$100"}."
+							<p> "This deck is brought to you by our amazing {<a href="https://www.patreon.com/alemayhu"> "patrons"} 🤩"
 							<a.button[bd: 1px solid rgb(45, 124, 218) bg: rgb(45, 124, 218) c: white border-radius: 0.3rem] target="_blank" href="https://www.patreon.com/alemayhu">
-								<span[fw: bold]> "Become a Patron"
+								<span> "Become a Patron"

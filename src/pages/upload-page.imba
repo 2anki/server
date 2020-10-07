@@ -50,7 +50,6 @@ tag upload-page
 
 	def didDownload
 		downloadLink = null
-		state = 'ready'
 	
 	def fileSelected
 		$selectorBackground.style.background="mediumseagreen"
@@ -76,6 +75,8 @@ tag upload-page
 							<h1.title .is-1[mb: 1rem]> "Upload a Notion export to create Anki flashcards"			
 				<.container[p: 1rem max-width: 480px m: 0 auto] .has-text-centered>
 					<form enctype="multipart/form-data" method="post" @submit.prevent=convertFile>
+						<.field> <download-modal title="Download Ready 🥳" downloadLink=downloadLink deckName=deckName>
+
 						<.steps>
 							<.step-item .is-active=(step==0)>
 								<.step-marker> "1"
