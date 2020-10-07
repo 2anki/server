@@ -74,11 +74,6 @@ tag upload-page
 				<.container[mb: 2rem]>
 					<.has-text-centered[max-width: 640px m: 0 auto]>
 							<h1.title .is-1[mb: 1rem]> "Upload a Notion export to create Anki flashcards"			
-							<p[mt: 1rem]> "Not sure how to export? See our {<a target='_blank' href="https://www.youtube.com/playlist?list=PLzOAzzqpDqukOtwH3IYWiOhr_sjBjfgCd "> "💫 notion2anki YouTube Playlist"}."
-							<p> "If you are having issues with upload, please make sure you are using the HTML export from Notion 🙏🏾"
-							<div.button[bd: 0.6px solid #7289DA bg@hover: #2C2F33]>							
-								<a[c: #7289DA fw: bold] target="_blank" href="https://discord.gg/PSKC3uS"> "Discord"
-							<hr>								
 				<.container[p: 1rem max-width: 480px m: 0 auto] .has-text-centered>
 					<form enctype="multipart/form-data" method="post" @submit.prevent=convertFile>
 						<.steps>
@@ -128,7 +123,7 @@ tag upload-page
 											<input bind=fontSize name='font-size' hidden>								
 											<p> for fontPreset in [32, 26, 20, 12, 10]
 													<span[fs: {fontPreset}px p: 3px br: 5px m: 0 8px] [c: #00d1b2]=(fontPreset == fontSize) @click.{fontSize = fontPreset}> "Aa"
-							<.step-content[d:none]=(step != 2)>
+							<.step-content[d:none]=(step != 2) [m: 0 auto]>
 								if errorMessage
 									<h1 .title .is-3> "Oh snap, just got an error 😢"
 									<p .subtitle> "Please refresh and try again otherwise report this bug to the developer on Discord with a screenshot 📸"
