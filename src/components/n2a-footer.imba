@@ -1,7 +1,7 @@
 tag n2a-footer
 
 	css .footer-header fw: bold fs: 1.2rem mb: 0.5rem
-	css .columns d: flex fld: row fld@!600:column jc: space-between  w: 65% m: 0 auto 0.5rem
+	css .columns d: flex fld: row fld@!680:column jc: space-between  w: 65% m: 0 auto 0.5rem
 	css .column  d: flex fld: column m: 0.2rem 1rem
 	<self>
 		<footer.footer[p: 1rem bg: #f9f9f9]>
