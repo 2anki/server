@@ -12,17 +12,6 @@ tag home-page
 	css .cta bg: #83C9F5 c: white fw: bold
 	css .column m: 16px
 
-	def isDe
-		window.location.host == "2anki.de"
-
-	get heroVideo
-		const id = isDe() ? "E51yLIIS3bk" : "r9pPNl8Mx_Q"
-		"https://www.youtube.com/embed/{id}"
-	
-	get heroVideoTitle 
-		isDe() ? "Philipp: Notion2Anki - Perfekter Workflow für's Lernen!!! 💫" : "How to use cloze deletions in notion2anki 🤩"
-
-
 	def render
 		<self[d: block my: 1rem]>
 			<section.hero.is-medium>
@@ -37,9 +26,8 @@ tag home-page
 							<.column>
 								<p.subtitle .is-4> "We are making it the easiest and fastest way to create beautiful ⭐️ Anki flashcards for anyone anywhere around the world 🌎"
 								<.has-text-centered>
-									<youtube-embed video=heroVideo inline=false title=heroVideoTitle>
 									<a.button.is-light .is-large href="https://www.youtube.com/playlist?list=PLzOAzzqpDqukOtwH3IYWiOhr_sjBjfgCd" target="_blank">
-										<span[fw: bold]> "More Tutorials"
+										<span[fw: bold]> "Video Tutorials"
 
 						<.bd-focus[m: 3rem auto 0]>
 							<.columns>
