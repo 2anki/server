@@ -19,6 +19,10 @@ tag download-modal
 	def patreonIntroTitle
 		"Patreon Intro 🧡"		
 
+	def hideModal
+		showModal = false
+		downloadLink = false
+
 	<self[d: flex fld: column]>
 		if showModal
 			<.modal[d: flex]>
@@ -26,7 +30,7 @@ tag download-modal
 				<.modal-card>
 					<header.modal-card-head>
 						<p.modal-card-title> title
-						<button.delete aria-label="close" @click.{showModal=false}>
+						<button.delete aria-label="close" @click.hideModal()>
 					<section.modal-card-body>
 						<.has-text-centered>
 							<a[m: 2rem fw: bold].button.is-primary href=downloadLink @click.didDownload download=deckName> "Download"
