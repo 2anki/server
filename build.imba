@@ -18,8 +18,8 @@ def run cmd, options
 
 def build_process
 	if !process.env.SKIP_WEBPACK
-		await run('yarn', ['run', 'webpack', '--mode=production'])		  
-	await run('yarn', ['run', 'build-server'])
+		await run('/usr/local/bin/yarn', ['run', 'webpack', '--mode=production'])		  
+	await run('/usr/local/bin/yarn', ['run', 'build-server'])
 	
 def make_pages
 	console.log('skipping make_pages')
