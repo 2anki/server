@@ -105,7 +105,7 @@ tag upload-page
 								<label.label> "Card Options" 
 								<.div> for ct of self.cardTypes
 									<.field>
-										<input[mr: 0.2rem] .is-success=ct.default .is-checkradio .has-background-color type="checkbox" name=ct.type checked=ct.default>
+										<input[mr: 0.2rem] .is-success=ct.default .has-background-color type="checkbox" name=ct.type bind=ct.default>
 										<label> ct.label
 								<.field>
 									<label.label> "Toggle Mode" 
