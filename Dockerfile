@@ -1,21 +1,12 @@
-FROM node:12-slim
-
-RUN apt-get update --fix-missing
-RUN apt-get install python3 python3-pip git -y
-RUN rm -rf /var/lib/apt/lists/*
+FROM alemayhu/base-image-n2a
 
 WORKDIR /app
-COPY ./src/genanki/requirements.txt .
-RUN pip3 install -r ./requirements.txt
 
 COPY package.json .
 RUN npm install
 
 COPY . .
 RUN npm run build
-
-RUN apt-get purge -y git
-RUN apt-get autoremove -y
 
 ENV PORT 8080
 EXPOSE 8080
