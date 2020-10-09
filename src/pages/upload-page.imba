@@ -122,7 +122,7 @@ tag upload-page
 											<input bind=fontSize name='font-size' hidden>								
 											<p> for fontPreset in [32, 26, 20, 12, 10]
 													<span[fs: {fontPreset}px p: 3px br: 5px m: 0 8px] [c: #00d1b2]=(fontPreset == fontSize) @click.{fontSize = fontPreset}> "Aa"
-							<.step-content[d:none]=(step != 2) [m: 0 auto]>
+							<.step-content[d:none]=(step != 2) [m: 0 auto max-width: 720px]>
 								if errorMessage
 									<h1 .title .is-3> "Oh snap, just got an error 😢"
 									<p .subtitle> "Please refresh and try again otherwise report this bug to the developer on Discord with a screenshot 📸"
@@ -132,7 +132,7 @@ tag upload-page
 								elif downloadLink
 									<.field> <download-modal title="Download Ready 🥳" downloadLink=downloadLink deckName=deckName>
 								elif state == 'ready'
-									<.field> <button[mt: 2rem].button.cta .is-large .is-primary type="submit"> "Convert"
+									<.field[w: 320px]> <button[mt: 2rem].button.cta .is-large .is-primary type="submit"> "Convert"
 								else
 									<.field> <progress .progress .is-small .is-primary max="100"> "15%"
 						<.step-actions .columns .has-text-centered>
