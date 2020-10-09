@@ -47,9 +47,6 @@ tag upload-page
 			downloadLink = window.URL.createObjectURL(blob)
 		catch error
 			errorMessage = error ? "<h1 class='title is-4'>{error.message}</h1><pre>{error.stack}</pre>" : ""
-
-	def didDownload
-		downloadLink = null
 	
 	def fileSelected
 		$selectorBackground.style.background="mediumseagreen"

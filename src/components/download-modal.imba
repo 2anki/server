@@ -33,7 +33,7 @@ tag download-modal
 						<button.delete aria-label="close" @click.hideModal()>
 					<section.modal-card-body>
 						<.has-text-centered>
-							<a[m: 2rem fw: bold].button.is-primary href=downloadLink @click.didDownload download=deckName> "Download"
+							<a[m: 2rem fw: bold].button.is-primary href=downloadLink download=deckName> "Download"
 							<hr>
 							<h3.title .is-3> "Please Support Open Source 🙏🏾"
 							<p> "You can directly support the development and accelerate the improvements!"
