@@ -24,12 +24,13 @@ tag n2a-footer
 					<a href="https://github.com/alemayhu/notion2anki/issues"> "See issues"
 					<a href="https://github.com/alemayhu/notion2anki/issues?q=is%3Aopen+is%3Aissue+milestone%3A%E4%B8%80%E7%95%AA%E3%83%BBv1.0.0"> "v1 milestone"
 				<div.column>
-					<p.footer-header> "Supported by"
+					<p.footer-header> "Sponsors"
 					<p>
 						<a href="https://m.do.co/c/c5a16996cd0e">
 							<img[w: 201px] src="https://opensource.nyc3.cdn.digitaloceanspaces.com/attribution/assets/PoweredByDO/DO_Powered_by_Badge_blue.svg">
 					<a href="https://www.netlify.com">
 						<img src="https://www.netlify.com/img/global/badges/netlify-color-bg.svg" alt="Deploys by Netlify" loading="lazy">
+					<a href="mailto:alexander@alemayhu?subject=sponsor notion2anki"> "Sponsor Us"
 
 
 			<div[mb: 0.5rem].content.has-text-centered>
