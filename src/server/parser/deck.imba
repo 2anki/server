@@ -382,12 +382,6 @@ export class DeckParser
 				value: deck.cards.length
 			})
 
-			self.ga.trackEvent({
-				category: 'Decks',
-				action: 'Decks',
-				value: deck.cards.length
-			})
-
 		exporter.configure(self.payload)
 		exporter.save()
 
