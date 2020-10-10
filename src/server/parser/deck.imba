@@ -74,6 +74,7 @@ export class DeckParser
 		let name = deckName || dom('title').text()
 		let style = dom('style').html()
 		style = style.replace(/white-space: pre-wrap;/g, '')
+		const isCherry = settings['cherry']
 		let image = null
 		
 		if self.settings['font-size'] != '20px'
@@ -95,7 +96,7 @@ export class DeckParser
 					names[end] = "{pi} {last}"
 					name = names.join("::")
 
-		const toggleList = dom(".toggle").toArray()
+		const toggleList = dom(isCherry ? ".toggle" : ".page-body -> ul").toArray()
 		let cards = toggleList.map do |t|
 			// We want to perserve the parent's style, so getting the class
 			const parentUL = dom(t)
@@ -117,7 +118,7 @@ export class DeckParser
 					if toggleHTML
 						const note = { name: summary.html(), back: toggleHTML.replace(summary, "") }
 						const cherry = '&#x1F352;' # 🍒
-						if settings['cherry'] and !note.name.includes(cherry) and !note.back.includes(cherry)
+						if isCherry and !note.name.includes(cherry) and !note.back.includes(cherry)
 							return null
 						else
 							return note												
