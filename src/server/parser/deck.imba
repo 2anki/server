@@ -95,8 +95,8 @@ export class DeckParser
 					const last = names[end]
 					names[end] = "{pi} {last}"
 					name = names.join("::")
-
-		const toggleList = dom(isCherry ? ".toggle" : ".page-body -> ul").toArray()
+		console.log('isCherry', isCherry)
+		const toggleList = dom(isCherry ? ".toggle" : ".page-body > ul").toArray()
 		let cards = toggleList.map do |t|
 			// We want to perserve the parent's style, so getting the class
 			const parentUL = dom(t)
