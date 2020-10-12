@@ -14,6 +14,7 @@ tag n2a-footer
 					<a href="/faq"> "FAQ"
 				<div.column>
 					<p.footer-header> "Community"
+					<a href="https://www.reddit.com/r/notion2anki/"> "r/Notion2A=nki"
 					<a href="https://discord.gg/PSKC3uS"> "Discord server"
 					<a href="https://www.youtube.com/c/AlexanderAlemayhu"> "YouTube"
 					<a href="https://twitter.com/aalemayhu"> "Twitter"
