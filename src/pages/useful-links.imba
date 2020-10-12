@@ -54,6 +54,7 @@ tag useful-links-page
 					<p.subtitle> "The Anki community is huge and diverse. You can find lots of stuff around the web but here are some of the things we recommend you to check out."
 					<h4[my: 2rem] .title .is-3> "Reddit"
 					<.columns>
+						<sub-reddit name="r/notion2anki" url="https://www.reddit.com/r/notion2anki/">
 						<sub-reddit name="r/Anki" url="https://www.reddit.com/r/Anki/">
 						<sub-reddit name="r/MedicalSchoolAnki" url="https://www.reddit.com/r/medicalschoolanki/">
 						<sub-reddit name="r/AnkiLatino" url="https://www.reddit.com/r/AnkiLatino/">	
