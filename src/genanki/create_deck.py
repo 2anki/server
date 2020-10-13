@@ -65,18 +65,30 @@ if __name__ == "__main__":
         data = json.load(json_file)
         media_files = []
         decks = []
+
+        # Model cloze
+        cloze_model_name = data.get('cloze_model_name', "notion2Anki Cloze Model")
+        cloze_model_id = data.get('cloze_model_id', 998877661)
+        # Model basic
+        basic_model_id = data.get('basic_model_id', 2020)
+        basic_model_name = data.get('basic_model_name', "notion2anki")
+        # Model input
+        input_model_name = data.get('input_model_name', "notion2anki-input-card")
+        input_model_id = data.get('input_model_id', 6394002335189144856)
+        
+
         for deck in data:
             notes = []
-
+            # dictionary.get
             for card in deck["cards"]:
                 fields = [card["name"], card["back"], ",".join(card["media"])]
-                model = cloze_model(998877661, "notion2Anki Cloze Model", CLOZE_STYLE + "\n" + CSS)
+                model = cloze_model(cloze_model_id, cloze_model_name, CLOZE_STYLE + "\n" + CSS)
 
                 # TODO: sanity check the card fields
                 if not "{{c" in card["name"] and not "{{type" in card["name"]:
-                    model = basic_model(2020, "notion2anki", CSS)                    
+                    model = basic_model(basic_model_id, basic_model_name, CSS)                    
                 elif card["enable-input"] and 'answer' in card:
-                    model = input_model(6394002335189144856, "notion2anki-input-card", CSS)
+                    model = input_model(input_model_id, input_model_name, CSS)
                     fields = [
                         card["name"].replace("{{type:Input}}", ""),
                         card["back"],
