@@ -83,17 +83,17 @@ if __name__ == "__main__":
         2020,
         "notion2anki",
         fields=[
-            {"name": "AField"},
-            {"name": "BField"},
+            {"name": "Front"},
+            {"name": "Back"},
             {"name": "MyMedia"},
         ],
         templates=[
             {
                 "name": "card1",
-                "qfmt": '<span class="front-text-pre">{{AField}}</span>',
-                "afmt": '<span class="front-text-post">{{AField}}</span>'
+                "qfmt": '<span class="front-text-pre">{{Front}}</span>',
+                "afmt": '<span class="front-text-post">{{Front}}</span>'
                 '<hr id="answer">'
-                '<span class="back-text">{{BField}}</span>',
+                '<span class="back-text">{{Back}}</span>',
             }
         ],
         css=CSS,
