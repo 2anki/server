@@ -50,12 +50,12 @@ def _read_template(template_dir, path, fmt, value):
 def _build_deck_description(template_dir, image):
     return _read_template(template_dir, "deck_description.html", "%s", image)
 
-
 if __name__ == "__main__":
+    if len(sys.argv):
+        raise IOError('missing payload arguments(data file, deck style, template dir)')
     data_file = sys.argv[1]
     deck_style = sys.argv[2]
     template_dir = sys.argv[3]
-    # TODO: error handling
 
     CSS = _read_template(template_dir, deck_style, "", "")
     CSS += _read_template(template_dir, "custom.css", "", "")
