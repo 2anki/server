@@ -16,6 +16,9 @@ from genanki import Deck
 from genanki import Package
 from genanki import guid_for
 
+from models.input import input_model
+from models.cloze import cloze_model
+from models.basic import basic_model
 
 def _wr_apkg(payload, media_files):
     firstId = ""
@@ -60,64 +63,6 @@ if __name__ == "__main__":
     CSS += _read_template(template_dir, "custom.css", "", "")
     CLOZE_STYLE = _read_template(template_dir, "cloze_style.css", "", "")
 
-    MY_CLOZE_MODEL = Model(
-        998877661,
-        "notion2Anki Cloze Model",
-        fields=[
-            {"name": "Text"},
-            {"name": "Extra"},
-            {"name": "MyMedia"},
-        ],
-        templates=[
-            {
-                "name": "notion2Anki Cloze Card",
-                "qfmt": '<span class="front-text-pre">{{cloze:Text}}</span>',
-                "afmt": '<span class="front-text-pre">{{cloze:Text}}</span><br><span class="extra">{{Extra}}</span>',
-            },
-        ],
-        css=CLOZE_STYLE + "\n" + CSS,
-        model_type=Model.CLOZE,
-    )
-
-    BASIC_MODEL = Model(
-        2020,
-        "notion2anki",
-        fields=[
-            {"name": "Front"},
-            {"name": "Back"},
-            {"name": "MyMedia"},
-        ],
-        templates=[
-            {
-                "name": "card1",
-                "qfmt": '<span class="front-text-pre">{{Front}}</span>',
-                "afmt": '<span class="front-text-post">{{Front}}</span>'
-                '<hr id="answer">'
-                '<span class="back-text">{{Back}}</span>',
-            }
-        ],
-        css=CSS,
-    )
-
-    INPUT_MODEL = Model(
-        6394002335189144856,
-        "notion2anki-input-card",
-        fields=[
-            {"name": "Front"},
-            {"name": "Back"},
-            {"name": "Input"},
-            {"name": "MyMedia"},
-        ],
-        templates=[
-            {
-                "name": "notion2anki-input-card",
-                "qfmt": "{{Front}}" "<br>" "{{type:Input}}",
-                "afmt": "{{FrontSide}}" '<hr id="answer">' "{{Back}}",
-            }
-        ],
-        css=CSS,
-    )
-
     with open(data_file, "r", encoding="utf-8") as json_file:
         data = json.load(json_file)
         media_files = []
@@ -127,13 +72,13 @@ if __name__ == "__main__":
 
             for card in deck["cards"]:
                 fields = [card["name"], card["back"], ",".join(card["media"])]
-                model = MY_CLOZE_MODEL
+                model = cloze_model(998877661, "notion2Anki Cloze Model", CLOZE_STYLE + "\n" + CSS)
 
                 # TODO: sanity check the card fields
                 if not "{{c" in card["name"] and not "{{type" in card["name"]:
-                    model = BASIC_MODEL
+                    model = basic_model(2020, "notion2anki", CSS)                    
                 elif card["enable-input"] and 'answer' in card:
-                    model = INPUT_MODEL
+                    model = input_model(6394002335189144856, "notion2anki-input-card", CSS)
                     fields = [
                         card["name"].replace("{{type:Input}}", ""),
                         card["back"],
