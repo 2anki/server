@@ -5,21 +5,19 @@ This file is a modifcation on one of the test files of genanki[0]
 """Test creating Cloze cards"""
 # https://apps.ankiweb.net/docs/manual20.html#cloze-deletion
 
-import uuid
 import json
 import sys
 import os
 
-from genanki import Model
 from genanki import Note
 from genanki import Deck
 from genanki import Package
-from genanki import guid_for
 
 from models.input import input_model
 from models.cloze import cloze_model
 from models.basic import basic_model
 
+# TODO: move this into a own file
 def _wr_apkg(payload, media_files):
     firstId = ""
     decks = []
