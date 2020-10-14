@@ -58,7 +58,6 @@ if __name__ == "__main__":
     template_dir = sys.argv[3]
 
     CSS = _read_template(template_dir, deck_style, "", "")
-    CSS += _read_template(template_dir, "custom.css", "", "")
     CLOZE_STYLE = _read_template(template_dir, "cloze_style.css", "", "")
 
     with open(data_file, "r", encoding="utf-8") as json_file:
@@ -66,21 +65,26 @@ if __name__ == "__main__":
         media_files = []
         decks = []
 
-        # Model cloze
-        cloze_model_name = data.get('cloze_model_name', "notion2Anki Cloze Model")
-        cloze_model_id = data.get('cloze_model_id', 998877661)
-        # Model basic
-        basic_model_id = data.get('basic_model_id', 2020)
-        basic_model_name = data.get('basic_model_name', "notion2anki")
-        # Model input
-        input_model_name = data.get('input_model_name', "notion2anki-input-card")
-        input_model_id = data.get('input_model_id', 6394002335189144856)
-        
+        # Model / Template stuff
+        mt = data[0]
+        cloze_model_name = mt.get('cloze_model_name', "notion2Anki Cloze Model")
+        cloze_model_id = mt.get('cloze_model_id', 998877661)
+        basic_model_id = mt.get('basic_model_id', 2020)
+        basic_model_name = mt.get('basic_model_name', "notion2anki")
+        input_model_name = mt.get('input_model_name', "notion2anki-input-card")
+        input_model_id = mt.get('input_model_id', 6394002335189144856)
+        template = mt.get('template', 'specialstyle')
+
+        if template == 'specialstyle':
+            CSS += _read_template(template_dir, "custom.css", "", "")
+        elif template == 'nostyle':
+            CSS = ""
+        # else notionstyle
 
         for deck in data:
+            cards = deck.get("cards", [])
             notes = []
-            # dictionary.get
-            for card in deck["cards"]:
+            for card in cards:
                 fields = [card["name"], card["back"], ",".join(card["media"])]
                 model = cloze_model(cloze_model_id, cloze_model_name, CLOZE_STYLE + "\n" + CSS)
 

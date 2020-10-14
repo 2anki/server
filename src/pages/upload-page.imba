@@ -98,6 +98,14 @@ tag upload-page
 									<label.label> "Deck Name"
 									<.control>
 										<input$input.input[fw: bold c: #83C9F5 @placeholder: grey] placeholder="Enter deck name (optional)" name="deckName" type="text">
+								<.field>
+									<label.label> "Template"
+									<.control[mt: 1rem].control>
+										<.select .is-large>
+											<select$template name="template">
+												<option value="specialstyle"> "Default"
+												<option value="notionstyle"> "Only Notion"
+												<option value="nostyle"> "Raw Note (no style)"
 
 								<label.label> "Card Options" 
 								<.div> for ct of self.cardTypes
