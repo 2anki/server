@@ -383,6 +383,14 @@ export class DeckParser
 				value: deck.cards.length
 			})
 
+		self.payload[0].cloze_model_name = self.settings.cloze_model_name
+		self.payload[0].basic_model_name = self.settings.basic_model_name
+		self.payload[0].input_model_name = self.settings.input_model_name
+		self.payload[0].cloze_model_id = self.settings.cloze_model_id
+		self.payload[0].basic_model_id = self.settings.basic_model_id
+		self.payload[0].input_model_id = self.settings.input_model_id
+		self.payload[0].template = self.settings.template
+
 		exporter.configure(self.payload)
 		exporter.save()
 
