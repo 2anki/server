@@ -67,12 +67,12 @@ if __name__ == "__main__":
 
         # Model / Template stuff
         mt = data[0]
-        cloze_model_name = mt.get('cloze_model_name', "notion2Anki Cloze Model")
+        cloze_model_name = mt.get('cloze_model_name', "n2a") + "-cloze"
+        basic_model_name = mt.get('basic_model_name', "n2a") + "-basic"
+        input_model_name = mt.get('input_model_name', "n2a") + "-input"
+        input_model_id = mt.get('input_model_id', 6394002335189144856)        
         cloze_model_id = mt.get('cloze_model_id', 998877661)
         basic_model_id = mt.get('basic_model_id', 2020)
-        basic_model_name = mt.get('basic_model_name', "notion2anki")
-        input_model_name = mt.get('input_model_name', "notion2anki-input-card")
-        input_model_id = mt.get('input_model_id', 6394002335189144856)
         template = mt.get('template', 'specialstyle')
 
         if template == 'specialstyle':
