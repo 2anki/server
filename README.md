@@ -154,6 +154,7 @@ Special thanks to following developers / artistans
                 <b>Marcel Walk</b>
                 </sub></a><br />
                 <a href="#questions" title="Tests">⚠</a>
+                <a href="https://github.com/alemayhu/notion2anki/commits?author=MarcelWalk" title="Code">💻</a>
         </td>
         <!-- Add Henrik (https://github.com/henrik-de), Abi, Boni when you get the necessary information -->
     </tr>
