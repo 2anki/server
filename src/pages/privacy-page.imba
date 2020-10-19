@@ -26,14 +26,6 @@ tag privacy-page
 						<li> <a href=doPP target="_blank">  doPP
 						<li> <a href=netlifyPP target="_blank">  netlifyPP
 
-			<.section>
-				<.container>
-					<h2 .title .is-2> "Analytics"
-					<p.subtitle> "In order to better understand the usage (number of visitors) of the site and how to better serve users Google Analytics is used."
-					<p.subtitle> "See their privacy policy here {<a href="https://policies.google.com/privacy"> "https://policies.google.com"}"
-
-
-
 
 
 
