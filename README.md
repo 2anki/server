@@ -8,6 +8,12 @@ notion2Anki 💫 is a passion project 🕺🏾💃🏾 We are going to make this
 - No technical skills required and 100% free to use by anyone anywhere 🤗
 - Support for embeds, audio files, images and more.
 
+## Sponsors
+
+[![Scrimba.com](dist/sponsors/Scrimba.png)](https://scrimba.com/)  
+
+👩🏼‍🎓👨‍🎓️👨‍🏫️👩🏽‍🏫 [Scrimba](https://scrimba.com) - the mind-blowing way to to code!
+
 ## 🎁 Support the Project
 
 > This project is brought to you by our amazing [patrons](http://patreon.com/alemayhu)
