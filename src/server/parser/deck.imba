@@ -138,13 +138,7 @@ export class DeckParser
 			const spDom = dom(page)
 			const ref = spDom.find('a').first()
 			const href = ref.attr('href')
-
-			const key = global.decodeURIComponent(href)
-			let pageContent = self.files[key]
-			if not pageContent
-				const m = Object.keys(self.files).find do $1.endsWith(key)
-				pageContent = self.files[m]
-
+			const pageContent = self.files[global.decodeURIComponent(href)]
 			if pageContent
 				const subDeckName = spDom.find('title').text() || ref.text()
 				self.handleHTML(pageContent, "{name}::{subDeckName}", decks)
