@@ -27,6 +27,9 @@ tag n2a-footer
 				<div.column>
 					<p.footer-header> "Sponsors"
 					<p>
+						<a href="http://scrimba.com">
+							<img src="sponsors/Scrimba.png" alt="Sponsored by Scrimba">
+					<p>
 						<a href="https://m.do.co/c/c5a16996cd0e">
 							<img[w: 201px] src="https://opensource.nyc3.cdn.digitaloceanspaces.com/attribution/assets/PoweredByDO/DO_Powered_by_Badge_blue.svg">
 					<a href="https://www.netlify.com">
