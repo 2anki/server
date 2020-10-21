@@ -2,7 +2,6 @@ import crypto from 'crypto'
 import path from 'path'
 import fs from 'fs'
 import os from 'os'
-import GA from 'ga'
 
 import { nanoid, customAlphabet } from 'nanoid'
 import cheerio from 'cheerio'
