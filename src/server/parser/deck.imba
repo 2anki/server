@@ -240,9 +240,23 @@ export class DeckParser
 		const dom = cheerio.load(input)
 		const clozeDeletions = dom('code')
 		let mangle = input
-
+		console.log('handleClozeDeletions', input)
+		const numbers = [ 
+			'1&#xFE0F;&#x20E3;', # 1️⃣
+			'2&#xFE0F;&#x20E3;', # 2️⃣
+			'3&#xFE0F;&#x20E3;', # 3️⃣
+			'4&#xFE0F;&#x20E3;', # 4️⃣ 
+			'5&#xFE0F;&#x20E3;', # 5️⃣ 
+			'6&#xFE0F;&#x20E3;', # 6️⃣
+			'7&#xFE0F;&#x20E3;', # 7️⃣
+			'8&#xFE0F;&#x20E3;', # 8️⃣
+			'9&#xFE0F;&#x20E3;', # 9️⃣
+			'&#x1F51F;' # 🔟
+		]
 		clozeDeletions.each do |i, elem|
 			const v = dom(elem).html()
+			# TODO: use the parent to figure out which numbers are in use
+			# console.log('parent.previous', dom(elem).parent().html())
 			const old = "<code>{v}</code>"
 			const newValue = '{{c'+(i+1)+'::'+v+'}}'
 			mangle = mangle.replaceAll(old, newValue)		
