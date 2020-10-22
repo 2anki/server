@@ -249,11 +249,18 @@ export class DeckParser
 		]
 		clozeDeletions.each do |i, elem|
 			const v = dom(elem).html()
-			# TODO: use the parent to figure out which numbers are in use
-			# console.log('parent.previous', dom(elem).parent().html())
-			const old = "<code>{v}</code>"
-			const newValue = '{{c'+(i+1)+'::'+v+'}}'
-			mangle = mangle.replaceAll(old, newValue)		
+			let used_index = false
+			for num of numbers
+				const old = "{num}<code>{v}</code>"
+				const newValue = '{{c'+(numbers.indexOf(num)+1)+'::'+v+'}}'
+				if mangle.match(old)
+					used_index = true
+				mangle = mangle.replaceAll(old, newValue)
+			if not used_index
+				const old = "<code>{v}</code>"
+				const newValue = '{{c'+(i+1)+'::'+v+'}}'
+				mangle = mangle.replaceAll(old, newValue)		
+
 		mangle
 
 	def treatBoldAsInput input, inline=false
