@@ -4,8 +4,7 @@ tag home-page
 
 	prop notionLink = "https://www.notion.so/Toggles-c720af26b4bd4789b736c140b2dc73fe"
 	prop contactAdress = "alexander@alemayhu.com"
-	prop tutorial = "https://www.youtube.com/embed/lpC7C9wJoTA"
-
+	prop tutorial = "https://www.youtube.com/embed/NLUfAWA2LJI"
 	prop githubSponsor = "https://github.com/sponsors/alemayhu"
 	prop patreon = "https://patreon.com/alemayhu"
 
@@ -64,9 +63,9 @@ tag home-page
 						<a[mt: 2rem fw: bold fs: 16pt].button.is-info.is-medium href="/benefits"> "notion2anki benefits"
 			<.section>
 				<.container>
-					<h2.title> "Video Tutorial: How to use notion2anki"
+					<h2.title> "Video Tutorial: How to turn any website in to Anki flashcards using the Notion Web Clipper with notion2anki"
 					<hr>
-					<p.subtitle> "In this video, {<a[c: #3273dc] href="https://alpkaanaksu.com"> "Alp Kaan"} shows you how to use notion2anki"
+					<p.subtitle> "In this video, {<a[c: #3273dc] href="https://alemayhu.com"> "I"} show you how to use notion2anki"
 					<.has-text-centered>
-						<youtube-embed video=tutorial inline=false title="Video Tutorial: How to use notion2anki" inline=false>
+						<youtube-embed video=tutorial inline=false title="Video Tutorial: How to turn any website in to Anki flashcards using the Notion Web Clipper with notion2anki" inline=false>
 						<a[mt: 2rem].button .is-primary .is-large href="/upload"> "I want to save my time"
