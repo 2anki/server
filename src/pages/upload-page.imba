@@ -142,7 +142,7 @@ tag upload-page
 								else
 									<p .subtitle> "Loading, please wait. This might take a while depending on the size."
 									<button .button .is-loading>
-						<.step-actions .columns .has-text-centered>
+						<.step-actions .columns .has-text-centered .is-mobile>
 							<.steps-action .column[d:none]=(step == 0)>
 								<a .button .is-light=(step==0) @click.{step -= 1}> "Previous"
 							<.steps-action .column [d:none]=(step >= 2 || step == 0)>
