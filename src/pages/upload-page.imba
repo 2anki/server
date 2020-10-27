@@ -93,12 +93,12 @@ tag upload-page
 											<span$selectorBackground.file-cta[bg: gray]>
 												<span$selectorLabel.file-label> "Click to Upload…"
 											<span$selectorFileName.file-name> "My Notion Export.zip"
-							<.step-content[d:none]=(step != 1) .box [ta: left m: 0 auto mt: 1rem max-width: 480px]>
-								<.field>
+							<.step-content[d:none]=(step != 1) [ta: left m: 0 auto mt: 1rem max-width: 480px]>
+								<.field .box>
 									<label.label> "Deck Name"
 									<.control>
 										<input$input.input[fw: bold c: #83C9F5 @placeholder: grey] placeholder="Enter deck name (optional)" name="deckName" type="text">
-								<.field>
+								<.field .box>
 									<label.label> "Template"
 									<.control[mt: 1rem].control>
 										<.select .is-large>
@@ -107,12 +107,13 @@ tag upload-page
 												<option value="notionstyle"> "Only Notion"
 												<option value="nostyle"> "Raw Note (no style)"
 
-								<label.label> "Card Options" 
-								<.div> for ct of self.cardTypes
-									<.field>
-										<input[mr: 0.2rem] .is-success=ct.default .has-background-color type="checkbox" name=ct.type bind=ct.default>
-										<label> ct.label
-								<.field>
+								<.box>
+									<label.label> "Card Options" 
+									<.div> for ct of self.cardTypes
+										<.field>
+											<input[mr: 0.2rem] .is-success=ct.default .has-background-color type="checkbox" name=ct.type bind=ct.default>
+											<label> ct.label
+								<.field .box>
 									<label.label> "Toggle Mode" 
 									<.control[mt: 1rem].control>
 										<div.select.is-medium>
@@ -120,7 +121,7 @@ tag upload-page
 												<select$toggleMode name="toggle-mode">
 													<option value="open_toggle"> "Open nested toggles"
 													<option value="close_toggle"> "Close nested toggles"
-								<.field>
+								<.field .box>
 									<label.label> "Font Size" 
 									<.control[d: grid jc: start]>
 										<div[bd: 1px solid lightgray br: 5px p: 0]>
