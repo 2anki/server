@@ -89,7 +89,7 @@ def handle_upload req, res
 				TriggerUnsupportedFormat()
 			else
 				console.log('zip upload')
-				const zip_handler = ZipHandler.new()
+				const zip_handler = new ZipHandler()
 				const _ = await zip_handler.build(payload)
 				for file_name in zip_handler.filenames()
 					if file_name.match(/.html$/) and !file_name.includes('/')

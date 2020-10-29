@@ -16,7 +16,7 @@ export default class CardGenerator
 		const dsc = path.join(self.cwd, 'deck_style.css')
 
 		let ccs_args = [ self.ccs, dpayload, dsc, tdir]
-		Promise.new do |resolve, reject|
+		new Promise do |resolve, reject|
 			execFile(PYTHON_INTERPRETER, ccs_args, {cwd: self.cwd}) do |err, stdout, stderr|
 				if err
 					console.log('stderr::', stderr)

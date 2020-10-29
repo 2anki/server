@@ -65,9 +65,9 @@ export class DeckParser
 		self.image = null
 		self.files = files || []
 		self.first_deck_name = file_name
-		self.payload = handleHTML(contents, deckName)
+		self.payload = handleHTML(file_name, contents, deckName)
 
-	def handleHTML contents, deckName = null, decks = []
+	def handleHTML file_name, contents, deckName = null, decks = []
 		const dom = cheerio.load(contents)
 		let name = deckName || dom('title').text()
 		let style = dom('style').html()
@@ -136,10 +136,17 @@ export class DeckParser
 			const spDom = dom(page)
 			const ref = spDom.find('a').first()
 			const href = ref.attr('href')
-			const pageContent = self.files[global.decodeURIComponent(href)]
+			
+			let next_file_name = global.decodeURIComponent(href)
+			let pageContent = self.files[next_file_name]
+			if not pageContent 
+				const dir = file_name.split('.html')[0]
+				const rel = path.join(dir, next_file_name)
+				pageContent = self.files[rel]
+
 			if pageContent
 				const subDeckName = spDom.find('title').text() || ref.text()
-				self.handleHTML(pageContent, "{name}::{subDeckName}", decks)
+				self.handleHTML(file_name, pageContent, "{name}::{subDeckName}", decks)
 
 		return decks
 

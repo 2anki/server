@@ -6,7 +6,7 @@ import fs from 'fs'
 # webpack --mode=production
 
 def run cmd, options
-	Promise.new do |resolve, reject|
+	new Promise do |resolve, reject|
 		const wc = spawn(cmd, options)
 		wc.stdout.on('data') do |data|
 			console.log data.toString!
