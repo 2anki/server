@@ -10,7 +10,6 @@ import {TEMPLATE_DIR, TriggerNoCardsError, TriggerUnsupportedFormat} from '../co
 import CardGenerator from '../service/generator'
 
 String.prototype.replaceAll = do |oldValue, newValue|
-	console.log('replaceAll', oldValue, newValue)
 	unless oldValue != newValue
 		return this
 	let temp = this
@@ -37,11 +36,10 @@ class CustomExporter
 		fs.writeFileSync(abs, file)
 	
 	def addCard back, tags
-		console.log('addCard', arguments)
+		self
 
 	def configure payload
 		const payload_info = path.join(self.workspace, 'deck_info.json')		
-		console.log('writing payload', payload_info)
 		fs.writeFileSync(payload_info, JSON.stringify(payload, null, 2))
 
 	def save
@@ -65,9 +63,19 @@ export class DeckParser
 		self.image = null
 		self.files = files || []
 		self.first_deck_name = file_name
+		console.log('files', Object.keys(files))
 		self.payload = handleHTML(file_name, contents, deckName)
 
+	def find_next_page href, file_name
+		let next_file_name = global.decodeURIComponent(href)
+		let pageContent = self.files[next_file_name]
+		const match = Object.keys(self.files).find do $1.match(next_file_name)
+		if match
+			return self.files[match]
+		return pageContent
+					
 	def handleHTML file_name, contents, deckName = null, decks = []
+		console.log('file_name', file_name)
 		const dom = cheerio.load(contents)
 		let name = deckName || dom('title').text()
 		let style = dom('style').html()
@@ -93,7 +101,6 @@ export class DeckParser
 					const last = names[end]
 					names[end] = "{pi} {last}"
 					name = names.join("::")
-		console.log('isCherry', isCherry)
 		const toggleList = dom(isCherry ? ".toggle" : ".page-body > ul").toArray()
 		let cards = toggleList.map do |t|
 			// We want to perserve the parent's style, so getting the class
@@ -120,11 +127,8 @@ export class DeckParser
 							return null
 						else
 							return note												
-					else
-						console.log('error in (missing valid detailts)', parentUL.html())
 		# Prevent bad cards from leaking out
 		cards = cards.filter(Boolean)
-		console.log('cards', cards)
 		cards = sanityCheck(cards)
 
 		decks.push({name: name, cards: cards, image: image, style: style, id: self.generate_id!})
@@ -136,15 +140,7 @@ export class DeckParser
 			const spDom = dom(page)
 			const ref = spDom.find('a').first()
 			const href = ref.attr('href')
-			
-			let next_file_name = global.decodeURIComponent(href)
-			let pageContent = self.files[next_file_name]
-			if not pageContent 
-				const dir = file_name.split('.html')[0]
-				const rel = path.join(dir, next_file_name)
-				pageContent = self.files[rel]
-
-			if pageContent
+			if let pageContent = self.find_next_page(href, file_name)
 				const subDeckName = spDom.find('title').text() || ref.text()
 				self.handleHTML(file_name, pageContent, "{name}::{subDeckName}", decks)
 
@@ -161,17 +157,9 @@ export class DeckParser
 
 	def sanityCheck cards
 		let empty = cards.find do |x|
-			if !x
-				console.log 'broken card'
-			if !x.name
-				console.log('card is missing name')
 			if !x.back
-				console.log('card is missing back')
 				return has_cloze_deletions(x.name)
 			!x  or !x.name or !x.back
-		if empty
-			console.log('warn Detected empty card, please report bug to developer with an example')
-			console.log('cards', cards)
 		cards.filter do |c|
 			c.name and (has_cloze_deletions(c.name) or c.back or valid_input_card(c))
 
@@ -196,7 +184,6 @@ export class DeckParser
 		return new CustomExporter(self.first_deck_name, workspace)
 
 	def embedFile exporter, files, filePath
-		console.log('embedFile', Object.keys(files), filePath)
 		const suffix = self.suffix(filePath)
 		return null if !suffix
 		let file = files["{filePath}"]
@@ -210,7 +197,6 @@ export class DeckParser
 	
 	# https://stackoverflow.com/questions/6903823/regex-for-youtube-id
 	def get_youtube_id input
-		console.log('get_youtube_id', arguments)
 		try
 			const m =  input.match(/(?:youtu\.be\/|youtube\.com(?:\/embed\/|\/v\/|\/watch\?v=|\/user\/\S+|\/ytscreeningroom\?v=|\/sandalsResorts#\w\/\w\/.*\/))([^\/&]{10,12})/)
 			# prevent swallowing of soundcloud embeds
@@ -221,7 +207,6 @@ export class DeckParser
 				return null
 	
 	def get_soundcloud_url input
-		console.log('get_soundcloud_url', arguments)
 		try
 			const sre = /https?:\/\/soundcloud\.com\/\S*/gi
 			return input.match(sre)[0].split('">')[0]
@@ -241,7 +226,6 @@ export class DeckParser
 		const dom = cheerio.load(input)
 		const clozeDeletions = dom('code')
 		let mangle = input
-		console.log('handleClozeDeletions', input)
 		const numbers = [ 
 			'1&#xFE0F;&#x20E3;', # 1️⃣
 			'2&#xFE0F;&#x20E3;', # 2️⃣
@@ -308,7 +292,6 @@ export class DeckParser
 		return card
 
 	def build
-		console.log('building deck')
 		const workspace = path.join(os.tmpdir(), nanoid())
 		let exporter = self.setupExporter(self.payload[0], workspace)
 	
@@ -318,14 +301,12 @@ export class DeckParser
 
 			deck.card_count = card_count
 			deck.id = self.generate_id!
-			console.log('set deck id', deck.id)
 			delete deck.style
 
 			# Counter for perserving the order in Anki deck.
 			let counter = 0
 			const addThese = []
 			for card in deck.cards
-				console.log("exporting {deck.name} {deck.cards.indexOf(card)} / {card_count}")
 				card['enable-input'] = self.settings['enable-input'] || false
 				card.number = counter++
 				if self.use_cloze
@@ -340,7 +321,6 @@ export class DeckParser
 					const dom = cheerio.load(card.back)
 					const images = dom('img')
 					if images.length > 0
-						console.log('Number of images', images.length)
 						images.each do |i, elem|
 							const originalName = dom(elem).attr('src')
 							if !originalName.startsWith('http')						
@@ -352,7 +332,6 @@ export class DeckParser
 					
 					if let audiofile = find_mp3_file(card.back)
 						if let newFileName = self.embedFile(exporter, self.files, global.decodeURIComponent(audiofile))
-							console.log('added sound', newFileName)
 							card.back += "[sound:{newFileName}]"
 							card.media.push(newFileName)
 
@@ -365,7 +344,6 @@ export class DeckParser
 						const audio = "<iframe width='100%' height='166' scrolling='no' frameborder='no' src='https://w.soundcloud.com/player/?url={soundCloudUrl}'></iframe>"
 						card.back += audio
 
-					console.log('xparse back', self.use_input)
 					if self.use_cloze
 						# TODO: investigate why cloze deletions are not handled properly on the back / extra
 						card.back = self.handleClozeDeletions(card.back)
