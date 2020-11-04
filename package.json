@@ -1,12 +1,11 @@
 {
   "name": "notion2anki",
-  "description": "Go from Notion toggle list to Anki Cards easily!",
+  "description": "Go from Notion togglelists to Anki Cards easily!",
   "keywords": [
     "notion",
     "anki",
     "notion2anki",
-    "imba",
-    "electron"
+    "imba"
   ],
   "author": "Alexander Alemayhu",
   "version": "0.2.20",
