@@ -296,6 +296,7 @@ export class DeckParser
 		let exporter = self.setupExporter(self.payload[0], workspace)
 	
 		for deck in self.payload
+			deck['empty-deck-desc'] = self.settings['empty-deck-desc']
 			const card_count = deck.cards.length
 			deck.image_count = 0
 

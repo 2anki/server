@@ -101,11 +101,13 @@ if __name__ == "__main__":
                     ]
                 my_note = Note(model, fields=fields, sort_field=card["number"], tags=card['tags'])
                 notes.append(my_note)
-                media_files = media_files + card["media"]
+                media_files = media_files + card["media"]            
             deck_desc = "<p>This deck is brought to you by some amazing <a class='patreon-cta' href='https://www.patreon.com/alemayhu'>patrons</a> 🤩</p>"
-            cik = "image"
-            if "image" in deck:
-                deck_desc += _build_deck_description(template_dir, deck["image"])
+            if deck.get('empty-deck-desc', False):
+                deck_desc = ''
+            else:
+                if "image" in deck:
+                    deck_desc += _build_deck_description(template_dir, deck["image"])
             decks.append(
                 {
                     "notes": notes,

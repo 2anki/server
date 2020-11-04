@@ -108,8 +108,13 @@ tag upload-page
 												<option value="nostyle"> "Raw Note (no style)"
 
 								<.box>
+									<label.label> "Deck Options"
+									<.field>
+										<input[mr: 0.2rem] .has-background-color type="checkbox" name='empty-deck-desc'>
+										<label> "Empty description"
+								<.box>
 									<label.label> "Card Options" 
-									<.div> for ct of self.cardTypes
+									<div> for ct of self.cardTypes
 										<.field>
 											<input[mr: 0.2rem] .is-success=ct.default .has-background-color type="checkbox" name=ct.type bind=ct.default>
 											<label> ct.label
