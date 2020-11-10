@@ -30,7 +30,7 @@ def test_fixture file_name, deck_name, card_count, files = {}
 		eq(payload.cards.length, card_count, 'comparing deck count')
 
 		if card_count > 0
-			const zip_file_path = path.join(__dirname, "artifacts", "{payload.name}.apkg")
+			const zip_file_path = path.join(__dirname, "fixtures", "{payload.name}.apkg")
 			await deck.build(zip_file_path, deck, files)
 			eq(fs.existsSync(zip_file_path), true, 'ensuring output was created')
 		return deck
@@ -55,15 +55,15 @@ def main
 	console.time('execution time')
 	console.log('Running tests')
 
-	const artifacts_dir = path.join(__dirname, "artifacts")
-	if not fs.existsSync(artifacts_dir)
-		fs.mkdirSync(artifacts_dir)
+	const fixtures_dir = path.join(__dirname, "fixtures")
+	if not fs.existsSync(fixtures_dir)
+		fs.mkdirSync(fixtures_dir)
 
 	test_fixture('no-images.html', 'HTML test', 2, )
 	# test_fixture('with-image.html', 'HTML test', 3, {'HTML%20test%20202b0d67c0584bc6b1ce9e35b753128b/Skjermbilde_2020-05-13_kl._19.45.08.png': 'empty'})
 	process.exit(0)
 
-	const example_dir = path.join(artifacts_dir, 'files')
+	const example_dir = path.join(fixtures_dir, 'files')
 	const images = ["Untitled.png", "Untitled 1.png", "Untitled 2.png"]
 	let files = {}
 	for img in images
@@ -71,7 +71,7 @@ def main
 		console.log('img', img_path)
 		files["Notion Questions/{img}"] = fs.readFileSync(img_path)
 
-	// const zip_path = path.join(artifacts_dir, 'Export-952356ce-4c7a-4416-9aaa-6abe99917124.zip')
+	// const zip_path = path.join(fixtures_dir, 'Export-952356ce-4c7a-4416-9aaa-6abe99917124.zip')
 	// const zip_data = fs.readFileSync(zip_path)
 	// const zipHandler = ZipHandler.new()	
 	// const _ = await zipHandler.build(zip_data)
