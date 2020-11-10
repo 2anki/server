@@ -121,7 +121,9 @@ export class DeckParser
 				if summary and toggle
 					const toggleHTML = toggle.html()
 					if toggleHTML
-						const note = { name: summary.html(), back: toggleHTML.replace(summary, "") }
+						const n = parentClass ? "<div class='{parentClass}'>{summary.html()}</div>" : summary.html()
+						const b = toggleHTML.replace(summary, "")
+						const note = { name: n, back: b }
 						const cherry = '&#x1F352;' # 🍒
 						if isCherry and !note.name.includes(cherry) and !note.back.includes(cherry)
 							return null
