@@ -57,7 +57,6 @@ export class DeckParser
 		const deckName = settings.deckName
 		const contents = files[file_name]
 		self.settings = settings
-		self.settings['font-size'] = self.settings['font-size'] + 'px'
 		self.use_input = self.enable_input!
 		self.use_cloze = self.is_cloze!
 		self.image = null
@@ -83,8 +82,9 @@ export class DeckParser
 		const isCherry = settings['cherry']
 		let image = null
 		
-		if self.settings['font-size'] != '20px'
-			style += '\n' + '* { font-size:' + self.settings['font-size'] + '}'
+		const fs = self.settings['font-size']
+		if fs and fs != '20px'
+			style += '\n' + '* { font-size:' + self.settings['font-size'] + 'px}'
 
 		let pageCoverImage = dom('.page-cover-image')
 		if pageCoverImage
