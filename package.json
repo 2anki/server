@@ -16,7 +16,7 @@
   "scripts": {
     "dev": "webpack-dev-server --mode=development --content-base dist/",
     "watch": "webpack --watch --progress --colors --display-modules",
-    "test": "imba test/create_deck.imba",
+    "test": "imba test/run.imba",
     "build": "imba build.imba",
     "start": "yarn dev",
     "build-server": "yarn run imbac src/server/server.imba -o .",
