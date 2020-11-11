@@ -1,7 +1,8 @@
 export def iget key
-	localStorage.getItem(key)
+	localStorage.getItem(key, null)
 
 export def iset key, value
+	return if not key
 	localStorage.setItem(key, value)
 
 # Remember the viewers last view		

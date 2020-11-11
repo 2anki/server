@@ -23,6 +23,8 @@ tag locally-stored-checkbox
 tag upload-page
 
 	prop edd = 'empty-deck-desc'
+	prop fontSize = 20
+
 	prop cardTypes = [
 		{type: 'cherry', label: "Enable cherry picking using 🍒 emoji", default: false},
 		{type: 'tags', label: "Treat strikethrough as tags", default: true},
@@ -41,10 +43,10 @@ tag upload-page
 
 	def setup
 		# Make sure we get default value
-		for ct of cardTypes 
-			const value = iget(ct.key)
-			if value === null
-				iset(ct.key, ct.default)
+		if not iget('default_set')
+			for ct of cardTypes 
+				iset(ct.type, ct.default)
+			iset('default_set', true)
 		view = viewparam() || 'upload'
 
 	def render
@@ -81,6 +83,15 @@ tag upload-page
 												<option value="specialstyle"> "Default"
 												<option value="notionstyle"> "Only Notion"
 												<option value="nostyle"> "Raw Note (no style)"
+								# TODO: store font size in local storage
+								<.field .box>
+									<label.label> "Font Size" 
+									<.control[d: grid jc: start]>
+										<div[bd: 1px solid lightgray br: 5px p: 0]>
+											<input bind=fontSize name='font-size' hidden>								
+											<p> for fontPreset in [32, 26, 20, 12, 10]
+													<span[fs: {fontPreset}px p: 3px br: 5px m: 0 8px] [c: #00d1b2]=(fontPreset == fontSize) @click.{fontSize = fontPreset}> "Aa"
+
 								<h2> "TODO: show preview"
 
 						<hr>

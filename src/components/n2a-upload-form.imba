@@ -1,5 +1,4 @@
 tag n2a-upload-form
-	prop fontSize = 20
 	prop downloadLink = null
 	prop errorMessage = null
 	prop state = 'ready'	
@@ -75,13 +74,6 @@ tag n2a-upload-form
 											<select$toggleMode name="toggle-mode">
 												<option value="open_toggle"> "Open nested toggles"
 												<option value="close_toggle"> "Close nested toggles"
-							<.field .box>
-								<label.label> "Font Size" 
-								<.control[d: grid jc: start]>
-									<div[bd: 1px solid lightgray br: 5px p: 0]>
-										<input bind=fontSize name='font-size' hidden>								
-										<p> for fontPreset in [32, 26, 20, 12, 10]
-												<span[fs: {fontPreset}px p: 3px br: 5px m: 0 8px] [c: #00d1b2]=(fontPreset == fontSize) @click.{fontSize = fontPreset}> "Aa"
 						<.step-content[d:none]=(step != 2) [m: 0 auto max-width: 720px]>
 							if errorMessage
 								<h1 .title .is-3> "Oh snap, just got an error 😢"
