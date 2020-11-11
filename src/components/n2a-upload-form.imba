@@ -68,15 +68,6 @@ tag n2a-upload-form
 										<span$selectorFileName.file-name> "My Notion Export.zip"
 						<.step-content[d:none]=(step != 1) [ta: left m: 0 auto mt: 1rem max-width: 480px]>
 							<.field .box>
-								<label.label> "Template"
-								<.control[mt: 1rem].control>
-									<.select .is-large>
-										<select$template name="template">
-											<option value="specialstyle"> "Default"
-											<option value="notionstyle"> "Only Notion"
-											<option value="nostyle"> "Raw Note (no style)"
-
-							<.field .box>
 								<label.label> "Toggle Mode" 
 								<.control[mt: 1rem].control>
 									<div.select.is-medium>

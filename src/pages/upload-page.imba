@@ -72,7 +72,17 @@ tag upload-page
 								<.box> for ct of self.cardTypes
 									<p> <locally-stored-checkbox key=ct.type label=ct.label>
 							when 'template'
-								<h2> "Preview :-)"
+								<centered-title title="Template Options">
+								<.field .box>
+									<label.label> "Template"
+									<.control[mt: 1rem].control>
+										<.select .is-large>
+											<select$template name="template">
+												<option value="specialstyle"> "Default"
+												<option value="notionstyle"> "Only Notion"
+												<option value="nostyle"> "Raw Note (no style)"
+								<h2> "TODO: show preview"
+
 						<hr>
 						<.has-text-centered>
 							<h2.subtitle.is-2> "If you ever get stuck watch the videos below"						
