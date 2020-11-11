@@ -62,7 +62,6 @@ export class DeckParser
 		self.image = null
 		self.files = files || []
 		self.first_deck_name = file_name
-		console.log('files', Object.keys(files))
 		self.payload = handleHTML(file_name, contents, deckName)
 
 	def find_next_page href, file_name
@@ -74,7 +73,6 @@ export class DeckParser
 		return pageContent
 					
 	def handleHTML file_name, contents, deckName = null, decks = []
-		console.log('file_name', file_name)
 		const dom = cheerio.load(contents)
 		let name = deckName || dom('title').text()
 		let style = dom('style').html()

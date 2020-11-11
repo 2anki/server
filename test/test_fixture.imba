@@ -5,20 +5,19 @@ const fs = require('fs')
 
 import {DeckParser, PrepareDeck} from '../src/server/parser/deck'
 
+import {Util} from './util'
+
 export def test_fixture
 	# test_fixture('with-image.html', 'HTML test', 3, {'HTML%20test%20202b0d67c0584bc6b1ce9e35b753128b/Skjermbilde_2020-05-13_kl._19.45.08.png': 'empty'})
-	const file_name = 'no-images.html'
+	const f = 'no-images.html'
+	const i = Util.load_html_file(f)
 	const deck_name = 'HTML test'
 	const card_count = 2
 	const files = {}
 
 	try
-		const file_path = path.join(__dirname, "fixtures", file_name)
-		const example = fs.readFileSync(file_path).toString()
-		const isMarkdown = example.match(/.(md|html)$/)
-		const p = {}
-		p[file_name] = example
-		const deck = new DeckParser(file_name, {}, p)		
+		const isMarkdown = i["{f}"].match(/.(md|html)$/)
+		const deck = new DeckParser(i.file_name, {}, i)		
 		const payload = deck.payload[0]
 
 		assert.strictEqual(payload.style != undefined, true)
