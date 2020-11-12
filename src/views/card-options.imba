@@ -1,4 +1,5 @@
 import '../components/input/locally-stored-checkbox'
+import '../components/input/locally-stored-select'
 import '../components/centered-title'
 
 import {getCardTypes} from '../data/card-types'
@@ -6,21 +7,19 @@ import {getCardTypes} from '../data/card-types'
 tag card-options
 	prop cardTypes
 
+	prop values = [
+		{key: 'open_toggle', label: 'Open nested toggles'},
+		{key: 'close_toggle', label: 'Close nested toggles'},
+	]
+
 	def setup
 		self.cardTypes ||= getCardTypes!
-		console.log(self.cardTypes)
 
 	def render
 		<self>
 			<centered-title title="Card Options">
 			<.box> 
 				<.field>
-					<label.label> "Toggle Mode" 
-					<.control[mt: 1rem].control>
-						<div.select.is-medium>
-							<.select> 
-								<select$toggleMode name="toggle-mode">
-									<option value="open_toggle"> "Open nested toggles"
-									<option value="close_toggle"> "Close nested toggles"
+					<locally-stored-select label="Toggle Mode" key="toggle-mode" values=values>
 				for ct of self.cardTypes
 					<p> <locally-stored-checkbox key=ct.type label=ct.label value=ct.default>
