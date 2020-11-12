@@ -1,4 +1,4 @@
-import '../components/locally-stored-checkbox'
+import '../components/input/locally-stored-checkbox'
 import '../components/centered-title'
 
 import {getCardTypes} from '../data/card-types'

@@ -1,4 +1,4 @@
-import {iget, iset} from '../data/storage'
+import {iget, iset} from '../../data/storage'
 
 tag locally-stored-checkbox
 	prop label

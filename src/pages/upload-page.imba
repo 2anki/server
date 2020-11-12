@@ -1,4 +1,4 @@
-import '../components/locally-stored-checkbox'
+import '../components/input/locally-stored-checkbox'
 import '../components/n2a-button'
 import '../components/download-modal'
 import '../components/n2a-side-bar'
