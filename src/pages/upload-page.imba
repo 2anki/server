@@ -38,8 +38,10 @@ tag upload-page
 	prop view = 'upload'
 
 	def clickSideBar item		
-		window.location.search = "view={item}"
+		const path = "/upload?view={item}"
 		view = item
+		window.history.pushState({"view":item}, document.title, path)
+
 
 	def setup
 		# Make sure we get default value
