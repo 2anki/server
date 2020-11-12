@@ -14,9 +14,7 @@ import {getCardTypes} from '../data/card-types'
 					
 tag upload-page
 
-	prop edd = 'empty-deck-desc'
-	prop fontSize = 20
-	
+	prop edd = 'empty-deck-desc'  	
 	prop view = 'upload'
 
 	def clickSideBar item		

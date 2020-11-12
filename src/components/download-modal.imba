@@ -20,8 +20,7 @@ tag download-modal
 		"Patreon Intro 🧡"		
 
 	def hideModal
-		showModal = false
-		downloadLink = false
+		window.location.href = "/upload"
 
 	<self[d: flex fld: column]>
 		if showModal
@@ -30,7 +29,7 @@ tag download-modal
 				<.modal-card>
 					<header.modal-card-head>
 						<p.modal-card-title> title
-						<button.delete aria-label="close" @click.hideModal()>
+						<button.delete aria-label="close" @click.hideModal().dismissedModal()>
 					<section.modal-card-body>
 						<.has-text-centered>
 							<a[m: 2rem fw: bold].button.is-primary href=downloadLink download=deckName> "Download"
