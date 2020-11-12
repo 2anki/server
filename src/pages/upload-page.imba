@@ -5,6 +5,8 @@ import '../components/n2a-side-bar'
 import '../components/n2a-upload-form'
 import '../components/centered-title'
 
+import '../views/template-options'
+import '../views/deck-options'
 import '../views/card-options'
 
 import {iget, iset, viewparam} from '../data/storage'
@@ -42,39 +44,12 @@ tag upload-page
 						switch view
 							when 'upload'
 								<n2a-upload-form>
-							when 'deck-options'											
-								<centered-title title="Deck Options">
-								<.box>
-									<.field> 
-										<label.label> "Deck Description"
-										<locally-stored-checkbox label="Empty description" key='empty-description'>
-									<.field>
-										<label.label> "Deck Name"
-										<.control>
-											<input$input.input[fw: bold c: #83C9F5 @placeholder: grey] placeholder="Enter deck name (optional)" value=iget('deckName') type="text" @change.{iset('deckName', $input.value)}>
+							when 'deck-options'
+								<deck-options>						
 							when 'card-options'
 								<card-options>
 							when 'template'
-								<centered-title title="Template Options">
-								<.field .box>
-									<label.label> "Template"
-									<.control[mt: 1rem].control>
-										<.select .is-large>
-											<select$template name="template">
-												<option value="specialstyle"> "Default"
-												<option value="notionstyle"> "Only Notion"
-												<option value="nostyle"> "Raw Note (no style)"
-								# TODO: store font size in local storage
-								<.field .box>
-									<label.label> "Font Size" 
-									<.control[d: grid jc: start]>
-										<div[bd: 1px solid lightgray br: 5px p: 0]>
-											<input bind=fontSize name='font-size' hidden>								
-											<p> for fontPreset in [32, 26, 20, 12, 10]
-													<span[fs: {fontPreset}px p: 3px br: 5px m: 0 8px] [c: #00d1b2]=(fontPreset == fontSize) @click.{fontSize = fontPreset}> "Aa"
-
-								<h2> "TODO: show preview"
-
+								<template-options>
 						<hr>
 						<.has-text-centered>
 							<h2.subtitle.is-2> "If you ever get stuck watch the videos below"						
