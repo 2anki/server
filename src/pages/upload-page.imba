@@ -3,30 +3,18 @@ import '../components/n2a-button'
 import '../components/download-modal'
 import '../components/n2a-side-bar'
 import '../components/n2a-upload-form'
-import {iget, iset, viewparam} from '../storage'
+import '../components/centered-title'
 
-tag centered-title
-	prop title
-	<self>
-		<.container[mb: 2rem]>
-			<.has-text-centered[max-width: 640px m: 0 auto]>
-					<h1.subtitle .is-1[mb: 1rem]> title
+import '../views/card-options'
+
+import {iget, iset, viewparam} from '../data/storage'
+import {getCardTypes} from '../data/card-types'
 					
 tag upload-page
 
 	prop edd = 'empty-deck-desc'
 	prop fontSize = 20
-
-	prop cardTypes = [
-		{type: 'cherry', label: "Enable cherry picking using 🍒 emoji", default: false},
-		{type: 'tags', label: "Treat strikethrough as tags", default: true},
-		{type: 'basic', label: "Basic front and back", default: true},
-		{type: 'cloze', label: "Cloze deletion", default: true}, 
-
-		{type: 'enable-input', label: "Treat bold text as input", default: false},
-		{type: 'basic-reversed', label: "Basic and reversed", default: false},
-		{type: 'reversed', label: "Just the reversed", default: false}
-	]
+	
 	prop view = 'upload'
 
 	def clickSideBar item		
@@ -38,6 +26,7 @@ tag upload-page
 	def setup
 		# Make sure we get default value
 		if not iget('default_set')
+			const cardTypes = getCardTypes!
 			for ct of cardTypes 
 				iset(ct.type, ct.default)
 			iset('default_set', true)
@@ -64,9 +53,7 @@ tag upload-page
 										<.control>
 											<input$input.input[fw: bold c: #83C9F5 @placeholder: grey] placeholder="Enter deck name (optional)" value=iget('deckName') type="text" @change.{iset('deckName', $input.value)}>
 							when 'card-options'
-								<centered-title title="Card Options">
-								<.box> for ct of self.cardTypes
-									<p> <locally-stored-checkbox key=ct.type label=ct.label>
+								<card-options>
 							when 'template'
 								<centered-title title="Template Options">
 								<.field .box>
@@ -96,4 +83,4 @@ tag upload-page
 							<iframe width="560" height="315" src="https://www.youtube.com/embed/BN5DTq2tbsY" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>							
 							<iframe width="560" height="315" src="https://www.youtube.com/embed/4PdhlNbBqXo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>							
 					<.column>
-						"Join me live on 💜  {<a target="_blank" href="https://www.twitch.tv/alemayhu"> "Twitch"} every week!"
+						<div[bg: purple1 p: 2rem bd: 2.3px solid purple7 bs: inset]> "Join me live on 💜 Twitch every week! {<a[m: 2rem bdb: 3px solid #a970ff] target="_blank" href="https://www.twitch.tv/alemayhu"> "https://www.twitch.tv/alemayhu"}"

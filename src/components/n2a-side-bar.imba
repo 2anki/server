@@ -1,4 +1,4 @@
-import {viewparam} from '../storage'
+import {viewparam} from '../data/storage'
 
 tag side-bar-item < a
 	prop label

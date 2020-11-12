@@ -1,4 +1,4 @@
-import {iget, iset} from '../storage'
+import {iget, iset} from '../data/storage'
 
 tag locally-stored-checkbox
 	prop label
@@ -18,5 +18,5 @@ tag locally-stored-checkbox
 
 	def render
 		<self.field>
-			<input[mr: 0.2rem] checked=value .has-background-color type="checkbox" name=key @change.clicked>
+			<input[mr: 0.2rem] checked=(value != 'false') .has-background-color type="checkbox" name=key @change.clicked>
 			<label> label
