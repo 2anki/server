@@ -1,8 +1,8 @@
+import '../components/locally-stored-checkbox'
 import '../components/n2a-button'
 import '../components/download-modal'
 import '../components/n2a-side-bar'
 import '../components/n2a-upload-form'
-
 import {iget, iset, viewparam} from '../storage'
 
 tag centered-title
@@ -11,15 +11,7 @@ tag centered-title
 		<.container[mb: 2rem]>
 			<.has-text-centered[max-width: 640px m: 0 auto]>
 					<h1.subtitle .is-1[mb: 1rem]> title
-
-tag locally-stored-checkbox
-	prop label
-	prop key
-
-	<self.field>
-		<input$key[mr: 0.2rem] checked=iget(key) .has-background-color type="checkbox" name=key @change.{iset(key, $key.checked)}>
-		<label> label
-
+					
 tag upload-page
 
 	prop edd = 'empty-deck-desc'
