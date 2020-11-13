@@ -35,4 +35,4 @@ tag template-options
 									<span[fs: {fontPreset}px p: 3px br: 5px m: 0 8px] [c: #00d1b2]=(fontPreset == fontSize) @click.fontSelected(fontPreset)> "Aa"
 
 			<.box[bg: purple1]>
-				<h2> "TODO: show preview"
+				<h2> "Preview support is coming!"
