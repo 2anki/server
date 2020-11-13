@@ -19,9 +19,10 @@ tag n2a-upload-form
 		state = 'uploading'
 		errorMessage = null
 		try
-			const form = event.target
-			const formData = new FormData(form)
-			console.log('formData', formData)
+			const stored_fields = Object.entries(window.localStorage)
+			const formData = new FormData(event.target)
+			for sf of stored_fields
+				formData.append(sf[0], sf[1])
 			
 			const request = await window.fetch('/upload', {method: 'post', body: formData})
 			const contentType = request.headers.get('Content-Type')

@@ -77,7 +77,7 @@ export class DeckParser
 		let name = deckName || dom('title').text()
 		let style = dom('style').html()
 		style = style.replace(/white-space: pre-wrap;/g, '')
-		const isCherry = settings['cherry']
+		const isCherry = settings['cherry'] != 'false'
 		let image = null
 		
 		const fs = self.settings['font-size']
@@ -267,10 +267,10 @@ export class DeckParser
 		{mangle: mangle, answer: answer}
 
 	def is_cloze
-		self.settings['cloze']
+		self.settings['cloze'] != 'false'
 	
 	def enable_input
-		self.settings['enable-input']
+		self.settings['enable-input'] != 'false'
 
 	def generate_id
 		return parseInt(customAlphabet('1234567890', 16)())
@@ -296,7 +296,7 @@ export class DeckParser
 		let exporter = self.setupExporter(self.payload[0], workspace)
 	
 		for deck in self.payload
-			deck['empty-deck-desc'] = self.settings['empty-deck-desc']
+			deck['empty-deck-desc'] = self.settings['empty-deck-desc'] != 'false'
 			const card_count = deck.cards.length
 			deck.image_count = 0
 
@@ -308,7 +308,7 @@ export class DeckParser
 			let counter = 0
 			const addThese = []
 			for card in deck.cards
-				card['enable-input'] = self.settings['enable-input'] || false
+				card['enable-input'] = self.settings['enable-input'] != 'false'
 				card.number = counter++
 				if self.use_cloze
 					card.name = self.handleClozeDeletions(card.name)
@@ -356,9 +356,9 @@ export class DeckParser
 				if self.settings['tags']
 					card = self.locate_tags(card)
 
-				if self.settings['basic-reversed']
+				if self.settings['basic-reversed'] != 'false'
 						addThese.push({name: card.back, back: card.name, tags: card.tags, media: card.media, number: counter++})
-				if self.settings['reversed']
+				if self.settings['reversed'] != 'false'
 					const tmp = card.back
 					card.back = card.name
 					card.name = tmp
