@@ -1,5 +1,3 @@
-import './call-for-action'
-
 tag n2a-header < header
 
 	css h1 fs:2xl fw: bold ls: -0.025rem m: 0 p: 0.5rem 1rem c: #1E1D1C 

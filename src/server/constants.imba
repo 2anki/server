@@ -1,7 +1,5 @@
 import path from 'path'
 
-console.log('__dirname', __dirname)
-
 export const TEMPLATE_DIR = path.join(__dirname, "templates")
 
 export const TriggerNoCardsError = do
