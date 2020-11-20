@@ -86,6 +86,7 @@ if __name__ == "__main__":
             notes = []
             for card in cards:
                 fields = [card["name"], card["back"], ",".join(card["media"])]
+                # Is this correct? Should the CLOZE_STYLE always be used?
                 model = cloze_model(cloze_model_id, cloze_model_name, CLOZE_STYLE + "\n" + CSS)
 
                 # TODO: sanity check the card fields
