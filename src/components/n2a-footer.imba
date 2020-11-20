@@ -17,7 +17,7 @@ tag n2a-footer
 					<p> <a href="https://discord.gg/PSKC3uS"> "Discord server"
 					<p> <a href="https://www.youtube.com/c/AlexanderAlemayhu"> "YouTube"
 					<p> <a href="https://twitter.com/aalemayhu"> "Twitter"
-					<p> <a href="https://twitch.tv/alemayhu"> "Twitch"
+					<p> <a href="https://twitch.tv/alexanderalemayhu"> "Twitch"
 				<.column>
 					<p.footer-header> "Developer"
 					<p> <a href="https://github.com/alemayhu/notion2anki/issues?q=is%3Aopen+is%3Aissue+milestone%3A%E4%B8%80%E7%95%AA%E3%83%BBv1.0.0"> "v1 milestone"

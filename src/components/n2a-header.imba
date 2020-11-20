@@ -24,7 +24,7 @@ tag n2a-header < header
 						<a.navbar-item href="/privacy"> "Privacy"		
 						<a.navbar-item href="/links"> "Useful Links"
 						<.navbar-item>
-							<a[fw: bold my: 2rem c: #3273DC].button href="https://www.twitch.tv/alemayhu"> "Alemayhu on Twitch"			
+							<a[fw: bold my: 2rem c: #3273DC].button href="https://www.twitch.tv/alexanderalemayhu"> "Alemayhu on Twitch"			
 
 					<div.navbar-end>
 						<div.navbar-item>
