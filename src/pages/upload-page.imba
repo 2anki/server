@@ -36,9 +36,9 @@ tag upload-page
 		<self[d: block py: 4rem]>
 			<.section>
 				<.columns>
-					<.column>
+					<.column .is-one-third>
 						<n2a-side-bar[p: 2rem]>
-					<.column .is-half>
+					<.column .is-three-quarters-mobile>
 						switch view
 							when 'upload'
 								<n2a-upload-form>
@@ -48,12 +48,3 @@ tag upload-page
 								<card-options>
 							when 'template'
 								<template-options>
-						<hr>
-						<.has-text-centered>
-							<h2.subtitle.is-2> "If you ever get stuck watch the videos below"						
-							<p> "If you are busy, watch them in 2x speed and please SMASH the ♥️ LIKE button"
-							<iframe width="560" height="315" src="https://www.youtube.com/embed/NLUfAWA2LJI" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>						
-							<iframe width="560" height="315" src="https://www.youtube.com/embed/BN5DTq2tbsY" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>							
-							<iframe width="560" height="315" src="https://www.youtube.com/embed/4PdhlNbBqXo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>							
-					<.column>
-						<div[bg: purple1 p: 2rem bd: 2.3px solid purple7 bs: inset]> "Join me live on 💜 Twitch every week! {<a[m: 2rem bdb: 3px solid #a970ff] target="_blank" href="https://www.twitch.tv/alemayhu"> "https://www.twitch.tv/alemayhu"}"
