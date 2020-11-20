@@ -354,7 +354,7 @@ export class DeckParser
 						card.back = inputInfo.mangle
 
 				card.tags ||= []
-				if self.settings['tags']
+				if self.settings['tags'] != 'false'
 					card = self.locate_tags(card)
 
 				if self.settings['basic-reversed'] != 'false'
