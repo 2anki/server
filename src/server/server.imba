@@ -21,9 +21,11 @@ def useErrorHandler res, err
 var upload = multer({ storage: multer.memoryStorage() })
 const app = express()
 
+const templateDir = path.join(__dirname, "templates")
 const distDir = path.join(__dirname, "../../dist")
 
 app.use(express.static(distDir))
+app.use('/templates', express.static(templateDir))
 
 const appInfo = JSON.parse(fs.readFileSync(path.join(__dirname, '../../package.json')).toString!)
 
