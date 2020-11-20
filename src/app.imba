@@ -42,6 +42,9 @@ tag app-root
 				<useful-links-page>
 			else
 				<home-page>
-			<div[w: 50vw m: 0 auto mb: 1rem ta: center]>
-				<div[bg: purple1 p: 2rem bd: 2.3px solid purple7 bs: inset]> "Join me live on 💜 Twitch every week! {<a[m: 2rem bdb: 3px solid #a970ff] target="_blank" href="https://www.twitch.tv/alexanderalemayhu"> "https://www.twitch.tv/alexanderalemayhu"}"
+			<div[bg: purple1 p: 1.5rem bd: 2.3px solid purple7 bs: inset w: 50vw m: 0 auto mb: 1rem ta: center]>
+				<p>
+					"Join me live on 💜 Twitch every week!"
+				<div[m: 1.3rem]>
+					<a[m: 2rem bg: #a970ff c: white p: 0.34rem rd: 0.3rem bg@hover: purple7 fw: bold] target="_blank" href="https://www.twitch.tv/alexanderalemayhu"> "Twitch.tv"
 			<n2a-footer>
