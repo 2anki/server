@@ -57,13 +57,11 @@ export class DeckParser
 		const deckName = settings.deckName
 		const contents = files[file_name]
 		self.settings = settings
-		self.settings['font-size'] = self.settings['font-size'] + 'px'
 		self.use_input = self.enable_input!
 		self.use_cloze = self.is_cloze!
 		self.image = null
 		self.files = files || []
 		self.first_deck_name = file_name
-		console.log('files', Object.keys(files))
 		self.payload = handleHTML(file_name, contents, deckName)
 
 	def find_next_page href, file_name
@@ -75,16 +73,17 @@ export class DeckParser
 		return pageContent
 					
 	def handleHTML file_name, contents, deckName = null, decks = []
-		console.log('file_name', file_name)
 		const dom = cheerio.load(contents)
 		let name = deckName || dom('title').text()
 		let style = dom('style').html()
 		style = style.replace(/white-space: pre-wrap;/g, '')
-		const isCherry = settings['cherry']
+		const isCherry = settings['cherry'] != 'false'
 		let image = null
 		
-		if self.settings['font-size'] != '20px'
-			style += '\n' + '* { font-size:' + self.settings['font-size'] + '}'
+		const fs = self.settings['font-size']
+		if fs and fs != '20px'
+			# TODO: check if fs already has suffix 'px'
+			style += '\n' + '* { font-size:' + self.settings['font-size'] + 'px}'
 
 		let pageCoverImage = dom('.page-cover-image')
 		if pageCoverImage
@@ -121,7 +120,9 @@ export class DeckParser
 				if summary and toggle
 					const toggleHTML = toggle.html()
 					if toggleHTML
-						const note = { name: summary.html(), back: toggleHTML.replace(summary, "") }
+						const n = parentClass ? "<div class='{parentClass}'>{summary.html()}</div>" : summary.html()
+						const b = toggleHTML.replace(summary, "")
+						const note = { name: n, back: b }
 						const cherry = '&#x1F352;' # 🍒
 						if isCherry and !note.name.includes(cherry) and !note.back.includes(cherry)
 							return null
@@ -267,10 +268,10 @@ export class DeckParser
 		{mangle: mangle, answer: answer}
 
 	def is_cloze
-		self.settings['cloze']
+		self.settings['cloze'] != 'false'
 	
 	def enable_input
-		self.settings['enable-input']
+		self.settings['enable-input'] != 'false'
 
 	def generate_id
 		return parseInt(customAlphabet('1234567890', 16)())
@@ -296,7 +297,7 @@ export class DeckParser
 		let exporter = self.setupExporter(self.payload[0], workspace)
 	
 		for deck in self.payload
-			deck['empty-deck-desc'] = self.settings['empty-deck-desc']
+			deck['empty-deck-desc'] = self.settings['empty-deck-desc'] != 'false'
 			const card_count = deck.cards.length
 			deck.image_count = 0
 
@@ -308,7 +309,7 @@ export class DeckParser
 			let counter = 0
 			const addThese = []
 			for card in deck.cards
-				card['enable-input'] = self.settings['enable-input'] || false
+				card['enable-input'] = self.settings['enable-input'] != 'false'
 				card.number = counter++
 				if self.use_cloze
 					card.name = self.handleClozeDeletions(card.name)
@@ -353,12 +354,12 @@ export class DeckParser
 						card.back = inputInfo.mangle
 
 				card.tags ||= []
-				if self.settings['tags']
+				if self.settings['tags'] != 'false'
 					card = self.locate_tags(card)
 
-				if self.settings['basic-reversed']
+				if self.settings['basic-reversed'] != 'false'
 						addThese.push({name: card.back, back: card.name, tags: card.tags, media: card.media, number: counter++})
-				if self.settings['reversed']
+				if self.settings['reversed'] != 'false'
 					const tmp = card.back
 					card.back = card.name
 					card.name = tmp
