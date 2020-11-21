@@ -37,9 +37,14 @@ def _wr_apkg(payload, media_files):
     pkg.write_to_file(fout_anki)
     sys.stdout.write(os.getcwd() + "/" + fout_anki)
 
+def _path_start():
+    if sys.platform == "win32":
+        return "C:"
+    else:
+        return "/"
 
 def _read_template(template_dir, path, fmt, value):
-    file_path = path if path.startswith('/')  else template_dir + path
+    file_path = path if path.startswith(_path_start()) else template_dir + path
     with open(file_path, "r", encoding="utf-8") as file:
         if fmt and value:
             return file.read().replace(fmt, value)
