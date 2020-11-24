@@ -28,10 +28,9 @@ tag benefits-page
 					<li> <a href="#images"> "Images"
 					<li> <a href="#emoji"> "Emoji"
 					<li> <a href="#math"> "Math"
-				<.subtitle .is-4> "✅ Mobile support"
-				<ul>
-					<li> "Works on iOS with the official {<a href="https://apps.apple.com/us/app/ankimobile-flashcards/id373493387"> "Anki Mobile"} app."
-					<li> "Works on Android with {<a href="https://play.google.com/store/apps/details?id=com.ichi2.anki&hl=en&gl=US"> "AnkiDroid"}."
+				<.subtitle .is-4> "✅ Mobile Friendly"
+					<p> "The website works fine with your browser on iOS and Android."
+					<p> "To see how people use it watch {<a href="https://youtu.be/0QS__rNQ9_M"> "Using notion2anki with AnkiDroid"}."					
 				<br>
 				<p[fs: 16pt]> "✅ Notion styles will automatically be transferred to your decks."
 				<p[fs: 16pt]> "⛔ HTML export is the {<strong> "only"} supported format."
