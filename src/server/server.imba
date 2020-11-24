@@ -11,7 +11,7 @@ import {TEMPLATE_DIR, TriggerNoCardsError} from './constants'
 import {ZipHandler} from './files/zip'
 
 const errorPage = fs.readFileSync(path.join(TEMPLATE_DIR, 'error-message.html')).toString!
-const ADVERTISEMENT = fs.readFileSync(path.join(TEMPLATE_DIR, 'README.txt')).toString!
+const ADVERTISEMENT = fs.readFileSync(path.join(TEMPLATE_DIR, 'README.html')).toString!
 
 def useErrorHandler res, err
 	res.set('Content-Type', 'text/html');

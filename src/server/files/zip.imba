@@ -24,5 +24,5 @@ export class ZipHandler
 		for d in decks
 			zip.file("{d.name}.apkg", d.apkg)
 		if advertisment
-			zip.file("README.txt", advertisment)
+			zip.file("README.html", advertisment)
 		zip.generateAsync({type: "nodebuffer"})
