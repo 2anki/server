@@ -28,6 +28,11 @@ tag benefits-page
 					<li> <a href="#images"> "Images"
 					<li> <a href="#emoji"> "Emoji"
 					<li> <a href="#math"> "Math"
+				<.subtitle .is-4> "✅ Mobile support"
+				<ul>
+					<li> "Works on iOS with the official {<a href="https://apps.apple.com/us/app/ankimobile-flashcards/id373493387"> "Anki Mobile"} app."
+					<li> "Works on Android with {<a href="https://play.google.com/store/apps/details?id=com.ichi2.anki&hl=en&gl=US"> "AnkiDroid"}."
+				<br>
 				<p[fs: 16pt]> "✅ Notion styles will automatically be transferred to your decks."
 				<p[fs: 16pt]> "⛔ HTML export is the {<strong> "only"} supported format."
 				<div[pt: 1rem]>
