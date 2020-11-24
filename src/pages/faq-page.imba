@@ -9,7 +9,7 @@ tag q-w-a # question-with-answer
 				<p> "Q: {question}"
 				if answer.match(/youtube.com/)
 					<.has-text-centered>
-						<youtube-embed title=title video=answer inline=true>
+						<youtube-embed title=title video=answer inline=false>
 				else 
 					<p .tag .is-info> "A: {answer}"
 

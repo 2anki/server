@@ -4,36 +4,34 @@ tag benefits-page
 		list-style-type: square
 		mb: 1rem
 		pl: 2.5em
-	css li
-		fs: 16pt
 
-	css div py: 1rem
+	css div pb: 1rem
 
 	def render
 		<self[d: block]>
 			<.section[d: block m: 4rem]> <.container>
 				<h1.title> "The benefits you get from using notion2anki 💫"
 				<hr>
-				<.subtitle .is-4> "✅ All of the Anki note types are supported."
-				<ul>
-					<li> <a href="#standard-reversed"> "Basic (+reversed)"
-					<li> <a href="#reversed"> "Reversed"
-					<li> <a href="#standard"> "Basic"
-					<li> <a href="#cloze-support"> "Cloze"
-				<.subtitle .is-4> "✅ Rich Media support"
-				<ul>
-					<li> <a href="#SoundCloud"> "SoundCloud"
-					<li> <a href="#YouTube"> "YouTube"
-					<li> <a href="#mp3"> "MP3 files"
-					<li> <a href="#images"> "Images"
-					<li> <a href="#emoji"> "Emoji"
-					<li> <a href="#math"> "Math"
-				<.subtitle .is-4> "✅ Mobile Friendly"
+				<div>
+					<h4.subtitle .is-4> "✅ All of the Anki note types are supported."
+					<ul>
+						<li> <a href="#standard-reversed"> "Basic (+reversed)"
+						<li> <a href="#reversed"> "Reversed"
+						<li> <a href="#standard"> "Basic"
+						<li> <a href="#cloze-support"> "Cloze"
+				<div>
+					<h4.subtitle .is-4> "✅ Rich Media support"
+					<ul>
+						<li> <a href="#SoundCloud"> "SoundCloud"
+						<li> <a href="#YouTube"> "YouTube"
+						<li> <a href="#mp3"> "MP3 files"
+						<li> <a href="#images"> "Images"
+						<li> <a href="#emoji"> "Emoji"
+						<li> <a href="#math"> "Math"
+				<div>
+					<h4.subtitle .is-4> "✅ Mobile Friendly"
 					<p> "The website works fine with your browser on iOS and Android."
 					<p> "To see how people use it watch {<a href="https://youtu.be/0QS__rNQ9_M"> "Using notion2anki with AnkiDroid"}."					
-				<br>
-				<p[fs: 16pt]> "✅ Notion styles will automatically be transferred to your decks."
-				<p[fs: 16pt]> "⛔ HTML export is the {<strong> "only"} supported format."
 				<div[pt: 1rem]>
 					<div>
 						<h4 .is-4 #standard.title> "Basic cards"
@@ -62,18 +60,15 @@ tag benefits-page
 						<h4 .is-4 #YouTube.title> "🎞️ YouTube embed"
 						<hr>
 						<p> "You can embed YouTube videos in your cards, just add the YouTube link and it will be embedded."
-
 					<div>					
 						<h4 .is-4 #SoundCloud.title> "🔊 SoundCloud embed"
 						<hr>
 						<p> "You can add SoundCloud audio to your cards. Just in a link from the {<a href="https://soundcloud.com/"> "SoundCloud's website."} and it will create embed for you."
-
 					<div>					
 						<h4 .is-4 #mp3.title> "🎧 MP3 Files"
 						<hr>
 						<p> "You can also add MP3 files to your cards. You can watch {<a href="https://www.youtube.com/watch?v=lpC7C9wJoTA"> "this video"} to see it in action."
-						<youtube-embed video="https://www.youtube.com/embed/lpC7C9wJoTA" inline=true title="Video Tutorial: How to use notion2anki for learning languages">
-
+						<youtube-embed video="https://www.youtube.com/embed/lpC7C9wJoTA" title="Video Tutorial: How to use notion2anki for learning languages">
 					<div>					
 						<h4 .is-4 #math.title> "🔢 Math"
 						<hr>
