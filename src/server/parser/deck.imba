@@ -100,6 +100,7 @@ export class DeckParser
 					const last = names[end]
 					names[end] = "{pi} {last}"
 					name = names.join("::")
+		self.globalTags = dom(".page-body > p > del")
 		const toggleList = dom(isCherry ? ".toggle" : ".page-body > ul").toArray()
 		let cards = toggleList.map do |t|
 			// We want to perserve the parent's style, so getting the class
@@ -283,13 +284,15 @@ export class DeckParser
 			continue if not i
 
 			const dom = cheerio.load(i)
-			const deletions = dom('del')
-			
-			deletions.each do |i, elem|
-				const del = dom(elem)
-				card.tags = del.text().split(',').map do $1.trim().replace(/\s/g, '-')
-				card.back = card.back.replaceAll(del.html(), '')
-				card.name = card.name.replaceAll(del.html(), '')
+			const deletionsDOM = dom('del')
+			const deletionsArray = [deletionsDOM, self.globalTags]
+			card.tags = []
+			for deletions in deletionsArray
+				deletions.each do |i, elem|
+					const del = dom(elem)
+					card.tags.push(...del.text().split(',').map do $1.trim().replace(/\s/g, '-'))
+					card.back = card.back.replaceAll(del.html(), '')
+					card.name = card.name.replaceAll(del.html(), '')
 		return card
 
 	def build
