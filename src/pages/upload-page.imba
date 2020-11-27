@@ -36,7 +36,7 @@ tag upload-page
 		<self[d: block py: 4rem]>
 			<.section>
 				<.columns>
-					<.column .is-one-third>
+					<.column[max-width: 200px]>
 						<n2a-side-bar[p: 2rem]>
 					<.column .is-three-quarters-mobile>
 						switch view
