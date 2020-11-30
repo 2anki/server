@@ -34,6 +34,6 @@ tag template-options
 							<p> for fontPreset in [32, 26, 20, 12, 10]
 									<span[fs: {fontPreset}px p: 3px br: 5px m: 0 8px] [c: #00d1b2]=(fontPreset == fontSize) @click.fontSelected(fontPreset)> "Aa"
 
-			<.box[bg: white h: 320px w: 256px]>
-				<h2> "Preview support is coming!"
-				<iframe[w: 100% h:  320px w: 256px bd: 3px dashed] src="/templates/preview_custom.html">
+			<.box>
+				<h2[ta: center]> "Preview support is coming!"
+				# <iframe[w: 100% h:  320px w: 256px bd: 3px dashed] src="/templates/preview_custom.html">
