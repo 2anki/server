@@ -1,7 +1,7 @@
 import '../components/input/locally-stored-checkbox'
 import '../components/n2a-button'
 import '../components/download-modal'
-import '../components/n2a-side-bar'
+import '../components/n2a-upload-tabs'
 import '../components/n2a-upload-form'
 import '../components/centered-title'
 
@@ -35,10 +35,8 @@ tag upload-page
 	def render
 		<self[d: block py: 4rem]>
 			<.section>
-				<.columns>
-					<.column[max-width: 200px]>
-						<n2a-side-bar[p: 2rem]>
-					<.column .is-three-quarters-mobile>
+					<n2a-upload-tabs>
+					<.column[max-width: 720px m: 0 auto]>
 						switch view
 							when 'upload'
 								<n2a-upload-form>
