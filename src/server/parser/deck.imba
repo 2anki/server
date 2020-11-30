@@ -286,7 +286,7 @@ export class DeckParser
 			const dom = cheerio.load(i)
 			const deletionsDOM = dom('del')
 			const deletionsArray = [deletionsDOM, self.globalTags]
-			card.tags = []
+			card.tags ||= []
 			for deletions in deletionsArray
 				deletions.each do |i, elem|
 					const del = dom(elem)
