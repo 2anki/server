@@ -97,7 +97,7 @@ if __name__ == "__main__":
                 # TODO: sanity check the card fields
                 if not "{{c" in card["name"] and not "{{type" in card["name"]:
                     model = basic_model(basic_model_id, basic_model_name, CSS)                    
-                elif card["enable-input"] and 'answer' in card:
+                elif 'enable-input' in card and 'answer' in card:
                     model = input_model(input_model_id, input_model_name, CSS)
                     fields = [
                         card["name"].replace("{{type:Input}}", ""),
