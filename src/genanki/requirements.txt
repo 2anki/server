@@ -1,1 +1,1 @@
-genanki==0.8.0
+genanki==0.10.0
