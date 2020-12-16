@@ -89,7 +89,7 @@ export class DeckParser
 		if pageCoverImage
 			image = pageCoverImage.attr('src')
 
-		let pageIcon = dom('.icon')
+		let pageIcon = dom('.page-header-icon > .icon')
 		if let pi = pageIcon.html()
 			if !name.includes(pi) and decks.length == 0
 				if !name.includes('::') and !name.startsWith(pi)
