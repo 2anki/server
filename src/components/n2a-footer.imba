@@ -7,9 +7,6 @@ tag n2a-footer
 			<div[bg: purple1 p: 1.5rem bd: 2.3px solid purple7 bs: inset m: 0 auto mb: 1rem ta: center]>
 				<p> "{<a href="http://github.com/alemayhu/notion2anki/"> "notion2anki"} is a open source project by {<a href="https://alemayhu.com"> "Alexander Alemayhu"}."
 				<p[td: underline]> "This project is 100% free and will remain free!"
-				<p> "It's being developed live on 💜 Twitch. Join the stream 🙂"
-				<div[m: 1.3rem]>
-					<a[m: 2rem bg: #a970ff c: white p: 0.34rem rd: 0.3rem bg@hover: purple7 fw: bold] target="_blank" href="https://www.twitch.tv/alexanderalemayhu"> "Twitch.tv"
 			<.columns>
 				<.column>
 					<p.footer-header> "General"

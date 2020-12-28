@@ -71,7 +71,15 @@ export class DeckParser
 		if match
 			return self.files[match]
 		return pageContent
-					
+
+	def noteHasCherry note
+		const cherry = '&#x1F352;'
+		return true if note.name.includes(cherry) 
+		return true if note.back.includes(cherry) 
+		return true if note.name.includes('🍒')
+		return true if note.back.includes('🍒')
+		false
+
 	def handleHTML file_name, contents, deckName = null, decks = []
 		const dom = cheerio.load(contents)
 		let name = deckName || dom('title').text()
@@ -124,8 +132,7 @@ export class DeckParser
 						const n = parentClass ? "<div class='{parentClass}'>{summary.html()}</div>" : summary.html()
 						const b = toggleHTML.replace(summary, "")
 						const note = { name: n, back: b }
-						const cherry = '&#x1F352;' # 🍒
-						if isCherry and !note.name.includes(cherry) and !note.back.includes(cherry)
+						if isCherry and !noteHasCherry(note)
 							return null
 						else
 							return note												
