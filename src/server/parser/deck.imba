@@ -132,7 +132,7 @@ export class DeckParser
 						const n = parentClass ? "<div class='{parentClass}'>{summary.html()}</div>" : summary.html()
 						const b = toggleHTML.replace(summary, "")
 						const note = { name: n, back: b }
-						if isCherry and noteHasCherry(note)
+						if isCherry and !noteHasCherry(note)
 							return null
 						else
 							return note												
