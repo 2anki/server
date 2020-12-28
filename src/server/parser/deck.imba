@@ -78,6 +78,7 @@ export class DeckParser
 		let style = dom('style').html()
 		style = style.replace(/white-space: pre-wrap;/g, '')
 		const isCherry = settings['cherry'] != 'false'
+		console.log('isCherry', isCherry)
 		let image = null
 		
 		const fs = self.settings['font-size']
@@ -125,6 +126,7 @@ export class DeckParser
 						const b = toggleHTML.replace(summary, "")
 						const note = { name: n, back: b }
 						const cherry = '&#x1F352;' # 🍒
+						console.log('note', note)
 						if isCherry and !note.name.includes(cherry) and !note.back.includes(cherry)
 							return null
 						else
