@@ -127,6 +127,11 @@ export class DeckParser
 						const note = { name: n, back: b }
 						const cherry = '&#x1F352;' # 🍒
 						console.log('note', note)
+						console.log('name includes cherry code?', note.name.includes(cherry))
+						console.log('back includes cherry code?', note.back.includes(cherry))						
+						console.log('name includes cherry emoji?', note.name.includes('🍒'))
+						console.log('back includes cherry emoji?', note.back.includes('🍒'))
+
 						if isCherry and !note.name.includes(cherry) and !note.back.includes(cherry)
 							return null
 						else
