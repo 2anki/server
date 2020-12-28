@@ -71,14 +71,21 @@ export class DeckParser
 		if match
 			return self.files[match]
 		return pageContent
-					
+
+	def noteHasCherry note
+		const cherry = '&#x1F352;'
+		return true if note.name.includes(cherry) 
+		return true if note.back.includes(cherry) 
+		return true if note.name.includes('🍒')
+		return true if note.back.includes('🍒')
+		false
+
 	def handleHTML file_name, contents, deckName = null, decks = []
 		const dom = cheerio.load(contents)
 		let name = deckName || dom('title').text()
 		let style = dom('style').html()
 		style = style.replace(/white-space: pre-wrap;/g, '')
 		const isCherry = settings['cherry'] != 'false'
-		console.log('isCherry', isCherry)
 		let image = null
 		
 		const fs = self.settings['font-size']
@@ -125,14 +132,7 @@ export class DeckParser
 						const n = parentClass ? "<div class='{parentClass}'>{summary.html()}</div>" : summary.html()
 						const b = toggleHTML.replace(summary, "")
 						const note = { name: n, back: b }
-						const cherry = '&#x1F352;' # 🍒
-						console.log('note', note)
-						console.log('name includes cherry code?', note.name.includes(cherry))
-						console.log('back includes cherry code?', note.back.includes(cherry))						
-						console.log('name includes cherry emoji?', note.name.includes('🍒'))
-						console.log('back includes cherry emoji?', note.back.includes('🍒'))
-
-						if isCherry and !note.name.includes(cherry) and !note.back.includes(cherry)
+						if isCherry and noteHasCherry(note)
 							return null
 						else
 							return note												
