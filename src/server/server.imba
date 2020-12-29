@@ -9,6 +9,7 @@ import multer from 'multer'
 import {DeckParser,PrepareDeck} from './parser/deck'
 import {TEMPLATE_DIR, TriggerNoCardsError} from './constants'
 import {ZipHandler} from './files/zip'
+import {Database} from './database'
 
 const errorPage = fs.readFileSync(path.join(TEMPLATE_DIR, 'error-message.html')).toString!
 const ADVERTISEMENT = fs.readFileSync(path.join(TEMPLATE_DIR, 'README.html')).toString!
@@ -131,6 +132,8 @@ app.post('/upload', upload.array('pakker'), &) do |req, res|
 process.on('uncaughtException') do |err, origin|
 	console.log(process.stderr.fd,`Caught exception: ${err}\n Exception origin: ${origin}`)
 
+const database = new Database()
 const port = process.env.PORT || 2020
 const server = app.listen(port) do
+	await database.create_schema()
 	console.log("🟢 Running on http://localhost:{port}")
