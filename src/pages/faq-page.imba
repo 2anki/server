@@ -36,4 +36,3 @@ tag faq-page
 					<q-w-a question="How do I come up with ideas?" answer="Go and read about people's problems on Reddit and solve them.">
 					<q-w-a question="What is the goal of notion2anki?" answer="https://www.youtube.com/embed/FjifJG4FoXY" title="Explanation Video: Notion + Anki = 💛">
 					<q-w-a question="How do I add images?" answer="https://www.youtube.com/embed/cSFvv3AVtIg" title="Video Tutorial: 🗺Making flashcards with maps using notion2anki 🗾">
-					<q-w-a question="What is the 2anki Manifesto?" answer="i) Always create your own decks, no exceptions ❣️ ii) The hard way is always the right and easy way iii) Be a fearless and just do it">
