@@ -6,7 +6,7 @@ import os from 'os'
 import { nanoid, customAlphabet } from 'nanoid'
 import cheerio from 'cheerio'
 
-import {TEMPLATE_DIR, TriggerNoCardsError, TriggerUnsupportedFormat} from '../constants'
+import {TEMPLATE_DIR, TriggerNoCardsError, TriggerUnsupportedFormat} from '../config/constants'
 import CardGenerator from '../service/generator'
 
 String.prototype.replaceAll = do |oldValue, newValue|
