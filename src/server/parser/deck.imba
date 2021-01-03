@@ -87,17 +87,6 @@ export class DeckParser
 		let selector = isCherry || isAll ?  ".toggle" : ".page-body > ul"		
 		dom(selector).toArray()
 
-	def locateText back
-		const dom = cheerio.load(back)
-		let paragraphs = dom(back).find('p').toArray!
-		let b = ''
-		for p in paragraphs
-			if let text = dom(p).text!
-				b += text
-		b
-
-
-
 	def handleHTML file_name, contents, deckName = null, decks = []
 		const dom = cheerio.load(contents)
 		let name = deckName || dom('title').text()
@@ -150,7 +139,13 @@ export class DeckParser
 					if toggleHTML
 						const n = parentClass ? "<div class='{parentClass}'>{summary.html()}</div>" : summary.html()
 						let b = toggleHTML.replace(summary, "")
-						b = isTextOnlyBack ? self.locateText(b) : b
+						if isTextOnlyBack
+							const paragraphs = dom(toggle).find('> p').toArray!
+							b = ''
+							for p in paragraphs 
+								if p
+									const html = dom(p).html!
+									b += html.startsWith('<p>') and html.endsWith('</p>') ? html : "<p>{html}</p>"
 						const note = {name: n, back: b}
 						if isCherry and !noteHasCherry(note)
 							return null
