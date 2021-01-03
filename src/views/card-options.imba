@@ -2,7 +2,7 @@ import '../components/input/locally-stored-checkbox'
 import '../components/input/locally-stored-select'
 import '../components/centered-title'
 
-import {getCardTypes} from '../data/card-types'
+import {getCardOptions} from '../data/card-types'
 
 tag card-options
 	prop cardTypes
@@ -13,11 +13,11 @@ tag card-options
 	]
 
 	def setup
-		self.cardTypes ||= getCardTypes!
+		self.cardTypes ||= getCardOptions!
 
 	def clearSettings
 		window.localStorage.clear!
-		self.cardTypes = getCardTypes!
+		self.cardTypes = getCardOptions!
 		window.location.href = '/upload?view=card-options'
 
 	def render

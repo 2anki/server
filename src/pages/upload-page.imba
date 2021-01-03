@@ -10,7 +10,7 @@ import '../views/deck-options'
 import '../views/card-options'
 
 import {iget, iset, viewparam} from '../data/storage'
-import {getCardTypes} from '../data/card-types'
+import {getCardOptions} from '../data/card-types'
 					
 tag upload-page
 
@@ -26,7 +26,7 @@ tag upload-page
 	def setup
 		# Make sure we get default value
 		if not iget('default_set')
-			const cardTypes = getCardTypes!
+			const cardTypes = getCardOptions!
 			for ct of cardTypes 
 				iset(ct.type, ct.default)
 			iset('default_set', true)

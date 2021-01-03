@@ -87,12 +87,24 @@ export class DeckParser
 		let selector = isCherry || isAll ?  ".toggle" : ".page-body > ul"		
 		dom(selector).toArray()
 
+	def locateText back
+		const dom = cheerio.load(back)
+		let paragraphs = dom(back).find('p').toArray!
+		let b = ''
+		for p in paragraphs
+			if let text = dom(p).text!
+				b += text
+		b
+
+
+
 	def handleHTML file_name, contents, deckName = null, decks = []
 		const dom = cheerio.load(contents)
 		let name = deckName || dom('title').text()
 		let style = dom('style').html()
 		style = style.replace(/white-space: pre-wrap;/g, '')
 		const isCherry = settings['cherry'] != 'false'
+		const isTextOnlyBack = self.settings['all'] == 'true'
 		let image = null
 		
 		const fs = self.settings['font-size']
@@ -137,8 +149,9 @@ export class DeckParser
 					const toggleHTML = toggle.html()
 					if toggleHTML
 						const n = parentClass ? "<div class='{parentClass}'>{summary.html()}</div>" : summary.html()
-						const b = toggleHTML.replace(summary, "")
-						const note = { name: n, back: b }
+						let b = toggleHTML.replace(summary, "")
+						b = isTextOnlyBack ? self.locateText(b) : b
+						const note = {name: n, back: b}
 						if isCherry and !noteHasCherry(note)
 							return null
 						else
