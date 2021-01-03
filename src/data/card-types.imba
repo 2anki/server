@@ -1,7 +1,9 @@
 import {iget} from './storage'
 
+
 export def getCardTypes
 	return [
+		{type: 'all', label: "Use all toggle lists", default: iget('all') || false},
 		{type: 'cherry', label: "Enable cherry picking using 🍒 emoji", default: iget('cherry') || false},
 		{type: 'tags', label: "Treat strikethrough as tags", default: iget('tags') || true},
 		{type: 'basic', label: "Basic front and back", default: iget('basic') || true},

@@ -79,6 +79,13 @@ export class DeckParser
 		return true if note.name.includes('🍒')
 		return true if note.back.includes('🍒')
 		false
+	
+	def findToggleLists dom
+		const isCherry = self.settings['cherry'] != 'false'
+		const isAll = self.settings['all'] == 'true'
+	
+		let selector = isCherry || isAll ?  ".toggle" : ".page-body > ul"		
+		dom(selector).toArray()
 
 	def handleHTML file_name, contents, deckName = null, decks = []
 		const dom = cheerio.load(contents)
@@ -109,7 +116,7 @@ export class DeckParser
 					names[end] = "{pi} {last}"
 					name = names.join("::")
 		self.globalTags = dom(".page-body > p > del")
-		const toggleList = dom(isCherry ? ".toggle" : ".page-body > ul").toArray()
+		const toggleList = self.findToggleLists(dom)
 		let cards = toggleList.map do |t|
 			// We want to perserve the parent's style, so getting the class
 			const parentUL = dom(t)
