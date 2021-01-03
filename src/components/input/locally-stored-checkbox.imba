@@ -8,7 +8,7 @@ tag locally-stored-checkbox
 	def setup
 		# The default is null so check for persisted value
 		if value === null
-			value = iget(key)
+			value = JSON.parse(iget(key))
 
 	def clicked event
 		const target = event.target

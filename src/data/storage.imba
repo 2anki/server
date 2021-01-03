@@ -1,5 +1,7 @@
 export def iget key
-	JSON.parse(localStorage.getItem(key, false))
+	const v = localStorage.getItem(key)
+	return JSON.parse(v) if v and v.match(/false|true/)
+	v
 
 export def iset key, value
 	return if not key
