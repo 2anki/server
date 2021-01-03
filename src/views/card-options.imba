@@ -15,6 +15,11 @@ tag card-options
 	def setup
 		self.cardTypes ||= getCardTypes!
 
+	def clearSettings
+		window.localStorage.clear!
+		self.cardTypes = getCardTypes!
+		window.location.href = '/upload?view=card-options'
+
 	def render
 		<self>
 			<centered-title title="Card Options">
@@ -23,3 +28,5 @@ tag card-options
 					<locally-stored-select label="Toggle Mode" key="toggle-mode" values=values>
 				for ct of self.cardTypes
 					<p> <locally-stored-checkbox key=ct.type label=ct.label value=ct.default>
+				<.has-text-centered>	
+					<button.button @click.clearSettings()> "Reset"
