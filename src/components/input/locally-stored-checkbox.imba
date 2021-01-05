@@ -8,7 +8,7 @@ tag locally-stored-checkbox
 	def setup
 		# The default is null so check for persisted value
 		if value === null
-			value = iget(key)
+			value = JSON.parse(iget(key))
 
 	def clicked event
 		const target = event.target
@@ -18,5 +18,5 @@ tag locally-stored-checkbox
 
 	def render
 		<self.field>
-			<input[mr: 0.2rem] checked=(value != 'false') .has-background-color type="checkbox" name=key @change.clicked>
+			<input[mr: 0.2rem] checked=value .has-background-color type="checkbox" name=key @change.clicked>
 			<label> label

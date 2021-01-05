@@ -6,7 +6,7 @@ import os from 'os'
 import { nanoid, customAlphabet } from 'nanoid'
 import cheerio from 'cheerio'
 
-import {TEMPLATE_DIR, TriggerNoCardsError, TriggerUnsupportedFormat} from '../constants'
+import {TEMPLATE_DIR, TriggerNoCardsError, TriggerUnsupportedFormat} from '../config/constants'
 import CardGenerator from '../service/generator'
 
 String.prototype.replaceAll = do |oldValue, newValue|
@@ -79,6 +79,13 @@ export class DeckParser
 		return true if note.name.includes('🍒')
 		return true if note.back.includes('🍒')
 		false
+	
+	def findToggleLists dom
+		const isCherry = self.settings['cherry'] != 'false'
+		const isAll = self.settings['all'] == 'true'
+	
+		let selector = isCherry || isAll ?  ".toggle" : ".page-body > ul"		
+		dom(selector).toArray()
 
 	def handleHTML file_name, contents, deckName = null, decks = []
 		const dom = cheerio.load(contents)
@@ -86,6 +93,7 @@ export class DeckParser
 		let style = dom('style').html()
 		style = style.replace(/white-space: pre-wrap;/g, '')
 		const isCherry = settings['cherry'] != 'false'
+		const isTextOnlyBack = self.settings['all'] == 'true'
 		let image = null
 		
 		const fs = self.settings['font-size']
@@ -109,7 +117,7 @@ export class DeckParser
 					names[end] = "{pi} {last}"
 					name = names.join("::")
 		self.globalTags = dom(".page-body > p > del")
-		const toggleList = dom(isCherry ? ".toggle" : ".page-body > ul").toArray()
+		const toggleList = self.findToggleLists(dom)
 		let cards = toggleList.map do |t|
 			// We want to perserve the parent's style, so getting the class
 			const parentUL = dom(t)
@@ -130,8 +138,15 @@ export class DeckParser
 					const toggleHTML = toggle.html()
 					if toggleHTML
 						const n = parentClass ? "<div class='{parentClass}'>{summary.html()}</div>" : summary.html()
-						const b = toggleHTML.replace(summary, "")
-						const note = { name: n, back: b }
+						let b = toggleHTML.replace(summary, "")
+						if isTextOnlyBack
+							const paragraphs = dom(toggle).find('> p').toArray!
+							b = ''
+							for p in paragraphs 
+								if p
+									const html = dom(p).html!
+									b += html.startsWith('<p>') and html.endsWith('</p>') ? html : "<p>{html}</p>"
+						const note = {name: n, back: b}
 						if isCherry and !noteHasCherry(note)
 							return null
 						else
