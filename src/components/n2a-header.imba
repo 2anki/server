@@ -23,8 +23,7 @@ tag n2a-header < header
 						<a.navbar-item href="/faq"> "FAQ"
 						<a.navbar-item href="/privacy"> "Privacy"		
 						<a.navbar-item href="/links"> "Useful Links"
-						<.navbar-item>
-							<a[fw: bold my: 2rem c: #3273DC].button href="https://www.twitch.tv/alexanderalemayhu"> "Alemayhu on Twitch"			
+						<a.navbar-item href="https://github.com/alemayhu/notion2anki"> "Code"			
 
 					<div.navbar-end>
 						<div.navbar-item>
