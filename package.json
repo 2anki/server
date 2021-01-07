@@ -30,7 +30,7 @@
   "license": "MIT",
   "dependencies": {
     "bulma-steps": "^2.2.1",
-    "cheerio": "^1.0.0-rc.3",
+    "cheerio": "1.0.0-rc.3",
     "express": "^4.17.1",
     "imba": "^2.0.0-alpha.100",
     "jszip": "^3.5.0",
