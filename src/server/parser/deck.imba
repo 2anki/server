@@ -93,7 +93,7 @@ export class DeckParser
 		let style = dom('style').html()
 		style = style.replace(/white-space: pre-wrap;/g, '')
 		const isCherry = settings['cherry'] != 'false'
-		const isTextOnlyBack = self.settings['all'] == 'true'
+		const isTextOnlyBack = self.settings['paragraph'] == 'true'
 		let image = null
 		
 		const fs = self.settings['font-size']
