@@ -144,8 +144,7 @@ export class DeckParser
 							b = ''
 							for p in paragraphs 
 								if p
-									const html = dom(p).html!
-									b += html.startsWith('<p>') and html.endsWith('</p>') ? html : "<p>{html}</p>"
+									b += dom(p).html!
 						const note = {name: n, back: b}
 						if isCherry and !noteHasCherry(note)
 							return null
