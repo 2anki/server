@@ -32,7 +32,7 @@
     "bulma-steps": "^2.2.1",
     "cheerio": "1.0.0-rc.3",
     "express": "^4.17.1",
-    "imba": "^2.0.0-alpha.100",
+    "imba": "2.0.0-alpha.100",
     "jszip": "^3.5.0",
     "knex": "^0.21.15",
     "multer": "^1.4.2",
