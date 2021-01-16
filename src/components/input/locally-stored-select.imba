@@ -24,7 +24,7 @@ tag locally-stored-select
 			<.field>
 				<label.label> label
 				<.control[mt: 1rem].control>
-					<.select .is-large>
+					<.select>
 						<select value=value name=key @change.clicked>
 							for v in values
 								<option selected=(v.key == value) value=v.key> v.label
