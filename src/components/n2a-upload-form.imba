@@ -56,8 +56,10 @@ tag n2a-upload-form
 										<span$selectorFileName.file-name> "My Notion Export.zip"
 							<button[mt: 2rem].button.cta .is-large .is-primary type="submit" disabled=(!$selectorInput.value)> "Convert"
 							if errorMessage
-								<h1 .title .is-3> "Oh snap, just got an error 😢"
-								<p .subtitle> "Please refresh and try again otherwise report this bug to the developer on Discord with a screenshot 📸"
+								<div>
+									<h1 .title .is-3> "Oh snap, just got an error 😢"
+									<p> "Please watch the video below and see if you are experiencing a common error."
+									<iframe width="560" height="315" src="https://www.youtube.com/embed/CaND1Y3X6og" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="">
 								<.notification .is-danger innerHTML=errorMessage>
 								<a.button target="_blank" href="https://discord.gg/PSKC3uS">
 									<span> "Discord"
