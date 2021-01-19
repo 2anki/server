@@ -59,7 +59,7 @@ tag n2a-upload-form
 								<div>
 									<h1 .title .is-3> "Oh snap, just got an error 😢"
 									<p> "Please watch the video below and see if you are experiencing a common error."
-									<iframe width="560" height="315" src="https://www.youtube.com/embed/CaND1Y3X6og" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="">
+									<iframe width="560" height="315" src="https://www.youtube.com/embed/CaND1Y3X6og" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen="">
 								<.notification .is-danger innerHTML=errorMessage>
 								<a.button target="_blank" href="https://discord.gg/PSKC3uS">
 									<span> "Discord"
