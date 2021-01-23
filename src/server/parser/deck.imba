@@ -267,7 +267,7 @@ export class DeckParser
 			for num of numbers
 				const old = "{num}<code>{v}</code>"
 				const newValue = '{{c'+(numbers.indexOf(num)+1)+'::'+v+'}}'
-				if mangle.match(old)
+				if mangle.includes(old)
 					used_index = true
 				mangle = mangle.replaceAll(old, newValue)
 			if not used_index
