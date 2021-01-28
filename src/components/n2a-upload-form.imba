@@ -24,8 +24,13 @@ tag n2a-upload-form
 			for sf of stored_fields
 				formData.append(sf[0], sf[1])
 			
-			const request = await window.fetch('/upload', {method: 'post', body: formData})
-			const contentType = request.headers.get('Content-Type')
+			let request
+			let contentType
+			try 
+				request = await window.fetch('/upload', {method: 'post', body: formData})
+				contentType = request.headers.get('Content-Type')
+			catch err
+				console.error(err)
 
 			if request.status != 200 # OK
 				const text = await request.text()
