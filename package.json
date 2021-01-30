@@ -18,9 +18,8 @@
     "watch": "webpack --watch --progress --colors --display-modules",
     "test": "imba test/run.imba",
     "build": "imba build.imba",
+    "compile": "imbac src",
     "start": "yarn dev",
-    "build-server": "yarn run imbac src/server/server.imba -o .",
-    "watch-server": "yarn run imbac -w src/server/server.imba -o .",
     "dev-server": "yarn run imba src/server/server.imba"
   },
   "repository": {
