@@ -8,6 +8,10 @@ export const TriggerNoCardsError = do
 export const TriggerUnsupportedFormat = do
 	throw new Error('Markdown support has been removed, please use HTML.')
 
+export def resolvePath x
+	const p = path.resolve(path.join(__dirname, x)).replace(/app.asar/g, 'app.asar.unpacked')
+	x.endsWith('/') ? "{p}/" : p
+
 export const ALLOWED_ORIGINS = [
 		'http://localhost:8080'
 		'http://localhost:2020'
