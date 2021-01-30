@@ -2,8 +2,6 @@ import path from 'path'
 
 import express from 'express'
 
-import {Database} from './database'
-
 import {ALLOWED_ORIGINS} from './config/constants'
 import {ErrorHandler} from './handlers/error'
 
@@ -36,8 +34,6 @@ app.use do |req, res, next|
 process.on('uncaughtException') do |err, origin|
 	console.log(process.stderr.fd,`Caught exception: ${err}\n Exception origin: ${origin}`)
 
-const database = new Database()
 const port = process.env.PORT || 2020
 const server = app.listen(port) do
-	await database.create_schema()
 	console.log("🟢 Running on http://localhost:{port}")
