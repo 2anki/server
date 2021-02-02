@@ -128,3 +128,15 @@ dist/n2a-0.0.0.dmg.blockmap
 
 dist/blog
 yarn.lock
+
+
+# Python stuff
+*.so
+*.dylib
+*.spec
+*.toc
+*.jspm_packages*.pyz
+*.zip
+dist/create_deck
+build/create_deck
+__pycache__
