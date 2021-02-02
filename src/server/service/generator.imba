@@ -13,7 +13,10 @@ def python_interpreter
 export default class CardGenerator
 
 	constructor workspace
-		self.ccs = resolvePath('../../genanki/create_deck.py')		
+		self.ccs = resolvePath('../../genanki/create_deck.py')
+		if !fs.existsSync(self.css)
+			self.css = resolvePath('../../../dist/create_deck')
+
 		self.cwd = workspace
 
 	def run
