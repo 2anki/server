@@ -20,7 +20,6 @@ def run cmd, options
 def build_process
 	if !process.env.SKIP_WEBPACK
 		await run('./node_modules/.bin/webpack', ['--mode=production'])
-	await run('./pyinstaller.bash', ['./src/genanki/create_deck.py'])
 	
 def make_pages
 	console.log('skipping make_pages')
