@@ -13,6 +13,11 @@ import {ErrorHandler} from '../handlers/error'
 import {TEMPLATE_DIR, TriggerNoCardsError, TriggerUnsupportedFormat, ALLOWED_ORIGINS} from '../config/constants'
 const ADVERTISEMENT = fs.readFileSync(path.join(TEMPLATE_DIR, 'README.html')).toString!
 
+def clean_deck_name name
+	if name.startsWith('&#x')
+		return name.split(' ').slice(1).join('').trim()
+	name
+
 def handle_upload req, res
 	console.log('POST', req.originalUrl)
 	const origin = req.headers.origin
@@ -38,33 +43,34 @@ def handle_upload req, res
 			elif filename.match(/.md$/)
 				TriggerUnsupportedFormat!
 			else
-				console.log('zip upload')
 				const zip_handler = new ZipHandler()
 				const _ = await zip_handler.build(payload)
 				for file_name in zip_handler.filenames()
 					if file_name.match(/.html$/) and !file_name.includes('/')
-						console.log('21 21 21 detected payload', file_name)
 						const d = await PrepareDeck(file_name, zip_handler.files, settings)
 						decks.push(d)
 					elif file_name.match(/.md$/)
 						TriggerUnsupportedFormat!
 
 		let payload
-		let pname
 		let plen
+
+		let deck = decks[0]
 		if decks.length == 1
-			let deck = decks[0]
 			payload = deck.apkg
 			plen = Buffer.byteLength(deck.apkg)
-			pname = "{deck.name}.apkg"
 			res.set("Content-Type", "application/apkg")
-			res.set("Content-Length": plen)
-			res.attachment("/"+pname)
+			res.set("Content-Length", plen)
+			deck.name = clean_deck_name(deck.name)
+			res.set('File-Name', deck.name)
+			res.attachment("/"+deck.name)
 			res.status(200).send(payload)
 		elif decks.length > 1
-			const pkg = path.join(os.tmpdir(), "Your decks-{nanoid()}.zip")
+			const filename = "Your decks-{nanoid()}.zip"
+			const pkg = path.join(os.tmpdir(), filename)
 			payload = await ZipHandler.toZip(decks, ADVERTISEMENT)
 			fs.writeFileSync(pkg, payload)
+			res.set('File-Name', clean_deck_name(filename))
 			res.download(pkg)
 		else
 			TriggerNoCardsError()

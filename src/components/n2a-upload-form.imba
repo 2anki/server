@@ -32,8 +32,9 @@ tag n2a-upload-form
 				errorMessage = "status.code={request.status}\n{text}"
 				return errorMessage
 
-			# TODO: add unqiue timestamp to filename for uniqueness
-			deckName = contentType == 'application/zip' ? "Your Decks.zip" : "Your deck.apkg"
+			deckName = request.headers.get('File-Name')
+			deckName ||= contentType == 'application/zip' ? "Your Decks.zip" : "Your deck.apkg"
+
 			const blob = await request.blob()
 			downloadLink = window.URL.createObjectURL(blob)
 		catch error
