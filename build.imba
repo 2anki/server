@@ -2,9 +2,6 @@ import {spawn} from 'child_process'
 import path from 'path'
 import fs from 'fs'
 
-# build the html pages
-# webpack --mode=production
-
 def run cmd, options
 	console.log('exec1', cmd, options)
 	new Promise do |resolve, reject|
@@ -19,19 +16,6 @@ def run cmd, options
 
 def build_process
 	if !process.env.SKIP_WEBPACK
-		await run('./node_modules/.bin/webpack', ['--mode=production'])
-	
-def make_pages
-	console.log('skipping make_pages')
-	# TODO: make it dynamic?
-	# const cwd = path.join(__dirname, 'src/pages')
-	# const directories = fs.readdirSync(cwd)
-	# const pages = directories.filter do $1.match(/\.imba$/)
-
-	# import './src/pages/test-page>'
-	# console.log(<test-page>)
-	# const pages 
-	# for page in pages
-
-make_pages!
+		await run('./node_modules/.bin/webpack', ['--mode=production'])	
+		
 build_process!

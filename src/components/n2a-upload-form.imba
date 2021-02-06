@@ -2,7 +2,7 @@ tag n2a-upload-form
 	prop downloadLink = null
 	prop errorMessage = null
 	prop state = 'ready'	
-	prop deckName = null # TODO: fix broken? 
+	prop deckName = null
 	prop step = 0
 
 	def fileSelected
@@ -44,7 +44,18 @@ tag n2a-upload-form
 		<self>
 			<.container[mb: 2rem]>
 				<.has-text-centered[max-width: 640px m: 0 auto]>
-						<h1.title .is-1[mb: 1rem]> "Notion to Anki"			
+						<h1.title .is-1[mb: 1rem]> "Notion to Anki"
+			if not errorMessage
+			<section .hero .is-danger>
+				<.hero-body>
+					<p.title>  "Oh snap, just got an error 😢"
+					<p.subtitle> "Please watch the video below and see if you are experiencing a common error."
+					<.has-text-centered>
+						<iframe width="560" height="315" src="https://www.youtube.com/embed/CaND1Y3X6og" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen="">
+						<.notification .is-danger innerHTML=errorMessage>
+						<a.button target="_blank" href="https://discord.gg/PSKC3uS">
+							<span> "Discord"
+
 			<.container[p: 1rem max-width: 480px m: 0 auto] .has-text-centered>
 				<form enctype="multipart/form-data" method="post" @submit.prevent=convertFile>
 						<div.field[d:none]=(step != 0)>
@@ -56,15 +67,7 @@ tag n2a-upload-form
 											<span$selectorLabel.file-label> "Click to Upload…"
 										<span$selectorFileName.file-name> "My Notion Export.zip"
 							<button[mt: 2rem].button.cta .is-large .is-primary type="submit" disabled=(!$selectorInput.value)> "Convert"
-							if errorMessage
-								<div>
-									<h1 .title .is-3> "Oh snap, just got an error 😢"
-									<p> "Please watch the video below and see if you are experiencing a common error."
-									<iframe width="560" height="315" src="https://www.youtube.com/embed/CaND1Y3X6og" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen="">
-								<.notification .is-danger innerHTML=errorMessage>
-								<a.button target="_blank" href="https://discord.gg/PSKC3uS">
-									<span> "Discord"
-							elif downloadLink
+							if downloadLink and not errorMessage
 								<.field> <download-modal title="Download Ready 🥳" downloadLink=downloadLink deckName=deckName>
 							elif state == 'uploading'
 								<p .subtitle> "Loading, please wait. This might take a while depending on the size."
