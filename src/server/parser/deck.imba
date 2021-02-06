@@ -88,7 +88,7 @@ export class DeckParser
 		dom(selector).toArray()
 
 	def handleHTML file_name, contents, deckName = null, decks = []
-		const dom = cheerio.load(contents)
+		const dom = cheerio.load(self.settings['no-underline'] ? contents.replace(/border-bottom:0.05em solid/g, '') : contents)
 		let name = deckName || dom('title').text()
 		let style = dom('style').html()
 		style = style.replace(/white-space: pre-wrap;/g, '')

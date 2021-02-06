@@ -12,5 +12,6 @@ export def getCardOptions
 
 		{type: 'enable-input', label: "Treat bold text as input", default: iget('enable-input') || false},
 		{type: 'basic-reversed', label: "Basic and reversed", default: iget('basic-reversed') || false},
-		{type: 'reversed', label: "Just the reversed", default: iget('reversed') || false}
+		{type: 'reversed', label: "Just the reversed", default: iget('reversed') || false},
+		{type: 'no-underline', label: "Remove underlines", default: iget('no-underline') || false}
 	]
