@@ -45,7 +45,7 @@ tag n2a-upload-form
 			<.container[mb: 2rem]>
 				<.has-text-centered[max-width: 640px m: 0 auto]>
 						<h1.title .is-1[mb: 1rem]> "Notion to Anki"
-			if not errorMessage
+			if errorMessage
 			<section .hero .is-danger>
 				<.hero-body>
 					<p.title>  "Oh snap, just got an error 😢"
