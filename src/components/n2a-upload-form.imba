@@ -46,15 +46,15 @@ tag n2a-upload-form
 				<.has-text-centered[max-width: 640px m: 0 auto]>
 						<h1.title .is-1[mb: 1rem]> "Notion to Anki"
 			if errorMessage
-			<section .hero .is-danger>
-				<.hero-body>
-					<p.title>  "Oh snap, just got an error 😢"
-					<p.subtitle> "Please watch the video below and see if you are experiencing a common error."
-					<.has-text-centered>
-						<iframe width="560" height="315" src="https://www.youtube.com/embed/CaND1Y3X6og" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen="">
-						<.notification .is-danger innerHTML=errorMessage>
-						<a.button target="_blank" href="https://discord.gg/PSKC3uS">
-							<span> "Discord"
+				<section .hero .is-danger>
+					<.hero-body>
+						<p.title>  "Oh snap, just got an error 😢"
+						<p.subtitle> "Please watch the video below and see if you are experiencing a common error."
+						<.has-text-centered>
+							<iframe width="560" height="315" src="https://www.youtube.com/embed/CaND1Y3X6og" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen="">
+							<.notification .is-danger innerHTML=errorMessage>
+							<a.button target="_blank" href="https://discord.gg/PSKC3uS">
+								<span> "Discord"
 
 			<.container[p: 1rem max-width: 480px m: 0 auto] .has-text-centered>
 				<form enctype="multipart/form-data" method="post" @submit.prevent=convertFile>
