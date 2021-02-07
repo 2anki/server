@@ -88,7 +88,7 @@ export class DeckParser
 		dom(selector).toArray()
 
 	def handleHTML file_name, contents, deckName = null, decks = []
-		const dom = cheerio.load(self.settings['no-underline'] ? contents.replace(/border-bottom:0.05em solid/g, '') : contents)
+		const dom = cheerio.load(self.settings['no-underline'] == 'true' ? contents.replace(/border-bottom:0.05em solid/g, '') : contents)
 		let name = deckName || dom('title').text()
 		let style = dom('style').html()
 		style = style.replace(/white-space: pre-wrap;/g, '')
@@ -211,7 +211,8 @@ export class DeckParser
 		return null if !suffix
 		let file = files["{filePath}"]
 		if !file
-			file = files["{exporter.first_deck_name}/{filePath}"]
+			const lookup = "{exporter.first_deck_name}/{filePath}".replace(/\.\.\//g, '')
+			file = files[lookup]
 			if !file
 				throw new Error("Missing relative path to {filePath} used {exporter.first_deck_name}")
 		const newName = self.newUniqueFileName(filePath) + suffix
