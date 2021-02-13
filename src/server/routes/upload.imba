@@ -64,7 +64,10 @@ def handle_upload req, res
 			res.set("Content-Type", "application/apkg")
 			res.set("Content-Length", plen)
 			deck.name = clean_deck_name(deck.name)
-			res.set('File-Name', deck.name)
+			try
+				res.set('File-Name', deck.name)
+			catch err
+				console.log('failed to set name', deck.name)
 			res.attachment("/"+deck.name)
 			res.status(200).send(payload)
 		elif decks.length > 1
@@ -72,7 +75,10 @@ def handle_upload req, res
 			const pkg = path.join(os.tmpdir(), filename)
 			payload = await ZipHandler.toZip(decks, ADVERTISEMENT)
 			fs.writeFileSync(pkg, payload)
-			res.set('File-Name', clean_deck_name(filename))
+			try
+				res.set('File-Name', clean_deck_name(filename))
+			catch err
+				console.log('failed to set name', deck.name)
 			res.download(pkg)
 		else
 			TriggerNoCardsError()
