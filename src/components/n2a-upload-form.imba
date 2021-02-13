@@ -1,9 +1,14 @@
+import {iget, iset} from '../data/storage'
+
 tag n2a-upload-form
 	prop downloadLink = null
 	prop errorMessage = null
 	prop state = 'ready'	
 	prop deckName = null
 	prop step = 0
+	
+	def setup
+		showNotification = iget('show-notification') != false
 
 	def fileSelected
 		$selectorBackground.style.background="mediumseagreen"
@@ -39,12 +44,20 @@ tag n2a-upload-form
 			downloadLink = window.URL.createObjectURL(blob)
 		catch error
 			errorMessage = error ? "<h1 class='title is-4'>{error.message}</h1><pre>{error.stack}</pre>" : ""
+	
+	def hideNotification
+		showNotification = false
+		iset('show-notification', false) 
 
 	def render
 		<self>
-			<.container[mb: 2rem]>
-				<.has-text-centered[max-width: 640px m: 0 auto]>
-						<h1.title .is-1[mb: 1rem]> "Notion to Anki"
+			if showNotification == true
+				<.notification .is-warning .has-text-centered> 
+					<button .delete @click.hideNotification()>
+					"We are experiencing server issues. They are hopefully resolved soon."
+				<.container[mb: 2rem]>
+					<.has-text-centered[max-width: 640px m: 0 auto]>
+							<h1.title .is-1[mb: 1rem]> "Notion to Anki"
 			if errorMessage
 				<section .hero .is-danger>
 					<.hero-body>
