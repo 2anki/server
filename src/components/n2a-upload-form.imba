@@ -34,8 +34,7 @@ tag n2a-upload-form
 
 			if request.status != 200 # OK
 				const text = await request.text()
-				errorMessage = "status.code={request.status}\n{text}"
-				return errorMessage
+				return errorMessage = text
 
 			deckName = request.headers.get('File-Name')
 			deckName ||= contentType == 'application/zip' ? "Your Decks.zip" : "Your deck.apkg"
@@ -61,11 +60,11 @@ tag n2a-upload-form
 			if errorMessage
 				<section .hero .is-danger>
 					<.hero-body>
-						<p.title>  "Oh snap, just got an error 😢"
-						<p.subtitle> "Please watch the video below and see if you are experiencing a common error."
+						<div innerHTML=errorMessage>
+						<p.subtitle> "Watch the video below and see if you are experiencing a common error or read the error message."
 						<.has-text-centered>
 							<iframe width="560" height="315" src="https://www.youtube.com/embed/CaND1Y3X6og" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen="">
-							<.notification .is-danger innerHTML=errorMessage>
+							<p> "If you still haven't resolved the issue yet after trying the above mentioned then join the server to report your issue"
 							<a.button target="_blank" href="https://discord.gg/PSKC3uS">
 								<span> "Discord"
 
