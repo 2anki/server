@@ -14,9 +14,11 @@ import {TEMPLATE_DIR, TriggerNoCardsError, TriggerUnsupportedFormat, ALLOWED_ORI
 const ADVERTISEMENT = fs.readFileSync(path.join(TEMPLATE_DIR, 'README.html')).toString!
 
 def clean_deck_name name
+	let _name = name
 	if name.startsWith('&#x')
-		return name.split(' ').slice(1).join('').trim()
-	name
+		_name = name.split(' ').slice(1).join('').trim()
+	console.log('clean_deck_name', _name)
+	_name
 
 def handle_upload req, res
 	console.log('POST', req.originalUrl)
