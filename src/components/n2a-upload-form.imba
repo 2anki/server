@@ -50,10 +50,7 @@ tag n2a-upload-form
 
 	def render
 		<self>
-			if showNotification == true
-				<.notification .is-warning .has-text-centered> 
-					<button .delete @click.hideNotification()>
-					"We are experiencing server issues. They are hopefully resolved soon."
+
 				<.container[mb: 2rem]>
 					<.has-text-centered[max-width: 640px m: 0 auto]>
 							<h1.title .is-1[mb: 1rem]> "Notion to Anki"
