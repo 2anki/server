@@ -12,7 +12,7 @@ module.exports.TriggerUnsupportedFormat = function() {
 
 module.exports.resolvePath = function (x) {
 	const p = path.resolve(path.join(__dirname, x)).replace(/app.asar/g, 'app.asar.unpacked');
-	return x.endsWith('/') ? "{p}/" : p;
+	return x.endsWith('/') ? p+"/" : p;
 }
 
 module.exports.ALLOWED_ORIGINS = [
