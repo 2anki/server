@@ -79,12 +79,14 @@ export class DeckParser
 		return true if note.name.includes('🍒')
 		return true if note.back.includes('🍒')
 		false
+
+	def maxOne
+		self.settings['max-one-toggle-per-card'] == 'true'
 	
 	def findToggleLists dom
 		const isCherry = self.settings['cherry'] != 'false'
 		const isAll = self.settings['all'] == 'true'
-	
-		let selector = isCherry || isAll ?  ".toggle" : ".page-body > ul"		
+		let selector = isCherry || isAll ?  ".toggle" : ".page-body > ul"				
 		dom(selector).toArray()
 
 	def handleHTML file_name, contents, deckName = null, decks = []
@@ -120,7 +122,7 @@ export class DeckParser
 		const toggleList = self.findToggleLists(dom)
 		let cards = toggleList.map do |t|
 			// We want to perserve the parent's style, so getting the class
-			const parentUL = dom(t)
+			let parentUL = maxOne! ? dom(dom(t).html().replace(/<details>(.*?)<\/details>/g, '').replace(/<summary>(.*?)<\/summary>/g, '')) : dom(t)
 			const parentClass = dom(t).attr("class")
 
 			const toggleMode = self.settings['toggle-mode']
@@ -134,10 +136,15 @@ export class DeckParser
 				dom('summary').addClass(parentClass)
 				const summary = parentUL.find('summary').first()
 				const toggle = parentUL.find("details").first()
-				if summary and toggle and  toggle.find('details').length == 0
+
+
+				if not summary or not summary.text()
+					return null
+				const front = parentClass ? "<div class='{parentClass}'>{summary.html()}</div>" : summary.html()					
+
+				if summary and toggle
 					const toggleHTML = toggle.html()
 					if toggleHTML
-						const n = parentClass ? "<div class='{parentClass}'>{summary.html()}</div>" : summary.html()
 						let b = toggleHTML.replace(summary, "")
 						if isTextOnlyBack
 							const paragraphs = dom(toggle).find('> p').toArray!
@@ -145,11 +152,14 @@ export class DeckParser
 							for p in paragraphs 
 								if p
 									b += dom(p).html!
-						const note = {name: n, back: b}
+						const note = {name: front, back: b}
 						if isCherry and !noteHasCherry(note)
 							return null
 						else
-							return note												
+							return note				
+					elif maxOne!
+						const back = parentUL.html().replace(summary.html(), '').replace(/\<summary\>\<\/summary\>/g, '')
+						return {name: front, back: back.html()}
 		# Prevent bad cards from leaking out
 		cards = cards.filter(Boolean)
 		cards = sanityCheck(cards)
