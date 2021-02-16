@@ -89,6 +89,17 @@ export class DeckParser
 		let selector = isCherry || isAll ?  ".toggle" : ".page-body > ul"				
 		dom(selector).toArray()
 
+	def removeNestedToggles input
+		input.match(/What tests are carried out to test the upper limb/) ? console.log('xx', input) : console.log('...')
+		input
+			.replace(/<details(.*?)>(.*?)<\/details>/g, '')
+			.replace(/<summary>(.*?)<\/summary>/g, '')
+			.replace(/<li><\/li>/g, '')
+			.replace(/<ul[^/>][^>]*><\/ul>/g, '')
+			.replace(/<\/details><\/li><\/ul><\/details><\/li><\/ul>/g, '')
+			.replace(/<\/details><\/li><\/ul>/g, '')
+			.replace(/<p[^/>][^>]*><\/p>/g, '')
+
 	def handleHTML file_name, contents, deckName = null, decks = []
 		const dom = cheerio.load(self.settings['no-underline'] == 'true' ? contents.replace(/border-bottom:0.05em solid/g, '') : contents)
 		let name = deckName || dom('title').text()
@@ -122,8 +133,9 @@ export class DeckParser
 		const toggleList = self.findToggleLists(dom)
 		let cards = toggleList.map do |t|
 			// We want to perserve the parent's style, so getting the class
-			let parentUL = maxOne! ? dom(dom(t).html().replace(/<details>(.*?)<\/details>/g, '').replace(/<summary>(.*?)<\/summary>/g, '')) : dom(t)
-			const parentClass = dom(t).attr("class")
+			const p = dom(t)
+			let parentUL = p
+			const parentClass = p.attr("class")
 
 			const toggleMode = self.settings['toggle-mode']
 			if toggleMode == 'open_toggle'
@@ -137,12 +149,11 @@ export class DeckParser
 				const summary = parentUL.find('summary').first()
 				const toggle = parentUL.find("details").first()
 
-
 				if not summary or not summary.text()
 					return null
 				const front = parentClass ? "<div class='{parentClass}'>{summary.html()}</div>" : summary.html()					
 
-				if summary and toggle
+				if summary and toggle or (maxOne! and toggle.text())
 					const toggleHTML = toggle.html()
 					if toggleHTML
 						let b = toggleHTML.replace(summary, "")
@@ -152,14 +163,11 @@ export class DeckParser
 							for p in paragraphs 
 								if p
 									b += dom(p).html!
-						const note = {name: front, back: b}
+						const note = {name: front, back: maxOne! ? removeNestedToggles(b) : b}
 						if isCherry and !noteHasCherry(note)
 							return null
 						else
-							return note				
-					elif maxOne!
-						const back = parentUL.html().replace(summary.html(), '').replace(/\<summary\>\<\/summary\>/g, '')
-						return {name: front, back: back.html()}
+							return note
 		# Prevent bad cards from leaking out
 		cards = cards.filter(Boolean)
 		cards = sanityCheck(cards)
