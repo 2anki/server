@@ -134,7 +134,7 @@ export class DeckParser
 				dom('summary').addClass(parentClass)
 				const summary = parentUL.find('summary').first()
 				const toggle = parentUL.find("details").first()
-				if summary and toggle
+				if summary and toggle and  toggle.find('details').length == 0
 					const toggleHTML = toggle.html()
 					if toggleHTML
 						const n = parentClass ? "<div class='{parentClass}'>{summary.html()}</div>" : summary.html()
