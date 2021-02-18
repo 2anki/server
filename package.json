@@ -8,7 +8,7 @@
     "imba"
   ],
   "author": "Alexander Alemayhu",
-  "version": "0.2.41",
+  "version": "0.2.43",
   "engines": {
     "node": ">=12.0.0"
   },
@@ -20,7 +20,7 @@
     "build": "imba build.imba",
     "compile": "imbac src",
     "start": "yarn dev",
-    "dev-server": "yarn run imba src/server/server.imba"
+    "dev-server": "nodemon --exec yarn run imba src/server/server.imba"
   },
   "repository": {
     "type": "git",
@@ -51,5 +51,8 @@
       "build",
       "node_modules"
     ]
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7"
   }
 }
