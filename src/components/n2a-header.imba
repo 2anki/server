@@ -5,7 +5,7 @@ tag n2a-header < header
 	prop active = false
 
 	def render
-		<self[d: block py: 1rem bg: red]>
+		<self[d: block py: 1rem]>
 			<nav.navbar .is-fixed-top>
 				<div.navbar-brand>
 					<a .navbar-item href="/">
