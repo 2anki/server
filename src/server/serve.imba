@@ -1,5 +1,6 @@
 import path from 'path'
 
+import morgan from 'morgan'
 import express from 'express'
 
 import {ALLOWED_ORIGINS} from './config/constants'
@@ -16,6 +17,7 @@ export def serve
 	const distDir = path.join(__dirname, "../../dist")
 	const app = express()
 
+	app.use(morgan('combined'))
 	app.use('/templates', express.static(templateDir))
 	app.use(express.static(distDir))
 	app.use('/checks', checks.default)
