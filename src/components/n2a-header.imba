@@ -8,8 +8,8 @@ tag n2a-header < header
 		<self[d: block py: 1rem bg: red]>
 			<nav.navbar .is-fixed-top>
 				<div.navbar-brand>
-					<a.navbar-item href="/">
-						<h1[br: 0.3rem]> "Notion to Anki"
+					<a .navbar-item href="/">
+						<img src="/logo_nav.png">
 					<div.navbar-burger.burger.is-active=active data-target="navbarExampleTransparentExample" @click.{active=!active}>
 						<span>
 						<span>
