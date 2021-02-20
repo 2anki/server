@@ -90,7 +90,6 @@ export class DeckParser
 		dom(selector).toArray()
 
 	def removeNestedToggles input
-		input.match(/What tests are carried out to test the upper limb/) ? console.log('xx', input) : console.log('...')
 		input
 			.replace(/<details(.*?)>(.*?)<\/details>/g, '')
 			.replace(/<summary>(.*?)<\/summary>/g, '')

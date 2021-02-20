@@ -26,7 +26,7 @@ def handle_upload req, res
 	const permitted = ALLOWED_ORIGINS.includes(origin)
 	console.log('checking if', origin, 'is whitelisted', permitted)
 	if !permitted
-		return res.status(403).send()
+		return res.status(403).end()
 	console.log('permitted access to', origin)
 	res.set('Access-Control-Allow-Origin', origin)
 	try
@@ -90,7 +90,6 @@ def handle_upload req, res
 const router = express.Router!
 var m = multer({ storage: multer.memoryStorage() })
 router.post('/', m.array('pakker')) do |req, res|
-	console.log(',,sks')
 	handle_upload(req, res)
 
 export default router
