@@ -3,7 +3,7 @@ import assert from 'assert'
 const path = require('path')
 const fs = require('fs')
 
-import {DeckParser, PrepareDeck} from '../src/server/parser/deck'
+import {DeckParser, PrepareDeck} from '../server/parser/deck'
 
 import {Util} from './util'
 

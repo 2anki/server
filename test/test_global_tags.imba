@@ -5,7 +5,7 @@ import assert from 'assert'
 import path from 'path'
 import fs from 'fs'
 
-import {DeckParser, PrepareDeck} from '../src/server/parser/deck'
+import {DeckParser, PrepareDeck} from '../server/parser/deck'
 import {Util} from './util'
 
 export def test_global_tags()
