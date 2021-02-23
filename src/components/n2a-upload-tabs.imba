@@ -9,7 +9,7 @@ tag side-bar-item < li
 
 
 tag n2a-upload-tabs
-	<self .tabs .is-centered> <ul>
+	<self .tabs .is-centered .is-boxed> <ul>
 		<side-bar-item label="Upload" slug='upload'>
 		<side-bar-item label="Template" slug='template'>
 		<side-bar-item label="Deck" slug='deck-options'>
