@@ -1,4 +1,4 @@
-<p align="center"><img src="dist/logo.png" alt="Notion to Anki logo" /></p>
+<p align="center"><img width="256" src="dist/logo.png" alt="Notion to Anki logo" /></p>
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/5da03a4d-2c54-4343-8949-33124d2211e5/deploy-status)](https://app.netlify.com/sites/vibrant-swirles-654fce/deploys) [![Discord](https://img.shields.io/discord/723998078201495642)](https://discord.com/invite/PSKC3uS) [![Twitter](https://img.shields.io/twitter/url/https/twitter.com/cloudposse.svg?style=social&label=Follow%20%40aalemayhu)](https://twitter.com/aalemayhu)
 
@@ -74,9 +74,9 @@ https://www.reddit.com/r/Anki/comments/g29mzk/cards_imported_from_notion/
 
 ## Roadmap
 
-The dream is to have a powerful and easy to use process for producing high quality flashcards. Notion is super easy to use and Notion 2 Anki is just going to make the importing process and controlling the look of the cards / decks smooth. This project is a complement to Anki and Notion. See the [projects page][pa] for the specific topics https://github.com/alemayhu/notion2anki/projects/1
+The dream is to have a powerful and easy to use process for producing high quality flashcards. Notion is super easy to use and Notion 2 Anki is just going to make the importing process and controlling the look of the cards / decks smooth. This project is a complement to Anki and Notion. 
 
-[pa]: https://github.com/alemayhu/notion2anki/projects/1
+You can purpose changes via the [Suggestions](https://www.notion.so/alemayhu/Suggestions-fd5badcc211946cf847713aca8cc4cab) page.
 
 ## Development
 
