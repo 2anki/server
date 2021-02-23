@@ -10,4 +10,7 @@ export def iset key, value
 # Remember the viewers last view		
 export def viewparam
 	let params = new URLSearchParams(document.location.search.substring(1))
-	params.get("view")	
+	let view = 	params.get("view")	
+	if not view
+		return 'upload'
+	view
