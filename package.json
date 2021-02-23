@@ -20,7 +20,7 @@
     "build": "imba build.imba",
     "compile": "imbac src",
     "start": "yarn dev",
-    "dev-server": "nodemon --exec yarn run imba src/server/server.imba"
+    "dev-server": "nodemon --exec yarn run imba server/server.imba"
   },
   "repository": {
     "type": "git",
