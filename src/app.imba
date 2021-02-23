@@ -17,20 +17,10 @@ tag app-root
 			if state != 'ready'
 				return "Conversion in progress. Are you sure you want to stop it?"				
 	def render
-		<self>
-			<n2a-header>
+		<self[d: flex fld: column jc: space-between h: 100vh]>
+			<n2a-header[fls: 0]>
 			if page().includes('upload')
-				<upload-page state=state progress=progress>
-			elif page().includes('benefits')
-				<benefits-page>
-			elif page().includes('contact')
-				<contact-page>
-			elif page().includes('privacy')
-				<privacy-page>
-			elif page().includes('faq')
-				<faq-page>
-			elif page().includes('links')
-				<useful-links-page>
+				<upload-page[fl: 1 0 auto] state=state progress=progress>
 			else
 				<home-page>
-			<n2a-footer>
+			<n2a-footer[fls: 0]>
