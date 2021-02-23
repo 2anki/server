@@ -33,7 +33,7 @@ tag n2a-footer
 							<img src="sponsors/Scrimba.png" alt="Sponsored by Scrimba">
 					<p>
 						<a href="https://m.do.co/c/c5a16996cd0e">
-							<img[w: 201px] src="https://opensource.nyc3.cdn.digitaloceanspaces.com/attribution/assets/PoweredByDO/DO_Powered_by_Badge_blue.svg">
+							<img[w: 201px] src="https://opensource.nyc3.cdn.digitaloceanspaces.com/attribution/assets/PoweredByDO/DO_Powered_by_Badge_blue.svg" alt="Powered by DigitalOcean">
 					<p> <a href="https://www.netlify.com">
 						<img src="https://www.netlify.com/img/global/badges/netlify-color-bg.svg" alt="Deploys by Netlify" loading="lazy"> 
 			<div[mb: 0.5rem].content.has-text-centered>
