@@ -27,8 +27,8 @@ tag n2a-header < header
 
 					<div.navbar-end>
 						<div.navbar-item>
-							<a.button[bd: 1px solid rgb(45, 124, 218) bg: rgb(45, 124, 218) c: white border-radius: 0.3rem] target="_blank" href="https://www.patreon.com/alemayhu">
+							<a.button .is-danger .is-light target="_blank" href="https://www.patreon.com/alemayhu">
 								<span[fw: bold]> "Become a Patron"							
 						<div.navbar-item>
-							<a.button[bd: 3px solid #00B1D2 c: #00B1D2] target="_blank" href="https://github.com/sponsors/alemayhu">
+							<a.button .is-info  .is-light target="_blank" href="https://github.com/sponsors/alemayhu">
 								<span[tt: uppercase fw: bold]> "Sponsor"
