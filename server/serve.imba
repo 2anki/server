@@ -14,7 +14,7 @@ import * as upload from './routes/upload'
 
 export def serve
 	const templateDir = path.join(__dirname, "templates")
-	const distDir = path.join(__dirname, "../../dist")
+	const distDir = path.join(__dirname, "../dist")
 	const app = express()
 
 	app.use(morgan('combined'))

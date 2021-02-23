@@ -7,7 +7,7 @@ import {resolvePath} from '../config/constants'
 
 const router = express.Router!
 
-const appInfo = JSON.parse(fs.readFileSync(resolvePath('../../../package.json')).toString!)
+const appInfo = JSON.parse(fs.readFileSync(resolvePath('../../package.json')).toString!)
 
 router.get('/') do |req, res|
 	const v = appInfo.version
