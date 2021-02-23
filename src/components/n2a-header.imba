@@ -18,12 +18,12 @@ tag n2a-header < header
 					<div.navbar-start>
 						<.navbar-item>
 							<a[fw: bold my: 2rem  bg: rgb(207, 83, 89) bg@hover: rgb(207, 83, 0)] .button .is-primary href="/upload"> "Create"
-						<a.navbar-item href="/benefits"> "Benefits"
-						<a.navbar-item href="/contact"> "Contact"
-						<a.navbar-item href="/faq"> "FAQ"
-						<a.navbar-item href="/privacy"> "Privacy"		
-						<a.navbar-item href="/links"> "Useful Links"
-						<a.navbar-item href="https://github.com/alemayhu/notion2anki"> "Code"			
+						<a.navbar-item target="_blank" href="https://www.notion.so/alemayhu/Benefits-0d5fa2e18a8a44d782c72945b2bd413b"> "Benefits"
+						<a.navbar-item target="_blank" href="https://www.notion.so/alemayhu/Contact-e76523187cc64961972b3ad4f7cb4c47"> "Contact"
+						<a.navbar-item target="_blank" href="https://www.notion.so/alemayhu/FAQ-ef01be9c9bac41689a4d749127c14301"> "FAQ"
+						<a.navbar-item target="_blank" href="https://www.notion.so/alemayhu/Privacy-38c6e8238ac04ea9b2485bf488909fd0"> "Privacy"		
+						<a.navbar-item target="_blank" href="https://www.notion.so/alemayhu/Useful-Links-0f3051946a2d4b71ae31610da76b28a8"> "Useful Links"
+						<a.navbar-item target="_blank"  href="https://github.com/alemayhu/notion2anki"> "Code"			
 
 					<div.navbar-end>
 						<div.navbar-item>
