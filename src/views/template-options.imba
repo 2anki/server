@@ -17,6 +17,7 @@ tag template-options
 			fontSize = fs
 
 	def fontSelected fs
+		console.log('fs', fs)
 		iset('font-size', fs)
 		fontSize = fs
 

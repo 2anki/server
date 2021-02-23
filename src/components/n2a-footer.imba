@@ -11,9 +11,9 @@ tag n2a-footer
 				<.column>
 					<p.footer-header> "General"
 					<p> <a href="/upload"> "Create flashcards"
-					<p> <a href="/benefits"> "Benefits"
-					<p> <a href="/privacy"> "Privacy"
-					<p> <a href="/faq"> "FAQ"
+					<p> <a href="https://www.notion.so/alemayhu/Benefits-0d5fa2e18a8a44d782c72945b2bd413b"> "Benefits"
+					<p> <a href="https://www.notion.so/alemayhu/Privacy-38c6e8238ac04ea9b2485bf488909fd0"> "Privacy"
+					<p> <a href="https://www.notion.so/alemayhu/FAQ-ef01be9c9bac41689a4d749127c14301"> "FAQ"
 				<.column>
 					<p.footer-header> "Community"
 					<p> <a href="https://www.reddit.com/r/notion2anki/"> "r/notion2anki"
