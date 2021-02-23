@@ -1,6 +1,6 @@
 {
-        "name": "",
-        "short_name": "",
+        "name": "Notion to Anki",
+        "short_name": "n2a",
         "icons": [
                 {
                         "src": "/android-chrome-192x192.png",
@@ -8,7 +8,7 @@
                         "type": "image/png"
                 },
                 {
-                        "src": "/android-chrome-512x512.png",
+                        "src": "/logo.png",
                         "sizes": "512x512",
                         "type": "image/png"
                 }
