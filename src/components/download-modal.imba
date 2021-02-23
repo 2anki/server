@@ -33,5 +33,5 @@ tag download-modal
 							<p> "Pick your price ranging from {<strong> "$1"}, {<strong> "$2"}, {<strong> "$5"}, {<strong> "$14"} and {<strong> "$100"}."
 							<p> "This deck is brought to you by our amazing {<a href="https://www.patreon.com/alemayhu"> "patrons"} 🤩"
 							<div[p: 1rem mx: 1rem]>
-								<a target="_blank" href="https://www.patreon.com/alemayhu">
+								<a  rel="noreferrer" target="_blank" href="https://www.patreon.com/alemayhu">
 									<img src="become_a_patron_button.png">

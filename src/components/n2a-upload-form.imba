@@ -61,7 +61,7 @@ tag n2a-upload-form
 						<.has-text-centered>
 							<iframe width="560" height="315" src="https://www.youtube.com/embed/CaND1Y3X6og" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen="">
 							<p> "If you still haven't resolved the issue yet after trying the above mentioned then join the server to report your issue"
-							<a.button target="_blank" href="https://discord.gg/PSKC3uS">
+							<a.button  rel="noreferrer" target="_blank" href="https://discord.gg/PSKC3uS">
 								<span> "Discord"
 
 			<.container[p: 1rem max-width: 480px m: 0 auto] .has-text-centered>
