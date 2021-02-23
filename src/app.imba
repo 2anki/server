@@ -7,11 +7,7 @@ import './pages/home-page'
 tag app-root
 	prop state = 'ready'
 	# TODO: expose more card template stuff
-	# TODO: use local storage
-	prop settings = {'font-size': 20}
-
 	css .rounded border: 0.1px solid white br: 0.25rem td: none  p: 0.1rem 2 my: 2 c: white mr: 4 bg: none  	
-
 
 	def page
 		window.location.pathname
