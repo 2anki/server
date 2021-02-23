@@ -1,5 +1,3 @@
-import './youtube-embed'
-
 tag download-modal
 
 	prop title = "Modal title"
@@ -11,11 +9,7 @@ tag download-modal
 		showModal = true
 
 	get navigator do window.navigator
-	
-
-	def patreonIntro
-		'https://www.youtube.com/embed/EoB_zj7jeEk'
-	
+		
 	def patreonIntroTitle
 		"Patreon Intro 🧡"		
 
