@@ -20,7 +20,7 @@ tag home-page
 					<div.container>
 						<.has-text-centered>
 								<img[pe: none max-height: 500px] src=mascotImage!>
-								<h1 .title .is-size-1> "Create Anki flashcards ✨"
-								<p.subtitle .is-size-2> "We are making it the easiest and fastest way to create beautiful ⭐️ Anki flashcards for anyone anywhere around the world 🌎"
+								<h1 .title .is-size-1> "Convert Your Notion Toggle Lists to Anki Flashcards ✨"
+								<p.subtitle .is-size-2> "We are making it the easiest and fastest way to create beautiful  Anki flashcards for anyone anywhere around the world 🌎"
 								<a.button[fw: bold bg: rgb(207, 83, 89) c: white] .is-large href="/upload"> "Get Started"
 								<p> "Fast, simple, easy and 100% {<span[fw: bold td: underline tdc: green3]> "Free"}. It's a passion project 🕺🏾💃🏾"

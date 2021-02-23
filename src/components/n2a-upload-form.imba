@@ -67,7 +67,7 @@ tag n2a-upload-form
 			<.container[p: 1rem max-width: 480px m: 0 auto] .has-text-centered>
 				<form enctype="multipart/form-data" method="post" @submit.prevent=convertFile>
 						<div.field[d:none]=(step != 0)>
-							<div.file.is-centered.is-boxed.is-success.has-name>
+							<div.file.is-centered.is-boxed.is-success.has-name .is-large>
 								<.field>
 									<label.file-label>
 										<input$selectorInput.file-input type="file" name="pakker" accept=".zip,.html,.md" required @change.fileSelected() multiple="multiple">
