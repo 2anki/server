@@ -48,3 +48,12 @@ test('Nested Toggles', async (t) => {
         const deck = await getDeck('Nested Toggles.html', {cherry: 'true'});
         t.true(deck.card_count == 6)
 }) 
+
+test('Global Tags', async(t) => {
+        const deck = await getDeck('Global Tag Support.html', {tags: 'true', cherry: 'false'})
+        t.true(deck.cards[0].tags.includes('global'))
+})
+
+test.skip('Input Cards ', t => {
+        t.fail('to be implemented')
+})
