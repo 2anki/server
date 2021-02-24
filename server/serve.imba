@@ -7,7 +7,6 @@ import {ALLOWED_ORIGINS} from './constants'
 import {ErrorHandler} from './handlers/error'
 
 # Server Endpoints
-import {ConfigureOldEndpoints} from './routes/legacy-urls'
 import * as checks from './routes/checks'
 import * as version from './routes/version'
 import * as upload from './routes/upload'
@@ -22,7 +21,14 @@ export def serve
 	app.use(express.static(distDir))
 	app.use('/checks', checks.default)
 	app.use('/version', version.default)
-	ConfigureOldEndpoints(app, distDir)
+
+	# This is due to legacy stuff and links shared around the web
+	const old = ['/notion', '/index',  '/upload']
+	for p in old
+		console.log('setting up request handler for ', p)
+		app.get (p) do |req, res| res.sendFile(path.join(distDir, 'index.html'))
+		app.get ("{p}.html") do |req, res| res.sendFile(path.join(distDir, 'index.html'))
+
 	app.use('/upload', upload.default)
 
 	app.use do |err, req, res, next|
