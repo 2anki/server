@@ -38,3 +38,8 @@ test('Colours', async(t) => {
         const deck = await getDeck('Colours 0519bf7e86d84ee4ba710c1b7ff7438e.html', {cherry: 'false'})
         t.true(deck.cards[0].back.includes('block-color'))
 })
+
+test.skip('HTML Regression Test', t => {
+        console.log("#TODO: please automate HTML regression check. Use this page https://www.notion.so/HTML-test-4aa53621a84a4660b69e9953f3938685.")
+        t.fail('to be implemented')
+})
