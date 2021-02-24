@@ -1,7 +1,7 @@
 import path from 'path'
 import fs from 'fs'
 
-import {TEMPLATE_DIR} from '../config/constants'
+import {TEMPLATE_DIR} from '../constants'
 
 const errorPage = fs.readFileSync(path.join(TEMPLATE_DIR, 'error-message.html')).toString!
 

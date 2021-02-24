@@ -2,7 +2,7 @@ import {execFile} from 'child_process'
 import {homedir} from 'os'
 import path from 'path'
 
-import {resolvePath} from '../config/constants'
+import {resolvePath} from '../constants'
 
 def python_interpreter
 	const os = process.platform
@@ -13,12 +13,12 @@ def python_interpreter
 export default class CardGenerator
 
 	constructor workspace
-		self.ccs = resolvePath('../genanki/create_deck.py')		
+		self.ccs = resolvePath(__dirname, '../genanki/create_deck.py')		
 		self.cwd = workspace
 
 	def run
 		const dpayload = path.join(self.cwd, 'deck_info.json')
-		const tdir = resolvePath("../templates/")
+		const tdir = resolvePath(__dirname, "../templates/")
 		const dsc = path.join(self.cwd, 'deck_style.css')
 
 		let ccs_args = [ self.ccs, dpayload, dsc, tdir]

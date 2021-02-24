@@ -6,7 +6,7 @@ import os from 'os'
 import { nanoid, customAlphabet } from 'nanoid'
 import cheerio from 'cheerio'
 
-import {TEMPLATE_DIR, TriggerNoCardsError, TriggerUnsupportedFormat} from '../config/constants'
+import {TEMPLATE_DIR} from '../constants'
 import CardGenerator from '../service/generator'
 
 String.prototype.replaceAll = do |oldValue, newValue|
@@ -172,8 +172,6 @@ export class DeckParser
 
 		decks.push({name: name, cards: cards, image: image, style: style, id: self.generate_id!})
 
-		# unless cards.length > 0
-		# 	TriggerNoCardsError()
 		const subpages = dom(".link-to-page").toArray()
 		for page in subpages
 			const spDom = dom(page)

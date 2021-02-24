@@ -10,8 +10,11 @@ import {DeckParser,PrepareDeck} from '../parser/deck'
 import {ZipHandler} from '../handlers/zip'
 import {ErrorHandler} from '../handlers/error'
 
-import {TEMPLATE_DIR, TriggerNoCardsError, TriggerUnsupportedFormat, ALLOWED_ORIGINS} from '../config/constants'
+import {TEMPLATE_DIR, ALLOWED_ORIGINS} from '../constants'
 const ADVERTISEMENT = fs.readFileSync(path.join(TEMPLATE_DIR, 'README.html')).toString!
+
+const TriggerUnsupportedFormat = do
+	throw new Error('Markdown support has been removed, please use <a class="button" href="https://www.notion.so/Export-as-HTML-bf3fe9e6920e4b9883cbd8a76b6128b7">HTML</a>');
 
 def clean_deck_name name
 	let _name = name
@@ -81,7 +84,7 @@ def handle_upload req, res
 				console.log('failed to set name', deck.name)
 			res.download(pkg)
 		else
-			TriggerNoCardsError()
+			throw new Error('Could not create any cards. Did you write any togglelists?');
 		# TODO: Schedule deletion?
 	catch err
 		console.error(err)
