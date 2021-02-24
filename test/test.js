@@ -33,3 +33,8 @@ test('Grouped cloze deletions', async (t) => {
         t.true(deck.name == 'Grouped Cloze Deletions')
         t.true(deck.card_count == 10)
 })
+
+test('Colours', async(t) => {
+        const deck = await getDeck('Colours 0519bf7e86d84ee4ba710c1b7ff7438e.html', {cherry: 'false'})
+        t.true(deck.cards[0].back.includes('block-color'))
+})
