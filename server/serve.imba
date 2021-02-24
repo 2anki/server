@@ -3,7 +3,7 @@ import path from 'path'
 import morgan from 'morgan'
 import express from 'express'
 
-import {ALLOWED_ORIGINS} from './config/constants'
+import {ALLOWED_ORIGINS} from './constants'
 import {ErrorHandler} from './handlers/error'
 
 # Server Endpoints
