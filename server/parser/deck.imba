@@ -110,7 +110,8 @@ export class DeckParser
 		
 		const fs = self.settings['font-size']
 		if fs and fs != '20px'
-			style += '\n' + '* { font-size:' + self.settings['font-size'] + '}\n'
+			# TODO: check if fs already has suffix 'px'
+			style += '\n' + '* { font-size:' + self.settings['font-size'] + 'px}'
 
 		let pageCoverImage = dom('.page-cover-image')
 		if pageCoverImage
