@@ -138,3 +138,12 @@ yarn.lock
 dist/create_deck
 build/create_deck
 __pycache__
+
+# Temorary ignore compiled files
+server/handlers/error.js
+server/handlers/zip.js
+server/parser/deck.js
+server/routes/upload.js
+server/serve.js
+server/server.js
+server/service/generator.js

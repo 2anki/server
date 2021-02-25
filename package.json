@@ -18,7 +18,7 @@
     "watch": "webpack --watch --progress --colors --display-modules",
     "test": "ava",
     "build": "imbac server && webpack --production",
-    "compile": "imbac src",
+    "compile-server": "imbac server",
     "start": "yarn dev",
     "dev-server": "nodemon --exec yarn run imba server/server.imba"
   },
