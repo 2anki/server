@@ -4,6 +4,8 @@ const fs = require('fs');
 const test = require('ava');
 
 const {DeckParser, PrepareDeck} = require('../server/parser/deck')
+const {ToggleList} = require('../server/parser/ToggleList');
+const {Tags} = require('../server/parser/Tags');
 
 function mockPayload(fileName, html) {
         const struct = { file_name: fileName };
@@ -52,6 +54,17 @@ test('Nested Toggles', async (t) => {
 test('Global Tags', async(t) => {
         const deck = await getDeck('Global Tag Support.html', {tags: 'true', cherry: 'false'})
         t.true(deck.cards[0].tags.includes('global'))
+})
+
+test('Test Basic Card', async(t) => {
+        const input = fs.readFileSync(path.join(__dirname, './fixtures/partial-basic-toggle.html' )).toString();
+        const toggle = new ToggleList(input);
+        const tags = new Tags(toggle)
+        toggle.use(tags)
+        t.deepEqual(toggle.front, '<div class=\'toggle\'>What is the capital in Albania?</div>')
+        // TODO: fix bug where the tag leaves residue (left in here for  backwards compatability)
+        t.deepEqual(toggle.back, '<p id="39c99ed4-9c63-4400-a6a2-a1924843b282" class>Tirana!</p><p id="b45884ba-e24c-4c4d-a8b7-a7d5dc8a97a7" class></p>')
+        t.deepEqual(toggle.tags, ['basic'])
 })
 
 test.skip('Input Cards ', t => {
