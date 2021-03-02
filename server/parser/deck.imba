@@ -99,6 +99,13 @@ export class DeckParser
 			.replace(/<\/details><\/li><\/ul>/g, '')
 			.replace(/<p[^/>][^>]*><\/p>/g, '')
 
+	def setFontSize style
+		let fs = self.settings['font-size']
+		if fs and fs != '20px'
+			fs = fs.endsWith('px') ? fs : fs + 'px'
+			style += '\n' + '* { font-size:' + fs + 'px}'
+		style
+
 	def handleHTML file_name, contents, deckName = null, decks = []
 		const dom = cheerio.load(self.settings['no-underline'] == 'true' ? contents.replace(/border-bottom:0.05em solid/g, '') : contents)
 		let name = deckName || dom('title').text()
@@ -108,10 +115,7 @@ export class DeckParser
 		const isTextOnlyBack = self.settings['paragraph'] == 'true'
 		let image = null
 		
-		const fs = self.settings['font-size']
-		if fs and fs != '20px'
-			# TODO: check if fs already has suffix 'px'
-			style += '\n' + '* { font-size:' + self.settings['font-size'] + 'px}'
+		style  = setFontSize(style)
 
 		let pageCoverImage = dom('.page-cover-image')
 		if pageCoverImage
