@@ -423,5 +423,4 @@ export class DeckParser
 export def PrepareDeck file_name, files, settings
 		const parser = new DeckParser(file_name, settings, files)
 		const apkg = await parser.build()
-		# TODO: rename decks below to something more sensible
 		{name: "{parser.name}.apkg", apkg: apkg, deck: parser.payload}
