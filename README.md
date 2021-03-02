@@ -93,7 +93,7 @@ yarn # npm run install
 [Genanki](https://github.com/kerrickstaley/genanki) dependencies are also needed, make sure you install them
 
 ```bash
-pip3 install -r src/genanki/requirements.txt
+pip3 install -r server/genanki/requirements.txt
 ```
 
 Then in another terminal run

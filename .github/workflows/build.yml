@@ -21,6 +21,7 @@ jobs:
       run: |
         yarn
         yarn build
+        pip3 install -r server/genanki/requirements.txt
         yarn test
       env:
         CI: true
