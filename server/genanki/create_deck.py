@@ -53,12 +53,9 @@ if __name__ == "__main__":
             notes = []
             for card in cards:
                 fields = [card["name"], card["back"], ",".join(card["media"])]
-                # Is this correct? Should the CLOZE_STYLE always be used?
-                model = cloze_model(cloze_model_id, cloze_model_name, CLOZE_STYLE + "\n" + CSS)
-
-                # TODO: sanity check the card fields
-                if not "{{c" in card["name"] and not "{{type" in card["name"]:
-                    model = basic_model(basic_model_id, basic_model_name, CSS)                    
+                model = basic_model(basic_model_id, basic_model_name, CSS) 
+                if 'cloze' in card and "{{c" in card["name"] :
+                    model = cloze_model(cloze_model_id, cloze_model_name, CLOZE_STYLE + "\n" + CSS)
                 elif 'enable-input' in card and 'answer' in card:
                     model = input_model(input_model_id, input_model_name, CSS)
                     fields = [

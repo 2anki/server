@@ -352,6 +352,7 @@ export class DeckParser
 			const addThese = []
 			for card in deck.cards
 				card['enable-input'] = self.settings['enable-input'] != 'false'
+				card['cloze'] = self.use_cloze
 				card.number = counter++
 				if self.use_cloze
 					card.name = self.handleClozeDeletions(card.name)
