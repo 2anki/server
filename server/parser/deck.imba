@@ -392,7 +392,6 @@ export class DeckParser
 						card.back += audio
 
 					if self.use_cloze
-						# TODO: investigate why cloze deletions are not handled properly on the back / extra
 						card.back = self.handleClozeDeletions(card.back)
 					if self.use_input and card.back.includes('<strong>')
 						let inputInfo = self.treatBoldAsInput(card.back, true)
