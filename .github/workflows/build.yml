@@ -21,7 +21,7 @@ jobs:
       run: |
         yarn
         yarn build
-        pip3 install -U pip3 setuptools 
+        pip3 install -U setuptools 
         pip3 install -r server/genanki/requirements.txt
         yarn test
       env:
