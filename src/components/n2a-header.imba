@@ -9,7 +9,7 @@ tag n2a-header < header
 			<nav.navbar .is-fixed-top>
 				<div.navbar-brand>
 					<a .navbar-item href="/">
-						<img[h: 112px w: 112px object-fit: contain] src="/logo_nav.png" alt="Notion to Anki">
+						<img[h: 112px w: 112px object-fit: contain] src="/logo_nav.png" alt="Notion to Anki" loading="lazy">
 					<div.navbar-burger.burger.is-active=active data-target="navbarExampleTransparentExample" @click.{active=!active}>
 						<span>
 						<span>

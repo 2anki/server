@@ -34,4 +34,4 @@ tag download-modal
 							<p> "This deck is brought to you by our amazing {<a href="https://www.patreon.com/alemayhu"> "patrons"} 🤩"
 							<div[p: 1rem mx: 1rem]>
 								<a  rel="noreferrer" target="_blank" href="https://www.patreon.com/alemayhu">
-									<img img="Become a patreon button" src="become_a_patron_button.png">
+									<img alt="Become a patreon button" src="become_a_patron_button.png" loading="lazy">
