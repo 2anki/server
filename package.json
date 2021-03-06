@@ -17,8 +17,7 @@
     "dev": "webpack-dev-server --mode=development --content-base dist/",
     "watch": "webpack --watch --progress --colors --display-modules",
     "test": "ava",
-    "build": "imbac server && webpack --production",
-    "compile-server": "imbac server",
+    "build": "webpack --production",
     "start": "yarn dev",
     "dev-server": "nodemon --exec yarn run imba server/server.js"
   },
