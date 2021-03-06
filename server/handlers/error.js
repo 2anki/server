@@ -7,7 +7,7 @@ const errorPage = fs.readFileSync(path.join(TEMPLATE_DIR, 'error-message.html'))
 
 function ErrorHandler (res, err) {
   res.set('Content-Type', 'text/html')
-  const info = errorPage.replace('{err.message}', err.message).replace('{err?.stack}', err.stack)
+  const info = errorPage.replace('{err.message}', err.message)
   res.status(400).send(info)
 }
 

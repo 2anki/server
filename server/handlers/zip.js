@@ -23,12 +23,13 @@ class ZipHandler {
   static toZip (decks, advertisment = null) {
     const zip = new JSZip()
     for (const d of decks) {
-      zip.file('{d.name}.apkg', d.apkg)
+      console.log('toZip add', d.name)
+      zip.file(`${d.name}.apkg`, d.apkg)
     }
     if (advertisment) {
       zip.file('README.html', advertisment)
     }
-    zip.generateAsync({ type: 'nodebuffer' })
+    return zip.generateAsync({ type: 'nodebuffer' })
   }
 }
 

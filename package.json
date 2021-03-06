@@ -19,7 +19,7 @@
     "test": "ava",
     "build": "webpack --production",
     "start": "yarn dev",
-    "dev-server": "nodemon --exec yarn run imba server/server.js"
+    "dev-server": "nodemon --exec yarn run node server/server.js"
   },
   "repository": {
     "type": "git",
