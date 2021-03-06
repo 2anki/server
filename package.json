@@ -20,7 +20,7 @@
     "build": "imbac server && webpack --production",
     "compile-server": "imbac server",
     "start": "yarn dev",
-    "dev-server": "nodemon --exec yarn run imba server/server.imba"
+    "dev-server": "nodemon --exec yarn run imba server/server.js"
   },
   "repository": {
     "type": "git",
@@ -55,6 +55,12 @@
   },
   "devDependencies": {
     "ava": "^3.15.0",
+    "eslint": "^7.21.0",
+    "eslint-config-standard": "^16.0.2",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.3.1",
+    "eslint-plugin-standard": "^5.0.0",
     "nodemon": "^2.0.7"
   }
 }

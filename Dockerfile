@@ -11,4 +11,4 @@ RUN npm run build
 ENV PORT 8080
 EXPOSE 8080
 
-CMD ["/app/node_modules/.bin/imba", "server/server.imba"]
+CMD ["/app/node_modules/.bin/imba", "server/server.js"]
