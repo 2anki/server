@@ -1,4 +1,4 @@
-tag home-page	
+tag home-page
 
 	prop notionLink = "https://www.notion.so/Toggles-c720af26b4bd4789b736c140b2dc73fe"
 	prop contactAdress = "alexander@alemayhu.com"
@@ -19,7 +19,7 @@ tag home-page
 				<div.hero-body>
 					<div.container>
 						<.has-text-centered>
-								<img[height: 500px] src=mascotImage! alt="Mascot image" loading="lazy">
+								<img[height: 500px object-fit: contain] src=mascotImage! alt="Mascot image" loading="lazy">
 								<h1 .title .is-size-1> "Convert Notion  to Anki Flashcards ✨"
 								<p.subtitle .is-size-2> "We are making it the easiest and fastest way to create beautiful  Anki flashcards for anyone anywhere around the world 🌎"
 								<a.button[fw: bold bg: rgb(207, 83, 89) c: white] .is-large href="/upload"> "Get Started"
