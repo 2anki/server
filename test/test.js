@@ -70,3 +70,7 @@ test('Test Basic Card', async (t) => {
 test.skip('Input Cards ', t => {
   t.fail('to be implemented')
 })
+
+test.skip('Multiple File Uploads', t => {
+  t.fail('to be implemented')
+})
