@@ -31,7 +31,6 @@ class CardGenerator {
           console.error(err)
           reject(err)
         } else {
-          console.log('status from create_deck', stdout)
           resolve(stdout)
         }
       })
