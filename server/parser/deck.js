@@ -319,34 +319,20 @@ class DeckParser {
     const dom = cheerio.load(input)
     const clozeDeletions = dom('code')
     let mangle = input
-    const numbers = [
-      '1&#xFE0F;&#x20E3;', '1️⃣',
-      '2&#xFE0F;&#x20E3;', '2️⃣',
-      '3&#xFE0F;&#x20E3;', '3️⃣',
-      '4&#xFE0F;&#x20E3;', '4️⃣',
-      '5&#xFE0F;&#x20E3;', '5️⃣',
-      '6&#xFE0F;&#x20E3;', '6️⃣',
-      '7&#xFE0F;&#x20E3;', '7️⃣',
-      '8&#xFE0F;&#x20E3;', '8️⃣',
-      '9&#xFE0F;&#x20E3;', '9️⃣',
-      '&#x1F51F;', '🔟'
-    ]
+    let num = 1
     clozeDeletions.each((i, elem) => {
       const v = dom(elem).html()
-      let usedIndex = false
-      for (const num of numbers) {
-        const old = `${num}<code>${v}</code>`
-        const newValue = '{{c' + (numbers.indexOf(num) + 1) + '::' + v + '}}'
-        if (mangle.includes(old)) {
-          usedIndex = true
-        }
-        mangle = replaceAll(mangle, old, newValue)
-      }
 
-      if (!usedIndex) {
+      // User has set the cloze number
+      if (v.includes('{{c') && v.includes('}}')) {
+        mangle = replaceAll(mangle, `<code>${v}</code>`, v)
+      } else {
         const old = `<code>${v}</code>`
-        const newValue = '{{c' + (i + 1) + '::' + v + '}}'
-        mangle = replaceAll(mangle, old, newValue)
+        const newValue = '{{c' + num + '::' + v + '}}'
+        if (mangle.includes(old)) {
+          mangle = replaceAll(mangle, old, newValue)
+        }
+        num += 1
       }
     })
 

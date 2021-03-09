@@ -67,6 +67,16 @@ test('Test Basic Card', async (t) => {
   t.deepEqual(toggle.tags, ['basic'])
 })
 
+test('Cloze Deletions', async (t) => {
+  const deck = await getDeck('Some Cloze Deletions 1a118169ada841a99a9aaccc7eaa6775.html', { cherry: 'false' })
+  t.deepEqual(deck.cards[0].back, "<div class='toggle'>{{c2::Canberra}} was founded in {{c1::1913}}.</div>")
+  t.deepEqual(deck.cards[1].back, "<div class='toggle'>{{c1::Canberra::city}} was founded in {{c2::1913::year}}</div>")
+  t.deepEqual(deck.cards[2].back, "<div class='toggle'>{{c1::Canberra::city}} was founded in {{c2::1913}}</div>")
+  t.deepEqual(deck.cards[3].back, "<div class='toggle'>{{c1::This}} is a {{c2::cloze deletion}}</div>")
+  t.deepEqual(deck.cards[4].back, "<div class='toggle'>{{c2::Canberra}} was founded in {{c1::1913}}.</div>")
+  t.deepEqual(deck.cards[5].back, "<div class='toggle'>{{c1::Canberra::city}} was founded in {{c2::1913::year}}</div>")
+})
+
 test.skip('Input Cards ', t => {
   t.fail('to be implemented')
 })
