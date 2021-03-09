@@ -5,6 +5,15 @@
   color: black;
   background-color: white;
 }
+
+.front-text-pre {
+  text-align: center;
+}
+
+.extra {
+  text-align: left;
+}
+
 .cloze {
   background: rgba(135, 131, 120, 0.15);
   padding: 0.2em 0.4em;
