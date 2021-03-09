@@ -253,7 +253,7 @@ class DeckParser {
 
   // https://stackoverflow.com/questions/6903823/regex-for-youtube-id
   getYouTubeID (input) {
-    this.ensureNotNull(input, () => {
+    return this.ensureNotNull(input, () => {
       try {
         const m = input.match(/(?:youtu\.be\/|youtube\.com(?:\/embed\/|\/v\/|\/watch\?v=|\/user\/\S+|\/ytscreeningroom\?v=|\/sandalsResorts#\w\/\w\/.*\/))([^/&]{10,12})/)
         if (!m || m.length === 0) {
@@ -276,12 +276,12 @@ class DeckParser {
     if (!input || !input.trim()) {
       return null
     } else {
-      cb()
+      return cb()
     }
   }
 
   getSoundCloudURL (input) {
-    this.ensureNotNull(input, () => {
+    return this.ensureNotNull(input, () => {
       try {
         const sre = /https?:\/\/soundcloud\.com\/\S*/gi
         const m = input.match(sre)
@@ -298,7 +298,7 @@ class DeckParser {
   }
 
   getMP3File (input) {
-    this.ensureNotNull(input, () => {
+    return this.ensureNotNull(input, () => {
       try {
         let m = input.match(/<a\s+(?:[^>]*?\s+)?href=(["'])(.*?)\1/i)
         if (!m || m.length < 3) {
