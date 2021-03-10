@@ -383,8 +383,8 @@ class DeckParser {
         deletions.each((i, elem) => {
           const del = dom(elem)
           card.tags.push(...del.text().split(',').map($1 => $1.trim().replace(/\s/g, '-')))
-          card.back = replaceAll(card.back, del.html(), '')
-          card.name = replaceAll(card.name, del.html(), '')
+          card.back = replaceAll(card.back, `<del>${del.html()}</del>`, '')
+          card.name = replaceAll(card.name, `<del>${del.html()}</del>`, '')
         })
       }
     }
