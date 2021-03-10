@@ -243,7 +243,8 @@ class DeckParser {
       const lookup = `${exporter.firstDeckName}/${filePath}`.replace(/\.\.\//g, '')
       file = files[lookup]
       if (!file) {
-        throw new Error(`Missing relative path to ${filePath} used ${exporter.firstDeckName}`)
+        console.warn(`Missing relative path to ${filePath} used ${exporter.firstDeckName}`)
+        return null
       }
     }
     const newName = this.newUniqueFileName(filePath) + suffix
