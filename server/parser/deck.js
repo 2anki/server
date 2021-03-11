@@ -306,7 +306,7 @@ class DeckParser {
           return null
         }
         m = m[2]
-        if (!m.endsWith('.mp3') && m.startsWith('http')) {
+        if (!m.endsWith('.mp3') || m.startsWith('http')) {
           return null
         }
         return m
