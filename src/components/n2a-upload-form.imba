@@ -66,6 +66,7 @@ tag n2a-upload-form
 
 			<.container[p: 1rem max-width: 480px m: 0 auto] .has-text-centered>
 				<form enctype="multipart/form-data" method="post" @submit.prevent=convertFile>
+						<p> "We only support {<a href="https://www.notion.so/Export-as-HTML-bf3fe9e6920e4b9883cbd8a76b6128b7"> "HTML"} uploads from Notion"
 						<p> "Not sure how to create flashcards? Checkout the free videos on the official {<a target="_blank" href="https://www.youtube.com/playlist?list=PLzOAzzqpDqukOtwH3IYWiOhr_sjBjfgCd"> "Notion to Anki playlist"}"
 						<div.field[d:none]=(step != 0)>
 							<div.file.is-centered.is-boxed.is-success.has-name .is-large>
