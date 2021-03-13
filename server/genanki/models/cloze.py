@@ -1,7 +1,14 @@
-
 from genanki import Model
 
-def cloze_model(id, name, css):
+DEFAULT_CLOZE_FRONT = '<span class="front-text-pre">{{cloze:Text}}</span>'
+DEFAULT_CLOZE_BACK = '<span class="front-text-pre">{{cloze:Text}}</span><br><span class="extra">{{Extra}}</span>'
+
+def cloze_model(id, name, css, qfmt, afmt):
+    if qfmt is None:
+        DEFAULT_CLOZE_FRONT = qfmt
+    if afmt is None:
+        DEFAULT_CLOZE_BACK = afmt
+
     return Model(
         id, name,
         fields=[
@@ -11,9 +18,9 @@ def cloze_model(id, name, css):
         ],
         templates=[
             {
-                "name": "notion2Anki Cloze Card",
-                "qfmt": '<span class="front-text-pre">{{cloze:Text}}</span>',
-                "afmt": '<span class="front-text-pre">{{cloze:Text}}</span><br><span class="extra">{{Extra}}</span>',
+                "name": name,
+                "qfmt": qfmt,
+                "afmt": afmt,
             },
         ],
         css=css,

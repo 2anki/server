@@ -59,10 +59,24 @@ if __name__ == "__main__":
         basic_model_id = mt.get('basic_model_id', model_id(basic_model_name))
         template = mt.get('template', 'specialstyle')
 
+
+        fmtClozeQ = fmtClozeA = None
+        fmtInputQ = fmtInputA = None
+        fmtQ = fmtA = None
+
         if template == 'specialstyle':
             CSS += _read_template(template_dir, "custom.css", "", "")
         elif template == 'nostyle':
             CSS = ""
+        elif template == 'abhiyan':
+            CSS = _read_template(template_dir, 'abhiyan.css', "", "")
+            CLOZE_STYLE = _read_template(template_dir, "abhiyan_cloze_style.css", "", "")
+
+            fmtClozeQ = _read_template(template_dir, "abhiyan_cloze_front.html", "", "")
+            fmtClozeA = _read_template(template_dir, "abhiyan_cloze_back.html", "", "")
+            fmtQ = _read_template(template_dir, "abhiyan_basic_front.html", "", "")
+            fmtA = _read_template(template_dir, "abhiyan_basic_back.html", "", "")
+            # fmtInputQ = fmtInputA = None
         # else notionstyle
 
         for deck in data:
@@ -70,11 +84,11 @@ if __name__ == "__main__":
             notes = []
             for card in cards:
                 fields = [card["name"], card["back"], ",".join(card["media"])]
-                model = basic_model(basic_model_id, basic_model_name, CSS) 
+                model = basic_model(basic_model_id, basic_model_name, CSS, fmtQ, fmtA) 
                 if 'cloze' in card and "{{c" in card["name"] :
-                    model = cloze_model(cloze_model_id, cloze_model_name, CLOZE_STYLE + "\n" + CSS)
+                    model = cloze_model(cloze_model_id, cloze_model_name, CLOZE_STYLE + "\n" + CSS, fmtClozeQ, fmtClozeA)
                 elif 'enable-input' in card and 'answer' in card:
-                    model = input_model(input_model_id, input_model_name, CSS)
+                    model = input_model(input_model_id, input_model_name, CSS, fmtInputQ, fmtInputA)
                     fields = [
                         card["name"].replace("{{type:Input}}", ""),
                         card["back"],
