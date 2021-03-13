@@ -26,6 +26,27 @@ tag template-options
 			<centered-title title="Template Options">
 			<.box>
 				<.field>
+					<label.label> "Basic Template Name"
+					<.control>
+						<input$inputBasic.input[fw: bold @placeholder: grey] 
+							placeholder="Defaults to n2a-basic"
+							value=iget('basic_model_name')
+							type="text" @change.{iset('basic_model_name', $inputBasic.value)}>
+				<.field>
+					<label.label> "Cloze Template Name"
+					<.control>
+						<input$inputCloze.input[fw: bold @placeholder: grey]
+							placeholder="Defaults to n2a-cloze"
+							value=iget('cloze_model_name') type="text"
+							@change.{iset('cloze_model_name', $inputCloze.value)}>
+				<.field>
+					<label.label> "Input Template Name"
+					<.control>
+						<input$inputInput.input[fw: bold @placeholder: grey] 
+							placeholder="Defaults to n2a-input"
+							value=iget('input_model_name')
+							type="text" @change.{iset('input_model_name', $inputInput.value)}>
+				<.field>
 					<locally-stored-select label="Template" key="template" values=values>
 				<.field>
 					<label.label> "Font Size" 

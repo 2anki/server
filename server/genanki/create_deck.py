@@ -6,6 +6,7 @@ by the Notion to Anki parser.
 [0]: https://github.com/kerrickstaley/genanki
 """
 
+import random
 import json
 import sys
 
@@ -16,6 +17,17 @@ from models.cloze import cloze_model
 from models.basic import basic_model
 
 from fs_util import _read_template, _build_deck_description, _wr_apkg
+
+# TODO: is this really safe
+# Perserve the old ids for backwards compatability
+def model_id(name):
+    if name == "n2a-input":
+        return 6394002335189144856
+    elif name == "n2a-cloze":
+        return 998877661
+    elif name == "n2a-basic":
+        return 2020
+    return random.randrange(1 << 30, 1 << 31)
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
@@ -34,12 +46,16 @@ if __name__ == "__main__":
 
         # Model / Template stuff
         mt = data[0]
-        cloze_model_name = mt.get('cloze_model_name', "n2a") + "-cloze"
-        basic_model_name = mt.get('basic_model_name', "n2a") + "-basic"
-        input_model_name = mt.get('input_model_name', "n2a") + "-input"
-        input_model_id = mt.get('input_model_id', 6394002335189144856)        
-        cloze_model_id = mt.get('cloze_model_id', 998877661)
-        basic_model_id = mt.get('basic_model_id', 2020)
+
+        # Retreive template names for user or get the default ones
+        cloze_model_name = mt.get('cloze_model_name', "n2a-cloze")
+        basic_model_name = mt.get('basic_model_name', "n2a-basic")
+        input_model_name = mt.get('input_model_name', "n2a-input")
+
+        # Set the model ids based on the template name
+        input_model_id = mt.get('input_model_id', model_id(input_model_name))        
+        cloze_model_id = mt.get('cloze_model_id', model_id(cloze_model_name))
+        basic_model_id = mt.get('basic_model_id', model_id(basic_model_name))
         template = mt.get('template', 'specialstyle')
 
         if template == 'specialstyle':

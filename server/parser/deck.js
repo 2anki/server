@@ -489,7 +489,7 @@ class DeckParser {
       deck.cards = deck.cards.concat(addThese)
     }
 
-    this.payload[0].cloze_model_name = this.settings.cloze_model_name
+    this.payload[0].cloze_model_name = this.settings.cloze_model_name 
     this.payload[0].basic_model_name = this.settings.basic_model_name
     this.payload[0].input_model_name = this.settings.input_model_name
     this.payload[0].cloze_model_id = this.settings.cloze_model_id
