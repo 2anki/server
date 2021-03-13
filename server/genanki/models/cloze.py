@@ -5,10 +5,10 @@ DEFAULT_CLOZE_BACK = '<span class="front-text-pre">{{cloze:Text}}</span><br><spa
 
 def cloze_model(id, name, css, qfmt, afmt):
     if qfmt is None:
-        DEFAULT_CLOZE_FRONT = qfmt
+        qfmt = DEFAULT_CLOZE_FRONT             
     if afmt is None:
-        DEFAULT_CLOZE_BACK = afmt
-
+        afmt  = DEFAULT_CLOZE_BACK
+        
     return Model(
         id, name,
         fields=[

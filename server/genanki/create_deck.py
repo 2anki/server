@@ -76,7 +76,8 @@ if __name__ == "__main__":
             fmtClozeA = _read_template(template_dir, "abhiyan_cloze_back.html", "", "")
             fmtQ = _read_template(template_dir, "abhiyan_basic_front.html", "", "")
             fmtA = _read_template(template_dir, "abhiyan_basic_back.html", "", "")
-            # fmtInputQ = fmtInputA = None
+            fmtInputQ = _read_template(template_dir, "abhiyan_input_front.html", "", "")
+            fmtInputA =_read_template(template_dir, "abhiyan_basic_back.html", "", "") # Note: reusing the basic back, essentially the same.
         # else notionstyle
 
         for deck in data:

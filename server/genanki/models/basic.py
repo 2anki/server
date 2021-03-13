@@ -5,7 +5,7 @@ DEFAULT_BASIC_BACK = '<span class="front-text-post">{{Front}}</span>' '<hr id="a
 
 def basic_model(id, name, css, qfmt, afmt):
     if qfmt is None:
-        qmft = DEFAULT_BASIC_FRONT
+        qfmt = DEFAULT_BASIC_FRONT
     if afmt is None:
         afmt = DEFAULT_BASIC_BACK
         
