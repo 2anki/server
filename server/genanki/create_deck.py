@@ -6,7 +6,7 @@ by the Notion to Anki parser.
 [0]: https://github.com/kerrickstaley/genanki
 """
 
-import random
+import hashlib
 import json
 import sys
 
@@ -27,7 +27,8 @@ def model_id(name):
         return 998877661
     elif name == "n2a-basic":
         return 2020
-    return random.randrange(1 << 30, 1 << 31)
+    # https://stackoverflow.com/questions/16008670/how-to-hash-a-string-into-8-digits
+    return abs(int(hashlib.sha1(name.encode("utf-8")).hexdigest(), 16) % (10 ** 8))
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:

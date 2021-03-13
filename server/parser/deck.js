@@ -76,9 +76,9 @@ class DeckParser {
 
   setFontSize (style) {
     let fs = this.settings['font-size']
-    if (fs && fs !== '20px') {
-      fs = fs.endsWith('px') ? fs : fs + 'px'
-      style += '\n' + '* { font-size:' + fs + 'px}'
+    if (fs && fs !== '20px') { // For backwards compatability, don't touch the font-size if it's 20px
+      fs = fs.trim().endsWith('px') ? fs : fs + 'px'
+      style += '\n' + '* { font-size:' + fs + '}'
     }
     return style
   }
