@@ -16,7 +16,6 @@ class ToggleList {
   }
 
   findFront (t, dom) {
-    console.log("findingFront")
     this.summary = t.find('summary').first()
     this.ensureValid(this.summary)
     this.parentClass ? dom('summary').addClass(this.parentClass) : console.log('no class for front')
