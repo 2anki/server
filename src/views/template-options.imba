@@ -10,7 +10,7 @@ tag template-options
 		{key: 'specialstyle', label: 'Default'},
 		{key: 'notionstyle', label: "Only Notion"},
 		{key: 'nostyle', label: "Raw Note (no style)"},
-		{key: 'abhiyan', label: "Abhiyan Bhandari"}
+		{key: 'abhiyan', label: "Abhiyan Bhandari (Night Mode)"}
 	]
 
 	def setup
