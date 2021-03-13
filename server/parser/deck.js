@@ -9,18 +9,14 @@ const cheerio = require('cheerio')
 const { CustomExporter } = require('./CustomExporter')
 
 const replaceAll = function (original, oldValue, newValue) {
-  if (oldValue === newValue) {
-    return original
-  }
-
-  let temp = original
-  let index = temp.indexOf(oldValue)
-  while (index !== -1) {
-    temp = temp.replace(oldValue, newValue)
-    index = temp.indexOf(oldValue)
-  }
-  return temp
+  // escaping all special Characters
+  let escaped = oldValue.replace(/[{}()[\].?*+$^\\/]/g, "\\$&");
+  // creating regex with global flag
+  let reg = new RegExp(escaped, 'g');
+  return original.replace(reg, newValue);
 }
+
+
 
 class DeckParser {
   get name () {
@@ -324,18 +320,19 @@ class DeckParser {
       const v = dom(elem).html()
 
       // User has set the cloze number
-      if (v.includes('{{c') && v.includes('}}')) {
+      if (v.includes('{{c') && v.includes('}}') && false) {
+        // make Statement unreachable bc. even clozes can get such a formation
+        // eg: \frac{{c}} 1 would give that. 
         mangle = replaceAll(mangle, `<code>${v}</code>`, v)
       } else {
         const old = `<code>${v}</code>`
-        const newValue = '{{c' + num + '::' + v + '}}'
-        if (mangle.includes(old)) {
+        //prevent "}}" so that anki closes the Cloze at the right }} not this one
+        const vReplaced  = replaceAll(v, "}}", "} }")
+        const newValue = '{{c' + num + '::' + vReplaced + '}}'
           mangle = replaceAll(mangle, old, newValue)
-        }
         num += 1
       }
     })
-
     return mangle
   }
 
