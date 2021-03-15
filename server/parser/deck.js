@@ -321,7 +321,7 @@ class DeckParser {
       const v = dom(elem).html()
 
       // User has set the cloze number
-      if (v.includes('{{c') && v.includes('}}') && false) {
+      if (v.includes('{{c') && v.includes('}}') && !v.includes('KaTex')) {
         // make Statement unreachable bc. even clozes can get such a formation
         // eg: \frac{{c}} 1 would give that. 
         mangle = replaceAll(mangle, `<code>${v}</code>`, v)
