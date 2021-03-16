@@ -1,9 +1,9 @@
 const host = window.location.host
 let vers = ""
-let link = "https://github.com/alemayhu/Notion-to-Anki"
-if host === "dev.2anki.net"
+let link = "https://github.com/alemayhu/Notion-to-Anki/tree/"
+if host !== "dev.2anki.net"
 	vers = "Dev"
-	link = link + vers
+	link = link + vers.toLowerCase();
 
 tag n2a-header < header
 
