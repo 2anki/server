@@ -11,7 +11,7 @@ import '../views/card-options'
 
 import {iget, iset, viewparam} from '../data/storage'
 import {getCardOptions} from '../data/card-types'
-					
+
 tag upload-page
 
 	prop edd = 'empty-deck-desc'  	
@@ -34,6 +34,13 @@ tag upload-page
 
 	def render
 		<self[d: block py: 4rem]>
+			if true || window.location.host == "dev.2anki.net"
+				<section .hero .is-small .is-warning>
+					<.hero-body .has-text-centered> 
+						<p .title> "This is a development server"
+						<p> "For the production version see" 
+						<a .button href="https://2anki.net"> "https://2anki.net"
+						<p> "When reporting bugs, please make sure to share examples."
 			<.section>
 					<n2a-upload-tabs>
 					<.column[max-width: 720px m: 0 auto]>

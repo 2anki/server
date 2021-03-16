@@ -1,10 +1,3 @@
-const host = window.location.host
-let vers = ""
-let link = "https://github.com/alemayhu/Notion-to-Anki/tree/"
-if host !== "dev.2anki.net"
-	vers = "Dev"
-	link = link + vers.toLowerCase();
-
 tag n2a-header < header
 
 	css h1 fs:2xl fw: bold ls: -0.025rem m: 0 p: 0.5rem 1rem c: #1E1D1C 
@@ -30,13 +23,7 @@ tag n2a-header < header
 						<a.navbar-item  rel="noreferrer" target="_blank" href="https://www.notion.so/alemayhu/FAQ-ef01be9c9bac41689a4d749127c14301"> "FAQ"
 						<a.navbar-item  rel="noreferrer" target="_blank" href="https://www.notion.so/alemayhu/Privacy-38c6e8238ac04ea9b2485bf488909fd0"> "Privacy"		
 						<a.navbar-item  rel="noreferrer" target="_blank" href="https://www.notion.so/alemayhu/Useful-Links-0f3051946a2d4b71ae31610da76b28a8"> "Useful Links"
-						<a.navbar-item  rel="noreferrer" target="_blank"  href="https://github.com/alemayhu/notion2anki"> "Code"			
-
-					<div.navbar-end>
-						if vers !== ""
-							<div.navbar-item>
-								<a.button .is-light  rel="noreferrer" target="_blank" href=link>
-									<span[fw: bold]> vers							
+						<a.navbar-item  rel="noreferrer" target="_blank"  href="https://github.com/alemayhu/notion2anki"> "Code"									
 						<div.navbar-item>
 							<a.button .is-danger .is-light  rel="noreferrer" target="_blank" href="https://www.patreon.com/alemayhu">
 								<span[fw: bold]> "Become a Patron"							
