@@ -1,3 +1,10 @@
+const host = window.location.host
+let vers = ""
+let link = "https://github.com/alemayhu/Notion-to-Anki/tree/"
+if host !== "dev.2anki.net"
+	vers = "Dev"
+	link = link + vers.toLowerCase();
+
 tag n2a-header < header
 
 	css h1 fs:2xl fw: bold ls: -0.025rem m: 0 p: 0.5rem 1rem c: #1E1D1C 
@@ -26,6 +33,10 @@ tag n2a-header < header
 						<a.navbar-item  rel="noreferrer" target="_blank"  href="https://github.com/alemayhu/notion2anki"> "Code"			
 
 					<div.navbar-end>
+						if vers !== ""
+							<div.navbar-item>
+								<a.button .is-light  rel="noreferrer" target="_blank" href=link>
+									<span[fw: bold]> vers							
 						<div.navbar-item>
 							<a.button .is-danger .is-light  rel="noreferrer" target="_blank" href="https://www.patreon.com/alemayhu">
 								<span[fw: bold]> "Become a Patron"							
