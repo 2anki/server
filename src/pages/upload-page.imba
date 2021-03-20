@@ -34,7 +34,7 @@ tag upload-page
 
 	def render
 		<self[d: block py: 4rem]>
-			if true || window.location.host == "dev.2anki.net"
+			if window.location.host !== "2anki.net"
 				<section .hero .is-small .is-warning>
 					<.hero-body .has-text-centered> 
 						<p .title> "This is a development server"
