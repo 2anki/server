@@ -138,3 +138,5 @@ yarn.lock
 dist/create_deck
 build/create_deck
 __pycache__
+
+cypress/videos/*.mp4
