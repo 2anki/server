@@ -14,4 +14,4 @@ jobs:
         uses: cypress-io/github-action@v2
         with:
           build: npm run build
-          start: npm dev-server
+          start: npm run dev-server
