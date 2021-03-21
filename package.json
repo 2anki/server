@@ -53,7 +53,6 @@
     "webpack": "^4.43.0",
     "webpack-cli": "^3.1.2",
     "webpack-dev-server": "^3.7.1",
-    "cypress": "^6.8.0",
     "ava": "^3.15.0",
     "eslint": "^7.21.0",
     "eslint-config-standard": "^16.0.2",
