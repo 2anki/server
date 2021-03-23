@@ -24,6 +24,7 @@ tag n2a-header < header
 						<a.navbar-item  rel="noreferrer" target="_blank" href="https://www.notion.so/alemayhu/Privacy-38c6e8238ac04ea9b2485bf488909fd0"> "Privacy"		
 						<a.navbar-item  rel="noreferrer" target="_blank" href="https://www.notion.so/alemayhu/Useful-Links-0f3051946a2d4b71ae31610da76b28a8"> "Useful Links"
 						<a.navbar-item  rel="noreferrer" target="_blank"  href="https://github.com/alemayhu/notion2anki"> "Code"									
+					<.navbar-end>
 						<div.navbar-item>
 							<a.button .is-danger .is-light  rel="noreferrer" target="_blank" href="https://www.patreon.com/alemayhu">
 								<span[fw: bold]> "Become a Patron"							
