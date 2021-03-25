@@ -1,5 +1,6 @@
 FROM alemayhu/base-image-n2a
 
+RUN mkdir -pv /tmp/workspaces
 RUN mkdir -pv /tmp/uploads
 WORKDIR /app
 

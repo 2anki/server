@@ -42,7 +42,7 @@ async function handleUpload (req, res) {
     for (const file of files) {
       const filename = file.originalname
       const settings = req.body || {}
-      const payload = file.buffer
+      const payload = fs.readFileSync(file.path)
 
       console.log('filename', filename, 'with settings', settings)
       if (filename.match(/.html$/)) {
@@ -87,7 +87,7 @@ async function handleUpload (req, res) {
       res.status(200).send(payload)
     } else if (decks.length > 1) {
       const filename = `Your decks-${nanoid()}.zip`
-      const pkg = path.join(os.tmpdir(), 'uploads', filename)
+      const pkg = path.join(process.env.WORKSPACE_BASE, filename)
       payload = await ZipHandler.toZip(decks, ADVERTISEMENT)
       fs.writeFileSync(pkg, payload)
       try {
@@ -106,7 +106,14 @@ async function handleUpload (req, res) {
   }
 }
 const router = express.Router()
-const m = multer({ storage: multer.memoryStorage() })
+
+// Ensure uploads directory exists
+const uploadPath = path.join(os.tmpdir(), 'uploads/')
+if (!fs.existsSync(uploadPath)) {
+  fs.mkdirSync(uploadPath, {recursive: true})
+}
+
+const m = multer({ dest: uploadPath })
 router.post('/', m.array('pakker'), (req, res) => handleUpload(req, res))
 
 exports.default = router

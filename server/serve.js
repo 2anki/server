@@ -1,4 +1,6 @@
+const { existsSync, mkdirSync } = require('fs');
 const path = require('path')
+const os = require('os')
 
 const findRemoveSync = require('find-remove')
 const morgan = require('morgan')
@@ -10,7 +12,16 @@ const { ErrorHandler } = require('./handlers/error')
 // Server Endpoints
 const checks = require('./routes/checks')
 const version = require('./routes/version')
-const upload = require('./routes/upload')
+const upload = require('./routes/upload');
+
+// Make sure the workspace area exists for processing
+const WORKSPACE_BASE = path.join(os.tmpdir(), 'workspaces')
+if (!process.env.WORKSPACE_BASE) {
+  process.env.WORKSPACE_BASE = WORKSPACE_BASE
+}
+if (!existsSync(WORKSPACE_BASE)) {
+  mkdirSync(WORKSPACE_BASE, {recursive:true})
+}
 
 function serve () {
   const templateDir = path.join(__dirname, 'templates')
@@ -53,11 +64,14 @@ function serve () {
 
   const TweentyOneMinutesInSeconds = 1260
   setInterval(() => {
-  console.log('finding & removing files older than 21 minutes')
-  const result = findRemoveSync("/tmp/uploads", {files: "*.*", age: {seconds: TweentyOneMinutesInSeconds}})
-  console.log('result', result)
+    const locations  = ['workspaces', 'uploads']
+    for (const loc of locations) {
+      console.log(`finding & removing ${loc} files older than 21 minutes`)
+      const result = findRemoveSync(path.join(os.tmpdir(), loc), {files: "*.*", age: {seconds: TweentyOneMinutesInSeconds}})
+      console.log('result', result)
+    }
 
-  }, TweentyOneMinutesInSeconds)
+  }, TweentyOneMinutesInSeconds * 1000)
 
   const port = process.env.PORT || 2020
   app.listen(port, () => {
