@@ -113,7 +113,7 @@ if (!fs.existsSync(uploadPath)) {
   fs.mkdirSync(uploadPath, {recursive: true})
 }
 
-const m = multer({ dest: uploadPath })
+const m = multer({ dest: uploadPath,  limits: { fileSize: 100 * 1024 * 1024}})
 router.post('/', m.array('pakker'), (req, res) => handleUpload(req, res))
 
 exports.default = router
