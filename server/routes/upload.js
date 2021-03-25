@@ -87,7 +87,7 @@ async function handleUpload (req, res) {
       res.status(200).send(payload)
     } else if (decks.length > 1) {
       const filename = `Your decks-${nanoid()}.zip`
-      const pkg = path.join(os.tmpdir(), filename)
+      const pkg = path.join(os.tmpdir(), 'uploads', filename)
       payload = await ZipHandler.toZip(decks, ADVERTISEMENT)
       fs.writeFileSync(pkg, payload)
       try {

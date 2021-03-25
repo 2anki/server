@@ -1,5 +1,6 @@
 const path = require('path')
 
+const findRemoveSync = require('find-remove')
 const morgan = require('morgan')
 const express = require('express')
 
@@ -49,6 +50,14 @@ function serve () {
   process.on('uncaughtException', (err, origin) => {
     console.log(process.stderr.fd, `Caught exception: ${err}\n Exception origin: ${origin}`)
   })
+
+  const TweentyOneMinutesInSeconds = 1260
+  setInterval(() => {
+  console.log('finding & removing files older than 21 minutes')
+  const result = findRemoveSync("/tmp/uploads", {files: "*.*", age: {seconds: TweentyOneMinutesInSeconds}})
+  console.log('result', result)
+
+  }, TweentyOneMinutesInSeconds)
 
   const port = process.env.PORT || 2020
   app.listen(port, () => {

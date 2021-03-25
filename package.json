@@ -29,6 +29,7 @@
   "dependencies": {
     "cheerio": "1.0.0-rc.3",
     "express": "^4.17.1",
+    "find-remove": "^2.0.3",
     "imba": "2.0.0-alpha.100",
     "jszip": "^3.5.0",
     "knex": "^0.21.15",
@@ -50,9 +51,6 @@
     ]
   },
   "devDependencies": {
-    "webpack": "^4.43.0",
-    "webpack-cli": "^3.1.2",
-    "webpack-dev-server": "^3.7.1",
     "ava": "^3.15.0",
     "eslint": "^7.21.0",
     "eslint-config-standard": "^16.0.2",
@@ -60,6 +58,9 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.3.1",
     "eslint-plugin-standard": "^5.0.0",
-    "nodemon": "^2.0.7"
+    "nodemon": "^2.0.7",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.1.2",
+    "webpack-dev-server": "^3.7.1"
   }
 }

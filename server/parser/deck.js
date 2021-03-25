@@ -390,7 +390,7 @@ class DeckParser {
   }
 
   async build () {
-    const workspace = path.join(os.tmpdir(), nanoid())
+    const workspace = path.join(os.tmpdir(), 'uploads', nanoid())
     const exporter = this.setupExporter(this.payload[0], workspace)
 
     for (let i = 0; i < this.payload.length; i += 1) {
