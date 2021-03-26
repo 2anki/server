@@ -140,3 +140,6 @@ build/create_deck
 __pycache__
 
 cypress/videos/*.mp4
+
+# Built
+server/server.js
