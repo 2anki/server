@@ -1,50 +1,60 @@
-const crypto = require('crypto')
-const path = require('path')
-const fs = require('fs')
-const os = require('os')
+import crypto from 'crypto'
+import path from 'path'
+import fs from 'fs'
 
-const { nanoid, customAlphabet } = require('nanoid')
-const cheerio = require('cheerio')
+import { nanoid, customAlphabet } from 'nanoid'
+import cheerio from 'cheerio'
 
-const { CustomExporter } = require('./CustomExporter')
+import CustomExporter from './CustomExporter'
+import Settings from './Settings'
+import Note from './Note'
+import Deck from './Deck'
 
-const replaceAll = function (original, oldValue, newValue) {
+const replaceAll =  (original: string, oldValue: string, newValue: string) => {
   // escaping all special Characters
-  let escaped = oldValue.replace(/[{}()[\].?*+$^\\/]/g, "\\$&");
+  const escaped = oldValue.replace(/[{}()[\].?*+$^\\/]/g, "\\$&");
   // creating regex with global flag
-  let reg = new RegExp(escaped, 'g');
+  const reg = new RegExp(escaped, 'g');
   return original.replace(reg, newValue);
 }
 
+export class DeckParser {
 
+  globalTags: any
+  firstDeckName: string
+  fileName: string
+  settings: Settings
+  payload: any[]
+  files:  any[]
 
-class DeckParser {
-  get name () {
+  public get name () {
     return this.payload[0].name
   }
 
-  constructor (fileName, settings = {}, files) {
-    const deckName = settings.deckName
-    const contents = files[fileName]
+  constructor (fileName: any, settings: Settings, files: any) {
     this.settings = settings
-    this.use_input = this.enableInput()
-    this.image = null
     this.files = files || []
     this.firstDeckName = fileName
-    this.payload = this.handleHTML(fileName, contents, deckName)
+    this.payload = this.handleHTML(fileName, this.files[fileName], this.settings.deckName, [])
+    this.fileName = fileName
   }
 
-  findNextPage (href, fileName) {
-    const nextFileName = global.decodeURIComponent(href)
+  findNextPage (href: string | undefined, fileName: string) {
+    if (!href) {
+      console.log('skipping next page, due to href being', href)
+      return
+    }
+
+    const nextFileName: any = global.decodeURIComponent(href)
     const pageContent = this.files[nextFileName]
-    const match = Object.keys(this.files).find($1 => $1.match(nextFileName))
+    const match: any = Object.keys(this.files).find($1 => $1.match(nextFileName))
     if (match) {
       return this.files[match]
     }
     return pageContent
   }
 
-  noteHasCherry (note) {
+  noteHasCherry (note: Note) {
     const cherry = '&#x1F352;'
     return note.name.includes(cherry) ||
     note.back.includes(cherry) ||
@@ -52,18 +62,13 @@ class DeckParser {
     note.back.includes('🍒')
   }
 
-  maxOne () {
-    return this.settings['max-one-toggle-per-card'] === 'true'
-  }
 
-  findToggleLists (dom) {
-    const isCherry = this.settings.cherry !== 'false'
-    const isAll = this.settings.all === 'true'
-    const selector = isCherry || isAll ? '.toggle' : '.page-body > ul'
+  findToggleLists (dom: cheerio.Root) {
+    const selector = this.settings.isCherry || this.settings.isAll ? '.toggle' : '.page-body > ul'
     return dom(selector).toArray()
   }
 
-  removeNestedToggles (input) {
+  removeNestedToggles (input: string) {
     return input
       .replace(/<details(.*?)>(.*?)<\/details>/g, '')
       .replace(/<summary>(.*?)<\/summary>/g, '')
@@ -74,26 +79,25 @@ class DeckParser {
       .replace(/<p[^/>][^>]*><\/p>/g, '')
   }
 
-  setFontSize (style) {
-    let fs = this.settings['font-size']
-    if (fs && fs !== '20px') { // For backwards compatability, don't touch the font-size if it's 20px
-      fs = fs.trim().endsWith('px') ? fs : fs + 'px'
-      style += '\n' + '* { font-size:' + fs + '}'
+  setFontSize (style: string) {
+    let fontSize = this.settings.fontSize
+    if (fontSize && fontSize !== '20px') { // For backwards compatability, don't touch the font-size if it's 20px
+    fontSize = fontSize.trim().endsWith('px') ? fontSize : fontSize + 'px'
+      style += '\n' + '* { font-size:' + fontSize + '}'
     }
     return style
   }
 
-  handleHTML (fileName, contents, deckName = null, decks = []) {
-    const dom = cheerio.load(this.settings['no-underline'] === 'true' ? contents.replace(/border-bottom:0.05em solid/g, '') : contents)
+  handleHTML (fileName: string, contents: string, deckName: string, decks: Deck[]) {
+    const dom = cheerio.load(this.settings.noUnderline ? contents.replace(/border-bottom:0.05em solid/g, '') : contents)
     let name = deckName || dom('title').text()
     let style = dom('style').html()
-    style = style.replace(/white-space: pre-wrap;/g, '')
-    const isCherry = this.settings.cherry !== 'false'
-    const isTextOnlyBack = this.settings.paragraph === 'true'
-    let image = null
+    if (style) {
+      style = style.replace(/white-space: pre-wrap;/g, '')
+      style = this.setFontSize(style)
+    }
 
-    style = this.setFontSize(style)
-
+    let image: string | undefined = ""
     const pageCoverImage = dom('.page-cover-image')
     if (pageCoverImage) {
       image = pageCoverImage.attr('src')
@@ -117,16 +121,17 @@ class DeckParser {
 
     this.globalTags = dom('.page-body > p > del')
     const toggleList = this.findToggleLists(dom)
-    let cards = toggleList.map((t) => {
+    let cards: Note[] = []
+
+    toggleList.forEach((t) => {
       // We want to perserve the parent's style, so getting the class
       const p = dom(t)
       const parentUL = p
-      const parentClass = p.attr('class')
+      const parentClass = p.attr('class') || ""
 
-      const toggleMode = this.settings['toggle-mode']
-      if (toggleMode === 'open_toggle') {
+      if (this.settings.toggleMode === 'open_toggle') {
         dom('details').attr('open', '')
-      } else if (toggleMode === 'close_toggle') {
+      } else if (this.settings.toggleMode === 'close_toggle') {
         dom('details').removeAttr('open')
       }
 
@@ -136,41 +141,37 @@ class DeckParser {
         const summary = parentUL.find('summary').first()
         const toggle = parentUL.find('details').first()
 
-        if (!summary || !summary.text()) {
-          return null
-        }
-        const front = parentClass ? `<div class='${parentClass}'>${summary.html()}</div>` : summary.html()
-
-        if ((summary && toggle) || (this.maxOne() && toggle.text())) {
-          const toggleHTML = toggle.html()
-          if (toggleHTML) {
-            let b = toggleHTML.replace(summary, '')
-            if (isTextOnlyBack) {
-              const paragraphs = dom(toggle).find('> p').toArray()
-              b = ''
-              for (const p of paragraphs) {
-                if (p) {
-                  b += dom(p).html()
-                }
+        if (summary && summary.text()) {
+          const front = parentClass ? `<div class='${parentClass}'>${summary.html()}</div>` : summary.html()
+          if ((summary && toggle) || (this.settings.maxOne && toggle.text())) {
+            const toggleHTML = toggle.html()
+            if (toggleHTML) {
+              let b = toggleHTML.replace(summary.html() || '', '')
+              if (this.settings.isTextOnlyBack) {
+                const paragraphs = dom(toggle).find('> p').toArray()
+                b = ''
+                for (const paragraph of paragraphs) {
+                  if (paragraph) {
+                    b += dom(paragraph).html()
+                  }
+                }                
               }
-            }
-            const note = { name: front, back: this.maxOne() ? this.removeNestedToggles(b) : b }
-            if (isCherry && !this.noteHasCherry(note)) {
-              return null
-            } else {
-              return note
+              const note = new Note(front || "", this.settings.maxOne ? this.removeNestedToggles(b) : b)
+                if (this.settings.isCherry && !this.noteHasCherry(note)) {
+                  console.log('dropping due to cherry rules')
+                }
+                cards.push(note)
             }
           }
-        }
+        }       
       }
-      return null
     })
 
     //  Prevent bad cards from leaking out
     cards = cards.filter(Boolean)
     cards = this.sanityCheck(cards)
 
-    decks.push({ name: name, cards: cards, image: image, style: style, id: this.generateId() })
+    decks.push(new Deck(name, cards, image, style, this.generateId()))
 
     const subpages = dom('.link-to-page').toArray()
     for (const page of subpages) {
@@ -178,7 +179,7 @@ class DeckParser {
       const ref = spDom.find('a').first()
       const href = ref.attr('href')
       const pageContent = this.findNextPage(href, fileName)
-      if (pageContent) {
+      if (pageContent && name) {
         const subDeckName = spDom.find('title').text() || ref.text()
         this.handleHTML(fileName, pageContent, `${name}::${subDeckName}`, decks)
       }
@@ -186,32 +187,32 @@ class DeckParser {
     return decks
   }
 
-  hasClozeDeletions (input) {
+  hasClozeDeletions (input: string) {
     if (!input) {
       return false
     }
     return input.includes('code')
   }
 
-  validInputCard (input) {
-    if (!this.enableInput()) {
+  validInputCard (input: Note) {
+    if (!this.settings.useInput) {
       return false
     }
     return input.name && input.name.includes('strong')
   }
 
-  sanityCheck (cards) {
+  sanityCheck (cards: Note[]) {
     return cards.filter(c => c.name && (this.hasClozeDeletions(c.name) || c.back || this.validInputCard(c)))
   }
 
   // Try to avoid name conflicts && invalid characters by hashing
-  newUniqueFileName (input) {
+  newUniqueFileName (input: string) {
     const shasum = crypto.createHash('sha1')
     shasum.update(input)
     return shasum.digest('hex')
   }
 
-  suffix (input) {
+  suffix (input: string) {
     if (!input) {
       return null
     }
@@ -222,21 +223,21 @@ class DeckParser {
     return m[0]
   }
 
-  setupExporter (deck, workspace) {
-    const css = replaceAll(deck.style, "'", '"')
+  setupExporter (deck: Deck, workspace: string) {
+    const css = deck.cleanStyle()
     fs.mkdirSync(workspace)
     fs.writeFileSync(path.join(workspace, 'deck_style.css'), css)
     return new CustomExporter(this.firstDeckName, workspace)
   }
 
-  embedFile (exporter, files, filePath) {
+  embedFile (exporter: CustomExporter, files: any[], filePath: any) {
     const suffix = this.suffix(filePath)
     if (!suffix) {
       return null
     }
-    let file = files[`${filePath}`]
+    let file = files[filePath]
     if (!file) {
-      const lookup = `${exporter.firstDeckName}/${filePath}`.replace(/\.\.\//g, '')
+      const lookup: any = `${exporter.firstDeckName}/${filePath}`.replace(/\.\.\//g, '')
       file = files[lookup]
       if (!file) {
         console.warn(`Missing relative path to ${filePath} used ${exporter.firstDeckName}`)
@@ -249,7 +250,7 @@ class DeckParser {
   }
 
   // https://stackoverflow.com/questions/6903823/regex-for-youtube-id
-  getYouTubeID (input) {
+  getYouTubeID (input: string) {
     return this.ensureNotNull(input, () => {
       try {
         const m = input.match(/(?:youtu\.be\/|youtube\.com(?:\/embed\/|\/v\/|\/watch\?v=|\/user\/\S+|\/ytscreeningroom\?v=|\/sandalsResorts#\w\/\w\/.*\/))([^/&]{10,12})/)
@@ -269,7 +270,7 @@ class DeckParser {
     })
   }
 
-  ensureNotNull (input, cb) {
+  ensureNotNull (input: string, cb: any) {
     if (!input || !input.trim()) {
       return null
     } else {
@@ -277,7 +278,7 @@ class DeckParser {
     }
   }
 
-  getSoundCloudURL (input) {
+  getSoundCloudURL (input: string) {
     return this.ensureNotNull(input, () => {
       try {
         const sre = /https?:\/\/soundcloud\.com\/\S*/gi
@@ -294,76 +295,72 @@ class DeckParser {
     })
   }
 
-  getMP3File (input) {
+  getMP3File (input: string) {
     return this.ensureNotNull(input, () => {
       try {
-        let m = input.match(/<a\s+(?:[^>]*?\s+)?href=(["'])(.*?)\1/i)
+        const m = input.match(/<a\s+(?:[^>]*?\s+)?href=(["'])(.*?)\1/i)
         if (!m || m.length < 3) {
           return null
         }
-        m = m[2]
-        if (!m.endsWith('.mp3') || m.startsWith('http')) {
+        const ma = m[2]
+        if (!ma.endsWith('.mp3') || ma.startsWith('http')) {
           return null
         }
-        return m
+        return ma
       } catch (error) {
         return null
       }
     })
   }
 
-  handleClozeDeletions (input) {
+  handleClozeDeletions (input: string) {
     const dom = cheerio.load(input)
     const clozeDeletions = dom('code')
     let mangle = input
     let num = 1
     clozeDeletions.each((i, elem) => {
       const v = dom(elem).html()
+  if (v) {
 
       // User has set the cloze number
       if (v.includes('{{c') && v.includes('}}') && !v.includes('KaTex')) {
         // make Statement unreachable bc. even clozes can get such a formation
-        // eg: \frac{{c}} 1 would give that. 
+        // eg: \frac{{c}} 1 would give that.
         mangle = replaceAll(mangle, `<code>${v}</code>`, v)
       } else {
         const old = `<code>${v}</code>`
-        //prevent "}}" so that anki closes the Cloze at the right }} not this one
+        // prevent "}}" so that anki closes the Cloze at the right }} not this one
         const vReplaced  = replaceAll(v, "}}", "} }")
         const newValue = '{{c' + num + '::' + vReplaced + '}}'
           mangle = replaceAll(mangle, old, newValue)
         num += 1
       }
+}
     })
     return mangle
   }
 
-  treatBoldAsInput (input, inline = false) {
+  treatBoldAsInput (input: string, inline: boolean) {
     const dom = cheerio.load(input)
     const underlines = dom('strong')
     let mangle = input
     let answer = ''
     underlines.each((i, elem) => {
       const v = dom(elem).html()
-      const old = `<strong>${v}</strong>`
-      mangle = replaceAll(mangle, old, inline ? v : '{{type:Input}}')
-      answer = v
+      if (v) {
+        const old = `<strong>${v}</strong>`
+        mangle = replaceAll(mangle, old, inline ? v : '{{type:Input}}')
+        answer = v
+      }
     })
-    return { mangle: mangle, answer: answer }
-  }
-
-  isCloze () {
-    return this.settings.cloze !== 'false'
-  }
-
-  enableInput () {
-    return this.settings['enable-input'] !== 'false'
+    return { mangle, answer }
   }
 
   generateId () {
-    return parseInt(customAlphabet('1234567890', 16)())
+    return parseInt(customAlphabet('1234567890', 16)(), 16)
   }
 
-  locateTags (card) {
+  locateTags (card: Note) {
     const input = [card.name, card.back]
 
     for (const i of input) {
@@ -378,7 +375,7 @@ class DeckParser {
         card.tags = []
       }
       for (const deletions of deletionsArray) {
-        deletions.each((i, elem) => {
+        deletions.each((elem: any) => {
           const del = dom(elem)
           card.tags.push(...del.text().split(',').map($1 => $1.trim().replace(/\s/g, '-')))
           card.back = replaceAll(card.back, `<del>${del.html()}</del>`, '')
@@ -390,12 +387,16 @@ class DeckParser {
   }
 
   async build () {
-    const workspace = path.join(process.env.WORKSPACE_BASE, nanoid())
+    const ws = process.env.WORKSPACE_BASE
+    if (!ws) {
+      throw new Error("Undefined workspace")
+    }
+    const workspace = path.join(ws, nanoid())
     const exporter = this.setupExporter(this.payload[0], workspace)
 
-    for (let i = 0; i < this.payload.length; i += 1) {
-      const deck = this.payload[i]
-      deck['empty-deck-desc'] = this.settings['empty-deck-desc'] !== 'false'
+    for (const d of this.payload) {
+      const deck = d
+      deck['empty-deck-desc'] = this.settings.isEmptyDescription
       const cardCount = deck.cards.length
       deck.image_count = 0
 
@@ -406,18 +407,18 @@ class DeckParser {
       // Counter for perserving the order in Anki deck.
       let counter = 0
       const addThese = []
-      for (let j = 0; j < deck.cards.length; j += 1) {
-        let card = deck.cards[j]
-        card['enable-input'] = this.settings['enable-input'] !== 'false'
-        card.cloze = this.isCloze()
+      for (const c of deck.cards) {
+        let card = c
+        card['enable-input'] = this.settings.useInput
+        card.cloze = this.settings.isCloze
         card.number = counter++
 
         if (card.cloze) {
           card.name = this.handleClozeDeletions(card.name)
         }
 
-        if (this.use_input && card.name.includes('<strong>')) {
-          const inputInfo = this.treatBoldAsInput(card.name)
+        if (this.settings.useInput && card.name.includes('<strong>')) {
+          const inputInfo = this.treatBoldAsInput(card.name, false)
           card.name = inputInfo.mangle
           card.answer = inputInfo.answer
         }
@@ -425,11 +426,11 @@ class DeckParser {
         card.media = []
         if (card.back) {
           const dom = cheerio.load(card.back)
-          const images = dom('img')
+          const images = dom('img')      
           if (images.length > 0) {
-            images.each((i, elem) => {
+            images.each((_i, elem) => {
               const originalName = dom(elem).attr('src')
-              if (!originalName.startsWith('http')) {
+              if (originalName && !originalName.startsWith('http')) {
                 const newName = this.embedFile(exporter, this.files, global.decodeURIComponent(originalName))
                 if (newName) {
                   dom(elem).attr('src', newName)
@@ -463,7 +464,7 @@ class DeckParser {
             card.back += audio
           }
 
-          if (this.use_input && card.back.includes('<strong>')) {
+          if (this.settings.useInput && card.back.includes('<strong>')) {
             const inputInfo = this.treatBoldAsInput(card.back, true)
             card.back = inputInfo.mangle
           }
@@ -472,15 +473,15 @@ class DeckParser {
         if (!card.tags) {
           card.tags = []
         }
-        if (this.settings.tags !== 'false') {
+        if (this.settings.useTags) {
           card = this.locateTags(card)
         }
 
-        if (this.settings['basic-reversed'] !== 'false') {
+        if (this.settings.basicReversed) {
           addThese.push({ name: card.back, back: card.name, tags: card.tags, media: card.media, number: counter++ })
         }
 
-        if (this.settings.reversed !== 'false') {
+        if (this.settings.reversed) {
           const tmp = card.back
           card.back = card.name
           card.name = tmp
@@ -489,12 +490,12 @@ class DeckParser {
       deck.cards = deck.cards.concat(addThese)
     }
 
-    this.payload[0].cloze_model_name = this.settings.cloze_model_name 
-    this.payload[0].basic_model_name = this.settings.basic_model_name
-    this.payload[0].input_model_name = this.settings.input_model_name
-    this.payload[0].cloze_model_id = this.settings.cloze_model_id
-    this.payload[0].basic_model_id = this.settings.basic_model_id
-    this.payload[0].input_model_id = this.settings.input_model_id
+    this.payload[0].cloze_model_name = this.settings.clozeModelName
+    this.payload[0].basic_model_name = this.settings.basicModelName
+    this.payload[0].input_model_name = this.settings.inputModelName
+    this.payload[0].cloze_model_id = this.settings.clozeModelId
+    this.payload[0].basic_model_id = this.settings.basicModelId
+    this.payload[0].input_model_id = this.settings.inputModelId
     this.payload[0].template = this.settings.template
 
     exporter.configure(this.payload)
@@ -502,11 +503,8 @@ class DeckParser {
   }
 }
 
-async function PrepareDeck (fileName, files, settings) {
+export async function PrepareDeck (fileName: string, files: any, settings: Settings) {
   const parser = new DeckParser(fileName, settings, files)
   const apkg = await parser.build()
-  return { name: `${parser.name}.apkg`, apkg: apkg, deck: parser.payload }
+  return { name: `${parser.name}.apkg`, apkg, deck: parser.payload }
 }
-
-module.exports.PrepareDeck = PrepareDeck
-module.exports.DeckParser = DeckParser

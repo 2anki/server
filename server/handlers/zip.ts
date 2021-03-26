@@ -1,7 +1,15 @@
-const JSZip = require('jszip')
+import JSZip from 'jszip'
 
 class ZipHandler {
-  async build (zipData) {
+  fileNames: string[]
+  files: any
+
+  constructor() {
+    this.fileNames = []
+    this.files = {}
+  }
+
+  async build (zipData: any) {
     const loadedZip = await JSZip.loadAsync(zipData)
     this.fileNames = Object.keys(loadedZip.files)
     this.fileNames = this.fileNames.filter(f => !f.endsWith('/'))
@@ -20,7 +28,7 @@ class ZipHandler {
     return this.fileNames
   }
 
-  static toZip (decks, advertisment = null) {
+  static toZip (decks: any[], advertisment: string | null) {
     const zip = new JSZip()
     for (const d of decks) {
       console.log('toZip add', d.name)
@@ -33,4 +41,4 @@ class ZipHandler {
   }
 }
 
-module.exports.ZipHandler = ZipHandler
+export default ZipHandler

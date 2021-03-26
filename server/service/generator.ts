@@ -1,8 +1,8 @@
-const { execFile } = require('child_process')
-const { homedir } = require('os')
-const path = require('path')
+import { execFile } from 'child_process'
+import { homedir } from 'os'
+import path from 'path'
 
-const { resolvePath } = require('../constants')
+import { resolvePath } from '../constants'
 
 function PYTHON () {
   const os = process.platform
@@ -13,7 +13,11 @@ function PYTHON () {
 }
 
 class CardGenerator {
-  constructor (workspace) {
+  // TODO: use better names!
+  ccs: string
+  cwd: string
+
+  constructor (workspace: string) {
     this.ccs = resolvePath(__dirname, '../genanki/create_deck.py')
     this.cwd = workspace
   }
@@ -38,4 +42,4 @@ class CardGenerator {
   }
 }
 
-module.exports.CardGenerator = CardGenerator
+export default CardGenerator

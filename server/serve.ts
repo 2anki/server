@@ -1,18 +1,18 @@
-const { existsSync, mkdirSync } = require('fs');
-const path = require('path')
-const os = require('os')
+import { existsSync, mkdirSync } from 'fs'
+import path from 'path'
+import os from 'os'
 
-const findRemoveSync = require('find-remove')
-const morgan = require('morgan')
-const express = require('express')
+import findRemoveSync from 'find-remove'
+import morgan from 'morgan'
+import express from 'express'
 
-const { ALLOWED_ORIGINS } = require('./constants')
-const { ErrorHandler } = require('./handlers/error')
+import { ALLOWED_ORIGINS } from './constants'
+import ErrorHandler from './handlers/error'
 
 // Server Endpoints
-const checks = require('./routes/checks')
-const version = require('./routes/version')
-const upload = require('./routes/upload');
+import * as checks from './routes/checks'
+import * as version from './routes/version'
+import * as upload from './routes/upload'
 
 // Make sure the workspace area exists for processing
 const WORKSPACE_BASE = path.join(os.tmpdir(), 'workspaces')
@@ -38,27 +38,27 @@ function serve () {
   const old = ['/notion', '/index', '/upload']
   for (const p of old) {
     console.log('setting up request handler for ', p)
-    app.get(p, (req, res) => {
+    app.get(p, (_req, res) => {
       res.sendFile(path.join(distDir, 'index.html'))
     })
 
-    app.get(`${p}.html`, (req, res) => {
+    app.get(`${p}.html`, (_req, res) => {
       res.sendFile(path.join(distDir, 'index.html'))
     })
   }
 
   app.use('/upload', upload.default)
 
-  app.use((err, req, res, next) => ErrorHandler(res, err))
+  app.use((err: Error, _req: express.Request, res: express.Response, _next: any) => ErrorHandler(res, err))
 
-  app.use((req, res, next) => {
+  app.use((req: express.Request, res: express.Response, next: any) => {
     console.log(req.originalUrl)
     res.header('Access-Control-Allow-Origin', ALLOWED_ORIGINS.join(','))
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Content-Disposition')
     next()
   })
 
-  process.on('uncaughtException', (err, origin) => {
+  process.on('uncaughtException', (err: Error, origin: string) => {
     console.log(process.stderr.fd, `Caught exception: ${err}\n Exception origin: ${origin}`)
   })
 

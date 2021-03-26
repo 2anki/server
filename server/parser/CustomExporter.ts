@@ -1,35 +1,35 @@
-const path = require('path')
-const fs = require('fs')
+import path from 'path'
+import fs from 'fs'
 
-const CardGenerator = require('../service/generator').CardGenerator
+import CardGenerator from '../service/generator'
 
 class CustomExporter {
-  constructor (firstDeckName, workspace) {
+  firstDeckName: string
+  workspace: string
+  media: string[]
+
+  constructor (firstDeckName: string, workspace: string) {
     this.firstDeckName = firstDeckName.replace('.html', '')
     this.workspace = workspace
     this.media = []
   }
 
-  addMedia (newName, file) {
+  addMedia (newName: string, file: any) {
     const abs = path.join(this.workspace, newName)
     this.media.push(abs)
     fs.writeFileSync(abs, file)
   }
 
-  addCard (back, tags) {
-    return this
-  }
-
-  configure (payload) {
+  configure (payload: object) {
     const payloadInfo = path.join(this.workspace, 'deck_info.json')
     fs.writeFileSync(payloadInfo, JSON.stringify(payload, null, 2))
   }
 
   async save () {
     const gen = new CardGenerator(this.workspace)
-    const payload = await gen.run()
+    const payload = await gen.run() as string
     return fs.readFileSync(payload)
   }
 }
 
-module.exports.CustomExporter = CustomExporter
+export default CustomExporter
