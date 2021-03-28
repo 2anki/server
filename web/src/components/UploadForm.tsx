@@ -1,6 +1,7 @@
 import { SyntheticEvent, useState } from "react";
 import StyledMessageBox from "./StyledMessageBox";
 import ErrorMessage from "./ErrorMessage";
+import DownloadModal from "./DownloadModal";
 
 const UploadForm = () => {
   const notificationKey = "show-notification";
@@ -8,7 +9,8 @@ const UploadForm = () => {
     localStorage.getItem(notificationKey) !== "false"
   );
   const [errorMessage, setErrorMessage] = useState("");
-
+  const [downloadLink, setDownloadLink] = useState("");
+  const [deckName, setDeckName] = useState("");
   const [selectedFilename, setSelectedFilename] = useState("");
 
   const handleSubmit = async (event: SyntheticEvent) => {
@@ -25,17 +27,19 @@ const UploadForm = () => {
         body: formData,
       });
       const contentType = request.headers.get("Content-Type");
-      const notOK = request.status != 200;
+      const notOK = request.status !== 200;
       if (notOK) {
         const text = await request.text();
         return setErrorMessage(text);
       }
-      // let deckName = request.headers.get("File-Name");
-      // deckName ||=
-      //   contentType == "application/zip" ? "Your Decks.zip" : "Your deck.apkg";
+      let deckName = request.headers.get("File-Name");
+      setDeckName(
+        deckName || contentType === "application/zip"
+          ? "Your Decks.zip"
+          : "Your deck.apkg"
+      );
       const blob = await request.blob();
-      const downloadLink = window.URL.createObjectURL(blob);
-      console.log("downloadLink", downloadLink);
+      setDownloadLink(window.URL.createObjectURL(blob));
     } catch (error) {
       setErrorMessage(
         `<h1 class='title is-4'>${error.message}</h1><pre>${error.stack}</pre>`
@@ -136,6 +140,13 @@ const UploadForm = () => {
             >
               Convert
             </button>
+            {downloadLink && !errorMessage ? (
+              <DownloadModal
+                title={"Download Ready 🥳"}
+                downloadLink={downloadLink}
+                deckName={deckName}
+              />
+            ) : null}
           </div>
         </div>
       </div>
