@@ -22,17 +22,15 @@ const Footer = () => {
                         <div className="columns">
                                 <div className="column">
                                         <Header>General</Header>
-					<p><a href="/upload">Create</a></p>
-					<p> <a target="_blank" href="https://www.notion.so/alemayhu/Benefits-0d5fa2e18a8a44d782c72945b2bd413b">Benefits</a></p>
-					<p> <a target="_blank" href="https://www.notion.so/alemayhu/Privacy-38c6e8238ac04ea9b2485bf488909fd0">Privacy</a></p>
-					<p> <a target="_blank" href="https://www.notion.so/alemayhu/FAQ-ef01be9c9bac41689a4d749127c14301">FAQ</a></p>
+					<p> <a rel="noreferrer" target="_blank" href="https://www.notion.so/alemayhu/Benefits-0d5fa2e18a8a44d782c72945b2bd413b">Benefits</a></p>
+					<p> <a rel="noreferrer" target="_blank" href="https://www.notion.so/alemayhu/Privacy-38c6e8238ac04ea9b2485bf488909fd0">Privacy</a></p>
+					<p> <a rel="noreferrer" target="_blank" href="https://www.notion.so/alemayhu/FAQ-ef01be9c9bac41689a4d749127c14301">FAQ</a></p>
                                 </div>
                                 <div className="column">
                                         <Header>Community</Header>
                                         <p> <a href="https://www.reddit.com/r/notion2anki/">r/notion2anki</a></p>
 					<p> <a href="https://discord.gg/PSKC3uS">Discord server</a></p>
 					<p> <a href="https://www.youtube.com/c/AlexanderAlemayhu">YouTube</a></p>
-					<p> <a href="https://twitch.tv/alexanderalemayhu">Twitch</a></p>
                                 </div>
                                 <div className="column">
                                         <Header>Developer</Header>
