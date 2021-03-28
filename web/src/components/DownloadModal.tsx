@@ -1,4 +1,3 @@
-// DownloadButton [m: 2rem fw: bold].button.is-primary
 import React from "react";
 
 const DownloadModal: React.FC<{
@@ -16,7 +15,12 @@ const DownloadModal: React.FC<{
           </header>
           <section className="modal-card-body">
             <div className="has-text-centered">
-              <a href={downloadLink} download={deckName}>
+              <a
+                className="button is-primary"
+                style={{ margin: "2rem", fontWeight: "bold" }}
+                href={downloadLink}
+                download={deckName}
+              >
                 Download
               </a>
               <hr />
