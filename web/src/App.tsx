@@ -1,6 +1,9 @@
-import './App.css';
-
+import { Route, Router, Switch } from 'react-router-dom';
+import { createBrowserHistory } from 'history';
 import styled from "styled-components"
+
+import UploadPage from "./pages/Upload"
+import HomePage from "./pages/Home"
 
 import Header from "./components/Header"
 import Footer from "./components/Footer"
@@ -19,14 +22,25 @@ const Container = styled.div`
 `
 
 function App() {
+  const history = createBrowserHistory()
   return (
+      <Router history={history}>
     <Layout>
       <Header />
       <Container>
-        <p>Content</p>
+        <Switch>
+          <Route path="/">
+            <HomePage />
+            </Route>
+          <Route path="/upload">
+            <UploadPage />
+            </Route>
+        </Switch>
+        
       </Container>
       <Footer />
     </Layout>
+      </Router>
   );
 }
 

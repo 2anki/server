@@ -2,17 +2,8 @@ import {useState} from "react"
 
 import styled from "styled-components"
 
-const UploadLinkCTA = styled.a`
-        font-weight: bold;
-        margin-top: 2rem;
-        margin-bottom: 2rem;
-        background: rgb(207, 83, 89);
-        color: white;
-        &:hover {
-                color: white;
-                background-color: rgb(207, 83, 0)
-        }
-`
+import CTAButton from "./CTAButton"
+
 
 const Title = styled.h1`
         color: #0070f3;
@@ -44,7 +35,7 @@ const Header = () => {
                         <div id="navbarExampleTransparentExample" className={`navbar-menu ${ active ?  "is-active" : null}`}>
                                 <div className="navbar-start">
                                         <div className="navbar-item">
-                                                <UploadLinkCTA className="button"  href="/upload">Create</UploadLinkCTA>
+                                                <CTAButton destination="/upload" text={"Create"} isLarge={false} />
                                         </div>
                                         <a className="navbar-item" rel="noreferrer" target="_blank" href="https://www.notion.so/alemayhu/Benefits-0d5fa2e18a8a44d782c72945b2bd413b"> Benefits</a>
                                         <a className="navbar-item" rel="noreferrer" target="_blank" href="https://www.notion.so/alemayhu/Contact-e76523187cc64961972b3ad4f7cb4c47"> Contact</a>
