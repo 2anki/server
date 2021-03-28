@@ -21,6 +21,11 @@ const Container = styled.div`
   padding: 4rem;
 `;
 
+/**
+ TODOs
+ - Use new component for external links <ExternalLink ...>
+ */
+
 function App() {
   return (
     <Router>
