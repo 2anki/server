@@ -2,7 +2,7 @@ const ErrorMessage: React.FC<{ msg: string }> = ({ msg }) => {
   // TODO: use modal?
   return (
     <section className="hero is-danger">
-      <div>{msg}</div>
+      <div dangerouslySetInnerHTML={{ __html: msg }}></div>
       <p className="subtitle">
         Watch the video below and see if you are experiencing a common error or
         read the error message.

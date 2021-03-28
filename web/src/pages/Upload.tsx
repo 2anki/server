@@ -1,9 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
-import React, { useState } from "react";
+import React from "react";
 
 import WarningMessage from "../components/WarningMessage";
-import StyledMessageBox from "../components/StyledMessageBox";
-import ErrorMessage from "../components/ErrorMessage";
 import UploadForm from "../components/UploadForm";
 
 // A custom hook that builds on useLocation to parse
@@ -17,7 +15,6 @@ const UploadPage = () => {
   const isDevelopment = window.location.host !== "2anki.net";
   const query = useQuery();
   const view = query.get("view");
-  const errorMessage = "";
 
   return (
     <div style={{ paddingTop: "4rem" }}>
@@ -43,7 +40,6 @@ const UploadPage = () => {
         <div className="has-text-centered">
           <h2 className="title">Notion to Anki</h2>
         </div>
-        {errorMessage ? <ErrorMessage msg={errorMessage} /> : null}
         <UploadForm />
       </div>
     </div>
