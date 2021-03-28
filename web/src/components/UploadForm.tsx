@@ -32,12 +32,16 @@ const UploadForm = () => {
         const text = await request.text();
         return setErrorMessage(text);
       }
-      let deckName = request.headers.get("File-Name");
-      setDeckName(
-        deckName || contentType === "application/zip"
-          ? "Your Decks.zip"
-          : "Your deck.apkg"
-      );
+      const fileNameHeader = request.headers.get("File-Name".toLowerCase());
+      if (fileNameHeader) {
+        setDeckName(fileNameHeader);
+      } else {
+        let fallback =
+          contentType === "application/zip"
+            ? "Your Decks.zip"
+            : "Your deck.apkg";
+        setDeckName(fallback);
+      }
       const blob = await request.blob();
       setDownloadLink(window.URL.createObjectURL(blob));
     } catch (error) {
@@ -140,7 +144,7 @@ const UploadForm = () => {
             >
               Convert
             </button>
-            {downloadLink && !errorMessage ? (
+            {downloadLink && deckName && !errorMessage ? (
               <DownloadModal
                 title={"Download Ready 🥳"}
                 downloadLink={downloadLink}
