@@ -357,7 +357,7 @@ export class DeckParser {
   }
 
   generateId () {
-    return parseInt(customAlphabet('1234567890', 16)(), 16)
+    return parseInt(customAlphabet('1234567890', 16)(), 10)
   }
 
   locateTags (card: Note) {
