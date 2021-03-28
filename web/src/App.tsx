@@ -12,13 +12,19 @@ const Layout = styled.div`
   height: 100vh;
 `
 
+const Container = styled.div`
+  display: block;
+  flex: 1 0 auto;
+  padding: 4rem;
+`
+
 function App() {
   return (
     <Layout>
       <Header />
-      <div>
+      <Container>
         <p>Content</p>
-      </div>
+      </Container>
       <Footer />
     </Layout>
   );

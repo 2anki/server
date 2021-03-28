@@ -1,8 +1,14 @@
+import styled from "styled-components"
+
+const StyledFooter = styled.footer`
+        flex-shrink: 0;
+`
+
 const Footer = () => {
         return (
-                <footer>
+                <StyledFooter>
                         The Footer
-                </footer>
+                </StyledFooter>
         )        
 }
 
