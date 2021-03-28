@@ -71,6 +71,8 @@ const UploadForm = () => {
         handleSubmit(event);
       }}
     >
+      <h2 className="title has-text-centered">Notion to Anki</h2>
+
       {errorMessage ? <ErrorMessage msg={errorMessage} /> : null}
 
       {/* Until we have onboarding, give new users some basic info */}

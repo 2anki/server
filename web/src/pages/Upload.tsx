@@ -3,6 +3,9 @@ import React from "react";
 
 import WarningMessage from "../components/WarningMessage";
 import UploadForm from "../components/UploadForm";
+import CardOptions from "../components/CardOptions";
+import TemplateOptions from "../components/TemplateOptions";
+import DeckOptions from "../components/DeckOptions";
 
 // A custom hook that builds on useLocation to parse
 // the query string for you.
@@ -16,31 +19,36 @@ const UploadPage = () => {
   const query = useQuery();
   const view = query.get("view");
 
+  const isUpload = view === "upload";
+  const isCard = view === "card-options";
+  const isTemplate = view === "template";
+  const isDeck = view === "deck-options";
+
   return (
     <div style={{ paddingTop: "4rem" }}>
       {isDevelopment ? <WarningMessage /> : null}
       <div className="tabs is-centered is-boxed">
         <ul>
-          <li className={`${view === "upload" ? "is-active" : null}`}>
+          <li className={`${isUpload ? "is-active" : null}`}>
             {" "}
             <Link to="upload?view=upload">Upload</Link>
           </li>
-          <li className={`${view === "template" ? "is-active" : null}`}>
+          <li className={`${isTemplate ? "is-active" : null}`}>
             <Link to="upload?view=template">Template</Link>
           </li>
-          <li className={`${view === "deck-options" ? "is-active" : null}`}>
+          <li className={`${isDeck ? "is-active" : null}`}>
             <Link to="upload?view=deck-options">Deck</Link>
           </li>
-          <li className={`${view === "card-options" ? "is-active" : null}`}>
+          <li className={`${isCard ? "is-active" : null}`}>
             <Link to="upload?view=card-options">Card</Link>
           </li>
         </ul>
       </div>
       <div className="container">
-        <div className="has-text-centered">
-          <h2 className="title">Notion to Anki</h2>
-        </div>
-        <UploadForm />
+        {isUpload ? <UploadForm /> : null}
+        {isCard ? <CardOptions /> : null}
+        {isTemplate ? <TemplateOptions /> : null}
+        {isDeck ? <DeckOptions /> : null}
       </div>
     </div>
   );
