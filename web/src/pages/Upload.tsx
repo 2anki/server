@@ -1,5 +1,4 @@
 import { Link, useLocation } from "react-router-dom";
-import React from "react";
 
 import WarningMessage from "../components/WarningMessage";
 import UploadForm from "../components/UploadForm";
@@ -19,7 +18,7 @@ const UploadPage = () => {
   const query = useQuery();
   const view = query.get("view");
 
-  const isUpload = view === "upload";
+  const isUpload = view === "upload" || !view;
   const isCard = view === "card-options";
   const isTemplate = view === "template";
   const isDeck = view === "deck-options";
