@@ -151,6 +151,10 @@ const UploadForm = () => {
                 title={"Download Ready 🥳"}
                 downloadLink={downloadLink}
                 deckName={deckName}
+                onClickClose={() => {
+                  setDownloadLink("");
+                  setDeckName("");
+                }}
               />
             ) : null}
           </div>
