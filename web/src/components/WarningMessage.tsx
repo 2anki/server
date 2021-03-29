@@ -13,8 +13,8 @@ const WarningMessage = () => {
           <a className="button" href="https://2anki.net">
             https://2anki.net
           </a>
-          <p>When reporting bugs, please make sure to share examples</p>
         </p>
+        <p>When reporting bugs, please make sure to share examples</p>
       </div>
     </section>
   );

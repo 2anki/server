@@ -1,60 +1,61 @@
+import { useState } from "react";
 import { useEffect } from "react";
 import LocalCheckbox from "./LocalCheckbox";
 
 const options = [
   {
-    type: "all",
+    key: "all",
     label: "Use all toggle lists",
     default: localStorage.getItem("all") || false,
   },
   {
-    type: "paragraph",
+    key: "paragraph",
     label: "Use plain text for back",
     default: localStorage.getItem("paragraph") || false,
   },
   {
-    type: "cherry",
+    key: "cherry",
     label: "Enable cherry picking using 🍒 emoji",
     default: localStorage.getItem("cherry") || false,
   },
   {
-    type: "tags",
+    key: "tags",
     label: "Treat strikethrough as tags",
     default: localStorage.getItem("tags") || true,
   },
   {
-    type: "basic",
+    key: "basic",
     label: "Basic front and back",
     default: localStorage.getItem("basic") || true,
   },
   {
-    type: "cloze",
+    key: "cloze",
     label: "Cloze deletion",
     default: localStorage.getItem("cloze") || true,
   },
 
   {
-    type: "enable-input",
+    key: "enable-input",
     label: "Treat bold text as input",
     default: localStorage.getItem("enable-input") || false,
   },
   {
-    type: "basic-reversed",
+    key: "basic-reversed",
     label: "Basic and reversed",
     default: localStorage.getItem("basic-reversed") || false,
   },
   {
-    type: "reversed",
+    key: "reversed",
     label: "Just the reversed",
     default: localStorage.getItem("reversed") || false,
   },
   {
-    type: "no-underline",
+    key: "no-underline",
     label: "Remove underlines",
     default: localStorage.getItem("no-underline") || false,
   },
   {
-    type: "max-one-toggle-per-card",
+    key: "max-one-toggle-per-card",
     label: "Maximum one toggle per card",
     default: localStorage.getItem("max-one-toggle-per-card") || false,
   },
@@ -64,12 +65,15 @@ const CardOptions = () => {
   // Make sure the defaults are set if not present to ensure backwards compatability
   useEffect(() => {
     for (const option of options) {
-      const value = localStorage.getItem(option.type);
+      const value = localStorage.getItem(option.key);
       if (value === null) {
-        localStorage.setItem(option.type, option.default.toString());
+        localStorage.setItem(option.key, option.default.toString());
       }
     }
   }, []);
+
+  const [toggleMode, setToggleMode] = useState("open_toggle");
+  const toggleKey = "toggle-mode";
 
   return (
     <div className="container">
@@ -77,9 +81,29 @@ const CardOptions = () => {
         <h2 className="title">Card Options</h2>
       </div>
       <div className="box">
+        <div className="field">
+          <div className="control">
+            <div className="select">
+              <select
+                name={toggleKey}
+                value={toggleMode}
+                onChange={(event) => {
+                  const value = event.target.value;
+                  setToggleMode(value);
+                  localStorage.setItem(toggleKey, value);
+                }}
+              >
+                <option value="open_toggle">Open nested toggles</option>
+                <option value="close_toggle">Close nested toggles</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
         {options.map((o) => (
           <LocalCheckbox
-            key={o.type}
+            key={o.key}
+            storageKey={o.key}
             heading=""
             label={o.label}
             startValue={o.default}

@@ -9,7 +9,6 @@ const StyledInput = styled.input`
 `;
 
 const DeckOptions = () => {
-  const key = "empty-description";
   const deckNameKey = "deckName";
   const [deckName, setDeckName] = useState(
     localStorage.getItem(deckNameKey) || ""
@@ -22,7 +21,7 @@ const DeckOptions = () => {
       </div>
       <div className="box">
         <LocalCheckbox
-          key="empty-description"
+          storageKey="empty-description"
           heading="Deck Description"
           label="Empty description"
           startValue="false"
