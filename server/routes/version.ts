@@ -1,13 +1,17 @@
-import fs from 'fs'
+import fs from "fs";
 
-import express from 'express'
+import express from "express";
 
-import { resolvePath } from '../constants'
+import { resolvePath } from "../constants";
 
-const router = express.Router()
+const router = express.Router();
 
-const appInfo = JSON.parse(fs.readFileSync(resolvePath(__dirname, '../../package.json')).toString())
+const appInfo = JSON.parse(
+  fs.readFileSync(resolvePath(__dirname, "../package.json")).toString()
+);
 
-router.get('/', (_req, res) => res.status(200).send(`Notion to Anki v${appInfo.version}`))
+router.get("/", (_req, res) =>
+  res.status(200).send(`Notion to Anki v${appInfo.version}`)
+);
 
-export default router
+export default router;
