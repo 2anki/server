@@ -5,11 +5,11 @@ RUN mkdir -pv /tmp/uploads
 WORKDIR /app
 
 COPY . .
-RUN npm --prefix server install
-RUN npm --prefix web install
+RUN npm --prefix /app/server install
+RUN npm --prefix /app/web install
 
-RUN npm --prefix server build
-RUN npm --prefix web build
+RUN npm --prefix /app/server build
+RUN npm --prefix /app/web build
 
 # Clean up
 RUN rm -rvf /app/web/node_modules
@@ -17,4 +17,4 @@ RUN rm -rvf /app/web/node_modules
 ENV PORT 8080
 EXPOSE 8080
 
-CMD ["node", "server/server.js"]
+CMD ["node", "/app/server/server.js"]
