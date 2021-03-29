@@ -1,4 +1,6 @@
 import TemplateName from "./TemplateName";
+import TemplateSelect from "./TemplateSelect";
+import FontSizePicker from "./FontSizePicker";
 
 const TemplateOptions = () => {
   return (
@@ -8,6 +10,16 @@ const TemplateOptions = () => {
       </div>
 
       <div className="box">
+        <TemplateSelect
+          values={[
+            { value: "specialstyle", label: "Default" },
+            { value: "notionstyle", label: "Only Notion" },
+            { value: "nostyle", label: "Raw Note (no style)" },
+            { value: "abhiyan", label: "Abhiyan Bhandari (Night Mode)" },
+          ]}
+          defaultValue="close_toggle"
+          storageKey="toggle-mode"
+        />
         <TemplateName
           storageKey="basic_model_name"
           placeholder="Defaults to n2a-basic"
@@ -23,6 +35,8 @@ const TemplateOptions = () => {
           placeholder="Defaults to n2a-input"
           label="Input Template Name"
         />
+
+        <FontSizePicker />
 
         <hr />
         <h2>Preview support is coming soon</h2>

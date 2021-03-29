@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useEffect } from "react";
 import LocalCheckbox from "./LocalCheckbox";
+import TemplateSelect from "./TemplateSelect";
 
 const options = [
   {
@@ -72,34 +73,20 @@ const CardOptions = () => {
     }
   }, []);
 
-  const [toggleMode, setToggleMode] = useState("open_toggle");
-  const toggleKey = "toggle-mode";
-
   return (
     <div className="container">
       <div className="has-text-centered">
         <h2 className="title">Card Options</h2>
       </div>
       <div className="box">
-        <div className="field">
-          <div className="control">
-            <div className="select">
-              <select
-                name={toggleKey}
-                value={toggleMode}
-                onChange={(event) => {
-                  const value = event.target.value;
-                  setToggleMode(value);
-                  localStorage.setItem(toggleKey, value);
-                }}
-              >
-                <option value="open_toggle">Open nested toggles</option>
-                <option value="close_toggle">Close nested toggles</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
+        <TemplateSelect
+          values={[
+            { label: "Open nested toggles", value: "open_toggle" },
+            { label: "Close nested toggles", value: "close_toggle" },
+          ]}
+          defaultValue="close_toggle"
+          storageKey="toggle-mode"
+        />
         {options.map((o) => (
           <LocalCheckbox
             key={o.key}
