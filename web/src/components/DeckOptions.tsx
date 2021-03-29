@@ -1,6 +1,7 @@
 import { useState } from "react";
-
 import styled from "styled-components";
+
+import LocalCheckbox from "./LocalCheckbox";
 
 const StyledInput = styled.input`
   font-weight: bold;
@@ -10,7 +11,6 @@ const StyledInput = styled.input`
 const DeckOptions = () => {
   const key = "empty-description";
   const deckNameKey = "deckName";
-  const [isEmpty, setIsEmpty] = useState(localStorage.getItem(key) === "true");
   const [deckName, setDeckName] = useState(
     localStorage.getItem(deckNameKey) || ""
   );
@@ -21,21 +21,12 @@ const DeckOptions = () => {
         <h2 className="title">Deck Options</h2>
       </div>
       <div className="box">
-        <div className="field">
-          <strong>Deck Description</strong>
-          <div className="field">
-            <input
-              type="checkbox"
-              checked={isEmpty}
-              onChange={() => {
-                const empty = !isEmpty;
-                localStorage.setItem(key, empty.toString());
-                setIsEmpty(empty);
-              }}
-            />
-            Empty description
-          </div>
-        </div>
+        <LocalCheckbox
+          key="empty-description"
+          heading="Deck Description"
+          label="Empty description"
+          startValue="false"
+        />
         <div className="field">
           <strong>Deck Name</strong>
           <div className="control">
