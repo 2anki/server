@@ -11,6 +11,9 @@ RUN npm --prefix web install
 RUN npm --prefix server build
 RUN npm --prefix web build
 
+# Clean up
+RUN rm -rvf /app/web/node_modules
+
 ENV PORT 8080
 EXPOSE 8080
 
