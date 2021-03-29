@@ -16,9 +16,8 @@
     "dev": "webpack-dev-server --mode=development --content-base dist/",
     "watch": "webpack --watch --progress --colors --display-modules",
     "test": "ava",
-    "build-frontend": "webpack --production",
     "start": "yarn dev",
-    "build-server": "tsc -p .",
+    "build": "tsc -p .",
     "dev-server": "nodemon --watch 'server/**/*.ts' --exec \"ts-node\" server/server.ts",
     "lint": "tslint -c tslint.json 'server/**/*.ts'"
   },

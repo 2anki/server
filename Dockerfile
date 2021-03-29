@@ -4,12 +4,12 @@ RUN mkdir -pv /tmp/workspaces
 RUN mkdir -pv /tmp/uploads
 WORKDIR /app
 
-COPY package.json .
-RUN npm install
-
 COPY . .
-RUN npm run build-frontend
-RUN npm run build-server
+RUN npm --prefix server install
+RUN npm --prefix web install
+
+RUN npm --prefix server build
+RUN npm --prefix web build
 
 ENV PORT 8080
 EXPOSE 8080

@@ -1,5 +1,5 @@
 [build]
-  publish = "dist"
+  publish = "web/build/"
   command = "npm run build"
 [[headers]]
   # Define which paths this specific [[headers]] block will cover.
