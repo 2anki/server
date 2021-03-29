@@ -8,8 +8,8 @@ COPY . .
 RUN npm --prefix /app/server install
 RUN npm --prefix /app/web install
 
-RUN npm --prefix /app/server build
-RUN npm --prefix /app/web build
+RUN npm --prefix /app/server run build
+RUN npm --prefix /app/web run build
 
 # Clean up
 RUN rm -rf /app/web/node_modules
