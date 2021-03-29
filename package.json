@@ -4,8 +4,7 @@
   "keywords": [
     "notion",
     "anki",
-    "notion2anki",
-    "imba"
+    "notion2anki"
   ],
   "author": "Alexander Alemayhu",
   "version": "0.3.0-0",
@@ -32,7 +31,6 @@
     "cheerio": "1.0.0-rc.3",
     "express": "^4.17.1",
     "find-remove": "^2.0.3",
-    "imba": "2.0.0-alpha.100",
     "jszip": "^3.5.0",
     "knex": "^0.21.15",
     "morgan": "^1.10.0",

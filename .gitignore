@@ -1,6 +1,4 @@
 dist/bundle.*
-dist/*.imba.js
-dist/*.imba.js.map
 
 .DS_Store
 

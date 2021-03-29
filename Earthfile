@@ -31,5 +31,5 @@ docker:
     FROM +build
     EXPOSE 8080
     ENV PORT 8080
-    ENTRYPOINT ["./node_modules/.bin/imba", "src/server/server.js"]
+    ENTRYPOINT ["node", "src/server/server.js"]
     SAVE IMAGE alemayhu/notion2anki
