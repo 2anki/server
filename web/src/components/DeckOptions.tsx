@@ -40,6 +40,7 @@ const DeckOptions = () => {
           <strong>Deck Name</strong>
           <div className="control">
             <StyledInput
+              className="input"
               placeholder="Enter deck name (optional)"
               value={deckName}
               onChange={(event) => {
