@@ -24,7 +24,7 @@ const DeckOptions = () => {
           storageKey="empty-description"
           heading="Deck Description"
           label="Empty description"
-          startValue="false"
+          startValue={false}
         />
         <div className="field">
           <strong>Deck Name</strong>

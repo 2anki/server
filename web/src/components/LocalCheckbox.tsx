@@ -4,10 +4,10 @@ const LocalCheckbox: React.FC<{
   heading: string;
   label: string;
   storageKey: string;
-  startValue: boolean | string;
+  startValue: boolean;
 }> = ({ heading, label, storageKey, startValue }) => {
-  const local = localStorage.getItem(storageKey);
-  const [isValue, setIsValue] = useState(local !== "true");
+  const local = localStorage.getItem(storageKey) === "true" || startValue;
+  const [isValue, setIsValue] = useState(local);
   const toggleValue = () => {
     const empty = !isValue;
     localStorage.setItem(storageKey, empty.toString());

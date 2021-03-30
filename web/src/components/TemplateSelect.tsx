@@ -28,7 +28,9 @@ const TemplateSelect: React.FC<{
             }}
           >
             {values.map((v) => (
-              <option value={v.value}>{v.label}</option>
+              <option key={v.value} value={v.value}>
+                {v.label}
+              </option>
             ))}
           </select>
         </div>
