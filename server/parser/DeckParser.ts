@@ -424,7 +424,7 @@ export class DeckParser {
         card.tags = [];
       }
       for (const deletions of deletionsArray) {
-        deletions.each((elem: any) => {
+        deletions.each((_i: number, elem: any) => {
           const del = dom(elem);
           card.tags.push(
             ...del

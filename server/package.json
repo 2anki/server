@@ -11,13 +11,22 @@
   "engines": {
     "node": ">=12.0.0"
   },
+  "ava": {
+    "extensions": [
+      "ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ]
+  },
   "main": "main.js",
   "scripts": {
     "test": "ava",
     "start": "yarn dev",
     "build": "tsc -p .",
     "dev": "nodemon --watch '**/*.ts' --exec \"ts-node\" server.ts",
-    "lint": "tslint -c tslint.json '**/*.ts'"
+    "lint": "tslint -c tslint.json '**/*.ts'",
+    "purge-js": "rm `find . -name '*.js'|grep -v node_modules`"
   },
   "repository": {
     "type": "git",

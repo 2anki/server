@@ -4,7 +4,6 @@ on: [push]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     strategy:
@@ -12,17 +11,17 @@ jobs:
         node-version: [14.x]
 
     steps:
-    - uses: actions/checkout@v1
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
-    - name: npm install, build, and test
-      run: |
-        yarn
-        yarn build
-        pip3 install -U setuptools 
-        pip3 install -r server/genanki/requirements.txt
-        yarn test
-      env:
-        CI: true
+      - uses: actions/checkout@v1
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: npm install, build, and test
+        run: |
+          yarn --cwd server install
+          yarn --cwd server build
+          pip3 install -U setuptools 
+          pip3 install -r server/genanki/requirements.txt
+          yarn --cwd server test
+        env:
+          CI: true
