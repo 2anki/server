@@ -10,6 +10,7 @@ import { DeckParser } from "../parser/DeckParser.js";
 import Settings from "../parser/Settings.js";
 
 process.env.WORKSPACE_BASE = path.join(os.tmpdir(), "workspaces");
+fs.mkdirSync(process.env.WORKSPACE_BASE, { recursive: true });
 
 interface HTMLFile {
   [key: string]: string;
