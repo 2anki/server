@@ -10,7 +10,7 @@ notion2Anki 💫 is a passion project 🕺🏾💃🏾 We are going to make this
 
 ## Sponsors
 
-[![Scrimba.com](dist/sponsors/Scrimba.png)](https://scrimba.com/)  
+[![Scrimba.com](web/public/sponsors/Scrimba.png)](https://scrimba.com/)  
 
 👩🏼‍🎓👨‍🎓️👨‍🏫️👩🏽‍🏫 [Scrimba](https://scrimba.com) - the mind-blowing way to to code!
 
