@@ -17,7 +17,6 @@ const ErrorMessage: React.FC<{ msg: string }> = ({ msg }) => {
           allowFullScreen={true}
         />
         <p>
-          {" "}
           "If you still haven't resolved the issue yet after trying the above
           mentioned then join the server to report your issue"
         </p>

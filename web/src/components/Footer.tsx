@@ -23,7 +23,6 @@ const Footer = () => {
         <div className="column">
           <Header>General</Header>
           <p>
-            {" "}
             <a
               rel="noreferrer"
               target="_blank"
@@ -33,7 +32,6 @@ const Footer = () => {
             </a>
           </p>
           <p>
-            {" "}
             <a
               rel="noreferrer"
               target="_blank"
@@ -43,7 +41,6 @@ const Footer = () => {
             </a>
           </p>
           <p>
-            {" "}
             <a
               rel="noreferrer"
               target="_blank"
@@ -56,34 +53,28 @@ const Footer = () => {
         <div className="column">
           <Header>Community</Header>
           <p>
-            {" "}
             <a href="https://www.reddit.com/r/notion2anki/">r/notion2anki</a>
           </p>
           <p>
-            {" "}
             <a href="https://discord.gg/PSKC3uS">Discord server</a>
           </p>
           <p>
-            {" "}
             <a href="https://www.youtube.com/c/AlexanderAlemayhu">YouTube</a>
           </p>
         </div>
         <div className="column">
           <Header>Developer</Header>
           <p>
-            {" "}
             <a href="https://github.com/alemayhu/notion2anki/issues?q=is%3Aopen+is%3Aissue+milestone%3A%E4%B8%80%E7%95%AA%E3%83%BBv1.0.0">
               Roadmap
             </a>
           </p>
           <p>
-            {" "}
             <a href="https://github.com/alemayhu/notion2anki/issues/new">
               Report
             </a>
           </p>
           <p>
-            {" "}
             <a href="https://github.com/alemayhu/notion2anki/issues">Issues</a>
           </p>
         </div>
@@ -121,10 +112,9 @@ const Footer = () => {
       </div>
       <div className="content has-text-centered">
         <p>
-          {" "}
           <a href="http://github.com/alemayhu/notion2anki/">This</a> is a open
-          source project by{" "}
-          <a href="https://alemayhu.com">Alexander Alemayhu</a>{" "}
+          source project by
+          <a href="https://alemayhu.com">Alexander Alemayhu</a>
         </p>
         .<span>Developed in 🇳🇴 with ❤️</span>
       </div>

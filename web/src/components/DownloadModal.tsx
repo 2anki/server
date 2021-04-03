@@ -38,7 +38,7 @@ const DownloadModal: React.FC<{
                 Pick your price ranging starting from <strong>"$1"</strong>.
               </p>
               <p>
-                This deck is brought to you by our amazing{" "}
+                This deck is brought to you by our amazing
                 <a href="https://www.patreon.com/alemayhu">patrons</a> 🤩
               </p>
               <div>

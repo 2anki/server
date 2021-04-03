@@ -87,7 +87,7 @@ const UploadForm = () => {
             }}
           />
           <p>
-            We only support{" "}
+            We only support
             <a
               rel="noreferrer"
               target="_blank"
@@ -98,7 +98,7 @@ const UploadForm = () => {
             uploads from Notion.
           </p>
           <p>
-            For tutorials checkout the official{" "}
+            For tutorials checkout the official
             <a
               rel="noreferrer"
               target="_blank"
@@ -108,8 +108,7 @@ const UploadForm = () => {
             </a>
           </p>
           <p style={{ fontWeight: "bold" }}>
-            {" "}
-            This project is 100% free and will remain free ✌️{" "}
+            This project is 100% free and will remain free ✌️
             <span style={{ color: "grey", fontWeight: "normal" }}>
               #stillfree
             </span>

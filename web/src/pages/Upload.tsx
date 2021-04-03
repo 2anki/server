@@ -29,7 +29,6 @@ const UploadPage = () => {
       <div className="tabs is-centered is-boxed">
         <ul>
           <li className={`${isUpload ? "is-active" : null}`}>
-            {" "}
             <Link to="upload?view=upload">Upload</Link>
           </li>
           <li className={`${isTemplate ? "is-active" : null}`}>
