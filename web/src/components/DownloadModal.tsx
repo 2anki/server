@@ -8,10 +8,15 @@ const DownloadModal: React.FC<{
 }> = ({ title, downloadLink, deckName, onClickClose }) => {
   return (
     <div className="modal" style={{ display: "flex" }}>
-      <div className="modal-background"></div>
+      <div
+        className="modal-background"
+        style={{ background: "grey", opacity: "90%" }}
+      ></div>
       <div className="modal-card">
         <header className="modal-card-head">
-          <p className="modal-card-title">{title}</p>
+          <p style={{ textAlign: "center" }} className="modal-card-title">
+            {title}
+          </p>
           <button
             className="delete"
             aria-label="close"
@@ -34,13 +39,9 @@ const DownloadModal: React.FC<{
             <h3 className="title is-3"> Please Support Open Source 🙏🏾</h3>
             <p>
               You can directly support the development and accelerate the
-              improvements!
-            </p>
-            <p>
-              Pick your price ranging starting from <strong>$1</strong>.
-            </p>
-            <p>
-              This deck is brought to you by our amazing <span> </span>
+              improvements! Pick your price ranging starting from{" "}
+              <strong>$1</strong>. This deck is brought to you by our amazing{" "}
+              <span> </span>
               <a href="https://www.patreon.com/alemayhu">patrons</a> 🤩
             </p>
             <div className="has-text-centered">
