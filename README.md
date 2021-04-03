@@ -2,7 +2,7 @@
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/5da03a4d-2c54-4343-8949-33124d2211e5/deploy-status)](https://app.netlify.com/sites/vibrant-swirles-654fce/deploys) [![Discord](https://img.shields.io/discord/723998078201495642)](https://discord.com/invite/PSKC3uS) [![Twitter](https://img.shields.io/twitter/url/https/twitter.com/cloudposse.svg?style=social&label=Follow%20%40aalemayhu)](https://twitter.com/aalemayhu)
 
-notion2Anki 💫 is a passion project 🕺🏾💃🏾 We are going to make this a good way to make [Anki](https://apps.ankiweb.net/) flashcards easier, better and faster. 
+Notion to Anki 💫 is a passion project 🕺🏾💃🏾 We are going to make this a good way to make [Anki](https://apps.ankiweb.net/) flashcards easier, better and faster.
 
 - You can convert your Notion [toggle lists][tl] to Anki cards easily.
 - No technical skills required and 100% free to use by anyone anywhere 🤗
@@ -10,14 +10,14 @@ notion2Anki 💫 is a passion project 🕺🏾💃🏾 We are going to make this
 
 ## Sponsors
 
-[![Scrimba.com](web/public/sponsors/Scrimba.png)](https://scrimba.com/)  
+[![Scrimba.com](web/public/sponsors/Scrimba.png)](https://scrimba.com/)
 
 👩🏼‍🎓👨‍🎓️👨‍🏫️👩🏽‍🏫 [Scrimba](https://scrimba.com) - the mind-blowing way to to code!
 
 ## 🎁 Support the Project
 
 > This project is brought to you by our amazing [patrons](http://patreon.com/alemayhu)
-and [GitHub sponsors](https://github.com/sponsors/alemayhu) 🤩 Thank you!
+> and [GitHub sponsors](https://github.com/sponsors/alemayhu) 🤩 Thank you!
 
 [![Patreon](https://2anki.net/become_a_patron_button.png)](https://patreon.com/alemayhu)
 [![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/W7W6QZNY)
@@ -39,8 +39,7 @@ You can also support the project financially and receive exclusive member benefi
 
 ## How it works
 
-notion2Anki treats toggle lists on the top level as Anki cards. The toggle list line is the front of the card
-and everything inside in the details is the back.
+We treats toggle lists on the top level as Anki flashcards. The toggle list line is the front of the card and everything inside in the details is the back. That's the main feature but you can customize the behaviour via card options.
 
 Considering how powerful [cloze deletions](https://docs.ankiweb.net/#/editing?id=cloze-deletion) are, they are the default note type. To see how this works in action check out this video by [Alp Kaan](https://alpkaanaksu.com/): [How to use cloze deletions in notion2anki 🤩
 ](https://youtu.be/r9pPNl8Mx_Q)
@@ -74,41 +73,53 @@ https://www.reddit.com/r/Anki/comments/g29mzk/cards_imported_from_notion/
 
 ## Roadmap
 
-The dream is to have a powerful and easy to use process for producing high quality flashcards. Notion is super easy to use and Notion 2 Anki is just going to make the importing process and controlling the look of the cards / decks smooth. This project is a complement to Anki and Notion. 
+The dream is to have a powerful and easy to use process for producing high quality flashcards. Notion is super easy to use and Notion 2 Anki is just going to make the importing process and controlling the look of the cards / decks smooth. This project is a complement to Anki and Notion.
 
 You can purpose changes via the [Suggestions](https://www.notion.so/alemayhu/Suggestions-fd5badcc211946cf847713aca8cc4cab) page.
 
 ## Development
 
-Please note that the [Imba](http://v2.imba.io/) programming language v2 is currently in alpha so expect to see things breaking when you try stuff. When that is said, see below on how to actually run this :smile:
+There are two directories [web][./web] and [server][./server]. The web is a [React](https://reactjs.org/) application and the server is a [Express.js](https://expressjs.com/) application.
 
-I am assuming you have Node.js already installed, if not then see their website on how install it https://nodejs.org/en/
+We are assuming you have Node.js already installed, if not then see their website on how install it https://nodejs.org/en/
+
+While not required, [nvm](https://github.com/nvm-sh/nvm) is a good tool to make sure you are using the correct Node.js version.
 
 First make sure you have the dependencies installed
 
 ```bash
-yarn # npm run install
+yarn --cwd server install
+yarn --cwd web install
 ```
 
-[Genanki](https://github.com/kerrickstaley/genanki) dependencies are also needed, make sure you install them
+An extra dependency on the server is [python3](https://www.python.org/downloads/) and the [genanki](https://github.com/kerrickstaley/genanki) module, make sure you install them.
 
 ```bash
 pip3 install -r server/genanki/requirements.txt
 ```
 
-Then in another terminal run
+### Running
+
+Depending on wether you want to run the web interface or backend server the command look a little bit different. Note that commands will continously build the project. So open up your code editor and start writing code ;-)
+
+#### Running the Backend Server
 
 ```bash
-yarn watch # npm run watch
+cd server
+yarn dev
 ```
 
-The previous command will continously build the project.
+#### Running the Web Server
+
+```bash
+cd web
+yarn start
+```
 
 To actually see the app running you need to either visit the local url in a browser or launch the app with
 
-```bash
-yarn dev-server # npm run dev-server
-```
+Frontend: [http://localhost:3000](http://localhost:3000)
+Backend: [http://localhost:2020](http://localhost:2020)
 
 ## Credits
 
@@ -165,14 +176,6 @@ Special thanks to following developers / artistans
         <!-- Add Henrik (https://github.com/henrik-de), Abi, Boni when you get the necessary information -->
     </tr>
 </table>
-
-This would be super hard if it were not for the following projects:
-
-- [genanki](https://github.com/kerrickstaley/genanki)
-- [jszip](https://github.com/Stuk/jszip)
-- [Imba](https://github.com/imba/imba)
-
-See the [package.json](./package.json) file for anything I missed.
 
 ## License
 
