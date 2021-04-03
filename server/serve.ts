@@ -50,19 +50,29 @@ function serve() {
   app.use("/upload", upload.default);
 
   app.use(
-    (err: Error, _req: express.Request, res: express.Response, _next: any) =>
-      ErrorHandler(res, err)
+    (
+      err: Error,
+      _req: express.Request,
+      res: express.Response,
+      _next: express.NextFunction
+    ) => ErrorHandler(res, err)
   );
 
-  app.use((req: express.Request, res: express.Response, next: any) => {
-    console.log(req.originalUrl);
-    res.header("Access-Control-Allow-Origin", ALLOWED_ORIGINS.join(","));
-    res.header(
-      "Access-Control-Allow-Headers",
-      "Origin, X-Requested-With, Content-Type, Accept, Content-Disposition"
-    );
-    next();
-  });
+  app.use(
+    (
+      req: express.Request,
+      res: express.Response,
+      next: express.NextFunction
+    ) => {
+      console.log(req.originalUrl);
+      res.header("Access-Control-Allow-Origin", ALLOWED_ORIGINS.join(","));
+      res.header(
+        "Access-Control-Allow-Headers",
+        "Origin, X-Requested-With, Content-Type, Accept, Content-Disposition"
+      );
+      next();
+    }
+  );
 
   process.on("uncaughtException", (err: Error, origin: string) => {
     console.log(
