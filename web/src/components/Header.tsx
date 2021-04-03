@@ -16,6 +16,10 @@ const StyledHeader = styled.header`
     background: #5386e3;
     .navbar-item {
       color: white;
+      &:hover {
+        border-top: 6px solid white;
+        background: unset;
+      }
     }
   }
 `;
@@ -58,7 +62,6 @@ const Header = () => {
               target="_blank"
               href="https://www.notion.so/alemayhu/Benefits-0d5fa2e18a8a44d782c72945b2bd413b"
             >
-              {" "}
               Benefits
             </a>
             <a
@@ -67,7 +70,6 @@ const Header = () => {
               target="_blank"
               href="https://www.notion.so/alemayhu/Contact-e76523187cc64961972b3ad4f7cb4c47"
             >
-              {" "}
               Contact
             </a>
             <a
@@ -76,7 +78,6 @@ const Header = () => {
               target="_blank"
               href="https://www.notion.so/alemayhu/FAQ-ef01be9c9bac41689a4d749127c14301"
             >
-              {" "}
               FAQ
             </a>
             <a
@@ -85,7 +86,6 @@ const Header = () => {
               target="_blank"
               href="https://www.notion.so/alemayhu/Privacy-38c6e8238ac04ea9b2485bf488909fd0"
             >
-              {" "}
               Privacy
             </a>
             <a
@@ -94,7 +94,6 @@ const Header = () => {
               target="_blank"
               href="https://www.notion.so/alemayhu/Useful-Links-0f3051946a2d4b71ae31610da76b28a8"
             >
-              {" "}
               Useful Links
             </a>
             <a
@@ -103,7 +102,6 @@ const Header = () => {
               target="_blank"
               href="https://github.com/alemayhu/notion2anki"
             >
-              {" "}
               Code
             </a>
           </div>
