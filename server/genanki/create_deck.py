@@ -86,9 +86,9 @@ if __name__ == "__main__":
             for card in cards:
                 fields = [card["name"], card["back"], ",".join(card["media"])]
                 model = basic_model(basic_model_id, basic_model_name, CSS, fmtQ, fmtA) 
-                if 'cloze' in card and "{{c" in card["name"] :
+                if card.get('cloze', False) and "{{c" in card["name"] :
                     model = cloze_model(cloze_model_id, cloze_model_name, CLOZE_STYLE + "\n" + CSS, fmtClozeQ, fmtClozeA)
-                elif 'enableInput' in card and 'answer' in card:
+                elif card.get('enableInput', False) and card.get('answer', False):
                     model = input_model(input_model_id, input_model_name, CSS, fmtInputQ, fmtInputA)
                     fields = [
                         card["name"].replace("{{type:Input}}", ""),
