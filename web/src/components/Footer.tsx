@@ -11,9 +11,10 @@ const StyledFooter = styled.footer`
 `;
 
 const Header = styled.p`
+  color: grey;
   font-weight: bold;
-  font-size: 1.2rem;
   margin-bottom: 0.5rem;
+  text-transform: uppercase;
 `;
 
 const Footer = () => {
@@ -116,7 +117,7 @@ const Footer = () => {
           source project by
           <a href="https://alemayhu.com">Alexander Alemayhu</a>
         </p>
-        .<span>Developed in 🇳🇴 with ❤️</span>
+        <span>Developed in 🇳🇴 with ❤️</span>
       </div>
     </StyledFooter>
   );
