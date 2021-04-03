@@ -41,7 +41,7 @@ const CardOptions: React.FC<{ store: CardOptionsStore }> = ({ store }) => {
       <button
         className="button"
         onClick={() => {
-          localStorage.clear();
+          store.clear();
           showClearNotification(true);
         }}
       >

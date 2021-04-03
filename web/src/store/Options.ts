@@ -8,7 +8,11 @@ class CardOptionsStore {
   public options: CardOption[];
 
   constructor() {
-    this.options = [
+    this.options = this.configure();
+  }
+
+  configure() {
+    return [
       {
         key: "all",
         label: "Use all toggle lists",
@@ -77,6 +81,11 @@ class CardOptionsStore {
         default: localStorage.getItem("remove-mp3-links") === "true" || false,
       },
     ];
+  }
+
+  clear() {
+    localStorage.clear();
+    this.options = this.configure();
   }
 }
 
