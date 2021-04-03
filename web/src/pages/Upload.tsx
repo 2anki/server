@@ -5,6 +5,9 @@ import UploadForm from "../components/UploadForm";
 import CardOptions from "../components/CardOptions";
 import TemplateOptions from "../components/TemplateOptions";
 import DeckOptions from "../components/DeckOptions";
+import { useEffect } from "react";
+
+import CARD_OPTIONS from "../model/Options";
 
 // A custom hook that builds on useLocation to parse
 // the query string for you.
@@ -22,6 +25,16 @@ const UploadPage = () => {
   const isCard = view === "card-options";
   const isTemplate = view === "template";
   const isDeck = view === "deck-options";
+
+  // Make sure the defaults are set if not present to ensure backwards compatability
+  useEffect(() => {
+    for (const option of CARD_OPTIONS) {
+      const value = localStorage.getItem(option.key);
+      if (value === null) {
+        localStorage.setItem(option.key, option.default.toString());
+      }
+    }
+  }, []);
 
   return (
     <div style={{ paddingTop: "4rem" }}>
