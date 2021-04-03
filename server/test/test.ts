@@ -41,7 +41,7 @@ test("Grouped cloze deletions", async (t) => {
     new Settings({ cherry: "false", cloze: "true" })
   );
   t.true(deck.name === "Grouped Cloze Deletions");
-  t.true(deck.cardCount === 10);
+  t.true(deck.cards.length === 10);
 });
 
 test("Colours", async (t) => {
@@ -64,7 +64,7 @@ test("Nested Toggles", async (t) => {
     "Nested Toggles.html",
     new Settings({ cherry: "true" })
   );
-  t.true(deck.cardCount === 6);
+  t.true(deck.cards.length === 6);
 });
 
 test("Global Tags", async (t) => {
