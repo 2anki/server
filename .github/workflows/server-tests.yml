@@ -1,4 +1,4 @@
-name: Smoke Test - Build
+name: Integration Tests
 
 on: [push]
 
@@ -16,11 +16,12 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - name: npm install, build, and test
+      - name: test
         run: |
           yarn --cwd server install
-          yarn --cwd web install
           yarn --cwd server build
-          yarn --cwd web build
+          pip3 install -U setuptools 
+          pip3 install -r server/genanki/requirements.txt
+          yarn --cwd server test
         env:
           CI: true
