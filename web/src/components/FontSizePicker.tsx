@@ -1,7 +1,9 @@
 import { useState } from "react";
 
 const FontSizePicker = () => {
-  const [fontSize, setFontSize] = useState(20);
+  const [fontSize, setFontSize] = useState(
+    parseInt(localStorage.getItem("font-size") || "") || 20
+  );
 
   return (
     <div className="field">

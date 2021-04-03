@@ -15,6 +15,7 @@ const TemplateName: React.FC<{
           type="text"
           className="input"
           placeholder={placeholder}
+          name={storageKey}
           value={value}
           onChange={(event) => {
             const newValue = event.target.value;
