@@ -137,14 +137,16 @@ const UploadForm = () => {
                 {selectedFilename || "My Notion Export.zip"}
               </span>
             </label>
-            <button
-              style={{ marginTop: "2rem" }}
-              className="button cta is-large is-primary"
-              type="submit"
-              disabled={!selectedFilename}
-            >
-              Convert
-            </button>
+            <div className="has-text-centered">
+              <button
+                style={{ marginTop: "2rem" }}
+                className="button cta is-large is-primary"
+                type="submit"
+                disabled={!selectedFilename}
+              >
+                Convert
+              </button>
+            </div>
             {downloadLink && deckName && !errorMessage ? (
               <DownloadModal
                 title={"Download Ready 🥳"}
