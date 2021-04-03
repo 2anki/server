@@ -2,9 +2,9 @@ import { useState } from "react";
 import LocalCheckbox from "./LocalCheckbox";
 import TemplateSelect from "./TemplateSelect";
 import ClearNotification from "./ClearNotification";
-import CARD_OPTIONS from "../model/Options";
+import CardOptionsStore from "../store/Options";
 
-const CardOptions = () => {
+const CardOptions: React.FC<{ store: CardOptionsStore }> = ({ store }) => {
   const [clearNotification, showClearNotification] = useState(false);
 
   return (
@@ -28,7 +28,7 @@ const CardOptions = () => {
           defaultValue="close_toggle"
           storageKey="toggle-mode"
         />
-        {CARD_OPTIONS.map((o) => (
+        {store.options.map((o) => (
           <LocalCheckbox
             key={o.key}
             storageKey={o.key}

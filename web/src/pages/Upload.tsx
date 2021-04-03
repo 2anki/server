@@ -5,9 +5,9 @@ import UploadForm from "../components/UploadForm";
 import CardOptions from "../components/CardOptions";
 import TemplateOptions from "../components/TemplateOptions";
 import DeckOptions from "../components/DeckOptions";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
-import CARD_OPTIONS from "../model/Options";
+import CardOptionsStore from "../store/Options";
 
 // A custom hook that builds on useLocation to parse
 // the query string for you.
@@ -26,15 +26,17 @@ const UploadPage = () => {
   const isTemplate = view === "template";
   const isDeck = view === "deck-options";
 
+  const store = useMemo(() => new CardOptionsStore(), []);
+
   // Make sure the defaults are set if not present to ensure backwards compatability
   useEffect(() => {
-    for (const option of CARD_OPTIONS) {
+    for (const option of store.options) {
       const value = localStorage.getItem(option.key);
       if (value === null) {
         localStorage.setItem(option.key, option.default.toString());
       }
     }
-  }, []);
+  }, [store]);
 
   return (
     <div style={{ paddingTop: "4rem" }}>
@@ -57,7 +59,7 @@ const UploadPage = () => {
       </div>
       <div className="container">
         {isUpload ? <UploadForm /> : null}
-        {isCard ? <CardOptions /> : null}
+        {isCard ? <CardOptions store={store} /> : null}
         {isTemplate ? <TemplateOptions /> : null}
         {isDeck ? <DeckOptions /> : null}
       </div>
