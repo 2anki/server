@@ -114,7 +114,7 @@ const Footer = () => {
       <div className="content has-text-centered">
         <p>
           <a href="http://github.com/alemayhu/notion2anki/">This</a> is an open
-          source project by
+          source project by<span> </span>
           <a href="https://alemayhu.com">Alexander Alemayhu</a>
         </p>
         <span>Developed in 🇳🇴 with ❤️</span>
