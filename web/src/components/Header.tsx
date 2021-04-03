@@ -14,13 +14,6 @@ const StyledHeader = styled.header`
   flex-shrink: 0;
   nav {
     background: #5386e3;
-    .navbar-item {
-      color: white;
-      &:hover {
-        border-top: 6px solid white;
-        background: unset;
-      }
-    }
   }
 `;
 
@@ -29,7 +22,7 @@ const Header = () => {
 
   return (
     <StyledHeader>
-      <nav className="navbar is-fixed-top">
+      <nav className="navbar is-link is-fixed-top">
         <div className="navbar-brand">
           <a className="navbar-item" href="/">
             <Title>2anki.net</Title>
