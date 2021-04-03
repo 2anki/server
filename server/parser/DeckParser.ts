@@ -9,6 +9,7 @@ import CustomExporter from "./CustomExporter";
 import Settings from "./Settings";
 import Note from "./Note";
 import Deck from "./Deck";
+import { File } from "../handlers/zip";
 
 const replaceAll = (original: string, oldValue: string, newValue: string) => {
   // escaping all special Characters
@@ -21,43 +22,48 @@ const replaceAll = (original: string, oldValue: string, newValue: string) => {
 export class DeckParser {
   globalTags: any;
   firstDeckName: string;
-  fileName: string;
   settings: Settings;
   payload: any[];
-  files: any[];
+  files: File[];
 
   public get name() {
     return this.payload[0].name;
   }
 
-  constructor(fileName: any, settings: Settings, files: any) {
+  constructor(name: string, settings: Settings, files: File[]) {
     this.settings = settings;
     this.files = files || [];
-    this.firstDeckName = fileName;
-    this.payload = this.handleHTML(
-      fileName,
-      this.files[fileName],
-      this.settings.deckName,
-      []
+    this.firstDeckName = name;
+    const file = this.files.find(
+      (file) => file.name === global.decodeURIComponent(name)
     );
-    this.fileName = fileName;
+    if (file) {
+      this.payload = this.handleHTML(
+        name,
+        file.contents.toString(),
+        this.settings.deckName,
+        []
+      );
+    } else {
+      throw new Error(`Error Unknown file ${name}`);
+    }
   }
 
-  findNextPage(href: string | undefined, fileName: string) {
+  findNextPage(
+    href: string | undefined,
+    fileName: string
+  ): string | Uint8Array | undefined {
     if (!href) {
       console.log("skipping next page, due to href being", href);
-      return;
+      return undefined;
     }
-
-    const nextFileName: any = global.decodeURIComponent(href);
-    const pageContent = this.files[nextFileName];
-    const match: any = Object.keys(this.files).find(($1) =>
-      $1.match(nextFileName)
+    const file = this.files.find(
+      (file) => file.name === global.decodeURIComponent(href)
     );
-    if (match) {
-      return this.files[match];
+    if (!file) {
+      return file;
     }
-    return pageContent;
+    return file.contents;
   }
 
   noteHasCherry(note: Note) {
@@ -217,7 +223,7 @@ export class DeckParser {
         const subDeckName = spDom.find("title").text() || ref.text();
         this.handleHTML(
           fileName,
-          pageContent,
+          pageContent.toString(),
           `${name}::${subDeckName}`,
           decks
         );
@@ -273,18 +279,22 @@ export class DeckParser {
     return new CustomExporter(this.firstDeckName, workspace);
   }
 
-  embedFile(exporter: CustomExporter, files: any[], filePath: any) {
+  embedFile(
+    exporter: CustomExporter,
+    files: File[],
+    filePath: any
+  ): string | null {
     const suffix = this.suffix(filePath);
     if (!suffix) {
       return null;
     }
-    let file = files[filePath];
+    let file = files.find((f) => f === filePath);
     if (!file) {
-      const lookup: any = `${exporter.firstDeckName}/${filePath}`.replace(
+      const lookup = `${exporter.firstDeckName}/${filePath}`.replace(
         /\.\.\//g,
         ""
       );
-      file = files[lookup];
+      file = files.find((f) => f.name === lookup);
       if (!file) {
         console.warn(
           `Missing relative path to ${filePath} used ${exporter.firstDeckName}`
@@ -293,7 +303,7 @@ export class DeckParser {
       }
     }
     const newName = this.newUniqueFileName(filePath) + suffix;
-    exporter.addMedia(newName, file);
+    exporter.addMedia(newName, file.contents);
     return newName;
   }
 
@@ -583,7 +593,7 @@ export class DeckParser {
 
 export async function PrepareDeck(
   fileName: string,
-  files: any,
+  files: File[],
   settings: Settings
 ) {
   const parser = new DeckParser(fileName, settings, files);

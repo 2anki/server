@@ -1,44 +1,54 @@
-import JSZip from 'jszip'
+import JSZip from "jszip";
+
+interface File {
+  name: string;
+  contents: string | Uint8Array;
+}
 
 class ZipHandler {
-  fileNames: string[]
-  files: any
+  fileNames: string[];
+  files: File[];
 
   constructor() {
-    this.fileNames = []
-    this.files = {}
+    this.fileNames = [];
+    this.files = [];
   }
 
-  async build (zipData: any) {
-    const loadedZip = await JSZip.loadAsync(zipData)
-    this.fileNames = Object.keys(loadedZip.files)
-    this.fileNames = this.fileNames.filter(f => !f.endsWith('/'))
-    this.files = {}
+  async build(zipData: Buffer) {
+    const loadedZip = await JSZip.loadAsync(zipData);
+    this.fileNames = Object.keys(loadedZip.files);
+    this.fileNames = this.fileNames.filter((f) => !f.endsWith("/"));
+    this.files = [];
 
-    for (const fileName of this.fileNames) {
-      if (fileName.match(/.(md|html)$/)) {
-        this.files[`${fileName}`] = await loadedZip.files[fileName].async('text')
+    for (const name of this.fileNames) {
+      let contents;
+      if (name.match(/.(md|html)$/)) {
+        contents = await loadedZip.files[name].async("text");
       } else {
-        this.files[`${fileName}`] = await loadedZip.files[fileName].async('uint8array')
+        contents = await loadedZip.files[name].async("uint8array");
       }
+      if (!contents) {
+        throw new Error(`Empty file ${name}`);
+      }
+      this.files.push({ name, contents });
     }
   }
 
-  getFileNames () {
-    return this.fileNames
+  getFileNames() {
+    return this.fileNames;
   }
 
-  static toZip (decks: any[], advertisment: string | null) {
-    const zip = new JSZip()
+  static toZip(decks: any[], advertisment: string | null) {
+    const zip = new JSZip();
     for (const d of decks) {
-      console.log('toZip add', d.name)
-      zip.file(`${d.name}.apkg`, d.apkg)
+      console.log("toZip add", d.name);
+      zip.file(`${d.name}.apkg`, d.apkg);
     }
     if (advertisment) {
-      zip.file('README.html', advertisment)
+      zip.file("README.html", advertisment);
     }
-    return zip.generateAsync({ type: 'nodebuffer' })
+    return zip.generateAsync({ type: "nodebuffer" });
   }
 }
 
-export default ZipHandler
+export { ZipHandler, File };
