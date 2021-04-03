@@ -15,9 +15,9 @@ const FontSizePicker = () => {
             padding: "0",
           }}
         >
-          <input value={fontSize} name="font-size" hidden />
+          <input defaultValue={fontSize} name="font-size" hidden />
           {[32, 26, 20, 12, 10].map((fontPreset) => (
-            <p>
+            <p key={fontPreset}>
               <span
                 style={{
                   border: "1px solid lightgray",
