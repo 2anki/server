@@ -10,6 +10,8 @@ import { PrepareDeck } from "../parser/DeckParser";
 import { ZipHandler } from "../handlers/zip";
 import ErrorHandler from "../handlers/error";
 
+import Package from "../parser/Package";
+
 import { TEMPLATE_DIR, ALLOWED_ORIGINS } from "../constants";
 import Settings from "../parser/Settings";
 const ADVERTISEMENT = fs
@@ -47,7 +49,8 @@ async function handleUpload(req: express.Request, res: express.Response) {
   res.set("Access-Control-Allow-Origin", origin);
   try {
     const files = req.files as Express.Multer.File[];
-    let decks: any[] = [];
+    let packages: Package[] = [];
+
     for (const file of files) {
       const filename = file.originalname;
       const settings = new Settings(req.body || {});
@@ -61,7 +64,8 @@ async function handleUpload(req: express.Request, res: express.Response) {
           [{ name: filename, contents: file.buffer.toString() }],
           settings
         );
-        decks = decks.concat(d);
+        const pkg = new Package(d.name, d.apkg);
+        packages = packages.concat(pkg);
       } else if (filename.match(/.md$/)) {
         TriggerUnsupportedFormat();
       } else {
@@ -71,7 +75,7 @@ async function handleUpload(req: express.Request, res: express.Response) {
           console.log("file", fileName);
           if (fileName.match(/.html$/) && !fileName.includes("/")) {
             const d = await PrepareDeck(fileName, zipHandler.files, settings);
-            decks.push(d);
+            packages.push(new Package(d.name, d.apkg));
           } else if (fileName.match(/.md$/)) {
             TriggerUnsupportedFormat();
           }
@@ -81,37 +85,37 @@ async function handleUpload(req: express.Request, res: express.Response) {
     let payload;
     let plen;
 
-    const deck = decks[0];
-    if (decks.length === 1) {
-      if (!deck.apkg) {
-        const name = deck ? deck.name : "untitled";
+    const first = packages[0];
+    if (packages.length === 1) {
+      if (!first.apkg) {
+        const name = first ? first.name : "untitled";
         throw new Error(`Could not produce APKG for ${name}`);
       }
-      payload = deck.apkg;
-      plen = Buffer.byteLength(deck.apkg);
+      payload = first.apkg;
+      plen = Buffer.byteLength(first.apkg);
       res.set("Content-Type", "application/apkg");
       res.set("Content-Length", plen.toString());
-      deck.name = cleanDeckName(deck.name);
+      first.name = cleanDeckName(first.name);
       try {
-        res.set("File-Name", deck.name);
+        res.set("File-Name", first.name);
       } catch (err) {
-        console.log("failed to set name", deck.name);
+        console.log("failed to set name", first.name);
       }
-      res.attachment("/" + deck.name);
+      res.attachment("/" + first.name);
       res.status(200).send(payload);
-    } else if (decks.length > 1) {
+    } else if (packages.length > 1) {
       const filename = `Your decks-${nanoid()}.zip`;
       const ws = process.env.WORKSPACE_BASE;
       if (!ws) {
         throw new Error("Missing workspace value");
       }
       const pkg = path.join(ws, filename);
-      payload = await ZipHandler.toZip(decks, ADVERTISEMENT);
+      payload = await ZipHandler.toZip(packages, ADVERTISEMENT);
       fs.writeFileSync(pkg, payload);
       try {
         res.set("File-Name", cleanDeckName(filename));
       } catch (err) {
-        console.log("failed to set name", deck.name);
+        console.log("failed to set name", first.name);
       }
       res.download(pkg);
     } else {
@@ -119,7 +123,6 @@ async function handleUpload(req: express.Request, res: express.Response) {
         "Could not create any cards. Did you write any togglelists?"
       );
     }
-    // TODO: Schedule deletion?
   } catch (err) {
     console.error(err);
     ErrorHandler(res, err);

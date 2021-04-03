@@ -1,4 +1,5 @@
 import JSZip from "jszip";
+import Package from "../parser/Package";
 
 interface File {
   name: string;
@@ -38,7 +39,7 @@ class ZipHandler {
     return this.fileNames;
   }
 
-  static toZip(decks: any[], advertisment: string | null) {
+  static toZip(decks: Package[], advertisment: string | null) {
     const zip = new JSZip();
     for (const d of decks) {
       console.log("toZip add", d.name);
