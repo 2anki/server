@@ -112,7 +112,7 @@ const Footer = () => {
       </div>
       <div className="content has-text-centered">
         <p>
-          <a href="http://github.com/alemayhu/notion2anki/">This</a> is a open
+          <a href="http://github.com/alemayhu/notion2anki/">This</a> is an open
           source project by
           <a href="https://alemayhu.com">Alexander Alemayhu</a>
         </p>
