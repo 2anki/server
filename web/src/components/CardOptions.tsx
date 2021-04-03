@@ -66,6 +66,11 @@ const options = [
     default:
       localStorage.getItem("max-one-toggle-per-card") === "true" || false,
   },
+  {
+    key: "remove-mp3-links",
+    label: "Remove the mp3 links created from Audio files",
+    default: localStorage.getItem("remove-mp3-links") === "true" || false,
+  },
 ];
 
 const CardOptions = () => {

@@ -14,6 +14,7 @@ export default class Settings {
   readonly useTags: boolean;
   readonly basicReversed: boolean;
   readonly reversed: boolean;
+  readonly removeMP3Links: boolean;
 
   readonly clozeModelName: string;
   readonly basicModelName: string;
@@ -39,7 +40,7 @@ export default class Settings {
     this.useTags = input.tags !== "false";
     this.basicReversed = input["basic-reversed"] !== "false";
     this.reversed = input.reversed !== "false";
-
+    this.removeMP3Links = input["remove-mp3-links"] === "true" || false;
     this.clozeModelName = input.cloze_model_name;
     this.basicModelName = input.basic_model_name;
     this.inputModelName = input.input_model_name;
