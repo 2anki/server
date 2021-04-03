@@ -46,17 +46,17 @@ if __name__ == "__main__":
         decks = []
 
         # Model / Template stuff
-        mt = data[0]
+        mt = data[0]["settings"]
 
         # Retreive template names for user or get the default ones
-        cloze_model_name = mt.get('cloze_model_name', "n2a-cloze")
-        basic_model_name = mt.get('basic_model_name', "n2a-basic")
-        input_model_name = mt.get('input_model_name', "n2a-input")
+        cloze_model_name = mt.get('clozeModelName', "n2a-cloze")
+        basic_model_name = mt.get('basicModelName', "n2a-basic")
+        input_model_name = mt.get('inputModelName', "n2a-input")
 
         # Set the model ids based on the template name
-        input_model_id = mt.get('input_model_id', model_id(input_model_name))        
-        cloze_model_id = mt.get('cloze_model_id', model_id(cloze_model_name))
-        basic_model_id = mt.get('basic_model_id', model_id(basic_model_name))
+        input_model_id = mt.get('inputModelId', model_id(input_model_name))        
+        cloze_model_id = mt.get('clozeModelId', model_id(cloze_model_name))
+        basic_model_id = mt.get('basicModelId', model_id(basic_model_name))
         template = mt.get('template', 'specialstyle')
 
 
@@ -88,7 +88,7 @@ if __name__ == "__main__":
                 model = basic_model(basic_model_id, basic_model_name, CSS, fmtQ, fmtA) 
                 if 'cloze' in card and "{{c" in card["name"] :
                     model = cloze_model(cloze_model_id, cloze_model_name, CLOZE_STYLE + "\n" + CSS, fmtClozeQ, fmtClozeA)
-                elif 'enable-input' in card and 'answer' in card:
+                elif 'enableInput' in card and 'answer' in card:
                     model = input_model(input_model_id, input_model_name, CSS, fmtInputQ, fmtInputA)
                     fields = [
                         card["name"].replace("{{type:Input}}", ""),
@@ -100,7 +100,7 @@ if __name__ == "__main__":
                 notes.append(my_note)
                 media_files = media_files + card["media"]            
             deck_desc = "<p>This deck is brought to you by some amazing <a class='patreon-cta' href='https://www.patreon.com/alemayhu'>patrons</a> 🤩</p>"
-            if deck.get('empty-deck-desc', False):
+            if deck.get('emptyDescription', False):
                 deck_desc = ''
             else:
                 if "image" in deck:

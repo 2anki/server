@@ -1,4 +1,5 @@
 import Note from "./Note";
+import Settings from "./Settings";
 
 export default class Deck {
   name: string;
@@ -6,14 +7,22 @@ export default class Deck {
   image: string | undefined;
   style: string | null;
   id: number;
+  emptyDescription: boolean = false;
+  settings: Settings | null;
+
+  get cardCount() {
+    return this.cards.length;
+  }
 
   constructor(
     name: string,
     cards: Note[],
     image: string | undefined,
     style: string | null,
-    id: number
+    id: number,
+    settings: Settings
   ) {
+    this.settings = settings;
     this.name = name;
     this.cards = cards;
     this.image = image;

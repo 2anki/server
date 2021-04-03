@@ -9,17 +9,13 @@ import { DeckParser } from "../parser/DeckParser.js";
 // @ts-ignore
 import Settings from "../parser/Settings.js";
 
+import { File } from "../handlers/zip";
+
 process.env.WORKSPACE_BASE = path.join(os.tmpdir(), "workspaces");
 fs.mkdirSync(process.env.WORKSPACE_BASE, { recursive: true });
 
-interface HTMLFile {
-  [key: string]: string;
-}
-
-function mockPayload(fileName: string, html: string) {
-  const struct: HTMLFile = { file_name: fileName };
-  struct[fileName] = html;
-  return struct;
+function mockPayload(name: string, contents: string) {
+  return [{ name, contents }];
 }
 
 function loadHTMLStructre(fileName: string) {

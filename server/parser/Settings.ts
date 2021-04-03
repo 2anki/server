@@ -1,5 +1,5 @@
 export default class Settings {
-  readonly deckName: any;
+  readonly deckName: string | undefined;
   readonly useInput: boolean;
   readonly maxOne: boolean;
   readonly noUnderline: boolean;
@@ -36,7 +36,7 @@ export default class Settings {
     this.isTextOnlyBack = input.paragraph === "true";
     this.toggleMode = input["toggle-mode"];
     this.isCloze = input.cloze !== "false";
-    this.isEmptyDescription = input["empty-deck-desc"] !== "false";
+    this.isEmptyDescription = input["empty-deck-desc"] !== "true" || false;
     this.useTags = input.tags !== "false";
     this.basicReversed = input["basic-reversed"] !== "false";
     this.reversed = input.reversed !== "false";

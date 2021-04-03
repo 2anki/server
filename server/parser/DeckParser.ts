@@ -20,10 +20,10 @@ const replaceAll = (original: string, oldValue: string, newValue: string) => {
 };
 
 export class DeckParser {
-  globalTags: any;
+  globalTags: cheerio.Cheerio | null;
   firstDeckName: string;
   settings: Settings;
-  payload: any[];
+  payload: Deck[];
   files: File[];
 
   public get name() {
@@ -34,6 +34,7 @@ export class DeckParser {
     this.settings = settings;
     this.files = files || [];
     this.firstDeckName = name;
+    this.globalTags = null;
     const file = this.files.find(
       (file) => file.name === global.decodeURIComponent(name)
     );
@@ -41,7 +42,7 @@ export class DeckParser {
       this.payload = this.handleHTML(
         name,
         file.contents.toString(),
-        this.settings.deckName,
+        this.settings.deckName || "",
         []
       );
     } else {
@@ -211,7 +212,9 @@ export class DeckParser {
     cards = cards.filter(Boolean);
     cards = this.sanityCheck(cards);
 
-    decks.push(new Deck(name, cards, image, style, this.generateId()));
+    decks.push(
+      new Deck(name, cards, image, style, this.generateId(), this.settings)
+    );
 
     const subpages = dom(".link-to-page").toArray();
     for (const page of subpages) {
@@ -282,13 +285,13 @@ export class DeckParser {
   embedFile(
     exporter: CustomExporter,
     files: File[],
-    filePath: any
+    filePath: string
   ): string | null {
     const suffix = this.suffix(filePath);
     if (!suffix) {
       return null;
     }
-    let file = files.find((f) => f === filePath);
+    let file = files.find((f) => f.name === filePath);
     if (!file) {
       const lookup = `${exporter.firstDeckName}/${filePath}`.replace(
         /\.\.\//g,
@@ -303,7 +306,10 @@ export class DeckParser {
       }
     }
     const newName = this.newUniqueFileName(filePath) + suffix;
-    exporter.addMedia(newName, file.contents);
+    const contents = file.contents as string;
+    if (contents) {
+      exporter.addMedia(newName, contents);
+    }
     return newName;
   }
 
@@ -330,7 +336,7 @@ export class DeckParser {
     });
   }
 
-  ensureNotNull(input: string, cb: any) {
+  ensureNotNull(input: string, cb: () => void) {
     if (!input || !input.trim()) {
       return null;
     } else {
@@ -434,7 +440,10 @@ export class DeckParser {
         card.tags = [];
       }
       for (const deletions of deletionsArray) {
-        deletions.each((_i: number, elem: any) => {
+        if (!deletions) {
+          continue;
+        }
+        deletions.each((_i: number, elem: cheerio.Element) => {
           const del = dom(elem);
           card.tags.push(
             ...del
@@ -461,20 +470,17 @@ export class DeckParser {
 
     for (const d of this.payload) {
       const deck = d;
-      deck["empty-deck-desc"] = this.settings.isEmptyDescription;
-      const cardCount = deck.cards.length;
-      deck.image_count = 0;
-
-      deck.cardCount = cardCount;
+      deck.emptyDescription = this.settings.isEmptyDescription;
       deck.id = this.generateId();
-      delete deck.style;
+      // Is it necessary to delete the style here?
+      // delete deck.style;
 
       // Counter for perserving the order in Anki deck.
       let counter = 0;
-      const addThese = [];
+      const addThese: Note[] = [];
       for (const c of deck.cards) {
         let card = c;
-        card["enable-input"] = this.settings.useInput;
+        card.enableInput = this.settings.useInput;
         card.cloze = this.settings.isCloze;
         card.number = counter++;
 
@@ -507,7 +513,6 @@ export class DeckParser {
                 }
               }
             });
-            deck.image_count += (card.back.match(/<+\s?img/g) || []).length;
             card.back = dom.html();
           }
 
@@ -560,13 +565,11 @@ export class DeckParser {
         }
 
         if (this.settings.basicReversed) {
-          addThese.push({
-            name: card.back,
-            back: card.name,
-            tags: card.tags,
-            media: card.media,
-            number: counter++,
-          });
+          const note = new Note(card.back, card.name);
+          note.tags = card.tags;
+          note.media = card.media;
+          note.number = counter++;
+          addThese.push(note);
         }
 
         if (this.settings.reversed) {
@@ -578,13 +581,7 @@ export class DeckParser {
       deck.cards = deck.cards.concat(addThese);
     }
 
-    this.payload[0].cloze_model_name = this.settings.clozeModelName;
-    this.payload[0].basic_model_name = this.settings.basicModelName;
-    this.payload[0].input_model_name = this.settings.inputModelName;
-    this.payload[0].cloze_model_id = this.settings.clozeModelId;
-    this.payload[0].basic_model_id = this.settings.basicModelId;
-    this.payload[0].input_model_id = this.settings.inputModelId;
-    this.payload[0].template = this.settings.template;
+    this.payload[0].settings = this.settings;
 
     exporter.configure(this.payload);
     return exporter.save();

@@ -14,10 +14,10 @@ class CustomExporter {
     this.media = [];
   }
 
-  addMedia(newName: string, file: any) {
+  addMedia(newName: string, contents: string) {
     const abs = path.join(this.workspace, newName);
     this.media.push(abs);
-    fs.writeFileSync(abs, file);
+    fs.writeFileSync(abs, contents);
   }
 
   configure(payload: object) {
