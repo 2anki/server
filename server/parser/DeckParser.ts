@@ -503,6 +503,7 @@ export class DeckParser {
 
           const audiofile = this.getMP3File(card.back);
           if (audiofile) {
+            card.back = card.back.replace(/<figure.*<a\shref=["'].*\.mp3["']>.*<\/a>.*<\/figure>/ , "");
             const newFileName = this.embedFile(
               exporter,
               this.files,
