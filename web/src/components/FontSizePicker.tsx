@@ -18,13 +18,10 @@ const FontSizePicker = () => {
           <input defaultValue={fontSize} name="font-size" hidden />
           {[32, 26, 20, 12, 10].map((fontPreset) => (
             <p key={fontPreset}>
-              <span
+              <button
+                className="button"
                 style={{
-                  border: "1px solid lightgray",
-                  borderRadius: "5px",
                   fontSize: `${fontPreset}px`,
-                  padding: "1rem",
-                  borderRight: "5px",
                   margin: "0 8px",
                   color: `${fontPreset === fontSize ? "#00d1b2" : "black"}`,
                 }}
@@ -34,7 +31,7 @@ const FontSizePicker = () => {
                 }}
               >
                 Aa
-              </span>
+              </button>
             </p>
           ))}
         </div>
