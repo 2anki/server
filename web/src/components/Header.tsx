@@ -113,7 +113,9 @@ const Header = () => {
                 target="_blank"
                 href="https://www.patreon.com/alemayhu"
               >
-                <span style={{ fontWeight: "bold" }}> Become a Patron</span>
+                <span style={{ fontWeight: "bold" }}>
+                  🧡 &nbsp;Become a Patron
+                </span>
               </a>
             </div>
             <div className="navbar-item">
@@ -123,7 +125,7 @@ const Header = () => {
                 target="_blank"
                 href="https://github.com/sponsors/alemayhu"
               >
-                <span style={{ fontWeight: "bold" }}>Sponsor</span>
+                <span style={{ fontWeight: "bold" }}>💙 &nbsp;Sponsor</span>
               </a>
             </div>
           </div>
