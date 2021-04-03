@@ -1,6 +1,7 @@
 import TemplateName from "./TemplateName";
 import TemplateSelect from "./TemplateSelect";
 import FontSizePicker from "./FontSizePicker";
+import BlueTintedBox from "./BlueTintedBox";
 
 const TemplateOptions = () => {
   return (
@@ -9,7 +10,7 @@ const TemplateOptions = () => {
         <h2 className="title">Template Options</h2>
       </div>
 
-      <div className="box">
+      <BlueTintedBox>
         <TemplateSelect
           values={[
             { value: "specialstyle", label: "Default" },
@@ -51,7 +52,7 @@ const TemplateOptions = () => {
             Card Type Template Manager
           </a>
         </p>
-      </div>
+      </BlueTintedBox>
     </div>
   );
 };

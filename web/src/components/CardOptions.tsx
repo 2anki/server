@@ -3,6 +3,7 @@ import LocalCheckbox from "./LocalCheckbox";
 import TemplateSelect from "./TemplateSelect";
 import ClearNotification from "./ClearNotification";
 import CardOptionsStore from "../store/Options";
+import BlueTintedBox from "./BlueTintedBox";
 
 const CardOptions: React.FC<{ store: CardOptionsStore }> = ({ store }) => {
   const [clearNotification, showClearNotification] = useState(false);
@@ -19,7 +20,7 @@ const CardOptions: React.FC<{ store: CardOptionsStore }> = ({ store }) => {
       <div className="has-text-centered">
         <h2 className="title">Card Options</h2>
       </div>
-      <div className="box">
+      <BlueTintedBox>
         <TemplateSelect
           values={[
             { label: "Open nested toggles", value: "open_toggle" },
@@ -37,9 +38,9 @@ const CardOptions: React.FC<{ store: CardOptionsStore }> = ({ store }) => {
             startValue={o.default}
           />
         ))}
-      </div>
+      </BlueTintedBox>
       <button
-        className="button"
+        className="button is-danger"
         onClick={() => {
           store.clear();
           showClearNotification(true);

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import styled from "styled-components";
+import BlueTintedBox from "./BlueTintedBox";
 
 import LocalCheckbox from "./LocalCheckbox";
 
@@ -19,7 +20,7 @@ const DeckOptions = () => {
       <div className="has-text-centered">
         <h2 className="title">Deck Options</h2>
       </div>
-      <div className="box">
+      <BlueTintedBox>
         <LocalCheckbox
           storageKey="empty-description"
           heading="Deck Description"
@@ -43,7 +44,7 @@ const DeckOptions = () => {
             />
           </div>
         </div>
-      </div>
+      </BlueTintedBox>
     </div>
   );
 };
