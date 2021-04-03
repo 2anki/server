@@ -19,15 +19,17 @@ const DownloadModal: React.FC<{
           />
         </header>
         <section className="modal-card-body">
-          <div className="has-text-centered">
-            <a
-              className="button is-primary"
-              style={{ margin: "2rem", fontWeight: "bold" }}
-              href={downloadLink}
-              download={deckName}
-            >
-              Download
-            </a>
+          <div>
+            <div className="has-text-centered">
+              <a
+                className="button is-primary is-large"
+                style={{ margin: "2rem", fontWeight: "bold" }}
+                href={downloadLink}
+                download={deckName}
+              >
+                Download
+              </a>
+            </div>
             <hr />
             <h3 className="title is-3"> Please Support Open Source 🙏🏾</h3>
             <p>
@@ -41,7 +43,7 @@ const DownloadModal: React.FC<{
               This deck is brought to you by our amazing <span> </span>
               <a href="https://www.patreon.com/alemayhu">patrons</a> 🤩
             </p>
-            <div>
+            <div className="has-text-centered">
               <a
                 rel="noreferrer"
                 target="_blank"
@@ -53,6 +55,27 @@ const DownloadModal: React.FC<{
                   loading="lazy"
                 />
               </a>
+            </div>
+            <div>
+              <p>
+                Not comfortable with reocurring expense? No worries, you can
+                send one-time contributions with{" "}
+                <a href="https://ko-fi.com/alemayhu">Ko-Fi</a>
+              </p>
+              <div className="has-text-centered">
+                <a
+                  rel="noreferrer"
+                  href="https://ko-fi.com/W7W6QZNY"
+                  target="_blank"
+                >
+                  <img
+                    height="36"
+                    style={{ border: "0px", height: "36px" }}
+                    src="https://cdn.ko-fi.com/cdn/kofi1.png?v=2"
+                    alt="Buy Me a Coffee at ko-fi.com"
+                  />
+                </a>
+              </div>
             </div>
           </div>
         </section>
