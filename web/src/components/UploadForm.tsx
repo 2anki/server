@@ -8,6 +8,7 @@ const UploadForm = () => {
   const [showNotification, setShowNotification] = useState(
     localStorage.getItem(notificationKey) !== "false"
   );
+  const [uploading, setUploading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [downloadLink, setDownloadLink] = useState("");
   const [deckName, setDeckName] = useState("");
@@ -15,6 +16,7 @@ const UploadForm = () => {
 
   const handleSubmit = async (event: SyntheticEvent) => {
     event.preventDefault();
+    setUploading(true);
     try {
       const storedFields = Object.entries(window.localStorage);
       const element = event.currentTarget as HTMLFormElement;
@@ -44,10 +46,12 @@ const UploadForm = () => {
       }
       const blob = await request.blob();
       setDownloadLink(window.URL.createObjectURL(blob));
+      setUploading(false);
     } catch (error) {
       setErrorMessage(
         `<h1 class='title is-4'>${error.message}</h1><pre>${error.stack}</pre>`
       );
+      setUploading(false);
     }
   };
 
@@ -146,9 +150,11 @@ const UploadForm = () => {
             <div className="has-text-centered">
               <button
                 style={{ marginTop: "2rem" }}
-                className="button cta is-large is-primary"
+                className={`button cta is-large is-primary ${
+                  uploading ? "is-loading" : null
+                }`}
                 type="submit"
-                disabled={!selectedFilename}
+                disabled={!selectedFilename || uploading}
               >
                 Convert
               </button>
