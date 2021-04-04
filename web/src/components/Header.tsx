@@ -3,6 +3,7 @@ import { useState } from "react";
 import styled from "styled-components";
 
 import CTAButton from "./CTAButton";
+import CodeIcon from "./icons/CodeIcon";
 
 const Title = styled.h1`
   font-size: 1rem;
@@ -95,7 +96,7 @@ const Header = () => {
               target="_blank"
               href="https://github.com/alemayhu/notion2anki"
             >
-              Code
+              <CodeIcon />
             </a>
           </div>
           <div className="navbar-end">
