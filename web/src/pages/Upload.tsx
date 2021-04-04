@@ -63,6 +63,24 @@ const UploadPage = () => {
         {isTemplate ? <TemplateOptions /> : null}
         {isDeck ? <DeckOptions /> : null}
       </div>
+      <div className="has-text-centered">
+        <hr />
+        <h3 className="title is-3">
+          Video Tutorial: Read Faster, Remember More
+        </h3>
+        <p className="subtitle">
+          Incremental Reading with Anki, Notion and notion2anki
+        </p>
+        <iframe
+          width="560"
+          height="315"
+          src="https://www.youtube.com/embed/4PdhlNbBqXo"
+          title="YouTube video player"
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen={true}
+        ></iframe>
+      </div>
     </div>
   );
 };
