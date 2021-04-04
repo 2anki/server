@@ -46,7 +46,8 @@
   "devDependencies": {
     "@types/react-router-dom": "^5.1.7",
     "@types/styled-components": "^5.1.9",
-    "react-router-dom": "^5.2.0"
+    "react-router-dom": "^5.2.0",
+    "url-search-params-polyfill": "^8.1.1"
   },
   "proxy": "http://localhost:2020"
 }
