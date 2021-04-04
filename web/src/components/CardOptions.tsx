@@ -39,15 +39,17 @@ const CardOptions: React.FC<{ store: CardOptionsStore }> = ({ store }) => {
           />
         ))}
       </BlueTintedBox>
-      <button
-        className="button is-danger"
-        onClick={() => {
-          store.clear();
-          showClearNotification(true);
-        }}
-      >
-        Clear
-      </button>
+      <div className="has-text-centered">
+        <button
+          className="button is-danger"
+          onClick={() => {
+            store.clear();
+            showClearNotification(true);
+          }}
+        >
+          Clear
+        </button>
+      </div>
     </div>
   );
 };
