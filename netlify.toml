@@ -1,6 +1,7 @@
 [build]
-  publish = "web/build/"
-  command = "npm run --prefix web build"
+  base = "web"
+  publish = "build"
+  command = "npm run build"
 [[headers]]
   # Define which paths this specific [[headers]] block will cover.
   for = "*"
