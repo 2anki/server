@@ -18,7 +18,14 @@ const UploadForm = () => {
     event.preventDefault();
     setUploading(true);
     try {
-      const storedFields = Object.entries(window.localStorage);
+      const storedFields = [];
+      for (var i = 0, len = localStorage.length; i < len; ++i) {
+        const key = localStorage.key(i);
+        if (key) {
+          storedFields.push([key, localStorage.getItem(key) || ""]);
+        }
+      }
+      console.log("stored-fileds", storedFields);
       const element = event.currentTarget as HTMLFormElement;
       const formData = new FormData(element);
       for (const sf of storedFields) {
