@@ -115,13 +115,13 @@ const UploadForm = () => {
             </p>
             <p style={{ fontWeight: "bold" }}>
               This project is 100% free and will remain free ✌️
-              <div
-                className="has-text-centered"
-                style={{ color: "grey", fontWeight: "normal" }}
-              >
-                #stillfree
-              </div>
             </p>
+            <div
+              className="has-text-centered"
+              style={{ color: "grey", fontWeight: "normal" }}
+            >
+              #stillfree
+            </div>
           </BlueTintedBox>
         </div>
       ) : null}
