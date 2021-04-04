@@ -1,6 +1,4 @@
 import { Link, useLocation } from "react-router-dom";
-import "url-search-params-polyfill";
-
 import WarningMessage from "../components/WarningMessage";
 import UploadForm from "../components/UploadForm";
 import CardOptions from "../components/CardOptions";
