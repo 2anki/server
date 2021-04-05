@@ -1,5 +1,4 @@
 import { SyntheticEvent, useState } from "react";
-import BlueTintedBox from "./BlueTintedBox";
 import ErrorMessage from "./ErrorMessage";
 import DownloadModal from "./DownloadModal";
 
