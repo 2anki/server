@@ -3,6 +3,8 @@ import BlueTintedBox from "./BlueTintedBox";
 import ErrorMessage from "./ErrorMessage";
 import DownloadModal from "./DownloadModal";
 
+import { Message, Delete } from "trunx";
+
 const UploadForm = () => {
   const notificationKey = "show-notification";
   const [showNotification, setShowNotification] = useState(
@@ -67,6 +69,11 @@ const UploadForm = () => {
     if (filename) setSelectedFilename(filename);
   };
 
+  const hideInfoMessage = () => {
+    setShowNotification(false);
+    window.localStorage.setItem(notificationKey, "false");
+  };
+
   return (
     <form
       encType="multipart/form-data"
@@ -81,48 +88,43 @@ const UploadForm = () => {
 
       {/* Until we have onboarding, give new users some basic info */}
       {showNotification ? (
-        <div style={{ maxWidth: "480px", margin: "0 auto" }}>
-          <BlueTintedBox>
-            <button
-              className="delete is-pulled-right"
-              aria-label="close"
-              onClick={() => {
-                setShowNotification(false);
-                window.localStorage.setItem(notificationKey, "false");
-              }}
-            />
-            <p>
-              We only support<span> </span>
-              <a
-                rel="noreferrer"
-                target="_blank"
-                href="https://www.notion.so/Export-as-HTML-bf3fe9e6920e4b9883cbd8a76b6128b7"
+        <div style={{ maxWidth: "480px", margin: "1rem auto" }}>
+          <Message isInfo>
+            <Message.Header>
+              <p> This project is 100% free and will remain free ✌️ </p>
+              <Delete onClick={hideInfoMessage} />
+            </Message.Header>
+            <Message.Body>
+              <p>
+                We only support<span> </span>
+                <a
+                  rel="noreferrer"
+                  target="_blank"
+                  href="https://www.notion.so/Export-as-HTML-bf3fe9e6920e4b9883cbd8a76b6128b7"
+                >
+                  HTML
+                </a>
+                <span> </span>
+                uploads from Notion.
+              </p>
+              <p>
+                For tutorials checkout the official<span> </span>
+                <a
+                  rel="noreferrer"
+                  target="_blank"
+                  href="https://www.youtube.com/playlist?list=PLzOAzzqpDqukOtwH3IYWiOhr_sjBjfgCd"
+                >
+                  playlist
+                </a>
+              </p>
+              <div
+                className="has-text-centered"
+                style={{ color: "grey", fontWeight: "normal" }}
               >
-                HTML
-              </a>
-              <span> </span>
-              uploads from Notion.
-            </p>
-            <p>
-              For tutorials checkout the official<span> </span>
-              <a
-                rel="noreferrer"
-                target="_blank"
-                href="https://www.youtube.com/playlist?list=PLzOAzzqpDqukOtwH3IYWiOhr_sjBjfgCd"
-              >
-                playlist
-              </a>
-            </p>
-            <p style={{ fontWeight: "bold" }}>
-              This project is 100% free and will remain free ✌️
-            </p>
-            <div
-              className="has-text-centered"
-              style={{ color: "grey", fontWeight: "normal" }}
-            >
-              #stillfree
-            </div>
-          </BlueTintedBox>
+                #stillfree
+              </div>
+            </Message.Body>
+          </Message>
         </div>
       ) : null}
       <div className="field">
