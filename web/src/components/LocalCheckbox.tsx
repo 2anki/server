@@ -15,7 +15,7 @@ const LocalCheckbox: React.FC<{
   };
   return (
     <>
-      {heading ? <strong>{heading}</strong> : null}
+      {heading && <strong>{heading}</strong>}
       <div className="field">
         <input
           style={{ marginRight: "0.2rem" }}

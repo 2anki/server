@@ -39,7 +39,7 @@ const UploadPage = () => {
 
   return (
     <div style={{ paddingTop: "4rem" }}>
-      {isDevelopment ? <WarningMessage /> : null}
+      {isDevelopment && <WarningMessage />}
       <div className="tabs is-centered is-boxed">
         <ul>
           <li className={`${isUpload ? "is-active" : null}`}>
@@ -57,10 +57,10 @@ const UploadPage = () => {
         </ul>
       </div>
       <div className="container">
-        {isUpload ? <UploadForm /> : null}
-        {isCard ? <CardOptions store={store} /> : null}
-        {isTemplate ? <TemplateOptions /> : null}
-        {isDeck ? <DeckOptions /> : null}
+        {isUpload && <UploadForm />}
+        {isCard && <CardOptions store={store} />}
+        {isTemplate && <TemplateOptions />}
+        {isDeck && <DeckOptions />}
       </div>
       <div className="has-text-centered">
         <hr />

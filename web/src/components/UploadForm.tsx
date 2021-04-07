@@ -83,10 +83,10 @@ const UploadForm = () => {
     >
       <h2 className="title has-text-centered">Notion to Anki</h2>
 
-      {errorMessage ? <ErrorMessage msg={errorMessage} /> : null}
+      {errorMessage && <ErrorMessage msg={errorMessage} /> }
 
       {/* Until we have onboarding, give new users some basic info */}
-      {showNotification ? (
+      {showNotification && (
         <div style={{ maxWidth: "480px", margin: "1rem auto" }}>
           <Message isInfo>
             <Message.Header>
@@ -125,7 +125,7 @@ const UploadForm = () => {
             </Message.Body>
           </Message>
         </div>
-      ) : null}
+      )}
       <div className="field">
         <div className={`file is-centered is-boxed has-name is-large`}>
           <div className="field">
@@ -160,7 +160,7 @@ const UploadForm = () => {
                 Convert
               </button>
             </div>
-            {downloadLink && deckName && !errorMessage ? (
+            {downloadLink && deckName && !errorMessage && (
               <DownloadModal
                 title={"Download Ready 🥳"}
                 downloadLink={downloadLink}
@@ -170,7 +170,7 @@ const UploadForm = () => {
                   setDeckName("");
                 }}
               />
-            ) : null}
+            )}
           </div>
         </div>
       </div>
