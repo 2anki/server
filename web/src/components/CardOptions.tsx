@@ -10,13 +10,12 @@ const CardOptions: React.FC<{ store: CardOptionsStore }> = ({ store }) => {
 
   return (
     <div className="container">
-      {clearNotification ? (
+      {clearNotification &&
         <ClearNotification
           seconds={3}
-          msg="Reverted to the default settings"
+          msg="Reverted to the default settings. Make sure to refresh the page to avoid issues."
           setShow={showClearNotification}
-        />
-      ) : null}
+        />}
       <div className="has-text-centered">
         <h2 className="title">Card Options</h2>
       </div>
