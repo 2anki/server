@@ -57,7 +57,6 @@ const UploadForm = () => {
   };
 
   const fileSelected = (event: { target: HTMLInputElement }) => {
-    console.log(event.target.value);
     const filename = (() => {
       try {
         return event.target.value.split(/(\\|\/)/g).pop();
@@ -83,7 +82,7 @@ const UploadForm = () => {
     >
       <h2 className="title has-text-centered">Notion to Anki</h2>
 
-      {errorMessage && <ErrorMessage msg={errorMessage} /> }
+      {errorMessage && <ErrorMessage msg={errorMessage} />}
 
       {/* Until we have onboarding, give new users some basic info */}
       {showNotification && (

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import styled from "styled-components";
 
 import TemplateName from "./TemplateName";
@@ -6,7 +6,6 @@ import TemplateSelect from "./TemplateSelect";
 import FontSizePicker from "./FontSizePicker";
 import BlueTintedBox from "./BlueTintedBox";
 import LocalCheckbox from "./LocalCheckbox";
-import ClearNotification from "./ClearNotification";
 
 import StoreContext from "../store/StoreContext";
 
@@ -20,27 +19,23 @@ const Settings: React.FC = () => {
   const [deckName, setDeckName] = useState(
     localStorage.getItem(deckNameKey) || ""
   );
-  const [clearNotification, showClearNotification] = useState(false);
   const store = useContext(StoreContext);
   const [options, setOptions] = useState(store.options);
 
-  useEffect(() => {
-    console.log("hjåaaa");
-    if (clearNotification) {
-      store.clear();
-      setOptions([...store.options]);
-    }
-  }, [clearNotification, store]);
+  const resetStore = () => {
+    store.clear();
+    setOptions([...store.options]);
+  };
 
   return (
     <div className="container">
       <h2 className="title">Settings</h2>
       <hr />
       <LocalCheckbox
+        store={store}
         storageKey="empty-description"
         label="Empty Deck Description"
         description="Anki supports deck descriptions. We use this to tell people that the deck was created via this website."
-        startValue={false}
       />
       <div className="field">
         <strong>Deck Name</strong>
@@ -84,10 +79,10 @@ const Settings: React.FC = () => {
           />
           {options.map((o) => (
             <LocalCheckbox
+              store={store}
               key={o.key}
               storageKey={o.key}
               label={o.label}
-              startValue={o.default}
               description={o.description}
             />
           ))}
@@ -141,18 +136,11 @@ const Settings: React.FC = () => {
         <button
           className="button is-danger"
           onClick={() => {
-            showClearNotification(true);
+            resetStore();
           }}
         >
           Clear
         </button>
-        {clearNotification ? (
-          <ClearNotification
-            seconds={3}
-            msg="Reverted to the default settings"
-            setShow={showClearNotification}
-          />
-        ) : null}
       </div>
     </div>
   );
