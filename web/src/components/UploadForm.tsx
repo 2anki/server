@@ -103,10 +103,8 @@ const UploadForm = () => {
                   HTML
                 </a>
                 <span> </span>
-                uploads from Notion.
-              </p>
-              <p>
-                For tutorials checkout the official<span> </span>
+                uploads from Notion. For tutorials checkout the official
+                <span> </span>
                 <a
                   rel="noreferrer"
                   target="_blank"
@@ -114,6 +112,15 @@ const UploadForm = () => {
                 >
                   playlist
                 </a>
+                . To receive support join the<span> </span>
+                <a
+                  rel="noreferrer"
+                  target="_blank"
+                  href="https://discord.com/invite/PSKC3uS"
+                >
+                  Discord server
+                </a>
+                .
               </p>
               <div
                 className="has-text-centered"
