@@ -127,7 +127,7 @@ const UploadForm = () => {
         </div>
       ) : null}
       <div className="field">
-        <div className={`file is-centered is-boxed has-name is-large`}>
+        <div className={`file is-centered is-boxed has-name`}>
           <div className="field">
             <label className="file-label">
               <input

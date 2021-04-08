@@ -1,11 +1,11 @@
 import { useState } from "react";
 
 const LocalCheckbox: React.FC<{
-  heading: string;
   label: string;
   storageKey: string;
   startValue: boolean;
-}> = ({ heading, label, storageKey, startValue }) => {
+  description: string | null;
+}> = ({ label, storageKey, startValue, description = null }) => {
   const local = localStorage.getItem(storageKey) === "true" || startValue;
   const [isValue, setIsValue] = useState(local);
   const toggleValue = () => {
@@ -15,16 +15,16 @@ const LocalCheckbox: React.FC<{
   };
   return (
     <>
-      {heading ? <strong>{heading}</strong> : null}
-      <div className="field">
+      <label className="checkbox">
         <input
           style={{ marginRight: "0.2rem" }}
           type="checkbox"
           checked={isValue}
           onChange={toggleValue}
         />
-        {label}
-      </div>
+        <strong>{label}</strong>
+      </label>
+      {description && <p className="is-size-7	">{description}</p>}
     </>
   );
 };
