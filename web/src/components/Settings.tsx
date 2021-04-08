@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 
 import TemplateName from "./TemplateName";
@@ -7,19 +7,30 @@ import FontSizePicker from "./FontSizePicker";
 import BlueTintedBox from "./BlueTintedBox";
 import LocalCheckbox from "./LocalCheckbox";
 import ClearNotification from "./ClearNotification";
-import CardOptionsStore from "../store/Options";
+
+import StoreContext from "../store/StoreContext";
 
 const StyledInput = styled.input`
   font-weight: bold;
   color: #83c9f5;
 `;
 
-const Settings: React.FC<{ store: CardOptionsStore }> = ({ store }) => {
+const Settings: React.FC = () => {
   const deckNameKey = "deckName";
   const [deckName, setDeckName] = useState(
     localStorage.getItem(deckNameKey) || ""
   );
   const [clearNotification, showClearNotification] = useState(false);
+  const store = useContext(StoreContext);
+  const [options, setOptions] = useState(store.options);
+
+  useEffect(() => {
+    console.log("hjåaaa");
+    if (clearNotification) {
+      store.clear();
+      setOptions([...store.options]);
+    }
+  }, [clearNotification, store]);
 
   return (
     <div className="container">
@@ -71,7 +82,7 @@ const Settings: React.FC<{ store: CardOptionsStore }> = ({ store }) => {
             defaultValue="close_toggle"
             storageKey="toggle-mode"
           />
-          {store.options.map((o) => (
+          {options.map((o) => (
             <LocalCheckbox
               key={o.key}
               storageKey={o.key}
@@ -130,7 +141,6 @@ const Settings: React.FC<{ store: CardOptionsStore }> = ({ store }) => {
         <button
           className="button is-danger"
           onClick={() => {
-            store.clear();
             showClearNotification(true);
           }}
         >

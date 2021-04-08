@@ -2,9 +2,9 @@ import { Link, useLocation } from "react-router-dom";
 import WarningMessage from "../components/WarningMessage";
 import UploadForm from "../components/UploadForm";
 import Settings from "../components/Settings";
-import { useEffect, useMemo } from "react";
+import { useContext, useEffect } from "react";
 
-import CardOptionsStore from "../store/Options";
+import StoreContext from "../store/StoreContext";
 
 import SettingsIcon from "../components/icons/SettingsIcon";
 
@@ -24,16 +24,11 @@ const UploadPage = () => {
   const isSettings =
     view === "template" || view === "deck-options" || view === "card-options";
 
-  const store = useMemo(() => new CardOptionsStore(), []);
+  const store = useContext(StoreContext);
 
   // Make sure the defaults are set if not present to ensure backwards compatability
   useEffect(() => {
-    for (const option of store.options) {
-      const value = localStorage.getItem(option.key);
-      if (value === null) {
-        localStorage.setItem(option.key, option.default.toString());
-      }
-    }
+    store.loadDefaults();
   }, [store]);
 
   return (
@@ -54,7 +49,7 @@ const UploadPage = () => {
       </div>
       <div className="container">
         {isUpload ? <UploadForm /> : null}
-        {isSettings ? <Settings store={store} /> : null}
+        {isSettings ? <Settings /> : null}
       </div>
       <div className="has-text-centered">
         <hr />

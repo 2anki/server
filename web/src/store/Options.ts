@@ -112,6 +112,16 @@ class CardOptionsStore {
   clear() {
     localStorage.clear();
     this.options = this.configure();
+    this.loadDefaults();
+  }
+
+  loadDefaults() {
+    for (const option of this.options) {
+      const value = localStorage.getItem(option.key);
+      if (value === null) {
+        localStorage.setItem(option.key, option.default.toString());
+      }
+    }
   }
 }
 
