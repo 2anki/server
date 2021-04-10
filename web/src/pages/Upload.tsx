@@ -1,12 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
 import WarningMessage from "../components/WarningMessage";
 import UploadForm from "../components/UploadForm";
-import CardOptions from "../components/CardOptions";
-import TemplateOptions from "../components/TemplateOptions";
-import DeckOptions from "../components/DeckOptions";
-import { useEffect, useMemo } from "react";
+import Settings from "../components/Settings";
+import { useContext, useEffect } from "react";
 
-import CardOptionsStore from "../store/Options";
+import StoreContext from "../store/StoreContext";
+
+import SettingsIcon from "../components/icons/SettingsIcon";
 
 // A custom hook that builds on useLocation to parse
 // the query string for you.
@@ -21,46 +21,35 @@ const UploadPage = () => {
   const view = query.get("view");
 
   const isUpload = view === "upload" || !view;
-  const isCard = view === "card-options";
-  const isTemplate = view === "template";
-  const isDeck = view === "deck-options";
+  const isSettings =
+    view === "template" || view === "deck-options" || view === "card-options";
 
-  const store = useMemo(() => new CardOptionsStore(), []);
+  const store = useContext(StoreContext);
 
   // Make sure the defaults are set if not present to ensure backwards compatability
   useEffect(() => {
-    for (const option of store.options) {
-      const value = localStorage.getItem(option.key);
-      if (value === null) {
-        localStorage.setItem(option.key, option.default.toString());
-      }
-    }
+    store.loadDefaults();
   }, [store]);
 
   return (
     <div style={{ paddingTop: "4rem" }}>
       {isDevelopment ? <WarningMessage /> : null}
-      <div className="tabs is-centered is-boxed">
+      <div className="tabs is-centered">
         <ul>
           <li className={`${isUpload ? "is-active" : null}`}>
             <Link to="upload?view=upload">Upload</Link>
           </li>
-          <li className={`${isTemplate ? "is-active" : null}`}>
-            <Link to="upload?view=template">Template</Link>
-          </li>
-          <li className={`${isDeck ? "is-active" : null}`}>
-            <Link to="upload?view=deck-options">Deck</Link>
-          </li>
-          <li className={`${isCard ? "is-active" : null}`}>
-            <Link to="upload?view=card-options">Card</Link>
+          <li className={`${isSettings ? "is-active" : null}`}>
+            <Link to="upload?view=template">
+              <SettingsIcon />
+              Settings
+            </Link>
           </li>
         </ul>
       </div>
       <div className="container">
         {isUpload ? <UploadForm /> : null}
-        {isCard ? <CardOptions store={store} /> : null}
-        {isTemplate ? <TemplateOptions /> : null}
-        {isDeck ? <DeckOptions /> : null}
+        {isSettings ? <Settings /> : null}
       </div>
       <div className="has-text-centered">
         <hr />

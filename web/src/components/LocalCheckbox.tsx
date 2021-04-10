@@ -1,30 +1,37 @@
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
+import CardOptionsStore from "../store/Options";
 
 const LocalCheckbox: React.FC<{
-  heading: string;
   label: string;
   storageKey: string;
-  startValue: boolean;
-}> = ({ heading, label, storageKey, startValue }) => {
-  const local = localStorage.getItem(storageKey) === "true" || startValue;
-  const [isValue, setIsValue] = useState(local);
-  const toggleValue = () => {
-    const empty = !isValue;
-    localStorage.setItem(storageKey, empty.toString());
-    setIsValue(empty);
-  };
+  description: string | null;
+  store: CardOptionsStore;
+}> = ({ label, storageKey, store, description = null }) => {
+  const value = store.get(storageKey)?.value || false;
+  const [isChecked, setChecked] = useState(value);
+
+  useEffect(() => {
+    const storeValue = store.get(storageKey)?.value || false;
+    if (isChecked !== storeValue) {
+      setChecked(storeValue);
+    }
+  }, [isChecked, storageKey, store, store.options]);
+
   return (
     <>
-      {heading ? <strong>{heading}</strong> : null}
-      <div className="field">
+      <label className="checkbox">
         <input
           style={{ marginRight: "0.2rem" }}
           type="checkbox"
-          checked={isValue}
-          onChange={toggleValue}
+          checked={isChecked}
+          onChange={(event) => {
+            setChecked(event.target.checked);
+            store.update(storageKey, event.target.checked);
+          }}
         />
-        {label}
-      </div>
+        <strong>{label}</strong>
+      </label>
+      {description && <p className="is-size-7	">{description}</p>}
     </>
   );
 };

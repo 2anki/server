@@ -7,6 +7,8 @@ import HomePage from "./pages/Home";
 
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import CardOptionsStore from "./store/Options";
+import StoreContext from "./store/StoreContext";
 
 const Layout = styled.div`
   display: flex;
@@ -27,23 +29,27 @@ const Container = styled.div`
  */
 
 function App() {
+  const store = new CardOptionsStore();
+
   return (
-    <Router>
-      <Layout>
-        <Header />
-        <Container>
-          <Switch>
-            <Route path="/upload">
-              <UploadPage />
-            </Route>
-            <Route path="/">
-              <HomePage />
-            </Route>
-          </Switch>
-        </Container>
-        <Footer />
-      </Layout>
-    </Router>
+    <StoreContext.Provider value={store}>
+      <Router>
+        <Layout>
+          <Header />
+          <Container>
+            <Switch>
+              <Route path="/upload">
+                <UploadPage />
+              </Route>
+              <Route path="/">
+                <HomePage />
+              </Route>
+            </Switch>
+          </Container>
+          <Footer />
+        </Layout>
+      </Router>
+    </StoreContext.Provider>
   );
 }
 

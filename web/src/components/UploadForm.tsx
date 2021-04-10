@@ -57,7 +57,6 @@ const UploadForm = () => {
   };
 
   const fileSelected = (event: { target: HTMLInputElement }) => {
-    console.log(event.target.value);
     const filename = (() => {
       try {
         return event.target.value.split(/(\\|\/)/g).pop();
@@ -83,10 +82,10 @@ const UploadForm = () => {
     >
       <h2 className="title has-text-centered">Notion to Anki</h2>
 
-      {errorMessage ? <ErrorMessage msg={errorMessage} /> : null}
+      {errorMessage && <ErrorMessage msg={errorMessage} />}
 
       {/* Until we have onboarding, give new users some basic info */}
-      {showNotification ? (
+      {showNotification && (
         <div style={{ maxWidth: "480px", margin: "1rem auto" }}>
           <Message isInfo>
             <Message.Header>
@@ -104,10 +103,8 @@ const UploadForm = () => {
                   HTML
                 </a>
                 <span> </span>
-                uploads from Notion.
-              </p>
-              <p>
-                For tutorials checkout the official<span> </span>
+                uploads from Notion. For tutorials checkout the official
+                <span> </span>
                 <a
                   rel="noreferrer"
                   target="_blank"
@@ -115,6 +112,15 @@ const UploadForm = () => {
                 >
                   playlist
                 </a>
+                . To receive support join the<span> </span>
+                <a
+                  rel="noreferrer"
+                  target="_blank"
+                  href="https://discord.com/invite/PSKC3uS"
+                >
+                  Discord server
+                </a>
+                .
               </p>
               <div
                 className="has-text-centered"
@@ -125,9 +131,9 @@ const UploadForm = () => {
             </Message.Body>
           </Message>
         </div>
-      ) : null}
+      )}
       <div className="field">
-        <div className={`file is-centered is-boxed has-name is-large`}>
+        <div className={`file is-centered is-boxed has-name`}>
           <div className="field">
             <label className="file-label">
               <input
@@ -160,7 +166,7 @@ const UploadForm = () => {
                 Convert
               </button>
             </div>
-            {downloadLink && deckName && !errorMessage ? (
+            {downloadLink && deckName && !errorMessage && (
               <DownloadModal
                 title={"Download Ready 🥳"}
                 downloadLink={downloadLink}
@@ -170,7 +176,7 @@ const UploadForm = () => {
                   setDeckName("");
                 }}
               />
-            ) : null}
+            )}
           </div>
         </div>
       </div>
