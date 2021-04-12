@@ -52,47 +52,40 @@ const UploadPage = () => {
         </ul>
       </div>
       <div className="container">
-        <Columns>
-          <Column>
-            {isUpload ? <UploadForm /> : null}
-            {isSettings ? <Settings /> : null}
-          </Column>
-          <Column is4>
-            <Message isInfo>
-              <Message.Header>Thank you to my patrons!</Message.Header>
-              <Message.Body>
-                <Columns>
-                  {SUPPORTERS.map((patreon) => (
-                    <Column>
-                      <figure className="image is-32x32">
-                        <img
-                          loading="lazy"
-                          className="is-rounded"
-                          alt={`${patreon.name} avatar`}
-                          src={patreon.link}
-                          onMouseEnter={() => setImageHover(patreon.name)}
-                          onMouseLeave={() => setImageHover("")}
-                        ></img>
-                        {imageHover === patreon.name && (
-                          <span className="tag is-black">{patreon.name}</span>
-                        )}
-                      </figure>
-                    </Column>
-                  ))}
-                </Columns>
-                <p>
-                  Due to privacy only <a href="patreon.com/alemayhu">patrons</a>{" "}
-                  who have requested it or{" "}
-                  <a href="https://github.com/sponsors/alemayhu">
-                    GitHub sponsors
-                  </a>
-                  will be displayed above. This is to respect their privacy.
-                </p>
-              </Message.Body>
-            </Message>
-          </Column>
-        </Columns>
+        {isUpload ? <UploadForm /> : null}
+        {isSettings ? <Settings /> : null}
       </div>
+      <Message style={{ maxWidth: "480px", margin: "1rem auto" }} isInfo>
+        <Message.Header>Thank you to my patrons!</Message.Header>
+        <Message.Body>
+          <Columns>
+            {SUPPORTERS.map((patreon) => (
+              <Column>
+                <figure className="image is-32x32">
+                  <img
+                    loading="lazy"
+                    className="is-rounded"
+                    alt={`${patreon.name} avatar`}
+                    src={patreon.link}
+                    onMouseEnter={() => setImageHover(patreon.name)}
+                    onMouseLeave={() => setImageHover("")}
+                  ></img>
+                  {imageHover === patreon.name && (
+                    <span className="tag is-black">{patreon.name}</span>
+                  )}
+                </figure>
+              </Column>
+            ))}
+          </Columns>
+          <p>
+            {" "}
+            Due to privacy only <a href="patreon.com/alemayhu">patrons</a> who
+            have requested it or{" "}
+            <a href="https://github.com/sponsors/alemayhu">GitHub sponsors</a>{" "}
+            will be displayed above. This is to respect their privacy.
+          </p>
+        </Message.Body>
+      </Message>
       <div className="has-text-centered">
         <hr />
         <h3 className="title is-3">
