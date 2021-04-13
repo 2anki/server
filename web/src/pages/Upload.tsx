@@ -79,8 +79,9 @@ const UploadPage = () => {
           </Columns>
           <p>
             {" "}
-            Due to privacy only <a href="patreon.com/alemayhu">patrons</a> who
-            have requested it or{" "}
+            Due to privacy only{" "}
+            <a href="https://patreon.com/alemayhu">patrons</a> who have
+            requested it or{" "}
             <a href="https://github.com/sponsors/alemayhu">GitHub sponsors</a>{" "}
             will be displayed above. This is to respect their privacy.
           </p>
