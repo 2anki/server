@@ -387,8 +387,17 @@ export class DeckParser {
     clozeDeletions.each((i, elem) => {
       const v = dom(elem).html();
       if (v) {
-        // User has set the cloze number
-        if (v.includes("{{c") && v.includes("}}") && !v.includes("KaTex")) {
+        if (this.settings.perserveNewLinesInSummary) {
+          let start = `{{c${num}::`;
+          // Use regular replace to perserve newlines
+          mangle = mangle.replace(/[^::]<code>/, `${start}<code>`);
+          mangle = replaceAll(mangle, "\n", "<br />");
+          num += 1;
+        } else if (
+          v.includes("{{c") &&
+          v.includes("}}") &&
+          !v.includes("KaTex")
+        ) {
           // make Statement unreachable bc. even clozes can get such a formation
           // eg: \frac{{c}} 1 would give that.
           mangle = replaceAll(mangle, `<code>${v}</code>`, v);
@@ -402,7 +411,10 @@ export class DeckParser {
         }
       }
     });
-    return mangle;
+
+    return this.settings.perserveNewLinesInSummary
+      ? replaceAll(mangle, "</code>", `</code>}}`)
+      : mangle;
   }
 
   treatBoldAsInput(input: string, inline: boolean) {
