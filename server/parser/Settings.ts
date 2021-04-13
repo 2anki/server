@@ -43,7 +43,7 @@ export default class Settings {
     this.reversed = input.reversed !== "false";
     this.removeMP3Links = input["remove-mp3-links"] === "true" || false;
     this.perserveNewLinesInSummary =
-      input["perserve-newlines-header"] === "true" || false;
+      input["perserve-newlines"] === "true" || false;
     this.clozeModelName = input.cloze_model_name;
     this.basicModelName = input.basic_model_name;
     this.inputModelName = input.input_model_name;
