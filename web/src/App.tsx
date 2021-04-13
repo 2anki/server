@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
 import styled from "styled-components";
 
-import UploadPage from "./pages/Upload";
+import UploadPage from "./pages/UploadPage";
 import HomePage from "./pages/Home";
 
 import Header from "./components/Header";
