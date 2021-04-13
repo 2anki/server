@@ -174,9 +174,16 @@ export class DeckParser {
         const toggle = parentUL.find("details").first();
 
         if (summary && summary.text()) {
+          const validSummary = (() => {
+            const s = summary.html() || "";
+            if (this.settings.perserveNewLinesInSummary) {
+              return replaceAll(s, "\n", "<br />");
+            }
+            return s;
+          })();
           const front = parentClass
-            ? `<div class='${parentClass}'>${summary.html()}</div>`
-            : summary.html();
+            ? `<div class='${parentClass}'>${validSummary}</div>`
+            : validSummary;
           if ((summary && toggle) || (this.settings.maxOne && toggle.text())) {
             const toggleHTML = toggle.html();
             if (toggleHTML) {
@@ -190,10 +197,19 @@ export class DeckParser {
                   }
                 }
               }
-              const note = new Note(
-                front || "",
-                this.settings.maxOne ? this.removeNestedToggles(b) : b
-              );
+
+              const backSide = (() => {
+                let _b = b;
+                if (this.settings.maxOne) {
+                  _b = this.removeNestedToggles(b);
+                }
+                if (this.settings.perserveNewLinesInSummary) {
+                  _b = replaceAll(_b, "\n", "<br />");
+                  console.log("WHAT DA");
+                }
+                return _b;
+              })();
+              const note = new Note(front || "", backSide);
               if (
                 (this.settings.isAvocado && this.noteHasAvocado(note)) ||
                 (this.settings.isCherry && !this.noteHasCherry(note))
@@ -387,7 +403,6 @@ export class DeckParser {
     clozeDeletions.each((i, elem) => {
       const v = dom(elem).html();
       if (v) {
-        // User has set the cloze number
         if (v.includes("{{c") && v.includes("}}") && !v.includes("KaTex")) {
           // make Statement unreachable bc. even clozes can get such a formation
           // eg: \frac{{c}} 1 would give that.
@@ -402,6 +417,7 @@ export class DeckParser {
         }
       }
     });
+
     return mangle;
   }
 

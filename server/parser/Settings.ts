@@ -23,6 +23,7 @@ export default class Settings {
   readonly basicModelId: string;
   readonly inputModelId: string;
   readonly template: string;
+  readonly perserveNewLinesInSummary: boolean;
 
   constructor(input: any) {
     this.deckName = input.deckName;
@@ -41,6 +42,8 @@ export default class Settings {
     this.basicReversed = input["basic-reversed"] !== "false";
     this.reversed = input.reversed !== "false";
     this.removeMP3Links = input["remove-mp3-links"] === "true" || false;
+    this.perserveNewLinesInSummary =
+      input["perserve-newlines-header"] === "true" || false;
     this.clozeModelName = input.cloze_model_name;
     this.basicModelName = input.basic_model_name;
     this.inputModelName = input.input_model_name;

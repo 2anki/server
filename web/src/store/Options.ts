@@ -121,6 +121,13 @@ class CardOptionsStore {
         description:
           "Due to backwards-compatability we leave links untouched but this option let's you remove mp3 links",
       },
+      {
+        key: "perserve-newlines",
+        label: "Preserve Newlines in the Toggle Header and Body",
+        value: localStorage.getItem("perserve-newlines") === "true" || false,
+        description:
+          "This will allow you to use SHIFT-Enter in the toggles to create multiple lines for all card types (Basic, Cloze, etc.)",
+      },
     ];
   }
 
