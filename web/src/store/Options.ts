@@ -121,6 +121,14 @@ class CardOptionsStore {
         description:
           "Due to backwards-compatability we leave links untouched but this option let's you remove mp3 links",
       },
+      {
+        key: "keep-header-formatting",
+        label: "Allow List Formatting in Toggle Header",
+        value:
+          localStorage.getItem("keep-header-formatting") === "true" || false,
+        description:
+          "This will allow you to use SHIFT-Enter in the toggle header to create multiple lines",
+      },
     ];
   }
 
