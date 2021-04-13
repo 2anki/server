@@ -205,7 +205,6 @@ export class DeckParser {
                 }
                 if (this.settings.perserveNewLinesInSummary) {
                   _b = replaceAll(_b, "\n", "<br />");
-                  console.log("WHAT DA");
                 }
                 return _b;
               })();
@@ -401,12 +400,29 @@ export class DeckParser {
     let mangle = input;
     let num = 1;
     clozeDeletions.each((i, elem) => {
-      const v = dom(elem).html();
+      let v = dom(elem).html();
       if (v) {
         if (v.includes("{{c") && v.includes("}}") && !v.includes("KaTex")) {
           // make Statement unreachable bc. even clozes can get such a formation
           // eg: \frac{{c}} 1 would give that.
           mangle = replaceAll(mangle, `<code>${v}</code>`, v);
+        } else if (!v.includes("KaTex") && v.match(/c\d::/)) {
+          // In the case user forgets the curly braces, add it for them
+          if (!v.includes("{{")) {
+            mangle = mangle.replace("<code>", `{{`);
+          } else {
+            mangle = mangle.replace("<code>", "");
+          }
+          if (!v.endsWith("}}")) {
+            mangle = mangle.replace("</code>", "}}");
+          } else {
+            mangle = mangle.replace("</code>", "");
+          }
+        } else if (!v.includes("KaTex")) {
+          const old = `<code>${v}</code>`;
+          const newValue = v.match(/c\d::/) ? `{{${v}}}` : `{{c${num}::${v}}}`;
+          mangle = replaceAll(mangle, old, newValue);
+          num += 1;
         } else {
           const old = `<code>${v}</code>`;
           // prevent "}}" so that anki closes the Cloze at the right }} not this one
