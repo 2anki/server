@@ -1,6 +1,10 @@
 // TODO: use GitHub sponsors API and Patreon
 const SUPPORTERS = [
   {
+    name: "Kyra Peralte",
+    link: "https://c8.patreon.com/2/200/46696110",
+  },
+  {
     name: "Marcel Walk",
     link: "https://avatars.githubusercontent.com/u/23500970?v=4",
   },
