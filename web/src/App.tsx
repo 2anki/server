@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
 import styled from "styled-components";
 
+import TemplatePage from "./pages/TemplatePage";
 import UploadPage from "./pages/UploadPage";
 import HomePage from "./pages/Home";
 
@@ -38,6 +39,9 @@ function App() {
           <Header />
           <Container>
             <Switch>
+              <Route path="/template">
+                <TemplatePage />
+              </Route>
               <Route path="/upload">
                 <UploadPage />
               </Route>
