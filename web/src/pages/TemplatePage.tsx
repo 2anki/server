@@ -8,7 +8,7 @@ import {
   Column,
 } from "trunx";
 import MonacoEditor from "react-monaco-editor";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import TemplateSelect from "../components/TemplateSelect";
 
 interface TemplateField {
@@ -39,6 +39,13 @@ let files = [
 const TemplatePage = () => {
   const [code, setCode] = useState("");
   const [options, setOptions] = useState({});
+  const [isFront, setIsFront] = useState(true);
+  const [isBack, setIsBack] = useState(false);
+  const [isStyling, setIsStyling] = useState(false);
+
+  const [isFrontPreview, setIsFrontPreview] = useState(true);
+
+  const [isBackPreview, setIsBackPreview] = useState(false);
 
   const editorDidMount = (editor: { focus: () => void }, _monaco: any) => {
     editor.focus();
@@ -51,6 +58,42 @@ const TemplatePage = () => {
   const saveChanges = () => {
     console.log("TODO save");
   };
+
+  useEffect(() => {
+    if (isFront) {
+      setIsFrontPreview(isFront);
+      setIsBackPreview(false);
+      setIsBack(false);
+    }
+  }, [isFront]);
+
+  useEffect(() => {
+    if (isBack) {
+      setIsBackPreview(isBack);
+      setIsFrontPreview(false);
+      setIsFront(false);
+    }
+  }, [isBack]);
+
+  useEffect(() => {
+    if (isStyling) {
+      setIsStyling(isStyling);
+      setIsFront(false);
+      setIsBack(false);
+    }
+  }, [isStyling]);
+
+  useEffect(() => {
+    if (isBackPreview) {
+      setIsFrontPreview(false);
+    }
+  }, [isBackPreview]);
+
+  useEffect(() => {
+    if (isFrontPreview) {
+      setIsBackPreview(false);
+    }
+  }, [isFrontPreview]);
 
   return (
     <Section m4>
@@ -78,15 +121,33 @@ const TemplatePage = () => {
             <p>Template</p>
             <div className="control m-2">
               <label className="radio">
-                <input className="m-2" type="radio" name="answer" />
+                <input
+                  checked={isFront}
+                  onChange={(event) => setIsFront(event.target.checked)}
+                  className="m-2"
+                  type="radio"
+                  name="front-template"
+                />
                 Front Template
               </label>
               <label className="radio">
-                <input className="m-2" type="radio" name="answer" />
+                <input
+                  checked={isBack}
+                  onChange={(event) => setIsBack(event.target.checked)}
+                  className="m-2"
+                  type="radio"
+                  name="back-template"
+                />
                 Back Template
               </label>
               <label className="radio">
-                <input className="m-2" type="radio" name="answer" />
+                <input
+                  checked={isStyling}
+                  onChange={(event) => setIsStyling(event.target.checked)}
+                  className="m-2"
+                  type="radio"
+                  name="styling"
+                />
                 Styling
               </label>
             </div>
@@ -105,11 +166,23 @@ const TemplatePage = () => {
             <p>Preview</p>
             <div className="control m-2">
               <label className="radio">
-                <input className="m-2" type="radio" name="answer" />
+                <input
+                  checked={isFrontPreview}
+                  onChange={(event) => setIsFrontPreview(event?.target.checked)}
+                  className="m-2"
+                  type="radio"
+                  name="front-preview"
+                />
                 Front Preview
               </label>
               <label className="radio">
-                <input className="m-2" type="radio" name="answer" />
+                <input
+                  checked={isBackPreview}
+                  onChange={(event) => setIsBackPreview(event.target.checked)}
+                  className="m-2"
+                  type="radio"
+                  name="back-preview"
+                />
                 Back Preview
               </label>
               <div
