@@ -1,0 +1,5 @@
+{
+  "front": "<span class=\"front-text-pre\">{{cloze:Text}}</span>",
+  "back": "<span class=\"front-text-pre\">{{cloze:Text}}</span><br><span class=\"extra\">{{Extra}}</span>",
+  "fields": [{ "name": "Text" }, { "name": "Extra" }, { "name": "MyMedia" }]
+}

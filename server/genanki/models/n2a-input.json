@@ -1,0 +1,10 @@
+{
+  "front": "{{Front}}<br>{{type:Input}}",
+  "back": "{{FrontSide}}<hr id=\"answer\">{{Back}}",
+  "fields": [
+    { "name": "Front" },
+    { "name": "Back" },
+    { "name": "Input" },
+    { "name": "MyMedia" }
+  ]
+}

@@ -1,20 +1,18 @@
+import os
+import json
 from genanki import Model
+from fs_util import _read_template
 
-DEFAULT_BASIC_FRONT = '<span class="front-text-pre">{{Front}}</span>'
-DEFAULT_BASIC_BACK = '<span class="front-text-post">{{Front}}</span>' '<hr id="answer">' '<span class="back-text">{{Back}}</span>'
+DEFAULT_BASIC = json.loads(_read_template(os.path.dirname(__file__)+"/", "n2a-basic.json", "", ""))
 
 def basic_model(id, name, css, qfmt, afmt):
     if qfmt is None:
-        qfmt = DEFAULT_BASIC_FRONT
+        qfmt = DEFAULT_BASIC.get('front')
     if afmt is None:
-        afmt = DEFAULT_BASIC_BACK
+        afmt = DEFAULT_BASIC.get('back')
         
     return Model(id, name,
-       fields=[
-            {"name": "Front"},
-            {"name": "Back"},
-            {"name": "MyMedia"},
-        ],
+       fields = DEFAULT_BASIC.get("fields"),
         templates=[
             {
                 "name": name,

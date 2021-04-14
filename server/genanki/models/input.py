@@ -1,20 +1,19 @@
+import os
+import json
 from genanki import Model
+from fs_util import _read_template
 
-DEFAULT_INPUT_FRONT = "{{Front}}" "<br>" "{{type:Input}}"
-DEFAULT_INPUT_BACK = "{{FrontSide}}" '<hr id="answer">' "{{Back}}"
+DEFAULT_INPUT = json.loads(
+        _read_template(os.path.dirname(__file__)+"/", "n2a-input.json", "", "")
+        )
 
 def input_model(id, name, css, qfmt, afmt):
         if qfmt is None:
-                qfmt = DEFAULT_INPUT_FRONT
+                qfmt = DEFAULT_INPUT.get("front")
         if afmt is None:
-                afmt = DEFAULT_INPUT_BACK
+                afmt = DEFAULT_INPUT.get("back")
         return Model(id, name,
-                fields=[
-                {"name": "Front"},
-                {"name": "Back"},
-                {"name": "Input"},
-                {"name": "MyMedia"},
-                ],
+                fields = DEFAULT_INPUT.get("fields"),
                 templates=[
                 {
                         "name": name,
