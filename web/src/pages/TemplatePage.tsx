@@ -82,6 +82,7 @@ const TemplatePage = () => {
       }
       setIsFrontPreview(isFront);
       setIsBackPreview(false);
+      setIsStyling(false);
       setIsBack(false);
     }
   }, [isFront]);
@@ -95,6 +96,7 @@ const TemplatePage = () => {
       }
       setIsBackPreview(isBack);
       setIsFrontPreview(false);
+      setIsStyling(false);
       setIsFront(false);
     }
   }, [isBack]);
