@@ -4,7 +4,7 @@ from genanki import Model
 from fs_util import _read_template
 
 DEFAULT_INPUT = json.loads(
-        _read_template(os.path.dirname(__file__)+"/", "n2a-input.json", "", "")
+        _read_template(os.path.dirname(__file__)+"/../../templates/", "n2a-input.json", "", "")
         )
 
 def input_model(id, name, css, qfmt, afmt):

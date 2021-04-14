@@ -3,7 +3,7 @@ import json
 from genanki import Model
 from fs_util import _read_template
 
-DEFAULT_BASIC = json.loads(_read_template(os.path.dirname(__file__)+"/", "n2a-basic.json", "", ""))
+DEFAULT_BASIC = json.loads(_read_template(os.path.dirname(__file__)+"/../../templates/", "n2a-basic.json", "", ""))
 
 def basic_model(id, name, css, qfmt, afmt):
     if qfmt is None:
