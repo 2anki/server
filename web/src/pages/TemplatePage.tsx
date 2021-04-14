@@ -30,10 +30,17 @@ interface TemplateFile {
   storageKey: string;
 }
 
-let files = [
-  { parent: "Basic", name: "n2a-basic" },
-  { parent: "Cloze", name: "n2a-cloze" },
-  { parent: "Basic (type in the answer)", name: "n2a-input" },
+let files: TemplateFile[] = [
+  {
+    parent: "Basic",
+    name: "n2a-basic",
+    front: '<span class="front-text-pre">{{Front}}</span>',
+    back: `<span class="front-text-post">{{Front}}</span>' '<hr id="answer">' '<span class="back-text">{{Back}}</span>`,
+    styling: "",
+    storageKey: "n2a-basic",
+  },
+  // { parent: "Cloze", name: "n2a-cloze" },
+  // { parent: "Basic (type in the answer)", name: "n2a-input" },
 ];
 
 const TemplatePage = () => {
@@ -42,6 +49,7 @@ const TemplatePage = () => {
   const [isFront, setIsFront] = useState(true);
   const [isBack, setIsBack] = useState(false);
   const [isStyling, setIsStyling] = useState(false);
+  const [language, setLanguage] = useState("html");
 
   const [isFrontPreview, setIsFrontPreview] = useState(true);
 
@@ -59,8 +67,19 @@ const TemplatePage = () => {
     console.log("TODO save");
   };
 
+  const currentCardType = () => {
+    const currentCardType = localStorage.getItem("current-card-type");
+    console.log(currentCardType);
+    return files.find((x) => x.storageKey === currentCardType);
+  };
+
   useEffect(() => {
     if (isFront) {
+      const c = currentCardType();
+      if (c) {
+        setLanguage("html");
+        setCode(c.front);
+      }
       setIsFrontPreview(isFront);
       setIsBackPreview(false);
       setIsBack(false);
@@ -69,6 +88,11 @@ const TemplatePage = () => {
 
   useEffect(() => {
     if (isBack) {
+      const c = currentCardType();
+      if (c) {
+        setCode(c.back);
+        setLanguage("html");
+      }
       setIsBackPreview(isBack);
       setIsFrontPreview(false);
       setIsFront(false);
@@ -80,6 +104,11 @@ const TemplatePage = () => {
       setIsStyling(isStyling);
       setIsFront(false);
       setIsBack(false);
+      const c = currentCardType();
+      if (c) {
+        setCode(c.styling);
+        setLanguage("css");
+      }
     }
   }, [isStyling]);
 
@@ -154,8 +183,8 @@ const TemplatePage = () => {
             <MonacoEditor
               width="540px"
               height="600"
-              language="javascript"
-              theme="vs-dark"
+              language="html"
+              theme="vs-light"
               value={code}
               options={options}
               onChange={onChange}
