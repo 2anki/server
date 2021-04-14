@@ -9,6 +9,7 @@ import {
 } from "trunx";
 import MonacoEditor from "react-monaco-editor";
 import { useState } from "react";
+import TemplateSelect from "../components/TemplateSelect";
 
 interface TemplateField {
   name: string;
@@ -62,15 +63,13 @@ const TemplatePage = () => {
           </div>
           <div className="field-body">
             <div className="field">
-              <p className="control">
-                <div className="select">
-                  <select>
-                    {files.map((f) => (
-                      <option>{f.name}</option>
-                    ))}
-                  </select>
-                </div>
-              </p>
+              <TemplateSelect
+                values={files.map((f) => {
+                  return { label: f.name, value: f.name };
+                })}
+                defaultValue="n2a-basic"
+                storageKey="current-card-type"
+              />
             </div>
           </div>
         </div>

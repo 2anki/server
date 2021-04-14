@@ -5,6 +5,7 @@ interface SelectOption {
   label: string;
 }
 
+// TODO: rename to not use Template in name
 const TemplateSelect: React.FC<{
   storageKey: string;
   defaultValue: string;
