@@ -62,10 +62,6 @@ const TemplatePage = () => {
     }
   };
 
-  const saveChanges = () => {
-    console.log("TODO save");
-  };
-
   const getCurrentCardType = useCallback(() => {
     return files.find((x) => x.storageKey === currentCardType);
   }, [currentCardType]);
@@ -80,6 +76,14 @@ const TemplatePage = () => {
       }
     }
     return "<p>Error with preview</p>";
+  };
+
+  const getPreviewStyle = () => {
+    const c = getCurrentCardType();
+    if (c) {
+      return c.styling;
+    }
+    return "";
   };
 
   // Fetch the base presets from the server
@@ -265,21 +269,20 @@ const TemplatePage = () => {
                     }}
                   >
                     {
-                      <div
-                        dangerouslySetInnerHTML={{
-                          __html: getPreviewContent(),
-                        }}
-                      ></div>
+                      <div>
+                        <style scoped>{getPreviewStyle()}</style>
+                        <div
+                          className="toggle"
+                          dangerouslySetInnerHTML={{
+                            __html: getPreviewContent(),
+                          }}
+                        ></div>
+                      </div>
                     }
                   </div>
                 </div>
               </Column>
             </Columns>
-            <Container hasTextCentered mt2>
-              <Button isPrimary onClick={saveChanges}>
-                Save
-              </Button>
-            </Container>
           </>
         )}
       </Container>
