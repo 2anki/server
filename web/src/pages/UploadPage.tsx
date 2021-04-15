@@ -60,7 +60,7 @@ const UploadPage = () => {
         <Message.Body>
           <Columns>
             {SUPPORTERS.map((patreon) => (
-              <Column>
+              <Column key={patreon.link}>
                 <figure className="image is-32x32">
                   <img
                     loading="lazy"

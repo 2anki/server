@@ -5,6 +5,14 @@ interface CardOption {
   description: string;
 }
 
+const _loadOption = (key: string, defaultValue: boolean) => {
+  const value = localStorage.getItem(key);
+  if (value === null) {
+    return defaultValue;
+  }
+  return value === "true";
+};
+
 class CardOptionsStore {
   public options: CardOption[];
 
@@ -32,21 +40,21 @@ class CardOptionsStore {
       {
         key: "all",
         label: "Use All Toggle Lists",
-        value: localStorage.getItem("all") === "true" || false,
+        value: _loadOption("all", false),
         description:
           "By default we only check for toggle lists in the first page. Use this option to retreive toggle lists from anywhere in the page.",
       },
       {
         key: "paragraph",
         label: "Use Plain Text for Back",
-        value: localStorage.getItem("paragraph") === "true" || false,
+        value: _loadOption("paragraph", false),
         description:
           "This option will remove formatting and get the text content only.",
       },
       {
         key: "cherry",
         label: "Enable Cherry Picking Using 🍒 Emoji",
-        value: localStorage.getItem("cherry") === "true" || false,
+        value: _loadOption("cherry", false),
         description:
           "This will Only create flashcards from the toggle lists that include 🍒 in the toggle (header or body)",
       },
@@ -54,77 +62,76 @@ class CardOptionsStore {
         key: "avocado",
         label:
           "Only Create Flashcards From Toggles That Don't Have The 🥑 Emoji",
-        value: localStorage.getItem("avocado") === "true" || false,
+        value: _loadOption("avocado", false),
         description:
           "This option enables you to ignore certain toggles when creating flashcards from pages that you don't want to change too much.",
       },
       {
         key: "tags",
         label: "Treat Strikethrough as Tags",
-        value: localStorage.getItem("tags") === "true" || true,
+        value: _loadOption("tags", true),
         description:
           "This will go treat the strikethroughs in the page as global ones. The ones inside of a toggle will be treated as locally to the toggle.",
       },
       {
         key: "basic",
         label: "Basic Front and Back",
-        value: localStorage.getItem("basic") === "true" || true,
+        value: _loadOption("basic", true),
         description:
           "Create question and answer type flashcards. This is the default unless turned off.",
       },
       {
         key: "cloze",
         label: "Cloze Deletion",
-        value: localStorage.getItem("cloze") === "true" || true,
+        value: _loadOption("cloze", true),
         description: "Create cloze flashcards from code blocks.",
       },
       {
         key: "enable-input",
         label: "Treat Bold Text as Input",
-        value: localStorage.getItem("enable-input") === "true" || false,
+        value: _loadOption("enable-input", false),
         description:
           "Words marked as bold will be removed and you will have to enter them in when reviewing the card. This is useful when you need to type out the answer.",
       },
       {
         key: "basic-reversed",
         label: "Basic and Reversed",
-        value: localStorage.getItem("basic-reversed") === "true" || false,
+        value: _loadOption("basic-reversed", false),
         description:
           "Create the question and answer flashcards but also reversed ones. Where the answer and question change places.",
       },
       {
         key: "reversed",
         label: "Just the Reversed Flashcards",
-        value: localStorage.getItem("reversed") === "true" || false,
+        value: _loadOption("reversed", false),
         description:
           "Only create flashcards from the reverse. This is useful when you want to say show an image first.",
       },
       {
         key: "no-underline",
         label: "Remove Underlines",
-        value: localStorage.getItem("no-underline") === "true" || false,
+        value: _loadOption("no-underline", false),
         description:
           "Disable underline. This is an option that was created due to changes in the way Notion handles underlines.",
       },
       {
         key: "max-one-toggle-per-card",
         label: "Maximum One Toggle Per Card",
-        value:
-          localStorage.getItem("max-one-toggle-per-card") === "true" || false,
+        value: _loadOption("max-one-toggle-per-card", false),
         description:
           "This will limit to 1 card so you don't see too many toggles in one card. When you combine this with 'Use all toggle lists' you can create flashcards from everything in your upload, regardless of how deeply nested they are.",
       },
       {
         key: "remove-mp3-links",
         label: "Remove the MP3 Links Created From Audio Files",
-        value: localStorage.getItem("remove-mp3-links") === "true" || false,
+        value: _loadOption("remove-mp3-links", false),
         description:
           "Due to backwards-compatability we leave links untouched but this option let's you remove mp3 links",
       },
       {
         key: "perserve-newlines",
         label: "Preserve Newlines in the Toggle Header and Body",
-        value: localStorage.getItem("perserve-newlines") === "true" || false,
+        value: _loadOption("perserve-newlines", false),
         description:
           "This will allow you to use SHIFT-Enter in the toggles to create multiple lines for all card types (Basic, Cloze, etc.)",
       },
