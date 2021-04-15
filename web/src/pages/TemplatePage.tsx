@@ -8,18 +8,8 @@ import {
   Column,
 } from "trunx";
 import MonacoEditor from "react-monaco-editor";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import TemplateSelect from "../components/TemplateSelect";
-
-interface TemplateField {
-  name: string;
-  position: number;
-  font: string;
-  rtl: string;
-  size: number;
-  sticky: boolean;
-  sortField: number; // is this correct?
-}
 
 interface TemplateFile {
   parent: string;
@@ -47,6 +37,9 @@ const TemplatePage = () => {
   const [isStyling, setIsStyling] = useState(false);
   const [language, setLanguage] = useState("html");
 
+  const [currentCardType, setCurrentCardType] = useState(
+    localStorage.getItem("current-card-type") || ""
+  );
   const [isFrontPreview, setIsFrontPreview] = useState(true);
   const [isBackPreview, setIsBackPreview] = useState(false);
   const [ready, setReady] = useState(false);
@@ -56,18 +49,26 @@ const TemplatePage = () => {
   };
 
   const onChange = (newValue: any, event: any) => {
-    console.log("newValue", newValue, event);
+    const card = getCurrentCardType();
+    if (card) {
+      if (isFront) {
+        card.front = newValue;
+      } else if (isBack) {
+        card.back = newValue;
+      } else if (isStyling) {
+        card.styling = newValue;
+      }
+      localStorage.setItem(card.storageKey, JSON.stringify(card, null, 2));
+    }
   };
 
   const saveChanges = () => {
     console.log("TODO save");
   };
 
-  const currentCardType = () => {
-    const currentCardType = localStorage.getItem("current-card-type");
-    console.log(currentCardType);
+  const getCurrentCardType = useCallback(() => {
     return files.find((x) => x.storageKey === currentCardType);
-  };
+  }, [currentCardType]);
 
   // Fetch the base presets from the server
   useEffect(() => {
@@ -79,6 +80,7 @@ const TemplatePage = () => {
         } else {
           const remote = await fetchTemplate(key);
           files.push(remote);
+          localStorage.setItem(key, JSON.stringify(remote, null, 2));
         }
         console.log("files", files);
       }
@@ -90,7 +92,7 @@ const TemplatePage = () => {
 
   useEffect(() => {
     if (isFront) {
-      const c = currentCardType();
+      const c = getCurrentCardType();
       if (c) {
         setLanguage("html");
         setCode(c.front);
@@ -100,11 +102,11 @@ const TemplatePage = () => {
       setIsStyling(false);
       setIsBack(false);
     }
-  }, [isFront]);
+  }, [isFront, currentCardType, getCurrentCardType]);
 
   useEffect(() => {
     if (isBack) {
-      const c = currentCardType();
+      const c = getCurrentCardType();
       if (c) {
         setCode(c.back);
         setLanguage("html");
@@ -114,20 +116,20 @@ const TemplatePage = () => {
       setIsStyling(false);
       setIsFront(false);
     }
-  }, [isBack]);
+  }, [getCurrentCardType, isBack]);
 
   useEffect(() => {
     if (isStyling) {
       setIsStyling(isStyling);
       setIsFront(false);
       setIsBack(false);
-      const c = currentCardType();
+      const c = getCurrentCardType();
       if (c) {
         setCode(c.styling);
         setLanguage("css");
       }
     }
-  }, [isStyling]);
+  }, [getCurrentCardType, isStyling]);
 
   useEffect(() => {
     if (isBackPreview) {
@@ -161,6 +163,10 @@ const TemplatePage = () => {
                     })}
                     defaultValue="n2a-basic"
                     storageKey="current-card-type"
+                    callback={(value) => {
+                      setIsFront(true);
+                      setCurrentCardType(value);
+                    }}
                   />
                 </div>
               </div>
@@ -204,7 +210,7 @@ const TemplatePage = () => {
                   width="540px"
                   height="600"
                   language={language}
-                  theme="vs-light"
+                  theme="vs-dark"
                   value={code}
                   options={options}
                   onChange={onChange}

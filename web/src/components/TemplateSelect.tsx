@@ -10,7 +10,8 @@ const TemplateSelect: React.FC<{
   storageKey: string;
   defaultValue: string;
   values: SelectOption[];
-}> = ({ storageKey, defaultValue, values }) => {
+  callback?: (value: string) => void;
+}> = ({ storageKey, defaultValue, values, callback }) => {
   const [value, setValue] = useState(
     localStorage.getItem(storageKey) || defaultValue
   );
@@ -26,6 +27,9 @@ const TemplateSelect: React.FC<{
               const value = event.target.value;
               setValue(value);
               localStorage.setItem(storageKey, value);
+              if (callback) {
+                callback(value);
+              }
             }}
           >
             {values.map((v) => (
