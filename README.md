@@ -79,6 +79,8 @@ You can purpose changes via the [Suggestions](https://www.notion.so/alemayhu/Sug
 
 ## Development
 
+If you prefer using Visual Studio Code, there is a [code tour](https://github.com/microsoft/codetour) available in the repository.
+
 There are two directories [web][./web] and [server][./server]. The web is a [React](https://reactjs.org/) application and the server is a [Express.js](https://expressjs.com/) application.
 
 We are assuming you have Node.js already installed, if not then see their website on how install it https://nodejs.org/en/
