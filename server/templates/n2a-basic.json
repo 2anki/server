@@ -1,4 +1,8 @@
 {
+  "parent": "Basic",
+  "name": "n2a-basic",
+  "styling": "",
+  "storageKey": "n2a-basic",
   "front": "<span class=\"front-text-pre\">{{Front}}</span>",
   "back": "<span class=\"front-text-post\">{{Front}}</span><hr id=\"answer\"><span class=\"back-text\">{{Back}}</span>",
   "fields": [{ "name": "Front" }, { "name": "Back" }, { "name": "MyMedia" }]

@@ -1,4 +1,8 @@
 {
+  "parent": "Input",
+  "name": "n2a-input",
+  "styling": "",
+  "storageKey": "n2a-input",
   "front": "{{Front}}<br>{{type:Input}}",
   "back": "{{FrontSide}}<hr id=\"answer\">{{Back}}",
   "fields": [
