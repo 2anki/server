@@ -70,6 +70,18 @@ const TemplatePage = () => {
     return files.find((x) => x.storageKey === currentCardType);
   }, [currentCardType]);
 
+  const getPreviewContent = () => {
+    const c = getCurrentCardType();
+    if (c) {
+      if (isFront) {
+        return c.front;
+      } else {
+        return c.back;
+      }
+    }
+    return "<p>Error with preview</p>";
+  };
+
   // Fetch the base presets from the server
   useEffect(() => {
     (async function () {
@@ -251,7 +263,15 @@ const TemplatePage = () => {
                       width: "540px",
                       border: "1.3px solid grey",
                     }}
-                  ></div>
+                  >
+                    {
+                      <div
+                        dangerouslySetInnerHTML={{
+                          __html: getPreviewContent(),
+                        }}
+                      ></div>
+                    }
+                  </div>
                 </div>
               </Column>
             </Columns>
