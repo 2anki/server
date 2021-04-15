@@ -39,7 +39,7 @@ function App() {
           <Header />
           <Container>
             <Switch>
-              <Route path="/template">
+              <Route path="/atm">
                 <TemplatePage />
               </Route>
               <Route path="/upload">
