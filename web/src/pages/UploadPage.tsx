@@ -56,7 +56,7 @@ const UploadPage = () => {
         {isSettings ? <Settings /> : null}
       </div>
       <Message style={{ maxWidth: "480px", margin: "1rem auto" }} isInfo>
-        <Message.Header>Thank you to my patrons!</Message.Header>
+        <Message.Header>Thank you to my supporters!</Message.Header>
         <Message.Body>
           <Columns>
             {SUPPORTERS.map((patreon) => (
