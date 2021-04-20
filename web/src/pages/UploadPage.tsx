@@ -95,9 +95,9 @@ const UploadPage = () => {
             #stillfree
             <hr />
           </div>
-          <Columns>
+          <Columns hasTextCentered>
             {SUPPORTERS.map((patreon) => (
-              <Column key={patreon.link}>
+              <Column key={patreon.link} isInlineFlexMobile>
                 <figure className="image is-32x32">
                   <img
                     loading="lazy"
