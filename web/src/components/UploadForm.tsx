@@ -5,10 +5,6 @@ import DownloadModal from "./DownloadModal";
 import { Message, Delete } from "trunx";
 
 const UploadForm = () => {
-  const notificationKey = "show-notification";
-  const [showNotification, setShowNotification] = useState(
-    localStorage.getItem(notificationKey) !== "false"
-  );
   const [uploading, setUploading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [downloadLink, setDownloadLink] = useState("");
@@ -67,11 +63,6 @@ const UploadForm = () => {
     if (filename) setSelectedFilename(filename);
   };
 
-  const hideInfoMessage = () => {
-    setShowNotification(false);
-    window.localStorage.setItem(notificationKey, "false");
-  };
-
   return (
     <form
       encType="multipart/form-data"
@@ -83,55 +74,6 @@ const UploadForm = () => {
       <h2 className="title has-text-centered">Notion to Anki</h2>
 
       {errorMessage && <ErrorMessage msg={errorMessage} />}
-
-      {/* Until we have onboarding, give new users some basic info */}
-      {showNotification && (
-        <div style={{ maxWidth: "480px", margin: "1rem auto" }}>
-          <Message isInfo>
-            <Message.Header>
-              <p> This project is 100% free and will remain free ✌️ </p>
-              <Delete onClick={hideInfoMessage} />
-            </Message.Header>
-            <Message.Body>
-              <p>
-                We only support<span> </span>
-                <a
-                  rel="noreferrer"
-                  target="_blank"
-                  href="https://www.notion.so/Export-as-HTML-bf3fe9e6920e4b9883cbd8a76b6128b7"
-                >
-                  HTML
-                </a>
-                <span> </span>
-                uploads from Notion. For tutorials checkout the official
-                <span> </span>
-                <a
-                  rel="noreferrer"
-                  target="_blank"
-                  href="https://www.youtube.com/playlist?list=PLzOAzzqpDqukOtwH3IYWiOhr_sjBjfgCd"
-                >
-                  playlist
-                </a>
-                . To receive support join the<span> </span>
-                <a
-                  rel="noreferrer"
-                  target="_blank"
-                  href="https://discord.com/invite/PSKC3uS"
-                >
-                  Discord server
-                </a>
-                .
-              </p>
-              <div
-                className="has-text-centered"
-                style={{ color: "grey", fontWeight: "normal" }}
-              >
-                #stillfree
-              </div>
-            </Message.Body>
-          </Message>
-        </div>
-      )}
       <div className="field">
         <div className={`file is-centered is-boxed has-name`}>
           <div className="field">
