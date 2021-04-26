@@ -97,8 +97,8 @@ const Settings: React.FC = () => {
             { value: "nostyle", label: "Raw Note (no style)" },
             { value: "abhiyan", label: "Abhiyan Bhandari (Night Mode)" },
           ]}
-          defaultValue="close_toggle"
-          storageKey="toggle-mode"
+          defaultValue="specialstyle"
+          storageKey="template"
         />
         <TemplateName
           storageKey="basic_model_name"

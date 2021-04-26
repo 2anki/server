@@ -35,7 +35,7 @@ export default class Settings {
     this.isAll = input.all === "true";
     this.fontSize = input["font-size"];
     this.isTextOnlyBack = input.paragraph === "true";
-    this.toggleMode = input["toggle-mode"];
+    this.toggleMode = input["toggle-mode"] || "close_toggle";
     this.isCloze = input.cloze !== "false";
     this.isEmptyDescription = input["empty-deck-desc"] !== "true" || false;
     this.useTags = input.tags !== "false";

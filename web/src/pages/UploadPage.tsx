@@ -56,11 +56,48 @@ const UploadPage = () => {
         {isSettings ? <Settings /> : null}
       </div>
       <Message style={{ maxWidth: "480px", margin: "1rem auto" }} isInfo>
-        <Message.Header>Thank you to my patrons!</Message.Header>
+        <Message.Header>Thank you to my supporters!</Message.Header>
         <Message.Body>
-          <Columns>
+          <p> This project is 100% free and will remain free ✌️ </p>
+          <p>
+            We only support<span> </span>
+            <a
+              rel="noreferrer"
+              target="_blank"
+              href="https://www.notion.so/Export-as-HTML-bf3fe9e6920e4b9883cbd8a76b6128b7"
+            >
+              HTML
+            </a>
+            <span> </span>
+            uploads from Notion. For tutorials checkout the official
+            <span> </span>
+            <a
+              rel="noreferrer"
+              target="_blank"
+              href="https://www.youtube.com/playlist?list=PLzOAzzqpDqukOtwH3IYWiOhr_sjBjfgCd"
+            >
+              playlist
+            </a>
+            . To receive support join the<span> </span>
+            <a
+              rel="noreferrer"
+              target="_blank"
+              href="https://discord.com/invite/PSKC3uS"
+            >
+              Discord server
+            </a>
+            .
+          </p>
+          <div
+            className="has-text-centered"
+            style={{ color: "grey", fontWeight: "normal" }}
+          >
+            #stillfree
+            <hr />
+          </div>
+          <Columns hasTextCentered>
             {SUPPORTERS.map((patreon) => (
-              <Column key={patreon.link}>
+              <Column key={patreon.link} isInlineFlexMobile>
                 <figure className="image is-32x32">
                   <img
                     loading="lazy"
