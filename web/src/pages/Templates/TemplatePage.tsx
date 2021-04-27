@@ -9,7 +9,7 @@ import {
 } from "trunx";
 import MonacoEditor from "react-monaco-editor";
 import { useCallback, useEffect, useState } from "react";
-import TemplateSelect from "../components/TemplateSelect";
+import TemplateSelect from "../../components/TemplateSelect";
 
 interface TemplateFile {
   parent: string;
@@ -22,7 +22,7 @@ interface TemplateFile {
 
 let files: TemplateFile[] = [];
 
-async function fetchTemplate(name: string) {
+async function fetchBaseType(name: string) {
   let url = `/templates/${name}.json`;
   const request = await window.fetch(url);
   const response = await request.json();
@@ -94,14 +94,15 @@ const TemplatePage = () => {
         if (local) {
           files.push(JSON.parse(local));
         } else {
-          const remote = await fetchTemplate(key);
+          const remote = await fetchBaseType(key);
           files.push(remote);
           localStorage.setItem(key, JSON.stringify(remote, null, 2));
         }
-        console.log("files", files);
       }
       setReady(true);
       setLanguage("html");
+      // Use the first basic front template as default file to load.
+      // We might want to change this later to perserve last open file.
       setCode(files[0].front);
     })();
   }, []);
@@ -140,7 +141,9 @@ const TemplatePage = () => {
       setIsFront(false);
       setIsBack(false);
       const c = getCurrentCardType();
+      console.log("c", c);
       if (c) {
+        console.log(c.styling);
         setCode(c.styling);
         setLanguage("css");
       }
@@ -270,7 +273,7 @@ const TemplatePage = () => {
                   >
                     {
                       <div>
-                        <style scoped>{getPreviewStyle()}</style>
+                        {/* <style scoped>{getPreviewStyle()}</style> */}
                         <div
                           className="toggle"
                           dangerouslySetInnerHTML={{
