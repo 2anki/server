@@ -12,9 +12,5 @@ export default class Note {
     this.name = name;
     this.back = back;
     this.tags = [];
-
-    if (!back) {
-      throw new Error("Missing back side");
-    }
   }
 }
