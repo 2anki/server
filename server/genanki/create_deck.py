@@ -99,13 +99,12 @@ if __name__ == "__main__":
                 my_note = Note(model, fields=fields, sort_field=card["number"], tags=card['tags'])
                 notes.append(my_note)
                 media_files = media_files + card["media"]            
-            deck_desc = "<p>This deck is brought to you by some amazing <a class='patreon-cta' href='https://www.patreon.com/alemayhu'>patrons</a> 🤩</p>"
             decks.append(
                 {
                     "notes": notes,
                     "id": deck["id"],
-                    "desc": deck_desc,
-                    "name": deck["name"],
+                    "desc": "",
+                    "name":  mt.get("deckName", deck["name"]),
                 }
             )
 

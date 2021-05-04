@@ -35,9 +35,14 @@ export class DeckParser {
     this.files = files || [];
     this.firstDeckName = name;
     this.globalTags = null;
-    const file = this.files.find(
-      (file) => file.name === global.decodeURIComponent(name)
-    );
+    const file = this.files.find((file) => {
+      try {
+        return file.name === global.decodeURIComponent(name);
+      } catch (error) {
+        console.error(error);
+        return file.name === name;
+      }
+    });
     if (file) {
       this.payload = this.handleHTML(
         name,

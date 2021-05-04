@@ -48,6 +48,7 @@ const Header = () => {
                 destination="/upload"
                 text={"Create"}
                 isLarge={false}
+                onClickLink={() => setActive(false)}
               />
             </div>
             <a

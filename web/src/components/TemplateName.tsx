@@ -1,27 +1,23 @@
-import { useState } from "react";
-
-const TemplateName: React.FC<{
-  storageKey: string;
+interface TemplateNameDelegate {
+  name: string;
   label: string;
   placeholder: string;
-}> = ({ storageKey, label, placeholder }) => {
-  const [value, setValue] = useState(localStorage.getItem(storageKey) || "");
+  value: string;
+  pickedName: (name: string) => void;
+}
 
+const TemplateName = (delegate: TemplateNameDelegate) => {
   return (
     <div className="field">
-      <label>{label}</label>
+      <label>{delegate.label}</label>
       <div className="control">
         <input
           type="text"
           className="input"
-          placeholder={placeholder}
-          name={storageKey}
-          value={value}
-          onChange={(event) => {
-            const newValue = event.target.value;
-            setValue(newValue);
-            localStorage.setItem(storageKey, newValue);
-          }}
+          placeholder={delegate.placeholder}
+          name={delegate.name}
+          value={delegate.value}
+          onChange={(event) => delegate.pickedName(event.target.value)}
         />
       </div>
     </div>

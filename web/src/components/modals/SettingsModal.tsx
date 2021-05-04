@@ -42,6 +42,15 @@ const SettingsModal: React.FC<{
   const [toggleMode, setToggleMode] = useState(
     localStorage.getItem("toggle-mode") || "close_toggle"
   );
+  const [basicName, setBasicName] = useState(
+    localStorage.getItem("basic_model_name") || ""
+  );
+  const [clozeName, setClozeName] = useState(
+    localStorage.getItem("cloze_model_name") || ""
+  );
+  const [inputName, setInputName] = useState(
+    localStorage.getItem("input_model_name") || ""
+  );
 
   const resetStore = () => {
     store.clear();
@@ -49,6 +58,10 @@ const SettingsModal: React.FC<{
     setToggleMode("close_toggle");
     setTemplate("specialstyle");
     setOptions([...store.options]);
+    setDeckName("");
+    setBasicName("");
+    setClozeName("");
+    setInputName("");
   };
   return (
     <Modal isActive={isActive}>
@@ -81,8 +94,8 @@ const SettingsModal: React.FC<{
                     const newName = event.target.value;
                     if (newName !== deckName) {
                       setDeckName(newName);
-                      localStorage.setItem(deckNameKey, deckName);
                     }
+                    localStorage.setItem(deckNameKey, newName);
                   }}
                 />
               </div>
@@ -131,19 +144,34 @@ const SettingsModal: React.FC<{
                 }}
               />
               <TemplateName
-                storageKey="basic_model_name"
+                name="basic_model_name"
+                value={basicName}
                 placeholder="Defaults to n2a-basic"
                 label="Basic Template Name"
+                pickedName={(name) => {
+                  setBasicName(name);
+                  localStorage.setItem("basic_model_name", name);
+                }}
               />
               <TemplateName
-                storageKey="cloze_model_name"
+                name="cloze_model_name"
+                value={clozeName}
                 placeholder="Defaults to n2a-cloze"
                 label="Cloze Template Name"
+                pickedName={(name) => {
+                  setClozeName(name);
+                  localStorage.setItem("cloze_model_name", name);
+                }}
               />
               <TemplateName
-                storageKey="input_model_name"
+                name="input_model_name"
+                value={inputName}
                 placeholder="Defaults to n2a-input"
                 label="Input Template Name"
+                pickedName={(name) => {
+                  setInputName(name);
+                  localStorage.setItem("input_model_name", name);
+                }}
               />
 
               <FontSizePicker
