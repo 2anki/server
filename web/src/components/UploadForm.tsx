@@ -80,7 +80,7 @@ const UploadForm = () => {
                 className="file-input"
                 type="file"
                 name="pakker"
-                accept=".zip,.html,.md"
+                accept=".zip,.html"
                 required
                 multiple={true}
                 onChange={(event) => fileSelected(event)}
