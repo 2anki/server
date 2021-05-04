@@ -7,7 +7,9 @@ const UploadForm = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [downloadLink, setDownloadLink] = useState("");
   const [deckName, setDeckName] = useState("");
-  const [selectedFilename, setSelectedFilename] = useState("");
+  const [selectedFilename, setSelectedFilename] = useState(
+    localStorage.getItem("selected-filename") || ""
+  );
 
   const handleSubmit = async (event: SyntheticEvent) => {
     event.preventDefault();
@@ -58,7 +60,10 @@ const UploadForm = () => {
         return "";
       }
     })();
-    if (filename) setSelectedFilename(filename);
+    if (filename) {
+      setSelectedFilename(filename);
+      localStorage.setItem("selected-filename", filename);
+    }
   };
 
   return (
