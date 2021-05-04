@@ -24,9 +24,13 @@ const SettingsModal: React.FC<{
   );
   const store = useContext(StoreContext);
   const [options, setOptions] = useState(store.options);
+  const [fontSize, setFontSize] = useState(
+    parseInt(localStorage.getItem("font-size") || "") || 20
+  );
 
   const resetStore = () => {
     store.clear();
+    setFontSize(20);
     setOptions([...store.options]);
   };
   return (
@@ -125,7 +129,13 @@ const SettingsModal: React.FC<{
                 label="Input Template Name"
               />
 
-              <FontSizePicker />
+              <FontSizePicker
+                fontSize={fontSize}
+                pickedFontSize={(fs) => {
+                  setFontSize(fs);
+                  localStorage.setItem("font-size", fs.toString());
+                }}
+              />
 
               <hr />
               <h2>Preview support is coming soon</h2>
