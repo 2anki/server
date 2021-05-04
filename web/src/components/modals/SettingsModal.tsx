@@ -49,6 +49,7 @@ const SettingsModal: React.FC<{
     setToggleMode("close_toggle");
     setTemplate("specialstyle");
     setOptions([...store.options]);
+    setDeckName("");
   };
   return (
     <Modal isActive={isActive}>
