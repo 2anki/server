@@ -150,6 +150,7 @@ const SettingsModal: React.FC<{
           </div>
         </section>
         <Modal.Card.Foot isJustifyContentCenter>
+          <Button onClick={onClickClose}>Done</Button>
           <Button isDanger onClick={() => resetStore()}>
             Clear
           </Button>
