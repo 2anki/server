@@ -94,8 +94,8 @@ const SettingsModal: React.FC<{
                     const newName = event.target.value;
                     if (newName !== deckName) {
                       setDeckName(newName);
-                      localStorage.setItem(deckNameKey, deckName);
                     }
+                    localStorage.setItem(deckNameKey, newName);
                   }}
                 />
               </div>
