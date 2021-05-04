@@ -1,7 +1,6 @@
 import { SyntheticEvent, useState } from "react";
 import ErrorMessage from "./ErrorMessage";
 import DownloadModal from "./modals/DownloadModal";
-import SettingsModal from "./modals/SettingsModal";
 
 const UploadForm = () => {
   const [uploading, setUploading] = useState(false);
@@ -11,7 +10,6 @@ const UploadForm = () => {
   const [selectedFilename, setSelectedFilename] = useState(
     localStorage.getItem("selected-filename") || ""
   );
-  const [isSettings, setIsSettings] = useState(true);
 
   const handleSubmit = async (event: SyntheticEvent) => {
     event.preventDefault();
@@ -122,10 +120,6 @@ const UploadForm = () => {
                 }}
               />
             )}
-            <SettingsModal
-              isActive={isSettings}
-              onClickClose={() => setIsSettings(false)}
-            />
           </div>
         </div>
       </div>
