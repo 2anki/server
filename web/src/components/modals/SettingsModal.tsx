@@ -27,10 +27,27 @@ const SettingsModal: React.FC<{
   const [fontSize, setFontSize] = useState(
     parseInt(localStorage.getItem("font-size") || "") || 20
   );
+  const availableTemplates = [
+    { value: "specialstyle", label: "Default" },
+    { value: "notionstyle", label: "Only Notion" },
+    { value: "nostyle", label: "Raw Note (no style)" },
+    {
+      value: "abhiyan",
+      label: "Abhiyan Bhandari (Night Mode)",
+    },
+  ];
+  const [template, setTemplate] = useState(
+    localStorage.getItem("template") || "specialstyle"
+  );
+  const [toggleMode, setToggleMode] = useState(
+    localStorage.getItem("toggle-mode") || "close_toggle"
+  );
 
   const resetStore = () => {
     store.clear();
     setFontSize(20);
+    setToggleMode("close_toggle");
+    setTemplate("specialstyle");
     setOptions([...store.options]);
   };
   return (
@@ -84,8 +101,12 @@ const SettingsModal: React.FC<{
                     { label: "Open nested toggles", value: "open_toggle" },
                     { label: "Close nested toggles", value: "close_toggle" },
                   ]}
-                  defaultValue="close_toggle"
-                  storageKey="toggle-mode"
+                  value={toggleMode}
+                  name="toggle-mode"
+                  pickedTemplate={(t) => {
+                    setToggleMode(t);
+                    localStorage.setItem("toggle-mode", t);
+                  }}
                 />
                 {options.map((o) => (
                   <LocalCheckbox
@@ -101,17 +122,13 @@ const SettingsModal: React.FC<{
             <h2 className="title is-3">Template Options</h2>
             <BlueTintedBox>
               <TemplateSelect
-                values={[
-                  { value: "specialstyle", label: "Default" },
-                  { value: "notionstyle", label: "Only Notion" },
-                  { value: "nostyle", label: "Raw Note (no style)" },
-                  {
-                    value: "abhiyan",
-                    label: "Abhiyan Bhandari (Night Mode)",
-                  },
-                ]}
-                defaultValue="specialstyle"
-                storageKey="template"
+                values={availableTemplates}
+                value={template}
+                name="template"
+                pickedTemplate={(t) => {
+                  setTemplate(t);
+                  localStorage.setItem("template", t);
+                }}
               />
               <TemplateName
                 storageKey="basic_model_name"
