@@ -7,7 +7,6 @@ export default class Deck {
   image: string | undefined;
   style: string | null;
   id: number;
-  emptyDescription: boolean = false;
   settings: Settings | null;
 
   get cardCount() {

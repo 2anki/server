@@ -65,12 +65,6 @@ const SettingsModal: React.FC<{
                   }}
                 />
               </div>
-              <LocalCheckbox
-                store={store}
-                storageKey="empty-description"
-                label="Empty Deck Description"
-                description="Anki supports deck descriptions. We use this to tell people that the deck was created via this website."
-              />
             </div>
             <h2 className="title is-3">Card Options</h2>
             <div className="container">
