@@ -1,12 +1,4 @@
-import {
-  Section,
-  Title,
-  Subtitle,
-  Container,
-  Button,
-  Columns,
-  Column,
-} from "trunx";
+import { Section, Title, Subtitle, Container, Columns, Column } from "trunx";
 import MonacoEditor from "react-monaco-editor";
 import { useCallback, useEffect, useState } from "react";
 import TemplateSelect from "../../components/TemplateSelect";
@@ -31,18 +23,29 @@ async function fetchBaseType(name: string) {
 
 const TemplatePage = () => {
   const [code, setCode] = useState("");
-  const [options, setOptions] = useState({});
+  const [options, _setOptions] = useState({
+    colorDecorators: false,
+  });
   const [isFront, setIsFront] = useState(true);
   const [isBack, setIsBack] = useState(false);
   const [isStyling, setIsStyling] = useState(false);
   const [language, setLanguage] = useState("html");
 
   const [currentCardType, setCurrentCardType] = useState(
-    localStorage.getItem("current-card-type") || "basic"
+    localStorage.getItem("current-card-type") || "n2a-basic"
   );
   const [isFrontPreview, setIsFrontPreview] = useState(true);
   const [isBackPreview, setIsBackPreview] = useState(false);
   const [ready, setReady] = useState(false);
+  const [preview, setPreview] = useState("Loading...");
+
+  const getPreviewStyle = () => {
+    const c = getCurrentCardType();
+    if (c) {
+      return c.styling;
+    }
+    return "";
+  };
 
   const editorDidMount = (editor: { focus: () => void }, _monaco: any) => {
     editor.focus();
@@ -53,6 +56,10 @@ const TemplatePage = () => {
     if (card) {
       if (isFront) {
         card.front = newValue;
+        setPreview(newValue);
+
+        console.log("newValue", newValue);
+        console.log("card.front", card.front);
       } else if (isBack) {
         card.back = newValue;
       } else if (isStyling) {
@@ -65,26 +72,6 @@ const TemplatePage = () => {
   const getCurrentCardType = useCallback(() => {
     return files.find((x) => x.storageKey === currentCardType);
   }, [currentCardType]);
-
-  const getPreviewContent = () => {
-    const c = getCurrentCardType();
-    if (c) {
-      if (isFront) {
-        return c.front;
-      } else {
-        return c.back;
-      }
-    }
-    return "<p>Error with preview</p>";
-  };
-
-  const getPreviewStyle = () => {
-    const c = getCurrentCardType();
-    if (c) {
-      return c.styling;
-    }
-    return "";
-  };
 
   // Fetch the base presets from the server
   useEffect(() => {
@@ -113,6 +100,7 @@ const TemplatePage = () => {
       if (c) {
         setLanguage("html");
         setCode(c.front);
+        setPreview(c.front);
       }
       setIsFrontPreview(isFront);
       setIsBackPreview(false);
@@ -127,6 +115,7 @@ const TemplatePage = () => {
       if (c) {
         setCode(c.back);
         setLanguage("html");
+        setPreview(c.back);
       }
       setIsBackPreview(isBack);
       setIsFrontPreview(false);
@@ -263,25 +252,15 @@ const TemplatePage = () => {
                     />
                     Back Preview
                   </label>
-                  <div
-                    className="mt-2"
-                    style={{
-                      height: "600px",
-                      width: "540px",
-                      border: "1.3px solid grey",
-                    }}
-                  >
-                    {
-                      <div>
-                        {/* <style scoped>{getPreviewStyle()}</style> */}
-                        <div
-                          className="toggle"
-                          dangerouslySetInnerHTML={{
-                            __html: getPreviewContent(),
-                          }}
-                        ></div>
-                      </div>
-                    }
+                  <div className="mt-2">
+                    <div>
+                      <iframe
+                        height="600px"
+                        title="preview"
+                        className="toggle"
+                        srcDoc={`<style scoped>${getPreviewStyle()}</style>${preview}`}
+                      ></iframe>
+                    </div>
                   </div>
                 </div>
               </Column>
