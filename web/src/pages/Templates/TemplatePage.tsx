@@ -37,7 +37,6 @@ const TemplatePage = () => {
   const [isFrontPreview, setIsFrontPreview] = useState(true);
   const [isBackPreview, setIsBackPreview] = useState(false);
   const [ready, setReady] = useState(false);
-  const [preview, setPreview] = useState("Loading...");
 
   const getPreviewStyle = () => {
     const c = getCurrentCardType();
@@ -56,10 +55,6 @@ const TemplatePage = () => {
     if (card) {
       if (isFront) {
         card.front = newValue;
-        setPreview(newValue);
-
-        console.log("newValue", newValue);
-        console.log("card.front", card.front);
       } else if (isBack) {
         card.back = newValue;
       } else if (isStyling) {
@@ -72,6 +67,19 @@ const TemplatePage = () => {
   const getCurrentCardType = useCallback(() => {
     return files.find((x) => x.storageKey === currentCardType);
   }, [currentCardType]);
+
+  const getPreviewContent = useCallback(() => {
+    console.log("1x");
+    const c = getCurrentCardType();
+    if (c) {
+      if (isFront || isFrontPreview) {
+        return c.front;
+      } else if (isBack || isBackPreview) {
+        return c.back;
+      }
+    }
+    return "<p>Error with preview</p>";
+  }, [getCurrentCardType, isFront, isBack]);
 
   // Fetch the base presets from the server
   useEffect(() => {
@@ -100,7 +108,6 @@ const TemplatePage = () => {
       if (c) {
         setLanguage("html");
         setCode(c.front);
-        setPreview(c.front);
       }
       setIsFrontPreview(isFront);
       setIsBackPreview(false);
@@ -115,7 +122,6 @@ const TemplatePage = () => {
       if (c) {
         setCode(c.back);
         setLanguage("html");
-        setPreview(c.back);
       }
       setIsBackPreview(isBack);
       setIsFrontPreview(false);
@@ -130,9 +136,7 @@ const TemplatePage = () => {
       setIsFront(false);
       setIsBack(false);
       const c = getCurrentCardType();
-      console.log("c", c);
       if (c) {
-        console.log(c.styling);
         setCode(c.styling);
         setLanguage("css");
       }
@@ -142,12 +146,16 @@ const TemplatePage = () => {
   useEffect(() => {
     if (isBackPreview) {
       setIsFrontPreview(false);
+      setIsFront(false);
+      setIsBack(true);
     }
   }, [isBackPreview]);
 
   useEffect(() => {
     if (isFrontPreview) {
       setIsBackPreview(false);
+      setIsBack(false);
+      setIsFront(true);
     }
   }, [isFrontPreview]);
 
@@ -258,7 +266,7 @@ const TemplatePage = () => {
                         height="600px"
                         title="preview"
                         className="toggle"
-                        srcDoc={`<style scoped>${getPreviewStyle()}</style>${preview}`}
+                        srcDoc={`<style scoped>${getPreviewStyle()}</style>${getPreviewContent()}`}
                       ></iframe>
                     </div>
                   </div>
