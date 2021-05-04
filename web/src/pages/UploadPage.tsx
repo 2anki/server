@@ -1,13 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
-import WarningMessage from "../components/WarningMessage";
-import UploadForm from "../components/UploadForm";
-import Settings from "../components/Settings";
 import { useContext, useEffect, useState } from "react";
+import { Message, Column, Columns } from "trunx";
 
 import StoreContext from "../store/StoreContext";
-
+import WarningMessage from "../components/WarningMessage";
+import UploadForm from "../components/UploadForm";
 import SettingsIcon from "../components/icons/SettingsIcon";
-import { Message, Column, Columns } from "trunx";
+import SettingsModal from "../components/modals/SettingsModal";
 
 import SUPPORTERS from "../Supporters";
 
@@ -24,8 +23,9 @@ const UploadPage = () => {
   const view = query.get("view");
 
   const isUpload = view === "upload" || !view;
-  const isSettings =
-    view === "template" || view === "deck-options" || view === "card-options";
+  const [isSettings, setShowSettings] = useState(
+    view === "template" || view === "deck-options" || view === "card-options"
+  );
 
   const store = useContext(StoreContext);
   const [imageHover, setImageHover] = useState("");
@@ -43,7 +43,7 @@ const UploadPage = () => {
           <li className={`${isUpload ? "is-active" : null}`}>
             <Link to="upload?view=upload">Upload</Link>
           </li>
-          <li className={`${isSettings ? "is-active" : null}`}>
+          <li onClick={() => setShowSettings(true)}>
             <Link to="upload?view=template">
               <SettingsIcon />
               Settings
@@ -52,8 +52,11 @@ const UploadPage = () => {
         </ul>
       </div>
       <div className="container">
-        {isUpload ? <UploadForm /> : null}
-        {isSettings ? <Settings /> : null}
+        <UploadForm />
+        <SettingsModal
+          isActive={isSettings}
+          onClickClose={() => setShowSettings(false)}
+        />
       </div>
       <Message style={{ maxWidth: "480px", margin: "1rem auto" }} isInfo>
         <Message.Header>Thank you to my supporters!</Message.Header>

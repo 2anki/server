@@ -1,6 +1,6 @@
 import { SyntheticEvent, useState } from "react";
 import ErrorMessage from "./ErrorMessage";
-import DownloadModal from "./DownloadModal";
+import DownloadModal from "./modals/DownloadModal";
 
 const UploadForm = () => {
   const [uploading, setUploading] = useState(false);
@@ -80,12 +80,10 @@ const UploadForm = () => {
                 className="file-input"
                 type="file"
                 name="pakker"
-                accept=".zip,.html,.md"
+                accept=".zip,.html"
                 required
                 multiple={true}
-                onChange={(event) => {
-                  fileSelected(event);
-                }}
+                onChange={(event) => fileSelected(event)}
               />
               <span className="file-cta">
                 <span className="file-label">Click to Upload...</span>

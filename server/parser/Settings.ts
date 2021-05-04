@@ -10,7 +10,6 @@ export default class Settings {
   readonly isTextOnlyBack: boolean;
   readonly toggleMode: string;
   readonly isCloze: boolean;
-  readonly isEmptyDescription: boolean;
   readonly useTags: boolean;
   readonly basicReversed: boolean;
   readonly reversed: boolean;
@@ -37,7 +36,6 @@ export default class Settings {
     this.isTextOnlyBack = input.paragraph === "true";
     this.toggleMode = input["toggle-mode"] || "close_toggle";
     this.isCloze = input.cloze !== "false";
-    this.isEmptyDescription = input["empty-deck-desc"] !== "true" || false;
     this.useTags = input.tags !== "false";
     this.basicReversed = input["basic-reversed"] !== "false";
     this.reversed = input.reversed !== "false";
