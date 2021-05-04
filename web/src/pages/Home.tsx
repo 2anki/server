@@ -29,7 +29,12 @@ const HomePage = () => {
                 We are making it the easiest and fastest way to create beautiful
                 Anki flashcards for anyone anywhere around the world 🌎
               </p>
-              <CTAButton isLarge destination="/upload" text="Get Started" />
+              <CTAButton
+                isLarge
+                destination="/upload"
+                text="Get Started"
+                onClickLink={() => {}}
+              />
               <p>
                 Fast, simple, easy and 100%{" "}
                 <span

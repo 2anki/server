@@ -502,7 +502,6 @@ export class DeckParser {
 
     for (const d of this.payload) {
       const deck = d;
-      deck.emptyDescription = this.settings.isEmptyDescription;
       deck.id = this.generateId();
       // Is it necessary to delete the style here?
       // delete deck.style;

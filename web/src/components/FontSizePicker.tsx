@@ -1,12 +1,10 @@
-import { useState } from "react";
-
 import { Columns, Column } from "trunx";
+interface FontPickerDelegate {
+  fontSize: number;
+  pickedFontSize: (fs: number) => void;
+}
 
-const FontSizePicker = () => {
-  const [fontSize, setFontSize] = useState(
-    parseInt(localStorage.getItem("font-size") || "") || 20
-  );
-
+const FontSizePicker = (delegate: FontPickerDelegate) => {
   return (
     <div className="field">
       <label className="label">Font Size</label>
@@ -19,7 +17,7 @@ const FontSizePicker = () => {
             padding: "0",
           }}
         >
-          <input defaultValue={fontSize} name="font-size" hidden />
+          <input defaultValue={delegate.fontSize} name="font-size" hidden />
           <Columns>
             {[32, 26, 20, 12, 10].map((fontPreset) => (
               <Column key={fontPreset}>
@@ -28,11 +26,12 @@ const FontSizePicker = () => {
                   style={{
                     fontSize: `${fontPreset}px`,
                     margin: "0 8px",
-                    color: `${fontPreset === fontSize ? "#00d1b2" : "black"}`,
+                    color: `${
+                      fontPreset === delegate.fontSize ? "#00d1b2" : "black"
+                    }`,
                   }}
                   onClick={() => {
-                    setFontSize(fontPreset);
-                    localStorage.setItem("font-size", fontPreset.toString());
+                    delegate.pickedFontSize(fontPreset);
                   }}
                 >
                   Aa

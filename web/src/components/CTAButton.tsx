@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import {Link} from "react-router-dom"
+import { Link } from "react-router-dom";
 
 const StyledButton = styled.div`
   font-weight: bold;
@@ -15,10 +15,17 @@ const StyledButton = styled.div`
   }
 `;
 
-const CTAButton: React.FC<{isLarge: boolean, text: string, destination: string}> = ({isLarge, text, destination}) => {
+const CTAButton: React.FC<{
+  isLarge: boolean;
+  text: string;
+  destination: string;
+  onClickLink: React.MouseEventHandler;
+}> = ({ isLarge, text, destination, onClickLink }) => {
   return (
-    <StyledButton className={`button ${isLarge ? 'is-large' : null}`}>
-      <Link to={destination}>{text}</Link>
+    <StyledButton className={`button ${isLarge ? "is-large" : null}`}>
+      <Link onClick={onClickLink} to={destination}>
+        {text}
+      </Link>
     </StyledButton>
   );
 };
