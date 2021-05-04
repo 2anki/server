@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 import { Columns, Column } from "trunx";
 interface FontPickerDelegate {
   fontSize: number;
