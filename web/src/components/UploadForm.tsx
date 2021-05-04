@@ -83,9 +83,7 @@ const UploadForm = () => {
                 accept=".zip,.html,.md"
                 required
                 multiple={true}
-                onChange={(event) => {
-                  fileSelected(event);
-                }}
+                onChange={(event) => fileSelected(event)}
               />
               <span className="file-cta">
                 <span className="file-label">Click to Upload...</span>
