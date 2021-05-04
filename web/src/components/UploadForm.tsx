@@ -1,6 +1,6 @@
 import { SyntheticEvent, useState } from "react";
 import ErrorMessage from "./ErrorMessage";
-import DownloadModal from "./DownloadModal";
+import DownloadModal from "./modals/DownloadModal";
 
 const UploadForm = () => {
   const [uploading, setUploading] = useState(false);
