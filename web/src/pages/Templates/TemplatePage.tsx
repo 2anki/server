@@ -38,7 +38,7 @@ const TemplatePage = () => {
   const [language, setLanguage] = useState("html");
 
   const [currentCardType, setCurrentCardType] = useState(
-    localStorage.getItem("current-card-type") || ""
+    localStorage.getItem("current-card-type") || "basic"
   );
   const [isFrontPreview, setIsFrontPreview] = useState(true);
   const [isBackPreview, setIsBackPreview] = useState(false);
@@ -180,11 +180,11 @@ const TemplatePage = () => {
                     values={files.map((f) => {
                       return { label: f.name, value: f.name };
                     })}
-                    defaultValue="n2a-basic"
-                    storageKey="current-card-type"
-                    callback={(value) => {
+                    value={currentCardType}
+                    name="current-card-type"
+                    pickedTemplate={(t) => {
                       setIsFront(true);
-                      setCurrentCardType(value);
+                      setCurrentCardType(t);
                     }}
                   />
                 </div>
