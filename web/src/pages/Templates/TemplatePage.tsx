@@ -79,7 +79,7 @@ const TemplatePage = () => {
       }
     }
     return "<p>Error with preview</p>";
-  }, [getCurrentCardType, isFront, isBack]);
+  }, [getCurrentCardType, isFront, isFrontPreview, isBack, isBackPreview]);
 
   // Fetch the base presets from the server
   useEffect(() => {
