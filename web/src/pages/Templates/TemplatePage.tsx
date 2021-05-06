@@ -1,17 +1,8 @@
-import {
-  Section,
-  Title,
-  Subtitle,
-  Container,
-  Columns,
-  Column,
-  Button,
-} from "trunx";
+import { Section, Title, Container } from "trunx";
 import MonacoEditor from "react-monaco-editor";
 import { useCallback, useEffect, useState } from "react";
 import TemplateSelect from "../../components/TemplateSelect";
 import TemplateFile from "../../model/TemplateFile";
-import TemplatePreview from "./TemplatePreview";
 
 // Don't put in the render function, it gets recreated
 let files: TemplateFile[] = [];
@@ -25,6 +16,7 @@ async function fetchBaseType(name: string) {
 
 const TemplatePage = () => {
   const [code, setCode] = useState("");
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [options, _setOptions] = useState({
     minimap: { enabled: false },
     colorDecorators: false,
@@ -33,7 +25,6 @@ const TemplatePage = () => {
   const [isBack, setIsBack] = useState(false);
   const [isStyling, setIsStyling] = useState(false);
   const [language, setLanguage] = useState("html");
-  const [isShowPreview, setShowPreview] = useState(false);
 
   const [currentCardType, setCurrentCardType] = useState(
     localStorage.getItem("current-card-type") || "n2a-basic"
@@ -65,6 +56,7 @@ const TemplatePage = () => {
   // Fetch the base presets from the server  or load from local storage (should only be called once)
   useEffect(() => {
     (async function () {
+      files = [];
       for (const key of ["n2a-basic", "n2a-input", "n2a-cloze"]) {
         const local = localStorage.getItem(key);
         if (local) {
@@ -130,12 +122,6 @@ const TemplatePage = () => {
         {ready && (
           <>
             <Title>Template Manager</Title>
-            <Subtitle hasTextDanger>This is a work in progress.</Subtitle>
-            <TemplatePreview
-              template={getCurrentCardType()}
-              isPreviewActive={isShowPreview}
-              onClickClose={() => setShowPreview(false)}
-            />
             <div className="field is-horizontal">
               <div className="field-label is-normal">
                 <label className="label">Template: </label>
@@ -190,7 +176,7 @@ const TemplatePage = () => {
               </label>
             </div>
             <MonacoEditor
-              width="60vh"
+              width="80vw"
               height="700px"
               language={language}
               theme="vs-dark"
@@ -201,9 +187,6 @@ const TemplatePage = () => {
             />
           </>
         )}
-        <Button isInfo onClick={() => setShowPreview(true)}>
-          Preview
-        </Button>
       </Container>
     </Section>
   );

@@ -1,3 +1,4 @@
+import TemplateFile from "../../web/src/model/TemplateFile";
 export default class Settings {
   readonly deckName: string | undefined;
   readonly useInput: boolean;
@@ -23,6 +24,9 @@ export default class Settings {
   readonly inputModelId: string;
   readonly template: string;
   readonly perserveNewLinesInSummary: boolean;
+  readonly n2aCloze: TemplateFile | undefined;
+  readonly n2aBasic: TemplateFile | undefined;
+  readonly n2aInput: TemplateFile | undefined;
 
   constructor(input: any) {
     this.deckName = input.deckName;
@@ -49,5 +53,27 @@ export default class Settings {
     this.basicModelId = input.basic_model_id;
     this.inputModelId = input.input_model_id;
     this.template = input.template;
+
+    if (input["n2a-basic"]) {
+      try {
+        this.n2aBasic = JSON.parse(input["n2a-basic"]);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    if (input["n2a-cloze"]) {
+      try {
+        this.n2aCloze = JSON.parse(input["n2a-cloze"]);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    if (input["n2a-input"]) {
+      try {
+        this.n2aInput = JSON.parse(input["n2a-input"]);
+      } catch (error) {
+        console.error(error);
+      }
+    }
   }
 }

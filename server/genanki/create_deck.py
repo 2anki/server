@@ -71,7 +71,6 @@ if __name__ == "__main__":
         elif template == 'abhiyan':
             CSS = _read_template(template_dir, 'abhiyan.css', "", "")
             CLOZE_STYLE = _read_template(template_dir, "abhiyan_cloze_style.css", "", "")
-
             fmtClozeQ = _read_template(template_dir, "abhiyan_cloze_front.html", "", "")
             fmtClozeA = _read_template(template_dir, "abhiyan_cloze_back.html", "", "")
             fmtQ = _read_template(template_dir, "abhiyan_basic_front.html", "", "")
@@ -79,17 +78,43 @@ if __name__ == "__main__":
             fmtInputQ = _read_template(template_dir, "abhiyan_input_front.html", "", "")
             fmtInputA =_read_template(template_dir, "abhiyan_basic_back.html", "", "") # Note: reusing the basic back, essentially the same.
         # else notionstyle
+        CLOZE_STYLE = CLOZE_STYLE + "\n" + CSS
+
+        BASIC_STYLE = CSS
+        BASIC_FRONT = fmtQ
+        BASIC_BACK = fmtA
+        n2aBasic = mt.get("n2aBasic")
+        if n2aBasic:
+            BASIC_STYLE = n2aBasic["styling"]
+            BASIC_FRONT = n2aBasic["front"]
+            BASIC_BACK = n2aBasic["back"]
+
+        CLOZE_FRONT = fmtClozeQ
+        CLOZE_BACK = fmtClozeA
+        n2aCloze = mt.get("n2aCloze")
+        if n2aCloze:
+            CLOZE_STYLE = n2aCloze["styling"]
+            CLOZE_FRONT = n2aCloze["front"]
+            CLOZE_BACK = n2aCloze["back"]
+        
+        n2aInput = mt.get("n2aInput")
+        INPUT_FRONT = fmtInputQ
+        INPUT_BACK = fmtInputA
+        if n2aInput:
+            INPUT_STYLE = n2aInput["styling"]
+            INPUT_FRONT = n2aInput["front"]
+            INPUT_BACK = n2aInput["back"]
 
         for deck in data:
             cards = deck.get("cards", [])
             notes = []
             for card in cards:
                 fields = [card["name"], card["back"], ",".join(card["media"])]
-                model = basic_model(basic_model_id, basic_model_name, CSS, fmtQ, fmtA) 
+                model = basic_model(basic_model_id, basic_model_name, BASIC_STYLE, BASIC_FRONT, BASIC_BACK) 
                 if card.get('cloze', False) and "{{c" in card["name"] :
-                    model = cloze_model(cloze_model_id, cloze_model_name, CLOZE_STYLE + "\n" + CSS, fmtClozeQ, fmtClozeA)
+                    model = cloze_model(cloze_model_id, cloze_model_name, CLOZE_STYLE , CLOZE_FRONT, CLOZE_BACK)
                 elif card.get('enableInput', False) and card.get('answer', False):
-                    model = input_model(input_model_id, input_model_name, CSS, fmtInputQ, fmtInputA)
+                    model = input_model(input_model_id, input_model_name, INPUT_STYLE, INPUT_FRONT, INPUT_BACK)
                     fields = [
                         card["name"].replace("{{type:Input}}", ""),
                         card["back"],

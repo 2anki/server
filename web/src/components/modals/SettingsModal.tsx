@@ -1,4 +1,5 @@
 import React, { useContext, useState } from "react";
+import { Link } from "react-router-dom";
 import styled from "styled-components";
 
 import { Modal, Button } from "trunx";
@@ -184,17 +185,9 @@ const SettingsModal: React.FC<{
 
               <hr />
               <h2>Preview support is coming soon</h2>
-              <p>
-                Track the progress here
-                <a
-                  style={{ paddingLeft: "0.2rem" }}
-                  rel="noreferrer"
-                  target="_blank"
-                  href="https://github.com/alemayhu/Notion-to-Anki/projects/2"
-                >
-                  Card Type Template Manager
-                </a>
-              </p>
+              <Button>
+                <Link to="/tm">Edit Template</Link>
+              </Button>
             </BlueTintedBox>
           </div>
         </section>
