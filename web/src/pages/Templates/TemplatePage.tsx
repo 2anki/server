@@ -1,17 +1,19 @@
-import { Section, Title, Subtitle, Container, Columns, Column } from "trunx";
+import {
+  Section,
+  Title,
+  Subtitle,
+  Container,
+  Columns,
+  Column,
+  Button,
+} from "trunx";
 import MonacoEditor from "react-monaco-editor";
 import { useCallback, useEffect, useState } from "react";
 import TemplateSelect from "../../components/TemplateSelect";
+import TemplateFile from "../../model/TemplateFile";
+import TemplatePreview from "./TemplatePreview";
 
-interface TemplateFile {
-  parent: string;
-  name: string;
-  front: string;
-  back: string;
-  styling: string;
-  storageKey: string;
-}
-
+// Don't put in the render function, it gets recreated
 let files: TemplateFile[] = [];
 
 async function fetchBaseType(name: string) {
@@ -24,27 +26,19 @@ async function fetchBaseType(name: string) {
 const TemplatePage = () => {
   const [code, setCode] = useState("");
   const [options, _setOptions] = useState({
+    minimap: { enabled: false },
     colorDecorators: false,
   });
   const [isFront, setIsFront] = useState(true);
   const [isBack, setIsBack] = useState(false);
   const [isStyling, setIsStyling] = useState(false);
   const [language, setLanguage] = useState("html");
+  const [isShowPreview, setShowPreview] = useState(false);
 
   const [currentCardType, setCurrentCardType] = useState(
     localStorage.getItem("current-card-type") || "n2a-basic"
   );
-  const [isFrontPreview, setIsFrontPreview] = useState(true);
-  const [isBackPreview, setIsBackPreview] = useState(false);
   const [ready, setReady] = useState(false);
-
-  const getPreviewStyle = () => {
-    const c = getCurrentCardType();
-    if (c) {
-      return c.styling;
-    }
-    return "";
-  };
 
   const editorDidMount = (editor: { focus: () => void }, _monaco: any) => {
     editor.focus();
@@ -68,20 +62,7 @@ const TemplatePage = () => {
     return files.find((x) => x.storageKey === currentCardType);
   }, [currentCardType]);
 
-  const getPreviewContent = useCallback(() => {
-    console.log("1x");
-    const c = getCurrentCardType();
-    if (c) {
-      if (isFront || isFrontPreview) {
-        return c.front;
-      } else if (isBack || isBackPreview) {
-        return c.back;
-      }
-    }
-    return "<p>Error with preview</p>";
-  }, [getCurrentCardType, isFront, isFrontPreview, isBack, isBackPreview]);
-
-  // Fetch the base presets from the server
+  // Fetch the base presets from the server  or load from local storage (should only be called once)
   useEffect(() => {
     (async function () {
       for (const key of ["n2a-basic", "n2a-input", "n2a-cloze"]) {
@@ -100,31 +81,30 @@ const TemplatePage = () => {
       // We might want to change this later to perserve last open file.
       setCode(files[0].front);
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Switching to front from back or styling
   useEffect(() => {
     if (isFront) {
-      const c = getCurrentCardType();
-      if (c) {
+      const card = getCurrentCardType();
+      if (card) {
         setLanguage("html");
-        setCode(c.front);
+        setCode(card.front);
       }
-      setIsFrontPreview(isFront);
-      setIsBackPreview(false);
       setIsStyling(false);
       setIsBack(false);
     }
   }, [isFront, currentCardType, getCurrentCardType]);
 
+  // Switching to back from front or styling
   useEffect(() => {
     if (isBack) {
-      const c = getCurrentCardType();
-      if (c) {
-        setCode(c.back);
+      const card = getCurrentCardType();
+      if (card) {
+        setCode(card.back);
         setLanguage("html");
       }
-      setIsBackPreview(isBack);
-      setIsFrontPreview(false);
       setIsStyling(false);
       setIsFront(false);
     }
@@ -143,33 +123,22 @@ const TemplatePage = () => {
     }
   }, [getCurrentCardType, isStyling]);
 
-  useEffect(() => {
-    if (isBackPreview) {
-      setIsFrontPreview(false);
-      setIsFront(false);
-      setIsBack(true);
-    }
-  }, [isBackPreview]);
-
-  useEffect(() => {
-    if (isFrontPreview) {
-      setIsBackPreview(false);
-      setIsBack(false);
-      setIsFront(true);
-    }
-  }, [isFrontPreview]);
-
   return (
-    <Section m4>
+    <Section mt4>
       <Container>
         {!ready && <p>Loading....</p>}
         {ready && (
           <>
             <Title>Template Manager</Title>
             <Subtitle hasTextDanger>This is a work in progress.</Subtitle>
+            <TemplatePreview
+              template={getCurrentCardType()}
+              isPreviewActive={isShowPreview}
+              onClickClose={() => setShowPreview(false)}
+            />
             <div className="field is-horizontal">
               <div className="field-label is-normal">
-                <label className="label">Card Type: </label>
+                <label className="label">Template: </label>
               </div>
               <div className="field-body">
                 <div className="field">
@@ -187,94 +156,54 @@ const TemplatePage = () => {
                 </div>
               </div>
             </div>
-            <Columns>
-              <Column>
-                <p>Template</p>
-                <div className="control m-2">
-                  <label className="radio">
-                    <input
-                      checked={isFront}
-                      onChange={(event) => setIsFront(event.target.checked)}
-                      className="m-2"
-                      type="radio"
-                      name="front-template"
-                    />
-                    Front Template
-                  </label>
-                  <label className="radio">
-                    <input
-                      checked={isBack}
-                      onChange={(event) => setIsBack(event.target.checked)}
-                      className="m-2"
-                      type="radio"
-                      name="back-template"
-                    />
-                    Back Template
-                  </label>
-                  <label className="radio">
-                    <input
-                      checked={isStyling}
-                      onChange={(event) => setIsStyling(event.target.checked)}
-                      className="m-2"
-                      type="radio"
-                      name="styling"
-                    />
-                    Styling
-                  </label>
-                </div>
-                <MonacoEditor
-                  width="540px"
-                  height="600"
-                  language={language}
-                  theme="vs-dark"
-                  value={code}
-                  options={options}
-                  onChange={onChange}
-                  editorDidMount={editorDidMount}
+            <p>Template</p>
+            <div className="control m-2">
+              <label className="radio">
+                <input
+                  checked={isFront}
+                  onChange={(event) => setIsFront(event.target.checked)}
+                  className="m-2"
+                  type="radio"
+                  name="front-template"
                 />
-              </Column>
-              <Column>
-                <p>Preview</p>
-                <div className="control m-2">
-                  <label className="radio">
-                    <input
-                      checked={isFrontPreview}
-                      onChange={(event) =>
-                        setIsFrontPreview(event?.target.checked)
-                      }
-                      className="m-2"
-                      type="radio"
-                      name="front-preview"
-                    />
-                    Front Preview
-                  </label>
-                  <label className="radio">
-                    <input
-                      checked={isBackPreview}
-                      onChange={(event) =>
-                        setIsBackPreview(event.target.checked)
-                      }
-                      className="m-2"
-                      type="radio"
-                      name="back-preview"
-                    />
-                    Back Preview
-                  </label>
-                  <div className="mt-2">
-                    <div>
-                      <iframe
-                        height="600px"
-                        title="preview"
-                        className="toggle"
-                        srcDoc={`<style scoped>${getPreviewStyle()}</style>${getPreviewContent()}`}
-                      ></iframe>
-                    </div>
-                  </div>
-                </div>
-              </Column>
-            </Columns>
+                Front Template
+              </label>
+              <label className="radio">
+                <input
+                  checked={isBack}
+                  onChange={(event) => setIsBack(event.target.checked)}
+                  className="m-2"
+                  type="radio"
+                  name="back-template"
+                />
+                Back Template
+              </label>
+              <label className="radio">
+                <input
+                  checked={isStyling}
+                  onChange={(event) => setIsStyling(event.target.checked)}
+                  className="m-2"
+                  type="radio"
+                  name="styling"
+                />
+                Styling
+              </label>
+            </div>
+            <MonacoEditor
+              width="60vh"
+              height="700px"
+              language={language}
+              theme="vs-dark"
+              value={code}
+              options={options}
+              onChange={onChange}
+              editorDidMount={editorDidMount}
+            />
           </>
         )}
+        <Button isInfo onClick={() => setShowPreview(true)}>
+          Preview
+        </Button>
       </Container>
     </Section>
   );
