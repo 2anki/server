@@ -35,7 +35,7 @@ function serve() {
   app.use("/version", version.default);
 
   // This is due to legacy stuff and links shared around the web
-  const old = ["/notion", "/index", "/upload"];
+  const old = ["/notion", "/index", "/upload", "/tm"];
   for (const p of old) {
     console.log("setting up request handler for ", p);
     app.get(p, (_req, res) => {
