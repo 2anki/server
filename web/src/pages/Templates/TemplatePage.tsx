@@ -176,7 +176,6 @@ const TemplatePage = () => {
               </label>
             </div>
             <MonacoEditor
-              width="80vw"
               height="700px"
               language={language}
               theme="vs-dark"
