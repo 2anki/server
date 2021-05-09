@@ -74,13 +74,6 @@ class CardOptionsStore {
           "This will go treat the strikethroughs in the page as global ones. The ones inside of a toggle will be treated as locally to the toggle.",
       },
       {
-        key: "basic",
-        label: "Basic Front and Back",
-        value: _loadOption("basic", true),
-        description:
-          "Create question and answer type flashcards. This is the default unless turned off.",
-      },
-      {
         key: "cloze",
         label: "Cloze Deletion",
         value: _loadOption("cloze", true),
