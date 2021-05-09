@@ -63,9 +63,10 @@ export class DeckParser {
       console.log("skipping next page, due to href being", href);
       return undefined;
     }
-    const file = this.files.find(
-      (file) => file.name === global.decodeURIComponent(href)
-    );
+    const next = global.decodeURIComponent(href);
+    const file = this.files.find((file) => {
+      return file.name.match(next);
+    });
     if (!file) {
       return file;
     }
