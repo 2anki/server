@@ -1,6 +1,7 @@
-import { Section, Title, Container } from "trunx";
-import MonacoEditor from "react-monaco-editor";
 import { useCallback, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { Section, Title, Subtitle, Container } from "trunx";
+import MonacoEditor from "react-monaco-editor";
 import TemplateSelect from "../../components/TemplateSelect";
 import TemplateFile from "../../model/TemplateFile";
 
@@ -122,6 +123,12 @@ const TemplatePage = () => {
         {ready && (
           <>
             <Title>Template Manager</Title>
+            <Subtitle>
+              No saving required, everything is saved instantly! You can always
+              revert the template changes in the{" "}
+              <Link to="/upload?view=template">settings</Link>. Adding /
+              removing fields and preview is coming soon.
+            </Subtitle>
             <div className="field is-horizontal">
               <div className="field-label is-normal">
                 <label className="label">Template: </label>
