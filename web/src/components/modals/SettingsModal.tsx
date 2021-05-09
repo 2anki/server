@@ -84,7 +84,9 @@ const SettingsModal: React.FC<{
                 You can use this to change the default name which comes from the
                 Notion page. If you have an existing deck in Anki you want to
                 update then you can also set the name here. It works like Anki
-                so you can create groupings (Parent::Child).
+                so you can create groupings (Parent::Child). Please don't change
+                the deck name if you have subpages, it's more reliable to leave
+                this empty if you have subpages.
               </p>
               <div className="control">
                 <StyledInput
