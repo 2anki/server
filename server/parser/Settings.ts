@@ -30,6 +30,9 @@ export default class Settings {
 
   constructor(input: any) {
     this.deckName = input.deckName;
+    if (this.deckName && !this.deckName.trim()) {
+      this.deckName = undefined;
+    }
     this.useInput = input["enable-input"] !== "false";
     this.maxOne = input["max-one-toggle-per-card"] === "true";
     this.noUnderline = input["no-underline"] === "true";
