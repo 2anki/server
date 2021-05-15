@@ -129,7 +129,7 @@ if __name__ == "__main__":
                     "notes": notes,
                     "id": deck["id"],
                     "desc": "",
-                    "name":  mt.get("deckName", deck["name"]),
+                    "name": deck["name"],
                 }
             )
 
