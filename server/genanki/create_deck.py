@@ -100,6 +100,7 @@ if __name__ == "__main__":
         n2aInput = mt.get("n2aInput")
         INPUT_FRONT = fmtInputQ
         INPUT_BACK = fmtInputA
+        INPUT_STYLE = CSS
         if n2aInput:
             INPUT_STYLE = n2aInput["styling"]
             INPUT_FRONT = n2aInput["front"]
