@@ -7,6 +7,7 @@ export default class Note {
   enableInput = false;
   answer = "";
   media: string[] = [];
+  notionId?: string;
 
   constructor(name: string, back: string) {
     this.name = name;
