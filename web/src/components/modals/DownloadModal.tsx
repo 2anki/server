@@ -80,7 +80,7 @@ const DownloadModal: React.FC<{
               </div>
               <p>
                 You can also support the project by sharing it on Twitter. Help
-                others discover it too.
+                others discover it too ✨
               </p>
               <div className="has-text-centered">
                 <a
