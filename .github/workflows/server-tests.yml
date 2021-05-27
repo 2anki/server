@@ -19,9 +19,9 @@ jobs:
       - name: test
         run: |
           npm --prefix server install
-          npm --prefix server build
+          npm --prefix server run build
           pip3 install -U setuptools 
           pip3 install -r server/genanki/requirements.txt
-          npm --prefix server test
+          npm --prefix server run test
         env:
           CI: true
