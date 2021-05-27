@@ -88,6 +88,11 @@ export class DeckParser {
     return note.name.includes(avocado) || note.name.includes("🥑");
   }
 
+  noteHasRefreshIcon(name: string) {
+    const refreshIcon = "&#x1F504";
+    return name.includes(refreshIcon) || name.includes("🔄");
+  }
+
   findToggleLists(dom: cheerio.Root) {
     const selector =
       this.settings.isCherry || this.settings.isAll
@@ -215,6 +220,7 @@ export class DeckParser {
                 return _b;
               })();
               const note = new Note(front || "", backSide);
+              note.notionId = parentUL.attr("id");
               if (
                 (this.settings.isAvocado && this.noteHasAvocado(note)) ||
                 (this.settings.isCherry && !this.noteHasCherry(note))
@@ -609,10 +615,12 @@ export class DeckParser {
           addThese.push(note);
         }
 
-        if (this.settings.reversed) {
+        if (this.settings.reversed || this.noteHasRefreshIcon(card.name)) {
           const tmp = card.back;
           card.back = card.name;
           card.name = tmp;
+          // Due to backwards compatability, do not increment number here
+          card.number = -1;
         }
       }
       deck.cards = deck.cards.concat(addThese);
