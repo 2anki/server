@@ -40,11 +40,10 @@ const DownloadModal: React.FC<{
             <hr />
             <h3 className="title is-3"> Please Support Open Source 🙏🏾</h3>
             <p>
-              You can directly support the development and accelerate the
-              improvements! Pick your price ranging starting from{" "}
-              <strong>$1</strong>. This deck is brought to you by our amazing{" "}
-              <span> </span>
+              This web server is community funded by our amazing <span> </span>
               <a href="https://www.patreon.com/alemayhu">patrons</a> 🤩
+              <br /> You can directly support the development and accelerate the
+              improvements!
             </p>
             <div className="has-text-centered">
               <a
@@ -63,7 +62,7 @@ const DownloadModal: React.FC<{
               <p>
                 Not comfortable with reocurring expense? No worries, you can
                 send one-time contributions with{" "}
-                <a href="https://ko-fi.com/alemayhu">Ko-Fi</a>
+                <a href="https://ko-fi.com/alemayhu">Ko-Fi</a>.
               </p>
               <div className="has-text-centered">
                 <a
