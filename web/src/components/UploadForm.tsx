@@ -10,6 +10,7 @@ const UploadForm = () => {
   const [selectedFilename, setSelectedFilename] = useState("");
 
   const fileInputRef = useRef(null);
+  const convertRef = useRef(null);
 
   useEffect(() => {
     const body = document.getElementsByTagName("body")[0];
@@ -22,6 +23,8 @@ const UploadForm = () => {
         /* @ts-ignore */
         fileInputRef.current.files = dataTransfer.files;
         setSelectedFilename(dataTransfer.files[0].name);
+        /* @ts-ignore */
+        convertRef.current.click();
       }
       event.preventDefault();
     };
@@ -113,6 +116,7 @@ const UploadForm = () => {
             </label>
             <div className="has-text-centered">
               <button
+                ref={convertRef}
                 style={{ marginTop: "2rem" }}
                 className={`button cta is-large is-primary ${
                   uploading ? "is-loading" : null
