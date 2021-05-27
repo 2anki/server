@@ -1,4 +1,4 @@
-import { SyntheticEvent, useState } from "react";
+import { SyntheticEvent, useEffect, useRef, useState } from "react";
 import ErrorMessage from "./ErrorMessage";
 import DownloadModal from "./modals/DownloadModal";
 
@@ -8,6 +8,24 @@ const UploadForm = () => {
   const [downloadLink, setDownloadLink] = useState("");
   const [deckName, setDeckName] = useState("");
   const [selectedFilename, setSelectedFilename] = useState("");
+
+  const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    const body = document.getElementsByTagName("body")[0];
+    body.ondragover = body.ondragenter = (event) => {
+      event.preventDefault();
+    };
+    body.ondrop = (event) => {
+      const dataTransfer = event.dataTransfer;
+      if (dataTransfer && dataTransfer.files.length > 0) {
+        /* @ts-ignore */
+        fileInputRef.current.files = dataTransfer.files;
+        setSelectedFilename(dataTransfer.files[0].name);
+      }
+      event.preventDefault();
+    };
+  }, []);
 
   const handleSubmit = async (event: SyntheticEvent) => {
     event.preventDefault();
@@ -77,6 +95,7 @@ const UploadForm = () => {
           <div className="field">
             <label className="file-label">
               <input
+                ref={fileInputRef}
                 className="file-input"
                 type="file"
                 name="pakker"
