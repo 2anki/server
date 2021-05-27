@@ -18,10 +18,10 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: test
         run: |
-          yarn --cwd server install
-          yarn --cwd server build
+          npm --prefix server install
+          npm --prefix server build
           pip3 install -U setuptools 
           pip3 install -r server/genanki/requirements.txt
-          yarn --cwd server test
+          npm --prefix server test
         env:
           CI: true
