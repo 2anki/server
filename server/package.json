@@ -35,21 +35,25 @@
   "license": "MIT",
   "dependencies": {
     "@notionhq/client": "^0.1.8",
+    "base-64": "^1.0.0",
     "cheerio": "1.0.0-rc.3",
     "express": "^4.17.1",
     "find-remove": "^2.0.3",
     "jszip": "^3.5.0",
     "morgan": "^1.10.0",
     "multer": "^1.4.2",
-    "nanoid": "^3.1.12"
+    "nanoid": "^3.1.12",
+    "node-fetch": "^2.6.1"
   },
   "devDependencies": {
+    "@types/base-64": "^1.0.0",
     "@types/cheerio": "^0.22.28",
     "@types/express": "^4.17.11",
     "@types/find-remove": "^2.0.0",
     "@types/morgan": "^1.9.2",
     "@types/multer": "^1.4.5",
     "@types/node": "^14.14.36",
+    "@types/node-fetch": "^2.5.10",
     "ava": "^3.15.0",
     "nodemon": "^2.0.7",
     "ts-node": "^9.1.1",
