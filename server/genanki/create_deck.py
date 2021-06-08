@@ -10,7 +10,7 @@ import hashlib
 import json
 import sys
 
-from genanki import Note
+from genanki import Note, guid_for
 
 from models.input import input_model
 from models.cloze import cloze_model
@@ -124,14 +124,14 @@ if __name__ == "__main__":
                         ",".join(card["media"]),
                     ]
 
-                guid = guid_for(fields)
-                if notion_id:
-                    guid = guid_for(card["notionId"])
-                
                 # Cards marked with -1 number means they are breaking compatability, treat them differently by using their respective Notion Id
                 if card["number"] == -1 and "notionId" in card:
                     card["number"] = card["notionId"]
-                my_note = Note(model, fields=fields, sort_field=card["number"], tags=card['tags'], guid=guid)
+                if notion_id:
+                    guid = guid_for(card["notionId"])
+                    my_note = Note(model, fields=fields, sort_field=card["number"], tags=card['tags'], guid=guid)
+                else:
+                    my_note = Note(model, fields=fields, sort_field=card["number"], tags=card['tags'])
                 notes.append(my_note)
                 media_files = media_files + card["media"]            
             decks.append(
