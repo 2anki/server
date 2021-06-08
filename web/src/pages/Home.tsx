@@ -44,9 +44,8 @@ const HomePage = () => {
                     textDecorationColor: "green",
                   }}
                 >
-                  "Free"
+                  Free
                 </span>
-                . It's a passion project 🕺🏾💃🏾
               </p>
             </div>
           </div>

@@ -9,8 +9,6 @@ import { DeckParser } from "../parser/DeckParser.js";
 // @ts-ignore
 import Settings from "../parser/Settings.js";
 
-import { File } from "../handlers/zip";
-
 process.env.WORKSPACE_BASE = path.join(os.tmpdir(), "workspaces");
 fs.mkdirSync(process.env.WORKSPACE_BASE, { recursive: true });
 
