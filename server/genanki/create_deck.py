@@ -123,7 +123,7 @@ if __name__ == "__main__":
                         ",".join(card["media"]),
                     ]
                 # Cards marked with -1 number means they are breaking compatability, treat them differently by using their respective Notion Id
-                if card["number"] == -1:
+                if card["number"] == -1 and "notionId" in card:
                     card["number"] = card["notionId"]
                 my_note = Note(model, fields=fields, sort_field=card["number"], tags=card['tags'])
                 notes.append(my_note)
