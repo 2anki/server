@@ -23,4 +23,4 @@ export function resolvePath(dir: string, x: string) {
 }
 
 export const NOTION_CLIENT_ID = process.env.NOTION_CLIENT_ID;
-export const REDIRECT_URI = "https://2anki.net/auth/connect-notion";
+export const REDIRECT_URI = "https://2anki.net/connect-notion";

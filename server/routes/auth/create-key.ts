@@ -27,7 +27,7 @@ import fetch from "node-fetch";
 
 const router = express.Router();
 
-router.get("/connect-notion", async (req, res) => {
+router.get("/create-key", async (req, res) => {
   let code = req.headers.code;
   if (!code) {
     return res
