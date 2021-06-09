@@ -220,9 +220,7 @@ export class DeckParser {
                 return _b;
               })();
               const note = new Note(front || "", backSide);
-              if (this.settings.useNotionId) {
-                note.notionId = parentUL.attr("id");
-              }
+              note.notionId = parentUL.attr("id");
               if (
                 (this.settings.isAvocado && this.noteHasAvocado(note)) ||
                 (this.settings.isCherry && !this.noteHasCherry(note))
