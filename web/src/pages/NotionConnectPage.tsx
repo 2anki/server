@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 
 const connectLink = () => {
-  const redirectUri = encodeURIComponent(
-    "https://2anki.net/auth/connect-notion"
-  );
+  const redirectUri = encodeURIComponent("https://2anki.net/connect-notion");
   const notionClientID = "384c361a-dc51-4960-abc1-b1e76665f8da";
   return `https://api.notion.com/v1/oauth/authorize?client_id=${notionClientID}&redirect_uri=${redirectUri}&response_type=code`;
 };
@@ -29,6 +27,7 @@ const NotionConnectPage = () => {
       headers: { code: code },
     }).then((response) => {
       response.json().then((payload) => {
+        console.log(payload);
         for (const [key, value] of Object.entries(payload)) {
           // @ts-ignore
           localStorage.setItem(key, value);
