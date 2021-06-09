@@ -28,7 +28,7 @@ import fetch from "node-fetch";
 const router = express.Router();
 
 router.get("/connect-notion", async (req, res) => {
-  let code = req.param("code");
+  let code = req.headers.code;
   if (!code) {
     return res
       .status(401)
