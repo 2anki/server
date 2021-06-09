@@ -29,6 +29,7 @@ const NotionConnectPage = () => {
       headers: { code: code },
     }).then((response) => {
       response.json().then((payload) => {
+        console.log(payload);
         for (const [key, value] of Object.entries(payload)) {
           // @ts-ignore
           localStorage.setItem(key, value);
