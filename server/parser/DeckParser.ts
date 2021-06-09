@@ -324,7 +324,11 @@ export class DeckParser {
         /\.\.\//g,
         ""
       );
-      file = files.find((f) => f.name === lookup);
+      file = files.find((f) => {
+        if (f.name === lookup || f.name.endsWith(filePath)) {
+          return f;
+        }
+      });
       if (!file) {
         console.warn(
           `Missing relative path to ${filePath} used ${exporter.firstDeckName}`
