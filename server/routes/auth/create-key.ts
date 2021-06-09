@@ -1,16 +1,15 @@
+import { REDIRECT_URI } from "../../constants";
 import express from "express";
-import router from "../checks";
-
-const base64 = require("base-64");
-const fetch = require("node-fetch");
+import base64 from "base-64";
+import fetch from "node-fetch";
 
 const clientId = process.env.NOTION_CLIENT_ID;
 const clientSecret = process.env.NOTION_CLIENT_SECRET;
 
 async function postData(url = "", data = {}) {
-  // @ts-ignore
   const response = await fetch(url, {
     method: "POST",
+    /* @ts-ignore */
     mode: "no-cors",
     cache: "no-cache",
     credentials: "same-origin",
@@ -22,21 +21,24 @@ async function postData(url = "", data = {}) {
     referrerPolicy: "no-referrer",
     body: JSON.stringify(data),
   });
-  console.log("response", response);
   return response.json(); // parses JSON response into native JavaScript objects
 }
 
-router.post("create-key", (req, res) => {
-  const code = req.headers.code;
+const router = express.Router();
+
+router.get("/create-key", async (req, res) => {
+  let code = req.headers.code;
   if (!code) {
-    return res.status(401).send("Missing code header");
+    return res
+      .status(401)
+      .send("Bad request! Missing code in the URL parameters.");
   }
-  const redirectUri = process.env.NOTION_REDIRECT_URI;
-  postData("https://api.notion.com/v1/oauth/token", {
+  const data = await postData("https://api.notion.com/v1/oauth/token", {
     grant_type: "authorization_code",
     code: code,
-    redirect_uri: redirectUri,
-  }).then((data) => res.json(data));
+    redirect_uri: REDIRECT_URI,
+  });
+  res.json({ body: data });
 });
 
 export default router;

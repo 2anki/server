@@ -10,6 +10,7 @@ import { ALLOWED_ORIGINS } from "./constants";
 import ErrorHandler from "./handlers/error";
 
 // Server Endpoints
+import * as connectNotion from "./routes/auth/create-key";
 import * as checks from "./routes/checks";
 import * as version from "./routes/version";
 import * as upload from "./routes/upload";
@@ -33,9 +34,10 @@ function serve() {
   app.use(express.static(distDir));
   app.use("/checks", checks.default);
   app.use("/version", version.default);
+  app.use("/auth", connectNotion.default);
 
   // This is due to legacy stuff and links shared around the web
-  const old = ["/notion", "/index", "/upload", "/tm"];
+  const old = ["/notion", "/index", "/upload", "/tm", "/connect-notion"];
   for (const p of old) {
     console.log("setting up request handler for ", p);
     app.get(p, (_req, res) => {

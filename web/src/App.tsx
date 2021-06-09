@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
 import styled from "styled-components";
 
+import NotionConnectPage from "./pages/NotionConnectPage";
 import TemplatePage from "./pages/Templates/TemplatePage";
 import UploadPage from "./pages/UploadPage";
 import HomePage from "./pages/Home";
@@ -44,6 +45,9 @@ function App() {
               </Route>
               <Route path="/upload">
                 <UploadPage />
+              </Route>
+              <Route path="/connect-notion">
+                <NotionConnectPage />
               </Route>
               <Route path="/">
                 <HomePage />

@@ -38,6 +38,13 @@ class CardOptionsStore {
   configure() {
     return [
       {
+        key: "use-notion-id",
+        label: "Use Notion ID",
+        value: _loadOption("use-notion-id", false),
+        description:
+          "By default we create a new id from your fields. This can cause duplicates and in those cases you want to enable the Notion ID which is more reliable and avoid duplicates.",
+      },
+      {
         key: "all",
         label: "Use All Toggle Lists",
         value: _loadOption("all", false),
