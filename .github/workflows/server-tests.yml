@@ -25,3 +25,4 @@ jobs:
           npm --prefix server run test
         env:
           CI: true
+          NOTION_KEY: ${{ secrets.NOTION_KEY }}
