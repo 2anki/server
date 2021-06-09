@@ -1,4 +1,7 @@
 import { REDIRECT_URI } from "../../constants";
+import express from "express";
+import base64 from "base-64";
+import fetch from "node-fetch";
 
 const clientId = process.env.NOTION_CLIENT_ID;
 const clientSecret = process.env.NOTION_CLIENT_SECRET;
@@ -21,18 +24,12 @@ async function postData(url = "", data = {}) {
   return response.json(); // parses JSON response into native JavaScript objects
 }
 
-import express from "express";
-import base64 from "base-64";
-import fetch from "node-fetch";
-
 const router = express.Router();
 
 router.get("/create-key", async (req, res) => {
   let code = req.headers.code;
   if (!code) {
-    return res
-      .status(401)
-      .send("Bad request! Missing code in the URL parameters.");
+    return res.status(401).send("Bad request! Missing code in the headers.");
   }
   const data = await postData("https://api.notion.com/v1/oauth/token", {
     grant_type: "authorization_code",
