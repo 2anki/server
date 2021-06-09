@@ -29,9 +29,7 @@ const router = express.Router();
 router.get("/create-key", async (req, res) => {
   let code = req.headers.code;
   if (!code) {
-    return res
-      .status(401)
-      .send("Bad request! Missing code in the URL parameters.");
+    return res.status(401).send("Bad request! Missing code in the headers.");
   }
   const data = await postData("https://api.notion.com/v1/oauth/token", {
     grant_type: "authorization_code",
