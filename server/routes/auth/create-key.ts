@@ -25,18 +25,19 @@ async function postData(url = "", data = {}) {
 }
 
 const router = express.Router();
-
 router.get("/create-key", async (req, res) => {
   let code = req.headers.code;
   if (!code) {
     return res.status(401).send("Bad request! Missing code in the headers.");
   }
-  const data = await postData("https://api.notion.com/v1/oauth/token", {
+  console.log("debug", code, " . ", REDIRECT_URI);
+  postData("https://api.notion.com/v1/oauth/token", {
     grant_type: "authorization_code",
     code: code,
     redirect_uri: REDIRECT_URI,
+  }).then((data) => {
+    res.json({ body: data });
   });
-  res.json({ body: data });
 });
 
 export default router;
