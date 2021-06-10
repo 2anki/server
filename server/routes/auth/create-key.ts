@@ -1,4 +1,3 @@
-import { REDIRECT_URI } from "../../constants";
 import express from "express";
 import base64 from "base-64";
 import fetch from "node-fetch";
@@ -30,11 +29,9 @@ router.get("/create-key", async (req, res) => {
   if (!code) {
     return res.status(401).send("Bad request! Missing code in the headers.");
   }
-  console.log("debug", code, " . ", REDIRECT_URI);
   postData("https://api.notion.com/v1/oauth/token", {
     grant_type: "authorization_code",
     code: code,
-    redirect_uri: REDIRECT_URI,
   }).then((data) => {
     res.json({ body: data });
   });
