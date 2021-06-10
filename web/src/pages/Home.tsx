@@ -37,15 +37,7 @@ const HomePage = () => {
               />
               <p>
                 Fast, simple, easy and 100%{" "}
-                <span
-                  style={{
-                    fontWeight: "bold",
-                    textDecoration: "underline",
-                    textDecorationColor: "green",
-                  }}
-                >
-                  Free
-                </span>
+                <a href="https://github.com/alemayhu/notion2anki">Free</a>!
               </p>
             </div>
           </div>
