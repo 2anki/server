@@ -137,7 +137,6 @@ const UploadForm = () => {
               onClickClose={() => {
                 setDownloadLink("");
                 setDeckName("");
-                setSelectedFilename("");
               }}
             />
           )}
