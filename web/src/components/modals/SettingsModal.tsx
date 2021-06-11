@@ -2,7 +2,6 @@ import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 
-import { Modal, Button } from "trunx";
 import StoreContext from "../../store/StoreContext";
 import BlueTintedBox from "../BlueTintedBox";
 import FontSizePicker from "../FontSizePicker";
@@ -65,17 +64,17 @@ const SettingsModal: React.FC<{
     setInputName("");
   };
   return (
-    <Modal isActive={isActive}>
-      <Modal.Background></Modal.Background>
-      <Modal.Card>
-        <Modal.Card.Head>
-          <Modal.Card.Title>Settings</Modal.Card.Title>
+    <div className={`modal ${isActive ? "is-active" : ""}`}>
+      <div className="modal-background"></div>
+      <div className="modal-card">
+        <div className="modal-card-head">
+          <div className="modal-card-title">Settings</div>
           <button
             className="delete"
             aria-label="close"
             onClick={onClickClose}
           ></button>
-        </Modal.Card.Head>
+        </div>
         <section className="modal-card-body">
           <div className="container">
             <div className="field">
@@ -187,20 +186,22 @@ const SettingsModal: React.FC<{
 
               <hr />
               <h2>Preview support is coming soon</h2>
-              <Button>
+              <button className="button">
                 <Link to="/tm">Edit Template</Link>
-              </Button>
+              </button>
             </BlueTintedBox>
           </div>
         </section>
-        <Modal.Card.Foot isJustifyContentCenter>
-          <Button onClick={onClickClose}>Done</Button>
-          <Button isDanger onClick={() => resetStore()}>
+        <div className="modal-card-foot is-justify-content-center">
+          <button className="button" onClick={onClickClose}>
+            Done
+          </button>
+          <button className="button is-danger" onClick={() => resetStore()}>
             Clear
-          </Button>
-        </Modal.Card.Foot>
-      </Modal.Card>
-    </Modal>
+          </button>
+        </div>
+      </div>
+    </div>
   );
 };
 
