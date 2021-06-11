@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Section, Title, Subtitle, Container } from "trunx";
 import MonacoEditor from "react-monaco-editor";
 import TemplateSelect from "../../components/TemplateSelect";
 import TemplateFile from "../../model/TemplateFile";
@@ -117,18 +116,18 @@ const TemplatePage = () => {
   }, [getCurrentCardType, isStyling]);
 
   return (
-    <Section mt4>
-      <Container>
+    <section className="section mt4">
+      <div className="container">
         {!ready && <p>Loading....</p>}
         {ready && (
           <>
-            <Title>Template Manager</Title>
-            <Subtitle>
+            <p className="title">Template Manager</p>
+            <p className="subtitle">
               No saving required, everything is saved instantly! You can always
               revert the template changes in the{" "}
               <Link to="/upload?view=template">settings</Link>. Adding /
               removing fields and preview is coming soon.
-            </Subtitle>
+            </p>
             <div className="field is-horizontal">
               <div className="field-label is-normal">
                 <label className="label">Template: </label>
@@ -193,8 +192,8 @@ const TemplatePage = () => {
             />
           </>
         )}
-      </Container>
-    </Section>
+      </div>
+    </section>
   );
 };
 

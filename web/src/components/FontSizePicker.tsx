@@ -1,4 +1,3 @@
-import { Columns, Column } from "trunx";
 interface FontPickerDelegate {
   fontSize: number;
   pickedFontSize: (fs: number) => void;
@@ -18,9 +17,9 @@ const FontSizePicker = (delegate: FontPickerDelegate) => {
           }}
         >
           <input defaultValue={delegate.fontSize} name="font-size" hidden />
-          <Columns>
+          <div className="columns">
             {[32, 26, 20, 12, 10].map((fontPreset) => (
-              <Column key={fontPreset}>
+              <div className="column" key={fontPreset}>
                 <button
                   className="button"
                   style={{
@@ -34,11 +33,11 @@ const FontSizePicker = (delegate: FontPickerDelegate) => {
                     delegate.pickedFontSize(fontPreset);
                   }}
                 >
-                  Aa
+                  {fontPreset}
                 </button>
-              </Column>
+              </div>
             ))}
-          </Columns>
+          </div>
         </div>
       </div>
     </div>
