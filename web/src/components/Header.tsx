@@ -126,6 +126,14 @@ const Header = () => {
           </div>
         </div>
       </nav>
+      <ins
+        className="adsbygoogle"
+        style={{ display: "block" }}
+        data-ad-client="ca-pub-9593032741719801"
+        data-ad-slot="7148911174"
+        data-ad-format="auto"
+        data-full-width-responsive="true"
+      ></ins>
     </StyledHeader>
   );
 };
