@@ -59,9 +59,10 @@ async function handleUpload(req: express.Request, res: express.Response) {
       console.log("filename", filename, "with settings", settings);
       if (filename.match(/.html$/)) {
         console.log("We have a non zip upload");
+        const buffer = fs.readFileSync(file.path);
         const d = await PrepareDeck(
           filename,
-          [{ name: filename, contents: file.buffer.toString() }],
+          [{ name: filename, contents: buffer }],
           settings
         );
         const pkg = new Package(d.name, d.apkg);
