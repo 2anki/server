@@ -1,5 +1,5 @@
 #!/bin/bash
 
-tmux new-session -d 'yarn --cwd server start'
-tmux split-window -h 'yarn --cwd web start'
+tmux new-session -d 'npm --prefix server start'
+tmux split-window -h 'npm --prefix web start'
 tmux -2 attach-session -d

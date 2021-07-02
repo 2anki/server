@@ -91,8 +91,8 @@ While not required, [nvm](https://github.com/nvm-sh/nvm) is a good tool to make 
 First make sure you have the dependencies installed
 
 ```bash
-yarn --cwd server install
-yarn --cwd web install
+npm --prefix server install
+npm --prefix web install
 ```
 
 An extra dependency on the server is [python3](https://www.python.org/downloads/) and the [genanki](https://github.com/kerrickstaley/genanki) module, make sure you install them.
@@ -109,14 +109,14 @@ Depending on wether you want to run the web interface or backend server the comm
 
 ```bash
 cd server
-yarn dev
+npm run dev
 ```
 
 #### Running the Web Server
 
 ```bash
 cd web
-yarn start
+npm run start
 ```
 
 To actually see the app running you need to either visit the local url in a browser or launch the app with
