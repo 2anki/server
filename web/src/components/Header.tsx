@@ -3,7 +3,6 @@ import { useState } from "react";
 import styled from "styled-components";
 
 import CTAButton from "./CTAButton";
-import CodeIcon from "./icons/CodeIcon";
 
 const Title = styled.h1`
   font-size: 1rem;
@@ -13,9 +12,6 @@ const Title = styled.h1`
 
 const StyledHeader = styled.header`
   flex-shrink: 0;
-  nav {
-    background: #5386e3;
-  }
 `;
 
 const Header = () => {
@@ -23,7 +19,7 @@ const Header = () => {
 
   return (
     <StyledHeader>
-      <nav className="navbar is-link is-fixed-top">
+      <nav className="navbar">
         <div className="navbar-brand">
           <a className="navbar-item" href="/">
             <Title>2anki.net</Title>
@@ -51,38 +47,8 @@ const Header = () => {
                 onClickLink={() => setActive(false)}
               />
             </div>
-            <a
-              className="navbar-item"
-              rel="noreferrer"
-              target="_blank"
-              href="https://www.notion.so/alemayhu/Benefits-0d5fa2e18a8a44d782c72945b2bd413b"
-            >
-              Benefits
-            </a>
-            <a
-              className="navbar-item"
-              rel="noreferrer"
-              target="_blank"
-              href="https://www.notion.so/alemayhu/Contact-e76523187cc64961972b3ad4f7cb4c47"
-            >
-              Contact
-            </a>
-            <a
-              className="navbar-item"
-              rel="noreferrer"
-              target="_blank"
-              href="https://www.notion.so/alemayhu/FAQ-ef01be9c9bac41689a4d749127c14301"
-            >
-              FAQ
-            </a>
-            <a
-              className="navbar-item"
-              rel="noreferrer"
-              target="_blank"
-              href="https://www.notion.so/alemayhu/Privacy-38c6e8238ac04ea9b2485bf488909fd0"
-            >
-              Privacy
-            </a>
+          </div>
+          <div className="navbar-end">
             <a
               className="navbar-item"
               rel="noreferrer"
@@ -91,16 +57,6 @@ const Header = () => {
             >
               Useful Links
             </a>
-            <a
-              className="navbar-item"
-              rel="noreferrer"
-              target="_blank"
-              href="https://github.com/alemayhu/notion2anki"
-            >
-              <CodeIcon />
-            </a>
-          </div>
-          <div className="navbar-end">
             <div className="navbar-item">
               <a
                 className="button is-danger is-light"
