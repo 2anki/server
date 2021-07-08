@@ -28,6 +28,7 @@ export default class Settings {
   readonly n2aBasic: TemplateFile | undefined;
   readonly n2aInput: TemplateFile | undefined;
   readonly useNotionId: boolean;
+  readonly addNotionLink: boolean;
 
   constructor(input: any) {
     this.deckName = input.deckName;
@@ -58,6 +59,7 @@ export default class Settings {
     this.inputModelId = input.input_model_id;
     this.template = input.template;
     this.useNotionId = input["use-notion-id"];
+    this.addNotionLink = input["add-notion-link"] === "true";
     if (input["n2a-basic"]) {
       try {
         this.n2aBasic = JSON.parse(input["n2a-basic"]);
