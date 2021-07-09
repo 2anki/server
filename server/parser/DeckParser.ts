@@ -122,6 +122,24 @@ export class DeckParser {
     return style;
   }
 
+  getLink(pageId: string | undefined, note: Note): string | null {
+    try {
+      const page = pageId!.replace(/-/g, "");
+      const link = `https://www.notion.so/${page}#${note.notionId}`;
+      return `
+                <a
+                style="text-decoration: none; color: grey;"
+                href="${link}">
+                  Open in Notion
+                </a>
+                `;
+    } catch (error) {
+      console.info("experienced error while getting link");
+      console.error(error);
+      return null;
+    }
+  }
+
   handleHTML(
     fileName: string,
     contents: string,
@@ -135,6 +153,7 @@ export class DeckParser {
     );
     let name = deckName || dom("title").text();
     let style = dom("style").html();
+    const pageId = dom("article").attr("id");
     if (style) {
       style = style.replace(/white-space: pre-wrap;/g, "");
       style = this.setFontSize(style);
@@ -221,6 +240,12 @@ export class DeckParser {
               })();
               const note = new Note(front || "", backSide);
               note.notionId = parentUL.attr("id");
+              if (note.notionId && this.settings.addNotionLink) {
+                const link = this.getLink(pageId, note);
+                if (link !== null) {
+                  note.back += link;
+                }
+              }
               if (
                 (this.settings.isAvocado && this.noteHasAvocado(note)) ||
                 (this.settings.isCherry && !this.noteHasCherry(note))
