@@ -1,6 +1,6 @@
 interface FontPickerDelegate {
-  fontSize: number;
-  pickedFontSize: (fs: number) => void;
+  fontSize: string;
+  pickedFontSize: (fs: string) => void;
 }
 
 const FontSizePicker = (delegate: FontPickerDelegate) => {
@@ -14,30 +14,20 @@ const FontSizePicker = (delegate: FontPickerDelegate) => {
             justifyContent: "center",
             alignItems: "center",
             padding: "0",
+            flexDirection: "column",
           }}
         >
-          <input defaultValue={delegate.fontSize} name="font-size" hidden />
-          <div className="columns">
-            {[32, 26, 20, 12, 10].map((fontPreset) => (
-              <div className="column" key={fontPreset}>
-                <button
-                  className="button"
-                  style={{
-                    fontSize: `${fontPreset}px`,
-                    margin: "0 8px",
-                    color: `${
-                      fontPreset === delegate.fontSize ? "#00d1b2" : "black"
-                    }`,
-                  }}
-                  onClick={() => {
-                    delegate.pickedFontSize(fontPreset);
-                  }}
-                >
-                  {fontPreset}
-                </button>
-              </div>
-            ))}
-          </div>
+          <input
+            name="font-size"
+            type="range"
+            min="10"
+            max="100"
+            value={delegate.fontSize}
+            onChange={(event) => delegate.pickedFontSize(event.target.value)}
+          />
+          <label style={{ fontSize: `${delegate.fontSize}px` }}>
+            {delegate.fontSize}
+          </label>
         </div>
       </div>
     </div>
