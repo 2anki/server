@@ -25,7 +25,7 @@ const SettingsModal: React.FC<{
   const store = useContext(StoreContext);
   const [options, setOptions] = useState(store.options);
   const [fontSize, setFontSize] = useState(
-    parseInt(localStorage.getItem("font-size") || "") || 20
+    localStorage.getItem("font-size") || ""
   );
   const availableTemplates = [
     { value: "specialstyle", label: "Default" },
@@ -54,7 +54,7 @@ const SettingsModal: React.FC<{
 
   const resetStore = () => {
     store.clear();
-    setFontSize(20);
+    setFontSize("20");
     setToggleMode("close_toggle");
     setTemplate("specialstyle");
     setOptions([...store.options]);
