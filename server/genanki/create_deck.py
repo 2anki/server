@@ -17,6 +17,7 @@ from models.cloze import cloze_model
 from models.basic import basic_model
 
 from fs_util import _read_template, _build_deck_description, _wr_apkg
+from genanki.util import guid_for
 
 # TODO: is this really safe
 # Perserve the old ids for backwards compatability
@@ -125,8 +126,14 @@ if __name__ == "__main__":
                 # Cards marked with -1 number means they are breaking compatability, treat them differently by using their respective Notion Id
                 if card["number"] == -1:
                     card["number"] = card["notionId"]
-                my_note = Note(model, fields=fields, sort_field=card["number"], tags=card['tags'])
-                notes.append(my_note)
+
+                if mt.get("useNotionId"):
+                    g = guid_for(card["notionId"])
+                    my_note = Note(model, fields=fields, sort_field=card["number"], tags=card['tags'], guid=g)
+                    notes.append(my_note)
+                else:
+                    my_note = Note(model, fields=fields, sort_field=card["number"], tags=card['tags'])
+                    notes.append(my_note)
                 media_files = media_files + card["media"]            
             decks.append(
                 {

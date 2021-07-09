@@ -58,7 +58,7 @@ export default class Settings {
     this.basicModelId = input.basic_model_id;
     this.inputModelId = input.input_model_id;
     this.template = input.template;
-    this.useNotionId = input["use-notion-id"];
+    this.useNotionId = input["use-notion-id"] === "true";
     this.addNotionLink = input["add-notion-link"] === "true";
     if (input["n2a-basic"]) {
       try {

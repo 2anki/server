@@ -42,7 +42,7 @@ class CardOptionsStore {
         label: "Add Notion Link",
         value: _loadOption("add-notion-link", false),
         description:
-          "Add a link to the Notion page where the toggle was created. Note this can result in duplicates, works best with new notes.",
+          "Add a link to the Notion page where the toggle was created. Please this with the (Use Notion ID) to avoid duplicates.",
       },
       {
         key: "use-notion-id",
