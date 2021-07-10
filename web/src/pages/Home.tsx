@@ -57,6 +57,28 @@ const VideoSection: React.FC<{
   );
 };
 
+const StyledSubscribe = styled.div`
+  background: rgb(220, 38, 38);
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+  width: 100px;
+  a {
+    color: white;
+    font-weight: bold;
+  }
+`;
+
+const Subscribe = () => {
+  const link = "https://youtube.com/c/alexanderalemayhu?sub_confirmation=1";
+  return (
+    <StyledSubscribe>
+      <a rel="noreferrer" target="_blank" href={link}>
+        Subscribe
+      </a>
+    </StyledSubscribe>
+  );
+};
+
 const HomePage = () => {
   const index = Math.round(Math.random() * 4);
   const image = `mascot/Notion ${index + 1}.png`;
@@ -92,6 +114,10 @@ const HomePage = () => {
             contact
           </a>{" "}
           page).
+          <CtaGroup>
+            Make sure to like the videos and
+            <Subscribe />
+          </CtaGroup>
         </p>
         <VideoSection
           title="Notion + Anki"
