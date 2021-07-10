@@ -26,6 +26,11 @@ const CtaGroup = styled.div`
   display: flex;
   align-items: center;
   grid-gap: 1rem;
+  flex-direction: column;
+  grid-gap: 1rem;
+  @media (min-width: 768px) {
+    flex-direction: row;
+  }
 `;
 
 const VideoContainer = styled.div`
