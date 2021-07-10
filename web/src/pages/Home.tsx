@@ -32,6 +32,21 @@ const VideoContainer = styled.div`
   max-width: 560px;
   margin: 0 auto;
   padding: 2.5rem 1rem;
+
+  /* Reponsive iframe: https://stackoverflow.com/questions/17838607/making-an-iframe-responsive */
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 */
+  padding-top: 25px;
+  height: 0;
+  iframe {
+    padding-top: 1rem;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+  /* end */
 `;
 const VideoSection: React.FC<{
   title: string;
