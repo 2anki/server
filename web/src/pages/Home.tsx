@@ -7,42 +7,42 @@ const MascotImage = styled.img`
   object-fit: contain;
 `;
 
+const Container = styled.div`
+  max-width: 720px;
+  margin: 0 auto;
+`;
+
+const CtaGroup = styled.div`
+  display: flex;
+  align-items: center;
+  grid-gap: 1rem;
+`;
 const HomePage = () => {
   const index = Math.round(Math.random() * 4);
   const image = `mascot/Notion ${index + 1}.png`;
 
   return (
     <>
-      <section className="hero is-large">
-        <div className="hero-body">
-          <div className="container">
-            <div className="has-text-centered">
-              <MascotImage
-                src={image}
-                alt="Notion to Anki Mascot"
-                loading="lazy"
-              />
-              <h1 className="title is-size-1">
-                Convert Notion to Anki Flashcards ✨
-              </h1>
-              <p className="subtitle is-size-2">
-                We are making it the easiest and fastest way to create beautiful
-                Anki flashcards for anyone anywhere around the world 🌎
-              </p>
-              <CTAButton
-                isLarge
-                destination="/upload"
-                text="Get Started"
-                onClickLink={() => {}}
-              />
-              <p>
-                Fast, simple, easy and 100%{" "}
-                <a href="https://github.com/alemayhu/notion2anki">Free</a>!
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+      <Container>
+        <p>
+          <strong>Convert Notion to Anki Flashcards ✨</strong>
+          We are making it the easiest and fastest way to create beautiful Anki
+          flashcards for anyone anywhere around the world 🌎
+        </p>
+        <CtaGroup>
+          <CTAButton
+            isLarge
+            destination="/upload"
+            text="Get Started"
+            onClickLink={() => {}}
+          />
+          <p>
+            Fast, simple, easy and 100%{" "}
+            <a href="https://github.com/alemayhu/notion2anki">Free</a>!
+          </p>
+        </CtaGroup>
+        <MascotImage src={image} alt="Notion to Anki Mascot" loading="lazy" />
+      </Container>
     </>
   );
 };
