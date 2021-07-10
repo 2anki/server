@@ -1,8 +1,4 @@
-import { useState } from "react";
-
 import styled from "styled-components";
-
-import CTAButton from "./CTAButton";
 
 const Title = styled.h1`
   font-size: 1rem;
@@ -14,74 +10,55 @@ const StyledHeader = styled.header`
   flex-shrink: 0;
 `;
 
-const Header = () => {
-  const [active, setActive] = useState(false);
+const NavBar = styled.nav`
+  padding: 1rem;
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+`;
+const Buttons = styled.div`
+  display: flex;
+  justify-content: space-between;
+  width: 50%;
+  grid-gap: 1rem;
+  max-width: 200px;
+  flex-direction: column;
+  @media (min-width: 1024px) {
+    flex-direction: row;
+  }
+`;
 
+const Header = () => {
   return (
     <StyledHeader>
-      <nav className="navbar">
-        <div className="navbar-brand">
-          <a className="navbar-item" href="/">
+      <NavBar>
+        <div>
+          <a href="/">
             <Title>2anki.net</Title>
           </a>
-          <div
-            data-target="navbarExampleTransparentExample"
-            className={`navbar-burger burger ${active ? "is-active" : null}`}
-            onClick={() => setActive(!active)}
+        </div>
+        <Buttons>
+          <a
+            className="button is-danger is-light"
+            rel="noreferrer"
+            target="_blank"
+            href="https://www.patreon.com/alemayhu"
           >
-            <span />
-            <span />
-            <span />
-          </div>
-        </div>
-        <div
-          id="navbarExampleTransparentExample"
-          className={`navbar-menu ${active ? "is-active" : null}`}
-        >
-          <div className="navbar-start">
-            <div className="navbar-item">
-              <CTAButton
-                destination="/upload"
-                text={"Create"}
-                isLarge={false}
-                onClickLink={() => setActive(false)}
-              />
-            </div>
-          </div>
-          <div className="navbar-end">
-            <a
-              className="navbar-item"
-              rel="noreferrer"
-              target="_blank"
-              href="https://www.notion.so/alemayhu/Useful-Links-0f3051946a2d4b71ae31610da76b28a8"
-            >
-              Useful Links
-            </a>
-            <div className="navbar-item">
-              <a
-                className="button is-danger is-light"
-                rel="noreferrer"
-                target="_blank"
-                href="https://www.patreon.com/alemayhu"
-              >
-                <span style={{ fontWeight: "bold" }}>
-                  🧡 &nbsp;Become a Patron
-                </span>
-              </a>
-            </div>
-            <div className="navbar-item">
-              <a
-                className="button is-info is-light"
-                rel="noreferrer"
-                target="_blank"
-                href="https://github.com/sponsors/alemayhu"
-              >
-                <span style={{ fontWeight: "bold" }}>💙 &nbsp;Sponsor</span>
-              </a>
-            </div>
-          </div>
-        </div>
-      </nav>
+            <span style={{ fontWeight: "bold" }}>🧡 &nbsp;Become a Patron</span>
+          </a>
+          <a
+            className="button is-info is-light"
+            rel="noreferrer"
+            target="_blank"
+            href="https://github.com/sponsors/alemayhu"
+          >
+            <span style={{ fontWeight: "bold" }}>💙 &nbsp;Sponsor</span>
+          </a>
+        </Buttons>
+      </NavBar>
       <ins
         className="adsbygoogle"
         style={{ display: "block" }}
