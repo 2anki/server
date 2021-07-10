@@ -10,6 +10,16 @@ const MascotImage = styled.img`
 const Container = styled.div`
   max-width: 720px;
   margin: 0 auto;
+
+  h2 {
+    font-size: 1.5em;
+    font-weight: bolder;
+  }
+  h3 {
+    padding-top: 2rem;
+    font-size: 1.17em;
+    font-weight: bolder;
+  }
 `;
 
 const CtaGroup = styled.div`
@@ -17,6 +27,36 @@ const CtaGroup = styled.div`
   align-items: center;
   grid-gap: 1rem;
 `;
+
+const VideoContainer = styled.div`
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 2.5rem 1rem;
+`;
+const VideoSection: React.FC<{
+  title: string;
+  description: string;
+  url: string;
+}> = ({ title, description, url }) => {
+  return (
+    <>
+      <h3>{title}</h3>
+      <p>{description}</p>
+      <VideoContainer>
+        <iframe
+          width="560"
+          height="315"
+          src={url}
+          title={title}
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        ></iframe>
+      </VideoContainer>
+    </>
+  );
+};
+
 const HomePage = () => {
   const index = Math.round(Math.random() * 4);
   const image = `mascot/Notion ${index + 1}.png`;
@@ -42,6 +82,42 @@ const HomePage = () => {
           </p>
         </CtaGroup>
         <MascotImage src={image} alt="Notion to Anki Mascot" loading="lazy" />
+        <hr />
+        <h2>Tutorials on YouTube</h2>
+        <p>
+          Below are some selected videos to get you started with the project and
+          see some common use cases. If you have any questions, do not hesistate
+          to ask questions (see{" "}
+          <a href="https://www.notion.so/Contact-e76523187cc64961972b3ad4f7cb4c47">
+            contact
+          </a>{" "}
+          page).
+        </p>
+        <VideoSection
+          title="Notion + Anki"
+          description="Hei there 👋🏾 in this video we talk about what really is the goal with notion2anki and why we are all about cooperation 🤝"
+          url="https://www.youtube.com/embed/FjifJG4FoXY"
+        />
+        <VideoSection
+          title="How to Create Anki Flashcards from Notion Toggle Lists with Notion to Anki"
+          description={`This is the first tutorial where Notion to Anki was unveiled to the world. It's bit a bit outdated but you can see where it all started.  Enjoy!`}
+          url="https://www.youtube.com/embed/b3eQ0exhdz4"
+        />
+        <VideoSection
+          title="Read Faster, Remember More | Incremental Reading with Anki, Notion and notion2anki"
+          description="In this video we look at how you can use Anki, Notion and notion2anki to implement a incremental reading system that is totally free. "
+          url="https://www.youtube.com/embed/4PdhlNbBqXo"
+        />
+        <VideoSection
+          title="How to Turn Any Website in to Anki Flashcards With Notion to Anki"
+          description="Make Anki flashcards faster with Notion to Anki: https://2anki.net/"
+          url="https://www.youtube.com/embed/NLUfAWA2LJI"
+        />
+        <VideoSection
+          title="Maximum One Toggle per Card | Notion to Anki Tutorial - Card Option"
+          description="In this video we take a look at the most recently added card option in Notion to Anki: Maximum One Toggle per Card."
+          url="https://www.youtube.com/embed/DiYc5UErYOY"
+        />
       </Container>
     </>
   );
