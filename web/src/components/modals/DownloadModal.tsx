@@ -37,62 +37,6 @@ const DownloadModal: React.FC<{
                 Download
               </a>
             </div>
-            <hr />
-            <h3 className="title is-3"> Please Support Open Source 🙏🏾</h3>
-            <p>
-              This web server is community funded by our amazing <span> </span>
-              <a href="https://www.patreon.com/alemayhu">patrons</a> 🤩
-              <br /> You can directly support the development and accelerate the
-              improvements!
-            </p>
-            <div className="has-text-centered">
-              <a
-                rel="noreferrer"
-                target="_blank"
-                href="https://www.patreon.com/alemayhu"
-              >
-                <img
-                  alt="Become a patreon button"
-                  src="become_a_patron_button.png"
-                  loading="lazy"
-                />
-              </a>
-            </div>
-            <div>
-              <p>
-                Not comfortable with reocurring expense? No worries, you can
-                send one-time contributions with{" "}
-                <a href="https://ko-fi.com/alemayhu">Ko-Fi</a>.
-              </p>
-              <div className="has-text-centered">
-                <a
-                  rel="noreferrer"
-                  href="https://ko-fi.com/W7W6QZNY"
-                  target="_blank"
-                >
-                  <img
-                    height="51"
-                    style={{ border: "0px", height: "51px" }}
-                    src="https://cdn.ko-fi.com/cdn/kofi1.png?v=2"
-                    alt="Buy Me a Coffee at ko-fi.com"
-                  />
-                </a>
-              </div>
-              <p>
-                You can also support the project by sharing it on Twitter. Help
-                others discover it too ✨
-              </p>
-              <div className="has-text-centered">
-                <a
-                  rel="noreferrer"
-                  target="_blank"
-                  className="is-info button"
-                  href={TweetURL}
-                >
-                  Share on Twitter
-                </a>
-              </div>
-            </div>
           </div>
         </section>
       </div>
