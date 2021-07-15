@@ -8,7 +8,6 @@ import SettingsIcon from "../components/icons/SettingsIcon";
 import SettingsModal from "../components/modals/SettingsModal";
 
 import SUPPORTERS from "../Supporters";
-import VideoSection from "../components/VideoSection";
 
 // A custom hook that builds on useLocation to parse
 // the query string for you.
