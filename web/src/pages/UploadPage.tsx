@@ -1,5 +1,6 @@
-import { Link, useLocation } from "react-router-dom";
+import styled from "styled-components";
 import { useContext, useEffect, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 
 import StoreContext from "../store/StoreContext";
 import WarningMessage from "../components/WarningMessage";
@@ -13,6 +14,12 @@ import SettingsModal from "../components/modals/SettingsModal";
 function useQuery() {
   return new URLSearchParams(useLocation().search);
 }
+
+const Container = styled.div`
+  max-width: 768px;
+  margin: 0 auto;
+  padding-top: 4rem;
+`;
 
 const UploadPage = () => {
   const isDevelopment = window.location.host !== "2anki.net";
@@ -32,7 +39,7 @@ const UploadPage = () => {
   }, [store]);
 
   return (
-    <div style={{ paddingTop: "4rem" }}>
+    <Container>
       {isDevelopment ? <WarningMessage /> : null}
       <p className="my-2">
         2anki.net currently only supports
@@ -70,7 +77,7 @@ const UploadPage = () => {
           onClickClose={() => setShowSettings(false)}
         />
       </div>
-    </div>
+    </Container>
   );
 };
 
