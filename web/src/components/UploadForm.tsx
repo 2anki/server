@@ -1,6 +1,12 @@
 import { SyntheticEvent, useEffect, useRef, useState } from "react";
+import styled from "styled-components";
 import ErrorMessage from "./ErrorMessage";
 import DownloadModal from "./modals/DownloadModal";
+
+const DropParagraph = styled.p`
+  border: 3px dashed;
+  padding: 4rem;
+`;
 
 const UploadForm = () => {
   const [selectedFilename, setSelectedFilename] = useState("");
@@ -83,66 +89,64 @@ const UploadForm = () => {
   };
 
   return (
-    <form
-      encType="multipart/form-data"
-      method="post"
-      onSubmit={(event) => {
-        handleSubmit(event);
-      }}
-    >
-      <h2 className="title has-text-centered">Notion to Anki</h2>
+    <>
+      <form
+        encType="multipart/form-data"
+        method="post"
+        onSubmit={(event) => {
+          console.log("x1", event);
+          handleSubmit(event);
+        }}
+      >
+        {errorMessage && <ErrorMessage msg={errorMessage} />}
 
-      {errorMessage && <ErrorMessage msg={errorMessage} />}
-
-      <div>
-        <div className="has-text-centered">
-          <p>Drag a file and Drop it here</p>
-          <p className="my-2">
-            <i>or</i>
-          </p>
-          <div className="field">
-            <label>
-              <input
-                ref={fileInputRef}
-                className="file-input"
-                type="file"
-                name="pakker"
-                accept=".zip,.html"
-                required
-                multiple={true}
-                onChange={(event) => fileSelected(event)}
-              />
-              <span className="button">Select</span>
-            </label>
-          </div>
+        <div>
           <div className="has-text-centered">
-            {selectedFilename && (
-              <button
-                ref={convertRef}
-                style={{ marginTop: "2rem" }}
-                className={`button cta is-large is-primary ${
-                  uploading ? "is-loading" : null
-                }`}
-                type="submit"
-              >
-                Convert
-              </button>
+            <div className="field">
+              <DropParagraph>Drag a file and Drop it here</DropParagraph>
+              <p className="my-2">
+                <i>or</i>
+              </p>
+              <label>
+                <input
+                  ref={fileInputRef}
+                  className="file-input"
+                  type="file"
+                  name="pakker"
+                  accept=".zip,.html"
+                  required
+                  multiple={true}
+                  onChange={(event) => fileSelected(event)}
+                />
+                <span className="button">Select</span>
+              </label>
+            </div>
+            <button
+              ref={convertRef}
+              style={{ marginTop: "2rem" }}
+              className={`button cta is-large is-primary ${
+                uploading ? "is-loading" : null
+              }`}
+              type="submit"
+              disabled={!selectedFilename}
+            >
+              Convert
+            </button>
+            {downloadLink && deckName && !errorMessage && (
+              <DownloadModal
+                title={"Download Ready 🥳"}
+                downloadLink={downloadLink}
+                deckName={deckName}
+                onClickClose={() => {
+                  setDownloadLink("");
+                  setDeckName("");
+                }}
+              />
             )}
           </div>
-          {downloadLink && deckName && !errorMessage && (
-            <DownloadModal
-              title={"Download Ready 🥳"}
-              downloadLink={downloadLink}
-              deckName={deckName}
-              onClickClose={() => {
-                setDownloadLink("");
-                setDeckName("");
-              }}
-            />
-          )}
         </div>
-      </div>
-    </form>
+      </form>
+    </>
   );
 };
 

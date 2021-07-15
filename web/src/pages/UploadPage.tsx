@@ -7,8 +7,6 @@ import UploadForm from "../components/UploadForm";
 import SettingsIcon from "../components/icons/SettingsIcon";
 import SettingsModal from "../components/modals/SettingsModal";
 
-import SUPPORTERS from "../Supporters";
-
 // A custom hook that builds on useLocation to parse
 // the query string for you.
 // Reference: https://reactrouter.com/web/example/query-parameters
@@ -27,7 +25,6 @@ const UploadPage = () => {
   );
 
   const store = useContext(StoreContext);
-  const [imageHover, setImageHover] = useState("");
 
   // Make sure the defaults are set if not present to ensure backwards compatability
   useEffect(() => {
@@ -37,6 +34,22 @@ const UploadPage = () => {
   return (
     <div style={{ paddingTop: "4rem" }}>
       {isDevelopment ? <WarningMessage /> : null}
+      <p className="my-2">
+        2anki.net currently only supports
+        <a
+          rel="noreferrer"
+          target="_blank"
+          href="https://www.notion.so/Export-as-HTML-bf3fe9e6920e4b9883cbd8a76b6128b7"
+        >
+          {" "}
+          HTML and ZIP exports from Notion
+        </a>
+        . All files are automatically deleted after 21 minutes. Checkout the{" "}
+        <a rel="noreferrer" target="_blank" href="href">
+          YouTube channel for tutorials
+        </a>
+        .
+      </p>
       <div className="tabs is-centered">
         <ul>
           <li className={`${isUpload ? "is-active" : null}`}>
@@ -56,78 +69,6 @@ const UploadPage = () => {
           isActive={isSettings}
           onClickClose={() => setShowSettings(false)}
         />
-      </div>
-      <div
-        className="message is-info"
-        style={{ maxWidth: "480px", margin: "1rem auto" }}
-      >
-        <div className="message-header">Thank you to my supporters!</div>
-        <div className="message-body">
-          <p> This project is 100% free and will remain free ✌️ </p>
-          <p>
-            We only support<span> </span>
-            <a
-              rel="noreferrer"
-              target="_blank"
-              href="https://www.notion.so/Export-as-HTML-bf3fe9e6920e4b9883cbd8a76b6128b7"
-            >
-              HTML
-            </a>
-            <span> </span>
-            uploads from Notion. For tutorials checkout the official
-            <span> </span>
-            <a
-              rel="noreferrer"
-              target="_blank"
-              href="https://www.youtube.com/playlist?list=PLzOAzzqpDqukOtwH3IYWiOhr_sjBjfgCd"
-            >
-              playlist
-            </a>
-            . To receive support join the<span> </span>
-            <a
-              rel="noreferrer"
-              target="_blank"
-              href="https://discord.com/invite/PSKC3uS"
-            >
-              Discord server
-            </a>
-            .
-          </p>
-          <div
-            className="has-text-centered"
-            style={{ color: "grey", fontWeight: "normal" }}
-          >
-            #stillfree
-            <hr />
-          </div>
-          <div className="columns has-text-centered">
-            {SUPPORTERS.map((patreon) => (
-              <div className="column is-inline-flex-mobile" key={patreon.link}>
-                <figure className="image is-32x32">
-                  <img
-                    loading="lazy"
-                    className="is-rounded"
-                    alt={`${patreon.name} avatar`}
-                    src={patreon.link}
-                    onMouseEnter={() => setImageHover(patreon.name)}
-                    onMouseLeave={() => setImageHover("")}
-                  ></img>
-                  {imageHover === patreon.name && (
-                    <span className="tag is-black">{patreon.name}</span>
-                  )}
-                </figure>
-              </div>
-            ))}
-          </div>
-          <p>
-            {" "}
-            Due to privacy only{" "}
-            <a href="https://patreon.com/alemayhu">patrons</a> who have
-            requested it or{" "}
-            <a href="https://github.com/sponsors/alemayhu">GitHub sponsors</a>{" "}
-            will be displayed above. This is to respect their privacy.
-          </p>
-        </div>
       </div>
     </div>
   );
