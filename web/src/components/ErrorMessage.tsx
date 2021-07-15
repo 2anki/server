@@ -1,5 +1,4 @@
 const ErrorMessage: React.FC<{ msg: string }> = ({ msg }) => {
-  // TODO: use modal?
   return (
     <section className="hero is-danger">
       <div dangerouslySetInnerHTML={{ __html: msg }}></div>

@@ -19,7 +19,6 @@ from models.basic import basic_model
 from fs_util import _read_template, _build_deck_description, _wr_apkg
 from genanki.util import guid_for
 
-# TODO: is this really safe
 # Perserve the old ids for backwards compatability
 def model_id(name):
     if name == "n2a-input":
