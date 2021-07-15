@@ -51,10 +51,9 @@ test("Colours", async (t) => {
 });
 
 test.skip("HTML Regression Test", (t) => {
-  console.log(
-    "#TODO: please automate HTML regression check. Use this page https://www.notion.so/HTML-test-4aa53621a84a4660b69e9953f3938685."
+  t.fail(
+    "please automate HTML regression check. Use this page https://www.notion.so/HTML-test-4aa53621a84a4660b69e9953f3938685."
   );
-  t.fail("to be implemented");
 });
 
 test("Nested Toggles", async (t) => {
