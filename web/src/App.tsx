@@ -2,8 +2,6 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import { lazy } from "react";
 import styled from "styled-components";
 
-import NotionConnectPage from "./pages/NotionConnectPage";
-
 import UploadPage from "./pages/UploadPage";
 import HomePage from "./pages/Home";
 
@@ -13,6 +11,7 @@ import CardOptionsStore from "./store/Options";
 import StoreContext from "./store/StoreContext";
 import GlobalStyle from "./GlobalStyle";
 
+const NotionConnectPage = lazy(() => import("./pages/NotionConnectPage"));
 const TemplatePage = lazy(() => import("./pages/Templates/TemplatePage"));
 
 const Layout = styled.div`
