@@ -52,7 +52,7 @@ const UploadPage = () => {
           HTML and ZIP exports from Notion
         </a>
         . All files are automatically deleted after 21 minutes. Checkout the{" "}
-        <a rel="noreferrer" target="_blank" href="href">
+        <a rel="noreferrer" target="_blank" href="https://youtube.com/c/alexanderalemayhu?sub_confirmation=1">
           YouTube channel for tutorials
         </a>
         .
