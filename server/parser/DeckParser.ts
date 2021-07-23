@@ -65,7 +65,7 @@ export class DeckParser {
     }
     const next = global.decodeURIComponent(href);
     const file = this.files.find((file) => {
-      return file.name.match(next);
+      return file.name.match(next.replace(/[#-.]|[[-^]|[?|{}]/g, "\\$&"));
     });
     if (!file) {
       return file;
