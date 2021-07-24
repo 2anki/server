@@ -8,7 +8,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [14.x]
+        node-version: [15.0.1]
 
     steps:
       - uses: actions/checkout@v1
@@ -18,11 +18,12 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: test
         run: |
-          npm --prefix server install
-          npm --prefix server run build
+          npm install -g pnpm
+          pnpm --dir server install
+          pnpm --dir server run build
           pip3 install -U setuptools 
           pip3 install -r server/genanki/requirements.txt
-          npm --prefix server run test
+          pnpm --dir server run test
         env:
           CI: true
           NOTION_KEY: ${{ secrets.NOTION_KEY }}

@@ -7,7 +7,11 @@ const StyledButton = styled.div`
   margin-top: 2rem;
   margin-bottom: 2rem;
   background: rgb(207, 83, 89);
+  padding: 1rem 1.9rem;
+  border-radius: 3px;
+  font-size: 1.2rem;
   a {
+    text-decoration: none;
     color: white;
   }
   &:hover {
@@ -16,13 +20,12 @@ const StyledButton = styled.div`
 `;
 
 const CTAButton: React.FC<{
-  isLarge: boolean;
   text: string;
   destination: string;
   onClickLink: React.MouseEventHandler;
-}> = ({ isLarge, text, destination, onClickLink }) => {
+}> = ({ text, destination, onClickLink }) => {
   return (
-    <StyledButton className={`button ${isLarge ? "is-large" : null}`}>
+    <StyledButton>
       <Link onClick={onClickLink} to={destination}>
         {text}
       </Link>

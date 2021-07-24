@@ -5,11 +5,12 @@ RUN mkdir -pv /tmp/uploads
 WORKDIR /app
 
 COPY . .
-RUN npm --prefix /app/server install
-RUN npm --prefix /app/web install
 
-RUN npm --prefix /app/server run build
-RUN npm --prefix /app/web run build
+RUN pnpm --dir /app/server install --prefer-offlin
+RUN pnpm --dir /app/web install --prefer-offlin
+
+RUN pnpm --dir /app/server run build
+RUN pnpm --dir /app/web run build
 
 # Clean up
 RUN rm -rf /app/web/node_modules

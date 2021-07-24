@@ -4,6 +4,11 @@ const Title = styled.h1`
   font-size: 2rem;
   font-weight: bold;
   padding-left: 0;
+  color: #5993f7;
+`;
+
+const StyledLink = styled.a`
+  text-decoration: none;
 `;
 
 const StyledHeader = styled.header`
@@ -25,9 +30,9 @@ const Header = () => {
     <StyledHeader>
       <NavBar>
         <div>
-          <a href="/">
+          <StyledLink href="/">
             <Title>2anki.net</Title>
-          </a>
+          </StyledLink>
         </div>
       </NavBar>
     </StyledHeader>
