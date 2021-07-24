@@ -132,3 +132,7 @@ __pycache__
 
 # Built
 server/server.js
+
+# pnpm
+server/pnpm-lock.yaml
+web/pnpm-lock.yaml
