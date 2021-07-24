@@ -6,6 +6,10 @@ import DownloadModal from "./modals/DownloadModal";
 const DropParagraph = styled.p`
   border: 3px dashed;
   padding: 4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  grid-gap: 1rem;
 `;
 
 const UploadForm = () => {
@@ -103,23 +107,25 @@ const UploadForm = () => {
         <div>
           <div className="has-text-centered">
             <div className="field">
-              <DropParagraph>Drag a file and Drop it here</DropParagraph>
-              <p className="my-2">
-                <i>or</i>
-              </p>
-              <label>
-                <input
-                  ref={fileInputRef}
-                  className="file-input"
-                  type="file"
-                  name="pakker"
-                  accept=".zip,.html"
-                  required
-                  multiple={true}
-                  onChange={(event) => fileSelected(event)}
-                />
-                <span className="button">Select</span>
-              </label>
+              <DropParagraph>
+                Drag a file and Drop it here
+                <p className="my-2">
+                  <i>or</i>
+                </p>
+                <label>
+                  <input
+                    ref={fileInputRef}
+                    className="file-input"
+                    type="file"
+                    name="pakker"
+                    accept=".zip,.html"
+                    required
+                    multiple={true}
+                    onChange={(event) => fileSelected(event)}
+                  />
+                  <span className="button">Select</span>
+                </label>
+              </DropParagraph>
             </div>
             <button
               ref={convertRef}
