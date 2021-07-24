@@ -18,9 +18,10 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: npm install, build, and test
         run: |
-          npm --prefix server install
-          npm --prefix web install
-          npm --prefix server build
-          npm --prefix web build
+          npm install -g pnpm
+          pnpm --dir server install
+          pnpm --dir web install
+          pnpm --dir server run build
+          pnpm --dir web run build
         env:
           CI: true
