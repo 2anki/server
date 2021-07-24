@@ -14,6 +14,10 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+.adsbygoogle {
+    width: 50vw;
+    margin: 0 auto;
+}
 `;
 
 export default GlobalStyle;
