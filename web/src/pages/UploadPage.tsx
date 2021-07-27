@@ -18,7 +18,14 @@ function useQuery() {
 const Container = styled.div`
   max-width: 768px;
   margin: 0 auto;
-  padding-top: 4rem;
+`;
+
+const InfoMessage = styled.p`
+  font-size: 11px;
+  margin: 0 auto;
+  max-width: 480px;
+  color: grey;
+  padding-top: 1rem;
 `;
 
 const UploadPage = () => {
@@ -26,10 +33,29 @@ const UploadPage = () => {
   const query = useQuery();
   const view = query.get("view");
 
-  const isUpload = view === "upload" || !view;
   const [isSettings, setShowSettings] = useState(
     view === "template" || view === "deck-options" || view === "card-options"
   );
+
+  const FlexColumn = styled.div`
+    display: flex;
+    justify-content: space-between;
+  `;
+
+  const ImportTitle = styled.h2`
+    font-size: 1.5rem;
+    font-weight: bold;
+  `;
+
+  const SettingsLink = styled.div`
+    display: flex;
+    align-items: center;
+    justify-items: center;
+    .link {
+      display: flex;
+      color: grey;
+    }
+  `;
 
   const store = useContext(StoreContext);
 
@@ -41,40 +67,43 @@ const UploadPage = () => {
   return (
     <Container>
       {isDevelopment ? <WarningMessage /> : null}
-      <p className="my-2">
-        2anki.net currently only supports
-        <a
-          rel="noreferrer"
-          target="_blank"
-          href="https://www.notion.so/Export-as-HTML-bf3fe9e6920e4b9883cbd8a76b6128b7"
-        >
-          {" "}
-          HTML and ZIP exports from Notion
-        </a>
-        . All files are automatically deleted after 21 minutes. Checkout the{" "}
-        <a rel="noreferrer" target="_blank" href="https://youtube.com/c/alexanderalemayhu?sub_confirmation=1">
-          YouTube channel for tutorials
-        </a>
-        .
-      </p>
-      <div className="tabs is-centered">
-        <ul>
-          <li className={`${isUpload ? "is-active" : null}`}>
-            <Link to="upload?view=upload">Upload</Link>
-          </li>
-          <li onClick={() => setShowSettings(true)}>
-            <Link to="upload?view=template">
-              <SettingsIcon />
-              Settings
-            </Link>
-          </li>
-        </ul>
-      </div>
+      <FlexColumn>
+        <ImportTitle>Import</ImportTitle>
+        <SettingsLink onClick={() => setShowSettings(true)}>
+          <Link className="link" to="upload?view=template">
+            <SettingsIcon />
+            Settings
+          </Link>
+        </SettingsLink>
+      </FlexColumn>
       <div className="container">
         <UploadForm />
+        <InfoMessage>
+          2anki.net currently only supports
+          <a
+            rel="noreferrer"
+            target="_blank"
+            href="https://www.notion.so/Export-as-HTML-bf3fe9e6920e4b9883cbd8a76b6128b7"
+          >
+            {" "}
+            HTML and ZIP exports from Notion
+          </a>
+          . All files are automatically deleted after 21 minutes. Checkout the{" "}
+          <a
+            rel="noreferrer"
+            target="_blank"
+            href="https://youtube.com/c/alexanderalemayhu?sub_confirmation=1"
+          >
+            YouTube channel for tutorials
+          </a>
+          . Notion API support is in the works and coming soon!
+        </InfoMessage>
         <SettingsModal
           isActive={isSettings}
-          onClickClose={() => setShowSettings(false)}
+          onClickClose={() => {
+            window.history.pushState({}, "", "upload");
+            setShowSettings(false);
+          }}
         />
       </div>
     </Container>
