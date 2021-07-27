@@ -15,7 +15,7 @@
     "web-vitals": "^1.0.1"
   },
   "scripts": {
-    "start": "react-app-rewired start",
+    "start": "react-scripts start",
     "build": "GENERATE_SOURCEMAP=false react-app-rewired build --max_old_space_size=4096",
     "test": "react-app-rewired test",
     "eject": "react-app-rewired eject"
