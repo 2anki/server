@@ -1,21 +1,28 @@
 FROM alemayhu/base-image-n2a
-
-RUN mkdir -pv /tmp/workspaces
-RUN mkdir -pv /tmp/uploads
 WORKDIR /app
 
-COPY . .
+# Copy package.json's
+COPY server/package.json /server/
+COPY web/package.json /web/
 
-RUN pnpm --dir /app/server install --prefer-offlin
-RUN pnpm --dir /app/web install --prefer-offlin
+# Install deps
+RUN pnpm --dir /app/server install --prefer-offline & pnpm --dir /app/web install --prefer-offline & wait
 
-RUN pnpm --dir /app/server run build
-RUN pnpm --dir /app/web run build
+# Copy projects
+COPY server/ server/
+COPY web/ web/
+
+# Build
+RUN pnpm --dir /app/server run build & pnpm --dir /app/web run build & wait
 
 # Clean up
 RUN rm -rf /app/web/node_modules
 
-ENV PORT 8080
-EXPOSE 8080
+# Make tmp dirs
+RUN mkdir -pv /tmp/workspaces
+RUN mkdir -pv /tmp/uploads
 
-CMD ["node", "/app/server/server.js"]
+ENV PORT 8080
+EXPOSE ${PORT}
+
+ENTRYPOINT ["node", "/app/server/build/server.js"]
