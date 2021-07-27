@@ -6,8 +6,8 @@ WORKDIR /app
 
 COPY . .
 
-RUN pnpm --dir /app/server install --prefer-offlin
-RUN pnpm --dir /app/web install --prefer-offlin
+RUN pnpm --dir /app/server install --prefer-offline
+RUN pnpm --dir /app/web install --prefer-offline
 
 RUN pnpm --dir /app/server run build
 RUN pnpm --dir /app/web run build
