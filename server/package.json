@@ -22,7 +22,7 @@
   "main": "main.js",
   "scripts": {
     "test": "ava",
-    "start": "yarn dev",
+    "start": "pnpm dev",
     "build": "tsc -p .",
     "dev": "nodemon --watch '**/*.ts' --exec \"ts-node\" server.ts",
     "lint": "tslint -c tslint.json '**/*.ts'",
