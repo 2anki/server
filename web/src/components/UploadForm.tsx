@@ -3,9 +3,12 @@ import styled from "styled-components";
 import ErrorMessage from "./ErrorMessage";
 import DownloadModal from "./modals/DownloadModal";
 
-const DropParagraph = styled.p`
-  border: 3px dashed;
+const DropParagraph = styled.div`
+  border: 1.3px dashed;
+  border-radius: 3px;
+  border-color: lightgray;
   padding: 4rem;
+  margin-bottom: 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -98,14 +101,13 @@ const UploadForm = () => {
         encType="multipart/form-data"
         method="post"
         onSubmit={(event) => {
-          console.log("x1", event);
           handleSubmit(event);
         }}
       >
         {errorMessage && <ErrorMessage msg={errorMessage} />}
 
         <div>
-          <div className="has-text-centered">
+          <div>
             <div className="field">
               <DropParagraph>
                 Drag a file and Drop it here
@@ -129,8 +131,7 @@ const UploadForm = () => {
             </div>
             <button
               ref={convertRef}
-              style={{ marginTop: "2rem" }}
-              className={`button cta is-large is-primary ${
+              className={`button cta is-primary ${
                 uploading ? "is-loading" : null
               }`}
               type="submit"
