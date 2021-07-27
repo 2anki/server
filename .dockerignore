@@ -1,4 +1,2 @@
-server/build
-web/build
-
-**/node_modules
+**/build/
+**/node_modules/
