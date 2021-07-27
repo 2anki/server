@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     /* Visit https://aka.ms/tsconfig.json to read more about this file */
+    "outDir": "./build",
 
     /* Basic Options */
     // "incremental": true,                         /* Enable incremental compilation */
