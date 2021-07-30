@@ -3,7 +3,11 @@ import BlockHandler from "../handlers/BlockHandler";
 import NotionAPIWrapper from "../notion/api";
 import Settings from "../parser/Settings";
 
+import * as dotenv from "dotenv";
+dotenv.config({ path: __dirname + "/.env" });
+
 if (!process.env.NOTION_KEY) {
+  console.log(`Make sure to add .env file here:  ${__dirname}/.env`);
   throw new Error("Missing Notion API KEY");
 }
 

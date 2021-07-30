@@ -37,6 +37,7 @@
     "@notionhq/client": "^0.1.8",
     "base-64": "^1.0.0",
     "cheerio": "1.0.0-rc.3",
+    "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "find-remove": "^2.0.3",
     "jszip": "^3.5.0",
