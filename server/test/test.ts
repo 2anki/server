@@ -5,9 +5,9 @@ import fs from "fs";
 import test from "ava";
 
 // @ts-ignore
-import { DeckParser } from "../parser/DeckParser.js";
+import { DeckParser } from "../parser/DeckParser";
 // @ts-ignore
-import Settings from "../parser/Settings.js";
+import Settings from "../parser/Settings";
 
 process.env.WORKSPACE_BASE = path.join(os.tmpdir(), "workspaces");
 fs.mkdirSync(process.env.WORKSPACE_BASE, { recursive: true });
