@@ -3,6 +3,10 @@ import BlockHandler from "../handlers/BlockHandler";
 import NotionAPIWrapper from "../notion/api";
 import Settings from "../parser/Settings";
 
+if (!process.env.NOTION_KEY) {
+  throw new Error("Missing Notion API KEY");
+}
+
 const pageId = "3ce6b147ac8a425f836b51cc21825b85";
 const api = new NotionAPIWrapper(process.env.NOTION_KEY!);
 
