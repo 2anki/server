@@ -1,12 +1,11 @@
 import { SyntheticEvent, useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import ErrorMessage from "./ErrorMessage";
-import DownloadModal from "./modals/DownloadModal";
 
-const DropParagraph = styled.div`
+const DropParagraph = styled.div<{ hover: boolean }>`
   border: 1.3px dashed;
   border-radius: 3px;
-  border-color: lightgray;
+  border-color: ${(props) => (props.hover ? "#5997f5" : "lightgray")};
   padding: 4rem;
   margin-bottom: 1rem;
   display: flex;
@@ -16,26 +15,37 @@ const DropParagraph = styled.div`
 `;
 
 const UploadForm = () => {
-  const [selectedFilename, setSelectedFilename] = useState("");
   const [uploading, setUploading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [downloadLink, setDownloadLink] = useState("");
   const [deckName, setDeckName] = useState("");
+  const [dropHover, setDropHover] = useState(false);
 
   const fileInputRef = useRef(null);
   const convertRef = useRef(null);
+  const downloadRef = useRef(null);
 
   useEffect(() => {
     const body = document.getElementsByTagName("body")[0];
-    body.ondragover = body.ondragenter = (event) => {
+    body.ondragover = (event) => {
+      setDropHover(true);
       event.preventDefault();
     };
+
+    body.ondragenter = (event) => {
+      event.preventDefault();
+      setDropHover(true);
+    };
+
+    body.ondragleave = (_event) => {
+      setDropHover(false);
+    };
+
     body.ondrop = (event) => {
       const dataTransfer = event.dataTransfer;
       if (dataTransfer && dataTransfer.files.length > 0) {
         /* @ts-ignore */
         fileInputRef.current.files = dataTransfer.files;
-        setSelectedFilename(dataTransfer.files[0].name);
         /* @ts-ignore */
         convertRef.current.click();
       }
@@ -85,15 +95,11 @@ const UploadForm = () => {
   };
 
   const fileSelected = (event: { target: HTMLInputElement }) => {
-    const filename = (() => {
-      try {
-        return event.target.value.split(/(\\|\/)/g).pop();
-      } catch (err) {
-        return "";
-      }
-    })();
-    if (filename) setSelectedFilename(filename);
+    console.log("fileSelected", event);
+    /* @ts-ignore */
+    convertRef.current.click();
   };
+  const isDownloadable = downloadLink && deckName && !errorMessage;
 
   return (
     <>
@@ -109,7 +115,7 @@ const UploadForm = () => {
         <div>
           <div>
             <div className="field">
-              <DropParagraph>
+              <DropParagraph hover={dropHover}>
                 Drag a file and Drop it here
                 <p className="my-2">
                   <i>or</i>
@@ -129,27 +135,26 @@ const UploadForm = () => {
                 </label>
               </DropParagraph>
             </div>
-            <button
-              ref={convertRef}
-              className={`button cta is-primary ${
-                uploading ? "is-loading" : null
-              }`}
-              type="submit"
-              disabled={!selectedFilename}
+            <a
+              ref={downloadRef}
+              className={`button cta
+              ${isDownloadable ? "is-primary" : "is-light"} 
+              ${uploading ? "is-loading" : null}`}
+              href={downloadLink}
+              download={deckName}
+              onClick={(event) => {
+                if (!isDownloadable) {
+                  event?.preventDefault();
+                }
+              }}
             >
-              Convert
-            </button>
-            {downloadLink && deckName && !errorMessage && (
-              <DownloadModal
-                title={"Download Ready 🥳"}
-                downloadLink={downloadLink}
-                deckName={deckName}
-                onClickClose={() => {
-                  setDownloadLink("");
-                  setDeckName("");
-                }}
-              />
-            )}
+              Download
+            </a>
+            <button
+              style={{ visibility: "hidden" }}
+              ref={convertRef}
+              type="submit"
+            />
           </div>
         </div>
       </form>
