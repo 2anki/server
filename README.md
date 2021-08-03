@@ -2,11 +2,13 @@
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/5da03a4d-2c54-4343-8949-33124d2211e5/deploy-status)](https://app.netlify.com/sites/vibrant-swirles-654fce/deploys) [![Discord](https://img.shields.io/discord/723998078201495642)](https://discord.com/invite/PSKC3uS) [![Twitter](https://img.shields.io/twitter/url/https/twitter.com/cloudposse.svg?style=social&label=Follow%20%40aalemayhu)](https://twitter.com/aalemayhu)
 
-This is a project make the process of working with Anki and Notion smoother 💫
-We are going to make this a good way to make [Anki](https://apps.ankiweb.net/) flashcards easier, better and faster.
+This is a project to make the process of working with Anki and Notion smoother 💫 We are going to make this a good way to make [Anki](https://apps.ankiweb.net/) flashcards easier, better and faster.
+If you are looking for a Anki or Notion replacement then this project is probably not right for you. Watch this video [Notion + Anki](https://youtu.be/FjifJG4FoXY) to understand the project's goal.
 
-- You can convert your Notion [toggle lists][tl] to Anki cards easily.
+## Benefits
+
 - No technical skills required and 100% free to use by anyone anywhere 🤗
+- You can convert your Notion [toggle lists][tl] to Anki cards easily.
 - Support for embeds, audio files, images and more.
 
 ## Sponsors
@@ -29,20 +31,13 @@ We are going to make this a good way to make [Anki](https://apps.ankiweb.net/) f
 
 You can also support the project financially and receive exclusive member benefits like ✨
 
-- Access to my Facebook messenger so you can DM me 24/7📱
-- Your name will be added to the BACKERS file on GitHub 🔝
-- Exclusive access to a private channel for supporters 💬
-- Early access to the updates feed on the development 📰
-- Lots of encouragement on your learning journey
-- Personal recorded thank you [video](https://www.youtube.com/playlist?list=PLzOAzzqpDqulq2A-yB0ydn3QgOpXtohkk) 🤳🏾
-
 [tl]: https://www.notion.so/Toggles-c720af26b4bd4789b736c140b2dc73fe
 
 ## How it works
 
 We treats toggle lists on the top level as Anki flashcards. The toggle list line is the front of the card and everything inside in the details is the back. That's the main feature but you can customize the behaviour via card options.
 
-Considering how powerful [cloze deletions](https://docs.ankiweb.net/#/editing?id=cloze-deletion) are, they are the default note type. To see how this works in action check out this video by [Alp Kaan](https://alpkaanaksu.com/): [How to use cloze deletions in notion2anki 🤩
+Considering how powerful [cloze deletions](https://docs.ankiweb.net/#/editing?id=cloze-deletion) are, they are enabled by default. To see how this works in action check out this video by [Alp Kaan](https://alpkaanaksu.com/): [How to use cloze deletions in notion2anki 🤩
 ](https://youtu.be/r9pPNl8Mx_Q)
 
 You can use the card type to flip which creates a mix of the cards. Basic (front & back), basic + reversed and just reversed.
@@ -75,8 +70,6 @@ https://www.reddit.com/r/Anki/comments/g29mzk/cards_imported_from_notion/
 ## Roadmap
 
 The dream is to have a powerful and easy to use process for producing high quality flashcards. Notion is super easy to use and Notion 2 Anki is just going to make the importing process and controlling the look of the cards / decks smooth. This project is a complement to Anki and Notion.
-
-You can purpose changes via the [Suggestions](https://www.notion.so/alemayhu/Suggestions-fd5badcc211946cf847713aca8cc4cab) page.
 
 ## Development
 
