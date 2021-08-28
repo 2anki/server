@@ -22,7 +22,7 @@ If you are looking for a Anki or Notion replacement then this project is probabl
 > This project is brought to you by our amazing [patrons](http://patreon.com/alemayhu)
 > and [GitHub sponsors](https://github.com/sponsors/alemayhu) 🤩 Thank you!
 
-[![Patreon](https://2anki.net/become_a_patron_button.png)](https://patreon.com/alemayhu)
+[![Patreon](https://github.com/aalemayhu/aalemayhu/raw/master/assets/become_a_patron_button.png)](https://patreon.com/alemayhu)
 [![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/W7W6QZNY)
 <a href="https://www.buymeacoffee.com/aalemayhu"  rel="noreferrer" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
 
