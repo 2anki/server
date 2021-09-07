@@ -126,7 +126,7 @@ async function handleUpload(req: express.Request, res: express.Response) {
     }
   } catch (err) {
     console.error(err);
-    ErrorHandler(res, err);
+    ErrorHandler(res, err as Error);
   }
 }
 const router = express.Router();
