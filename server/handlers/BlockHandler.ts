@@ -24,7 +24,7 @@ class BlockHandler {
         .filter((c) => c.type !== "unsupported")
         //  Ignore empty back
         // @ts-ignore
-        .filter((c) => c.paragraph.text.length > 0)
+        .filter((c) => c.paragraph && c.paragraph.text.length > 0)
         // @ts-ignore
         .map((c) => c.paragraph.text[0].text.content)
         .toString()
