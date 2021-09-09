@@ -99,7 +99,7 @@ const HomePage = () => {
           Below are some selected videos to get you started with the project and
           see some common use cases. If you have any questions, do not hesistate
           to ask questions (see{" "}
-          <a href="https://www.notion.so/Contact-e76523187cc64961972b3ad4f7cb4c47">
+          <a href="https://alemayhu.notion.site/Contact-e76523187cc64961972b3ad4f7cb4c47">
             contact
           </a>{" "}
           page).
