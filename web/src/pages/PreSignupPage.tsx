@@ -125,13 +125,13 @@ const PreSignupPage = () => {
             title="Monthly"
             description="Perfect for students on a budget"
             price={10}
-            cta="#"
+            cta="https://www.subscribepage.com/notion2ankimonthly"
           />
           <Tier
             title="Life time supporter"
             description="For die-hard supporters and life-long learners"
             price={90}
-            cta="#"
+            cta="https://www.subscribepage.com/notion2ankilifetime"
           />
         </PricingPlans>
       </Container>
