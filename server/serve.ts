@@ -37,7 +37,14 @@ function serve() {
   app.use("/auth", connectNotion.default);
 
   // This is due to legacy stuff and links shared around the web
-  const old = ["/notion", "/index", "/upload", "/tm", "/connect-notion"];
+  const old = [
+    "/notion",
+    "/index",
+    "/upload",
+    "/tm",
+    "/connect-notion",
+    "/pre-signup",
+  ];
   for (const p of old) {
     console.log("setting up request handler for ", p);
     app.get(p, (_req, res) => {
