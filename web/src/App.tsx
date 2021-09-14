@@ -11,6 +11,8 @@ import CardOptionsStore from "./store/Options";
 import StoreContext from "./store/StoreContext";
 import GlobalStyle from "./GlobalStyle";
 
+import NewBanner from "./components/NewBanner";
+
 const NotionConnectPage = lazy(() => import("./pages/NotionConnectPage"));
 const TemplatePage = lazy(() => import("./pages/Templates/TemplatePage"));
 
@@ -38,6 +40,7 @@ function App() {
           <Layout>
             <Header />
             <Container>
+              <NewBanner />
               <Switch>
                 <Route path="/tm">
                   <TemplatePage />
