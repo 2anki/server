@@ -21,9 +21,11 @@ const StyledPage = styled.div`
   h1 {
     font-weight: bold;
   }
-  h3 {
-    font-weight: bold;
-  }
+`;
+const Container = styled.div`
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: center;
 `;
 
 const Card = styled.div`
@@ -37,6 +39,7 @@ const Card = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  text-align: center;
 
   h2 {
     font-weight: bold;
@@ -48,6 +51,7 @@ const Card = styled.div`
 
 const PricingPlans = styled.div`
   display: flex;
+  justify-content: center;
 `;
 
 const SelectButton = styled.div`
@@ -63,37 +67,74 @@ const SelectButton = styled.div`
   }
 `;
 
+interface ITier {
+  title: string;
+  description: string;
+  price: number;
+  cta: string;
+}
+
+const Tier = ({ title, description, price, cta }: ITier) => {
+  return (
+    <Card>
+      <h3 className="subtitle is-4">{title}</h3>
+      <p>{description}</p>
+      <p className="title is-5">
+        <span className="title is-3">{price}</span> ${" "}
+        {price > 10 ? "once" : "month"}
+      </p>
+      <div>
+        <SelectButton>
+          <a href={cta}>Select</a>
+        </SelectButton>
+      </div>
+    </Card>
+  );
+};
+
 const PreSignupPage = () => {
   return (
     <StyledPage>
-      <h2>new</h2>
-      <h1>Download study notes automatically into your brain</h1>
-      <p>Automatic syncing between notion and anki</p>
-      <h3>Get a 10% discount if you pre-signup. No creditcard needed.</h3>
-      <p>Select your plan</p>
+      <Container>
+        <h2 className="has-text-white subtitle is-4">new!</h2>
+        <h1 className="title has-text-white is-1">
+          Automatically synchronise your Notion notes in to Anki
+        </h1>
+        <p style={{ textAlign: "left" }}>
+          Creating flashcards has never been easer than this. You can now
+          collaborate with your friends using Notion and create flashcards
+          insanely fast!
+        </p>
+        <span>TODO: image in here</span>
+        <p style={{ textAlign: "left", marginBottom: "1rem" }}>
+          2anki.net is open source and will remain free but in order to dedicate
+          more time and effort to providing a great service. We need to invest a
+          lot of time in the project. Contuing down a free path for the hosted
+          version is not sustainable, hence we are offering you the option to
+          show your ineterest for a PRO version with less restrictions and more
+          power to you.
+        </p>
 
-      <PricingPlans>
-        <Card>
-          <h3>Monthly</h3>
-          <p>Perfect for students on a budget</p>
-          <p>10 $/moth</p>
-          <div>
-            <SelectButton>
-              <a href="#">Select</a>
-            </SelectButton>
-          </div>
-        </Card>
-        <Card>
-          <h3>life time supporter</h3>
-          <p>For die-hard supporters and life-long learners</p>
-          <p>90 $ once</p>
-          <div>
-            <SelectButton>
-              <a href="#">Select</a>
-            </SelectButton>
-          </div>
-        </Card>
-      </PricingPlans>
+        <h3 className="subtitle is-3 has-text-white">
+          Get a 10% discount if you pre-signup. <br />
+          No creditcard required.
+        </h3>
+        <p className="is-4 subtitle has-text-white">Select your plan</p>
+        <PricingPlans>
+          <Tier
+            title="Monthly"
+            description="Perfect for students on a budget"
+            price={10}
+            cta="#"
+          />
+          <Tier
+            title="Life time supporter"
+            description="For die-hard supporters and life-long learners"
+            price={90}
+            cta="#"
+          />
+        </PricingPlans>
+      </Container>
     </StyledPage>
   );
 };
