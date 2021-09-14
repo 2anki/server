@@ -92,6 +92,13 @@ const Tier = ({ title, description, price, cta }: ITier) => {
   );
 };
 
+const ImageWrapper = styled.div`
+  margin: 1rem;
+  img {
+    border-radius: 0.7rem;
+  }
+`;
+
 const PreSignupPage = () => {
   return (
     <StyledPage>
@@ -101,15 +108,17 @@ const PreSignupPage = () => {
           Automatically synchronise your Notion notes in to Anki
         </h1>
         <p style={{ textAlign: "left" }}>
-          Creating flashcards has never been easer than this. You can now
+          Creating flashcards has never been easier than this. You can now
           collaborate with your friends using Notion and create flashcards
           insanely fast!
         </p>
-        <span>TODO: image in here</span>
+        <ImageWrapper>
+          <img src="pre-signup.png" />
+        </ImageWrapper>
         <p style={{ textAlign: "left", marginBottom: "1rem" }}>
           2anki.net is open source and will remain free but in order to dedicate
           more time and effort to providing a great service. We need to invest a
-          lot of time in the project. Contuing down a free path for the hosted
+          lot of time in the project. Continuing down a free path for the hosted
           version is not sustainable, hence we are offering you the option to
           show your ineterest for a PRO version with less restrictions and more
           power to you.
