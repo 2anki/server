@@ -1,6 +1,7 @@
 import styled from "styled-components";
 
 const Banner = styled.div`
+  z-index: 1;
   margin: 1rem;
   padding: 1rem;
   background: #5397f5;
