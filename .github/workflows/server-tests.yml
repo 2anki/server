@@ -12,9 +12,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
-        with:
-          python-version: "3.9"
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
@@ -24,7 +21,7 @@ jobs:
           npm install -g pnpm
           pnpm --dir server install
           pnpm --dir server run build
-          python3 -m pip install --upgrade pip wheel setuptools
+          pip3 install setuptools=33.1.1
           pip3 install -r server/genanki/requirements.txt
           pnpm --dir server run test
         env:
