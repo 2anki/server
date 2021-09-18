@@ -11,6 +11,9 @@ jobs:
         node-version: [15.0.1]
 
     steps:
+      - name: python version check
+        run: |
+          /usr/bin/python3 --version
       - uses: actions/checkout@v1
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
