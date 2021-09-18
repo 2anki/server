@@ -113,7 +113,7 @@ const PreSignupPage = () => {
           insanely fast!
         </p>
         <ImageWrapper>
-          <img src="pre-signup.png" />
+          <img alt="Notion to Anki" src="pre-signup.png" />
         </ImageWrapper>
         <p style={{ textAlign: "left", marginBottom: "1rem" }}>
           2anki.net is open source and will remain free but in order to dedicate
