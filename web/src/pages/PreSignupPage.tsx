@@ -105,7 +105,7 @@ const PreSignupPage = () => {
       <Container>
         <h2 className="has-text-white subtitle is-4">new!</h2>
         <h1 className="title has-text-white is-1">
-          Automatically synchronise your Notion notes in to Anki
+          Automatically Synchronize Your Notion Notes Into Anki
         </h1>
         <p style={{ textAlign: "left" }}>
           Creating flashcards has never been easier than this. You can now
@@ -116,9 +116,9 @@ const PreSignupPage = () => {
           <img alt="Notion to Anki" src="pre-signup.png" />
         </ImageWrapper>
         <p style={{ textAlign: "left", marginBottom: "1rem" }}>
-          2anki.net is open source and will remain free but in order to dedicate
-          more time and effort to providing a great service. We need to invest a
-          lot of time in the project. Continuing down a free path for the hosted
+          2anki.net is open source and will remain free but to dedicate more
+          time and effort to providing a great service. We need to invest a lot
+          of time in the project. Continuing down a free path for the hosted
           version is not sustainable, hence we are offering you the option to
           show your ineterest for a PRO version with less restrictions and more
           power to you.
