@@ -21,7 +21,7 @@ jobs:
           npm install -g pnpm
           pnpm --dir server install
           pnpm --dir server run build
-          pip3 install -U setuptools 
+          python3 -m pip install --upgrade pip wheel setuptools
           pip3 install -r server/genanki/requirements.txt
           pnpm --dir server run test
         env:
