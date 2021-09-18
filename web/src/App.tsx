@@ -16,6 +16,7 @@ import NewBanner from "./components/NewBanner";
 const NotionConnectPage = lazy(() => import("./pages/NotionConnectPage"));
 const TemplatePage = lazy(() => import("./pages/Templates/TemplatePage"));
 const PreSignupPage = lazy(() => import("./pages/PreSignupPage"));
+const DashboardPage = lazy(() => import("./pages/DashboardPage"));
 
 const Layout = styled.div`
   display: flex;
@@ -58,6 +59,9 @@ function App() {
                 </Route>
                 <Route path="/pre-signup">
                   <PreSignupPage />
+                </Route>
+                <Route path="/dashboard">
+                  <DashboardPage />
                 </Route>
                 <Route path="/">
                   <HomePage />
