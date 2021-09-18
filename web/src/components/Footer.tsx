@@ -27,7 +27,7 @@ const Footer = () => {
             <a
               rel="noreferrer"
               target="_blank"
-              href="https://www.notion.so/alemayhu/Benefits-0d5fa2e18a8a44d782c72945b2bd413b"
+              href="https://alemayhu.notion.site/Benefits-0d5fa2e18a8a44d782c72945b2bd413b"
             >
               Benefits
             </a>
@@ -36,7 +36,7 @@ const Footer = () => {
             <a
               rel="noreferrer"
               target="_blank"
-              href="https://www.notion.so/alemayhu/Privacy-38c6e8238ac04ea9b2485bf488909fd0"
+              href="https://alemayhu.notion.site/Privacy-38c6e8238ac04ea9b2485bf488909fd0"
             >
               Privacy
             </a>
@@ -45,7 +45,7 @@ const Footer = () => {
             <a
               rel="noreferrer"
               target="_blank"
-              href="https://www.notion.so/alemayhu/FAQ-ef01be9c9bac41689a4d749127c14301"
+              href="https://alemayhu.notion.site/FAQ-ef01be9c9bac41689a4d749127c14301"
             >
               FAQ
             </a>

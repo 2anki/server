@@ -19,7 +19,7 @@ test("Get Notion Page", async (t) => {
   console.log(page.properties.title);
 
   /* @ts-ignore */
-  t.deepEqual(page.properties.Name.title[0].text.content, "Alexander Alemayhu");
+  t.deepEqual(page.properties.Name.title[0].plain_text, "Alexander Alemayhu");
 });
 
 test("Get Blocks", async (t) => {

@@ -6,6 +6,9 @@ import findRemoveSync from "find-remove";
 import morgan from "morgan";
 import express from "express";
 
+import * as Sentry from "@sentry/node";
+import * as Tracing from "@sentry/tracing";
+
 import { ALLOWED_ORIGINS } from "./constants";
 import ErrorHandler from "./handlers/error";
 
@@ -29,6 +32,23 @@ function serve() {
   const distDir = path.join(__dirname, "../web/build");
   const app = express();
 
+  Sentry.init({
+    dsn: "https://067ae1c6d7c847278d84a7bbd12515ec@o404766.ingest.sentry.io/5965064",
+    integrations: [
+      // enable HTTP calls tracing
+      new Sentry.Integrations.Http({ tracing: true }),
+      // enable Express.js middleware tracing
+      new Tracing.Integrations.Express({ app }),
+    ],
+
+    // Set tracesSampleRate to 1.0 to capture 100%
+    // of transactions for performance monitoring.
+    // We recommend adjusting this value in production
+    tracesSampleRate: 1.0,
+  });
+  app.use(Sentry.Handlers.requestHandler());
+  app.use(Sentry.Handlers.tracingHandler());
+
   app.use(morgan("combined"));
   app.use("/templates", express.static(templateDir));
   app.use(express.static(distDir));
@@ -37,7 +57,14 @@ function serve() {
   app.use("/auth", connectNotion.default);
 
   // This is due to legacy stuff and links shared around the web
-  const old = ["/notion", "/index", "/upload", "/tm", "/connect-notion"];
+  const old = [
+    "/notion",
+    "/index",
+    "/upload",
+    "/tm",
+    "/connect-notion",
+    "/pre-signup",
+  ];
   for (const p of old) {
     console.log("setting up request handler for ", p);
     app.get(p, (_req, res) => {
@@ -53,15 +80,6 @@ function serve() {
 
   app.use(
     (
-      err: Error,
-      _req: express.Request,
-      res: express.Response,
-      _next: express.NextFunction
-    ) => ErrorHandler(res, err)
-  );
-
-  app.use(
-    (
       req: express.Request,
       res: express.Response,
       next: express.NextFunction
@@ -74,6 +92,17 @@ function serve() {
       );
       next();
     }
+  );
+
+  app.use(Sentry.Handlers.errorHandler());
+
+  app.use(
+    (
+      err: Error,
+      _req: express.Request,
+      res: express.Response,
+      _next: express.NextFunction
+    ) => ErrorHandler(res, err)
   );
 
   process.on("uncaughtException", (err: Error, origin: string) => {

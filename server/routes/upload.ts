@@ -126,7 +126,7 @@ async function handleUpload(req: express.Request, res: express.Response) {
     }
   } catch (err) {
     console.error(err);
-    ErrorHandler(res, err);
+    ErrorHandler(res, err as Error);
   }
 }
 const router = express.Router();
@@ -137,7 +137,10 @@ if (!fs.existsSync(uploadPath)) {
   fs.mkdirSync(uploadPath, { recursive: true });
 }
 
-const m = multer({ dest: uploadPath, limits: { fileSize: 100 * 1024 * 1024 } });
+const m = multer({
+  dest: uploadPath,
+  limits: { fileSize: 100 * 1024 * 1024, fieldSize: 2 * 1024 * 1024 },
+});
 router.post("/", m.array("pakker"), (req, res) => handleUpload(req, res));
 
 export default router;
