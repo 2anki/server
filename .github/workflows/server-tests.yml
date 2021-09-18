@@ -11,7 +11,7 @@ jobs:
         node-version: [15.0.1]
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
@@ -21,7 +21,7 @@ jobs:
           npm install -g pnpm
           pnpm --dir server install
           pnpm --dir server run build
-          pip3 install -U setuptools 
+          pip3 install setuptools==33.1.1
           pip3 install -r server/genanki/requirements.txt
           pnpm --dir server run test
         env:
