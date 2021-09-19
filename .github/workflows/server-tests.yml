@@ -18,12 +18,11 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: test
         run: |
-          npm install -g pnpm
-          pnpm --dir server install
-          pnpm --dir server run build
+          npm --prefix  server install
+          npm --prefix  server run build
           pip3 install setuptools==33.1.1
           pip3 install -r server/genanki/requirements.txt
-          pnpm --dir server run test
+          npm --prefix  server run test
         env:
           CI: true
           NOTION_KEY: ${{ secrets.NOTION_KEY }}

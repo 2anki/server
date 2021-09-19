@@ -6,11 +6,11 @@ WORKDIR /app
 
 COPY . .
 
-RUN pnpm --dir /app/server install --prefer-offline
-RUN pnpm --dir /app/web install --prefer-offline
+RUN npm --prefix /app/server install
+RUN npm --prefix /app/web install
 
-RUN pnpm --dir /app/server run build
-RUN pnpm --dir /app/web run build
+RUN npm --prefix /app/server run build
+RUN npm --prefix /app/web run build
 
 # Clean up
 RUN rm -rf /app/web/node_modules
