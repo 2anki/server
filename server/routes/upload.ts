@@ -133,10 +133,6 @@ const router = express.Router();
 
 // Ensure uploads directory exists
 const uploadPath = "/media/storage/uploads/";
-if (!fs.existsSync(uploadPath)) {
-  fs.mkdirSync(uploadPath, { recursive: true });
-}
-
 const m = multer({
   dest: uploadPath,
   limits: { fileSize: 100 * 1024 * 1024, fieldSize: 2 * 1024 * 1024 },
