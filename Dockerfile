@@ -1,7 +1,7 @@
 FROM alemayhu/base-image-n2a
 
-RUN mkdir -pv /tmp/workspaces
-RUN mkdir -pv /tmp/uploads
+RUN mkdir -pv /media/storage/workspaces
+RUN mkdir -pv /media/storage/uploads
 WORKDIR /app
 
 COPY . .
@@ -19,3 +19,4 @@ ENV PORT 8080
 EXPOSE 8080
 
 CMD ["node", "/app/server/server.js"]
+/media/storage
