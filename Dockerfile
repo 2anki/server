@@ -1,7 +1,5 @@
 FROM alemayhu/base-image-n2a
 
-RUN mkdir -pv /media/storage/workspaces
-RUN mkdir -pv /media/storage/uploads
 WORKDIR /app
 
 COPY . .
