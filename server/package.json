@@ -21,7 +21,7 @@
   },
   "main": "main.js",
   "scripts": {
-    "test": "ava",
+    "test": "ava --verbose",
     "start": "yarn dev",
     "build": "tsc -p .",
     "dev": " WORKSPACE_BASE=/tmp/w nodemon --watch '**/*.ts' --exec \"ts-node\" server.ts",
