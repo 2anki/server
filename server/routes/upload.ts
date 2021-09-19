@@ -170,6 +170,7 @@ const upload = multer({
 }).array("pakker", 21);
 
 router.post("/", (req, res) => {
+  /* @ts-ignore */
   upload(req, res, function (error) {
     if (error) {
       console.error(error);
