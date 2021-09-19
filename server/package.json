@@ -46,11 +46,13 @@
     "express": "^4.17.1",
     "find-remove": "^2.0.3",
     "jszip": "^3.7.0",
+    "knex": "^0.95.11",
     "morgan": "^1.10.0",
     "multer": "^1.4.2",
     "multer-s3": "^2.9.0",
     "nanoid": "^3.1.12",
-    "node-fetch": "^2.6.1"
+    "node-fetch": "^2.6.1",
+    "pg": "^8.7.1"
   },
   "devDependencies": {
     "@types/base-64": "^1.0.0",
