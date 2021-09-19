@@ -132,9 +132,8 @@ async function handleUpload(req: express.Request, res: express.Response) {
 const router = express.Router();
 
 // Ensure uploads directory exists
-const uploadPath = "/media/storage/uploads/";
 const m = multer({
-  dest: uploadPath,
+  dest: process.env.UPLOAD_BASE,
   limits: { fileSize: 100 * 1024 * 1024, fieldSize: 2 * 1024 * 1024 },
 });
 router.post("/", m.array("pakker"), (req, res) => handleUpload(req, res));
