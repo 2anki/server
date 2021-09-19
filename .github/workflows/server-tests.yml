@@ -22,7 +22,7 @@ jobs:
           npm --prefix  server run build
           pip3 install setuptools==33.1.1
           pip3 install -r server/genanki/requirements.txt
-          find .
+          npm install -g ava
           npm --prefix  server run test
         env:
           CI: true
