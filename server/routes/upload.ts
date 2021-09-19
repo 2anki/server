@@ -5,6 +5,8 @@ import os from "os";
 import { nanoid } from "nanoid";
 import express from "express";
 import multer from "multer";
+import aws from "aws-sdk";
+import multerS3 from "multer-s3";
 
 import { PrepareDeck } from "../parser/DeckParser";
 import { ZipHandler } from "../handlers/zip";
@@ -33,7 +35,11 @@ function cleanDeckName(name: string) {
   return _name;
 }
 
-async function handleUpload(req: express.Request, res: express.Response) {
+async function handleUpload(
+  s3: aws.S3,
+  req: express.Request,
+  res: express.Response
+) {
   console.log("POST", req.originalUrl);
   const origin = req.headers.origin;
   if (!origin) {
@@ -54,7 +60,20 @@ async function handleUpload(req: express.Request, res: express.Response) {
     for (const file of files) {
       const filename = file.originalname;
       const settings = new Settings(req.body || {});
-      const fileContents = fs.readFileSync(file.path);
+      const fileContents = await new Promise<string>((resolve, reject) => {
+        s3.getObject(
+          /* @ts-ignore */
+          { Bucket: "spaces.2anki.net", Key: file.key },
+          (err, data) => {
+            if (err) {
+              reject(err);
+            } else {
+              /* @ts-ignore */
+              resolve(data.Body);
+            }
+          }
+        );
+      });
 
       console.log("filename", filename, "with settings", settings);
       if (filename.match(/.html$/)) {
@@ -71,6 +90,7 @@ async function handleUpload(req: express.Request, res: express.Response) {
         TriggerUnsupportedFormat();
       } else {
         const zipHandler = new ZipHandler();
+        /* @ts-ignore */
         await zipHandler.build(fileContents);
         for (const fileName of zipHandler.getFileNames()) {
           console.log("file", fileName);
@@ -131,11 +151,33 @@ async function handleUpload(req: express.Request, res: express.Response) {
 }
 const router = express.Router();
 
-// Ensure uploads directory exists
-const m = multer({
-  dest: process.env.UPLOAD_BASE,
-  limits: { fileSize: 100 * 1024 * 1024, fieldSize: 2 * 1024 * 1024 },
+// Set S3 endpoint to DigitalOcean Spaces
+const spacesEndpoint = new aws.Endpoint("fra1.digitaloceanspaces.com");
+https: const s3 = new aws.S3({
+  endpoint: spacesEndpoint,
 });
-router.post("/", m.array("pakker"), (req, res) => handleUpload(req, res));
+
+const upload = multer({
+  limits: { fileSize: 100 * 1024 * 1024, fieldSize: 2 * 1024 * 1024 },
+  storage: multerS3({
+    s3: s3,
+    bucket: "spaces.2anki.net",
+    key: function (request, file, cb) {
+      console.log("file", file);
+      cb(null, file.originalname);
+    },
+  }),
+}).array("pakker", 21);
+
+router.post("/", (req, res) => {
+  upload(req, res, function (error) {
+    if (error) {
+      console.error(error);
+      return res.status(500).end();
+    } else {
+      handleUpload(s3, req, res);
+    }
+  });
+});
 
 export default router;
