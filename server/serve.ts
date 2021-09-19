@@ -23,9 +23,6 @@ const WORKSPACE_BASE = "/media/storage/workspaces";
 if (!process.env.WORKSPACE_BASE) {
   process.env.WORKSPACE_BASE = WORKSPACE_BASE;
 }
-if (!existsSync(WORKSPACE_BASE)) {
-  mkdirSync(WORKSPACE_BASE, { recursive: true });
-}
 
 function serve() {
   const templateDir = path.join(__dirname, "templates");
