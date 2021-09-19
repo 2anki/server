@@ -19,7 +19,7 @@ import * as version from "./routes/version";
 import * as upload from "./routes/upload";
 
 // Make sure the workspace area exists for processing
-const WORKSPACE_BASE = path.join(os.tmpdir(), "workspaces");
+const WORKSPACE_BASE = "/media/storage/workspaces";
 if (!process.env.WORKSPACE_BASE) {
   process.env.WORKSPACE_BASE = WORKSPACE_BASE;
 }
@@ -112,6 +112,7 @@ function serve() {
     );
   });
 
+  // TODO: remove the auto-removal of old files. Users should decide when they want to delete.
   const TweentyOneMinutesInSeconds = 1260;
   setInterval(() => {
     const locations = ["workspaces", "uploads"];

@@ -132,7 +132,7 @@ async function handleUpload(req: express.Request, res: express.Response) {
 const router = express.Router();
 
 // Ensure uploads directory exists
-const uploadPath = path.join(os.tmpdir(), "uploads/");
+const uploadPath = "/media/storage/uploads/";
 if (!fs.existsSync(uploadPath)) {
   fs.mkdirSync(uploadPath, { recursive: true });
 }
