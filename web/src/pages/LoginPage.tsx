@@ -1,6 +1,7 @@
 import { useState } from "react";
 import styled from "styled-components";
 import RegisterForm from "../components/forms/RegisterForm";
+import LoginForm from "../components/forms/LoginForm";
 
 const TopSection = styled.div`
   display: flex;
@@ -34,13 +35,13 @@ const LoginPage = () => {
           <>
             Don't have an account?
             <button className="button is-black" onClick={onClickRegister}>
-              Log in
+              Register
             </button>
           </>
         )}
       </TopSection>
       {!isLogin && <RegisterForm />}
-      {isLogin && <p>Coming soon</p>}
+      {isLogin && <LoginForm />}
     </>
   );
 };
