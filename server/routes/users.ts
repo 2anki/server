@@ -1,4 +1,5 @@
 import express from "express";
+import jwt from "jsonwebtoken";
 
 import User from "../lib/User";
 import DB from "../storage/db";
@@ -41,7 +42,21 @@ router.post("/login", (req, res, next) => {
               console.error(err);
             }
             res.cookie("token", token);
-            return res.status(200).json({ token: token });
+
+            DB("access_tokens")
+              .insert({
+                token: token,
+                owner: user.id,
+              })
+              .onConflict("owner")
+              .merge()
+              .then(() => {
+                return res.status(200).json({ token: token });
+              })
+              .catch((err) => {
+                console.error(err);
+                next(err);
+              });
           });
         }
       }

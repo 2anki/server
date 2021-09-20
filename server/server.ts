@@ -66,7 +66,7 @@ function serve() {
     "/tm",
     "/connect-notion",
     "/pre-signup",
-    "/login",
+    "/login", // TODO: handle token is set then redirect to dashboard
   ];
   for (const p of old) {
     console.log("setting up request handler for ", p);
