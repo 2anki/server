@@ -48,11 +48,11 @@ function App() {
               }
             ></Route>
             <Container>
-              {/* <Route
+              <Route
                 render={({ location }) =>
                   location.pathname !== "/pre-signup" ? <NewBanner /> : null
                 }
-              /> */}
+              />
               <Switch>
                 <Route path="/tm">
                   <TemplatePage />
