@@ -33,10 +33,13 @@ const LoginForm = () => {
       };
       const res = await axios.post(endpoint, data);
       if (res.status === 200) {
+        console.log(res);
         window.location.href = "/dashboard";
       }
     } catch (error) {
-      setError("Request failed. If you already have a user try login instead");
+      setError(
+        "Request failed. Do you remember your password? If not click forgot my password."
+      );
       console.error(error);
     }
   };
