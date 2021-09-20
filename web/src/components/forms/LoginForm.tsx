@@ -8,16 +8,12 @@ const FormContainer = styled.div`
 `;
 
 const LoginForm = () => {
-  const [name, setName] = useState(localStorage.getItem("name") || "");
   const [email, setEmail] = useState(localStorage.getItem("email") || "");
-  const [tos, setTos] = useState(localStorage.getItem("tos") === "true");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
   const isValid = () => {
     return (
-      name.length > 0 &&
-      name.length < 256 &&
       email.length > 0 &&
       email.length < 256 &&
       password.length > 7 &&
@@ -27,12 +23,11 @@ const LoginForm = () => {
 
   const handleSubmit = async (event: SyntheticEvent) => {
     event.preventDefault();
-    const endpoint = "/users/register";
+    const endpoint = "/users/login";
     setError("");
 
     try {
       const data = {
-        name,
         email,
         password,
       };

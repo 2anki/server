@@ -16,6 +16,7 @@ const RegisterForm = () => {
 
   const isValid = () => {
     return (
+      tos &&
       name.length > 0 &&
       name.length < 256 &&
       email.length > 0 &&
