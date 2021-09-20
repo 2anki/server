@@ -63,6 +63,7 @@ function serve() {
     "/tm",
     "/connect-notion",
     "/pre-signup",
+    "/login",
   ];
   for (const p of old) {
     console.log("setting up request handler for ", p);
