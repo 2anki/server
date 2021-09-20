@@ -27,7 +27,7 @@
     "dev": " WORKSPACE_BASE=/tmp/w nodemon --watch '**/*.ts' --exec \"ts-node\" server.ts",
     "lint": "tslint -c tslint.json '**/*.ts'",
     "purge-js": "rm `find . -name '*.js'|grep -v node_modules`",
-    "migrate": "knex migrate:latest"
+    "migrate": "knex migrate:latest --env production"
   },
   "repository": {
     "type": "git",
