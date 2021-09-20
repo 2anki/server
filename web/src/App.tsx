@@ -17,6 +17,7 @@ const NotionConnectPage = lazy(() => import("./pages/NotionConnectPage"));
 const TemplatePage = lazy(() => import("./pages/Templates/TemplatePage"));
 const PreSignupPage = lazy(() => import("./pages/PreSignupPage"));
 const DashboardPage = lazy(() => import("./pages/DashboardPage"));
+const LoginPage = lazy(() => import("./pages/LoginPage"));
 
 const Layout = styled.div`
   display: flex;
@@ -40,7 +41,12 @@ function App() {
       <StoreContext.Provider value={store}>
         <Router>
           <Layout>
-            <Header />
+            {/* We don't want a header on the sign-up page */}
+            <Route
+              render={({ location }) =>
+                location.pathname !== "/login" ? <Header /> : null
+              }
+            ></Route>
             <Container>
               <Route
                 render={({ location }) =>
@@ -62,6 +68,9 @@ function App() {
                 </Route>
                 <Route path="/dashboard">
                   <DashboardPage />
+                </Route>
+                <Route path="/login">
+                  <LoginPage />
                 </Route>
                 <Route path="/">
                   <HomePage />
