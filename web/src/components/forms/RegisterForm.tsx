@@ -14,6 +14,17 @@ const RegisterForm = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
+  const isValid = () => {
+    return (
+      name.length > 0 &&
+      name.length < 256 &&
+      email.length > 0 &&
+      email.length < 256 &&
+      password.length > 7 &&
+      password.length < 256
+    );
+  };
+
   const handleSubmit = async (event: SyntheticEvent) => {
     event.preventDefault();
     const endpoint = "/users/register";
@@ -48,6 +59,8 @@ const RegisterForm = () => {
                   <label className="label">Name</label>
                   <div className="control">
                     <input
+                      min="1"
+                      max="255"
                       className="input"
                       value={name}
                       onChange={(event) => {
@@ -63,6 +76,8 @@ const RegisterForm = () => {
                 <div className="field">
                   <label className="label">Email</label>
                   <input
+                    min="3"
+                    max="255"
                     value={email}
                     onChange={(event) => {
                       setEmail(event.target.value);
@@ -77,8 +92,11 @@ const RegisterForm = () => {
                 </div>
                 <div className="field">
                   <label className="label">Password</label>
+                  Minimum 8 characters
                   <div className="control">
                     <input
+                      min="8"
+                      max="255"
                       value={password}
                       onChange={(event) => setPassword(event.target.value)}
                       required
@@ -121,6 +139,7 @@ const RegisterForm = () => {
                     <button
                       className="button is-link is-medium"
                       style={{ width: "100%" }}
+                      disabled={!isValid()}
                     >
                       Create my account
                     </button>
