@@ -1,12 +1,9 @@
-import express, { response } from "express";
-import jwt from "jsonwebtoken";
+import express from "express";
 
 import User from "../lib/User";
 import DB from "../storage/db";
 
 const router = express.Router();
-
-const SECRET = process.env.SECRET || "victory";
 
 const isValidUser = (password: string, name: string, email: string) => {
   // TODO: do more validation
@@ -39,10 +36,11 @@ router.post("/login", (req, res, next) => {
           return res.status(401).json({ message: "Invalid password." });
         } else {
           /* @ts-ignore */
-          return jwt.sign(user, SECRET, (err, token) => {
+          return jwt.sign(user, process.env.SECRET, (err, token) => {
             if (err) {
               console.error(err);
             }
+            res.cookie("token", token);
             return res.status(200).json({ token: token });
           });
         }
@@ -81,6 +79,29 @@ router.post("/register", (req, res, next) => {
       console.error(err);
       next(err);
     });
+});
+
+router.get("/verify", (req, res, next) => {
+  if (!req.headers.authorization) {
+    return res.status(400).json({ message: "Missing authorization header." });
+  }
+  /* @ts-ignore */
+  const token = req.headers.authorization.split(" ")[1];
+  /* @ts-ignore */
+  jwt.verify(token, process.env.SECRET, (error, decodedToken) => {
+    if (error) {
+      res.status(401).json({
+        message: "Unauthorized Access!",
+      });
+    } else {
+      res.status(200).json({
+        /* @ts-ignore */
+        id: decodedToken.id,
+        /* @ts-ignore */
+        username: decodedToken.username,
+      });
+    }
+  });
 });
 
 export default router;

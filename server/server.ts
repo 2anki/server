@@ -4,6 +4,7 @@ import os from "os";
 import findRemoveSync from "find-remove";
 import morgan from "morgan";
 import express from "express";
+import cookieParser from "cookie-parser";
 
 import * as Sentry from "@sentry/node";
 import * as Tracing from "@sentry/tracing";
@@ -30,6 +31,8 @@ function serve() {
   const distDir = path.join(__dirname, "../web/build");
   const app = express();
   app.use(express.json());
+
+  app.use(cookieParser());
 
   Sentry.init({
     dsn: "https://067ae1c6d7c847278d84a7bbd12515ec@o404766.ingest.sentry.io/5965064",
@@ -75,6 +78,18 @@ function serve() {
       res.sendFile(path.join(distDir, "index.html"));
     });
   }
+
+  app.get("/dashboard", (req, res) => {
+    const token = req.cookies.token;
+    console.log("token", token);
+    if (token) {
+      // TODO: check if it's valid and if so, serve the dashboard
+      console.log("req.token", req.cookies.token);
+      res.sendFile(path.join(distDir, "index.html"));
+    } else {
+      res.redirect("/login#login");
+    }
+  });
 
   app.use("/upload", upload.default);
   app.use("/users", users.default);
@@ -130,7 +145,7 @@ function serve() {
   DB.raw("SELECT 1").then(() => {
     console.log("DB is ready");
   });
-
+  process.env.SECRET ||= "victory";
   const port = process.env.PORT || 2020;
   app.listen(port, () => {
     console.log(`🟢 Running on http://localhost:${port}`);
