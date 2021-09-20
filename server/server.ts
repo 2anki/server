@@ -29,6 +29,7 @@ function serve() {
   const templateDir = path.join(__dirname, "templates");
   const distDir = path.join(__dirname, "../web/build");
   const app = express();
+  app.use(express.json());
 
   Sentry.init({
     dsn: "https://067ae1c6d7c847278d84a7bbd12515ec@o404766.ingest.sentry.io/5965064",

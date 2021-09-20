@@ -1,4 +1,5 @@
 import express, { response } from "express";
+
 import User from "../lib/User";
 import DB from "../storage/db";
 
@@ -17,6 +18,7 @@ router.post("/register", (req, res, next) => {
   const name = req.body.name;
   const email = req.body.email;
 
+  // TODO: handle the user already exists (same password / email  or wrong )
   if (isValidUser(password, name, email)) {
     DB("users")
       .insert({
