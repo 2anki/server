@@ -164,7 +164,11 @@ const upload = multer({
     bucket: "spaces.2anki.net",
     key: function (request, file, cb) {
       console.log("file", file);
-      cb(null, file.originalname);
+      const name = (Date.now().toString() + "-" + file.originalname).substring(
+        0,
+        255
+      );
+      cb(null, name);
     },
   }),
 }).array("pakker", 21);
