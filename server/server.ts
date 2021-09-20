@@ -16,6 +16,7 @@ import * as connectNotion from "./routes/auth/create-key";
 import * as checks from "./routes/checks";
 import * as version from "./routes/version";
 import * as upload from "./routes/upload";
+import * as users from "./routes/users";
 
 import DB from "./storage/db";
 
@@ -74,6 +75,7 @@ function serve() {
   }
 
   app.use("/upload", upload.default);
+  app.use("/users", users.default);
 
   app.use(
     (
