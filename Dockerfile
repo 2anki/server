@@ -2,7 +2,7 @@ FROM alemayhu/base-image-n2a
 
 RUN mkdir -pv /tmp/workspaces
 
-WORKDIR /app/server
+WORKDIR /app
 
 COPY . .
 
