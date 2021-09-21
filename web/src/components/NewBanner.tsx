@@ -33,6 +33,9 @@ const CTAButton = styled.div`
 `;
 
 const NewBanner = () => {
+  if (window.location.pathname.match(/[login|register]/)) {
+    return <></>;
+  }
   return (
     <Banner>
       <h2>NEW!</h2>
