@@ -147,8 +147,13 @@ function serve() {
   DB.raw("SELECT 1").then(() => {
     console.log("DB is ready");
   });
+  let cwd = process.cwd();
+  if (process.env.MIGRATIONS_DIR) {
+    process.chdir(path.join(process.env.MIGRATIONS_DIR, ".."));
+  }
   /* @ts-ignore */
   DB.migrate.latest(config).then(() => {
+    process.chdir(cwd);
     process.env.SECRET ||= "victory";
     const port = process.env.PORT || 2020;
     app.listen(port, () => {
