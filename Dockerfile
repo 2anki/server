@@ -12,8 +12,6 @@ RUN npm --prefix /app/web install
 RUN npm --prefix /app/server run build
 RUN npm --prefix /app/web run build
 
-RUN npm --prefix /app/server run migrate
-
 # Clean up
 RUN rm -rf /app/web/node_modules
 
