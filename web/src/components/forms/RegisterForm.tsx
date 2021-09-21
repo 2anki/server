@@ -12,6 +12,7 @@ const RegisterForm = () => {
   const [email, setEmail] = useState(localStorage.getItem("email") || "");
   const [tos, setTos] = useState(localStorage.getItem("tos") === "true");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const isValid = () => {
@@ -30,6 +31,7 @@ const RegisterForm = () => {
     event.preventDefault();
     const endpoint = "/users/register";
     setError("");
+    setLoading(true);
 
     try {
       const data = {
@@ -41,10 +43,15 @@ const RegisterForm = () => {
       if (res.status === 200) {
         // TODO: send user email verification request instead of redirecting
         window.location.href = "/dashboard";
+      } else {
+        setError(
+          "Unknown error. Please try again or reach out to alexander@alemayhu.com for assistance if the issue persists."
+        );
       }
     } catch (error) {
       setError("Request failed. If you already have a user try login instead");
       console.error(error);
+      setLoading(false);
     }
   };
   return (
@@ -141,7 +148,7 @@ const RegisterForm = () => {
                     <button
                       className="button is-link is-medium"
                       style={{ width: "100%" }}
-                      disabled={!isValid()}
+                      disabled={!isValid() || loading}
                     >
                       Create my account
                     </button>
