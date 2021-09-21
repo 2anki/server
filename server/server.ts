@@ -21,10 +21,11 @@ import * as users from "./routes/users";
 
 import DB from "./storage/db";
 import config from "./knexfile";
+import { fstat, mkdirSync } from "fs";
 
-// Make sure the workspace area exists for processing
 if (!process.env.WORKSPACE_BASE) {
-  throw new Error("WORKSPACE_BASE environment variable not set");
+  process.env.WORKSPACE_BASE = "/tmp/workspace";
+  mkdirSync(process.env.WORKSPACE_BASE, { recursive: true });
 }
 
 function serve() {
@@ -146,8 +147,13 @@ function serve() {
   DB.raw("SELECT 1").then(() => {
     console.log("DB is ready");
   });
+  let cwd = process.cwd();
+  if (process.env.MIGRATIONS_DIR) {
+    process.chdir(path.join(process.env.MIGRATIONS_DIR, ".."));
+  }
   /* @ts-ignore */
   DB.migrate.latest(config).then(() => {
+    process.chdir(cwd);
     process.env.SECRET ||= "victory";
     const port = process.env.PORT || 2020;
     app.listen(port, () => {
