@@ -20,6 +20,7 @@ import * as upload from "./routes/upload";
 import * as users from "./routes/users";
 
 import DB from "./storage/db";
+import config from "./knexfile";
 
 // Make sure the workspace area exists for processing
 if (!process.env.WORKSPACE_BASE) {
@@ -145,10 +146,13 @@ function serve() {
   DB.raw("SELECT 1").then(() => {
     console.log("DB is ready");
   });
-  process.env.SECRET ||= "victory";
-  const port = process.env.PORT || 2020;
-  app.listen(port, () => {
-    console.log(`🟢 Running on http://localhost:${port}`);
+  /* @ts-ignore */
+  DB.migrate.latest(config).then(() => {
+    process.env.SECRET ||= "victory";
+    const port = process.env.PORT || 2020;
+    app.listen(port, () => {
+      console.log(`🟢 Running on http://localhost:${port}`);
+    });
   });
 }
 
