@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Route, Switch } from "react-router-dom";
 
 const generalPages = ["Workspaces", "Templates", "Settings"];
 
@@ -16,7 +16,7 @@ const MenuList = ({ pages, currentItem, setCurrentMenuItem }) => {
         >
           <Link
             to={{
-              pathname: `/dashboard/${page.toLowerCase()}`,
+              pathname: `/dashboard/${page.toLowerCase().replace(' ', '-')}`,
               state: { currentItem },
             }}
             className={
@@ -50,9 +50,16 @@ const DashboardPage = () => {
           </aside>
         </div>
         <div className="column is-main-content">
-          <p className="subtitle">
-            The dashboard is under development. <strong>Coming soon</strong>!
-          </p>
+          <Switch>
+            <Route exact path="/dashboard/logg-out" >
+              page
+            </Route>
+            <Route path="/dashboard">
+              <p className="subtitle">
+                The dashboard is under development. <strong>Coming soon</strong>!
+              </p>
+            </Route>
+          </Switch>
         </div>
       </div>
     </>
