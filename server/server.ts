@@ -21,10 +21,11 @@ import * as users from "./routes/users";
 
 import DB from "./storage/db";
 import config from "./knexfile";
+import { fstat, mkdirSync } from "fs";
 
-// Make sure the workspace area exists for processing
 if (!process.env.WORKSPACE_BASE) {
-  throw new Error("WORKSPACE_BASE environment variable not set");
+  process.env.WORKSPACE_BASE = "/tmp/workspace";
+  mkdirSync(process.env.WORKSPACE_BASE, { recursive: true });
 }
 
 function serve() {

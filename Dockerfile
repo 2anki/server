@@ -2,7 +2,7 @@ FROM alemayhu/base-image-n2a
 
 RUN mkdir -pv /tmp/workspaces
 
-WORKDIR /app
+WORKDIR /app/server
 
 COPY . .
 
@@ -18,5 +18,4 @@ RUN rm -rf /app/web/node_modules
 ENV PORT 8080
 EXPOSE 8080
 
-ENV MIGRATIONS_DIR=/app/server/migrations
 CMD ["node", "/app/server/server.js"]
