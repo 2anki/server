@@ -2,8 +2,14 @@
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/5da03a4d-2c54-4343-8949-33124d2211e5/deploy-status)](https://app.netlify.com/sites/vibrant-swirles-654fce/deploys) [![Discord](https://img.shields.io/discord/723998078201495642)](https://discord.com/invite/PSKC3uS) [![Twitter](https://img.shields.io/twitter/url/https/twitter.com/cloudposse.svg?style=social&label=Follow%20%40aalemayhu)](https://twitter.com/aalemayhu)
 
-This is a project to make the process of working with Anki and Notion smoother 💫 We are going to make this a good way to make [Anki](https://apps.ankiweb.net/) flashcards easier, better and faster.
-If you are looking for a Anki or Notion replacement then this project is probably not right for you. Watch this video [Notion + Anki](https://youtu.be/FjifJG4FoXY) to understand the project's goal.
+We are going to make this a good way to make [Anki](https://apps.ankiweb.net/) flashcards easier, better and faster. The dream is to have powerful and easy ways to produce high quality flashcards. This project is a complement to Anki and Notion.
+
+## What We Are Not
+
+If you are looking for a Anki or Notion replacement then this project is probably not right for you. Watch this video [Notion + Anki](https://youtu.be/FjifJG4FoXY) to understand the project's goal. We are never
+going to compete against Anki but instead we are building bridges.
+
+When that is said, if you are not content with Anki, you might want to checkout [Zorbi](https://youtu.be/ReQvcQKoalU).
 
 ## Benefits
 
@@ -66,56 +72,6 @@ This project was hacked together after seeing this post on Reddit by [jacksong97
 > Edit: if I were to just turn them into a text file, how do I set which text goes to the back of the card? I’ve been able to get them all into seperate cards but just the fronts
 
 https://www.reddit.com/r/Anki/comments/g29mzk/cards_imported_from_notion/
-
-## Roadmap
-
-The dream is to have a powerful and easy to use process for producing high quality flashcards. Notion is super easy to use and Notion 2 Anki is just going to make the importing process and controlling the look of the cards / decks smooth. This project is a complement to Anki and Notion.
-
-## Development
-
-If you prefer using Visual Studio Code, there is a [code tour](https://github.com/microsoft/codetour) available in the repository.
-
-There are two directories [web][./web] and [server][./server]. The web is a [React](https://reactjs.org/) application and the server is a [Express.js](https://expressjs.com/) application.
-
-We are assuming you have Node.js already installed, if not then see their website on how install it https://nodejs.org/en/
-
-While not required, [nvm](https://github.com/nvm-sh/nvm) is a good tool to make sure you are using the correct Node.js version.
-
-First make sure you have the dependencies installed
-
-```bash
-npm --prefix server install
-npm --prefix web install
-```
-
-An extra dependency on the server is [python3](https://www.python.org/downloads/) and the [genanki](https://github.com/kerrickstaley/genanki) module, make sure you install them.
-
-```bash
-pip3 install -r server/genanki/requirements.txt
-```
-
-### Running
-
-Depending on wether you want to run the web interface or backend server the command look a little bit different. Note that commands will continously build the project. So open up your code editor and start writing code ;-)
-
-#### Running the Backend Server
-
-```bash
-cd server
-npm run dev
-```
-
-#### Running the Web Server
-
-```bash
-cd web
-npm run start
-```
-
-To actually see the app running you need to either visit the local url in a browser or launch the app with
-
-Frontend: [http://localhost:3000](http://localhost:3000)
-Backend: [http://localhost:2020](http://localhost:2020)
 
 ## Credits
 
