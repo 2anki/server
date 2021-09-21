@@ -14,6 +14,29 @@ const isValidUser = (password: string, name: string, email: string) => {
   return true;
 };
 
+router.get("/loggout", (req, res, next) => {
+  const token = req.cookies.token;
+  if (!token) {
+    return res.status(400).json({ message: "Missing authorization header." });
+  }
+  /* @ts-ignore */
+  jwt.verify(token, process.env.SECRET, (error, decodedToken) => {
+    if (error) {
+      res.status(401).json({
+        message: "Unauthorized Access!",
+      });
+    } else {
+      DB("access_tokens")
+        .where({ token: token })
+        .del()
+        .then(() => {
+          res.status(200).end();
+        })
+        .catch((err) => next(err));
+    }
+  });
+});
+
 router.post("/login", (req, res, next) => {
   const { email, password } = req.body;
   if (!email || !password || password.length < 8) {

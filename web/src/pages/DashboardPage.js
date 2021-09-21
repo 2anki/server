@@ -1,9 +1,10 @@
-import { useState } from "react";
 import { Link, Route, Switch } from "react-router-dom";
+import { useState } from "react";
+import axios from "axios";
 
 const generalPages = ["Workspaces", "Templates", "Settings"];
 
-const accountPages = ["Billing", "Logg out"];
+const accountPages = ["Logg out →"];
 
 const MenuList = ({ pages, currentItem, setCurrentMenuItem }) => {
   return (
@@ -16,11 +17,11 @@ const MenuList = ({ pages, currentItem, setCurrentMenuItem }) => {
         >
           <Link
             to={{
-              pathname: `/dashboard/${page.toLowerCase().replace(' ', '-')}`,
+              pathname: `/dashboard/${page.toLowerCase()}`,
               state: { currentItem },
             }}
             className={
-              currentItem.endsWith(page.toLowerCase()) ? "is-active" : ""
+              decodeURIComponent(currentItem).endsWith(page.toLowerCase()) ? "is-active" : ""
             }
           >
             {page}
@@ -32,7 +33,17 @@ const MenuList = ({ pages, currentItem, setCurrentMenuItem }) => {
 };
 
 const DashboardPage = () => {
-  const [menuItem, setMenuItem] = useState(window.location.pathname);
+  const [menuItem, updateMenUItem] = useState(window.location.pathname);
+
+  const setMenuItem = async (item) => {
+    if (item.includes("logg out")) {
+      const endpoint = "/users/loggout";
+      const res = await axios.get(endpoint, { withCredentials: true, credentials: true });
+      window.location.href = "/login#login";
+      console.log(res);
+    }
+    updateMenUItem(item);
+  };
 
   return (
     <>
@@ -51,8 +62,8 @@ const DashboardPage = () => {
         </div>
         <div className="column is-main-content">
           <Switch>
-            <Route exact path="/dashboard/logg-out" >
-              page
+            <Route exact path="/dashboard/workspaces" >
+              Workspaces is coming soon!
             </Route>
             <Route path="/dashboard">
               <p className="subtitle">
