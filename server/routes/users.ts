@@ -54,6 +54,7 @@ router.get("/logout", (req, res, next) => {
         message: "Unauthorized Access!",
       });
     } else {
+      res.clearCookie("token");
       DB("access_tokens")
         .where({ token: token })
         .del()
