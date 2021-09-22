@@ -22,6 +22,7 @@ import * as users from "./routes/users";
 import DB from "./storage/db";
 import config from "./knexfile";
 import { fstat, mkdirSync } from "fs";
+import ResetToken from "./lib/ResetToken";
 
 if (!process.env.WORKSPACE_BASE) {
   process.env.WORKSPACE_BASE = "/tmp/workspace";
@@ -69,7 +70,6 @@ function serve() {
     "/connect-notion",
     "/pre-signup",
     "/login", // TODO: handle token is set then redirect to dashboard
-    "/users/r/:id",
   ];
   for (const p of old) {
     console.log("setting up request handler for ", p);
@@ -89,6 +89,19 @@ function serve() {
       res.sendFile(path.join(distDir, "index.html"));
     } else {
       res.redirect("/login#login");
+    }
+  });
+  app.get("/users/r/:id", async (req, res, next) => {
+    try {
+      const reset_token = req.params.id;
+      const isValid = await ResetToken.IsValid(DB, reset_token);
+      if (isValid) {
+        return res.sendFile(path.join(distDir, "index.html"));
+      }
+      return res.redirect("/login#login");
+    } catch (err) {
+      console.error(err);
+      next(err);
     }
   });
 
