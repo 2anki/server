@@ -95,7 +95,6 @@ const UploadForm = () => {
   };
 
   const fileSelected = (event: { target: HTMLInputElement }) => {
-    console.log("fileSelected", event);
     /* @ts-ignore */
     convertRef.current.click();
   };

@@ -21,7 +21,6 @@ const isValidUser = (password: string, name: string, email: string) => {
 router.post("/new-password", async (req, res, next) => {
   const reset_token = req.body.reset_token;
   const password = req.body.password;
-  console.log("request.bodyy", req.body);
   if (
     !reset_token ||
     reset_token.length < 128 ||
@@ -102,7 +101,6 @@ router.post("/forgot-password", async (req, res, next) => {
 
 router.get("/v/:id", (req, res, next) => {
   const verification_token = req.params.id;
-  console.log("verification_token");
   if (!verification_token || verification_token.length < 128) {
     return res.redirect("/login");
   }
@@ -152,7 +150,6 @@ router.post("/login", async (req, res, next) => {
       });
     } else {
       const isMatch = User.ComparePassword(password, user.password);
-      console.log("isMatch", isMatch);
       if (!isMatch) {
         return res.status(401).json({ message: "Invalid password." });
       } else {
@@ -187,7 +184,6 @@ router.post("/login", async (req, res, next) => {
 
 router.post("/register", async (req, res, next) => {
   // TODO: handle the user already exists (same password / email  or wrong )
-  console.log("req.body", req.body);
   if (
     !req.body ||
     !isValidUser(req.body.password, req.body.name, req.body.email)

@@ -40,7 +40,6 @@ const DashboardPage = () => {
       const endpoint = "/users/logout";
       const res = await axios.get(endpoint, { withCredentials: true, credentials: true });
       window.location.href = "/login#login";
-      console.log(res);
     }
     updateMenUItem(item);
   };

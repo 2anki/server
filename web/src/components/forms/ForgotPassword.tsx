@@ -30,10 +30,7 @@ const ForgotPasswordForm = () => {
       const data = {
         email,
       };
-      const res = await axios.post(endpoint, data);
-      if (res.status === 200) {
-        console.log(res);
-      }
+      await axios.post(endpoint, data);
       setLoading(false);
       setDidReset(true);
     } catch (error) {

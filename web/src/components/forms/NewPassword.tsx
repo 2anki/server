@@ -29,10 +29,8 @@ const NewPasswordForm = () => {
         reset_token: paths[paths.length - 1],
         password: password,
       };
-      console.log("data", data);
       const res = await axios.post(endpoint, data);
       if (res.status === 200) {
-        console.log(res);
         window.location.href = "/login#login";
       }
       setLoading(false);
