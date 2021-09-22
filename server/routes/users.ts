@@ -18,6 +18,75 @@ const isValidUser = (password: string, name: string, email: string) => {
   return true;
 };
 
+router.get("/new-password", (req, res, next) => {
+  const reset_token = req.body.reset_token;
+  const password = req.body.password;
+  if (
+    !reset_token ||
+    reset_token.length < 128 ||
+    !password ||
+    password.length < 8
+  ) {
+    return res.status(400).send({ message: "invalid" });
+  }
+
+  DB("users")
+    .where({ reset_token })
+    .update({ password: password })
+    .then(() => res.redirect("/login#login"))
+    .catch((err) => next(err));
+});
+
+router.get("/logout", (req, res, next) => {
+  const token = req.cookies.token;
+  if (!token) {
+    return res.status(400).json({ message: "Missing authorization header." });
+  }
+  /* @ts-ignore */
+  jwt.verify(token, process.env.SECRET, (error, decodedToken) => {
+    if (error) {
+      res.status(401).json({
+        message: "Unauthorized Access!",
+      });
+    } else {
+      DB("access_tokens")
+        .where({ token: token })
+        .del()
+        .then(() => {
+          res.status(200).end();
+        })
+        .catch((err) => next(err));
+    }
+  });
+});
+
+router.post("/forgot-password", async (req, res, next) => {
+  if (!req.body.email) {
+    return res.status(400).json({ message: "Email is required" });
+  }
+  const user = await DB("users")
+    .where({ email: req.body.email })
+    .returning(["reset_token", "id"])
+    .first();
+  /* @ts-ignore */
+  if (!user || !user.id) {
+    return res.status(200).json({ message: "ok" });
+  }
+  const reset_token = crypto.randomBytes(64).toString("hex");
+  try {
+    await DB("users").where({ email: req.body.email }).update({ reset_token });
+    await EmailHandler.SendResetEmail(
+      req.hostname,
+      req.body.email,
+      reset_token
+    );
+    return res.status(200).json({ message: "ok" });
+  } catch (error) {
+    console.error(error);
+    return next(error);
+  }
+});
+
 router.get("/v/:id", (req, res, next) => {
   const verification_token = req.params.id;
   console.log("verification_token");

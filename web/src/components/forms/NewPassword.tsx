@@ -7,28 +7,32 @@ const FormContainer = styled.div`
   margin: 0 auto;
 `;
 
-const ForgotPasswordForm = () => {
-  const [email, setEmail] = useState(localStorage.getItem("email") || "");
+const NewPasswordForm = () => {
+  const [password, setPassword] = useState("");
+  const [passwd, setPasswd] = useState("");
   const [didReset, setDidReset] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const isValid = () => {
     return (
-      email.length > 0 && email.length < 256 && email.match(/^\S+@\S+\.\S+$/)
+      password === passwd &&
+      password.length > 0 &&
+      password.length < 256 &&
+      password.match(/^\S+@\S+\.\S+$/)
     );
   };
 
   const handleSubmit = async (event: SyntheticEvent) => {
     event.preventDefault();
-    const endpoint = "/users/forgot-password";
+    const endpoint = "/users/new-password";
     setError("");
     setLoading(true);
     setDidReset(false);
 
     try {
       const data = {
-        email,
+        password,
       };
       const res = await axios.post(endpoint, data);
       if (res.status === 200) {
@@ -48,40 +52,51 @@ const ForgotPasswordForm = () => {
         <div className="container">
           <div className="columns is-centered">
             <div className="column is-half">
-              <h1 className="title is-4">Forgot your password?</h1>
-              <p className="subtitle">Please enter your email below.</p>
+              <h1 className="title is-4">Change your password?</h1>
+              <p className="subtitle">Please enter your new password below.</p>
               {error && <div className="notification is-danger">{error}</div>}
               <form onSubmit={handleSubmit}>
                 <div className="field">
-                  <label className="label">Email</label>
                   <input
-                    min="3"
+                    min="8"
                     max="255"
-                    value={email}
+                    value={password}
                     onChange={(event) => {
-                      setEmail(event.target.value);
-                      localStorage.setItem("email", event.target.value);
+                      setPassword(event.target.value);
                     }}
                     className="input"
-                    type="email"
-                    placeholder="Your e-mail"
+                    type="password"
+                    placeholder="New password"
                     required
                   />
-                  {/* <p className="help is-danger">This email is invalid</p> */}
+                </div>
+                <div className="field">
+                  <input
+                    min="8"
+                    max="255"
+                    value={passwd}
+                    onChange={(event) => {
+                      setPasswd(event.target.value);
+                    }}
+                    className="input"
+                    type="password"
+                    placeholder="Re-enter new password"
+                    required
+                  />
                 </div>
                 <div className="field">
                   <div className="control" style={{ width: "100%" }}>
                     <button
-                      className="button is-link is-medium"
+                      className="button is-success is-medium"
                       style={{ width: "100%" }}
                       disabled={!isValid() || loading}
                     >
-                      Reset my password
+                      Reset password
                     </button>
                   </div>
                 </div>
                 {didReset && (
-                  <p>You should receive an email if your account exists.</p>
+                  <p>You should receive an password if your account exists.</p>
                 )}
               </form>
             </div>
@@ -92,4 +107,4 @@ const ForgotPasswordForm = () => {
   );
 };
 
-export default ForgotPasswordForm;
+export default NewPasswordForm;

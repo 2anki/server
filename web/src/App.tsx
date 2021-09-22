@@ -18,6 +18,7 @@ const TemplatePage = lazy(() => import("./pages/Templates/TemplatePage"));
 const PreSignupPage = lazy(() => import("./pages/PreSignupPage"));
 const DashboardPage = lazy(() => import("./pages/DashboardPage"));
 const LoginPage = lazy(() => import("./pages/LoginPage"));
+const NewPasswordPage = lazy(() => import("./pages/NewPasswordPage"));
 
 const Layout = styled.div`
   display: flex;
@@ -71,6 +72,9 @@ function App() {
                 </Route>
                 <Route path="/login">
                   <LoginPage />
+                </Route>
+                <Route path="/users/:id">
+                  <NewPasswordPage />
                 </Route>
                 <Route path="/">
                   <HomePage />
