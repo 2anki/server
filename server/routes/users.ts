@@ -73,7 +73,7 @@ router.post("/forgot-password", async (req, res, next) => {
     return res.status(400).json({ message: "Email is required" });
   }
   const user = await DB("users")
-    .where({ email: req.body.email })
+    .where({ email: req.body.email, verified: true })
     .returning(["reset_token", "id"])
     .first();
   /* @ts-ignore */
