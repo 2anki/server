@@ -68,6 +68,7 @@ router.get("/logout", (req, res, next) => {
   });
 });
 
+// TODO: RENAME this endpoint. very confusing name
 router.post("/forgot-password", async (req, res, next) => {
   if (!req.body.email) {
     return res.status(400).json({ message: "Email is required" });
