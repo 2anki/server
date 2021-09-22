@@ -1,8 +1,12 @@
+import crypto from "crypto";
+
 import express from "express";
 import jwt from "jsonwebtoken";
 
 import User from "../lib/User";
 import DB from "../storage/db";
+
+import EmailHandler from "../handlers/EmailHandler";
 
 const router = express.Router();
 
@@ -13,6 +17,19 @@ const isValidUser = (password: string, name: string, email: string) => {
   }
   return true;
 };
+
+router.get("/v/:id", (req, res, next) => {
+  const verification_token = req.params.id;
+  console.log("verification_token");
+  if (!verification_token || verification_token.length < 128) {
+    return res.redirect("/login");
+  }
+  DB("users")
+    .where({ verification_token })
+    .update({ verified: true })
+    .then(() => res.redirect("/dashboard"))
+    .catch((err) => next(err));
+});
 
 router.get("/logout", (req, res, next) => {
   const token = req.cookies.token;
@@ -86,7 +103,7 @@ router.post("/login", (req, res, next) => {
     });
 });
 
-router.post("/register", (req, res, next) => {
+router.post("/register", async (req, res, next) => {
   // TODO: handle the user already exists (same password / email  or wrong )
   console.log("req.body", req.body);
   if (
@@ -102,11 +119,24 @@ router.post("/register", (req, res, next) => {
   const password = User.HashPassword(req.body.password);
   const name = req.body.name;
   const email = req.body.email;
+  const verification_token = crypto.randomBytes(64).toString("hex");
+  try {
+    await EmailHandler.SendVerificationEmail(
+      req.hostname,
+      email,
+      verification_token
+    );
+  } catch (error) {
+    console.error(error);
+    return next(error);
+  }
+
   DB("users")
     .insert({
       name,
       password,
       email,
+      verification_token,
     })
     .returning(["id"])
     .then((users) => {

@@ -35,6 +35,7 @@
   "license": "MIT",
   "dependencies": {
     "@notionhq/client": "^0.1.9",
+    "@sendgrid/mail": "^7.4.6",
     "@sentry/node": "^6.12.0",
     "@sentry/react": "^6.12.0",
     "@sentry/tracing": "^6.12.0",
