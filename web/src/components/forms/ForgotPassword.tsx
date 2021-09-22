@@ -14,7 +14,9 @@ const ForgotPasswordForm = () => {
   const [error, setError] = useState("");
 
   const isValid = () => {
-    return email.length > 0 && email.length < 256;
+    return (
+      email.length > 0 && email.length < 256 && email.match(/^\S+@\S+\.\S+$/)
+    );
   };
 
   const handleSubmit = async (event: SyntheticEvent) => {
