@@ -1,37 +1,30 @@
 import styled from "styled-components";
 import axios from "axios";
-import React, { SyntheticEvent, useState } from "react";
+import { SyntheticEvent, useState } from "react";
 
 const FormContainer = styled.div`
   max-width: 720px;
   margin: 0 auto;
 `;
 
-const LoginForm = (onForgot: () => void) => {
+const ForgotPasswordForm = () => {
   const [email, setEmail] = useState(localStorage.getItem("email") || "");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const isValid = () => {
-    return (
-      email.length > 0 &&
-      email.length < 256 &&
-      password.length > 7 &&
-      password.length < 256
-    );
+    return email.length > 0 && email.length < 256;
   };
 
   const handleSubmit = async (event: SyntheticEvent) => {
     event.preventDefault();
-    const endpoint = "/users/login";
+    const endpoint = "/users/forgot-password";
     setError("");
     setLoading(true);
 
     try {
       const data = {
         email,
-        password,
       };
       const res = await axios.post(endpoint, data);
       if (res.status === 200) {
@@ -41,11 +34,9 @@ const LoginForm = (onForgot: () => void) => {
       }
       setLoading(false);
     } catch (error) {
-      setError(
-        "Request failed. Do you remember your password? If not click forgot my password."
-      );
-      setLoading(false);
+      setError("Request failed. Are you sure you have registered an account?");
       console.error(error);
+      setLoading(false);
     }
   };
   return (
@@ -54,8 +45,8 @@ const LoginForm = (onForgot: () => void) => {
         <div className="container">
           <div className="columns is-centered">
             <div className="column is-half">
-              <h1 className="title">Welcome back!</h1>
-              <p className="subtitle">Please login below.</p>
+              <h1 className="title is-4">Forgot your password?</h1>
+              <p className="subtitle">Please enter your email below.</p>
               {error && <div className="notification is-danger">{error}</div>}
               <form onSubmit={handleSubmit}>
                 <div className="field">
@@ -76,35 +67,13 @@ const LoginForm = (onForgot: () => void) => {
                   {/* <p className="help is-danger">This email is invalid</p> */}
                 </div>
                 <div className="field">
-                  <label className="label">Password</label>
-                  <div className="control">
-                    <input
-                      min="8"
-                      max="255"
-                      value={password}
-                      onChange={(event) => setPassword(event.target.value)}
-                      required
-                      className="input"
-                      type="password"
-                      placeholder="Your password"
-                    />
-                  </div>
-                </div>
-
-                <div className="field" onClick={onForgot}>
-                  <a rel="noreferrer" href="#forgot">
-                    I forgot my password
-                  </a>
-                </div>
-
-                <div className="field">
                   <div className="control" style={{ width: "100%" }}>
                     <button
                       className="button is-link is-medium"
                       style={{ width: "100%" }}
                       disabled={!isValid() || loading}
                     >
-                      Log in
+                      Reset my password
                     </button>
                   </div>
                 </div>
@@ -117,4 +86,4 @@ const LoginForm = (onForgot: () => void) => {
   );
 };
 
-export default LoginForm;
+export default ForgotPasswordForm;

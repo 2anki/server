@@ -2,6 +2,7 @@ import { useState } from "react";
 import styled from "styled-components";
 import RegisterForm from "../components/forms/RegisterForm";
 import LoginForm from "../components/forms/LoginForm";
+import ForgotPasswordForm from "../components/forms/ForgotPassword";
 
 const TopSection = styled.div`
   display: flex;
@@ -12,6 +13,7 @@ const TopSection = styled.div`
 
 const LoginPage = () => {
   const [isLogin, setLoginState] = useState(window.location.hash === "#login");
+  const [isForgot, setIsForgot] = useState(window.location.hash === "#forgot");
   const onClickLogin = () => {
     setLoginState(true);
     window.location.hash = "login";
@@ -40,8 +42,10 @@ const LoginPage = () => {
           </>
         )}
       </TopSection>
-      {!isLogin && <RegisterForm />}
-      {isLogin && <LoginForm />}
+      {!isLogin && !isForgot && <RegisterForm />}
+      {/* @ts-ignore */}
+      {isLogin && !isForgot && <LoginForm onForgot={() => setIsForgot(true)} />}
+      {isForgot && <ForgotPasswordForm />}
     </>
   );
 };
