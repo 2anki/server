@@ -73,7 +73,7 @@ function App() {
                 <Route path="/login">
                   <LoginPage />
                 </Route>
-                <Route path="/users/:id">
+                <Route path="/users/r/:id">
                   <NewPasswordPage />
                 </Route>
                 <Route path="/">
