@@ -7,7 +7,8 @@ const FormContainer = styled.div`
   margin: 0 auto;
 `;
 
-const LoginForm = (onForgot: () => void) => {
+/* @ts-ignore */
+const LoginForm = ({ onForgot }) => {
   const [email, setEmail] = useState(localStorage.getItem("email") || "");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -91,7 +92,7 @@ const LoginForm = (onForgot: () => void) => {
                   </div>
                 </div>
 
-                <div className="field" onClick={onForgot}>
+                <div className="field" onClick={() => onForgot()}>
                   <a rel="noreferrer" href="#forgot">
                     I forgot my password
                   </a>

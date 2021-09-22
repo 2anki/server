@@ -9,6 +9,7 @@ const FormContainer = styled.div`
 
 const ForgotPasswordForm = () => {
   const [email, setEmail] = useState(localStorage.getItem("email") || "");
+  const [didReset, setDidReset] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -21,6 +22,7 @@ const ForgotPasswordForm = () => {
     const endpoint = "/users/forgot-password";
     setError("");
     setLoading(true);
+    setDidReset(false);
 
     try {
       const data = {
@@ -33,6 +35,7 @@ const ForgotPasswordForm = () => {
         window.location.href = "/dashboard";
       }
       setLoading(false);
+      setDidReset(true);
     } catch (error) {
       setError("Request failed. Are you sure you have registered an account?");
       console.error(error);
@@ -77,6 +80,9 @@ const ForgotPasswordForm = () => {
                     </button>
                   </div>
                 </div>
+                {didReset && (
+                  <p>You should receive an email if your account exists.</p>
+                )}
               </form>
             </div>
           </div>

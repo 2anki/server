@@ -15,10 +15,12 @@ const LoginPage = () => {
   const [isLogin, setLoginState] = useState(window.location.hash === "#login");
   const [isForgot, setIsForgot] = useState(window.location.hash === "#forgot");
   const onClickLogin = () => {
+    setIsForgot(false);
     setLoginState(true);
     window.location.hash = "login";
   };
   const onClickRegister = () => {
+    setIsForgot(false);
     setLoginState(false);
     window.location.hash = "register";
   };
