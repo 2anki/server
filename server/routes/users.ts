@@ -14,7 +14,7 @@ const isValidUser = (password: string, name: string, email: string) => {
   return true;
 };
 
-router.get("/loggout", (req, res, next) => {
+router.get("/logout", (req, res, next) => {
   const token = req.cookies.token;
   if (!token) {
     return res.status(400).json({ message: "Missing authorization header." });
@@ -117,29 +117,6 @@ router.post("/register", (req, res, next) => {
       console.error(err);
       next(err);
     });
-});
-
-router.get("/verify", (req, res, next) => {
-  if (!req.headers.authorization) {
-    return res.status(400).json({ message: "Missing authorization header." });
-  }
-  /* @ts-ignore */
-  const token = req.headers.authorization.split(" ")[1];
-  /* @ts-ignore */
-  jwt.verify(token, process.env.SECRET, (error, decodedToken) => {
-    if (error) {
-      res.status(401).json({
-        message: "Unauthorized Access!",
-      });
-    } else {
-      res.status(200).json({
-        /* @ts-ignore */
-        id: decodedToken.id,
-        /* @ts-ignore */
-        username: decodedToken.username,
-      });
-    }
-  });
 });
 
 export default router;
