@@ -22,6 +22,7 @@ import * as users from "./routes/users";
 import DB from "./storage/db";
 import config from "./knexfile";
 import { fstat, mkdirSync } from "fs";
+import ResetToken from "./lib/ResetToken";
 
 if (!process.env.WORKSPACE_BASE) {
   process.env.WORKSPACE_BASE = "/tmp/workspace";
@@ -83,13 +84,24 @@ function serve() {
 
   app.get("/dashboard", (req, res) => {
     const token = req.cookies.token;
-    console.log("token", token);
     if (token) {
       // TODO: check if it's valid and if so, serve the dashboard
-      console.log("req.token", req.cookies.token);
       res.sendFile(path.join(distDir, "index.html"));
     } else {
       res.redirect("/login#login");
+    }
+  });
+  app.get("/users/r/:id", async (req, res, next) => {
+    try {
+      const reset_token = req.params.id;
+      const isValid = await ResetToken.IsValid(DB, reset_token);
+      if (isValid) {
+        return res.sendFile(path.join(distDir, "index.html"));
+      }
+      return res.redirect("/login#login");
+    } catch (err) {
+      console.error(err);
+      next(err);
     }
   });
 
