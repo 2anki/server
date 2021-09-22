@@ -24,8 +24,9 @@ const NewPasswordForm = () => {
     setLoading(true);
 
     try {
+      let paths = window.location.pathname.split("/");
       const data = {
-        reset_token: window.location.pathname,
+        reset_token: paths[paths.length - 1],
         password: password,
       };
       console.log("data", data);
