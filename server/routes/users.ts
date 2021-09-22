@@ -18,7 +18,7 @@ const isValidUser = (password: string, name: string, email: string) => {
   return true;
 };
 
-router.post("/new-password", (req, res, next) => {
+router.post("/new-password", async (req, res, next) => {
   const reset_token = req.body.reset_token;
   const password = req.body.password;
   console.log("request.bodyy", req.body);
@@ -31,11 +31,14 @@ router.post("/new-password", (req, res, next) => {
     return res.status(400).send({ message: "invalid" });
   }
 
-  DB("users")
-    .where({ reset_token })
-    .update({ password: User.HashPassword(password), reset_token: null })
-    .then(() => res.redirect("/login#login"))
-    .catch((err) => next(err));
+  try {
+    await DB("users")
+      .where({ reset_token })
+      .update({ password: User.HashPassword(password), reset_token: null });
+    res.status(200).send({ message: "ok" });
+  } catch (error) {
+    next(error);
+  }
 });
 
 router.get("/logout", (req, res, next) => {
@@ -46,6 +49,7 @@ router.get("/logout", (req, res, next) => {
   /* @ts-ignore */
   jwt.verify(token, process.env.SECRET, (error, decodedToken) => {
     if (error) {
+      console.error(error);
       res.status(401).json({
         message: "Unauthorized Access!",
       });
@@ -56,7 +60,10 @@ router.get("/logout", (req, res, next) => {
         .then(() => {
           res.status(200).end();
         })
-        .catch((err) => next(err));
+        .catch((err) => {
+          console.error(err);
+          next(err);
+        });
     }
   });
 });
@@ -71,6 +78,9 @@ router.post("/forgot-password", async (req, res, next) => {
     .first();
   /* @ts-ignore */
   if (!user || !user.id) {
+    return res.status(200).json({ message: "ok" });
+  }
+  if (user.reset_token) {
     return res.status(200).json({ message: "ok" });
   }
   const reset_token = crypto.randomBytes(64).toString("hex");
@@ -124,7 +134,7 @@ router.get("/logout", (req, res, next) => {
   });
 });
 
-router.post("/login", (req, res, next) => {
+router.post("/login", async (req, res, next) => {
   const { email, password } = req.body;
   if (!email || !password || password.length < 8) {
     res.status(400).json({
@@ -132,45 +142,45 @@ router.post("/login", (req, res, next) => {
     });
     return;
   }
-  DB("users")
-    .where({ email: email })
-    .first()
-    .then((user) => {
-      if (!user) {
-        res.status(400).json({
-          message: "Unknown error. Please try again or register a new account.",
-        });
+  try {
+    const user = await DB("users").where({ email: email }).first();
+    if (!user) {
+      res.status(400).json({
+        message: "Unknown error. Please try again or register a new account.",
+      });
+    } else {
+      const isMatch = User.ComparePassword(password, user.password);
+      console.log("isMatch", isMatch);
+      if (!isMatch) {
+        return res.status(401).json({ message: "Invalid password." });
       } else {
-        const isMatch = User.ComparePassword(password, user.password);
-        console.log("isMatch", isMatch);
-        if (!isMatch) {
-          return res.status(401).json({ message: "Invalid password." });
-        } else {
-          /* @ts-ignore */
-          return jwt.sign(user, process.env.SECRET, (err, token) => {
-            if (err) {
-              console.error(err);
-            }
-            res.cookie("token", token);
+        /* @ts-ignore */
+        return jwt.sign(user, process.env.SECRET, (err, token) => {
+          if (err) {
+            console.error(err);
+          }
+          res.cookie("token", token);
 
-            DB("access_tokens")
-              .insert({
-                token: token,
-                owner: user.id,
-              })
-              .onConflict("owner")
-              .merge()
-              .then(() => {
-                return res.status(200).json({ token: token });
-              })
-              .catch((err) => {
-                console.error(err);
-                next(err);
-              });
-          });
-        }
+          DB("access_tokens")
+            .insert({
+              token: token,
+              owner: user.id,
+            })
+            .onConflict("owner")
+            .merge()
+            .then(() => {
+              return res.status(200).json({ token: token });
+            })
+            .catch((err) => {
+              console.error(err);
+              next(err);
+            });
+        });
       }
-    });
+    }
+  } catch (error) {
+    next(error);
+  }
 });
 
 router.post("/register", async (req, res, next) => {
@@ -191,32 +201,19 @@ router.post("/register", async (req, res, next) => {
   const email = req.body.email;
   const verification_token = crypto.randomBytes(64).toString("hex");
   try {
+    await DB("users")
+      .insert({ name, password, email, verification_token })
+      .returning(["id"]);
     await EmailHandler.SendVerificationEmail(
       req.hostname,
       email,
       verification_token
     );
+    res.status(200).json({ message: "ok" });
   } catch (error) {
     console.error(error);
     return next(error);
   }
-
-  DB("users")
-    .insert({
-      name,
-      password,
-      email,
-      verification_token,
-    })
-    .returning(["id"])
-    .then((users) => {
-      console.info("User registered:", users[0].id);
-      res.status(200).json({ message: "ok" });
-    })
-    .catch((err) => {
-      console.error(err);
-      next(err);
-    });
 });
 
 export default router;
