@@ -18,9 +18,10 @@ const isValidUser = (password: string, name: string, email: string) => {
   return true;
 };
 
-router.get("/new-password", (req, res, next) => {
+router.post("/new-password", (req, res, next) => {
   const reset_token = req.body.reset_token;
   const password = req.body.password;
+  console.log("request.bodyy", req.body);
   if (
     !reset_token ||
     reset_token.length < 128 ||
@@ -32,7 +33,7 @@ router.get("/new-password", (req, res, next) => {
 
   DB("users")
     .where({ reset_token })
-    .update({ password: password })
+    .update({ password: User.HashPassword(password), reset_token: null })
     .then(() => res.redirect("/login#login"))
     .catch((err) => next(err));
 });

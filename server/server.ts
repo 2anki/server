@@ -83,10 +83,8 @@ function serve() {
 
   app.get("/dashboard", (req, res) => {
     const token = req.cookies.token;
-    console.log("token", token);
     if (token) {
       // TODO: check if it's valid and if so, serve the dashboard
-      console.log("req.token", req.cookies.token);
       res.sendFile(path.join(distDir, "index.html"));
     } else {
       res.redirect("/login#login");

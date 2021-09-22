@@ -10,17 +10,11 @@ const FormContainer = styled.div`
 const NewPasswordForm = () => {
   const [password, setPassword] = useState("");
   const [passwd, setPasswd] = useState("");
-  const [didReset, setDidReset] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const isValid = () => {
-    return (
-      password === passwd &&
-      password.length > 0 &&
-      password.length < 256 &&
-      password.match(/^\S+@\S+\.\S+$/)
-    );
+    return password === passwd && password.length > 0 && password.length < 256;
   };
 
   const handleSubmit = async (event: SyntheticEvent) => {
@@ -28,18 +22,19 @@ const NewPasswordForm = () => {
     const endpoint = "/users/new-password";
     setError("");
     setLoading(true);
-    setDidReset(false);
 
     try {
       const data = {
-        password,
+        reset_token: window.location.pathname,
+        password: password,
       };
+      console.log("data", data);
       const res = await axios.post(endpoint, data);
       if (res.status === 200) {
         console.log(res);
+        window.location.href = "/login#login";
       }
       setLoading(false);
-      setDidReset(true);
     } catch (error) {
       setError("Request failed. Are you sure you have registered an account?");
       console.error(error);
@@ -95,9 +90,6 @@ const NewPasswordForm = () => {
                     </button>
                   </div>
                 </div>
-                {didReset && (
-                  <p>You should receive an password if your account exists.</p>
-                )}
               </form>
             </div>
           </div>
