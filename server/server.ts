@@ -61,28 +61,11 @@ function serve() {
   app.use("/version", version.default);
   app.use("/auth", connectNotion.default);
 
-  // This is due to legacy stuff and links shared around the web
-  const old = [
-    "/notion",
-    "/index",
-    "/upload",
-    "/tm",
-    "/connect-notion",
-    "/pre-signup",
-    "/login", // TODO: handle token is set then redirect to dashboard
-  ];
-  for (const p of old) {
-    console.log("setting up request handler for ", p);
-    app.get(p, (_req, res) => {
-      res.sendFile(path.join(distDir, "index.html"));
-    });
+  app.get("*", (_req, res) => {
+    res.sendFile(path.join(distDir, "index.html"));
+  });
 
-    app.get(`${p}.html`, (_req, res) => {
-      res.sendFile(path.join(distDir, "index.html"));
-    });
-  }
-
-  app.get("/dashboard", (req, res) => {
+  app.get("/dashboard*", (req, res) => {
     const token = req.cookies.token;
     if (token) {
       // TODO: check if it's valid and if so, serve the dashboard
