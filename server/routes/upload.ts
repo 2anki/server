@@ -16,6 +16,8 @@ import Package from "../parser/Package";
 
 import { TEMPLATE_DIR, ALLOWED_ORIGINS } from "../constants";
 import Settings from "../parser/Settings";
+import TokenHandler from "../handlers/TokenHandler";
+import DB from "../storage/db";
 const ADVERTISEMENT = fs
   .readFileSync(path.join(TEMPLATE_DIR, "README.html"))
   .toString();
@@ -42,6 +44,16 @@ async function handleUpload(
 ) {
   console.log("POST", req.originalUrl);
   const origin = req.headers.origin;
+
+  const isLoggedIn = await TokenHandler.IsValidJWTToken(req.cookies.token);
+  let access = null;
+  if (isLoggedIn) {
+    access = await DB("access_tokens")
+      .where({ token: req.cookies.token })
+      .returning(["owner"])
+      .first();
+  }
+
   if (!origin) {
     throw new Error("unknown origin");
   }
@@ -60,6 +72,22 @@ async function handleUpload(
     for (const file of files) {
       const filename = file.originalname;
       const settings = new Settings(req.body || {});
+
+      if (isLoggedIn) {
+        try {
+          // Note that the file filename and key are the same right now but that will not be true in the future
+          await DB("uploads").insert({
+            owner: access.owner,
+            filename: filename,
+            /* @ts-ignore */
+            key: file.key,
+          });
+        } catch (error) {
+          console.info("failed to register upload");
+          console.error(error);
+        }
+      }
+
       const fileContents = await new Promise<string>((resolve, reject) => {
         s3.getObject(
           /* @ts-ignore */
