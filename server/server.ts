@@ -43,13 +43,9 @@ function serve() {
   app.use("/version", version.default);
   app.use("/auth", connectNotion.default);
 
-  app.get("*", (_req, res) => {
-    res.sendFile(path.join(distDir, "index.html"));
-  });
-
-  app.get("/dashboard*", (req, res) => {
-    const token = req.cookies.token;
-    if (token) {
+  app.get("/dashboard*", async (req, res) => {
+    const isValid = await TokenHandler.IsValidJWTToken(req.cookies.token);
+    if (isValid) {
       // TODO: check if it's valid and if so, serve the dashboard
       res.sendFile(path.join(distDir, "index.html"));
     } else {
@@ -72,6 +68,11 @@ function serve() {
 
   app.use("/upload", upload.default);
   app.use("/users", users.default);
+
+  // Note: this has to be the last handler
+  app.get("*", (_req, res) => {
+    res.sendFile(path.join(distDir, "index.html"));
+  });
 
   app.use(
     (

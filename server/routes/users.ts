@@ -7,6 +7,7 @@ import User from "../lib/User";
 import DB from "../storage/db";
 
 import EmailHandler from "../handlers/EmailHandler";
+import TokenHandler from "../handlers/TokenHandler";
 
 const router = express.Router();
 
@@ -40,34 +41,6 @@ router.post("/new-password", async (req, res, next) => {
   }
 });
 
-router.get("/logout", (req, res, next) => {
-  const token = req.cookies.token;
-  if (!token) {
-    return res.status(400).json({ message: "Missing authorization header." });
-  }
-  /* @ts-ignore */
-  jwt.verify(token, process.env.SECRET, (error, decodedToken) => {
-    if (error) {
-      console.error(error);
-      res.status(401).json({
-        message: "Unauthorized Access!",
-      });
-    } else {
-      res.clearCookie("token");
-      DB("access_tokens")
-        .where({ token: token })
-        .del()
-        .then(() => {
-          res.status(200).end();
-        })
-        .catch((err) => {
-          console.error(err);
-          next(err);
-        });
-    }
-  });
-});
-
 // TODO: RENAME this endpoint. very confusing name
 router.post("/forgot-password", async (req, res, next) => {
   if (!req.body.email) {
@@ -99,11 +72,12 @@ router.post("/forgot-password", async (req, res, next) => {
   }
 });
 
-router.get("/v/:id", (req, res, next) => {
-  const verification_token = req.params.id;
-  if (!verification_token || verification_token.length < 128) {
-    return res.redirect("/login");
+router.get("/v/:id", async (req, res, next) => {
+  const valid = await TokenHandler.IsValidVerificationToken(DB, req.params.id);
+  if (!valid) {
+    return res.redirect("/login#login");
   }
+  const verification_token = req.params.id;
   DB("users")
     .where({ verification_token })
     .update({ verified: true })
@@ -111,70 +85,61 @@ router.get("/v/:id", (req, res, next) => {
     .catch((err) => next(err));
 });
 
-router.get("/logout", (req, res, next) => {
-  const token = req.cookies.token;
-  if (!token) {
+router.get("/logout", async (req, res, next) => {
+  const isValid = await TokenHandler.IsValidJWTToken(req.cookies.token);
+  if (!isValid) {
     return res.status(400).json({ message: "Missing authorization header." });
   }
-  /* @ts-ignore */
-  jwt.verify(token, process.env.SECRET, (error, decodedToken) => {
-    if (error) {
-      res.status(401).json({
-        message: "Unauthorized Access!",
-      });
-    } else {
-      DB("access_tokens")
-        .where({ token: token })
-        .del()
-        .then(() => {
-          res.status(200).end();
-        })
-        .catch((err) => next(err));
-    }
-  });
+  const token = req.cookies.token;
+  res.clearCookie("token");
+  DB("access_tokens")
+    .where({ token: token })
+    .del()
+    .then(() => {
+      res.status(200).end();
+    })
+    .catch((err) => {
+      console.error(err);
+      next(err);
+    });
 });
 
 router.post("/login", async (req, res, next) => {
   const { email, password } = req.body;
   if (!email || !password || password.length < 8) {
-    res.status(400).json({
+    return res.status(400).json({
       message: "Invalid user data. Required  email and password!",
     });
-    return;
   }
+
   try {
     const user = await DB("users").where({ email: email }).first();
     if (!user) {
-      res.status(400).json({
+      return res.status(400).json({
         message: "Unknown error. Please try again or register a new account.",
       });
+    }
+    const isMatch = User.ComparePassword(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid password." });
     } else {
-      const isMatch = User.ComparePassword(password, user.password);
-      if (!isMatch) {
-        return res.status(401).json({ message: "Invalid password." });
-      } else {
-        /* @ts-ignore */
-        return jwt.sign(user, process.env.SECRET, (err, token) => {
-          if (err) {
+      const token = await TokenHandler.NewJWTToken(user);
+      if (token) {
+        res.cookie("token", token);
+        DB("access_tokens")
+          .insert({
+            token: token,
+            owner: user.id,
+          })
+          .onConflict("owner")
+          .merge()
+          .then(() => {
+            return res.status(200).json({ token: token });
+          })
+          .catch((err) => {
             console.error(err);
-          }
-          res.cookie("token", token);
-
-          DB("access_tokens")
-            .insert({
-              token: token,
-              owner: user.id,
-            })
-            .onConflict("owner")
-            .merge()
-            .then(() => {
-              return res.status(200).json({ token: token });
-            })
-            .catch((err) => {
-              console.error(err);
-              next(err);
-            });
-        });
+            next(err);
+          });
       }
     }
   } catch (error) {

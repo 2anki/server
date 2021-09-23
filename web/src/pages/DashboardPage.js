@@ -37,9 +37,10 @@ const DashboardPage = () => {
 
   const setMenuItem = async (item) => {
     if (item.includes("logg out")) {
+      localStorage.removeItem("token");
       const endpoint = "/users/logout";
       await axios.get(endpoint, { withCredentials: true, credentials: true });
-      window.location.href = "/login#login";
+      window.location.href = "/";
     }
     updateMenUItem(item);
   };
