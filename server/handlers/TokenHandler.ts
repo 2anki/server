@@ -1,7 +1,15 @@
+import crypto from "crypto";
+
 import jwt from "jsonwebtoken";
 import { Knex } from "knex";
 
 class TokenHandler {
+  static NewResetToken() {
+    return crypto.randomBytes(64).toString("hex");
+  }
+  static NewVerificationToken(): string {
+    return crypto.randomBytes(64).toString("hex");
+  }
   static async IsValidResetToken(db: Knex, token: string): Promise<boolean> {
     if (!token || token.length < 128) {
       return false;

@@ -1,5 +1,3 @@
-import crypto from "crypto";
-
 import express from "express";
 
 import User from "../lib/User";
@@ -54,7 +52,7 @@ router.post("/forgot-password", async (req, res, next) => {
   if (user.reset_token) {
     return res.status(200).json({ message: "ok" });
   }
-  const reset_token = crypto.randomBytes(64).toString("hex");
+  const reset_token = TokenHandler.NewResetToken();
   try {
     await DB("users").where({ email: req.body.email }).update({ reset_token });
     await EmailHandler.SendResetEmail(
@@ -158,7 +156,7 @@ router.post("/register", async (req, res, next) => {
   const password = User.HashPassword(req.body.password);
   const name = req.body.name;
   const email = req.body.email;
-  const verification_token = crypto.randomBytes(64).toString("hex");
+  const verification_token = TokenHandler.NewVerificationToken();
   try {
     await DB("users")
       .insert({ name, password, email, verification_token })
