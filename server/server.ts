@@ -1,3 +1,4 @@
+import { mkdirSync } from "fs";
 import path from "path";
 import os from "os";
 
@@ -5,9 +6,6 @@ import findRemoveSync from "find-remove";
 import morgan from "morgan";
 import express from "express";
 import cookieParser from "cookie-parser";
-
-import * as Sentry from "@sentry/node";
-import * as Tracing from "@sentry/tracing";
 
 import { ALLOWED_ORIGINS } from "./constants";
 import ErrorHandler from "./handlers/error";
@@ -21,8 +19,8 @@ import * as users from "./routes/users";
 
 import DB from "./storage/db";
 import config from "./knexfile";
-import { fstat, mkdirSync } from "fs";
 import ResetToken from "./lib/ResetToken";
+import CrashReporter from "./lib/CrashReporter";
 
 if (!process.env.WORKSPACE_BASE) {
   process.env.WORKSPACE_BASE = "/tmp/workspace";
@@ -33,26 +31,10 @@ function serve() {
   const templateDir = path.join(__dirname, "templates");
   const distDir = path.join(__dirname, "../web/build");
   const app = express();
+
   app.use(express.json());
-
   app.use(cookieParser());
-
-  Sentry.init({
-    dsn: "https://067ae1c6d7c847278d84a7bbd12515ec@o404766.ingest.sentry.io/5965064",
-    integrations: [
-      // enable HTTP calls tracing
-      new Sentry.Integrations.Http({ tracing: true }),
-      // enable Express.js middleware tracing
-      new Tracing.Integrations.Express({ app }),
-    ],
-
-    // Set tracesSampleRate to 1.0 to capture 100%
-    // of transactions for performance monitoring.
-    // We recommend adjusting this value in production
-    tracesSampleRate: 1.0,
-  });
-  app.use(Sentry.Handlers.requestHandler());
-  app.use(Sentry.Handlers.tracingHandler());
+  CrashReporter.Configure(app);
 
   app.use(morgan("combined"));
   app.use("/templates", express.static(templateDir));
@@ -107,7 +89,7 @@ function serve() {
     }
   );
 
-  app.use(Sentry.Handlers.errorHandler());
+  CrashReporter.AddErrorHandler(app);
 
   app.use(
     (
