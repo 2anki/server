@@ -1,7 +1,7 @@
 import { Knex } from "knex";
 
-class ResetToken {
-  static async IsValid(db: Knex, token: string): Promise<boolean> {
+class TokenHandler {
+  static async IsValidResetToken(db: Knex, token: string): Promise<boolean> {
     if (!token || token.length < 128) {
       return false;
     }
@@ -11,4 +11,4 @@ class ResetToken {
   }
 }
 
-export default ResetToken;
+export default TokenHandler;

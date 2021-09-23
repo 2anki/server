@@ -19,7 +19,7 @@ import * as users from "./routes/users";
 
 import DB from "./storage/db";
 import config from "./knexfile";
-import ResetToken from "./lib/ResetToken";
+import TokenHandler from "./handlers/TokenHandler";
 import CrashReporter from "./lib/CrashReporter";
 
 if (!process.env.WORKSPACE_BASE) {
@@ -59,7 +59,7 @@ function serve() {
   app.get("/users/r/:id", async (req, res, next) => {
     try {
       const reset_token = req.params.id;
-      const isValid = await ResetToken.IsValid(DB, reset_token);
+      const isValid = await TokenHandler.IsValidResetToken(DB, reset_token);
       if (isValid) {
         return res.sendFile(path.join(distDir, "index.html"));
       }
