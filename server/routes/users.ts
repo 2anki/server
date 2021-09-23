@@ -12,7 +12,6 @@ import TokenHandler from "../handlers/TokenHandler";
 const router = express.Router();
 
 const isValidUser = (password: string, name: string, email: string) => {
-  // TODO: do more validation
   if (!password || !name || !email) {
     return false;
   }
@@ -41,7 +40,6 @@ router.post("/new-password", async (req, res, next) => {
   }
 });
 
-// TODO: RENAME this endpoint. very confusing name
 router.post("/forgot-password", async (req, res, next) => {
   if (!req.body.email) {
     return res.status(400).json({ message: "Email is required" });
@@ -148,7 +146,6 @@ router.post("/login", async (req, res, next) => {
 });
 
 router.post("/register", async (req, res, next) => {
-  // TODO: handle the user already exists (same password / email  or wrong )
   if (
     !req.body ||
     !isValidUser(req.body.password, req.body.name, req.body.email)

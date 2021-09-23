@@ -41,7 +41,6 @@ const RegisterForm = () => {
       };
       const res = await axios.post(endpoint, data);
       if (res.status === 200) {
-        // TODO: send user email verification request instead of redirecting
         window.location.href = "/dashboard";
       } else {
         setError(
