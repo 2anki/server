@@ -1,7 +1,6 @@
 import crypto from "crypto";
 
 import express from "express";
-import jwt from "jsonwebtoken";
 
 import User from "../lib/User";
 import DB from "../storage/db";
