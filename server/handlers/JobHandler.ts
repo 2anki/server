@@ -27,7 +27,7 @@ async function __deleteOldUploads(db: Knex) {
 
   for (const file of files) {
     /* @ts-ignore */
-    if (now - new Date(file.LastModified) > ms) {
+    if (now - new Date(file.LastModified) > MS_21) {
       const upload = await db("uploads")
         .where("key", file.Key)
         .returning("owner");
