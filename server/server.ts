@@ -7,7 +7,7 @@ import morgan from "morgan";
 import express from "express";
 import cookieParser from "cookie-parser";
 
-import { ALLOWED_ORIGINS } from "./constants";
+import { ALLOWED_ORIGINS } from "./lib/constants";
 import ErrorHandler from "./handlers/error";
 
 // Server Endpoints

@@ -2,7 +2,7 @@ import { execFile } from "child_process";
 import { homedir } from "os";
 import path from "path";
 
-import { resolvePath } from "../constants";
+import { resolvePath } from "../lib/constants";
 
 function PYTHON() {
   const os = process.platform;

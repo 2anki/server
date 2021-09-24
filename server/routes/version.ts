@@ -2,7 +2,7 @@ import fs from "fs";
 
 import express from "express";
 
-import { resolvePath } from "../constants";
+import { resolvePath } from "../lib/constants";
 
 const router = express.Router();
 

@@ -15,7 +15,7 @@ import ErrorHandler from "../handlers/error";
 import Package from "../parser/Package";
 
 import StorageHandler from "../handlers/StorageHandler";
-import { TEMPLATE_DIR, ALLOWED_ORIGINS } from "../constants";
+import { TEMPLATE_DIR, ALLOWED_ORIGINS } from "../lib/constants";
 import Settings from "../parser/Settings";
 import TokenHandler from "../handlers/TokenHandler";
 import DB from "../storage/db";
