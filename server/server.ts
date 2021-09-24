@@ -1,13 +1,11 @@
 import { mkdirSync } from "fs";
 import path from "path";
-import os from "os";
 
-import findRemoveSync from "find-remove";
 import morgan from "morgan";
 import express from "express";
 import cookieParser from "cookie-parser";
 
-import { ALLOWED_ORIGINS } from "./constants";
+import { ALLOWED_ORIGINS } from "./lib/constants";
 import ErrorHandler from "./handlers/error";
 
 // Server Endpoints
@@ -21,6 +19,7 @@ import DB from "./storage/db";
 import config from "./knexfile";
 import TokenHandler from "./handlers/TokenHandler";
 import CrashReporter from "./lib/CrashReporter";
+import { ScheduleCleanup } from "./handlers/JobHandler";
 
 if (!process.env.WORKSPACE_BASE) {
   process.env.WORKSPACE_BASE = "/tmp/workspace";
@@ -107,19 +106,6 @@ function serve() {
     );
   });
 
-  const TweentyOneMinutesInSeconds = 1260;
-  setInterval(() => {
-    const locations = ["workspaces", "uploads"];
-    for (const loc of locations) {
-      console.log(`finding & removing ${loc} files older than 21 minutes`);
-      const result = findRemoveSync(path.join(os.tmpdir(), loc), {
-        files: "*.*",
-        age: { seconds: TweentyOneMinutesInSeconds },
-      });
-      console.log("result", result);
-    }
-  }, TweentyOneMinutesInSeconds * 1000);
-
   DB.raw("SELECT 1").then(() => {
     console.log("DB is ready");
   });
@@ -127,6 +113,7 @@ function serve() {
   if (process.env.MIGRATIONS_DIR) {
     process.chdir(path.join(process.env.MIGRATIONS_DIR, ".."));
   }
+  ScheduleCleanup(DB);
   /* @ts-ignore */
   DB.migrate.latest(config).then(() => {
     process.chdir(cwd);

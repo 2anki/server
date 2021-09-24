@@ -1,6 +1,6 @@
 import path from "path";
 
-export const TEMPLATE_DIR = path.join(__dirname, "./templates");
+export const TEMPLATE_DIR = path.join(__dirname, "../templates");
 
 export const ALLOWED_ORIGINS = [
   "http://localhost:8080",
@@ -24,3 +24,4 @@ export function resolvePath(dir: string, x: string) {
 
 export const NOTION_CLIENT_ID = process.env.NOTION_CLIENT_ID;
 export const REDIRECT_URI = "https://2anki.net/connect-notion";
+export const TIME_21_MINUTES_AS_SECONDS = 1260;
