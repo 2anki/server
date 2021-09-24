@@ -23,6 +23,8 @@ let MS_21 = TIME_21_MINUTES_AS_SECONDS * 1000;
 async function __deleteOldUploads(db: Knex) {
   let s = new StorageHandler();
   let files = await s.getContents();
+  let now = new Date();
+
   for (const file of files) {
     /* @ts-ignore */
     if (now - new Date(file.LastModified) > ms) {
