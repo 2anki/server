@@ -1,6 +1,6 @@
 import path from "path";
 
-export const TEMPLATE_DIR = path.join(__dirname, "./templates");
+export const TEMPLATE_DIR = path.join(__dirname, "../templates");
 
 export const ALLOWED_ORIGINS = [
   "http://localhost:8080",
