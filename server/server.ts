@@ -1,3 +1,4 @@
+import { mkdirSync } from "fs";
 import path from "path";
 import os from "os";
 
@@ -5,9 +6,6 @@ import findRemoveSync from "find-remove";
 import morgan from "morgan";
 import express from "express";
 import cookieParser from "cookie-parser";
-
-import * as Sentry from "@sentry/node";
-import * as Tracing from "@sentry/tracing";
 
 import { ALLOWED_ORIGINS } from "./constants";
 import ErrorHandler from "./handlers/error";
@@ -21,8 +19,8 @@ import * as users from "./routes/users";
 
 import DB from "./storage/db";
 import config from "./knexfile";
-import { fstat, mkdirSync } from "fs";
-import ResetToken from "./lib/ResetToken";
+import TokenHandler from "./handlers/TokenHandler";
+import CrashReporter from "./lib/CrashReporter";
 
 if (!process.env.WORKSPACE_BASE) {
   process.env.WORKSPACE_BASE = "/tmp/workspace";
@@ -33,26 +31,10 @@ function serve() {
   const templateDir = path.join(__dirname, "templates");
   const distDir = path.join(__dirname, "../web/build");
   const app = express();
+
   app.use(express.json());
-
   app.use(cookieParser());
-
-  Sentry.init({
-    dsn: "https://067ae1c6d7c847278d84a7bbd12515ec@o404766.ingest.sentry.io/5965064",
-    integrations: [
-      // enable HTTP calls tracing
-      new Sentry.Integrations.Http({ tracing: true }),
-      // enable Express.js middleware tracing
-      new Tracing.Integrations.Express({ app }),
-    ],
-
-    // Set tracesSampleRate to 1.0 to capture 100%
-    // of transactions for performance monitoring.
-    // We recommend adjusting this value in production
-    tracesSampleRate: 1.0,
-  });
-  app.use(Sentry.Handlers.requestHandler());
-  app.use(Sentry.Handlers.tracingHandler());
+  CrashReporter.Configure(app);
 
   app.use(morgan("combined"));
   app.use("/templates", express.static(templateDir));
@@ -61,31 +43,9 @@ function serve() {
   app.use("/version", version.default);
   app.use("/auth", connectNotion.default);
 
-  // This is due to legacy stuff and links shared around the web
-  const old = [
-    "/notion",
-    "/index",
-    "/upload",
-    "/tm",
-    "/connect-notion",
-    "/pre-signup",
-    "/login", // TODO: handle token is set then redirect to dashboard
-  ];
-  for (const p of old) {
-    console.log("setting up request handler for ", p);
-    app.get(p, (_req, res) => {
-      res.sendFile(path.join(distDir, "index.html"));
-    });
-
-    app.get(`${p}.html`, (_req, res) => {
-      res.sendFile(path.join(distDir, "index.html"));
-    });
-  }
-
-  app.get("/dashboard", (req, res) => {
-    const token = req.cookies.token;
-    if (token) {
-      // TODO: check if it's valid and if so, serve the dashboard
+  app.get("/dashboard*", async (req, res) => {
+    const isValid = await TokenHandler.IsValidJWTToken(req.cookies.token);
+    if (isValid) {
       res.sendFile(path.join(distDir, "index.html"));
     } else {
       res.redirect("/login#login");
@@ -94,7 +54,7 @@ function serve() {
   app.get("/users/r/:id", async (req, res, next) => {
     try {
       const reset_token = req.params.id;
-      const isValid = await ResetToken.IsValid(DB, reset_token);
+      const isValid = await TokenHandler.IsValidResetToken(DB, reset_token);
       if (isValid) {
         return res.sendFile(path.join(distDir, "index.html"));
       }
@@ -107,6 +67,11 @@ function serve() {
 
   app.use("/upload", upload.default);
   app.use("/users", users.default);
+
+  // Note: this has to be the last handler
+  app.get("*", (_req, res) => {
+    res.sendFile(path.join(distDir, "index.html"));
+  });
 
   app.use(
     (
@@ -124,7 +89,7 @@ function serve() {
     }
   );
 
-  app.use(Sentry.Handlers.errorHandler());
+  CrashReporter.AddErrorHandler(app);
 
   app.use(
     (
@@ -142,7 +107,6 @@ function serve() {
     );
   });
 
-  // TODO: remove the auto-removal of old files. Users should decide when they want to delete.
   const TweentyOneMinutesInSeconds = 1260;
   setInterval(() => {
     const locations = ["workspaces", "uploads"];
