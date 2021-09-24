@@ -14,10 +14,12 @@ import ErrorHandler from "../handlers/error";
 
 import Package from "../parser/Package";
 
+import StorageHandler from "../handlers/StorageHandler";
 import { TEMPLATE_DIR, ALLOWED_ORIGINS } from "../constants";
 import Settings from "../parser/Settings";
 import TokenHandler from "../handlers/TokenHandler";
 import DB from "../storage/db";
+
 const ADVERTISEMENT = fs
   .readFileSync(path.join(TEMPLATE_DIR, "README.html"))
   .toString();
@@ -179,16 +181,12 @@ async function handleUpload(
 }
 const router = express.Router();
 
-// Set S3 endpoint to DigitalOcean Spaces
-const spacesEndpoint = new aws.Endpoint("fra1.digitaloceanspaces.com");
-https: const s3 = new aws.S3({
-  endpoint: spacesEndpoint,
-});
+let storage = new StorageHandler();
 
 const upload = multer({
   limits: { fileSize: 100 * 1024 * 1024, fieldSize: 2 * 1024 * 1024 },
   storage: multerS3({
-    s3: s3,
+    s3: storage.s3,
     bucket: "spaces.2anki.net",
     key: function (request, file, cb) {
       const name = (Date.now().toString() + "-" + file.originalname).substring(
@@ -207,7 +205,7 @@ router.post("/", (req, res) => {
       console.error(error);
       return res.status(500).end();
     } else {
-      handleUpload(s3, req, res);
+      handleUpload(storage.s3, req, res);
     }
   });
 });
