@@ -18,7 +18,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: npm install and  build
         run: |
-          npm install
-          npm run build
+          npm --prefix web install
+          npm --prefix web run build
         env:
           CI: true
