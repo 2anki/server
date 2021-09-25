@@ -18,11 +18,11 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Checkout submodules
         uses: actions/checkout@v2
-        with:
-          repository: alemayhu/backend.2anki.net
-          path: server
-          ssh-key: ${{ secrets.GH_SSH_KEY }}
-          persist-credentials: true
+        env:
+          SSH_KEY_SUBMODULE: ${{secrets. secrets.GH_SSH_KEY}}
+        run: |
+          eval `ssh-agent -s`
+          ssh-add - <<< "${GH_SSH_KEY}"; git submodule update --init --recursive
       - name: npm install, build, and test
         run: |
           npm --prefix server install
