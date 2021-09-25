@@ -1,0 +1,3 @@
+[submodule "server"]
+	path = server
+	url = git@github.com:alemayhu/backend.2anki.net.git
