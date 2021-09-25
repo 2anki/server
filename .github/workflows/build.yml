@@ -17,7 +17,12 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - name: Checkout submodules
-        uses: snickerbockers/submodules-init@v4
+        uses: actions/checkout@v2
+        with:
+          repository: alemayhu/backend.2anki.net
+          path: server
+          ssh-key: ${{ secrets.GH_SSH_KEY }}
+          persist-credentials: true
       - name: npm install, build, and test
         run: |
           npm --prefix server install
