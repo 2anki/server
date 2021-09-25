@@ -12,4 +12,4 @@ docker_push:
 	docker push ${project}
 ssr:
 	git add server && \
-	git commit -m 'server: $(shell git --git-dir server --no-pager log -1 --pretty='tformat:%h (%s, %ad)' --date=short)'
+	git commit -m 'server: $(shell cd server && git --no-pager log -1 --pretty='tformat:%h (%s, %ad)' --date=short)'
