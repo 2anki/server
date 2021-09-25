@@ -47,7 +47,7 @@ const DashboardPage = () => {
 
   return (
     <>
-      <div className="columns is-fullheight">
+      <section className="columns is-fullheight">
         <div className="column is-2 is-sidebar-menu is-hidden-mobile">
           <aside className="menu">
             <p className="menu-label">General</p>
@@ -72,7 +72,7 @@ const DashboardPage = () => {
             </Route>
           </Switch>
         </div>
-      </div>
+      </section>
     </>
   );
 };

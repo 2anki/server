@@ -10,3 +10,6 @@ server: docker
 	docker run -p 8080:8080 -i ${project}
 docker_push:
 	docker push ${project}
+ssr:
+	git add server && \
+	git commit -m 'server: $(shell cd server && git --no-pager log -1 --pretty='tformat:%h (%s, %ad)' --date=short)'

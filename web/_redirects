@@ -1,4 +1,4 @@
-/* https://2anki.net/:splat
+/\* https://2anki.net/:splat
 
 /benefits* https://alemayhu.notion.site/Benefits-0d5fa2e18a8a44d782c72945b2bd413b
 /privacy* https://alemayhu.notion.site/Privacy-38c6e8238ac04ea9b2485bf488909fd0
@@ -6,3 +6,6 @@
 /contact* https://alemayhu.notion.site/Contact-e76523187cc64961972b3ad4f7cb4c47
 /links* https://alemayhu.notion.site/Useful-Links-0f3051946a2d4b71ae31610da76b28a8
 /useful-links* https://alemayhu.notion.site/Useful-Links-0f3051946a2d4b71ae31610da76b28a8
+
+http://notion2anki.alemayhu.com/* https://2anki.net 301!
+https://notion2anki.alemayhu.com/* https://2anki.net 301!
