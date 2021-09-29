@@ -35,6 +35,10 @@ const SettingsModal: React.FC<{
       value: "abhiyan",
       label: "Abhiyan Bhandari (Night Mode)",
     },
+    {
+      value: "alex_deluxe",
+      label: "Alexander Deluxe (Blue)",
+    },
   ];
   const [template, setTemplate] = useState(
     localStorage.getItem("template") || "specialstyle"
