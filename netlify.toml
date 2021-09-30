@@ -7,3 +7,8 @@
   for = "*"
     [headers.values]
     Access-Control-Allow-Origin = "*"
+[[redirects]]
+  from = "*"
+  to = "https://2anki.net"
+  status = 200
+  force = true # COMMENT: ensure that we always redirect
