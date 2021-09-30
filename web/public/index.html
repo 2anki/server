@@ -69,6 +69,13 @@
       a.appendChild(r);
     })(window, document, 'https://static.hotjar.com/c/hotjar-', '.js?sv=');
   </script>
+
+  <!-- Legacy redirect -->
+  <script>
+    if (window.location.hostname === 'notion2anki.alemayhu.com' || window.location.hostname === 'notion.2anki.net') {
+      window.location.href = 'https://2anki.net' + window.location.pathname;
+    }
+  </script>
 </head>
 
 <body>
