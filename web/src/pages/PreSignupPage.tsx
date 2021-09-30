@@ -2,8 +2,6 @@ import styled from "styled-components";
 
 const StyledPage = styled.div`
   background: #5397f5;
-  height: 100vh;
-  width: 100vw;
   position: absolute;
   top: 0;
   left: 0;
@@ -104,10 +102,10 @@ const PreSignupPage = () => {
     <StyledPage>
       <Container>
         <h2 className="has-text-white subtitle is-4">new!</h2>
-        <h1 className="title has-text-white is-1">
+        <h1 className="title has-text-white is-1 mx-2">
           Automatically Synchronize Your Notion Notes Into Anki
         </h1>
-        <p style={{ textAlign: "left" }}>
+        <p className="mx-6 has-text-left">
           Creating flashcards has never been easier than this. You can now
           collaborate with your friends using Notion and create flashcards
           insanely fast!
@@ -115,7 +113,7 @@ const PreSignupPage = () => {
         <ImageWrapper>
           <img alt="Notion to Anki" src="pre-signup.png" />
         </ImageWrapper>
-        <p style={{ textAlign: "left", marginBottom: "1rem" }}>
+        <p className="mx-6 has-text-left">
           2anki.net is open source and will remain free but to dedicate more
           time and effort to providing a great service. We need to invest a lot
           of time in the project. Continuing down a free path for the hosted
