@@ -23,7 +23,8 @@ When that is said, if you are not content with Anki, you might want to checkout 
 
 👩🏼‍🎓👨‍🎓️👨‍🏫️👩🏽‍🏫 [Scrimba](https://scrimba.com) - the mind-blowing way to to code!
 
-[![fortress.no](https://fortress.no/icons/logo.svg)](https://fortress.no)
+<a href="https://fortress.no"><img src="https://fortress.no/icons/logo.svg"  style="width:114px;" src=""></img></a>
+
 🧱🏢🖌️🏰 [Fortress](https://fortress.no/) - An untraditional, multidisciplinary agency that works to contribute to development and growth.
 
 
