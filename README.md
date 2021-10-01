@@ -23,6 +23,10 @@ When that is said, if you are not content with Anki, you might want to checkout 
 
 👩🏼‍🎓👨‍🎓️👨‍🏫️👩🏽‍🏫 [Scrimba](https://scrimba.com) - the mind-blowing way to to code!
 
+[![fortress.no](https://fortress.no/icons/logo.svg)](https://fortress.no)
+🧱🏢🖌️🏰 [Fortress](https://fortress.no/) - An untraditional, multidisciplinary agency that works to contribute to development and growth.
+
+
 ## 🎁 Support the Project
 
 > This project is brought to you by our amazing [patrons](http://patreon.com/alemayhu)
