@@ -6,6 +6,7 @@ const StyledPage = styled.div`
   top: 0;
   left: 0;
   color: white;
+  width: 100vw;
 
   display: flex;
   flex-direction: column;
@@ -118,7 +119,7 @@ const PreSignupPage = () => {
           time and effort to providing a great service. We need to invest a lot
           of time in the project. Continuing down a free path for the hosted
           version is not sustainable, hence we are offering you the option to
-          show your ineterest for a PRO version with less restrictions and more
+          show your interest for a PRO version with less restrictions and more
           power to you.
         </p>
 
