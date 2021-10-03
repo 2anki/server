@@ -82,7 +82,7 @@ const DashboardPage = () => {
 
   // TODO: this just be served up from the server (in-line)
   useEffect(() => {
-    const endpoint = "/get-notion-link";
+    const endpoint = "/notion/get-notion-link";
     axios.get(endpoint)
       .then(response => {
         let data = response.data;
