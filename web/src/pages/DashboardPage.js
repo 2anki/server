@@ -1,5 +1,5 @@
 import { Link, Route, Switch } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 
 const generalPages = ["Workspaces", "Templates", "Settings"];
@@ -62,16 +62,13 @@ const DashboardContent = () => {
   </div>;
 };
 
-const connectLink = () => {
-  let host = window.location.host === "2anki.net" ? "https://2anki.net/connect-notion" : "https://dev.2anki.net/connect-notion";
-  const redirectUri = encodeURIComponent(host);
-  const notionClientID = "384c361a-dc51-4960-abc1-b1e76665f8da";
-  return `https://api.notion.com/v1/oauth/authorize?client_id=${notionClientID}&redirect_uri=${redirectUri}&response_type=code`;
-};
 
 const DashboardPage = () => {
   const [menuItem, updateMenUItem] = useState(window.location.pathname);
+  const [connectionLink, updateConnectionLink] = useState("");
   const [connected, updateConnected] = useState(false);
+
+  const [loading, setIsLoading] = useState(true);
 
   const setMenuItem = async (item) => {
     if (item.includes("logg out")) {
@@ -83,10 +80,32 @@ const DashboardPage = () => {
     updateMenUItem(item);
   };
 
+  // TODO: this just be served up from the server (in-line)
+  useEffect(() => {
+    const endpoint = "/get-notion-link";
+    axios.get(endpoint)
+      .then(response => {
+        let data = response.data;
+        if (data) {
+          updateConnectionLink(data.link);
+          setIsLoading(false);
+        } else {
+          // TODO: handle this and evt. errors
+        }
+      }
+      ).catch(error => { // TODO: better handle this
+        alert("Failed to get Notion link, please refresh or contact developer: " + error.message);
+      });
+  }, []);
+
+  if (loading) {
+    return <p>Loading ...</p>;
+  }
+
   return (
     <>
       {!connected && <div>
-        <a className="button is-link has-text-weight-semibold	" href={connectLink()}>Connect to Notion</a>
+        <a className="button is-link has-text-weight-semibold	" href={connectionLink}>Connect to Notion</a>
       </div>}
       {connected &&
         <section className="columns is-fullheight">
