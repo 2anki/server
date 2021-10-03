@@ -86,11 +86,11 @@ const DashboardPage = () => {
     axios.get(endpoint)
       .then(response => {
         let data = response.data;
-        if (data) {
+        if (data && !data.isConnected) {
           updateConnectionLink(data.link);
           setIsLoading(false);
-        } else {
-          // TODO: handle this and evt. errors
+        } else if (data.isConnected) {
+          updateConnected(data.isConnected);
         }
       }
       ).catch(error => { // TODO: better handle this
