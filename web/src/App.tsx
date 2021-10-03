@@ -13,7 +13,6 @@ import GlobalStyle from "./GlobalStyle";
 
 import NewBanner from "./components/NewBanner";
 
-const NotionConnectPage = lazy(() => import("./pages/NotionConnectPage"));
 const TemplatePage = lazy(() => import("./pages/Templates/TemplatePage"));
 const PreSignupPage = lazy(() => import("./pages/PreSignupPage"));
 const DashboardPage = lazy(() => import("./pages/DashboardPage"));
@@ -60,9 +59,6 @@ function App() {
                 </Route>
                 <Route path="/upload">
                   <UploadPage />
-                </Route>
-                <Route path="/connect-notion">
-                  <NotionConnectPage />
                 </Route>
                 <Route path="/pre-signup">
                   <PreSignupPage />
