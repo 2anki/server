@@ -112,7 +112,9 @@ const Footer = () => {
           <p>
             <a href="https://fortress.no">
               <img 
-                src="https://fortress.no/icons/logo.svg"  
+                src="https://fortress.no/icons/logo.svg"
+                alt="Sponsored by Fortress"
+                loading="lazy"  
                 style={{width:"60px"}} 
                 />
             </a>
