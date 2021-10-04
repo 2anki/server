@@ -109,6 +109,16 @@ const Footer = () => {
               />
             </a>
           </p>
+          <p>
+            <a href="https://fortress.no">
+              <img 
+                src="https://fortress.no/icons/logo.svg"
+                alt="Sponsored by Fortress"
+                loading="lazy"  
+                style={{width:"60px"}} 
+                />
+            </a>
+          </p>
         </div>
       </div>
       <div className="content has-text-centered">
