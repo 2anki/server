@@ -1,10 +1,13 @@
+import { useState } from "react";
 import styled from "styled-components";
 
 const SearchInput = styled.input`
   width: 80vw;
 `;
 
+// TODO: handle the enter key is pressed
 const SearchBar = ({ onSearchQueryChanged, onSearchClicked }) => {
+  const [enabled, setEnabled] = useState(false);
   return (
     <>
       <div className="field has-addons">
@@ -13,13 +16,16 @@ const SearchBar = ({ onSearchQueryChanged, onSearchClicked }) => {
             className="input is-large"
             type="text"
             placeholder="Find a page"
-            onChange={(event) => onSearchQueryChanged(event.target.value)}
+            onChange={(event) => {
+              onSearchQueryChanged(event.target.value);
+              setEnabled(event.target.value.length > 3);
+            }}
           />
         </div>
         <div className="control" onClick={onSearchClicked}>
-          <a href="#a" className="button is-info is-large">
+          <button className="button is-info is-large" disabled={!enabled}>
             Search
-          </a>
+          </button>
         </div>
       </div>
     </>

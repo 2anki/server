@@ -75,7 +75,12 @@ const DashboardContent = () => {
           />
           {myPages &&
             myPages.map((p) => (
-              <SearchPageEntry key={p.url} title={p.title} icon={p.icon} />
+              <SearchPageEntry
+                key={p.url}
+                title={p.title}
+                icon={p.icon}
+                url={p.url}
+              />
             ))}
           <p className="subtitle">
             The dashboard is under development. <strong>Coming soon</strong>!
