@@ -6,7 +6,9 @@ const Entry = styled.div`
   :hover {
     background: lightgray;
   }
+  grid-gap: 1.2rem;
   padding: 1rem;
+  font-size: 2.4vw;
 `;
 const SearchPageEntry = ({ title, icon }) => {
   return (

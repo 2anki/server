@@ -39,27 +39,6 @@ const MenuList = ({ pages, currentItem, setCurrentMenuItem }) => {
   );
 };
 
-const SideBar = (menuItem, setMenuItem) => {
-  return (
-    <div className="column is-2 is-sidebar-menu is-hidden-mobile">
-      <aside className="menu">
-        <p className="menu-label">General</p>
-        <MenuList
-          pages={generalPages}
-          currentItem={menuItem}
-          setCurrentMenuItem={setMenuItem}
-        />
-        <p className="menu-label">Account</p>
-        <MenuList
-          pages={accountPages}
-          currentItem={menuItem}
-          setCurrentMenuItem={setMenuItem}
-        />
-      </aside>
-    </div>
-  );
-};
-
 const DashboardContent = () => {
   const [query, setQuery] = useState(localStorage.getItem("_query") || "");
   const [myPages, setMyPages] = useState(Options.LoadMyPages());
@@ -67,6 +46,7 @@ const DashboardContent = () => {
     backend
       .search(query)
       .then((results) => {
+        console.log("results", results);
         localStorage.setItem("__my_pages", JSON.stringify(results));
         setMyPages(results);
       })
@@ -76,8 +56,10 @@ const DashboardContent = () => {
       });
   };
   useEffect(() => {
-    // TODO: trigger search on type
-    console.log(query);
+    if (query && query.length > 3) {
+      // TODO: trigger search on type
+      console.log(query);
+    }
   }, [query]);
 
   return (
@@ -92,10 +74,9 @@ const DashboardContent = () => {
             onSearchClicked={triggerSearch}
           />
           {myPages &&
-            myPages.results.map((p) => (
-              <SearchPageEntry title={p.title} icon={p.emoji} />
+            myPages.map((p) => (
+              <SearchPageEntry key={p.url} title={p.title} icon={p.icon} />
             ))}
-          <pre>xx{JSON.stringify(myPages.results[0], null, 4)}</pre>
           <p className="subtitle">
             The dashboard is under development. <strong>Coming soon</strong>!
           </p>
@@ -106,18 +87,10 @@ const DashboardContent = () => {
 };
 
 const DashboardPage = () => {
-  const [menuItem, updateMenUItem] = useState(window.location.pathname);
   const [connectionLink, updateConnectionLink] = useState("");
-  const [connected, updateConnected] = useState(false);
+  const [connected, updateConnected] = useState(true);
 
-  const [loading, setIsLoading] = useState(true);
-
-  const setMenuItem = async (item) => {
-    if (item.includes("logg out")) {
-      await backend.logout();
-    }
-    updateMenUItem(item);
-  };
+  const [loading, setIsLoading] = useState(false);
 
   // TODO: this just be served up from the server (in-line)
   useEffect(() => {
@@ -125,6 +98,7 @@ const DashboardPage = () => {
       .getNotionConnectionInfo()
       .then((response) => {
         let data = response.data;
+        console.log("data", data);
         if (data && !data.isConnected) {
           updateConnectionLink(data.link);
         } else if (data.isConnected) {
@@ -133,11 +107,12 @@ const DashboardPage = () => {
         setIsLoading(false);
       })
       .catch((error) => {
+        console.error(error);
         // TODO: better handle this
-        alert(
-          "Failed to get Notion link, please refresh or contact developer: " +
-            error.message
-        );
+        // alert(
+        //   "Failed to get Notion link, please refresh or contact developer: " +
+        //     error.message
+        // );
       });
   }, []);
 
