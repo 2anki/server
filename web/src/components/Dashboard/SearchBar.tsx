@@ -1,9 +1,15 @@
+import styled from "styled-components";
+
+const SearchInput = styled.input`
+  width: 80vw;
+`;
+
 const SearchBar = ({ onSearchQueryChanged, onSearchClicked }) => {
   return (
     <>
       <div className="field has-addons">
         <div className="control">
-          <input
+          <SearchInput
             className="input is-large"
             type="text"
             placeholder="Find a page"
@@ -11,7 +17,9 @@ const SearchBar = ({ onSearchQueryChanged, onSearchClicked }) => {
           />
         </div>
         <div className="control" onClick={onSearchClicked}>
-          <a className="button is-info is-large">Search</a>
+          <a href="#a" className="button is-info is-large">
+            Search
+          </a>
         </div>
       </div>
     </>
