@@ -23,23 +23,36 @@ class Backend {
   }
 
   __getPageTitle(p): string {
-    if (!p) {
-      return "untitled";
-    }
+    try {
+      const properties = p.properties;
+      if (!properties) {
+        return "untitled";
+      }
+      if (properties.title) {
+        return properties.title.title[0].plain_text as string;
+      }
+      let desc = properties.Description;
+      if (desc) {
+        if (Array.isArray(desc.title) && desc.title.length > 0) {
+          return desc.title[0].plain_text as string;
+        } else if (Array.isArray(desc.rich_text) && desc.rich_text.length > 0) {
+          return desc.rich_text[0].plain_text;
+        }
+      }
+      if (properties.Name) {
+        return properties.Name.title[0].plain_text;
+      }
 
-    const properties = p.properties;
-    if (!properties) {
+      const props = Object.keys(properties);
+      for (const k of props) {
+        if (properties[k] && Array.isArray(properties[k])) {
+          return properties[k].title[0].plain_text;
+        }
+      }
+    } catch (error) {
       return "untitled";
     }
-    if (properties.title) {
-      return properties.title.title[0].plain_text as string;
-    }
-    if (properties.Description) {
-      return properties.Description.title[0].plain_text as string;
-    }
-    if (properties.Name) {
-      return properties.Name.title[0].plain_text;
-    }
+    console.log("xxx", p);
     return "untitled";
   }
 
@@ -59,7 +72,8 @@ class Backend {
 
   async search(query: string): Promise<NotionPage[]> {
     if (this.__withinThreeSeconds()) {
-      throw new Error("too fast");
+      console.log("skipping");
+      return;
     }
 
     const response = await axios.post(
@@ -78,9 +92,11 @@ class Backend {
             title: this.__getPageTitle(p).substr(0, 80), // Don't show strings longer than 80 characters
             icon: this.__getPageIcon(p),
             url: p.url as string,
+            id: p.id,
           };
           return page;
-        });
+        })
+        .filter((p) => p.title !== "untitled"); // Hide untitled pages
     }
     return results;
   }

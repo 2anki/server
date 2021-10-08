@@ -1,49 +1,18 @@
 import { Link, Route, Switch } from "react-router-dom";
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useCallback, useEffect, useState } from "react";
 
 import Backend from "../lib/Backend";
 import SearchBar from "../components/Dashboard/SearchBar";
-import SearchPageEntry from "../components/Dashboard/SearchPageEntry";
+import SearchObjectEntry from "../components/Dashboard/SearchObjectEntry";
 import Options from "../store/Options";
 
-const generalPages = ["Workspaces", "Templates", "Settings"];
-const accountPages = ["Logg out →"];
 let backend = new Backend();
-
-const MenuList = ({ pages, currentItem, setCurrentMenuItem }) => {
-  return (
-    <ul className="menu-list">
-      {pages.map((page) => (
-        <li
-          key={page}
-          className="menu-item"
-          onClick={() => setCurrentMenuItem(page.toLowerCase())}
-        >
-          <Link
-            to={{
-              pathname: `/dashboard/${page.toLowerCase()}`,
-              state: { currentItem },
-            }}
-            className={
-              decodeURIComponent(currentItem).endsWith(page.toLowerCase())
-                ? "is-active"
-                : ""
-            }
-          >
-            {page}
-          </Link>
-        </li>
-      ))}
-    </ul>
-  );
-};
 
 const DashboardContent = () => {
   const [query, setQuery] = useState(localStorage.getItem("_query") || "");
-  const [myPages, setMyPages] = useState(Options.LoadMyPages());
+  const [myPages, setMyPages] = useState([]);
   const [inProgress, setInProgress] = useState(false);
-  const triggerSearch = () => {
+  const triggerSearch = useCallback(() => {
     if (inProgress) {
       return;
     }
@@ -51,7 +20,6 @@ const DashboardContent = () => {
     backend
       .search(query)
       .then((results) => {
-        console.log("results", results);
         if (results && results.length > 0) {
           localStorage.setItem("__my_pages", JSON.stringify(results));
         }
@@ -63,13 +31,15 @@ const DashboardContent = () => {
         // TODO: handle this error
         console.error(error);
       });
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     if (query && query.length > 3) {
       triggerSearch();
       console.log(query);
     }
-  }, [query]);
+  }, [query, triggerSearch]);
 
   return (
     <div className="column is-main-content">
@@ -83,16 +53,6 @@ const DashboardContent = () => {
             onSearchQueryChanged={(s) => setQuery(s)}
             onSearchClicked={triggerSearch}
           />
-          {myPages &&
-            myPages.length > 0 &&
-            myPages.map((p) => (
-              <SearchPageEntry
-                key={p.url}
-                title={p.title}
-                icon={p.icon}
-                url={p.url}
-              />
-            ))}
           {(!myPages || myPages.length < 1) && (
             <>
               <div className="notification">
@@ -110,6 +70,17 @@ const DashboardContent = () => {
               )}
             </>
           )}
+          {myPages &&
+            myPages.length > 0 &&
+            myPages.map((p) => (
+              <SearchObjectEntry
+                key={p.url}
+                title={p.title}
+                icon={p.icon}
+                url={p.url}
+                id={p.id}
+              />
+            ))}
         </Route>
       </Switch>
     </div>
@@ -128,7 +99,6 @@ const DashboardPage = () => {
       .getNotionConnectionInfo()
       .then((response) => {
         let data = response.data;
-        console.log("data", data);
         if (data && !data.isConnected) {
           updateConnectionLink(data.link);
         } else if (data.isConnected) {
