@@ -42,22 +42,31 @@ const MenuList = ({ pages, currentItem, setCurrentMenuItem }) => {
 const DashboardContent = () => {
   const [query, setQuery] = useState(localStorage.getItem("_query") || "");
   const [myPages, setMyPages] = useState(Options.LoadMyPages());
+  const [inProgress, setInProgress] = useState(false);
   const triggerSearch = () => {
+    if (inProgress) {
+      return;
+    }
+    setInProgress(true);
     backend
       .search(query)
       .then((results) => {
         console.log("results", results);
-        localStorage.setItem("__my_pages", JSON.stringify(results));
+        if (results && results.length > 0) {
+          localStorage.setItem("__my_pages", JSON.stringify(results));
+        }
         setMyPages(results);
+        setInProgress(false);
       })
       .catch((error) => {
+        setInProgress(false);
         // TODO: handle this error
         console.error(error);
       });
   };
   useEffect(() => {
     if (query && query.length > 3) {
-      // TODO: trigger search on type
+      triggerSearch();
       console.log(query);
     }
   }, [query]);
@@ -70,6 +79,7 @@ const DashboardContent = () => {
         </Route>
         <Route path="/dashboard">
           <SearchBar
+            inProgress={inProgress}
             onSearchQueryChanged={(s) => setQuery(s)}
             onSearchClicked={triggerSearch}
           />

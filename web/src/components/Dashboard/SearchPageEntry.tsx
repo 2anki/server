@@ -19,7 +19,9 @@ const PageMeta = styled.div`
   grid-gap: 1.2rem;
 `;
 
-const PageActions = styled.div``;
+const PageActions = styled.div`
+  min-width: 80px;
+`;
 const SearchPageEntry = ({ title, icon, url }) => {
   const [hover, setHover] = useState(false);
   return (
@@ -34,7 +36,7 @@ const SearchPageEntry = ({ title, icon, url }) => {
       <PageActions>
         {hover && (
           <a href={url} target="_blank">
-            <img src="/icons/Notion_app_logo.png"></img>
+            <img width="32px" src="/icons/Notion_app_logo.png"></img>
           </a>
         )}
       </PageActions>

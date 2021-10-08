@@ -6,7 +6,7 @@ const SearchInput = styled.input`
 `;
 
 // TODO: handle the enter key is pressed
-const SearchBar = ({ onSearchQueryChanged, onSearchClicked }) => {
+const SearchBar = ({ onSearchQueryChanged, onSearchClicked, inProgress }) => {
   const [enabled, setEnabled] = useState(false);
   return (
     <>
@@ -23,7 +23,12 @@ const SearchBar = ({ onSearchQueryChanged, onSearchClicked }) => {
           />
         </div>
         <div className="control" onClick={onSearchClicked}>
-          <button className="button is-info is-large" disabled={!enabled}>
+          <button
+            className={`button is-info is-large ${
+              inProgress ? "is-loading" : ""
+            }`}
+            disabled={!enabled}
+          >
             Search
           </button>
         </div>
