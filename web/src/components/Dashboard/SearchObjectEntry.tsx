@@ -22,7 +22,7 @@ const ObjectMeta = styled.div`
 const ObjectAction = ({ url, image }) => {
   return (
     <a href={url} target="_blank" rel="noreferrer">
-      <img width="32px" src={image}></img>
+      <img alt="Page action" width="32px" src={image}></img>
     </a>
   );
 };
