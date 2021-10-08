@@ -74,6 +74,7 @@ const DashboardContent = () => {
             onSearchClicked={triggerSearch}
           />
           {myPages &&
+            myPages.length > 0 &&
             myPages.map((p) => (
               <SearchPageEntry
                 key={p.url}
@@ -82,9 +83,23 @@ const DashboardContent = () => {
                 url={p.url}
               />
             ))}
-          <p className="subtitle">
-            The dashboard is under development. <strong>Coming soon</strong>!
-          </p>
+          {(!myPages || myPages.length < 1) && (
+            <>
+              <div className="notification">
+                No pages found, enter some words above and click search.
+              </div>
+              {query && query.length && (
+                <>
+                  <button
+                    className="button"
+                    onClick={() => alert("to be implemented")}
+                  >
+                    Create Page: {query}
+                  </button>
+                </>
+              )}
+            </>
+          )}
         </Route>
       </Switch>
     </div>

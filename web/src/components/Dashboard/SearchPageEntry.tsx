@@ -21,7 +21,7 @@ const PageMeta = styled.div`
 
 const PageActions = styled.div``;
 const SearchPageEntry = ({ title, icon, url }) => {
-  const [hover, setHover] = useState(true);
+  const [hover, setHover] = useState(false);
   return (
     <Entry
       onMouseEnter={() => setHover(true)}
@@ -31,13 +31,13 @@ const SearchPageEntry = ({ title, icon, url }) => {
         <span>{icon}</span>
         <span>{title}</span>
       </PageMeta>
-      {hover && (
-        <PageActions>
+      <PageActions>
+        {hover && (
           <a href={url} target="_blank">
             <img src="/icons/Notion_app_logo.png"></img>
           </a>
-        </PageActions>
-      )}
+        )}
+      </PageActions>
     </Entry>
   );
 };
