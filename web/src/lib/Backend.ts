@@ -70,6 +70,21 @@ class Backend {
     return false;
   }
 
+  saveSettings(settings: { object_id: string; payload: any }) {
+    return axios.post(
+      this.baseURL + "notion/" + settings.object_id + "/settings",
+      { settings },
+      { withCredentials: true }
+    );
+  }
+  deleteSettings(pageId: string) {
+    return axios.post(
+      this.baseURL + "notion/" + pageId + "/settings/delete",
+      { object_id: pageId },
+      { withCredentials: true }
+    );
+  }
+
   async search(query: string): Promise<NotionPage[]> {
     if (this.__withinThreeSeconds()) {
       console.log("skipping");

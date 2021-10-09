@@ -4,12 +4,13 @@ import { useCallback, useEffect, useState } from "react";
 import Backend from "../lib/Backend";
 import SearchBar from "../components/Dashboard/SearchBar";
 import SearchObjectEntry from "../components/Dashboard/SearchObjectEntry";
+import Options from "../store/Options";
 
 let backend = new Backend();
 
 const DashboardContent = () => {
   const [query, setQuery] = useState(localStorage.getItem("_query") || "");
-  const [myPages, setMyPages] = useState([]);
+  const [myPages, setMyPages] = useState(Options.LoadMyPages());
   const [inProgress, setInProgress] = useState(false);
   const triggerSearch = useCallback(() => {
     if (inProgress) {

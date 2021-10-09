@@ -1,6 +1,7 @@
 import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
+import Backend from "../../lib/Backend";
 
 import StoreContext from "../../store/StoreContext";
 import BlueTintedBox from "../BlueTintedBox";
@@ -26,6 +27,7 @@ const readValue = (key, store) => {
   return option.value;
 };
 
+let backend = new Backend();
 const SettingsModal: React.FC<{
   pageTitle?: string;
   pageId?: string;
@@ -70,7 +72,10 @@ const SettingsModal: React.FC<{
     localStorage.getItem("input_model_name") || ""
   );
 
-  const resetStore = () => {
+  const resetStore = async () => {
+    if (pageId) {
+      await backend.deleteSettings(pageId);
+    }
     store.clear();
     setFontSize("20");
     setToggleMode("close_toggle");
@@ -80,6 +85,37 @@ const SettingsModal: React.FC<{
     setBasicName("");
     setClozeName("");
     setInputName("");
+  };
+
+  const onSubmit = async (event) => {
+    if (!pageId) {
+      onClickClose(event);
+      return;
+    }
+    console.log("submit");
+    let payload: any = {};
+    for (const s of store.options) {
+      payload[s.key] = s.value.toString(); // use string for backwards compat
+    }
+    payload.deckName = deckName;
+    payload["toggle-mode"] = toggleMode;
+    payload.template = template;
+    payload.basic_model_name = basicName;
+    payload.cloze_model_name = clozeName;
+    payload.input_model_name = inputName;
+    payload["font-size"] = fontSize;
+
+    let settings = { object_id: pageId, payload };
+    await backend
+      .saveSettings(settings)
+      .then(() => {
+        onClickClose(event);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+
+    console.log(payload);
   };
   return (
     <div className={`modal ${isActive ? "is-active" : ""}`}>
@@ -211,7 +247,7 @@ const SettingsModal: React.FC<{
           </div>
         </section>
         <div className="modal-card-foot is-justify-content-center">
-          <button className="button" onClick={onClickClose}>
+          <button className="button" onClick={onSubmit}>
             <img src="/icons/save.svg" alt="save" width="32px"></img>
           </button>
           <button className="button is-danger" onClick={() => resetStore()}>

@@ -35,11 +35,7 @@ const ObjectActions = styled.div`
   min-width: 80px;
 `;
 const SearchObjectEntry = ({ title, icon, url, id }) => {
-  const query = useQuery();
-  const view = query.get("view");
-  const [isSettings, setShowSettings] = useState(
-    view === "template" || view === "deck-options" || view === "card-options"
-  );
+  const [isSettings, setShowSettings] = useState(false);
   const [hover, setHover] = useState(false);
   return (
     <>
@@ -74,12 +70,12 @@ const SearchObjectEntry = ({ title, icon, url, id }) => {
           </ObjectActions>
         )}
       </Entry>
+      {/* TODO: Detect if this page is a official 2anki.net template duplicate then link directly to the page section with the settings */}
       <SettingsModal
         pageId={id}
         pageTitle={title}
         isActive={isSettings}
         onClickClose={() => {
-          window.history.pushState({}, "", "upload");
           setShowSettings(false);
         }}
       />
