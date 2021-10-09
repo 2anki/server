@@ -50,6 +50,10 @@ const SearchObjectEntry = ({ title, icon, url, id }) => {
             url={`/notion/${id}/convert`}
             image="/icons/Anki_app_logo.png"
           />
+          <ObjectAction
+            url={`/notion/${id}/settings`}
+            image="/icons/settings.svg"
+          />
         </ObjectActions>
       )}
     </Entry>
