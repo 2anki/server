@@ -1,6 +1,5 @@
 import { useState } from "react";
 import styled from "styled-components";
-import useQuery from "../../lib/hooks/useQuery";
 import SettingsModal from "../modals/SettingsModal";
 
 const Entry = styled.div`

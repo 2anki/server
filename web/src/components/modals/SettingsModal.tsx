@@ -22,11 +22,6 @@ const persist = (key, value, pageId) => {
   localStorage.setItem(key, value);
 };
 
-const readValue = (key, store) => {
-  const option = store.get(key);
-  return option.value;
-};
-
 let backend = new Backend();
 const SettingsModal: React.FC<{
   pageTitle?: string;

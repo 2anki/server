@@ -1,4 +1,4 @@
-import { Link, Route, Switch } from "react-router-dom";
+import { Route, Switch } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
 
 import Backend from "../lib/Backend";
