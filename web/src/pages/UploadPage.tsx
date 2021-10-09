@@ -1,19 +1,13 @@
 import styled from "styled-components";
 import { useContext, useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 
+import useQuery from "../lib/hooks/useQuery";
 import StoreContext from "../store/StoreContext";
 import WarningMessage from "../components/WarningMessage";
 import UploadForm from "../components/UploadForm";
 import SettingsIcon from "../components/icons/SettingsIcon";
 import SettingsModal from "../components/modals/SettingsModal";
-
-// A custom hook that builds on useLocation to parse
-// the query string for you.
-// Reference: https://reactrouter.com/web/example/query-parameters
-function useQuery() {
-  return new URLSearchParams(useLocation().search);
-}
 
 const Container = styled.div`
   max-width: 768px;
@@ -61,7 +55,7 @@ const UploadPage = () => {
 
   // Make sure the defaults are set if not present to ensure backwards compatability
   useEffect(() => {
-    store.loadDefaults();
+    store.syncLocalStorage();
   }, [store]);
 
   return (

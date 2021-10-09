@@ -14,13 +14,27 @@ const StyledInput = styled.input`
   color: #83c9f5;
 `;
 
+const persist = (key, value, pageId) => {
+  if (pageId) {
+    return;
+  }
+  localStorage.setItem(key, value);
+};
+
+const readValue = (key, store) => {
+  const option = store.get(key);
+  return option.value;
+};
+
 const SettingsModal: React.FC<{
+  pageTitle?: string;
+  pageId?: string;
   isActive: boolean;
   onClickClose: React.MouseEventHandler;
-}> = ({ isActive, onClickClose }) => {
+}> = ({ pageTitle, pageId, isActive, onClickClose }) => {
   const deckNameKey = "deckName";
   const [deckName, setDeckName] = useState(
-    localStorage.getItem(deckNameKey) || ""
+    pageTitle ? pageTitle : localStorage.getItem(deckNameKey) || ""
   );
   const store = useContext(StoreContext);
   const [options, setOptions] = useState(store.options);
@@ -101,7 +115,7 @@ const SettingsModal: React.FC<{
                     if (newName !== deckName) {
                       setDeckName(newName);
                     }
-                    localStorage.setItem(deckNameKey, newName);
+                    persist(deckNameKey, newName, pageId);
                   }}
                 />
               </div>
@@ -124,7 +138,7 @@ const SettingsModal: React.FC<{
                   name="toggle-mode"
                   pickedTemplate={(t) => {
                     setToggleMode(t);
-                    localStorage.setItem("toggle-mode", t);
+                    persist("toggle-mode", t, pageId);
                   }}
                 />
                 {options.map((o) => (
@@ -146,7 +160,7 @@ const SettingsModal: React.FC<{
                 name="template"
                 pickedTemplate={(t) => {
                   setTemplate(t);
-                  localStorage.setItem("template", t);
+                  persist("template", t, pageId);
                 }}
               />
               <TemplateName
@@ -156,7 +170,7 @@ const SettingsModal: React.FC<{
                 label="Basic Template Name"
                 pickedName={(name) => {
                   setBasicName(name);
-                  localStorage.setItem("basic_model_name", name);
+                  persist("basic_model_name", name, pageId);
                 }}
               />
               <TemplateName
@@ -166,7 +180,7 @@ const SettingsModal: React.FC<{
                 label="Cloze Template Name"
                 pickedName={(name) => {
                   setClozeName(name);
-                  localStorage.setItem("cloze_model_name", name);
+                  persist("cloze_model_name", name, pageId);
                 }}
               />
               <TemplateName
@@ -176,7 +190,7 @@ const SettingsModal: React.FC<{
                 label="Input Template Name"
                 pickedName={(name) => {
                   setInputName(name);
-                  localStorage.setItem("input_model_name", name);
+                  persist("input_model_name", name, pageId);
                 }}
               />
 
@@ -184,7 +198,7 @@ const SettingsModal: React.FC<{
                 fontSize={fontSize}
                 pickedFontSize={(fs) => {
                   setFontSize(fs);
-                  localStorage.setItem("font-size", fs.toString());
+                  persist("font-size", fs.toString(), pageId);
                 }}
               />
 
@@ -198,10 +212,10 @@ const SettingsModal: React.FC<{
         </section>
         <div className="modal-card-foot is-justify-content-center">
           <button className="button" onClick={onClickClose}>
-            Done
+            <img src="/icons/save.svg" alt="save" width="32px"></img>
           </button>
           <button className="button is-danger" onClick={() => resetStore()}>
-            Clear
+            <img src="/icons/delete.svg" alt="delete" width="32px"></img>
           </button>
         </div>
       </div>

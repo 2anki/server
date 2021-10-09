@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from "react";
 import Backend from "../lib/Backend";
 import SearchBar from "../components/Dashboard/SearchBar";
 import SearchObjectEntry from "../components/Dashboard/SearchObjectEntry";
-import Options from "../store/Options";
 
 let backend = new Backend();
 
@@ -32,7 +31,7 @@ const DashboardContent = () => {
         console.error(error);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [query]);
 
   useEffect(() => {
     if (query && query.length > 3) {
@@ -55,9 +54,7 @@ const DashboardContent = () => {
           />
           {(!myPages || myPages.length < 1) && (
             <>
-              <div className="notification">
-                No pages found, enter some words above and click search.
-              </div>
+              <div className="subtitle is-2 my-4">😣 ↩️ 🆔 🆙 🖱 🔍.</div>
               {query && query.length && (
                 <>
                   <button

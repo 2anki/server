@@ -27,7 +27,7 @@ class CardOptionsStore {
   public options: CardOption[];
 
   constructor() {
-    this.options = this.configure();
+    this.options = this.loadValues();
   }
 
   public get(key: string): CardOption | undefined {
@@ -45,7 +45,7 @@ class CardOptionsStore {
     this.options = newOptions;
   }
 
-  configure() {
+  loadValues(): CardOption[] {
     return [
       {
         key: "add-notion-link",
@@ -156,12 +156,18 @@ class CardOptionsStore {
   }
 
   clear() {
-    localStorage.clear();
-    this.options = this.configure();
-    this.loadDefaults();
+    /**
+     * Delete the known options, the app might be storing other things we want.
+     */
+    const values = this.loadValues();
+    for (const v of values) {
+      localStorage.removeItem(v.key);
+    }
+    this.options = this.loadValues();
+    this.syncLocalStorage();
   }
 
-  loadDefaults() {
+  syncLocalStorage() {
     for (const option of this.options) {
       const value = localStorage.getItem(option.key);
       if (value === null) {

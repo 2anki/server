@@ -76,6 +76,10 @@ class Backend {
       return;
     }
 
+    // TODO: handle query is a page id
+    // TODO: handel query is a external page (not Notion.so)
+    // TODO: handle AnkiWeb urls
+
     const response = await axios.post(
       this.baseURL + "notion/pages",
       { query },
