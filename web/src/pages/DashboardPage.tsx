@@ -104,13 +104,8 @@ const DashboardPage = () => {
         }
         setIsLoading(false);
       })
-      .catch((error) => {
-        console.error(error);
-        // TODO: better handle this
-        // alert(
-        //   "Failed to get Notion link, please refresh or contact developer: " +
-        //     error.message
-        // );
+      .catch((_error) => {
+        window.location.href = "/login#login";
       });
   }, []);
 
