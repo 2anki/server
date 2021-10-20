@@ -88,6 +88,9 @@ const DashboardContent = () => {
 const DashboardPage = () => {
   const [connectionLink, updateConnectionLink] = useState("");
   const [connected, updateConnected] = useState(true);
+  const [workSpace, setWorkSpace] = useState(
+    localStorage.getItem("__workspace")
+  );
 
   const [loading, setIsLoading] = useState(false);
 
@@ -100,8 +103,10 @@ const DashboardPage = () => {
         if (data && !data.isConnected) {
           updateConnectionLink(data.link);
         } else if (data.isConnected) {
+          updateConnectionLink(data.link);
           updateConnected(data.isConnected);
         }
+        setWorkSpace(data.workspace);
         setIsLoading(false);
       })
       .catch((_error) => {
@@ -130,6 +135,12 @@ const DashboardPage = () => {
           {/* <SideBar menuItem={menuItem} setMenuItem={setMenuItem} /> */}
           <DashboardContent />
         </section>
+      )}
+      {workSpace && (
+        <>
+          Current workspace: {workSpace},{" "}
+          <a href={connectionLink}>add another workspace</a>.
+        </>
       )}
     </>
   );
