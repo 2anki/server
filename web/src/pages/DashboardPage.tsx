@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import Backend from "../lib/Backend";
 import SearchBar from "../components/Dashboard/SearchBar";
+import NavigationBar from "../components/NavigationBar";
 import SearchObjectEntry from "../components/Dashboard/SearchObjectEntry";
 import Options from "../store/Options";
 
@@ -42,45 +43,47 @@ const DashboardContent = () => {
   }, [query, triggerSearch]);
 
   return (
-    <div className="column is-main-content">
-      <Switch>
-        <Route exact path="/dashboard/workspaces">
-          Workspaces is coming soon!
-        </Route>
-        <Route path="/dashboard">
-          <SearchBar
-            inProgress={inProgress}
-            onSearchQueryChanged={(s) => setQuery(s)}
-            onSearchClicked={triggerSearch}
-          />
-          {(!myPages || myPages.length < 1) && (
-            <>
-              <div className="subtitle is-2 my-4">😣 ↩️ 🆔 🆙 🖱 🔍.</div>
-              {query && query.length && (
-                <>
-                  <button
-                    className="button"
-                    onClick={() => alert("to be implemented")}
-                  >
-                    Create Page: {query}
-                  </button>
-                </>
-              )}
-            </>
-          )}
-          {myPages &&
-            myPages.length > 0 &&
-            myPages.map((p) => (
-              <SearchObjectEntry
-                key={p.url}
-                title={p.title}
-                icon={p.icon}
-                url={p.url}
-                id={p.id}
-              />
-            ))}
-        </Route>
-      </Switch>
+    <div className="flex">
+      <div className="column is-main-content">
+        <Switch>
+          <Route exact path="/dashboard/workspaces">
+            Workspaces is coming soon!
+          </Route>
+          <Route path="/dashboard">
+            <SearchBar
+              inProgress={inProgress}
+              onSearchQueryChanged={(s) => setQuery(s)}
+              onSearchClicked={triggerSearch}
+            />
+            {(!myPages || myPages.length < 1) && (
+              <>
+                <div className="subtitle is-2 my-4">😣 ↩️ 🆔 🆙 🖱 🔍.</div>
+                {query && query.length && (
+                  <>
+                    <button
+                      className="button"
+                      onClick={() => alert("to be implemented")}
+                    >
+                      Create Page: {query}
+                    </button>
+                  </>
+                )}
+              </>
+            )}
+            {myPages &&
+              myPages.length > 0 &&
+              myPages.map((p) => (
+                <SearchObjectEntry
+                  key={p.url}
+                  title={p.title}
+                  icon={p.icon}
+                  url={p.url}
+                  id={p.id}
+                />
+              ))}
+          </Route>
+        </Switch>
+      </div>
     </div>
   );
 };
@@ -106,6 +109,7 @@ const DashboardPage = () => {
           updateConnectionLink(data.link);
           updateConnected(data.isConnected);
         }
+        // TODO: also load icon
         setWorkSpace(data.workspace);
         setIsLoading(false);
       })
@@ -120,6 +124,11 @@ const DashboardPage = () => {
 
   return (
     <>
+      <NavigationBar
+        isSignedIn={true}
+        activeWorkspace={workSpace}
+        connectLink={connectionLink}
+      />
       {!connected && (
         <div>
           <a

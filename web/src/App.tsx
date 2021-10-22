@@ -5,13 +5,12 @@ import styled from "styled-components";
 import UploadPage from "./pages/UploadPage";
 import HomePage from "./pages/Home";
 
-import Header from "./components/Header";
 import Footer from "./components/Footer";
 import CardOptionsStore from "./store/Options";
 import StoreContext from "./store/StoreContext";
 import GlobalStyle from "./GlobalStyle";
 
-import NewBanner from "./components/NewBanner";
+import NavigationBar from "./components/NavigationBar";
 
 const TemplatePage = lazy(() => import("./pages/Templates/TemplatePage"));
 const PreSignupPage = lazy(() => import("./pages/PreSignupPage"));
@@ -47,16 +46,11 @@ function App() {
                 location.pathname.match(
                   /^(?!.*(login|dashboard|signup)).*$/
                 ) ? (
-                  <Header />
+                  <NavigationBar isSignedIn={false} />
                 ) : null
               }
             ></Route>
             <Container>
-              <Route
-                render={({ location }) =>
-                  location.pathname !== "/pre-signup" ? <NewBanner /> : null
-                }
-              />
               <Switch>
                 <Route path="/tm">
                   <TemplatePage />
