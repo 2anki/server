@@ -1,3 +1,5 @@
+import { useState } from "react";
+import Backend from "../lib/Backend";
 import NotionWorkspace from "../lib/interfaces/NotionWorkspace";
 interface NavigationBarProps {
   isSignedIn: boolean;
@@ -6,7 +8,9 @@ interface NavigationBarProps {
   connectLink?: string;
 }
 
+let backend = new Backend();
 const NavigationBar = (props: NavigationBarProps) => {
+  const [waiting, setIsWaiting] = useState(false);
   return (
     <>
       <nav
@@ -51,27 +55,45 @@ const NavigationBar = (props: NavigationBarProps) => {
                 </>
               )}
               {props.connectLink && (
-                <a href={props.connectLink} className="navbar-item">
+                <a href={props.connectLink} className="dropdown-item">
                   Connect workspace
                 </a>
+              )}
+              {props.isSignedIn && (
+                <div className="dropdown-item">
+                  <button
+                    onClick={() => {
+                      if (!waiting) {
+                        setIsWaiting(true);
+                        backend.logout();
+                      }
+                    }}
+                    className="button is-small navbar-item"
+                  >
+                    Log out
+                  </button>
+                </div>
               )}
             </div>
           </div>
         </div>
 
         <div className="navbar-end">
-          <a href="/notifications" className="navbar-item">
-            🔔 Notifications
-          </a>
-
-          <a href="/new-deck" className="navbar-item">
-            ➕ New deck
-          </a>
+          {props.isSignedIn && (
+            <>
+              <a href="/templates" className="navbar-item">
+                Templates
+              </a>
+              <a href="/new-deck" className="navbar-item">
+                New deck
+              </a>
+            </>
+          )}
           {!props.isSignedIn && (
             <>
               <div className="navbar-item">
                 <div className="buttons">
-                  <a href="/login#register" className="button is-link">
+                  <a href="/login#register" className="button is-black">
                     <strong>Register</strong>
                   </a>
                   <a href="/login#login" className="button is-light">
