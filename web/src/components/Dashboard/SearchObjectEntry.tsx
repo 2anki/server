@@ -42,6 +42,11 @@ const SearchObjectEntry = ({ title, icon, url, id }) => {
         </ObjectMeta>
         <ObjectActions>
           <ObjectAction
+            url={url}
+            image="/icons/filter.svg"
+            onClick={console.log}
+          />
+          <ObjectAction
             url={`/notion/${id}/convert`}
             image="/icons/Anki_app_logo.png"
             onClick={() => console.log("clicked APKG")}
