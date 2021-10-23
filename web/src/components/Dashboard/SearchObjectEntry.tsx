@@ -30,9 +30,54 @@ const ObjectActions = styled.div`
   grid-gap: 1rem;
   min-width: 80px;
 `;
+
+const SlicerRules = ({ setDone }) => {
+  return (
+    <div className="card">
+      <header className="card-header">
+        <p className="card-header-title">Parser Rules</p>
+      </header>
+      <div className="card-content">
+        <ul className="flex is-align-items-center">
+          <li className="flex is-align-items-center">
+            <span className="mx-1">Decks are: </span>
+            <div className="select">
+              <select>
+                <option>Pages</option>
+                <option>Databases</option>
+                <option>Headings</option>
+              </select>
+            </div>
+          </li>
+          <li className="my-2 flex is-align-items-center">
+            <span className="mx-1">Flashcards are: </span>
+            <div className="select">
+              <select>
+                <option>Toggles</option>
+                <option>Bulletpoints</option>
+                <option>Numbered lists</option>
+              </select>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <footer className="card-footer">
+        <a href="#" className="card-footer-item">
+          Save
+        </a>
+        <a href="#" className="card-footer-item" onClick={() => setDone()}>
+          Cancel
+        </a>
+      </footer>
+    </div>
+  );
+};
+
 const SearchObjectEntry = ({ title, icon, url, id }) => {
   const [isSettings, setShowSettings] = useState(false);
   const [hover, setHover] = useState(false);
+  const [showSlicer, setShowSlicer] = useState(false);
+
   return (
     <>
       <Entry>
@@ -41,11 +86,13 @@ const SearchObjectEntry = ({ title, icon, url, id }) => {
           <span>{title}</span>
         </ObjectMeta>
         <ObjectActions>
-          <ObjectAction
-            url={url}
-            image="/icons/filter.svg"
-            onClick={console.log}
-          />
+          <div
+            style={{ border: showSlicer ? "3px solid #5397f5" : "none" }}
+            onMouseEnter={() => setShowSlicer(true)}
+            // onMouseLeave={() => setShowSlicer(false)}
+          >
+            <img src="/icons/filter.svg" width="32px" alt="slice" />
+          </div>
           <ObjectAction
             url={`/notion/${id}/convert`}
             image="/icons/Anki_app_logo.png"
@@ -78,6 +125,7 @@ const SearchObjectEntry = ({ title, icon, url, id }) => {
           )}
         </ObjectActions>
       </Entry>
+      {showSlicer && <SlicerRules setDone={() => setShowSlicer(false)} />}
       {/* TODO: Detect if this page is a official 2anki.net template duplicate then link directly to the page section with the settings */}
       <SettingsModal
         pageId={id}
