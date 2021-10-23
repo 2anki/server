@@ -35,7 +35,9 @@ const SlicerRules = ({ setDone }) => {
   return (
     <div className="card">
       <header className="card-header">
-        <p className="card-header-title">Parser Rules</p>
+        <p className="card-header-title">
+          Slicer - Override the default parser and define what a flashcard is
+        </p>
       </header>
       <div className="card-content">
         <ul className="flex is-align-items-center">
@@ -91,7 +93,7 @@ const SearchObjectEntry = ({ title, icon, url, id }) => {
             onMouseEnter={() => setShowSlicer(true)}
             // onMouseLeave={() => setShowSlicer(false)}
           >
-            <img src="/icons/filter.svg" width="32px" alt="slice" />
+            <img src="/icons/slicer.svg" width="32px" alt="slice" />
           </div>
           <ObjectAction
             url={`/notion/${id}/convert`}
