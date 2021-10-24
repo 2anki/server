@@ -46,7 +46,7 @@ function App() {
                 location.pathname.match(
                   /^(?!.*(login|dashboard|signup)).*$/
                 ) ? (
-                  <NavigationBar isSignedIn={false} />
+                  <NavigationBar />
                 ) : null
               }
             ></Route>

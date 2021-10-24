@@ -2,7 +2,6 @@ import { useState } from "react";
 import Backend from "../lib/Backend";
 import NotionWorkspace from "../lib/interfaces/NotionWorkspace";
 interface NavigationBarProps {
-  isSignedIn: boolean;
   workspaces?: NotionWorkspace[];
   activeWorkspace?: string;
   connectLink?: string;
@@ -11,6 +10,8 @@ interface NavigationBarProps {
 let backend = new Backend();
 const NavigationBar = (props: NavigationBarProps) => {
   const [waiting, setIsWaiting] = useState(false);
+  const [isSignedIn, _] = useState(localStorage.getItem("token"));
+
   return (
     <>
       <nav
@@ -59,7 +60,7 @@ const NavigationBar = (props: NavigationBarProps) => {
                   Connect workspace
                 </a>
               )}
-              {props.isSignedIn && (
+              {isSignedIn && (
                 <div className="dropdown-item">
                   <button
                     onClick={() => {
@@ -79,7 +80,7 @@ const NavigationBar = (props: NavigationBarProps) => {
         </div>
 
         <div className="navbar-end">
-          {props.isSignedIn && (
+          {isSignedIn && (
             <>
               <a href="/tm" className="navbar-item">
                 Templates
@@ -87,9 +88,12 @@ const NavigationBar = (props: NavigationBarProps) => {
               <a href="/new-deck" className="navbar-item">
                 New deck
               </a>
+              <a href="/dashboard" className="navbar-item">
+                Search
+              </a>
             </>
           )}
-          {!props.isSignedIn && (
+          {!isSignedIn && (
             <>
               <div className="navbar-item">
                 <div className="buttons">

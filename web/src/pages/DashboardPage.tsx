@@ -124,11 +124,7 @@ const DashboardPage = () => {
 
   return (
     <>
-      <NavigationBar
-        isSignedIn={true}
-        activeWorkspace={workSpace}
-        connectLink={connectionLink}
-      />
+      <NavigationBar activeWorkspace={workSpace} connectLink={connectionLink} />
       {!connected && (
         <div>
           <a
