@@ -1,6 +1,7 @@
 import { useState } from "react";
 import styled from "styled-components";
 import SettingsModal from "../modals/SettingsModal";
+import SliceRules from "./SliceRules";
 
 const Entry = styled.div`
   display: flex;
@@ -30,50 +31,6 @@ const ObjectActions = styled.div`
   grid-gap: 1rem;
   min-width: 80px;
 `;
-
-const SlicerRules = ({ setDone }) => {
-  return (
-    <div className="card">
-      <header className="card-header">
-        <p className="card-header-title">
-          Slicer - Override the default parser and define what a flashcard is
-        </p>
-      </header>
-      <div className="card-content">
-        <ul className="flex is-align-items-center">
-          <li className="flex is-align-items-center">
-            <span className="mx-1">Decks are: </span>
-            <div className="select">
-              <select>
-                <option>Pages</option>
-                <option>Databases</option>
-                <option>Headings</option>
-              </select>
-            </div>
-          </li>
-          <li className="my-2 flex is-align-items-center">
-            <span className="mx-1">Flashcards are: </span>
-            <div className="select">
-              <select>
-                <option>Toggles</option>
-                <option>Bulletpoints</option>
-                <option>Numbered lists</option>
-              </select>
-            </div>
-          </li>
-        </ul>
-      </div>
-      <footer className="card-footer">
-        <a href="#" className="card-footer-item">
-          Save
-        </a>
-        <a href="#" className="card-footer-item" onClick={() => setDone()}>
-          Cancel
-        </a>
-      </footer>
-    </div>
-  );
-};
 
 const SearchObjectEntry = ({ title, icon, url, id }) => {
   const [isSettings, setShowSettings] = useState(false);
@@ -127,7 +84,7 @@ const SearchObjectEntry = ({ title, icon, url, id }) => {
           )}
         </ObjectActions>
       </Entry>
-      {showSlicer && <SlicerRules setDone={() => setShowSlicer(false)} />}
+      {showSlicer && <SliceRules setDone={() => setShowSlicer(false)} />}
       {/* TODO: Detect if this page is a official 2anki.net template duplicate then link directly to the page section with the settings */}
       <SettingsModal
         pageId={id}
