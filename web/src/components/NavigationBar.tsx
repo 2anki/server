@@ -81,7 +81,7 @@ const NavigationBar = (props: NavigationBarProps) => {
         <div className="navbar-end">
           {props.isSignedIn && (
             <>
-              <a href="/templates" className="navbar-item">
+              <a href="/tm" className="navbar-item">
                 Templates
               </a>
               <a href="/new-deck" className="navbar-item">
