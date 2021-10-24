@@ -72,14 +72,39 @@ class Backend {
 
   saveSettings(settings: { object_id: string; payload: any }) {
     return axios.post(
-      this.baseURL + "notion/" + settings.object_id + "/settings",
+      this.baseURL + "settings/" + settings.object_id,
       { settings },
       { withCredentials: true }
     );
   }
+
+  saveRules(
+    id: string,
+    flashcard: string,
+    deck: string,
+    subDecks: string,
+    tags: string
+  ) {
+    let payload = {
+      FLASHCARD: flashcard,
+      DECK: deck,
+      SUB_DECKS: subDecks,
+      TAGS: tags,
+    };
+    return axios.post(
+      this.baseURL + "rules/create/" + id,
+      { payload },
+      { withCredentials: true }
+    );
+  }
+
+  getRules(id: string) {
+    return axios.get(this.baseURL + "rules/find/" + id);
+  }
+
   deleteSettings(pageId: string) {
     return axios.post(
-      this.baseURL + "notion/" + pageId + "/settings/delete",
+      this.baseURL + "settings/delete/" + pageId,
       { object_id: pageId },
       { withCredentials: true }
     );
@@ -96,7 +121,7 @@ class Backend {
     // TODO: handle AnkiWeb urls
 
     const response = await axios.post(
-      this.baseURL + "notion/pages",
+      this.baseURL + "/notion/pages",
       { query },
       { withCredentials: true }
     );

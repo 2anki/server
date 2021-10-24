@@ -84,7 +84,9 @@ const SearchObjectEntry = ({ title, icon, url, id }) => {
           )}
         </ObjectActions>
       </Entry>
-      {showSlicer && <SliceRules setDone={() => setShowSlicer(false)} />}
+      {showSlicer && (
+        <SliceRules id={id} setDone={() => setShowSlicer(false)} />
+      )}
       {/* TODO: Detect if this page is a official 2anki.net template duplicate then link directly to the page section with the settings */}
       <SettingsModal
         pageId={id}
