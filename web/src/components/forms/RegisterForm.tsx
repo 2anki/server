@@ -129,7 +129,7 @@ const RegisterForm = () => {
                             event.target.checked.toString()
                           );
                         }}
-                      />
+                      />{" "}
                       I agree to the{" "}
                       <a
                         rel="noreferrer"
