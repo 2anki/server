@@ -1,11 +1,10 @@
-import { SyntheticEvent, useEffect, useRef, useState } from "react";
-import styled from "styled-components";
-import ErrorMessage from "./ErrorMessage";
+import { SyntheticEvent, useEffect, useRef, useState } from 'react';
+import styled from 'styled-components';
 
 const DropParagraph = styled.div<{ hover: boolean }>`
   border: 1.3px dashed;
   border-radius: 3px;
-  border-color: ${(props) => (props.hover ? "#5997f5" : "lightgray")};
+  border-color: ${(props) => (props.hover ? '#5997f5' : 'lightgray')};
   padding: 4rem;
   margin-bottom: 1rem;
   display: flex;
@@ -14,11 +13,11 @@ const DropParagraph = styled.div<{ hover: boolean }>`
   grid-gap: 1rem;
 `;
 
-const UploadForm = () => {
+/* @ts-ignore */
+const UploadForm = ({ errorMessage, setErrorMessage }) => {
   const [uploading, setUploading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [downloadLink, setDownloadLink] = useState("");
-  const [deckName, setDeckName] = useState("");
+  const [downloadLink, setDownloadLink] = useState('');
+  const [deckName, setDeckName] = useState('');
   const [dropHover, setDropHover] = useState(false);
 
   const fileInputRef = useRef(null);
@@ -26,7 +25,7 @@ const UploadForm = () => {
   const downloadRef = useRef(null);
 
   useEffect(() => {
-    const body = document.getElementsByTagName("body")[0];
+    const body = document.getElementsByTagName('body')[0];
     body.ondragover = (event) => {
       setDropHover(true);
       event.preventDefault();
@@ -63,24 +62,24 @@ const UploadForm = () => {
       for (const sf of storedFields) {
         formData.append(sf[0], sf[1]);
       }
-      const request = await window.fetch("/upload", {
-        method: "post",
+      const request = await window.fetch('/upload', {
+        method: 'post',
         body: formData,
       });
-      const contentType = request.headers.get("Content-Type");
+      const contentType = request.headers.get('Content-Type');
       const notOK = request.status !== 200;
       if (notOK) {
         const text = await request.text();
         return setErrorMessage(text);
       }
-      const fileNameHeader = request.headers.get("File-Name".toLowerCase());
+      const fileNameHeader = request.headers.get('File-Name'.toLowerCase());
       if (fileNameHeader) {
         setDeckName(fileNameHeader);
       } else {
         let fallback =
-          contentType === "application/zip"
-            ? "Your Decks.zip"
-            : "Your deck.apkg";
+          contentType === 'application/zip'
+            ? 'Your Decks.zip'
+            : 'Your deck.apkg';
         setDeckName(fallback);
       }
       const blob = await request.blob();
@@ -109,8 +108,6 @@ const UploadForm = () => {
           handleSubmit(event);
         }}
       >
-        {errorMessage && <ErrorMessage msg={errorMessage} />}
-
         <div>
           <div>
             <div className="field">
@@ -137,8 +134,8 @@ const UploadForm = () => {
             <a
               ref={downloadRef}
               className={`button cta
-              ${isDownloadable ? "is-primary" : "is-light"} 
-              ${uploading ? "is-loading" : null}`}
+              ${isDownloadable ? 'is-primary' : 'is-light'} 
+              ${uploading ? 'is-loading' : null}`}
               href={downloadLink}
               download={deckName}
               onClick={(event) => {
@@ -150,7 +147,7 @@ const UploadForm = () => {
               Download
             </a>
             <button
-              style={{ visibility: "hidden" }}
+              style={{ visibility: 'hidden' }}
               ref={convertRef}
               type="submit"
             />
