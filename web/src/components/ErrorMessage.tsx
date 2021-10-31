@@ -1,3 +1,8 @@
+const MyLink = () => (
+  <a href="https://alemayhu.com" target="_blank" rel="noreferrer">
+    Alexander
+  </a>
+);
 const ErrorMessage: React.FC<{ msg: string }> = ({ msg }) => {
   const isCorruptZip = msg.includes('Corrupted zip');
   return (
@@ -25,18 +30,10 @@ const ErrorMessage: React.FC<{ msg: string }> = ({ msg }) => {
             </a>
             .
           </p>
-          <div>
-            <p className="subtitle">When you are ready:</p>
-            <a href="/upload" className="button is-small">
-              Try Again
-            </a>
-          </div>
           <hr />
           <p className="subtitle is-6">
-            <a href="https://alemayhu.com" target="_blank" rel="noreferrer">
-              Alexander
-            </a>{' '}
-            is working on the new version using the Notion API. Coming soon.
+            <MyLink /> is working on the new version using the Notion API.
+            Coming soon.
           </p>
         </div>
       )}
@@ -57,9 +54,15 @@ const ErrorMessage: React.FC<{ msg: string }> = ({ msg }) => {
               allowFullScreen={true}
             />
             <p>
-              "If you still haven't resolved the issue yet after trying the
-              above mentioned then join the server to report your issue"
+              If you still haven't resolved the issue yet after trying the above
+              mentioned then reach out to
             </p>
+            <MyLink />
+          </div>
+          <div>
+            <a href="/upload" className="button is-small">
+              Try Again
+            </a>
           </div>
         </>
       )}
