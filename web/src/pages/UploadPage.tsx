@@ -8,6 +8,7 @@ import WarningMessage from "../components/WarningMessage";
 import UploadForm from "../components/UploadForm";
 import SettingsIcon from "../components/icons/SettingsIcon";
 import SettingsModal from "../components/modals/SettingsModal";
+import ErrorMessage from "../components/ErrorMessage";
 
 const Container = styled.div`
   max-width: 768px;
@@ -30,6 +31,7 @@ const UploadPage = () => {
   const [isSettings, setShowSettings] = useState(
     view === "template" || view === "deck-options" || view === "card-options"
   );
+  const [errorMessage, setErrorMessage] = useState("");
 
   const FlexColumn = styled.div`
     display: flex;
@@ -60,46 +62,55 @@ const UploadPage = () => {
 
   return (
     <Container>
-      {isDevelopment ? <WarningMessage /> : null}
-      <FlexColumn>
-        <ImportTitle>Import</ImportTitle>
-        <SettingsLink onClick={() => setShowSettings(true)}>
-          <Link className="link" to="upload?view=template">
-            <SettingsIcon />
-            Settings
-          </Link>
-        </SettingsLink>
-      </FlexColumn>
-      <div className="container">
-        <UploadForm />
-        <InfoMessage>
-          2anki.net currently only supports
-          <a
-            rel="noreferrer"
-            target="_blank"
-            href="https://www.notion.so/Export-as-HTML-bf3fe9e6920e4b9883cbd8a76b6128b7"
-          >
-            {" "}
-            HTML and ZIP exports from Notion
-          </a>
-          . All files are automatically deleted after 21 minutes. Checkout the{" "}
-          <a
-            rel="noreferrer"
-            target="_blank"
-            href="https://youtube.com/c/alexanderalemayhu?sub_confirmation=1"
-          >
-            YouTube channel for tutorials
-          </a>
-          . Notion API support is in the works and coming soon!
-        </InfoMessage>
-        <SettingsModal
-          isActive={isSettings}
-          onClickClose={() => {
-            window.history.pushState({}, "", "upload");
-            setShowSettings(false);
-          }}
-        />
-      </div>
+      {errorMessage && <ErrorMessage msg={errorMessage} />}
+      {!errorMessage && (
+        <>
+          {isDevelopment ? <WarningMessage /> : null}
+          <FlexColumn>
+            <ImportTitle>Import</ImportTitle>
+            <SettingsLink onClick={() => setShowSettings(true)}>
+              <Link className="link" to="upload?view=template">
+                <SettingsIcon />
+                Settings
+              </Link>
+            </SettingsLink>
+          </FlexColumn>
+          <div className="container">
+            <UploadForm
+              errorMessage={errorMessage}
+              setErrorMessage={setErrorMessage}
+            />
+            <InfoMessage>
+              2anki.net currently only supports
+              <a
+                rel="noreferrer"
+                target="_blank"
+                href="https://www.notion.so/Export-as-HTML-bf3fe9e6920e4b9883cbd8a76b6128b7"
+              >
+                {" "}
+                HTML and ZIP exports from Notion
+              </a>
+              . All files are automatically deleted after 21 minutes. Checkout
+              the{" "}
+              <a
+                rel="noreferrer"
+                target="_blank"
+                href="https://youtube.com/c/alexanderalemayhu?sub_confirmation=1"
+              >
+                YouTube channel for tutorials
+              </a>
+              . Notion API support is in the works and coming soon!
+            </InfoMessage>
+            <SettingsModal
+              isActive={isSettings}
+              onClickClose={() => {
+                window.history.pushState({}, "", "upload");
+                setShowSettings(false);
+              }}
+            />
+          </div>
+        </>
+      )}
     </Container>
   );
 };
