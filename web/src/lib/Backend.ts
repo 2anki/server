@@ -121,7 +121,7 @@ class Backend {
     // TODO: handle AnkiWeb urls
 
     const response = await axios.post(
-      this.baseURL + "/notion/pages",
+      this.baseURL + "notion/pages",
       { query },
       { withCredentials: true }
     );
