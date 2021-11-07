@@ -85,11 +85,8 @@ const NavigationBar = (props: NavigationBarProps) => {
               <a href="/tm" className="navbar-item">
                 Templates
               </a>
-              <a href="/new-deck" className="navbar-item">
-                New deck
-              </a>
               <a href="/dashboard" className="navbar-item">
-                Search
+                Dashboard
               </a>
             </>
           )}
