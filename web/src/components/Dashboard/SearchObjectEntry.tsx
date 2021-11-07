@@ -57,31 +57,19 @@ const SearchObjectEntry = ({ title, icon, url, id }) => {
             image="/icons/Anki_app_logo.png"
             onClick={() => console.log("clicked APKG")}
           />
-          {!hover && (
-            <div
-              onMouseEnter={() => setHover(true)}
-              onMouseLeave={() => setHover(false)}
-            >
-              <img width="32px" src="/icons/ellipsis.svg" alt="more" />
-            </div>
-          )}
-          {hover && (
-            <>
-              <ObjectAction
-                url={url}
-                image="/icons/Notion_app_logo.png"
-                onClick={() => console.log("clicked Notion")}
-              />
-              <ObjectAction
-                onClick={(event) => {
-                  event.preventDefault();
-                  setShowSettings(true);
-                }}
-                url={`/dashboard/${id}/settings`}
-                image="/icons/settings.svg"
-              />
-            </>
-          )}
+          <ObjectAction
+            url={url}
+            image="/icons/Notion_app_logo.png"
+            onClick={() => console.log("clicked Notion")}
+          />
+          <ObjectAction
+            onClick={(event) => {
+              event.preventDefault();
+              setShowSettings(true);
+            }}
+            url={`/dashboard/${id}/settings`}
+            image="/icons/settings.svg"
+          />
         </ObjectActions>
       </Entry>
       {showSlicer && (
