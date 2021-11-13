@@ -141,12 +141,6 @@ const DashboardPage = () => {
           <DashboardContent />
         </section>
       )}
-      {workSpace && (
-        <>
-          Current workspace: {workSpace},{" "}
-          <a href={connectionLink}>add another workspace</a>.
-        </>
-      )}
     </>
   );
 };
