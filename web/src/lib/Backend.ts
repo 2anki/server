@@ -72,7 +72,7 @@ class Backend {
 
   saveSettings(settings: { object_id: string; payload: any }) {
     return axios.post(
-      this.baseURL + "settings/" + settings.object_id,
+      this.baseURL + "settings/create/" + settings.object_id,
       { settings },
       { withCredentials: true }
     );
