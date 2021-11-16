@@ -19,6 +19,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "dev": "react-scripts start",
     "build": "GENERATE_SOURCEMAP=false react-app-rewired build --max_old_space_size=4096",
     "test": "react-app-rewired test",
     "eject": "react-app-rewired eject"
