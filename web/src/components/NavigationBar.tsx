@@ -34,7 +34,11 @@ const NavigationBar = (props: NavigationBarProps) => {
           <div className="navbar-item has-dropdown is-hoverable">
             {props.activeWorkspace && (
               <>
-                <a href="#" key={props.activeWorkspace} className="navbar-link">
+                <a
+                  href="/active-workspace"
+                  key={props.activeWorkspace}
+                  className="navbar-link"
+                >
                   {props.activeWorkspace}
                 </a>
               </>
