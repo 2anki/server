@@ -53,10 +53,13 @@ const SliceRules = ({ id, setDone }) => {
   return (
     <div className="card" style={{ maxWidth: "480px", marginLeft: "auto" }}>
       <header className="card-header">
-        <p className="card-header-title">Slice rules - you can define rules!</p>
+        <p className="card-header-title">Slice your flashcards</p>
         {isLoading && (
           <button className="m-2 card-header-icon button is-loading"></button>
         )}
+        <div className="card-header-icon" onClick={() => setDone()}>
+          <button className="delete"></button>
+        </div>
       </header>
 
       {!isLoading && (
