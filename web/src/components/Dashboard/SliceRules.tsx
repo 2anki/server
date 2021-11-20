@@ -32,7 +32,7 @@ const SliceRules = ({ id, setDone }) => {
       .catch((error) => {
         console.log("error", error);
       });
-  }, []);
+  }, [id]);
 
   const saveRules = async (event) => {
     event.preventDefault();

@@ -10,7 +10,7 @@ interface NavigationBarProps {
 let backend = new Backend();
 const NavigationBar = (props: NavigationBarProps) => {
   const [waiting, setIsWaiting] = useState(false);
-  const [isSignedIn, _] = useState(localStorage.getItem("token"));
+  const isSignedIn = localStorage.getItem("token");
 
   return (
     <>

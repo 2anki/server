@@ -34,7 +34,6 @@ const ObjectActions = styled.div`
 
 const SearchObjectEntry = ({ title, icon, url, id }) => {
   const [isSettings, setShowSettings] = useState(false);
-  const [hover, setHover] = useState(false);
   const [showSlicer, setShowSlicer] = useState(false);
 
   return (
