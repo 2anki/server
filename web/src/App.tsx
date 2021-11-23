@@ -53,7 +53,7 @@ function App() {
             ></Route>
             <Container>
               <Switch>
-                <Route path="/reader">
+                <Route path="/learn">
                   <LearnPage />
                 </Route>
                 <Route path="/tm">
