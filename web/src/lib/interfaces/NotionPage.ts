@@ -3,6 +3,7 @@ interface NotionObject {
   url: string;
   icon?: string;
   id: string;
+  data?: any;
 }
 
 export default NotionObject;

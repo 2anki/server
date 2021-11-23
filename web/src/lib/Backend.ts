@@ -129,6 +129,7 @@ class Backend {
     let data = response.data;
     if (data && data.results) {
       results = data.results
+        // TODO: allow searching for non notion pages
         .filter((p) => p.object === "page")
         .map((p) => {
           console.log("p", p);
@@ -150,6 +151,28 @@ class Backend {
     }
     if (p.icon && p.icon.emoji) return p.icon.emoji as string;
     return "📄";
+  }
+
+  async getPage(pageId: string): Promise<NotionPage> {
+    const response = await axios.get(this.baseURL + "notion/page/" + pageId, {
+      withCredentials: true,
+    });
+    let page: NotionPage = {
+      title: this.__getPageTitle(response.data),
+      icon: this.__getPageIcon(response.data),
+      url: response.data.url as string,
+      id: response.data.id,
+      data: response.data,
+    };
+    return page;
+  }
+
+  // TODO: typeset!
+  async getBlocks(pageId: string): Promise<any> {
+    const response = await axios.get(this.baseURL + "notion/blocks/" + pageId, {
+      withCredentials: true,
+    });
+    return response.data;
   }
 }
 
