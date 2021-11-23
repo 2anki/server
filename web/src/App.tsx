@@ -17,7 +17,7 @@ const PreSignupPage = lazy(() => import("./pages/PreSignupPage"));
 const DashboardPage = lazy(() => import("./pages/DashboardPage"));
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const NewPasswordPage = lazy(() => import("./pages/NewPasswordPage"));
-const BlockReaderPage = lazy(() => import("./pages/BlockReaderPage"));
+const LearnPage = lazy(() => import("./pages/LearnPage"));
 
 const Layout = styled.div`
   display: flex;
@@ -54,7 +54,7 @@ function App() {
             <Container>
               <Switch>
                 <Route path="/reader">
-                  <BlockReaderPage />
+                  <LearnPage />
                 </Route>
                 <Route path="/tm">
                   <TemplatePage />

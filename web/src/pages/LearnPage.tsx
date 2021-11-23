@@ -8,7 +8,7 @@ const Wrapper = styled.div`
   height: 80vh;
 `;
 
-const BlockReaderPage = () => {
+const LearnPage = () => {
   const currentBlock = 32;
   const lastBlock = 100;
 
@@ -31,4 +31,4 @@ const BlockReaderPage = () => {
   );
 };
 
-export default BlockReaderPage;
+export default LearnPage;
