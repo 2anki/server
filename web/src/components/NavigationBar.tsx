@@ -20,13 +20,8 @@ const NavigationBar = (props: NavigationBarProps) => {
         aria-label="main navigation"
       >
         <div className="navbar-brand">
-          <a className="navbar-item" href="/">
-            <img
-              alt="2anki logo"
-              src="icons/2anki-logo.png"
-              width="112"
-              height="28"
-            />
+          <a className="navbar-item has-text-weight-bold" href="/">
+            2anki
           </a>
         </div>
 
