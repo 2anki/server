@@ -157,6 +157,7 @@ class Backend {
     const response = await axios.get(this.baseURL + "notion/page/" + pageId, {
       withCredentials: true,
     });
+    console.log("getPage", response);
     let page: NotionPage = {
       title: this.__getPageTitle(response.data),
       icon: this.__getPageIcon(response.data),

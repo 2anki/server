@@ -30,10 +30,15 @@ const LearnPage = () => {
   useEffect(() => {
     if (parentId) {
       console.log("parentId", parentId);
-      backend.getPage(parentId).then((response) => {
-        console.log("response", response);
-        setPage(response);
-      });
+      backend
+        .getPage(parentId)
+        .then((response) => {
+          console.log("response", response);
+          setPage(response);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     }
   }, [parentId]);
 
