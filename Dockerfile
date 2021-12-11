@@ -6,6 +6,7 @@ WORKDIR /app
 
 COPY . .
 
+RUN node --version
 RUN npm install typescript -g
 RUN npm --prefix /app/server install
 RUN npm --prefix /app/web install
