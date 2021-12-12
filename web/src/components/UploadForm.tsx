@@ -1,4 +1,10 @@
-import { SyntheticEvent, useEffect, useRef, useState } from 'react';
+import {
+  SyntheticEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import styled from 'styled-components';
 
 const DropParagraph = styled.div<{ hover: boolean }>`
@@ -24,6 +30,26 @@ const UploadForm = ({ errorMessage, setErrorMessage }) => {
   const convertRef = useRef(null);
   const downloadRef = useRef(null);
 
+  const fileSizeAccepted = useCallback(() => {
+    /* @ts-ignore */
+    let files = fileInputRef.current.files;
+    let size = 0;
+    for (let i = 0; i < files.length; i++) {
+      size += files[i].size;
+    }
+    let isOver100MB = size >= 100000000;
+    if (isOver100MB) {
+      setErrorMessage(
+        `
+        <h1 class="title">Your upload is too big, there is a max of 100MB currently.</h1>
+        <p class="subtitle">This is a <u>temporary limitation</u> on uploads to provide a reliable service for people.</p>
+        `
+      );
+      return false;
+    }
+    return true;
+  }, [setErrorMessage]);
+
   useEffect(() => {
     const body = document.getElementsByTagName('body')[0];
     body.ondragover = (event) => {
@@ -45,12 +71,14 @@ const UploadForm = ({ errorMessage, setErrorMessage }) => {
       if (dataTransfer && dataTransfer.files.length > 0) {
         /* @ts-ignore */
         fileInputRef.current.files = dataTransfer.files;
-        /* @ts-ignore */
-        convertRef.current.click();
+        if (fileSizeAccepted()) {
+          /* @ts-ignore */
+          convertRef.current.click();
+        }
       }
       event.preventDefault();
     };
-  }, []);
+  }, [fileSizeAccepted]);
 
   const handleSubmit = async (event: SyntheticEvent) => {
     event.preventDefault();
@@ -94,8 +122,10 @@ const UploadForm = ({ errorMessage, setErrorMessage }) => {
   };
 
   const fileSelected = (event: { target: HTMLInputElement }) => {
-    /* @ts-ignore */
-    convertRef.current.click();
+    if (fileSizeAccepted()) {
+      /* @ts-ignore */
+      convertRef.current.click();
+    }
   };
   const isDownloadable = downloadLink && deckName && !errorMessage;
 
