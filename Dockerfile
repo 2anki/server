@@ -6,6 +6,7 @@ WORKDIR /app
 
 COPY . .
 
+RUN npm install -g tsc ts-node
 RUN npm --prefix /app/server install
 RUN npm --prefix /app/web install
 
