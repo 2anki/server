@@ -35,13 +35,6 @@ const DashboardContent = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);
 
-  useEffect(() => {
-    if (query && query.length > 3) {
-      triggerSearch();
-      console.log(query);
-    }
-  }, [query, triggerSearch]);
-
   return (
     <div className="flex">
       <div className="column is-main-content">
