@@ -120,30 +120,44 @@ class Backend {
     // TODO: handel query is a external page (not Notion.so)
     // TODO: handle AnkiWeb urls
 
-    const response = await axios.post(
-      this.baseURL + "notion/pages",
-      { query },
-      { withCredentials: true }
-    );
-    let results = [];
-    let data = response.data;
-    if (data && data.results) {
-      results = data.results
-        // TODO: allow searching for non notion pages
-        .filter((p) => p.object === "page")
-        .map((p) => {
-          console.log("p", p);
-          let page: NotionPage = {
-            title: this.__getPageTitle(p).substr(0, 80), // Don't show strings longer than 80 characters
-            icon: this.__getPageIcon(p),
-            url: p.url as string,
-            id: p.id,
-          };
-          return page;
-        })
-        .filter((p) => p.title !== "untitled"); // Hide untitled pages
+    const isPageId = query.length === 32;
+    let data;
+    if (isPageId) {
+      const res = await this.getPage(query);
+      console.log("res", res);
+      if (res && res.data) {
+        data = {
+          results: [res.data],
+        };
+      }
+    } else {
+      const response = await axios.post(
+        this.baseURL + "notion/pages",
+        { query },
+        { withCredentials: true }
+      );
+      data = response.data;
     }
-    return results;
+
+    if (data && data.results) {
+      return (
+        data.results
+          // TODO: allow searching for non notion pages
+          .filter((p) => p.object === "page")
+          .map((p) => {
+            console.log("p", p);
+            let page: NotionPage = {
+              title: this.__getPageTitle(p).substr(0, 80), // Don't show strings longer than 80 characters
+              icon: this.__getPageIcon(p),
+              url: p.url as string,
+              id: p.id,
+            };
+            return page;
+          })
+          .filter((p) => p.title !== "untitled")
+      ); // Hide untitled pages
+    }
+    return [];
   }
   private __getPageIcon(p: any): string {
     if (!p || !p.icon) {
