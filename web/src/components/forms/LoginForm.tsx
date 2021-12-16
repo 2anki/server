@@ -51,6 +51,19 @@ const LoginForm = ({ onForgot }) => {
       console.error(error);
     }
   };
+  const BetaMessage = (
+    <div
+      style={{ margin: "1rem auto" }}
+      className="notification is-danger column"
+    >
+      <p className="is-size-7">
+        The Notion API integration is still under development. Thank you for
+        being patient! Please send issues and ideas to{" "}
+        <a href="mailto:a@alemayhu.com">a@alemayhu.com</a>.
+      </p>
+    </div>
+  );
+
   return (
     <FormContainer>
       <section className="section">
@@ -58,7 +71,8 @@ const LoginForm = ({ onForgot }) => {
           <div className="columns is-centered">
             <div className="column is-half">
               <BetaTag />
-              <h1 className="title">Please login below!</h1>
+              {BetaMessage}
+              <h1 className="title is-1">Login</h1>
               {error && <div className="notification is-danger">{error}</div>}
               <form onSubmit={handleSubmit}>
                 <div className="field">
@@ -112,16 +126,6 @@ const LoginForm = ({ onForgot }) => {
                 </div>
               </form>
             </div>
-          </div>
-          <div
-            style={{ margin: "0 auto" }}
-            className="notification is-danger is-half column"
-          >
-            <p className="is-size-7">
-              The Notion integration is still under development. Thank you for
-              being patient! Please send issues and ideas to{" "}
-              <a href="mailto:a@alemayhu.com">a@alemayhu.com</a>.
-            </p>
           </div>
         </div>
       </section>
