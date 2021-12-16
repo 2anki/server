@@ -18,6 +18,7 @@ const DashboardPage = lazy(() => import("./pages/DashboardPage"));
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const NewPasswordPage = lazy(() => import("./pages/NewPasswordPage"));
 const LearnPage = lazy(() => import("./pages/LearnPage"));
+const VerifyPage = lazy(() => import("./pages/VerifyPage"));
 
 const Layout = styled.div`
   display: flex;
@@ -53,6 +54,9 @@ function App() {
             ></Route>
             <Container>
               <Switch>
+                <Route path="/verify">
+                  <VerifyPage />
+                </Route>
                 <Route path="/learn">
                   <LearnPage />
                 </Route>

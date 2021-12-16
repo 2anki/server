@@ -43,13 +43,23 @@ const LoginForm = ({ onForgot }) => {
         localStorage.setItem("token", res.data.token);
         window.location.href = "/dashboard";
       }
+      console.log("res.status", res.status);
       setLoading(false);
     } catch (error) {
-      setError(
-        "Request failed. Do you remember your password? If not click forgot my password."
-      );
+      let response = error.response;
+      if (response && response.data) {
+        let data = response.data;
+        if (data.message === "not verified") {
+          window.location.href = "/verify";
+        } else {
+          setError(data.message);
+        }
+      } else {
+        setError(
+          "Request failed. Do you remember your password? If not click forgot my password."
+        );
+      }
       setLoading(false);
-      console.error(error);
     }
   };
   return (
