@@ -98,6 +98,7 @@ const DashboardPage = () => {
         let data = response.data;
         if (data && !data.isConnected) {
           updateConnectionLink(data.link);
+          updateConnected(data.isConnected);
         } else if (data.isConnected) {
           updateConnectionLink(data.link);
           updateConnected(data.isConnected);
