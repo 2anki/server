@@ -83,7 +83,7 @@ const DashboardContent = () => {
 
 const DashboardPage = () => {
   const [connectionLink, updateConnectionLink] = useState("");
-  const [connected, updateConnected] = useState(true);
+  const [connected, updateConnected] = useState(false);
   const [workSpace, setWorkSpace] = useState(
     localStorage.getItem("__workspace")
   );
@@ -119,7 +119,16 @@ const DashboardPage = () => {
     <>
       <NavigationBar activeWorkspace={workSpace} connectLink={connectionLink} />
       {!connected && (
-        <div>
+        <div
+          style={{
+            margin: "0 auto",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100vh",
+          }}
+          className="column is-half is-centered"
+        >
           <a
             className="button is-link has-text-weight-semibold	"
             href={connectionLink}
