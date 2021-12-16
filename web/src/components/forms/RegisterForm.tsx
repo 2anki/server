@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import axios from "axios";
 import { SyntheticEvent, useState } from "react";
+import BetaTag from "../BetaTag";
 
 const FormContainer = styled.div`
   max-width: 720px;
@@ -59,6 +60,7 @@ const RegisterForm = () => {
         <div className="container">
           <div className="columns is-centered">
             <div className="column is-half">
+              <BetaTag />
               <h1 className="title">Hei there.</h1>
               <p className="subtitle">To get started please register below.</p>
               {error && <div className="notification is-danger">{error}</div>}

@@ -2,6 +2,8 @@ import styled from "styled-components";
 import axios from "axios";
 import React, { SyntheticEvent, useState } from "react";
 
+import BetaTag from "../BetaTag";
+
 const FormContainer = styled.div`
   max-width: 720px;
   margin: 0 auto;
@@ -55,7 +57,7 @@ const LoginForm = ({ onForgot }) => {
         <div className="container">
           <div className="columns is-centered">
             <div className="column is-half">
-              <span className="tag is-danger">BETA</span>
+              <BetaTag />
               <h1 className="title">Please login below!</h1>
               {error && <div className="notification is-danger">{error}</div>}
               <form onSubmit={handleSubmit}>
