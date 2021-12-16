@@ -55,8 +55,8 @@ const LoginForm = ({ onForgot }) => {
         <div className="container">
           <div className="columns is-centered">
             <div className="column is-half">
-              <h1 className="title">Welcome back!</h1>
-              <p className="subtitle">Please login below.</p>
+              <span className="tag is-danger">BETA</span>
+              <h1 className="title">Please login below!</h1>
               {error && <div className="notification is-danger">{error}</div>}
               <form onSubmit={handleSubmit}>
                 <div className="field">
@@ -99,10 +99,9 @@ const LoginForm = ({ onForgot }) => {
                 </div>
 
                 <div className="field">
-                  <div className="control" style={{ width: "100%" }}>
+                  <div className="control">
                     <button
-                      className="button is-link is-medium"
-                      style={{ width: "100%" }}
+                      className="button is-link is-medium is-pulled-right"
                       disabled={!isValid() || loading}
                     >
                       Log in
@@ -111,6 +110,16 @@ const LoginForm = ({ onForgot }) => {
                 </div>
               </form>
             </div>
+          </div>
+          <div
+            style={{ margin: "0 auto" }}
+            className="notification is-danger is-half column"
+          >
+            <p className="is-size-7">
+              The Notion integration is still under development. Thank you for
+              being patient! Please send issues and ideas to{" "}
+              <a href="mailto:a@alemayhu.com">a@alemayhu.com</a>.
+            </p>
           </div>
         </div>
       </section>
