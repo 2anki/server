@@ -11,7 +11,7 @@ class Backend {
     this.baseURL = "/";
   }
   async logout() {
-    localStorage.removeItem("token");
+    localStorage.clear();
     const endpoint = this.baseURL + "users/logout";
     /* @ts-ignore */
     await axios.get(endpoint, { withCredentials: true, credentials: true });
