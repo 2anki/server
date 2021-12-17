@@ -69,7 +69,7 @@ function App() {
                 <Route path="/pre-signup">
                   <PreSignupPage />
                 </Route>
-                <Route path="/dashboard">
+                <Route path="/search">
                   <SearchPage />
                 </Route>
                 <Route path="/login">

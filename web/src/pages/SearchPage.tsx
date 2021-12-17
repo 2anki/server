@@ -39,10 +39,10 @@ const DashboardContent = () => {
     <div className="flex">
       <div className="column is-main-content">
         <Switch>
-          <Route exact path="/dashboard/workspaces">
+          <Route exact path="/search/workspaces">
             Workspaces is coming soon!
           </Route>
-          <Route path="/dashboard">
+          <Route path="/search">
             <SearchBar
               inProgress={inProgress}
               onSearchQueryChanged={(s) => setQuery(s)}

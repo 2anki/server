@@ -66,7 +66,7 @@ const SearchObjectEntry = ({ title, icon, url, id }) => {
               event.preventDefault();
               setShowSettings(true);
             }}
-            url={`/dashboard/${id}/settings`}
+            url={`/search/${id}/settings`}
             image="/icons/settings.svg"
           />
         </ObjectActions>

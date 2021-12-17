@@ -43,7 +43,7 @@ const RegisterForm = () => {
       };
       const res = await axios.post(endpoint, data);
       if (res.status === 200) {
-        window.location.href = "/dashboard";
+        window.location.href = "/search";
       } else {
         setError(
           "Unknown error. Please try again or reach out to alexander@alemayhu.com for assistance if the issue persists."

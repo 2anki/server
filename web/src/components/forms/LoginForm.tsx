@@ -41,7 +41,7 @@ const LoginForm = ({ onForgot }) => {
       if (res.status === 200) {
         console.log(res);
         localStorage.setItem("token", res.data.token);
-        window.location.href = "/dashboard";
+        window.location.href = "/search";
       }
       console.log("res.status", res.status);
       setLoading(false);
