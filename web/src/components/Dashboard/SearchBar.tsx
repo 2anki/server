@@ -41,7 +41,7 @@ const SearchBar = ({ onSearchQueryChanged, onSearchClicked, inProgress }) => {
           </button>
         </div>
       </div>
-    </searchContainer>
+    </SearchContainer>
   );
 };
 

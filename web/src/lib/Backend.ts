@@ -78,6 +78,10 @@ class Backend {
     );
   }
 
+  getSettings(id: string) {
+    return axios.get(this.baseURL + "settings/find/" + id);
+  }
+
   saveRules(
     id: string,
     flashcard: string,
