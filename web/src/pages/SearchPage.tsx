@@ -81,7 +81,7 @@ const DashboardContent = () => {
   );
 };
 
-const DashboardPage = () => {
+const SearchPage = () => {
   const [connectionLink, updateConnectionLink] = useState("");
   const [connected, updateConnected] = useState(false);
   const [workSpace, setWorkSpace] = useState(
@@ -148,4 +148,4 @@ const DashboardPage = () => {
   );
 };
 
-export default DashboardPage;
+export default SearchPage;

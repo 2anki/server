@@ -14,7 +14,7 @@ import NavigationBar from "./components/NavigationBar";
 
 const TemplatePage = lazy(() => import("./pages/Templates/TemplatePage"));
 const PreSignupPage = lazy(() => import("./pages/PreSignupPage"));
-const DashboardPage = lazy(() => import("./pages/DashboardPage"));
+const SearchPage = lazy(() => import("./pages/SearchPage"));
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const NewPasswordPage = lazy(() => import("./pages/NewPasswordPage"));
 const LearnPage = lazy(() => import("./pages/LearnPage"));
@@ -70,7 +70,7 @@ function App() {
                   <PreSignupPage />
                 </Route>
                 <Route path="/dashboard">
-                  <DashboardPage />
+                  <SearchPage />
                 </Route>
                 <Route path="/login">
                   <LoginPage />
