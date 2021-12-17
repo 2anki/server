@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import axios from "axios";
-import React, { SyntheticEvent, useState } from "react";
+import { SyntheticEvent, useState } from "react";
 
 import BetaMessage from "../BetaMessage";
 import BetaTag from "../BetaTag";
