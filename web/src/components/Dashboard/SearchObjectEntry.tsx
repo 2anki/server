@@ -44,11 +44,7 @@ const SearchObjectEntry = ({ title, icon, url, id }) => {
           <span>{title}</span>
         </ObjectMeta>
         <ObjectActions>
-          <div
-            onMouseEnter={() => setShowSlicer(true)}
-            // onMouseLeave={() => setShowSlicer(false)}
-            onClick={() => setShowSlicer(!showSlicer)}
-          >
+          <div onClick={() => setShowSlicer(!showSlicer)}>
             <img src="/icons/slicer.svg" width="32px" alt="slice" />
           </div>
           <ObjectAction
