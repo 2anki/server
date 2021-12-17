@@ -101,8 +101,8 @@ const NavigationBar = (props: NavigationBarProps) => {
               {/* <a href="/learn" className="navbar-item">
                 💡 Learn
               </a> */}
-              <a href="/dashboard" className="navbar-item">
-                Dashboard
+              <a href="/dashboard" className="navbar-item my-2 mx-4 button">
+                🔎
               </a>
             </>
           )}
