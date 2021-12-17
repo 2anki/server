@@ -1,6 +1,23 @@
 import { useState } from "react";
 import Backend from "../lib/Backend";
 import NotionWorkspace from "../lib/interfaces/NotionWorkspace";
+
+// https://www.w3schools.com/js/js_cookies.asp
+function getCookie(cname) {
+  let name = cname + "=";
+  let ca = document.cookie.split(";");
+  for (let i = 0; i < ca.length; i++) {
+    let c = ca[i];
+    while (c.charAt(0) === " ") {
+      c = c.substring(1);
+    }
+    if (c.indexOf(name) === 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return "";
+}
+
 interface NavigationBarProps {
   workspaces?: NotionWorkspace[];
   activeWorkspace?: string;
@@ -10,7 +27,7 @@ interface NavigationBarProps {
 let backend = new Backend();
 const NavigationBar = (props: NavigationBarProps) => {
   const [waiting, setIsWaiting] = useState(false);
-  const isSignedIn = localStorage.getItem("token");
+  const isSignedIn = getCookie("token");
 
   return (
     <>

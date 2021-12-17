@@ -99,9 +99,9 @@ const DashboardPage = () => {
         if (data && !data.isConnected) {
           updateConnectionLink(data.link);
           updateConnected(data.isConnected);
-        } else if (data.isConnected) {
+        } else {
           updateConnectionLink(data.link);
-          updateConnected(data.isConnected);
+          updateConnected(true);
         }
         // TODO: also load icon
         setWorkSpace(data.workspace);
