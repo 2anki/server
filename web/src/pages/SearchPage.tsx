@@ -51,16 +51,6 @@ const DashboardContent = () => {
             {(!myPages || myPages.length < 1) && (
               <>
                 <div className="subtitle is-2 my-4">😣 ↩️ 🆔 🆙 🖱 🔍.</div>
-                {query && query.length && !query.includes("https") && (
-                  <>
-                    <button
-                      className="button"
-                      onClick={() => alert("to be implemented")}
-                    >
-                      Create Page: {query}
-                    </button>
-                  </>
-                )}
               </>
             )}
             {myPages &&
