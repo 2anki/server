@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Backend from "../lib/Backend";
 import NotionWorkspace from "../lib/interfaces/NotionWorkspace";
+import BetaTag from "./BetaTag";
 
 // https://www.w3schools.com/js/js_cookies.asp
 function getCookie(cname) {
@@ -109,12 +110,15 @@ const NavigationBar = (props: NavigationBarProps) => {
           {!isSignedIn && (
             <>
               <div className="navbar-item">
+                <div className="mx-2">
+                  <BetaTag />
+                </div>
                 <div className="buttons">
                   <a href="/login#register" className="button is-black">
-                    <strong>Register</strong>
+                    <strong>Join waitlist</strong>
                   </a>
                   <a href="/login#login" className="button is-light">
-                    Log in
+                    Beta access
                   </a>
                 </div>
               </div>

@@ -63,7 +63,7 @@ const RegisterForm = () => {
             <div className="column is-half">
               <BetaTag />
               <BetaMessage />
-              <h1 className="title">Hei there.</h1>
+              <h1 className="title">Join waitlist.</h1>
               <p className="subtitle">To get started please register below.</p>
               {error && <div className="notification is-danger">{error}</div>}
               <form onSubmit={handleSubmit}>
