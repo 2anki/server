@@ -16,7 +16,7 @@ const VerifyPage = () => {
       </p>
       <p className="subtitle">
         If you have not received the verification email, contact{" "}
-        <a href="mailto:a@alemayhu.com">a@alemayhu.com</a>.
+        <a href="mailto:alexander@alemayhu.com">alexander@alemayhu.com</a>.
       </p>
     </FormContainer>
   );
