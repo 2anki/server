@@ -83,20 +83,20 @@ const SliceRules = ({ id, setDone }) => {
             />
             <hr />
             <TemplateSelect
-              pickedTemplate={(name: string) => setSubDeck(name)}
-              values={deckOptions.map((fco) => {
-                return { label: `Sub-decks are ${fco}`, value: fco };
-              })}
-              name={"Pages"}
-              value={rules.sub_deck_is}
-            />
-            <TemplateSelect
               pickedTemplate={(name: string) => setDeck(name)}
               values={deckOptions.map((fco) => {
                 return { label: `Decks are ${fco}`, value: fco };
               })}
               name={"Pages"}
               value={rules.deck_is}
+            />
+            <TemplateSelect
+              pickedTemplate={(name: string) => setSubDeck(name)}
+              values={deckOptions.map((fco) => {
+                return { label: `Sub-decks are ${fco}`, value: fco };
+              })}
+              name={"Pages"}
+              value={rules.sub_deck_is}
             />
           </div>
           <footer className="card-footer">
