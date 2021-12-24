@@ -32,13 +32,12 @@ const NavigationBar = (props: NavigationBarProps) => {
 
   return (
     <>
-      <nav
-        className="navbar  is-fixed-top"
-        role="navigation"
-        aria-label="main navigation"
-      >
+      <nav className="navbar" role="navigation" aria-label="main navigation">
         <div className="navbar-brand">
           <a className="navbar-item has-text-weight-bold" href="/">
+            <div className="mx-2">
+              <BetaTag />
+            </div>
             2anki
           </a>
         </div>
@@ -110,9 +109,6 @@ const NavigationBar = (props: NavigationBarProps) => {
           {!isSignedIn && (
             <>
               <div className="navbar-item">
-                <div className="mx-2">
-                  <BetaTag />
-                </div>
                 <div className="buttons">
                   <a href="/login#register" className="button is-black">
                     <strong>Join waitlist</strong>
