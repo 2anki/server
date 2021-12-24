@@ -1,6 +1,5 @@
 import styled from "styled-components";
 
-import VideoSection from "../components/VideoSection";
 import CTAButton from "../components/CTAButton";
 
 const MascotImage = styled.img`
