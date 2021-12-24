@@ -2,17 +2,17 @@ import { useEffect, useState } from "react";
 import Backend from "../../lib/Backend";
 import TemplateSelect from "../TemplateSelect";
 
-let flashCardOptions = ["Toggles", "Bulletpoints", "Numbered lists"];
-let deckOptions = ["Pages", "Databases", "Headings"];
-let tagOptions = ["Headings", "Strikethroughs"];
+let flashCardOptions = ["toggle", "bulleted_list_item", "numbered_list_item"];
+let deckOptions = ["page", "database", "heading"];
+let tagOptions = ["heading", "strikethrough"];
 
 let backend = new Backend();
 const SliceRules = ({ id, setDone }) => {
   const [rules, setRules] = useState({
-    flashcard_is: "Toggle",
-    sub_deck_is: "Pages",
-    tags_is: "Headings",
-    deck_is: "Pages",
+    flashcard_is: "toggle",
+    sub_deck_is: "child_page",
+    tags_is: "strikethrough",
+    deck_is: "page",
   });
 
   const [isLoading, setIsloading] = useState(true);
