@@ -48,14 +48,16 @@ class Backend {
 
       const props = Object.keys(properties);
       for (const k of props) {
-        if (properties[k] && Array.isArray(properties[k])) {
+        let propValue = properties[k];
+        if (propValue && Array.isArray(propValue)) {
           return properties[k].title[0].plain_text;
+        } else if (propValue && propValue.title) {
+          return propValue.title[0].text.content;
         }
       }
     } catch (error) {
       return "untitled";
     }
-    console.log("xxx", p);
     return "untitled";
   }
 
@@ -119,8 +121,9 @@ class Backend {
 
   async search(query: string): Promise<NotionObject[]> {
     if (this.__withinThreeSeconds()) {
-      console.log("skipping");
-      return;
+      throw new Error(
+        "You are making too many requests. Please wait a few seconds before searching."
+      );
     }
 
     // TODO: handle query is a page id

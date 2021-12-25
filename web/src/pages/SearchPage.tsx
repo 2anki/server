@@ -21,10 +21,12 @@ const DashboardContent = () => {
   const [query, setQuery] = useState(localStorage.getItem("_query") || "");
   const [myPages, setMyPages] = useState(Options.LoadMyPages());
   const [inProgress, setInProgress] = useState(false);
+  const [errorNotification, setError] = useState(null);
   const triggerSearch = useCallback(() => {
     if (inProgress) {
       return;
     }
+    setError(null);
     setInProgress(true);
     backend
       .search(query)
@@ -37,8 +39,7 @@ const DashboardContent = () => {
       })
       .catch((error) => {
         setInProgress(false);
-        // TODO: handle this error
-        console.error(error);
+        setError(error);
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);
@@ -58,9 +59,16 @@ const DashboardContent = () => {
             />
             {(!myPages || myPages.length < 1) && (
               <EmptyContainer>
-                <div className="subtitle is-3 my-4">
-                  No search results, try typing something above 👌🏾
-                </div>
+                {errorNotification && (
+                  <div className="my-4 notification is-danger">
+                    <p>{errorNotification.message}</p>
+                  </div>
+                )}
+                {!errorNotification && (
+                  <div className="subtitle is-3 my-4">
+                    No search results, try typing something above 👌🏾
+                  </div>
+                )}
               </EmptyContainer>
             )}
             {myPages &&
