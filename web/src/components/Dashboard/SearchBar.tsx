@@ -8,6 +8,8 @@ const SearchInput = styled.input`
 const SearchContainer = styled.div`
   position: sticky;
   margin: 0 auto;
+  display: flex;
+  justify-content: center;
 `;
 
 // TODO: handle the enter key is pressed
