@@ -155,7 +155,7 @@ class Backend {
       return data.results.map((p) => {
         return {
           object: p.object,
-          title: this.__getPageTitle(p).substr(0, 60), // Don't show strings longer than 60 characters
+          title: this.__getPageTitle(p).substr(0, 58), // Don't show strings longer than 60 characters
           icon: this.__getPageIcon(p),
           url: p.url as string,
           id: p.id,

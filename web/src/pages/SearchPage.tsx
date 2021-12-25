@@ -6,6 +6,14 @@ import SearchBar from "../components/Dashboard/SearchBar";
 import NavigationBar from "../components/NavigationBar";
 import SearchObjectEntry from "../components/Dashboard/SearchObjectEntry";
 import Options from "../store/Options";
+import styled from "styled-components";
+
+const EmptyContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 50vh;
+`;
 
 let backend = new Backend();
 
@@ -49,9 +57,11 @@ const DashboardContent = () => {
               onSearchClicked={triggerSearch}
             />
             {(!myPages || myPages.length < 1) && (
-              <>
-                <div className="subtitle is-2 my-4">😣 ↩️ 🆔 🆙 🖱 🔍.</div>
-              </>
+              <EmptyContainer>
+                <div className="subtitle is-3 my-4">
+                  No search results, try typing something above 👌🏾
+                </div>
+              </EmptyContainer>
             )}
             {myPages &&
               myPages.length > 0 &&
