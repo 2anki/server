@@ -54,7 +54,7 @@ const SearchObjectEntry = ({ title, icon, url, id, type }) => {
             <img src="/icons/slicer.svg" width="32px" alt="slice" />
           </div>
           <ObjectAction
-            url={`/notion/convert/${id}`}
+            url={`/notion/convert/${id}?type=${type}`}
             image="/icons/Anki_app_logo.png"
             onClick={() => console.log("clicked APKG")}
           />
