@@ -14,10 +14,20 @@ const _loadOption = (key: string, defaultValue: boolean) => {
 };
 
 class CardOptionsStore {
+  static LoadMyPages(): any {
+    try {
+      const my = localStorage.getItem("__my_pages");
+      if (my) {
+        return JSON.parse(my);
+      }
+    } catch (error) {
+      return null;
+    }
+  }
   public options: CardOption[];
 
   constructor() {
-    this.options = this.configure();
+    this.options = this.loadValues();
   }
 
   public get(key: string): CardOption | undefined {
@@ -35,8 +45,17 @@ class CardOptionsStore {
     this.options = newOptions;
   }
 
-  configure() {
-    return [
+  loadValues(): CardOption[] {
+    const v = [
+      window.location.pathname.includes("/upload")
+        ? null
+        : {
+            key: "email-notification",
+            label: "Email Notification",
+            value: _loadOption("email-notification", false),
+            description:
+              "Receive email notifications when your decks are created.",
+          },
       {
         key: "add-notion-link",
         label: "Add Notion Link",
@@ -143,15 +162,23 @@ class CardOptionsStore {
           "This will allow you to use SHIFT-Enter in the toggles to create multiple lines for all card types (Basic, Cloze, etc.)",
       },
     ];
+
+    return v.filter(Boolean);
   }
 
   clear() {
-    localStorage.clear();
-    this.options = this.configure();
-    this.loadDefaults();
+    /**
+     * Delete the known options, the app might be storing other things we want.
+     */
+    const values = this.loadValues();
+    for (const v of values) {
+      localStorage.removeItem(v.key);
+    }
+    this.options = this.loadValues();
+    this.syncLocalStorage();
   }
 
-  loadDefaults() {
+  syncLocalStorage() {
     for (const option of this.options) {
       const value = localStorage.getItem(option.key);
       if (value === null) {

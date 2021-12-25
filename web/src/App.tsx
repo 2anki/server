@@ -5,20 +5,20 @@ import styled from "styled-components";
 import UploadPage from "./pages/UploadPage";
 import HomePage from "./pages/Home";
 
-import Header from "./components/Header";
 import Footer from "./components/Footer";
 import CardOptionsStore from "./store/Options";
 import StoreContext from "./store/StoreContext";
 import GlobalStyle from "./GlobalStyle";
 
-import NewBanner from "./components/NewBanner";
+import NavigationBar from "./components/NavigationBar";
 
-const NotionConnectPage = lazy(() => import("./pages/NotionConnectPage"));
 const TemplatePage = lazy(() => import("./pages/Templates/TemplatePage"));
 const PreSignupPage = lazy(() => import("./pages/PreSignupPage"));
-const DashboardPage = lazy(() => import("./pages/DashboardPage"));
+const SearchPage = lazy(() => import("./pages/SearchPage"));
 const LoginPage = lazy(() => import("./pages/LoginPage"));
 const NewPasswordPage = lazy(() => import("./pages/NewPasswordPage"));
+const LearnPage = lazy(() => import("./pages/LearnPage"));
+const VerifyPage = lazy(() => import("./pages/VerifyPage"));
 
 const Layout = styled.div`
   display: flex;
@@ -30,7 +30,6 @@ const Layout = styled.div`
 const Container = styled.div`
   display: block;
   flex: 1 0 auto;
-  padding: 4rem;
 `;
 
 function App() {
@@ -45,30 +44,30 @@ function App() {
             {/* We don't want a header on the sign-up page */}
             <Route
               render={({ location }) =>
-                location.pathname !== "/login" ? <Header /> : null
+                location.pathname.match(/^(?!.*(login|search|signup)).*$/) ? (
+                  <NavigationBar />
+                ) : null
               }
             ></Route>
             <Container>
-              <Route
-                render={({ location }) =>
-                  location.pathname !== "/pre-signup" ? <NewBanner /> : null
-                }
-              />
               <Switch>
+                <Route path="/verify">
+                  <VerifyPage />
+                </Route>
+                <Route path="/learn">
+                  <LearnPage />
+                </Route>
                 <Route path="/tm">
                   <TemplatePage />
                 </Route>
                 <Route path="/upload">
                   <UploadPage />
                 </Route>
-                <Route path="/connect-notion">
-                  <NotionConnectPage />
-                </Route>
                 <Route path="/pre-signup">
                   <PreSignupPage />
                 </Route>
-                <Route path="/dashboard">
-                  <DashboardPage />
+                <Route path="/search">
+                  <SearchPage />
                 </Route>
                 <Route path="/login">
                   <LoginPage />

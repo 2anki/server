@@ -1,6 +1,9 @@
 import styled from "styled-components";
 import axios from "axios";
-import React, { SyntheticEvent, useState } from "react";
+import { SyntheticEvent, useState } from "react";
+
+import BetaMessage from "../BetaMessage";
+import BetaTag from "../BetaTag";
 
 const FormContainer = styled.div`
   max-width: 720px;
@@ -38,15 +41,25 @@ const LoginForm = ({ onForgot }) => {
       if (res.status === 200) {
         console.log(res);
         localStorage.setItem("token", res.data.token);
-        window.location.href = "/dashboard";
+        window.location.href = "/search";
       }
+      console.log("res.status", res.status);
       setLoading(false);
     } catch (error) {
-      setError(
-        "Request failed. Do you remember your password? If not click forgot my password."
-      );
+      let response = error.response;
+      if (response && response.data) {
+        let data = response.data;
+        if (data.message === "not verified") {
+          window.location.href = "/verify";
+        } else {
+          setError(data.message);
+        }
+      } else {
+        setError(
+          "Request failed. Do you remember your password? If not click forgot my password."
+        );
+      }
       setLoading(false);
-      console.error(error);
     }
   };
   return (
@@ -55,8 +68,9 @@ const LoginForm = ({ onForgot }) => {
         <div className="container">
           <div className="columns is-centered">
             <div className="column is-half">
-              <h1 className="title">Welcome back!</h1>
-              <p className="subtitle">Please login below.</p>
+              <BetaTag />
+              <BetaMessage />
+              <h1 className="title is-1">Login</h1>
               {error && <div className="notification is-danger">{error}</div>}
               <form onSubmit={handleSubmit}>
                 <div className="field">
@@ -99,13 +113,12 @@ const LoginForm = ({ onForgot }) => {
                 </div>
 
                 <div className="field">
-                  <div className="control" style={{ width: "100%" }}>
+                  <div className="control">
                     <button
-                      className="button is-link is-medium"
-                      style={{ width: "100%" }}
+                      className="button is-link is-medium is-pulled-right"
                       disabled={!isValid() || loading}
                     >
-                      Log in
+                      Beta access
                     </button>
                   </div>
                 </div>

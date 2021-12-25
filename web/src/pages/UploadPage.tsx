@@ -1,20 +1,14 @@
-import styled from 'styled-components';
-import { useContext, useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import styled from "styled-components";
+import { useContext, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
-import StoreContext from '../store/StoreContext';
-import WarningMessage from '../components/WarningMessage';
-import UploadForm from '../components/UploadForm';
-import SettingsIcon from '../components/icons/SettingsIcon';
-import SettingsModal from '../components/modals/SettingsModal';
-import ErrorMessage from '../components/ErrorMessage';
-
-// A custom hook that builds on useLocation to parse
-// the query string for you.
-// Reference: https://reactrouter.com/web/example/query-parameters
-function useQuery() {
-  return new URLSearchParams(useLocation().search);
-}
+import useQuery from "../lib/hooks/useQuery";
+import StoreContext from "../store/StoreContext";
+import WarningMessage from "../components/WarningMessage";
+import UploadForm from "../components/UploadForm";
+import SettingsIcon from "../components/icons/SettingsIcon";
+import SettingsModal from "../components/modals/SettingsModal";
+import ErrorMessage from "../components/ErrorMessage";
 
 const Container = styled.div`
   max-width: 768px;
@@ -30,14 +24,14 @@ const InfoMessage = styled.p`
 `;
 
 const UploadPage = () => {
-  const isDevelopment = window.location.host !== '2anki.net';
+  const isDevelopment = window.location.host !== "2anki.net";
   const query = useQuery();
-  const view = query.get('view');
+  const view = query.get("view");
 
   const [isSettings, setShowSettings] = useState(
-    view === 'template' || view === 'deck-options' || view === 'card-options'
+    view === "template" || view === "deck-options" || view === "card-options"
   );
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
 
   const FlexColumn = styled.div`
     display: flex;
@@ -63,7 +57,7 @@ const UploadPage = () => {
 
   // Make sure the defaults are set if not present to ensure backwards compatability
   useEffect(() => {
-    store.loadDefaults();
+    store.syncLocalStorage();
   }, [store]);
 
   return (
@@ -93,11 +87,11 @@ const UploadPage = () => {
                 target="_blank"
                 href="https://www.notion.so/Export-as-HTML-bf3fe9e6920e4b9883cbd8a76b6128b7"
               >
-                {' '}
+                {" "}
                 HTML and ZIP exports from Notion
               </a>
               . All files are automatically deleted after 21 minutes. Checkout
-              the{' '}
+              the{" "}
               <a
                 rel="noreferrer"
                 target="_blank"
@@ -110,7 +104,7 @@ const UploadPage = () => {
             <SettingsModal
               isActive={isSettings}
               onClickClose={() => {
-                window.history.pushState({}, '', 'upload');
+                window.history.pushState({}, "", "upload");
                 setShowSettings(false);
               }}
             />

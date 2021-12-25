@@ -122,6 +122,7 @@ const TemplatePage = () => {
         {ready && (
           <>
             <p className="title">Template Manager</p>
+            <hr />
             <p className="subtitle">
               No saving required, everything is saved instantly! You can always
               revert the template changes in the{" "}
