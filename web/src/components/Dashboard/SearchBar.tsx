@@ -2,7 +2,7 @@ import { useState } from "react";
 import styled from "styled-components";
 
 const SearchInput = styled.input`
-  width: 80vw;
+  width: 60vw;
   max-width: 640px;
 `;
 const SearchContainer = styled.div`

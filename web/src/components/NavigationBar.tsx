@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 import { useState } from "react";
 import Backend from "../lib/Backend";
 import NotionWorkspace from "../lib/interfaces/NotionWorkspace";
@@ -29,6 +30,7 @@ let backend = new Backend();
 const NavigationBar = (props: NavigationBarProps) => {
   const [waiting, setIsWaiting] = useState(false);
   const isSignedIn = getCookie("token");
+  const [active, setHamburgerMenu] = useState(false);
 
   return (
     <>
@@ -40,71 +42,78 @@ const NavigationBar = (props: NavigationBarProps) => {
             </div>
             2anki
           </a>
+          <a
+            role="button"
+            className={`navbar-burger burger ${active ? "is-active" : ""}`}
+            aria-label="menu"
+            aria-expanded="false"
+            data-target="navbar"
+            onClick={() => setHamburgerMenu(true)}
+          >
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+          </a>
         </div>
 
-        <div className="navbar-start">
-          <div className="navbar-item has-dropdown is-hoverable">
-            {props.activeWorkspace && (
-              <>
-                <a
-                  href="/active-workspace"
-                  key={props.activeWorkspace}
-                  className="navbar-link"
-                >
-                  {props.activeWorkspace}
-                </a>
-              </>
-            )}
-
-            <div className="navbar-dropdown">
-              {props.workspaces && (
+        <div id="navbar" className={`navbar-menu ${active ? "is-active" : ""}`}>
+          <div className="navbar-start">
+            <div className="navbar-item has-dropdown is-hoverable">
+              {props.activeWorkspace && (
                 <>
-                  {props.workspaces.map((w) => (
-                    <a
-                      key={w.name}
-                      href="/notion/switch-workspace"
-                      className="navbar-item"
-                    >
-                      {w.name}
-                    </a>
-                  ))}
-                  <hr className="navbar-divider" />
+                  <a
+                    href="/search"
+                    key={props.activeWorkspace}
+                    className="navbar-link"
+                  >
+                    {props.activeWorkspace}
+                  </a>
                 </>
               )}
-              {props.connectLink && (
-                <a href={props.connectLink} className="dropdown-item">
-                  Connect workspace
+              <div className="navbar-dropdown">
+                {props.workspaces && (
+                  <>
+                    {props.workspaces.map((w) => (
+                      <a
+                        key={w.name}
+                        href="/notion/switch-workspace"
+                        className="navbar-item"
+                      >
+                        {w.name}
+                      </a>
+                    ))}
+                    <hr className="navbar-divider" />
+                  </>
+                )}
+                {props.connectLink && (
+                  <a href={props.connectLink} className="dropdown-item">
+                    Connect workspace
+                  </a>
+                )}
+                <a className="navbar-item" href="mailto:alexander@alemayhu.com">
+                  Report an issue
                 </a>
-              )}
-              {isSignedIn && (
-                <div className="dropdown-item">
-                  <button
-                    onClick={() => {
-                      if (!waiting) {
-                        setIsWaiting(true);
-                        backend.logout();
-                      }
-                    }}
-                    className="button is-small navbar-item"
-                  >
-                    Log out
-                  </button>
-                </div>
-              )}
+                {isSignedIn && (
+                  <div className="dropdown-item">
+                    <button
+                      onClick={() => {
+                        if (!waiting) {
+                          setIsWaiting(true);
+                          backend.logout();
+                        }
+                      }}
+                      className="button is-small navbar-item"
+                    >
+                      Log out
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="navbar-end">
-          {isSignedIn && (
-            <>
-              <a href="/search" className="navbar-item my-2 mx-4 button">
-                🔎
-              </a>
-            </>
-          )}
           {!isSignedIn && (
-            <>
+            <div className="navbar-end">
               <div className="navbar-item">
                 <div className="buttons">
                   <a href="/login#register" className="button is-black">
@@ -115,6 +124,16 @@ const NavigationBar = (props: NavigationBarProps) => {
                   </a>
                 </div>
               </div>
+            </div>
+          )}
+          {isSignedIn && (
+            <>
+              <a
+                href="/search"
+                className="navbar-item my-2 mx-4 button is-link"
+              >
+                Search
+              </a>
             </>
           )}
         </div>
