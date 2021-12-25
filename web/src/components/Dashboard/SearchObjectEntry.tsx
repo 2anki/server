@@ -32,7 +32,7 @@ const ObjectActions = styled.div`
   min-width: 80px;
 `;
 
-const SearchObjectEntry = ({ title, icon, url, id }) => {
+const SearchObjectEntry = ({ title, icon, url, id, type }) => {
   const [isSettings, setShowSettings] = useState(false);
   const [showSlicer, setShowSlicer] = useState(false);
 
@@ -40,6 +40,12 @@ const SearchObjectEntry = ({ title, icon, url, id }) => {
     <>
       <Entry>
         <ObjectMeta>
+          <div className="control">
+            <div className="tags has-addons">
+              <span className="tag">Type</span>
+              <span className="tag is-link">{type}</span>
+            </div>
+          </div>
           <span>{icon}</span>
           <span>{title}</span>
         </ObjectMeta>

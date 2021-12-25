@@ -57,6 +57,7 @@ const DashboardContent = () => {
               myPages.length > 0 &&
               myPages.map((p) => (
                 <SearchObjectEntry
+                  type={p.object}
                   key={p.url}
                   title={p.title}
                   icon={p.icon}

@@ -1,8 +1,7 @@
 import axios from "axios";
 
-import NotionPage from "./interfaces/NotionObject";
+import NotionObject from "./interfaces/NotionObject";
 
-// TODO: throttle if it's been 3s since last time for all API requests
 class Backend {
   baseURL: string;
   lastCall = new Date();
@@ -118,7 +117,7 @@ class Backend {
     );
   }
 
-  async search(query: string): Promise<NotionPage[]> {
+  async search(query: string): Promise<NotionObject[]> {
     if (this.__withinThreeSeconds()) {
       console.log("skipping");
       return;
@@ -153,18 +152,15 @@ class Backend {
     }
 
     if (data && data.results) {
-      return data.results
-        .map((p) => {
-          console.log("p", p);
-          let page: NotionPage = {
-            title: this.__getPageTitle(p).substr(0, 60), // Don't show strings longer than 60 characters
-            icon: this.__getPageIcon(p),
-            url: p.url as string,
-            id: p.id,
-          };
-          return page;
-        })
-        .filter((p) => p.title !== "untitled"); // Hide untitled pages
+      return data.results.map((p) => {
+        return {
+          object: p.object,
+          title: this.__getPageTitle(p).substr(0, 60), // Don't show strings longer than 60 characters
+          icon: this.__getPageIcon(p),
+          url: p.url as string,
+          id: p.id,
+        };
+      });
     }
     return [];
   }
@@ -176,39 +172,37 @@ class Backend {
     return "📄";
   }
 
-  async getPage(pageId: string): Promise<NotionPage | null> {
+  async getPage(pageId: string): Promise<NotionObject | null> {
     try {
       const response = await axios.get(this.baseURL + "notion/page/" + pageId, {
         withCredentials: true,
       });
-      console.log("getPage", response);
-      let page: NotionPage = {
+      return {
+        object: response.data.object,
         title: this.__getPageTitle(response.data),
         icon: this.__getPageIcon(response.data),
         url: response.data.url as string,
         id: response.data.id,
         data: response.data,
       };
-      return page;
     } catch (error) {
       return null;
     }
   }
 
-  async getDatabase(id: string): Promise<NotionPage | null> {
+  async getDatabase(id: string): Promise<NotionObject | null> {
     try {
       const response = await axios.get(this.baseURL + "notion/database/" + id, {
         withCredentials: true,
       });
-      console.log("getDatabase", response);
-      let page: NotionPage = {
+      return {
+        object: response.data.object,
         title: this.__getPageTitle(response.data),
         icon: this.__getPageIcon(response.data),
         url: response.data.url as string,
         id: response.data.id,
         data: response.data,
       };
-      return page;
     } catch (error) {
       return null;
     }
