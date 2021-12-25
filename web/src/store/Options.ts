@@ -46,13 +46,16 @@ class CardOptionsStore {
   }
 
   loadValues(): CardOption[] {
-    return [
-      {
-        key: "email-notification",
-        label: "Email Notification",
-        value: _loadOption("email-notification", false),
-        description: "Receive email notifications when your decks are created.",
-      },
+    const v = [
+      window.location.pathname.includes("/upload")
+        ? null
+        : {
+            key: "email-notification",
+            label: "Email Notification",
+            value: _loadOption("email-notification", false),
+            description:
+              "Receive email notifications when your decks are created.",
+          },
       {
         key: "add-notion-link",
         label: "Add Notion Link",
@@ -159,6 +162,8 @@ class CardOptionsStore {
           "This will allow you to use SHIFT-Enter in the toggles to create multiple lines for all card types (Basic, Cloze, etc.)",
       },
     ];
+
+    return v.filter(Boolean);
   }
 
   clear() {
