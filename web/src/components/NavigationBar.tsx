@@ -48,7 +48,7 @@ const NavigationBar = (props: NavigationBarProps) => {
             aria-label="menu"
             aria-expanded="false"
             data-target="navbar"
-            onClick={() => setHamburgerMenu(true)}
+            onClick={() => setHamburgerMenu(!active)}
           >
             <span aria-hidden="true"></span>
             <span aria-hidden="true"></span>
@@ -130,9 +130,9 @@ const NavigationBar = (props: NavigationBarProps) => {
             <>
               <a
                 href="/search"
-                className="navbar-item my-2 mx-4 button is-link"
+                className="navbar-item my-2 mx-4 button is-danger"
               >
-                Search
+                BETA
               </a>
             </>
           )}
