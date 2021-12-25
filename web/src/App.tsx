@@ -30,7 +30,6 @@ const Layout = styled.div`
 const Container = styled.div`
   display: block;
   flex: 1 0 auto;
-  padding: 4rem;
 `;
 
 function App() {

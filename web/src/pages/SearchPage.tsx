@@ -15,6 +15,10 @@ const EmptyContainer = styled.div`
   height: 50vh;
 `;
 
+const StyledSearchPage = styled.div`
+  margin: 0 auto;
+`;
+
 let backend = new Backend();
 
 const DashboardContent = () => {
@@ -45,7 +49,7 @@ const DashboardContent = () => {
   }, [query]);
 
   return (
-    <div className="flex">
+    <StyledSearchPage>
       <div className="column is-main-content">
         <Switch>
           <Route exact path="/search/workspaces">
@@ -86,7 +90,7 @@ const DashboardContent = () => {
           </Route>
         </Switch>
       </div>
-    </div>
+    </StyledSearchPage>
   );
 };
 

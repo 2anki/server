@@ -3,11 +3,11 @@ import styled from "styled-components";
 
 const SearchInput = styled.input`
   width: 80vw;
-  margin: 0 auto;
+  max-width: 640px;
 `;
 const SearchContainer = styled.div`
   position: sticky;
-  margin-bottom: 2rem;
+  margin: 0 auto;
 `;
 
 // TODO: handle the enter key is pressed
