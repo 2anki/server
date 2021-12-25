@@ -45,9 +45,7 @@ function App() {
             {/* We don't want a header on the sign-up page */}
             <Route
               render={({ location }) =>
-                location.pathname.match(
-                  /^(?!.*(login|dashboard|signup)).*$/
-                ) ? (
+                location.pathname.match(/^(?!.*(login|search|signup)).*$/) ? (
                   <NavigationBar />
                 ) : null
               }
