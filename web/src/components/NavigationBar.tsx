@@ -98,9 +98,6 @@ const NavigationBar = (props: NavigationBarProps) => {
         <div className="navbar-end">
           {isSignedIn && (
             <>
-              {/* <a href="/learn" className="navbar-item">
-                💡 Learn
-              </a> */}
               <a href="/search" className="navbar-item my-2 mx-4 button">
                 🔎
               </a>

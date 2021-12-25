@@ -144,22 +144,18 @@ class Backend {
     }
 
     if (data && data.results) {
-      return (
-        data.results
-          // TODO: allow searching for non notion pages
-          .filter((p) => p.object === "page")
-          .map((p) => {
-            console.log("p", p);
-            let page: NotionPage = {
-              title: this.__getPageTitle(p).substr(0, 80), // Don't show strings longer than 80 characters
-              icon: this.__getPageIcon(p),
-              url: p.url as string,
-              id: p.id,
-            };
-            return page;
-          })
-          .filter((p) => p.title !== "untitled")
-      ); // Hide untitled pages
+      return data.results
+        .map((p) => {
+          console.log("p", p);
+          let page: NotionPage = {
+            title: this.__getPageTitle(p).substr(0, 60), // Don't show strings longer than 60 characters
+            icon: this.__getPageIcon(p),
+            url: p.url as string,
+            id: p.id,
+          };
+          return page;
+        })
+        .filter((p) => p.title !== "untitled"); // Hide untitled pages
     }
     return [];
   }
