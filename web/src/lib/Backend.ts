@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import NotionPage from "./interfaces/NotionPage";
+import NotionPage from "./interfaces/NotionObject";
 
 // TODO: throttle if it's been 3s since last time for all API requests
 class Backend {
@@ -25,6 +25,10 @@ class Backend {
   __getPageTitle(p): string {
     try {
       const properties = p.properties;
+      // Database
+      if (p.object === "database" && p.title) {
+        return p.title[0].text.content;
+      }
       if (!properties) {
         return "untitled";
       }
@@ -133,6 +137,11 @@ class Backend {
         data = {
           results: [res.data],
         };
+      } else {
+        const dbResult = await this.getDatabase(query);
+        data = {
+          results: [dbResult.data],
+        };
       }
     } else {
       const response = await axios.post(
@@ -167,19 +176,42 @@ class Backend {
     return "📄";
   }
 
-  async getPage(pageId: string): Promise<NotionPage> {
-    const response = await axios.get(this.baseURL + "notion/page/" + pageId, {
-      withCredentials: true,
-    });
-    console.log("getPage", response);
-    let page: NotionPage = {
-      title: this.__getPageTitle(response.data),
-      icon: this.__getPageIcon(response.data),
-      url: response.data.url as string,
-      id: response.data.id,
-      data: response.data,
-    };
-    return page;
+  async getPage(pageId: string): Promise<NotionPage | null> {
+    try {
+      const response = await axios.get(this.baseURL + "notion/page/" + pageId, {
+        withCredentials: true,
+      });
+      console.log("getPage", response);
+      let page: NotionPage = {
+        title: this.__getPageTitle(response.data),
+        icon: this.__getPageIcon(response.data),
+        url: response.data.url as string,
+        id: response.data.id,
+        data: response.data,
+      };
+      return page;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  async getDatabase(id: string): Promise<NotionPage | null> {
+    try {
+      const response = await axios.get(this.baseURL + "notion/database/" + id, {
+        withCredentials: true,
+      });
+      console.log("getDatabase", response);
+      let page: NotionPage = {
+        title: this.__getPageTitle(response.data),
+        icon: this.__getPageIcon(response.data),
+        url: response.data.url as string,
+        id: response.data.id,
+        data: response.data,
+      };
+      return page;
+    } catch (error) {
+      return null;
+    }
   }
 
   // TODO: typeset!
