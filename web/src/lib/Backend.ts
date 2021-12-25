@@ -21,7 +21,7 @@ class Backend {
     return axios.get(this.baseURL + "notion/get-notion-link");
   }
 
-  __getPageTitle(p): string {
+  __getObjectTitle(p): string {
     try {
       const properties = p.properties;
       // Database
@@ -158,8 +158,8 @@ class Backend {
       return data.results.map((p) => {
         return {
           object: p.object,
-          title: this.__getPageTitle(p).substr(0, 58), // Don't show strings longer than 60 characters
-          icon: this.__getPageIcon(p),
+          title: this.__getObjectTitle(p).substr(0, 58), // Don't show strings longer than 60 characters
+          icon: this.__getObjectIcon(p),
           url: p.url as string,
           id: p.id,
         };
@@ -167,7 +167,7 @@ class Backend {
     }
     return [];
   }
-  private __getPageIcon(p: any): string {
+  private __getObjectIcon(p: any): string {
     if (!p || !p.icon) {
       return "📄";
     }
@@ -182,8 +182,8 @@ class Backend {
       });
       return {
         object: response.data.object,
-        title: this.__getPageTitle(response.data),
-        icon: this.__getPageIcon(response.data),
+        title: this.__getObjectTitle(response.data),
+        icon: this.__getObjectIcon(response.data),
         url: response.data.url as string,
         id: response.data.id,
         data: response.data,
@@ -200,8 +200,8 @@ class Backend {
       });
       return {
         object: response.data.object,
-        title: this.__getPageTitle(response.data),
-        icon: this.__getPageIcon(response.data),
+        title: this.__getObjectTitle(response.data),
+        icon: this.__getObjectIcon(response.data),
         url: response.data.url as string,
         id: response.data.id,
         data: response.data,
