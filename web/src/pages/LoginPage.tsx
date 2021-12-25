@@ -9,6 +9,7 @@ const TopSection = styled.div`
   align-items: center;
   justify-content: flex-end;
   grid-gap: 1rem;
+  padding: 1rem;
 `;
 
 const LoginPage = () => {
