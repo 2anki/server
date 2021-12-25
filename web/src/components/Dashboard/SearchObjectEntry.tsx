@@ -47,7 +47,7 @@ const SearchObjectEntry = ({ title, icon, url, id, type }) => {
             </div>
           </div>
           <span>{icon}</span>
-          <span>{title}</span>
+          <span className="subtitle is-6">{title}</span>
         </ObjectMeta>
         <ObjectActions>
           <div onClick={() => setShowSlicer(!showSlicer)}>
