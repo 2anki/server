@@ -3,7 +3,6 @@ import Backend from "../../lib/Backend";
 import TemplateSelect from "../TemplateSelect";
 
 let flashCardOptions = ["toggle", "bulleted_list_item", "numbered_list_item"];
-let deckOptions = ["page", "database", "heading"];
 let tagOptions = ["heading", "strikethrough"];
 
 let backend = new Backend();
@@ -17,8 +16,6 @@ const SliceRules = ({ id, setDone }) => {
 
   const [isLoading, setIsloading] = useState(true);
   const [flashcard, setFlashcard] = useState(rules.flashcard_is);
-  const [deck, setDeck] = useState(rules.deck_is);
-  const [subDecks, setSubDeck] = useState(rules.sub_deck_is);
   const [tags, setTags] = useState(rules.tags_is);
 
   useEffect(() => {
@@ -42,7 +39,7 @@ const SliceRules = ({ id, setDone }) => {
     setIsloading(true);
 
     try {
-      await backend.saveRules(id, flashcard, deck, subDecks, tags);
+      await backend.saveRules(id, flashcard, "page", "child_page", tags);
       setDone();
     } catch (error) {
       console.error(error);
@@ -82,22 +79,6 @@ const SliceRules = ({ id, setDone }) => {
               value={rules.tags_is}
             />
             <hr />
-            <TemplateSelect
-              pickedTemplate={(name: string) => setDeck(name)}
-              values={deckOptions.map((fco) => {
-                return { label: `Decks are ${fco}`, value: fco };
-              })}
-              name={"Pages"}
-              value={rules.deck_is}
-            />
-            <TemplateSelect
-              pickedTemplate={(name: string) => setSubDeck(name)}
-              values={deckOptions.map((fco) => {
-                return { label: `Sub-decks are ${fco}`, value: fco };
-              })}
-              name={"Pages"}
-              value={rules.sub_deck_is}
-            />
           </div>
           <footer className="card-footer">
             <a
