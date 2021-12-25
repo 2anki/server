@@ -18,7 +18,7 @@ const SearchBar = ({ onSearchQueryChanged, onSearchClicked, inProgress }) => {
       <div className="field has-addons">
         <div className="control">
           <SearchInput
-            className="input is-large"
+            className="input"
             type="text"
             placeholder="  🔍 🅰  📑 "
             onKeyDown={(e) => {
@@ -32,7 +32,7 @@ const SearchBar = ({ onSearchQueryChanged, onSearchClicked, inProgress }) => {
         </div>
         <div className="control" onClick={onSearchClicked}>
           <button
-            className={`button is-large ${
+            className={`button ${
               inProgress ? "is-loading is-light" : "is-info"
             }`}
             disabled={!enabled}
