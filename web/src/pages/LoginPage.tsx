@@ -9,6 +9,7 @@ const TopSection = styled.div`
   align-items: center;
   justify-content: flex-end;
   grid-gap: 1rem;
+  padding: 1rem;
 `;
 
 const LoginPage = () => {
@@ -31,7 +32,7 @@ const LoginPage = () => {
           <>
             Already have an account?
             <button className="button is-black" onClick={onClickLogin}>
-              Log in
+              Beta access
             </button>
           </>
         )}
@@ -39,7 +40,7 @@ const LoginPage = () => {
           <>
             Don't have an account?
             <button className="button is-black" onClick={onClickRegister}>
-              Register
+              Join waitlist
             </button>
           </>
         )}

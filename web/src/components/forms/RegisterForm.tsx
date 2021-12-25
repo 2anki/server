@@ -1,6 +1,8 @@
 import styled from "styled-components";
 import axios from "axios";
 import { SyntheticEvent, useState } from "react";
+import BetaTag from "../BetaTag";
+import BetaMessage from "../BetaMessage";
 
 const FormContainer = styled.div`
   max-width: 720px;
@@ -41,7 +43,7 @@ const RegisterForm = () => {
       };
       const res = await axios.post(endpoint, data);
       if (res.status === 200) {
-        window.location.href = "/dashboard";
+        window.location.href = "/search";
       } else {
         setError(
           "Unknown error. Please try again or reach out to alexander@alemayhu.com for assistance if the issue persists."
@@ -59,7 +61,9 @@ const RegisterForm = () => {
         <div className="container">
           <div className="columns is-centered">
             <div className="column is-half">
-              <h1 className="title">Hei there.</h1>
+              <BetaTag />
+              <BetaMessage />
+              <h1 className="title">Join waitlist.</h1>
               <p className="subtitle">To get started please register below.</p>
               {error && <div className="notification is-danger">{error}</div>}
               <form onSubmit={handleSubmit}>
@@ -129,7 +133,7 @@ const RegisterForm = () => {
                             event.target.checked.toString()
                           );
                         }}
-                      />
+                      />{" "}
                       I agree to the{" "}
                       <a
                         rel="noreferrer"
