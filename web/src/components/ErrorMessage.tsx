@@ -5,6 +5,7 @@ const MyLink = () => (
 );
 const ErrorMessage: React.FC<{ msg: string }> = ({ msg }) => {
   const isCorruptZip = msg.includes('Corrupted zip');
+  const fileSizeIssue = msg.includes('100MB');
   return (
     <section className="hero">
       {isCorruptZip && (
@@ -37,7 +38,31 @@ const ErrorMessage: React.FC<{ msg: string }> = ({ msg }) => {
           </p>
         </div>
       )}
-      {!isCorruptZip && (
+      {fileSizeIssue && (
+        <div className="hero p-4">
+          <div dangerouslySetInnerHTML={{ __html: msg }}></div>
+          <p className="subtitle">
+            Please upload smaller pages or If you have big sub pages, try
+            exporting one at a time for upload.
+          </p>
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <a href="/upload" className="button is-small">
+              Try Again
+            </a>
+          </div>
+          <hr />
+          <p
+            className="subtitle is-6"
+            style={{ display: 'flex', alignItems: 'center', gridGap: '0.1rem' }}
+          >
+            <MyLink />
+            is working on the new version using the Notion API
+            <span className="mx-2 tag is-info">Coming soon</span>
+          </p>
+        </div>
+      )}
+
+      {!isCorruptZip && !fileSizeIssue && (
         <>
           <div dangerouslySetInnerHTML={{ __html: msg }}></div>
           <p className="subtitle">
