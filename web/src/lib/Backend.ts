@@ -26,7 +26,7 @@ class Backend {
       const properties = p.properties;
       // Database
       if (p.object === "database" && p.title) {
-        return p.title[0].text.content;
+        return p.title.map((text) => text.plain_text).join("");
       }
       if (!properties) {
         return "untitled";
