@@ -1,6 +1,7 @@
 import axios from "axios";
 
 import NotionObject from "./interfaces/NotionObject";
+import UserUpload from "./interfaces/UserUpload";
 
 class Backend {
   baseURL: string;
@@ -217,6 +218,24 @@ class Backend {
       withCredentials: true,
     });
     return response.data;
+  }
+
+  async getUploads(): Promise<UserUpload[]> {
+    const response = await axios.get(this.baseURL + "upload/mine", {
+      withCredentials: true,
+    });
+    return response.data;
+  }
+
+  async deleteUpload(id: string): Promise<Boolean> {
+    try {
+      await axios.delete(this.baseURL + "upload/mine/" + id, {
+        withCredentials: true,
+      });
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 }
 
