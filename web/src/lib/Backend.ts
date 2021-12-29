@@ -2,6 +2,7 @@ import axios from "axios";
 
 import NotionObject from "./interfaces/NotionObject";
 import UserUpload from "./interfaces/UserUpload";
+import UserJob from "./interfaces/UserJob";
 
 class Backend {
   baseURL: string;
@@ -222,6 +223,13 @@ class Backend {
 
   async getUploads(): Promise<UserUpload[]> {
     const response = await axios.get(this.baseURL + "upload/mine", {
+      withCredentials: true,
+    });
+    return response.data;
+  }
+
+  async getActiveJobs(): Promise<UserJob[]> {
+    const response = await axios.get(this.baseURL + "upload/active", {
       withCredentials: true,
     });
     return response.data;

@@ -9,12 +9,16 @@ const ListUploadsPage = () => {
   const [loading, setLoading] = useState(true);
   const [uploads, setUploads] = useState([]);
   const [deletingAll, setIsDeletingAll] = useState(false);
+  const [jobs, setJobs] = useState([]);
 
   useEffect(() => {
     if (loading) {
       backend.getUploads().then((res) => {
         setUploads(res);
         setLoading(false);
+      });
+      backend.getActiveJobs().then((res) => {
+        setJobs(res);
       });
     }
     // TODO: handle error
@@ -41,7 +45,27 @@ const ListUploadsPage = () => {
 
   return (
     <Container>
-      <h1 className="title is -1">Uploads</h1>
+      {jobs && jobs.length > 0 && (
+        <div className="">
+          <h2 className="title is-2">Active Jobs</h2>
+          <div
+            className="is-pulled-right"
+            onClick={() => (window.location.href = "/uploads/mine")}
+          >
+            <button className="button">Refresh</button>
+          </div>
+          <ul>
+            {jobs.map((j) => (
+              <li>
+                <span className="tag mx-2">{j.status}</span>
+                {j.object_id}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <h2 className="title is -2">Uploads</h2>
       {uploads.length === 0 && !loading && (
         <>
           <p>

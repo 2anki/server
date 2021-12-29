@@ -31,6 +31,7 @@ const NavigationBar = (props: NavigationBarProps) => {
   const [waiting, setIsWaiting] = useState(false);
   const isSignedIn = getCookie("token");
   const [active, setHamburgerMenu] = useState(false);
+  const path = window.location.pathname;
 
   return (
     <>
@@ -129,7 +130,26 @@ const NavigationBar = (props: NavigationBarProps) => {
           {isSignedIn && (
             <>
               <div className="navbar-end">
-                <a href="/uploads/mine" className="navbar-item">
+                <a
+                  style={{
+                    borderBottom: path.includes("/search")
+                      ? "3px solid #5397f5"
+                      : "",
+                  }}
+                  href="/search"
+                  className="navbar-item"
+                >
+                  Search
+                </a>
+                <a
+                  style={{
+                    borderBottom: path.includes("/uploads/mine")
+                      ? "3px solid #5397f5"
+                      : "",
+                  }}
+                  href="/uploads/mine"
+                  className="navbar-item"
+                >
                   Uploads
                 </a>
               </div>
