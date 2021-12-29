@@ -48,6 +48,7 @@ const DashboardContent = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);
 
+  // TODO: warn user if they have more than 21 conversions active. Request deleting on /uploads
   return (
     <StyledSearchPage>
       <div className="column is-main-content">

@@ -80,7 +80,15 @@ const ListUploadsPage = () => {
             {uploads.map((u: UserUpload) => (
               <tr key={u.key}>
                 <td>{u.key}</td>
-                <td>{u.filename}</td>
+                <td>
+                  <a
+                    rel="noreferrer"
+                    target="_blank"
+                    href={`/download/u/${u.key}`}
+                  >
+                    {u.filename}
+                  </a>
+                </td>
                 <td>
                   <button
                     className="delete"

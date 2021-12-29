@@ -128,12 +128,11 @@ const NavigationBar = (props: NavigationBarProps) => {
           )}
           {isSignedIn && (
             <>
-              <a
-                href="/search"
-                className="navbar-item my-2 mx-4 button is-danger"
-              >
-                BETA
-              </a>
+              <div className="navbar-end">
+                <a href="/uploads/mine" className="navbar-item">
+                  Uploads
+                </a>
+              </div>
             </>
           )}
         </div>
