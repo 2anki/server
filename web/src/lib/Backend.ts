@@ -245,6 +245,11 @@ class Backend {
       return false;
     }
   }
+
+  async convert(id: string, type: string) {
+    const link = `${this.baseURL}notion/convert/${id}?type=${type}`;
+    return axios.get(link, { withCredentials: true });
+  }
 }
 
 export default Backend;

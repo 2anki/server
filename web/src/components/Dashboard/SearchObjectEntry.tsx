@@ -1,5 +1,6 @@
 import { useState } from "react";
 import styled from "styled-components";
+import Backend from "../../lib/Backend";
 import SettingsModal from "../modals/SettingsModal";
 import SliceRules from "./SliceRules";
 
@@ -32,6 +33,7 @@ const ObjectActions = styled.div`
   min-width: 80px;
 `;
 
+let backend = new Backend();
 const SearchObjectEntry = ({ title, icon, url, id, type }) => {
   const [isSettings, setShowSettings] = useState(false);
   const [showSlicer, setShowSlicer] = useState(false);
@@ -54,14 +56,19 @@ const SearchObjectEntry = ({ title, icon, url, id, type }) => {
             <img src="/icons/slicer.svg" width="32px" alt="slice" />
           </div>
           <ObjectAction
-            url={`/notion/convert/${id}?type=${type}`}
+            url={url}
             image="/icons/Anki_app_logo.png"
-            onClick={() => console.log("clicked APKG")}
+            onClick={(event) => {
+              event.preventDefault();
+              backend.convert(id, type).then((res) => {
+                window.location.href = "/uploads";
+              });
+            }}
           />
           <ObjectAction
             url={url}
             image="/icons/Notion_app_logo.png"
-            onClick={() => console.log("clicked Notion")}
+            onClick={() => {}}
           />
           <ObjectAction
             onClick={(event) => {
