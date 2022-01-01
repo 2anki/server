@@ -5,7 +5,6 @@ import Backend from "../lib/Backend";
 import SearchBar from "../components/Dashboard/SearchBar";
 import NavigationBar from "../components/NavigationBar";
 import SearchObjectEntry from "../components/Dashboard/SearchObjectEntry";
-import Options from "../store/Options";
 import styled from "styled-components";
 import LoadingScreen from "../components/LoadingScreen";
 

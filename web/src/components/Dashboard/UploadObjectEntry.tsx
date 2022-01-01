@@ -1,8 +1,4 @@
-import { useState } from "react";
 import styled from "styled-components";
-import Backend from "../../lib/Backend";
-import SettingsModal from "../modals/SettingsModal";
-import SliceRules from "./SliceRules";
 
 const Entry = styled.div`
   display: flex;
