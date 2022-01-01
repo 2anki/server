@@ -81,6 +81,7 @@ const ListUploadsPage = () => {
         <table className="table">
           <thead>
             <tr>
+              <th>Size</th>
               <th>Key</th>
               <th>Filename</th>
               <th>
@@ -103,6 +104,7 @@ const ListUploadsPage = () => {
           <tbody>
             {uploads.map((u: UserUpload) => (
               <tr key={u.key}>
+                <td>{u.size_mb}</td>
                 <td>{u.key}</td>
                 <td>
                   <a

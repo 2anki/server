@@ -53,9 +53,6 @@ const DashboardContent = () => {
     <StyledSearchPage>
       <div className="column is-main-content">
         <Switch>
-          <Route exact path="/search/workspaces">
-            Workspaces is coming soon!
-          </Route>
           <Route path="/search">
             <SearchBar
               inProgress={inProgress}
