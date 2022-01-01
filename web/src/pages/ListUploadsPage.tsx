@@ -3,7 +3,6 @@ import Container from "../components/Container";
 import UploadObjectEntry from "../components/Dashboard/UploadObjectEntry";
 import LoadingScreen from "../components/LoadingScreen";
 import Backend from "../lib/Backend";
-import UserUpload from "../lib/interfaces/UserUpload";
 
 let backend = new Backend();
 const ListUploadsPage = () => {

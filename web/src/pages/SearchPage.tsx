@@ -7,6 +7,7 @@ import NavigationBar from "../components/NavigationBar";
 import SearchObjectEntry from "../components/Dashboard/SearchObjectEntry";
 import Options from "../store/Options";
 import styled from "styled-components";
+import LoadingScreen from "../components/LoadingScreen";
 
 const EmptyContainer = styled.div`
   display: flex;
@@ -23,7 +24,7 @@ let backend = new Backend();
 
 const DashboardContent = () => {
   const [query, setQuery] = useState(localStorage.getItem("_query") || "");
-  const [myPages, setMyPages] = useState(Options.LoadMyPages());
+  const [myPages, setMyPages] = useState([]);
   const [inProgress, setInProgress] = useState(false);
   const [errorNotification, setError] = useState(null);
   const triggerSearch = useCallback(() => {
@@ -35,9 +36,6 @@ const DashboardContent = () => {
     backend
       .search(query)
       .then((results) => {
-        if (results && results.length > 0) {
-          localStorage.setItem("__my_pages", JSON.stringify(results));
-        }
         setMyPages(results);
         setInProgress(false);
       })
@@ -124,7 +122,7 @@ const SearchPage = () => {
   }, []);
 
   if (loading) {
-    return <p>Loading ...</p>;
+    return <LoadingScreen />;
   }
 
   return (
@@ -151,7 +149,6 @@ const SearchPage = () => {
       )}
       {connected && (
         <section className="columns is-fullheight">
-          {/* <SideBar menuItem={menuItem} setMenuItem={setMenuItem} /> */}
           <DashboardContent />
         </section>
       )}
