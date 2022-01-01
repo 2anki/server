@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Container from "../components/Container";
+import UploadObjectEntry from "../components/Dashboard/UploadObjectEntry";
 import LoadingScreen from "../components/LoadingScreen";
 import Backend from "../lib/Backend";
 import UserUpload from "../lib/interfaces/UserUpload";
@@ -10,10 +11,17 @@ const ListUploadsPage = () => {
   const [uploads, setUploads] = useState([]);
   const [deletingAll, setIsDeletingAll] = useState(false);
   const [jobs, setJobs] = useState([]);
+  const [quota, setQuota] = useState(0);
 
   useEffect(() => {
     if (loading) {
       backend.getUploads().then((res) => {
+        if (res && res.length > 0) {
+          let diskUsage = res
+            .map((u) => u.size_mb)
+            .reduce((acc, cv) => acc + cv);
+          setQuota(diskUsage);
+        }
         setUploads(res);
         setLoading(false);
       });
@@ -78,55 +86,47 @@ const ListUploadsPage = () => {
         </>
       )}
       {uploads.length > 0 && (
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Size</th>
-              <th>Key</th>
-              <th>Filename</th>
-              <th>
-                <>
-                  <button
-                    className={`button is-small ${
-                      deletingAll ? "is-loading" : ""
-                    } `}
-                    onClick={() => {
-                      setIsDeletingAll(true);
-                      deleteAllUploads();
-                    }}
-                  >
-                    Delete All
-                  </button>
-                </>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {uploads.map((u: UserUpload) => (
-              <tr key={u.key}>
-                <td>{u.size_mb}</td>
-                <td>{u.key}</td>
-                <td>
-                  <a
-                    rel="noreferrer"
-                    target="_blank"
-                    href={`/download/u/${u.key}`}
-                  >
-                    {u.filename}
-                  </a>
-                </td>
-                <td>
-                  <button
-                    className="delete"
-                    onClick={() => deleteUpload(u.key)}
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
+        <>
+          {uploads &&
+            uploads.map((u) => (
+              <UploadObjectEntry
+                size={u.size_mb.toFixed("2")}
+                key={u.key}
+                title={u.filename}
+                icon={null}
+                url={`/download/u/${u.key}`}
+                id={u.object_id}
+                deleteUpload={deleteUpload}
+              />
             ))}
-          </tbody>
-        </table>
+          <hr />
+          <div className="card">
+            <header className="card-header"></header>
+            <div className="card-content">
+              You have used {quota.toFixed(2)} MB of your quota (21MB).
+              <div className="is-pulled-right my-2">
+                <button
+                  className={`button is-small ${
+                    deletingAll ? "is-loading" : ""
+                  } `}
+                  onClick={() => {
+                    setIsDeletingAll(true);
+                    deleteAllUploads();
+                  }}
+                >
+                  Delete All
+                </button>
+              </div>
+              <progress
+                className={`progress ${quota > 16 ? "is-danger" : "is-info"}`}
+                value={quota}
+                max={21}
+              >
+                15%
+              </progress>
+            </div>
+          </div>
+        </>
       )}
     </Container>
   );
