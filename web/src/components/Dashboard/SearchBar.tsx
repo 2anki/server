@@ -14,7 +14,6 @@ const SearchContainer = styled.div`
 
 // TODO: handle the enter key is pressed
 const SearchBar = ({ onSearchQueryChanged, onSearchClicked, inProgress }) => {
-  const [enabled, setEnabled] = useState(false);
   return (
     <SearchContainer>
       <div className="field has-addons">
@@ -27,7 +26,6 @@ const SearchBar = ({ onSearchQueryChanged, onSearchClicked, inProgress }) => {
               if (e.key === "Enter") onSearchClicked();
             }}
             onChange={(event) => {
-              setEnabled(event.target.value.length > 3);
               onSearchQueryChanged(event.target.value);
             }}
           />
@@ -37,7 +35,6 @@ const SearchBar = ({ onSearchQueryChanged, onSearchClicked, inProgress }) => {
             className={`button ${
               inProgress ? "is-loading is-light" : "is-info"
             }`}
-            disabled={!enabled}
           >
             Search
           </button>
