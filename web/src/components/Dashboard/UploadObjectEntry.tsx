@@ -27,6 +27,7 @@ const ObjectActions = styled.div`
   display: flex;
   grid-gap: 1rem;
   min-width: 80px;
+  justify-content: center;
 `;
 
 const UploadObjectEntry = ({ size, title, icon, url, id, deleteUpload }) => {
@@ -50,11 +51,6 @@ const UploadObjectEntry = ({ size, title, icon, url, id, deleteUpload }) => {
           <ObjectAction
             url={url}
             image="/icons/Anki_app_logo.png"
-            onClick={() => {}}
-          />
-          <ObjectAction
-            url={url}
-            image="/icons/Notion_app_logo.png"
             onClick={() => {}}
           />
         </ObjectActions>
