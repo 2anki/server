@@ -33,12 +33,10 @@ const UploadObjectEntry = ({ size, title, icon, url, id, deleteUpload }) => {
   return (
     <>
       <Entry>
-        <div className="flex">
+        <ObjectMeta>
           <button className="delete" onClick={() => deleteUpload(id)}>
             Delete
           </button>
-        </div>
-        <ObjectMeta>
           <div className="control">
             <div className="tags has-addons">
               <span className="tag is-info">Size</span>
