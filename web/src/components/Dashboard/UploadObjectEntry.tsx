@@ -33,6 +33,11 @@ const UploadObjectEntry = ({ size, title, icon, url, id, deleteUpload }) => {
   return (
     <>
       <Entry>
+        <div className="flex">
+          <button className="delete" onClick={() => deleteUpload(id)}>
+            Delete
+          </button>
+        </div>
         <ObjectMeta>
           <div className="control">
             <div className="tags has-addons">
@@ -54,11 +59,6 @@ const UploadObjectEntry = ({ size, title, icon, url, id, deleteUpload }) => {
             image="/icons/Notion_app_logo.png"
             onClick={() => {}}
           />
-          <div>
-            <button className="delete" onClick={() => deleteUpload(id)}>
-              Delete
-            </button>
-          </div>
         </ObjectActions>
       </Entry>
     </>
