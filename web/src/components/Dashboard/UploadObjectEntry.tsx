@@ -35,7 +35,7 @@ const UploadObjectEntry = ({ size, title, icon, url, id, deleteUpload }) => {
     <>
       <Entry>
         <ObjectMeta>
-          <button className="delete" onClick={() => deleteUpload(id)}>
+          <button className="delete" onClick={() => deleteUpload()}>
             Delete
           </button>
           <div className="control">

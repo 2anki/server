@@ -95,7 +95,7 @@ const ListUploadsPage = () => {
                 icon={null}
                 url={`/download/u/${u.key}`}
                 id={u.object_id}
-                deleteUpload={deleteUpload}
+                deleteUpload={() => deleteUpload(u.key)}
               />
             ))}
           <hr />
