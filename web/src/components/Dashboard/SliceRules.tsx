@@ -65,26 +65,29 @@ const SliceRules = ({ id, setDone }) => {
       {!isLoading && (
         <>
           <div className="card-content">
-            {rules &&
-              flashCardOptions.map((fco) => (
-                <Switch
-                  key={id}
-                  id={fco}
-                  title={`Flashcards are ${fco}`}
-                  checked={rules.flashcard_is.includes(fco)}
-                  onSwitched={() => {
-                    const included = rules.flashcard_is.includes(fco);
-                    if (!included) {
-                      rules.flashcard_is.push(fco);
-                    } else if (included) {
-                      rules.flashcard_is = rules.flashcard_is.filter(
-                        (f) => f !== fco
-                      );
-                    }
-                    setFlashcard(rules.flashcard_is);
-                  }}
-                />
-              ))}
+            {flashCardOptions.map((fco) => (
+              <Switch
+                key={fco}
+                id={fco}
+                title={`Flashcards are ${fco}`}
+                checked={rules.flashcard_is.includes(fco)}
+                onSwitched={() => {
+                  const included = rules.flashcard_is.includes(fco);
+                  if (!included) {
+                    rules.flashcard_is.push(fco);
+                  } else if (included) {
+                    rules.flashcard_is = rules.flashcard_is.filter(
+                      (f) => f !== fco
+                    );
+                  }
+                  console.log("rules", rules);
+                  setFlashcard((prevState) => [
+                    ...prevState,
+                    ...rules.flashcard_is,
+                  ]);
+                }}
+              />
+            ))}
             <TemplateSelect
               pickedTemplate={(name: string) => setTags(name)}
               values={tagOptions.map((fco) => {
