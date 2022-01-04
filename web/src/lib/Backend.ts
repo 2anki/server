@@ -97,7 +97,7 @@ class Backend {
     tags: string
   ) {
     let payload = {
-      FLASHCARD: flashcard,
+      FLASHCARD: flashcard.join(","),
       DECK: deck,
       SUB_DECKS: subDecks,
       TAGS: tags,

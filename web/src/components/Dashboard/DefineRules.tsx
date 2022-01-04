@@ -25,7 +25,10 @@ const DefineRules = ({ id, setDone, parent }) => {
       .getRules(id)
       .then((response) => {
         if (response.data) {
-          setRules(response.data);
+          const newRules = response.data;
+          newRules.flashcard_is = newRules.flashcard_is.split(",");
+          setRules(newRules);
+          // setFlashcard(newRules.flashcard_is);
         }
         setIsloading(false);
       })
@@ -81,10 +84,9 @@ const DefineRules = ({ id, setDone, parent }) => {
                     );
                   }
                   console.log("rules", rules);
-                  setFlashcard((prevState) => [
-                    ...prevState,
-                    ...rules.flashcard_is,
-                  ]);
+                  setFlashcard((prevState) =>
+                    Array.from(new Set([...prevState, ...rules.flashcard_is]))
+                  );
                 }}
               />
             ))}
