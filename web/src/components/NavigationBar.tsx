@@ -37,12 +37,12 @@ const NavigationBar = (props: NavigationBarProps) => {
     <>
       <nav className="navbar" role="navigation" aria-label="main navigation">
         <div className="navbar-brand">
-          <a className="navbar-item has-text-weight-bold" href="/">
+          <div className="navbar-item has-text-weight-bold">
             <div className="mx-2">
               <BetaTag />
             </div>
-            2anki
-          </a>
+            <a href="/">2anki</a>
+          </div>
           <a
             role="button"
             className={`navbar-burger burger ${active ? "is-active" : ""}`}
