@@ -1,8 +1,7 @@
 import { useState } from "react";
 import styled from "styled-components";
 import Backend from "../../lib/Backend";
-import SettingsModal from "../modals/SettingsModal";
-import SliceRules from "./SliceRules";
+import DefineRules from "./DefineRules";
 
 const Entry = styled.div`
   display: flex;
@@ -35,8 +34,7 @@ const ObjectActions = styled.div`
 
 let backend = new Backend();
 const SearchObjectEntry = ({ title, icon, url, id, type }) => {
-  const [isSettings, setShowSettings] = useState(false);
-  const [showSlicer, setShowSlicer] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   return (
     <>
@@ -52,9 +50,6 @@ const SearchObjectEntry = ({ title, icon, url, id, type }) => {
           <span className="subtitle is-6">{title}</span>
         </ObjectMeta>
         <ObjectActions>
-          <div onClick={() => setShowSlicer(!showSlicer)}>
-            <img src="/icons/slicer.svg" width="32px" alt="slice" />
-          </div>
           <ObjectAction
             url={url}
             image="/icons/Anki_app_logo.png"
@@ -70,28 +65,18 @@ const SearchObjectEntry = ({ title, icon, url, id, type }) => {
             image="/icons/Notion_app_logo.png"
             onClick={() => {}}
           />
-          <ObjectAction
-            onClick={(event) => {
-              event.preventDefault();
-              setShowSettings(true);
-            }}
-            url={`/search/${id}/settings`}
-            image="/icons/settings.svg"
-          />
+          <div onClick={() => setShowSettings(!showSettings)}>
+            <img src="/icons/settings.svg" width="32px" alt="settings" />
+          </div>
         </ObjectActions>
       </Entry>
-      {showSlicer && (
-        <SliceRules id={id} setDone={() => setShowSlicer(false)} />
+      {showSettings && (
+        <DefineRules
+          parent={title}
+          id={id}
+          setDone={() => setShowSettings(false)}
+        />
       )}
-      {/* TODO: Detect if this page is a official 2anki.net template duplicate then link directly to the page section with the settings */}
-      <SettingsModal
-        pageId={id}
-        pageTitle={title}
-        isActive={isSettings}
-        onClickClose={() => {
-          setShowSettings(false);
-        }}
-      />
     </>
   );
 };

@@ -7,7 +7,7 @@ let flashCardOptions = ["toggle", "bulleted_list_item", "numbered_list_item"];
 let tagOptions = ["heading", "strikethrough"];
 
 let backend = new Backend();
-const SliceRules = ({ id, setDone }) => {
+const DefineRules = ({ id, setDone, parent }) => {
   const [rules, setRules] = useState({
     flashcard_is: ["toggle"],
     sub_deck_is: "child_page",
@@ -53,7 +53,7 @@ const SliceRules = ({ id, setDone }) => {
   return (
     <div className="card" style={{ maxWidth: "480px", marginLeft: "auto" }}>
       <header className="card-header">
-        <p className="card-header-title">Slice your flashcards</p>
+        <p className="card-header-title">Settings for {parent}</p>
         {isLoading && (
           <button className="m-2 card-header-icon button is-loading"></button>
         )}
@@ -88,6 +88,7 @@ const SliceRules = ({ id, setDone }) => {
                 }}
               />
             ))}
+            <hr />
             <TemplateSelect
               pickedTemplate={(name: string) => setTags(name)}
               values={tagOptions.map((fco) => {
@@ -96,7 +97,6 @@ const SliceRules = ({ id, setDone }) => {
               name={"Tags"}
               value={rules.tags_is}
             />
-            <hr />
           </div>
           <footer className="card-footer">
             <a
@@ -123,4 +123,4 @@ const SliceRules = ({ id, setDone }) => {
   );
 };
 
-export default SliceRules;
+export default DefineRules;
