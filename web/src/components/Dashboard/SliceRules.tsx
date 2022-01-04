@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Backend from "../../lib/Backend";
 import TemplateSelect from "../TemplateSelect";
+import Switch from "../input/Switch";
 
 let flashCardOptions = ["toggle", "bulleted_list_item", "numbered_list_item"];
 let tagOptions = ["heading", "strikethrough"];
@@ -8,7 +9,7 @@ let tagOptions = ["heading", "strikethrough"];
 let backend = new Backend();
 const SliceRules = ({ id, setDone }) => {
   const [rules, setRules] = useState({
-    flashcard_is: "toggle",
+    flashcard_is: ["toggle"],
     sub_deck_is: "child_page",
     tags_is: "strikethrough",
     deck_is: "page",
@@ -23,7 +24,9 @@ const SliceRules = ({ id, setDone }) => {
       /* @ts-ignore */
       .getRules(id)
       .then((response) => {
-        setRules(response.data);
+        if (response.data) {
+          setRules(response.data);
+        }
         setIsloading(false);
       })
       .catch((error) => {
@@ -62,14 +65,26 @@ const SliceRules = ({ id, setDone }) => {
       {!isLoading && (
         <>
           <div className="card-content">
-            <TemplateSelect
-              pickedTemplate={(name: string) => setFlashcard(name)}
-              values={flashCardOptions.map((fco) => {
-                return { label: `Flashcards are ${fco}`, value: fco };
-              })}
-              name={"Toggles"}
-              value={rules.flashcard_is}
-            />
+            {rules &&
+              flashCardOptions.map((fco) => (
+                <Switch
+                  key={id}
+                  id={fco}
+                  title={`Flashcards are ${fco}`}
+                  checked={rules.flashcard_is.includes(fco)}
+                  onSwitched={() => {
+                    const included = rules.flashcard_is.includes(fco);
+                    if (!included) {
+                      rules.flashcard_is.push(fco);
+                    } else if (included) {
+                      rules.flashcard_is = rules.flashcard_is.filter(
+                        (f) => f !== fco
+                      );
+                    }
+                    setFlashcard(rules.flashcard_is);
+                  }}
+                />
+              ))}
             <TemplateSelect
               pickedTemplate={(name: string) => setTags(name)}
               values={tagOptions.map((fco) => {

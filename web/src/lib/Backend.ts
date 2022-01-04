@@ -91,7 +91,7 @@ class Backend {
 
   saveRules(
     id: string,
-    flashcard: string,
+    flashcard: string[],
     deck: string,
     subDecks: string,
     tags: string
