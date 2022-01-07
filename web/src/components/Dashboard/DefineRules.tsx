@@ -13,6 +13,7 @@ const DefineRules = ({ id, setDone, parent }) => {
     sub_deck_is: "child_page",
     tags_is: "strikethrough",
     deck_is: "page",
+    email_notification: false,
   });
 
   const [isLoading, setIsloading] = useState(true);
@@ -91,6 +92,15 @@ const DefineRules = ({ id, setDone, parent }) => {
               />
             ))}
             <hr />
+            <Switch
+              key="email-notification"
+              id="email-notification"
+              title="Receive email notifications when your decks are ready"
+              checked={rules.email_notification}
+              onSwitched={() => {
+                rules.email_notification = !rules.email_notification;
+              }}
+            />
             <TemplateSelect
               pickedTemplate={(name: string) => setTags(name)}
               values={tagOptions.map((fco) => {
