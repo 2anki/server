@@ -65,6 +65,8 @@ class Backend {
 
   __withinThreeSeconds(): Boolean {
     const end = new Date();
+    console.log("end", end);
+    console.log("lastCall", this.lastCall);
     /* @ts-ignore */
     let diff = end - this.lastCall;
     diff /= 1000;
@@ -121,8 +123,8 @@ class Backend {
     );
   }
 
-  async search(query: string): Promise<NotionObject[]> {
-    if (this.__withinThreeSeconds()) {
+  async search(query: string, force?: boolean): Promise<NotionObject[]> {
+    if (!force && this.__withinThreeSeconds()) {
       throw new Error(
         "You are making too many requests. Please wait a few seconds before searching."
       );

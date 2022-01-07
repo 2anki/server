@@ -7,6 +7,8 @@ import NavigationBar from "../components/NavigationBar";
 import SearchObjectEntry from "../components/Dashboard/SearchObjectEntry";
 import styled from "styled-components";
 import LoadingScreen from "../components/LoadingScreen";
+import useQuery from "../lib/hooks/useQuery";
+import { useHistory } from "react-router-dom";
 
 const EmptyContainer = styled.div`
   display: flex;
@@ -22,28 +24,49 @@ const StyledSearchPage = styled.div`
 let backend = new Backend();
 
 const DashboardContent = () => {
-  const [query, setQuery] = useState(localStorage.getItem("_query") || "");
+  let _query = useQuery();
+  const history = useHistory();
+
+  const [query, setQuery] = useState(_query.get("q") || "");
   const [myPages, setMyPages] = useState([]);
   const [inProgress, setInProgress] = useState(false);
   const [errorNotification, setError] = useState(null);
-  const triggerSearch = useCallback(() => {
-    if (inProgress) {
-      return;
-    }
-    setError(null);
-    setInProgress(true);
-    backend
-      .search(query)
-      .then((results) => {
-        setMyPages(results);
-        setInProgress(false);
-      })
-      .catch((error) => {
-        setInProgress(false);
-        setError(error);
-      });
+  const [isLoading, setIsLoading] = useState(true);
+
+  const triggerSearch = useCallback(
+    (force) => {
+      if (inProgress) {
+        return;
+      }
+      console.log("query", query);
+      setError(null);
+      setInProgress(true);
+      backend
+        .search(query, force)
+        .then((results) => {
+          console.log("results", results);
+          setMyPages(results);
+          setInProgress(false);
+          setIsLoading(false);
+        })
+        .catch((error) => {
+          console.error(error);
+          setIsLoading(false);
+          setInProgress(false);
+          setError(error);
+        });
+    },
+    [inProgress, query]
+  );
+
+  useEffect(() => {
+    console.log("called!");
+    setIsLoading(true);
+    triggerSearch(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query]);
+  }, []);
+
+  if (isLoading) return <LoadingScreen />;
 
   // TODO: warn user if they have more than 21 conversions active. Request deleting on /uploads
   return (
@@ -53,7 +76,13 @@ const DashboardContent = () => {
           <Route path="/search">
             <SearchBar
               inProgress={inProgress}
-              onSearchQueryChanged={(s) => setQuery(s)}
+              onSearchQueryChanged={(s) => {
+                history.push({
+                  pathname: "/search",
+                  search: `?q=${s}`,
+                });
+                setQuery(s);
+              }}
               onSearchClicked={triggerSearch}
             />
             {(!myPages || myPages.length < 1) && (
