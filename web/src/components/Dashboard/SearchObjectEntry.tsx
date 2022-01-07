@@ -35,9 +35,19 @@ const ObjectActions = styled.div`
 let backend = new Backend();
 const SearchObjectEntry = ({ title, icon, url, id, type }) => {
   const [showSettings, setShowSettings] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   return (
     <>
+      {errorMessage && (
+        <div className="is-info notification is-light my-4">
+          <button
+            className="delete"
+            onClick={() => setErrorMessage(null)}
+          ></button>
+          <div dangerouslySetInnerHTML={{ __html: errorMessage }} />
+        </div>
+      )}
       <Entry>
         <ObjectMeta>
           <div className="control">
@@ -55,9 +65,14 @@ const SearchObjectEntry = ({ title, icon, url, id, type }) => {
             image="/icons/Anki_app_logo.png"
             onClick={(event) => {
               event.preventDefault();
-              backend.convert(id, type).then((res) => {
-                window.location.href = "/uploads";
-              });
+              backend
+                .convert(id, type)
+                .then((res) => {
+                  window.location.href = "/uploads";
+                })
+                .catch((error) => {
+                  setErrorMessage(error.response.data.message);
+                });
             }}
           />
           <ObjectAction
