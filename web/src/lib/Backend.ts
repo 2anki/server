@@ -130,13 +130,12 @@ class Backend {
       );
     }
 
-    // TODO: handle query is a page id
     // TODO: handel query is a external page (not Notion.so)
     // TODO: handle AnkiWeb urls
 
-    const isPageId = query.length === 32;
+    const isObjectId = query.replace(/-/g, "").length === 32;
     let data;
-    if (isPageId) {
+    if (isObjectId) {
       const res = await this.getPage(query);
       console.log("res", res);
       if (res && res.data) {
