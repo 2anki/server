@@ -248,6 +248,12 @@ class Backend {
     }
   }
 
+  async deleteJob(id: string) {
+    await axios.delete(this.baseURL + "upload/active/" + id, {
+      withCredentials: true,
+    });
+  }
+
   async convert(id: string, type: string) {
     const link = `${this.baseURL}notion/convert/${id}?type=${type}`;
     return axios.get(link, { withCredentials: true });

@@ -45,6 +45,15 @@ const ListUploadsPage = () => {
       .catch((err) => console.error(console.error(err)));
   }
 
+  function deleteJob(id: string): void {
+    backend
+      .deleteJob(id)
+      .then(() => {
+        setJobs(jobs.filter((j) => j.object_id !== id));
+      })
+      .catch((err) => console.error(err));
+  }
+
   async function deleteAllUploads(): Promise<void> {
     for (const u of uploads) {
       await deleteUpload(u.key);
@@ -63,9 +72,13 @@ const ListUploadsPage = () => {
           >
             <button className="button">Refresh</button>
           </div>
-          <ul>
+          <ul className="my-2">
             {jobs.map((j) => (
-              <li>
+              <li className="is-flex">
+                <button
+                  className="delete"
+                  onClick={() => deleteJob(j.object_id)}
+                ></button>
                 <span className="tag mx-2">{j.status}</span>
                 {j.object_id}
               </li>
