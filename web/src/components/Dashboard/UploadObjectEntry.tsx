@@ -41,7 +41,7 @@ const UploadObjectEntry = ({ size, title, icon, url, id, deleteUpload }) => {
           <div className="control">
             <div className="tags has-addons">
               <span className="tag is-info">Size</span>
-              <span className="tag">{size}</span>
+              <span className="tag">{size} MB</span>
             </div>
           </div>
           <span>{icon}</span>

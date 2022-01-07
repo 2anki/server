@@ -11,6 +11,7 @@ const ListUploadsPage = () => {
   const [deletingAll, setIsDeletingAll] = useState(false);
   const [jobs, setJobs] = useState([]);
   const [quota, setQuota] = useState(0);
+  const [isPatreon, setIsPatreon] = useState(false);
 
   useEffect(() => {
     if (loading) {
@@ -27,6 +28,7 @@ const ListUploadsPage = () => {
       backend.getActiveJobs().then((res) => {
         setJobs(res);
       });
+      backend.isPatreon().then((is) => setIsPatreon(is));
     }
     // TODO: handle error
   }, [loading]);
@@ -99,32 +101,35 @@ const ListUploadsPage = () => {
               />
             ))}
           <hr />
-          <div className="card">
-            <header className="card-header"></header>
-            <div className="card-content">
-              You have used {quota.toFixed(2)} MB of your quota (21MB).
-              <div className="is-pulled-right my-2">
-                <button
-                  className={`button is-small ${
-                    deletingAll ? "is-loading" : ""
-                  } `}
-                  onClick={() => {
-                    setIsDeletingAll(true);
-                    deleteAllUploads();
-                  }}
+          {!isPatreon && (
+            <div className="card">
+              <header className="card-header"></header>
+              <div className="card-content">
+                You have used {quota.toFixed(2)} MB
+                {!isPatreon && " of your quota (21MB)"}.
+                <div className="is-pulled-right my-2">
+                  <button
+                    className={`button is-small ${
+                      deletingAll ? "is-loading" : ""
+                    } `}
+                    onClick={() => {
+                      setIsDeletingAll(true);
+                      deleteAllUploads();
+                    }}
+                  >
+                    Delete All
+                  </button>
+                </div>
+                <progress
+                  className={`progress ${quota > 16 ? "is-danger" : "is-info"}`}
+                  value={quota}
+                  max={21}
                 >
-                  Delete All
-                </button>
+                  15%
+                </progress>
               </div>
-              <progress
-                className={`progress ${quota > 16 ? "is-danger" : "is-info"}`}
-                value={quota}
-                max={21}
-              >
-                15%
-              </progress>
             </div>
-          </div>
+          )}
         </>
       )}
     </Container>

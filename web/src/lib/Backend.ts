@@ -250,6 +250,13 @@ class Backend {
     const link = `${this.baseURL}notion/convert/${id}?type=${type}`;
     return axios.get(link, { withCredentials: true });
   }
+
+  async isPatreon(): Promise<boolean> {
+    const response = await axios.get(this.baseURL + "users/is-patreon", {
+      withCredentials: true,
+    });
+    return response.data.patreon;
+  }
 }
 
 export default Backend;
