@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
 import Backend from "../../lib/Backend";
 import TemplateSelect from "../TemplateSelect";
+import Switch from "../input/Switch";
 
 let flashCardOptions = ["toggle", "bulleted_list_item", "numbered_list_item"];
 let tagOptions = ["heading", "strikethrough"];
 
 let backend = new Backend();
-const SliceRules = ({ id, setDone }) => {
+const DefineRules = ({ id, setDone, parent }) => {
   const [rules, setRules] = useState({
-    flashcard_is: "toggle",
+    flashcard_is: ["toggle"],
     sub_deck_is: "child_page",
     tags_is: "strikethrough",
     deck_is: "page",
+    email_notification: false,
   });
 
   const [isLoading, setIsloading] = useState(true);
@@ -23,7 +25,12 @@ const SliceRules = ({ id, setDone }) => {
       /* @ts-ignore */
       .getRules(id)
       .then((response) => {
-        setRules(response.data);
+        if (response.data) {
+          const newRules = response.data;
+          newRules.flashcard_is = newRules.flashcard_is.split(",");
+          setRules(newRules);
+          // setFlashcard(newRules.flashcard_is);
+        }
         setIsloading(false);
       })
       .catch((error) => {
@@ -50,7 +57,7 @@ const SliceRules = ({ id, setDone }) => {
   return (
     <div className="card" style={{ maxWidth: "480px", marginLeft: "auto" }}>
       <header className="card-header">
-        <p className="card-header-title">Slice your flashcards</p>
+        <p className="card-header-title">Settings for {parent}</p>
         {isLoading && (
           <button className="m-2 card-header-icon button is-loading"></button>
         )}
@@ -62,13 +69,37 @@ const SliceRules = ({ id, setDone }) => {
       {!isLoading && (
         <>
           <div className="card-content">
-            <TemplateSelect
-              pickedTemplate={(name: string) => setFlashcard(name)}
-              values={flashCardOptions.map((fco) => {
-                return { label: `Flashcards are ${fco}`, value: fco };
-              })}
-              name={"Toggles"}
-              value={rules.flashcard_is}
+            {flashCardOptions.map((fco) => (
+              <Switch
+                key={fco}
+                id={fco}
+                title={`Flashcards are ${fco}`}
+                checked={rules.flashcard_is.includes(fco)}
+                onSwitched={() => {
+                  const included = rules.flashcard_is.includes(fco);
+                  if (!included) {
+                    rules.flashcard_is.push(fco);
+                  } else if (included) {
+                    rules.flashcard_is = rules.flashcard_is.filter(
+                      (f) => f !== fco
+                    );
+                  }
+                  console.log("rules", rules);
+                  setFlashcard((prevState) =>
+                    Array.from(new Set([...prevState, ...rules.flashcard_is]))
+                  );
+                }}
+              />
+            ))}
+            <hr />
+            <Switch
+              key="email-notification"
+              id="email-notification"
+              title="Receive email notifications when your decks are ready"
+              checked={rules.email_notification}
+              onSwitched={() => {
+                rules.email_notification = !rules.email_notification;
+              }}
             />
             <TemplateSelect
               pickedTemplate={(name: string) => setTags(name)}
@@ -78,7 +109,6 @@ const SliceRules = ({ id, setDone }) => {
               name={"Tags"}
               value={rules.tags_is}
             />
-            <hr />
           </div>
           <footer className="card-footer">
             <a
@@ -105,4 +135,4 @@ const SliceRules = ({ id, setDone }) => {
   );
 };
 
-export default SliceRules;
+export default DefineRules;

@@ -1,21 +1,12 @@
 import React, { Suspense } from "react";
 import ReactDOM from "react-dom";
 import "bulma/css/bulma.css";
-import styled from "styled-components";
 import * as Sentry from "@sentry/react";
 import { Integrations } from "@sentry/tracing";
 
 import App from "./App";
 
-const StyledLoader = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 2rem;
-`;
-const LoadingScreen = () => {
-  return <StyledLoader>Loading... </StyledLoader>;
-};
+import LoadingScreen from "./components/LoadingScreen";
 
 if (window.location.hostname !== "localhost") {
   Sentry.init({

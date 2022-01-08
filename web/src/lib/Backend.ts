@@ -1,6 +1,8 @@
 import axios from "axios";
 
 import NotionObject from "./interfaces/NotionObject";
+import UserUpload from "./interfaces/UserUpload";
+import UserJob from "./interfaces/UserJob";
 
 class Backend {
   baseURL: string;
@@ -63,6 +65,8 @@ class Backend {
 
   __withinThreeSeconds(): Boolean {
     const end = new Date();
+    console.log("end", end);
+    console.log("lastCall", this.lastCall);
     /* @ts-ignore */
     let diff = end - this.lastCall;
     diff /= 1000;
@@ -89,13 +93,13 @@ class Backend {
 
   saveRules(
     id: string,
-    flashcard: string,
+    flashcard: string[],
     deck: string,
     subDecks: string,
     tags: string
   ) {
     let payload = {
-      FLASHCARD: flashcard,
+      FLASHCARD: flashcard.join(","),
       DECK: deck,
       SUB_DECKS: subDecks,
       TAGS: tags,
@@ -119,20 +123,19 @@ class Backend {
     );
   }
 
-  async search(query: string): Promise<NotionObject[]> {
-    if (this.__withinThreeSeconds()) {
+  async search(query: string, force?: boolean): Promise<NotionObject[]> {
+    if (!force && this.__withinThreeSeconds()) {
       throw new Error(
         "You are making too many requests. Please wait a few seconds before searching."
       );
     }
 
-    // TODO: handle query is a page id
     // TODO: handel query is a external page (not Notion.so)
     // TODO: handle AnkiWeb urls
 
-    const isPageId = query.length === 32;
+    const isObjectId = query.replace(/-/g, "").length === 32;
     let data;
-    if (isPageId) {
+    if (isObjectId) {
       const res = await this.getPage(query);
       console.log("res", res);
       if (res && res.data) {
@@ -217,6 +220,49 @@ class Backend {
       withCredentials: true,
     });
     return response.data;
+  }
+
+  async getUploads(): Promise<UserUpload[]> {
+    const response = await axios.get(this.baseURL + "upload/mine", {
+      withCredentials: true,
+    });
+    return response.data;
+  }
+
+  async getActiveJobs(): Promise<UserJob[]> {
+    const response = await axios.get(this.baseURL + "upload/active", {
+      withCredentials: true,
+    });
+    return response.data;
+  }
+
+  async deleteUpload(id: string): Promise<Boolean> {
+    try {
+      await axios.delete(this.baseURL + "upload/mine/" + id, {
+        withCredentials: true,
+      });
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  async deleteJob(id: string) {
+    await axios.delete(this.baseURL + "upload/active/" + id, {
+      withCredentials: true,
+    });
+  }
+
+  async convert(id: string, type: string) {
+    const link = `${this.baseURL}notion/convert/${id}?type=${type}`;
+    return axios.get(link, { withCredentials: true });
+  }
+
+  async isPatreon(): Promise<boolean> {
+    const response = await axios.get(this.baseURL + "users/is-patreon", {
+      withCredentials: true,
+    });
+    return response.data.patreon;
   }
 }
 

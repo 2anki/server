@@ -9,11 +9,7 @@ import UploadForm from "../components/UploadForm";
 import SettingsIcon from "../components/icons/SettingsIcon";
 import SettingsModal from "../components/modals/SettingsModal";
 import ErrorMessage from "../components/ErrorMessage";
-
-const Container = styled.div`
-  max-width: 768px;
-  margin: 0 auto;
-`;
+import Container from "../components/Container";
 
 const InfoMessage = styled.p`
   font-size: 11px;

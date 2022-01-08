@@ -31,17 +31,18 @@ const NavigationBar = (props: NavigationBarProps) => {
   const [waiting, setIsWaiting] = useState(false);
   const isSignedIn = getCookie("token");
   const [active, setHamburgerMenu] = useState(false);
+  const path = window.location.pathname;
 
   return (
     <>
       <nav className="navbar" role="navigation" aria-label="main navigation">
         <div className="navbar-brand">
-          <a className="navbar-item has-text-weight-bold" href="/">
+          <div className="navbar-item has-text-weight-bold">
             <div className="mx-2">
               <BetaTag />
             </div>
-            2anki
-          </a>
+            <a href="/">2anki</a>
+          </div>
           <a
             role="button"
             className={`navbar-burger burger ${active ? "is-active" : ""}`}
@@ -128,12 +129,30 @@ const NavigationBar = (props: NavigationBarProps) => {
           )}
           {isSignedIn && (
             <>
-              <a
-                href="/search"
-                className="navbar-item my-2 mx-4 button is-danger"
-              >
-                BETA
-              </a>
+              <div className="navbar-end">
+                <a
+                  style={{
+                    borderBottom: path.includes("/search")
+                      ? "3px solid #5397f5"
+                      : "",
+                  }}
+                  href="/search"
+                  className="navbar-item"
+                >
+                  Search
+                </a>
+                <a
+                  style={{
+                    borderBottom: path.includes("/uploads/mine")
+                      ? "3px solid #5397f5"
+                      : "",
+                  }}
+                  href="/uploads/mine"
+                  className="navbar-item"
+                >
+                  Uploads
+                </a>
+              </div>
             </>
           )}
         </div>

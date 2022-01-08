@@ -14,16 +14,6 @@ const _loadOption = (key: string, defaultValue: boolean) => {
 };
 
 class CardOptionsStore {
-  static LoadMyPages(): any {
-    try {
-      const my = localStorage.getItem("__my_pages");
-      if (my) {
-        return JSON.parse(my);
-      }
-    } catch (error) {
-      return null;
-    }
-  }
   public options: CardOption[];
 
   constructor() {
