@@ -32,20 +32,17 @@ class CardOptionsStore {
       return o;
     });
     localStorage.setItem(key, value.toString());
+
+    try {
+      /* @ts-ignore */
+      gtag("event", "update", { event_category: key, event_label: value });
+    } catch (error) {}
+
     this.options = newOptions;
   }
 
   loadValues(): CardOption[] {
     const v = [
-      window.location.pathname.includes("/upload")
-        ? null
-        : {
-            key: "email-notification",
-            label: "Email Notification",
-            value: _loadOption("email-notification", false),
-            description:
-              "Receive email notifications when your decks are created.",
-          },
       {
         key: "add-notion-link",
         label: "Add Notion Link",

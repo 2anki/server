@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Backend from "../../lib/Backend";
 import TemplateSelect from "../TemplateSelect";
 import Switch from "../input/Switch";
+import SettingsModal from "../modals/SettingsModal";
 
 let flashCardOptions = ["toggle", "bulleted_list_item", "numbered_list_item"];
 let tagOptions = ["heading", "strikethrough"];
@@ -19,6 +20,8 @@ const DefineRules = ({ id, setDone, parent }) => {
   const [isLoading, setIsloading] = useState(true);
   const [flashcard, setFlashcard] = useState(rules.flashcard_is);
   const [tags, setTags] = useState(rules.tags_is);
+  const [sendEmail, setSendEmail] = useState(rules.email_notification);
+  const [more, setMore] = useState(false);
 
   useEffect(() => {
     backend
@@ -29,7 +32,7 @@ const DefineRules = ({ id, setDone, parent }) => {
           const newRules = response.data;
           newRules.flashcard_is = newRules.flashcard_is.split(",");
           setRules(newRules);
-          // setFlashcard(newRules.flashcard_is);
+          setSendEmail(newRules.email_notification);
         }
         setIsloading(false);
       })
@@ -68,7 +71,18 @@ const DefineRules = ({ id, setDone, parent }) => {
 
       {!isLoading && (
         <>
+          {more && (
+            <SettingsModal
+              pageId={id}
+              pageTitle={parent}
+              isActive={more}
+              onClickClose={() => {
+                setMore(false);
+              }}
+            />
+          )}
           <div className="card-content">
+            <h2 className="subtitle">What is a flashcard?</h2>
             {flashCardOptions.map((fco) => (
               <Switch
                 key={fco}
@@ -91,24 +105,37 @@ const DefineRules = ({ id, setDone, parent }) => {
                 }}
               />
             ))}
-            <hr />
+            <div className="my-4">
+              <h2 className="subtitle">Card fields</h2>
+              <TemplateSelect
+                pickedTemplate={(name: string) => setTags(name)}
+                values={tagOptions.map((fco) => {
+                  return { label: `Tags are ${fco}`, value: fco };
+                })}
+                name={"Tags"}
+                value={rules.tags_is}
+              />
+            </div>
+            <h2 className="subtitle">Miscallenous</h2>
             <Switch
               key="email-notification"
               id="email-notification"
-              title="Receive email notifications when your decks are ready"
-              checked={rules.email_notification}
+              title="Receive email notifications when deck(s) are ready"
+              checked={sendEmail}
               onSwitched={() => {
                 rules.email_notification = !rules.email_notification;
+                setSendEmail(rules.email_notification);
               }}
             />
-            <TemplateSelect
-              pickedTemplate={(name: string) => setTags(name)}
-              values={tagOptions.map((fco) => {
-                return { label: `Tags are ${fco}`, value: fco };
-              })}
-              name={"Tags"}
-              value={rules.tags_is}
-            />
+            <div className="has-text-centered">
+              <hr />
+              <button
+                className="button is-small"
+                onClick={() => setMore(!more)}
+              >
+                More!
+              </button>
+            </div>
           </div>
           <footer className="card-footer">
             <a
