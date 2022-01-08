@@ -1,6 +1,7 @@
 import styled from "styled-components";
 
 import CTAButton from "../components/CTAButton";
+import SupportSection from "../components/SupportSection";
 
 const MascotImage = styled.img`
   height: 500px;
@@ -60,14 +61,6 @@ const Subscribe = () => {
   );
 };
 
-const StyledLine = styled.hr`
-  background-color: #f5f5f5;
-  border: none;
-  display: block;
-  height: 2px;
-  margin: 1.5rem 0;
-`;
-
 const HomePage = () => {
   const index = Math.round(Math.random() * 4);
   const image = `mascot/Notion ${index + 1}.png`;
@@ -92,7 +85,6 @@ const HomePage = () => {
           </p>
         </CtaGroup>
         <MascotImage src={image} alt="Notion to Anki Mascot" loading="lazy" />
-        <StyledLine />
         <h2>Tutorials on YouTube</h2>
         <p>
           Below are some selected videos to get you started with the project and
@@ -107,6 +99,7 @@ const HomePage = () => {
             <Subscribe />
           </CtaGroup>
         </p>
+        <SupportSection />
       </Container>
     </>
   );
