@@ -19,6 +19,7 @@ const DefineRules = ({ id, setDone, parent }) => {
   const [isLoading, setIsloading] = useState(true);
   const [flashcard, setFlashcard] = useState(rules.flashcard_is);
   const [tags, setTags] = useState(rules.tags_is);
+  const [sendEmail, setSendEmail] = useState(rules.email_notification);
 
   useEffect(() => {
     backend
@@ -29,7 +30,7 @@ const DefineRules = ({ id, setDone, parent }) => {
           const newRules = response.data;
           newRules.flashcard_is = newRules.flashcard_is.split(",");
           setRules(newRules);
-          // setFlashcard(newRules.flashcard_is);
+          setSendEmail(newRules.email_notification);
         }
         setIsloading(false);
       })
@@ -96,9 +97,10 @@ const DefineRules = ({ id, setDone, parent }) => {
               key="email-notification"
               id="email-notification"
               title="Receive email notifications when your decks are ready"
-              checked={rules.email_notification}
+              checked={sendEmail}
               onSwitched={() => {
                 rules.email_notification = !rules.email_notification;
+                setSendEmail(rules.email_notification);
               }}
             />
             <TemplateSelect
