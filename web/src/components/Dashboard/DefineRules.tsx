@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Backend from "../../lib/Backend";
 import TemplateSelect from "../TemplateSelect";
 import Switch from "../input/Switch";
+import SettingsModal from "../modals/SettingsModal";
 
 let flashCardOptions = ["toggle", "bulleted_list_item", "numbered_list_item"];
 let tagOptions = ["heading", "strikethrough"];
@@ -20,6 +21,7 @@ const DefineRules = ({ id, setDone, parent }) => {
   const [flashcard, setFlashcard] = useState(rules.flashcard_is);
   const [tags, setTags] = useState(rules.tags_is);
   const [sendEmail, setSendEmail] = useState(rules.email_notification);
+  const [more, setMore] = useState(false);
 
   useEffect(() => {
     backend
@@ -69,6 +71,16 @@ const DefineRules = ({ id, setDone, parent }) => {
 
       {!isLoading && (
         <>
+          {more && (
+            <SettingsModal
+              pageId={id}
+              pageTitle={parent}
+              isActive={more}
+              onClickClose={() => {
+                setMore(false);
+              }}
+            />
+          )}
           <div className="card-content">
             <h2 className="subtitle">What is a flashcard?</h2>
             {flashCardOptions.map((fco) => (
@@ -115,6 +127,15 @@ const DefineRules = ({ id, setDone, parent }) => {
                 setSendEmail(rules.email_notification);
               }}
             />
+            <div className="has-text-centered">
+              <hr />
+              <button
+                className="button is-small"
+                onClick={() => setMore(!more)}
+              >
+                More!
+              </button>
+            </div>
           </div>
           <footer className="card-footer">
             <a
