@@ -3,7 +3,6 @@ import BecomeAPatron from "../components/BecomeAPatron";
 import Container from "../components/Container";
 import UploadObjectEntry from "../components/Dashboard/UploadObjectEntry";
 import LoadingScreen from "../components/LoadingScreen";
-import SupportSection from "../components/SupportSection";
 import Backend from "../lib/Backend";
 
 let backend = new Backend();
