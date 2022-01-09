@@ -1,3 +1,5 @@
+import BecomeAPatron from "./BecomeAPatron";
+
 const SupportSection = () => (
   <div className="mb-2">
     <h3 className="title is-3"> Support The Development 🙏🏾</h3>
@@ -10,17 +12,7 @@ const SupportSection = () => (
     <br /> While <u>not required,</u> you can directly support the development
     and accelerate the improvements!
     <div className="has-text-centered my-2">
-      <a
-        rel="noreferrer"
-        target="_blank"
-        href="https://www.patreon.com/alemayhu"
-      >
-        <img
-          alt="Become a patreon button"
-          src="become_a_patron_button.png"
-          loading="lazy"
-        />
-      </a>
+      <BecomeAPatron />
     </div>
     <div>
       <p>

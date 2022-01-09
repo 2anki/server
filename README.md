@@ -9,7 +9,7 @@ We are going to make this a good way to make [Anki](https://apps.ankiweb.net/) f
 If you are looking for a Anki or Notion replacement then this project is probably not right for you. Watch this video [Notion + Anki](https://youtu.be/FjifJG4FoXY) to understand the project's goal. We are never
 going to compete against Anki but instead we are building bridges.
 
-When that is said, if you are not content with Anki, you might want to checkout [Zorbi](https://youtu.be/ReQvcQKoalU).
+When that is said, if you are not content with Anki, you might want to checkout [Zorbi](https://youtu.be/ReQvcQKoalU) or [SuperMemo](https://www.super-memory.com/).
 
 ## Benefits
 
@@ -27,7 +27,6 @@ When that is said, if you are not content with Anki, you might want to checkout 
 
 🧱🏢🖌️🏰 [Fortress](https://fortress.no/) - An untraditional, multidisciplinary agency that works to contribute to development and growth.
 
-
 ## 🎁 Support the Project
 
 > This project is brought to you by our amazing [patrons](http://patreon.com/alemayhu)
@@ -40,7 +39,7 @@ When that is said, if you are not content with Anki, you might want to checkout 
 [![GitHub Sponsor](https://img.shields.io/badge/donate-sponsors-ea4aaa.svg?logo=github)](https://github.com/sponsors/alemayhu/)
 [![Paypal](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/alemayhu)
 
-You can also support the project financially and receive exclusive member benefits like ✨
+You can also support the project financially and receive exclusive member benefits ✨
 
 [tl]: https://www.notion.so/Toggles-c720af26b4bd4789b736c140b2dc73fe
 
@@ -77,6 +76,10 @@ This project was hacked together after seeing this post on Reddit by [jacksong97
 > Edit: if I were to just turn them into a text file, how do I set which text goes to the back of the card? I’ve been able to get them all into seperate cards but just the fronts
 
 https://www.reddit.com/r/Anki/comments/g29mzk/cards_imported_from_notion/
+
+## Limitations
+
+We are still heavily relying on the APKG format. Long term we want to support AnkiWeb and make it possible to do true collaboration.
 
 ## Credits
 

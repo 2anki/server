@@ -1,7 +1,7 @@
 const BetaMessage = () => (
   <div
     style={{ margin: "1rem auto" }}
-    className="notification is-danger column"
+    className="notification is-info column is-light"
   >
     <p className="is-size-7">
       The Notion API integration is still under development. Thank you for being

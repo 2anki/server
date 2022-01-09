@@ -10,7 +10,6 @@ import SettingsIcon from "../components/icons/SettingsIcon";
 import SettingsModal from "../components/modals/SettingsModal";
 import ErrorMessage from "../components/ErrorMessage";
 import Container from "../components/Container";
-import SupportSection from "../components/SupportSection";
 
 const InfoMessage = styled.p`
   font-size: 11px;
@@ -105,10 +104,6 @@ const UploadPage = () => {
                 setShowSettings(false);
               }}
             />
-            <hr />
-            <div className="my-4">
-              <SupportSection />
-            </div>
           </div>
         </>
       )}
