@@ -9,7 +9,7 @@ We are going to make this a good way to make [Anki](https://apps.ankiweb.net/) f
 If you are looking for a Anki or Notion replacement then this project is probably not right for you. Watch this video [Notion + Anki](https://youtu.be/FjifJG4FoXY) to understand the project's goal. We are never
 going to compete against Anki but instead we are building bridges.
 
-When that is said, if you are not content with Anki, you might want to checkout [Zorbi](https://youtu.be/ReQvcQKoalU).
+When that is said, if you are not content with Anki, you might want to checkout [Zorbi](https://youtu.be/ReQvcQKoalU) or [SuperMemo](https://www.super-memory.com/).
 
 ## Benefits
 
@@ -26,7 +26,6 @@ When that is said, if you are not content with Anki, you might want to checkout 
 <a href="https://fortress.no"><img src="https://fortress.no/icons/logo.svg"  style="width:114px;" src=""></img></a>
 
 🧱🏢🖌️🏰 [Fortress](https://fortress.no/) - An untraditional, multidisciplinary agency that works to contribute to development and growth.
-
 
 ## 🎁 Support the Project
 
