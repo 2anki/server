@@ -39,7 +39,7 @@ When that is said, if you are not content with Anki, you might want to checkout 
 [![GitHub Sponsor](https://img.shields.io/badge/donate-sponsors-ea4aaa.svg?logo=github)](https://github.com/sponsors/alemayhu/)
 [![Paypal](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/alemayhu)
 
-You can also support the project financially and receive exclusive member benefits like ✨
+You can also support the project financially and receive exclusive member benefits ✨
 
 [tl]: https://www.notion.so/Toggles-c720af26b4bd4789b736c140b2dc73fe
 
