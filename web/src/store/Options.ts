@@ -32,12 +32,6 @@ class CardOptionsStore {
       return o;
     });
     localStorage.setItem(key, value.toString());
-
-    try {
-      /* @ts-ignore */
-      gtag("event", "update", { event_category: key, event_label: value });
-    } catch (error) {}
-
     this.options = newOptions;
   }
 
