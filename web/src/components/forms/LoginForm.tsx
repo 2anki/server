@@ -10,7 +10,6 @@ const FormContainer = styled.div`
   margin: 0 auto;
 `;
 
-/* @ts-ignore */
 const LoginForm = ({ onForgot }) => {
   const [email, setEmail] = useState(localStorage.getItem("email") || "");
   const [password, setPassword] = useState("");

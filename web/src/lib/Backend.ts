@@ -14,8 +14,7 @@ class Backend {
   async logout() {
     localStorage.clear();
     const endpoint = this.baseURL + "users/logout";
-    /* @ts-ignore */
-    await axios.get(endpoint, { withCredentials: true, credentials: true });
+    await axios.get(endpoint, { withCredentials: true });
     window.location.href = "/";
   }
   getNotionConnectionInfo() {

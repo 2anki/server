@@ -96,6 +96,7 @@ const SettingsModal: React.FC<{
             if (s.deckName) {
               setDeckName(s.deckName);
             }
+            setToggleMode(s["toggle-mode"]);
             setSettings(s);
           }
           setLoading(false);

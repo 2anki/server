@@ -25,7 +25,6 @@ const DefineRules = ({ id, setDone, parent }) => {
 
   useEffect(() => {
     backend
-      /* @ts-ignore */
       .getRules(id)
       .then((response) => {
         if (response.data) {

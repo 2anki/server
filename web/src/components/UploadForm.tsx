@@ -4,13 +4,13 @@ import {
   useEffect,
   useRef,
   useState,
-} from 'react';
-import styled from 'styled-components';
+} from "react";
+import styled from "styled-components";
 
 const DropParagraph = styled.div<{ hover: boolean }>`
   border: 1.3px dashed;
   border-radius: 3px;
-  border-color: ${(props) => (props.hover ? '#5997f5' : 'lightgray')};
+  border-color: ${(props) => (props.hover ? "#5997f5" : "lightgray")};
   padding: 4rem;
   margin-bottom: 1rem;
   display: flex;
@@ -19,11 +19,10 @@ const DropParagraph = styled.div<{ hover: boolean }>`
   grid-gap: 1rem;
 `;
 
-/* @ts-ignore */
 const UploadForm = ({ errorMessage, setErrorMessage }) => {
   const [uploading, setUploading] = useState(false);
-  const [downloadLink, setDownloadLink] = useState('');
-  const [deckName, setDeckName] = useState('');
+  const [downloadLink, setDownloadLink] = useState("");
+  const [deckName, setDeckName] = useState("");
   const [dropHover, setDropHover] = useState(false);
 
   const fileInputRef = useRef(null);
@@ -31,7 +30,6 @@ const UploadForm = ({ errorMessage, setErrorMessage }) => {
   const downloadRef = useRef(null);
 
   const fileSizeAccepted = useCallback(() => {
-    /* @ts-ignore */
     let files = fileInputRef.current.files;
     let size = 0;
     for (let i = 0; i < files.length; i++) {
@@ -51,7 +49,7 @@ const UploadForm = ({ errorMessage, setErrorMessage }) => {
   }, [setErrorMessage]);
 
   useEffect(() => {
-    const body = document.getElementsByTagName('body')[0];
+    const body = document.getElementsByTagName("body")[0];
     body.ondragover = (event) => {
       setDropHover(true);
       event.preventDefault();
@@ -69,10 +67,8 @@ const UploadForm = ({ errorMessage, setErrorMessage }) => {
     body.ondrop = (event) => {
       const dataTransfer = event.dataTransfer;
       if (dataTransfer && dataTransfer.files.length > 0) {
-        /* @ts-ignore */
         fileInputRef.current.files = dataTransfer.files;
         if (fileSizeAccepted()) {
-          /* @ts-ignore */
           convertRef.current.click();
         }
       }
@@ -90,24 +86,24 @@ const UploadForm = ({ errorMessage, setErrorMessage }) => {
       for (const sf of storedFields) {
         formData.append(sf[0], sf[1]);
       }
-      const request = await window.fetch('/upload', {
-        method: 'post',
+      const request = await window.fetch("/upload", {
+        method: "post",
         body: formData,
       });
-      const contentType = request.headers.get('Content-Type');
+      const contentType = request.headers.get("Content-Type");
       const notOK = request.status !== 200;
       if (notOK) {
         const text = await request.text();
         return setErrorMessage(text);
       }
-      const fileNameHeader = request.headers.get('File-Name'.toLowerCase());
+      const fileNameHeader = request.headers.get("File-Name".toLowerCase());
       if (fileNameHeader) {
         setDeckName(fileNameHeader);
       } else {
         let fallback =
-          contentType === 'application/zip'
-            ? 'Your Decks.zip'
-            : 'Your deck.apkg';
+          contentType === "application/zip"
+            ? "Your Decks.zip"
+            : "Your deck.apkg";
         setDeckName(fallback);
       }
       const blob = await request.blob();
@@ -123,7 +119,6 @@ const UploadForm = ({ errorMessage, setErrorMessage }) => {
 
   const fileSelected = (event: { target: HTMLInputElement }) => {
     if (fileSizeAccepted()) {
-      /* @ts-ignore */
       convertRef.current.click();
     }
   };
@@ -164,8 +159,8 @@ const UploadForm = ({ errorMessage, setErrorMessage }) => {
             <a
               ref={downloadRef}
               className={`button cta
-              ${isDownloadable ? 'is-primary' : 'is-light'} 
-              ${uploading ? 'is-loading' : null}`}
+              ${isDownloadable ? "is-primary" : "is-light"} 
+              ${uploading ? "is-loading" : null}`}
               href={downloadLink}
               download={deckName}
               onClick={(event) => {
@@ -177,7 +172,7 @@ const UploadForm = ({ errorMessage, setErrorMessage }) => {
               Download
             </a>
             <button
-              style={{ visibility: 'hidden' }}
+              style={{ visibility: "hidden" }}
               ref={convertRef}
               type="submit"
             />

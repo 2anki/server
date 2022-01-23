@@ -46,7 +46,6 @@ const LoginPage = () => {
         )}
       </TopSection>
       {!isLogin && !isForgot && <RegisterForm />}
-      {/* @ts-ignore */}
       {isLogin && !isForgot && <LoginForm onForgot={() => setIsForgot(true)} />}
       {isForgot && <ForgotPasswordForm />}
     </>
