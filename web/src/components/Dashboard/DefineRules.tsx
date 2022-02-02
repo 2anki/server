@@ -18,7 +18,9 @@ const DefineRules = ({ id, setDone, parent }) => {
   });
 
   const [isLoading, setIsloading] = useState(true);
-  const [flashcard, setFlashcard] = useState(rules.flashcard_is);
+  // TODO: fix this hack
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_flashcard, setFlashcard] = useState(rules.flashcard_is);
   const [tags, setTags] = useState(rules.tags_is);
   const [sendEmail, setSendEmail] = useState(rules.email_notification);
   const [more, setMore] = useState(false);
@@ -48,7 +50,7 @@ const DefineRules = ({ id, setDone, parent }) => {
     setIsloading(true);
 
     try {
-      await backend.saveRules(id, flashcard, "page", "child_page", tags);
+      await backend.saveRules(id, rules.flashcard_is, "page", "child_page", tags);
       setDone();
     } catch (error) {
       console.error(error);
