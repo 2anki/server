@@ -59,6 +59,7 @@ const DashboardContent = () => {
     [inProgress, query]
   );
 
+  // TODO: clean this up by using debounce so it's only called when the query changes automatically
   useEffect(() => {
     console.log("called!");
     setIsLoading(true);

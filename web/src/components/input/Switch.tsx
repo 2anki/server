@@ -2,14 +2,14 @@ interface SwitchProps {
   title: string;
   id: string;
   checked: boolean;
-  onSwitched: any;
+  onSwitched: () => void;
 }
 
 const Switch = ({ title, id, checked, onSwitched }: SwitchProps) => {
   return (
     <div
       className="field is-flex is-justify-content-space-between is-flex-direction-column"
-      onClick={() => onSwitched(null)}
+      onClick={() => onSwitched()}
     >
       <input
         id={id}
