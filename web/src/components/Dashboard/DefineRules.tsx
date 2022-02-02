@@ -48,7 +48,7 @@ const DefineRules = ({ id, setDone, parent }) => {
     setIsloading(true);
 
     try {
-      await backend.saveRules(id, flashcard, "page", "child_page", tags);
+      await backend.saveRules(id, rules.flashcard_is, "page", "child_page", tags);
       setDone();
     } catch (error) {
       console.error(error);
