@@ -30,6 +30,7 @@ interface NavigationBarProps {
 
 const Navbar = styled.nav`
   margin: 2rem 4rem 2rem 4rem;
+  background #E5E5E5;
   @media (max-width: 1024px) {
     margin: 0;
   }

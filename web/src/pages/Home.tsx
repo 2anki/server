@@ -2,9 +2,9 @@ import styled from "styled-components";
 
 import PrimaryButton from "../components/buttons/PrimaryButton";
 import SupportSection from "../components/SupportSection";
-import HeroSubtitle from "../components/hero/HeroSubtitle"
-import HeroTitle from "../components/hero/HeroTitle"
-import HeroText from "../components/hero/HeroText"
+import HeroSubtitle from "../components/hero/HeroSubtitle";
+import HeroTitle from "../components/hero/HeroTitle";
+import HeroText from "../components/hero/HeroText";
 
 const MascotImage = styled.img`
   height: 500px;
@@ -69,7 +69,9 @@ const Subscribe = () => {
   );
 };
 
-
+const HeroSection = styled.section`
+background: #E5E5E5;
+`
 
 const HomePage = () => {
   const index = Math.round(Math.random() * 4);
@@ -77,7 +79,9 @@ const HomePage = () => {
 
   return (
     <>
-      <Container>
+      <HeroSection className="hero is-fullheight">
+        <div className="container">
+
         <h1>
           <HeroTitle>Everything you need to</HeroTitle>
           <HeroSubtitle> learn fast</HeroSubtitle>
@@ -86,13 +90,16 @@ const HomePage = () => {
           We are making it the easiest and fastest way to create beautiful Anki
           flashcards for anyone anywhere around the world!
         </HeroText>
-          <div className="is-flex is-justify-content-center	">
-            <PrimaryButton
-              destination="/upload"
-              text="Get Started"
-              onClickLink={() => {}}
-            />
-          </div>
+        <div className="is-flex is-justify-content-center	">
+          <PrimaryButton
+            destination="/upload"
+            text="Get Started"
+            onClickLink={() => {}}
+          />
+        </div>
+        </div>
+        </HeroSection>
+      <Container>
         <CtaGroup>
           <p>
             Fast, simple, easy and 100%{" "}
@@ -102,8 +109,12 @@ const HomePage = () => {
         <MascotImage src={image} alt="Notion to Anki Mascot" loading="lazy" />
         <h2>Tutorials on YouTube</h2>
         <p>
-          You can find videos showing you how to get started on our <a href="https://www.youtube.com/playlist?list=PLzOAzzqpDqukOtwH3IYWiOhr_sjBjfgCd">Notion to Anki</a> playlist.
-          If you have any questions, do not hesistate to ask questions (see{" "}
+          You can find videos showing you how to get started on our{" "}
+          <a href="https://www.youtube.com/playlist?list=PLzOAzzqpDqukOtwH3IYWiOhr_sjBjfgCd">
+            Notion to Anki
+          </a>{" "}
+          playlist. If you have any questions, do not hesistate to ask questions
+          (see{" "}
           <a href="https://alemayhu.notion.site/Contact-e76523187cc64961972b3ad4f7cb4c47">
             contact
           </a>{" "}
