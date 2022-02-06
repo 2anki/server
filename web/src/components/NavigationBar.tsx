@@ -1,8 +1,10 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import { useState } from "react";
 import styled from "styled-components";
+
 import Backend from "../lib/Backend";
 import NotionWorkspace from "../lib/interfaces/NotionWorkspace";
+import  NavButtonCTA from "./buttons/NavButtonCTA";
 
 // https://www.w3schools.com/js/js_cookies.asp
 function getCookie(cname) {
@@ -26,16 +28,6 @@ interface NavigationBarProps {
   connectLink?: string;
 }
 
-const JoinNowButton = styled.a`
-    border-radius: 10px;
-    background: #2B2E3C;
-    color: white;
-    border: none;
-    :hover {
-      color: white;
-      background: #5397f5;
-    }
-`
 
 const Navbar = styled.nav`
 margin: 2rem 4rem 2rem 4rem;
@@ -132,9 +124,9 @@ const NavigationBar = (props: NavigationBarProps) => {
             <div className="navbar-end">
               <div className="navbar-item">
                 <div className="buttons">
-                  <JoinNowButton href="/login#register" className="button">
+                  <NavButtonCTA href="/login#register">
                     <strong>Join Now</strong>
-                  </JoinNowButton>
+                  </NavButtonCTA>
                 </div>
               </div>
             </div>

@@ -3,6 +3,7 @@ import styled from "styled-components";
 import RegisterForm from "../components/forms/RegisterForm";
 import LoginForm from "../components/forms/LoginForm";
 import ForgotPasswordForm from "../components/forms/ForgotPassword";
+import NavButtonCTA from "../components/buttons/NavButtonCTA";
 
 const TopSection = styled.div`
   display: flex;
@@ -27,24 +28,20 @@ const LoginPage = () => {
   };
   return (
     <>
-      <TopSection>
         {!isLogin && (
-          <>
-            Already have an account?
-            <button className="button is-black" onClick={onClickLogin}>
-              Sign in
-            </button>
-          </>
+          <TopSection onClick={() => onClickLogin()}>
+            <span className="mx-2">Already have an account?</span>
+            <NavButtonCTA href="/login#login">Sign in</NavButtonCTA>
+          </TopSection>
         )}
         {isLogin && (
-          <>
+          <TopSection onClick={onClickRegister}>
             Don't have an account?
-            <button className="button is-black" onClick={onClickRegister}>
+            <NavButtonCTA href={"/login#register"}>
               Join Now
-            </button>
-          </>
+            </NavButtonCTA>
+        </TopSection>
         )}
-      </TopSection>
       {!isLogin && !isForgot && <RegisterForm />}
       {isLogin && !isForgot && <LoginForm onForgot={() => setIsForgot(true)} />}
       {isForgot && <ForgotPasswordForm />}
