@@ -7,6 +7,8 @@ const StyledParagraph = styled.p`
   font-size: 20px;
   @media (max-width: 1024px) {
     font-size: 16px;
+    text-align: left;
+    margin: unset;
   }
 `;
 

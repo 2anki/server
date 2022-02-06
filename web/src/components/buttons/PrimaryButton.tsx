@@ -3,8 +3,9 @@ import styled from "styled-components";
 import { Link } from "react-router-dom";
 
 const StyledButton = styled.div`
-  font-weight: bold;
-  margin-top: 2rem;
+  font-weight: semi-bold;
+  font-size: 20px;
+  margin-top: 0.5rem;
   margin-bottom: 2rem;
   background: #5397f5;
   padding: 1rem 1.9rem;
@@ -14,7 +15,7 @@ const StyledButton = styled.div`
   width: 268px;
   height: 66px;
   display: flex;
-  grid-gap: .7rem;
+  grid-gap: 0.7rem;
   align-items: center;
   justify-content: center;
   a {
@@ -23,6 +24,13 @@ const StyledButton = styled.div`
   }
   &:hover {
     background-color: #2b2e3c;
+  }
+
+  @media (max-width: 1024px) {
+    font-size: 16px;
+    width: 221px;
+    height: 54px;
+    margin-right: auto;
   }
 `;
 

@@ -24,6 +24,11 @@ const Container = styled.div`
     font-size: 1.17em;
     font-weight: bolder;
   }
+
+  @media (max-width: 1024px) {
+    margin-left: 3rem;
+    margin-right: 3rem;
+  }
 `;
 
 const CtaGroup = styled.div`
