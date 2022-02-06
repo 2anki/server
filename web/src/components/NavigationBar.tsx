@@ -2,7 +2,6 @@
 import { useState } from "react";
 import Backend from "../lib/Backend";
 import NotionWorkspace from "../lib/interfaces/NotionWorkspace";
-import BetaTag from "./BetaTag";
 
 // https://www.w3schools.com/js/js_cookies.asp
 function getCookie(cname) {
@@ -37,12 +36,11 @@ const NavigationBar = (props: NavigationBarProps) => {
     <>
       <nav className="navbar" role="navigation" aria-label="main navigation">
         <div className="navbar-brand">
-          <div className="navbar-item has-text-weight-bold">
-            <div className="mx-2">
-              <BetaTag />
+          <a className="navbar-item has-text-weight-bold" href="/">
+            <div className="mx-2 is-flex">
+              <img src="/mascot/navbar-logo.png" alt="2anki Logo" />
             </div>
-            <a href="/">2anki</a>
-          </div>
+          </a>
           <a
             role="button"
             className={`navbar-burger burger ${active ? "is-active" : ""}`}
