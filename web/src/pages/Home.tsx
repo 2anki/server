@@ -2,6 +2,9 @@ import styled from "styled-components";
 
 import CTAButton from "../components/CTAButton";
 import SupportSection from "../components/SupportSection";
+import HeroSubtitle from "../components/hero/HeroSubtitle"
+import HeroTitle from "../components/hero/HeroTitle"
+import HeroText from "../components/hero/HeroText"
 
 const MascotImage = styled.img`
   height: 500px;
@@ -61,22 +64,7 @@ const Subscribe = () => {
   );
 };
 
-const HeroTitle = styled.h1`
-font-size: 90px;
-font-weight: bold;
-color: #2B2E3C;
-@media (max-width: 1024px) {
-  font-size: 40px;
- text-align: left;
-  }
-`
 
-const HeroSubtitle = styled(HeroTitle)`
- text-align: center;
-  background: linear-gradient(#6B5EFF, 70%, #5397F5);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-`
 
 const HomePage = () => {
   const index = Math.round(Math.random() * 4);
@@ -85,13 +73,14 @@ const HomePage = () => {
   return (
     <>
       <Container>
-        <HeroTitle>Everything you need to</HeroTitle>
-        <HeroSubtitle>learn fast</HeroSubtitle>
-        <p>
-          <strong>Convert Notion to Anki Flashcards ✨</strong>
+        <h1>
+          <HeroTitle>Everything you need to</HeroTitle>
+          <HeroSubtitle> learn fast</HeroSubtitle>
+        </h1>
+        <HeroText>
           We are making it the easiest and fastest way to create beautiful Anki
           flashcards for anyone anywhere around the world 🌎
-        </p>
+        </HeroText>
         <CtaGroup>
           <CTAButton
             destination="/upload"
