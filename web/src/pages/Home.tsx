@@ -77,9 +77,11 @@ const StyledIframe = styled.iframe`
 `;
 
 const VideoWrapper = styled.div`
-  width: 800px;
+  max-width: 800px;
+  width: 100%;
   margin: 0 auto;
   position: relative;
+  margin: 0 auto;
 `;
 
 const PlayIcon = styled.img`
@@ -90,6 +92,12 @@ const PlayIcon = styled.img`
   :hover {
     cursor: pointer;
   }
+  object-fit: cover;
+`;
+
+const VideoPoster = styled.img`
+  width: 100%;
+  object-fit: cover;
 `;
 
 const HomePage = () => {
@@ -119,13 +127,13 @@ const HomePage = () => {
           <VideoWrapper>
             {!play && (
               <>
-                <img
+                <VideoPoster
                   src="/video-poster.png"
-                  width={800}
-                  height={418}
                   alt={"video"}
+                  onClick={() => setPlay(true)}
                 />
                 <PlayIcon
+                  className="is-hidden-mobile"
                   src="/icons/play-icon.svg"
                   width={50}
                   height={50}
