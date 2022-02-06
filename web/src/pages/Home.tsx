@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-import CTAButton from "../components/CTAButton";
+import PrimaryButton from "../components/buttons/PrimaryButton";
 import SupportSection from "../components/SupportSection";
 import HeroSubtitle from "../components/hero/HeroSubtitle"
 import HeroTitle from "../components/hero/HeroTitle"
@@ -79,10 +79,10 @@ const HomePage = () => {
         </h1>
         <HeroText>
           We are making it the easiest and fastest way to create beautiful Anki
-          flashcards for anyone anywhere around the world 🌎
+          flashcards for anyone anywhere around the world!
         </HeroText>
           <div className="is-flex is-justify-content-center	">
-            <CTAButton
+            <PrimaryButton
               destination="/upload"
               text="Get Started"
               onClickLink={() => {}}

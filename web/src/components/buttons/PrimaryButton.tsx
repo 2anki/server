@@ -23,7 +23,7 @@ const StyledButton = styled.div`
   }
 `;
 
-const CTAButton: React.FC<{
+const PrimaryButton: React.FC<{
   text: string;
   destination: string;
   onClickLink: React.MouseEventHandler;
@@ -38,4 +38,4 @@ const CTAButton: React.FC<{
   );
 };
 
-export default CTAButton;
+export default PrimaryButton;
