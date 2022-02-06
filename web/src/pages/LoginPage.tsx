@@ -32,7 +32,7 @@ const LoginPage = () => {
           <>
             Already have an account?
             <button className="button is-black" onClick={onClickLogin}>
-              Beta access
+              Sign in
             </button>
           </>
         )}
@@ -40,7 +40,7 @@ const LoginPage = () => {
           <>
             Don't have an account?
             <button className="button is-black" onClick={onClickRegister}>
-              Join waitlist
+              Join Now
             </button>
           </>
         )}

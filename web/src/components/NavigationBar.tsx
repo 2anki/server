@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import { useState } from "react";
+import styled from "styled-components";
 import Backend from "../lib/Backend";
 import NotionWorkspace from "../lib/interfaces/NotionWorkspace";
 
@@ -24,6 +25,17 @@ interface NavigationBarProps {
   activeWorkspace?: string;
   connectLink?: string;
 }
+
+const JoinNowButton = styled.a`
+    border-radius: 10px;
+    background: #2B2E3C;
+    color: white;
+    border: none;
+    :hover {
+      color: white;
+      background: #5397f5;
+    }
+`
 
 let backend = new Backend();
 const NavigationBar = (props: NavigationBarProps) => {
@@ -115,12 +127,9 @@ const NavigationBar = (props: NavigationBarProps) => {
             <div className="navbar-end">
               <div className="navbar-item">
                 <div className="buttons">
-                  <a href="/login#register" className="button is-black">
-                    <strong>Join waitlist</strong>
-                  </a>
-                  <a href="/login#login" className="button is-light">
-                    Beta access
-                  </a>
+                  <JoinNowButton href="/login#register" className="button">
+                    <strong>Join Now</strong>
+                  </JoinNowButton>
                 </div>
               </div>
             </div>

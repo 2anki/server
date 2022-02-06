@@ -9,6 +9,7 @@ import styled from "styled-components";
 import LoadingScreen from "../components/LoadingScreen";
 import useQuery from "../lib/hooks/useQuery";
 import { useHistory } from "react-router-dom";
+import BetaTag from "../components/BetaTag";
 
 const EmptyContainer = styled.div`
   display: flex;
@@ -168,6 +169,7 @@ const SearchPage = () => {
           }}
           className="column is-half is-centered"
         >
+              <BetaTag />
           <a
             className="button is-link has-text-weight-semibold	"
             href={connectionLink}

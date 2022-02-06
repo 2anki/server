@@ -117,7 +117,7 @@ const LoginForm = ({ onForgot }) => {
                       className="button is-link is-medium is-pulled-right"
                       disabled={!isValid() || loading}
                     >
-                      Beta access
+                      Sign in
                     </button>
                   </div>
                 </div>
