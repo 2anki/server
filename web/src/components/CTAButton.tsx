@@ -6,16 +6,20 @@ const StyledButton = styled.div`
   font-weight: bold;
   margin-top: 2rem;
   margin-bottom: 2rem;
-  background: rgb(207, 83, 89);
+  background: #5397f5;
   padding: 1rem 1.9rem;
   border-radius: 3px;
   font-size: 1.2rem;
+  text-transform: uppercase;
+  max-width: 268px;
+  display: flex;
+  grid-gap: .7rem;
   a {
     text-decoration: none;
     color: white;
   }
   &:hover {
-    background-color: rgb(207, 83, 0);
+    background-color: #2b2e3c;
   }
 `;
 
@@ -29,6 +33,7 @@ const CTAButton: React.FC<{
       <Link onClick={onClickLink} to={destination}>
         {text}
       </Link>
+      <img width={24} height={24} src="/icons/arrow-right.svg" alt="arrow" />
     </StyledButton>
   );
 };

@@ -81,12 +81,14 @@ const HomePage = () => {
           We are making it the easiest and fastest way to create beautiful Anki
           flashcards for anyone anywhere around the world 🌎
         </HeroText>
+          <div className="is-flex is-justify-content-center	">
+            <CTAButton
+              destination="/upload"
+              text="Get Started"
+              onClickLink={() => {}}
+            />
+          </div>
         <CtaGroup>
-          <CTAButton
-            destination="/upload"
-            text="Get Started"
-            onClickLink={() => {}}
-          />
           <p>
             Fast, simple, easy and 100%{" "}
             <a href="https://github.com/alemayhu/notion2anki">Free</a>!
