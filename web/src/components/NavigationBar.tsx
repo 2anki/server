@@ -35,11 +35,18 @@ const Navbar = styled.nav`
   }
 `;
 
-const NavbarItem = styled.a`
+const StyledNavbarItem = styled.a`
+  font-size: 20px;
   :hover {
     font-weight: bold;
   }
 `
+
+const NavbarItem = ({ path, href, children }) => {
+              return <StyledNavbarItem href={href} className={`navbar-item ${path === href ? 'has-text-weight-bold' : ''}`}>
+                {children}
+              </StyledNavbarItem>
+}
 
 let backend = new Backend();
 const NavigationBar = (props: NavigationBarProps) => {
@@ -47,6 +54,7 @@ const NavigationBar = (props: NavigationBarProps) => {
   const isSignedIn = getCookie("token");
   const [active, setHamburgerMenu] = useState(false);
   const path = window.location.pathname;
+  const hash = window.location.hash;
 
   return (
     <>
@@ -130,19 +138,19 @@ const NavigationBar = (props: NavigationBarProps) => {
 
           {!isSignedIn && (
             <div className="navbar-end">
-              <NavbarItem href="/" className="navbar-item">
+              <NavbarItem href="/" path={hash ? hash : path}>
                 Home
               </NavbarItem>
-              <NavbarItem href="#about" className="navbar-item">
+              <NavbarItem href="#about" path={hash}>
                 About
               </NavbarItem>
-              <NavbarItem href="#testimony" className="navbar-item">
+              <NavbarItem href="#testimony" path={hash}>
                 Testimony
               </NavbarItem>
-              <NavbarItem href="#benefits" className="navbar-item">
+              <NavbarItem href="#benefits" path={hash}>
                 Benefits
               </NavbarItem>
-              <NavbarItem href="#news" className="navbar-item">
+              <NavbarItem href="#news" path={hash}>
                 News
               </NavbarItem>
               <div className="navbar-item">
