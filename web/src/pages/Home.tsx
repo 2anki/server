@@ -9,7 +9,7 @@ const MascotImage = styled.img`
 `;
 
 const Container = styled.div`
-  max-width: 720px;
+  max-width: 1010px;
   margin: 0 auto;
 
   h2 {
@@ -61,6 +61,23 @@ const Subscribe = () => {
   );
 };
 
+const HeroTitle = styled.h1`
+font-size: 90px;
+font-weight: bold;
+color: #2B2E3C;
+@media (max-width: 1024px) {
+  font-size: 40px;
+ text-align: left;
+  }
+`
+
+const HeroSubtitle = styled(HeroTitle)`
+ text-align: center;
+  background: linear-gradient(#6B5EFF, 70%, #5397F5);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+`
+
 const HomePage = () => {
   const index = Math.round(Math.random() * 4);
   const image = `mascot/Notion ${index + 1}.png`;
@@ -68,6 +85,8 @@ const HomePage = () => {
   return (
     <>
       <Container>
+        <HeroTitle>Everything you need to</HeroTitle>
+        <HeroSubtitle>learn fast</HeroSubtitle>
         <p>
           <strong>Convert Notion to Anki Flashcards ✨</strong>
           We are making it the easiest and fastest way to create beautiful Anki
