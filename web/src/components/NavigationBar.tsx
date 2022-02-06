@@ -4,7 +4,7 @@ import styled from "styled-components";
 
 import Backend from "../lib/Backend";
 import NotionWorkspace from "../lib/interfaces/NotionWorkspace";
-import  NavButtonCTA from "./buttons/NavButtonCTA";
+import NavButtonCTA from "./buttons/NavButtonCTA";
 
 // https://www.w3schools.com/js/js_cookies.asp
 function getCookie(cname) {
@@ -28,13 +28,18 @@ interface NavigationBarProps {
   connectLink?: string;
 }
 
-
 const Navbar = styled.nav`
-margin: 2rem 4rem 2rem 4rem;
- @media (max-width: 1024px) {
-  margin: 0;
-}
- `
+  margin: 2rem 4rem 2rem 4rem;
+  @media (max-width: 1024px) {
+    margin: 0;
+  }
+`;
+
+const NavbarItem = styled.a`
+  :hover {
+    font-weight: bold;
+  }
+`
 
 let backend = new Backend();
 const NavigationBar = (props: NavigationBarProps) => {
@@ -48,7 +53,7 @@ const NavigationBar = (props: NavigationBarProps) => {
       <Navbar className="navbar" role="navigation" aria-label="main navigation">
         <div className="navbar-brand">
           <a className="navbar-item has-text-weight-bold" href="/">
-              <img src="/mascot/navbar-logo.png" alt="2anki Logo" />
+            <img src="/mascot/navbar-logo.png" alt="2anki Logo" />
           </a>
           <a
             role="button"
@@ -58,6 +63,9 @@ const NavigationBar = (props: NavigationBarProps) => {
             data-target="navbar"
             onClick={() => setHamburgerMenu(!active)}
           >
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
             <span aria-hidden="true"></span>
             <span aria-hidden="true"></span>
             <span aria-hidden="true"></span>
@@ -122,6 +130,21 @@ const NavigationBar = (props: NavigationBarProps) => {
 
           {!isSignedIn && (
             <div className="navbar-end">
+              <NavbarItem href="/" className="navbar-item">
+                Home
+              </NavbarItem>
+              <NavbarItem href="#about" className="navbar-item">
+                About
+              </NavbarItem>
+              <NavbarItem href="#testimony" className="navbar-item">
+                Testimony
+              </NavbarItem>
+              <NavbarItem href="#benefits" className="navbar-item">
+                Benefits
+              </NavbarItem>
+              <NavbarItem href="#news" className="navbar-item">
+                News
+              </NavbarItem>
               <div className="navbar-item">
                 <div className="buttons">
                   <NavButtonCTA href="/login#register">
@@ -136,9 +159,7 @@ const NavigationBar = (props: NavigationBarProps) => {
               <div className="navbar-end">
                 <a
                   style={{
-                    borderBottom: path.includes("/search")
-                      ? "3px solid #5397f5"
-                      : "",
+                    fontWeight: path.includes("/search") ? "bold" : "normal",
                   }}
                   href="/search"
                   className="navbar-item"
