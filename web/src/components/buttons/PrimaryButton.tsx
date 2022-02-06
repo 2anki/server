@@ -11,9 +11,12 @@ const StyledButton = styled.div`
   border-radius: 3px;
   font-size: 1.2rem;
   text-transform: uppercase;
-  max-width: 268px;
+  width: 268px;
+  height: 66px;
   display: flex;
   grid-gap: .7rem;
+  align-items: center;
+  justify-content: center;
   a {
     text-decoration: none;
     color: white;
