@@ -37,6 +37,13 @@ const JoinNowButton = styled.a`
     }
 `
 
+const Navbar = styled.nav`
+margin: 2rem 4rem 2rem 4rem;
+ @media (max-width: 1024px) {
+  margin: 0;
+}
+ `
+
 let backend = new Backend();
 const NavigationBar = (props: NavigationBarProps) => {
   const [waiting, setIsWaiting] = useState(false);
@@ -46,12 +53,10 @@ const NavigationBar = (props: NavigationBarProps) => {
 
   return (
     <>
-      <nav className="navbar" role="navigation" aria-label="main navigation">
+      <Navbar className="navbar" role="navigation" aria-label="main navigation">
         <div className="navbar-brand">
           <a className="navbar-item has-text-weight-bold" href="/">
-            <div className="mx-2 is-flex">
               <img src="/mascot/navbar-logo.png" alt="2anki Logo" />
-            </div>
           </a>
           <a
             role="button"
@@ -163,7 +168,7 @@ const NavigationBar = (props: NavigationBarProps) => {
             </>
           )}
         </div>
-      </nav>
+      </Navbar>
     </>
   );
 };
