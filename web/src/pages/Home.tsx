@@ -5,6 +5,8 @@ import SupportSection from "../components/SupportSection";
 import HeroSubtitle from "../components/hero/HeroSubtitle";
 import HeroTitle from "../components/hero/HeroTitle";
 import HeroText from "../components/hero/HeroText";
+import HeroSection from "../components/hero/HeroSection";
+import { useState } from "react";
 
 const MascotImage = styled.img`
   height: 500px;
@@ -69,36 +71,83 @@ const Subscribe = () => {
   );
 };
 
-const HeroSection = styled.section`
-background: #E5E5E5;
-`
+const StyledIframe = styled.iframe`
+  margin: 0 auto;
+  display: none;
+`;
+
+const VideoWrapper = styled.div`
+  width: 800px;
+  margin: 0 auto;
+  position: relative;
+`;
+
+const PlayIcon = styled.img`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  :hover {
+    cursor: pointer;
+  }
+`;
 
 const HomePage = () => {
   const index = Math.round(Math.random() * 4);
   const image = `mascot/Notion ${index + 1}.png`;
+  const [play, setPlay] = useState(false);
 
   return (
     <>
       <HeroSection className="hero is-fullheight">
         <div className="container">
-
-        <h1>
-          <HeroTitle>Everything you need to</HeroTitle>
-          <HeroSubtitle> learn fast</HeroSubtitle>
-        </h1>
-        <HeroText>
-          We are making it the easiest and fastest way to create beautiful Anki
-          flashcards for anyone anywhere around the world!
-        </HeroText>
-        <div className="is-flex is-justify-content-center	">
-          <PrimaryButton
-            destination="/upload"
-            text="Get Started"
-            onClickLink={() => {}}
-          />
+          <h1>
+            <HeroTitle>Everything you need to</HeroTitle>
+            <HeroSubtitle> learn fast</HeroSubtitle>
+          </h1>
+          <HeroText>
+            We are making it the easiest and fastest way to create beautiful
+            Anki flashcards for anyone anywhere around the world!
+          </HeroText>
+          <div className="is-flex is-justify-content-center	">
+            <PrimaryButton
+              destination="/upload"
+              text="Get Started"
+              onClickLink={() => {}}
+            />
+          </div>
+          <VideoWrapper>
+            {!play && (
+              <>
+                <img
+                  src="/video-poster.png"
+                  width={800}
+                  height={418}
+                  alt={"video"}
+                />
+                <PlayIcon
+                  src="/icons/play-icon.svg"
+                  width={50}
+                  height={50}
+                  alt={"play"}
+                  onClick={() => setPlay(true)}
+                />
+              </>
+            )}
+            {play && (
+              <StyledIframe
+                className="is-flex"
+                width="800"
+                height="418"
+                src="https://www.youtube.com/embed/Ex3DuBvCo0Y?autoplay=1"
+                title="Preview of 2anki.net - Beta Notion API Integration"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              ></StyledIframe>
+            )}
+          </VideoWrapper>
         </div>
-        </div>
-        </HeroSection>
+      </HeroSection>
       <Container>
         <CtaGroup>
           <p>
