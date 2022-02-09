@@ -1,10 +1,8 @@
 import styled from "styled-components";
-import PersonIllustration from "../illustrations/PersonIllustration";
-import Heading2 from "../text/Heading2";
 
-const StyledSection = styled.section`
-  background: #ebeced;
-`;
+import PersonIllustration from "../illustrations/PersonIllustration";
+import GreySection from "../GreySection";
+import Heading2 from "../text/Heading2";
 
 const Testimonials = styled.div`
   display: flex;
@@ -82,7 +80,7 @@ const TestimonialsSection = () => {
   return (
     <>
       <Curve />
-      <StyledSection className="section">
+      <GreySection className="section">
         <div className="container">
           <Heading2 id="testimonials" isDashed={true}>
             Love for 2anki
@@ -97,7 +95,7 @@ const TestimonialsSection = () => {
             ))}
           </Testimonials>
         </div>
-      </StyledSection>
+      </GreySection>
     </>
   );
 };

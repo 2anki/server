@@ -1,5 +1,7 @@
 import styled from "styled-components";
+
 import BlueHeading3 from "../text/BlueHeading3";
+import GreySection from "../GreySection";
 import Heading2 from "../text/Heading2";
 
 const Illustration = styled.img`
@@ -60,7 +62,8 @@ const BenefitsList = () => {
 
 const BenefitsSection = () => {
   return (
-    <section className="section">
+    <GreySection className="section">
+      {" "}
       <div className="container">
         <Heading2 id={"benefits"} isDashed={true}>
           Benefits
@@ -75,7 +78,7 @@ const BenefitsSection = () => {
           </div>
         </div>
       </div>
-    </section>
+    </GreySection>
   );
 };
 
