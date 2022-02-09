@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import PrimaryButton from "../buttons/PrimaryButton";
 
+import BlueHeading3 from "../text/BlueHeading3";
 import Heading2 from "../text/Heading2";
 
 const Text = styled.div`
@@ -8,25 +9,6 @@ justify-content: center;
     display: flex;
     flex-direction: column;
 }
-`;
-
-const Info = styled.a`
-  width: 485px;
-  height: 42px;
-  left: 845px;
-  top: 1608px;
-
-  font-family: Rubik;
-  font-style: normal;
-  font-weight: 600;
-  font-size: 24px;
-  line-height: 42px;
-  color: #5397f5;
-
-  @media (max-width: 1024px) {
-    font-size: 20px;
-    line-height: 30px;
-  }
 `;
 
 const Mascot = styled.div`
@@ -57,9 +39,7 @@ const AboutSection = () => {
               converts them to Anki flashcards. This project is used by students
               and professionals around the world to practice for their exams.
             </p>
-            <Info href="https://github.com/alemayhu/notion2anki">
-              Fast, simple, easy and 100% Free!
-            </Info>
+            <BlueHeading3>Fast, simple, easy and 100% Free!</BlueHeading3>
             <div className="is-flex is-justify-content-start">
               <PrimaryButton
                 destination="/upload"
