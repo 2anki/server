@@ -84,7 +84,7 @@ const TestimonialsSection = () => {
       <Curve />
       <StyledSection className="section">
         <div className="container">
-          <Heading2 id="testimonials" name="testimonials" isDashed={true}>
+          <Heading2 id="testimonials" isDashed={true}>
             Love for 2anki
           </Heading2>
           <Illustration4

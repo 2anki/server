@@ -15,7 +15,7 @@ const StyledHeading2 = styled.h2`
   }
 `;
 
-const Heading2 = ({ id, name, isDashed, children }) => {
+const Heading2 = ({ id, isDashed, children }) => {
   return (
     <StyledHeading2 id={id}>
       {children}

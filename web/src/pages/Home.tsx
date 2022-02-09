@@ -1,8 +1,7 @@
-import styled from "styled-components";
-
 import TestimonialsSection from "../components/testimonials/TestimonialsSection";
-import HeroSection from "../components/hero/HeroSection";
+import BenefitsSection from "../components/benefits/BenefitsSection";
 import AboutSection from "../components/about/AboutSection";
+import HeroSection from "../components/hero/HeroSection";
 
 const HomePage = () => {
   return (
@@ -10,6 +9,7 @@ const HomePage = () => {
       <HeroSection />
       <AboutSection />
       <TestimonialsSection />
+      <BenefitsSection />
     </>
   );
 };

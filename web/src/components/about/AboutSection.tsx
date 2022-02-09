@@ -49,7 +49,7 @@ const AboutSection = () => {
             <img src="/mascot/Notion 4.png" alt="Notion" />
           </Mascot>
           <Text className="column">
-            <Heading2 id="about" name="about" isDashed={true}>
+            <Heading2 id="about" isDashed={true}>
               What is 2anki?
             </Heading2>
             <p>
