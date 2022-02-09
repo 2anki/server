@@ -1,0 +1,72 @@
+import styled from "styled-components";
+import Heading2 from "../text/Heading2";
+
+const StyledSection = styled.section``;
+
+const Testimonials = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+`;
+
+let users = [
+  {
+    name: "Gabriel Tabbal",
+    description:
+      "Game-changing tool. Anki2Notion will take your studying to the next level. It will undeniably save you an enormous amount of time. Gone are the days of manually creating flashcards.",
+    title: "undergraduate student",
+    profile: null,
+  },
+  {
+    name: "King Waffle",
+    title: "YouTube comment",
+    description: "god tier addon",
+    profile:
+      "https://yt3.ggpht.com/ytc/AKedOLQuCkq63lQqeLomKdKJe8ku2WOfb5ON1Dj6ELZs=s48-c-k-c0x00ffffff-no-rj",
+  },
+];
+
+const Testimonial = ({ name, description, title, profile }) => {
+  return (
+    <div className="is-flex column m-4 is-flex-direction-column box has-background-white has-text-grey-dark">
+      <div className="is-flex">
+        {profile && (
+          <div className="is-flex is-align-items-center is-justify-content-start mt-4">
+            <a href="#" className="image is-48x48">
+              <img alt="profil" src={profile} className="is-rounded" />
+            </a>
+          </div>
+        )}
+        <div className="is-flex is-flex-direction-column ml-2 is-align-content-space-between">
+          <span className="font-semibold has-text-weight-bold">{name}</span>
+          <span className="is-size-7 is-flex is-align-items-center">
+            {title}
+          </span>
+        </div>
+      </div>
+      <p>
+        <span className="font-bold has-text-primary is-size-5">“</span>
+        {description}
+        <span className="font-bold has-text-primary is-size-5">”</span>
+      </p>
+    </div>
+  );
+};
+
+const TestimonialsSection = () => {
+  return (
+    <StyledSection className="section">
+      <div className="container">
+        <Heading2 id="testimonials" name="testimonials" isDashed={true}>
+          Love for 2anki
+        </Heading2>
+        <Testimonials className="columns">
+          {users.map((user) => (
+            <Testimonial key={user.name} {...user} />
+          ))}
+        </Testimonials>
+      </div>
+    </StyledSection>
+  );
+};
+
+export default TestimonialsSection;
