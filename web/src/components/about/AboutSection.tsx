@@ -27,7 +27,7 @@ const AboutSection = () => {
     <section className="section has-background-white">
       <div className="container">
         <div className="columns">
-          <a id="about" />
+          <div id="about" aria-label="about section" />
           <Mascot className="column">
             <img src="/mascot/Notion 4.png" alt="Notion" />
           </Mascot>

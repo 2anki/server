@@ -32,9 +32,9 @@ const Testimonial = ({ name, description, title, profile }) => {
       <div className="is-flex">
         {profile && (
           <div className="is-flex is-align-items-center is-justify-content-start mt-4">
-            <a href="#" className="image is-48x48">
+            <div className="image is-48x48">
               <img alt="profil" src={profile} className="is-rounded" />
-            </a>
+            </div>
           </div>
         )}
         <div className="is-flex is-flex-direction-column is-justify-content-center ml-2 is-align-content-space-between">
