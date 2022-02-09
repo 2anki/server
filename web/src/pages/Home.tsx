@@ -100,6 +100,52 @@ const VideoPoster = styled.img`
   object-fit: cover;
 `;
 
+const PersonIllustration = styled.img`
+  z-index: 1;
+  position: absolute;
+`;
+
+const Illustration3 = styled(PersonIllustration)`
+  position: absolute;
+  width: 199.61px;
+  height: 261.34px;
+  bottom: 0;
+
+  @media (max-width: 1024px) {
+    width: 61.08px;
+    height: 79.97px;
+  }
+
+  bottom: -200px;
+  left: -100px;
+`;
+
+const Illustration2 = styled(PersonIllustration)`
+  bottom: -80px;
+  right: -87px;
+
+  @media (max-width: 1024px) {
+    width: 82.6px;
+    height: 89.62px;
+
+    bottom: 0;
+    rigth: 0;
+  }
+`;
+
+const Illustration1 = styled(PersonIllustration)`
+  top: -148px;
+  left: -100px;
+  width: 213px;
+  height: 200.69px;
+  @media (max-width: 1024px) {
+    width: 83px;
+    height: 78.32px;
+    top: 0;
+    left: 0;
+  }
+`;
+
 const HomePage = () => {
   const index = Math.round(Math.random() * 4);
   const image = `mascot/Notion ${index + 1}.png`;
@@ -107,7 +153,7 @@ const HomePage = () => {
 
   return (
     <>
-      <HeroSection className="hero is-fullheight">
+      <HeroSection className="hero is-medium">
         <div className="container">
           <h1>
             <HeroTitle>Everything you need to</HeroTitle>
@@ -124,65 +170,82 @@ const HomePage = () => {
               onClickLink={() => {}}
             />
           </div>
-          <VideoWrapper>
-            {!play && (
-              <>
-                <VideoPoster
-                  src="/video-poster.png"
-                  alt={"video"}
-                  onClick={() => setPlay(true)}
-                />
-                <PlayIcon
-                  className="is-hidden-mobile"
-                  src="/icons/play-icon.svg"
-                  width={50}
-                  height={50}
-                  alt={"play"}
-                  onClick={() => setPlay(true)}
-                />
-              </>
-            )}
-            {play && (
-              <StyledIframe
-                className="is-flex"
-                width="800"
-                height="418"
-                src="https://www.youtube.com/embed/Ex3DuBvCo0Y?autoplay=1"
-                title="Preview of 2anki.net - Beta Notion API Integration"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              ></StyledIframe>
-            )}
-          </VideoWrapper>
+          <div style={{ position: "relative" }}>
+            <Illustration1
+              src="/illustrations/illustrations-1.svg"
+              alt="illustration of man"
+            />
+            <Illustration2
+              src="/illustrations/illustrations-2.svg"
+              alt="illustration of second man"
+            />
+            <Illustration3
+              src="/illustrations/illustrations-3.svg"
+              alt="illustration of third man"
+            />
+            <VideoWrapper>
+              {!play && (
+                <>
+                  <VideoPoster
+                    src="/video-poster.png"
+                    alt={"video"}
+                    onClick={() => setPlay(true)}
+                  />
+                  <PlayIcon
+                    className="is-hidden-mobile"
+                    src="/icons/play-icon.svg"
+                    width={50}
+                    height={50}
+                    alt={"play"}
+                    onClick={() => setPlay(true)}
+                  />
+                </>
+              )}
+              {play && (
+                <StyledIframe
+                  className="is-flex"
+                  width="800"
+                  height="418"
+                  src="https://www.youtube.com/embed/Ex3DuBvCo0Y?autoplay=1"
+                  title="Preview of 2anki.net - Beta Notion API Integration"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></StyledIframe>
+              )}
+            </VideoWrapper>
+          </div>
         </div>
       </HeroSection>
-      <Container>
-        <CtaGroup>
-          <p>
-            Fast, simple, easy and 100%{" "}
-            <a href="https://github.com/alemayhu/notion2anki">Free</a>!
-          </p>
-        </CtaGroup>
-        <MascotImage src={image} alt="Notion to Anki Mascot" loading="lazy" />
-        <h2>Tutorials on YouTube</h2>
-        <p>
-          You can find videos showing you how to get started on our{" "}
-          <a href="https://www.youtube.com/playlist?list=PLzOAzzqpDqukOtwH3IYWiOhr_sjBjfgCd">
-            Notion to Anki
-          </a>{" "}
-          playlist. If you have any questions, do not hesistate to ask questions
-          (see{" "}
-          <a href="https://alemayhu.notion.site/Contact-e76523187cc64961972b3ad4f7cb4c47">
-            contact
-          </a>{" "}
-          page).
+      <div></div>
+      <section  className="section">
+        <Container className="container">
           <CtaGroup>
-            Make sure to like the videos and
-            <Subscribe />
+            <p>
+              Fast, simple, easy and 100%{" "}
+              <a href="https://github.com/alemayhu/notion2anki">Free</a>!
+            </p>
           </CtaGroup>
-        </p>
-        <SupportSection />
-      </Container>
+          <MascotImage src={image} alt="Notion to Anki Mascot" loading="lazy" />
+          <h2>Tutorials on YouTube</h2>
+          <p>
+            You can find videos showing you how to get started on our{" "}
+            <a href="https://www.youtube.com/playlist?list=PLzOAzzqpDqukOtwH3IYWiOhr_sjBjfgCd">
+              Notion to Anki
+            </a>{" "}
+            playlist. If you have any questions, do not hesistate to ask
+            questions (see{" "}
+            <a href="https://alemayhu.notion.site/Contact-e76523187cc64961972b3ad4f7cb4c47">
+              contact
+            </a>{" "}
+            page).
+            <CtaGroup>
+              Make sure to like the videos and
+              <Subscribe />
+            </CtaGroup>
+          </p>
+          <SupportSection />
+        </Container>
+      </section>
     </>
   );
 };
