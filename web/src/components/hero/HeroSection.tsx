@@ -17,7 +17,6 @@ const VideoWrapper = styled.div`
   max-width: 800px;
   width: 100%;
   margin: 0 auto;
-  margin: 0 auto;
 `;
 
 const PlayIcon = styled.img`
@@ -46,14 +45,13 @@ const Illustration3 = styled(PersonIllustration)`
   width: 199.61px;
   height: 261.34px;
   bottom: 0;
+  left: -100px;
 
   @media (max-width: 1024px) {
     width: 61.08px;
     height: 79.97px;
+    left: 0;
   }
-
-  bottom: -200px;
-  left: -100px;
 `;
 
 const Illustration2 = styled(PersonIllustration)`
@@ -84,7 +82,7 @@ const Illustration1 = styled(PersonIllustration)`
 const HeroSection = () => {
   const [play, setPlay] = useState(false);
 
-  return <StyledSection className="hero is-medium">
+  return <StyledSection className="hero is-halfheight">
         <div className="container">
           <h1>
             <HeroTitle>Everything you need to</HeroTitle>
@@ -101,19 +99,21 @@ const HeroSection = () => {
               onClickLink={() => {}}
             />
           </div>
-          <div style={{ position: "relative" }}>
-            <Illustration1
-              src="/illustrations/illustrations-1.svg"
-              alt="illustration of man"
-            />
-            <Illustration2
-              src="/illustrations/illustrations-2.svg"
-              alt="illustration of second man"
-            />
-            <Illustration3
-              src="/illustrations/illustrations-3.svg"
-              alt="illustration of third man"
-            />
+          <div style={{ position: "relative"  }}>
+            <div>
+              <Illustration1
+                src="/illustrations/illustrations-1.svg"
+                alt="illustration of man"
+              />
+              <Illustration2
+                src="/illustrations/illustrations-2.svg"
+                alt="illustration of second man"
+              />
+              <Illustration3
+                src="/illustrations/illustrations-3.svg"
+                alt="illustration of third man"
+              />
+            </div>
             <VideoWrapper>
               {!play && (
                 <>
