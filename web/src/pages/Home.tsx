@@ -75,32 +75,6 @@ const HomePage = () => {
     <>
       <HeroSection />
       <AboutSection />
-
-      <div></div>
-      <section className="section ">
-        <Container className="container">
-          <CtaGroup></CtaGroup>
-          <MascotImage src={image} alt="Notion to Anki Mascot" loading="lazy" />
-          <h2>Tutorials on YouTube</h2>
-          <p>
-            You can find videos showing you how to get started on our{" "}
-            <a href="https://www.youtube.com/playlist?list=PLzOAzzqpDqukOtwH3IYWiOhr_sjBjfgCd">
-              Notion to Anki
-            </a>{" "}
-            playlist. If you have any questions, do not hesistate to ask
-            questions (see{" "}
-            <a href="https://alemayhu.notion.site/Contact-e76523187cc64961972b3ad4f7cb4c47">
-              contact
-            </a>{" "}
-            page).
-            <CtaGroup>
-              Make sure to like the videos and
-              <Subscribe />
-            </CtaGroup>
-          </p>
-          <SupportSection />
-        </Container>
-      </section>
     </>
   );
 };
