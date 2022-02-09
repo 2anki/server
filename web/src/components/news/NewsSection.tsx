@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import PrimaryButton from "../buttons/PrimaryButton";
 
 import PersonIllustration from "../illustrations/PersonIllustration";
 import Heading2 from "../text/Heading2";
@@ -16,6 +17,11 @@ const NewsIcon = styled(PersonIllustration)`
   }
 `;
 
+const Centered = styled.div`
+  display: flex;
+  justify-content: center;
+`;
+
 const NewsSection = () => {
   return (
     <section className="section">
@@ -25,6 +31,13 @@ const NewsSection = () => {
       <Heading2 id={"news"} isDashed={true}>
         News
       </Heading2>
+      <Centered>
+        <PrimaryButton
+          destination="https://www.patreon.com/alemayhu"
+          text="READ MORE NEWS"
+          onClickLink={() => {}}
+        />
+      </Centered>
     </section>
   );
 };

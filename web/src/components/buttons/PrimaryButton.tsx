@@ -47,9 +47,15 @@ const PrimaryButton: React.FC<{
 }> = ({ text, destination, onClickLink }) => {
   return (
     <StyledButton>
-      <Link onClick={onClickLink} to={destination}>
-        {text}
-      </Link>
+      {destination.includes("http") ? (
+        <a href={destination} target="_blank" rel="noopener noreferrer">
+          {text}
+        </a>
+      ) : (
+        <Link onClick={onClickLink} to={destination}>
+          {text}
+        </Link>
+      )}
       <img width={24} height={24} src="/icons/arrow-right.svg" alt="arrow" />
     </StyledButton>
   );
