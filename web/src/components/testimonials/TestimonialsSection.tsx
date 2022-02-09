@@ -1,7 +1,10 @@
 import styled from "styled-components";
+import PersonIllustration from "../illustrations/PersonIllustration";
 import Heading2 from "../text/Heading2";
 
-const StyledSection = styled.section``;
+const StyledSection = styled.section`
+  background: #ebeced;
+`;
 
 const Testimonials = styled.div`
   display: flex;
@@ -36,7 +39,7 @@ const Testimonial = ({ name, description, title, profile }) => {
             </a>
           </div>
         )}
-        <div className="is-flex is-flex-direction-column ml-2 is-align-content-space-between">
+        <div className="is-flex is-flex-direction-column is-justify-content-center ml-2 is-align-content-space-between">
           <span className="font-semibold has-text-weight-bold">{name}</span>
           <span className="is-size-7 is-flex is-align-items-center">
             {title}
@@ -52,6 +55,20 @@ const Testimonial = ({ name, description, title, profile }) => {
   );
 };
 
+const Illustration4 = styled(PersonIllustration)`
+  position: absolute;
+  top: -320px;
+  right: 0;
+  width: 152px;
+  height: 341px;
+
+  @media (max-width: 1024px) {
+    margin-top: 4rem;
+    width: 146px;
+    height: 328px;
+  }
+`;
+
 const TestimonialsSection = () => {
   return (
     <StyledSection className="section">
@@ -59,6 +76,10 @@ const TestimonialsSection = () => {
         <Heading2 id="testimonials" name="testimonials" isDashed={true}>
           Love for 2anki
         </Heading2>
+        <Illustration4
+          src="/illustrations/illustrations-4.svg"
+          alt="illustration of third man"
+        />
         <Testimonials className="columns">
           {users.map((user) => (
             <Testimonial key={user.name} {...user} />

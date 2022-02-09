@@ -4,6 +4,7 @@ import HeroSubtitle from "./HeroSubtitle";
 import HeroText from "./HeroText";
 import HeroTitle from "./HeroTitle";
 import PrimaryButton from "../buttons/PrimaryButton";
+import PersonIllustration from "../illustrations/PersonIllustration";
 
 const StyledSection = styled.section`
   background: #e5e5e5;
@@ -33,11 +34,6 @@ const PlayIcon = styled.img`
 const VideoPoster = styled.img`
   width: 100%;
   object-fit: cover;
-`;
-
-const PersonIllustration = styled.img`
-  z-index: 1;
-  position: absolute;
 `;
 
 const Illustration3 = styled(PersonIllustration)`
