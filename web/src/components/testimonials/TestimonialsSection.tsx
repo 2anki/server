@@ -57,7 +57,7 @@ const Testimonial = ({ name, description, title, profile }) => {
 
 const Illustration4 = styled(PersonIllustration)`
   position: absolute;
-  top: -320px;
+  top: -380px;
   right: 0;
   width: 152px;
   height: 341px;
@@ -66,27 +66,39 @@ const Illustration4 = styled(PersonIllustration)`
     margin-top: 4rem;
     width: 146px;
     height: 328px;
+    /* top: -320px; */
   }
+`;
+
+const Curve = styled.div`
+  background-color: #ebeced;
+  width: 100vw;
+  height: 150px;
+  border-top-left-radius: 50%;
+  border-top-right-radius: 50%;
 `;
 
 const TestimonialsSection = () => {
   return (
-    <StyledSection className="section">
-      <div className="container">
-        <Heading2 id="testimonials" name="testimonials" isDashed={true}>
-          Love for 2anki
-        </Heading2>
-        <Illustration4
-          src="/illustrations/illustrations-4.svg"
-          alt="illustration of third man"
-        />
-        <Testimonials className="columns">
-          {users.map((user) => (
-            <Testimonial key={user.name} {...user} />
-          ))}
-        </Testimonials>
-      </div>
-    </StyledSection>
+    <>
+      <Curve />
+      <StyledSection className="section">
+        <div className="container">
+          <Heading2 id="testimonials" name="testimonials" isDashed={true}>
+            Love for 2anki
+          </Heading2>
+          <Illustration4
+            src="/illustrations/illustrations-4.svg"
+            alt="illustration of third man"
+          />
+          <Testimonials className="columns">
+            {users.map((user) => (
+              <Testimonial key={user.name} {...user} />
+            ))}
+          </Testimonials>
+        </div>
+      </StyledSection>
+    </>
   );
 };
 

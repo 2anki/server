@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 const HeadingDash = styled.div`
-  width: 69px;
+  width: 39px;
   height: 0px;
   left: 0px;
   top: 65px;
