@@ -22,6 +22,53 @@ const Centered = styled.div`
   justify-content: center;
 `;
 
+const ReadMore = ({ href }) => {
+  return (
+    <div className="is-flex">
+      <a href={href}>Read more</a>
+      <img
+        width={24}
+        height={24}
+        style={{ background: "red" }}
+        src="/icons/arrow-right.svg"
+        alt="arrow"
+      />
+    </div>
+  );
+};
+
+const FeaturedEntry = () => {
+  return (
+    <div className="card">
+      <div className="card-image">
+        <figure className="image is-4by3">
+          <img
+            src="https://bulma.io/images/placeholders/1280x960.png"
+            alt="Placeholder image"
+          />
+        </figure>
+      </div>
+      <div style={{ background: "#F8F8F8" }} className="card-content">
+        <div className="media">
+          <div className="media-content">
+            <p className="title is-4">The state of 2anki.net 💫</p>
+          </div>
+        </div>
+        <div className="content">
+          I hope you are doing well in this special time. Before the year ends I
+          wanted to give you a special update.
+          <br />
+        </div>
+        <ReadMore
+          href={
+            "https://www.patreon.com/posts/state-of-2anki-60331662?utm_medium=clipboard_copy&utm_source=copy_to_clipboard&utm_campaign=postshareI"
+          }
+        />
+      </div>
+    </div>
+  );
+};
+
 const NewsSection = () => {
   return (
     <section className="section">
@@ -31,6 +78,12 @@ const NewsSection = () => {
       <Heading2 id={"news"} isDashed={true}>
         News
       </Heading2>
+      <div className="columns">
+        <div className="column">
+          <FeaturedEntry />
+        </div>
+        <div className="column"></div>
+      </div>
       <Centered>
         <PrimaryButton
           destination="https://www.patreon.com/alemayhu"
