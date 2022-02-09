@@ -3,14 +3,11 @@ import styled from "styled-components";
 import { Link } from "react-router-dom";
 
 const StyledButton = styled.div`
-  font-weight: semi-bold;
-  font-size: 20px;
   margin-top: 0.5rem;
   margin-bottom: 2rem;
   background: #5397f5;
   padding: 1rem 1.9rem;
   border-radius: 3px;
-  font-size: 1.2rem;
   text-transform: uppercase;
   width: 268px;
   height: 66px;
@@ -25,6 +22,15 @@ const StyledButton = styled.div`
   &:hover {
     background-color: #2b2e3c;
   }
+
+  /* Typography */
+  font-family: Rubik;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 30px;
+  letter-spacing: 0em;
+  text-align: center;
 
   @media (max-width: 1024px) {
     font-size: 16px;
