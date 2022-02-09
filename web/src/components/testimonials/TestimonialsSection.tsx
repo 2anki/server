@@ -82,7 +82,7 @@ const TestimonialsSection = () => {
       <Curve />
       <GreySection className="section">
         <div className="container">
-          <Heading2 id="testimonials" isDashed={true}>
+          <Heading2 id="testimony" isDashed={true}>
             Love for 2anki
           </Heading2>
           <Illustration4

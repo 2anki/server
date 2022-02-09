@@ -27,11 +27,12 @@ const AboutSection = () => {
     <section className="section has-background-white">
       <div className="container">
         <div className="columns">
+          <a id="about" />
           <Mascot className="column">
             <img src="/mascot/Notion 4.png" alt="Notion" />
           </Mascot>
           <Text className="column">
-            <Heading2 id="about" isDashed={true}>
+            <Heading2 id="aa" isDashed={true}>
               What is 2anki?
             </Heading2>
             <p>
