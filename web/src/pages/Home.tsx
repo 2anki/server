@@ -2,6 +2,7 @@ import styled from "styled-components";
 
 import SupportSection from "../components/SupportSection";
 import HeroSection from "../components/hero/HeroSection";
+import AboutSection from "../components/about/AboutSection";
 
 const MascotImage = styled.img`
   height: 500px;
@@ -73,15 +74,12 @@ const HomePage = () => {
   return (
     <>
       <HeroSection />
-            <div></div>
-      <section  className="section">
+      <AboutSection />
+
+      <div></div>
+      <section className="section ">
         <Container className="container">
-          <CtaGroup>
-            <p>
-              Fast, simple, easy and 100%{" "}
-              <a href="https://github.com/alemayhu/notion2anki">Free</a>!
-            </p>
-          </CtaGroup>
+          <CtaGroup></CtaGroup>
           <MascotImage src={image} alt="Notion to Anki Mascot" loading="lazy" />
           <h2>Tutorials on YouTube</h2>
           <p>
