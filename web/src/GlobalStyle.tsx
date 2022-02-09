@@ -14,6 +14,15 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+@font-face {
+  font-family: "Urbanist";
+  src: url(fonts/Urbanist/static/Urbanist-Bold.ttf) format("truetype")
+}
+
+h1 {
+  font-family: Urbanist;
+}
 `;
 
 export default GlobalStyle;
