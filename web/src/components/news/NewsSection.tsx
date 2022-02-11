@@ -2,6 +2,7 @@ import styled from "styled-components";
 import PrimaryButton from "../buttons/PrimaryButton";
 
 import PersonIllustration from "../illustrations/PersonIllustration";
+import ArrowRight from "../icons/ArrowRight";
 import Heading2 from "../text/Heading2";
 
 const NewsIcon = styled(PersonIllustration)`
@@ -25,14 +26,10 @@ const Centered = styled.div`
 const ReadMore = ({ href }) => {
   return (
     <div className="is-flex">
-      <a href={href}>Read more</a>
-      <img
-        width={24}
-        height={24}
-        style={{ background: "red" }}
-        src="/icons/arrow-right.svg"
-        alt="arrow"
-      />
+      <a className="is-uppercase has-text-weight-bold" href={href}>
+        Read more
+      </a>
+      <ArrowRight innerFill="#5397f5" />
     </div>
   );
 };
