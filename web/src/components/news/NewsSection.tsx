@@ -37,14 +37,14 @@ const ReadMore = ({ href }) => {
 const FeaturedEntry = () => {
   return (
     <div className="card">
-      <div className="card-image">
+      {/* <div className="card-image">
         <figure className="image is-4by3">
           <img
             src="https://bulma.io/images/placeholders/1280x960.png"
             alt="Placeholder image"
           />
         </figure>
-      </div>
+      </div> */}
       <div style={{ background: "#F8F8F8" }} className="card-content">
         <div className="media">
           <div className="media-content">
@@ -66,6 +66,20 @@ const FeaturedEntry = () => {
   );
 };
 
+const NewsEntry = ({ title, description, link }) => {
+  return (
+    <div className="card">
+      <div className="card-content">
+        <h3 className="title is-4">{title}</h3>
+        <p className="content">{description}</p>
+        <ReadMore href={link} />
+      </div>
+    </div>
+  );
+};
+
+const ReadMoreNews = styled(PrimaryButton)``;
+
 const NewsSection = () => {
   return (
     <section className="section">
@@ -79,10 +93,26 @@ const NewsSection = () => {
         <div className="column">
           <FeaturedEntry />
         </div>
-        <div className="column"></div>
+        <div className="column">
+          <NewsEntry
+            title={"What's Next? The Path to v1.0.0!"}
+            description={
+              "There are a three main things I would like to tackle longterm but in this session"
+            }
+            link={"https://www.patreon.com/posts/whats-next-path-51204766"}
+          />
+          <div className="my-2"></div>
+          <NewsEntry
+            title={"Good News!"}
+            description={
+              "I woke up in the middle of the night and had to go to the toilet 🚾"
+            }
+            link={"https://www.patreon.com/posts/good-news-51122343"}
+          />
+        </div>
       </div>
       <Centered>
-        <PrimaryButton
+        <ReadMoreNews
           destination="https://www.patreon.com/alemayhu"
           text="READ MORE NEWS"
           onClickLink={() => {}}

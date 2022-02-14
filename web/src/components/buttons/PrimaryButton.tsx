@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 import { Link } from "react-router-dom";
 
-const StyledButton = styled.div`
+const StyledButton = styled.div<{ minHeight? }>`
   margin-top: 0.5rem;
   margin-bottom: 2rem;
   background: #5397f5;
@@ -34,8 +34,8 @@ const StyledButton = styled.div`
 
   @media (max-width: 1024px) {
     font-size: 16px;
-    width: 221px;
-    height: 54px;
+    /* width: 221px; */
+    height: ${(props) => (props.minHeight ? props.minHeight : "54px")};
     margin-right: auto;
   }
 `;
@@ -44,9 +44,10 @@ const PrimaryButton: React.FC<{
   text: string;
   destination: string;
   onClickLink: React.MouseEventHandler;
-}> = ({ text, destination, onClickLink }) => {
+  minHeight?: string;
+}> = ({ text, destination, onClickLink, minHeight }) => {
   return (
-    <StyledButton>
+    <StyledButton minHeight={minHeight}>
       {destination.includes("http") ? (
         <a href={destination} target="_blank" rel="noopener noreferrer">
           {text}
