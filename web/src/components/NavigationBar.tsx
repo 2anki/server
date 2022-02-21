@@ -29,7 +29,7 @@ interface NavigationBarProps {
 }
 
 const Navbar = styled.nav`
-  margin: 2rem 4rem 2rem 4rem;
+  padding: 2rem 4rem 2rem 4rem;
   background #E5E5E5;
   @media (max-width: 1024px) {
     margin: 0;
@@ -41,13 +41,18 @@ const StyledNavbarItem = styled.a`
   :hover {
     font-weight: bold;
   }
-`
+`;
 
 const NavbarItem = ({ path, href, children }) => {
-              return <StyledNavbarItem href={href} className={`navbar-item ${path === href ? 'has-text-weight-bold' : ''}`}>
-                {children}
-              </StyledNavbarItem>
-}
+  return (
+    <StyledNavbarItem
+      href={href}
+      className={`navbar-item ${path === href ? "has-text-weight-bold" : ""}`}
+    >
+      {children}
+    </StyledNavbarItem>
+  );
+};
 
 let backend = new Backend();
 const NavigationBar = (props: NavigationBarProps) => {
