@@ -173,7 +173,11 @@ class Backend {
     if (!p || !p.icon) {
       return "📄";
     }
-    if (p.icon && p.icon.emoji) return p.icon.emoji as string;
+    const iconType = p.icon.type;
+    if (iconType === "emoji") return p.icon.emoji as string;
+    if (iconType === "external") {
+      return p.icon.external.url;
+    }
     return "📄";
   }
 
