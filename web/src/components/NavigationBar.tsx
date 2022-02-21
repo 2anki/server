@@ -171,26 +171,12 @@ const NavigationBar = (props: NavigationBarProps) => {
           {isSignedIn && (
             <>
               <div className="navbar-end">
-                <a
-                  style={{
-                    fontWeight: path.includes("/search") ? "bold" : "normal",
-                  }}
-                  href="/search"
-                  className="navbar-item"
-                >
+                <NavbarItem href="/search" path={path}>
                   Search
-                </a>
-                <a
-                  style={{
-                    borderBottom: path.includes("/uploads/mine")
-                      ? "3px solid #5397f5"
-                      : "",
-                  }}
-                  href="/uploads/mine"
-                  className="navbar-item"
-                >
+                </NavbarItem>
+                <NavbarItem href="/uploads/mine" path={path}>
                   Uploads
-                </a>
+                </NavbarItem>
               </div>
             </>
           )}
