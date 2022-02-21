@@ -26,7 +26,6 @@ const Layout = styled.div`
   flex-direction: column;
   justify-content: space-between;
   height: 100vh;
-  background: #E5E5E5;
 `;
 
 const Container = styled.div`
