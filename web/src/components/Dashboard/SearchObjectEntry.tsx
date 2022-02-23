@@ -1,4 +1,5 @@
 import { useState } from "react";
+
 import styled from "styled-components";
 import Backend from "../../lib/Backend";
 import DefineRules from "./DefineRules";
@@ -56,7 +57,11 @@ const SearchObjectEntry = ({ title, icon, url, id, type }) => {
               <span className="tag is-link">{type}</span>
             </div>
           </div>
-          <span>{icon}</span>
+          {icon && (icon.includes("http") || icon.includes("data:image")) ? (
+            <img width={32} height={32} src={icon} alt="icon" />
+          ) : (
+            <span>{icon}</span>
+          )}
           <span className="subtitle is-6">{title}</span>
         </ObjectMeta>
         <ObjectActions>
