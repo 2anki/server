@@ -100,6 +100,7 @@ const SettingsModal: React.FC<{
               setDeckName(s.deckName);
             }
             setToggleMode(s["toggle-mode"]);
+            setPageEmoji(s["page-emoji"]);
             setSettings(s);
           }
           setLoading(false);
@@ -141,6 +142,7 @@ const SettingsModal: React.FC<{
     payload.cloze_model_name = clozeName;
     payload.input_model_name = inputName;
     payload["font-size"] = fontSize;
+    payload["page-emoji"] = pageEmoji;
 
     let settings = { object_id: pageId, payload };
     await backend
@@ -203,13 +205,13 @@ const SettingsModal: React.FC<{
                     </p>
                     <TemplateSelect
                       values={[
-                        { label: "First emoji", value: "first_emoji" },
+                        { label: "Icon first", value: "first_emoji" },
                         {
-                          label: "Last emoji",
+                          label: "Icon last",
                           value: "last_emoji",
                         },
                         {
-                          label: "Disable emoji",
+                          label: "Disable icon",
                           value: "disable_emoji",
                         },
                       ]}
