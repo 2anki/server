@@ -1,3 +1,4 @@
+import ReactHtmlParser from "react-html-parser";
 import styled from "styled-components";
 
 const Entry = styled.div`
@@ -30,6 +31,11 @@ const ObjectActions = styled.div`
   justify-content: center;
 `;
 
+const UploadTitle = styled.span`
+  display: flex;
+  align-items: center;
+`;
+
 const UploadObjectEntry = ({ size, title, icon, url, id, deleteUpload }) => {
   return (
     <>
@@ -45,7 +51,9 @@ const UploadObjectEntry = ({ size, title, icon, url, id, deleteUpload }) => {
             </div>
           </div>
           <span>{icon}</span>
-          <span className="subtitle is-6">{title}</span>
+          <UploadTitle className="subtitle is-6">
+            {ReactHtmlParser(title)}
+          </UploadTitle>
         </ObjectMeta>
         <ObjectActions>
           <ObjectAction
