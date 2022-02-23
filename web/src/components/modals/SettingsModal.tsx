@@ -75,6 +75,9 @@ const SettingsModal: React.FC<{
   const [toggleMode, setToggleMode] = useState(
     loadValue("toggle-mode", "close_toggle", settings)
   );
+  const [pageEmoji, setPageEmoji] = useState(
+    loadValue("page-emoji", "first_emoji", settings)
+  );
   const [basicName, setBasicName] = useState(
     loadValue("basic_model_name", "", settings)
   );
@@ -189,6 +192,32 @@ const SettingsModal: React.FC<{
                           setDeckName(newName);
                         }
                         persist(deckNameKey, newName, pageId);
+                      }}
+                    />
+                  </div>
+                  <div className="control">
+                    <strong>Page icon</strong>
+                    <p className="is-size-7">
+                      By default the icon is the Notion page icon. You can
+                      disable this for example when sorting gets messed up.
+                    </p>
+                    <TemplateSelect
+                      values={[
+                        { label: "First emoji", value: "first_emoji" },
+                        {
+                          label: "Last emoji",
+                          value: "last_emoji",
+                        },
+                        {
+                          label: "Disable emoji",
+                          value: "disable_emoji",
+                        },
+                      ]}
+                      value={pageEmoji}
+                      name="page-emoji"
+                      pickedTemplate={(t) => {
+                        setPageEmoji(t);
+                        persist("page-emoji", t, pageId);
                       }}
                     />
                   </div>
