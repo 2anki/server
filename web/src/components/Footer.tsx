@@ -84,7 +84,7 @@ const Footer = () => {
           <p>
             <a href="http://scrimba.com">
               <img
-                src="sponsors/Scrimba.png"
+                src="/sponsors/Scrimba.png"
                 alt="Sponsored by Scrimba"
                 loading="lazy"
               />

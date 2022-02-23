@@ -75,6 +75,9 @@ const SettingsModal: React.FC<{
   const [toggleMode, setToggleMode] = useState(
     loadValue("toggle-mode", "close_toggle", settings)
   );
+  const [pageEmoji, setPageEmoji] = useState(
+    loadValue("page-emoji", "first_emoji", settings)
+  );
   const [basicName, setBasicName] = useState(
     loadValue("basic_model_name", "", settings)
   );
@@ -97,6 +100,7 @@ const SettingsModal: React.FC<{
               setDeckName(s.deckName);
             }
             setToggleMode(s["toggle-mode"]);
+            setPageEmoji(s["page-emoji"]);
             setSettings(s);
           }
           setLoading(false);
@@ -138,6 +142,7 @@ const SettingsModal: React.FC<{
     payload.cloze_model_name = clozeName;
     payload.input_model_name = inputName;
     payload["font-size"] = fontSize;
+    payload["page-emoji"] = pageEmoji;
 
     let settings = { object_id: pageId, payload };
     await backend
@@ -189,6 +194,32 @@ const SettingsModal: React.FC<{
                           setDeckName(newName);
                         }
                         persist(deckNameKey, newName, pageId);
+                      }}
+                    />
+                  </div>
+                  <div className="control">
+                    <strong>Page icon</strong>
+                    <p className="is-size-7">
+                      By default the icon is the Notion page icon. You can
+                      disable this for example when sorting gets messed up.
+                    </p>
+                    <TemplateSelect
+                      values={[
+                        { label: "Icon first", value: "first_emoji" },
+                        {
+                          label: "Icon last",
+                          value: "last_emoji",
+                        },
+                        {
+                          label: "Disable icon",
+                          value: "disable_emoji",
+                        },
+                      ]}
+                      value={pageEmoji}
+                      name="page-emoji"
+                      pickedTemplate={(t) => {
+                        setPageEmoji(t);
+                        persist("page-emoji", t, pageId);
                       }}
                     />
                   </div>
