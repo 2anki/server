@@ -31,7 +31,7 @@ When that is said, if you are not content with Anki, you might want to checkout 
 
 ## 🎁 Support the Project
 
-> This project is brought to you by our amazing [patrons](http://patreon.com/alemayhu)
+> This project is brought to you by our amazing [patrons](https://patreon.com/alemayhu)
 > and [GitHub sponsors](https://github.com/sponsors/alemayhu) 🤩 Thank you!
 
 [![Patreon](https://github.com/aalemayhu/aalemayhu/raw/master/assets/become_a_patron_button.png)](https://patreon.com/alemayhu)
@@ -145,7 +145,7 @@ Unless otherwise specified in the source:
 
 The code is licensed under the [MIT](./LICENSE) Copyright (c) 2020-2022, [Alexander Alemayhu][1]
 
-[1]: http://alemayhu.com
+[1]: https://alemayhu.com
 
 ```
 The MIT License

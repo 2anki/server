@@ -10,4 +10,4 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 Please note that the logo and mascot is made by Torarin Jørstad and I have received permission to use it for this project. This license does not give you permission to use the logo nor the mascot.
 
-  [1]: http://alemayhu.com
+[1]: https://alemayhu.com
