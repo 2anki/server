@@ -4,6 +4,8 @@
 
 We are going to make this a good way to make [Anki](https://apps.ankiweb.net/) flashcards easier, better and faster. The dream is to have powerful and easy ways to produce high quality flashcards. This project is a complement to Anki and Notion.
 
+To get started with development, [read the docs here](./docs/Development.md)
+
 ## What We Are Not
 
 If you are looking for a Anki or Notion replacement then this project is probably not right for you. Watch this video [Notion + Anki](https://youtu.be/FjifJG4FoXY) to understand the project's goal. We are never
