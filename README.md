@@ -13,9 +13,11 @@ When that is said, if you are not content with Anki, you might want to checkout 
 
 ## Benefits
 
-- No technical skills required and 100% free to use by anyone anywhere 🤗
+- No technical skills required and free to use by anyone anywhere 🤗 \*
 - You can convert your Notion [toggle lists][tl] to Anki cards easily.
 - Support for embeds, audio files, images and more.
+
+<sub><sup>\* Please note that due to server costs, there are quota limits in place but you can workaround this and self-host</sup><sub>
 
 ## Sponsors
 
