@@ -82,7 +82,7 @@ const Footer = () => {
         <div className="column">
           <Header>Sponsors</Header>
           <p>
-            <a href="http://scrimba.com">
+            <a href="https://scrimba.com">
               <img
                 src="/sponsors/Scrimba.png"
                 alt="Sponsored by Scrimba"
@@ -123,7 +123,7 @@ const Footer = () => {
       </div>
       <div className="content has-text-centered">
         <p>
-          <a href="http://github.com/alemayhu/notion2anki/">This</a> is an open
+          <a href="https://github.com/alemayhu/notion2anki/">This</a> is an open
           source project by<span> </span>
           <a href="https://alemayhu.com">Alexander Alemayhu</a>
         </p>
