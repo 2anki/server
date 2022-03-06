@@ -4,7 +4,12 @@ import TemplateSelect from "../TemplateSelect";
 import Switch from "../input/Switch";
 import SettingsModal from "../modals/SettingsModal";
 
-let flashCardOptions = ["toggle", "bulleted_list_item", "numbered_list_item"];
+let flashCardOptions = [
+  "toggle",
+  "bulleted_list_item",
+  "numbered_list_item",
+  "heading",
+];
 let tagOptions = ["heading", "strikethrough"];
 
 let backend = new Backend();
@@ -50,7 +55,13 @@ const DefineRules = ({ id, setDone, parent }) => {
     setIsloading(true);
 
     try {
-      await backend.saveRules(id, rules.flashcard_is, "page", "child_page", tags);
+      await backend.saveRules(
+        id,
+        rules.flashcard_is,
+        "page",
+        "child_page",
+        tags
+      );
       setDone();
     } catch (error) {
       console.error(error);
