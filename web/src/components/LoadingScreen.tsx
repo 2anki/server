@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled from 'styled-components';
 
 const StyledLoader = styled.div`
   display: flex;
@@ -9,7 +9,7 @@ const StyledLoader = styled.div`
   width: 60vw;
   margin: 0 auto;
 `;
-const LoadingScreen = () => {
+function LoadingScreen() {
   return (
     <StyledLoader>
       <progress className="progress is-large is-info" max="100">
@@ -17,6 +17,6 @@ const LoadingScreen = () => {
       </progress>
     </StyledLoader>
   );
-};
+}
 
 export default LoadingScreen;

@@ -1,6 +1,6 @@
-import React from "react";
+import React from 'react';
 
-import CardOptionsStore from "./Options";
+import CardOptionsStore from './Options';
 
 const StoreContext = React.createContext(new CardOptionsStore());
 

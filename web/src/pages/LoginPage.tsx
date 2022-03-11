@@ -1,8 +1,8 @@
-import { useState } from "react";
-import styled from "styled-components";
-import RegisterForm from "../components/forms/RegisterForm";
-import LoginForm from "../components/forms/LoginForm";
-import ForgotPasswordForm from "../components/forms/ForgotPassword";
+import { useState } from 'react';
+import styled from 'styled-components';
+import RegisterForm from '../components/forms/RegisterForm';
+import LoginForm from '../components/forms/LoginForm';
+import ForgotPasswordForm from '../components/forms/ForgotPassword';
 
 const TopSection = styled.div`
   display: flex;
@@ -12,18 +12,18 @@ const TopSection = styled.div`
   padding: 1rem;
 `;
 
-const LoginPage = () => {
-  const [isLogin, setLoginState] = useState(window.location.hash === "#login");
-  const [isForgot, setIsForgot] = useState(window.location.hash === "#forgot");
+function LoginPage() {
+  const [isLogin, setLoginState] = useState(window.location.hash === '#login');
+  const [isForgot, setIsForgot] = useState(window.location.hash === '#forgot');
   const onClickLogin = () => {
     setIsForgot(false);
     setLoginState(true);
-    window.location.hash = "login";
+    window.location.hash = 'login';
   };
   const onClickRegister = () => {
     setIsForgot(false);
     setLoginState(false);
-    window.location.hash = "register";
+    window.location.hash = 'register';
   };
   return (
     <>
@@ -50,6 +50,6 @@ const LoginPage = () => {
       {isForgot && <ForgotPasswordForm />}
     </>
   );
-};
+}
 
 export default LoginPage;

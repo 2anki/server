@@ -1,15 +1,15 @@
-import styled from "styled-components";
-import { useContext, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import styled from 'styled-components';
+import { useContext, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 
-import useQuery from "../lib/hooks/useQuery";
-import StoreContext from "../store/StoreContext";
-import WarningMessage from "../components/WarningMessage";
-import UploadForm from "../components/UploadForm";
-import SettingsIcon from "../components/icons/SettingsIcon";
-import SettingsModal from "../components/modals/SettingsModal";
-import ErrorMessage from "../components/ErrorMessage";
-import Container from "../components/Container";
+import useQuery from '../lib/hooks/useQuery';
+import StoreContext from '../store/StoreContext';
+import WarningMessage from '../components/WarningMessage';
+import UploadForm from '../components/UploadForm';
+import SettingsIcon from '../components/icons/SettingsIcon';
+import SettingsModal from '../components/modals/SettingsModal';
+import ErrorMessage from '../components/ErrorMessage';
+import Container from '../components/Container';
 
 const InfoMessage = styled.p`
   font-size: 11px;
@@ -19,15 +19,15 @@ const InfoMessage = styled.p`
   padding-top: 1rem;
 `;
 
-const UploadPage = () => {
-  const isDevelopment = window.location.host !== "2anki.net";
+function UploadPage() {
+  const isDevelopment = window.location.host !== '2anki.net';
   const query = useQuery();
-  const view = query.get("view");
+  const view = query.get('view');
 
   const [isSettings, setShowSettings] = useState(
-    view === "template" || view === "deck-options" || view === "card-options"
+    view === 'template' || view === 'deck-options' || view === 'card-options',
   );
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState('');
 
   const FlexColumn = styled.div`
     display: flex;
@@ -83,11 +83,12 @@ const UploadPage = () => {
                 target="_blank"
                 href="https://www.notion.so/Export-as-HTML-bf3fe9e6920e4b9883cbd8a76b6128b7"
               >
-                {" "}
+                {' '}
                 HTML and ZIP exports from Notion
               </a>
               . All files are automatically deleted after 21 minutes. Checkout
-              the{" "}
+              the
+              {' '}
               <a
                 rel="noreferrer"
                 target="_blank"
@@ -100,7 +101,7 @@ const UploadPage = () => {
             <SettingsModal
               isActive={isSettings}
               onClickClose={() => {
-                window.history.pushState({}, "", "upload");
+                window.history.pushState({}, '', 'upload');
                 setShowSettings(false);
               }}
             />
@@ -109,6 +110,6 @@ const UploadPage = () => {
       )}
     </Container>
   );
-};
+}
 
 export default UploadPage;

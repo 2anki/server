@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import styled from "styled-components";
-import Backend from "../lib/Backend";
+import { useState, useEffect } from 'react';
+import styled from 'styled-components';
+import Backend from '../lib/Backend';
 
 const Wrapper = styled.div`
   display: flex;
@@ -11,29 +11,29 @@ const Wrapper = styled.div`
 `;
 
 const backend = new Backend();
-const LearnPage = () => {
+function LearnPage() {
   const [parentId, setParentId] = useState(null);
   const [children, setChildren] = useState([]);
   const [page, setPage] = useState(null);
   const [block, setBlock] = useState(null);
   const [grandChild, setGrandChild] = useState(null);
-  let [location, setLocation] = useState(0);
+  const [location, setLocation] = useState(0);
 
   // Load parent page based on id
   useEffect(() => {
-    const paths = window.location.pathname.split("/");
-    let lastPath = paths[paths.length - 1];
+    const paths = window.location.pathname.split('/');
+    const lastPath = paths[paths.length - 1];
     setParentId(lastPath);
   }, []);
 
   // Get the page meta data
   useEffect(() => {
     if (parentId) {
-      console.log("parentId", parentId);
+      console.log('parentId', parentId);
       backend
         .getPage(parentId)
         .then((response) => {
-          console.log("response", response);
+          console.log('response', response);
           setPage(response);
         })
         .catch((error) => {
@@ -45,7 +45,7 @@ const LearnPage = () => {
   useEffect(() => {
     if (page) {
       backend.getBlocks(page.id).then((response) => {
-        console.log("response", response);
+        console.log('response', response);
         setChildren(response.results);
       });
     }
@@ -58,7 +58,7 @@ const LearnPage = () => {
   useEffect(() => {
     if (block) {
       backend.getBlocks(block.id).then((response) => {
-        console.log("response", response);
+        console.log('response', response);
         setGrandChild(response.results);
       });
     }
@@ -80,9 +80,9 @@ const LearnPage = () => {
       )}
       <div
         style={{
-          display: "flex",
-          alignItems: "center",
-          flexDirection: "column",
+          display: 'flex',
+          alignItems: 'center',
+          flexDirection: 'column',
         }}
       >
         {block && (
@@ -100,13 +100,16 @@ const LearnPage = () => {
           id="file"
           value={location + 1}
           max={children.length}
-        ></progress>
-        <span style={{ fontSize: "11px" }}>
-          {location + 1} / {children.length}
+        />
+        <span style={{ fontSize: '11px' }}>
+          {location + 1}
+          {' '}
+          /
+          {children.length}
         </span>
       </div>
     </Wrapper>
   );
-};
+}
 
 export default LearnPage;

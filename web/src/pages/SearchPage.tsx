@@ -1,14 +1,13 @@
-import { Route, Switch } from "react-router-dom";
-import { useCallback, useEffect, useState } from "react";
+import { Route, Switch, useHistory } from 'react-router-dom';
+import { useCallback, useEffect, useState } from 'react';
 
-import Backend from "../lib/Backend";
-import SearchBar from "../components/Dashboard/SearchBar";
-import NavigationBar from "../components/NavigationBar";
-import SearchObjectEntry from "../components/Dashboard/SearchObjectEntry";
-import styled from "styled-components";
-import LoadingScreen from "../components/LoadingScreen";
-import useQuery from "../lib/hooks/useQuery";
-import { useHistory } from "react-router-dom";
+import styled from 'styled-components';
+import Backend from '../lib/Backend';
+import SearchBar from '../components/Dashboard/SearchBar';
+import NavigationBar from '../components/NavigationBar';
+import SearchObjectEntry from '../components/Dashboard/SearchObjectEntry';
+import LoadingScreen from '../components/LoadingScreen';
+import useQuery from '../lib/hooks/useQuery';
 
 const EmptyContainer = styled.div`
   display: flex;
@@ -21,13 +20,13 @@ const StyledSearchPage = styled.div`
   margin: 0 auto;
 `;
 
-let backend = new Backend();
+const backend = new Backend();
 
-const DashboardContent = () => {
-  let _query = useQuery();
+function DashboardContent() {
+  const _query = useQuery();
   const history = useHistory();
 
-  const [query, setQuery] = useState(_query.get("q") || "");
+  const [query, setQuery] = useState(_query.get('q') || '');
   const [myPages, setMyPages] = useState([]);
   const [inProgress, setInProgress] = useState(false);
   const [errorNotification, setError] = useState(null);
@@ -38,13 +37,13 @@ const DashboardContent = () => {
       if (inProgress) {
         return;
       }
-      console.log("query", query);
+      console.log('query', query);
       setError(null);
       setInProgress(true);
       backend
         .search(query, force)
         .then((results) => {
-          console.log("results", results);
+          console.log('results', results);
           setMyPages(results);
           setInProgress(false);
           setIsLoading(false);
@@ -56,12 +55,12 @@ const DashboardContent = () => {
           setError(error);
         });
     },
-    [inProgress, query]
+    [inProgress, query],
   );
 
   // TODO: clean this up by using debounce so it's only called when the query changes automatically
   useEffect(() => {
-    console.log("called!");
+    console.log('called!');
     setIsLoading(true);
     triggerSearch(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -79,7 +78,7 @@ const DashboardContent = () => {
               inProgress={inProgress}
               onSearchQueryChanged={(s) => {
                 history.push({
-                  pathname: "/search",
+                  pathname: '/search',
                   search: `?q=${s}`,
                 });
                 setQuery(s);
@@ -100,9 +99,9 @@ const DashboardContent = () => {
                 )}
               </EmptyContainer>
             )}
-            {myPages &&
-              myPages.length > 0 &&
-              myPages.map((p) => (
+            {myPages
+              && myPages.length > 0
+              && myPages.map((p) => (
                 <SearchObjectEntry
                   type={p.object}
                   key={p.url}
@@ -117,13 +116,13 @@ const DashboardContent = () => {
       </div>
     </StyledSearchPage>
   );
-};
+}
 
-const SearchPage = () => {
-  const [connectionLink, updateConnectionLink] = useState("");
+function SearchPage() {
+  const [connectionLink, updateConnectionLink] = useState('');
   const [connected, updateConnected] = useState(false);
   const [workSpace, setWorkSpace] = useState(
-    localStorage.getItem("__workspace")
+    localStorage.getItem('__workspace'),
   );
 
   const [loading, setIsLoading] = useState(false);
@@ -133,7 +132,7 @@ const SearchPage = () => {
     backend
       .getNotionConnectionInfo()
       .then((response) => {
-        let data = response.data;
+        const { data } = response;
         if (data && !data.isConnected) {
           updateConnectionLink(data.link);
           updateConnected(data.isConnected);
@@ -146,7 +145,7 @@ const SearchPage = () => {
         setIsLoading(false);
       })
       .catch((_error) => {
-        window.location.href = "/login#login";
+        window.location.href = '/login#login';
       });
   }, []);
 
@@ -160,11 +159,11 @@ const SearchPage = () => {
       {!connected && (
         <div
           style={{
-            margin: "0 auto",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            height: "100vh",
+            margin: '0 auto',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100vh',
           }}
           className="column is-half is-centered"
         >
@@ -183,6 +182,6 @@ const SearchPage = () => {
       )}
     </>
   );
-};
+}
 
 export default SearchPage;
