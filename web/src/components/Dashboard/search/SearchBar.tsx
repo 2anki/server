@@ -27,7 +27,9 @@ function SearchBar({ onSearchQueryChanged, onSearchClicked, inProgress }: Search
             type="text"
             placeholder="  🔍 🅰  📑 "
             onKeyDown={(e) => {
-              if (e.key === 'Enter') onSearchClicked();
+              if (e.key === 'Enter') {
+                onSearchClicked();
+              }
             }}
             onChange={(event) => {
               onSearchQueryChanged(event.target.value);
