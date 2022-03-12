@@ -42,9 +42,9 @@ function LoginPage({ setErrorMessage }: Props) {
         )}
         {isLogin && (
           <>
-            Don&quot;t have an account?
+            Need a new account?
             <button type="button" className="button is-black" onClick={onClickRegister}>
-              Join waitlist
+              Register
             </button>
           </>
         )}
