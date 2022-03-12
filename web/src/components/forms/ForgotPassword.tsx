@@ -7,11 +7,14 @@ const FormContainer = styled.div`
   margin: 0 auto;
 `;
 
-function ForgotPasswordForm() {
+interface ForgotPasswordProps {
+  setError: (errorMessage: string) => void;
+}
+
+function ForgotPasswordForm({ setError }: ForgotPasswordProps) {
   const [email, setEmail] = useState(localStorage.getItem('email') || '');
   const [didReset, setDidReset] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
   const isValid = () => (
     email.length > 0 && email.length < 256 && email.match(/^\S+@\S+\.\S+$/)
@@ -32,8 +35,7 @@ function ForgotPasswordForm() {
       setLoading(false);
       setDidReset(true);
     } catch (error) {
-      setError('Request failed. Are you sure you have registered an account?');
-      console.error(error);
+      setError(error.response.data.message);
       setLoading(false);
     }
   };
@@ -45,28 +47,30 @@ function ForgotPasswordForm() {
             <div className="column is-half">
               <h1 className="title is-4">Forgot your password?</h1>
               <p className="subtitle">Please enter your email below.</p>
-              {error && <div className="notification is-danger">{error}</div>}
               <form onSubmit={handleSubmit}>
                 <div className="field">
-                  <label className="label">Email</label>
-                  <input
-                    min="3"
-                    max="255"
-                    value={email}
-                    onChange={(event) => {
-                      setEmail(event.target.value);
-                      localStorage.setItem('email', event.target.value);
-                    }}
-                    className="input"
-                    type="email"
-                    placeholder="Your e-mail"
-                    required
-                  />
-                  {/* <p className="help is-danger">This email is invalid</p> */}
+                  <label htmlFor="email" className="label">
+                    Email
+                    <input
+                      name="email"
+                      min="3"
+                      max="255"
+                      value={email}
+                      onChange={(event) => {
+                        setEmail(event.target.value);
+                        localStorage.setItem('email', event.target.value);
+                      }}
+                      className="input"
+                      type="email"
+                      placeholder="Your e-mail"
+                      required
+                    />
+                  </label>
                 </div>
                 <div className="field">
                   <div className="control" style={{ width: '100%' }}>
                     <button
+                      type="button"
                       className="button is-link is-medium"
                       style={{ width: '100%' }}
                       disabled={!isValid() || loading}

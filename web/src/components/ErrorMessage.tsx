@@ -1,3 +1,5 @@
+import ReactHtmlParser from 'react-html-parser';
+
 function MyLink() {
   return (
     <a href="https://alemayhu.com" target="_blank" rel="noreferrer">
@@ -5,9 +7,15 @@ function MyLink() {
     </a>
   );
 }
-const ErrorMessage: React.FC<{ msg: string }> = ({ msg }) => {
+
+interface Props {
+  msg: string
+}
+
+function ErrorMessage({ msg }: Props) {
   const isCorruptZip = msg.includes('Corrupted zip');
   const fileSizeIssue = msg.includes('100MB');
+
   return (
     <section className="hero">
       {isCorruptZip && (
@@ -45,7 +53,7 @@ const ErrorMessage: React.FC<{ msg: string }> = ({ msg }) => {
       )}
       {fileSizeIssue && (
         <div className="hero p-4">
-          <div dangerouslySetInnerHTML={{ __html: msg }} />
+          <div>{ReactHtmlParser(msg)}</div>
           <p className="subtitle">
             Please upload smaller pages or If you have big sub pages, try
             exporting one at a time for upload.
@@ -69,7 +77,9 @@ const ErrorMessage: React.FC<{ msg: string }> = ({ msg }) => {
 
       {!isCorruptZip && !fileSizeIssue && (
         <>
-          <div dangerouslySetInnerHTML={{ __html: msg }} />
+          <div>
+            {ReactHtmlParser(msg)}
+          </div>
           <p className="subtitle">
             Watch the video below and see if you are experiencing a common error
             or read the error message.
@@ -84,7 +94,7 @@ const ErrorMessage: React.FC<{ msg: string }> = ({ msg }) => {
               allowFullScreen
             />
             <p>
-              If you still haven't resolved the issue yet after trying the above
+              If you still haven&apos;t resolved the issue yet after trying the above
               mentioned then reach out to
             </p>
             <MyLink />
@@ -98,6 +108,6 @@ const ErrorMessage: React.FC<{ msg: string }> = ({ msg }) => {
       )}
     </section>
   );
-};
+}
 
 export default ErrorMessage;

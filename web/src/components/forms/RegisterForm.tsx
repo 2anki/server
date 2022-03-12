@@ -9,13 +9,16 @@ const FormContainer = styled.div`
   margin: 0 auto;
 `;
 
-function RegisterForm() {
+interface Props {
+  setErrorMessage: (errorMessage: string) => void;
+}
+
+function RegisterForm({ setErrorMessage }: Props) {
   const [name, setName] = useState(localStorage.getItem('name') || '');
   const [email, setEmail] = useState(localStorage.getItem('email') || '');
   const [tos, setTos] = useState(localStorage.getItem('tos') === 'true');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
   const isValid = () => (
     tos
@@ -30,7 +33,7 @@ function RegisterForm() {
   const handleSubmit = async (event: SyntheticEvent) => {
     event.preventDefault();
     const endpoint = '/users/register';
-    setError('');
+    setErrorMessage('');
     setLoading(true);
 
     try {
@@ -43,13 +46,12 @@ function RegisterForm() {
       if (res.status === 200) {
         window.location.href = '/search';
       } else {
-        setError(
+        setErrorMessage(
           'Unknown error. Please try again or reach out to alexander@alemayhu.com for assistance if the issue persists.',
         );
       }
     } catch (error) {
-      setError('Request failed. If you already have a user try login instead');
-      console.error(error);
+      setErrorMessage('Request failed. If you already have a user try login instead');
       setLoading(false);
     }
   };
@@ -63,64 +65,72 @@ function RegisterForm() {
               <BetaMessage />
               <h1 className="title">Join waitlist.</h1>
               <p className="subtitle">To get started please register below.</p>
-              {error && <div className="notification is-danger">{error}</div>}
               <form onSubmit={handleSubmit}>
                 <div className="field">
-                  <label className="label">Name</label>
-                  <div className="control">
+                  <label htmlFor="name" className="label">
+                    Name
+                    <div className="control">
+                      <input
+                        name="name"
+                        min="1"
+                        max="255"
+                        className="input"
+                        value={name}
+                        onChange={(event) => {
+                          setName(event.target.value);
+                          localStorage.setItem('name', event.target.value);
+                        }}
+                        type="text"
+                        placeholder="Your name"
+                        required
+                      />
+                    </div>
+                  </label>
+                </div>
+                <div className="field">
+                  <label htmlFor="email" className="label">
+                    Email
                     <input
-                      min="1"
+                      min="3"
                       max="255"
-                      className="input"
-                      value={name}
+                      value={email}
                       onChange={(event) => {
-                        setName(event.target.value);
-                        localStorage.setItem('name', event.target.value);
+                        setEmail(event.target.value);
+                        localStorage.setItem('email', event.target.value);
                       }}
-                      type="text"
-                      placeholder="Your name"
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="field">
-                  <label className="label">Email</label>
-                  <input
-                    min="3"
-                    max="255"
-                    value={email}
-                    onChange={(event) => {
-                      setEmail(event.target.value);
-                      localStorage.setItem('email', event.target.value);
-                    }}
-                    className="input"
-                    type="email"
-                    placeholder="Your e-mail"
-                    required
-                  />
-                  {/* <p className="help is-danger">This email is invalid</p> */}
-                </div>
-                <div className="field">
-                  <label className="label">Password</label>
-                  Minimum 8 characters
-                  <div className="control">
-                    <input
-                      min="8"
-                      max="255"
-                      value={password}
-                      onChange={(event) => setPassword(event.target.value)}
-                      required
                       className="input"
-                      type="password"
-                      placeholder="Your password"
+                      type="email"
+                      placeholder="Your e-mail"
+                      required
+                      name="email"
                     />
-                  </div>
+                  </label>
+                </div>
+                <div className="field">
+                  <label htmlFor="password" className="label">
+                    Password
+                    Minimum 8 characters
+                    <div className="control">
+                      <input
+                        name="password"
+                        min="8"
+                        max="255"
+                        value={password}
+                        onChange={(event) => setPassword(event.target.value)}
+                        required
+                        className="input"
+                        type="password"
+                        placeholder="Your password"
+                      />
+                    </div>
+                  </label>
                 </div>
 
                 <div className="field">
                   <div className="control">
-                    <label className="checkbox">
+                    <label htmlFor="tos" className="checkbox">
                       <input
+                        name="tos"
                         required
                         type="checkbox"
                         checked={tos}
@@ -160,6 +170,7 @@ function RegisterForm() {
                 <div className="field">
                   <div className="control" style={{ width: '100%' }}>
                     <button
+                      type="button"
                       className="button is-link is-medium"
                       style={{ width: '100%' }}
                       disabled={!isValid() || loading}

@@ -19,16 +19,20 @@ const StyledButton = styled.div`
   }
 `;
 
-const CTAButton: React.FC<{
+interface Props {
   text: string;
   destination: string;
   onClickLink: React.MouseEventHandler;
-}> = ({ text, destination, onClickLink }) => (
-  <StyledButton>
-    <Link onClick={onClickLink} to={destination}>
-      {text}
-    </Link>
-  </StyledButton>
-);
+}
+
+function CTAButton({ text, destination, onClickLink }: Props) {
+  return (
+    <StyledButton>
+      <Link onClick={onClickLink} to={destination}>
+        {text}
+      </Link>
+    </StyledButton>
+  );
+}
 
 export default CTAButton;

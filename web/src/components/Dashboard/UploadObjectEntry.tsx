@@ -1,5 +1,6 @@
 import ReactHtmlParser from 'react-html-parser';
 import styled from 'styled-components';
+import ObjectAction from './actions/ObjectAction';
 
 const Entry = styled.div`
   display: flex;
@@ -16,14 +17,6 @@ const ObjectMeta = styled.div`
   grid-gap: 1.2rem;
 `;
 
-function ObjectAction({ url, image, onClick }) {
-  return (
-    <a href={url} target="_blank" rel="noreferrer" onClick={onClick}>
-      <img alt="Page action" width="32px" src={image} />
-    </a>
-  );
-}
-
 const ObjectActions = styled.div`
   display: flex;
   grid-gap: 1rem;
@@ -36,13 +29,21 @@ const UploadTitle = styled.span`
   align-items: center;
 `;
 
+interface Props {
+  size: string;
+  title: string;
+  icon: string;
+  url: string;
+  deleteUpload: () => void;
+}
+
 function UploadObjectEntry({
-  size, title, icon, url, id, deleteUpload,
-}) {
+  size, title, icon, url, deleteUpload,
+}: Props) {
   return (
     <Entry>
       <ObjectMeta>
-        <button className="delete" onClick={() => deleteUpload()}>
+        <button type="button" className="delete" onClick={() => deleteUpload()}>
           Delete
         </button>
         <div className="control">

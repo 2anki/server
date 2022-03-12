@@ -24,12 +24,7 @@ const persist = (key, value, pageId) => {
 
 const loadValue = (key, defaultValue, theSettings) => {
   if (theSettings) {
-    try {
-      return theSettings[key] || defaultValue;
-    } catch (error) {
-      console.error(error);
-      return defaultValue;
-    }
+    return theSettings[key] || defaultValue;
   }
   return localStorage.getItem(key) || defaultValue;
 };
@@ -47,15 +42,18 @@ const availableTemplates = [
   },
 ];
 
-const backend = new Backend();
-const SettingsModal: React.FC<{
+interface Props {
   pageTitle?: string;
   pageId?: string;
   isActive: boolean;
   onClickClose: React.MouseEventHandler;
-}> = ({
-  pageTitle, pageId, isActive, onClickClose,
-}) => {
+  setError: (error: string) => void;
+}
+
+const backend = new Backend();
+function SettingsModal({
+  pageTitle, pageId, isActive, onClickClose, setError,
+}: Props) {
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(!!pageId);
   const deckNameKey = 'deckName';
@@ -107,7 +105,7 @@ const SettingsModal: React.FC<{
           }
           setLoading(false);
         })
-        .catch((error) => console.error(error));
+        .catch((error) => setError(error.data.response.message));
     }
   }, [pageId]);
 
@@ -133,9 +131,9 @@ const SettingsModal: React.FC<{
       return;
     }
     const payload: any = {};
-    for (const s of store.options) {
-      payload[s.key] = s.value.toString(); // use string for backwards compat
-    }
+    store.options.forEach((option) => {
+      payload[option.key] = option.value.toString(); // use string for backwards compat
+    });
     payload.deckName = deckName;
     payload['toggle-mode'] = toggleMode;
     payload.template = template;
@@ -151,11 +149,7 @@ const SettingsModal: React.FC<{
       .then(() => {
         onClickClose(event);
       })
-      .catch((error) => {
-        console.error(error);
-      });
-
-    console.log(payload);
+      .catch((error) => setError(error.data.response.message));
   };
   return (
     <div className={`modal ${isActive ? 'is-active' : ''}`}>
@@ -167,6 +161,7 @@ const SettingsModal: React.FC<{
             <div className="modal-card-head">
               <div className="modal-card-title">Settings</div>
               <button
+                type="button"
                 className="delete"
                 aria-label="close"
                 onClick={onClickClose}
@@ -181,7 +176,7 @@ const SettingsModal: React.FC<{
                     the Notion page. If you have an existing deck in Anki you
                     want to update then you can also set the name here. It works
                     like Anki so you can create groupings (Parent::Child).
-                    Please don't change the deck name if you have subpages, it's
+                    Please don&apos;t change the deck name if you have subpages, it&apos;s
                     more reliable to leave this empty if you have subpages.
                   </p>
                   <div className="control">
@@ -312,17 +307,17 @@ const SettingsModal: React.FC<{
 
                   <hr />
                   <h2>Preview support is coming soon</h2>
-                  <button className="button">
+                  <button type="button" className="button">
                     <Link to="/tm">Edit Template</Link>
                   </button>
                 </BlueTintedBox>
               </div>
             </section>
             <div className="modal-card-foot is-justify-content-center">
-              <button className="button is-link" onClick={onSubmit}>
+              <button type="button" className="button is-link" onClick={onSubmit}>
                 Save
               </button>
-              <button className="button" onClick={() => resetStore()}>
+              <button type="button" className="button" onClick={() => resetStore()}>
                 Delete
               </button>
             </div>
@@ -331,6 +326,11 @@ const SettingsModal: React.FC<{
       </div>
     </div>
   );
+}
+
+SettingsModal.defaultProps = {
+  pageTitle: null,
+  pageId: null,
 };
 
 export default SettingsModal;

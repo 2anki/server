@@ -10,10 +10,14 @@ const FormContainer = styled.div`
   margin: 0 auto;
 `;
 
-function LoginForm({ onForgot }) {
+interface LoginFormProps {
+  onForgotPassword: () => void;
+  onError: (errorMessage: string) => void;
+}
+
+function LoginForm({ onForgotPassword, onError }: LoginFormProps) {
   const [email, setEmail] = useState(localStorage.getItem('email') || '');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const isValid = () => (
@@ -26,7 +30,6 @@ function LoginForm({ onForgot }) {
   const handleSubmit = async (event: SyntheticEvent) => {
     event.preventDefault();
     const endpoint = '/users/login';
-    setError('');
     setLoading(true);
 
     try {
@@ -47,10 +50,10 @@ function LoginForm({ onForgot }) {
         if (data.message === 'not verified') {
           window.location.href = '/verify';
         } else {
-          setError(data.message);
+          onError(data.message);
         }
       } else {
-        setError(
+        onError(
           'Request failed. Do you remember your password? If not click forgot my password.',
         );
       }
@@ -66,42 +69,56 @@ function LoginForm({ onForgot }) {
               <BetaTag />
               <BetaMessage />
               <h1 className="title is-1">Login</h1>
-              {error && <div className="notification is-danger">{error}</div>}
               <form onSubmit={handleSubmit}>
                 <div className="field">
-                  <label className="label">Email</label>
-                  <input
-                    min="3"
-                    max="255"
-                    value={email}
-                    onChange={(event) => {
-                      setEmail(event.target.value);
-                      localStorage.setItem('email', event.target.value);
-                    }}
-                    className="input"
-                    type="email"
-                    placeholder="Your e-mail"
-                    required
-                  />
-                  {/* <p className="help is-danger">This email is invalid</p> */}
+                  <label htmlFor="email" className="label">
+                    Email
+                    <input
+                      name="email"
+                      min="3"
+                      max="255"
+                      value={email}
+                      onChange={(event) => {
+                        setEmail(event.target.value);
+                        localStorage.setItem('email', event.target.value);
+                      }}
+                      className="input"
+                      type="email"
+                      placeholder="Your e-mail"
+                      required
+                    />
+                  </label>
                 </div>
                 <div className="field">
-                  <label className="label">Password</label>
-                  <div className="control">
-                    <input
-                      min="8"
-                      max="255"
-                      value={password}
-                      onChange={(event) => setPassword(event.target.value)}
-                      required
-                      className="input"
-                      type="password"
-                      placeholder="Your password"
-                    />
-                  </div>
+                  <label htmlFor="password" className="label">
+                    Password
+                    <div className="control">
+                      <input
+                        name="password"
+                        min="8"
+                        max="255"
+                        value={password}
+                        onChange={(event) => setPassword(event.target.value)}
+                        required
+                        className="input"
+                        type="password"
+                        placeholder="Your password"
+                      />
+                    </div>
+                  </label>
                 </div>
 
-                <div className="field" onClick={() => onForgot()}>
+                <div
+                  tabIndex={-9}
+                  role="button"
+                  className="field"
+                  onClick={() => onForgotPassword()}
+                  onKeyDown={(event) => {
+                    if (event.key === 'F9') {
+                      onForgotPassword();
+                    }
+                  }}
+                >
                   <a rel="noreferrer" href="#forgot">
                     I forgot my password
                   </a>
@@ -110,6 +127,7 @@ function LoginForm({ onForgot }) {
                 <div className="field">
                   <div className="control">
                     <button
+                      type="button"
                       className="button is-link is-medium is-pulled-right"
                       disabled={!isValid() || loading}
                     >

@@ -4,9 +4,10 @@ interface FontPickerDelegate {
 }
 
 function FontSizePicker(delegate: FontPickerDelegate) {
+  const { fontSize, pickedFontSize } = delegate;
+
   return (
     <div className="field">
-      <label className="label">Font Size</label>
       <div className="control">
         <div
           style={{
@@ -17,17 +18,19 @@ function FontSizePicker(delegate: FontPickerDelegate) {
             flexDirection: 'column',
           }}
         >
-          <input
-            name="font-size"
-            type="range"
-            min="10"
-            max="100"
-            value={delegate.fontSize}
-            onChange={(event) => delegate.pickedFontSize(event.target.value)}
-          />
-          <label style={{ fontSize: `${delegate.fontSize}px` }}>
-            {delegate.fontSize}
+          <label htmlFor="font-size" className="label">
+            Font Size
+            <input
+              id="font-size"
+              name="font-size"
+              type="range"
+              min="10"
+              max="100"
+              value={fontSize}
+              onChange={(event) => pickedFontSize(event.target.value)}
+            />
           </label>
+          <span style={{ fontSize: `${fontSize}px` }}>{fontSize}</span>
         </div>
       </div>
     </div>

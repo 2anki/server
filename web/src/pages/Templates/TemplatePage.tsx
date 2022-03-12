@@ -54,27 +54,29 @@ function TemplatePage() {
     }
   };
 
+  const fetchTemplates = useCallback(async () => {
+    files = [];
+    const templateTypes = ['n2a-basic', 'n2a-input', 'n2a-cloze'];
+    await Promise.all(templateTypes.map(async (name) => {
+      const local = localStorage.getItem(name);
+      if (local) {
+        files.push(JSON.parse(local));
+      } else {
+        const remote = await fetchBaseType(name);
+        files.push(remote);
+        localStorage.setItem(name, JSON.stringify(remote, null, 2));
+      }
+    }));
+    setReady(true);
+    setLanguage('html');
+    // Use the first basic front template as default file to load.
+    // We might want to change this later to perserve last open file.
+    setCode(files[0].front);
+  }, []);
+
   // Fetch the base presets from the server  or load from local storage (should only be called once)
   useEffect(() => {
-    (async function () {
-      files = [];
-      for (const key of ['n2a-basic', 'n2a-input', 'n2a-cloze']) {
-        const local = localStorage.getItem(key);
-        if (local) {
-          files.push(JSON.parse(local));
-        } else {
-          const remote = await fetchBaseType(key);
-          files.push(remote);
-          localStorage.setItem(key, JSON.stringify(remote, null, 2));
-        }
-      }
-      setReady(true);
-      setLanguage('html');
-      // Use the first basic front template as default file to load.
-      // We might want to change this later to perserve last open file.
-      setCode(files[0].front);
-    }());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    fetchTemplates();
   }, []);
 
   // Switching to front from back or styling
@@ -133,9 +135,6 @@ function TemplatePage() {
               removing fields and preview is coming soon.
             </p>
             <div className="field is-horizontal">
-              <div className="field-label is-normal">
-                <label className="label">Template: </label>
-              </div>
               <div className="field-body">
                 <div className="field">
                   <TemplateSelect
@@ -155,7 +154,7 @@ function TemplatePage() {
             </div>
             <p>Template</p>
             <div className="control m-2">
-              <label className="radio">
+              <label htmlFor="front-template" className="radio">
                 <input
                   checked={isFront}
                   onChange={(event) => setIsFront(event.target.checked)}
@@ -165,7 +164,7 @@ function TemplatePage() {
                 />
                 Front Template
               </label>
-              <label className="radio">
+              <label htmlFor="back-template" className="radio">
                 <input
                   checked={isBack}
                   onChange={(event) => setIsBack(event.target.checked)}
@@ -175,7 +174,7 @@ function TemplatePage() {
                 />
                 Back Template
               </label>
-              <label className="radio">
+              <label htmlFor="styling" className="radio">
                 <input
                   checked={isStyling}
                   onChange={(event) => setIsStyling(event.target.checked)}

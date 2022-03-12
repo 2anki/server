@@ -118,7 +118,6 @@ function ListUploadsPage({ setError }: ListUploadsPageProps) {
                 title={u.filename}
                 icon={null}
                 url={`/download/u/${u.key}`}
-                id={u.object_id}
                 deleteUpload={() => deleteUpload(u.key)}
               />
             ))}

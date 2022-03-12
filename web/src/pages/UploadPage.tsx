@@ -19,7 +19,12 @@ const InfoMessage = styled.p`
   padding-top: 1rem;
 `;
 
-function UploadPage() {
+interface Props {
+  setErrorMessage: (message: string) => void;
+  errorMessage: string | undefined;
+}
+
+function UploadPage({ errorMessage, setErrorMessage }: Props) {
   const isDevelopment = window.location.host !== '2anki.net';
   const query = useQuery();
   const view = query.get('view');
@@ -27,7 +32,6 @@ function UploadPage() {
   const [isSettings, setShowSettings] = useState(
     view === 'template' || view === 'deck-options' || view === 'card-options',
   );
-  const [errorMessage, setErrorMessage] = useState('');
 
   const FlexColumn = styled.div`
     display: flex;
@@ -99,6 +103,7 @@ function UploadPage() {
               . Notion API support is in the works and coming soon!
             </InfoMessage>
             <SettingsModal
+              setError={setErrorMessage}
               isActive={isSettings}
               onClickClose={() => {
                 window.history.pushState({}, '', 'upload');

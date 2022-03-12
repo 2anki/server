@@ -1,12 +1,12 @@
-import React from 'react';
+import { MouseEventHandler } from 'react';
 
 interface ObjectActionProps {
   url: string,
   image: string,
-  onClick: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void,
+  onClick: MouseEventHandler,
 }
 
-export default function ObjectAction({ url, image, onClick }) {
+export default function ObjectAction({ url, image, onClick }: ObjectActionProps) {
   return (
     <a href={url} target="_blank" rel="noreferrer" onClick={onClick}>
       <img alt="Page action" width="32px" src={image} />

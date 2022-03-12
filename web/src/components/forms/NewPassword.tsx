@@ -7,18 +7,21 @@ const FormContainer = styled.div`
   margin: 0 auto;
 `;
 
-function NewPasswordForm() {
+interface Props {
+  setErrorMessage: (errorMessage: string) => void;
+}
+
+function NewPasswordForm({ setErrorMessage }: Props) {
   const [password, setPassword] = useState('');
   const [passwd, setPasswd] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
   const isValid = () => password === passwd && password.length > 0 && password.length < 256;
 
   const handleSubmit = async (event: SyntheticEvent) => {
     event.preventDefault();
     const endpoint = '/users/new-password';
-    setError('');
+    setErrorMessage('');
     setLoading(true);
 
     try {
@@ -33,8 +36,7 @@ function NewPasswordForm() {
       }
       setLoading(false);
     } catch (error) {
-      setError('Request failed. Are you sure you have registered an account?');
-      console.error(error);
+      setErrorMessage(error.response.data.message);
       setLoading(false);
     }
   };
@@ -46,7 +48,6 @@ function NewPasswordForm() {
             <div className="column is-half">
               <h1 className="title is-4">Change your password?</h1>
               <p className="subtitle">Please enter your new password below.</p>
-              {error && <div className="notification is-danger">{error}</div>}
               <form onSubmit={handleSubmit}>
                 <div className="field">
                   <input
@@ -79,6 +80,7 @@ function NewPasswordForm() {
                 <div className="field">
                   <div className="control" style={{ width: '100%' }}>
                     <button
+                      type="button"
                       className="button is-success is-medium"
                       style={{ width: '100%' }}
                       disabled={!isValid() || loading}

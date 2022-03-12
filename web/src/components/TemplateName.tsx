@@ -6,20 +6,24 @@ interface TemplateNameDelegate {
   pickedName: (name: string) => void;
 }
 
-function TemplateName(delegate: TemplateNameDelegate) {
+function TemplateName({
+  label, placeholder, name, value, pickedName,
+}: TemplateNameDelegate) {
   return (
     <div className="field">
-      <label>{delegate.label}</label>
-      <div className="control">
-        <input
-          type="text"
-          className="input"
-          placeholder={delegate.placeholder}
-          name={delegate.name}
-          value={delegate.value}
-          onChange={(event) => delegate.pickedName(event.target.value)}
-        />
-      </div>
+      <label htmlFor={name}>
+        {label}
+        <div className="control">
+          <input
+            type="text"
+            className="input"
+            placeholder={placeholder}
+            name={name}
+            value={value}
+            onChange={(event) => pickedName(event.target.value)}
+          />
+        </div>
+      </label>
     </div>
   );
 }

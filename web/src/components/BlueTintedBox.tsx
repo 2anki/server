@@ -6,8 +6,12 @@ const StyledBox = styled.div`
   margin: 1rem;
 `;
 
-const BlueTintedBox: React.FC<{
+interface Props {
   children: ReactNode;
-}> = ({ children }) => <StyledBox className="box">{children}</StyledBox>;
+}
+
+function BlueTintedBox({ children }: Props) {
+  return <StyledBox className="box">{children}</StyledBox>;
+}
 
 export default BlueTintedBox;

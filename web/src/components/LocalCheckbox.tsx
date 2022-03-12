@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import CardOptionsStore from '../store/CardOptionsStore';
 
-const LocalCheckbox: React.FC<{
+interface Props {
   label: string;
   storageKey: string;
   description: string | null;
   store: CardOptionsStore;
-}> = ({
+}
+
+function LocalCheckbox({
   label, storageKey, store, description = null,
-}) => {
+}: Props) {
   const value = store.get(storageKey)?.value || false;
   const [isChecked, setChecked] = useState(value);
 
@@ -21,8 +23,9 @@ const LocalCheckbox: React.FC<{
 
   return (
     <>
-      <label className="checkbox">
+      <label htmlFor={storageKey} className="checkbox">
         <input
+          name={storageKey}
           style={{ marginRight: '0.2rem' }}
           type="checkbox"
           checked={isChecked}
@@ -33,9 +36,9 @@ const LocalCheckbox: React.FC<{
         />
         <strong>{label}</strong>
       </label>
-      {description && <p className="is-size-7	">{description}</p>}
+      {description && <p className="is-size-7">{description}</p>}
     </>
   );
-};
+}
 
 export default LocalCheckbox;

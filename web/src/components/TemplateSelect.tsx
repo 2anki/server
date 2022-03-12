@@ -10,17 +10,19 @@ interface TemplateSelectPicker {
   value: string;
 }
 
-function TemplateSelect(delegate: TemplateSelectPicker) {
+function TemplateSelect({
+  name, value, pickedTemplate, values,
+}: TemplateSelectPicker) {
   return (
     <div className="field">
       <div className="control">
         <div className="select">
           <select
-            name={delegate.name}
-            value={delegate.value}
-            onChange={(event) => delegate.pickedTemplate(event.target.value)}
+            name={name}
+            value={value}
+            onChange={(event) => pickedTemplate(event.target.value)}
           >
-            {delegate.values.map((v) => (
+            {values.map((v) => (
               <option key={v.value} value={v.value}>
                 {v.label}
               </option>

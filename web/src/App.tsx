@@ -73,13 +73,13 @@ function App() {
                   <VerifyPage />
                 </Route>
                 <Route path="/learn">
-                  <LearnPage />
+                  <LearnPage setError={setErrorMessage} />
                 </Route>
                 <Route path="/tm">
                   <TemplatePage />
                 </Route>
                 <Route path="/upload">
-                  <UploadPage />
+                  <UploadPage setErrorMessage={setErrorMessage} errorMessage={errorMessage} />
                 </Route>
                 <Route path="/pre-signup">
                   <PreSignupPage />
@@ -88,10 +88,10 @@ function App() {
                   <SearchPage />
                 </Route>
                 <Route path="/login">
-                  <LoginPage />
+                  <LoginPage setErrorMessage={setErrorMessage} />
                 </Route>
                 <Route path="/users/r/:id">
-                  <NewPasswordPage />
+                  <NewPasswordPage setErrorMessage={setErrorMessage} />
                 </Route>
                 <Route path="/">
                   <HomePage />

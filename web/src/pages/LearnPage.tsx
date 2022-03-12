@@ -10,8 +10,12 @@ const Wrapper = styled.div`
   height: 80vh;
 `;
 
+interface Props {
+  setError: (error: string) => void;
+}
+
 const backend = new Backend();
-function LearnPage() {
+function LearnPage({ setError }: Props) {
   const [parentId, setParentId] = useState(null);
   const [children, setChildren] = useState([]);
   const [page, setPage] = useState(null);
@@ -24,6 +28,7 @@ function LearnPage() {
     const paths = window.location.pathname.split('/');
     const lastPath = paths[paths.length - 1];
     setParentId(lastPath);
+    setLocation(1); // temporary until buttons / key presses are implemented
   }, []);
 
   // Get the page meta data
@@ -35,7 +40,7 @@ function LearnPage() {
           setPage(response);
         })
         .catch((error) => {
-          console.error(error);
+          setError(error.response.data.message);
         });
     }
   }, [parentId]);
@@ -90,9 +95,6 @@ function LearnPage() {
           </>
         )}
         <progress
-          onClick={() => {
-            setLocation(location + 1);
-          }}
           id="file"
           value={location + 1}
           max={children.length}

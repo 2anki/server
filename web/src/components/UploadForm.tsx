@@ -19,7 +19,12 @@ const DropParagraph = styled.div<{ hover: boolean }>`
   grid-gap: 1rem;
 `;
 
-function UploadForm({ errorMessage, setErrorMessage }) {
+interface UploadFormProps {
+  setErrorMessage: (errorMessage: string) => void;
+  errorMessage: string | undefined;
+}
+
+function UploadForm({ setErrorMessage, errorMessage }: UploadFormProps) {
   const [uploading, setUploading] = useState(false);
   const [downloadLink, setDownloadLink] = useState('');
   const [deckName, setDeckName] = useState('');
@@ -32,17 +37,12 @@ function UploadForm({ errorMessage, setErrorMessage }) {
   const fileSizeAccepted = useCallback(() => {
     const { files } = fileInputRef.current;
     let size = 0;
-    for (let i = 0; i < files.length; i++) {
+    for (let i = 0; i < files.length; i += 1) {
       size += files[i].size;
     }
     const isOver100MB = size >= 100000000;
     if (isOver100MB) {
-      setErrorMessage(
-        `
-        <h1 class="title">Your upload is too big, there is a max of 100MB currently.</h1>
-        <p class="subtitle">This is a <u>temporary limitation</u> on uploads to provide a reliable service for people.</p>
-        `,
-      );
+      setErrorMessage('Your upload is too big, there is a max of 100MB currently');
       return false;
     }
     return true;
@@ -60,7 +60,7 @@ function UploadForm({ errorMessage, setErrorMessage }) {
       setDropHover(true);
     };
 
-    body.ondragleave = (_event) => {
+    body.ondragleave = () => {
       setDropHover(false);
     };
 
@@ -83,9 +83,7 @@ function UploadForm({ errorMessage, setErrorMessage }) {
       const storedFields = Object.entries(window.localStorage);
       const element = event.currentTarget as HTMLFormElement;
       const formData = new FormData(element);
-      for (const sf of storedFields) {
-        formData.append(sf[0], sf[1]);
-      }
+      storedFields.forEach((sf) => formData.append(sf[0], sf[1]));
       const request = await window.fetch('/upload', {
         method: 'post',
         body: formData,
@@ -113,10 +111,12 @@ function UploadForm({ errorMessage, setErrorMessage }) {
         `<h1 class='title is-4'>${error.message}</h1><pre>${error.stack}</pre>`,
       );
       setUploading(false);
+      return false;
     }
+    return true;
   };
 
-  const fileSelected = (event: { target: HTMLInputElement }) => {
+  const fileSelected = () => {
     if (fileSizeAccepted()) {
       convertRef.current.click();
     }
@@ -139,7 +139,7 @@ function UploadForm({ errorMessage, setErrorMessage }) {
               <p className="my-2">
                 <i>or</i>
               </p>
-              <label>
+              <label htmlFor="pakker">
                 <input
                   ref={fileInputRef}
                   className="file-input"
@@ -148,7 +148,7 @@ function UploadForm({ errorMessage, setErrorMessage }) {
                   accept=".zip,.html"
                   required
                   multiple
-                  onChange={(event) => fileSelected(event)}
+                  onChange={() => fileSelected()}
                 />
                 <span className="button">Select</span>
               </label>
@@ -170,6 +170,7 @@ function UploadForm({ errorMessage, setErrorMessage }) {
             Download
           </a>
           <button
+            aria-label="Upload file"
             style={{ visibility: 'hidden' }}
             ref={convertRef}
             type="submit"

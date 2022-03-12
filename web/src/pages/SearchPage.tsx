@@ -76,7 +76,7 @@ function DashboardContent() {
                 });
                 setSearchQuery(s);
               }}
-              onSearchClicked={triggerSearch}
+              onSearchClicked={() => triggerSearch(false)}
             />
             {(!myPages || myPages.length < 1) && (
               <EmptyContainer>

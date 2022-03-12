@@ -12,7 +12,11 @@ const TopSection = styled.div`
   padding: 1rem;
 `;
 
-function LoginPage() {
+interface Props {
+  setErrorMessage: (message: string) => void;
+}
+
+function LoginPage({ setErrorMessage }: Props) {
   const [isLogin, setLoginState] = useState(window.location.hash === '#login');
   const [isForgot, setIsForgot] = useState(window.location.hash === '#forgot');
   const onClickLogin = () => {
@@ -45,9 +49,10 @@ function LoginPage() {
           </>
         )}
       </TopSection>
-      {!isLogin && !isForgot && <RegisterForm />}
-      {isLogin && !isForgot && <LoginForm onForgot={() => setIsForgot(true)} />}
-      {isForgot && <ForgotPasswordForm />}
+      {!isLogin && !isForgot && <RegisterForm setErrorMessage={setErrorMessage} />}
+      {isLogin && !isForgot
+      && <LoginForm onForgotPassword={() => setIsForgot(true)} onError={setErrorMessage} />}
+      {isForgot && <ForgotPasswordForm setError={setErrorMessage} />}
     </>
   );
 }

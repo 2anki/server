@@ -77,6 +77,18 @@ function DefineRules({
     setIsloading(false);
   };
 
+  const onSelectedFlashcardTypes = (fco: string) => {
+    const included = rules.flashcard_is.includes(fco);
+    if (!included) {
+      rules.flashcard_is.push(fco);
+    } else if (included) {
+      rules.flashcard_is = rules.flashcard_is.filter(
+        (f) => f !== fco,
+      );
+    }
+    setFlashcard((prevState) => Array.from(new Set([...prevState, ...rules.flashcard_is])));
+  };
+
   return (
     <div className="card" style={{ maxWidth: '480px', marginLeft: 'auto' }}>
       <header className="card-header">
@@ -111,6 +123,7 @@ function DefineRules({
               onClickClose={() => {
                 setMore(false);
               }}
+              setError={setError}
             />
           )}
           <div className="card-content">
@@ -121,17 +134,7 @@ function DefineRules({
                 id={fco}
                 title={`Flashcards are ${fco}`}
                 checked={rules.flashcard_is.includes(fco)}
-                onSwitched={() => {
-                  const included = rules.flashcard_is.includes(fco);
-                  if (!included) {
-                    rules.flashcard_is.push(fco);
-                  } else if (included) {
-                    rules.flashcard_is = rules.flashcard_is.filter(
-                      (f) => f !== fco,
-                    );
-                  }
-                  setFlashcard((prevState) => Array.from(new Set([...prevState, ...rules.flashcard_is])));
-                }}
+                onSwitched={() => onSelectedFlashcardTypes(fco)}
               />
             ))}
             <div className="my-4">

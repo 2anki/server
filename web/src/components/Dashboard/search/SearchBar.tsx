@@ -11,8 +11,13 @@ const SearchContainer = styled.div`
   justify-content: center;
 `;
 
-// TODO: handle the enter key is pressed
-function SearchBar({ onSearchQueryChanged, onSearchClicked, inProgress }) {
+interface SearchBarProps {
+  onSearchQueryChanged: (query: string) => void;
+  onSearchClicked: () => void;
+  inProgress: boolean;
+}
+
+function SearchBar({ onSearchQueryChanged, onSearchClicked, inProgress }: SearchBarProps) {
   return (
     <SearchContainer>
       <div className="field has-addons">
@@ -29,8 +34,10 @@ function SearchBar({ onSearchQueryChanged, onSearchClicked, inProgress }) {
             }}
           />
         </div>
-        <div className="control" onClick={onSearchClicked}>
+        <div className="control">
           <button
+            type="button"
+            onClick={onSearchClicked}
             className={`button ${
               inProgress ? 'is-loading is-light' : 'is-info'
             }`}
