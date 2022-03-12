@@ -6,7 +6,7 @@ import UploadPage from './pages/UploadPage';
 import HomePage from './pages/Home';
 
 import Footer from './components/Footer';
-import CardOptionsStore from './store/Options';
+import CardOptionsStore from './store/CardOptionsStore';
 import StoreContext from './store/StoreContext';
 import GlobalStyle from './GlobalStyle';
 

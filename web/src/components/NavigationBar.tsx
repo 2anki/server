@@ -73,12 +73,12 @@ function NavigationBar(props: NavigationBarProps) {
               <>
                 {props.workspaces.map((w) => (
                   <a
-                        key={w.name}
-                        href="/notion/switch-workspace"
-                        className="navbar-item"
-                      >
-                        {w.name}
-                      </a>
+                    key={w.name}
+                    href="/notion/switch-workspace"
+                    className="navbar-item"
+                  >
+                    {w.name}
+                  </a>
                 ))}
                 <hr className="navbar-divider" />
               </>
@@ -95,14 +95,14 @@ function NavigationBar(props: NavigationBarProps) {
               <div className="dropdown-item">
                 <button
                   onClick={() => {
-                        if (!waiting) {
-                          setIsWaiting(true);
-                          backend.logout();
-                        }
-                      }}
+                    if (!waiting) {
+                      setIsWaiting(true);
+                      backend.logout();
+                    }
+                  }}
                   className="button is-small navbar-item"
                 >
-                      Log out
+                  Log out
                 </button>
               </div>
               )}

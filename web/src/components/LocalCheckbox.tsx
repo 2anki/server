@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import CardOptionsStore from '../store/Options';
+import CardOptionsStore from '../store/CardOptionsStore';
 
 const LocalCheckbox: React.FC<{
   label: string;
