@@ -6,7 +6,12 @@ import LoadingScreen from '../components/LoadingScreen';
 import Backend from '../lib/Backend';
 
 const backend = new Backend();
-function ListUploadsPage() {
+
+interface ListUploadsPageProps {
+  setError: (error: string) => void;
+}
+
+function ListUploadsPage({ setError }: ListUploadsPageProps) {
   const [loading, setLoading] = useState(true);
   const [uploads, setUploads] = useState([]);
   const [deletingAll, setIsDeletingAll] = useState(false);
@@ -43,7 +48,7 @@ function ListUploadsPage() {
       .then(() => {
         setUploads(uploads.filter((u) => u.id !== id));
       })
-      .catch((err) => console.error(console.error(err)));
+      .catch((error) => setError(error.response.data.message));
   }
 
   function deleteJob(id: string): void {
@@ -52,13 +57,11 @@ function ListUploadsPage() {
       .then(() => {
         setJobs(jobs.filter((j) => j.object_id !== id));
       })
-      .catch((err) => console.error(err));
+      .catch((error) => setError(error.response.data.message));
   }
 
   async function deleteAllUploads(): Promise<void> {
-    for (const u of uploads) {
-      await deleteUpload(u.key);
-    }
+    uploads.reduce((prev, arg) => prev.then(() => deleteUpload(arg.id)), Promise.resolve());
     setIsDeletingAll(false);
   }
 
@@ -67,16 +70,21 @@ function ListUploadsPage() {
       {jobs && jobs.length > 0 && (
         <div className="">
           <h2 className="title is-2">Active Jobs</h2>
-          <div
-            className="is-pulled-right"
-            onClick={() => (window.location.href = '/uploads/mine')}
-          >
-            <button className="button">Refresh</button>
+          <div className="is-pulled-right">
+            <button
+              type="button"
+              onClick={() => { window.location.href = '/uploads/mine'; }}
+              className="button"
+            >
+              Refresh
+            </button>
           </div>
           <ul className="my-2">
             {jobs.map((j) => (
               <li className="is-flex">
                 <button
+                  aria-label="delete"
+                  type="button"
                   className="delete"
                   onClick={() => deleteJob(j.object_id)}
                 />
@@ -128,6 +136,7 @@ function ListUploadsPage() {
                 .
                 <div className="is-pulled-right my-2">
                   <button
+                    type="button"
                     className={`button is-small ${
                       deletingAll ? 'is-loading' : ''
                     } `}
