@@ -31,15 +31,15 @@ function LoginPage() {
         {!isLogin && (
           <>
             Already have an account?
-            <button className="button is-black" onClick={onClickLogin}>
+            <button type="button" className="button is-black" onClick={onClickLogin}>
               Beta access
             </button>
           </>
         )}
         {isLogin && (
           <>
-            Don't have an account?
-            <button className="button is-black" onClick={onClickRegister}>
+            Don&quot;t have an account?
+            <button type="button" className="button is-black" onClick={onClickRegister}>
               Join waitlist
             </button>
           </>
