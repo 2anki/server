@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-import { lazy } from 'react';
+import { lazy, useMemo } from 'react';
 import styled from 'styled-components';
 
 import UploadPage from './pages/UploadPage';
@@ -34,7 +34,7 @@ const Container = styled.div`
 `;
 
 function App() {
-  const store = new CardOptionsStore();
+  const store = useMemo(() => new CardOptionsStore(), []);
 
   return (
     <>
