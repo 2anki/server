@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
-import { lazy, useMemo } from 'react';
+import ReactHtmlParser from 'react-html-parser';
+import { lazy, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
 import UploadPage from './pages/UploadPage';
@@ -35,6 +36,8 @@ const Container = styled.div`
 
 function App() {
   const store = useMemo(() => new CardOptionsStore(), []);
+  const [errorMessage, setErrorMessage] = useState('');
+  // TODO: show notification on save mesages, did save etc.
 
   return (
     <>
@@ -49,9 +52,22 @@ function App() {
               ) : null)}
             />
             <Container>
+              {errorMessage && (
+              <div className="is-info notification is-light my-4">
+                <button
+                  aria-label="dismiss error message"
+                  type="button"
+                  className="delete"
+                  onClick={() => setErrorMessage(null)}
+                />
+                <div>
+                  {ReactHtmlParser(errorMessage)}
+                </div>
+              </div>
+              )}
               <Switch>
                 <Route path="/uploads">
-                  <ListUploadsPage />
+                  <ListUploadsPage setError={setErrorMessage} />
                 </Route>
                 <Route path="/verify">
                   <VerifyPage />

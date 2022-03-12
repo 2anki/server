@@ -3,9 +3,9 @@ import { useCallback, useEffect, useState } from 'react';
 
 import styled from 'styled-components';
 import Backend from '../lib/Backend';
-import SearchBar from '../components/Dashboard/SearchBar';
+import SearchBar from '../components/Dashboard/search/SearchBar';
 import NavigationBar from '../components/NavigationBar';
-import SearchObjectEntry from '../components/Dashboard/SearchObjectEntry';
+import SearchObjectEntry from '../components/Dashboard/search/SearchObjectEntry';
 import LoadingScreen from '../components/LoadingScreen';
 import useQuery from '../lib/hooks/useQuery';
 
@@ -102,6 +102,7 @@ function DashboardContent() {
                   icon={p.icon}
                   url={p.url}
                   id={p.id}
+                  setError={setError}
                 />
               ))}
           </Route>

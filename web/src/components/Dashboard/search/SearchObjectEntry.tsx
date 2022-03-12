@@ -1,8 +1,11 @@
 import { useState } from 'react';
 
 import styled from 'styled-components';
-import Backend from '../../lib/Backend';
-import DefineRules from './DefineRules';
+import Backend from '../../../lib/Backend';
+import DefineRules from '../DefineRules';
+
+import ObjectActions from '../actions/ObjectActions';
+import ObjectAction from '../actions/ObjectAction';
 
 const Entry = styled.div`
   display: flex;
@@ -19,38 +22,25 @@ const ObjectMeta = styled.div`
   grid-gap: 1.2rem;
 `;
 
-function ObjectAction({ url, image, onClick }) {
-  return (
-    <a href={url} target="_blank" rel="noreferrer" onClick={onClick}>
-      <img alt="Page action" width="32px" src={image} />
-    </a>
-  );
+const backend = new Backend();
+
+interface Props {
+  title: string;
+  icon: string;
+  url: string;
+  id: string;
+  type: string;
+  setError: (error: string) => void;
 }
 
-const ObjectActions = styled.div`
-  display: flex;
-  grid-gap: 1rem;
-  min-width: 80px;
-`;
-
-const backend = new Backend();
 function SearchObjectEntry({
-  title, icon, url, id, type,
-}) {
+  title, icon, url, id, type, setError,
+}: Props) {
   const [showSettings, setShowSettings] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
 
   return (
     <>
-      {errorMessage && (
-        <div className="is-info notification is-light my-4">
-          <button
-            className="delete"
-            onClick={() => setErrorMessage(null)}
-          />
-          <div dangerouslySetInnerHTML={{ __html: errorMessage }} />
-        </div>
-      )}
+
       <Entry>
         <ObjectMeta>
           <div className="control">
@@ -74,11 +64,11 @@ function SearchObjectEntry({
               event.preventDefault();
               backend
                 .convert(id, type)
-                .then((res) => {
+                .then(() => {
                   window.location.href = '/uploads';
                 })
                 .catch((error) => {
-                  setErrorMessage(error.response.data.message);
+                  setError(error.response.data.message);
                 });
             }}
           />
@@ -87,7 +77,16 @@ function SearchObjectEntry({
             image="/icons/Notion_app_logo.png"
             onClick={() => {}}
           />
-          <div onClick={() => setShowSettings(!showSettings)}>
+          <div
+            role="button"
+            tabIndex={-1}
+            onClick={() => setShowSettings(!showSettings)}
+            onKeyDown={(event) => {
+              if (event.key === 'F1') {
+                setShowSettings(!showSettings);
+              }
+            }}
+          >
             <img src="/icons/settings.svg" width="32px" alt="settings" />
           </div>
         </ObjectActions>
@@ -97,6 +96,7 @@ function SearchObjectEntry({
           parent={title}
           id={id}
           setDone={() => setShowSettings(false)}
+          setError={setError}
         />
       )}
     </>
