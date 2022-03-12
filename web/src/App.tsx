@@ -37,7 +37,6 @@ const Container = styled.div`
 function App() {
   const store = useMemo(() => new CardOptionsStore(), []);
   const [errorMessage, setErrorMessage] = useState('');
-  // TODO: show notification on save mesages, did save etc.
 
   return (
     <>

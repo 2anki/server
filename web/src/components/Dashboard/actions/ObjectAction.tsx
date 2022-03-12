@@ -3,7 +3,8 @@ import { MouseEventHandler } from 'react';
 interface ObjectActionProps {
   url: string,
   image: string,
-  onClick: MouseEventHandler,
+  // eslint-disable-next-line react/require-default-props
+  onClick?: MouseEventHandler,
 }
 
 export default function ObjectAction({ url, image, onClick }: ObjectActionProps) {

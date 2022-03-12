@@ -75,7 +75,6 @@ function SearchObjectEntry({
           <ObjectAction
             url={url}
             image="/icons/Notion_app_logo.png"
-            onClick={() => {}}
           />
           <div
             role="button"
