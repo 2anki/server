@@ -54,6 +54,7 @@
     "@types/styled-components": "^5.1.9",
     "eslint": "^7.32.0",
     "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-airbnb-typescript": "^16.1.1",
     "monaco-editor-webpack-plugin": "4.1.1",
     "react-router-dom": "^5.2.0"
   },
