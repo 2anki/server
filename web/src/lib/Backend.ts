@@ -4,8 +4,8 @@ import NotionObject from './interfaces/NotionObject';
 import UserUpload from './interfaces/UserUpload';
 import UserJob from './interfaces/UserJob';
 
-import getObjectTitle from './notion/object.title';
-import getObjectIcon from './notion/object.icon';
+import getObjectTitle from './notion/getObjectTitle';
+import getObjectIcon from './notion/getObjectIcon';
 
 class Backend {
   baseURL: string;
