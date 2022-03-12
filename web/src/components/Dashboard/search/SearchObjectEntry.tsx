@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useState } from 'react';
 
-import styled from "styled-components";
-import Backend from "../../lib/Backend";
-import DefineRules from "./DefineRules";
+import styled from 'styled-components';
+import Backend from '../../../lib/Backend';
+import DefineRules from '../DefineRules';
+
+import ObjectActions from '../actions/ObjectActions';
+import ObjectAction from '../actions/ObjectAction';
 
 const Entry = styled.div`
   display: flex;
@@ -19,36 +22,25 @@ const ObjectMeta = styled.div`
   grid-gap: 1.2rem;
 `;
 
-const ObjectAction = ({ url, image, onClick }) => {
-  return (
-    <a href={url} target="_blank" rel="noreferrer" onClick={onClick}>
-      <img alt="Page action" width="32px" src={image}></img>
-    </a>
-  );
-};
+const backend = new Backend();
 
-const ObjectActions = styled.div`
-  display: flex;
-  grid-gap: 1rem;
-  min-width: 80px;
-`;
+interface Props {
+  title: string;
+  icon: string;
+  url: string;
+  id: string;
+  type: string;
+  setError: (error: string) => void;
+}
 
-let backend = new Backend();
-const SearchObjectEntry = ({ title, icon, url, id, type }) => {
+function SearchObjectEntry({
+  title, icon, url, id, type, setError,
+}: Props) {
   const [showSettings, setShowSettings] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
 
   return (
     <>
-      {errorMessage && (
-        <div className="is-info notification is-light my-4">
-          <button
-            className="delete"
-            onClick={() => setErrorMessage(null)}
-          ></button>
-          <div dangerouslySetInnerHTML={{ __html: errorMessage }} />
-        </div>
-      )}
+
       <Entry>
         <ObjectMeta>
           <div className="control">
@@ -57,7 +49,7 @@ const SearchObjectEntry = ({ title, icon, url, id, type }) => {
               <span className="tag is-link">{type}</span>
             </div>
           </div>
-          {icon && (icon.includes("http") || icon.includes("data:image")) ? (
+          {icon && (icon.includes('http') || icon.includes('data:image')) ? (
             <img width={32} height={32} src={icon} alt="icon" />
           ) : (
             <span>{icon}</span>
@@ -72,20 +64,28 @@ const SearchObjectEntry = ({ title, icon, url, id, type }) => {
               event.preventDefault();
               backend
                 .convert(id, type)
-                .then((res) => {
-                  window.location.href = "/uploads";
+                .then(() => {
+                  window.location.href = '/uploads';
                 })
                 .catch((error) => {
-                  setErrorMessage(error.response.data.message);
+                  setError(error.response.data.message);
                 });
             }}
           />
           <ObjectAction
             url={url}
             image="/icons/Notion_app_logo.png"
-            onClick={() => {}}
           />
-          <div onClick={() => setShowSettings(!showSettings)}>
+          <div
+            role="button"
+            tabIndex={-1}
+            onClick={() => setShowSettings(!showSettings)}
+            onKeyDown={(event) => {
+              if (event.key === 'F1') {
+                setShowSettings(!showSettings);
+              }
+            }}
+          >
             <img src="/icons/settings.svg" width="32px" alt="settings" />
           </div>
         </ObjectActions>
@@ -95,10 +95,11 @@ const SearchObjectEntry = ({ title, icon, url, id, type }) => {
           parent={title}
           id={id}
           setDone={() => setShowSettings(false)}
+          setError={setError}
         />
       )}
     </>
   );
-};
+}
 
 export default SearchObjectEntry;

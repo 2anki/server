@@ -1,6 +1,6 @@
-import styled from "styled-components";
+import styled from 'styled-components';
 
-import { Link } from "react-router-dom";
+import { Link } from 'react-router-dom';
 
 const StyledButton = styled.div`
   font-weight: bold;
@@ -19,11 +19,13 @@ const StyledButton = styled.div`
   }
 `;
 
-const CTAButton: React.FC<{
+interface Props {
   text: string;
   destination: string;
   onClickLink: React.MouseEventHandler;
-}> = ({ text, destination, onClickLink }) => {
+}
+
+function CTAButton({ text, destination, onClickLink }: Props) {
   return (
     <StyledButton>
       <Link onClick={onClickLink} to={destination}>
@@ -31,6 +33,6 @@ const CTAButton: React.FC<{
       </Link>
     </StyledButton>
   );
-};
+}
 
 export default CTAButton;
