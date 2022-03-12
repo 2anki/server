@@ -23,10 +23,10 @@ const StyledSearchPage = styled.div`
 const backend = new Backend();
 
 function DashboardContent() {
-  const _query = useQuery();
+  const query = useQuery();
   const history = useHistory();
 
-  const [query, setQuery] = useState(_query.get('q') || '');
+  const [searchQuery, setSearchQuery] = useState(query.get('q') || '');
   const [myPages, setMyPages] = useState([]);
   const [inProgress, setInProgress] = useState(false);
   const [errorNotification, setError] = useState(null);
@@ -40,7 +40,7 @@ function DashboardContent() {
       setError(null);
       setInProgress(true);
       backend
-        .search(query, force)
+        .search(searchQuery, force)
         .then((results) => {
           setMyPages(results);
           setInProgress(false);
@@ -52,19 +52,16 @@ function DashboardContent() {
           setError(error);
         });
     },
-    [inProgress, query],
+    [inProgress, searchQuery],
   );
 
-  // TODO: clean this up by using debounce so it's only called when the query changes automatically
   useEffect(() => {
     setIsLoading(true);
     triggerSearch(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (isLoading) return <LoadingScreen />;
 
-  // TODO: warn user if they have more than 21 conversions active. Request deleting on /uploads
   return (
     <StyledSearchPage>
       <div className="column is-main-content">
@@ -77,7 +74,7 @@ function DashboardContent() {
                   pathname: '/search',
                   search: `?q=${s}`,
                 });
-                setQuery(s);
+                setSearchQuery(s);
               }}
               onSearchClicked={triggerSearch}
             />
@@ -140,7 +137,7 @@ function SearchPage() {
         setWorkSpace(data.workspace);
         setIsLoading(false);
       })
-      .catch((_error) => {
+      .catch(() => {
         window.location.href = '/login#login';
       });
   }, []);
@@ -164,7 +161,7 @@ function SearchPage() {
           className="column is-half is-centered"
         >
           <a
-            className="button is-link has-text-weight-semibold	"
+            className="button is-link has-text-weight-semibold"
             href={connectionLink}
           >
             Connect to Notion
