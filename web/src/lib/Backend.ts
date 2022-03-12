@@ -4,6 +4,9 @@ import NotionObject from './interfaces/NotionObject';
 import UserUpload from './interfaces/UserUpload';
 import UserJob from './interfaces/UserJob';
 
+import getObjectTitle from './notion/object.title';
+import getObjectIcon from './notion/object.icon';
+
 class Backend {
   baseURL: string;
 
@@ -24,49 +27,7 @@ class Backend {
     return axios.get(`${this.baseURL}notion/get-notion-link`);
   }
 
-  __getObjectTitle(p): string {
-    try {
-      const { properties } = p;
-      // Database
-      if (p.object === 'database' && p.title) {
-        return p.title.map((text) => text.plain_text).join('');
-      }
-      if (!properties) {
-        return 'untitled';
-      }
-      if (properties.title) {
-        return properties.title.title[0].plain_text as string;
-      }
-      const desc = properties.Description;
-      if (desc) {
-        if (Array.isArray(desc.title) && desc.title.length > 0) {
-          return desc.title[0].plain_text as string;
-        }
-        if (Array.isArray(desc.rich_text) && desc.rich_text.length > 0) {
-          return desc.rich_text[0].plain_text;
-        }
-      }
-      if (properties.Name) {
-        return properties.Name.title[0].plain_text;
-      }
-
-      const props = Object.keys(properties);
-      for (const k of props) {
-        const propValue = properties[k];
-        if (propValue && Array.isArray(propValue)) {
-          return properties[k].title[0].plain_text;
-        }
-        if (propValue && propValue.title) {
-          return propValue.title[0].text.content;
-        }
-      }
-    } catch (error) {
-      return 'untitled';
-    }
-    return 'untitled';
-  }
-
-  __withinThreeSeconds(): Boolean {
+  withinThreeSeconds(): Boolean {
     const end = new Date();
     /* @ts-ignore */
     let diff = end - this.lastCall;
@@ -124,7 +85,7 @@ class Backend {
   }
 
   async search(query: string, force?: boolean): Promise<NotionObject[]> {
-    if (!force && this.__withinThreeSeconds()) {
+    if (!force && this.withinThreeSeconds()) {
       throw new Error(
         'You are making too many requests. Please wait a few seconds before searching.',
       );
@@ -159,28 +120,13 @@ class Backend {
     if (data && data.results) {
       return data.results.map((p) => ({
         object: p.object,
-        title: this.__getObjectTitle(p).substr(0, 58), // Don't show strings longer than 60 characters
-        icon: this.__getObjectIcon(p),
+        title: getObjectTitle(p).substr(0, 58), // Don't show strings longer than 60 characters
+        icon: getObjectIcon(p),
         url: p.url as string,
         id: p.id,
       }));
     }
     return [];
-  }
-
-  private __getObjectIcon(p: any): string {
-    if (!p || !p.icon) {
-      return '';
-    }
-    const iconType = p.icon.type;
-    if (iconType === 'emoji') return p.icon.emoji as string;
-    if (iconType === 'external') {
-      return p.icon.external.url;
-    }
-    if (iconType === 'file') {
-      return p.icon.file.url;
-    }
-    return '';
   }
 
   async getPage(pageId: string): Promise<NotionObject | null> {
@@ -190,8 +136,8 @@ class Backend {
       });
       return {
         object: response.data.object,
-        title: this.__getObjectTitle(response.data),
-        icon: this.__getObjectIcon(response.data),
+        title: getObjectTitle(response.data),
+        icon: getObjectIcon(response.data),
         url: response.data.url as string,
         id: response.data.id,
         data: response.data,
@@ -208,8 +154,8 @@ class Backend {
       });
       return {
         object: response.data.object,
-        title: this.__getObjectTitle(response.data),
-        icon: this.__getObjectIcon(response.data),
+        title: getObjectTitle(response.data),
+        icon: getObjectIcon(response.data),
         url: response.data.url as string,
         id: response.data.id,
         data: response.data,
