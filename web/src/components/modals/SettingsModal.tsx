@@ -22,10 +22,10 @@ const persist = (key, value, pageId) => {
   localStorage.setItem(key, value);
 };
 
-const loadValue = (key, defaultValue, settings) => {
-  if (settings) {
+const loadValue = (key, defaultValue, theSettings) => {
+  if (theSettings) {
     try {
-      return settings[key] || defaultValue;
+      return theSettings[key] || defaultValue;
     } catch (error) {
       console.error(error);
       return defaultValue;
@@ -53,9 +53,7 @@ const SettingsModal: React.FC<{
   pageId?: string;
   isActive: boolean;
   onClickClose: React.MouseEventHandler;
-}> = ({
-  pageTitle, pageId, isActive, onClickClose,
-}) => {
+}> = ({ pageTitle, pageId, isActive, onClickClose }) => {
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(!!pageId);
   const deckNameKey = 'deckName';
@@ -63,31 +61,31 @@ const SettingsModal: React.FC<{
     loadValue(
       deckNameKey,
       pageTitle || localStorage.getItem(deckNameKey) || '',
-      settings,
-    ),
+      settings
+    )
   );
   const store = useContext(StoreContext);
   const [options, setOptions] = useState(store.options);
   const [fontSize, setFontSize] = useState(
-    loadValue('font-size', '', settings),
+    loadValue('font-size', '', settings)
   );
   const [template, setTemplate] = useState(
-    loadValue('template', 'specialstyle', settings),
+    loadValue('template', 'specialstyle', settings)
   );
   const [toggleMode, setToggleMode] = useState(
-    loadValue('toggle-mode', 'close_toggle', settings),
+    loadValue('toggle-mode', 'close_toggle', settings)
   );
   const [pageEmoji, setPageEmoji] = useState(
-    loadValue('page-emoji', 'first_emoji', settings),
+    loadValue('page-emoji', 'first_emoji', settings)
   );
   const [basicName, setBasicName] = useState(
-    loadValue('basic_model_name', '', settings),
+    loadValue('basic_model_name', '', settings)
   );
   const [clozeName, setClozeName] = useState(
-    loadValue('cloze_model_name', '', settings),
+    loadValue('cloze_model_name', '', settings)
   );
   const [inputName, setInputName] = useState(
-    loadValue('input_model_name', '', settings),
+    loadValue('input_model_name', '', settings)
   );
 
   useEffect(() => {
@@ -146,9 +144,9 @@ const SettingsModal: React.FC<{
     payload['font-size'] = fontSize;
     payload['page-emoji'] = pageEmoji;
 
-    const settings = { object_id: pageId, payload };
+    const newSettings = { object_id: pageId, payload };
     await backend
-      .saveSettings(settings)
+      .saveSettings(newSettings)
       .then(() => {
         onClickClose(event);
       })
