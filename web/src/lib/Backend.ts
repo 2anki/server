@@ -42,7 +42,8 @@ class Backend {
       if (desc) {
         if (Array.isArray(desc.title) && desc.title.length > 0) {
           return desc.title[0].plain_text as string;
-        } if (Array.isArray(desc.rich_text) && desc.rich_text.length > 0) {
+        }
+        if (Array.isArray(desc.rich_text) && desc.rich_text.length > 0) {
           return desc.rich_text[0].plain_text;
         }
       }
