@@ -8,7 +8,7 @@ import BetaTag from './BetaTag';
 function getCookie(cname) {
   const name = `${cname}=`;
   const ca = document.cookie.split(';');
-  for (let i = 0; i < ca.length; i++) {
+  for (let i = 0; i < ca.length; i += 1) {
     let c = ca[i];
     while (c.charAt(0) === ' ') {
       c = c.substring(1);
@@ -27,7 +27,7 @@ interface NavigationBarProps {
 }
 
 const backend = new Backend();
-function NavigationBar(props: NavigationBarProps) {
+function NavigationBar({ workspaces, activeWorkspace, connectLink }: NavigationBarProps) {
   const [waiting, setIsWaiting] = useState(false);
   const isSignedIn = getCookie('token');
   const [active, setHamburgerMenu] = useState(false);
@@ -43,12 +43,18 @@ function NavigationBar(props: NavigationBarProps) {
           <a href="/">2anki</a>
         </div>
         <a
+          tabIndex={0}
           role="button"
           className={`navbar-burger burger ${active ? 'is-active' : ''}`}
           aria-label="menu"
           aria-expanded="false"
           data-target="navbar"
           onClick={() => setHamburgerMenu(!active)}
+          onKeyDown={(event) => {
+            if (event.key === 'F4') {
+              setHamburgerMenu(!active);
+            }
+          }}
         >
           <span aria-hidden="true" />
           <span aria-hidden="true" />
@@ -59,19 +65,19 @@ function NavigationBar(props: NavigationBarProps) {
       <div id="navbar" className={`navbar-menu ${active ? 'is-active' : ''}`}>
         <div className="navbar-start">
           <div className="navbar-item has-dropdown is-hoverable">
-            {props.activeWorkspace && (
+            {activeWorkspace && (
             <a
               href="/search"
-              key={props.activeWorkspace}
+              key={activeWorkspace}
               className="navbar-link"
             >
-              {props.activeWorkspace}
+              {activeWorkspace}
             </a>
             )}
             <div className="navbar-dropdown">
-              {props.workspaces && (
+              {workspaces && (
               <>
-                {props.workspaces.map((w) => (
+                {workspaces.map((w) => (
                   <a
                     key={w.name}
                     href="/notion/switch-workspace"
@@ -83,8 +89,8 @@ function NavigationBar(props: NavigationBarProps) {
                 <hr className="navbar-divider" />
               </>
               )}
-              {props.connectLink && (
-              <a href={props.connectLink} className="dropdown-item">
+              {connectLink && (
+              <a href={connectLink} className="dropdown-item">
                 Connect workspace
               </a>
               )}
@@ -94,6 +100,7 @@ function NavigationBar(props: NavigationBarProps) {
               {isSignedIn && (
               <div className="dropdown-item">
                 <button
+                  type="button"
                   onClick={() => {
                     if (!waiting) {
                       setIsWaiting(true);
@@ -154,5 +161,11 @@ function NavigationBar(props: NavigationBarProps) {
     </nav>
   );
 }
+
+NavigationBar.defaultProps = {
+  workspaces: [],
+  activeWorkspace: '',
+  connectLink: null,
+};
 
 export default NavigationBar;
