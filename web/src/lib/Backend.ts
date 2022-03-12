@@ -56,7 +56,8 @@ class Backend {
         const propValue = properties[k];
         if (propValue && Array.isArray(propValue)) {
           return properties[k].title[0].plain_text;
-        } if (propValue && propValue.title) {
+        }
+        if (propValue && propValue.title) {
           return propValue.title[0].text.content;
         }
       }
