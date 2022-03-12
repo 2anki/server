@@ -1,38 +1,36 @@
-import styled from "styled-components";
-import axios from "axios";
-import { SyntheticEvent, useState } from "react";
-import BetaTag from "../BetaTag";
-import BetaMessage from "../BetaMessage";
+import styled from 'styled-components';
+import axios from 'axios';
+import { SyntheticEvent, useState } from 'react';
+import BetaTag from '../BetaTag';
+import BetaMessage from '../BetaMessage';
 
 const FormContainer = styled.div`
   max-width: 720px;
   margin: 0 auto;
 `;
 
-const RegisterForm = () => {
-  const [name, setName] = useState(localStorage.getItem("name") || "");
-  const [email, setEmail] = useState(localStorage.getItem("email") || "");
-  const [tos, setTos] = useState(localStorage.getItem("tos") === "true");
-  const [password, setPassword] = useState("");
+function RegisterForm() {
+  const [name, setName] = useState(localStorage.getItem('name') || '');
+  const [email, setEmail] = useState(localStorage.getItem('email') || '');
+  const [tos, setTos] = useState(localStorage.getItem('tos') === 'true');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
-  const isValid = () => {
-    return (
-      tos &&
-      name.length > 0 &&
-      name.length < 256 &&
-      email.length > 0 &&
-      email.length < 256 &&
-      password.length > 7 &&
-      password.length < 256
-    );
-  };
+  const isValid = () => (
+    tos
+      && name.length > 0
+      && name.length < 256
+      && email.length > 0
+      && email.length < 256
+      && password.length > 7
+      && password.length < 256
+  );
 
   const handleSubmit = async (event: SyntheticEvent) => {
     event.preventDefault();
-    const endpoint = "/users/register";
-    setError("");
+    const endpoint = '/users/register';
+    setError('');
     setLoading(true);
 
     try {
@@ -43,14 +41,14 @@ const RegisterForm = () => {
       };
       const res = await axios.post(endpoint, data);
       if (res.status === 200) {
-        window.location.href = "/search";
+        window.location.href = '/search';
       } else {
         setError(
-          "Unknown error. Please try again or reach out to alexander@alemayhu.com for assistance if the issue persists."
+          'Unknown error. Please try again or reach out to alexander@alemayhu.com for assistance if the issue persists.',
         );
       }
     } catch (error) {
-      setError("Request failed. If you already have a user try login instead");
+      setError('Request failed. If you already have a user try login instead');
       console.error(error);
       setLoading(false);
     }
@@ -77,7 +75,7 @@ const RegisterForm = () => {
                       value={name}
                       onChange={(event) => {
                         setName(event.target.value);
-                        localStorage.setItem("name", event.target.value);
+                        localStorage.setItem('name', event.target.value);
                       }}
                       type="text"
                       placeholder="Your name"
@@ -93,7 +91,7 @@ const RegisterForm = () => {
                     value={email}
                     onChange={(event) => {
                       setEmail(event.target.value);
-                      localStorage.setItem("email", event.target.value);
+                      localStorage.setItem('email', event.target.value);
                     }}
                     className="input"
                     type="email"
@@ -129,20 +127,24 @@ const RegisterForm = () => {
                         onChange={(event) => {
                           setTos(event.target.checked);
                           localStorage.setItem(
-                            "tos",
-                            event.target.checked.toString()
+                            'tos',
+                            event.target.checked.toString(),
                           );
                         }}
-                      />{" "}
-                      I agree to the{" "}
+                      />
+                      {' '}
+                      I agree to the
+                      {' '}
                       <a
                         rel="noreferrer"
                         target="_blank"
                         href="https://alemayhu.notion.site/Terms-of-services-931865161517453b99fb6495e400061d"
                       >
                         terms of service
-                      </a>{" "}
-                      and have read the{" "}
+                      </a>
+                      {' '}
+                      and have read the
+                      {' '}
                       <a
                         rel="noreferrer"
                         target="_blank"
@@ -156,10 +158,10 @@ const RegisterForm = () => {
                 </div>
 
                 <div className="field">
-                  <div className="control" style={{ width: "100%" }}>
+                  <div className="control" style={{ width: '100%' }}>
                     <button
                       className="button is-link is-medium"
-                      style={{ width: "100%" }}
+                      style={{ width: '100%' }}
                       disabled={!isValid() || loading}
                     >
                       Create my account
@@ -173,6 +175,6 @@ const RegisterForm = () => {
       </section>
     </FormContainer>
   );
-};
+}
 
 export default RegisterForm;

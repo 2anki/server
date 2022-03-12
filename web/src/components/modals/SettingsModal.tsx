@@ -1,14 +1,14 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import styled from "styled-components";
-import Backend from "../../lib/Backend";
+import React, { useContext, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import styled from 'styled-components';
+import Backend from '../../lib/Backend';
 
-import StoreContext from "../../store/StoreContext";
-import BlueTintedBox from "../BlueTintedBox";
-import FontSizePicker from "../FontSizePicker";
-import LocalCheckbox from "../LocalCheckbox";
-import TemplateName from "../TemplateName";
-import TemplateSelect from "../TemplateSelect";
+import StoreContext from '../../store/StoreContext';
+import BlueTintedBox from '../BlueTintedBox';
+import FontSizePicker from '../FontSizePicker';
+import LocalCheckbox from '../LocalCheckbox';
+import TemplateName from '../TemplateName';
+import TemplateSelect from '../TemplateSelect';
 
 const StyledInput = styled.input`
   font-weight: bold;
@@ -34,58 +34,60 @@ const loadValue = (key, defaultValue, settings) => {
   return localStorage.getItem(key) || defaultValue;
 };
 const availableTemplates = [
-  { value: "specialstyle", label: "Default" },
-  { value: "notionstyle", label: "Only Notion" },
-  { value: "nostyle", label: "Raw Note (no style)" },
+  { value: 'specialstyle', label: 'Default' },
+  { value: 'notionstyle', label: 'Only Notion' },
+  { value: 'nostyle', label: 'Raw Note (no style)' },
   {
-    value: "abhiyan",
-    label: "Abhiyan Bhandari (Night Mode)",
+    value: 'abhiyan',
+    label: 'Abhiyan Bhandari (Night Mode)',
   },
   {
-    value: "alex_deluxe",
-    label: "Alexander Deluxe (Blue)",
+    value: 'alex_deluxe',
+    label: 'Alexander Deluxe (Blue)',
   },
 ];
 
-let backend = new Backend();
+const backend = new Backend();
 const SettingsModal: React.FC<{
   pageTitle?: string;
   pageId?: string;
   isActive: boolean;
   onClickClose: React.MouseEventHandler;
-}> = ({ pageTitle, pageId, isActive, onClickClose }) => {
+}> = ({
+  pageTitle, pageId, isActive, onClickClose,
+}) => {
   const [settings, setSettings] = useState(null);
-  const [loading, setLoading] = useState(pageId ? true : false);
-  const deckNameKey = "deckName";
+  const [loading, setLoading] = useState(!!pageId);
+  const deckNameKey = 'deckName';
   const [deckName, setDeckName] = useState(
     loadValue(
       deckNameKey,
-      pageTitle ? pageTitle : localStorage.getItem(deckNameKey) || "",
-      settings
-    )
+      pageTitle || localStorage.getItem(deckNameKey) || '',
+      settings,
+    ),
   );
   const store = useContext(StoreContext);
   const [options, setOptions] = useState(store.options);
   const [fontSize, setFontSize] = useState(
-    loadValue("font-size", "", settings)
+    loadValue('font-size', '', settings),
   );
   const [template, setTemplate] = useState(
-    loadValue("template", "specialstyle", settings)
+    loadValue('template', 'specialstyle', settings),
   );
   const [toggleMode, setToggleMode] = useState(
-    loadValue("toggle-mode", "close_toggle", settings)
+    loadValue('toggle-mode', 'close_toggle', settings),
   );
   const [pageEmoji, setPageEmoji] = useState(
-    loadValue("page-emoji", "first_emoji", settings)
+    loadValue('page-emoji', 'first_emoji', settings),
   );
   const [basicName, setBasicName] = useState(
-    loadValue("basic_model_name", "", settings)
+    loadValue('basic_model_name', '', settings),
   );
   const [clozeName, setClozeName] = useState(
-    loadValue("cloze_model_name", "", settings)
+    loadValue('cloze_model_name', '', settings),
   );
   const [inputName, setInputName] = useState(
-    loadValue("input_model_name", "", settings)
+    loadValue('input_model_name', '', settings),
   );
 
   useEffect(() => {
@@ -99,8 +101,8 @@ const SettingsModal: React.FC<{
             if (s.deckName) {
               setDeckName(s.deckName);
             }
-            setToggleMode(s["toggle-mode"]);
-            setPageEmoji(s["page-emoji"]);
+            setToggleMode(s['toggle-mode']);
+            setPageEmoji(s['page-emoji']);
             setSettings(s);
           }
           setLoading(false);
@@ -111,18 +113,18 @@ const SettingsModal: React.FC<{
 
   const resetStore = async () => {
     if (pageId) {
-      setDeckName(pageTitle || "");
+      setDeckName(pageTitle || '');
       await backend.deleteSettings(pageId);
     }
     store.clear();
-    setFontSize("20");
-    setToggleMode("close_toggle");
-    setTemplate("specialstyle");
+    setFontSize('20');
+    setToggleMode('close_toggle');
+    setTemplate('specialstyle');
     setOptions([...store.options]);
-    setDeckName("");
-    setBasicName("");
-    setClozeName("");
-    setInputName("");
+    setDeckName('');
+    setBasicName('');
+    setClozeName('');
+    setInputName('');
   };
 
   const onSubmit = async (event) => {
@@ -130,21 +132,21 @@ const SettingsModal: React.FC<{
       onClickClose(event);
       return;
     }
-    console.log("submit");
-    let payload: any = {};
+    console.log('submit');
+    const payload: any = {};
     for (const s of store.options) {
       payload[s.key] = s.value.toString(); // use string for backwards compat
     }
     payload.deckName = deckName;
-    payload["toggle-mode"] = toggleMode;
+    payload['toggle-mode'] = toggleMode;
     payload.template = template;
     payload.basic_model_name = basicName;
     payload.cloze_model_name = clozeName;
     payload.input_model_name = inputName;
-    payload["font-size"] = fontSize;
-    payload["page-emoji"] = pageEmoji;
+    payload['font-size'] = fontSize;
+    payload['page-emoji'] = pageEmoji;
 
-    let settings = { object_id: pageId, payload };
+    const settings = { object_id: pageId, payload };
     await backend
       .saveSettings(settings)
       .then(() => {
@@ -157,10 +159,10 @@ const SettingsModal: React.FC<{
     console.log(payload);
   };
   return (
-    <div className={`modal ${isActive ? "is-active" : ""}`}>
-      <div className="modal-background"></div>
+    <div className={`modal ${isActive ? 'is-active' : ''}`}>
+      <div className="modal-background" />
       <div className="modal-card">
-        {loading && <div className="loader is-loading"></div>}
+        {loading && <div className="loader is-loading" />}
         {!loading && (
           <>
             <div className="modal-card-head">
@@ -169,7 +171,7 @@ const SettingsModal: React.FC<{
                 className="delete"
                 aria-label="close"
                 onClick={onClickClose}
-              ></button>
+              />
             </div>
             <section className="modal-card-body">
               <div className="container">
@@ -205,21 +207,21 @@ const SettingsModal: React.FC<{
                     </p>
                     <TemplateSelect
                       values={[
-                        { label: "Icon first", value: "first_emoji" },
+                        { label: 'Icon first', value: 'first_emoji' },
                         {
-                          label: "Icon last",
-                          value: "last_emoji",
+                          label: 'Icon last',
+                          value: 'last_emoji',
                         },
                         {
-                          label: "Disable icon",
-                          value: "disable_emoji",
+                          label: 'Disable icon',
+                          value: 'disable_emoji',
                         },
                       ]}
                       value={pageEmoji}
                       name="page-emoji"
                       pickedTemplate={(t) => {
                         setPageEmoji(t);
-                        persist("page-emoji", t, pageId);
+                        persist('page-emoji', t, pageId);
                       }}
                     />
                   </div>
@@ -235,17 +237,17 @@ const SettingsModal: React.FC<{
                     </p>
                     <TemplateSelect
                       values={[
-                        { label: "Open nested toggles", value: "open_toggle" },
+                        { label: 'Open nested toggles', value: 'open_toggle' },
                         {
-                          label: "Close nested toggles",
-                          value: "close_toggle",
+                          label: 'Close nested toggles',
+                          value: 'close_toggle',
                         },
                       ]}
                       value={toggleMode}
                       name="toggle-mode"
                       pickedTemplate={(t) => {
                         setToggleMode(t);
-                        persist("toggle-mode", t, pageId);
+                        persist('toggle-mode', t, pageId);
                       }}
                     />
                     {options.map((o) => (
@@ -267,7 +269,7 @@ const SettingsModal: React.FC<{
                     name="template"
                     pickedTemplate={(t) => {
                       setTemplate(t);
-                      persist("template", t, pageId);
+                      persist('template', t, pageId);
                     }}
                   />
                   <TemplateName
@@ -277,7 +279,7 @@ const SettingsModal: React.FC<{
                     label="Basic Template Name"
                     pickedName={(name) => {
                       setBasicName(name);
-                      persist("basic_model_name", name, pageId);
+                      persist('basic_model_name', name, pageId);
                     }}
                   />
                   <TemplateName
@@ -287,7 +289,7 @@ const SettingsModal: React.FC<{
                     label="Cloze Template Name"
                     pickedName={(name) => {
                       setClozeName(name);
-                      persist("cloze_model_name", name, pageId);
+                      persist('cloze_model_name', name, pageId);
                     }}
                   />
                   <TemplateName
@@ -297,7 +299,7 @@ const SettingsModal: React.FC<{
                     label="Input Template Name"
                     pickedName={(name) => {
                       setInputName(name);
-                      persist("input_model_name", name, pageId);
+                      persist('input_model_name', name, pageId);
                     }}
                   />
 
@@ -305,7 +307,7 @@ const SettingsModal: React.FC<{
                     fontSize={fontSize}
                     pickedFontSize={(fs) => {
                       setFontSize(fs);
-                      persist("font-size", fs.toString(), pageId);
+                      persist('font-size', fs.toString(), pageId);
                     }}
                   />
 

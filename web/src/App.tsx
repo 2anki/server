@@ -1,25 +1,25 @@
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
-import { lazy } from "react";
-import styled from "styled-components";
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import { lazy } from 'react';
+import styled from 'styled-components';
 
-import UploadPage from "./pages/UploadPage";
-import HomePage from "./pages/Home";
+import UploadPage from './pages/UploadPage';
+import HomePage from './pages/Home';
 
-import Footer from "./components/Footer";
-import CardOptionsStore from "./store/Options";
-import StoreContext from "./store/StoreContext";
-import GlobalStyle from "./GlobalStyle";
+import Footer from './components/Footer';
+import CardOptionsStore from './store/Options';
+import StoreContext from './store/StoreContext';
+import GlobalStyle from './GlobalStyle';
 
-import NavigationBar from "./components/NavigationBar";
+import NavigationBar from './components/NavigationBar';
 
-const TemplatePage = lazy(() => import("./pages/Templates/TemplatePage"));
-const PreSignupPage = lazy(() => import("./pages/PreSignupPage"));
-const SearchPage = lazy(() => import("./pages/SearchPage"));
-const LoginPage = lazy(() => import("./pages/LoginPage"));
-const NewPasswordPage = lazy(() => import("./pages/NewPasswordPage"));
-const LearnPage = lazy(() => import("./pages/LearnPage"));
-const VerifyPage = lazy(() => import("./pages/VerifyPage"));
-const ListUploadsPage = lazy(() => import("./pages/ListUploadsPage"));
+const TemplatePage = lazy(() => import('./pages/Templates/TemplatePage'));
+const PreSignupPage = lazy(() => import('./pages/PreSignupPage'));
+const SearchPage = lazy(() => import('./pages/SearchPage'));
+const LoginPage = lazy(() => import('./pages/LoginPage'));
+const NewPasswordPage = lazy(() => import('./pages/NewPasswordPage'));
+const LearnPage = lazy(() => import('./pages/LearnPage'));
+const VerifyPage = lazy(() => import('./pages/VerifyPage'));
+const ListUploadsPage = lazy(() => import('./pages/ListUploadsPage'));
 
 const Layout = styled.div`
   display: flex;
@@ -44,12 +44,10 @@ function App() {
           <Layout>
             {/* We don't want a header on the sign-up page */}
             <Route
-              render={({ location }) =>
-                location.pathname.match(/^(?!.*(login|search|signup)).*$/) ? (
-                  <NavigationBar />
-                ) : null
-              }
-            ></Route>
+              render={({ location }) => (location.pathname.match(/^(?!.*(login|search|signup)).*$/) ? (
+                <NavigationBar />
+              ) : null)}
+            />
             <Container>
               <Switch>
                 <Route path="/uploads">

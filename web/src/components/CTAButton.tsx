@@ -1,6 +1,6 @@
-import styled from "styled-components";
+import styled from 'styled-components';
 
-import { Link } from "react-router-dom";
+import { Link } from 'react-router-dom';
 
 const StyledButton = styled.div`
   font-weight: bold;
@@ -23,14 +23,12 @@ const CTAButton: React.FC<{
   text: string;
   destination: string;
   onClickLink: React.MouseEventHandler;
-}> = ({ text, destination, onClickLink }) => {
-  return (
-    <StyledButton>
-      <Link onClick={onClickLink} to={destination}>
-        {text}
-      </Link>
-    </StyledButton>
-  );
-};
+}> = ({ text, destination, onClickLink }) => (
+  <StyledButton>
+    <Link onClick={onClickLink} to={destination}>
+      {text}
+    </Link>
+  </StyledButton>
+);
 
 export default CTAButton;

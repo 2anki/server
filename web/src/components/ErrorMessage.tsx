@@ -1,8 +1,10 @@
-const MyLink = () => (
-  <a href="https://alemayhu.com" target="_blank" rel="noreferrer">
-    Alexander
-  </a>
-);
+function MyLink() {
+  return (
+    <a href="https://alemayhu.com" target="_blank" rel="noreferrer">
+      Alexander
+    </a>
+  );
+}
 const ErrorMessage: React.FC<{ msg: string }> = ({ msg }) => {
   const isCorruptZip = msg.includes('Corrupted zip');
   const fileSizeIssue = msg.includes('100MB');
@@ -20,7 +22,8 @@ const ErrorMessage: React.FC<{ msg: string }> = ({ msg }) => {
           </p>
           <p className="subtitle">
             The problem is that Notion is exporting bad zip files sometimes. You
-            can report this issue to them{' '}
+            can report this issue to them
+            {' '}
             <a
               rel="noreferrer"
               target="_blank"
@@ -33,14 +36,16 @@ const ErrorMessage: React.FC<{ msg: string }> = ({ msg }) => {
           </p>
           <hr />
           <p className="subtitle is-6">
-            <MyLink /> is working on the new version using the Notion API.
+            <MyLink />
+            {' '}
+            is working on the new version using the Notion API.
             Coming soon.
           </p>
         </div>
       )}
       {fileSizeIssue && (
         <div className="hero p-4">
-          <div dangerouslySetInnerHTML={{ __html: msg }}></div>
+          <div dangerouslySetInnerHTML={{ __html: msg }} />
           <p className="subtitle">
             Please upload smaller pages or If you have big sub pages, try
             exporting one at a time for upload.
@@ -64,7 +69,7 @@ const ErrorMessage: React.FC<{ msg: string }> = ({ msg }) => {
 
       {!isCorruptZip && !fileSizeIssue && (
         <>
-          <div dangerouslySetInnerHTML={{ __html: msg }}></div>
+          <div dangerouslySetInnerHTML={{ __html: msg }} />
           <p className="subtitle">
             Watch the video below and see if you are experiencing a common error
             or read the error message.
@@ -76,7 +81,7 @@ const ErrorMessage: React.FC<{ msg: string }> = ({ msg }) => {
               src="https://www.youtube.com/embed/CaND1Y3X6og"
               frameBorder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
-              allowFullScreen={true}
+              allowFullScreen
             />
             <p>
               If you still haven't resolved the issue yet after trying the above

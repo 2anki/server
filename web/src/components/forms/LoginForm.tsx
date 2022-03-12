@@ -1,34 +1,32 @@
-import styled from "styled-components";
-import axios from "axios";
-import { SyntheticEvent, useState } from "react";
+import styled from 'styled-components';
+import axios from 'axios';
+import { SyntheticEvent, useState } from 'react';
 
-import BetaMessage from "../BetaMessage";
-import BetaTag from "../BetaTag";
+import BetaMessage from '../BetaMessage';
+import BetaTag from '../BetaTag';
 
 const FormContainer = styled.div`
   max-width: 720px;
   margin: 0 auto;
 `;
 
-const LoginForm = ({ onForgot }) => {
-  const [email, setEmail] = useState(localStorage.getItem("email") || "");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+function LoginForm({ onForgot }) {
+  const [email, setEmail] = useState(localStorage.getItem('email') || '');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const isValid = () => {
-    return (
-      email.length > 0 &&
-      email.length < 256 &&
-      password.length > 7 &&
-      password.length < 256
-    );
-  };
+  const isValid = () => (
+    email.length > 0
+      && email.length < 256
+      && password.length > 7
+      && password.length < 256
+  );
 
   const handleSubmit = async (event: SyntheticEvent) => {
     event.preventDefault();
-    const endpoint = "/users/login";
-    setError("");
+    const endpoint = '/users/login';
+    setError('');
     setLoading(true);
 
     try {
@@ -39,23 +37,23 @@ const LoginForm = ({ onForgot }) => {
       const res = await axios.post(endpoint, data);
       if (res.status === 200) {
         console.log(res);
-        localStorage.setItem("token", res.data.token);
-        window.location.href = "/search";
+        localStorage.setItem('token', res.data.token);
+        window.location.href = '/search';
       }
-      console.log("res.status", res.status);
+      console.log('res.status', res.status);
       setLoading(false);
     } catch (error) {
-      let response = error.response;
+      const { response } = error;
       if (response && response.data) {
-        let data = response.data;
-        if (data.message === "not verified") {
-          window.location.href = "/verify";
+        const { data } = response;
+        if (data.message === 'not verified') {
+          window.location.href = '/verify';
         } else {
           setError(data.message);
         }
       } else {
         setError(
-          "Request failed. Do you remember your password? If not click forgot my password."
+          'Request failed. Do you remember your password? If not click forgot my password.',
         );
       }
       setLoading(false);
@@ -80,7 +78,7 @@ const LoginForm = ({ onForgot }) => {
                     value={email}
                     onChange={(event) => {
                       setEmail(event.target.value);
-                      localStorage.setItem("email", event.target.value);
+                      localStorage.setItem('email', event.target.value);
                     }}
                     className="input"
                     type="email"
@@ -128,6 +126,6 @@ const LoginForm = ({ onForgot }) => {
       </section>
     </FormContainer>
   );
-};
+}
 
 export default LoginForm;

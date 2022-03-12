@@ -3,18 +3,18 @@ interface FontPickerDelegate {
   pickedFontSize: (fs: string) => void;
 }
 
-const FontSizePicker = (delegate: FontPickerDelegate) => {
+function FontSizePicker(delegate: FontPickerDelegate) {
   return (
     <div className="field">
       <label className="label">Font Size</label>
       <div className="control">
         <div
           style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            padding: "0",
-            flexDirection: "column",
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: '0',
+            flexDirection: 'column',
           }}
         >
           <input
@@ -32,6 +32,6 @@ const FontSizePicker = (delegate: FontPickerDelegate) => {
       </div>
     </div>
   );
-};
+}
 
 export default FontSizePicker;

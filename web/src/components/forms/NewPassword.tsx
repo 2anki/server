@@ -1,41 +1,39 @@
-import styled from "styled-components";
-import axios from "axios";
-import { SyntheticEvent, useState } from "react";
+import styled from 'styled-components';
+import axios from 'axios';
+import { SyntheticEvent, useState } from 'react';
 
 const FormContainer = styled.div`
   max-width: 720px;
   margin: 0 auto;
 `;
 
-const NewPasswordForm = () => {
-  const [password, setPassword] = useState("");
-  const [passwd, setPasswd] = useState("");
+function NewPasswordForm() {
+  const [password, setPassword] = useState('');
+  const [passwd, setPasswd] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
-  const isValid = () => {
-    return password === passwd && password.length > 0 && password.length < 256;
-  };
+  const isValid = () => password === passwd && password.length > 0 && password.length < 256;
 
   const handleSubmit = async (event: SyntheticEvent) => {
     event.preventDefault();
-    const endpoint = "/users/new-password";
-    setError("");
+    const endpoint = '/users/new-password';
+    setError('');
     setLoading(true);
 
     try {
-      let paths = window.location.pathname.split("/");
+      const paths = window.location.pathname.split('/');
       const data = {
         reset_token: paths[paths.length - 1],
-        password: password,
+        password,
       };
       const res = await axios.post(endpoint, data);
       if (res.status === 200) {
-        window.location.href = "/login#login";
+        window.location.href = '/login#login';
       }
       setLoading(false);
     } catch (error) {
-      setError("Request failed. Are you sure you have registered an account?");
+      setError('Request failed. Are you sure you have registered an account?');
       console.error(error);
       setLoading(false);
     }
@@ -79,10 +77,10 @@ const NewPasswordForm = () => {
                   />
                 </div>
                 <div className="field">
-                  <div className="control" style={{ width: "100%" }}>
+                  <div className="control" style={{ width: '100%' }}>
                     <button
                       className="button is-success is-medium"
-                      style={{ width: "100%" }}
+                      style={{ width: '100%' }}
                       disabled={!isValid() || loading}
                     >
                       Reset password
@@ -96,6 +94,6 @@ const NewPasswordForm = () => {
       </section>
     </FormContainer>
   );
-};
+}
 
 export default NewPasswordForm;

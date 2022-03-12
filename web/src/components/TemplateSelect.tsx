@@ -10,7 +10,7 @@ interface TemplateSelectPicker {
   value: string;
 }
 
-const TemplateSelect = (delegate: TemplateSelectPicker) => {
+function TemplateSelect(delegate: TemplateSelectPicker) {
   return (
     <div className="field">
       <div className="control">
@@ -30,6 +30,6 @@ const TemplateSelect = (delegate: TemplateSelectPicker) => {
       </div>
     </div>
   );
-};
+}
 
 export default TemplateSelect;

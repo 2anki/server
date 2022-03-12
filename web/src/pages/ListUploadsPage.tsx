@@ -1,12 +1,12 @@
-import { useEffect, useState } from "react";
-import BecomeAPatron from "../components/BecomeAPatron";
-import Container from "../components/Container";
-import UploadObjectEntry from "../components/Dashboard/UploadObjectEntry";
-import LoadingScreen from "../components/LoadingScreen";
-import Backend from "../lib/Backend";
+import { useEffect, useState } from 'react';
+import BecomeAPatron from '../components/BecomeAPatron';
+import Container from '../components/Container';
+import UploadObjectEntry from '../components/Dashboard/UploadObjectEntry';
+import LoadingScreen from '../components/LoadingScreen';
+import Backend from '../lib/Backend';
 
-let backend = new Backend();
-const ListUploadsPage = () => {
+const backend = new Backend();
+function ListUploadsPage() {
   const [loading, setLoading] = useState(true);
   const [uploads, setUploads] = useState([]);
   const [deletingAll, setIsDeletingAll] = useState(false);
@@ -18,7 +18,7 @@ const ListUploadsPage = () => {
     if (loading) {
       backend.getUploads().then((res) => {
         if (res && res.length > 0) {
-          let diskUsage = res
+          const diskUsage = res
             .map((u) => u.size_mb)
             .reduce((acc, cv) => acc + cv);
           setQuota(diskUsage);
@@ -69,7 +69,7 @@ const ListUploadsPage = () => {
           <h2 className="title is-2">Active Jobs</h2>
           <div
             className="is-pulled-right"
-            onClick={() => (window.location.href = "/uploads/mine")}
+            onClick={() => (window.location.href = '/uploads/mine')}
           >
             <button className="button">Refresh</button>
           </div>
@@ -79,7 +79,7 @@ const ListUploadsPage = () => {
                 <button
                   className="delete"
                   onClick={() => deleteJob(j.object_id)}
-                ></button>
+                />
                 <span className="tag mx-2">{j.status}</span>
                 {j.object_id}
               </li>
@@ -90,22 +90,22 @@ const ListUploadsPage = () => {
 
       <h2 className="title is -2">Uploads</h2>
       {uploads.length === 0 && !loading && (
-        <>
-          <p>
-            You have no uploads! Make some from the{" "}
-            <u>
-              <a href="/search">search</a>
-            </u>{" "}
-            page.
-          </p>
-        </>
+        <p>
+          You have no uploads! Make some from the
+          {' '}
+          <u>
+            <a href="/search">search</a>
+          </u>
+          {' '}
+          page.
+        </p>
       )}
       {uploads.length > 0 && (
         <>
-          {uploads &&
-            uploads.map((u) => (
+          {uploads
+            && uploads.map((u) => (
               <UploadObjectEntry
-                size={u.size_mb ? u.size_mb.toFixed("2") : 0}
+                size={u.size_mb ? u.size_mb.toFixed('2') : 0}
                 key={u.key}
                 title={u.filename}
                 icon={null}
@@ -117,14 +117,19 @@ const ListUploadsPage = () => {
           <hr />
           {!isPatreon && (
             <div className="card">
-              <header className="card-header"></header>
+              <header className="card-header" />
               <div className="card-content">
-                You have used {quota.toFixed(2)} MB
-                {!isPatreon && " of your quota (21MB)"}.
+                You have used
+                {' '}
+                {quota.toFixed(2)}
+                {' '}
+                MB
+                {!isPatreon && ' of your quota (21MB)'}
+                .
                 <div className="is-pulled-right my-2">
                   <button
                     className={`button is-small ${
-                      deletingAll ? "is-loading" : ""
+                      deletingAll ? 'is-loading' : ''
                     } `}
                     onClick={() => {
                       setIsDeletingAll(true);
@@ -135,7 +140,7 @@ const ListUploadsPage = () => {
                   </button>
                 </div>
                 <progress
-                  className={`progress ${quota > 16 ? "is-danger" : "is-info"}`}
+                  className={`progress ${quota > 16 ? 'is-danger' : 'is-info'}`}
                   value={quota}
                   max={21}
                 >
@@ -178,6 +183,6 @@ const ListUploadsPage = () => {
       )}
     </Container>
   );
-};
+}
 
 export default ListUploadsPage;

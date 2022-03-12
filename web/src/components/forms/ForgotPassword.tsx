@@ -1,28 +1,26 @@
-import styled from "styled-components";
-import axios from "axios";
-import { SyntheticEvent, useState } from "react";
+import styled from 'styled-components';
+import axios from 'axios';
+import { SyntheticEvent, useState } from 'react';
 
 const FormContainer = styled.div`
   max-width: 720px;
   margin: 0 auto;
 `;
 
-const ForgotPasswordForm = () => {
-  const [email, setEmail] = useState(localStorage.getItem("email") || "");
+function ForgotPasswordForm() {
+  const [email, setEmail] = useState(localStorage.getItem('email') || '');
   const [didReset, setDidReset] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
-  const isValid = () => {
-    return (
-      email.length > 0 && email.length < 256 && email.match(/^\S+@\S+\.\S+$/)
-    );
-  };
+  const isValid = () => (
+    email.length > 0 && email.length < 256 && email.match(/^\S+@\S+\.\S+$/)
+  );
 
   const handleSubmit = async (event: SyntheticEvent) => {
     event.preventDefault();
-    const endpoint = "/users/forgot-password";
-    setError("");
+    const endpoint = '/users/forgot-password';
+    setError('');
     setLoading(true);
     setDidReset(false);
 
@@ -34,7 +32,7 @@ const ForgotPasswordForm = () => {
       setLoading(false);
       setDidReset(true);
     } catch (error) {
-      setError("Request failed. Are you sure you have registered an account?");
+      setError('Request failed. Are you sure you have registered an account?');
       console.error(error);
       setLoading(false);
     }
@@ -57,7 +55,7 @@ const ForgotPasswordForm = () => {
                     value={email}
                     onChange={(event) => {
                       setEmail(event.target.value);
-                      localStorage.setItem("email", event.target.value);
+                      localStorage.setItem('email', event.target.value);
                     }}
                     className="input"
                     type="email"
@@ -67,10 +65,10 @@ const ForgotPasswordForm = () => {
                   {/* <p className="help is-danger">This email is invalid</p> */}
                 </div>
                 <div className="field">
-                  <div className="control" style={{ width: "100%" }}>
+                  <div className="control" style={{ width: '100%' }}>
                     <button
                       className="button is-link is-medium"
-                      style={{ width: "100%" }}
+                      style={{ width: '100%' }}
                       disabled={!isValid() || loading}
                     >
                       Reset my password
@@ -87,6 +85,6 @@ const ForgotPasswordForm = () => {
       </section>
     </FormContainer>
   );
-};
+}
 
 export default ForgotPasswordForm;

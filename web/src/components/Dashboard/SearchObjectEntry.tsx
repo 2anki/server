@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState } from 'react';
 
-import styled from "styled-components";
-import Backend from "../../lib/Backend";
-import DefineRules from "./DefineRules";
+import styled from 'styled-components';
+import Backend from '../../lib/Backend';
+import DefineRules from './DefineRules';
 
 const Entry = styled.div`
   display: flex;
@@ -19,13 +19,13 @@ const ObjectMeta = styled.div`
   grid-gap: 1.2rem;
 `;
 
-const ObjectAction = ({ url, image, onClick }) => {
+function ObjectAction({ url, image, onClick }) {
   return (
     <a href={url} target="_blank" rel="noreferrer" onClick={onClick}>
-      <img alt="Page action" width="32px" src={image}></img>
+      <img alt="Page action" width="32px" src={image} />
     </a>
   );
-};
+}
 
 const ObjectActions = styled.div`
   display: flex;
@@ -33,10 +33,12 @@ const ObjectActions = styled.div`
   min-width: 80px;
 `;
 
-let backend = new Backend();
-const SearchObjectEntry = ({ title, icon, url, id, type }) => {
+const backend = new Backend();
+function SearchObjectEntry({
+  title, icon, url, id, type,
+}) {
   const [showSettings, setShowSettings] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState('');
 
   return (
     <>
@@ -45,7 +47,7 @@ const SearchObjectEntry = ({ title, icon, url, id, type }) => {
           <button
             className="delete"
             onClick={() => setErrorMessage(null)}
-          ></button>
+          />
           <div dangerouslySetInnerHTML={{ __html: errorMessage }} />
         </div>
       )}
@@ -57,7 +59,7 @@ const SearchObjectEntry = ({ title, icon, url, id, type }) => {
               <span className="tag is-link">{type}</span>
             </div>
           </div>
-          {icon && (icon.includes("http") || icon.includes("data:image")) ? (
+          {icon && (icon.includes('http') || icon.includes('data:image')) ? (
             <img width={32} height={32} src={icon} alt="icon" />
           ) : (
             <span>{icon}</span>
@@ -73,7 +75,7 @@ const SearchObjectEntry = ({ title, icon, url, id, type }) => {
               backend
                 .convert(id, type)
                 .then((res) => {
-                  window.location.href = "/uploads";
+                  window.location.href = '/uploads';
                 })
                 .catch((error) => {
                   setErrorMessage(error.response.data.message);
@@ -99,6 +101,6 @@ const SearchObjectEntry = ({ title, icon, url, id, type }) => {
       )}
     </>
   );
-};
+}
 
 export default SearchObjectEntry;

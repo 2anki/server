@@ -5,7 +5,9 @@ interface SwitchProps {
   onSwitched: () => void;
 }
 
-const Switch = ({ title, id, checked, onSwitched }: SwitchProps) => {
+function Switch({
+  title, id, checked, onSwitched,
+}: SwitchProps) {
   return (
     <div
       className="field is-flex is-justify-content-space-between is-flex-direction-column"
@@ -21,6 +23,6 @@ const Switch = ({ title, id, checked, onSwitched }: SwitchProps) => {
       <label htmlFor="switchRoundedInfo">{title}</label>
     </div>
   );
-};
+}
 
 export default Switch;

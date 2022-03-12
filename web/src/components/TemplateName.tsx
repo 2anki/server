@@ -6,7 +6,7 @@ interface TemplateNameDelegate {
   pickedName: (name: string) => void;
 }
 
-const TemplateName = (delegate: TemplateNameDelegate) => {
+function TemplateName(delegate: TemplateNameDelegate) {
   return (
     <div className="field">
       <label>{delegate.label}</label>
@@ -22,6 +22,6 @@ const TemplateName = (delegate: TemplateNameDelegate) => {
       </div>
     </div>
   );
-};
+}
 
 export default TemplateName;
