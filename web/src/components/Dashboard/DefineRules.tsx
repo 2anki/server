@@ -113,7 +113,6 @@ function DefineRules({ id, setDone, parent }) {
                       (f) => f !== fco,
                     );
                   }
-                  console.log('rules', rules);
                   setFlashcard((prevState) => Array.from(new Set([...prevState, ...rules.flashcard_is])));
                 }}
               />

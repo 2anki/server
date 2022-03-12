@@ -132,7 +132,6 @@ const SettingsModal: React.FC<{
       onClickClose(event);
       return;
     }
-    console.log('submit');
     const payload: any = {};
     for (const s of store.options) {
       payload[s.key] = s.value.toString(); // use string for backwards compat

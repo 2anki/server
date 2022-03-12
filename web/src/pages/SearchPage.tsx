@@ -37,19 +37,16 @@ function DashboardContent() {
       if (inProgress) {
         return;
       }
-      console.log('query', query);
       setError(null);
       setInProgress(true);
       backend
         .search(query, force)
         .then((results) => {
-          console.log('results', results);
           setMyPages(results);
           setInProgress(false);
           setIsLoading(false);
         })
         .catch((error) => {
-          console.error(error);
           setIsLoading(false);
           setInProgress(false);
           setError(error);
@@ -60,7 +57,6 @@ function DashboardContent() {
 
   // TODO: clean this up by using debounce so it's only called when the query changes automatically
   useEffect(() => {
-    console.log('called!');
     setIsLoading(true);
     triggerSearch(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps

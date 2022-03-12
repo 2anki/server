@@ -21,7 +21,6 @@ class Backend {
   }
 
   getNotionConnectionInfo() {
-    console.log('Get', `${this.baseURL}notion/get-notion-link`);
     return axios.get(`${this.baseURL}notion/get-notion-link`);
   }
 
@@ -69,13 +68,10 @@ class Backend {
 
   __withinThreeSeconds(): Boolean {
     const end = new Date();
-    console.log('end', end);
-    console.log('lastCall', this.lastCall);
     /* @ts-ignore */
     let diff = end - this.lastCall;
     diff /= 1000;
     const seconds = Math.round(diff);
-    console.log('seconds since last', seconds);
     if (seconds <= 3) {
       return true;
     }
@@ -141,7 +137,6 @@ class Backend {
     let data;
     if (isObjectId) {
       const res = await this.getPage(query);
-      console.log('res', res);
       if (res && res.data) {
         data = {
           results: [res.data],

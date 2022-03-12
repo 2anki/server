@@ -29,11 +29,9 @@ function LearnPage() {
   // Get the page meta data
   useEffect(() => {
     if (parentId) {
-      console.log('parentId', parentId);
       backend
         .getPage(parentId)
         .then((response) => {
-          console.log('response', response);
           setPage(response);
         })
         .catch((error) => {
@@ -45,7 +43,6 @@ function LearnPage() {
   useEffect(() => {
     if (page) {
       backend.getBlocks(page.id).then((response) => {
-        console.log('response', response);
         setChildren(response.results);
       });
     }
@@ -58,7 +55,6 @@ function LearnPage() {
   useEffect(() => {
     if (block) {
       backend.getBlocks(block.id).then((response) => {
-        console.log('response', response);
         setGrandChild(response.results);
       });
     }
@@ -68,7 +64,7 @@ function LearnPage() {
     return <div>insert loading screen.</div>;
   }
   return (
-    <Wrapper onKeyDown={console.log}>
+    <Wrapper>
       {page && (
         <nav className="breadcrumb" aria-label="breadcrumbs">
           <ul>
