@@ -4,6 +4,13 @@ import TemplateSelect from '../TemplateSelect';
 import Switch from '../input/Switch';
 import SettingsModal from '../modals/SettingsModal';
 
+interface Props {
+  id: string;
+  setDone: () => void;
+  parent: string;
+  setError: (error: string) => void;
+}
+
 const flashCardOptions = [
   'toggle',
   'bulleted_list_item',
@@ -13,7 +20,9 @@ const flashCardOptions = [
 const tagOptions = ['heading', 'strikethrough'];
 
 const backend = new Backend();
-function DefineRules({ id, setDone, parent }) {
+function DefineRules({
+  id, setDone, parent, setError,
+}: Props) {
   const [rules, setRules] = useState({
     flashcard_is: ['toggle'],
     sub_deck_is: 'child_page',
@@ -23,9 +32,8 @@ function DefineRules({ id, setDone, parent }) {
   });
 
   const [isLoading, setIsloading] = useState(true);
-  // TODO: fix this hack
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_flashcard, setFlashcard] = useState(rules.flashcard_is);
+  const [flashcard, setFlashcard] = useState(rules.flashcard_is);
   const [tags, setTags] = useState(rules.tags_is);
   const [sendEmail, setSendEmail] = useState(rules.email_notification);
   const [more, setMore] = useState(false);
@@ -43,7 +51,7 @@ function DefineRules({ id, setDone, parent }) {
         setIsloading(false);
       })
       .catch((error) => {
-        console.log('error', error);
+        setError(error.response.data.message);
       });
   }, [id]);
 
@@ -64,7 +72,7 @@ function DefineRules({ id, setDone, parent }) {
       );
       setDone();
     } catch (error) {
-      console.error(error);
+      setError(error.response.data.message);
     }
     setIsloading(false);
   };
@@ -77,10 +85,19 @@ function DefineRules({ id, setDone, parent }) {
           {parent}
         </p>
         {isLoading && (
-          <button className="m-2 card-header-icon button is-loading" />
+          <button
+            aria-label="loading"
+            type="button"
+            className="m-2 card-header-icon button is-loading"
+          />
         )}
-        <div className="card-header-icon" onClick={() => setDone()}>
-          <button className="delete" />
+        <div className="card-header-icon">
+          <button
+            onClick={() => setDone()}
+            aria-label="delete"
+            type="button"
+            className="delete"
+          />
         </div>
       </header>
 
@@ -121,7 +138,10 @@ function DefineRules({ id, setDone, parent }) {
               <h2 className="subtitle">Card fields</h2>
               <TemplateSelect
                 pickedTemplate={(name: string) => setTags(name)}
-                values={tagOptions.map((fco) => ({ label: `Tags are ${fco}`, value: fco }))}
+                values={tagOptions.map((fco) => ({
+                  label: `Tags are ${fco}`,
+                  value: fco,
+                }))}
                 name="Tags"
                 value={rules.tags_is}
               />
@@ -140,6 +160,7 @@ function DefineRules({ id, setDone, parent }) {
             <div className="has-text-centered">
               <hr />
               <button
+                type="button"
                 className="button is-small"
                 onClick={() => setMore(!more)}
               >
