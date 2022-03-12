@@ -150,8 +150,8 @@ function UploadForm({ setErrorMessage, errorMessage }: UploadFormProps) {
                   multiple
                   onChange={() => fileSelected()}
                 />
-                <span className="button">Select</span>
               </label>
+              <span className="tag">Select</span>
             </DropParagraph>
           </div>
           <a
