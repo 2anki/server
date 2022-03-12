@@ -127,7 +127,7 @@ function LoginForm({ onForgotPassword, onError }: LoginFormProps) {
                 <div className="field">
                   <div className="control">
                     <button
-                      type="button"
+                      type="submit"
                       className="button is-link is-medium is-pulled-right"
                       disabled={!isValid() || loading}
                     >
