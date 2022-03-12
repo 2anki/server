@@ -17,7 +17,7 @@ async function fetchBaseType(name: string) {
 function TemplatePage() {
   const [code, setCode] = useState('');
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [options, _setOptions] = useState({
+  const [options, setOptions] = useState({
     minimap: { enabled: false },
     colorDecorators: false,
   });
@@ -31,11 +31,16 @@ function TemplatePage() {
   );
   const [ready, setReady] = useState(false);
 
-  const editorDidMount = (editor: { focus: () => void }, _monaco: any) => {
+  const editorDidMount = (editor: { focus: () => void }) => {
     editor.focus();
   };
 
-  const onChange = (newValue: any, event: any) => {
+  const getCurrentCardType = useCallback(
+    () => files.find((x) => x.storageKey === currentCardType),
+    [currentCardType],
+  );
+
+  const onChange = (newValue: any) => {
     const card = getCurrentCardType();
     if (card) {
       if (isFront) {
@@ -48,8 +53,6 @@ function TemplatePage() {
       localStorage.setItem(card.storageKey, JSON.stringify(card, null, 2));
     }
   };
-
-  const getCurrentCardType = useCallback(() => files.find((x) => x.storageKey === currentCardType), [currentCardType]);
 
   // Fetch the base presets from the server  or load from local storage (should only be called once)
   useEffect(() => {
@@ -136,7 +139,10 @@ function TemplatePage() {
               <div className="field-body">
                 <div className="field">
                   <TemplateSelect
-                    values={files.map((f) => ({ label: f.name, value: f.name }))}
+                    values={files.map((f) => ({
+                      label: f.name,
+                      value: f.name,
+                    }))}
                     value={currentCardType}
                     name="current-card-type"
                     pickedTemplate={(t) => {
