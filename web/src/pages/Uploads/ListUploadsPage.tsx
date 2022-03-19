@@ -4,6 +4,7 @@ import Container from '../../components/Container';
 import UploadObjectEntry from '../../components/Dashboard/UploadObjectEntry';
 import LoadingScreen from '../../components/LoadingScreen';
 import Backend from '../../lib/Backend';
+import ActiveJobs from './components/ActiveJobs';
 
 const backend = new Backend();
 
@@ -71,36 +72,8 @@ function ListUploadsPage({ setError }: ListUploadsPageProps) {
   return (
     <Container>
       {jobs && jobs.length > 0 && (
-        <div className="">
-          <h2 className="title is-2">Active Jobs</h2>
-          <div className="is-pulled-right">
-            <button
-              type="button"
-              onClick={() => {
-                window.location.href = '/uploads/mine';
-              }}
-              className="button"
-            >
-              Refresh
-            </button>
-          </div>
-          <ul className="my-2">
-            {jobs.map((j) => (
-              <li className="is-flex">
-                <button
-                  aria-label="delete"
-                  type="button"
-                  className="delete"
-                  onClick={() => deleteJob(j.object_id)}
-                />
-                <span className="tag mx-2">{j.status}</span>
-                {j.object_id}
-              </li>
-            ))}
-          </ul>
-        </div>
+        <ActiveJobs jobs={jobs} deleteJob={(id) => deleteJob(id)} />
       )}
-
       <h2 className="title is -2">Uploads</h2>
       {uploads.length === 0 && !loading && (
         <p>
