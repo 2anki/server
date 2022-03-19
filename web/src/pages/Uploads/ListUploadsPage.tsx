@@ -16,7 +16,7 @@ function ListUploadsPage({ setError }: ListUploadsPageProps) {
   const [loading, setLoading] = useState(true);
   const [uploads, setUploads] = useState([]);
   const [deletingAll, setIsDeletingAll] = useState(false);
-  const [jobs, setJobs] = useState([]);
+  const [jobs, setJobs] = useState([{ object_id: '1', status: 'started' }]);
   const [quota, setQuota] = useState(0);
   const [isPatreon, setIsPatreon] = useState(false);
 

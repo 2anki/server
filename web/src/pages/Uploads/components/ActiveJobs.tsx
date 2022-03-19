@@ -1,7 +1,14 @@
+import styled from 'styled-components';
+
 interface Props {
   jobs: any[];
   deleteJob: (id: string) => void;
 }
+
+const JobRow = styled.li`
+  display: flex;
+  align-items: center;
+`;
 
 export default function ActiveJobs({ jobs, deleteJob }: Props) {
   return (
@@ -20,16 +27,16 @@ export default function ActiveJobs({ jobs, deleteJob }: Props) {
       </div>
       <ul className="my-2">
         {jobs.map((j) => (
-          <li className="is-flex">
+          <JobRow>
             <button
               aria-label="delete"
               type="button"
               className="delete"
               onClick={() => deleteJob(j.object_id)}
             />
-            <span className="tag mx-2">{j.status}</span>
+            <span className="button is-small is-loading mx-2">{j.status}</span>
             {j.object_id}
-          </li>
+          </JobRow>
         ))}
       </ul>
     </div>
