@@ -20,7 +20,7 @@ const LoginPage = lazy(() => import('./pages/LoginPage'));
 const NewPasswordPage = lazy(() => import('./pages/NewPasswordPage'));
 const LearnPage = lazy(() => import('./pages/LearnPage'));
 const VerifyPage = lazy(() => import('./pages/VerifyPage'));
-const ListUploadsPage = lazy(() => import('./pages/ListUploadsPage'));
+const ListUploadsPage = lazy(() => import('./pages/Uploads/ListUploadsPage'));
 
 const Layout = styled.div`
   display: flex;
