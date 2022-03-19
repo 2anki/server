@@ -64,7 +64,7 @@ function ListUploadsPage({ setError }: ListUploadsPageProps) {
   async function deleteAllUploads(): Promise<void> {
     uploads.reduce(
       (prev, arg) => prev.then(() => deleteUpload(arg.id)),
-      Promise.resolve()
+      Promise.resolve(),
     );
     setIsDeletingAll(false);
   }
@@ -77,17 +77,19 @@ function ListUploadsPage({ setError }: ListUploadsPageProps) {
       <h2 className="title is -2">Uploads</h2>
       {uploads.length === 0 && !loading && (
         <p>
-          You have no uploads! Make some from the{' '}
+          You have no uploads! Make some from the
+          {' '}
           <u>
             <a href="/search">search</a>
-          </u>{' '}
+          </u>
+          {' '}
           page.
         </p>
       )}
       {uploads.length > 0 && (
         <>
-          {uploads &&
-            uploads.map((u) => (
+          {uploads
+            && uploads.map((u) => (
               <UploadObjectEntry
                 size={u.size_mb ? u.size_mb.toFixed('2') : 0}
                 key={u.key}
@@ -102,8 +104,13 @@ function ListUploadsPage({ setError }: ListUploadsPageProps) {
             <div className="card">
               <header className="card-header" />
               <div className="card-content">
-                You have used {quota.toFixed(2)} MB
-                {!isPatreon && ' of your quota (21MB)'}.
+                You have used
+                {' '}
+                {quota.toFixed(2)}
+                {' '}
+                MB
+                {!isPatreon && ' of your quota (21MB)'}
+                .
                 <div className="is-pulled-right my-2">
                   <button
                     type="button"
