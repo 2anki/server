@@ -120,7 +120,7 @@ class Backend {
     if (data && data.results) {
       return data.results.map((p) => ({
         object: p.object,
-        title: getObjectTitle(p).substr(0, 58), // Don't show strings longer than 60 characters
+        title: getObjectTitle(p).slice(0, 58), // Don't show strings longer than 60 characters
         icon: getObjectIcon(p),
         url: p.url as string,
         id: p.id,
@@ -187,9 +187,14 @@ class Backend {
     return response.data;
   }
 
-  async deleteUpload(id: string): Promise<Boolean> {
+  /**
+   * Tell the backend that user wants to delete this upload.
+   * @param key upload key to delete
+   * @returns whether the deletion was successful or throws an error
+   */
+  async deleteUpload(key: string): Promise<boolean> {
     try {
-      await axios.delete(`${this.baseURL}upload/mine/${id}`, {
+      await axios.delete(`${this.baseURL}upload/mine/${key}`, {
         withCredentials: true,
       });
       return true;

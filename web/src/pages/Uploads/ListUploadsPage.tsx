@@ -1,9 +1,14 @@
-import { useEffect, useState } from 'react';
-import BecomeAPatron from '../components/BecomeAPatron';
-import Container from '../components/Container';
-import UploadObjectEntry from '../components/Dashboard/UploadObjectEntry';
-import LoadingScreen from '../components/LoadingScreen';
-import Backend from '../lib/Backend';
+import BecomeAPatron from '../../components/BecomeAPatron';
+import Container from '../../components/Container';
+import UploadObjectEntry from '../../components/Dashboard/UploadObjectEntry';
+import LoadingScreen from '../../components/LoadingScreen';
+import Backend from '../../lib/Backend';
+import ActiveJobs from './components/ActiveJobs';
+
+import useUploads from './hooks/useUploads';
+import usePatreon from './hooks/usePatreon';
+import useQuota from './hooks/useQuota';
+import useActiveJobs from './hooks/useActiveJobs';
 
 const backend = new Backend();
 
@@ -12,90 +17,21 @@ interface ListUploadsPageProps {
 }
 
 function ListUploadsPage({ setError }: ListUploadsPageProps) {
-  const [loading, setLoading] = useState(true);
-  const [uploads, setUploads] = useState([]);
-  const [deletingAll, setIsDeletingAll] = useState(false);
-  const [jobs, setJobs] = useState([]);
-  const [quota, setQuota] = useState(0);
-  const [isPatreon, setIsPatreon] = useState(false);
-
-  useEffect(() => {
-    if (loading) {
-      backend.getUploads().then((res) => {
-        if (res && res.length > 0) {
-          const diskUsage = res
-            .map((u) => u.size_mb)
-            .reduce((acc, cv) => acc + cv);
-          setQuota(diskUsage);
-        }
-        setUploads(res);
-        setLoading(false);
-      });
-      backend.getActiveJobs().then((res) => {
-        setJobs(res);
-      });
-      backend.isPatreon().then((is) => setIsPatreon(is));
-    }
-    // TODO: handle error
-  }, [loading]);
+  const [
+    loading, uploads, deleteUpload, deleteAllUploads,
+    isDeletingAll,
+  ] = useUploads(backend, setError);
+  const [activeJobs, deleteJob] = useActiveJobs(backend, setError);
+  const [isPatreon] = usePatreon(backend, setError);
+  const [quota] = useQuota(uploads);
 
   if (loading) return <LoadingScreen />;
-  // TODO: delete upload entries that do not exist in space
-
-  function deleteUpload(id: string): void {
-    backend
-      .deleteUpload(id)
-      .then(() => {
-        setUploads(uploads.filter((u) => u.id !== id));
-      })
-      .catch((error) => setError(error.response.data.message));
-  }
-
-  function deleteJob(id: string): void {
-    backend
-      .deleteJob(id)
-      .then(() => {
-        setJobs(jobs.filter((j) => j.object_id !== id));
-      })
-      .catch((error) => setError(error.response.data.message));
-  }
-
-  async function deleteAllUploads(): Promise<void> {
-    uploads.reduce((prev, arg) => prev.then(() => deleteUpload(arg.id)), Promise.resolve());
-    setIsDeletingAll(false);
-  }
 
   return (
     <Container>
-      {jobs && jobs.length > 0 && (
-        <div className="">
-          <h2 className="title is-2">Active Jobs</h2>
-          <div className="is-pulled-right">
-            <button
-              type="button"
-              onClick={() => { window.location.href = '/uploads/mine'; }}
-              className="button"
-            >
-              Refresh
-            </button>
-          </div>
-          <ul className="my-2">
-            {jobs.map((j) => (
-              <li className="is-flex">
-                <button
-                  aria-label="delete"
-                  type="button"
-                  className="delete"
-                  onClick={() => deleteJob(j.object_id)}
-                />
-                <span className="tag mx-2">{j.status}</span>
-                {j.object_id}
-              </li>
-            ))}
-          </ul>
-        </div>
+      {activeJobs.length > 0 && (
+        <ActiveJobs jobs={activeJobs} deleteJob={(id) => deleteJob(id)} />
       )}
-
       <h2 className="title is -2">Uploads</h2>
       {uploads.length === 0 && !loading && (
         <p>
@@ -113,7 +49,7 @@ function ListUploadsPage({ setError }: ListUploadsPageProps) {
           {uploads
             && uploads.map((u) => (
               <UploadObjectEntry
-                size={u.size_mb ? u.size_mb.toFixed('2') : 0}
+                size={`${u.size_mb ? u.size_mb.toFixed(2) : 0}`}
                 key={u.key}
                 title={u.filename}
                 icon={null}
@@ -137,10 +73,9 @@ function ListUploadsPage({ setError }: ListUploadsPageProps) {
                   <button
                     type="button"
                     className={`button is-small ${
-                      deletingAll ? 'is-loading' : ''
+                      isDeletingAll ? 'is-loading' : ''
                     } `}
                     onClick={() => {
-                      setIsDeletingAll(true);
                       deleteAllUploads();
                     }}
                   >
