@@ -120,7 +120,7 @@ class Backend {
     if (data && data.results) {
       return data.results.map((p) => ({
         object: p.object,
-        title: getObjectTitle(p).substr(0, 58), // Don't show strings longer than 60 characters
+        title: getObjectTitle(p).slice(0, 58), // Don't show strings longer than 60 characters
         icon: getObjectIcon(p),
         url: p.url as string,
         id: p.id,
