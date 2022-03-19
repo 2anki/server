@@ -192,7 +192,7 @@ class Backend {
    * @param key upload key to delete
    * @returns whether the deletion was successful or throws an error
    */
-  async deleteUpload(key: string): Promise<Boolean> {
+  async deleteUpload(key: string): Promise<boolean> {
     try {
       await axios.delete(`${this.baseURL}upload/mine/${key}`, {
         withCredentials: true,
