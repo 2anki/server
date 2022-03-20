@@ -81,6 +81,11 @@ color: #2B2E3C;
   }
 `;
 
+export const HeroTitleContainer = styled.h1`
+  display: flex;
+  flex-direction: column
+`;
+
 export const HeroSubtitle = styled(HeroTitle)`
 display: block;
  text-align: center;
@@ -90,6 +95,11 @@ display: block;
     @media (max-width: 1024px) {
       text-align: left;
     }
+`;
+
+export const HeroSubtitleAlignRight = styled(HeroTitle)`
+  align-self: flex-end;
+  color: #5397f5
 `;
 
 export const StyledParagraph = styled.p`

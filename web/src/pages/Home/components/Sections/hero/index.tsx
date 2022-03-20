@@ -12,6 +12,8 @@ import {
   VideoWrapper,
   HeroSubtitle,
   HeroTitle,
+  HeroTitleContainer,
+  HeroSubtitleAlignRight,
 } from './styled';
 
 function HeroSection() {
@@ -20,10 +22,11 @@ function HeroSection() {
   return (
     <StyledSection className="hero is-halfheight">
       <div className="container">
-        <h1>
-          <HeroTitle>Everything you need to</HeroTitle>
-          <HeroSubtitle> learn fast</HeroSubtitle>
-        </h1>
+        <HeroTitleContainer>
+          <HeroTitle>Create </HeroTitle>
+          <HeroSubtitle>Anki flashcards</HeroSubtitle>
+          <HeroSubtitleAlignRight>fast</HeroSubtitleAlignRight>
+        </HeroTitleContainer>
         <HeroText>
           We are making it the easiest and fastest way to create beautiful Anki
           flashcards for anyone anywhere around the world!
