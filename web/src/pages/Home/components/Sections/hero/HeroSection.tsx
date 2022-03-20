@@ -3,8 +3,8 @@ import styled from 'styled-components';
 import HeroSubtitle from './HeroSubtitle';
 import HeroText from './HeroText';
 import HeroTitle from './HeroTitle';
-import PrimaryButton from '../buttons/PrimaryButton';
-import PersonIllustration from '../illustrations/PersonIllustration';
+import PrimaryButton from '../../../../../components/buttons/PrimaryButton';
+import PersonIllustration from '../../../../../components/illustrations/PersonIllustration';
 
 const StyledSection = styled.section`
   background: #e5e5e5;

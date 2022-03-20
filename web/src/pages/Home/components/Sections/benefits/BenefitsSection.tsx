@@ -1,8 +1,8 @@
 import styled from 'styled-components';
 
-import BlueHeading3 from '../text/BlueHeading3';
-import GreySection from '../GreySection';
-import Heading2 from '../text/Heading2';
+import BlueHeading3 from '../../../../../components/text/BlueHeading3';
+import GreySection from '../../../../../components/GreySection';
+import Heading2 from '../../../../../components/text/Heading2';
 
 const Illustration = styled.img`
   width: 632.24px;

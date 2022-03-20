@@ -1,9 +1,9 @@
 import styled from 'styled-components';
-import PrimaryButton from '../buttons/PrimaryButton';
+import PrimaryButton from '../../../../../components/buttons/PrimaryButton';
 
-import PersonIllustration from '../illustrations/PersonIllustration';
-import ArrowRight from '../icons/ArrowRight';
-import Heading2 from '../text/Heading2';
+import PersonIllustration from '../../../../../components/illustrations/PersonIllustration';
+import ArrowRight from '../../../../../components/icons/ArrowRight';
+import Heading2 from '../../../../../components/text/Heading2';
 
 const NewsIcon = styled(PersonIllustration)`
   position: absolute;

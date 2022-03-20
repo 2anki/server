@@ -1,8 +1,8 @@
 import styled from 'styled-components';
-import PrimaryButton from '../buttons/PrimaryButton';
+import PrimaryButton from '../../../../../components/buttons/PrimaryButton';
 
-import BlueHeading3 from '../text/BlueHeading3';
-import Heading2 from '../text/Heading2';
+import BlueHeading3 from '../../../../../components/text/BlueHeading3';
+import Heading2 from '../../../../../components/text/Heading2';
 
 const Text = styled.div`
 justify-content: center;

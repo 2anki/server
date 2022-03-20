@@ -1,8 +1,8 @@
 import styled from 'styled-components';
 
-import PersonIllustration from '../illustrations/PersonIllustration';
-import GreySection from '../GreySection';
-import Heading2 from '../text/Heading2';
+import PersonIllustration from '../../../../../components/illustrations/PersonIllustration';
+import GreySection from '../../../../../components/GreySection';
+import Heading2 from '../../../../../components/text/Heading2';
 
 const Testimonials = styled.div`
   display: flex;
