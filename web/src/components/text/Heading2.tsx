@@ -1,5 +1,11 @@
-import styled from "styled-components";
-import HeadingDash from "./HeadingDash";
+import styled from 'styled-components';
+import HeadingDash from './HeadingDash';
+
+interface Props {
+  id: string;
+  isDashed: boolean;
+  children: React.ReactNode;
+}
 
 const StyledHeading2 = styled.h2`
   font-family: Rubik;
@@ -15,13 +21,13 @@ const StyledHeading2 = styled.h2`
   }
 `;
 
-const Heading2 = ({ id, isDashed, children }) => {
+function Heading2({ id, isDashed, children }: Props) {
   return (
     <StyledHeading2 id={id}>
       {children}
       {isDashed && <HeadingDash />}
     </StyledHeading2>
   );
-};
+}
 
 export default Heading2;

@@ -1,32 +1,41 @@
-import styled from "styled-components";
+import styled from 'styled-components';
 
-import PersonIllustration from "../illustrations/PersonIllustration";
-import GreySection from "../GreySection";
-import Heading2 from "../text/Heading2";
+import PersonIllustration from '../illustrations/PersonIllustration';
+import GreySection from '../GreySection';
+import Heading2 from '../text/Heading2';
 
 const Testimonials = styled.div`
   display: flex;
   flex-wrap: wrap;
 `;
 
-let users = [
+const users = [
   {
-    name: "Gabriel Tabbal",
+    name: 'Gabriel Tabbal',
     description:
-      "Game-changing tool. Anki2Notion will take your studying to the next level. It will undeniably save you an enormous amount of time. Gone are the days of manually creating flashcards.",
-    title: "undergraduate student",
+      'Game-changing tool. Anki2Notion will take your studying to the next level. It will undeniably save you an enormous amount of time. Gone are the days of manually creating flashcards.',
+    title: 'undergraduate student',
     profile: null,
   },
   {
-    name: "King Waffle",
-    title: "YouTube comment",
-    description: "god tier addon",
+    name: 'King Waffle',
+    title: 'YouTube comment',
+    description: 'god tier addon',
     profile:
-      "https://yt3.ggpht.com/ytc/AKedOLQuCkq63lQqeLomKdKJe8ku2WOfb5ON1Dj6ELZs=s48-c-k-c0x00ffffff-no-rj",
+      'https://yt3.ggpht.com/ytc/AKedOLQuCkq63lQqeLomKdKJe8ku2WOfb5ON1Dj6ELZs=s48-c-k-c0x00ffffff-no-rj',
   },
 ];
 
-const Testimonial = ({ name, description, title, profile }) => {
+interface Props {
+  name: string;
+  description: string;
+  title: string;
+  profile: string;
+}
+
+function Testimonial({
+  name, description, title, profile,
+}: Props) {
   return (
     <div className="is-flex column m-4 is-flex-direction-column box has-background-white has-text-grey-dark">
       <div className="is-flex">
@@ -51,7 +60,7 @@ const Testimonial = ({ name, description, title, profile }) => {
       </p>
     </div>
   );
-};
+}
 
 const Illustration4 = styled(PersonIllustration)`
   position: absolute;
@@ -76,13 +85,13 @@ const Curve = styled.div`
   border-top-right-radius: 50%;
 `;
 
-const TestimonialsSection = () => {
+function TestimonialsSection() {
   return (
     <>
       <Curve />
       <GreySection className="section">
         <div className="container">
-          <Heading2 id="testimony" isDashed={true}>
+          <Heading2 id="testimony" isDashed>
             Love for 2anki
           </Heading2>
           <Illustration4
@@ -91,13 +100,19 @@ const TestimonialsSection = () => {
           />
           <Testimonials className="columns">
             {users.map((user) => (
-              <Testimonial key={user.name} {...user} />
+              <Testimonial
+                key={user.name}
+                name={user.name}
+                description={user.description}
+                title={user.title}
+                profile={user.profile}
+              />
             ))}
           </Testimonials>
         </div>
       </GreySection>
     </>
   );
-};
+}
 
 export default TestimonialsSection;

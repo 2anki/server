@@ -1,9 +1,9 @@
-import styled from "styled-components";
-import PrimaryButton from "../buttons/PrimaryButton";
+import styled from 'styled-components';
+import PrimaryButton from '../buttons/PrimaryButton';
 
-import PersonIllustration from "../illustrations/PersonIllustration";
-import ArrowRight from "../icons/ArrowRight";
-import Heading2 from "../text/Heading2";
+import PersonIllustration from '../illustrations/PersonIllustration';
+import ArrowRight from '../icons/ArrowRight';
+import Heading2 from '../text/Heading2';
 
 const NewsIcon = styled(PersonIllustration)`
   position: absolute;
@@ -23,7 +23,9 @@ const Centered = styled.div`
   justify-content: center;
 `;
 
-const ReadMore = ({ href }) => {
+interface ReadMoreProps { href: string }
+
+function ReadMore({ href }: ReadMoreProps) {
   return (
     <div className="is-flex">
       <a className="is-uppercase has-text-weight-bold" href={href}>
@@ -32,9 +34,9 @@ const ReadMore = ({ href }) => {
       <ArrowRight innerFill="#5397f5" />
     </div>
   );
-};
+}
 
-const FeaturedEntry = () => {
+function FeaturedEntry() {
   return (
     <div className="card">
       {/* <div className="card-image">
@@ -45,7 +47,7 @@ const FeaturedEntry = () => {
           />
         </figure>
       </div> */}
-      <div style={{ background: "#F8F8F8" }} className="card-content">
+      <div style={{ background: '#F8F8F8' }} className="card-content">
         <div className="media">
           <div className="media-content">
             <p className="title is-4">The state of 2anki.net 💫</p>
@@ -57,16 +59,19 @@ const FeaturedEntry = () => {
           <br />
         </div>
         <ReadMore
-          href={
-            "https://www.patreon.com/posts/state-of-2anki-60331662?utm_medium=clipboard_copy&utm_source=copy_to_clipboard&utm_campaign=postshareI"
-          }
+          href="https://www.patreon.com/posts/state-of-2anki-60331662?utm_medium=clipboard_copy&utm_source=copy_to_clipboard&utm_campaign=postshareI"
         />
       </div>
     </div>
   );
-};
+}
 
-const NewsEntry = ({ title, description, link }) => {
+interface NewsEntryProps {
+  title: string;
+  description: string;
+  link: string;
+}
+function NewsEntry({ title, description, link }: NewsEntryProps) {
   return (
     <div className="card">
       <div className="card-content">
@@ -76,17 +81,17 @@ const NewsEntry = ({ title, description, link }) => {
       </div>
     </div>
   );
-};
+}
 
 const ReadMoreNews = styled(PrimaryButton)``;
 
-const NewsSection = () => {
+function NewsSection() {
   return (
     <section className="section">
       <div className="is-relative">
-        <NewsIcon src={"/icons/news-icon.svg"} />
+        <NewsIcon src="/icons/news-icon.svg" />
       </div>
-      <Heading2 id={"news"} isDashed={true}>
+      <Heading2 id="news" isDashed>
         News
       </Heading2>
       <div className="columns">
@@ -96,18 +101,14 @@ const NewsSection = () => {
         <div className="column">
           <NewsEntry
             title={"What's Next? The Path to v1.0.0!"}
-            description={
-              "There are a three main things I would like to tackle longterm but in this session"
-            }
-            link={"https://www.patreon.com/posts/whats-next-path-51204766"}
+            description="There are a three main things I would like to tackle longterm but in this session"
+            link="https://www.patreon.com/posts/whats-next-path-51204766"
           />
-          <div className="my-2"></div>
+          <div className="my-2" />
           <NewsEntry
-            title={"Good News!"}
-            description={
-              "I woke up in the middle of the night and had to go to the toilet 🚾"
-            }
-            link={"https://www.patreon.com/posts/good-news-51122343"}
+            title="Good News!"
+            description="I woke up in the middle of the night and had to go to the toilet 🚾"
+            link="https://www.patreon.com/posts/good-news-51122343"
           />
         </div>
       </div>
@@ -120,6 +121,6 @@ const NewsSection = () => {
       </Centered>
     </section>
   );
-};
+}
 
 export default NewsSection;

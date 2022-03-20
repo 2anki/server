@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled from 'styled-components';
 
 const StyledPage = styled.div`
   background: #5397f5;
@@ -73,14 +73,19 @@ interface ITier {
   cta: string;
 }
 
-const Tier = ({ title, description, price, cta }: ITier) => {
+function Tier({
+  title, description, price, cta,
+}: ITier) {
   return (
     <Card>
       <h3 className="subtitle is-4">{title}</h3>
       <p>{description}</p>
       <p className="title is-5">
-        <span className="title is-3">{price}</span> ${" "}
-        {price > 10 ? "once" : "month"}
+        <span className="title is-3">{price}</span>
+        {' '}
+        $
+        {' '}
+        {price > 10 ? 'once' : 'month'}
       </p>
       <div>
         <SelectButton>
@@ -89,7 +94,7 @@ const Tier = ({ title, description, price, cta }: ITier) => {
       </div>
     </Card>
   );
-};
+}
 
 const ImageWrapper = styled.div`
   margin: 1rem;
@@ -98,7 +103,7 @@ const ImageWrapper = styled.div`
   }
 `;
 
-const PreSignupPage = () => {
+function PreSignupPage() {
   return (
     <StyledPage>
       <Container>
@@ -124,7 +129,9 @@ const PreSignupPage = () => {
         </p>
 
         <h3 className="subtitle is-3 has-text-white">
-          Get a 10% discount if you pre-signup. <br />
+          Get a 10% discount if you pre-signup.
+          {' '}
+          <br />
           No creditcard required.
         </h3>
         <p className="is-4 subtitle has-text-white">Select your plan</p>
@@ -145,6 +152,6 @@ const PreSignupPage = () => {
       </Container>
     </StyledPage>
   );
-};
+}
 
 export default PreSignupPage;

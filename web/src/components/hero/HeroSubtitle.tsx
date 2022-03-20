@@ -1,4 +1,4 @@
-import styled from "styled-components"
+import styled from 'styled-components';
 
 import HeroTitle from './HeroTitle';
 
@@ -11,6 +11,6 @@ display: block;
     @media (max-width: 1024px) {
       text-align: left;
     }
-`
+`;
 
 export default HeroSubtitle;

@@ -1,8 +1,8 @@
-import styled from "styled-components";
-import PrimaryButton from "../buttons/PrimaryButton";
+import styled from 'styled-components';
+import PrimaryButton from '../buttons/PrimaryButton';
 
-import BlueHeading3 from "../text/BlueHeading3";
-import Heading2 from "../text/Heading2";
+import BlueHeading3 from '../text/BlueHeading3';
+import Heading2 from '../text/Heading2';
 
 const Text = styled.div`
 justify-content: center;
@@ -22,7 +22,7 @@ const Mascot = styled.div`
   }
 `;
 
-const AboutSection = () => {
+function AboutSection() {
   return (
     <section className="section has-background-white">
       <div className="container">
@@ -32,7 +32,7 @@ const AboutSection = () => {
             <img src="/mascot/Notion 4.png" alt="Notion" />
           </Mascot>
           <Text className="column">
-            <Heading2 id="aa" isDashed={true}>
+            <Heading2 id="aa" isDashed>
               What is 2anki?
             </Heading2>
             <p>
@@ -53,6 +53,6 @@ const AboutSection = () => {
       </div>
     </section>
   );
-};
+}
 
 export default AboutSection;

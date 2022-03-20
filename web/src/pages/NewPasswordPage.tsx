@@ -1,11 +1,13 @@
-import NewPassordForm from "../components/forms/NewPassword";
+import NewPassordForm from '../components/forms/NewPassword';
 
-const NewPasswordPage = () => {
+interface Props {
+  setErrorMessage: (message: string) => void;
+}
+
+function NewPasswordPage({ setErrorMessage }: Props) {
   return (
-    <>
-      <NewPassordForm />
-    </>
+    <NewPassordForm setErrorMessage={setErrorMessage} />
   );
-};
+}
 
 export default NewPasswordPage;

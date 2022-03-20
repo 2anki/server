@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled from 'styled-components';
 
 const BlueHeading3 = styled.h3`
   width: 485px;

@@ -1,6 +1,6 @@
-import styled from "styled-components";
+import styled from 'styled-components';
 
-import { Link } from "react-router-dom";
+import { Link } from 'react-router-dom';
 
 const StyledButton = styled.div<{ minHeight? }>`
   margin-top: 0.5rem;
@@ -35,20 +35,24 @@ const StyledButton = styled.div<{ minHeight? }>`
   @media (max-width: 1024px) {
     font-size: 16px;
     /* width: 221px; */
-    height: ${(props) => (props.minHeight ? props.minHeight : "54px")};
+    height: ${(props) => (props.minHeight ? props.minHeight : '54px')};
     margin-right: auto;
   }
 `;
 
-const PrimaryButton: React.FC<{
+interface PrimaryButtonProps {
   text: string;
   destination: string;
   onClickLink: React.MouseEventHandler;
   minHeight?: string;
-}> = ({ text, destination, onClickLink, minHeight }) => {
+}
+
+export default function PrimaryButton({
+  text, destination, onClickLink, minHeight,
+}: PrimaryButtonProps) {
   return (
     <StyledButton minHeight={minHeight}>
-      {destination.includes("http") ? (
+      {destination.includes('http') ? (
         <a href={destination} target="_blank" rel="noopener noreferrer">
           {text}
         </a>
@@ -60,6 +64,8 @@ const PrimaryButton: React.FC<{
       <img width={24} height={24} src="/icons/arrow-right.svg" alt="arrow" />
     </StyledButton>
   );
-};
+}
 
-export default PrimaryButton;
+PrimaryButton.defaultProps = {
+  minHeight: '',
+};

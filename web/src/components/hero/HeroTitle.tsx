@@ -1,4 +1,4 @@
-import styled from "styled-components"
+import styled from 'styled-components';
 
 const HeroTitle = styled.span`
 font-size: 90px;
@@ -8,6 +8,6 @@ color: #2B2E3C;
   font-size: 40px;
  text-align: left;
   }
-`
+`;
 
-export default HeroTitle
+export default HeroTitle;

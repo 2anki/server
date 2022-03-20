@@ -1,5 +1,5 @@
-import styled from "styled-components";
-		 
+import styled from 'styled-components';
+
 const JoinNowButton = styled.a`
     border-radius: 10px;
     background: #2B2E3C;
@@ -9,10 +9,19 @@ const JoinNowButton = styled.a`
       color: white;
       background: #5397f5;
     }
-`
+`;
 
-const NavButtonCTA = ({ href, children }) => <JoinNowButton href={href} className="button">
-	{children}
-</JoinNowButton>
+interface NavButtonCTAProps {
+  href: string;
+  children: React.ReactNode;
+}
 
-export default NavButtonCTA
+function NavButtonCTA({ href, children }: NavButtonCTAProps) {
+  return (
+    <JoinNowButton href={href} className="button">
+      {children}
+    </JoinNowButton>
+  );
+}
+
+export default NavButtonCTA;

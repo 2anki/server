@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled from 'styled-components';
 
 const StyledParagraph = styled.p`
   max-width: 590px;
@@ -12,8 +12,12 @@ const StyledParagraph = styled.p`
   }
 `;
 
-const HeroText = ({ children }) => {
+interface HeroTextProps {
+  children: React.ReactNode;
+}
+
+function HeroText({ children }: HeroTextProps) {
   return <StyledParagraph>{children}</StyledParagraph>;
-};
+}
 
 export default HeroText;

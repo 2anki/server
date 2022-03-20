@@ -1,4 +1,4 @@
-const SettingsIcon = () => {
+function SettingsIcon() {
   return (
     <svg
       className="icon"
@@ -21,6 +21,6 @@ const SettingsIcon = () => {
       />
     </svg>
   );
-};
+}
 
 export default SettingsIcon;

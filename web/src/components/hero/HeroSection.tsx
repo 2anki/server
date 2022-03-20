@@ -1,10 +1,10 @@
-import { useState } from "react";
-import styled from "styled-components";
-import HeroSubtitle from "./HeroSubtitle";
-import HeroText from "./HeroText";
-import HeroTitle from "./HeroTitle";
-import PrimaryButton from "../buttons/PrimaryButton";
-import PersonIllustration from "../illustrations/PersonIllustration";
+import { useState } from 'react';
+import styled from 'styled-components';
+import HeroSubtitle from './HeroSubtitle';
+import HeroText from './HeroText';
+import HeroTitle from './HeroTitle';
+import PrimaryButton from '../buttons/PrimaryButton';
+import PersonIllustration from '../illustrations/PersonIllustration';
 
 const StyledSection = styled.section`
   background: #e5e5e5;
@@ -75,7 +75,7 @@ const Illustration1 = styled(PersonIllustration)`
     left: 0;
   }
 `;
-const HeroSection = () => {
+function HeroSection() {
   const [play, setPlay] = useState(false);
 
   return (
@@ -89,14 +89,14 @@ const HeroSection = () => {
           We are making it the easiest and fastest way to create beautiful Anki
           flashcards for anyone anywhere around the world!
         </HeroText>
-        <div className="is-flex is-justify-content-center	">
+        <div className="is-flex is-justify-content-center">
           <PrimaryButton
             destination="/upload"
             text="Get Started"
             onClickLink={() => {}}
           />
         </div>
-        <div style={{ position: "relative" }}>
+        <div style={{ position: 'relative' }}>
           <div>
             <Illustration1
               src="/illustrations/illustrations-1.svg"
@@ -116,7 +116,7 @@ const HeroSection = () => {
               <>
                 <VideoPoster
                   src="/video-poster.png"
-                  alt={"video"}
+                  alt="video"
                   onClick={() => setPlay(true)}
                 />
                 <PlayIcon
@@ -124,7 +124,7 @@ const HeroSection = () => {
                   src="/icons/play-icon.svg"
                   width={50}
                   height={50}
-                  alt={"play"}
+                  alt="play"
                   onClick={() => setPlay(true)}
                 />
               </>
@@ -138,13 +138,13 @@ const HeroSection = () => {
                 title="Preview of 2anki.net - Beta Notion API Integration"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
-              ></StyledIframe>
+              />
             )}
           </VideoWrapper>
         </div>
       </div>
     </StyledSection>
   );
-};
+}
 
 export default HeroSection;

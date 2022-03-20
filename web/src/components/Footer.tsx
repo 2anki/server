@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled from 'styled-components';
 
 const StyledFooter = styled.footer`
   flex-shrink: 0;
@@ -17,7 +17,7 @@ const Header = styled.p`
   text-transform: uppercase;
 `;
 
-const Footer = () => {
+function Footer() {
   return (
     <StyledFooter>
       <div className="columns">
@@ -93,7 +93,7 @@ const Footer = () => {
           <p>
             <a href="https://www.digitalocean.com/?refcode=c5a16996cd0e&utm_campaign=Referral_Invite&utm_medium=Referral_Program&utm_source=CopyPaste">
               <img
-                style={{ width: "201px" }}
+                style={{ width: '201px' }}
                 src="https://opensource.nyc3.cdn.digitaloceanspaces.com/attribution/assets/PoweredByDO/DO_Powered_by_Badge_blue.svg"
                 alt="Powered by DigitalOcean"
                 loading="lazy"
@@ -111,26 +111,29 @@ const Footer = () => {
           </p>
           <p>
             <a href="https://fortress.no">
-              <img 
+              <img
                 src="https://fortress.no/icons/logo.svg"
                 alt="Sponsored by Fortress"
-                loading="lazy"  
-                style={{width:"60px"}} 
-                />
+                loading="lazy"
+                style={{ width: '60px' }}
+              />
             </a>
           </p>
         </div>
       </div>
       <div className="content has-text-centered">
         <p>
-          <a href="https://github.com/alemayhu/notion2anki/">This</a> is an open
-          source project by<span> </span>
+          <a href="https://github.com/alemayhu/notion2anki/">This</a>
+          {' '}
+          is an open
+          source project by
+          <span> </span>
           <a href="https://alemayhu.com">Alexander Alemayhu</a>
         </p>
         <span>Developed in 🇳🇴 with ❤️</span>
       </div>
     </StyledFooter>
   );
-};
+}
 
 export default Footer;

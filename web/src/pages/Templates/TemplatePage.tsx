@@ -1,41 +1,46 @@
-import { useCallback, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import MonacoEditor from "react-monaco-editor";
-import TemplateSelect from "../../components/TemplateSelect";
-import TemplateFile from "../../model/TemplateFile";
+import { useCallback, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import MonacoEditor from 'react-monaco-editor';
+import TemplateSelect from '../../components/TemplateSelect';
+import TemplateFile from '../../model/TemplateFile';
 
 // Don't put in the render function, it gets recreated
 let files: TemplateFile[] = [];
 
 async function fetchBaseType(name: string) {
-  let url = `/templates/${name}.json`;
+  const url = `/templates/${name}.json`;
   const request = await window.fetch(url);
   const response = await request.json();
   return response;
 }
 
-const TemplatePage = () => {
-  const [code, setCode] = useState("");
+function TemplatePage() {
+  const [code, setCode] = useState('');
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [options, _setOptions] = useState({
+  const [options, setOptions] = useState({
     minimap: { enabled: false },
     colorDecorators: false,
   });
   const [isFront, setIsFront] = useState(true);
   const [isBack, setIsBack] = useState(false);
   const [isStyling, setIsStyling] = useState(false);
-  const [language, setLanguage] = useState("html");
+  const [language, setLanguage] = useState('html');
 
   const [currentCardType, setCurrentCardType] = useState(
-    localStorage.getItem("current-card-type") || "n2a-basic"
+    localStorage.getItem('current-card-type') || 'n2a-basic',
   );
   const [ready, setReady] = useState(false);
 
-  const editorDidMount = (editor: { focus: () => void }, _monaco: any) => {
+  const editorDidMount = (editor: { focus: () => void }) => {
     editor.focus();
   };
 
-  const onChange = (newValue: any, event: any) => {
+  const getCurrentCardType = useCallback(
+    () => files.find((x) => x.storageKey === currentCardType),
+    [currentCardType],
+  );
+
+  const onChange = (newValue: any) => {
     const card = getCurrentCardType();
     if (card) {
       if (isFront) {
@@ -49,31 +54,29 @@ const TemplatePage = () => {
     }
   };
 
-  const getCurrentCardType = useCallback(() => {
-    return files.find((x) => x.storageKey === currentCardType);
-  }, [currentCardType]);
+  const fetchTemplates = useCallback(async () => {
+    files = [];
+    const templateTypes = ['n2a-basic', 'n2a-input', 'n2a-cloze'];
+    await Promise.all(templateTypes.map(async (name) => {
+      const local = localStorage.getItem(name);
+      if (local) {
+        files.push(JSON.parse(local));
+      } else {
+        const remote = await fetchBaseType(name);
+        files.push(remote);
+        localStorage.setItem(name, JSON.stringify(remote, null, 2));
+      }
+    }));
+    setReady(true);
+    setLanguage('html');
+    // Use the first basic front template as default file to load.
+    // We might want to change this later to perserve last open file.
+    setCode(files[0].front);
+  }, []);
 
   // Fetch the base presets from the server  or load from local storage (should only be called once)
   useEffect(() => {
-    (async function () {
-      files = [];
-      for (const key of ["n2a-basic", "n2a-input", "n2a-cloze"]) {
-        const local = localStorage.getItem(key);
-        if (local) {
-          files.push(JSON.parse(local));
-        } else {
-          const remote = await fetchBaseType(key);
-          files.push(remote);
-          localStorage.setItem(key, JSON.stringify(remote, null, 2));
-        }
-      }
-      setReady(true);
-      setLanguage("html");
-      // Use the first basic front template as default file to load.
-      // We might want to change this later to perserve last open file.
-      setCode(files[0].front);
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    fetchTemplates();
   }, []);
 
   // Switching to front from back or styling
@@ -81,7 +84,7 @@ const TemplatePage = () => {
     if (isFront) {
       const card = getCurrentCardType();
       if (card) {
-        setLanguage("html");
+        setLanguage('html');
         setCode(card.front);
       }
       setIsStyling(false);
@@ -95,7 +98,7 @@ const TemplatePage = () => {
       const card = getCurrentCardType();
       if (card) {
         setCode(card.back);
-        setLanguage("html");
+        setLanguage('html');
       }
       setIsStyling(false);
       setIsFront(false);
@@ -110,7 +113,7 @@ const TemplatePage = () => {
       const c = getCurrentCardType();
       if (c) {
         setCode(c.styling);
-        setLanguage("css");
+        setLanguage('css');
       }
     }
   }, [getCurrentCardType, isStyling]);
@@ -125,20 +128,20 @@ const TemplatePage = () => {
             <hr />
             <p className="subtitle">
               No saving required, everything is saved instantly! You can always
-              revert the template changes in the{" "}
-              <Link to="/upload?view=template">settings</Link>. Adding /
+              revert the template changes in the
+              {' '}
+              <Link to="/upload?view=template">settings</Link>
+              . Adding /
               removing fields and preview is coming soon.
             </p>
             <div className="field is-horizontal">
-              <div className="field-label is-normal">
-                <label className="label">Template: </label>
-              </div>
               <div className="field-body">
                 <div className="field">
                   <TemplateSelect
-                    values={files.map((f) => {
-                      return { label: f.name, value: f.name };
-                    })}
+                    values={files.map((f) => ({
+                      label: f.name,
+                      value: f.name,
+                    }))}
                     value={currentCardType}
                     name="current-card-type"
                     pickedTemplate={(t) => {
@@ -151,7 +154,7 @@ const TemplatePage = () => {
             </div>
             <p>Template</p>
             <div className="control m-2">
-              <label className="radio">
+              <label htmlFor="front-template" className="radio">
                 <input
                   checked={isFront}
                   onChange={(event) => setIsFront(event.target.checked)}
@@ -161,7 +164,7 @@ const TemplatePage = () => {
                 />
                 Front Template
               </label>
-              <label className="radio">
+              <label htmlFor="back-template" className="radio">
                 <input
                   checked={isBack}
                   onChange={(event) => setIsBack(event.target.checked)}
@@ -171,7 +174,7 @@ const TemplatePage = () => {
                 />
                 Back Template
               </label>
-              <label className="radio">
+              <label htmlFor="styling" className="radio">
                 <input
                   checked={isStyling}
                   onChange={(event) => setIsStyling(event.target.checked)}
@@ -196,6 +199,6 @@ const TemplatePage = () => {
       </div>
     </section>
   );
-};
+}
 
 export default TemplatePage;

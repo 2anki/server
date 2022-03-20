@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled from 'styled-components';
 
 const SearchInput = styled.input`
   width: 60vw;
@@ -11,8 +11,13 @@ const SearchContainer = styled.div`
   justify-content: center;
 `;
 
-// TODO: handle the enter key is pressed
-const SearchBar = ({ onSearchQueryChanged, onSearchClicked, inProgress }) => {
+interface SearchBarProps {
+  onSearchQueryChanged: (query: string) => void;
+  onSearchClicked: () => void;
+  inProgress: boolean;
+}
+
+function SearchBar({ onSearchQueryChanged, onSearchClicked, inProgress }: SearchBarProps) {
   return (
     <SearchContainer>
       <div className="field has-addons">
@@ -22,17 +27,21 @@ const SearchBar = ({ onSearchQueryChanged, onSearchClicked, inProgress }) => {
             type="text"
             placeholder="  🔍 🅰  📑 "
             onKeyDown={(e) => {
-              if (e.key === "Enter") onSearchClicked();
+              if (e.key === 'Enter') {
+                onSearchClicked();
+              }
             }}
             onChange={(event) => {
               onSearchQueryChanged(event.target.value);
             }}
           />
         </div>
-        <div className="control" onClick={onSearchClicked}>
+        <div className="control">
           <button
+            type="button"
+            onClick={onSearchClicked}
             className={`button ${
-              inProgress ? "is-loading is-light" : "is-info"
+              inProgress ? 'is-loading is-light' : 'is-info'
             }`}
           >
             Search
@@ -41,6 +50,6 @@ const SearchBar = ({ onSearchQueryChanged, onSearchClicked, inProgress }) => {
       </div>
     </SearchContainer>
   );
-};
+}
 
 export default SearchBar;
