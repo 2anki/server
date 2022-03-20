@@ -30,6 +30,7 @@ function LoginPage({ setErrorMessage }: Props) {
     setLoginState(false);
     window.location.hash = 'register';
   };
+  const login = <LoginForm onForgotPassword={() => setIsForgot(true)} onError={setErrorMessage} />;
   return (
     <>
       {!isLogin && (
@@ -46,9 +47,9 @@ function LoginPage({ setErrorMessage }: Props) {
         </NavButtonCTA>
       </TopSection>
       )}
-      {!isLogin && !isForgot && <RegisterForm />}
-      {isLogin && !isForgot && <LoginForm onForgot={() => setIsForgot(true)} />}
-      {isForgot && <ForgotPasswordForm />}
+      {!isLogin && !isForgot && <RegisterForm setErrorMessage={setErrorMessage} />}
+      {isLogin && !isForgot && login }
+      {isForgot && <ForgotPasswordForm setError={setErrorMessage} />}
     </>
   );
 }
