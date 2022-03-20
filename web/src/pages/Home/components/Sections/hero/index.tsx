@@ -1,80 +1,19 @@
 import { useState } from 'react';
-import styled from 'styled-components';
-import HeroSubtitle from './HeroSubtitle';
 import HeroText from './HeroText';
-import HeroTitle from './HeroTitle';
 import PrimaryButton from '../../../../../components/buttons/PrimaryButton';
-import PersonIllustration from '../../../../../components/illustrations/PersonIllustration';
+import {
+  Illustration1,
+  Illustration2,
+  Illustration3,
+  PlayIcon,
+  StyledIframe,
+  StyledSection,
+  VideoPoster,
+  VideoWrapper,
+  HeroSubtitle,
+  HeroTitle,
+} from './styled';
 
-const StyledSection = styled.section`
-  background: #e5e5e5;
-`;
-const StyledIframe = styled.iframe`
-  margin: 0 auto;
-  display: none;
-`;
-
-const VideoWrapper = styled.div`
-  max-width: 800px;
-  width: 100%;
-  margin: 0 auto;
-`;
-
-const PlayIcon = styled.img`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  :hover {
-    cursor: pointer;
-  }
-  object-fit: cover;
-`;
-
-const VideoPoster = styled.img`
-  width: 100%;
-  object-fit: cover;
-`;
-
-const Illustration3 = styled(PersonIllustration)`
-  position: absolute;
-  width: 199.61px;
-  height: 261.34px;
-  bottom: 0;
-  left: -100px;
-
-  @media (max-width: 1024px) {
-    width: 61.08px;
-    height: 79.97px;
-    left: 0;
-  }
-`;
-
-const Illustration2 = styled(PersonIllustration)`
-  bottom: -80px;
-  right: -87px;
-
-  @media (max-width: 1024px) {
-    width: 82.6px;
-    height: 89.62px;
-
-    bottom: 0;
-    right: 0;
-  }
-`;
-
-const Illustration1 = styled(PersonIllustration)`
-  top: -148px;
-  left: -100px;
-  width: 213px;
-  height: 200.69px;
-  @media (max-width: 1024px) {
-    width: 83px;
-    height: 78.32px;
-    top: 0;
-    left: 0;
-  }
-`;
 function HeroSection() {
   const [play, setPlay] = useState(false);
 

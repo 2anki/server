@@ -1,7 +1,7 @@
-import TestimonialsSection from './components/Sections/testimonials/TestimonialsSection';
-import BenefitsSection from './components/Sections/benefits/BenefitsSection';
-import AboutSection from './components/Sections/about/AboutSection';
-import HeroSection from './components/Sections/hero/HeroSection';
+import TestimonialsSection from './components/Sections/testimonials';
+import BenefitsSection from './components/Sections/benefits';
+import AboutSection from './components/Sections/about';
+import HeroSection from './components/Sections/hero';
 import NewsSection from './components/Sections/news/NewsSection';
 
 export default function HomePage() {

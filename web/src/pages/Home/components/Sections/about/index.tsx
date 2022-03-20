@@ -1,26 +1,7 @@
-import styled from 'styled-components';
 import PrimaryButton from '../../../../../components/buttons/PrimaryButton';
-
 import BlueHeading3 from '../../../../../components/text/BlueHeading3';
 import Heading2 from '../../../../../components/text/Heading2';
-
-const Text = styled.div`
-justify-content: center;
-    display: flex;
-    flex-direction: column;
-}
-`;
-
-const Mascot = styled.div`
-  margin: 0 auto;
-  width: 485px;
-  img {
-    object-fit: contain;
-  }
-  @media (max-width: 1024px) {
-    width: 186px;
-  }
-`;
+import { Mascot, Text } from './styled';
 
 function AboutSection() {
   return (
