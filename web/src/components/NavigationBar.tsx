@@ -75,11 +75,6 @@ function NavigationBar({ activeWorkspace, workspaces, connectLink }: NavigationB
           <img src="/mascot/navbar-logo.png" alt="2anki Logo" />
         </a>
         <a
-          style={{
-            borderBottom: path.includes('/search')
-              ? '3px solid #5397f5'
-              : '',
-          }}
           href="/search"
           className="navbar-item"
         >
