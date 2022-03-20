@@ -15,7 +15,7 @@ import NavigationBar from './components/NavigationBar';
 
 const TemplatePage = lazy(() => import('./pages/Templates/TemplatePage'));
 const PreSignupPage = lazy(() => import('./pages/PreSignupPage'));
-const SearchPage = lazy(() => import('./pages/SearchPage'));
+const SearchPage = lazy(() => import('./pages/Search'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const NewPasswordPage = lazy(() => import('./pages/NewPasswordPage'));
 const LearnPage = lazy(() => import('./pages/LearnPage'));
