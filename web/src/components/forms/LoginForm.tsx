@@ -3,7 +3,6 @@ import axios from "axios";
 import { SyntheticEvent, useState } from "react";
 
 import BetaMessage from "../BetaMessage";
-import BetaTag from "../BetaTag";
 
 const FormContainer = styled.div`
   max-width: 720px;
@@ -67,7 +66,6 @@ const LoginForm = ({ onForgot }) => {
         <div className="container">
           <div className="columns is-centered">
             <div className="column is-half">
-              <BetaTag />
               <BetaMessage />
               <h1 className="title is-1">Login</h1>
               {error && <div className="notification is-danger">{error}</div>}
@@ -117,7 +115,7 @@ const LoginForm = ({ onForgot }) => {
                       className="button is-link is-medium is-pulled-right"
                       disabled={!isValid() || loading}
                     >
-                      Beta access
+                      Sign in
                     </button>
                   </div>
                 </div>
