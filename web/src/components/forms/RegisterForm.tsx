@@ -44,7 +44,7 @@ function RegisterForm({ setErrorMessage }: Props) {
       };
       const res = await axios.post(endpoint, data);
       if (res.status === 200) {
-        window.location.href = '/search';
+        window.location.href = '/verify';
       } else {
         setErrorMessage(
           'Unknown error. Please try again or reach out to alexander@alemayhu.com for assistance if the issue persists.',
