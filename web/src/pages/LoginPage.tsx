@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import RegisterForm from '../components/forms/RegisterForm';
 import LoginForm from '../components/forms/LoginForm';
 import ForgotPasswordForm from '../components/forms/ForgotPassword';
+import NavButtonCTA from '../components/buttons/NavButtonCTA';
 
 const TopSection = styled.div`
   display: flex;
@@ -29,29 +30,25 @@ function LoginPage({ setErrorMessage }: Props) {
     setLoginState(false);
     window.location.hash = 'register';
   };
+  const login = <LoginForm onForgotPassword={() => setIsForgot(true)} onError={setErrorMessage} />;
   return (
     <>
-      <TopSection>
-        {!isLogin && (
-          <>
-            Already have an account?
-            <button type="button" className="button is-black" onClick={onClickLogin}>
-              Beta access
-            </button>
-          </>
-        )}
-        {isLogin && (
-          <>
-            Need a new account?
-            <button type="button" className="button is-black" onClick={onClickRegister}>
-              Register
-            </button>
-          </>
-        )}
+      {!isLogin && (
+      <TopSection onClick={() => onClickLogin()}>
+        <span className="mx-2">Already have an account?</span>
+        <NavButtonCTA href="/login#login">Sign in</NavButtonCTA>
       </TopSection>
+      )}
+      {isLogin && (
+      <TopSection onClick={onClickRegister}>
+        Don&apos;t have an account?
+        <NavButtonCTA href="/login#register">
+          Join Now
+        </NavButtonCTA>
+      </TopSection>
+      )}
       {!isLogin && !isForgot && <RegisterForm setErrorMessage={setErrorMessage} />}
-      {isLogin && !isForgot
-      && <LoginForm onForgotPassword={() => setIsForgot(true)} onError={setErrorMessage} />}
+      {isLogin && !isForgot && login }
       {isForgot && <ForgotPasswordForm setError={setErrorMessage} />}
     </>
   );

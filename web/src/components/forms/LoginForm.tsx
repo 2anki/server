@@ -3,7 +3,6 @@ import axios from 'axios';
 import { SyntheticEvent, useState } from 'react';
 
 import BetaMessage from '../BetaMessage';
-import BetaTag from '../BetaTag';
 
 const FormContainer = styled.div`
   max-width: 720px;
@@ -66,7 +65,6 @@ function LoginForm({ onForgotPassword, onError }: LoginFormProps) {
         <div className="container">
           <div className="columns is-centered">
             <div className="column is-half">
-              <BetaTag />
               <BetaMessage />
               <h1 className="title is-1">Login</h1>
               <form onSubmit={handleSubmit}>
@@ -131,7 +129,7 @@ function LoginForm({ onForgotPassword, onError }: LoginFormProps) {
                       className="button is-link is-medium is-pulled-right"
                       disabled={!isValid() || loading}
                     >
-                      Beta access
+                      Sign in
                     </button>
                   </div>
                 </div>

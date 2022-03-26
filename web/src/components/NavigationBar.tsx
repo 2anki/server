@@ -1,8 +1,10 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import { useState } from 'react';
+import styled from 'styled-components';
+
 import Backend from '../lib/Backend';
 import NotionWorkspace from '../lib/interfaces/NotionWorkspace';
-import BetaTag from './BetaTag';
+import NavButtonCTA from './buttons/NavButtonCTA';
 
 // https://www.w3schools.com/js/js_cookies.asp
 function getCookie(cname) {
@@ -26,36 +28,59 @@ interface NavigationBarProps {
   connectLink?: string;
 }
 
+const Navbar = styled.nav`
+  padding: 2rem 4rem 2rem 4rem;
+  background #E5E5E5;
+  @media (max-width: 1024px) {
+    margin: 0;
+  }
+`;
+
+const StyledNavbarItem = styled.a`
+  font-size: 20px;
+  :hover {
+    font-weight: bold;
+  }
+`;
+
+interface NavbarItemProps {
+  path: string;
+  href: string;
+  children: React.ReactNode;
+}
+
+function NavbarItem({ path, href, children }: NavbarItemProps) {
+  return (
+    <StyledNavbarItem
+      href={href}
+      className={`navbar-item ${path === href ? 'has-text-weight-bold' : ''}`}
+    >
+      {children}
+    </StyledNavbarItem>
+  );
+}
+
 const backend = new Backend();
-function NavigationBar({ workspaces, activeWorkspace, connectLink }: NavigationBarProps) {
+function NavigationBar({ activeWorkspace, workspaces, connectLink }: NavigationBarProps) {
   const [waiting, setIsWaiting] = useState(false);
   const isSignedIn = getCookie('token');
   const [active, setHamburgerMenu] = useState(false);
   const path = window.location.pathname;
+  const { hash } = window.location;
 
   return (
-    <nav className="navbar" role="navigation" aria-label="main navigation">
+    <Navbar className="navbar" role="navigation" aria-label="main navigation" onClick={() => setHamburgerMenu(true)}>
       <div className="navbar-brand">
-        <div className="navbar-item has-text-weight-bold">
-          <div className="mx-2">
-            <BetaTag />
-          </div>
-          <a href="/">2anki</a>
-        </div>
+        <a className="navbar-item has-text-weight-bold" href="/">
+          <img src="/mascot/navbar-logo.png" alt="2anki Logo" />
+        </a>
         <a
-          tabIndex={0}
-          role="button"
-          className={`navbar-burger burger ${active ? 'is-active' : ''}`}
-          aria-label="menu"
-          aria-expanded="false"
-          data-target="navbar"
-          onClick={() => setHamburgerMenu(!active)}
-          onKeyDown={(event) => {
-            if (event.key === 'F4') {
-              setHamburgerMenu(!active);
-            }
-          }}
+          href="/search"
+          className="navbar-item"
         >
+          <span aria-hidden="true" />
+          <span aria-hidden="true" />
+          <span aria-hidden="true" />
           <span aria-hidden="true" />
           <span aria-hidden="true" />
           <span aria-hidden="true" />
@@ -119,46 +144,42 @@ function NavigationBar({ workspaces, activeWorkspace, connectLink }: NavigationB
 
         {!isSignedIn && (
         <div className="navbar-end">
+          <NavbarItem href="/" path={hash || path}>
+            Home
+          </NavbarItem>
+          <NavbarItem href="#about" path={hash}>
+            About
+          </NavbarItem>
+          <NavbarItem href="#testimony" path={hash}>
+            Testimony
+          </NavbarItem>
+          <NavbarItem href="#benefits" path={hash}>
+            Benefits
+          </NavbarItem>
+          <NavbarItem href="#news" path={hash}>
+            News
+          </NavbarItem>
           <div className="navbar-item">
             <div className="buttons">
-              <a href="/login#register" className="button is-black">
-                <strong>Join waitlist</strong>
-              </a>
-              <a href="/login#login" className="button is-light">
-                Beta access
-              </a>
+              <NavButtonCTA href="/login#register">
+                <strong>Join Now</strong>
+              </NavButtonCTA>
             </div>
           </div>
         </div>
         )}
         {isSignedIn && (
         <div className="navbar-end">
-          <a
-            style={{
-              borderBottom: path.includes('/search')
-                ? '3px solid #5397f5'
-                : '',
-            }}
-            href="/search"
-            className="navbar-item"
-          >
+          <NavbarItem href="/search" path={path}>
             Search
-          </a>
-          <a
-            style={{
-              borderBottom: path.includes('/uploads/mine')
-                ? '3px solid #5397f5'
-                : '',
-            }}
-            href="/uploads/mine"
-            className="navbar-item"
-          >
+          </NavbarItem>
+          <NavbarItem href="/uploads/mine" path={path}>
             Uploads
-          </a>
+          </NavbarItem>
         </div>
         )}
       </div>
-    </nav>
+    </Navbar>
   );
 }
 

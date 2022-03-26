@@ -1,15 +1,4 @@
-import styled from 'styled-components';
-
-const SearchInput = styled.input`
-  width: 60vw;
-  max-width: 640px;
-`;
-const SearchContainer = styled.div`
-  position: sticky;
-  margin: 0 auto;
-  display: flex;
-  justify-content: center;
-`;
+import { SearchContainer, SearchInput } from './styled';
 
 interface SearchBarProps {
   onSearchQueryChanged: (query: string) => void;
@@ -19,7 +8,7 @@ interface SearchBarProps {
 
 function SearchBar({ onSearchQueryChanged, onSearchClicked, inProgress }: SearchBarProps) {
   return (
-    <SearchContainer>
+    <SearchContainer className="my-2">
       <div className="field has-addons">
         <div className="control">
           <SearchInput

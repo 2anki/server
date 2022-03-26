@@ -1,24 +1,13 @@
 import { Route, Switch, useHistory } from 'react-router-dom';
 import { useCallback, useEffect, useState } from 'react';
 
-import styled from 'styled-components';
-import Backend from '../lib/Backend';
-import SearchBar from '../components/Dashboard/search/SearchBar';
-import NavigationBar from '../components/NavigationBar';
-import SearchObjectEntry from '../components/Dashboard/search/SearchObjectEntry';
-import LoadingScreen from '../components/LoadingScreen';
-import useQuery from '../lib/hooks/useQuery';
-
-const EmptyContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 50vh;
-`;
-
-const StyledSearchPage = styled.div`
-  margin: 0 auto;
-`;
+import Backend from '../../lib/Backend';
+import SearchBar from './components/SearchBar';
+import NavigationBar from '../../components/NavigationBar';
+import SearchObjectEntry from './components/SearchObjectEntry';
+import LoadingScreen from '../../components/LoadingScreen';
+import useQuery from '../../lib/hooks/useQuery';
+import { EmptyContainer, StyledSearchPage } from './components/styled';
 
 const backend = new Backend();
 
