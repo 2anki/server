@@ -80,7 +80,7 @@ function NewPasswordForm({ setErrorMessage }: Props) {
                 <div className="field">
                   <div className="control" style={{ width: '100%' }}>
                     <button
-                      type="button"
+                      type="submit"
                       className="button is-success is-medium"
                       style={{ width: '100%' }}
                       disabled={!isValid() || loading}
