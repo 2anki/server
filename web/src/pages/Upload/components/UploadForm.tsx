@@ -5,7 +5,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { DropParagraph } from './styled';
+import DropParagraph from './DropParagraph';
 
 interface UploadFormProps {
   setErrorMessage: (errorMessage: string) => void;
