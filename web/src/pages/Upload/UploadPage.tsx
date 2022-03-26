@@ -2,13 +2,13 @@ import styled from 'styled-components';
 import { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import useQuery from '../lib/hooks/useQuery';
-import StoreContext from '../store/StoreContext';
-import WarningMessage from '../components/WarningMessage';
-import UploadForm from '../components/UploadForm';
-import SettingsIcon from '../components/icons/SettingsIcon';
-import SettingsModal from '../components/modals/SettingsModal';
-import Container from '../components/Container';
+import useQuery from '../../lib/hooks/useQuery';
+import StoreContext from '../../store/StoreContext';
+import WarningMessage from '../../components/WarningMessage';
+import UploadForm from './components/UploadForm';
+import SettingsIcon from '../../components/icons/SettingsIcon';
+import SettingsModal from '../../components/modals/SettingsModal';
+import Container from '../../components/Container';
 
 const InfoMessage = styled.p`
   font-size: 11px;

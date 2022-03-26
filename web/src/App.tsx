@@ -3,7 +3,7 @@ import ReactHtmlParser from 'react-html-parser';
 import { lazy, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
-import UploadPage from './pages/UploadPage';
+import UploadPage from './pages/Upload/UploadPage';
 import HomePage from './pages/Home';
 
 import Footer from './components/Footer';
