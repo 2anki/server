@@ -11,7 +11,7 @@ export default function BenefitsList({ benefits }: BenefitsListProps) {
     <div className="column">
       <div className="columns is-flex-direction-column">
         {benefits.map((benefit) => (
-          <div className="column is-flex">
+          <div key={benefit.title} className="column is-flex">
             <div className="pr-4">
               <BenefitIcon src={benefit.icon} />
             </div>
