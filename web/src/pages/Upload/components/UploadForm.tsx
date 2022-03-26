@@ -146,7 +146,7 @@ function UploadForm({ setErrorMessage, errorMessage }: UploadFormProps) {
             ref={downloadRef}
             className={`button cta
               ${isDownloadable ? 'is-primary' : 'is-light'} 
-              ${uploading ? 'is-loading' : null}`}
+              ${uploading ? 'is-loading' : ''}`}
             href={downloadLink}
             download={deckName}
             onClick={(event) => {
