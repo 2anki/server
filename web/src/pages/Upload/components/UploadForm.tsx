@@ -5,19 +5,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import styled from 'styled-components';
-
-const DropParagraph = styled.div<{ hover: boolean }>`
-  border: 1.3px dashed;
-  border-radius: 3px;
-  border-color: ${(props) => (props.hover ? '#5997f5' : 'lightgray')};
-  padding: 4rem;
-  margin-bottom: 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  grid-gap: 1rem;
-`;
+import DropParagraph from './DropParagraph';
 
 interface UploadFormProps {
   setErrorMessage: (errorMessage: string) => void;
@@ -158,7 +146,7 @@ function UploadForm({ setErrorMessage, errorMessage }: UploadFormProps) {
             ref={downloadRef}
             className={`button cta
               ${isDownloadable ? 'is-primary' : 'is-light'} 
-              ${uploading ? 'is-loading' : null}`}
+              ${uploading ? 'is-loading' : ''}`}
             href={downloadLink}
             download={deckName}
             onClick={(event) => {
