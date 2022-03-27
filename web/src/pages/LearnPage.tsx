@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import { Container } from '../components/styled';
 import Backend from '../lib/Backend';
 
 const Wrapper = styled.div`
@@ -69,44 +70,46 @@ function LearnPage({ setError }: Props) {
     return <div>insert loading screen.</div>;
   }
   return (
-    <Wrapper>
-      {page && (
-        <nav className="breadcrumb" aria-label="breadcrumbs">
-          <ul>
-            <li>
-              <a href={page.url}>{page.title}</a>
-            </li>
-          </ul>
-        </nav>
-      )}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          flexDirection: 'column',
-        }}
-      >
-        {block && (
-          <>
-            <h1 className="title">{block.id}</h1>
-            <pre>{JSON.stringify(block, null, 4)}</pre>
-            <hr />
-            <pre>{JSON.stringify(grandChild, null, 2)}</pre>
-          </>
+    <Container>
+      <Wrapper>
+        {page && (
+          <nav className="breadcrumb" aria-label="breadcrumbs">
+            <ul>
+              <li>
+                <a href={page.url}>{page.title}</a>
+              </li>
+            </ul>
+          </nav>
         )}
-        <progress
-          id="file"
-          value={location + 1}
-          max={children.length}
-        />
-        <span style={{ fontSize: '11px' }}>
-          {location + 1}
-          {' '}
-          /
-          {children.length}
-        </span>
-      </div>
-    </Wrapper>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            flexDirection: 'column',
+          }}
+        >
+          {block && (
+            <>
+              <h1 className="title">{block.id}</h1>
+              <pre>{JSON.stringify(block, null, 4)}</pre>
+              <hr />
+              <pre>{JSON.stringify(grandChild, null, 2)}</pre>
+            </>
+          )}
+          <progress
+            id="file"
+            value={location + 1}
+            max={children.length}
+          />
+          <span style={{ fontSize: '11px' }}>
+            {location + 1}
+            {' '}
+            /
+            {children.length}
+          </span>
+        </div>
+      </Wrapper>
+    </Container>
   );
 }
 

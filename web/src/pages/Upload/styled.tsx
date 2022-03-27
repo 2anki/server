@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import Container from '../../components/Container';
+import { Container } from '../../components/styled';
 
 export const FlexColumn = styled.div`
   display: flex;
@@ -30,7 +30,14 @@ export const SettingsLink = styled.div`
   }
 `;
 
+export const Main = styled.main`
+  max-width: 768px;
+  margin: 0 auto;
+`;
+
 export const UploadContainer = styled(Container)`
   display: flex;
-  background: red;
+  flex-direction: column;
+  align-items: center;
+  justify-content:center;
 `;

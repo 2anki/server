@@ -8,7 +8,7 @@ import UploadForm from './components/UploadForm';
 import SettingsIcon from '../../components/icons/SettingsIcon';
 import SettingsModal from '../../components/modals/SettingsModal';
 import {
-  FlexColumn, ImportTitle, InfoMessage, SettingsLink, UploadContainer,
+  FlexColumn, ImportTitle, InfoMessage, Main, SettingsLink, UploadContainer,
 } from './styled';
 
 interface Props {
@@ -34,7 +34,7 @@ function UploadPage({ errorMessage, setErrorMessage }: Props) {
 
   return (
     <UploadContainer>
-      <div>
+      <Main>
         {isDevelopment ? <WarningMessage /> : null}
         <FlexColumn>
           <ImportTitle>Import</ImportTitle>
@@ -81,7 +81,7 @@ function UploadPage({ errorMessage, setErrorMessage }: Props) {
             }}
           />
         </div>
-      </div>
+      </Main>
     </UploadContainer>
   );
 }

@@ -1,4 +1,5 @@
 import NewPassordForm from '../components/forms/NewPassword';
+import { Container } from '../components/styled';
 
 interface Props {
   setErrorMessage: (message: string) => void;
@@ -6,7 +7,9 @@ interface Props {
 
 function NewPasswordPage({ setErrorMessage }: Props) {
   return (
-    <NewPassordForm setErrorMessage={setErrorMessage} />
+    <Container>
+      <NewPassordForm setErrorMessage={setErrorMessage} />
+    </Container>
   );
 }
 

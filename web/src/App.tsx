@@ -29,11 +29,6 @@ const Layout = styled.div`
   height: 100vh;
 `;
 
-const Container = styled.div`
-  display: block;
-  flex: 1 0 auto;
-`;
-
 function App() {
   const store = useMemo(() => new CardOptionsStore(), []);
   const [errorMessage, setErrorMessage] = useState('');
@@ -50,8 +45,7 @@ function App() {
                 <NavigationBar />
               ) : null)}
             />
-            <Container>
-              {errorMessage && (
+            {errorMessage && (
               <div className="is-info notification is-light my-4">
                 <button
                   aria-label="dismiss error message"
@@ -63,40 +57,39 @@ function App() {
                   {ReactHtmlParser(errorMessage)}
                 </div>
               </div>
-              )}
-              <Switch>
-                <Route path="/uploads">
-                  <ListUploadsPage setError={setErrorMessage} />
-                </Route>
-                <Route path="/verify">
-                  <VerifyPage />
-                </Route>
-                <Route path="/learn">
-                  <LearnPage setError={setErrorMessage} />
-                </Route>
-                <Route path="/tm">
-                  <TemplatePage />
-                </Route>
-                <Route path="/upload">
-                  <UploadPage setErrorMessage={setErrorMessage} errorMessage={errorMessage} />
-                </Route>
-                <Route path="/pre-signup">
-                  <PreSignupPage />
-                </Route>
-                <Route path="/search">
-                  <SearchPage />
-                </Route>
-                <Route path="/login">
-                  <LoginPage setErrorMessage={setErrorMessage} />
-                </Route>
-                <Route path="/users/r/:id">
-                  <NewPasswordPage setErrorMessage={setErrorMessage} />
-                </Route>
-                <Route path="/">
-                  <HomePage />
-                </Route>
-              </Switch>
-            </Container>
+            )}
+            <Switch>
+              <Route path="/uploads">
+                <ListUploadsPage setError={setErrorMessage} />
+              </Route>
+              <Route path="/verify">
+                <VerifyPage />
+              </Route>
+              <Route path="/learn">
+                <LearnPage setError={setErrorMessage} />
+              </Route>
+              <Route path="/tm">
+                <TemplatePage />
+              </Route>
+              <Route path="/upload">
+                <UploadPage setErrorMessage={setErrorMessage} errorMessage={errorMessage} />
+              </Route>
+              <Route path="/pre-signup">
+                <PreSignupPage />
+              </Route>
+              <Route path="/search">
+                <SearchPage />
+              </Route>
+              <Route path="/login">
+                <LoginPage setErrorMessage={setErrorMessage} />
+              </Route>
+              <Route path="/users/r/:id">
+                <NewPasswordPage setErrorMessage={setErrorMessage} />
+              </Route>
+              <Route path="/">
+                <HomePage />
+              </Route>
+            </Switch>
             <Footer />
           </Layout>
         </Router>
