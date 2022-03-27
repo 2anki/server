@@ -146,16 +146,16 @@ function NavigationBar({ activeWorkspace, workspaces, connectLink }: NavigationB
           <NavbarItem href="/" path={hash || path}>
             Home
           </NavbarItem>
-          <NavbarItem href="#about" path={hash}>
+          <NavbarItem href="/#about" path={hash}>
             About
           </NavbarItem>
-          <NavbarItem href="#testimony" path={hash}>
+          <NavbarItem href="/#testimony" path={hash}>
             Testimony
           </NavbarItem>
-          <NavbarItem href="#benefits" path={hash}>
+          <NavbarItem href="/#benefits" path={hash}>
             Benefits
           </NavbarItem>
-          <NavbarItem href="#news" path={hash}>
+          <NavbarItem href="/#news" path={hash}>
             News
           </NavbarItem>
           <div className="navbar-item">
