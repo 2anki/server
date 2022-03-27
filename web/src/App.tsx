@@ -72,7 +72,7 @@ function App() {
                 <TemplatePage />
               </Route>
               <Route path="/upload">
-                <UploadPage setErrorMessage={setErrorMessage} errorMessage={errorMessage} />
+                <UploadPage setErrorMessage={setErrorMessage} />
               </Route>
               <Route path="/pre-signup">
                 <PreSignupPage />

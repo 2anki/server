@@ -13,10 +13,9 @@ import {
 
 interface Props {
   setErrorMessage: (message: string) => void;
-  errorMessage: string | undefined;
 }
 
-function UploadPage({ errorMessage, setErrorMessage }: Props) {
+function UploadPage({ setErrorMessage }: Props) {
   const isDevelopment = window.location.host !== '2anki.net';
   const query = useQuery();
   const view = query.get('view');
@@ -47,7 +46,6 @@ function UploadPage({ errorMessage, setErrorMessage }: Props) {
         </FlexColumn>
         <div className="container">
           <UploadForm
-            errorMessage={errorMessage}
             setErrorMessage={setErrorMessage}
           />
           <InfoMessage>
