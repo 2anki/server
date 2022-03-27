@@ -1,5 +1,5 @@
-import NewPassordForm from '../components/forms/NewPassword';
-import { Container } from '../components/styled';
+import NewPassordForm from '../../components/forms/NewPassword';
+import { Container } from '../../components/styled';
 
 interface Props {
   setErrorMessage: (message: string) => void;

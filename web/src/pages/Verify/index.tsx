@@ -1,4 +1,4 @@
-import { Container, Main } from '../components/styled';
+import { Container, Main } from '../../components/styled';
 
 function VerifyPage() {
   return (

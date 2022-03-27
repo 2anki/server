@@ -1,15 +1,7 @@
 import { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { Container } from '../components/styled';
-import Backend from '../lib/Backend';
-
-const Wrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column;
-  height: 80vh;
-`;
+import { Container } from '../../components/styled';
+import Backend from '../../lib/Backend';
+import Wrapper from './styled';
 
 interface Props {
   setError: (error: string) => void;

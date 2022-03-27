@@ -3,7 +3,7 @@ import ReactHtmlParser from 'react-html-parser';
 import { lazy, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
-import UploadPage from './pages/Upload/UploadPage';
+import UploadPage from './pages/Upload';
 import HomePage from './pages/Home';
 
 import Footer from './components/Footer';
@@ -13,14 +13,14 @@ import GlobalStyle from './GlobalStyle';
 
 import NavigationBar from './components/NavigationBar';
 
-const TemplatePage = lazy(() => import('./pages/Templates/TemplatePage'));
-const PreSignupPage = lazy(() => import('./pages/PreSignupPage'));
+const TemplatePage = lazy(() => import('./pages/Templates'));
+const PreSignupPage = lazy(() => import('./pages/Register'));
 const SearchPage = lazy(() => import('./pages/Search'));
-const LoginPage = lazy(() => import('./pages/LoginPage'));
-const NewPasswordPage = lazy(() => import('./pages/NewPasswordPage'));
-const LearnPage = lazy(() => import('./pages/LearnPage'));
-const VerifyPage = lazy(() => import('./pages/VerifyPage'));
-const ListUploadsPage = lazy(() => import('./pages/Uploads/ListUploadsPage'));
+const LoginPage = lazy(() => import('./pages/Login'));
+const NewPasswordPage = lazy(() => import('./pages/NewPassword'));
+const LearnPage = lazy(() => import('./pages/Learn'));
+const VerifyPage = lazy(() => import('./pages/Verify'));
+const ListUploadsPage = lazy(() => import('./pages/Uploads'));
 
 const Layout = styled.div`
   display: flex;
