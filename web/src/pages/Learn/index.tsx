@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Container } from '../../components/styled';
 import Backend from '../../lib/Backend';
-import Wrapper from './styled';
+import Wrapper from './Wrapper';
 
 interface Props {
   setError: (error: string) => void;
