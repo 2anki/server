@@ -169,11 +169,14 @@ function NavigationBar({ activeWorkspace, workspaces, connectLink }: NavigationB
         )}
         {isSignedIn && (
         <div className="navbar-end">
+          <NavbarItem href="/upload" path={path}>
+            📦 Upload
+          </NavbarItem>
           <NavbarItem href="/search" path={path}>
-            Search
+            🔍 Search
           </NavbarItem>
           <NavbarItem href="/uploads/mine" path={path}>
-            Uploads
+            🗄 Uploads
           </NavbarItem>
         </div>
         )}
