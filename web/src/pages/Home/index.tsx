@@ -3,16 +3,16 @@ import BenefitsSection from './components/Sections/benefits';
 import AboutSection from './components/Sections/about';
 import HeroSection from './components/Sections/hero';
 import NewsSection from './components/Sections/news/NewsSection';
-import { Container } from '../../components/styled';
+import { HomeContainer } from '../../components/styled';
 
 export default function HomePage() {
   return (
-    <Container>
+    <HomeContainer>
       <HeroSection />
       <AboutSection />
       <TestimonialsSection />
       <BenefitsSection />
       <NewsSection />
-    </Container>
+    </HomeContainer>
   );
 }

@@ -13,3 +13,7 @@ export const Main = styled.main`
   max-width: 720px;
   margin: 0 auto;
 `;
+
+export const HomeContainer = styled(Container)`
+padding: 0;
+`;
