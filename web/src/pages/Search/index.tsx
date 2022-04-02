@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import Backend from '../../lib/Backend';
 import SearchBar from './components/SearchBar';
-import NavigationBar from '../../components/NavigationBar';
+import { NavigationBar } from '../../components/NavigationBar/NavigationBar';
 import SearchObjectEntry from './components/SearchObjectEntry';
 import LoadingScreen from '../../components/LoadingScreen';
 import useQuery from '../../lib/hooks/useQuery';

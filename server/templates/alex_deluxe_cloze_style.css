@@ -1,0 +1,25 @@
+.container-front {
+  padding: 1rem;
+  background: #5397f5;
+  width: 80vw;
+  margin: 0 auto;
+  color: white;
+  font-size: 3.5vw;
+  border-radius: 0.7rem;
+}
+
+.container-back {
+  padding: 1rem;
+  background: #5397f5;
+  width: 80vw;
+  margin: 0 auto;
+  color: white;
+  font-size: 3.5vw;
+  border-radius: 0.7rem;
+}
+
+hr {
+  background-color: white;
+  color: white;
+  border-color: white;
+}
