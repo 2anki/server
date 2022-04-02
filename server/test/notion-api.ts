@@ -38,13 +38,6 @@ const loadCards = async (options: any): Promise<Note[]> => {
   return decks[0].cards;
 };
 
-test("Get Blocks", async (t) => {
-  const blocks = await api.getBlocks("07a7b319183642b9afecdcc4c456f73d");
-  /* @ts-ignore */
-  const topLevelToggles = blocks.results.filter((t) => t.type === "toggle");
-  t.deepEqual(topLevelToggles.length, 14);
-});
-
 test("Basic Cards from Blocks", async (t) => {
   const flashcards = await loadCards({ cloze: "false" });
   const card = flashcards[0];

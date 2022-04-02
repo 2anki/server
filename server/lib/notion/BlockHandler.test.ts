@@ -38,6 +38,14 @@ test("Get Notion Page", async () => {
   expect(title).toBe("Notion API Test Page");
 });
 
+test("Get Blocks", async () => {
+  // This should be mocked
+  const blocks = await api.getBlocks("07a7b319183642b9afecdcc4c456f73d", true);
+  /* @ts-ignore */
+  const topLevelToggles = blocks.results.filter((t) => t.type === "toggle");
+  expect(topLevelToggles.length).toEqual(14);
+});
+
 test.skip("Toggle Headings in HTML export", async () => {
   const r = new ParserRules();
   r.setFlashcardTypes(["heading"]);
