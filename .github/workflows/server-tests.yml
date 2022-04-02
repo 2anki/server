@@ -4,6 +4,7 @@ on: [push]
 
 jobs:
   build:
+    if: github.actor!= 'dependabot'
     runs-on: ubuntu-latest
 
     strategy:
