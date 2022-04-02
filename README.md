@@ -4,6 +4,14 @@
 
 We are going to make this a good way to make [Anki](https://apps.ankiweb.net/) flashcards easier, better and faster. The dream is to have powerful and easy ways to produce high quality flashcards. This project is a complement to Anki and Notion.
 
+## Strategy
+
+<p align="center">  
+  <a href="http://www.youtube.com/watch?v=oMg70YIqRsw">
+    <img src="http://img.youtube.com/vi/oMg70YIqRsw/0.jpg" alt="My Thoughts on The Future of Anki Collaborative Deck Creation">
+  </a>
+  </img>
+
 ## What We Are Not
 
 If you are looking for a Anki or Notion replacement then this project is probably not right for you. Watch this video [Notion + Anki](https://youtu.be/FjifJG4FoXY) to understand the project's goal. We are never
