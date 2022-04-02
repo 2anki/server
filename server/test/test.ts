@@ -8,7 +8,7 @@ import test from "ava";
 import { DeckParser } from "../lib/parser/DeckParser";
 // @ts-ignore
 import Settings from "../lib/parser/Settings";
-import { getDeck } from "./test-utils";
+import { getDeck } from "./_test-utils";
 
 process.env.WORKSPACE_BASE = path.join(os.tmpdir(), "workspaces");
 fs.mkdirSync(process.env.WORKSPACE_BASE, { recursive: true });

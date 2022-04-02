@@ -11,7 +11,7 @@ import Note from "../lib/parser/Note";
 import ParserRules from "../lib/parser/ParserRules";
 import Workspace from "../lib/parser/WorkSpace";
 import CustomExporter from "../lib/parser/CustomExporter";
-import { configureAPI, pageId } from "./test-utils";
+import { configureAPI, pageId } from "./_test-utils";
 dotenv.config({ path: __dirname + "/.env" });
 
 process.env.WORKSPACE_BASE = path.join(os.tmpdir(), "w");
@@ -26,7 +26,9 @@ async function findCardByName(
   options: Object
 ): Promise<Note | undefined> {
   const flashcards = await loadCards({ "use-notion-id": "true" });
-  return flashcards.find((f) => f.name === defaultFront("3 - 21 + 21 is #buddy"));
+  return flashcards.find(
+    (f) => f.name === defaultFront("3 - 21 + 21 is #buddy")
+  );
 }
 
 const loadCards = async (options: any): Promise<Note[]> => {
@@ -81,14 +83,18 @@ test("Add Notion Link", async (t) => {
     "add-notion-link": true,
     parentBlockId: pageId,
   });
-  const card = flashcards.find((f) => f.name === defaultFront("1 - This is a basic card"));
+  const card = flashcards.find(
+    (f) => f.name === defaultFront("1 - This is a basic card")
+  );
   t.assert(card);
   t.deepEqual(card?.notionLink, expected);
 });
 
 test("Use Notion ID", async (t) => {
   const flashcards = await loadCards({ "use-notion-id": "true" });
-  const card = flashcards.find((f) => f.name === defaultFront("3 - 21 + 21 is #buddy"));
+  const card = flashcards.find(
+    (f) => f.name === defaultFront("3 - 21 + 21 is #buddy")
+  );
   const expected = "a5445230-bfa9-4bf1-bc35-a706c1d129d1";
   t.deepEqual(card?.notionId, expected);
 });
