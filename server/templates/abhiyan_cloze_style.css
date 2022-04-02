@@ -1,0 +1,211 @@
+/* From: https://www.notion.so/Beautiful-Anki-cards-080205ad81454b9a859d3c2825a52cad */
+
+
+/* BODY */
+
+html {
+    background-color: black !important;
+}
+
+html,
+body {
+    margin: 0 !important;
+    padding: 0;
+    height: 101%;
+    /* may need to be adjusted based on platform */
+    max-height: 100vh;
+    /* may need to be adjusted based on platform */
+    width: 100%;
+    max-width: 100vw;
+}
+
+html.mobile,
+body.mobile {
+    height: 86vh;
+    /* may need to be adjusted based on platform */
+}
+
+body {
+    font-family: San Francisco, "Noto Sans KR", Helvetica, Arial;
+    font-weight: 400;
+    font-size: 18px;
+    word-break: keep-all;
+    text-align: left;
+    overflow: hidden;
+    position: relative;
+    bottom: 1em;
+    padding-top: 1em;
+    height: 101%;
+    /* may need to be adjusted based on platform */
+    max-height: 101vh;
+    /* may need to be adjusted based on platform */
+    width: 100%;
+    max-width: 100vw;
+    z-index: -2;
+}
+
+body::after {
+    background-color: black;
+    content: "";
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 101%;
+    /* may need to be adjusted based on platform */
+    max-height: 101vh;
+    /* may need to be adjusted based on platform */
+    position: absolute;
+    z-index: -1;
+}
+
+
+/* CARD */
+
+.note {
+    border-radius: 1em;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 1.5vh;
+    max-width: 55em;
+    position: relative;
+}
+
+.front,
+.back,
+.onesided {
+    padding: 0 2em 1em 2em;
+    backdrop-filter: blur(10px);
+    overflow: auto;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+}
+
+.front {
+    line-height: 1.5;
+    background-color: rgb(25, 26, 28);
+    color: rgb(255, 255, 255);
+    margin: 1em 0 0 0;
+    border-top-left-radius: 1.2em;
+    border-top-right-radius: 1.2em;
+    border-bottom-left-radius: 1.2em;
+    border-bottom-right-radius: 1.2em;
+}
+
+.front a,
+.front a:link,
+.front a:visited,
+.front a:hover,
+.front a:active {
+    color: red;
+    text-decoration: none;
+}
+
+.back {
+    line-height: 1.5;
+    background-color: rgb(35, 36, 41);
+    color: rgb(255, 255, 255);
+    z-index: 10;
+    border-bottom-left-radius: 1.2em;
+    border-bottom-right-radius: 1.2em;
+    margin: 0;
+}
+
+.onesided {
+    border-radius: 1.2em;
+    margin: 1em 0;
+}
+
+.row {
+    padding: 1em 0 0 0;
+}
+
+
+/* TAGS */
+
+.tags {
+    margin-bottom: -1em;
+}
+
+.tablecontainer+.onesided .tags {
+    padding-bottom: 0;
+}
+
+.tag {
+    font-size: 0.8em;
+    padding: .4em .8em .4em .8em;
+    display: inline-block;
+    border-radius: 1.5em;
+    border-color: rgb(78, 78, 84);
+    border-style: solid;
+    border-width: 1.5px;
+    margin: .5em .5em .5em 0;
+    position: relative;
+    bottom: .5em;
+    color: rgb(109, 199, 255);
+    /* background-color: rgb(23, 91, 191); */
+}
+
+
+/* IMAGES */
+
+img {
+    object-fit: contain;
+    margin: 0 auto;
+    width: auto;
+    max-width: 100%;
+    /* fix for Anki */
+}
+
+
+/* ANKI TEMPLATE WIZARDRY */
+
+ :not(.backtemplate) .backonly {
+    display: none;
+}
+
+.backtemplate .backonly {
+    display: block;
+}
+
+.backtemplate .frontonly {
+    display: none;
+}
+
+
+/* MY ADDITIONAL */
+
+.extra {
+    padding: 2em 2em 2em 2em;
+    overflow: auto;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+    background-color: rgb(35, 36, 41);
+    color: rgb(134, 134, 142);
+    margin: 1em 0 0 0;
+    border-top-left-radius: 1.2em;
+    border-top-right-radius: 1.2em;
+    border-bottom-left-radius: 1.2em;
+    border-bottom-right-radius: 1.2em;
+    font-family: San Francisco, "Noto Sans KR", Helvetica, Arial;
+    font-size: 16px;
+    line-height: 1.5;
+    word-break: keep-all;
+    text-align: left;
+}
+
+.cloze {
+    font-weight: bold;
+    color: rgb(109, 199, 255);
+    line-height: 1.5;
+}
+
+
+/*Start of style added by resize image add-on. Don't edit directly or the edition will be lost. Edit via the add-on configuration */
+
+.mobile .card img {
+    height: unset !important;
+    width: unset !important;
+}
+
+
+/*End of style added by resize image add-on*/

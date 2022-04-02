@@ -1,0 +1,4 @@
+# make sure to update the alemayhu/base-image-n2a
+# and pull it in the live server: ssh root@2anki.net docker pull alemayhu/base-image-n2a
+# It's using notion2anki as a submodule.
+genanki==0.11.0
