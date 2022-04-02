@@ -26,7 +26,6 @@ import * as users from "./routes/users";
 import * as notion from "./routes/notion";
 import * as rules from "./routes/rules";
 import * as download from "./routes/download";
-import * as patreon from "./routes/patreon";
 
 import DB from "./lib/storage/db";
 import config from "./knexfile";
@@ -77,7 +76,6 @@ function serve() {
   });
   app.get("/uploads*", RequireAuthentication, upload.default);
 
-  app.use("/patreon", patreon.default);
   app.use("/upload", upload.default);
   app.use("/users", users.default);
   app.use("/notion", notion.default);
