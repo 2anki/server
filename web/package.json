@@ -26,7 +26,8 @@
     "build": "GENERATE_SOURCEMAP=false react-app-rewired build --max_old_space_size=4096",
     "test": "react-app-rewired test",
     "eject": "react-app-rewired eject",
-    "lint": "eslint src/**/*.ts src/**/*.tsx"
+    "lint": "eslint src/**/*.ts src/**/*.tsx",
+    "lint:fix": "eslint --fix src/**/*.ts src/**/*.tsx"
   },
   "eslintConfig": {
     "extends": [

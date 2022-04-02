@@ -29,7 +29,6 @@ interface NavigationBarProps {
 }
 
 const Navbar = styled.nav`
-  padding: 2rem 4rem 2rem 4rem;
   background #E5E5E5;
   @media (max-width: 1024px) {
     margin: 0;
@@ -170,11 +169,14 @@ function NavigationBar({ activeWorkspace, workspaces, connectLink }: NavigationB
         )}
         {isSignedIn && (
         <div className="navbar-end">
+          <NavbarItem href="/upload" path={path}>
+            📦 Upload
+          </NavbarItem>
           <NavbarItem href="/search" path={path}>
-            Search
+            🔍 Search
           </NavbarItem>
           <NavbarItem href="/uploads/mine" path={path}>
-            Uploads
+            🗄 Uploads
           </NavbarItem>
         </div>
         )}

@@ -1,4 +1,3 @@
-import styled from 'styled-components';
 import { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -8,22 +7,15 @@ import WarningMessage from '../../components/WarningMessage';
 import UploadForm from './components/UploadForm';
 import SettingsIcon from '../../components/icons/SettingsIcon';
 import SettingsModal from '../../components/modals/SettingsModal';
-import Container from '../../components/Container';
-
-const InfoMessage = styled.p`
-  font-size: 11px;
-  margin: 0 auto;
-  max-width: 480px;
-  color: grey;
-  padding-top: 1rem;
-`;
+import {
+  FlexColumn, ImportTitle, InfoMessage, Main, SettingsLink, UploadContainer,
+} from './styled';
 
 interface Props {
   setErrorMessage: (message: string) => void;
-  errorMessage: string | undefined;
 }
 
-function UploadPage({ errorMessage, setErrorMessage }: Props) {
+function UploadPage({ setErrorMessage }: Props) {
   const isDevelopment = window.location.host !== '2anki.net';
   const query = useQuery();
   const view = query.get('view');
@@ -31,26 +23,6 @@ function UploadPage({ errorMessage, setErrorMessage }: Props) {
   const [isSettings, setShowSettings] = useState(
     view === 'template' || view === 'deck-options' || view === 'card-options',
   );
-
-  const FlexColumn = styled.div`
-    display: flex;
-    justify-content: space-between;
-  `;
-
-  const ImportTitle = styled.h2`
-    font-size: 1.5rem;
-    font-weight: bold;
-  `;
-
-  const SettingsLink = styled.div`
-    display: flex;
-    align-items: center;
-    justify-items: center;
-    .link {
-      display: flex;
-      color: grey;
-    }
-  `;
 
   const store = useContext(StoreContext);
 
@@ -60,8 +32,8 @@ function UploadPage({ errorMessage, setErrorMessage }: Props) {
   }, [store]);
 
   return (
-    <Container>
-      <>
+    <UploadContainer>
+      <Main>
         {isDevelopment ? <WarningMessage /> : null}
         <FlexColumn>
           <ImportTitle>Import</ImportTitle>
@@ -74,7 +46,6 @@ function UploadPage({ errorMessage, setErrorMessage }: Props) {
         </FlexColumn>
         <div className="container">
           <UploadForm
-            errorMessage={errorMessage}
             setErrorMessage={setErrorMessage}
           />
           <InfoMessage>
@@ -108,8 +79,8 @@ function UploadPage({ errorMessage, setErrorMessage }: Props) {
             }}
           />
         </div>
-      </>
-    </Container>
+      </Main>
+    </UploadContainer>
   );
 }
 

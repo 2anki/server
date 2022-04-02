@@ -5,14 +5,14 @@ import {
   useRef,
   useState,
 } from 'react';
+import DownloadButton from './DownloadButton';
 import DropParagraph from './DropParagraph';
 
 interface UploadFormProps {
   setErrorMessage: (errorMessage: string) => void;
-  errorMessage: string | undefined;
 }
 
-function UploadForm({ setErrorMessage, errorMessage }: UploadFormProps) {
+function UploadForm({ setErrorMessage }: UploadFormProps) {
   const [uploading, setUploading] = useState(false);
   const [downloadLink, setDownloadLink] = useState('');
   const [deckName, setDeckName] = useState('');
@@ -20,7 +20,6 @@ function UploadForm({ setErrorMessage, errorMessage }: UploadFormProps) {
 
   const fileInputRef = useRef(null);
   const convertRef = useRef(null);
-  const downloadRef = useRef(null);
 
   const fileSizeAccepted = useCallback(() => {
     const { files } = fileInputRef.current;
@@ -31,6 +30,7 @@ function UploadForm({ setErrorMessage, errorMessage }: UploadFormProps) {
     const isOver100MB = size >= 100000000;
     if (isOver100MB) {
       setErrorMessage('Your upload is too big, there is a max of 100MB currently');
+      setDownloadLink(null);
       return false;
     }
     return true;
@@ -80,6 +80,7 @@ function UploadForm({ setErrorMessage, errorMessage }: UploadFormProps) {
       const notOK = request.status !== 200;
       if (notOK) {
         const text = await request.text();
+        setDownloadLink(null);
         return setErrorMessage(text);
       }
       const fileNameHeader = request.headers.get('File-Name'.toLowerCase());
@@ -95,6 +96,7 @@ function UploadForm({ setErrorMessage, errorMessage }: UploadFormProps) {
       setDownloadLink(window.URL.createObjectURL(blob));
       setUploading(false);
     } catch (error) {
+      setDownloadLink(null);
       setErrorMessage(
         `<h1 class='title is-4'>${error.message}</h1><pre>${error.stack}</pre>`,
       );
@@ -109,7 +111,6 @@ function UploadForm({ setErrorMessage, errorMessage }: UploadFormProps) {
       convertRef.current.click();
     }
   };
-  const isDownloadable = downloadLink && deckName && !errorMessage;
 
   return (
     <form
@@ -142,21 +143,11 @@ function UploadForm({ setErrorMessage, errorMessage }: UploadFormProps) {
               <span className="tag">Select</span>
             </DropParagraph>
           </div>
-          <a
-            ref={downloadRef}
-            className={`button cta
-              ${isDownloadable ? 'is-primary' : 'is-light'} 
-              ${uploading ? 'is-loading' : ''}`}
-            href={downloadLink}
-            download={deckName}
-            onClick={(event) => {
-              if (!isDownloadable) {
-                event?.preventDefault();
-              }
-            }}
-          >
-            Download
-          </a>
+          <DownloadButton
+            downloadLink={downloadLink}
+            deckName={deckName}
+            uploading={uploading}
+          />
           <button
             aria-label="Upload file"
             style={{ visibility: 'hidden' }}

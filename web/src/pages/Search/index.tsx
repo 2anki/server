@@ -8,6 +8,7 @@ import SearchObjectEntry from './components/SearchObjectEntry';
 import LoadingScreen from '../../components/LoadingScreen';
 import useQuery from '../../lib/hooks/useQuery';
 import { EmptyContainer, StyledSearchPage } from './components/styled';
+import { Container } from '../../components/styled';
 
 const backend = new Backend();
 
@@ -52,52 +53,54 @@ function DashboardContent() {
   if (isLoading) return <LoadingScreen />;
 
   return (
-    <StyledSearchPage>
-      <div className="column is-main-content">
-        <Switch>
-          <Route path="/search">
-            <SearchBar
-              inProgress={inProgress}
-              onSearchQueryChanged={(s) => {
-                history.push({
-                  pathname: '/search',
-                  search: `?q=${s}`,
-                });
-                setSearchQuery(s);
-              }}
-              onSearchClicked={() => triggerSearch(false)}
-            />
-            {(!myPages || myPages.length < 1) && (
-              <EmptyContainer>
-                {errorNotification && (
-                  <div className="my-4 notification is-danger">
-                    <p>{errorNotification.message}</p>
-                  </div>
-                )}
-                {!errorNotification && (
-                  <div className="subtitle is-3 my-4">
-                    No search results, try typing something above 👌🏾
-                  </div>
-                )}
-              </EmptyContainer>
-            )}
-            {myPages
-              && myPages.length > 0
-              && myPages.map((p) => (
-                <SearchObjectEntry
-                  type={p.object}
-                  key={p.url}
-                  title={p.title}
-                  icon={p.icon}
-                  url={p.url}
-                  id={p.id}
-                  setError={setError}
-                />
-              ))}
-          </Route>
-        </Switch>
-      </div>
-    </StyledSearchPage>
+    <Container>
+      <StyledSearchPage>
+        <div className="column is-main-content">
+          <Switch>
+            <Route path="/search">
+              <SearchBar
+                inProgress={inProgress}
+                onSearchQueryChanged={(s) => {
+                  history.push({
+                    pathname: '/search',
+                    search: `?q=${s}`,
+                  });
+                  setSearchQuery(s);
+                }}
+                onSearchClicked={() => triggerSearch(false)}
+              />
+              {(!myPages || myPages.length < 1) && (
+                <EmptyContainer>
+                  {errorNotification && (
+                    <div className="my-4 notification is-danger">
+                      <p>{errorNotification.message}</p>
+                    </div>
+                  )}
+                  {!errorNotification && (
+                    <div className="subtitle is-3 my-4">
+                      No search results, try typing something above 👌🏾
+                    </div>
+                  )}
+                </EmptyContainer>
+              )}
+              {myPages
+                && myPages.length > 0
+                && myPages.map((p) => (
+                  <SearchObjectEntry
+                    type={p.object}
+                    key={p.url}
+                    title={p.title}
+                    icon={p.icon}
+                    url={p.url}
+                    id={p.id}
+                    setError={setError}
+                  />
+                ))}
+            </Route>
+          </Switch>
+        </div>
+      </StyledSearchPage>
+    </Container>
   );
 }
 

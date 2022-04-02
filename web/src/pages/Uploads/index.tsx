@@ -1,5 +1,4 @@
 import BecomeAPatron from '../../components/BecomeAPatron';
-import Container from '../../components/Container';
 import UploadObjectEntry from '../../components/Dashboard/UploadObjectEntry';
 import LoadingScreen from '../../components/LoadingScreen';
 import Backend from '../../lib/Backend';
@@ -9,6 +8,7 @@ import useUploads from './hooks/useUploads';
 import usePatreon from './hooks/usePatreon';
 import useQuota from './hooks/useQuota';
 import useActiveJobs from './hooks/useActiveJobs';
+import { Container } from '../../components/styled';
 
 const backend = new Backend();
 

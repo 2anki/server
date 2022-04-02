@@ -10,17 +10,16 @@ let files: TemplateFile[] = [];
 async function fetchBaseType(name: string) {
   const url = `/templates/${name}.json`;
   const request = await window.fetch(url);
-  const response = await request.json();
-  return response;
+  return request.json();
 }
+
+const options = {
+  minimap: { enabled: false },
+  colorDecorators: false,
+};
 
 function TemplatePage() {
   const [code, setCode] = useState('');
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [options, setOptions] = useState({
-    minimap: { enabled: false },
-    colorDecorators: false,
-  });
   const [isFront, setIsFront] = useState(true);
   const [isBack, setIsBack] = useState(false);
   const [isStyling, setIsStyling] = useState(false);
