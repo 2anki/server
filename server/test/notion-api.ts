@@ -67,7 +67,7 @@ test("Cloze Deletion from Blocks", async (t) => {
 
 test("Input Cards from Blocks", async (t) => {
   const flashcards = await loadCards({ cloze: "false", input: "true" });
-  t.assert(flashcards.find((n) => n.name == defaultFront("6 - 21 + 21 is ")));
+  t.assert(flashcards.find((n) => n.name == "6 - 21 + 21 is "));
 });
 
 test("Enable Cherry Picking Using 🍒 Emoji", async (t) => {
