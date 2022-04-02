@@ -46,10 +46,10 @@ test("Get Blocks", async (t) => {
 test("Basic Cards from Blocks", async (t) => {
   const flashcards = await loadCards({ cloze: "false" });
   const card = flashcards[0];
-  t.deepEqual(card.name, "1 - This is a basic card");
+  t.deepEqual(card.name, `<div class="">1 - This is a basic card</div>`);
   t.deepEqual(
     card.back,
-    `<p id="f83ce56a-9039-4888-81be-375b19a84790">This is the back of the card</p>`
+    `<p class="" id="f83ce56a-9039-4888-81be-375b19a84790">This is the back of the card</p>`
   );
 });
 
@@ -59,7 +59,7 @@ test("Cloze Deletion from Blocks", async (t) => {
   t.deepEqual(card.name, "2 - This is a {{c1::cloze deletion}}");
   t.deepEqual(
     card.back,
-    `<p id="34be35bd-db68-4588-85d9-e1adc84c45a5">Extra</p>`
+    `<p class="" id="34be35bd-db68-4588-85d9-e1adc84c45a5">Extra</p>`
   );
 });
 
@@ -86,7 +86,7 @@ test("Add Notion Link", async (t) => {
     "add-notion-link": true,
     parentBlockId: pageId,
   });
-  const card = flashcards.find((f) => f.name === "1 - This is a basic card");
+  const card = flashcards.find((f) => f.name === `<div class="">1 - This is a basic card</div>`);
   t.assert(card);
   t.deepEqual(card?.notionLink, expected);
 });
