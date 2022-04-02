@@ -11,6 +11,9 @@ import ParserRules from "../parser/ParserRules";
 import Settings from "../parser/Settings";
 import { IsTypeHeading } from "./blocks/BlockHeadings";
 
+const ANON_LIMIT = 21 * 2;
+const PATREON_LIMIT = 100 * 2;
+
 class NotionAPIWrapper {
   private notion: Client;
   page?: GetPageResponse;
@@ -37,7 +40,7 @@ class NotionAPIWrapper {
     console.log("getBlocks", id, all);
     const response = await this.notion.blocks.children.list({
       block_id: id,
-      page_size: 21,
+      page_size: ANON_LIMIT,
     });
 
     if (all && response.has_more && response.next_cursor) {
@@ -82,7 +85,7 @@ class NotionAPIWrapper {
     // TODO: Add support for pagination when patreon
     const response = await this.notion.databases.query({
       database_id: id,
-      page_size: all ? 100 : 21,
+      page_size: all ? PATREON_LIMIT : ANON_LIMIT,
     });
 
     if (all && response.has_more && response.next_cursor) {
@@ -90,7 +93,7 @@ class NotionAPIWrapper {
         /* @ts-ignore */
         const { results, next_cursor } = await this.notion.databases.query({
           database_id: id,
-          page_size: all ? 100 : 21,
+          page_size: all ? PATREON_LIMIT : ANON_LIMIT,
           start_cursor: response.next_cursor!,
         });
         response.results.push(...results);
@@ -107,7 +110,7 @@ class NotionAPIWrapper {
   async search(query: string, all?: boolean) {
     console.debug(`search: ${query}`);
     const response = await this.notion.search({
-      page_size: all ? 100 : 21,
+      page_size: all ? PATREON_LIMIT : ANON_LIMIT,
       query,
       sort: {
         direction: "descending",
@@ -119,7 +122,7 @@ class NotionAPIWrapper {
       while (true) {
         /* @ts-ignore */
         const { results, next_cursor } = await this.notion.search({
-          page_size: all ? 100 : 21,
+          page_size: all ? PATREON_LIMIT : ANON_LIMIT,
           query,
           start_cursor: response.next_cursor!,
           sort: {
