@@ -13,6 +13,7 @@ export const ALLOWED_ORIGINS = [
   "https://notion.2anki.net",
   "https://dev.notion.2anki.net",
   "https://notion.2anki.net/",
+  "https://staging.2anki.net/",
 ];
 
 export function resolvePath(dir: string, x: string) {
