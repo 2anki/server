@@ -75,6 +75,7 @@ function serve() {
       res.redirect("/search");
     }
   });
+  app.get("/uploads*", RequireAuthentication, upload.default);
 
   app.use("/patreon", patreon.default);
   app.use("/upload", upload.default);
