@@ -15,6 +15,7 @@ interface NavigationBarProps {
 }
 
 const backend = new Backend();
+// eslint-disable-next-line import/prefer-default-export
 export function NavigationBar({ activeWorkspace, workspaces, connectLink }: NavigationBarProps) {
   const isSignedIn = getCookie('token');
   const [active, setHamburgerMenu] = useState(false);
@@ -138,5 +139,3 @@ NavigationBar.defaultProps = {
   activeWorkspace: '',
   connectLink: null,
 };
-
-export default NavigationBar;
