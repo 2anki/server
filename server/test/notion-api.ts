@@ -19,12 +19,14 @@ const ws = new Workspace(true, "fs");
 
 const api = configureAPI();
 
+const defaultFront = (s: string) => `<div class="">${s}</div>`;
+
 async function findCardByName(
   name: string,
   options: Object
 ): Promise<Note | undefined> {
   const flashcards = await loadCards({ "use-notion-id": "true" });
-  return flashcards.find((f) => f.name === "3 - 21 + 21 is #buddy");
+  return flashcards.find((f) => f.name === defaultFront("3 - 21 + 21 is #buddy"));
 }
 
 const loadCards = async (options: any): Promise<Note[]> => {
@@ -46,7 +48,7 @@ test("Get Blocks", async (t) => {
 test("Basic Cards from Blocks", async (t) => {
   const flashcards = await loadCards({ cloze: "false" });
   const card = flashcards[0];
-  t.deepEqual(card.name, `<div class="">1 - This is a basic card</div>`);
+  t.deepEqual(card.name, defaultFront("1 - This is a basic card"));
   t.deepEqual(
     card.back,
     `<p class="" id="f83ce56a-9039-4888-81be-375b19a84790">This is the back of the card</p>`
@@ -65,7 +67,7 @@ test("Cloze Deletion from Blocks", async (t) => {
 
 test("Input Cards from Blocks", async (t) => {
   const flashcards = await loadCards({ cloze: "false", input: "true" });
-  t.assert(flashcards.find((n) => n.name == "6 - 21 + 21 is "));
+  t.assert(flashcards.find((n) => n.name == defaultFront("6 - 21 + 21 is ")));
 });
 
 test("Enable Cherry Picking Using 🍒 Emoji", async (t) => {
@@ -86,14 +88,14 @@ test("Add Notion Link", async (t) => {
     "add-notion-link": true,
     parentBlockId: pageId,
   });
-  const card = flashcards.find((f) => f.name === `<div class="">1 - This is a basic card</div>`);
+  const card = flashcards.find((f) => f.name === defaultFront("1 - This is a basic card"));
   t.assert(card);
   t.deepEqual(card?.notionLink, expected);
 });
 
 test("Use Notion ID", async (t) => {
   const flashcards = await loadCards({ "use-notion-id": "true" });
-  const card = flashcards.find((f) => f.name === "3 - 21 + 21 is #buddy");
+  const card = flashcards.find((f) => f.name === defaultFront("3 - 21 + 21 is #buddy"));
   const expected = "a5445230-bfa9-4bf1-bc35-a706c1d129d1";
   t.deepEqual(card?.notionId, expected);
 });
