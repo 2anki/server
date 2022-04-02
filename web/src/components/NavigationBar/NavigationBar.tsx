@@ -1,26 +1,12 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import { useState } from 'react';
-import styled from 'styled-components';
 
-import Backend from '../lib/Backend';
-import NotionWorkspace from '../lib/interfaces/NotionWorkspace';
-import NavButtonCTA from './buttons/NavButtonCTA';
-
-// https://www.w3schools.com/js/js_cookies.asp
-function getCookie(cname) {
-  const name = `${cname}=`;
-  const ca = document.cookie.split(';');
-  for (let i = 0; i < ca.length; i += 1) {
-    let c = ca[i];
-    while (c.charAt(0) === ' ') {
-      c = c.substring(1);
-    }
-    if (c.indexOf(name) === 0) {
-      return c.substring(name.length, c.length);
-    }
-  }
-  return '';
-}
+import NotionWorkspace from '../../lib/interfaces/NotionWorkspace';
+import NavButtonCTA from '../buttons/NavButtonCTA';
+import getCookie from './helpers/getCookie';
+import Backend from '../../lib/Backend';
+import NavbarItem from './NavbarItem';
+import { Navbar } from './styled';
 
 interface NavigationBarProps {
   workspaces?: NotionWorkspace[];
@@ -28,40 +14,8 @@ interface NavigationBarProps {
   connectLink?: string;
 }
 
-const Navbar = styled.nav`
-  background #E5E5E5;
-  @media (max-width: 1024px) {
-    margin: 0;
-  }
-`;
-
-const StyledNavbarItem = styled.a`
-  font-size: 20px;
-  :hover {
-    font-weight: bold;
-  }
-`;
-
-interface NavbarItemProps {
-  path: string;
-  href: string;
-  children: React.ReactNode;
-}
-
-function NavbarItem({ path, href, children }: NavbarItemProps) {
-  return (
-    <StyledNavbarItem
-      href={href}
-      className={`navbar-item ${path === href ? 'has-text-weight-bold' : ''}`}
-    >
-      {children}
-    </StyledNavbarItem>
-  );
-}
-
 const backend = new Backend();
-function NavigationBar({ activeWorkspace, workspaces, connectLink }: NavigationBarProps) {
-  const [waiting, setIsWaiting] = useState(false);
+export function NavigationBar({ activeWorkspace, workspaces, connectLink }: NavigationBarProps) {
   const isSignedIn = getCookie('token');
   const [active, setHamburgerMenu] = useState(false);
   const path = window.location.pathname;
@@ -121,22 +75,6 @@ function NavigationBar({ activeWorkspace, workspaces, connectLink }: NavigationB
               <a className="navbar-item" href="mailto:alexander@alemayhu.com">
                 Report an issue
               </a>
-              {isSignedIn && (
-              <div className="dropdown-item">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (!waiting) {
-                      setIsWaiting(true);
-                      backend.logout();
-                    }
-                  }}
-                  className="button is-small navbar-item"
-                >
-                  Log out
-                </button>
-              </div>
-              )}
             </div>
           </div>
         </div>
@@ -177,6 +115,16 @@ function NavigationBar({ activeWorkspace, workspaces, connectLink }: NavigationB
           </NavbarItem>
           <NavbarItem href="/uploads/mine" path={path}>
             🗄 Uploads
+          </NavbarItem>
+          <NavbarItem
+            path={path}
+            href="/users/logout"
+            onClick={(event) => {
+              event.preventDefault();
+              backend.logout();
+            }}
+          >
+            🔒 log out
           </NavbarItem>
         </div>
         )}
