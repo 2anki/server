@@ -23,6 +23,7 @@
   "scripts": {
     "test": "ava --timeout=121s",
     "test-new": "jest",
+    "test:watch": "jest --watch",
     "start": "npm run dev",
     "build": "tsc -p .",
     "dev": " SPACES_DEFAULT_BUCKET_NAME=dev.2anki.net SPACES_ENDPOINT=fra1.digitaloceanspaces.com WORKSPACE_BASE=/tmp/w nodemon --watch '**/*.ts' --exec \"ts-node\" server.ts",
