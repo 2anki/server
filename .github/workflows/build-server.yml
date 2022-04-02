@@ -1,4 +1,4 @@
-name: Smoke Test - Build
+name: Smoke Test - Build Server
 
 on: [push]
 
