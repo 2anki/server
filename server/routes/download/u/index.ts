@@ -1,8 +1,8 @@
 import express from "express";
 
-import RequireAuthentication from "../middleware/RequireAuthentication";
-import DB from "../lib/storage/db";
-import StorageHandler from "../lib/storage/StorageHandler";
+import RequireAuthentication from "../../../middleware/RequireAuthentication";
+import DB from "../../../lib/storage/db";
+import StorageHandler from "../../../lib/storage/StorageHandler";
 
 const router = express.Router();
 
