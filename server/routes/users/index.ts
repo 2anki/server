@@ -1,12 +1,12 @@
 import express from "express";
 
-import User from "../lib/User";
-import DB from "../lib/storage/db";
+import User from "../../lib/User";
+import DB from "../../lib/storage/db";
 
-import EmailHandler from "../lib/email/EmailHandler";
-import TokenHandler from "../lib/misc/TokenHandler";
+import EmailHandler from "../../lib/email/EmailHandler";
+import TokenHandler from "../../lib/misc/TokenHandler";
 import path from "path";
-import RequireAuthentication from "../middleware/RequireAuthentication";
+import RequireAuthentication from "../../middleware/RequireAuthentication";
 
 const router = express.Router();
 

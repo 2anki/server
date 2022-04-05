@@ -6,19 +6,19 @@ import express from "express";
 import multer from "multer";
 import multerS3 from "multer-s3";
 
-import { PrepareDeck } from "../lib/parser/DeckParser";
-import { ZipHandler } from "../lib/anki/zip";
-import ErrorHandler from "../lib/misc/error";
+import { PrepareDeck } from "../../lib/parser/DeckParser";
+import { ZipHandler } from "../../lib/anki/zip";
+import ErrorHandler from "../../lib/misc/error";
 
-import Package from "../lib/parser/Package";
+import Package from "../../lib/parser/Package";
 
-import StorageHandler from "../lib/storage/StorageHandler";
-import { TEMPLATE_DIR, ALLOWED_ORIGINS } from "../lib/constants";
-import Settings from "../lib/parser/Settings";
-import DB from "../lib/storage/db";
-import RequireAuthentication from "../middleware/RequireAuthentication";
-import ConversionJob from "../lib/jobs/ConversionJob";
-import { BytesToMegaBytes } from "../lib/misc/file";
+import StorageHandler from "../../lib/storage/StorageHandler";
+import { TEMPLATE_DIR, ALLOWED_ORIGINS } from "../../lib/constants";
+import Settings from "../../lib/parser/Settings";
+import DB from "../../lib/storage/db";
+import RequireAuthentication from "../../middleware/RequireAuthentication";
+import ConversionJob from "../../lib/jobs/ConversionJob";
+import { BytesToMegaBytes } from "../../lib/misc/file";
 
 const ADVERTISEMENT = fs
   .readFileSync(path.join(TEMPLATE_DIR, "README.html"))

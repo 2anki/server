@@ -1,7 +1,7 @@
-import RequireAuthentication from "../middleware/RequireAuthentication";
+import RequireAuthentication from "../../middleware/RequireAuthentication";
 
 import express from "express";
-import DB from "../lib/storage/db";
+import DB from "../../lib/storage/db";
 
 const router = express.Router();
 

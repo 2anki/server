@@ -25,7 +25,7 @@ import * as upload from "./routes/upload";
 import * as users from "./routes/users";
 import * as notion from "./routes/notion";
 import * as rules from "./routes/rules";
-import * as download from "./routes/download";
+import * as download from "./routes/download/u";
 
 import DB from "./lib/storage/db";
 import config from "./knexfile";
