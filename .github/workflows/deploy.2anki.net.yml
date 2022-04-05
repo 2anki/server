@@ -3,7 +3,7 @@ name: Deploy to 2anki.net
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   build:
