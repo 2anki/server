@@ -14,11 +14,9 @@ router.get("/u/:key", RequireAuthentication, async (req, res) => {
     return res.status(400).send();
   }
   let owner = res.locals.owner;
+  const query = { key, owner };
   try {
-    const match = await DB("uploads")
-      .where({ key, owner })
-      .returning(["key"])
-      .first();
+    const match = await DB("uploads").where(query).returning(["key"]).first();
     if (match) {
       const file = await storage.getFileContents(match.key);
       res.send(file);
@@ -28,7 +26,7 @@ router.get("/u/:key", RequireAuthentication, async (req, res) => {
   } catch (error) {
     // @ts-ignore
     if (error && error.code === "NoSuchKey") {
-      await DB("uploads").del().where({ key, owner });
+      await DB("uploads").del().where(query);
       return res.redirect("/uploads");
     } else {
       console.info("unknown error");
