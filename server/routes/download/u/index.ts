@@ -15,10 +15,10 @@ router.get("/u/:key", RequireAuthentication, async (req, res) => {
   }
   let owner = res.locals.owner;
   try {
-    const match = await DB("uploads")
-      .where({ key, owner })
-      .returning(["key"])
-      .first();
+    const match = await DB.raw(
+      "SELECT key FROM uploads WHERE key = ? AND owner = ?",
+      [key, owner]
+    );
     if (match) {
       const file = await storage.getFileContents(match.key);
       res.send(file);
