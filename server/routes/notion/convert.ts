@@ -18,7 +18,7 @@ import getQuota from "../../lib/User/getQuota";
 import getEmailFromOwner from "../../lib/User/getEmailFromOwner";
 import isPatron from "../../lib/User/isPatron";
 
-let storage = new StorageHandler();
+const storage = new StorageHandler();
 export default async function ConvertPage(
   api: NotionAPIWrapper,
   req: express.Request,
@@ -104,7 +104,7 @@ export async function PerformConversion(
     const payload = (await gen.run()) as string;
     const apkg = fs.readFileSync(payload);
     const filename = (() => {
-      let f = settings.deckName || bl.firstPageTitle || id;
+      const f = settings.deckName || bl.firstPageTitle || id;
       if (f.endsWith(".apkg")) {
         return f;
       }
@@ -116,10 +116,10 @@ export async function PerformConversion(
     const size = FileSizeInMegaBytes(payload);
     await DB("uploads").insert({
       object_id: id,
-      owner: owner,
-      filename: filename,
+      owner,
+      filename,
       /* @ts-ignore */
-      key: key,
+      key,
       size_mb: size,
     });
 
@@ -127,7 +127,7 @@ export async function PerformConversion(
     await job.completed(id, owner);
     const email = await getEmailFromOwner(DB, owner);
     if (size > 24) {
-      let prefix = req
+      const prefix = req
         ? `${req.protocol}://${req.get("host")}`
         : "https://2anki.net";
       const link = `${prefix}/download/u/${key}`;

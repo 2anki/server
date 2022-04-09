@@ -62,7 +62,7 @@ class BlockHandler {
     const expiry = new Date(file.expiry_time);
     const now = new Date();
     /* @ts-ignore */
-    let url = c.image[t].url;
+    const url = c.image[t].url;
 
     const suffix = SuffixFrom(S3FileName(url));
     const newName = NewUniqueFileNameFrom(url) + (suffix || "");
@@ -268,7 +268,7 @@ class BlockHandler {
         // Assume it's a basic card then check for children
         const name = await this.renderFront(block);
         const back = await this.getBackSide(block);
-        let ankiNote = new Note(name, back || "");
+        const ankiNote = new Note(name, back || "");
         ankiNote.media = this.exporter.media;
         /* @ts-ignore */
         if (block.has_children) {

@@ -12,7 +12,7 @@ import BlockHandler from "./BlockHandler";
 import NotionAPIWrapper from "./NotionAPIWrapper";
 
 dotenv.config({ path: "test/.env" });
-let api = new NotionAPIWrapper(process.env.NOTION_KEY!);
+const api = new NotionAPIWrapper(process.env.NOTION_KEY!);
 
 const loadCards = async (
   options: any,

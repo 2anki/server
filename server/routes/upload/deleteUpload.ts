@@ -10,8 +10,8 @@ export default async function deleteUpload(req: Request, res: Response) {
     return res.status(400).send();
   }
   try {
-    await DB("uploads").del().where({ owner: res.locals.owner, key: key });
-    let s = new StorageHandler();
+    await DB("uploads").del().where({ owner: res.locals.owner, key });
+    const s = new StorageHandler();
     await s.deleteWith(key);
     console.log("done deleting", key);
   } catch (error) {

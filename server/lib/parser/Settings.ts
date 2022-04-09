@@ -130,7 +130,7 @@ export default class Settings {
   ): Promise<Settings> {
     try {
       const result = await DB("settings")
-        .where({ object_id: id, owner: owner })
+        .where({ object_id: id, owner })
         .returning(["payload"])
         .first();
       if (result) {

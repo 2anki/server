@@ -13,7 +13,7 @@ const FrontFlashcard = (block: GetBlockResponse) => {
     <div className={style}>
       {text.map((t: GetBlockResponse) => {
         /* @ts-ignore */
-        let annotations = t.annotations;
+        const annotations = t.annotations;
         /* @ts-ignore */
         return HandleBlockAnnotations(annotations, t.text);
       })}

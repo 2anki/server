@@ -195,7 +195,7 @@ class NotionAPIWrapper {
     /* @ts-ignore */
     if (page.icon && settings.pageEmoji !== "disable_emoji") {
       /* @ts-ignore */
-      let pageIcon = page.icon;
+      const pageIcon = page.icon;
       if (pageIcon.type === "external") {
         icon = `<img src="${pageIcon.external.url}" width="32" /> `;
       } else if (pageIcon.type === "emoji") {
@@ -205,7 +205,7 @@ class NotionAPIWrapper {
           responseType: "arraybuffer",
         });
         const file = fileRequest.data;
-        let uri = `data:${
+        const uri = `data:${
           fileRequest.headers["content-type"]
         };base64,${file.toString("base64")}`;
         icon = `<img src="${uri}" width="32" /> `;

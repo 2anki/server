@@ -5,7 +5,7 @@ import HandleBlockAnnotations from "./utils";
 
 export const BlockCallout = (block: GetBlockResponse) => {
   /* @ts-ignore */
-  const callout = block["callout"];
+  const callout = block.callout;
   const icon = callout.icon;
   const text = callout.text;
   // TODO: handle font-size
@@ -24,7 +24,7 @@ export const BlockCallout = (block: GetBlockResponse) => {
       <div style={{ width: "100%" }}>
         {text.map((t: GetBlockResponse) => {
           /* @ts-ignore */
-          let annotations = t.annotations;
+          const annotations = t.annotations;
           /* @ts-ignore */
           return HandleBlockAnnotations(annotations, t.text);
         })}

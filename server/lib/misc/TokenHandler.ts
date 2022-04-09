@@ -47,7 +47,7 @@ class TokenHandler {
     return new Promise<boolean>((resolve, reject) => {
       DB("patreon_tokens")
         .insert({
-          data: data,
+          data,
           token,
           owner: user,
         })
