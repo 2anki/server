@@ -7,7 +7,7 @@ import { PrepareDeck } from "../../../lib/parser/DeckParser";
 import { BytesToMegaBytes } from "../../../lib/misc/file";
 import Settings from "../../../lib/parser/Settings";
 import { ZipHandler } from "../../../lib/anki/zip";
-import ErrorHandler from "../../../lib/misc/error";
+import ErrorHandler from "../../../lib/misc/ErrorHandler";
 import Package from "../../../lib/parser/Package";
 import cleanDeckName from "./cleanDeckname";
 import DB from "../../../lib/storage/db";

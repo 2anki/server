@@ -15,7 +15,7 @@ if (IsDebug()) {
 }
 
 import { ALLOWED_ORIGINS } from "./lib/constants";
-import ErrorHandler from "./lib/misc/error";
+import ErrorHandler from "./lib/misc/ErrorHandler";
 
 // Server Endpoints
 import _settings from "./routes/settings";

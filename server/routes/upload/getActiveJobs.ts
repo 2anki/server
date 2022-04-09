@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import ConversionJob from "../../lib/jobs/ConversionJob";
 import DB from "../../lib/storage/db";
 
-export default async function getActiveJobs(req: Request, res: Response) {
+export default async function getActiveJobs(_req: Request, res: Response) {
   console.debug("getting jobs");
   try {
     ConversionJob.ResumeStaleJobs(DB, res.locals.owner);
