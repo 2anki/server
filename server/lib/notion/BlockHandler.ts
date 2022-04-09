@@ -256,10 +256,12 @@ class BlockHandler {
         const ankiNote = new Note(name, back || "");
         ankiNote.media = this.exporter.media;
         /* @ts-ignore */
+        // Look for cloze deletion cards
         if (settings.isCloze) {
           const clozeCard = await this.getClozeDeletionCard(rules, block);
           clozeCard && ankiNote.copyValues(clozeCard);
         }
+        // Look for input cards
         if (settings.useInput) {
           const inputCard = await this.getInputCard(rules, block);
           inputCard && ankiNote.copyValues(inputCard);
@@ -274,7 +276,6 @@ class BlockHandler {
         ankiNote.media = this.exporter.media;
         this.exporter.media = [];
 
-        console.debug(`Add Flashcard: ${ankiNote.name}`);
         const tr = TagRegistry.getInstance();
         ankiNote.tags =
           rules.TAGS === "heading" ? tr.headings : tr.strikethroughs;

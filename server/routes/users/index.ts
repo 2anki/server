@@ -85,7 +85,7 @@ router.post("/forgot-password", async (req, res, next) => {
 
 router.get("/v/:id", async (req, res, next) => {
   console.debug("verify user " + req.params.id);
-  const valid = await TokenHandler.IsValidVerificationToken(DB, req.params.id);
+  const valid = await TokenHandler.IsValidVerificationToken(req.params.id);
   if (!valid) {
     console.debug("invalid verification token");
     return res.redirect("/login#login");
@@ -196,7 +196,7 @@ const distDir = path.join(__dirname, "../../web/build");
 router.get("/r/:id", async (req, res, next) => {
   try {
     const reset_token = req.params.id;
-    const isValid = await TokenHandler.IsValidResetToken(DB, reset_token);
+    const isValid = await TokenHandler.IsValidResetToken(reset_token);
     if (isValid) {
       return res.sendFile(path.join(distDir, "index.html"));
     }

@@ -24,7 +24,7 @@ export default function useUploads(
     setIsDeletingAll(true);
     return uploads.reduce(
       (prev, arg) => prev.then(() => deleteUpload(arg.id)),
-      Promise.resolve().then(() => setIsDeletingAll(false))
+      Promise.resolve().then(() => setIsDeletingAll(false)),
     );
   }
 
