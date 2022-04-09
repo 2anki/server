@@ -1,19 +1,20 @@
 import express from "express";
 
-import StorageHandler from "../../lib/storage/StorageHandler";
+import RequireAllowedOrigin from "../../middleware/RequireAllowedOrigin";
 import RequireAuthentication from "../../middleware/RequireAuthentication";
-import deleteUpload from "./deleteUpload";
-import deleteJob from "./deleteJob";
+import StorageHandler from "../../lib/storage/StorageHandler";
+import handleUpload from "./helpers/handleUpload";
 import getActiveJobs from "./getActiveJobs";
+import deleteUpload from "./deleteUpload";
 import getUploads from "./getUploads";
-import handleUpload from "./legacyUpload";
+import deleteJob from "./deleteJob";
 import upload from "./upload";
 
 const router = express.Router();
 
 const storage = new StorageHandler();
 
-router.post("/", (req, res) => {
+router.post("/", RequireAllowedOrigin, (req, res) => {
   const u = upload(storage);
 
   u(req, res, function (error) {

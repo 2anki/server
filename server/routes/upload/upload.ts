@@ -5,7 +5,7 @@ import StorageHandler from "../../lib/storage/StorageHandler";
 
 export default function upload(storage: StorageHandler) {
   return multer({
-    limits: { fileSize: 100 * 1024 * 1024, fieldSize: 2 * 1024 * 1024 },
+    limits: { fileSize: 100 * 1024 * 1024, fieldSize: 2 * 1024 * 1024   },
     storage: multerS3({
       s3: storage.s3,
       bucket: StorageHandler.DefaultBucketName(),

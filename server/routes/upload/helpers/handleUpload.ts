@@ -1,53 +1,25 @@
+import { nanoid } from "nanoid";
 import express from "express";
 
-import StorageHandler from "../../lib/storage/StorageHandler";
-import { ALLOWED_ORIGINS } from "../../lib/constants";
-import Settings from "../../lib/parser/Settings";
-import Package from "../../lib/parser/Package";
-import DB from "../../lib/storage/db";
-import { BytesToMegaBytes } from "../../lib/misc/file";
-import { PrepareDeck } from "../../lib/parser/DeckParser";
-import { ZipHandler } from "../../lib/anki/zip";
-import { nanoid } from "nanoid";
-import path from "path";
+import TriggerUnsupportedFormat from "./TriggerUnsupportedFormat";
+import StorageHandler from "../../../lib/storage/StorageHandler";
+import { PrepareDeck } from "../../../lib/parser/DeckParser";
+import { BytesToMegaBytes } from "../../../lib/misc/file";
+import Settings from "../../../lib/parser/Settings";
+import { ZipHandler } from "../../../lib/anki/zip";
+import ErrorHandler from "../../../lib/misc/error";
+import Package from "../../../lib/parser/Package";
+import cleanDeckName from "./cleanDeckname";
+import DB from "../../../lib/storage/db";
 import loadREADME from "./loadREADME";
-import ErrorHandler from "../../lib/misc/error";
-
-function TriggerUnsupportedFormat() {
-  throw new Error(
-    'Markdown support has been removed, please use <a class="button" href="https://www.notion.so/Export-as-HTML-bf3fe9e6920e4b9883cbd8a76b6128b7">HTML</a>'
-  );
-}
-
-function cleanDeckName(name: string) {
-  let _name = name;
-  if (name.startsWith("&#x")) {
-    _name = name.split(" ").slice(1).join("").trim();
-  }
-  return _name;
-}
 
 export default async function handleUpload(
   storage: StorageHandler,
   req: express.Request,
   res: express.Response
 ) {
-  console.debug("POST " + req.originalUrl);
-  const origin = req.headers.origin;
-
   const isLoggedIn = res.locals.owner;
 
-  if (!origin) {
-    throw new Error("unknown origin");
-  }
-
-  const permitted = ALLOWED_ORIGINS.includes(origin);
-  console.info(`checking if ${origin} is whitelisted ${permitted}`);
-  if (!permitted) {
-    return res.status(403).end();
-  }
-  console.info("permitted access to " + origin);
-  res.set("Access-Control-Allow-Origin", origin);
   try {
     const files = req.files as Express.Multer.File[];
     let packages: Package[] = [];
