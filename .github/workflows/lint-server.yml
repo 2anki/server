@@ -1,4 +1,4 @@
-name: Build Server
+name: Lint server
 
 on: [push]
 
@@ -16,10 +16,9 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - name: npm install, build
+      - name: npm run lint
         run: |
-          cd server
-          npm install
-          npm run build
+          npm --prefix web install
+          npm --prefix web run lint
         env:
           CI: true
