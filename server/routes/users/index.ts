@@ -207,12 +207,12 @@ router.get("/r/:id", async (req, res, next) => {
   }
 });
 
-router.get("/debug/locals", RequireAuthentication, (req, res) => {
+router.get("/debug/locals", RequireAuthentication, (_req, res) => {
   const locals = res.locals;
   return res.json({ locals });
 });
 
-router.get("/is-patreon", RequireAuthentication, (req, res) => {
+router.get("/is-patreon", RequireAuthentication, (_req, res) => {
   const patreon = res.locals.patreon;
   return res.json({ patreon });
 });
