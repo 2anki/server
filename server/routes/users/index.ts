@@ -7,6 +7,9 @@ import EmailHandler from "../../lib/email/EmailHandler";
 import TokenHandler from "../../lib/misc/TokenHandler";
 import path from "path";
 import RequireAuthentication from "../../middleware/RequireAuthentication";
+import updatePassword from "../../lib/User/updatePassword";
+import comparePassword from "../../lib/User/comparePassword";
+import hashPassword from "../../lib/User/hashPassword";
 
 const router = express.Router();
 
@@ -30,7 +33,7 @@ router.post("/new-password", async (req, res, next) => {
   }
 
   try {
-    await User.UpdatePassword(DB, password, reset_token);
+    await updatePassword(DB, password, reset_token);
     res.status(200).send({ message: "ok" });
   } catch (error) {
     next(error);
@@ -131,7 +134,7 @@ router.post("/login", async (req, res, next) => {
       });
     }
 
-    const isMatch = User.ComparePassword(password, user.password);
+    const isMatch = comparePassword(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid password." });
     } else {
@@ -170,7 +173,7 @@ router.post("/register", async (req, res, next) => {
     return;
   }
 
-  const password = User.HashPassword(req.body.password);
+  const password = hashPassword(req.body.password);
   const name = req.body.name;
   const email = req.body.email.toLowerCase();
   const verification_token = TokenHandler.NewVerificationToken();

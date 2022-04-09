@@ -3,7 +3,6 @@ import express from "express";
 import RequireAuthentication from "../../middleware/RequireAuthentication";
 import ParserRules from "../../lib/parser/ParserRules";
 import DB from "../../lib/storage/db";
-import User from "../../lib/User";
 
 const router = express.Router();
 

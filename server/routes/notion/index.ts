@@ -11,6 +11,7 @@ import GetPage from "./page";
 import GetBlocks from "./blocks";
 import GetBlock from "./block";
 import GetDatabase, { QueryDatabase } from "./database";
+import getNotionData from "../../lib/User/getNotionData";
 
 const router = express.Router();
 
@@ -19,7 +20,7 @@ const ConfigureNotionAPI = async (
   res: express.Response
 ): Promise<NotionAPIWrapper> => {
   console.debug("Configuring Notion API for " + req.originalUrl);
-  const data = await User.GetNotionData(DB, res.locals.owner);
+  const data = await getNotionData(DB, res.locals.owner);
   return new NotionAPIWrapper(data.token);
 };
 

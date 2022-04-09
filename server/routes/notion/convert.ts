@@ -15,6 +15,9 @@ import { FileSizeInMegaBytes } from "../../lib/misc/file";
 import EmailHandler from "../../lib/email/EmailHandler";
 import StorageHandler from "../../lib/storage/StorageHandler";
 import ConversionJob from "../../lib/jobs/ConversionJob";
+import getQuota from "../../lib/User/getQuota";
+import getEmailFromOwner from "../../lib/User/getEmailFromOwner";
+import isPatron from "../../lib/User/isPatron";
 
 let storage = new StorageHandler();
 export default async function ConvertPage(
@@ -59,7 +62,7 @@ export async function PerformConversion(
       return res ? res.status(200).send() : null;
     }
 
-    const quota = await User.getQuota(DB, owner);
+    const quota = await getQuota(DB, owner);
     if (quota > 21 && !res?.locals.patreon) {
       return res
         ?.status(429)
@@ -81,7 +84,7 @@ export async function PerformConversion(
 
     if (res) bl.useAll = rules.UNLIMITED = res?.locals.patreon;
     else {
-      const user = await User.IsPatreon(DB, owner);
+      const user = await isPatron(DB, owner);
       console.log("checking if user is patreon", user);
       bl.useAll = rules.UNLIMITED = user.patreon;
     }
@@ -123,7 +126,7 @@ export async function PerformConversion(
 
     console.log("rules.email", rules.EMAIL_NOTIFICATION);
     await job.completed(id, owner);
-    const email = await User.GetEmailFromOwner(DB, owner);
+    const email = await getEmailFromOwner(DB, owner);
     if (size > 24) {
       let prefix = req
         ? `${req.protocol}://${req.get("host")}`

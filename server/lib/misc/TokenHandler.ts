@@ -133,7 +133,7 @@ class TokenHandler {
       .where({ token })
       .returning(["owner'"])
       .first();
-    
+
     if (!accessToken) {
       return null;
     }

@@ -2,7 +2,8 @@ import { Knex } from "knex";
 
 import { PerformConversion } from "../../routes/notion/convert";
 import NotionAPIWrapper from "../notion/NotionAPIWrapper";
-import User from "../../lib/User";
+import User from "../User";
+import getNotionData from "../User/getNotionData";
 
 export default class ConversionJob {
   db: Knex;
@@ -58,7 +59,7 @@ export default class ConversionJob {
       console.log("jobs", jobs);
       jobs.forEach(async (job) => {
         try {
-          const data = await User.GetNotionData(DB, job.owner);
+          const data = await getNotionData(DB, job.owner);
           const api = new NotionAPIWrapper(data.token);
           PerformConversion(api, job.object_id, job.owner, null, null);
         } catch (error) {
