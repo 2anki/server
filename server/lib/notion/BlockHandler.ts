@@ -256,28 +256,13 @@ class BlockHandler {
         const ankiNote = new Note(name, back || "");
         ankiNote.media = this.exporter.media;
         /* @ts-ignore */
-        if (block.has_children) {
-          // Look for cloze deletion cards
-          if (settings.isCloze) {
-            const clozeCard = await this.getClozeDeletionCard(rules, block);
-            clozeCard && ankiNote.copyValues(clozeCard);
-          }
-          // Look for input cards
-          if (settings.useInput) {
-            const inputCard = await this.getInputCard(rules, block);
-            inputCard && ankiNote.copyValues(inputCard);
-          }
+        if (settings.isCloze) {
+          const clozeCard = await this.getClozeDeletionCard(rules, block);
+          clozeCard && ankiNote.copyValues(clozeCard);
         }
-        // Flashcard block has no children but uses cloze
-        else {
-          if (settings.isCloze) {
-            const clozeCard = await this.getClozeDeletionCard(rules, block);
-            clozeCard && ankiNote.copyValues(clozeCard);
-          }
-          if (settings.useInput) {
-            const inputCard = await this.getInputCard(rules, block);
-            inputCard && ankiNote.copyValues(inputCard);
-          }
+        if (settings.useInput) {
+          const inputCard = await this.getInputCard(rules, block);
+          inputCard && ankiNote.copyValues(inputCard);
         }
 
         ankiNote.back = back!;
