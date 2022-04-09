@@ -1,40 +1,40 @@
 import path from "path";
 import fs from "fs";
 
-import NotionAPIWrapper from "./NotionAPIWrapper";
-import Note from "../parser/Note";
-import Settings from "../parser/Settings";
-import ParserRules from "../parser/ParserRules";
-import Deck from "../parser/Deck";
-import CustomExporter from "../parser/CustomExporter";
+import NotionAPIWrapper from "../NotionAPIWrapper";
+import Note from "../../parser/Note";
+import Settings from "../../parser/Settings";
+import ParserRules from "../../parser/ParserRules";
+import Deck from "../../parser/Deck";
+import CustomExporter from "../../parser/CustomExporter";
 import {
   GetBlockResponse,
   ListBlockChildrenResponse,
 } from "@notionhq/client/build/src/api-endpoints";
-import { NewUniqueFileNameFrom, S3FileName, SuffixFrom } from "../misc/file";
+import { NewUniqueFileNameFrom, S3FileName, SuffixFrom } from "../../misc/file";
 import axios from "axios";
-import BlockParagraph from "./blocks/BlockParagraph";
-import BlockCode from "./blocks/BlockCode";
-import FrontFlashcard from "./blocks/FrontFlashcard";
+import BlockParagraph from "../blocks/BlockParagraph";
+import BlockCode from "../blocks/BlockCode";
+import FrontFlashcard from "../blocks/FrontFlashcard";
 import {
   BlockHeading1,
   BlockHeading2,
   BlockHeading3,
   IsTypeHeading,
-} from "./blocks/BlockHeadings";
-import { BlockQuote } from "./blocks/BlockQuote";
-import { BlockDivider } from "./blocks/BlockDivider";
-import { BlockChildPage } from "./blocks/BlockChildPage";
-import { BlockTodoList } from "./blocks/lists/BlockTodoList";
-import { BlockCallout } from "./blocks/BlockCallout";
-import { BlockBulletList } from "./blocks/lists/BlockBulletList";
-import { BlockNumberedList } from "./blocks/lists/BlockNumberedList";
-import { BlockToggleList } from "./blocks/lists/BlockToggleList";
-import BlockBookmark from "./blocks/media/BlockBookmark";
-import { BlockVideo } from "./blocks/media/BlockVideo";
-import { BlockEmbed } from "./blocks/media/BlockEmbed";
-import RenderNotionLink from "./RenderNotionLink";
-import TagRegistry from "../parser/TagRegistry";
+} from "../blocks/BlockHeadings";
+import { BlockQuote } from "../blocks/BlockQuote";
+import { BlockDivider } from "../blocks/BlockDivider";
+import { BlockChildPage } from "../blocks/BlockChildPage";
+import { BlockTodoList } from "../blocks/lists/BlockTodoList";
+import { BlockCallout } from "../blocks/BlockCallout";
+import { BlockBulletList } from "../blocks/lists/BlockBulletList";
+import { BlockNumberedList } from "../blocks/lists/BlockNumberedList";
+import { BlockToggleList } from "../blocks/lists/BlockToggleList";
+import BlockBookmark from "../blocks/media/BlockBookmark";
+import { BlockVideo } from "../blocks/media/BlockVideo";
+import { BlockEmbed } from "../blocks/media/BlockEmbed";
+import RenderNotionLink from "../RenderNotionLink";
+import TagRegistry from "../../parser/TagRegistry";
 
 class BlockHandler {
   api: NotionAPIWrapper;
@@ -256,28 +256,15 @@ class BlockHandler {
         const ankiNote = new Note(name, back || "");
         ankiNote.media = this.exporter.media;
         /* @ts-ignore */
-        if (block.has_children) {
-          // Look for cloze deletion cards
-          if (settings.isCloze) {
-            const clozeCard = await this.getClozeDeletionCard(rules, block);
-            clozeCard && ankiNote.copyValues(clozeCard);
-          }
-          // Look for input cards
-          if (settings.useInput) {
-            const inputCard = await this.getInputCard(rules, block);
-            inputCard && ankiNote.copyValues(inputCard);
-          }
+        // Look for cloze deletion cards
+        if (settings.isCloze) {
+          const clozeCard = await this.getClozeDeletionCard(rules, block);
+          clozeCard && ankiNote.copyValues(clozeCard);
         }
-        // Flashcard block has no children but uses cloze
-        else {
-          if (settings.isCloze) {
-            const clozeCard = await this.getClozeDeletionCard(rules, block);
-            clozeCard && ankiNote.copyValues(clozeCard);
-          }
-          if (settings.useInput) {
-            const inputCard = await this.getInputCard(rules, block);
-            inputCard && ankiNote.copyValues(inputCard);
-          }
+        // Look for input cards
+        if (settings.useInput) {
+          const inputCard = await this.getInputCard(rules, block);
+          inputCard && ankiNote.copyValues(inputCard);
         }
 
         ankiNote.back = back!;
@@ -289,7 +276,6 @@ class BlockHandler {
         ankiNote.media = this.exporter.media;
         this.exporter.media = [];
 
-        console.debug(`Add Flashcard: ${ankiNote.name}`);
         const tr = TagRegistry.getInstance();
         ankiNote.tags =
           rules.TAGS === "heading" ? tr.headings : tr.strikethroughs;

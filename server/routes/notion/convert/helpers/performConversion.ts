@@ -1,7 +1,7 @@
 import fs from "fs";
 
 import express from "express";
-import CardGenerator from "../../../../lib/anki/generator";
+import CardGenerator from "../../../../lib/anki/CardGenerator";
 import ConversionJob from "../../../../lib/jobs/ConversionJob";
 import BlockHandler from "../../../../lib/notion/BlockHandler";
 

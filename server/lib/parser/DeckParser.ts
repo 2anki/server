@@ -212,7 +212,7 @@ export class DeckParser {
           const front = parentClass
             ? `<div class='${parentClass}'>${validSummary}</div>`
             : validSummary;
-          if ((summary && toggle) || (this.settings.maxOne && toggle.text())) {
+          if (toggle || (this.settings.maxOne && toggle.text())) {
             const toggleHTML = toggle.html();
             if (toggleHTML) {
               let b = toggleHTML.replace(summary.html() || "", "");
