@@ -4,7 +4,6 @@ import NotionAPIWrapper from "../../lib/notion/NotionAPIWrapper";
 import NotionConnectionHandler from "../../lib/notion/NotionConnectionHandler";
 import DB from "../../lib/storage/db";
 
-import User from "../../lib/User";
 import RequireAuthentication from "../../middleware/RequireAuthentication";
 import ConvertPage from "./convert";
 import GetPage from "./page";

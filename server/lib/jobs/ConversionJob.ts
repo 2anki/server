@@ -2,7 +2,6 @@ import { Knex } from "knex";
 
 import { PerformConversion } from "../../routes/notion/convert";
 import NotionAPIWrapper from "../notion/NotionAPIWrapper";
-import User from "../User";
 import getNotionData from "../User/getNotionData";
 
 export default class ConversionJob {

@@ -3,7 +3,11 @@ import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import { Knex } from "knex";
 import DB from "../storage/db";
-import User from "../User";
+
+interface User {
+  owner: string;
+  patreon?: boolean;
+}
 
 class TokenHandler {
   static SaveNotionToken(

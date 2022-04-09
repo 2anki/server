@@ -4,7 +4,6 @@ import express from "express";
 import Settings from "../../lib/parser/Settings";
 
 import DB from "../../lib/storage/db";
-import User from "../../lib/User";
 import Workspace from "../../lib/parser/WorkSpace";
 import CustomExporter from "../../lib/parser/CustomExporter";
 import BlockHandler from "../../lib/notion/BlockHandler";

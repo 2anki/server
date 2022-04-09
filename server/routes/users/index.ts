@@ -1,6 +1,5 @@
 import express from "express";
 
-import User from "../../lib/User";
 import DB from "../../lib/storage/db";
 
 import EmailHandler from "../../lib/email/EmailHandler";
