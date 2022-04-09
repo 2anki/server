@@ -27,7 +27,7 @@ class Backend {
     return axios.get(`${this.baseURL}notion/get-notion-link`);
   }
 
-  withinThreeSeconds(): Boolean {
+  withinThreeSeconds(): boolean {
     const end = new Date();
     /* @ts-ignore */
     let diff = end - this.lastCall;
@@ -90,9 +90,6 @@ class Backend {
         'You are making too many requests. Please wait a few seconds before searching.',
       );
     }
-
-    // TODO: handel query is a external page (not Notion.so)
-    // TODO: handle AnkiWeb urls
 
     const isObjectId = query.replace(/-/g, '').length === 32;
     let data;
@@ -165,7 +162,6 @@ class Backend {
     }
   }
 
-  // TODO: typeset!
   async getBlocks(pageId: string): Promise<any> {
     const response = await axios.get(`${this.baseURL}notion/blocks/${pageId}`, {
       withCredentials: true,

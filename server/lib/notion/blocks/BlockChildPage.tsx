@@ -12,7 +12,6 @@ export const BlockChildPage = (
   /* @ts-ignore */
   const icon = page.icon;
 
-  // TODO: handle page icons
   return ReactDOMServer.renderToStaticMarkup(
     <a id={block.id} href={`https://notion.so/${block.id.replace(/\-/g, "")}`}>
       {icon && icon.type === "emoji" && (

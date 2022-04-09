@@ -7,7 +7,6 @@ export const BlockTodoList = (block: GetBlockResponse) => {
   /* @ts-ignore */
   const todo = block.to_do;
   const text = todo.text;
-  // TODO: get check icon working
 
   return ReactDOMServer.renderToStaticMarkup(
     <ul id={block.id} className={`to-do-list${styleWithColors(todo.color)}`}>

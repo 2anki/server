@@ -8,7 +8,6 @@ export const BlockCallout = (block: GetBlockResponse) => {
   const callout = block.callout;
   const icon = callout.icon;
   const text = callout.text;
-  // TODO: handle font-size
 
   return ReactDOMServer.renderToStaticMarkup(
     <figure

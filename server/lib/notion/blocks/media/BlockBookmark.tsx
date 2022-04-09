@@ -38,7 +38,6 @@ const BlockBookmark = async (
     }
   }
 
-  // TODO: fix meta description not showing
   return ReactDOMServer.renderToStaticMarkup(
     <a href={bookmark.url} className="bookmark source">
       <div className="bookmark-info">

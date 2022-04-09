@@ -26,6 +26,7 @@ export const BlockBulletList = async (
     const children = await HandleChildren(result, handler);
     const text = list.text;
     const top = [];
+
     for (const t of text) {
       /* @ts-ignore */
       const annotations = t.annotations;
@@ -42,7 +43,6 @@ export const BlockBulletList = async (
       </li>
     );
   }
-  // TODO: handle indentation 									<li style="list-style-type:circle">Back</li>
   return ReactDOMServer.renderToStaticMarkup(
     <ul id={block.id} className="bulleted-list">
       {items}

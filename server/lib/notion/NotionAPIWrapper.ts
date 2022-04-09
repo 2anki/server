@@ -82,7 +82,6 @@ class NotionAPIWrapper {
     all?: boolean
   ): Promise<QueryDatabaseResponse> {
     console.log("queryDatabase", id, all);
-    // TODO: Add support for pagination when patreon
     const response = await this.notion.databases.query({
       database_id: id,
       page_size: all ? PATREON_LIMIT : ANON_LIMIT,

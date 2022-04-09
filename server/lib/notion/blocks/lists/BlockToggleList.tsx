@@ -11,7 +11,6 @@ export async function BlockToggleList(
   /* @ts-ignore */
   const list = block.toggle;
   const text = list.text;
-  // TODO: handle list.type
   const backSide = await HandleChildren(block, handler);
   /**
    * We can't just set open to false that won't work since it's a boolean and will be truthy.

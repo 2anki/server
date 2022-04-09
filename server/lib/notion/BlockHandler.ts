@@ -52,9 +52,6 @@ class BlockHandler {
 
   async embedImage(c: GetBlockResponse): Promise<string> {
     console.debug("embedImage: " + c.id);
-    // TODO: cache images better?
-    // TODO: does this handle file uploads too?
-    // TODO: handle errors
     /* @ts-ignore */
     const t = c.image.type;
     /* @ts-ignore */
@@ -74,7 +71,6 @@ class BlockHandler {
   }
 
   async embedAudioFile(c: GetBlockResponse): Promise<string> {
-    // TODO: cache audio files better?
     console.debug("embedAudioFile: " + c.id);
     /* @ts-ignore */
     const audio = c.audio;
@@ -90,7 +86,6 @@ class BlockHandler {
 
   async embedFile(c: GetBlockResponse): Promise<string> {
     console.debug("embedFile: " + c.id);
-    // TODO: cache files better?
     /* @ts-ignore */
     const file = c.file;
     const url = file.file.url;
@@ -123,7 +118,6 @@ class BlockHandler {
       /* @ts-ignore */
       const requestChildren = response.results;
 
-      // TODO: handle the child has children
       let back = "";
       for (const c of requestChildren) {
         // If the block has been handled before, skip it.
@@ -131,7 +125,6 @@ class BlockHandler {
         if (this.skip.includes(c.id)) {
           continue;
         }
-        // TODO: handle lists
         /* @ts-ignore */
         switch (c.type) {
           case "image":
@@ -210,7 +203,6 @@ class BlockHandler {
         }
 
         // Nesting applies to all not just toggles
-        // TODO: how are we handling nested toggles?
         if (
           handleChildren ||
           /* @ts-ignore */
@@ -236,9 +228,6 @@ class BlockHandler {
       : undefined;
   }
 
-  /**
-   *  TODO: reduce the duplication between the note types
-   */
   private async getFlashcards(
     rules: ParserRules,
     flashcardBlocks: GetBlockResponse[],
@@ -333,7 +322,6 @@ class BlockHandler {
     return cards; // .filter((c) => !c.isValid());
   }
 
-  // TODO: add support for all types of front rendering
   renderFront(block: GetBlockResponse) {
     /* @ts-ignore */
     const type = block.type;
@@ -435,7 +423,6 @@ class BlockHandler {
     parentName: string = ""
   ): Promise<Deck[]> {
     console.debug("findFlashcards for " + topLevelId);
-    // TODO: subdeck deck.length > 0 && SUBDECK is page?
     if (rules.DECK === "page") {
       return this.findFlashcardsFromPage(
         topLevelId,
@@ -499,7 +486,6 @@ class BlockHandler {
     const deck = new Deck(
       parentName ? `${parentName}::${title}` : title,
       cards,
-      // TODO: use cover image from the page if it exists
       undefined,
       NOTION_STYLE,
       Deck.GenerateId(),
@@ -508,7 +494,6 @@ class BlockHandler {
     decks.push(deck);
 
     if (settings.isAll) {
-      // TODO: support combining types of decks ([].includes vs ''.match)
       /* @ts-ignore */
       const subDecks = blocks.filter((b) => b.type === rules.SUB_DECKS);
       for (const sd of subDecks) {

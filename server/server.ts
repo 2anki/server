@@ -18,14 +18,14 @@ import { ALLOWED_ORIGINS } from "./lib/constants";
 import ErrorHandler from "./lib/misc/error";
 
 // Server Endpoints
-import * as _settings from "./routes/settings";
-import * as checks from "./routes/checks";
-import * as version from "./routes/version";
-import * as upload from "./routes/upload";
-import * as users from "./routes/users";
-import * as notion from "./routes/notion";
-import * as rules from "./routes/rules";
-import * as download from "./routes/download/u";
+import _settings from "./routes/settings";
+import checks from "./routes/checks";
+import version from "./routes/version";
+import upload from "./routes/upload";
+import users from "./routes/users";
+import notion from "./routes/notion";
+import rules from "./routes/rules";
+import download from "./routes/download/u";
 
 import DB from "./lib/storage/db";
 import config from "./knexfile";
@@ -57,15 +57,13 @@ function serve() {
 
   app.use("/templates", express.static(templateDir));
   app.use(express.static(distDir));
-  app.use("/checks", checks.default);
-  app.use("/version", version.default);
+  app.use("/checks", checks);
+  app.use("/version", version);
 
-  // TODO: move to own file
-  app.get("/search*", RequireAuthentication, async (req, res) => {
+  app.get("/search*", RequireAuthentication, async (_req, res) => {
     res.sendFile(path.join(distDir, "index.html"));
   });
 
-  // TODO: move into users?
   app.get("/login", async (req, res) => {
     const user = await TokenHandler.GetUserFrom(req.cookies.token);
     if (!user) {
@@ -74,14 +72,14 @@ function serve() {
       res.redirect("/search");
     }
   });
-  app.get("/uploads*", RequireAuthentication, upload.default);
+  app.get("/uploads*", RequireAuthentication, upload);
 
-  app.use("/upload", upload.default);
-  app.use("/users", users.default);
-  app.use("/notion", notion.default);
-  app.use("/rules", rules.default);
-  app.use("/settings", _settings.default);
-  app.use("/download", download.default);
+  app.use("/upload", upload);
+  app.use("/users", users);
+  app.use("/notion", notion);
+  app.use("/rules", rules);
+  app.use("/settings", _settings);
+  app.use("/download", download);
 
   // Note: this has to be the last handler
   app.get("*", (_req, res) => {
@@ -90,7 +88,7 @@ function serve() {
 
   app.use(
     (
-      req: express.Request,
+      _req: express.Request,
       res: express.Response,
       next: express.NextFunction
     ) => {
@@ -116,7 +114,7 @@ function serve() {
     ) => ErrorHandler(res, err)
   );
 
-  process.on("uncaughtException", (err: Error, origin: string) => {
+  process.on("uncaughtException", (err: Error) => {
     console.error(err);
   });
 
