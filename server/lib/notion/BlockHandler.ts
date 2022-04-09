@@ -55,8 +55,6 @@ class BlockHandler {
     /* @ts-ignore */
     const t = c.image.type;
     /* @ts-ignore */
-    const file = c.image[t];
-    /* @ts-ignore */
     const url = c.image[t].url;
 
     const suffix = SuffixFrom(S3FileName(url));

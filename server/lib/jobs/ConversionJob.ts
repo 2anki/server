@@ -1,6 +1,6 @@
 import { Knex } from "knex";
 
-import { PerformConversion } from "../../routes/notion/convert/convertPage";
+import performConversion from "../../routes/notion/convert/helpers/performConversion";
 import NotionAPIWrapper from "../notion/NotionAPIWrapper";
 import getNotionData from "../User/getNotionData";
 
@@ -60,7 +60,7 @@ export default class ConversionJob {
         try {
           const data = await getNotionData(DB, job.owner);
           const api = new NotionAPIWrapper(data.token);
-          PerformConversion(api, job.object_id, job.owner, null, null);
+          await performConversion(api, job.object_id, job.owner, null, null);
         } catch (error) {
           await new ConversionJob(DB).completed(job.object_id, job.owner);
         }
