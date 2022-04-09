@@ -3,6 +3,8 @@ import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import { Knex } from "knex";
 
+import DB from "../storage/db";
+
 interface User {
   owner: string;
   patreon?: boolean;

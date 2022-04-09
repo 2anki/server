@@ -143,6 +143,7 @@ export class DeckParser {
         ? contents.replace(/border-bottom:0.05em solid/g, "")
         : contents
     );
+    /* @ts-ignore */
     let name = deckName || dom("title").text();
     let style = dom("style").html();
     const pageId = dom("article").attr("id");
@@ -212,6 +213,7 @@ export class DeckParser {
           const front = parentClass
             ? `<div class='${parentClass}'>${validSummary}</div>`
             : validSummary;
+          /* @ts-ignore */
           if (toggle || (this.settings.maxOne && toggle.text())) {
             const toggleHTML = toggle.html();
             if (toggleHTML) {
