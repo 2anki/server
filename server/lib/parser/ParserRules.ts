@@ -8,8 +8,6 @@ class ParserRules {
   UNLIMITED = false;
   EMAIL_NOTIFICATION = false;
 
-  constructor() {}
-
   /**
    *  Function to handle transforming flaschard types to proper names for use in traverseral
    * @returns all type names for flashcards

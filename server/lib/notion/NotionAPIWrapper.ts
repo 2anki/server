@@ -18,19 +18,12 @@ class NotionAPIWrapper {
   private notion: Client;
   page?: GetPageResponse;
 
-  constructor(key: string, useMore?: boolean) {
+  constructor(key: string) {
     this.notion = new Client({ auth: key });
   }
 
   async getPage(id: string): Promise<GetPageResponse | null> {
-    console.log("getPage", id);
-    try {
-      const page = await this.notion.pages.retrieve({ page_id: id });
-      return page;
-    } catch (error) {
-      console.error(error);
-      return null;
-    }
+    return this.notion.pages.retrieve({ page_id: id });
   }
 
   async getBlocks(
@@ -64,17 +57,13 @@ class NotionAPIWrapper {
   }
 
   async getBlock(id: string): Promise<GetBlockResponse> {
-    console.log("getBlock", id);
-    const response = await this.notion.blocks.retrieve({
+    return this.notion.blocks.retrieve({
       block_id: id,
     });
-    return response;
   }
 
   async getDatabase(id: string): Promise<GetDatabaseResponse> {
-    console.log("getDatabase", id);
-    const response = await this.notion.databases.retrieve({ database_id: id });
-    return response;
+    return this.notion.databases.retrieve({ database_id: id });
   }
 
   async queryDatabase(

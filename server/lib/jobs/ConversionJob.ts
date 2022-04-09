@@ -1,6 +1,6 @@
 import { Knex } from "knex";
 
-import { PerformConversion } from "../../routes/notion/convert";
+import { PerformConversion } from "../../routes/notion/convert/convertPage";
 import NotionAPIWrapper from "../notion/NotionAPIWrapper";
 import getNotionData from "../User/getNotionData";
 
@@ -19,7 +19,7 @@ export default class ConversionJob {
   }
 
   async AllStartedJobs(owner: string) {
-    return await this.db("jobs")
+    return this.db("jobs")
       .where({ owner, status: "started" })
       .returning(["object_id", "status", "size_mb"]);
   }

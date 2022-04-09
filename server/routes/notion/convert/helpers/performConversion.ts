@@ -1,46 +1,31 @@
 import fs from "fs";
 
 import express from "express";
-import Settings from "../../lib/parser/Settings";
+import CardGenerator from "../../../../lib/anki/generator";
+import ConversionJob from "../../../../lib/jobs/ConversionJob";
+import BlockHandler from "../../../../lib/notion/BlockHandler";
 
-import DB from "../../lib/storage/db";
-import Workspace from "../../lib/parser/WorkSpace";
-import CustomExporter from "../../lib/parser/CustomExporter";
-import BlockHandler from "../../lib/notion/BlockHandler";
-import ParserRules from "../../lib/parser/ParserRules";
-import CardGenerator from "../../lib/anki/generator";
-import NotionAPIWrapper from "../../lib/notion/NotionAPIWrapper";
-import { FileSizeInMegaBytes } from "../../lib/misc/file";
-import EmailHandler from "../../lib/email/EmailHandler";
-import StorageHandler from "../../lib/storage/StorageHandler";
-import ConversionJob from "../../lib/jobs/ConversionJob";
-import getQuota from "../../lib/User/getQuota";
-import getEmailFromOwner from "../../lib/User/getEmailFromOwner";
-import isPatron from "../../lib/User/isPatron";
+import NotionAPIWrapper from "../../../../lib/notion/NotionAPIWrapper";
+import CustomExporter from "../../../../lib/parser/CustomExporter";
+import ParserRules from "../../../../lib/parser/ParserRules";
+import Settings from "../../../../lib/parser/Settings";
+import Workspace from "../../../../lib/parser/WorkSpace";
+import DB from "../../../../lib/storage/db";
+import getQuota from "../../../../lib/User/getQuota";
+import isPatron from "../../../../lib/User/isPatron";
+import StorageHandler from "../../../../lib/storage/StorageHandler";
+import { FileSizeInMegaBytes } from "../../../../lib/misc/file";
+import getEmailFromOwner from "../../../../lib/User/getEmailFromOwner";
+import EmailHandler from "../../../../lib/email/EmailHandler";
 
-const storage = new StorageHandler();
-export default async function ConvertPage(
-  api: NotionAPIWrapper,
-  req: express.Request,
-  res: express.Response
-) {
-  console.debug(`/convert ${req.params.id}, ${JSON.stringify(req.query)}`);
-  const id = req.params.id;
-  if (!id) {
-    console.debug("no id");
-    return res.status(400).send();
-  }
-
-  return PerformConversion(api, id, res.locals.owner, req, res);
-}
-
-export async function PerformConversion(
+export default async function performConversion(
   api: NotionAPIWrapper,
   id: string,
   owner: string,
   req: express.Request | null,
   res: express.Response | null
 ) {
+  const storage = new StorageHandler();
   try {
     console.log(`Performing conversion for ${id}`);
     const job = new ConversionJob(DB);

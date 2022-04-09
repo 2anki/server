@@ -32,7 +32,7 @@ export class DeckParser {
     this.files = files || [];
     this.firstDeckName = name;
     this.globalTags = null;
-    const file = this.files.find((file) => {
+    const firstFile = this.files.find((file) => {
       try {
         return file.name === global.decodeURIComponent(name);
       } catch (error) {
@@ -40,10 +40,10 @@ export class DeckParser {
         return file.name === name;
       }
     });
-    if (file) {
+    if (firstFile) {
       this.payload = this.handleHTML(
         name,
-        file.contents.toString(),
+        firstFile.contents.toString(),
         this.settings.deckName || "",
         []
       );
@@ -52,22 +52,16 @@ export class DeckParser {
     }
   }
 
-  findNextPage(
-    href: string | undefined,
-    fileName: string
-  ): string | Uint8Array | undefined {
+  findNextPage(href: string | undefined): string | Uint8Array | undefined {
     if (!href) {
       console.debug("skipping next page, due to href being " + href);
       return undefined;
     }
     const next = global.decodeURIComponent(href);
-    const file = this.files.find((file) => {
+    const nextFile = this.files.find((file) => {
       return file.name.match(next.replace(/[#-.]|[[-^]|[?|{}]/g, "\\$&"));
     });
-    if (!file) {
-      return file;
-    }
-    return file.contents;
+    return nextFile ? nextFile.contents : undefined;
   }
 
   noteHasCherry(note: Note) {
@@ -277,7 +271,7 @@ export class DeckParser {
       const spDom = dom(page);
       const ref = spDom.find("a").first();
       const href = ref.attr("href");
-      const pageContent = this.findNextPage(href, fileName);
+      const pageContent = this.findNextPage(href);
       if (pageContent && name) {
         const subDeckName = spDom.find("title").text() || ref.text();
         this.handleHTML(
@@ -424,7 +418,7 @@ export class DeckParser {
     const clozeDeletions = dom("code");
     let mangle = input;
     let num = 1;
-    clozeDeletions.each((i, elem) => {
+    clozeDeletions.each((_i, elem) => {
       const v = dom(elem).html();
       if (v) {
         if (v.includes("{{c") && v.includes("}}") && !v.includes("KaTex")) {
@@ -467,7 +461,7 @@ export class DeckParser {
     const underlines = dom("strong");
     let mangle = input;
     let answer = "";
-    underlines.each((i, elem) => {
+    underlines.each((_i, elem) => {
       const v = dom(elem).html();
       if (v) {
         const old = `<strong>${v}</strong>`;

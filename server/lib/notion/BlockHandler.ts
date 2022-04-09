@@ -33,7 +33,7 @@ import { BlockToggleList } from "./blocks/lists/BlockToggleList";
 import BlockBookmark from "./blocks/media/BlockBookmark";
 import { BlockVideo } from "./blocks/media/BlockVideo";
 import { BlockEmbed } from "./blocks/media/BlockEmbed";
-import RenderNotionLink from "./NotionLink";
+import RenderNotionLink from "./RenderNotionLink";
 import TagRegistry from "../parser/TagRegistry";
 
 class BlockHandler {
@@ -56,8 +56,6 @@ class BlockHandler {
     const t = c.image.type;
     /* @ts-ignore */
     const file = c.image[t];
-    const expiry = new Date(file.expiry_time);
-    const now = new Date();
     /* @ts-ignore */
     const url = c.image[t].url;
 
@@ -360,7 +358,7 @@ class BlockHandler {
             if (content.match(/(c|C)\d+::/)) {
               name += `{{${content}}}`;
             } else {
-              const clozeIndex = "{{c"+index+"::"
+              const clozeIndex = "{{c" + index + "::";
               if (!name.includes(clozeIndex)) {
                 name += `{{c${index}::${content}}}`;
               }

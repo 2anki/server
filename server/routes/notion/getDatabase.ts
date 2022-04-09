@@ -2,7 +2,7 @@ import express from "express";
 import NotionAPIWrapper from "../../lib/notion/NotionAPIWrapper";
 import NotionID from "../../lib/notion/NotionID";
 
-export default async function GetDatabase(
+export default async function getDatabase(
   api: NotionAPIWrapper,
   req: express.Request,
   res: express.Response
@@ -23,17 +23,4 @@ export default async function GetDatabase(
     console.error(error);
     res.status(500).send();
   }
-}
-
-export async function QueryDatabase(
-  api: NotionAPIWrapper,
-  req: express.Request,
-  res: express.Response
-) {
-  const id = req.params.id;
-  if (!id) {
-    return res.status(400).send();
-  }
-  const results = await api.queryDatabase(id);
-  res.json(results);
 }

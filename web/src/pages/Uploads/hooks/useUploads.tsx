@@ -22,11 +22,10 @@ export default function useUploads(
 
   async function deleteAllUploads(): Promise<void> {
     setIsDeletingAll(true);
-    uploads.reduce(
+    return uploads.reduce(
       (prev, arg) => prev.then(() => deleteUpload(arg.id)),
-      Promise.resolve(),
+      Promise.resolve().then(() => setIsDeletingAll(false))
     );
-    setIsDeletingAll(false);
   }
 
   useEffect(() => {
