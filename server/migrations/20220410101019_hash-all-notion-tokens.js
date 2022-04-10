@@ -1,5 +1,14 @@
-const unHashToken = require("../lib/misc/unHashToken");
-const hashToken = require("../lib/misc/hashToken");
+const CryptoJS = require("crypto-js");
+
+function unHashToken(token) {
+  return CryptoJS.AES.decrypt(hashed, process.env.THE_HASHING_SECRET).toString(
+    CryptoJS.enc.Utf8
+  );
+}
+
+function hashToken(token) {
+  return CryptoJS.AES.encrypt(token, process.env.THE_HASHING_SECRET).toString();
+}
 
 module.exports.up = (knex) => {
   return knex
