@@ -1,7 +1,7 @@
 const CryptoJS = require("crypto-js");
 
 function unHashToken(token) {
-  return CryptoJS.AES.decrypt(hashed, process.env.THE_HASHING_SECRET).toString(
+  return CryptoJS.AES.decrypt(token, process.env.THE_HASHING_SECRET).toString(
     CryptoJS.enc.Utf8
   );
 }
