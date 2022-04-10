@@ -7,6 +7,8 @@ import Deck from "./Deck";
 import { File } from "../anki/zip";
 import Workspace from "./WorkSpace";
 import { NewUniqueFileNameFrom, SuffixFrom } from "../misc/file";
+import replaceAll from "./helpers/replaceAll";
+import handleClozeDeletions from "./helpers/handleClozeDeletions";
 
 export class DeckParser {
   globalTags: cheerio.Cheerio | null;
@@ -477,7 +479,7 @@ export class DeckParser {
         card.number = counter++;
 
         if (card.cloze) {
-          card.name = this.handleClozeDeletions(card.name);
+          card.name = handleClozeDeletions(card.name);
         }
 
         if (this.settings.useInput && card.name.includes("<strong>")) {
