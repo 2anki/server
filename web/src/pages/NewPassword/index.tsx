@@ -1,4 +1,4 @@
-import NewPassordForm from '../../components/forms/NewPassword';
+import NewPassordForm from '../../components/forms/NewPasswordForm';
 import { Container } from '../../components/styled';
 
 interface Props {

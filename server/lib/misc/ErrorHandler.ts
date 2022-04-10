@@ -9,7 +9,8 @@ import { TEMPLATE_DIR } from "../constants";
 const errorPage = fs
   .readFileSync(path.join(TEMPLATE_DIR, "error-message.html"))
   .toString();
-function ErrorHandler(res: express.Response, err: Error) {
+
+export default function ErrorHandler(res: express.Response, err: Error) {
   if (process.env.NODE_ENV === "production") {
     Sentry.captureException(err);
   }
@@ -17,5 +18,3 @@ function ErrorHandler(res: express.Response, err: Error) {
   const info = errorPage.replace("{err.message}", err.message);
   res.status(400).send(info);
 }
-
-export default ErrorHandler;

@@ -9,10 +9,9 @@ export async function BlockToggleList(
   handler: BlockHandler
 ) {
   /* @ts-ignore */
-  const list = block["toggle"];
+  const list = block.toggle;
   const text = list.text;
-  // TODO: handle list.type
-  let backSide = await HandleChildren(block, handler);
+  const backSide = await HandleChildren(block, handler);
   /**
    * We can't just set open to false that won't work since it's a boolean and will be truthy.
    * The open attribute has to be omitted.
@@ -33,7 +32,7 @@ export async function BlockToggleList(
             <summary>
               {text.map((t: GetBlockResponse) => {
                 /* @ts-ignore */
-                let annotations = t.annotations;
+                const annotations = t.annotations;
                 /* @ts-ignore */
                 return HandleBlockAnnotations(annotations, t.text);
               })}

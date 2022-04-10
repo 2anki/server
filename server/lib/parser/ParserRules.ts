@@ -8,8 +8,6 @@ class ParserRules {
   UNLIMITED = false;
   EMAIL_NOTIFICATION = false;
 
-  constructor() {}
-
   /**
    *  Function to handle transforming flaschard types to proper names for use in traverseral
    * @returns all type names for flashcards
@@ -41,9 +39,9 @@ class ParserRules {
 
   static async Load(owner: string, id: string): Promise<ParserRules> {
     try {
-      let rules = new ParserRules();
+      const rules = new ParserRules();
       const result = await DB("parser_rules")
-        .where({ object_id: id, owner: owner })
+        .where({ object_id: id, owner })
         .returning(["*"])
         .first();
       rules.setFlashcardTypes(result.flashcard_is.split(","));
@@ -60,7 +58,7 @@ class ParserRules {
   async setDeckIs(type: string, id: string, owner: string): Promise<boolean> {
     this.DECK = type;
     try {
-      await DB("parser_rules").where({ object_id: id, owner: owner }).update({
+      await DB("parser_rules").where({ object_id: id, owner }).update({
         deck_is: type,
       });
       return true;
@@ -71,7 +69,7 @@ class ParserRules {
   static async Save(id: string, owner: string, input: any) {
     await DB("parser_rules")
       .insert({
-        owner: owner,
+        owner,
         object_id: id,
         flashcard_is: input.FLASHCARD,
         deck_is: input.DECK,

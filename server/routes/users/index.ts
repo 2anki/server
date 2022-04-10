@@ -1,12 +1,14 @@
 import express from "express";
 
-import User from "../lib/User";
-import DB from "../lib/storage/db";
+import DB from "../../lib/storage/db";
 
-import EmailHandler from "../lib/email/EmailHandler";
-import TokenHandler from "../lib/misc/TokenHandler";
+import EmailHandler from "../../lib/email/EmailHandler";
+import TokenHandler from "../../lib/misc/TokenHandler";
 import path from "path";
-import RequireAuthentication from "../middleware/RequireAuthentication";
+import RequireAuthentication from "../../middleware/RequireAuthentication";
+import updatePassword from "../../lib/User/updatePassword";
+import comparePassword from "../../lib/User/comparePassword";
+import hashPassword from "../../lib/User/hashPassword";
 
 const router = express.Router();
 
@@ -30,7 +32,7 @@ router.post("/new-password", async (req, res, next) => {
   }
 
   try {
-    await User.UpdatePassword(DB, password, reset_token);
+    await updatePassword(DB, password, reset_token);
     res.status(200).send({ message: "ok" });
   } catch (error) {
     next(error);
@@ -83,7 +85,7 @@ router.post("/forgot-password", async (req, res, next) => {
 
 router.get("/v/:id", async (req, res, next) => {
   console.debug("verify user " + req.params.id);
-  const valid = await TokenHandler.IsValidVerificationToken(DB, req.params.id);
+  const valid = await TokenHandler.IsValidVerificationToken(req.params.id);
   if (!valid) {
     console.debug("invalid verification token");
     return res.redirect("/login#login");
@@ -131,7 +133,7 @@ router.post("/login", async (req, res, next) => {
       });
     }
 
-    const isMatch = User.ComparePassword(password, user.password);
+    const isMatch = comparePassword(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid password." });
     } else {
@@ -170,7 +172,7 @@ router.post("/register", async (req, res, next) => {
     return;
   }
 
-  const password = User.HashPassword(req.body.password);
+  const password = hashPassword(req.body.password);
   const name = req.body.name;
   const email = req.body.email.toLowerCase();
   const verification_token = TokenHandler.NewVerificationToken();
@@ -194,7 +196,7 @@ const distDir = path.join(__dirname, "../../web/build");
 router.get("/r/:id", async (req, res, next) => {
   try {
     const reset_token = req.params.id;
-    const isValid = await TokenHandler.IsValidResetToken(DB, reset_token);
+    const isValid = await TokenHandler.IsValidResetToken(reset_token);
     if (isValid) {
       return res.sendFile(path.join(distDir, "index.html"));
     }
@@ -205,12 +207,12 @@ router.get("/r/:id", async (req, res, next) => {
   }
 });
 
-router.get("/debug/locals", RequireAuthentication, (req, res) => {
+router.get("/debug/locals", RequireAuthentication, (_req, res) => {
   const locals = res.locals;
   return res.json({ locals });
 });
 
-router.get("/is-patreon", RequireAuthentication, (req, res) => {
+router.get("/is-patreon", RequireAuthentication, (_req, res) => {
   const patreon = res.locals.patreon;
   return res.json({ patreon });
 });

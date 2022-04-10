@@ -16,10 +16,6 @@ function ForgotPasswordForm({ setError }: ForgotPasswordProps) {
   const [didReset, setDidReset] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const isValid = () => (
-    email.length > 0 && email.length < 256 && email.match(/^\S+@\S+\.\S+$/)
-  );
-
   const handleSubmit = async (event: SyntheticEvent) => {
     event.preventDefault();
     const endpoint = '/users/forgot-password';
@@ -73,7 +69,7 @@ function ForgotPasswordForm({ setError }: ForgotPasswordProps) {
                       type="submit"
                       className="button is-link is-medium"
                       style={{ width: '100%' }}
-                      disabled={!isValid() || loading}
+                      disabled={loading}
                     >
                       Reset my password
                     </button>

@@ -16,9 +16,6 @@ export const BlockEmbed = (c: GetBlockResponse) => {
       );
     }
   }
-  // TODO: add support for autoplay
-  // TODO: handle widht and height
-  // TODO: handle non external video
   return renderToStaticMarkup(
     <>
       <iframe

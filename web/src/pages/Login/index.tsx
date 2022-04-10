@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import RegisterForm from '../../components/forms/RegisterForm';
 import LoginForm from '../../components/forms/LoginForm';
-import ForgotPasswordForm from '../../components/forms/ForgotPassword';
+import ForgotPasswordForm from '../../components/forms/ForgotPasswordForm';
 import NavButtonCTA from '../../components/buttons/NavButtonCTA';
 import { Container } from '../../components/styled';
 import TopSection from './TopSection';

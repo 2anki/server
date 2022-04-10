@@ -10,4 +10,3 @@ module.exports.up = async function (knex) {
 module.exports.down = async function (knex) {
 	return knex.schema.dropTable("patreon_tokens");
 };
-// TODO: encrypt

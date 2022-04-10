@@ -42,7 +42,7 @@ class StorageHandler {
     return new Promise((resolve, reject) => {
       s3.deleteObject(
         { Bucket: StorageHandler.DefaultBucketName(), Key: key },
-        function (err, data) {
+        function (err, _data) {
           if (err) {
             console.error(err);
             reject(err);
@@ -103,12 +103,12 @@ class StorageHandler {
           Key: name,
           Body: data,
         },
-        (err, data) => {
+        (err, response) => {
           if (err) {
             console.error(err);
             reject(err);
           } else {
-            resolve(data);
+            resolve(response);
           }
         }
       );

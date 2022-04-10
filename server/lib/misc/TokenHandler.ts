@@ -2,15 +2,16 @@ import crypto from "crypto";
 
 import jwt from "jsonwebtoken";
 import { Knex } from "knex";
+
 import DB from "../storage/db";
-import User from "../User";
+
+interface User {
+  owner: string;
+  patreon?: boolean;
+}
 
 class TokenHandler {
-  static SaveNotionToken(
-    DB: Knex<any, unknown[]>,
-    user: number,
-    data: any
-  ): Promise<boolean> {
+  static SaveNotionToken(user: number, data: any): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
       DB("notion_tokens")
         .insert({
@@ -35,7 +36,6 @@ class TokenHandler {
   }
 
   static SavePatreonToken(
-    DB: Knex,
     user: number,
     token: string,
     data: any
@@ -43,7 +43,7 @@ class TokenHandler {
     return new Promise<boolean>((resolve, reject) => {
       DB("patreon_tokens")
         .insert({
-          data: data,
+          data,
           token,
           owner: user,
         })
@@ -58,14 +58,14 @@ class TokenHandler {
     });
   }
 
-  static async GetNotionToken(DB: Knex, owner: number) {
+  static async GetNotionToken(owner: number) {
     if (!owner) {
       return null;
     }
     return DB("notion_tokens").where({ owner }).returning("token").first();
   }
 
-  static async GetPatreonToken(DB: Knex, owner: number) {
+  static async GetPatreonToken(owner: number) {
     if (!owner) {
       return null;
     }
@@ -78,23 +78,20 @@ class TokenHandler {
   static NewVerificationToken(): string {
     return crypto.randomBytes(64).toString("hex");
   }
-  static async IsValidResetToken(db: Knex, token: string): Promise<boolean> {
+  static async IsValidResetToken(token: string): Promise<boolean> {
     if (!token || token.length < 128) {
       return false;
     }
-    const user = await db("users").where({ reset_token: token }).first();
+    const user = await DB("users").where({ reset_token: token }).first();
     /* @ts-ignore */
     return user && user.reset_token;
   }
 
-  static async IsValidVerificationToken(
-    db: Knex,
-    token: string
-  ): Promise<boolean> {
+  static async IsValidVerificationToken(token: string): Promise<boolean> {
     if (!token || token.length < 128) {
       return false;
     }
-    const user = await db("users")
+    const user = await DB("users")
       .where({
         verification_token: token,
       })
@@ -133,7 +130,7 @@ class TokenHandler {
       .where({ token })
       .returning(["owner'"])
       .first();
-    
+
     if (!accessToken) {
       return null;
     }

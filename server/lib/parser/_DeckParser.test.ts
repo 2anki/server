@@ -21,7 +21,6 @@ test.skip("Grouped cloze deletions", async () => {
     "Grouped Cloze Deletions fbf856ad7911423dbef0bfd3e3c5ce5c 3.html",
     new Settings({ cherry: "false", cloze: "true" })
   );
-  // TODO: make sure we actually check for the cloze index c1, c2, etc.
   expect(deck.name).toBe("Grouped Cloze Deletions");
   expect(deck.cards.length).toBe(20);
 });

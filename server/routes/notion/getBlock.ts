@@ -1,7 +1,7 @@
 import express from "express";
 import NotionAPIWrapper from "../../lib/notion/NotionAPIWrapper";
 
-export default async function GetBlock(
+export default async function getBlock(
   api: NotionAPIWrapper,
   req: express.Request,
   res: express.Response

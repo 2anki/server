@@ -25,10 +25,8 @@ async function findCardByName(
   name: string,
   options: Object
 ): Promise<Note | undefined> {
-  const flashcards = await loadCards({ "use-notion-id": "true" });
-  return flashcards.find(
-    (f) => f.name === defaultFront("3 - 21 + 21 is #buddy")
-  );
+  const flashcards = await loadCards(options);
+  return flashcards.find((f) => f.name === defaultFront(name));
 }
 
 const loadCards = async (options: any): Promise<Note[]> => {

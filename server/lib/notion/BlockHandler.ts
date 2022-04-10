@@ -33,7 +33,7 @@ import { BlockToggleList } from "./blocks/lists/BlockToggleList";
 import BlockBookmark from "./blocks/media/BlockBookmark";
 import { BlockVideo } from "./blocks/media/BlockVideo";
 import { BlockEmbed } from "./blocks/media/BlockEmbed";
-import RenderNotionLink from "./NotionLink";
+import RenderNotionLink from "./RenderNotionLink";
 import TagRegistry from "../parser/TagRegistry";
 
 class BlockHandler {
@@ -52,17 +52,10 @@ class BlockHandler {
 
   async embedImage(c: GetBlockResponse): Promise<string> {
     console.debug("embedImage: " + c.id);
-    // TODO: cache images better?
-    // TODO: does this handle file uploads too?
-    // TODO: handle errors
     /* @ts-ignore */
     const t = c.image.type;
     /* @ts-ignore */
-    const file = c.image[t];
-    const expiry = new Date(file.expiry_time);
-    const now = new Date();
-    /* @ts-ignore */
-    let url = c.image[t].url;
+    const url = c.image[t].url;
 
     const suffix = SuffixFrom(S3FileName(url));
     const newName = NewUniqueFileNameFrom(url) + (suffix || "");
@@ -74,7 +67,6 @@ class BlockHandler {
   }
 
   async embedAudioFile(c: GetBlockResponse): Promise<string> {
-    // TODO: cache audio files better?
     console.debug("embedAudioFile: " + c.id);
     /* @ts-ignore */
     const audio = c.audio;
@@ -90,7 +82,6 @@ class BlockHandler {
 
   async embedFile(c: GetBlockResponse): Promise<string> {
     console.debug("embedFile: " + c.id);
-    // TODO: cache files better?
     /* @ts-ignore */
     const file = c.file;
     const url = file.file.url;
@@ -123,7 +114,6 @@ class BlockHandler {
       /* @ts-ignore */
       const requestChildren = response.results;
 
-      // TODO: handle the child has children
       let back = "";
       for (const c of requestChildren) {
         // If the block has been handled before, skip it.
@@ -131,7 +121,6 @@ class BlockHandler {
         if (this.skip.includes(c.id)) {
           continue;
         }
-        // TODO: handle lists
         /* @ts-ignore */
         switch (c.type) {
           case "image":
@@ -210,7 +199,6 @@ class BlockHandler {
         }
 
         // Nesting applies to all not just toggles
-        // TODO: how are we handling nested toggles?
         if (
           handleChildren ||
           /* @ts-ignore */
@@ -236,9 +224,6 @@ class BlockHandler {
       : undefined;
   }
 
-  /**
-   *  TODO: reduce the duplication between the note types
-   */
   private async getFlashcards(
     rules: ParserRules,
     flashcardBlocks: GetBlockResponse[],
@@ -268,31 +253,18 @@ class BlockHandler {
         // Assume it's a basic card then check for children
         const name = await this.renderFront(block);
         const back = await this.getBackSide(block);
-        let ankiNote = new Note(name, back || "");
+        const ankiNote = new Note(name, back || "");
         ankiNote.media = this.exporter.media;
         /* @ts-ignore */
-        if (block.has_children) {
-          // Look for cloze deletion cards
-          if (settings.isCloze) {
-            const clozeCard = await this.getClozeDeletionCard(rules, block);
-            clozeCard && ankiNote.copyValues(clozeCard);
-          }
-          // Look for input cards
-          if (settings.useInput) {
-            const inputCard = await this.getInputCard(rules, block);
-            inputCard && ankiNote.copyValues(inputCard);
-          }
+        // Look for cloze deletion cards
+        if (settings.isCloze) {
+          const clozeCard = await this.getClozeDeletionCard(rules, block);
+          clozeCard && ankiNote.copyValues(clozeCard);
         }
-        // Flashcard block has no children but uses cloze
-        else {
-          if (settings.isCloze) {
-            const clozeCard = await this.getClozeDeletionCard(rules, block);
-            clozeCard && ankiNote.copyValues(clozeCard);
-          }
-          if (settings.useInput) {
-            const inputCard = await this.getInputCard(rules, block);
-            inputCard && ankiNote.copyValues(inputCard);
-          }
+        // Look for input cards
+        if (settings.useInput) {
+          const inputCard = await this.getInputCard(rules, block);
+          inputCard && ankiNote.copyValues(inputCard);
         }
 
         ankiNote.back = back!;
@@ -304,7 +276,6 @@ class BlockHandler {
         ankiNote.media = this.exporter.media;
         this.exporter.media = [];
 
-        console.debug(`Add Flashcard: ${ankiNote.name}`);
         const tr = TagRegistry.getInstance();
         ankiNote.tags =
           rules.TAGS === "heading" ? tr.headings : tr.strikethroughs;
@@ -325,7 +296,7 @@ class BlockHandler {
     }
 
     if (settings.useTags && tags.length > 0) {
-      cards.map((c) => {
+      cards.forEach((c) => {
         c.tags ||= [];
         c.tags = tags.concat(c.tags);
       });
@@ -333,7 +304,6 @@ class BlockHandler {
     return cards; // .filter((c) => !c.isValid());
   }
 
-  // TODO: add support for all types of front rendering
   renderFront(block: GetBlockResponse) {
     /* @ts-ignore */
     const type = block.type;
@@ -369,10 +339,10 @@ class BlockHandler {
         if (cb.annotations.code) {
           const content = cb.text.content;
           if (content.includes("::")) {
-            if (content.match(/(c|C)\d+::/)) {
+            if (content.match(/[cC]\d+::/)) {
               name += `{{${content}}}`;
             } else {
-              const clozeIndex = "{{c"+index+"::"
+              const clozeIndex = "{{c" + index + "::";
               if (!name.includes(clozeIndex)) {
                 name += `{{c${index}::${content}}}`;
               }
@@ -435,7 +405,6 @@ class BlockHandler {
     parentName: string = ""
   ): Promise<Deck[]> {
     console.debug("findFlashcards for " + topLevelId);
-    // TODO: subdeck deck.length > 0 && SUBDECK is page?
     if (rules.DECK === "page") {
       return this.findFlashcardsFromPage(
         topLevelId,
@@ -499,7 +468,6 @@ class BlockHandler {
     const deck = new Deck(
       parentName ? `${parentName}::${title}` : title,
       cards,
-      // TODO: use cover image from the page if it exists
       undefined,
       NOTION_STYLE,
       Deck.GenerateId(),
@@ -508,7 +476,6 @@ class BlockHandler {
     decks.push(deck);
 
     if (settings.isAll) {
-      // TODO: support combining types of decks ([].includes vs ''.match)
       /* @ts-ignore */
       const subDecks = blocks.filter((b) => b.type === rules.SUB_DECKS);
       for (const sd of subDecks) {

@@ -30,7 +30,7 @@ export function isNotionColorBackground(color: string) {
 }
 
 export function styleWithColors(color?: string): string {
-  if (!color || color === 'default') { 
+  if (!color || color === 'default') {
     return '';
   }
     return ` n2a-highlight-${color}`;

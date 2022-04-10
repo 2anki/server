@@ -38,7 +38,7 @@ class CardGenerator {
         PYTHON(),
         createDeckScriptPathARGS,
         { cwd: this.currentDirectory },
-        (err, stdout, stderr) => {
+        (err, stdout) => {
           if (err) {
             console.error(err);
             reject(err);

@@ -5,7 +5,7 @@ import HandleBlockAnnotations from "./utils";
 
 const BlockCode = (block: GetBlockResponse) => {
   /* @ts-ignore */
-  const code = block["code"];
+  const code = block.code;
   const text = code.text;
 
   return ReactDOMServer.renderToStaticMarkup(
@@ -13,7 +13,7 @@ const BlockCode = (block: GetBlockResponse) => {
       <code>
         {text.map((t: GetBlockResponse) => {
           /* @ts-ignore */
-          let annotations = t.annotations;
+          const annotations = t.annotations;
           /* @ts-ignore */
           return HandleBlockAnnotations(annotations, t.text);
         })}

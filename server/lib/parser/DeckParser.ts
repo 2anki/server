@@ -7,14 +7,8 @@ import Deck from "./Deck";
 import { File } from "../anki/zip";
 import Workspace from "./WorkSpace";
 import { NewUniqueFileNameFrom, SuffixFrom } from "../misc/file";
-
-const replaceAll = (original: string, oldValue: string, newValue: string) => {
-  // escaping all special Characters
-  const escaped = oldValue.replace(/[{}()[\].?*+$^\\/]/g, "\\$&");
-  // creating regex with global flag
-  const reg = new RegExp(escaped, "g");
-  return original.replace(reg, newValue);
-};
+import replaceAll from "./helpers/replaceAll";
+import handleClozeDeletions from "./helpers/handleClozeDeletions";
 
 export class DeckParser {
   globalTags: cheerio.Cheerio | null;
@@ -32,7 +26,7 @@ export class DeckParser {
     this.files = files || [];
     this.firstDeckName = name;
     this.globalTags = null;
-    const file = this.files.find((file) => {
+    const firstFile = this.files.find((file) => {
       try {
         return file.name === global.decodeURIComponent(name);
       } catch (error) {
@@ -40,10 +34,10 @@ export class DeckParser {
         return file.name === name;
       }
     });
-    if (file) {
+    if (firstFile) {
       this.payload = this.handleHTML(
         name,
-        file.contents.toString(),
+        firstFile.contents.toString(),
         this.settings.deckName || "",
         []
       );
@@ -52,22 +46,16 @@ export class DeckParser {
     }
   }
 
-  findNextPage(
-    href: string | undefined,
-    fileName: string
-  ): string | Uint8Array | undefined {
+  findNextPage(href: string | undefined): string | Uint8Array | undefined {
     if (!href) {
       console.debug("skipping next page, due to href being " + href);
       return undefined;
     }
     const next = global.decodeURIComponent(href);
-    const file = this.files.find((file) => {
+    const nextFile = this.files.find((file) => {
       return file.name.match(next.replace(/[#-.]|[[-^]|[?|{}]/g, "\\$&"));
     });
-    if (!file) {
-      return file;
-    }
-    return file.contents;
+    return nextFile ? nextFile.contents : undefined;
   }
 
   noteHasCherry(note: Note) {
@@ -149,6 +137,7 @@ export class DeckParser {
         ? contents.replace(/border-bottom:0.05em solid/g, "")
         : contents
     );
+    /* @ts-ignore */
     let name = deckName || dom("title").text();
     let style = dom("style").html();
     const pageId = dom("article").attr("id");
@@ -218,7 +207,8 @@ export class DeckParser {
           const front = parentClass
             ? `<div class='${parentClass}'>${validSummary}</div>`
             : validSummary;
-          if ((summary && toggle) || (this.settings.maxOne && toggle.text())) {
+          /* @ts-ignore */
+          if (toggle || (this.settings.maxOne && toggle.text())) {
             const toggleHTML = toggle.html();
             if (toggleHTML) {
               let b = toggleHTML.replace(summary.html() || "", "");
@@ -277,7 +267,7 @@ export class DeckParser {
       const spDom = dom(page);
       const ref = spDom.find("a").first();
       const href = ref.attr("href");
-      const pageContent = this.findNextPage(href, fileName);
+      const pageContent = this.findNextPage(href);
       if (pageContent && name) {
         const subDeckName = spDom.find("title").text() || ref.text();
         this.handleHTML(
@@ -419,55 +409,12 @@ export class DeckParser {
     });
   }
 
-  handleClozeDeletions(input: string) {
-    const dom = cheerio.load(input);
-    const clozeDeletions = dom("code");
-    let mangle = input;
-    let num = 1;
-    clozeDeletions.each((i, elem) => {
-      const v = dom(elem).html();
-      if (v) {
-        if (v.includes("{{c") && v.includes("}}") && !v.includes("KaTex")) {
-          // make Statement unreachable bc. even clozes can get such a formation
-          // eg: \frac{{c}} 1 would give that.
-          mangle = replaceAll(mangle, `<code>${v}</code>`, v);
-        } else if (!v.includes("KaTex") && v.match(/c\d::/)) {
-          // In the case user forgets the curly braces, add it for them
-          if (!v.includes("{{")) {
-            mangle = mangle.replace("<code>", `{{`);
-          } else {
-            mangle = mangle.replace("<code>", "");
-          }
-          if (!v.endsWith("}}")) {
-            mangle = mangle.replace("</code>", "}}");
-          } else {
-            mangle = mangle.replace("</code>", "");
-          }
-        } else if (!v.includes("KaTex")) {
-          const old = `<code>${v}</code>`;
-          const newValue = v.match(/c\d::/) ? `{{${v}}}` : `{{c${num}::${v}}}`;
-          mangle = replaceAll(mangle, old, newValue);
-          num += 1;
-        } else {
-          const old = `<code>${v}</code>`;
-          // prevent "}}" so that anki closes the Cloze at the right }} not this one
-          const vReplaced = replaceAll(v, "}}", "} }");
-          const newValue = "{{c" + num + "::" + vReplaced + "}}";
-          mangle = replaceAll(mangle, old, newValue);
-          num += 1;
-        }
-      }
-    });
-
-    return mangle;
-  }
-
   treatBoldAsInput(input: string, inline: boolean) {
     const dom = cheerio.load(input);
     const underlines = dom("strong");
     let mangle = input;
     let answer = "";
-    underlines.each((i, elem) => {
+    underlines.each((_i, elem) => {
       const v = dom(elem).html();
       if (v) {
         const old = `<strong>${v}</strong>`;
@@ -532,7 +479,7 @@ export class DeckParser {
         card.number = counter++;
 
         if (card.cloze) {
-          card.name = this.handleClozeDeletions(card.name);
+          card.name = handleClozeDeletions(card.name);
         }
 
         if (this.settings.useInput && card.name.includes("<strong>")) {

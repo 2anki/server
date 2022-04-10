@@ -8,7 +8,6 @@ interface SwitchProps {
 function Switch({
   title, id, checked, onSwitched,
 }: SwitchProps) {
-  // TODO: review these attribute and improve them
   return (
     <div
       tabIndex={-12}

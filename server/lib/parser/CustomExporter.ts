@@ -1,7 +1,7 @@
 import path from "path";
 import fs from "fs";
 
-import CardGenerator from "../anki/generator";
+import CardGenerator from "../anki/CardGenerator";
 import Deck from "./Deck";
 
 class CustomExporter {

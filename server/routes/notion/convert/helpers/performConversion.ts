@@ -1,44 +1,31 @@
 import fs from "fs";
 
 import express from "express";
-import Settings from "../../lib/parser/Settings";
+import CardGenerator from "../../../../lib/anki/CardGenerator";
+import ConversionJob from "../../../../lib/jobs/ConversionJob";
+import BlockHandler from "../../../../lib/notion/BlockHandler";
 
-import DB from "../../lib/storage/db";
-import User from "../../lib/User";
-import Workspace from "../../lib/parser/WorkSpace";
-import CustomExporter from "../../lib/parser/CustomExporter";
-import BlockHandler from "../../lib/notion/BlockHandler";
-import ParserRules from "../../lib/parser/ParserRules";
-import CardGenerator from "../../lib/anki/generator";
-import NotionAPIWrapper from "../../lib/notion/NotionAPIWrapper";
-import { FileSizeInMegaBytes } from "../../lib/misc/file";
-import EmailHandler from "../../lib/email/EmailHandler";
-import StorageHandler from "../../lib/storage/StorageHandler";
-import ConversionJob from "../../lib/jobs/ConversionJob";
+import NotionAPIWrapper from "../../../../lib/notion/NotionAPIWrapper";
+import CustomExporter from "../../../../lib/parser/CustomExporter";
+import ParserRules from "../../../../lib/parser/ParserRules";
+import Settings from "../../../../lib/parser/Settings";
+import Workspace from "../../../../lib/parser/WorkSpace";
+import DB from "../../../../lib/storage/db";
+import getQuota from "../../../../lib/User/getQuota";
+import isPatron from "../../../../lib/User/isPatron";
+import StorageHandler from "../../../../lib/storage/StorageHandler";
+import { FileSizeInMegaBytes } from "../../../../lib/misc/file";
+import getEmailFromOwner from "../../../../lib/User/getEmailFromOwner";
+import EmailHandler from "../../../../lib/email/EmailHandler";
 
-let storage = new StorageHandler();
-export default async function ConvertPage(
-  api: NotionAPIWrapper,
-  req: express.Request,
-  res: express.Response
-) {
-  console.debug(`/convert ${req.params.id}, ${JSON.stringify(req.query)}`);
-  const id = req.params.id;
-  if (!id) {
-    console.debug("no id");
-    return res.status(400).send();
-  }
-
-  return PerformConversion(api, id, res.locals.owner, req, res);
-}
-
-export async function PerformConversion(
+export default async function performConversion(
   api: NotionAPIWrapper,
   id: string,
   owner: string,
   req: express.Request | null,
   res: express.Response | null
 ) {
+  const storage = new StorageHandler();
   try {
     console.log(`Performing conversion for ${id}`);
     const job = new ConversionJob(DB);
@@ -59,7 +46,7 @@ export async function PerformConversion(
       return res ? res.status(200).send() : null;
     }
 
-    const quota = await User.getQuota(DB, owner);
+    const quota = await getQuota(DB, owner);
     if (quota > 21 && !res?.locals.patreon) {
       return res
         ?.status(429)
@@ -81,7 +68,7 @@ export async function PerformConversion(
 
     if (res) bl.useAll = rules.UNLIMITED = res?.locals.patreon;
     else {
-      const user = await User.IsPatreon(DB, owner);
+      const user = await isPatron(DB, owner);
       console.log("checking if user is patreon", user);
       bl.useAll = rules.UNLIMITED = user.patreon;
     }
@@ -102,7 +89,7 @@ export async function PerformConversion(
     const payload = (await gen.run()) as string;
     const apkg = fs.readFileSync(payload);
     const filename = (() => {
-      let f = settings.deckName || bl.firstPageTitle || id;
+      const f = settings.deckName || bl.firstPageTitle || id;
       if (f.endsWith(".apkg")) {
         return f;
       }
@@ -114,18 +101,18 @@ export async function PerformConversion(
     const size = FileSizeInMegaBytes(payload);
     await DB("uploads").insert({
       object_id: id,
-      owner: owner,
-      filename: filename,
+      owner,
+      filename,
       /* @ts-ignore */
-      key: key,
+      key,
       size_mb: size,
     });
 
     console.log("rules.email", rules.EMAIL_NOTIFICATION);
     await job.completed(id, owner);
-    const email = await User.GetEmailFromOwner(DB, owner);
+    const email = await getEmailFromOwner(DB, owner);
     if (size > 24) {
-      let prefix = req
+      const prefix = req
         ? `${req.protocol}://${req.get("host")}`
         : "https://2anki.net";
       const link = `${prefix}/download/u/${key}`;
