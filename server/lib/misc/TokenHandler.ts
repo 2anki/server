@@ -1,10 +1,9 @@
 import crypto from "crypto";
 
 import jwt from "jsonwebtoken";
+import { Knex } from "knex";
 
 import DB from "../storage/db";
-import hashToken from "./hashToken";
-import unHashToken from "./unHashToken";
 
 interface User {
   owner: string;
@@ -22,7 +21,7 @@ class TokenHandler {
           workspace_icon: data.workspace_icon,
           workspace_id: data.workspace_id,
           notion_owner: data.owner,
-          token: hashToken(data.access_token),
+          token: data.access_token,
           owner: user,
         })
         .onConflict("owner")
@@ -63,11 +62,7 @@ class TokenHandler {
     if (!owner) {
       return null;
     }
-    const row = await DB("notion_tokens")
-      .where({ owner })
-      .returning("token")
-      .first();
-    return unHashToken(row.token);
+    return DB("notion_tokens").where({ owner }).returning("token").first();
   }
 
   static async GetPatreonToken(owner: number) {
