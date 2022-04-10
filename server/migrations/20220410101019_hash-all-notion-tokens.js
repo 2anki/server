@@ -1,16 +1,14 @@
-import { Knex } from "knex";
+const unHashToken = require("../lib/misc/unHashToken");
+const hashToken = require("../lib/misc/hashToken");
 
-import unHashToken from "../lib/misc/unHashToken";
-import hashToken from "../lib/misc/hashToken";
-
-export function up(knex: Knex) {
+module.exports.up = (knex) => {
   return knex
     .select()
     .from("notion_tokens")
     .then((users) => {
       return knex.transaction((trx) => {
         return knex.schema
-          .table("notion_tokens", (table) =>
+          .table("notion_tokens", () =>
             Promise.all(
               users.map((row) => {
                 return knex("notion_tokens")
@@ -24,16 +22,16 @@ export function up(knex: Knex) {
           .catch(trx.rollback);
       });
     });
-}
+};
 
-export function down(knex: Knex) {
+module.exports.down = (knex) => {
   return knex
     .select()
     .from("notion_tokens")
     .then((users) => {
       return knex.transaction((trx) => {
         return knex.schema
-          .table("notion_tokens", (table) =>
+          .table("notion_tokens", () =>
             Promise.all(
               users.map((row) => {
                 return knex("notion_tokens")
@@ -47,4 +45,4 @@ export function down(knex: Knex) {
           .catch(trx.rollback);
       });
     });
-}
+};

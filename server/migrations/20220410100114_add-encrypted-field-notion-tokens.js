@@ -1,13 +1,11 @@
-import { Knex } from "knex";
-
-export async function up(knex: Knex): Promise<void> {
+module.exports.up = (knex) => {
   return knex.schema.table("notion_tokens", (table) => {
     table.boolean("encrypted").defaultTo(false);
   });
-}
+};
 
-export async function down(knex: Knex): Promise<void> {
+module.exports.down = (knex) => {
   return knex.schema.table("notion_tokens", (table) => {
     table.dropColumn("encrypted");
   });
-}
+};
