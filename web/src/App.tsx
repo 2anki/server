@@ -1,25 +1,25 @@
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
-import { lazy } from "react";
-import styled from "styled-components";
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import ReactHtmlParser from 'react-html-parser';
+import { lazy, useMemo, useState } from 'react';
+import styled from 'styled-components';
 
-import UploadPage from "./pages/UploadPage";
-import HomePage from "./pages/Home";
+import UploadPage from './pages/Upload';
+import HomePage from './pages/Home';
 
-import Footer from "./components/Footer";
-import CardOptionsStore from "./store/Options";
-import StoreContext from "./store/StoreContext";
-import GlobalStyle from "./GlobalStyle";
+import Footer from './components/Footer';
+import CardOptionsStore from './store/CardOptionsStore';
+import StoreContext from './store/StoreContext';
+import GlobalStyle from './GlobalStyle';
+import { NavigationBar } from './components/NavigationBar/NavigationBar';
 
-import NavigationBar from "./components/NavigationBar";
-
-const TemplatePage = lazy(() => import("./pages/Templates/TemplatePage"));
-const PreSignupPage = lazy(() => import("./pages/PreSignupPage"));
-const SearchPage = lazy(() => import("./pages/SearchPage"));
-const LoginPage = lazy(() => import("./pages/LoginPage"));
-const NewPasswordPage = lazy(() => import("./pages/NewPasswordPage"));
-const LearnPage = lazy(() => import("./pages/LearnPage"));
-const VerifyPage = lazy(() => import("./pages/VerifyPage"));
-const ListUploadsPage = lazy(() => import("./pages/ListUploadsPage"));
+const TemplatePage = lazy(() => import('./pages/Templates'));
+const PreSignupPage = lazy(() => import('./pages/Register'));
+const SearchPage = lazy(() => import('./pages/Search'));
+const LoginPage = lazy(() => import('./pages/Login'));
+const NewPasswordPage = lazy(() => import('./pages/NewPassword'));
+const LearnPage = lazy(() => import('./pages/Learn'));
+const VerifyPage = lazy(() => import('./pages/Verify'));
+const ListUploadsPage = lazy(() => import('./pages/Uploads'));
 
 const Layout = styled.div`
   display: flex;
@@ -28,13 +28,9 @@ const Layout = styled.div`
   height: 100vh;
 `;
 
-const Container = styled.div`
-  display: block;
-  flex: 1 0 auto;
-`;
-
 function App() {
-  const store = new CardOptionsStore();
+  const store = useMemo(() => new CardOptionsStore(), []);
+  const [errorMessage, setErrorMessage] = useState('');
 
   return (
     <>
@@ -44,46 +40,55 @@ function App() {
           <Layout>
             {/* We don't want a header on the sign-up page */}
             <Route
-              render={({ location }) =>
-                location.pathname.match(/^(?!.*(login|search|signup)).*$/) ? (
-                  <NavigationBar />
-                ) : null
-              }
-            ></Route>
-            <Container>
-              <Switch>
-                <Route path="/uploads">
-                  <ListUploadsPage />
-                </Route>
-                <Route path="/verify">
-                  <VerifyPage />
-                </Route>
-                <Route path="/learn">
-                  <LearnPage />
-                </Route>
-                <Route path="/tm">
-                  <TemplatePage />
-                </Route>
-                <Route path="/upload">
-                  <UploadPage />
-                </Route>
-                <Route path="/pre-signup">
-                  <PreSignupPage />
-                </Route>
-                <Route path="/search">
-                  <SearchPage />
-                </Route>
-                <Route path="/login">
-                  <LoginPage />
-                </Route>
-                <Route path="/users/r/:id">
-                  <NewPasswordPage />
-                </Route>
-                <Route path="/">
-                  <HomePage />
-                </Route>
-              </Switch>
-            </Container>
+              render={({ location }) => (location.pathname.match(/^(?!.*(login|search|signup)).*$/) ? (
+                <NavigationBar />
+              ) : null)}
+            />
+            {errorMessage && (
+              <div className="is-info notification is-light my-4">
+                <button
+                  aria-label="dismiss error message"
+                  type="button"
+                  className="delete"
+                  onClick={() => setErrorMessage(null)}
+                />
+                <div>
+                  {ReactHtmlParser(errorMessage)}
+                </div>
+              </div>
+            )}
+            <Switch>
+              <Route path="/uploads">
+                <ListUploadsPage setError={setErrorMessage} />
+              </Route>
+              <Route path="/verify">
+                <VerifyPage />
+              </Route>
+              <Route path="/learn">
+                <LearnPage setError={setErrorMessage} />
+              </Route>
+              <Route path="/tm">
+                <TemplatePage />
+              </Route>
+              <Route path="/upload">
+                <UploadPage setErrorMessage={setErrorMessage} />
+              </Route>
+              <Route path="/pre-signup">
+                <PreSignupPage />
+              </Route>
+              <Route path="/search">
+                <SearchPage />
+              </Route>
+              <Route path="/login">
+                <LoginPage setErrorMessage={setErrorMessage} />
+              </Route>
+              <Route path="/users/r/:id">
+                <NewPasswordPage setErrorMessage={setErrorMessage} />
+              </Route>
+              <Route path="/">
+                <HomePage />
+              </Route>
+            </Switch>
             <Footer />
           </Layout>
         </Router>

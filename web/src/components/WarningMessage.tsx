@@ -1,10 +1,10 @@
-import React from "react";
+import React from 'react';
 
-const WarningMessage = () => {
+function WarningMessage() {
   return (
     <section
       className="hero is-small is-warning"
-      style={{ marginBottom: "1rem" }}
+      style={{ marginBottom: '1rem' }}
     >
       <div className="hero-body has-text-centered">
         <p className="title">This is a development server</p>
@@ -18,6 +18,6 @@ const WarningMessage = () => {
       </div>
     </section>
   );
-};
+}
 
 export default WarningMessage;

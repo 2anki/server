@@ -1,26 +1,39 @@
-import { useEffect, useState } from "react";
-import Backend from "../../lib/Backend";
-import TemplateSelect from "../TemplateSelect";
-import Switch from "../input/Switch";
-import SettingsModal from "../modals/SettingsModal";
+import { useEffect, useState } from 'react';
+import Backend from '../../lib/Backend';
+import TemplateSelect from '../TemplateSelect';
+import Switch from '../input/Switch';
+import SettingsModal from '../modals/SettingsModal';
 
-let flashCardOptions = ["toggle", "bulleted_list_item", "numbered_list_item"];
-let tagOptions = ["heading", "strikethrough"];
+interface Props {
+  id: string;
+  setDone: () => void;
+  parent: string;
+  setError: (error: string) => void;
+}
 
-let backend = new Backend();
-const DefineRules = ({ id, setDone, parent }) => {
+const flashCardOptions = [
+  'toggle',
+  'bulleted_list_item',
+  'numbered_list_item',
+  'heading',
+];
+const tagOptions = ['heading', 'strikethrough'];
+
+const backend = new Backend();
+function DefineRules({
+  id, setDone, parent, setError,
+}: Props) {
   const [rules, setRules] = useState({
-    flashcard_is: ["toggle"],
-    sub_deck_is: "child_page",
-    tags_is: "strikethrough",
-    deck_is: "page",
+    flashcard_is: ['toggle'],
+    sub_deck_is: 'child_page',
+    tags_is: 'strikethrough',
+    deck_is: 'page',
     email_notification: false,
   });
 
   const [isLoading, setIsloading] = useState(true);
-  // TODO: fix this hack
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [_flashcard, setFlashcard] = useState(rules.flashcard_is);
+  const [flashcard, setFlashcard] = useState(rules.flashcard_is);
   const [tags, setTags] = useState(rules.tags_is);
   const [sendEmail, setSendEmail] = useState(rules.email_notification);
   const [more, setMore] = useState(false);
@@ -31,14 +44,14 @@ const DefineRules = ({ id, setDone, parent }) => {
       .then((response) => {
         if (response.data) {
           const newRules = response.data;
-          newRules.flashcard_is = newRules.flashcard_is.split(",");
+          newRules.flashcard_is = newRules.flashcard_is.split(',');
           setRules(newRules);
           setSendEmail(newRules.email_notification);
         }
         setIsloading(false);
       })
       .catch((error) => {
-        console.log("error", error);
+        setError(error.response.data.message);
       });
   }, [id]);
 
@@ -50,23 +63,53 @@ const DefineRules = ({ id, setDone, parent }) => {
     setIsloading(true);
 
     try {
-      await backend.saveRules(id, rules.flashcard_is, "page", "child_page", tags);
+      await backend.saveRules(
+        id,
+        rules.flashcard_is,
+        'page',
+        'child_page',
+        tags,
+      );
       setDone();
     } catch (error) {
-      console.error(error);
+      setError(error.response.data.message);
     }
     setIsloading(false);
   };
 
+  const onSelectedFlashcardTypes = (fco: string) => {
+    const included = rules.flashcard_is.includes(fco);
+    if (!included) {
+      rules.flashcard_is.push(fco);
+    } else if (included) {
+      rules.flashcard_is = rules.flashcard_is.filter(
+        (f) => f !== fco,
+      );
+    }
+    setFlashcard((prevState) => Array.from(new Set([...prevState, ...rules.flashcard_is])));
+  };
+
   return (
-    <div className="card" style={{ maxWidth: "480px", marginLeft: "auto" }}>
+    <div className="card" style={{ maxWidth: '480px', marginLeft: 'auto' }}>
       <header className="card-header">
-        <p className="card-header-title">Settings for {parent}</p>
+        <p className="card-header-title">
+          Settings for
+          {parent}
+        </p>
         {isLoading && (
-          <button className="m-2 card-header-icon button is-loading"></button>
+          <button
+            aria-label="loading"
+            type="button"
+            className="m-2 card-header-icon button is-loading"
+          />
         )}
-        <div className="card-header-icon" onClick={() => setDone()}>
-          <button className="delete"></button>
+        <div className="card-header-icon">
+          <button
+            onClick={() => setDone()}
+            aria-label="delete"
+            type="button"
+            className="delete"
+          />
         </div>
       </header>
 
@@ -80,6 +123,7 @@ const DefineRules = ({ id, setDone, parent }) => {
               onClickClose={() => {
                 setMore(false);
               }}
+              setError={setError}
             />
           )}
           <div className="card-content">
@@ -90,30 +134,18 @@ const DefineRules = ({ id, setDone, parent }) => {
                 id={fco}
                 title={`Flashcards are ${fco}`}
                 checked={rules.flashcard_is.includes(fco)}
-                onSwitched={() => {
-                  const included = rules.flashcard_is.includes(fco);
-                  if (!included) {
-                    rules.flashcard_is.push(fco);
-                  } else if (included) {
-                    rules.flashcard_is = rules.flashcard_is.filter(
-                      (f) => f !== fco
-                    );
-                  }
-                  console.log("rules", rules);
-                  setFlashcard((prevState) =>
-                    Array.from(new Set([...prevState, ...rules.flashcard_is]))
-                  );
-                }}
+                onSwitched={() => onSelectedFlashcardTypes(fco)}
               />
             ))}
             <div className="my-4">
               <h2 className="subtitle">Card fields</h2>
               <TemplateSelect
                 pickedTemplate={(name: string) => setTags(name)}
-                values={tagOptions.map((fco) => {
-                  return { label: `Tags are ${fco}`, value: fco };
-                })}
-                name={"Tags"}
+                values={tagOptions.map((fco) => ({
+                  label: `Tags are ${fco}`,
+                  value: fco,
+                }))}
+                name="Tags"
                 value={rules.tags_is}
               />
             </div>
@@ -131,6 +163,7 @@ const DefineRules = ({ id, setDone, parent }) => {
             <div className="has-text-centered">
               <hr />
               <button
+                type="button"
                 className="button is-small"
                 onClick={() => setMore(!more)}
               >
@@ -161,6 +194,6 @@ const DefineRules = ({ id, setDone, parent }) => {
       )}
     </div>
   );
-};
+}
 
 export default DefineRules;

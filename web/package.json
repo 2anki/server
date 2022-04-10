@@ -14,6 +14,7 @@
     "react-html-parser": "^2.0.2",
     "react-monaco-editor": "^0.43.0",
     "react-router": "^5.2.0",
+    "react-router-dom": "^5.1.7",
     "react-scripts": "4.0.3",
     "styled-components": "^5.2.1",
     "typescript": "^4.1.2",
@@ -24,7 +25,9 @@
     "dev": "react-scripts start",
     "build": "GENERATE_SOURCEMAP=false react-app-rewired build --max_old_space_size=4096",
     "test": "react-app-rewired test",
-    "eject": "react-app-rewired eject"
+    "eject": "react-app-rewired eject",
+    "lint": "eslint src/**/*.ts src/**/*.tsx",
+    "lint:fix": "eslint --fix src/**/*.ts src/**/*.tsx"
   },
   "eslintConfig": {
     "extends": [
@@ -45,14 +48,20 @@
     ]
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^5.16.3",
+    "@testing-library/react": "^12.1.4",
+    "@types/jest": "^27.4.1",
     "@types/jsonwebtoken": "^8.5.5",
     "@types/node": "^12.0.0",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "@types/react-router-dom": "^5.1.7",
     "@types/styled-components": "^5.1.9",
-    "monaco-editor-webpack-plugin": "4.1.1",
-    "react-router-dom": "^5.2.0"
+    "@typescript-eslint/parser": "^5.14.0",
+    "eslint": "^7.32.0",
+    "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-airbnb-typescript": "^16.1.1",
+    "monaco-editor-webpack-plugin": "4.1.1"
   },
   "proxy": "http://localhost:2020"
 }

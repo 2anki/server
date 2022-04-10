@@ -1,4 +1,4 @@
-const BetaTag = () => {
+function BetaTag() {
   return (
     <span className="tag is-danger">
       <a href="/search" className="has-text-white">
@@ -6,6 +6,6 @@ const BetaTag = () => {
       </a>
     </span>
   );
-};
+}
 
 export default BetaTag;

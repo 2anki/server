@@ -6,6 +6,14 @@ We are going to make this a good way to make [Anki](https://apps.ankiweb.net/) f
 
 To get started with development, [read the docs here](./docs/Development.md)
 
+## Strategy
+
+<p align="center">
+  <a href="http://www.youtube.com/watch?v=oMg70YIqRsw">
+    <img src="http://img.youtube.com/vi/oMg70YIqRsw/0.jpg" alt="My Thoughts on The Future of Anki Collaborative Deck Creation">
+  </a>
+  </img>
+
 ## What We Are Not
 
 If you are looking for a Anki or Notion replacement then this project is probably not right for you. Watch this video [Notion + Anki](https://youtu.be/FjifJG4FoXY) to understand the project's goal. We are never
@@ -15,13 +23,15 @@ When that is said, if you are not content with Anki, you might want to checkout 
 
 ## Benefits
 
-- No technical skills required and 100% free to use by anyone anywhere 🤗
+- No technical skills required and free to use by anyone anywhere 🤗 \*
 - You can convert your Notion [toggle lists][tl] to Anki cards easily.
 - Support for embeds, audio files, images and more.
 
+<sub><sup>\* Please note that due to server costs, there are quota limits in place but you can workaround this and self-host</sup><sub>
+
 ## Sponsors
 
-[![Scrimba.com](https://github.com/alemayhu/Notion-to-Anki/raw/master/web/public/sponsors/Scrimba.png)](https://scrimba.com/)
+[![Scrimba.com](https://github.com/alemayhu/Notion-to-Anki/raw/main/web/public/sponsors/Scrimba.png)](https://scrimba.com/)
 
 👩🏼‍🎓👨‍🎓️👨‍🏫️👩🏽‍🏫 [Scrimba](https://scrimba.com) - the mind-blowing way to to code!
 
@@ -31,7 +41,7 @@ When that is said, if you are not content with Anki, you might want to checkout 
 
 ## 🎁 Support the Project
 
-> This project is brought to you by our amazing [patrons](http://patreon.com/alemayhu)
+> This project is brought to you by our amazing [patrons](https://patreon.com/alemayhu)
 > and [GitHub sponsors](https://github.com/sponsors/alemayhu) 🤩 Thank you!
 
 [![Patreon](https://github.com/aalemayhu/aalemayhu/raw/master/assets/become_a_patron_button.png)](https://patreon.com/alemayhu)
@@ -145,7 +155,7 @@ Unless otherwise specified in the source:
 
 The code is licensed under the [MIT](./LICENSE) Copyright (c) 2020-2022, [Alexander Alemayhu][1]
 
-[1]: http://alemayhu.com
+[1]: https://alemayhu.com
 
 ```
 The MIT License

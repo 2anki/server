@@ -1,0 +1,630 @@
+<!DOCTYPE><html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><title>README</title><style>
+/* webkit printing magic: print all background colors */
+html {
+	-webkit-print-color-adjust: exact;
+}
+* {
+	box-sizing: border-box;
+	-webkit-print-color-adjust: exact;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+}
+@media only screen {
+	body {
+		margin: 2em auto;
+		max-width: 900px;
+		color: rgb(55, 53, 47);
+	}
+}
+
+body {
+	line-height: 1.5;
+	white-space: pre-wrap;
+}
+
+a,
+a.visited {
+	color: inherit;
+	text-decoration: underline;
+}
+
+.pdf-relative-link-path {
+	font-size: 80%;
+	color: #444;
+}
+
+h1,
+h2,
+h3 {
+	letter-spacing: -0.01em;
+	line-height: 1.2;
+	font-weight: 600;
+	margin-bottom: 0;
+}
+
+.page-title {
+	font-size: 2.5rem;
+	font-weight: 700;
+	margin-top: 0;
+	margin-bottom: 0.75em;
+}
+
+h1 {
+	font-size: 1.875rem;
+	margin-top: 1.875rem;
+}
+
+h2 {
+	font-size: 1.5rem;
+	margin-top: 1.5rem;
+}
+
+h3 {
+	font-size: 1.25rem;
+	margin-top: 1.25rem;
+}
+
+.source {
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	padding: 1.5em;
+	word-break: break-all;
+}
+
+.callout {
+	border-radius: 3px;
+	padding: 1rem;
+}
+
+figure {
+	margin: 1.25em 0;
+	page-break-inside: avoid;
+}
+
+figcaption {
+	opacity: 0.5;
+	font-size: 85%;
+	margin-top: 0.5em;
+}
+
+mark {
+	background-color: transparent;
+}
+
+.indented {
+	padding-left: 1.5em;
+}
+
+hr {
+	background: transparent;
+	display: block;
+	width: 100%;
+	height: 1px;
+	visibility: visible;
+	border: none;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.09);
+}
+
+img {
+	max-width: 100%;
+}
+
+@media only print {
+	img {
+		max-height: 100vh;
+		object-fit: contain;
+	}
+}
+
+@page {
+	margin: 1in;
+}
+
+.collection-content {
+	font-size: 0.875rem;
+}
+
+.column-list {
+	display: flex;
+	justify-content: space-between;
+}
+
+.column {
+	padding: 0 1em;
+}
+
+.column:first-child {
+	padding-left: 0;
+}
+
+.column:last-child {
+	padding-right: 0;
+}
+
+.table_of_contents-item {
+	display: block;
+	font-size: 0.875rem;
+	line-height: 1.3;
+	padding: 0.125rem;
+}
+
+.table_of_contents-indent-1 {
+	margin-left: 1.5rem;
+}
+
+.table_of_contents-indent-2 {
+	margin-left: 3rem;
+}
+
+.table_of_contents-indent-3 {
+	margin-left: 4.5rem;
+}
+
+.table_of_contents-link {
+	text-decoration: none;
+	opacity: 0.7;
+	border-bottom: 1px solid rgba(55, 53, 47, 0.18);
+}
+
+table,
+th,
+td {
+	border: 1px solid rgba(55, 53, 47, 0.09);
+	border-collapse: collapse;
+}
+
+table {
+	border-left: none;
+	border-right: none;
+}
+
+th,
+td {
+	font-weight: normal;
+	padding: 0.25em 0.5em;
+	line-height: 1.5;
+	min-height: 1.5em;
+	text-align: left;
+}
+
+th {
+	color: rgba(55, 53, 47, 0.6);
+}
+
+ol,
+ul {
+	margin: 0;
+	margin-block-start: 0.6em;
+	margin-block-end: 0.6em;
+}
+
+li > ol:first-child,
+li > ul:first-child {
+	margin-block-start: 0.6em;
+}
+
+ul > li {
+	list-style: disc;
+}
+
+ul.to-do-list {
+	text-indent: -1.7em;
+}
+
+ul.to-do-list > li {
+	list-style: none;
+}
+
+.to-do-children-checked {
+	text-decoration: line-through;
+	opacity: 0.375;
+}
+
+ul.toggle > li {
+	list-style: none;
+}
+
+ul {
+	padding-inline-start: 1.7em;
+}
+
+ul > li {
+	padding-left: 0.1em;
+}
+
+ol {
+	padding-inline-start: 1.6em;
+}
+
+ol > li {
+	padding-left: 0.2em;
+}
+
+.mono ol {
+	padding-inline-start: 2em;
+}
+
+.mono ol > li {
+	text-indent: -0.4em;
+}
+
+.toggle {
+	padding-inline-start: 0em;
+	list-style-type: none;
+}
+
+/* Indent toggle children */
+.toggle > li > details {
+	padding-left: 1.7em;
+}
+
+.toggle > li > details > summary {
+	margin-left: -1.1em;
+}
+
+.selected-value {
+	display: inline-block;
+	padding: 0 0.5em;
+	background: rgba(206, 205, 202, 0.5);
+	border-radius: 3px;
+	margin-right: 0.5em;
+	margin-top: 0.3em;
+	margin-bottom: 0.3em;
+	white-space: nowrap;
+}
+
+.collection-title {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+time {
+	opacity: 0.5;
+}
+
+.icon {
+	display: inline-block;
+	max-width: 1.2em;
+	max-height: 1.2em;
+	text-decoration: none;
+	vertical-align: text-bottom;
+	margin-right: 0.5em;
+}
+
+img.icon {
+	border-radius: 3px;
+}
+
+.user-icon {
+	width: 1.5em;
+	height: 1.5em;
+	border-radius: 100%;
+	margin-right: 0.5rem;
+}
+
+.user-icon-inner {
+	font-size: 0.8em;
+}
+
+.text-icon {
+	border: 1px solid #000;
+	text-align: center;
+}
+
+.page-cover-image {
+	display: block;
+	object-fit: cover;
+	width: 100%;
+	height: 30vh;
+}
+
+.page-header-icon {
+	font-size: 3rem;
+	margin-bottom: 1rem;
+}
+
+.page-header-icon-with-cover {
+	margin-top: -0.72em;
+	margin-left: 0.07em;
+}
+
+.page-header-icon img {
+	border-radius: 3px;
+}
+
+.link-to-page {
+	margin: 1em 0;
+	padding: 0;
+	border: none;
+	font-weight: 500;
+}
+
+p > .user {
+	opacity: 0.5;
+}
+
+td > .user,
+td > time {
+	white-space: nowrap;
+}
+
+input[type="checkbox"] {
+	transform: scale(1.5);
+	margin-right: 0.6em;
+	vertical-align: middle;
+}
+
+p {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.image {
+	border: none;
+	margin: 1.5em 0;
+	padding: 0;
+	border-radius: 0;
+	text-align: center;
+}
+
+.code,
+code {
+	background: rgba(135, 131, 120, 0.15);
+	border-radius: 3px;
+	padding: 0.2em 0.4em;
+	border-radius: 3px;
+	font-size: 85%;
+	tab-size: 2;
+}
+
+code {
+	color: #eb5757;
+}
+
+.code {
+	padding: 1.5em 1em;
+}
+
+.code-wrap {
+	white-space: pre-wrap;
+	word-break: break-all;
+}
+
+.code > code {
+	background: none;
+	padding: 0;
+	font-size: 100%;
+	color: inherit;
+}
+
+blockquote {
+	font-size: 1.25em;
+	margin: 1em 0;
+	padding-left: 1em;
+	border-left: 3px solid rgb(55, 53, 47);
+}
+
+.bookmark {
+	text-decoration: none;
+	max-height: 8em;
+	padding: 0;
+	display: flex;
+	width: 100%;
+	align-items: stretch;
+}
+
+.bookmark-title {
+	font-size: 0.85em;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	height: 1.75em;
+	white-space: nowrap;
+}
+
+.bookmark-text {
+	display: flex;
+	flex-direction: column;
+}
+
+.bookmark-info {
+	flex: 4 1 180px;
+	padding: 12px 14px 14px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+.bookmark-image {
+	width: 33%;
+	flex: 1 1 180px;
+	display: block;
+	position: relative;
+	object-fit: cover;
+	border-radius: 1px;
+}
+
+.bookmark-description {
+	color: rgba(55, 53, 47, 0.6);
+	font-size: 0.75em;
+	overflow: hidden;
+	max-height: 4.5em;
+	word-break: break-word;
+}
+
+.bookmark-href {
+	font-size: 0.75em;
+	margin-top: 0.25em;
+}
+
+.sans { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol"; }
+.code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace; }
+.serif { font-family: Lyon-Text, Georgia, YuMincho, "Yu Mincho", "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Songti TC", "Songti SC", "SimSun", "Nanum Myeongjo", NanumMyeongjo, Batang, serif; }
+.mono { font-family: iawriter-mono, Nitti, Menlo, Courier, monospace; }
+.pdf .sans { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol", 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC', 'Noto Sans CJK KR'; }
+
+.pdf .code { font-family: Source Code Pro, "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC', 'Noto Sans Mono CJK KR'; }
+
+.pdf .serif { font-family: PT Serif, Lyon-Text, Georgia, YuMincho, "Yu Mincho", "Hiragino Mincho ProN", "Hiragino Mincho Pro", "Songti TC", "Songti SC", "SimSun", "Nanum Myeongjo", NanumMyeongjo, Batang, serif, 'Twemoji', 'Noto Color Emoji', 'Noto Sans CJK SC', 'Noto Sans CJK KR'; }
+
+.pdf .mono { font-family: PT Mono, iawriter-mono, Nitti, Menlo, Courier, monospace, 'Twemoji', 'Noto Color Emoji', 'Noto Sans Mono CJK SC', 'Noto Sans Mono CJK KR'; }
+
+.highlight-default {
+}
+.highlight-gray {
+	color: rgb(155,154,151);
+}
+.highlight-brown {
+	color: rgb(100,71,58);
+}
+.highlight-orange {
+	color: rgb(217,115,13);
+}
+.highlight-yellow {
+	color: rgb(223,171,1);
+}
+.highlight-teal {
+	color: rgb(15,123,108);
+}
+.highlight-blue {
+	color: rgb(11,110,153);
+}
+.highlight-purple {
+	color: rgb(105,64,165);
+}
+.highlight-pink {
+	color: rgb(173,26,114);
+}
+.highlight-red {
+	color: rgb(224,62,62);
+}
+.highlight-gray_background {
+	background: rgb(235,236,237);
+}
+.highlight-brown_background {
+	background: rgb(233,229,227);
+}
+.highlight-orange_background {
+	background: rgb(250,235,221);
+}
+.highlight-yellow_background {
+	background: rgb(251,243,219);
+}
+.highlight-teal_background {
+	background: rgb(221,237,234);
+}
+.highlight-blue_background {
+	background: rgb(221,235,241);
+}
+.highlight-purple_background {
+	background: rgb(234,228,242);
+}
+.highlight-pink_background {
+	background: rgb(244,223,235);
+}
+.highlight-red_background {
+	background: rgb(251,228,228);
+}
+.block-color-default {
+	color: inherit;
+	fill: inherit;
+}
+.block-color-gray {
+	color: rgba(55, 53, 47, 0.6);
+	fill: rgba(55, 53, 47, 0.6);
+}
+.block-color-brown {
+	color: rgb(100,71,58);
+	fill: rgb(100,71,58);
+}
+.block-color-orange {
+	color: rgb(217,115,13);
+	fill: rgb(217,115,13);
+}
+.block-color-yellow {
+	color: rgb(223,171,1);
+	fill: rgb(223,171,1);
+}
+.block-color-teal {
+	color: rgb(15,123,108);
+	fill: rgb(15,123,108);
+}
+.block-color-blue {
+	color: rgb(11,110,153);
+	fill: rgb(11,110,153);
+}
+.block-color-purple {
+	color: rgb(105,64,165);
+	fill: rgb(105,64,165);
+}
+.block-color-pink {
+	color: rgb(173,26,114);
+	fill: rgb(173,26,114);
+}
+.block-color-red {
+	color: rgb(224,62,62);
+	fill: rgb(224,62,62);
+}
+.block-color-gray_background {
+	background: rgb(235,236,237);
+}
+.block-color-brown_background {
+	background: rgb(233,229,227);
+}
+.block-color-orange_background {
+	background: rgb(250,235,221);
+}
+.block-color-yellow_background {
+	background: rgb(251,243,219);
+}
+.block-color-teal_background {
+	background: rgb(221,237,234);
+}
+.block-color-blue_background {
+	background: rgb(221,235,241);
+}
+.block-color-purple_background {
+	background: rgb(234,228,242);
+}
+.block-color-pink_background {
+	background: rgb(244,223,235);
+}
+.block-color-red_background {
+	background: rgb(251,228,228);
+}
+.select-value-color-default { background-color: rgba(206,205,202,0.5); }
+.select-value-color-gray { background-color: rgba(155,154,151, 0.4); }
+.select-value-color-brown { background-color: rgba(140,46,0,0.2); }
+.select-value-color-orange { background-color: rgba(245,93,0,0.2); }
+.select-value-color-yellow { background-color: rgba(233,168,0,0.2); }
+.select-value-color-green { background-color: rgba(0,135,107,0.2); }
+.select-value-color-blue { background-color: rgba(0,120,223,0.2); }
+.select-value-color-purple { background-color: rgba(103,36,222,0.2); }
+.select-value-color-pink { background-color: rgba(221,0,129,0.2); }
+.select-value-color-red { background-color: rgba(255,0,26,0.2); }
+
+.checkbox {
+	display: inline-flex;
+	vertical-align: text-bottom;
+	width: 16;
+	height: 16;
+	background-size: 16px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+
+.checkbox-on {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20width%3D%2216%22%20height%3D%2216%22%20fill%3D%22%2358A9D7%22%2F%3E%0A%3Cpath%20d%3D%22M6.71429%2012.2852L14%204.9995L12.7143%203.71436L6.71429%209.71378L3.28571%206.2831L2%207.57092L6.71429%2012.2852Z%22%20fill%3D%22white%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+.checkbox-off {
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%3Crect%20x%3D%220.75%22%20y%3D%220.75%22%20width%3D%2214.5%22%20height%3D%2214.5%22%20fill%3D%22white%22%20stroke%3D%22%2336352F%22%20stroke-width%3D%221.5%22%2F%3E%0A%3C%2Fsvg%3E");
+}
+
+</style></head><body><article id="49420fc0-483d-4629-9fcc-4bd8553ab0ba" class="page sans"><header><h1 class="page-title">README</h1></header><div class="page-body"><p id="86c4754a-e420-4763-8a20-e0d35e6e6a59" class="">Hei friend 👋🏾</p><p id="65bf7562-4961-4885-b6ea-5cd0e21ec024" class="">My name is <a href="https://alemayhu.com/">Alexander Alemayhu</a> and I am the lead developer of <a href="https://github.com/alemayhu/notion2anki">Notion to Anki</a>.</p><figure id="2d6600e8-0fac-469b-b44b-8109b870c26f"><a href="http://2anki.net/" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Free Website for Notion to Anki Conversion</div><div class="bookmark-description">notion2Anki is a free website for converting Notion toggle lists to Anki flashcards. It&#x27;s simple, fast and easy to use. Create better Anki flashcards today!</div></div><div class="bookmark-href"><img src="https://2anki.net/favicon-16x16.png" class="icon bookmark-icon"/>http://2anki.net/</div></div><img src="https://2anki.net/notion2anki.png" class="bookmark-image"/></a></figure><blockquote id="c33ba6da-db98-4dec-a039-629b41b8a9ab" class="">My dream is to build amazing things that provide insane value to many people</blockquote><p id="fe41c4eb-6087-4941-9ac6-6f57c55be30e" class="">If you want to learn more about me, then checkout my personal website <a href="https://alemayhu.com/">https://alemayhu.com/</a></p><h2 id="1ae30670-8234-4395-b2e9-adec104f65c3" class="">How do I use this?</h2><p id="e52db1e2-e4a7-4511-b616-1898fcba49b3" class="">This folder contains multiple decks you created.</p><figure class="block-color-gray_background callout" style="white-space:pre-wrap;display:flex" id="ed49f59b-501a-493a-8e2e-15a896e3814a"><div style="font-size:1.5em"><span class="icon">💡</span></div><div style="width:100%">OBS: Anki can sometimes skip imports if you import too many at once. </div></figure><p id="39a5c135-f8f7-4c29-955a-63fc2eb86153" class="">   ☝🏾 <span style="border-bottom:0.05em solid">For reliable results make sure to try to import one deck at a time.</span></p><p id="45c8da65-304e-4ea9-aa30-59970f0920ab" class="">
+</p><h2 id="d56e8d35-b8bd-4c2e-a3ec-57d2a0569568" class="">What is this project Notion to Anki 🤷🏽‍♀️</h2><p id="2c833aae-a608-425c-9cee-9ad67f9cd387" class="">Notion to Anki 💫 is a passion project. It&#x27;s provided for free and open source </p><figure id="bf02aedb-2b2a-4649-9133-558ed73e5403"><a href="https://github.com/alemayhu/notion2anki" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">alemayhu/Notion-to-Anki</div><div class="bookmark-description">notion2Anki 💫 is a passion project 🕺🏾💃🏾 We are going to make this a good way to make Anki flashcards easier, better and faster. You can convert your Notion toggle lists to Anki cards easily. No technical skills required and 100% free to use by anyone anywhere 🤗 Support for embeds, audio files, images and more.</div></div><div class="bookmark-href"><img src="https://github.com/favicon.ico" class="icon bookmark-icon"/>https://github.com/alemayhu/notion2anki</div></div><img src="https://repository-images.githubusercontent.com/256559677/f9746a80-7774-11eb-825b-9c613c3e7130" class="bookmark-image"/></a></figure><blockquote id="8b605370-3175-4f9d-97bb-ab5afd8e34d7" class="">We are making it the easiest and fastest way to create beautiful Anki flashcards for anyone anywhere around the world 🌎</blockquote><p id="b3585ae9-1976-48af-a6df-d791636cd480" class="">
+</p><p id="18a5ba16-b849-454f-81d5-8e927a024d39" class="">You can find tutorials on the YouTube channel</p><figure id="54dcffef-d1b8-473c-a6f5-8c2ebae0f92b"><a href="https://www.youtube.com/c/AlexanderAlemayhu/featured" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Alexander Alemayhu</div><div class="bookmark-description">Hei friend 👋🏾 I am making FREE tools to help people all around the world learn faster! My dream is to make amazing things that provide value to many people. I would love to hear from you and very much open to sponsor opportunities!</div></div><div class="bookmark-href"><img src="https://www.youtube.com/s/desktop/fe7279a7/img/favicon.ico" class="icon bookmark-icon"/>https://www.youtube.com/c/AlexanderAlemayhu/featured</div></div><img src="https://yt3.ggpht.com/ytc/AAUvwnhJUwqDcdoMYHSoNo4WamVTL_KLVZEC9l_8yMAJXOg=s900-c-k-c0x00ffffff-no-rj" class="bookmark-image"/></a></figure><h2 id="5467098f-e464-48fc-a4d5-d998a8b21e5f" class="">How to stay up to date</h2><h3 id="7fa7c556-4efa-4b6c-881c-9645f73d4644" class="">Subscribe to the newsletter</h3><p id="c9facac0-ee99-4b60-8b4b-026ebfa94a5a" class="">You will receive updates on the project in your inbox </p><figure id="db7480b3-f492-4d9b-a183-24304381e4e9"><a href="https://www.subscribepage.com/notion2anki" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Notion to Anki Newsletter 💫</div><div class="bookmark-description">A lot of cool changes are coming to the Notion to Anki project. Join the newsletter to get notified of changes in your inbox!</div></div><div class="bookmark-href"><img src="https://www.mailerlite.com/site/themes/new/img/favicons/favicon-32x32.png" class="icon bookmark-icon"/>https://www.subscribepage.com/notion2anki</div></div><img src="https://bucket.mlcdn.com/a/1799/1799774/images/e31a39fd576e7296a9e9c804db71329e8ae22a7a.png/189109dafa9708cdf3b107afbfc3a84c1e5b8824.png" class="bookmark-image"/></a></figure><h3 id="21e6f123-8c35-44f3-9c8a-d961bb43576a" class="">Discord </h3><p id="e124af2d-3492-4e60-b110-0edfe0a46e3e" class="">For real-time updates join the community on Discord <a href="https://discord.gg/PSKC3uS">https://discord.gg/PSKC3uS</a></p><figure id="a535d59b-2e52-44bb-a02e-b5fe45edac0e"><div class="source"><a href="https://discordapp.com/widget?id=723998078201495642">https://discordapp.com/widget?id=723998078201495642</a></div></figure><h2 id="877458d2-8b90-4d59-85cc-72fb6f0a6750" class="">How You can help 💙🧢🦋</h2><p id="d196bda3-6870-473f-8b30-57c2e38fe986" class="">Servers do cost money 🙂 If you can afford it, please support me financially on any of the below platforms. If you want to give me the most money, then <a href="http://github.com/sponsors/alemayhu">GitHub sponsors</a> is the best due to them not taking any cut or fees.</p><p id="fbafb84f-7aeb-45d2-836f-1b0320dcab5d" class="">
+</p><p id="0162a885-a8b7-44cb-a12b-010767b7b20a" class="">All my financial supports get a personally recorded video or scheduled call on Discord 🤳🏾 Other benefits include</p><ul id="9a95afb1-bba4-4bfd-a4fe-eed1e79a0e12" class="bulleted-list"><li>early access to ongoing development and look behind the scenes.</li></ul><ul id="8517914f-7667-4a41-a383-f8ac79b3644b" class="bulleted-list"><li>access to exclusive content on Discord</li></ul><p id="8bc01190-b9b2-44ac-9bee-2ea664fa1db0" class="">Check out the <a href="https://www.patreon.com/alemayhu">Patreon</a> for more or ask on <a href="https://discord.gg/PSKC3uS">Discord</a></p><h3 id="5cb18653-5393-40c2-b3ab-a3a74b141c5d" class="">Donations</h3><figure id="df2e5785-9abe-4fc5-8835-53433af4dd8d"><a href="https://paypal.me/alemayhu" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Pay Alexander Alemayhu using PayPal.Me</div><div class="bookmark-description">Go to paypal.me/alemayhu and type in the amount. Since it&#x27;s PayPal, it&#x27;s easy and secure. Don&#x27;t have a PayPal account? No worries.</div></div><div class="bookmark-href"><img src="https://www.paypalobjects.com/webstatic/icon/favicon.ico" class="icon bookmark-icon"/>https://paypal.me/alemayhu</div></div><img src="https://www.paypalobjects.com/webstatic/paypalme/images/social/pplogo384.png" class="bookmark-image"/></a></figure><figure id="60a02ae4-0e93-41fe-8f4e-a0f5d56c413d"><a href="https://ko-fi.com/alemayhu" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Buy alemayhu a Coffee. ko-fi.com/alemayhu</div><div class="bookmark-description">Become a supporter of alemayhu today! ❤️ Ko-fi lets you support the creators you love with no fees on donations.</div></div><div class="bookmark-href"><img src="https://ko-fi.com/favicon.png" class="icon bookmark-icon"/>https://ko-fi.com/alemayhu</div></div><img src="https://cdn.ko-fi.com/cdn/ogbuymeacoffee.png?v=7" class="bookmark-image"/></a></figure><h3 id="a21e1073-355d-4a64-9693-8656f5eba406" class="">Monthly</h3><figure id="65a4b4d6-6260-4077-a013-3ed51b201c95"><a href="https://github.com/aalemayhu" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">aalemayhu - Overview</div><div class="bookmark-description">Hei there 👋🏾 I was born in Kenya (Nairobi) but now I&#x27;m a developer living in Norway. I love learning new things especially about spoken and programming languages. I have been writing code since 2010 and started working professionally as a developer in 2011.</div></div><div class="bookmark-href"><img src="https://github.com/favicon.ico" class="icon bookmark-icon"/>https://github.com/aalemayhu</div></div><img src="https://avatars.githubusercontent.com/u/925044?s=400&amp;u=bf9fc125c6e67344dc68755eae21ad8d37c22798&amp;v=4" class="bookmark-image"/></a></figure><figure id="bf30c0ec-a6f2-405e-a6a7-de94bbccb50c"><a href="https://www.patreon.com/alemayhu" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Alexander Alemayhu is creating open source | Patreon</div><div class="bookmark-description">My name is Alexander Alemayhu. I love learning new things especially about spoken and programming languages. In 2020 quit my full-time day-job to achieve my dreams in long distance running, Twitch streaming and YouTube. Now I work part-time to cover my costs but hope Patreon and other avenues will enable me to spend more time making free software.</div></div><div class="bookmark-href"><img src="https://c5.patreon.com/external/favicon/favicon.ico?v=69kMELnXkB" class="icon bookmark-icon"/>https://www.patreon.com/alemayhu</div></div><img src="https://c10.patreonusercontent.com/3/eyJ3Ijo5NjAsIndlIjoxfQ==/patreon-media/p/campaign/2696660/bdf3e42835b3476c84bf47401d435f28/25.png?token-time=1617494400&amp;token-hash=AO1kuiZHROCjVBs51EFVsgPbTONLUQCm8l--bYe6EFc%3D" class="bookmark-image"/></a></figure><figure id="bdaf32e4-9759-4802-baff-9e2e59977ea5"><a href="https://www.subscribestar.com/alexanderalemayhu" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">alexanderalemayhu on subscribestar.com</div><div class="bookmark-description">Subscribe to alexanderalemayhu for more updates and exclusive content.</div></div><div class="bookmark-href"><img src="https://assets.subscribestar.com/assets/public/images/favicons/favicon-16x16-d26d59f63d353781812b4908c20f4678.png" class="icon bookmark-icon"/>https://www.subscribestar.com/alexanderalemayhu</div></div><img src="https://star-uploads.s3-us-west-2.amazonaws.com/uploads/users/333231/avatars/eb5a336a-6aee-45f3-a273-a98fa27f5b10-600x315_0x0_160x160.png" class="bookmark-image"/></a></figure><h2 id="9d13ef5f-6cc5-43fc-9f62-c430c1a66197" class="">Other ways to contribute</h2><p id="9c2a1915-c1b8-4cbc-8348-96f88248b60b" class="">Notion to Anki is used by people all around the world 🌎 The fact is that a few dollars for some is a lot of money for others. If you really want to support the project but not with money then here are some ideas</p><ul id="7b211d66-2986-4144-ac8d-f3e48f6eab7a" class="bulleted-list"><li>Watch &amp; Subscribe on our YouTube channel </li></ul><figure id="099349d0-f8d0-4e5e-b82b-b280b5d435f1"><a href="https://youtube.com/c/alexanderalemayhu" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">Alexander Alemayhu</div><div class="bookmark-description">Hei friend 👋🏾 I am making FREE tools to help people all around the world learn faster! My dream is to make amazing things that provide value to many people. I would love to hear from you and very much open to sponsor opportunities!</div></div><div class="bookmark-href"><img src="https://www.youtube.com/s/desktop/fe7279a7/img/favicon.ico" class="icon bookmark-icon"/>https://youtube.com/c/alexanderalemayhu</div></div><img src="https://yt3.ggpht.com/ytc/AAUvwnhJUwqDcdoMYHSoNo4WamVTL_KLVZEC9l_8yMAJXOg=s900-c-k-c0x00ffffff-no-rj" class="bookmark-image"/></a></figure><ul id="87ead039-4b8f-4133-bd09-1e16dec59b9a" class="bulleted-list"><li>Join me on Twitch when I live stream coding sessions</li></ul><figure id="c181db39-4500-41fa-846e-d45ba361eed6"><a href="http://twitch.tv/alexanderalemayhu" class="bookmark source"><div class="bookmark-info"><div class="bookmark-text"><div class="bookmark-title">AlexanderAlemayhu - Twitch</div><div class="bookmark-description">Welcome 👋🏾 On this Twitch channel you can expected to see me code on open source projects and occasionally play games. Follow to get notified when I go live!</div></div><div class="bookmark-href"><img src="https://static.twitchcdn.net/assets/favicon-16-2d5d1f5ddd489ee10398.png" class="icon bookmark-icon"/>http://twitch.tv/alexanderalemayhu</div></div><img src="https://static-cdn.jtvnw.net/jtv_user_pictures/2b3202c7-f93a-4f81-99fd-1c222ee938bb-profile_image-300x300.png" class="bookmark-image"/></a></figure><ul id="37c57a10-e36f-497d-912b-93bf74b4f830" class="bulleted-list"><li>Share <a href="http://2anki.net/">Notion to Anki</a> to everyone you know who might benefit from this</li></ul><ul id="6147e318-c7fe-4c60-9313-9e67b8c03376" class="bulleted-list"><li>Make a YouTube video teaching other show to effectively use Anki</li></ul><ul id="454fc6b9-4841-46eb-b9fe-2512e33c7abc" class="bulleted-list"><li>Join our Discord and cheer us on to make <a href="http://2anki.net/">Notion to Anki</a> even better</li></ul><ul id="f70672bc-f826-4c0c-b961-74ce67d92eec" class="bulleted-list"><li>Write a blog post about Notion to Anki</li></ul><p id="4ebc3012-36ae-45c0-abd7-55942b3c513e" class="">Wow, you read all the way to the end 👏🏾 You are a really cool person 🤩😎✨</p><p id="48c765b5-3fe2-4b8c-b51c-798ea6be9524" class="">Happy learning and thank you for trying out Notion to Anki 😊🙏🏾</p></div></article></body></html>
