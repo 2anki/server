@@ -63,11 +63,11 @@ class TokenHandler {
     if (!owner) {
       return null;
     }
-    const token = await DB("notion_tokens")
+    const row = await DB("notion_tokens")
       .where({ owner })
       .returning("token")
       .first();
-    return unHashToken(token);
+    return unHashToken(row.token);
   }
 
   static async GetPatreonToken(owner: number) {
