@@ -28,37 +28,39 @@ function FeaturedEntry() {
 function NewsSection() {
   return (
     <section className="section">
-      <div className="is-relative">
-        <NewsIcon src="/icons/news-icon.svg" />
-      </div>
-      <Heading2 id="news" isDashed>
-        News
-      </Heading2>
-      <div className="columns">
-        <div className="column">
-          <FeaturedEntry />
+      <div className="container">
+        <div className="is-relative">
+          <NewsIcon src="/icons/news-icon.svg" />
         </div>
-        <div className="column">
-          <NewsEntry
-            title={"What's Next? The Path to v1.0.0!"}
-            description="There are a three main things I would like to tackle longterm but in this session"
-            link="https://www.patreon.com/posts/whats-next-path-51204766"
-          />
-          <div className="my-2" />
-          <NewsEntry
-            title="Good News!"
-            description="I woke up in the middle of the night and had to go to the toilet 🚾"
-            link="https://www.patreon.com/posts/good-news-51122343"
-          />
+        <Heading2 id="news" isDashed>
+          News
+        </Heading2>
+        <div className="columns">
+          <div className="column">
+            <FeaturedEntry />
+          </div>
+          <div className="column">
+            <NewsEntry
+              title={"What's Next? The Path to v1.0.0!"}
+              description="There are a three main things I would like to tackle longterm but in this session"
+              link="https://www.patreon.com/posts/whats-next-path-51204766"
+            />
+            <div className="my-2" />
+            <NewsEntry
+              title="Good News!"
+              description="I woke up in the middle of the night and had to go to the toilet 🚾"
+              link="https://www.patreon.com/posts/good-news-51122343"
+            />
+          </div>
         </div>
+        <Centered>
+          <ReadMoreNews
+            destination="https://www.patreon.com/alemayhu"
+            text="READ MORE NEWS"
+            onClickLink={() => {}}
+          />
+        </Centered>
       </div>
-      <Centered>
-        <ReadMoreNews
-          destination="https://www.patreon.com/alemayhu"
-          text="READ MORE NEWS"
-          onClickLink={() => {}}
-        />
-      </Centered>
     </section>
   );
 }
