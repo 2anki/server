@@ -192,7 +192,7 @@ router.post("/register", async (req, res, next) => {
   }
 });
 
-const distDir = path.join(__dirname, "../../web/build");
+const distDir = path.join(__dirname, "../../../web/build");
 router.get("/r/:id", async (req, res, next) => {
   try {
     const reset_token = req.params.id;
