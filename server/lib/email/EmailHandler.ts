@@ -21,7 +21,8 @@ const CONVERT_LINK_TEMPLATE = fs.readFileSync(
 );
 const DEFAULT_SENDER = "2anki.net <info@2anki.net>";
 const sgMail = require("@sendgrid/mail");
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
+SENDGRID_API_KEY && sgMail.setApiKey(SENDGRID_API_KEY);
 
 class EmailHandler {
   static SendResetEmail(domain: string, email: any, token: string) {
