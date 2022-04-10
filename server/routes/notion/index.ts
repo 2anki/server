@@ -10,6 +10,7 @@ import getPage from "./getPage";
 import getBlocks from "./getBlocks";
 import getBlock from "./getBlock";
 import getDatabase from "./getDatabase";
+import getNotionData from "../../lib/User/getNotionData";
 import { queryDatabase } from "./queryDatabase";
 
 const router = express.Router();
@@ -19,8 +20,8 @@ const ConfigureNotionAPI = async (
   res: express.Response
 ): Promise<NotionAPIWrapper> => {
   console.debug("Configuring Notion API for " + req.originalUrl);
-  const token = await TokenHandler.GetNotionToken(res.locals.owner);
-  return new NotionAPIWrapper(token!);
+  const data = await getNotionData(DB, res.locals.owner);
+  return new NotionAPIWrapper(data.token);
 };
 
 router.get("/connect", RequireAuthentication, async (req, res) => {
