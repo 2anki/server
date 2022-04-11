@@ -20,7 +20,7 @@ export function SuffixFrom(input: string) {
 }
 
 export function S3FileName(url: string): string {
-  let u = url.split("?")[0].split("/");
+  const u = url.split("?")[0].split("/");
   return u[u.length - 1];
 }
 
@@ -29,6 +29,6 @@ export function BytesToMegaBytes(bytes: number): number {
 }
 
 export function FileSizeInMegaBytes(filePath: string): number {
-  var stats = fs.statSync(filePath);
+  const stats = fs.statSync(filePath);
   return BytesToMegaBytes(stats.size);
 }

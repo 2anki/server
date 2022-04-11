@@ -47,7 +47,6 @@ export default class Settings {
     if (this.deckName && !this.deckName.trim()) {
       this.deckName = undefined;
     }
-    // TODO: review all of the defaults (regressions)
     this.useInput = input["enable-input"] !== "false";
     this.maxOne = input["max-one-toggle-per-card"] === "true";
     this.noUnderline = input["no-underline"] === "true";
@@ -130,7 +129,7 @@ export default class Settings {
   ): Promise<Settings> {
     try {
       const result = await DB("settings")
-        .where({ object_id: id, owner: owner })
+        .where({ object_id: id, owner })
         .returning(["payload"])
         .first();
       if (result) {

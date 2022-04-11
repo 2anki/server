@@ -5,8 +5,6 @@ import fs from "fs";
 import test from "ava";
 
 // @ts-ignore
-import { DeckParser } from "../lib/parser/DeckParser";
-// @ts-ignore
 import Settings from "../lib/parser/Settings";
 import { getDeck } from "./_test-utils";
 

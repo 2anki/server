@@ -7,12 +7,11 @@ export const BlockChildPage = (
   api: NotionAPIWrapper
 ) => {
   /* @ts-ignore */
-  const childPage = block["child_page"];
+  const childPage = block.child_page;
   const page = api.getPage(block.id) || {};
   /* @ts-ignore */
   const icon = page.icon;
 
-  // TODO: handle page icons
   return ReactDOMServer.renderToStaticMarkup(
     <a id={block.id} href={`https://notion.so/${block.id.replace(/\-/g, "")}`}>
       {icon && icon.type === "emoji" && (

@@ -18,19 +18,12 @@ class NotionAPIWrapper {
   private notion: Client;
   page?: GetPageResponse;
 
-  constructor(key: string, useMore?: boolean) {
+  constructor(key: string) {
     this.notion = new Client({ auth: key });
   }
 
   async getPage(id: string): Promise<GetPageResponse | null> {
-    console.log("getPage", id);
-    try {
-      const page = await this.notion.pages.retrieve({ page_id: id });
-      return page;
-    } catch (error) {
-      console.error(error);
-      return null;
-    }
+    return this.notion.pages.retrieve({ page_id: id });
   }
 
   async getBlocks(
@@ -64,17 +57,13 @@ class NotionAPIWrapper {
   }
 
   async getBlock(id: string): Promise<GetBlockResponse> {
-    console.log("getBlock", id);
-    const response = await this.notion.blocks.retrieve({
+    return this.notion.blocks.retrieve({
       block_id: id,
     });
-    return response;
   }
 
   async getDatabase(id: string): Promise<GetDatabaseResponse> {
-    console.log("getDatabase", id);
-    const response = await this.notion.databases.retrieve({ database_id: id });
-    return response;
+    return this.notion.databases.retrieve({ database_id: id });
   }
 
   async queryDatabase(
@@ -82,7 +71,6 @@ class NotionAPIWrapper {
     all?: boolean
   ): Promise<QueryDatabaseResponse> {
     console.log("queryDatabase", id, all);
-    // TODO: Add support for pagination when patreon
     const response = await this.notion.databases.query({
       database_id: id,
       page_size: all ? PATREON_LIMIT : ANON_LIMIT,
@@ -195,7 +183,7 @@ class NotionAPIWrapper {
     /* @ts-ignore */
     if (page.icon && settings.pageEmoji !== "disable_emoji") {
       /* @ts-ignore */
-      let pageIcon = page.icon;
+      const pageIcon = page.icon;
       if (pageIcon.type === "external") {
         icon = `<img src="${pageIcon.external.url}" width="32" /> `;
       } else if (pageIcon.type === "emoji") {
@@ -205,7 +193,7 @@ class NotionAPIWrapper {
           responseType: "arraybuffer",
         });
         const file = fileRequest.data;
-        let uri = `data:${
+        const uri = `data:${
           fileRequest.headers["content-type"]
         };base64,${file.toString("base64")}`;
         icon = `<img src="${uri}" width="32" /> `;

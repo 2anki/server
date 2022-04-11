@@ -113,7 +113,6 @@ function SearchPage() {
 
   const [loading, setIsLoading] = useState(false);
 
-  // TODO: this just be served up from the server (in-line)
   useEffect(() => {
     backend
       .getNotionConnectionInfo()
@@ -126,7 +125,6 @@ function SearchPage() {
           updateConnectionLink(data.link);
           updateConnected(true);
         }
-        // TODO: also load icon
         setWorkSpace(data.workspace);
         setIsLoading(false);
       })

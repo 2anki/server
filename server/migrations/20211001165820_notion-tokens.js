@@ -9,4 +9,3 @@ module.exports.up = async function (knex) {
 module.exports.down = async function (knex) {
 	return knex.schema.dropTable("notion_tokens");
 };
-// TODO: encrypt

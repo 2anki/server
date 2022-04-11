@@ -7,7 +7,7 @@ import BlockHandler from "../../BlockHandler";
 import { styleWithColors } from "../../NotionColors";
 import HandleBlockAnnotations, { HandleChildren } from "../utils";
 
-let listStyles = ["disc", "circle", "square"];
+const listStyles = ["disc", "circle", "square"];
 export const BlockBulletList = async (
   block: GetBlockResponse,
   response: ListBlockChildrenResponse,
@@ -18,17 +18,18 @@ export const BlockBulletList = async (
   for (const result of response.results) {
     handler.skip.push(result.id);
     /* @ts-ignore */
-    const list = result["bulleted_list_item"];
+    const list = result.bulleted_list_item;
     if (!list) {
       break;
     }
     handler.skip.push(list.id);
     const children = await HandleChildren(result, handler);
     const text = list.text;
-    let top = [];
+    const top = [];
+
     for (const t of text) {
       /* @ts-ignore */
-      let annotations = t.annotations;
+      const annotations = t.annotations;
       top.push(HandleBlockAnnotations(annotations, t.text));
     }
     items.push(
@@ -42,7 +43,6 @@ export const BlockBulletList = async (
       </li>
     );
   }
-  // TODO: handle indentation 									<li style="list-style-type:circle">Back</li>
   return ReactDOMServer.renderToStaticMarkup(
     <ul id={block.id} className="bulleted-list">
       {items}

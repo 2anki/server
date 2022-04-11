@@ -10,7 +10,7 @@ export const BlockHeading1 = async (
   handler?: BlockHandler
 ) => {
   /* @ts-ignore */
-  const heading = block["heading_1"];
+  const heading = block.heading_1;
   const text = heading.text;
 
   /* @ts-ignore */
@@ -24,7 +24,7 @@ export const BlockHeading1 = async (
         /* @ts-ignore */
         TagRegistry.getInstance().addHeading(t.plain_text);
         /* @ts-ignore */
-        let annotations = t.annotations;
+        const annotations = t.annotations;
         /* @ts-ignore */
         return HandleBlockAnnotations(annotations, t.text);
       })}
@@ -37,7 +37,7 @@ export const BlockHeading2 = (
   handler?: BlockHandler
 ) => {
   /* @ts-ignore */
-  const heading = block["heading_2"];
+  const heading = block.heading_2;
   const text = heading.text;
 
   /* @ts-ignore */
@@ -51,7 +51,7 @@ export const BlockHeading2 = (
         /* @ts-ignore */
         TagRegistry.getInstance().addHeading(t.plain_text);
         /* @ts-ignore */
-        let annotations = t.annotations;
+        const annotations = t.annotations;
         /* @ts-ignore */
         return HandleBlockAnnotations(annotations, t.text);
       })}
@@ -64,7 +64,7 @@ export const BlockHeading3 = (
   handler?: BlockHandler
 ) => {
   /* @ts-ignore */
-  const heading = block["heading_3"];
+  const heading = block.heading_3;
   const text = heading.text;
 
   /* @ts-ignore */
@@ -78,7 +78,7 @@ export const BlockHeading3 = (
         /* @ts-ignore */
         TagRegistry.getInstance().addHeading(t.plain_text);
         /* @ts-ignore */
-        let annotations = t.annotations;
+        const annotations = t.annotations;
         /* @ts-ignore */
         return HandleBlockAnnotations(annotations, t.text);
       })}

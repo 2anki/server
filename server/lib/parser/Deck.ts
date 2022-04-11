@@ -1,4 +1,4 @@
-import { nanoid, customAlphabet } from "nanoid";
+import { customAlphabet } from "nanoid";
 
 import Note from "./Note";
 import Settings from "./Settings";

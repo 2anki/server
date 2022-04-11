@@ -1,5 +1,6 @@
 import { Knex } from "knex";
-import User from "../lib/User";
+
+import hashPassword from "../lib/User/hashPassword";
 
 export async function seed(knex: Knex): Promise<void> {
   // Deletes ALL existing entries
@@ -10,7 +11,7 @@ export async function seed(knex: Knex): Promise<void> {
     {
       id: 21,
       name: "Alexander Alemayhu",
-      password: User.HashPassword("ichiban"),
+      password: hashPassword("ichiban"),
       email: "alexander@alemayhu.com",
     },
   ]);

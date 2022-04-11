@@ -1,4 +1,4 @@
-name: Smoke Test - Build Server
+name: Build Server
 
 on: [push]
 
@@ -16,7 +16,7 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - name: npm install, build, and test
+      - name: npm install, build
         run: |
           cd server
           npm install

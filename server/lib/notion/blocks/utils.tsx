@@ -20,7 +20,7 @@ const HandleBlockAnnotations = (
   const content = text.content;
 
   if (text.link) {
-    let mangle = HandleBlockAnnotations(annotations, {
+    const mangle = HandleBlockAnnotations(annotations, {
       content: text.content,
       link: null,
     });

@@ -16,19 +16,19 @@ const BlockBookmark = async (
   block: GetBlockResponse
 ): Promise<string | null> => {
   /* @ts-ignore */
-  const bookmark = block["bookmark"];
+  const bookmark = block.bookmark;
   const response = await axios.get(bookmark.url);
   const html = response.data;
   const metadata = await metascraper({ html, url: bookmark.url });
   let description = metadata.description;
   if (!description) {
     const dom = cheerio.load(html);
-    let maxAttempt = 5;
+    const maxAttempt = 5;
     let i = 0;
     while (i < maxAttempt && !description) {
       const paragraph = dom("p").next();
       if (paragraph) {
-        let text = paragraph.text();
+        const text = paragraph.text();
         if (text && text.trim()) {
           description = text.slice(0, 158);
         }
@@ -38,7 +38,6 @@ const BlockBookmark = async (
     }
   }
 
-  // TODO: fix meta description not showing
   return ReactDOMServer.renderToStaticMarkup(
     <a href={bookmark.url} className="bookmark source">
       <div className="bookmark-info">
