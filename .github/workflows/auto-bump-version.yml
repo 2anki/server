@@ -17,6 +17,8 @@ jobs:
           ref: ${{ github.ref }}
       - name: 'cat package.json'
         run: cat package.json
+        env:
+          PACKAGEJSON_DIR: 'server'
       - name: 'Automated Version Bump'
         id: version-bump
         uses: 'phips28/gh-action-bump-version@master'
@@ -30,4 +32,5 @@ jobs:
       - name: 'Output Step'
         env:
           NEW_TAG: ${{ steps.version-bump.outputs.newTag }}
+          PACKAGEJSON_DIR: 'server'
         run: echo "new tag $NEW_TAG"
