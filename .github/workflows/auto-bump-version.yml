@@ -15,8 +15,8 @@ jobs:
         uses: 'actions/checkout@v2'
         with:
           ref: ${{ github.ref }}
-      - name: 'cat server/package.json'
-        run: cat ./server/package.json
+      - name: 'cat package.json'
+        run: cat package.json
       - name: 'Automated Version Bump'
         id: version-bump
         uses: 'phips28/gh-action-bump-version@master'
@@ -24,8 +24,9 @@ jobs:
           tag-prefix: 'v'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: 'cat server/package.json'
-        run: cat ./server/package.json
+          PACKAGEJSON_DIR: 'server'
+      - name: 'cat package.json'
+        run: cat package.json
       - name: 'Output Step'
         env:
           NEW_TAG: ${{ steps.version-bump.outputs.newTag }}
