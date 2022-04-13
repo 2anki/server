@@ -1,7 +1,7 @@
 import path from "path";
 import os from "os";
 
-import { getDeck } from "../../test/_test-utils";
+import { getDeck } from "../../test/test-utils";
 import Settings from "./Settings";
 
 beforeEach(() => {
