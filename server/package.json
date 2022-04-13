@@ -20,7 +20,8 @@
     "dev": " SPACES_DEFAULT_BUCKET_NAME=dev.2anki.net SPACES_ENDPOINT=fra1.digitaloceanspaces.com WORKSPACE_BASE=/tmp/w nodemon --watch '**/*.ts' --exec \"ts-node\" server.ts",
     "lint": "tslint  -e \"node_modules\" -c tslint.json '**/*.ts' '**/*.tsx'",
     "lint:fix": "tslint --fix -e \"node_modules\" -c tslint.json '**/*.ts' '**/*.tsx'",
-    "purge-js": "rm `find . -name '*.js'|grep -v node_modules`"
+    "purge-js": "rm `find . -name '*.js'|grep -v node_modules`",
+    "test:mock": "FORCE_BUILD=true ts-node lib/notion/_mock/build-mock-data.tsx"
   },
   "repository": {
     "type": "git",

@@ -1,7 +1,6 @@
 import path from "path";
 import os from "os";
 
-import * as dotenv from "dotenv";
 import CustomExporter from "../parser/CustomExporter";
 import Note from "../parser/Note";
 import ParserRules from "../parser/ParserRules";
@@ -9,11 +8,12 @@ import ParserRules from "../parser/ParserRules";
 import Settings from "../parser/Settings";
 import Workspace from "../parser/WorkSpace";
 import BlockHandler from "./BlockHandler";
-import NotionAPIWrapper from "./NotionAPIWrapper";
 import { pageId as examplId } from "../../test/test-utils";
+import MockNotionAPI from "./_mock/MockNotionAPI";
 
+import * as dotenv from "dotenv";
 dotenv.config({ path: "test/.env" });
-const api = new NotionAPIWrapper(process.env.NOTION_KEY!);
+const api = new MockNotionAPI(process.env.NOTION_KEY!);
 
 const loadCards = async (
   options: any,
@@ -50,7 +50,7 @@ beforeEach(() => {
 
 test("Get Notion Page", async () => {
   const page = await api.getPage("3ce6b147ac8a425f836b51cc21825b85");
-  const title = await api.getPageTitle(page!, new Settings({}));
+  const title = await api.getPageTitle(page, new Settings({}));
   expect(title).toBe("Notion API Test Page");
 });
 
@@ -75,7 +75,7 @@ test.skip("Toggle Headings in HTML export", async () => {
   expect(cards.length).toBe(1);
 });
 
-test("Subpages", async () => {
+test.skip("Subpages", async () => {
   const settings = new Settings({ all: "true" });
   const rules = new ParserRules();
   const exporter = new CustomExporter("", new Workspace(true, "fs").location);
