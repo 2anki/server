@@ -169,13 +169,13 @@ class NotionAPIWrapper {
   }
 
   async getPageTitle(
-    page: GetPageResponse,
+    page: GetPageResponse | null,
     settings: Settings
   ): Promise<string> {
-    console.debug(`getPageTitle: ${JSON.stringify(page.id, null, 4)}`);
     if (!page) {
-      throw new Error("missing page");
+      return "";
     }
+    console.debug(`getPageTitle: ${JSON.stringify(page.id, null, 4)}`);
 
     let title = "Untitled: " + new Date();
     let icon = "";

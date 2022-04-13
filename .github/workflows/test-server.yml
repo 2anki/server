@@ -24,7 +24,6 @@ jobs:
           npm run build
           pip3 install setuptools==33.1.1
           pip3 install -r genanki/requirements.txt
-          npm install -g ava
           npm run test
         env:
           CI: true
