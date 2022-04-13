@@ -1,7 +1,6 @@
 import path from "path";
 import os from "os";
 
-import test from "ava";
 import * as dotenv from "dotenv";
 
 import BlockHandler from "../lib/notion/BlockHandler";
@@ -11,7 +10,7 @@ import Note from "../lib/parser/Note";
 import ParserRules from "../lib/parser/ParserRules";
 import Workspace from "../lib/parser/WorkSpace";
 import CustomExporter from "../lib/parser/CustomExporter";
-import { configureAPI, pageId } from "./_test-utils";
+import { configureAPI, pageId } from "./test-utils";
 dotenv.config({ path: __dirname + "/.env" });
 
 process.env.WORKSPACE_BASE = path.join(os.tmpdir(), "w");

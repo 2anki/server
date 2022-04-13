@@ -2,11 +2,9 @@ import path from "path";
 import os from "os";
 import fs from "fs";
 
-import test from "ava";
-
 // @ts-ignore
 import Settings from "../lib/parser/Settings";
-import { getDeck } from "./_test-utils";
+import { getDeck } from "./test-utils";
 
 process.env.WORKSPACE_BASE = path.join(os.tmpdir(), "workspaces");
 fs.mkdirSync(process.env.WORKSPACE_BASE, { recursive: true });
