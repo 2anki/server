@@ -6,6 +6,7 @@ import ReactDOMServer from "react-dom/server";
 import BlockHandler from "../../BlockHandler";
 import { styleWithColors } from "../../NotionColors";
 import HandleBlockAnnotations, { HandleChildren } from "../utils";
+import { convert } from "html-to-text"
 
 const listStyles = ["disc", "circle", "square"];
 export const BlockBulletList = async (
@@ -43,9 +44,15 @@ export const BlockBulletList = async (
       </li>
     );
   }
-  return ReactDOMServer.renderToStaticMarkup(
+  const markup = ReactDOMServer.renderToStaticMarkup(
     <ul id={block.id} className="bulleted-list">
       {items}
     </ul>
   );
+
+  if (handler.settings?.isTextOnlyBack) {
+    return convert(markup);
+  }
+
+  return markup;
 };

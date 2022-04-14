@@ -1,14 +1,19 @@
-import { GetBlockResponse } from "@notionhq/client/build/src/api-endpoints";
-import ReactDOMServer from "react-dom/server";
-import { styleWithColors } from "../../NotionColors";
-import HandleBlockAnnotations from "../utils";
+import { GetBlockResponse } from '@notionhq/client/build/src/api-endpoints';
+import ReactDOMServer from 'react-dom/server';
+import BlockHandler from '../../BlockHandler';
+import { styleWithColors } from '../../NotionColors';
+import HandleBlockAnnotations from '../utils';
+import { convert } from "html-to-text"
 
-export const BlockTodoList = (block: GetBlockResponse) => {
+export const BlockTodoList = (
+  block: GetBlockResponse,
+  handler: BlockHandler
+) => {
   /* @ts-ignore */
   const todo = block.to_do;
   const text = todo.text;
 
-  return ReactDOMServer.renderToStaticMarkup(
+  const markup = ReactDOMServer.renderToStaticMarkup(
     <ul id={block.id} className={`to-do-list${styleWithColors(todo.color)}`}>
       {text.map((t: GetBlockResponse) => {
         /* @ts-ignore */
@@ -18,7 +23,7 @@ export const BlockTodoList = (block: GetBlockResponse) => {
           <li>
             <div
               /* @ts-ignore */
-              className={`checkbox checkbox-${t.checked ? "on" : "off"}`}
+              className={`checkbox checkbox-${t.checked ? 'on' : 'off'}`}
             ></div>
             {/* @ts-ignore */}
             {HandleBlockAnnotations(annotations, t.text)}
@@ -27,4 +32,8 @@ export const BlockTodoList = (block: GetBlockResponse) => {
       })}
     </ul>
   );
+  if (handler.settings?.isTextOnlyBack) {
+    return convert(markup);
+  }
+  return markup;
 };

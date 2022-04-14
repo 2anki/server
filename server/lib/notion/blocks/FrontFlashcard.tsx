@@ -9,7 +9,7 @@ const FrontFlashcard = (block: GetBlockResponse, handler: BlockHandler) => {
   /* @ts-ignore */
   const text = block.text;
 
-  if (handler.settings?.isTextOnlyBack) {
+  if (handler?.settings?.isTextOnlyBack) {
     return getPlainText(text);
   }
     /* @ts-ignore */

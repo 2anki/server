@@ -209,9 +209,14 @@ describe('BlockHandler', () => {
   });
 
   test('Use Plain Text for Back', async () => {
-    const card = await findCardByName('1 - This is a basic card', {
-      paragraph: 'true',
-    });
+    const flashcards = await loadCards(
+      { paragraph: 'true'},
+      examplId,
+      new Workspace(true, 'fs'),
+      new ParserRules()
+    );
+    const card = flashcards.find(
+      c => c.name === '1 - This is a basic card');
     expect(card?.back).toBe('This is the back of the card');
   });
 

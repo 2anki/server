@@ -7,6 +7,6 @@ export default function getPlainText (text: Text[]): string {
         return ''
     }
     return text.map(t => t.plain_text).reduce((acc, curr) => {
-        return acc + curr
+        return acc + '<br>' + curr
     });
 }
