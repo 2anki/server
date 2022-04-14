@@ -7,6 +7,7 @@ import {
   QueryDatabaseResponse,
 } from "@notionhq/client/build/src/api-endpoints";
 import axios from "axios";
+import sanitizeTags from "../anki/sanitizeTags";
 import ParserRules from "../parser/ParserRules";
 import Settings from "../parser/Settings";
 import { IsTypeHeading } from "./blocks/BlockHeadings";
@@ -161,11 +162,11 @@ class NotionAPIWrapper {
         if (!tt || tt.length < 1) continue;
         const annotations = tt[0].annotations;
         if (annotations.strikethrough) {
-          globalTags.push(tt[0].text.content.replace(/\\s+/g, ""));
+          globalTags.push(tt[0].text.content);
         }
       }
     }
-    return globalTags.map((gt) => gt.trim().replace(/\s/g, "-"));
+    return sanitizeTags(globalTags);
   }
 
   async getPageTitle(
