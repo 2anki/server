@@ -9,6 +9,7 @@ import Workspace from "./WorkSpace";
 import { NewUniqueFileNameFrom, SuffixFrom } from "../misc/file";
 import replaceAll from "./helpers/replaceAll";
 import handleClozeDeletions from "./helpers/handleClozeDeletions";
+import sanitizeTags from "../anki/sanitizeTags";
 
 export class DeckParser {
   globalTags: cheerio.Cheerio | null;
@@ -446,10 +447,7 @@ export class DeckParser {
         deletions.each((_i: number, elem: cheerio.Element) => {
           const del = dom(elem);
           card.tags.push(
-            ...del
-              .text()
-              .split(",")
-              .map(($1) => $1.trim().replace(/\s/g, "-"))
+            ...sanitizeTags(del.text().split(","))
           );
           card.back = replaceAll(card.back, `<del>${del.html()}</del>`, "");
           card.name = replaceAll(card.name, `<del>${del.html()}</del>`, "");
