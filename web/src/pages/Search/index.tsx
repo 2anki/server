@@ -69,7 +69,7 @@ function DashboardContent() {
                 }}
                 onSearchClicked={() => triggerSearch(false)}
               />
-              {(!myPages || myPages.length < 1) && (
+              {(!myPages || myPages.length < 1 || errorNotification) && (
                 <EmptyContainer>
                   {errorNotification && (
                     <div className="my-4 notification is-danger">
