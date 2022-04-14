@@ -2,10 +2,10 @@ import { useState } from 'react';
 
 import styled from 'styled-components';
 import Backend from '../../../lib/Backend';
-import DefineRules from '../../../components/Dashboard/DefineRules';
+import DefineRules from './DefineRules';
 
-import ObjectActions from '../../../components/Dashboard/actions/ObjectActions';
-import ObjectAction from '../../../components/Dashboard/actions/ObjectAction';
+import ObjectActions from './actions/ObjectActions';
+import ObjectAction from './actions/ObjectAction';
 
 const Entry = styled.div`
   display: flex;

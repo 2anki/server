@@ -12,7 +12,7 @@ import { Container } from '../../components/styled';
 
 const backend = new Backend();
 
-function DashboardContent() {
+function SearchContent() {
   const query = useQuery();
   const history = useHistory();
 
@@ -161,7 +161,7 @@ function SearchPage() {
       )}
       {connected && (
         <section className="columns is-fullheight">
-          <DashboardContent />
+          <SearchContent />
         </section>
       )}
     </>
