@@ -140,10 +140,10 @@ class BlockHandler {
             back += file;
             break;
           case "paragraph":
-            back += BlockParagraph(c);
+            back += BlockParagraph(c, this);
             break;
           case "code":
-            back += BlockCode(c);
+            back += BlockCode(c, this);
             break;
           case "heading_1":
             back += await BlockHeading1(c, this);
@@ -155,19 +155,19 @@ class BlockHandler {
             back += await BlockHeading3(c, this);
             break;
           case "quote":
-            back += BlockQuote(c);
+            back += BlockQuote(c, this);
             break;
           case "divider":
             back += BlockDivider();
             break;
           case "child_page":
-            back += await BlockChildPage(c, this.api);
+            back += await BlockChildPage(c, this);
             break;
           case "to_do":
             back += BlockTodoList(c);
             break;
           case "callout":
-            back += BlockCallout(c);
+            back += BlockCallout(c, this);
             break;
           case "bulleted_list_item":
             back += await BlockBulletList(block, response, this);
@@ -179,7 +179,7 @@ class BlockHandler {
             back += await BlockToggleList(c, this);
             break;
           case "bookmark":
-            back += await BlockBookmark(c);
+            back += await BlockBookmark(c, this);
             break;
           case "video":
             back += BlockVideo(c);

@@ -2,13 +2,19 @@ import ReactDOMServer from "react-dom/server";
 
 import { GetBlockResponse } from "@notionhq/client/build/src/api-endpoints";
 import useMetadata from "./hooks/useMetadata";
+import BlockHandler from "../../../BlockHandler";
 
 const BlockBookmark = async (
-  block: GetBlockResponse
+  block: GetBlockResponse,
+  handler: BlockHandler
 ): Promise<string | null> => {
   /* @ts-ignore */
   const bookmark = block.bookmark;
   const metadata = await useMetadata(bookmark.url);
+
+  if (handler?.settings?.isTextOnlyBack && bookmark) {
+    return `${bookmark.title} ${bookmark.url}`;
+  }
 
   return ReactDOMServer.renderToStaticMarkup(
     <a style={{margin: "4px"}} href={bookmark.url} className="bookmark source">

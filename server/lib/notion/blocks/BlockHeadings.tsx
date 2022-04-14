@@ -2,6 +2,7 @@ import { GetBlockResponse } from "@notionhq/client/build/src/api-endpoints";
 import ReactDOMServer from "react-dom/server";
 import TagRegistry from "../../parser/TagRegistry";
 import BlockHandler from "../BlockHandler";
+import getPlainText from "../helpers/getPlainText";
 import { styleWithColors } from "../NotionColors";
 import HandleBlockAnnotations, { HandleChildren } from "./utils";
 
@@ -12,6 +13,10 @@ export const BlockHeading1 = async (
   /* @ts-ignore */
   const heading = block.heading_1;
   const text = heading.text;
+  
+  if (handler?.settings?.isTextOnlyBack) {
+    return getPlainText(text);
+  }
 
   /* @ts-ignore */
   if (block.has_children && handler) {
@@ -39,6 +44,10 @@ export const BlockHeading2 = (
   /* @ts-ignore */
   const heading = block.heading_2;
   const text = heading.text;
+  
+  if (handler?.settings?.isTextOnlyBack && text) {
+    return text[0].plain_text;
+  }
 
   /* @ts-ignore */
   if (block.has_children && handler) {
@@ -66,6 +75,10 @@ export const BlockHeading3 = (
   /* @ts-ignore */
   const heading = block.heading_3;
   const text = heading.text;
+  
+  if (handler?.settings?.isTextOnlyBack && text) {
+    return text[0].plain_text;
+  }
 
   /* @ts-ignore */
   if (block.has_children && handler) {

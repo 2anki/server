@@ -1,13 +1,19 @@
 import { GetBlockResponse } from "@notionhq/client/build/src/api-endpoints";
 import ReactDOMServer from "react-dom/server";
+import BlockHandler from "../BlockHandler";
+import getPlainText from "../helpers/getPlainText";
 import { styleWithColors } from "../NotionColors";
 import HandleBlockAnnotations from "./utils";
 
-export const BlockCallout = (block: GetBlockResponse) => {
+export const BlockCallout = (block: GetBlockResponse, handler: BlockHandler) => {
   /* @ts-ignore */
   const callout = block.callout;
   const icon = callout.icon;
   const text = callout.text;
+ 
+  if (handler.settings?.isTextOnlyBack) {
+    return getPlainText(text);
+  }
 
   return ReactDOMServer.renderToStaticMarkup(
     <figure

@@ -1,12 +1,21 @@
 import { GetBlockResponse } from "@notionhq/client/build/src/api-endpoints";
 import ReactDOMServer from "react-dom/server";
+import BlockHandler from "../BlockHandler";
+import getPlainText from "../helpers/getPlainText";
 import { styleWithColors } from "../NotionColors";
 import HandleBlockAnnotations from "./utils";
 
-export const BlockQuote = (block: GetBlockResponse) => {
+export const BlockQuote = (
+  block: GetBlockResponse, 
+  handler: BlockHandler
+) => {
   /* @ts-ignore */
   const quote = block.quote;
   const text = quote.text;
+  
+  if (handler.settings?.isTextOnlyBack) {
+    return getPlainText(text);
+  }
 
   return ReactDOMServer.renderToStaticMarkup(
     <blockquote className={styleWithColors(quote.color)} id={block.id}>
