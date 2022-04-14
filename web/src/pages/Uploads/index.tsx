@@ -1,5 +1,5 @@
 import BecomeAPatron from '../../components/BecomeAPatron';
-import UploadObjectEntry from '../../components/Dashboard/UploadObjectEntry';
+import UploadObjectEntry from './components/UploadObjectEntry';
 import LoadingScreen from '../../components/LoadingScreen';
 import Backend from '../../lib/Backend';
 import ActiveJobs from './components/ActiveJobs';

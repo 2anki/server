@@ -101,9 +101,11 @@ class Backend {
         };
       } else {
         const dbResult = await this.getDatabase(query);
-        data = {
-          results: [dbResult.data],
-        };
+        if (dbResult && dbResult.data) {
+          data = {
+            results: [dbResult.data],
+          };
+        }
       }
     } else {
       const response = await axios.post(

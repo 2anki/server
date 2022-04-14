@@ -17,8 +17,8 @@ export interface Metadata {
 
 export default async function useMetadata(url: string): Promise<Metadata> {
   try {
-    let response = await axios.get(url);
-    return metascraper({ html: response.data, url: url });
+    const response = await axios.get(url);
+    return metascraper({ html: response.data, url });
   } catch (error) {
     return {
       description: "",

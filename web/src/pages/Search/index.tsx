@@ -12,7 +12,7 @@ import { Container } from '../../components/styled';
 
 const backend = new Backend();
 
-function DashboardContent() {
+function SearchContent() {
   const query = useQuery();
   const history = useHistory();
 
@@ -69,7 +69,7 @@ function DashboardContent() {
                 }}
                 onSearchClicked={() => triggerSearch(false)}
               />
-              {(!myPages || myPages.length < 1) && (
+              {(!myPages || myPages.length < 1 || errorNotification) && (
                 <EmptyContainer>
                   {errorNotification && (
                     <div className="my-4 notification is-danger">
@@ -161,7 +161,7 @@ function SearchPage() {
       )}
       {connected && (
         <section className="columns is-fullheight">
-          <DashboardContent />
+          <SearchContent />
         </section>
       )}
     </>

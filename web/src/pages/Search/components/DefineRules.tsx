@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import Backend from '../../lib/Backend';
-import TemplateSelect from '../TemplateSelect';
-import Switch from '../input/Switch';
-import SettingsModal from '../modals/SettingsModal';
+
+import Switch from '../../../components/input/Switch';
+import SettingsModal from '../../../components/modals/SettingsModal';
+import TemplateSelect from '../../../components/TemplateSelect';
+import Backend from '../../../lib/Backend';
 
 interface Props {
   id: string;

@@ -1,6 +1,7 @@
 import ReactHtmlParser from 'react-html-parser';
 import styled from 'styled-components';
-import ObjectAction from './actions/ObjectAction';
+
+import ObjectAction from '../../Search/components/actions/ObjectAction';
 
 const Entry = styled.div`
   display: flex;
@@ -37,7 +38,7 @@ interface Props {
   deleteUpload: () => void;
 }
 
-function UploadObjectEntry({
+export default function UploadObjectEntry({
   size, title, icon, url, deleteUpload,
 }: Props) {
   return (
@@ -65,11 +66,8 @@ function UploadObjectEntry({
         <ObjectAction
           url={url}
           image="/icons/Anki_app_logo.png"
-          onClick={() => {}}
         />
       </ObjectActions>
     </Entry>
   );
 }
-
-export default UploadObjectEntry;

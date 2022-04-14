@@ -35,6 +35,7 @@ import { BlockVideo } from "./blocks/media/BlockVideo";
 import { BlockEmbed } from "./blocks/media/BlockEmbed";
 import RenderNotionLink from "./RenderNotionLink";
 import TagRegistry from "../parser/TagRegistry";
+import sanitizeTags from "../anki/sanitizeTags";
 
 class BlockHandler {
   api: NotionAPIWrapper;
@@ -298,7 +299,7 @@ class BlockHandler {
     if (settings.useTags && tags.length > 0) {
       cards.forEach((c) => {
         c.tags ||= [];
-        c.tags = tags.concat(c.tags);
+        c.tags = tags.concat(sanitizeTags(c.tags));
       });
     }
     return cards; // .filter((c) => !c.isValid());
