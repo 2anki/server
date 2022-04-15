@@ -89,7 +89,7 @@ https://www.reddit.com/r/Anki/comments/g29mzk/cards_imported_from_notion/
 
 ## Limitations
 
-We are still heavily relying on the APKG format. Long term we want to support AnkiWeb and make it possible to do true collaboration.
+We are still heavily relying on the APKG format. Long term we want to support AnkiWeb and make it possible to do true realtime collaboration.
 
 ## Credits
 
