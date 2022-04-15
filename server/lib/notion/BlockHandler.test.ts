@@ -130,9 +130,8 @@ describe('BlockHandler', () => {
       new Workspace(true, 'fs'),
       new ParserRules()
     );
-    const card = flashcards[1];
-    expect(card.name).toBe('2 - This is a {{c1::cloze deletion}}');
-    expect(card.back).toBe(
+    const card = flashcards.find(c => c.name === "2 - This is a {{c1::cloze deletion}}" );
+    expect(card?.back).toBe(
       `<p class="" id="34be35bd-db68-4588-85d9-e1adc84c45a5">Extra</p>`
     );
   });
@@ -210,20 +209,28 @@ describe('BlockHandler', () => {
 
   test('Use Plain Text for Back', async () => {
     const flashcards = await loadCards(
-      { paragraph: 'true'},
+      { paragraph: 'true' },
       examplId,
       new Workspace(true, 'fs'),
       new ParserRules()
     );
-    const card = flashcards.find(
-      c => c.name === '1 - This is a basic card');
+    const card = flashcards.find((c) => c.name === '1 - This is a basic card');
     expect(card?.back).toBe('This is the back of the card');
+  });
+
+  test('Basic and Reversed', async () => {
+    const flashcards = await loadCards(
+      { "basic-reversed": "true"},
+      'fb300010f93745e882e1fd04e0cae6ef',
+      new Workspace(true, 'fs'),
+      new ParserRules()
+    );
+    expect(flashcards.length).toBe(2);
   });
 
   test.todo('Maximum One Toggle Per Card');
   test.todo('Use All Toggle Lists');
   test.todo('Template Options');
-  test.todo('Basic and Reversed');
   test.todo('Just the Reversed Flashcards');
   test.todo('Remove Underlines');
   test.todo('Download Media Files');

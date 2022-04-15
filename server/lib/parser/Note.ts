@@ -69,4 +69,17 @@ export default class Note {
 
     return false;
   }
+
+  hasRefreshIcon() {
+    return this.name.includes("&#x1F504") || this.name.includes("🔄");
+  }
+
+  reversed(input: Note): Note {
+      const note = new Note(input.back, input.name);
+      note.tags = input.tags;
+      note.media = input.media;
+      // Due to backwards compatability, do not increment number here
+      note.number = -1;
+      return note;
+  }
 }

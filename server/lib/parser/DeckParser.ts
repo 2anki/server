@@ -74,10 +74,6 @@ export class DeckParser {
     return note.name.includes(avocado) || note.name.includes("🥑");
   }
 
-  noteHasRefreshIcon(name: string) {
-    const refreshIcon = "&#x1F504";
-    return name.includes(refreshIcon) || name.includes("🔄");
-  }
 
   findToggleLists(dom: cheerio.Root) {
     const selector =
@@ -564,7 +560,7 @@ export class DeckParser {
           addThese.push(note);
         }
 
-        if (this.settings.reversed || this.noteHasRefreshIcon(card.name)) {
+        if (this.settings.reversed || card.hasRefreshIcon()) {
           const tmp = card.back;
           card.back = card.name;
           card.name = tmp;
