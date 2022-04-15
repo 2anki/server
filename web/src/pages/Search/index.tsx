@@ -53,23 +53,23 @@ function SearchContent() {
   if (isLoading) return <LoadingScreen />;
 
   return (
-    <Container>
+    <Container className="container">
       <StyledSearchPage>
+        <SearchBar
+          inProgress={inProgress}
+          onSearchQueryChanged={(s) => {
+            history.push({
+              pathname: '/search',
+              search: `?q=${s}`,
+            });
+            setSearchQuery(s);
+          }}
+          onSearchClicked={() => triggerSearch(false)}
+        />
         <div className="column is-main-content">
           <Switch>
             <Route path="/search">
-              <SearchBar
-                inProgress={inProgress}
-                onSearchQueryChanged={(s) => {
-                  history.push({
-                    pathname: '/search',
-                    search: `?q=${s}`,
-                  });
-                  setSearchQuery(s);
-                }}
-                onSearchClicked={() => triggerSearch(false)}
-              />
-              {(!myPages || myPages.length < 1 || errorNotification) && (
+              {(!myPages || myPages.length < 1) && (
                 <EmptyContainer>
                   {errorNotification && (
                     <div className="my-4 notification is-danger">
