@@ -17,9 +17,7 @@ import BlockParagraph from "./blocks/BlockParagraph";
 import BlockCode from "./blocks/BlockCode";
 import FrontFlashcard from "./blocks/FrontFlashcard";
 import {
-  BlockHeading1,
-  BlockHeading2,
-  BlockHeading3,
+  BlockHeading,
   IsTypeHeading,
 } from "./blocks/BlockHeadings";
 import { BlockQuote } from "./blocks/BlockQuote";
@@ -52,7 +50,9 @@ class BlockHandler {
   }
 
   async embedImage(c: GetBlockResponse): Promise<string> {
-    console.debug("embedImage: " + c.id);
+    if (this.settings?.isTextOnlyBack) {
+      return '';
+    }
     /* @ts-ignore */
     const t = c.image.type;
     /* @ts-ignore */
@@ -68,7 +68,9 @@ class BlockHandler {
   }
 
   async embedAudioFile(c: GetBlockResponse): Promise<string> {
-    console.debug("embedAudioFile: " + c.id);
+    if (this.settings?.isTextOnlyBack) {
+      return '';
+    }
     /* @ts-ignore */
     const audio = c.audio;
     const url = audio.file.url;
@@ -82,7 +84,9 @@ class BlockHandler {
   }
 
   async embedFile(c: GetBlockResponse): Promise<string> {
-    console.debug("embedFile: " + c.id);
+    if (this.settings?.isTextOnlyBack) {
+      return '';
+    }
     /* @ts-ignore */
     const file = c.file;
     const url = file.file.url;
@@ -140,52 +144,52 @@ class BlockHandler {
             back += file;
             break;
           case "paragraph":
-            back += BlockParagraph(c);
+            back += BlockParagraph(c, this);
             break;
           case "code":
-            back += BlockCode(c);
+            back += BlockCode(c, this);
             break;
           case "heading_1":
-            back += await BlockHeading1(c, this);
+            back += await BlockHeading("heading_1", c, this);
             break;
           case "heading_2":
-            back += await BlockHeading2(c, this);
+            back += await BlockHeading("heading_2", c, this);
             break;
           case "heading_3":
-            back += await BlockHeading3(c, this);
+            back += await BlockHeading("heading_3", c, this);
             break;
           case "quote":
-            back += BlockQuote(c);
+            back += BlockQuote(c, this);
             break;
           case "divider":
             back += BlockDivider();
             break;
           case "child_page":
-            back += await BlockChildPage(c, this.api);
+            back += await BlockChildPage(c, this);
             break;
           case "to_do":
-            back += BlockTodoList(c);
+            back += BlockTodoList(c, this);
             break;
           case "callout":
-            back += BlockCallout(c);
+            back += BlockCallout(c, this);
             break;
           case "bulleted_list_item":
             back += await BlockBulletList(block, response, this);
             break;
           case "numbered_list_item":
-            back += BlockNumberedList(c);
+            back += BlockNumberedList(c, this);
             break;
           case "toggle":
             back += await BlockToggleList(c, this);
             break;
           case "bookmark":
-            back += await BlockBookmark(c);
+            back += await BlockBookmark(c, this);
             break;
           case "video":
-            back += BlockVideo(c);
+            back += BlockVideo(c, this);
             break;
           case "embed":
-            back += BlockEmbed(c);
+            back += BlockEmbed(c, this);
             break;
           default:
             /* @ts-ignore */
@@ -271,7 +275,7 @@ class BlockHandler {
         ankiNote.back = back!;
         ankiNote.notionLink = this.__notionLink(block.id, notionBaseLink);
         if (settings.addNotionLink) {
-          ankiNote.back += RenderNotionLink(ankiNote.notionLink!);
+          ankiNote.back += RenderNotionLink(ankiNote.notionLink!, this);
         }
         ankiNote.notionId = settings.useNotionId ? block.id : undefined;
         ankiNote.media = this.exporter.media;
@@ -309,17 +313,10 @@ class BlockHandler {
     /* @ts-ignore */
     const type = block.type;
     if (IsTypeHeading(block)) {
-      switch (type) {
-        case "heading_1":
-          return BlockHeading1(block);
-        case "heading_2":
-          return BlockHeading2(block);
-        case "heading_3":
-          return BlockHeading3(block);
-      }
+      return BlockHeading(type, block, this); 
     }
     /* @ts-ignore */
-    return FrontFlashcard(block[type]);
+    return FrontFlashcard(block[type], this);
   }
 
   // The user wants to turn code blocks into cloze deletions <code>word</code> becomes {{c1::word}}

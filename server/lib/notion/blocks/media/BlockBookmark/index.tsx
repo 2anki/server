@@ -1,16 +1,23 @@
 import ReactDOMServer from "react-dom/server";
+import { convert } from "html-to-text"
 
 import { GetBlockResponse } from "@notionhq/client/build/src/api-endpoints";
 import useMetadata from "./hooks/useMetadata";
+import BlockHandler from "../../../BlockHandler";
 
 const BlockBookmark = async (
-  block: GetBlockResponse
+  block: GetBlockResponse,
+  handler: BlockHandler
 ): Promise<string | null> => {
   /* @ts-ignore */
   const bookmark = block.bookmark;
   const metadata = await useMetadata(bookmark.url);
 
-  return ReactDOMServer.renderToStaticMarkup(
+  if (handler?.settings?.isTextOnlyBack && bookmark) {
+    return `${bookmark.title} ${bookmark.url}`;
+  }
+
+  const markup = ReactDOMServer.renderToStaticMarkup(
     <a style={{margin: "4px"}} href={bookmark.url} className="bookmark source">
       <div className="bookmark-info">
         <div className="bookmark-text">
@@ -25,6 +32,12 @@ const BlockBookmark = async (
       {metadata.image && <img src={metadata.image} className="bookmark-image" />}
     </a>
   );
+
+  if (handler.settings?.isTextOnlyBack) {
+    return convert(markup);
+  }
+
+  return markup;
 };
 
 export default BlockBookmark;

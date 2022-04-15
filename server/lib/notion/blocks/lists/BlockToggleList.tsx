@@ -1,5 +1,7 @@
 import { GetBlockResponse } from "@notionhq/client/build/src/api-endpoints";
 import ReactDOMServer from "react-dom/server";
+import { convert } from "html-to-text"
+
 import BlockHandler from "../../BlockHandler";
 import { styleWithColors } from "../../NotionColors";
 import HandleBlockAnnotations, { HandleChildren } from "../utils";
@@ -24,7 +26,7 @@ export async function BlockToggleList(
       <details>{children}</details>
     );
 
-  return ReactDOMServer.renderToStaticMarkup(
+  const markup = ReactDOMServer.renderToStaticMarkup(
     <>
       <ul id={block.id} className={`toggle${styleWithColors(list.color)}`}>
         <li>
@@ -43,4 +45,10 @@ export async function BlockToggleList(
       </ul>
     </>
   );
+
+  if (handler.settings?.isTextOnlyBack) {
+    return convert(markup);
+  }
+
+  return markup;
 }

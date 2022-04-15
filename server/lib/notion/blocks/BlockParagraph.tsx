@@ -1,12 +1,21 @@
-import { GetBlockResponse } from "@notionhq/client/build/src/api-endpoints";
-import ReactDOMServer from "react-dom/server";
-import { styleWithColors } from "../NotionColors";
-import HandleBlockAnnotations from "./utils";
+import { GetBlockResponse } from '@notionhq/client/build/src/api-endpoints';
+import ReactDOMServer from 'react-dom/server';
+import BlockHandler from '../BlockHandler';
+import getPlainText from '../helpers/getPlainText';
+import { styleWithColors } from '../NotionColors';
+import HandleBlockAnnotations from './utils';
 
-const BlockParagraph = (block: GetBlockResponse): string | null => {
+const BlockParagraph = (
+  block: GetBlockResponse,
+  handler: BlockHandler
+): string | null => {
   /* @ts-ignore */
   const paragraph = block.paragraph;
   const text = paragraph.text;
+
+  if (handler.settings?.isTextOnlyBack) {
+    return getPlainText(text);
+  }
 
   return ReactDOMServer.renderToStaticMarkup(
     <p className={styleWithColors(paragraph.color)} id={block.id}>

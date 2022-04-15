@@ -1,7 +1,11 @@
 import { GetBlockResponse } from "@notionhq/client/build/src/api-endpoints";
 import { renderToStaticMarkup } from "react-dom/server";
+import BlockHandler from "../../BlockHandler";
 
-export const BlockVideo = (c: GetBlockResponse) => {
+export const BlockVideo = (c: GetBlockResponse, handler: BlockHandler) => {
+  if (handler.settings?.isTextOnlyBack) {
+    return '';
+  }
   /* @ts-ignore*/
   const video = c.video;
   let url = video.external.url;
