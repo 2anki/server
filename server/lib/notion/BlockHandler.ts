@@ -36,6 +36,7 @@ import getClozeDeletionCard from './helpers/getClozeDeletionCard';
 import getInputCard from './helpers/getInputCard';
 import getColumn from './helpers/getColumn';
 import isColumnList from './helpers/isColumnList';
+import isTesting from './helpers/isTesting';
 
 class BlockHandler {
   api: NotionAPIWrapper;
@@ -52,7 +53,7 @@ class BlockHandler {
   }
 
   async embedImage(c: GetBlockResponse): Promise<string> {
-    if (this.settings?.isTextOnlyBack) {
+    if (this.settings?.isTextOnlyBack || isTesting()) {
       return '';
     }
     /* @ts-ignore */
@@ -69,7 +70,7 @@ class BlockHandler {
   }
 
   async embedAudioFile(c: GetBlockResponse): Promise<string> {
-    if (this.settings?.isTextOnlyBack) {
+    if (this.settings?.isTextOnlyBack || isTesting()) {
       return '';
     }
     /* @ts-ignore */
@@ -85,7 +86,7 @@ class BlockHandler {
   }
 
   async embedFile(c: GetBlockResponse): Promise<string> {
-    if (this.settings?.isTextOnlyBack) {
+    if (this.settings?.isTextOnlyBack || isTesting()) {
       return '';
     }
     /* @ts-ignore */
@@ -187,7 +188,7 @@ class BlockHandler {
           case 'embed':
             back += BlockEmbed(c, this);
             break;
-          case "column":
+          case 'column':
             back += await BlockColumn(c, this);
             break;
           default:
@@ -217,7 +218,7 @@ class BlockHandler {
       }
       return back;
     } catch (e: unknown) {
-      console.error(e)
+      console.error(e);
       return null;
     }
   }
