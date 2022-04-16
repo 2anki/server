@@ -39,7 +39,7 @@ export default async function getClozeDeletionCard(
         name = name.replace('{{{{', '{{').replace('}}}}', '}}');
         isCloze = true;
         index++;
-      } else {
+      } else if (cb.text?.content){
         name += cb.text.content;
       }
     }
