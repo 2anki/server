@@ -31,6 +31,11 @@ import { BlockEmbed } from './blocks/media/BlockEmbed';
 import RenderNotionLink from './RenderNotionLink';
 import TagRegistry from '../parser/TagRegistry';
 import sanitizeTags from '../anki/sanitizeTags';
+import BlockColumn from './blocks/lists/BlockColumn';
+import getClozeDeletionCard from './helpers/getClozeDeletionCard';
+import getInputCard from './helpers/getInputCard';
+import getColumn from './helpers/getColumn';
+import isColumnList from './helpers/isColumnList';
 
 class BlockHandler {
   api: NotionAPIWrapper;
@@ -57,7 +62,6 @@ class BlockHandler {
 
     const suffix = SuffixFrom(S3FileName(url));
     const newName = NewUniqueFileNameFrom(url) + (suffix || '');
-    console.debug('rewrite image to ' + newName);
     const imageRequest = await axios.get(url, { responseType: 'arraybuffer' });
     const contents = imageRequest.data;
     this.exporter.addMedia(newName, contents);
@@ -104,12 +108,7 @@ class BlockHandler {
     block: GetBlockResponse,
     handleChildren?: boolean
   ): Promise<string | null> {
-    console.debug('getBackSide: ' + block.id);
     let response: ListBlockChildrenResponse | null;
-    console.debug(
-      /* @ts-ignore */
-      `getBackSide id=${block.id}, edited=${block.last_edited_time}, type=${block.type}`
-    );
 
     try {
       response = await this.api.getBlocks(block.id, this.useAll);
@@ -188,6 +187,9 @@ class BlockHandler {
           case 'embed':
             back += BlockEmbed(c, this);
             break;
+          case "column":
+            back += await BlockColumn(c, this);
+            break;
           default:
             /* @ts-ignore */
             back += `unsupported: ${c.type}`;
@@ -215,7 +217,7 @@ class BlockHandler {
       }
       return back;
     } catch (e: unknown) {
-      console.error(e);
+      console.error(e)
       return null;
     }
   }
@@ -245,23 +247,25 @@ class BlockHandler {
       if (page) notionBaseLink = page.url;
     }
 
-    const flashCardTypes = rules.flaschardTypeNames();
-    console.log('flashCardTypes', flashCardTypes);
     let counter = 0;
     for (const block of flashcardBlocks) {
-      for (const FLASHCARD of flashCardTypes) {
-        /* @ts-ignore */
-        const flashcardBlock = block[FLASHCARD];
-        if (!flashcardBlock) continue;
         // Assume it's a basic card then check for children
         const name = await this.renderFront(block);
-        const back = await this.getBackSide(block);
+        let back: null | string = '';
+        if (isColumnList(block) && rules.useColums())  {
+          const secondColumn = await getColumn(block.id, this, 1);
+          if (secondColumn) {
+            back = await BlockColumn(secondColumn, this)
+          }
+        } else {
+          back = await this.getBackSide(block);
+        }
         const ankiNote = new Note(name, back || '');
         ankiNote.media = this.exporter.media;
         let isBasicType = true;
         // Look for cloze deletion cards
         if (settings.isCloze) {
-          const clozeCard = await this.getClozeDeletionCard(rules, block);
+          const clozeCard = await getClozeDeletionCard(rules, block);
           if (clozeCard) {
             isBasicType = false;
           }
@@ -269,7 +273,7 @@ class BlockHandler {
         }
         // Look for input cards
         if (settings.useInput) {
-          const inputCard = await this.getInputCard(rules, block);
+          const inputCard = await getInputCard(rules, block);
           if (inputCard) {
             isBasicType = false;
           }
@@ -297,7 +301,6 @@ class BlockHandler {
           cards.push(ankiNote.reversed(ankiNote));
         }
         tr.clear();
-      }
     }
 
     if (settings.isCherry) {
@@ -320,90 +323,22 @@ class BlockHandler {
     return cards; // .filter((c) => !c.isValid());
   }
 
-  renderFront(block: GetBlockResponse) {
+  async renderFront(block: GetBlockResponse) {
     /* @ts-ignore */
     const type = block.type;
     if (IsTypeHeading(block)) {
       return BlockHeading(type, block, this);
     }
+
+    if (isColumnList(block)) {
+      const firstColumn = await getColumn(block.id, this, 0);
+      if (firstColumn) {
+        return BlockColumn(firstColumn, this);
+      }
+    }
+
     /* @ts-ignore */
     return FrontFlashcard(block[type], this);
-  }
-
-  // The user wants to turn code blocks into cloze deletions <code>word</code> becomes {{c1::word}}
-  // This all should be tested with Jest
-  async getClozeDeletionCard(
-    rules: ParserRules,
-    block: GetBlockResponse
-  ): Promise<Note | undefined> {
-    let isCloze = false;
-    let name = '';
-    let index = 1;
-    const flashCardTypes = rules.flaschardTypeNames();
-    for (const FLASHCARD of flashCardTypes) {
-      // @ts-ignore
-      const flashcardBlock = block[FLASHCARD];
-      if (!flashcardBlock) continue;
-      for (const cb of flashcardBlock.text) {
-        if (cb.annotations.code) {
-          const content = cb.text.content;
-          if (content.includes('::')) {
-            if (content.match(/[cC]\d+::/)) {
-              name += `{{${content}}}`;
-            } else {
-              const clozeIndex = '{{c' + index + '::';
-              if (!name.includes(clozeIndex)) {
-                name += `{{c${index}::${content}}}`;
-              }
-            }
-          } else {
-            name += `{{c${index}::${content}}}`;
-          }
-          name = name.replace('{{{{', '{{').replace('}}}}', '}}');
-          isCloze = true;
-          index++;
-        } else {
-          name += cb.text.content;
-        }
-      }
-    }
-    if (isCloze) {
-      const note = new Note(name, '');
-      note.cloze = isCloze;
-      return note;
-    }
-    return undefined;
-  }
-
-  // The user wants to turn under lines into input cards <strong>keyword</strong> becomes {{type::word}}
-  async getInputCard(
-    rules: ParserRules,
-    block: GetBlockResponse
-  ): Promise<Note | undefined> {
-    let isInput = false;
-    let name = '';
-    let answer = '';
-    const flashCardTypes = rules.flaschardTypeNames();
-    for (const FLASHCARD of flashCardTypes) {
-      // @ts-ignore
-      const flashcardBlock = block[FLASHCARD];
-      if (!flashcardBlock) continue;
-      for (const cb of flashcardBlock.text) {
-        if (cb.annotations.underline || cb.annotations.bold) {
-          answer += cb.text.content;
-          isInput = true;
-        } else {
-          name += cb.text.content;
-        }
-      }
-    }
-    if (isInput) {
-      const note = new Note(name, '');
-      note.enableInput = isInput;
-      note.answer = answer;
-      return note;
-    }
-    return undefined;
   }
 
   async findFlashcards(
@@ -413,7 +348,6 @@ class BlockHandler {
     decks: Deck[],
     parentName: string = ''
   ): Promise<Deck[]> {
-    console.debug('findFlashcards for ' + topLevelId);
     if (rules.DECK === 'page') {
       return this.findFlashcardsFromPage(
         topLevelId,
@@ -423,7 +357,6 @@ class BlockHandler {
         parentName
       );
     } else if (rules.DECK === 'database') {
-      console.debug('findFlashcards from database');
       const dbResult = await this.api.queryDatabase(topLevelId);
       const database = await this.api.getDatabase(topLevelId);
       const dbName = this.api.getDatabaseTitle(database, settings);
@@ -436,8 +369,6 @@ class BlockHandler {
           dbName
         );
       }
-    } else if (rules.DECK === 'heading') {
-      console.debug('findFlashcards from heading');
     }
     return decks;
   }
@@ -450,7 +381,6 @@ class BlockHandler {
     parentName: string = ''
   ): Promise<Deck[]> {
     const tags = await this.api.getTopLevelTags(topLevelId, rules);
-    console.debug('Tags found: ' + tags);
     const response = await this.api.getBlocks(topLevelId, rules.UNLIMITED);
     const blocks = response.results;
     const flashCardTypes = rules.flaschardTypeNames();
@@ -487,7 +417,7 @@ class BlockHandler {
     if (settings.isAll) {
       /* @ts-ignore */
       const subDecks = blocks.filter((b) => b.type === rules.SUB_DECKS);
-      for (const sd of subDecks) {
+      for (const sd of subDecks) { 
         const subPage = await this.api.getPage(sd.id);
         if (subPage) {
           const nested = await this.findFlashcardsFromPage(

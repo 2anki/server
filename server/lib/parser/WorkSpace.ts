@@ -14,7 +14,6 @@ class Workspace {
     this.ensureExists();
   }
   private ensureExists() {
-    console.info("ensureExists " + this.location);
     if (!fs.existsSync(this.location)) {
       fs.mkdirSync(this.location, { recursive: true });
     }

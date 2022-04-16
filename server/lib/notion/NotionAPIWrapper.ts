@@ -176,8 +176,6 @@ class NotionAPIWrapper {
     if (!page) {
       return "";
     }
-    console.debug(`getPageTitle: ${JSON.stringify(page.id, null, 4)}`);
-
     let title = "Untitled: " + new Date();
     let icon = "";
 

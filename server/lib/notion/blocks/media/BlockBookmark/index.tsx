@@ -13,7 +13,7 @@ const BlockBookmark = async (
   const bookmark = block.bookmark;
   const metadata = await useMetadata(bookmark.url);
 
-  if (handler?.settings?.isTextOnlyBack && bookmark) {
+  if (handler.settings?.isTextOnlyBack && bookmark) {
     return `${bookmark.title} ${bookmark.url}`;
   }
 
