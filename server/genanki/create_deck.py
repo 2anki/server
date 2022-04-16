@@ -10,6 +10,7 @@ import hashlib
 import json
 import sys
 
+import sentry_sdk
 from genanki.util import guid_for
 from genanki import Note
 
@@ -17,6 +18,11 @@ from fs_util import _read_template, _wr_apkg
 from models.input import input_model
 from models.cloze import cloze_model
 from models.basic import basic_model
+
+sentry_sdk.init(
+    "https://a836d36ba5174e72b7d90ebb6da0c1ef@o404766.ingest.sentry.io/6340010",
+    traces_sample_rate=1.0
+)
 
 # Perserve the old ids for backwards compatability
 def model_id(name):
