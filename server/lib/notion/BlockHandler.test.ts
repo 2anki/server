@@ -125,7 +125,7 @@ describe('BlockHandler', () => {
 
   test('Cloze Deletion from Blocks', async () => {
     const flashcards = await loadCards(
-      { cloze: true },
+      { cloze: "true" },
       examplId,
       new Workspace(true, 'fs'),
       new ParserRules()
