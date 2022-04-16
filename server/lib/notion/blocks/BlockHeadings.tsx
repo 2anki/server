@@ -35,7 +35,7 @@ export const BlockHeading = async (
   const heading = block[level];
   const text = heading.text;
 
-  if (handler?.settings?.isTextOnlyBack) {
+  if (handler.settings?.isTextOnlyBack) {
     return getPlainText(text);
   }
 

@@ -17,6 +17,7 @@ const flashCardOptions = [
   'bulleted_list_item',
   'numbered_list_item',
   'heading',
+  'column_list',
 ];
 const tagOptions = ['heading', 'strikethrough'];
 

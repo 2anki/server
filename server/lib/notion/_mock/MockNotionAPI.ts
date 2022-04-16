@@ -16,7 +16,6 @@ export default class MockNotionAPI extends NotionAPIWrapper {
     all?: boolean
   ): Promise<ListBlockChildrenResponse> {
     if (mockDataExists("ListBlockChildrenResponse", id)) {
-      console.info("block exists using mock", id);
       return getPayload(dataMockPath("ListBlockChildrenResponse", id));
     }
     const blocks = await super.getBlocks(id, all);
@@ -26,7 +25,6 @@ export default class MockNotionAPI extends NotionAPIWrapper {
 
   async getPage(id: string): Promise<GetPageResponse | null> {
     if (mockDataExists("GetPageResponse", id)) {
-      console.info("page exists using mock", id);
       return getPayload(dataMockPath("GetPageResponse", id));
     }
     const page = await super.getPage(id);
@@ -36,7 +34,6 @@ export default class MockNotionAPI extends NotionAPIWrapper {
 
   async getBlock(id: string): Promise<GetBlockResponse> {
     if (mockDataExists("GetBlockResponse", id)) {
-      console.info("block exists using mock", id);
       return getPayload(dataMockPath("GetBlockResponse", id));
     }
     const block = await super.getBlock(id);
@@ -49,7 +46,6 @@ export default class MockNotionAPI extends NotionAPIWrapper {
     all?: boolean
   ): Promise<QueryDatabaseResponse> {
     if (mockDataExists("QueryDatabaseResponse", id)) {
-      console.info("database exists using mock", id);
       return getPayload(dataMockPath("QueryDatabaseResponse", id));
     }
     const query = await super.queryDatabase(id, all);

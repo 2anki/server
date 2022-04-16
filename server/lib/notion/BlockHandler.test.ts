@@ -228,6 +228,20 @@ describe('BlockHandler', () => {
     expect(flashcards.length).toBe(2);
   });
 
+  jest.setTimeout(10000)
+  test('Enable two columns', async () => {
+    const rules = new ParserRules();
+    rules.setFlashcardTypes(["column_list"])
+    const flashcards = await loadCards({
+      "basic-reversed": "false"
+    },
+      'eb64d738c17b444ab9d8a747372bed85',
+      new Workspace(true, 'fs'),
+      rules
+    )
+    expect(flashcards.length).toBe(1)
+  })
+
   test.todo('Maximum One Toggle Per Card');
   test.todo('Use All Toggle Lists');
   test.todo('Template Options');

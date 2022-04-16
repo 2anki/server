@@ -79,6 +79,10 @@ class ParserRules {
       .onConflict("object_id")
       .merge();
   }
+  
+  useColums() {
+    return this.FLASHCARD.includes("column_list")
+  }
 }
 
 export default ParserRules;
