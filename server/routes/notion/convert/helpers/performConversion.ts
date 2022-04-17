@@ -63,7 +63,7 @@ export default async function performConversion(
     console.debug(`using workspace ${ws.location}`);
     const exporter = new CustomExporter("", ws.location);
     const settings = await Settings.LoadFrom(DB, owner, id);
-    const bl = new BlockHandler(exporter, api);
+    const bl = new BlockHandler(exporter, api, settings);
     const rules = await ParserRules.Load(owner, id);
 
     if (res) bl.useAll = rules.UNLIMITED = res?.locals.patreon;

@@ -15,8 +15,7 @@ import { NewUniqueFileNameFrom, S3FileName, SuffixFrom } from '../misc/file';
 import axios from 'axios';
 import BlockParagraph from './blocks/BlockParagraph';
 import BlockCode from './blocks/BlockCode';
-import FrontFlashcard from './blocks/FrontFlashcard';
-import { BlockHeading, IsTypeHeading } from './blocks/BlockHeadings';
+import { BlockHeading } from './blocks/BlockHeadings';
 import { BlockQuote } from './blocks/BlockQuote';
 import { BlockDivider } from './blocks/BlockDivider';
 import { BlockChildPage } from './blocks/BlockChildPage';
@@ -37,6 +36,8 @@ import getInputCard from './helpers/getInputCard';
 import getColumn from './helpers/getColumn';
 import isColumnList from './helpers/isColumnList';
 import isTesting from './helpers/isTesting';
+import BlockEquation from './blocks/BlockEquation';
+import renderFront from './helpers/renderFront';
 
 class BlockHandler {
   api: NotionAPIWrapper;
@@ -44,16 +45,17 @@ class BlockHandler {
   skip: string[];
   firstPageTitle?: string;
   useAll: boolean = false;
-  settings?: Settings;
+  settings: Settings;
 
-  constructor(exporter: CustomExporter, api: NotionAPIWrapper) {
+  constructor(exporter: CustomExporter, api: NotionAPIWrapper, settings: Settings) {
     this.exporter = exporter;
     this.api = api;
     this.skip = [];
+    this.settings = settings;
   }
 
   async embedImage(c: GetBlockResponse): Promise<string> {
-    if (this.settings?.isTextOnlyBack || isTesting()) {
+    if (this.settings.isTextOnlyBack || isTesting()) {
       return '';
     }
     /* @ts-ignore */
@@ -70,7 +72,7 @@ class BlockHandler {
   }
 
   async embedAudioFile(c: GetBlockResponse): Promise<string> {
-    if (this.settings?.isTextOnlyBack || isTesting()) {
+    if (this.settings.isTextOnlyBack || isTesting()) {
       return '';
     }
     /* @ts-ignore */
@@ -86,7 +88,7 @@ class BlockHandler {
   }
 
   async embedFile(c: GetBlockResponse): Promise<string> {
-    if (this.settings?.isTextOnlyBack || isTesting()) {
+    if (this.settings.isTextOnlyBack || isTesting()) {
       return '';
     }
     /* @ts-ignore */
@@ -141,7 +143,7 @@ class BlockHandler {
             back += file;
             break;
           case 'paragraph':
-            back += BlockParagraph(c, this);
+            back += await BlockParagraph(c, this);
             break;
           case 'code':
             back += BlockCode(c, this);
@@ -190,6 +192,9 @@ class BlockHandler {
             break;
           case 'column':
             back += await BlockColumn(c, this);
+            break;
+          case 'equation':
+            back += BlockEquation(c);
             break;
           default:
             /* @ts-ignore */
@@ -251,7 +256,7 @@ class BlockHandler {
     let counter = 0;
     for (const block of flashcardBlocks) {
         // Assume it's a basic card then check for children
-        const name = await this.renderFront(block);
+        const name = await renderFront(block, this);
         let back: null | string = '';
         if (isColumnList(block) && rules.useColums())  {
           const secondColumn = await getColumn(block.id, this, 1);
@@ -324,23 +329,6 @@ class BlockHandler {
     return cards; // .filter((c) => !c.isValid());
   }
 
-  async renderFront(block: GetBlockResponse) {
-    /* @ts-ignore */
-    const type = block.type;
-    if (IsTypeHeading(block)) {
-      return BlockHeading(type, block, this);
-    }
-
-    if (isColumnList(block)) {
-      const firstColumn = await getColumn(block.id, this, 0);
-      if (firstColumn) {
-        return BlockColumn(firstColumn, this);
-      }
-    }
-
-    /* @ts-ignore */
-    return FrontFlashcard(block[type], this);
-  }
 
   async findFlashcards(
     topLevelId: string,

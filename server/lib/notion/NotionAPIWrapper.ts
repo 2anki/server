@@ -10,7 +10,7 @@ import axios from "axios";
 import sanitizeTags from "../anki/sanitizeTags";
 import ParserRules from "../parser/ParserRules";
 import Settings from "../parser/Settings";
-import { IsTypeHeading } from "./blocks/BlockHeadings";
+import isHeading from "./helpers/isHeading";
 
 const ANON_LIMIT = 21 * 2;
 const PATREON_LIMIT = 100 * 2;
@@ -140,7 +140,7 @@ class NotionAPIWrapper {
     const response = await this.getBlocks(pageId, rules.UNLIMITED);
     const globalTags = [];
     if (useHeadings) {
-      const headings = response.results.filter((block) => IsTypeHeading(block));
+      const headings = response.results.filter((block) => isHeading(block));
       for (const heading of headings) {
         /* @ts-ignore */
         const t = heading.type;
