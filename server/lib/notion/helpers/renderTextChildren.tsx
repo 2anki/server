@@ -6,6 +6,7 @@ import BlockEquation from '../blocks/BlockEquation';
 import HandleBlockAnnotations from '../blocks/utils';
 import isEquation from './isEquation';
 import isText from './isText';
+import preserveNewlinesIfApplicable from './perserveNewlinesIfApplicable';
 
 export default function renderTextChildren(
   text: any[],
@@ -35,7 +36,5 @@ export default function renderTextChildren(
       return `unsupported type: ${t.type}\n${JSON.stringify(t, null, 2)}`;
     })
     .reduce((acc, curr) => acc + curr);
-  return settings.perserveNewLinesInSummary
-    ? content.replace(/\n/g, '<br />')
-    : content;
+  return preserveNewlinesIfApplicable(content, settings);
 }

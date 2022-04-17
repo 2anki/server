@@ -38,6 +38,7 @@ import isColumnList from './helpers/isColumnList';
 import isTesting from './helpers/isTesting';
 import BlockEquation from './blocks/BlockEquation';
 import renderFront from './helpers/renderFront';
+import perserveNewlinesIfApplicable from './helpers/perserveNewlinesIfApplicable';
 
 class BlockHandler {
   api: NotionAPIWrapper;
@@ -299,6 +300,10 @@ class BlockHandler {
         ankiNote.tags =
           rules.TAGS === 'heading' ? tr.headings : tr.strikethroughs;
         ankiNote.number = counter++;
+
+        ankiNote.name = perserveNewlinesIfApplicable(ankiNote.name, settings);
+        ankiNote.back = perserveNewlinesIfApplicable(ankiNote.back, settings);
+
         cards.push(ankiNote);
         if (
           !settings.isCherry &&
