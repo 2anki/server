@@ -52,17 +52,3 @@ export const BlockHeading = async (
     </Heading>
   );
 };
-
-export const IsTypeHeading = (block: GetBlockResponse) => {
-  /* @ts-ignore */
-  switch (block.type) {
-    case 'heading_1':
-      return true;
-    case 'heading_2':
-      return true;
-    case 'heading_3':
-      return true;
-    default:
-      return false;
-  }
-};

@@ -24,12 +24,10 @@ const loadCards = async (
   const settings = new Settings(options);
   const r = rules || new ParserRules();
   const exporter = new CustomExporter('', ws.location);
-  const bl = new BlockHandler(exporter, api);
+  const bl = new BlockHandler(exporter, api, settings);
   const decks = await bl.findFlashcards(pageId, r, settings, []);
   return decks[0].cards;
 };
-
-const defaultFront = (s: string) => `<div class="">${s}</div>`;
 
 async function findCardByName(
   name: string,
@@ -41,7 +39,9 @@ async function findCardByName(
     new Workspace(true, 'fs'),
     new ParserRules()
   );
-  return flashcards.find((f) => f.name === defaultFront(name));
+  return flashcards.find((f) => {
+    return f.name === name;
+  });
 }
 
 beforeEach(() => {
@@ -83,7 +83,7 @@ describe('BlockHandler', () => {
     const settings = new Settings({ all: 'true' });
     const rules = new ParserRules();
     const exporter = new CustomExporter('', new Workspace(true, 'fs').location);
-    const bl = new BlockHandler(exporter, api);
+    const bl = new BlockHandler(exporter, api, settings);
     const decks = await bl.findFlashcards(examplId, rules, settings, []);
 
     expect(decks.length > 1).toBe(true);
@@ -117,20 +117,20 @@ describe('BlockHandler', () => {
       new ParserRules()
     );
     const card = flashcards[0];
-    expect(card.name).toBe(defaultFront('1 - This is a basic card'));
-    expect(card.back).toBe(
-      `<p class="" id="f83ce56a-9039-4888-81be-375b19a84790">This is the back of the card</p>`
-    );
+    expect(card.name).toBe('1 - This is a basic card');
+    expect(card.back).toBe(`<p class=\"\" id=\"f83ce56a-9039-4888-81be-375b19a84790\">This is the back of the card</p>`);
   });
 
   test('Cloze Deletion from Blocks', async () => {
     const flashcards = await loadCards(
-      { cloze: "true" },
+      { cloze: 'true' },
       examplId,
       new Workspace(true, 'fs'),
       new ParserRules()
     );
-    const card = flashcards.find(c => c.name === "2 - This is a {{c1::cloze deletion}}" );
+    const card = flashcards.find(
+      (c) => c.name === '2 - This is a {{c1::cloze deletion}}'
+    );
     expect(card?.back).toBe(
       `<p class="" id="34be35bd-db68-4588-85d9-e1adc84c45a5">Extra</p>`
     );
@@ -179,7 +179,7 @@ describe('BlockHandler', () => {
       new ParserRules()
     );
     const card = flashcards.find(
-      (f) => f.name === defaultFront('1 - This is a basic card')
+      (f) => f.name === `1 - This is a basic card`
     );
     expect(card).toBeTruthy();
     expect(card?.notionLink).toBe(expected);
@@ -193,7 +193,7 @@ describe('BlockHandler', () => {
       new ParserRules()
     );
     const card = flashcards.find(
-      (f) => f.name === defaultFront('3 - 21 + 21 is #buddy')
+      (f) => f.name === '3 - 21 + 21 is #buddy'
     );
     const expected = 'a5445230-bfa9-4bf1-bc35-a706c1d129d1';
     expect(card?.notionId).toBe(expected);
@@ -220,7 +220,7 @@ describe('BlockHandler', () => {
 
   test('Basic and Reversed', async () => {
     const flashcards = await loadCards(
-      { "basic-reversed": "true"},
+      { 'basic-reversed': 'true' },
       'fb300010f93745e882e1fd04e0cae6ef',
       new Workspace(true, 'fs'),
       new ParserRules()
@@ -228,19 +228,20 @@ describe('BlockHandler', () => {
     expect(flashcards.length).toBe(2);
   });
 
-  jest.setTimeout(10000)
+  jest.setTimeout(10000);
   test('Enable two columns', async () => {
     const rules = new ParserRules();
-    rules.setFlashcardTypes(["column_list"])
-    const flashcards = await loadCards({
-      "basic-reversed": "false"
-    },
+    rules.setFlashcardTypes(['column_list']);
+    const flashcards = await loadCards(
+      {
+        'basic-reversed': 'false',
+      },
       'eb64d738c17b444ab9d8a747372bed85',
       new Workspace(true, 'fs'),
       rules
-    )
-    expect(flashcards.length).toBe(1)
-  })
+    );
+    expect(flashcards.length).toBe(1);
+  });
 
   test.todo('Maximum One Toggle Per Card');
   test.todo('Use All Toggle Lists');

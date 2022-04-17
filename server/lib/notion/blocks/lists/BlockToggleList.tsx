@@ -1,10 +1,11 @@
-import { GetBlockResponse } from "@notionhq/client/build/src/api-endpoints";
-import ReactDOMServer from "react-dom/server";
-import { convert } from "html-to-text"
+import { GetBlockResponse } from '@notionhq/client/build/src/api-endpoints';
+import ReactDOMServer from 'react-dom/server';
+import { convert } from 'html-to-text';
 
-import BlockHandler from "../../BlockHandler";
-import { styleWithColors } from "../../NotionColors";
-import HandleBlockAnnotations, { HandleChildren } from "../utils";
+import BlockHandler from '../../BlockHandler';
+import { styleWithColors } from '../../NotionColors';
+import { HandleChildren } from '../utils';
+import renderTextChildren from '../../helpers/renderTextChildren';
 
 export async function BlockToggleList(
   block: GetBlockResponse,
@@ -20,7 +21,7 @@ export async function BlockToggleList(
    */
   /* @ts-ignore */
   const Details = ({ children }) =>
-    handler.settings?.toggleMode === "open_toggle" ? (
+    handler.settings?.toggleMode === 'open_toggle' ? (
       <details open>{children}</details>
     ) : (
       <details>{children}</details>
@@ -31,14 +32,9 @@ export async function BlockToggleList(
       <ul id={block.id} className={`toggle${styleWithColors(list.color)}`}>
         <li>
           <Details>
-            <summary>
-              {text.map((t: GetBlockResponse) => {
-                /* @ts-ignore */
-                const annotations = t.annotations;
-                /* @ts-ignore */
-                return HandleBlockAnnotations(annotations, t.text);
-              })}
-            </summary>
+            <summary
+              dangerouslySetInnerHTML={{ __html: renderTextChildren(text, handler.settings) }}
+            ></summary>
             <div dangerouslySetInnerHTML={{ __html: backSide }} />
           </Details>
         </li>
