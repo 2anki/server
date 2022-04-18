@@ -28,7 +28,7 @@ import rules from "./routes/rules";
 import download from "./routes/download/u";
 
 import DB from "./lib/storage/db";
-import config from "./knexfile";
+import KnexConfig from "./KnexConfig";
 import TokenHandler from "./lib/misc/TokenHandler";
 import CrashReporter from "./lib/CrashReporter";
 import { ScheduleCleanup } from "./lib/jobs/JobHandler";
@@ -127,7 +127,7 @@ function serve() {
   }
   ScheduleCleanup(DB);
   /* @ts-ignore */
-  DB.migrate.latest(config).then(() => {
+  DB.migrate.latest(KnexConfig).then(() => {
     process.chdir(cwd);
     process.env.SECRET ||= "victory";
     const port = process.env.PORT || 2020;

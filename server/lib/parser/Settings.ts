@@ -33,7 +33,7 @@ export default class Settings {
   readonly basicModelId: string;
   readonly inputModelId: string;
   readonly template: string;
-  readonly perserveNewLinesInSummary: boolean;
+  readonly perserveNewLines: boolean;
   readonly n2aCloze: TemplateFile | undefined;
   readonly n2aBasic: TemplateFile | undefined;
   readonly n2aInput: TemplateFile | undefined;
@@ -61,7 +61,7 @@ export default class Settings {
     this.basicReversed = input["basic-reversed"] !== "false";
     this.reversed = input.reversed !== "false";
     this.removeMP3Links = input["remove-mp3-links"] === "true" || false;
-    this.perserveNewLinesInSummary =
+    this.perserveNewLines =
       input["perserve-newlines"] === "true" || false;
     this.clozeModelName = input.cloze_model_name;
     this.basicModelName = input.basic_model_name;

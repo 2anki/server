@@ -5,20 +5,20 @@ from genanki import Deck
 from genanki import Package
 
 def _wr_apkg(payload, media_files):
-    firstId = ""
+    first_id = ""
     decks = []
 
     for p in payload:
         deck = Deck(deck_id=p["id"], name=p["name"], description=p["desc"])
-        if not firstId:
-            firstId = p["id"]
+        if not first_id:
+            first_id = p["id"]
         for note in p["notes"]:
             deck.add_note(note)
         decks.append(deck)
 
     pkg = Package(decks)
     pkg.media_files = media_files
-    fout_anki = "{NAME}.apkg".format(NAME=firstId)
+    fout_anki = "{NAME}.apkg".format(NAME=first_id)
 
     pkg.write_to_file(fout_anki)
     sys.stdout.write(os.getcwd() + "/" + fout_anki)

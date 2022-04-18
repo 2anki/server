@@ -10,6 +10,7 @@ import { NewUniqueFileNameFrom, SuffixFrom } from "../misc/file";
 import replaceAll from "./helpers/replaceAll";
 import handleClozeDeletions from "./helpers/handleClozeDeletions";
 import sanitizeTags from "../anki/sanitizeTags";
+import preserveNewlinesIfApplicable from "../notion/helpers/perserveNewlinesIfApplicable";
 
 export class DeckParser {
   globalTags: cheerio.Cheerio | null;
@@ -195,11 +196,7 @@ export class DeckParser {
 
         if (summary && summary.text()) {
           const validSummary = (() => {
-            const s = summary.html() || "";
-            if (this.settings.perserveNewLinesInSummary) {
-              return replaceAll(s, "\n", "<br />");
-            }
-            return s;
+            return preserveNewlinesIfApplicable(summary.html() || "", this.settings);
           })();
           const front = parentClass
             ? `<div class='${parentClass}'>${validSummary}</div>`
@@ -224,7 +221,7 @@ export class DeckParser {
                 if (this.settings.maxOne) {
                   _b = this.removeNestedToggles(b);
                 }
-                if (this.settings.perserveNewLinesInSummary) {
+                if (this.settings.perserveNewLines) {
                   _b = replaceAll(_b, "\n", "<br />");
                 }
                 return _b;
