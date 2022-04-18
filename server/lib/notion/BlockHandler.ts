@@ -39,6 +39,7 @@ import isTesting from './helpers/isTesting';
 import BlockEquation from './blocks/BlockEquation';
 import renderFront from './helpers/renderFront';
 import perserveNewlinesIfApplicable from './helpers/perserveNewlinesIfApplicable';
+import getDeckName from '../anki/getDeckname';
 
 class BlockHandler {
   api: NotionAPIWrapper;
@@ -399,7 +400,7 @@ class BlockHandler {
       'utf8'
     );
     const deck = new Deck(
-      parentName ? `${parentName}::${title}` : title,
+      getDeckName(parentName, title),
       cards,
       undefined,
       NOTION_STYLE,
