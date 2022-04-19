@@ -1,26 +1,11 @@
 import { useState } from 'react';
 
-import styled from 'styled-components';
-import Backend from '../../../lib/Backend';
-import DefineRules from './DefineRules';
+import Backend from '../../../../lib/Backend';
+import DefineRules from '../DefineRules';
 
-import ObjectActions from './actions/ObjectActions';
-import ObjectAction from './actions/ObjectAction';
-
-const Entry = styled.div`
-  display: flex;
-  align-items: center;
-  grid-gap: 1.2rem;
-  padding: 1rem;
-  font-size: 2.4vw;
-  justify-content: space-between;
-`;
-
-const ObjectMeta = styled.div`
-  align-items: center;
-  display: flex;
-  grid-gap: 1.2rem;
-`;
+import ObjectActions from '../actions/ObjectActions';
+import ObjectAction from '../actions/ObjectAction';
+import { Entry, ObjectIconAction, ObjectMeta } from './styled';
 
 const backend = new Backend();
 
@@ -40,7 +25,6 @@ function SearchObjectEntry({
 
   return (
     <>
-
       <Entry>
         <ObjectMeta>
           <div className="control is-hidden-mobile">
@@ -86,7 +70,7 @@ function SearchObjectEntry({
               }
             }}
           >
-            <img src="/icons/settings.svg" width="32px" alt="settings" />
+            <ObjectIconAction src="/icons/settings.svg" width="32px" alt="settings" />
           </div>
         </ObjectActions>
       </Entry>
