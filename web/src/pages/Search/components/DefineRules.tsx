@@ -92,109 +92,113 @@ function DefineRules({
   };
 
   return (
-    <div className="card" style={{ maxWidth: '480px', marginLeft: 'auto' }}>
-      <header className="card-header">
-        <p className="card-header-title">
-          Settings for
-          {' '}
-          {parent}
-        </p>
-        {isLoading && (
-          <button
-            aria-label="loading"
-            type="button"
-            className="m-2 card-header-icon button is-loading"
-          />
-        )}
-        <div className="card-header-icon">
-          <button
-            onClick={() => setDone()}
-            aria-label="delete"
-            type="button"
-            className="delete"
-          />
-        </div>
-      </header>
-
-      {!isLoading && (
-        <>
-          {more && (
-            <SettingsModal
-              pageId={id}
-              pageTitle={parent}
-              isActive={more}
-              onClickClose={() => {
-                setMore(false);
-              }}
-              setError={setError}
-            />
-          )}
-          <div className="card-content">
-            <h2 className="subtitle">What is a flashcard?</h2>
-            {flashCardOptions.map((fco) => (
-              <Switch
-                key={fco}
-                id={fco}
-                title={`Flashcards are ${fco}`}
-                checked={rules.flashcard_is.includes(fco)}
-                onSwitched={() => onSelectedFlashcardTypes(fco)}
-              />
-            ))}
-            <div className="my-4">
-              <h2 className="subtitle">Card fields</h2>
-              <TemplateSelect
-                pickedTemplate={(name: string) => setTags(name)}
-                values={tagOptions.map((fco) => ({
-                  label: `Tags are ${fco}`,
-                  value: fco,
-                }))}
-                name="Tags"
-                value={rules.tags_is}
-              />
-            </div>
-            <h2 className="subtitle">Miscallenous</h2>
-            <Switch
-              key="email-notification"
-              id="email-notification"
-              title="Receive email notifications when deck(s) are ready"
-              checked={sendEmail}
-              onSwitched={() => {
-                rules.email_notification = !rules.email_notification;
-                setSendEmail(rules.email_notification);
-              }}
-            />
-            <div className="has-text-centered">
-              <hr />
+    <div className="modal is-active">
+      <div className="modal-background" />
+      <div className="modal-card">
+        <div className="card" style={{ maxWidth: '480px' }}>
+          <header className="card-header">
+            <p className="card-header-title">
+              Settings for
+              {' '}
+              {parent}
+            </p>
+            {isLoading && (
               <button
+                aria-label="loading"
                 type="button"
-                className="button is-small"
-                onClick={() => setMore(!more)}
-              >
-                More!
-              </button>
+                className="m-2 card-header-icon button is-loading"
+              />
+            )}
+            <div className="card-header-icon">
+              <button
+                onClick={() => setDone()}
+                aria-label="delete"
+                type="button"
+                className="delete"
+              />
             </div>
-          </div>
-          <footer className="card-footer">
-            <a
-              href="/save-rules"
-              className="card-footer-item"
-              onClick={saveRules}
-            >
-              Save
-            </a>
-            <a
-              href="/cancel-rules"
-              className="card-footer-item"
-              onClick={(event) => {
-                event.preventDefault();
-                setDone();
-              }}
-            >
-              Cancel
-            </a>
-          </footer>
-        </>
-      )}
+          </header>
+          {!isLoading && (
+            <>
+              {more && (
+                <SettingsModal
+                  pageId={id}
+                  pageTitle={parent}
+                  isActive={more}
+                  onClickClose={() => {
+                    setMore(false);
+                  }}
+                  setError={setError}
+                />
+              )}
+              <div className="card-content">
+                <h2 className="subtitle">What is a flashcard?</h2>
+                {flashCardOptions.map((fco) => (
+                  <Switch
+                    key={fco}
+                    id={fco}
+                    title={`Flashcards are ${fco}`}
+                    checked={rules.flashcard_is.includes(fco)}
+                    onSwitched={() => onSelectedFlashcardTypes(fco)}
+                  />
+                ))}
+                <div className="my-4">
+                  <h2 className="subtitle">Card fields</h2>
+                  <TemplateSelect
+                    pickedTemplate={(name: string) => setTags(name)}
+                    values={tagOptions.map((fco) => ({
+                      label: `Tags are ${fco}`,
+                      value: fco,
+                    }))}
+                    name="Tags"
+                    value={rules.tags_is}
+                  />
+                </div>
+                <h2 className="subtitle">Miscallenous</h2>
+                <Switch
+                  key="email-notification"
+                  id="email-notification"
+                  title="Receive email notifications when deck(s) are ready"
+                  checked={sendEmail}
+                  onSwitched={() => {
+                    rules.email_notification = !rules.email_notification;
+                    setSendEmail(rules.email_notification);
+                  }}
+                />
+                <div className="has-text-centered">
+                  <hr />
+                  <button
+                    type="button"
+                    className="button is-small"
+                    onClick={() => setMore(!more)}
+                  >
+                    More!
+                  </button>
+                </div>
+              </div>
+              <footer className="card-footer">
+                <a
+                  href="/save-rules"
+                  className="card-footer-item"
+                  onClick={saveRules}
+                >
+                  Save
+                </a>
+                <a
+                  href="/cancel-rules"
+                  className="card-footer-item"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    setDone();
+                  }}
+                >
+                  Cancel
+                </a>
+              </footer>
+            </>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
