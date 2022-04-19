@@ -43,7 +43,7 @@ function SearchObjectEntry({
 
       <Entry>
         <ObjectMeta>
-          <div className="control">
+          <div className="control is-hidden-mobile">
             <div className="tags has-addons">
               <span className="tag">Type</span>
               <span className="tag is-link">{type}</span>
