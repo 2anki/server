@@ -4,6 +4,7 @@ import Switch from '../../../components/input/Switch';
 import SettingsModal from '../../../components/modals/SettingsModal';
 import TemplateSelect from '../../../components/TemplateSelect';
 import Backend from '../../../lib/Backend';
+import FlashcardType from './FlashcardType';
 
 interface Props {
   id: string;
@@ -84,9 +85,7 @@ function DefineRules({
     if (!included) {
       rules.flashcard_is.push(fco);
     } else if (included) {
-      rules.flashcard_is = rules.flashcard_is.filter(
-        (f) => f !== fco,
-      );
+      rules.flashcard_is = rules.flashcard_is.filter((f) => f !== fco);
     }
     setFlashcard((prevState) => Array.from(new Set([...prevState, ...rules.flashcard_is])));
   };
@@ -132,16 +131,17 @@ function DefineRules({
                 />
               )}
               <div className="card-content">
-                <h2 className="subtitle">What is a flashcard?</h2>
-                {flashCardOptions.map((fco) => (
-                  <Switch
-                    key={fco}
-                    id={fco}
-                    title={`Flashcards are ${fco}`}
-                    checked={rules.flashcard_is.includes(fco)}
-                    onSwitched={() => onSelectedFlashcardTypes(fco)}
-                  />
-                ))}
+                <h2 className="subtitle mb-1">What is a flashcard?</h2>
+                <p>Select the types of flashcards you want to enable</p>
+                <div className="is-group">
+                  {flashCardOptions.map((fco) => (
+                    <FlashcardType
+                      active={rules.flashcard_is.includes(fco)}
+                      name={fco}
+                      onSwitch={(name) => onSelectedFlashcardTypes(name)}
+                    />
+                  ))}
+                </div>
                 <div className="my-4">
                   <h2 className="subtitle">Card fields</h2>
                   <TemplateSelect
