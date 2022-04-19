@@ -96,6 +96,7 @@ function DefineRules({
       <header className="card-header">
         <p className="card-header-title">
           Settings for
+          {' '}
           {parent}
         </p>
         {isLoading && (
