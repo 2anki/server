@@ -6,6 +6,7 @@ import DefineRules from '../DefineRules';
 import ObjectActions from '../actions/ObjectActions';
 import ObjectAction from '../actions/ObjectAction';
 import { Entry, ObjectIconAction, ObjectMeta } from './styled';
+import ObjectType from '../ObjectType';
 
 const backend = new Backend();
 
@@ -27,12 +28,7 @@ function SearchObjectEntry({
     <>
       <Entry>
         <ObjectMeta>
-          <div className="control is-hidden-mobile">
-            <div className="tags has-addons">
-              <span className="tag">Type</span>
-              <span className="tag is-link">{type}</span>
-            </div>
-          </div>
+          <ObjectType type={type} />
           {icon && (icon.includes('http') || icon.includes('data:image')) ? (
             <img width={32} height={32} src={icon} alt="icon" />
           ) : (
