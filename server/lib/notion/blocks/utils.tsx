@@ -52,16 +52,5 @@ const HandleBlockAnnotations = (
   }
 };
 
-export const HandleChildren = async (
-  block: GetBlockResponse,
-  handler: BlockHandler
-) => {
-  let backSide = "";
-  /* @ts-ignore */
-  if (block.has_children) {
-    backSide += await handler.getBackSide(block, true);
-  }
-  return backSide;
-};
 
 export default HandleBlockAnnotations;
