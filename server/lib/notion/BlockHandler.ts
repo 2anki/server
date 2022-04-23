@@ -175,10 +175,10 @@ class BlockHandler {
             back += BlockCallout(c, this);
             break;
           case 'bulleted_list_item':
-            back += await BlockBulletList(block, response, this);
+            back += await BlockBulletList(c, response, this);
             break;
           case 'numbered_list_item':
-            back += BlockNumberedList(c, this);
+            back += await BlockNumberedList(c, response, this);
             break;
           case 'toggle':
             back += await BlockToggleList(c, this);

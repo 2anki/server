@@ -4,8 +4,8 @@ import { convert } from 'html-to-text';
 
 import BlockHandler from '../../BlockHandler';
 import { styleWithColors } from '../../NotionColors';
-import { HandleChildren } from '../utils';
 import renderTextChildren from '../../helpers/renderTextChildren';
+import getChildren from '../../helpers/getChildren';
 
 export async function BlockToggleList(
   block: GetBlockResponse,
@@ -14,7 +14,7 @@ export async function BlockToggleList(
   /* @ts-ignore */
   const list = block.toggle;
   const text = list.text;
-  const backSide = await HandleChildren(block, handler);
+  const backSide = await getChildren(block, handler);
   /**
    * We can't just set open to false that won't work since it's a boolean and will be truthy.
    * The open attribute has to be omitted.
