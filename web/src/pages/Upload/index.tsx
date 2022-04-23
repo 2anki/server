@@ -10,6 +10,8 @@ import SettingsModal from '../../components/modals/SettingsModal';
 import {
   FlexColumn, ImportTitle, InfoMessage, Main, SettingsLink, UploadContainer,
 } from './styled';
+import Menu from '../Search/components/Menu/Menu';
+import { PageContainer } from '../../components/styled';
 
 interface Props {
   setErrorMessage: (message: string) => void;
@@ -32,55 +34,58 @@ function UploadPage({ setErrorMessage }: Props) {
   }, [store]);
 
   return (
-    <UploadContainer>
-      <Main>
-        {isDevelopment ? <WarningMessage /> : null}
-        <FlexColumn>
-          <ImportTitle>Import</ImportTitle>
-          <SettingsLink onClick={() => setShowSettings(true)}>
-            <Link className="link" to="upload?view=template">
-              <SettingsIcon />
-              Settings
-            </Link>
-          </SettingsLink>
-        </FlexColumn>
-        <div className="container">
-          <UploadForm
-            setErrorMessage={setErrorMessage}
-          />
-          <InfoMessage>
-            2anki.net currently only supports
-            <a
-              rel="noreferrer"
-              target="_blank"
-              href="https://www.notion.so/Export-as-HTML-bf3fe9e6920e4b9883cbd8a76b6128b7"
-            >
+    <PageContainer>
+      <Menu favorites={store.favorites} />
+      <UploadContainer>
+        <Main>
+          {isDevelopment ? <WarningMessage /> : null}
+          <FlexColumn>
+            <ImportTitle>Import</ImportTitle>
+            <SettingsLink onClick={() => setShowSettings(true)}>
+              <Link className="link" to="upload?view=template">
+                <SettingsIcon />
+                Settings
+              </Link>
+            </SettingsLink>
+          </FlexColumn>
+          <div className="container">
+            <UploadForm
+              setErrorMessage={setErrorMessage}
+            />
+            <InfoMessage>
+              2anki.net currently only supports
+              <a
+                rel="noreferrer"
+                target="_blank"
+                href="https://www.notion.so/Export-as-HTML-bf3fe9e6920e4b9883cbd8a76b6128b7"
+              >
+                {' '}
+                HTML and ZIP exports from Notion
+              </a>
+              . All files are automatically deleted after 21 minutes. Checkout
+              the
               {' '}
-              HTML and ZIP exports from Notion
-            </a>
-            . All files are automatically deleted after 21 minutes. Checkout
-            the
-            {' '}
-            <a
-              rel="noreferrer"
-              target="_blank"
-              href="https://youtube.com/c/alexanderalemayhu?sub_confirmation=1"
-            >
-              YouTube channel for tutorials
-            </a>
-            . Notion API support is in the works and coming soon!
-          </InfoMessage>
-          <SettingsModal
-            setError={setErrorMessage}
-            isActive={isSettings}
-            onClickClose={() => {
-              window.history.pushState({}, '', 'upload');
-              setShowSettings(false);
-            }}
-          />
-        </div>
-      </Main>
-    </UploadContainer>
+              <a
+                rel="noreferrer"
+                target="_blank"
+                href="https://youtube.com/c/alexanderalemayhu?sub_confirmation=1"
+              >
+                YouTube channel for tutorials
+              </a>
+              . Notion API support is in the works and coming soon!
+            </InfoMessage>
+            <SettingsModal
+              setError={setErrorMessage}
+              isActive={isSettings}
+              onClickClose={() => {
+                window.history.pushState({}, '', 'upload');
+                setShowSettings(false);
+              }}
+            />
+          </div>
+        </Main>
+      </UploadContainer>
+    </PageContainer>
   );
 }
 

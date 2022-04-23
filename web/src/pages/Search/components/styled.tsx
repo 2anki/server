@@ -12,13 +12,6 @@ export const EmptyContainer = styled.div`
   height: 50vh;
 `;
 
-export const StyledSearchPage = styled.div`
+export const SearchResults = styled.div`
   margin: 0 auto;
-`;
-
-export const Container = styled.div`
-    display: grid;
-    grid-template-columns: 11.25rem 1fr 11.25rem;
-    padding: 2rem;
-    margin: 0 auto;
 `;

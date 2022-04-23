@@ -1,13 +1,13 @@
 import { Route, Switch, useHistory } from 'react-router-dom';
 import { Dispatch, SetStateAction } from 'react';
-import { EmptyContainer, Container, StyledSearchPage } from './styled';
+import { EmptyContainer, SearchResults } from './styled';
 import Menu from './Menu/Menu';
 import SearchBar from './SearchBar';
 import SearchObjectEntry from './SearchObjectEntry';
 import NotionObject from '../../../lib/interfaces/NotionObject';
 
 interface SearchPresenterProps {
-  favorites: string[];
+  favorites: NotionObject[];
   inProgress: boolean;
   myPages: NotionObject[];
   setSearchQuery: Dispatch<SetStateAction<string>>;
@@ -30,9 +30,9 @@ export default function SearchPresenter(
     errorNotification,
   } = props;
   return (
-    <Container>
+    <>
       <Menu favorites={favorites} />
-      <StyledSearchPage>
+      <SearchResults>
         <SearchBar
           inProgress={inProgress}
           onSearchQueryChanged={(s) => {
@@ -77,7 +77,7 @@ export default function SearchPresenter(
             </Route>
           </Switch>
         </div>
-      </StyledSearchPage>
-    </Container>
+      </SearchResults>
+    </>
   );
 }

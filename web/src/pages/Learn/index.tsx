@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react';
-import { Container } from '../../components/styled';
+import { useState, useEffect, useContext } from 'react';
+import { Container, PageContainer } from '../../components/styled';
 import Backend from '../../lib/Backend';
+import StoreContext from '../../store/StoreContext';
+import Menu from '../Search/components/Menu/Menu';
 import Wrapper from './Wrapper';
 
 interface Props {
@@ -15,6 +17,8 @@ function LearnPage({ setError }: Props) {
   const [block, setBlock] = useState(null);
   const [grandChild, setGrandChild] = useState(null);
   const [location, setLocation] = useState(0);
+
+  const store = useContext(StoreContext);
 
   // Load parent page based on id
   useEffect(() => {
@@ -62,46 +66,50 @@ function LearnPage({ setError }: Props) {
     return <div>insert loading screen.</div>;
   }
   return (
-    <Container>
-      <Wrapper>
-        {page && (
-          <nav className="breadcrumb" aria-label="breadcrumbs">
-            <ul>
-              <li>
-                <a href={page.url}>{page.title}</a>
-              </li>
-            </ul>
-          </nav>
-        )}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            flexDirection: 'column',
-          }}
-        >
-          {block && (
-            <>
-              <h1 className="title">{block.id}</h1>
-              <pre>{JSON.stringify(block, null, 4)}</pre>
-              <hr />
-              <pre>{JSON.stringify(grandChild, null, 2)}</pre>
-            </>
+    <PageContainer>
+      <Menu favorites={store.favorites} />
+      <h1>Learn</h1>
+      <Container>
+        <Wrapper>
+          {page && (
+            <nav className="breadcrumb" aria-label="breadcrumbs">
+              <ul>
+                <li>
+                  <a href={page.url}>{page.title}</a>
+                </li>
+              </ul>
+            </nav>
           )}
-          <progress
-            id="file"
-            value={location + 1}
-            max={children.length}
-          />
-          <span style={{ fontSize: '11px' }}>
-            {location + 1}
-            {' '}
-            /
-            {children.length}
-          </span>
-        </div>
-      </Wrapper>
-    </Container>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              flexDirection: 'column',
+            }}
+          >
+            {block && (
+              <>
+                <h1 className="title">{block.id}</h1>
+                <pre>{JSON.stringify(block, null, 4)}</pre>
+                <hr />
+                <pre>{JSON.stringify(grandChild, null, 2)}</pre>
+              </>
+            )}
+            <progress
+              id="file"
+              value={location + 1}
+              max={children.length}
+            />
+            <span style={{ fontSize: '11px' }}>
+              {location + 1}
+              {' '}
+              /
+              {children.length}
+            </span>
+          </div>
+        </Wrapper>
+      </Container>
+    </PageContainer>
   );
 }
 

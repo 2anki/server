@@ -110,15 +110,6 @@ export function NavigationBar({
         )}
         {isSignedIn && (
           <div className="navbar-end">
-            <NavbarItem href="/upload" path={path}>
-              📦 Upload
-            </NavbarItem>
-            <NavbarItem href="/search" path={path}>
-              🔍 Search
-            </NavbarItem>
-            <NavbarItem href="/uploads/mine" path={path}>
-              🗄 Uploads
-            </NavbarItem>
             <NavbarItem
               path={path}
               href="/users/logout"

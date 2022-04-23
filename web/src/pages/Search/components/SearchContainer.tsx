@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import LoadingScreen from '../../../components/LoadingScreen';
+import { PageContainer } from '../../../components/styled';
 import Backend from '../../../lib/Backend';
 
 import useQuery from '../../../lib/hooks/useQuery';
@@ -9,7 +10,7 @@ interface SearchContentProps {
   backend: Backend;
 }
 
-export default function SearchContent(props: SearchContentProps) {
+export default function SearchContainer(props: SearchContentProps) {
   const query = useQuery();
 
   const [searchQuery, setSearchQuery] = useState(query.get('q') || '');
@@ -53,14 +54,16 @@ export default function SearchContent(props: SearchContentProps) {
   if (isLoading) return <LoadingScreen />;
 
   return (
-    <SearchPresenter
-      setError={setError}
-      myPages={myPages}
-      inProgress={inProgress}
-      favorites={favoritePages}
-      setSearchQuery={setSearchQuery}
-      triggerSearch={triggerSearch}
-      errorNotification={errorNotification}
-    />
+    <PageContainer>
+      <SearchPresenter
+        setError={setError}
+        myPages={myPages}
+        inProgress={inProgress}
+        favorites={favoritePages}
+        setSearchQuery={setSearchQuery}
+        triggerSearch={triggerSearch}
+        errorNotification={errorNotification}
+      />
+    </PageContainer>
   );
 }

@@ -17,3 +17,9 @@ export const Main = styled.main`
 export const HomeContainer = styled(Container)`
 padding: 0;
 `;
+
+export const PageContainer = styled.div`
+  display: grid;
+  grid-template-columns: 11.25rem 1fr 11.25rem;
+  padding: 2rem;
+`;
