@@ -40,6 +40,7 @@ import BlockEquation from './blocks/BlockEquation';
 import renderFront from './helpers/renderFront';
 import perserveNewlinesIfApplicable from './helpers/perserveNewlinesIfApplicable';
 import getDeckName from '../anki/getDeckname';
+import LinkToPage from './blocks/LinkToPage';
 
 class BlockHandler {
   api: NotionAPIWrapper;
@@ -49,7 +50,11 @@ class BlockHandler {
   useAll: boolean = false;
   settings: Settings;
 
-  constructor(exporter: CustomExporter, api: NotionAPIWrapper, settings: Settings) {
+  constructor(
+    exporter: CustomExporter,
+    api: NotionAPIWrapper,
+    settings: Settings
+  ) {
     this.exporter = exporter;
     this.api = api;
     this.skip = [];
@@ -198,6 +203,9 @@ class BlockHandler {
           case 'equation':
             back += BlockEquation(c);
             break;
+          case 'link_to_page':
+            back += await LinkToPage(c, this);
+            break;
           default:
             /* @ts-ignore */
             back += `unsupported: ${c.type}`;
@@ -257,62 +265,63 @@ class BlockHandler {
 
     let counter = 0;
     for (const block of flashcardBlocks) {
-        // Assume it's a basic card then check for children
-        const name = await renderFront(block, this);
-        let back: null | string = '';
-        if (isColumnList(block) && rules.useColums())  {
-          const secondColumn = await getColumn(block.id, this, 1);
-          if (secondColumn) {
-            back = await BlockColumn(secondColumn, this)
-          }
-        } else {
-          back = await this.getBackSide(block);
+      // Assume it's a basic card then check for children
+      const name = await renderFront(block, this);
+      let back: null | string = '';
+      if (isColumnList(block) && rules.useColums()) {
+        const secondColumn = await getColumn(block.id, this, 1);
+        if (secondColumn) {
+          back = await BlockColumn(secondColumn, this);
         }
-        const ankiNote = new Note(name, back || '');
-        ankiNote.media = this.exporter.media;
-        let isBasicType = true;
-        // Look for cloze deletion cards
-        if (settings.isCloze) {
-          const clozeCard = await getClozeDeletionCard(rules, block);
-          if (clozeCard) {
-            isBasicType = false;
-          }
-          clozeCard && ankiNote.copyValues(clozeCard);
+      } else {
+        back = await this.getBackSide(block);
+      }
+      const ankiNote = new Note(name, back || '');
+      ankiNote.media = this.exporter.media;
+      let isBasicType = true;
+      // Look for cloze deletion cards
+      if (settings.isCloze) {
+        const clozeCard = await getClozeDeletionCard(rules, block);
+        if (clozeCard) {
+          isBasicType = false;
         }
-        // Look for input cards
-        if (settings.useInput) {
-          const inputCard = await getInputCard(rules, block);
-          if (inputCard) {
-            isBasicType = false;
-          }
-          inputCard && ankiNote.copyValues(inputCard);
+        clozeCard && ankiNote.copyValues(clozeCard);
+      }
+      // Look for input cards
+      if (settings.useInput) {
+        const inputCard = await getInputCard(rules, block);
+        if (inputCard) {
+          isBasicType = false;
         }
+        inputCard && ankiNote.copyValues(inputCard);
+      }
 
-        ankiNote.back = back!;
-        ankiNote.notionLink = this.__notionLink(block.id, notionBaseLink);
-        if (settings.addNotionLink) {
-          ankiNote.back += RenderNotionLink(ankiNote.notionLink!, this);
-        }
-        ankiNote.notionId = settings.useNotionId ? block.id : undefined;
-        ankiNote.media = this.exporter.media;
-        this.exporter.media = [];
+      ankiNote.back = back!;
+      ankiNote.notionLink = this.__notionLink(block.id, notionBaseLink);
+      if (settings.addNotionLink) {
+        ankiNote.back += RenderNotionLink(ankiNote.notionLink!, this);
+      }
+      ankiNote.notionId = settings.useNotionId ? block.id : undefined;
+      ankiNote.media = this.exporter.media;
+      this.exporter.media = [];
 
-        const tr = TagRegistry.getInstance();
-        ankiNote.tags =
-          rules.TAGS === 'heading' ? tr.headings : tr.strikethroughs;
-        ankiNote.number = counter++;
+      const tr = TagRegistry.getInstance();
+      ankiNote.tags =
+        rules.TAGS === 'heading' ? tr.headings : tr.strikethroughs;
+      ankiNote.number = counter++;
 
-        ankiNote.name = perserveNewlinesIfApplicable(ankiNote.name, settings);
-        ankiNote.back = perserveNewlinesIfApplicable(ankiNote.back, settings);
+      ankiNote.name = perserveNewlinesIfApplicable(ankiNote.name, settings);
+      ankiNote.back = perserveNewlinesIfApplicable(ankiNote.back, settings);
 
-        cards.push(ankiNote);
-        if (
-          !settings.isCherry &&
-          (settings.basicReversed || ankiNote.hasRefreshIcon()) 
-          && isBasicType) {
-          cards.push(ankiNote.reversed(ankiNote));
-        }
-        tr.clear();
+      cards.push(ankiNote);
+      if (
+        !settings.isCherry &&
+        (settings.basicReversed || ankiNote.hasRefreshIcon()) &&
+        isBasicType
+      ) {
+        cards.push(ankiNote.reversed(ankiNote));
+      }
+      tr.clear();
     }
 
     if (settings.isCherry) {
@@ -334,7 +343,6 @@ class BlockHandler {
     }
     return cards; // .filter((c) => !c.isValid());
   }
-
 
   async findFlashcards(
     topLevelId: string,
@@ -412,7 +420,7 @@ class BlockHandler {
     if (settings.isAll) {
       /* @ts-ignore */
       const subDecks = blocks.filter((b) => b.type === rules.SUB_DECKS);
-      for (const sd of subDecks) { 
+      for (const sd of subDecks) {
         const subPage = await this.api.getPage(sd.id);
         if (subPage) {
           const nested = await this.findFlashcardsFromPage(
