@@ -5,7 +5,7 @@ import { styleWithColors } from '../NotionColors';
 import BlockHandler from '../BlockHandler';
 import getChildren from './getChildren';
 
-type ListType = "numbered_list_item" | "bulleted_list_item";
+type ListType = 'numbered_list_item' | 'bulleted_list_item' | 'to_do';
 
 export default async function getListItems(
   response: ListBlockChildrenResponse,
@@ -21,14 +21,24 @@ export default async function getListItems(
       }
       const backSide = await getChildren(result, handler);
       handler.skip.push(result.id);
+      const isTodo = type === 'to_do';
+      const checked = isTodo && list.checked ? 'to-do-children-checked' : 'to-do-children-unchecked'
+      const checkedClass = isTodo ? checked : '';
+
       return (
-        <li
-          id={result.id}
-          className={`numbered-list${styleWithColors(list.color)}`}
-        >
+        <li id={result.id} className={`${styleWithColors(list.color)}`}>
+          {isTodo && (
+            <div
+              /* @ts-ignore */
+              className={`checkbox checkbox-${list.checked ? 'on' : 'off'}`}
+            ></div>
+          )}
           {renderTextChildren(list.text, handler.settings)}
           {backSide && (
-            <div dangerouslySetInnerHTML={{ __html: backSide }}></div>
+            <div
+              className={`${checkedClass}`}
+              dangerouslySetInnerHTML={{ __html: backSide }}
+            ></div>
           )}
         </li>
       );

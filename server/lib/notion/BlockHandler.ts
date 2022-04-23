@@ -174,7 +174,7 @@ class BlockHandler {
             back += await BlockChildPage(c, this);
             break;
           case 'to_do':
-            back += BlockTodoList(c, this);
+            back += await BlockTodoList(c, response, this);
             break;
           case 'callout':
             back += BlockCallout(c, this);
