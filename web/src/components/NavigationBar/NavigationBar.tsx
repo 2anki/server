@@ -1,7 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import { useState } from 'react';
 
-import NotionWorkspace from '../../lib/interfaces/NotionWorkspace';
 import getNavbarStartNewUser from './helpers/getNavbarStartNewUser';
 import NavButtonCTA from '../buttons/NavButtonCTA';
 import getCookie from './helpers/getCookie';
@@ -11,19 +10,9 @@ import { Navbar } from './styled';
 import getNavbarStartRegularUser from './helpers/getNavbarStartRegularUser';
 import getNavbarEnd from './helpers/getNavbarEnd';
 
-interface NavigationBarProps {
-  workspaces?: NotionWorkspace[];
-  activeWorkspace?: string;
-  connectLink?: string;
-}
-
 const backend = new Backend();
 // eslint-disable-next-line import/prefer-default-export
-export function NavigationBar({
-  activeWorkspace,
-  workspaces,
-  connectLink,
-}: NavigationBarProps) {
+export function NavigationBar() {
   const isSignedIn = getCookie('token');
   const [active, setHamburgerMenu] = useState(false);
   const path = window.location.pathname;
@@ -58,38 +47,7 @@ export function NavigationBar({
       </div>
 
       <div id="navbar" className={`navbar-menu ${active ? 'is-active' : ''}`}>
-        <div className="navbar-start">
-          {navbarStart}
-          <div className="navbar-item has-dropdown is-hoverable">
-            {activeWorkspace && (
-              <a href="/search" key={activeWorkspace} className="navbar-link">
-                {activeWorkspace}
-              </a>
-            )}
-            <div className="navbar-dropdown">
-              {workspaces && (
-                <>
-                  {workspaces.map((w) => (
-                    <a
-                      key={w.name}
-                      href="/notion/switch-workspace"
-                      className="navbar-item"
-                    >
-                      {w.name}
-                    </a>
-                  ))}
-                  <hr className="navbar-divider" />
-                </>
-              )}
-              {connectLink && (
-                <a href={connectLink} className="dropdown-item">
-                  Connect workspace
-                </a>
-              )}
-            </div>
-          </div>
-        </div>
-
+        <div className="navbar-start">{navbarStart}</div>
         {!isSignedIn && (
           <div className="navbar-end">
             <NavbarItem path="login" href="/login#login">

@@ -4,10 +4,13 @@ import { PageContainer } from '../../../components/styled';
 import Backend from '../../../lib/Backend';
 
 import useQuery from '../../../lib/hooks/useQuery';
+import { NotionData } from '../helpers/useNotionData';
 import SearchPresenter from './SearchPresenter';
+import WorkSpaceHeader from './WorkspaceHeader';
 
 interface SearchContentProps {
   backend: Backend;
+  notionData: NotionData;
 }
 
 export default function SearchContainer(props: SearchContentProps) {
@@ -20,7 +23,7 @@ export default function SearchContainer(props: SearchContentProps) {
   const [isLoading, setIsLoading] = useState(true);
   // const [favoritePages, setFavoritePages] = useState([]);
 
-  const { backend } = props;
+  const { backend, notionData } = props;
 
   const triggerSearch = useCallback(
     (force) => {
@@ -55,6 +58,7 @@ export default function SearchContainer(props: SearchContentProps) {
 
   return (
     <PageContainer>
+      <WorkSpaceHeader notionData={notionData} />
       <SearchPresenter
         setError={setError}
         myPages={myPages}

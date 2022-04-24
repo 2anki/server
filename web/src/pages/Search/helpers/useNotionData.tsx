@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import Backend from '../../../lib/Backend';
 
-interface NotionData {
+export interface NotionData {
   loading: boolean;
   workSpace: any;
   connected: boolean;
