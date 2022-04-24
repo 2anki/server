@@ -8,7 +8,6 @@ const RequireAuthentication = async (
   next: () => any
 ) => {
   const user = await TokenHandler.GetUserFrom(req.cookies.token);
-  console.debug(`RequreAuthentication`);
   if (!user) {
     return res.redirect("/login#login");
   } else {
