@@ -2,6 +2,7 @@
 import { useState } from 'react';
 
 import NotionWorkspace from '../../lib/interfaces/NotionWorkspace';
+import getNavbarStart from './helpers/getNavbarStart';
 import NavButtonCTA from '../buttons/NavButtonCTA';
 import getCookie from './helpers/getCookie';
 import Backend from '../../lib/Backend';
@@ -52,6 +53,7 @@ export function NavigationBar({
 
       <div id="navbar" className={`navbar-menu ${active ? 'is-active' : ''}`}>
         <div className="navbar-start">
+          {!isSignedIn && getNavbarStart(hash, path)}
           <div className="navbar-item has-dropdown is-hoverable">
             {activeWorkspace && (
               <a href="/search" key={activeWorkspace} className="navbar-link">
@@ -84,21 +86,7 @@ export function NavigationBar({
 
         {!isSignedIn && (
           <div className="navbar-end">
-            <NavbarItem href="/" path={hash || path}>
-              Home
-            </NavbarItem>
-            <NavbarItem href="/#about" path={hash}>
-              About
-            </NavbarItem>
-            <NavbarItem href="/#testimony" path={hash}>
-              Testimony
-            </NavbarItem>
-            <NavbarItem href="/#benefits" path={hash}>
-              Benefits
-            </NavbarItem>
-            <NavbarItem href="/#news" path={hash}>
-              News
-            </NavbarItem>
+            <NavbarItem path="login" href="/login#login">Login</NavbarItem>
             <div className="navbar-item">
               <div className="buttons">
                 <NavButtonCTA href="/login#register">

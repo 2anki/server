@@ -22,4 +22,5 @@ export const PageContainer = styled.div`
   display: grid;
   grid-template-columns: 11.25rem 1fr 11.25rem;
   padding: 2rem;
+  grid-gap: 1rem;
 `;
