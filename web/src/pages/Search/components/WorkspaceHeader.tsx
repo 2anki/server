@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import SettingsIcon from '../../../components/icons/SettingsIcon';
 import { NotionData } from '../helpers/useNotionData';
 
@@ -8,9 +9,14 @@ interface WorkspaceHeaderProps {
 export default function WorkSpaceHeader(props: WorkspaceHeaderProps) {
   const { notionData } = props;
   const { workSpace, connectionLink } = notionData;
+  const [hovered, setHovered] = useState(false);
 
   return (
-    <div className="container content mt-2 mb-0 is-flex is-justify-content-center">
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className="container content mt-2 mb-0 is-flex is-justify-content-center"
+    >
       <nav className="level">
         <div className="level-left">
           <div className="level-item">
@@ -21,20 +27,22 @@ export default function WorkSpaceHeader(props: WorkspaceHeaderProps) {
               </header>
             </p>
           </div>
-          <div className="level-item">
-            <div className="field is-grouped">
-              <p className="control">
-                <a href={connectionLink} className="button">
-                  Switch
-                </a>
-              </p>
-              <p className="control">
-                <a href="/settings" className="button">
-                  <SettingsIcon />
-                </a>
-              </p>
+          {hovered && (
+            <div className="level-item">
+              <div className="field is-grouped">
+                <p className="control">
+                  <a href={connectionLink} className="button">
+                    Switch
+                  </a>
+                </p>
+                <p className="control">
+                  <a href="/settings" className="button">
+                    <SettingsIcon />
+                  </a>
+                </p>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </nav>
     </div>
