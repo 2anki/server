@@ -14,7 +14,7 @@ export default function getNavbarStartRegularUser(path: string) {
       <NavbarItem href="/uploads/mine" path={path}>
         🗂 My Uploads
       </NavbarItem>
-      <NavbarItem href="https://templates.2anki.net" path={path}>👩🏼‍🎨 Templates</NavbarItem>
+      <NavbarItem href="/tm" path={path}>👩🏼‍🎨 Templates</NavbarItem>
     </>
   );
 }

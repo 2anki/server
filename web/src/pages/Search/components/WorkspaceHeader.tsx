@@ -1,5 +1,5 @@
 import { useState } from 'react';
-// import SettingsIcon from '../../../components/icons/SettingsIcon';
+
 import { NotionData } from '../helpers/useNotionData';
 
 interface WorkspaceHeaderProps {
@@ -35,11 +35,6 @@ export default function WorkSpaceHeader(props: WorkspaceHeaderProps) {
                     Switch
                   </a>
                 </p>
-                {/* <p className="control">
-                  <a href="/settings" className="button">
-                    <SettingsIcon />
-                  </a>
-                </p> */}
               </div>
             </div>
           )}
