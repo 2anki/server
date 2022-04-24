@@ -1,3 +1,4 @@
+import SettingsIcon from '../../../components/icons/SettingsIcon';
 import { NotionData } from '../helpers/useNotionData';
 
 interface WorkspaceHeaderProps {
@@ -29,7 +30,7 @@ export default function WorkSpaceHeader(props: WorkspaceHeaderProps) {
               </p>
               <p className="control">
                 <a href="/settings" className="button">
-                  Settings
+                  <SettingsIcon />
                 </a>
               </p>
             </div>

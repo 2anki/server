@@ -5,8 +5,9 @@ import DefineRules from '../DefineRules';
 
 import ObjectActions from '../actions/ObjectActions';
 import ObjectAction from '../actions/ObjectAction';
-import { Entry, ObjectIconAction, ObjectMeta } from './styled';
+import { Entry, ObjectMeta } from './styled';
 import ObjectType from '../ObjectType';
+import SettingsIcon from '../../../../components/icons/SettingsIcon';
 
 const backend = new Backend();
 
@@ -66,7 +67,7 @@ function SearchObjectEntry({
               }
             }}
           >
-            <ObjectIconAction src="/icons/settings.svg" width="32px" alt="settings" />
+            <SettingsIcon />
           </div>
         </ObjectActions>
       </Entry>

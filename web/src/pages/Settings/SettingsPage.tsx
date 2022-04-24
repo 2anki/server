@@ -5,8 +5,14 @@ export default function SettingsPage() {
     <PageContainer>
       <div className="container content">
         <h2>Settings</h2>
-
-        <p>todo items</p>
+        <p>
+          The settings you apply here will be the default for new converts
+          unless you set new rules.
+        </p>
+        <p>
+          Settings defined on a page or database will be used. When no settings
+          are set the ones here are used.
+        </p>
         <ul>
           <li>list all settings</li>
           <li>add delete button</li>
