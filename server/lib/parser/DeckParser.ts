@@ -12,6 +12,8 @@ import handleClozeDeletions from "./helpers/handleClozeDeletions";
 import sanitizeTags from "../anki/sanitizeTags";
 import preserveNewlinesIfApplicable from "../notion/helpers/perserveNewlinesIfApplicable";
 
+import getYouTubeID from "./helpers/getYouTubeID";
+import getYouTubeEmbedLink from "./helpers/getYouTubeEmbedLink";
 export class DeckParser {
   globalTags: cheerio.Cheerio | null;
   firstDeckName: string;
@@ -338,20 +340,10 @@ export class DeckParser {
   }
 
   // https://stackoverflow.com/questions/6903823/regex-for-youtube-id
-  getYouTubeID(input: string) {
+  _getYouTubeID(input: string) {
     return this.ensureNotNull(input, () => {
       try {
-        const m = input.match(
-          /(?:youtu\.be\/|youtube\.com(?:\/embed\/|\/v\/|\/watch\?v=|\/user\/\S+|\/ytscreeningroom\?v=|\/sandalsResorts#\w\/\w\/.*\/))([^/&]{10,12})/
-        );
-        if (!m || m.length === 0) {
-          return null;
-        }
-        // prevent swallowing of soundcloud embeds
-        if (m[0].match(/https:\/\/soundcloud.com/)) {
-          return null;
-        }
-        return m[1];
+        return getYouTubeID(input);
       } catch (error) {
         console.debug("error in getYouTubeID");
         console.error(error);
@@ -520,12 +512,9 @@ export class DeckParser {
             }
           }
           // Check YouTube
-          const id = this.getYouTubeID(card.back);
+          const id = this._getYouTubeID(card.back);
           if (id) {
-            const ytSrc = `https://www.youtube.com/embed/${id}?`.replace(
-              /"/,
-              ""
-            );
+            const ytSrc = getYouTubeEmbedLink(id);
             const video = `<iframe width='560' height='315' src='${ytSrc}' frameborder='0' allowfullscreen></iframe>`;
             card.back += video;
           }
