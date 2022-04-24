@@ -2,12 +2,14 @@
 import { useState } from 'react';
 
 import NotionWorkspace from '../../lib/interfaces/NotionWorkspace';
-import getNavbarStart from './helpers/getNavbarStart';
+import getNavbarStartNewUser from './helpers/getNavbarStartNewUser';
 import NavButtonCTA from '../buttons/NavButtonCTA';
 import getCookie from './helpers/getCookie';
 import Backend from '../../lib/Backend';
 import NavbarItem from './NavbarItem';
 import { Navbar } from './styled';
+import getNavbarStartRegularUser from './helpers/getNavbarStartRegularUser';
+import getNavbarEnd from './helpers/getNavbarEnd';
 
 interface NavigationBarProps {
   workspaces?: NotionWorkspace[];
@@ -26,6 +28,10 @@ export function NavigationBar({
   const [active, setHamburgerMenu] = useState(false);
   const path = window.location.pathname;
   const { hash } = window.location;
+
+  const navbarStart = isSignedIn
+    ? getNavbarStartRegularUser(hash)
+    : getNavbarStartNewUser(hash, path);
 
   return (
     <Navbar className="navbar" role="navigation" aria-label="main navigation">
@@ -53,7 +59,7 @@ export function NavigationBar({
 
       <div id="navbar" className={`navbar-menu ${active ? 'is-active' : ''}`}>
         <div className="navbar-start">
-          {!isSignedIn && getNavbarStart(hash, path)}
+          {navbarStart}
           <div className="navbar-item has-dropdown is-hoverable">
             {activeWorkspace && (
               <a href="/search" key={activeWorkspace} className="navbar-link">
@@ -86,7 +92,9 @@ export function NavigationBar({
 
         {!isSignedIn && (
           <div className="navbar-end">
-            <NavbarItem path="login" href="/login#login">Login</NavbarItem>
+            <NavbarItem path="login" href="/login#login">
+              Login
+            </NavbarItem>
             <div className="navbar-item">
               <div className="buttons">
                 <NavButtonCTA href="/login#register">
@@ -96,20 +104,7 @@ export function NavigationBar({
             </div>
           </div>
         )}
-        {isSignedIn && (
-          <div className="navbar-end">
-            <NavbarItem
-              path={path}
-              href="/users/logout"
-              onClick={(event) => {
-                event.preventDefault();
-                backend.logout();
-              }}
-            >
-              🔒 log out
-            </NavbarItem>
-          </div>
-        )}
+        {isSignedIn && getNavbarEnd(path, backend)}
       </div>
     </Navbar>
   );

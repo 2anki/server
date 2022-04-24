@@ -1,6 +1,6 @@
 import NavbarItem from '../NavbarItem';
 
-export default function getNavbarStart(hash: string, path: string) {
+export default function getNavbarStartNewUser(hash: string, path: string) {
   return (
     <>
       <NavbarItem href="/" path={hash || path}>
