@@ -1,13 +1,11 @@
 import { Route, Switch, useHistory } from 'react-router-dom';
 import { Dispatch, SetStateAction } from 'react';
-import { EmptyContainer, SearchResults } from './styled';
-import Menu from './Menu/Menu';
+import { EmptyContainer } from './styled';
 import SearchBar from './SearchBar';
 import SearchObjectEntry from './SearchObjectEntry';
 import NotionObject from '../../../lib/interfaces/NotionObject';
 
 interface SearchPresenterProps {
-  favorites: NotionObject[];
   inProgress: boolean;
   myPages: NotionObject[];
   setSearchQuery: Dispatch<SetStateAction<string>>;
@@ -21,7 +19,6 @@ export default function SearchPresenter(
 ) {
   const history = useHistory();
   const {
-    favorites,
     inProgress,
     myPages,
     setSearchQuery,
@@ -31,23 +28,21 @@ export default function SearchPresenter(
   } = props;
   return (
     <>
-      <Menu favorites={favorites} />
-      <SearchResults>
-        <SearchBar
-          inProgress={inProgress}
-          onSearchQueryChanged={(s) => {
-            history.push({
-              pathname: '/search',
-              search: `?q=${s}`,
-            });
-            setSearchQuery(s);
-          }}
-          onSearchClicked={() => triggerSearch(false)}
-        />
-        <div className="column is-main-content">
-          <Switch>
-            <Route path="/search">
-              {(!myPages || myPages.length < 1) && (
+      <SearchBar
+        inProgress={inProgress}
+        onSearchQueryChanged={(s) => {
+          history.push({
+            pathname: '/search',
+            search: `?q=${s}`,
+          });
+          setSearchQuery(s);
+        }}
+        onSearchClicked={() => triggerSearch(false)}
+      />
+      <div className="column is-main-content">
+        <Switch>
+          <Route path="/search">
+            {(!myPages || myPages.length < 1) && (
               <EmptyContainer>
                 {errorNotification && (
                 <div className="my-4 notification is-danger">
@@ -60,8 +55,8 @@ export default function SearchPresenter(
                 </div>
                 )}
               </EmptyContainer>
-              )}
-              {myPages
+            )}
+            {myPages
           && myPages.length > 0
           && myPages.map((p) => (
             <SearchObjectEntry
@@ -74,10 +69,9 @@ export default function SearchPresenter(
               setError={setError}
             />
           ))}
-            </Route>
-          </Switch>
-        </div>
-      </SearchResults>
+          </Route>
+        </Switch>
+      </div>
     </>
   );
 }

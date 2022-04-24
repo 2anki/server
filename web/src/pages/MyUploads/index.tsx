@@ -1,4 +1,3 @@
-import { useContext } from 'react';
 import BecomeAPatron from '../../components/BecomeAPatron';
 import UploadObjectEntry from './components/UploadObjectEntry';
 import LoadingScreen from '../../components/LoadingScreen';
@@ -10,8 +9,6 @@ import usePatreon from './hooks/usePatreon';
 import useQuota from './hooks/useQuota';
 import useActiveJobs from './hooks/useActiveJobs';
 import { Container, PageContainer } from '../../components/styled';
-import Menu from '../Search/components/Menu/Menu';
-import StoreContext from '../../store/StoreContext';
 
 const backend = new Backend();
 
@@ -27,13 +24,11 @@ function MyUploadsPage({ setError }: MyUploadsPageProps) {
   const [activeJobs, deleteJob] = useActiveJobs(backend, setError);
   const [isPatreon] = usePatreon(backend, setError);
   const [quota] = useQuota(uploads);
-  const store = useContext(StoreContext);
 
   if (loading) return <LoadingScreen />;
 
   return (
     <PageContainer>
-      <Menu favorites={store.favorites} />
       <Container>
         {activeJobs.length > 0 && (
           <ActiveJobs jobs={activeJobs} deleteJob={(id) => deleteJob(id)} />

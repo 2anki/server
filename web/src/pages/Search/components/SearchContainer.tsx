@@ -18,7 +18,7 @@ export default function SearchContainer(props: SearchContentProps) {
   const [inProgress, setInProgress] = useState(false);
   const [errorNotification, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [favoritePages, setFavoritePages] = useState([]);
+  // const [favoritePages, setFavoritePages] = useState([]);
 
   const { backend } = props;
 
@@ -35,7 +35,7 @@ export default function SearchContainer(props: SearchContentProps) {
           setMyPages(results);
           setInProgress(false);
           setIsLoading(false);
-          setFavoritePages(results.filter((page) => page.isFavorite));
+          // setFavoritePages(results.filter((page) => page.isFavorite));
         })
         .catch((error) => {
           setIsLoading(false);
@@ -59,7 +59,6 @@ export default function SearchContainer(props: SearchContentProps) {
         setError={setError}
         myPages={myPages}
         inProgress={inProgress}
-        favorites={favoritePages}
         setSearchQuery={setSearchQuery}
         triggerSearch={triggerSearch}
         errorNotification={errorNotification}

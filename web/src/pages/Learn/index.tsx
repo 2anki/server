@@ -1,8 +1,6 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect } from 'react';
 import { Container, PageContainer } from '../../components/styled';
 import Backend from '../../lib/Backend';
-import StoreContext from '../../store/StoreContext';
-import Menu from '../Search/components/Menu/Menu';
 import Wrapper from './Wrapper';
 
 interface Props {
@@ -17,8 +15,6 @@ function LearnPage({ setError }: Props) {
   const [block, setBlock] = useState(null);
   const [grandChild, setGrandChild] = useState(null);
   const [location, setLocation] = useState(0);
-
-  const store = useContext(StoreContext);
 
   // Load parent page based on id
   useEffect(() => {
@@ -67,7 +63,6 @@ function LearnPage({ setError }: Props) {
   }
   return (
     <PageContainer>
-      <Menu favorites={store.favorites} />
       <h1>Learn</h1>
       <Container>
         <Wrapper>

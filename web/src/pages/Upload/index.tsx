@@ -10,7 +10,6 @@ import SettingsModal from '../../components/modals/SettingsModal';
 import {
   FlexColumn, ImportTitle, InfoMessage, Main, SettingsLink, UploadContainer,
 } from './styled';
-import Menu from '../Search/components/Menu/Menu';
 import { PageContainer } from '../../components/styled';
 
 interface Props {
@@ -35,7 +34,6 @@ function UploadPage({ setErrorMessage }: Props) {
 
   return (
     <PageContainer>
-      <Menu favorites={store.favorites} />
       <UploadContainer>
         <Main>
           {isDevelopment ? <WarningMessage /> : null}

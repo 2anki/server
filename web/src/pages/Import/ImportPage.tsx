@@ -1,13 +1,8 @@
-import { useContext } from 'react';
 import { PageContainer } from '../../components/styled';
-import StoreContext from '../../store/StoreContext';
-import Menu from '../Search/components/Menu/Menu';
 
 export default function ImportPage() {
-  const store = useContext(StoreContext);
   return (
     <PageContainer>
-      <Menu favorites={store.favorites} />
       <div className="container content">
         <h1>Import</h1>
         <hr />
