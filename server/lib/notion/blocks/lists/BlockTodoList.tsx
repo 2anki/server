@@ -1,39 +1,26 @@
-import { GetBlockResponse } from '@notionhq/client/build/src/api-endpoints';
+import { GetBlockResponse, ListBlockChildrenResponse } from '@notionhq/client/build/src/api-endpoints';
 import ReactDOMServer from 'react-dom/server';
 import BlockHandler from '../../BlockHandler';
 import { styleWithColors } from '../../NotionColors';
-import HandleBlockAnnotations from '../utils';
 import { convert } from "html-to-text"
+import getListItems from '../../helpers/getListItems';
 
-export const BlockTodoList = (
+export const BlockTodoList = async (
   block: GetBlockResponse,
+  response: ListBlockChildrenResponse,
   handler: BlockHandler
 ) => {
-  /* @ts-ignore */
-  const todo = block.to_do;
-  const text = todo.text;
-
-  const markup = ReactDOMServer.renderToStaticMarkup(
-    <ul id={block.id} className={`to-do-list${styleWithColors(todo.color)}`}>
-      {text.map((t: GetBlockResponse) => {
-        /* @ts-ignore */
-        const annotations = t.annotations;
-        /* @ts-ignore */
-        return (
-          <li>
-            <div
-              /* @ts-ignore */
-              className={`checkbox checkbox-${t.checked ? 'on' : 'off'}`}
-            ></div>
-            {/* @ts-ignore */}
-            {HandleBlockAnnotations(annotations, t.text)}
-          </li>
-        );
-      })}
-    </ul>
-  );
-  if (handler.settings?.isTextOnlyBack) {
-    return convert(markup);
-  }
-  return markup;
+    /* @ts-ignore */
+    const list = block.to_do;
+    const items = await getListItems(response, handler, "to_do");
+    const listItems = items.filter(Boolean);
+    const markup = ReactDOMServer.renderToStaticMarkup(
+      <ul id={block.id} className={`to-do-list${styleWithColors(list.color)}`}>
+        {listItems}
+      </ul>
+    );
+    if (handler.settings?.isTextOnlyBack) {
+      return convert(markup);
+    }
+    return markup;
 };

@@ -1,15 +1,15 @@
 import { GetBlockResponse } from "@notionhq/client/build/src/api-endpoints";
-import ReactDOMServer from "react-dom/server";
 import BlockHandler from "../BlockHandler";
+import renderLink from "../helpers/renderLink";
 
-export const BlockChildPage = (
+export const BlockChildPage = async (
   block: GetBlockResponse,
   handler: BlockHandler
 ) => {
   /* @ts-ignore */
   const childPage = block.child_page;
   const api = handler.api;
-  const page = api.getPage(block.id) || {};
+  const page = await api.getPage(block.id);
   /* @ts-ignore */
   const icon = page.icon;
   
@@ -17,12 +17,5 @@ export const BlockChildPage = (
     return childPage.title;
   }
 
-  return ReactDOMServer.renderToStaticMarkup(
-    <a id={block.id} href={`https://notion.so/${block.id.replace(/\-/g, "")}`}>
-      {icon && icon.type === "emoji" && (
-        <span className="icon">{icon.emoji}</span>
-      )}
-      {childPage.title}
-    </a>
-  );
+  return renderLink(childPage.title, block, icon);
 };

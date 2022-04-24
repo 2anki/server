@@ -1,5 +1,7 @@
 import { GetBlockResponse } from "@notionhq/client/build/src/api-endpoints";
 import { renderToStaticMarkup } from "react-dom/server";
+import getYouTubeEmbedLink from "../../../parser/helpers/getYouTubeEmbedLink";
+import getYouTubeID from "../../../parser/helpers/getYouTubeID";
 import BlockHandler from "../../BlockHandler";
 
 export const BlockVideo = (c: GetBlockResponse, handler: BlockHandler) => {
@@ -10,8 +12,9 @@ export const BlockVideo = (c: GetBlockResponse, handler: BlockHandler) => {
   const video = c.video;
   let url = video.external.url;
   if (url) {
-    if (url.match("youtube.com/watch")) {
-      url = url.replace("watch?v=", "embed/");
+    const yt = getYouTubeID(url);
+    if (yt) {
+      url = getYouTubeEmbedLink(yt);
     } else if (url.match("vimeo.com")) {
       url = url.replace("vimeo.com/", "player.vimeo.com/video/");
       const videoId = url.split("/").pop().split("?")[0];
