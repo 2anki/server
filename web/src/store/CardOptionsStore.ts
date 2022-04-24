@@ -4,6 +4,8 @@ import CardOption from './CardOption';
 class CardOptionsStore {
   public options: CardOption[];
 
+  public error: Error | null;
+
   constructor() {
     this.options = supportedOptions();
   }

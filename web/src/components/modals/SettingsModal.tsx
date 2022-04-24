@@ -47,12 +47,11 @@ interface Props {
   pageId?: string;
   isActive: boolean;
   onClickClose: React.MouseEventHandler;
-  setError: (error: string) => void;
 }
 
 const backend = new Backend();
 function SettingsModal({
-  pageTitle, pageId, isActive, onClickClose, setError,
+  pageTitle, pageId, isActive, onClickClose,
 }: Props) {
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(!!pageId);
@@ -105,7 +104,7 @@ function SettingsModal({
           }
           setLoading(false);
         })
-        .catch((error) => setError(error.data.response.message));
+        .catch((error) => { store.error = error; });
     }
   }, [pageId]);
 
@@ -149,7 +148,9 @@ function SettingsModal({
       .then(() => {
         onClickClose(event);
       })
-      .catch((error) => setError(error.data.response.message));
+      .catch((error) => {
+        store.error = error;
+      });
   };
   return (
     <div className={`modal ${isActive ? 'is-active' : ''}`}>

@@ -15,5 +15,9 @@ export const Main = styled.main`
 `;
 
 export const HomeContainer = styled(Container)`
-padding: 0;
+  padding: 0;
+`;
+
+export const PageContainer = styled.div`
+  margin: 0 auto;
 `;

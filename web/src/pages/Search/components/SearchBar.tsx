@@ -1,4 +1,4 @@
-import { SearchContainer, SearchInput } from './styled';
+import { SearchInput } from './styled';
 
 interface SearchBarProps {
   onSearchQueryChanged: (query: string) => void;
@@ -8,7 +8,7 @@ interface SearchBarProps {
 
 function SearchBar({ onSearchQueryChanged, onSearchClicked, inProgress }: SearchBarProps) {
   return (
-    <SearchContainer className="my-2">
+    <div className="my-1 mt-4 has-text-centered is-flex is-justify-content-center">
       <div className="field has-addons">
         <div className="control">
           <SearchInput
@@ -37,7 +37,7 @@ function SearchBar({ onSearchQueryChanged, onSearchClicked, inProgress }: Search
           </button>
         </div>
       </div>
-    </SearchContainer>
+    </div>
   );
 }
 

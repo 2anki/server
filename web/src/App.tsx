@@ -11,6 +11,8 @@ import CardOptionsStore from './store/CardOptionsStore';
 import StoreContext from './store/StoreContext';
 import GlobalStyle from './GlobalStyle';
 import { NavigationBar } from './components/NavigationBar/NavigationBar';
+import SettingsPage from './pages/Settings';
+import ImportPage from './pages/Import/ImportPage';
 
 const TemplatePage = lazy(() => import('./pages/Templates'));
 const PreSignupPage = lazy(() => import('./pages/Register'));
@@ -19,7 +21,7 @@ const LoginPage = lazy(() => import('./pages/Login'));
 const NewPasswordPage = lazy(() => import('./pages/NewPassword'));
 const LearnPage = lazy(() => import('./pages/Learn'));
 const VerifyPage = lazy(() => import('./pages/Verify'));
-const ListUploadsPage = lazy(() => import('./pages/Uploads'));
+const MyUploadsPage = lazy(() => import('./pages/MyUploads'));
 
 const Layout = styled.div`
   display: flex;
@@ -59,7 +61,7 @@ function App() {
             )}
             <Switch>
               <Route path="/uploads">
-                <ListUploadsPage setError={setErrorMessage} />
+                <MyUploadsPage setError={setErrorMessage} />
               </Route>
               <Route path="/verify">
                 <VerifyPage />
@@ -84,6 +86,12 @@ function App() {
               </Route>
               <Route path="/users/r/:id">
                 <NewPasswordPage setErrorMessage={setErrorMessage} />
+              </Route>
+              <Route path="/settings">
+                <SettingsPage />
+              </Route>
+              <Route path="/import">
+                <ImportPage />
               </Route>
               <Route path="/">
                 <HomePage />

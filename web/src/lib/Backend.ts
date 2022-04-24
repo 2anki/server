@@ -6,6 +6,7 @@ import UserJob from './interfaces/UserJob';
 
 import getObjectTitle from './notion/getObjectTitle';
 import getObjectIcon from './notion/getObjectIcon';
+import FavoriteObject from './interfaces/FavoriteObject';
 
 class Backend {
   baseURL: string;
@@ -18,6 +19,7 @@ class Backend {
 
   async logout() {
     localStorage.clear();
+    sessionStorage.clear();
     const endpoint = `${this.baseURL}users/logout`;
     await axios.get(endpoint, { withCredentials: true });
     window.location.href = '/';
@@ -90,6 +92,7 @@ class Backend {
         'You are making too many requests. Please wait a few seconds before searching.',
       );
     }
+    const favorites = await this.getFavorites();
 
     const isObjectId = query.replace(/-/g, '').length === 32;
     let data;
@@ -123,12 +126,16 @@ class Backend {
         icon: getObjectIcon(p),
         url: p.url as string,
         id: p.id,
+        isFavorite: favorites.some((f) => f.id === p.id),
       }));
     }
     return [];
   }
 
-  async getPage(pageId: string): Promise<NotionObject | null> {
+  async getPage(
+    pageId: string,
+    isFavorite: boolean = false,
+  ): Promise<NotionObject | null> {
     try {
       const response = await axios.get(`${this.baseURL}notion/page/${pageId}`, {
         withCredentials: true,
@@ -140,13 +147,17 @@ class Backend {
         url: response.data.url as string,
         id: response.data.id,
         data: response.data,
+        isFavorite,
       };
     } catch (error) {
       return null;
     }
   }
 
-  async getDatabase(id: string): Promise<NotionObject | null> {
+  async getDatabase(
+    id: string,
+    isFavorite: boolean = false,
+  ): Promise<NotionObject | null> {
     try {
       const response = await axios.get(`${this.baseURL}notion/database/${id}`, {
         withCredentials: true,
@@ -158,6 +169,7 @@ class Backend {
         url: response.data.url as string,
         id: response.data.id,
         data: response.data,
+        isFavorite,
       };
     } catch (error) {
       return null;
@@ -217,6 +229,36 @@ class Backend {
       withCredentials: true,
     });
     return response.data.patreon;
+  }
+
+  async addFavorite(id: string, type: string): Promise<boolean> {
+    return axios.post(
+      `${this.baseURL}favorite/create`,
+      { id, type },
+      {
+        withCredentials: true,
+      },
+    );
+  }
+
+  async deleteFavorite(id: string): Promise<boolean> {
+    return axios.post(
+      `${this.baseURL}favorite/remove`,
+      { id },
+      {
+        withCredentials: true,
+      },
+    );
+  }
+
+  async getFavorites(): Promise<NotionObject[]> {
+    const response = await axios.get(`${this.baseURL}favorite`, {
+      withCredentials: true,
+    });
+    const getObject = (f: FavoriteObject) => (f.type === 'page'
+      ? this.getPage(f.object_id, true)
+      : this.getDatabase(f.object_id, true));
+    return Promise.all(response.data.map(async (f) => getObject(f)));
   }
 }
 

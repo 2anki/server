@@ -5,6 +5,7 @@ interface NotionObject {
   icon?: string;
   id: string;
   data?: any;
+  isFavorite?: boolean;
 }
 
 export default NotionObject;

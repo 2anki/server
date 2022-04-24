@@ -26,6 +26,7 @@ import users from "./routes/users";
 import notion from "./routes/notion";
 import rules from "./routes/rules";
 import download from "./routes/download/u";
+import favorite from "./routes/favorite";
 
 import DB from "./lib/storage/db";
 import KnexConfig from "./KnexConfig";
@@ -80,6 +81,7 @@ function serve() {
   app.use("/rules", rules);
   app.use("/settings", _settings);
   app.use("/download", download);
+  app.use("/favorite", favorite);
 
   // Note: this has to be the last handler
   app.get("*", (_req, res) => {

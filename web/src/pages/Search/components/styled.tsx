@@ -1,15 +1,8 @@
 import styled from 'styled-components';
 
 export const SearchInput = styled.input`
-width: 60vw;
-max-width: 640px;
-`;
-
-export const SearchContainer = styled.div`
-position: sticky;
-margin: 0 auto;
-display: flex;
-justify-content: center;
+  width: 60vw;
+  max-width: 640px;
 `;
 
 export const EmptyContainer = styled.div`
@@ -17,8 +10,4 @@ export const EmptyContainer = styled.div`
   align-items: center;
   justify-content: center;
   height: 50vh;
-`;
-
-export const StyledSearchPage = styled.div`
-  margin: 0 auto;
 `;
