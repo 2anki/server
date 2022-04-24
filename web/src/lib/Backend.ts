@@ -58,13 +58,13 @@ class Backend {
     id: string,
     flashcard: string[],
     deck: string,
-    subDecks: string,
+    subDecks: string[],
     tags: string,
   ) {
     const payload = {
       FLASHCARD: flashcard.join(','),
       DECK: deck,
-      SUB_DECKS: subDecks,
+      SUB_DECKS: subDecks.join(','),
       TAGS: tags,
     };
     return axios.post(

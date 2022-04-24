@@ -1,5 +1,9 @@
 import {
-  Dispatch, SetStateAction, useContext, useEffect, useState,
+  Dispatch,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useState,
 } from 'react';
 
 import Switch from '../../../components/input/Switch';
@@ -8,7 +12,7 @@ import TemplateSelect from '../../../components/TemplateSelect';
 import Backend from '../../../lib/Backend';
 import NotionObject from '../../../lib/interfaces/NotionObject';
 import StoreContext from '../../../store/StoreContext';
-import FlashcardType from './FlashcardType';
+import RuleDefinition from './RuleDefinition';
 
 interface Props {
   type: string;
@@ -27,6 +31,7 @@ const flashCardOptions = [
   'column_list',
 ];
 const tagOptions = ['heading', 'strikethrough'];
+const subDeckOptions = ['child_page', ...flashCardOptions];
 
 const backend = new Backend();
 function DefineRules(props: Props) {
@@ -35,15 +40,15 @@ function DefineRules(props: Props) {
   } = props;
   const [rules, setRules] = useState({
     flashcard_is: ['toggle'],
-    sub_deck_is: 'child_page',
+    sub_deck_is: ['child_page'],
     tags_is: 'strikethrough',
     deck_is: 'page',
     email_notification: false,
   });
 
   const [isLoading, setIsloading] = useState(true);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [flashcard, setFlashcard] = useState(rules.flashcard_is);
+  const [, setFlashcard] = useState(rules.flashcard_is);
+  const [, setSubDeck] = useState(rules.sub_deck_is);
   const [tags, setTags] = useState(rules.tags_is);
   const [sendEmail, setSendEmail] = useState(rules.email_notification);
   const [more, setMore] = useState(false);
@@ -58,6 +63,7 @@ function DefineRules(props: Props) {
         if (response.data) {
           const newRules = response.data;
           newRules.flashcard_is = newRules.flashcard_is.split(',');
+          newRules.sub_deck_is = newRules.sub_deck_is.split(',');
           setRules(newRules);
           setSendEmail(newRules.email_notification);
         }
@@ -80,7 +86,7 @@ function DefineRules(props: Props) {
         id,
         rules.flashcard_is,
         'page',
-        'child_page',
+        rules.sub_deck_is,
         tags,
       );
       setDone();
@@ -97,6 +103,16 @@ function DefineRules(props: Props) {
       rules.flashcard_is = rules.flashcard_is.filter((f) => f !== fco);
     }
     setFlashcard((prevState) => Array.from(new Set([...prevState, ...rules.flashcard_is])));
+  };
+
+  const onSelectedSubDeckTypes = (fco: string) => {
+    const included = rules.sub_deck_is.includes(fco);
+    if (!included) {
+      rules.sub_deck_is.push(fco);
+    } else {
+      rules.sub_deck_is = rules.sub_deck_is.filter((f) => f !== fco);
+    }
+    setSubDeck((prevState) => Array.from(new Set([...prevState, ...rules.sub_deck_is])));
   };
 
   const toggleFavorite = async () => {
@@ -150,18 +166,20 @@ function DefineRules(props: Props) {
                 />
               )}
               <div className="card-content">
-                <h2 className="subtitle mb-1">What is a flashcard?</h2>
-                <p>Select the types of flashcards you want to enable</p>
-                <div className="is-group">
-                  {flashCardOptions.map((fco) => (
-                    <FlashcardType
-                      key={fco}
-                      active={rules.flashcard_is.includes(fco)}
-                      name={fco}
-                      onSwitch={(name) => onSelectedFlashcardTypes(name)}
-                    />
-                  ))}
-                </div>
+                <RuleDefinition
+                  title="Children types - What is a sub deck?"
+                  description="You can organise the way you want it to be"
+                  value={rules.sub_deck_is}
+                  options={subDeckOptions}
+                  onSelected={onSelectedSubDeckTypes}
+                />
+                <RuleDefinition
+                  title="Flashcard Types - What is a flashcard?"
+                  description="Select the types of flashcards you want to enable"
+                  value={rules.flashcard_is}
+                  options={flashCardOptions}
+                  onSelected={onSelectedFlashcardTypes}
+                />
                 <div className="my-4">
                   <h2 className="subtitle">Card fields</h2>
                   <TemplateSelect
