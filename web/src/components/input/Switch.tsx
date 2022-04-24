@@ -26,6 +26,7 @@ function Switch({
         name={id}
         className="switch is-rounded is-info"
         checked={checked}
+        onChange={() => onSwitched()}
       />
       <label htmlFor="switchRoundedInfo">{title}</label>
     </div>

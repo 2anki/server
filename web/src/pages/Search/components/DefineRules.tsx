@@ -87,7 +87,6 @@ function DefineRules(props: Props) {
     } catch (error) {
       store.error = error;
     }
-    setIsloading(false);
   };
 
   const onSelectedFlashcardTypes = (fco: string) => {
@@ -208,7 +207,10 @@ function DefineRules(props: Props) {
                 <a
                   href="/save-rules"
                   className="card-footer-item"
-                  onClick={saveRules}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    saveRules(event);
+                  }}
                 >
                   Save
                 </a>
