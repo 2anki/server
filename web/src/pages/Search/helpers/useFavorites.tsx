@@ -15,6 +15,6 @@ export default function useFavorites(
     backend.getFavorites().then((input) => {
       setFavorites(input);
     });
-  });
+  }, []);
   return [favorites, setFavorites];
 }
