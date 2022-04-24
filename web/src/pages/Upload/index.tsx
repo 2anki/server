@@ -8,7 +8,12 @@ import UploadForm from './components/UploadForm';
 import SettingsIcon from '../../components/icons/SettingsIcon';
 import SettingsModal from '../../components/modals/SettingsModal';
 import {
-  FlexColumn, ImportTitle, InfoMessage, Main, SettingsLink, UploadContainer,
+  FlexColumn,
+  ImportTitle,
+  InfoMessage,
+  Main,
+  SettingsLink,
+  UploadContainer,
 } from './styled';
 import { PageContainer } from '../../components/styled';
 
@@ -47,9 +52,7 @@ function UploadPage({ setErrorMessage }: Props) {
             </SettingsLink>
           </FlexColumn>
           <div className="container">
-            <UploadForm
-              setErrorMessage={setErrorMessage}
-            />
+            <UploadForm setErrorMessage={setErrorMessage} />
             <InfoMessage>
               2anki.net currently only supports
               <a
@@ -73,7 +76,6 @@ function UploadPage({ setErrorMessage }: Props) {
               . Notion API support is in the works and coming soon!
             </InfoMessage>
             <SettingsModal
-              setError={setErrorMessage}
               isActive={isSettings}
               onClickClose={() => {
                 window.history.pushState({}, '', 'upload');

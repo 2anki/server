@@ -1,15 +1,13 @@
 import supportedOptions from './supportedOptions';
 import CardOption from './CardOption';
-import NotionObject from '../lib/interfaces/NotionObject';
 
 class CardOptionsStore {
   public options: CardOption[];
 
-  public favorites: NotionObject[];
+  public error: Error | null;
 
   constructor() {
     this.options = supportedOptions();
-    this.favorites = [];
   }
 
   public get(key: string): CardOption | undefined {

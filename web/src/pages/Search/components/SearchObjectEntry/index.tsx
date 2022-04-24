@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import {
+  Dispatch, SetStateAction, useContext, useState,
+} from 'react';
 
 import Backend from '../../../../lib/Backend';
 import DefineRules from '../DefineRules';
@@ -7,23 +9,28 @@ import ObjectActions from '../actions/ObjectActions';
 import ObjectAction from '../actions/ObjectAction';
 import { Entry, ObjectMeta } from './styled';
 import ObjectType from '../ObjectType';
-import SettingsIcon from '../../../../components/icons/SettingsIcon';
+import DotsHorizontal from '../../../../components/icons/DotsHorizontal';
+import StoreContext from '../../../../store/StoreContext';
+import NotionObject from '../../../../lib/interfaces/NotionObject';
 
 const backend = new Backend();
 
 interface Props {
+  isFavorite: boolean;
   title: string;
   icon: string;
   url: string;
   id: string;
   type: string;
-  setError: (error: string) => void;
+  setFavorites: Dispatch<SetStateAction<NotionObject[]>>;
 }
 
-function SearchObjectEntry({
-  title, icon, url, id, type, setError,
-}: Props) {
+function SearchObjectEntry(props: Props) {
+  const {
+    title, icon, url, id, type, isFavorite, setFavorites,
+  } = props;
   const [showSettings, setShowSettings] = useState(false);
+  const store = useContext(StoreContext);
 
   return (
     <>
@@ -49,14 +56,11 @@ function SearchObjectEntry({
                   window.location.href = '/uploads';
                 })
                 .catch((error) => {
-                  setError(error.response.data.message);
+                  store.error = error;
                 });
             }}
           />
-          <ObjectAction
-            url={url}
-            image="/icons/Notion_app_logo.png"
-          />
+          <ObjectAction url={url} image="/icons/Notion_app_logo.png" />
           <div
             role="button"
             tabIndex={-1}
@@ -67,16 +71,18 @@ function SearchObjectEntry({
               }
             }}
           >
-            <SettingsIcon />
+            <DotsHorizontal width={32} height={32} />
           </div>
         </ObjectActions>
       </Entry>
       {showSettings && (
         <DefineRules
+          type={type}
+          isFavorite={isFavorite}
+          setFavorites={setFavorites}
           parent={title}
           id={id}
           setDone={() => setShowSettings(false)}
-          setError={setError}
         />
       )}
     </>

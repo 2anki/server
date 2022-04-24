@@ -20,12 +20,12 @@ export default function WorkSpaceHeader(props: WorkspaceHeaderProps) {
       <nav className="level">
         <div className="level-left">
           <div className="level-item">
-            <p className="subtitle is-5">
+            <div className="subtitle is-5">
               <span className="tag is-info">workspace</span>
               <header>
                 <h1>{workSpace}</h1>
               </header>
-            </p>
+            </div>
           </div>
           {hovered && (
             <div className="level-item">

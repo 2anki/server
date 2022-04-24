@@ -1,16 +1,22 @@
-import { useEffect, useState } from 'react';
+import {
+  Dispatch, SetStateAction, useContext, useEffect, useState,
+} from 'react';
 
 import Switch from '../../../components/input/Switch';
 import SettingsModal from '../../../components/modals/SettingsModal';
 import TemplateSelect from '../../../components/TemplateSelect';
 import Backend from '../../../lib/Backend';
+import NotionObject from '../../../lib/interfaces/NotionObject';
+import StoreContext from '../../../store/StoreContext';
 import FlashcardType from './FlashcardType';
 
 interface Props {
+  type: string;
   id: string;
   setDone: () => void;
   parent: string;
-  setError: (error: string) => void;
+  isFavorite: boolean;
+  setFavorites: Dispatch<SetStateAction<NotionObject[]>>;
 }
 
 const flashCardOptions = [
@@ -23,9 +29,10 @@ const flashCardOptions = [
 const tagOptions = ['heading', 'strikethrough'];
 
 const backend = new Backend();
-function DefineRules({
-  id, setDone, parent, setError,
-}: Props) {
+function DefineRules(props: Props) {
+  const {
+    type, id, setDone, parent, isFavorite, setFavorites,
+  } = props;
   const [rules, setRules] = useState({
     flashcard_is: ['toggle'],
     sub_deck_is: 'child_page',
@@ -40,6 +47,9 @@ function DefineRules({
   const [tags, setTags] = useState(rules.tags_is);
   const [sendEmail, setSendEmail] = useState(rules.email_notification);
   const [more, setMore] = useState(false);
+  const [favorite, setFavorite] = useState(isFavorite);
+
+  const store = useContext(StoreContext);
 
   useEffect(() => {
     backend
@@ -54,7 +64,7 @@ function DefineRules({
         setIsloading(false);
       })
       .catch((error) => {
-        setError(error.response.data.message);
+        store.error = error;
       });
   }, [id]);
 
@@ -75,7 +85,7 @@ function DefineRules({
       );
       setDone();
     } catch (error) {
-      setError(error.response.data.message);
+      store.error = error;
     }
     setIsloading(false);
   };
@@ -88,6 +98,17 @@ function DefineRules({
       rules.flashcard_is = rules.flashcard_is.filter((f) => f !== fco);
     }
     setFlashcard((prevState) => Array.from(new Set([...prevState, ...rules.flashcard_is])));
+  };
+
+  const toggleFavorite = async () => {
+    if (favorite) {
+      await backend.deleteFavorite(id);
+    } else {
+      await backend.addFavorite(id, type);
+    }
+    const favorites = await backend.getFavorites();
+    setFavorites(favorites);
+    setFavorite(!favorite);
   };
 
   return (
@@ -127,7 +148,6 @@ function DefineRules({
                   onClickClose={() => {
                     setMore(false);
                   }}
-                  setError={setError}
                 />
               )}
               <div className="card-content">
@@ -136,6 +156,7 @@ function DefineRules({
                 <div className="is-group">
                   {flashCardOptions.map((fco) => (
                     <FlashcardType
+                      key={fco}
                       active={rules.flashcard_is.includes(fco)}
                       name={fco}
                       onSwitch={(name) => onSelectedFlashcardTypes(name)}
@@ -164,6 +185,13 @@ function DefineRules({
                     rules.email_notification = !rules.email_notification;
                     setSendEmail(rules.email_notification);
                   }}
+                />
+                <Switch
+                  key="is-favorite"
+                  id="is-favorite"
+                  title="Mark this as a favorite"
+                  checked={favorite}
+                  onSwitched={toggleFavorite}
                 />
                 <div className="has-text-centered">
                   <hr />
