@@ -1,7 +1,6 @@
 import { nanoid } from "nanoid";
 import express from "express";
 
-import TriggerUnsupportedFormat from "./TriggerUnsupportedFormat";
 import StorageHandler from "../../../lib/storage/StorageHandler";
 import { PrepareDeck } from "../../../lib/parser/DeckParser";
 import { BytesToMegaBytes } from "../../../lib/misc/file";
@@ -53,8 +52,6 @@ export default async function handleUpload(
         );
         const pkg = new Package(d.name, d.apkg);
         packages = packages.concat(pkg);
-      } else if (filename.match(/.md$/)) {
-        TriggerUnsupportedFormat();
       } else {
         const zipHandler = new ZipHandler();
         /* @ts-ignore */
@@ -63,8 +60,6 @@ export default async function handleUpload(
           if (fileName.match(/.html$/) && !fileName.includes("/")) {
             const d = await PrepareDeck(fileName, zipHandler.files, settings);
             packages.push(new Package(d.name, d.apkg));
-          } else if (fileName.match(/.md$/)) {
-            TriggerUnsupportedFormat();
           }
         }
       }
