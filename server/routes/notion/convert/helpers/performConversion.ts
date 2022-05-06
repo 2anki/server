@@ -112,10 +112,7 @@ export default async function performConversion(
     await job.completed(id, owner);
     const email = await getEmailFromOwner(DB, owner);
     if (size > 24) {
-      const prefix = req
-        ? `${req.protocol}://${req.get("host")}`
-        : "https://2anki.net";
-      const link = `${prefix}/download/u/${key}`;
+      const link = `${process.env.DOMAIN}/download/u/${key}`;
       await EmailHandler.SendConversionLinkEmail(email, id, link);
     } else if (rules.EMAIL_NOTIFICATION) {
       await EmailHandler.SendConversionEmail(email, id, apkg);
