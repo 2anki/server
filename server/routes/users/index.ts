@@ -58,7 +58,6 @@ router.post("/forgot-password", async (req, res, next) => {
   if (user.reset_token) {
     console.debug("has active reset token, so resending");
     await EmailHandler.SendResetEmail(
-      req.hostname,
       req.body.email,
       user.reset_token
     );
@@ -71,7 +70,6 @@ router.post("/forgot-password", async (req, res, next) => {
     await DB("users").where({ email: req.body.email }).update({ reset_token });
     console.debug("sending reset email");
     await EmailHandler.SendResetEmail(
-      req.hostname,
       req.body.email,
       reset_token
     );
@@ -181,7 +179,6 @@ router.post("/register", async (req, res, next) => {
       .insert({ name, password, email, verification_token })
       .returning(["id"]);
     await EmailHandler.SendVerificationEmail(
-      req.hostname,
       email,
       verification_token
     );

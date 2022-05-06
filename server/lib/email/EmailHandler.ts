@@ -24,8 +24,8 @@ const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 class EmailHandler {
-  static SendResetEmail(domain: string, email: any, token: string) {
-    const link = `https://${domain}/users/r/${token}`;
+  static SendResetEmail(email: any, token: string) {
+    const link = `${process.env.DOMAIN}/users/r/${token}`;
     const markup = PASSWORD_RESET_TEMPLATE.replace("{{link}}", link);
     const msg = {
       to: email,
@@ -41,11 +41,10 @@ class EmailHandler {
     return sgMail.send(msg);
   }
   static async SendVerificationEmail(
-    domain: string,
     email: string,
     token: string
   ) {
-    const link = `https://${domain}/users/v/${token}`;
+    const link = `${process.env.DOMAIN}/users/v/${token}`;
     const markup = VERIFICATION_TEMPLATE.replace("{{link}}", link);
 
     const msg = {

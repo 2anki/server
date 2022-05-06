@@ -82,6 +82,7 @@ function DefineRules(props: Props) {
         'page',
         'child_page',
         tags,
+        sendEmail,
       );
       setDone();
     } catch (error) {

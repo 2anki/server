@@ -60,12 +60,14 @@ class Backend {
     deck: string,
     subDecks: string,
     tags: string,
+    email: boolean,
   ) {
     const payload = {
       FLASHCARD: flashcard.join(','),
       DECK: deck,
       SUB_DECKS: subDecks,
       TAGS: tags,
+      EMAIL_NOTIFICATION: email,
     };
     return axios.post(
       `${this.baseURL}rules/create/${id}`,
