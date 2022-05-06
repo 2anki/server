@@ -75,6 +75,7 @@ class ParserRules {
         deck_is: input.DECK,
         sub_deck_is: input.SUB_DECKS,
         tags_is: input.TAGS,
+        email_notification: input.EMAIL_NOTIFICATION
       })
       .onConflict("object_id")
       .merge();
