@@ -1,0 +1,5 @@
+- uses: cypress-io/github-action@v2
+  with:
+    start: npm start --prefix web
+    wait-on: 'http://localhost:8080/status'
+    wait-on-timeout: 120
