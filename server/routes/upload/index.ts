@@ -14,7 +14,7 @@ const router = express.Router();
 
 const storage = new StorageHandler();
 
-router.post("/", RequireAllowedOrigin, (req, res) => {
+router.post("/file", RequireAllowedOrigin, (req, res) => {
   const u = upload(storage);
 
   u(req, res, function (error) {
