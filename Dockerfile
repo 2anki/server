@@ -7,9 +7,13 @@ WORKDIR /app
 COPY . .
 
 RUN node --version
+
+RUN rm -rvf /app/node_modules
+RUN git clone https://github.com/2anki/web /app/web
+RUN npm --prefix /app/web install
+
 RUN npm install typescript -g
 RUN npm --prefix /app/server install
-RUN npm --prefix /app/web install
 
 RUN npm --prefix /app/server run build
 RUN npm --prefix /app/web run build
