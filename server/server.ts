@@ -73,15 +73,15 @@ function serve() {
       res.redirect("/search");
     }
   });
-  app.get("/uploads*", RequireAuthentication, upload);
+  app.get("/api/uploads*", RequireAuthentication, upload);
 
-  app.use("/upload", upload);
-  app.use("/users", users);
-  app.use("/notion", notion);
-  app.use("/rules", rules);
-  app.use("/settings", _settings);
-  app.use("/download", download);
-  app.use("/favorite", favorite);
+  app.use("/api/upload", upload);
+  app.use("/api/users", users);
+  app.use("/api/notion", notion);
+  app.use("/api/rules", rules);
+  app.use("/api/settings", _settings);
+  app.use("/api/download", download);
+  app.use("/api/favorite", favorite);
 
   // Note: this has to be the last handler
   app.get("*", (_req, res) => {
