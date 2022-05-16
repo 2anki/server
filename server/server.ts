@@ -1,139 +1,55 @@
-import { mkdirSync, existsSync } from "fs";
-import path from "path";
-
-import morgan from "morgan";
-import express from "express";
-import cookieParser from "cookie-parser";
-import * as dotenv from "dotenv";
-
-import { IsDebug } from "./lib/debug";
-if (IsDebug()) {
-  const localEnvFile = path.join(__dirname, ".env");
-  if (existsSync(localEnvFile)) {
-    dotenv.config({ path: localEnvFile });
-  }
-}
-
-import { ALLOWED_ORIGINS } from "./lib/constants";
-import ErrorHandler from "./lib/misc/ErrorHandler";
-
-// Server Endpoints
-import _settings from "./routes/settings";
-import checks from "./routes/checks";
-import version from "./routes/version";
-import upload from "./routes/upload";
-import users from "./routes/users";
-import notion from "./routes/notion";
-import rules from "./routes/rules";
-import download from "./routes/download/u";
-import favorite from "./routes/favorite";
-
-import DB from "./lib/storage/db";
-import KnexConfig from "./KnexConfig";
-import TokenHandler from "./lib/misc/TokenHandler";
-import CrashReporter from "./lib/CrashReporter";
-import { ScheduleCleanup } from "./lib/jobs/JobHandler";
 import ConversionJob from "./lib/jobs/ConversionJob";
-import RequireAuthentication from "./middleware/RequireAuthentication";
+import DB from "./lib/storage/db";
+import dotenv from "dotenv";
+import fs from "fs";
+import { getApi } from "./getApi";
+import { IsDebug } from "./lib/debug";
+import KnexConfig from "./KnexConfig";
+import path from "path";
+import { processenv } from "processenv";
+import { ScheduleCleanup } from "./lib/jobs/JobHandler";
 
-if (!process.env.WORKSPACE_BASE) {
-  process.env.WORKSPACE_BASE = "/tmp/workspace";
-  mkdirSync(process.env.WORKSPACE_BASE, { recursive: true });
-}
-
-function serve() {
-  const templateDir = path.join(__dirname, "templates");
-  const distDir = path.join(__dirname, "../web/build");
-  const app = express();
-
-  app.use(express.json());
-  app.use(cookieParser());
-  if (process.env.NODE_ENV === "production") {
-    CrashReporter.Configure(app);
-  }
-
-  if (process.env.SPACES_DEFAULT_BUCKET_NAME !== "dev.2anki.net") {
-    app.use(morgan("combined"));
-  }
-
-  app.use("/templates", express.static(templateDir));
-  app.use(express.static(distDir));
-  app.use("/checks", checks);
-  app.use("/version", version);
-
-  app.get("/search*", RequireAuthentication, async (_req, res) => {
-    res.sendFile(path.join(distDir, "index.html"));
-  });
-
-  app.get("/login", async (req, res) => {
-    const user = await TokenHandler.GetUserFrom(req.cookies.token);
-    if (!user) {
-      res.sendFile(path.join(distDir, "index.html"));
-    } else {
-      res.redirect("/search");
+(async function (): Promise<void> {
+  try {
+    if (IsDebug()) {
+      const localEnvFilePath = path.join(__dirname, ".env");
+      const localEnvFileStat = await fs.promises.stat(localEnvFilePath);
+      if (localEnvFileStat.isDirectory()) {
+        dotenv.config({ path: localEnvFilePath });
+      }
     }
-  });
-  app.get("/api/uploads*", RequireAuthentication, upload);
 
-  app.use("/api/upload", upload);
-  app.use("/api/users", users);
-  app.use("/api/notion", notion);
-  app.use("/api/rules", rules);
-  app.use("/api/settings", _settings);
-  app.use("/api/download", download);
-  app.use("/api/favorite", favorite);
-
-  // Note: this has to be the last handler
-  app.get("*", (_req, res) => {
-    res.sendFile(path.join(distDir, "index.html"));
-  });
-
-  app.use(
-    (
-      _req: express.Request,
-      res: express.Response,
-      next: express.NextFunction
-    ) => {
-      res.header("Access-Control-Allow-Origin", ALLOWED_ORIGINS.join(","));
-      res.header(
-        "Access-Control-Allow-Headers",
-        "Origin, X-Requested-With, Content-Type, Accept, Content-Disposition"
-      );
-      next();
+    const workspaceBase = processenv("WORKSPACE_BASE")
+    if (!workspaceBase) {
+      process.env.WORKSPACE_BASE = "/tmp/workspace";
+      await fs.promises.mkdir(process.env.WORKSPACE_BASE, { recursive: true });
     }
-  );
 
-  if (process.env.NODE_ENV === "production") {
-    CrashReporter.AddErrorHandler(app);
-  }
+    const templateDir = path.join(__dirname, "templates");
 
-  app.use(
-    (
-      err: Error,
-      _req: express.Request,
-      res: express.Response,
-      _next: express.NextFunction
-    ) => ErrorHandler(res, err)
-  );
+    const distDir = path.join(__dirname, "../web/build");
 
-  process.on("uncaughtException", (err: Error) => {
-    console.error(err);
-  });
+    const api = getApi({ distDir, templateDir })
 
-  DB.raw("SELECT 1").then(() => {
+    await DB.raw("SELECT 1")
     console.info("DB is ready");
-  });
-  const cwd = process.cwd();
-  if (process.env.MIGRATIONS_DIR) {
-    process.chdir(path.join(process.env.MIGRATIONS_DIR, ".."));
-  }
-  ScheduleCleanup(DB);
-  /* @ts-ignore */
-  DB.migrate.latest(KnexConfig).then(() => {
-    process.chdir(cwd);
+
+    const migrationsDirectory = processenv("MIGRATIONS_DIR") as string;
+    if (migrationsDirectory) {
+      process.chdir(path.join(migrationsDirectory, ".."));
+    }
+    ScheduleCleanup(DB);
+    /* @ts-ignore */
+    await DB.migrate.latest(KnexConfig);
+
+    const currentWorkingDirectory = process.cwd();
+    process.chdir(currentWorkingDirectory);
+
     process.env.SECRET ||= "victory";
-    const port = process.env.PORT || 2020;
-    const server = app.listen(port, () => {
+
+    const port = processenv("PORT", 2020) as number;
+
+    const server = api.listen(port, (): void => {
       console.info(`🟢 Running on http://localhost:${port}`);
     });
 
@@ -154,7 +70,10 @@ function serve() {
         await HandleStartedJobs();
       });
     });
-  });
-}
 
-serve();
+  } catch (ex: unknown) {
+    console.log("An unexpected error occurred.", ex)
+    process.exit(1);
+  }
+})();
+

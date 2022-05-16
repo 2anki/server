@@ -5,13 +5,14 @@ import * as Sentry from "@sentry/node";
 import express from "express";
 
 import { TEMPLATE_DIR } from "../constants";
+import { processenv } from "processenv";
 
 const errorPage = fs
   .readFileSync(path.join(TEMPLATE_DIR, "error-message.html"))
   .toString();
 
 export default function ErrorHandler(res: express.Response, err: Error) {
-  if (process.env.NODE_ENV === "production") {
+  if (processenv('NODE_ENV') as string === "production") {
     Sentry.captureException(err);
   }
   res.set("Content-Type", "text/html");
