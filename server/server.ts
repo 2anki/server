@@ -6,7 +6,6 @@ import { getApi } from "./getApi";
 import { IsDebug } from "./lib/debug";
 import KnexConfig from "./KnexConfig";
 import path from "path";
-import { processenv } from "processenv";
 import { ScheduleCleanup } from "./lib/jobs/JobHandler";
 
 (async function (): Promise<void> {
@@ -22,8 +21,7 @@ import { ScheduleCleanup } from "./lib/jobs/JobHandler";
       }
     }
 
-    const workspaceBase = processenv("WORKSPACE_BASE")
-    if (!workspaceBase) {
+    if (!!process.env.WORKSPACE_BASE) {
       process.env.WORKSPACE_BASE = "/tmp/workspace";
       await fs.promises.mkdir(process.env.WORKSPACE_BASE, { recursive: true });
     }
@@ -37,7 +35,7 @@ import { ScheduleCleanup } from "./lib/jobs/JobHandler";
     await DB.raw("SELECT 1")
     console.info("DB is ready");
 
-    const migrationsDirectory = processenv("MIGRATIONS_DIR") as string;
+    const migrationsDirectory = process.env.MIGRATIONS_DIR as string;
     if (migrationsDirectory) {
       process.chdir(path.join(migrationsDirectory, ".."));
     }
@@ -50,7 +48,7 @@ import { ScheduleCleanup } from "./lib/jobs/JobHandler";
 
     process.env.SECRET ||= "victory";
 
-    const port = processenv("PORT", 2020) as number;
+    const port = process.env.PORT || 2020;
 
     const server = api.listen(port, (): void => {
       console.info(`🟢 Running on http://localhost:${port}`);

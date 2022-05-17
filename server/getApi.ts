@@ -5,7 +5,6 @@ import ErrorHandler from "./lib/misc/ErrorHandler";
 import morgan from "morgan";
 import path from "path";
 import RequireAuthentication from "./middleware/RequireAuthentication";
-import { processenv } from "processenv";
 import express, { Express } from "express";
 
 // Server Endpoints
@@ -32,11 +31,11 @@ const getApi = function({ distDir, templateDir }: {
   app.use(cookieParser());
   app.use(express.static(distDir));
 
-  if (processenv('NODE_ENV') as string === "production") {
+  if (process.env.NODE_ENV === "production") {
     CrashReporter.Configure(app);
   }
 
-  if (processenv("SPACES_DEFAULT_BUCKET_NAME") as string !== "dev.2anki.net") {
+  if (process.env.SPACES_DEFAULT_BUCKET_NAME !== "dev.2anki.net") {
     app.use(morgan("combined"));
   }
 
@@ -64,7 +63,7 @@ const getApi = function({ distDir, templateDir }: {
 
   app.use(handleCors);
 
-  if (processenv('NODE_ENV') as string === "production") {
+  if (process.env.NODE_ENV === "production") {
     CrashReporter.AddErrorHandler(app);
   }
 
