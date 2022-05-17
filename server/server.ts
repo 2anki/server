@@ -13,9 +13,12 @@ import { ScheduleCleanup } from "./lib/jobs/JobHandler";
   try {
     if (IsDebug()) {
       const localEnvFilePath = path.join(__dirname, ".env");
-      const localEnvFileStat = await fs.promises.stat(localEnvFilePath);
-      if (localEnvFileStat.isDirectory()) {
+
+      try {
+        await fs.promises.access(localEnvFilePath);
         dotenv.config({ path: localEnvFilePath });
+      } catch (ex: unknown) {
+        console.warn(`Could not load local .env file in path ${localEnvFilePath}`);
       }
     }
 
@@ -72,7 +75,7 @@ import { ScheduleCleanup } from "./lib/jobs/JobHandler";
     });
 
   } catch (ex: unknown) {
-    console.log("An unexpected error occurred.", ex)
+    console.log("An unexpected error occurred.", ex);
     process.exit(1);
   }
 })();
