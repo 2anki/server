@@ -9,6 +9,7 @@ import RequireAuthentication from "../../middleware/RequireAuthentication";
 import updatePassword from "../../lib/User/updatePassword";
 import comparePassword from "../../lib/User/comparePassword";
 import hashPassword from "../../lib/User/hashPassword";
+import { INDEX_FILE } from "../../lib/constants";
 
 const router = express.Router();
 
@@ -195,7 +196,7 @@ router.get("/r/:id", async (req, res, next) => {
     const reset_token = req.params.id;
     const isValid = await TokenHandler.IsValidResetToken(reset_token);
     if (isValid) {
-      return res.sendFile(path.join(distDir, "index.html"));
+      return res.sendFile(INDEX_FILE);
     }
     return res.redirect("/login#login");
   } catch (err) {
