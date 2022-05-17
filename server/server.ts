@@ -14,7 +14,7 @@ if (IsDebug()) {
   }
 }
 
-import { ALLOWED_ORIGINS } from "./lib/constants";
+import { ALLOWED_ORIGINS, BUILD_DIR, INDEX_FILE } from "./lib/constants";
 import ErrorHandler from "./lib/misc/ErrorHandler";
 
 // Server Endpoints
@@ -43,7 +43,6 @@ if (!process.env.WORKSPACE_BASE) {
 
 function serve() {
   const templateDir = path.join(__dirname, "templates");
-  const distDir = path.join(__dirname, "../web/build");
   const app = express();
 
   app.use(express.json());
@@ -57,18 +56,18 @@ function serve() {
   }
 
   app.use("/templates", express.static(templateDir));
-  app.use(express.static(distDir));
+  app.use(express.static(BUILD_DIR));
   app.use("/checks", checks);
   app.use("/version", version);
 
   app.get("/search*", RequireAuthentication, async (_req, res) => {
-    res.sendFile(path.join(distDir, "index.html"));
+    res.sendFile(INDEX_FILE);
   });
 
   app.get("/login", async (req, res) => {
     const user = await TokenHandler.GetUserFrom(req.cookies.token);
     if (!user) {
-      res.sendFile(path.join(distDir, "index.html"));
+      res.sendFile(INDEX_FILE);
     } else {
       res.redirect("/search");
     }
@@ -85,7 +84,7 @@ function serve() {
 
   // Note: this has to be the last handler
   app.get("*", (_req, res) => {
-    res.sendFile(path.join(distDir, "index.html"));
+    res.sendFile(INDEX_FILE);
   });
 
   app.use(
