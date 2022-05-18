@@ -1,9 +1,8 @@
-import { ALLOWED_ORIGINS } from "./lib/constants";
+import { ALLOWED_ORIGINS, BUILD_DIR, INDEX_FILE } from "./lib/constants";
 import cookieParser from "cookie-parser";
 import CrashReporter from "./lib/CrashReporter";
 import ErrorHandler from "./lib/misc/ErrorHandler";
 import morgan from "morgan";
-import path from "path";
 import RequireAuthentication from "./middleware/RequireAuthentication";
 import express, { Express } from "express";
 
@@ -20,8 +19,7 @@ import upload from "./routes/upload";
 import users from "./routes/users";
 import version from "./routes/version";
 
-const getApi = function({ distDir, templateDir }: {
-  distDir: string;
+const getApi = function({ templateDir }: {
   templateDir: string;
 }): Express {
   const app = express();
@@ -29,7 +27,7 @@ const getApi = function({ distDir, templateDir }: {
   // Middleware
   app.use(express.json());
   app.use(cookieParser());
-  app.use(express.static(distDir));
+  app.use(express.static(BUILD_DIR));
 
   if (process.env.NODE_ENV === "production") {
     CrashReporter.Configure(app);
@@ -40,8 +38,8 @@ const getApi = function({ distDir, templateDir }: {
   }
 
   // Routes/handlers
-  app.get("/search*", RequireAuthentication, search({ distDir }));
-  app.get("/login", login({ distDir }));
+  app.get("/search*", RequireAuthentication, search);
+  app.get("/login", login);
   app.get("/api/uploads*", RequireAuthentication, upload);
 
   app.use("/templates", express.static(templateDir));
@@ -58,7 +56,7 @@ const getApi = function({ distDir, templateDir }: {
 
   // Note: this has to be the last handler
   app.get("*", (_req, res) => {
-    res.sendFile(path.join(distDir, "index.html"));
+    res.sendFile(INDEX_FILE);
   });
 
   app.use(handleCors);

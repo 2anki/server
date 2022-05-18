@@ -12,7 +12,6 @@ import { ScheduleCleanup } from "./lib/jobs/JobHandler";
   try {
     if (IsDebug()) {
       const localEnvFilePath = path.join(__dirname, ".env");
-
       try {
         await fs.promises.access(localEnvFilePath);
         dotenv.config({ path: localEnvFilePath });
@@ -28,9 +27,7 @@ import { ScheduleCleanup } from "./lib/jobs/JobHandler";
 
     const templateDir = path.join(__dirname, "templates");
 
-    const distDir = path.join(__dirname, "../web/build");
-
-    const api = getApi({ distDir, templateDir })
+    const api = getApi({ templateDir })
 
     await DB.raw("SELECT 1")
     console.info("DB is ready");

@@ -1,15 +1,13 @@
 import { Handler } from "express";
-import path from "path";
+import { INDEX_FILE } from "./lib/constants";
 import TokenHandler from "../../lib/misc/TokenHandler";
 
-const login = function ({ distDir }: {
-  distDir: string;
-}): Handler {
+const login = function (): Handler {
   return async function (req, res) {
     try {
       const user = await TokenHandler.GetUserFrom(req.cookies.token);
       if (!user) {
-        res.sendFile(path.join(distDir, "index.html"));
+        res.sendFile(INDEX_FILE);
       } else {
         res.redirect("/search");
       }

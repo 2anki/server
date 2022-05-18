@@ -1,12 +1,10 @@
 import { Handler } from "express";
-import path from "path";
+import { INDEX_FILE } from "./lib/constants";
 
-const search = function ({ distDir }: {
-  distDir: string;
-}): Handler {
+const search = function (): Handler {
   return function (_req, res) {
     try {
-      res.sendFile(path.join(distDir, "index.html"));
+      res.sendFile(INDEX_FILE);
     } catch (ex: unknown) {
       console.error("Could not search.", ex);
     }

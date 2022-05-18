@@ -27,3 +27,6 @@ export function resolvePath(dir: string, x: string) {
 export const TIME_21_MINUTES_AS_SECONDS = 1260;
 
 export const ONE_HOUR = 60 * 60 * 1000;
+
+export const BUILD_DIR = process.env.WEB_BUILD_DIR || path.join(__dirname, "../../web/build")
+export const INDEX_FILE = path.join(BUILD_DIR, "index.html");
