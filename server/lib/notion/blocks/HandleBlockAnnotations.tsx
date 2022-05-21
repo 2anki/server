@@ -1,6 +1,4 @@
-import { GetBlockResponse } from "@notionhq/client/build/src/api-endpoints";
 import TagRegistry from "../../parser/TagRegistry";
-import BlockHandler from "../BlockHandler";
 
 interface Annotations {
   underline: boolean;

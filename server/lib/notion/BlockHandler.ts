@@ -38,7 +38,7 @@ import isColumnList from './helpers/isColumnList';
 import isTesting from './helpers/isTesting';
 import BlockEquation from './blocks/BlockEquation';
 import renderFront from './helpers/renderFront';
-import perserveNewlinesIfApplicable from './helpers/perserveNewlinesIfApplicable';
+import perserveNewlinesIfApplicable from './helpers/preserveNewlinesIfApplicable';
 import getDeckName from '../anki/getDeckname';
 import LinkToPage from './blocks/LinkToPage';
 import getUniqueFileName from '../misc/getUniqueFileName';

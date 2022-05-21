@@ -3,7 +3,7 @@ import ReactDOMServer from "react-dom/server";
 import BlockHandler from "../BlockHandler";
 import getPlainText from "../helpers/getPlainText";
 import { styleWithColors } from "../NotionColors";
-import HandleBlockAnnotations from "./utils";
+import HandleBlockAnnotations from "./HandleBlockAnnotations";
 
 export const BlockQuote = (
   block: GetBlockResponse, 
