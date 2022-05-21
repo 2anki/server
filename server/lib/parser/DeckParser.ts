@@ -6,7 +6,7 @@ import Note from "./Note";
 import Deck from "./Deck";
 import { File } from "../anki/zip";
 import Workspace from "./WorkSpace";
-import { NewUniqueFileNameFrom, SuffixFrom } from "../misc/file";
+import { SuffixFrom } from "../misc/file";
 import replaceAll from "./helpers/replaceAll";
 import handleClozeDeletions from "./helpers/handleClozeDeletions";
 import sanitizeTags from "../anki/sanitizeTags";
@@ -14,6 +14,7 @@ import preserveNewlinesIfApplicable from "../notion/helpers/perserveNewlinesIfAp
 
 import getYouTubeID from "./helpers/getYouTubeID";
 import getYouTubeEmbedLink from "./helpers/getYouTubeEmbedLink";
+import getUniqueFileName from "../misc/getUniqueFileName";
 export class DeckParser {
   globalTags: cheerio.Cheerio | null;
   firstDeckName: string;
@@ -331,7 +332,7 @@ export class DeckParser {
         return null;
       }
     }
-    const newName = NewUniqueFileNameFrom(filePath) + suffix;
+    const newName = getUniqueFileName(filePath) + suffix;
     const contents = file.contents as string;
     if (contents) {
       exporter.addMedia(newName, contents);

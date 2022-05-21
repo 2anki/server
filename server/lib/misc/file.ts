@@ -1,12 +1,4 @@
-import crypto from "crypto";
 import fs from "fs";
-
-// Try to avoid name conflicts && invalid characters by hashing
-export function NewUniqueFileNameFrom(input: string) {
-  const shasum = crypto.createHash("sha1");
-  shasum.update(input);
-  return shasum.digest("hex");
-}
 
 export function SuffixFrom(input: string) {
   if (!input) {

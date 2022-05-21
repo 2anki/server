@@ -11,7 +11,7 @@ import {
   GetBlockResponse,
   ListBlockChildrenResponse,
 } from '@notionhq/client/build/src/api-endpoints';
-import { NewUniqueFileNameFrom, S3FileName, SuffixFrom } from '../misc/file';
+import { S3FileName, SuffixFrom } from '../misc/file';
 import axios from 'axios';
 import BlockParagraph from './blocks/BlockParagraph';
 import BlockCode from './blocks/BlockCode';
@@ -41,6 +41,7 @@ import renderFront from './helpers/renderFront';
 import perserveNewlinesIfApplicable from './helpers/perserveNewlinesIfApplicable';
 import getDeckName from '../anki/getDeckname';
 import LinkToPage from './blocks/LinkToPage';
+import getUniqueFileName from '../misc/getUniqueFileName';
 
 class BlockHandler {
   api: NotionAPIWrapper;
@@ -71,7 +72,7 @@ class BlockHandler {
     const url = c.image[t].url;
 
     const suffix = SuffixFrom(S3FileName(url));
-    const newName = NewUniqueFileNameFrom(url) + (suffix || '');
+    const newName = getUniqueFileName(url) + (suffix || '');
     const imageRequest = await axios.get(url, { responseType: 'arraybuffer' });
     const contents = imageRequest.data;
     this.exporter.addMedia(newName, contents);
@@ -85,7 +86,7 @@ class BlockHandler {
     /* @ts-ignore */
     const audio = c.audio;
     const url = audio.file.url;
-    const newName = NewUniqueFileNameFrom(url);
+    const newName = getUniqueFileName(url);
 
     const audioRequest = await axios.get(url, { responseType: 'arraybuffer' });
     const contents = audioRequest.data;
@@ -101,7 +102,7 @@ class BlockHandler {
     /* @ts-ignore */
     const file = c.file;
     const url = file.file.url;
-    const newName = NewUniqueFileNameFrom(url);
+    const newName = getUniqueFileName(url);
     const fileRequest = await axios.get(url, { responseType: 'arraybuffer' });
     const contents = fileRequest.data;
     this.exporter.addMedia(newName, contents);
