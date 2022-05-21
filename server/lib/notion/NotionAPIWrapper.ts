@@ -157,10 +157,17 @@ class NotionAPIWrapper {
       for (const p of paragraphs) {
         /* @ts-ignore */
         const pp = p.paragraph;
-        if (!pp) continue;
+
+        if (!pp) {
+          continue;
+        }
+
         const tt = pp.text;
         /* @ts-ignore */
-        if (!tt || tt.length < 1) continue;
+        if (!tt || tt.length < 1) {
+          continue;
+        }
+
         const { annotations } = tt[0];
         if (annotations.strikethrough) {
           globalTags.push(tt[0].text.content);

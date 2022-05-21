@@ -226,13 +226,13 @@ class BlockHandler {
 
         // Nesting applies to all not just toggles
         if (
-          handleChildren
+          handleChildren ||
           /* @ts-ignore */
-          || (c.has_children
+          (c.has_children &&
             /* @ts-ignore */
-            && c.type !== 'toggle'
+            c.type !== 'toggle' &&
             /* @ts-ignore */
-            && c.type !== 'bulleted_list_item')
+            c.type !== 'bulleted_list_item')
         ) {
           back += await this.getBackSide(c);
         }
@@ -265,8 +265,11 @@ class BlockHandler {
     let notionBaseLink = null;
     if (settings.addNotionLink && settings.parentBlockId) {
       const page = await this.api.getPage(settings.parentBlockId);
+
+      if (page) {
       /* @ts-ignore */
-      if (page) notionBaseLink = page.url;
+        notionBaseLink = page.url;
+      }
     }
 
     let counter = 0;
@@ -312,7 +315,8 @@ class BlockHandler {
       this.exporter.media = [];
 
       const tr = TagRegistry.getInstance();
-      ankiNote.tags = rules.TAGS === 'heading' ? tr.headings : tr.strikethroughs;
+      ankiNote.tags =
+        rules.TAGS === 'heading' ? tr.headings : tr.strikethroughs;
       ankiNote.number = counter++;
 
       ankiNote.name = perserveNewlinesIfApplicable(ankiNote.name, settings);
@@ -320,9 +324,9 @@ class BlockHandler {
 
       cards.push(ankiNote);
       if (
-        !settings.isCherry
-        && (settings.basicReversed || ankiNote.hasRefreshIcon())
-        && isBasicType
+        !settings.isCherry &&
+        (settings.basicReversed || ankiNote.hasRefreshIcon()) &&
+        isBasicType
       ) {
         cards.push(ankiNote.reversed(ankiNote));
       }
@@ -360,7 +364,8 @@ class BlockHandler {
         decks,
         parentName,
       );
-    } if (rules.DECK === 'database') {
+    }
+    if (rules.DECK === 'database') {
       const dbResult = await this.api.queryDatabase(topLevelId);
       const database = await this.api.getDatabase(topLevelId);
       const dbName = this.api.getDatabaseTitle(database, settings);
@@ -391,7 +396,8 @@ class BlockHandler {
     // Locate the card blocks to be used from the parser rules
     const cBlocks = blocks.filter((b: GetBlockResponse) =>
       /* @ts-ignore */
-      flashCardTypes.includes(b.type));
+      flashCardTypes.includes(b.type),
+    );
     const page = await this.api.getPage(topLevelId);
     if (!page) {
       console.info(`No page found for ${topLevelId}`);

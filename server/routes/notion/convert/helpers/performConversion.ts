@@ -57,7 +57,9 @@ export default async function performConversion(
     console.log(`job ${id} is not active, starting`);
     await job.started(id, owner);
 
-    if (res) res.status(200).send();
+    if (res) {
+      res.status(200).send();
+    }
 
     const ws = new Workspace(true, 'fs');
     console.debug(`using workspace ${ws.location}`);
@@ -66,8 +68,9 @@ export default async function performConversion(
     const bl = new BlockHandler(exporter, api, settings);
     const rules = await ParserRules.Load(owner, id);
 
-    if (res) bl.useAll = rules.UNLIMITED = res?.locals.patreon;
-    else {
+    if (res) {
+      bl.useAll = rules.UNLIMITED = res?.locals.patreon;
+    } else {
       const user = await isPatron(DB, owner);
       console.log('checking if user is patreon', user);
       bl.useAll = rules.UNLIMITED = user.patreon;

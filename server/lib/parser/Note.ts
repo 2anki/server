@@ -70,7 +70,9 @@ export default class Note {
       (this.cloze || this.enableInput)
       && this.name.includes('{{')
       && this.name.includes('}}')
-    ) return true;
+    ) {
+      return true;
+    }
 
     // Basic flashcards must have a back to be valid
     if (this.back) {
