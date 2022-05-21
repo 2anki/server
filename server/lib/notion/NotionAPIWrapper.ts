@@ -41,15 +41,15 @@ class NotionAPIWrapper {
     if (all && response.has_more && response.next_cursor) {
       while (true) {
         /* @ts-ignore */
-        const { results, next_cursor } = await this.notion.blocks.children.list(
+        const { results, next_cursor: nextCursor } = await this.notion.blocks.children.list(
           {
             block_id: id,
             start_cursor: response.next_cursor!,
           },
         );
         response.results.push(...results);
-        if (next_cursor) {
-          response.next_cursor = next_cursor;
+        if (nextCursor) {
+          response.next_cursor = nextCursor;
         } else {
           break;
         }
@@ -81,14 +81,14 @@ class NotionAPIWrapper {
     if (all && response.has_more && response.next_cursor) {
       while (true) {
         /* @ts-ignore */
-        const { results, next_cursor } = await this.notion.databases.query({
+        const { results, next_cursor: nextCursor } = await this.notion.databases.query({
           database_id: id,
           page_size: all ? PATREON_LIMIT : ANON_LIMIT,
           start_cursor: response.next_cursor!,
         });
         response.results.push(...results);
-        if (next_cursor) {
-          response.next_cursor = next_cursor;
+        if (nextCursor) {
+          response.next_cursor = nextCursor;
         } else {
           break;
         }
@@ -111,7 +111,7 @@ class NotionAPIWrapper {
     if (all && response.has_more && response.next_cursor) {
       while (true) {
         /* @ts-ignore */
-        const { results, next_cursor } = await this.notion.search({
+        const { results, next_cursor: nextCursor } = await this.notion.search({
           page_size: all ? PATREON_LIMIT : ANON_LIMIT,
           query,
           start_cursor: response.next_cursor!,
@@ -121,8 +121,8 @@ class NotionAPIWrapper {
           },
         });
         response.results.push(...results);
-        if (next_cursor) {
-          response.next_cursor = next_cursor;
+        if (nextCursor) {
+          response.next_cursor = nextCursor;
         } else {
           break;
         }

@@ -290,16 +290,16 @@ class BlockHandler {
         const clozeCard = await getClozeDeletionCard(rules, block);
         if (clozeCard) {
           isBasicType = false;
+          ankiNote.copyValues(clozeCard);
         }
-        clozeCard && ankiNote.copyValues(clozeCard);
       }
       // Look for input cards
       if (settings.useInput) {
         const inputCard = await getInputCard(rules, block);
         if (inputCard) {
           isBasicType = false;
+          ankiNote.copyValues(inputCard);
         }
-        inputCard && ankiNote.copyValues(inputCard);
       }
 
       ankiNote.back = back!;

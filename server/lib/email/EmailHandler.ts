@@ -64,9 +64,9 @@ class EmailHandler {
   ) {
     const markup = CONVERT_TEMPLATE;
 
-    let _f = filename;
+    let attachedFilename = filename;
     if (!filename.endsWith('.apkg')) {
-      _f = `${filename}.apkg`;
+      attachedFilename = `${filename}.apkg`;
     }
     const msg = {
       to: email,
@@ -78,7 +78,7 @@ class EmailHandler {
       attachments: [
         {
           content: contents.toString('base64'),
-          filename: _f,
+          filename: attachedFilename,
           type: 'application/apkg',
           disposition: 'attachment',
         },
@@ -94,11 +94,6 @@ class EmailHandler {
     link: string,
   ) {
     const markup = CONVERT_LINK_TEMPLATE.replace(/{{link}}/g, link);
-
-    let _f = filename;
-    if (!filename.endsWith('.apkg')) {
-      _f = `${filename}.apkg`;
-    }
     const msg = {
       to: email,
       from: DEFAULT_SENDER,

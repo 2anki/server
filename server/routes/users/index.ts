@@ -1,6 +1,5 @@
 import express from 'express';
 
-import path from 'path';
 import DB from '../../lib/storage/db';
 
 import EmailHandler from '../../lib/email/EmailHandler';
@@ -21,11 +20,11 @@ const isValidUser = (password: string, name: string, email: string) => {
 };
 
 router.post('/new-password', async (req, res, next) => {
-  const { reset_token } = req.body;
+  const resetToken = req.body.reset_token;
   const { password } = req.body;
   if (
-    !reset_token
-    || reset_token.length < 128
+    !resetToken
+    || resetToken.length < 128
     || !password
     || password.length < 8
   ) {
@@ -33,7 +32,7 @@ router.post('/new-password', async (req, res, next) => {
   }
 
   try {
-    await updatePassword(DB, password, reset_token);
+    await updatePassword(DB, password, resetToken);
     res.status(200).send({ message: 'ok' });
   } catch (error) {
     next(error);
@@ -65,14 +64,14 @@ router.post('/forgot-password', async (req, res, next) => {
     return res.status(200).json({ message: 'ok' });
   }
   console.debug('no active reset token, so creating');
-  const reset_token = TokenHandler.NewResetToken();
+  const resetToken = TokenHandler.NewResetToken();
   try {
     console.debug('updating user reset token');
-    await DB('users').where({ email: req.body.email }).update({ reset_token });
+    await DB('users').where({ email: req.body.email }).update({ reset_token: resetToken });
     console.debug('sending reset email');
     await EmailHandler.SendResetEmail(
       req.body.email,
-      reset_token,
+      resetToken,
     );
     return res.status(200).json({ message: 'ok' });
   } catch (error) {
@@ -89,9 +88,9 @@ router.get('/v/:id', async (req, res, next) => {
     console.debug('invalid verification token');
     return res.redirect('/login#login');
   }
-  const verification_token = req.params.id;
+  const token = req.params.id;
   DB('users')
-    .where({ verification_token })
+    .where({ verification_token: token })
     .update({ verified: true })
     .then(() => res.redirect('/search'))
     .catch((err) => next(err));
@@ -171,16 +170,16 @@ router.post('/register', async (req, res, next) => {
   const password = hashPassword(req.body.password);
   const { name } = req.body;
   const email = req.body.email.toLowerCase();
-  const verification_token = TokenHandler.NewVerificationToken();
+  const token = TokenHandler.NewVerificationToken();
   try {
     await DB('users')
       .insert({
-        name, password, email, verification_token,
+        name, password, email, verification_token: token,
       })
       .returning(['id']);
     await EmailHandler.SendVerificationEmail(
       email,
-      verification_token,
+      token,
     );
     res.status(200).json({ message: 'ok' });
   } catch (error) {
@@ -189,11 +188,10 @@ router.post('/register', async (req, res, next) => {
   }
 });
 
-const distDir = path.join(__dirname, '../../../web/build');
 router.get('/r/:id', async (req, res, next) => {
   try {
-    const reset_token = req.params.id;
-    const isValid = await TokenHandler.IsValidResetToken(reset_token);
+    const token = req.params.id;
+    const isValid = await TokenHandler.IsValidResetToken(token);
     if (isValid) {
       return res.sendFile(INDEX_FILE);
     }

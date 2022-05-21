@@ -217,14 +217,14 @@ export class DeckParser {
               }
 
               const backSide = (() => {
-                let _b = b;
+                let mangleBackSide = b;
                 if (this.settings.maxOne) {
-                  _b = this.removeNestedToggles(b);
+                  mangleBackSide = this.removeNestedToggles(b);
                 }
                 if (this.settings.perserveNewLines) {
-                  _b = replaceAll(_b, '\n', '<br />');
+                  mangleBackSide = replaceAll(mangleBackSide, '\n', '<br />');
                 }
-                return _b;
+                return mangleBackSide;
               })();
               const note = new Note(front || '', backSide);
               note.notionId = parentUL.attr('id');
@@ -471,6 +471,7 @@ export class DeckParser {
         if (card.back) {
           const dom = cheerio.load(card.back);
           const images = dom('img');
+          const decodeURIComponent = global.decodeURIComponent;
           if (images.length > 0) {
             images.each((_i, elem) => {
               const originalName = dom(elem).attr('src');
@@ -478,7 +479,7 @@ export class DeckParser {
                 const newName = this.embedFile(
                   exporter,
                   this.files,
-                  global.decodeURIComponent(originalName),
+                  decodeURIComponent(originalName),
                 );
                 if (newName) {
                   dom(elem).attr('src', newName);

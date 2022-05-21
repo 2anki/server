@@ -117,7 +117,7 @@ class TokenHandler {
       return false;
     }
     return new Promise((resolve, reject) => {
-      jwt.verify(token, process.env.SECRET!, (error, _decodedToken) => {
+      jwt.verify(token, process.env.SECRET!, (error) => {
         if (error) {
           reject(error);
         } else {

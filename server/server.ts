@@ -1,4 +1,4 @@
-import { mkdirSync, existsSync } from 'fs';
+import { existsSync } from 'fs';
 import path from 'path';
 
 import morgan from 'morgan';
@@ -107,7 +107,6 @@ function serve() {
       err: Error,
       _req: express.Request,
       res: express.Response,
-      _next: express.NextFunction,
     ) => ErrorHandler(res, err),
   );
 

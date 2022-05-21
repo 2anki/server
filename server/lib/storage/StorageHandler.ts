@@ -18,14 +18,14 @@ class StorageHandler {
     suffix: string,
   ): string {
     const now = Date.now().toString();
-    let _name = `${prefix}-${now}-${name}`.substring(
+    let uniqueName = `${prefix}-${now}-${name}`.substring(
       0,
       maxLength - (suffix.length + 1),
     );
-    if (!_name.endsWith(suffix)) {
-      _name += `.${suffix}`;
+    if (!uniqueName.endsWith(suffix)) {
+      uniqueName += `.${suffix}`;
     }
-    return _name;
+    return uniqueName;
   }
 
   static DefaultBucketName(): string {
@@ -42,7 +42,7 @@ class StorageHandler {
     return new Promise((resolve, reject) => {
       s3.deleteObject(
         { Bucket: StorageHandler.DefaultBucketName(), Key: key },
-        (err, _data) => {
+        (err) => {
           if (err) {
             console.error(err);
             reject(err);

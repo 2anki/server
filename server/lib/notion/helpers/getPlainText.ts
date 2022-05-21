@@ -1,5 +1,5 @@
 interface Text {
-    plain_text: string;
+  plain_text: string;
 }
 
 export default function getPlainText(text: Text[]): string {
