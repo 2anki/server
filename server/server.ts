@@ -36,11 +36,6 @@ import { ScheduleCleanup } from "./lib/jobs/JobHandler";
 import ConversionJob from "./lib/jobs/ConversionJob";
 import RequireAuthentication from "./middleware/RequireAuthentication";
 
-if (!process.env.WORKSPACE_BASE) {
-  process.env.WORKSPACE_BASE = "/tmp/workspace";
-  mkdirSync(process.env.WORKSPACE_BASE, { recursive: true });
-}
-
 function serve() {
   const templateDir = path.join(__dirname, "templates");
   const app = express();
