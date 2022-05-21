@@ -2,18 +2,18 @@
 
 - What is the capital of Kenya?
 
-  Nairobi
+    Nairobi
 
-  ![Notion%20Questions/Untitled.png](Notion%20Questions/Untitled.png)
+    ![Notion%20Questions/Untitled.png](Notion%20Questions/Untitled.png)
 
 - What is the capital of Norway
 
-  Oslo
+    Oslo
 
-  ![Notion%20Questions/Untitled%201.png](Notion%20Questions/Untitled%201.png)
+    ![Notion%20Questions/Untitled%201.png](Notion%20Questions/Untitled%201.png)
 
 - What is the capital of Sweden
 
-  Stockholm
+    Stockholm
 
-  ![Notion%20Questions/Untitled%202.png](Notion%20Questions/Untitled%202.png)
+    ![Notion%20Questions/Untitled%202.png](Notion%20Questions/Untitled%202.png)

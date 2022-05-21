@@ -2,12 +2,12 @@
 
 - What is the capital of Kenya?
 
-  Nairobi
+    Nairobi
 
 - What is the capital of Norway
 
-  Oslo
+    Oslo
 
 - What is the capital of Sweden
 
-  Stockholm
+    Stockholm
