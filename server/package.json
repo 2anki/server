@@ -21,7 +21,8 @@
     "lint": "eslint '**/*.ts' '**/*.tsx'",
     "lint:fix": "eslint --fix '**/*.ts' '**/*.tsx'",
     "purge-js": "rm `find . -name '*.js'|grep -v node_modules`",
-    "test:mock": "FORCE_BUILD=true ts-node lib/notion/_mock/build-mock-data.tsx"
+    "test:mock": "FORCE_BUILD=true ts-node lib/notion/_mock/build-mock-data.tsx",
+    "prepare": "cd .. && husky install server/.husky"
   },
   "repository": {
     "type": "git",
@@ -43,6 +44,7 @@
     "cheerio": "1.0.0-rc.3",
     "cookie-parser": "^1.4.5",
     "crypto-js": "^4.1.1",
+    "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "find-remove": "^2.0.3",
     "html-to-text": "^8.2.0",
@@ -62,8 +64,7 @@
     "nanoid": "^3.1.31",
     "pg": "^8.7.1",
     "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "dotenv": "^10.0.0"
+    "react-dom": "^17.0.2"
   },
   "devDependencies": {
     "@types/base-64": "^1.0.0",
@@ -86,6 +87,7 @@
     "eslint": "^8.16.0",
     "eslint-config-airbnb-typescript": "^17.0.0",
     "eslint-plugin-import": "^2.26.0",
+    "husky": "^7.0.4",
     "jest": "^27.5.1",
     "nodemon": "^2.0.7",
     "ts-jest": "^27.1.3",
