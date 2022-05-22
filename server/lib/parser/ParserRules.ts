@@ -1,11 +1,16 @@
-import DB from "../storage/db";
+import DB from '../storage/db';
 
 class ParserRules {
-  private FLASHCARD = ["toggle"];
-  DECK = "page";
-  SUB_DECKS = "child_page";
-  TAGS = "strikethrough";
+  private FLASHCARD = ['toggle'];
+
+  DECK = 'page';
+
+  SUB_DECKS = 'child_page';
+
+  TAGS = 'strikethrough';
+
   UNLIMITED = false;
+
   EMAIL_NOTIFICATION = false;
 
   /**
@@ -14,9 +19,9 @@ class ParserRules {
    */
   flaschardTypeNames(): string[] {
     let names = this.FLASHCARD;
-    if (names.includes("heading")) {
-      names = names.filter((n) => n != "heading");
-      names.push(...["heading_1", "heading_2", "heading_3"]);
+    if (names.includes('heading')) {
+      names = names.filter((n) => n != 'heading');
+      names.push(...['heading_1', 'heading_2', 'heading_3']);
     }
     return names;
   }
@@ -40,11 +45,11 @@ class ParserRules {
   static async Load(owner: string, id: string): Promise<ParserRules> {
     try {
       const rules = new ParserRules();
-      const result = await DB("parser_rules")
+      const result = await DB('parser_rules')
         .where({ object_id: id, owner })
-        .returning(["*"])
+        .returning(['*'])
         .first();
-      rules.setFlashcardTypes(result.flashcard_is.split(","));
+      rules.setFlashcardTypes(result.flashcard_is.split(','));
       rules.DECK = result.deck_is;
       rules.SUB_DECKS = result.sub_deck_is;
       rules.TAGS = result.tags_is;
@@ -58,7 +63,7 @@ class ParserRules {
   async setDeckIs(type: string, id: string, owner: string): Promise<boolean> {
     this.DECK = type;
     try {
-      await DB("parser_rules").where({ object_id: id, owner }).update({
+      await DB('parser_rules').where({ object_id: id, owner }).update({
         deck_is: type,
       });
       return true;
@@ -67,7 +72,7 @@ class ParserRules {
   }
 
   static async Save(id: string, owner: string, input: any) {
-    await DB("parser_rules")
+    await DB('parser_rules')
       .insert({
         owner,
         object_id: id,
@@ -75,14 +80,14 @@ class ParserRules {
         deck_is: input.DECK,
         sub_deck_is: input.SUB_DECKS,
         tags_is: input.TAGS,
-        email_notification: input.EMAIL_NOTIFICATION
+        email_notification: input.EMAIL_NOTIFICATION,
       })
-      .onConflict("object_id")
+      .onConflict('object_id')
       .merge();
   }
-  
+
   useColums() {
-    return this.FLASHCARD.includes("column_list")
+    return this.FLASHCARD.includes('column_list');
   }
 }
 

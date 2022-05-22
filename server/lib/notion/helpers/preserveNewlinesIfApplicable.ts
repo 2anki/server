@@ -1,11 +1,11 @@
-import Settings from "../../parser/Settings";
+import Settings from '../../parser/Settings';
 
 export default function preserveNewlinesIfApplicable(
-    text: string,
-    settings: Settings
+  text: string,
+  settings: Settings,
 ): string {
-    if (settings.perserveNewLines) {
-        return text.replace(/\n/g, "<br />");
-    }
-    return text;
+  if (settings.perserveNewLines) {
+    return text.replace(/\n/g, '<br />');
+  }
+  return text;
 }

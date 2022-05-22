@@ -1,4 +1,4 @@
-import { GetBlockResponse } from "@notionhq/client/build/src/api-endpoints";
+import { GetBlockResponse } from '@notionhq/client/build/src/api-endpoints';
 
 export default function isHeading(block: GetBlockResponse): boolean {
   /* @ts-ignore */

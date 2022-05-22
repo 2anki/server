@@ -1,22 +1,24 @@
-import path from "path";
-import fs from "fs";
+import path from 'path';
+import fs from 'fs';
 
-import CardGenerator from "../anki/CardGenerator";
-import Deck from "./Deck";
+import CardGenerator from '../anki/CardGenerator';
+import Deck from './Deck';
 
 class CustomExporter {
   firstDeckName: string;
+
   workspace: string;
+
   media: string[];
 
   constructor(firstDeckName: string, workspace: string) {
-    this.firstDeckName = firstDeckName.replace(".html", "");
+    this.firstDeckName = firstDeckName.replace('.html', '');
     this.workspace = workspace;
     this.media = [];
   }
 
   addMedia(newName: string, contents: string) {
-    console.debug("Adding media: " + newName);
+    console.debug(`Adding media: ${newName}`);
     const abs = path.join(this.workspace, newName);
     this.media.push(abs);
     fs.writeFileSync(abs, contents);
@@ -24,7 +26,7 @@ class CustomExporter {
   }
 
   configure(payload: Deck[]) {
-    const payloadInfo = path.join(this.workspace, "deck_info.json");
+    const payloadInfo = path.join(this.workspace, 'deck_info.json');
     fs.writeFileSync(payloadInfo, JSON.stringify(payload, null, 2));
   }
 

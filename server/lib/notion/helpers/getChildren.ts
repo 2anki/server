@@ -4,7 +4,7 @@ import BlockHandler from '../BlockHandler';
 
 export default async function getChildren(
   block: GetBlockResponse,
-  handler: BlockHandler
+  handler: BlockHandler,
 ): Promise<string> {
   let backSide = '';
   /* @ts-ignore */

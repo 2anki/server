@@ -1,7 +1,10 @@
-import axios from "axios";
+import axios from 'axios';
+
 class NotionConnectionHandler {
   clientId: string;
+
   clientSecret: string;
+
   redirectURI: string;
 
   constructor(id: string, secret: string, redirect: string) {
@@ -14,7 +17,7 @@ class NotionConnectionHandler {
     return new NotionConnectionHandler(
       process.env.NOTION_CLIENT_ID!,
       process.env.NOTION_CLIENT_SECRET!,
-      process.env.NOTION_REDIRECT_URI!
+      process.env.NOTION_REDIRECT_URI!,
     );
   }
 
@@ -23,12 +26,12 @@ class NotionConnectionHandler {
     const id = this.clientId;
     const secret = this.clientSecret;
     if (!uri || !id || !secret) {
-      throw new Error("Notion Connection Handler not configured");
+      throw new Error('Notion Connection Handler not configured');
     }
     return new Promise(async (resolve, reject) => {
-      const url = "https://api.notion.com/v1/oauth/token";
+      const url = 'https://api.notion.com/v1/oauth/token';
       const data = {
-        grant_type: "authorization_code",
+        grant_type: 'authorization_code',
         code,
       };
       const options = {
@@ -36,7 +39,7 @@ class NotionConnectionHandler {
           username: id,
           password: secret,
         },
-        headers: { "Content-Type": "application/json" },
+        headers: { 'Content-Type': 'application/json' },
       };
 
       try {

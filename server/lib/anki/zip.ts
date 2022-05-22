@@ -1,6 +1,6 @@
-import JSZip from "jszip";
-import { MAX_UPLOAD_SIZE } from "../misc/file";
-import Package from "../parser/Package";
+import JSZip from 'jszip';
+import { MAX_UPLOAD_SIZE } from '../misc/file';
+import Package from '../parser/Package';
 
 interface File {
   name: string;
@@ -9,6 +9,7 @@ interface File {
 
 class ZipHandler {
   fileNames: string[];
+
   files: File[];
 
   constructor() {
@@ -24,15 +25,15 @@ class ZipHandler {
 
     const loadedZip = await JSZip.loadAsync(zipData);
     this.fileNames = Object.keys(loadedZip.files);
-    this.fileNames = this.fileNames.filter((f) => !f.endsWith("/"));
+    this.fileNames = this.fileNames.filter((f) => !f.endsWith('/'));
     this.files = [];
 
     for (const name of this.fileNames) {
       let contents;
       if (name.match(/.(md|html)$/)) {
-        contents = await loadedZip.files[name].async("text");
+        contents = await loadedZip.files[name].async('text');
       } else {
-        contents = await loadedZip.files[name].async("uint8array");
+        contents = await loadedZip.files[name].async('uint8array');
       }
       if (contents) {
         this.files.push({ name, contents });
@@ -50,9 +51,9 @@ class ZipHandler {
       zip.file(`${d.name}.apkg`, d.apkg);
     }
     if (advertisment) {
-      zip.file("README.html", advertisment);
+      zip.file('README.html', advertisment);
     }
-    return zip.generateAsync({ type: "nodebuffer" });
+    return zip.generateAsync({ type: 'nodebuffer' });
   }
 }
 

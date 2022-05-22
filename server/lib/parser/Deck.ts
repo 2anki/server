@@ -1,13 +1,19 @@
-import { customAlphabet } from "nanoid";
+import { customAlphabet } from 'nanoid';
 
-import Note from "./Note";
-import Settings from "./Settings";
+import Note from './Note';
+import Settings from './Settings';
+
 export default class Deck {
   name: string;
+
   cards: Note[];
+
   image: string | undefined;
+
   style: string | null;
+
   id: number;
+
   settings: Settings | null;
 
   get cardCount() {
@@ -20,7 +26,7 @@ export default class Deck {
     image: string | undefined,
     style: string | null,
     id: number,
-    settings: Settings
+    settings: Settings,
   ) {
     this.settings = settings;
     this.name = name;
@@ -33,12 +39,11 @@ export default class Deck {
   cleanStyle() {
     if (this.style) {
       return this.style.replace(/'/g, '"');
-    } else {
-      return "";
     }
+    return '';
   }
 
   static GenerateId() {
-    return parseInt(customAlphabet("1234567890", 16)(), 10);
+    return parseInt(customAlphabet('1234567890', 16)(), 10);
   }
 }

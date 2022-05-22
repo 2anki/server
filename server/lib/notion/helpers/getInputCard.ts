@@ -7,7 +7,7 @@ import isColumnList from './isColumnList';
 // The user wants to turn under lines into input cards <strong>keyword</strong> becomes {{type::word}}
 export default async function getInputCard(
   rules: ParserRules,
-  block: GetBlockResponse
+  block: GetBlockResponse,
 ): Promise<Note | undefined> {
   let isInput = false;
   let name = '';

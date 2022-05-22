@@ -1,8 +1,8 @@
-import { GetBlockResponse } from "@notionhq/client/build/src/api-endpoints";
+import { GetBlockResponse } from '@notionhq/client/build/src/api-endpoints';
 
 export default function isToggle(
-    block: GetBlockResponse
+  block: GetBlockResponse,
 ): boolean {
-    /* @ts-ignore */
-    return block.type === "toggle"
+  /* @ts-ignore */
+  return block.type === 'toggle';
 }

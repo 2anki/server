@@ -1,18 +1,18 @@
 import path from 'path';
 import fs from 'fs';
 
+import {
+  GetBlockResponse,
+  ListBlockChildrenResponse,
+} from '@notionhq/client/build/src/api-endpoints';
+import axios from 'axios';
 import NotionAPIWrapper from './NotionAPIWrapper';
 import Note from '../parser/Note';
 import Settings from '../parser/Settings';
 import ParserRules from '../parser/ParserRules';
 import Deck from '../parser/Deck';
 import CustomExporter from '../parser/CustomExporter';
-import {
-  GetBlockResponse,
-  ListBlockChildrenResponse,
-} from '@notionhq/client/build/src/api-endpoints';
 import { S3FileName, SuffixFrom } from '../misc/file';
-import axios from 'axios';
 import BlockParagraph from './blocks/BlockParagraph';
 import BlockCode from './blocks/BlockCode';
 import { BlockHeading } from './blocks/BlockHeadings';
@@ -45,16 +45,21 @@ import getUniqueFileName from '../misc/getUniqueFileName';
 
 class BlockHandler {
   api: NotionAPIWrapper;
+
   exporter;
+
   skip: string[];
+
   firstPageTitle?: string;
+
   useAll: boolean = false;
+
   settings: Settings;
 
   constructor(
     exporter: CustomExporter,
     api: NotionAPIWrapper,
-    settings: Settings
+    settings: Settings,
   ) {
     this.exporter = exporter;
     this.api = api;
@@ -69,7 +74,7 @@ class BlockHandler {
     /* @ts-ignore */
     const t = c.image.type;
     /* @ts-ignore */
-    const url = c.image[t].url;
+    const { url } = c.image[t];
 
     const suffix = SuffixFrom(S3FileName(url));
     const newName = getUniqueFileName(url) + (suffix || '');
@@ -84,8 +89,8 @@ class BlockHandler {
       return '';
     }
     /* @ts-ignore */
-    const audio = c.audio;
-    const url = audio.file.url;
+    const { audio } = c;
+    const { url } = audio.file;
     const newName = getUniqueFileName(url);
 
     const audioRequest = await axios.get(url, { responseType: 'arraybuffer' });
@@ -100,8 +105,8 @@ class BlockHandler {
       return '';
     }
     /* @ts-ignore */
-    const file = c.file;
-    const url = file.file.url;
+    const { file } = c;
+    const { url } = file.file;
     const newName = getUniqueFileName(url);
     const fileRequest = await axios.get(url, { responseType: 'arraybuffer' });
     const contents = fileRequest.data;
@@ -117,7 +122,7 @@ class BlockHandler {
    */
   async getBackSide(
     block: GetBlockResponse,
-    handleChildren?: boolean
+    handleChildren?: boolean,
   ): Promise<string | null> {
     let response: ListBlockChildrenResponse | null;
 
@@ -216,18 +221,18 @@ class BlockHandler {
           ${JSON.stringify(c, null, 4)}
           </pre>`;
             /* @ts-ignore */
-            console.debug('unsupported ' + c.type);
+            console.debug(`unsupported ${c.type}`);
         }
 
         // Nesting applies to all not just toggles
         if (
-          handleChildren ||
+          handleChildren
           /* @ts-ignore */
-          (c.has_children &&
+          || (c.has_children
             /* @ts-ignore */
-            c.type !== 'toggle' &&
+            && c.type !== 'toggle'
             /* @ts-ignore */
-            c.type !== 'bulleted_list_item')
+            && c.type !== 'bulleted_list_item')
         ) {
           back += await this.getBackSide(c);
         }
@@ -249,7 +254,7 @@ class BlockHandler {
     rules: ParserRules,
     flashcardBlocks: GetBlockResponse[],
     tags: string[],
-    settings: Settings
+    settings: Settings,
   ): Promise<Note[]> {
     let cards = [];
 
@@ -307,8 +312,7 @@ class BlockHandler {
       this.exporter.media = [];
 
       const tr = TagRegistry.getInstance();
-      ankiNote.tags =
-        rules.TAGS === 'heading' ? tr.headings : tr.strikethroughs;
+      ankiNote.tags = rules.TAGS === 'heading' ? tr.headings : tr.strikethroughs;
       ankiNote.number = counter++;
 
       ankiNote.name = perserveNewlinesIfApplicable(ankiNote.name, settings);
@@ -316,9 +320,9 @@ class BlockHandler {
 
       cards.push(ankiNote);
       if (
-        !settings.isCherry &&
-        (settings.basicReversed || ankiNote.hasRefreshIcon()) &&
-        isBasicType
+        !settings.isCherry
+        && (settings.basicReversed || ankiNote.hasRefreshIcon())
+        && isBasicType
       ) {
         cards.push(ankiNote.reversed(ankiNote));
       }
@@ -326,14 +330,10 @@ class BlockHandler {
     }
 
     if (settings.isCherry) {
-      cards = cards.filter((c) => {
-        return c.hasCherry();
-      });
+      cards = cards.filter((c) => c.hasCherry());
     }
     if (settings.isAvocado) {
-      cards = cards.filter((c) => {
-        return !c.hasAvocado();
-      });
+      cards = cards.filter((c) => !c.hasAvocado());
     }
 
     if (settings.useTags && tags.length > 0) {
@@ -350,7 +350,7 @@ class BlockHandler {
     rules: ParserRules,
     settings: Settings,
     decks: Deck[],
-    parentName: string = ''
+    parentName: string = '',
   ): Promise<Deck[]> {
     if (rules.DECK === 'page') {
       return this.findFlashcardsFromPage(
@@ -358,9 +358,9 @@ class BlockHandler {
         rules,
         settings,
         decks,
-        parentName
+        parentName,
       );
-    } else if (rules.DECK === 'database') {
+    } if (rules.DECK === 'database') {
       const dbResult = await this.api.queryDatabase(topLevelId);
       const database = await this.api.getDatabase(topLevelId);
       const dbName = this.api.getDatabaseTitle(database, settings);
@@ -370,7 +370,7 @@ class BlockHandler {
           rules,
           settings,
           decks,
-          dbName
+          dbName,
         );
       }
     }
@@ -382,7 +382,7 @@ class BlockHandler {
     rules: ParserRules,
     settings: Settings,
     decks: Deck[],
-    parentName: string = ''
+    parentName: string = '',
   ): Promise<Deck[]> {
     const tags = await this.api.getTopLevelTags(topLevelId, rules);
     const response = await this.api.getBlocks(topLevelId, rules.UNLIMITED);
@@ -391,8 +391,7 @@ class BlockHandler {
     // Locate the card blocks to be used from the parser rules
     const cBlocks = blocks.filter((b: GetBlockResponse) =>
       /* @ts-ignore */
-      flashCardTypes.includes(b.type)
-    );
+      flashCardTypes.includes(b.type));
     const page = await this.api.getPage(topLevelId);
     if (!page) {
       console.info(`No page found for ${topLevelId}`);
@@ -406,7 +405,7 @@ class BlockHandler {
     const cards = await this.getFlashcards(rules, cBlocks, tags, settings);
     const NOTION_STYLE = fs.readFileSync(
       path.join(__dirname, '../../templates/notion.css'),
-      'utf8'
+      'utf8',
     );
     const deck = new Deck(
       getDeckName(parentName, title),
@@ -414,7 +413,7 @@ class BlockHandler {
       undefined,
       NOTION_STYLE,
       Deck.GenerateId(),
-      settings
+      settings,
     );
     decks.push(deck);
 
@@ -429,7 +428,7 @@ class BlockHandler {
             rules,
             settings,
             decks,
-            deck.name
+            deck.name,
           );
           decks = nested;
         }

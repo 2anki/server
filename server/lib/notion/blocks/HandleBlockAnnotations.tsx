@@ -1,4 +1,4 @@
-import TagRegistry from "../../parser/TagRegistry";
+import TagRegistry from '../../parser/TagRegistry';
 
 interface Annotations {
   underline: boolean;
@@ -10,12 +10,12 @@ interface Annotations {
 
 const HandleBlockAnnotations = (
   annotations: Annotations,
-  text: { content: string; link: null | { url: string } }
+  text: { content: string; link: null | { url: string } },
 ) => {
   if (!text || !text.content) {
     return null;
   }
-  const content = text.content;
+  const { content } = text;
 
   if (text.link) {
     const mangle = HandleBlockAnnotations(annotations, {
@@ -30,25 +30,23 @@ const HandleBlockAnnotations = (
     return (
       <span
         style={{
-          borderBottom: annotations.underline ? "0.05em solid" : "",
+          borderBottom: annotations.underline ? '0.05em solid' : '',
         }}
       >
         {content}
       </span>
     );
-  } else if (annotations.bold) {
+  } if (annotations.bold) {
     return <strong>{content}</strong>;
-  } else if (annotations.italic) {
+  } if (annotations.italic) {
     return <em>{content}</em>;
-  } else if (annotations.strikethrough) {
+  } if (annotations.strikethrough) {
     TagRegistry.getInstance().addStrikethrough(content);
     return <del>{content}</del>;
-  } else if (annotations.code) {
+  } if (annotations.code) {
     return <code>{content}</code>;
-  } else {
-    return <>{content}</>;
   }
+  return <>{content}</>;
 };
-
 
 export default HandleBlockAnnotations;

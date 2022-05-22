@@ -1,4 +1,4 @@
-import aws from "aws-sdk";
+import aws from 'aws-sdk';
 
 class StorageHandler {
   s3: aws.S3;
@@ -15,15 +15,15 @@ class StorageHandler {
     name: string,
     prefix: string,
     maxLength: number,
-    suffix: string
+    suffix: string,
   ): string {
     const now = Date.now().toString();
     let _name = `${prefix}-${now}-${name}`.substring(
       0,
-      maxLength - (suffix.length + 1)
+      maxLength - (suffix.length + 1),
     );
     if (!_name.endsWith(suffix)) {
-      _name += "." + suffix;
+      _name += `.${suffix}`;
     }
     return _name;
   }
@@ -38,42 +38,41 @@ class StorageHandler {
   }
 
   deleteWith(key: string): Promise<void> {
-    const s3 = this.s3;
+    const { s3 } = this;
     return new Promise((resolve, reject) => {
       s3.deleteObject(
         { Bucket: StorageHandler.DefaultBucketName(), Key: key },
-        function (err, _data) {
+        (err, _data) => {
           if (err) {
             console.error(err);
             reject(err);
           } else {
             resolve();
           }
-        }
+        },
       );
     });
   }
 
   getContents(): Promise<any> {
-    const s3 = this.s3;
+    const { s3 } = this;
     return new Promise((resolve, reject) => {
       /* @ts-ignore */
       s3.listObjects(
         { Bucket: StorageHandler.DefaultBucketName() },
-        function (err, data) {
+        (err, data) => {
           if (err) {
             console.error(err);
             return reject(err);
-          } else {
-            resolve(data.Contents);
           }
-        }
+          resolve(data.Contents);
+        },
       );
     });
   }
 
   getFileContents(key: string): Promise<string> {
-    const s3 = this.s3;
+    const { s3 } = this;
     return new Promise<string>((resolve, reject) => {
       s3.getObject(
         /* @ts-ignore */
@@ -85,16 +84,16 @@ class StorageHandler {
             /* @ts-ignore */
             resolve(data.Body);
           }
-        }
+        },
       );
     });
   }
 
   uploadFile(
     name: string,
-    data: Buffer | string
+    data: Buffer | string,
   ): Promise<aws.S3.PutObjectOutput> {
-    const s3 = this.s3;
+    const { s3 } = this;
 
     return new Promise<aws.S3.PutObjectOutput>((resolve, reject) => {
       s3.putObject(
@@ -110,7 +109,7 @@ class StorageHandler {
           } else {
             resolve(response);
           }
-        }
+        },
       );
     });
   }

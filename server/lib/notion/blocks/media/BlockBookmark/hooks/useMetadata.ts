@@ -1,11 +1,11 @@
-import axios from "axios";
+import axios from 'axios';
 
-const metascraper = require("metascraper")([
-  require("metascraper-description")(),
-  require("metascraper-image")(),
-  require("metascraper-logo-favicon")(),
-  require("metascraper-title")(),
-  require("metascraper-url")(),
+const metascraper = require('metascraper')([
+  require('metascraper-description')(),
+  require('metascraper-image')(),
+  require('metascraper-logo-favicon')(),
+  require('metascraper-title')(),
+  require('metascraper-url')(),
 ]);
 
 export interface Metadata {
@@ -21,10 +21,10 @@ export default async function useMetadata(url: string): Promise<Metadata> {
     return metascraper({ html: response.data, url });
   } catch (error) {
     return {
-      description: "",
+      description: '',
       title: new URL(url).hostname,
-      logo: "",
-      image: "",
+      logo: '',
+      image: '',
     };
   }
 }

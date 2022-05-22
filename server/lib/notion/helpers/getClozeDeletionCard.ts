@@ -8,7 +8,7 @@ import isColumnList from './isColumnList';
 // This all should be tested with Jest
 export default async function getClozeDeletionCard(
   rules: ParserRules,
-  block: GetBlockResponse
+  block: GetBlockResponse,
 ): Promise<Note | undefined> {
   let isCloze = false;
   let name = '';
@@ -23,12 +23,12 @@ export default async function getClozeDeletionCard(
     }
     for (const cb of flashcardBlock.text) {
       if (cb.annotations.code) {
-        const content = cb.text.content;
+        const { content } = cb.text;
         if (content.includes('::')) {
           if (content.match(/[cC]\d+::/)) {
             name += `{{${content}}}`;
           } else {
-            const clozeIndex = '{{c' + index + '::';
+            const clozeIndex = `{{c${index}::`;
             if (!name.includes(clozeIndex)) {
               name += `{{c${index}::${content}}}`;
             }
@@ -39,7 +39,7 @@ export default async function getClozeDeletionCard(
         name = name.replace('{{{{', '{{').replace('}}}}', '}}');
         isCloze = true;
         index++;
-      } else if (cb.text?.content){
+      } else if (cb.text?.content) {
         name += cb.text.content;
       }
     }

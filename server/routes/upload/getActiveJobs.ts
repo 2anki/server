@@ -1,10 +1,10 @@
-import { Request, Response } from "express";
+import { Request, Response } from 'express';
 
-import ConversionJob from "../../lib/jobs/ConversionJob";
-import DB from "../../lib/storage/db";
+import ConversionJob from '../../lib/jobs/ConversionJob';
+import DB from '../../lib/storage/db';
 
 export default async function getActiveJobs(_req: Request, res: Response) {
-  console.debug("getting jobs");
+  console.debug('getting jobs');
   try {
     ConversionJob.ResumeStaleJobs(DB, res.locals.owner);
     const c = new ConversionJob(DB);

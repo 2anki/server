@@ -1,7 +1,7 @@
-import { GetBlockResponse } from "@notionhq/client/build/src/api-endpoints";
+import { GetBlockResponse } from '@notionhq/client/build/src/api-endpoints';
 
 export default function isColumnList(
-    block: GetBlockResponse | any
+  block: GetBlockResponse | any,
 ) {
-    return block.type === "column_list"
+  return block.type === 'column_list';
 }

@@ -9,23 +9,22 @@ import getChildren from '../../helpers/getChildren';
 
 export async function BlockToggleList(
   block: GetBlockResponse,
-  handler: BlockHandler
+  handler: BlockHandler,
 ) {
   /* @ts-ignore */
   const list = block.toggle;
-  const text = list.text;
+  const { text } = list;
   const backSide = await getChildren(block, handler);
   /**
    * We can't just set open to false that won't work since it's a boolean and will be truthy.
    * The open attribute has to be omitted.
    */
   /* @ts-ignore */
-  const Details = ({ children }) =>
-    handler.settings?.toggleMode === 'open_toggle' ? (
+  const Details = ({ children }) => (handler.settings?.toggleMode === 'open_toggle' ? (
       <details open>{children}</details>
-    ) : (
+  ) : (
       <details>{children}</details>
-    );
+  ));
 
   const markup = ReactDOMServer.renderToStaticMarkup(
     <>
@@ -39,7 +38,7 @@ export async function BlockToggleList(
           </Details>
         </li>
       </ul>
-    </>
+    </>,
   );
 
   if (handler.settings?.isTextOnlyBack) {

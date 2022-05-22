@@ -15,7 +15,9 @@ interface HeadingProps {
 }
 
 const Heading = (props: HeadingProps) => {
-  const { id, level, children, className } = props;
+  const {
+    id, level, children, className,
+  } = props;
   switch (level) {
     case 'heading_3':
       return <h3 id={id} className={className}>{children}</h3>;
@@ -29,11 +31,11 @@ const Heading = (props: HeadingProps) => {
 export const BlockHeading = async (
   level: string,
   block: GetBlockResponse,
-  handler: BlockHandler
+  handler: BlockHandler,
 ) => {
   /* @ts-ignore */
   const heading = block[level];
-  const text = heading.text;
+  const { text } = heading;
 
   if (handler.settings?.isTextOnlyBack) {
     return getPlainText(text);
@@ -45,10 +47,10 @@ export const BlockHeading = async (
         /* @ts-ignore */
         TagRegistry.getInstance().addHeading(t.plain_text);
         /* @ts-ignore */
-        const annotations = t.annotations;
+        const { annotations } = t;
         /* @ts-ignore */
         return HandleBlockAnnotations(annotations, t.text);
       })}
-    </Heading>
+    </Heading>,
   );
 };

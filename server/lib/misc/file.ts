@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from 'fs';
 
 export function SuffixFrom(input: string) {
   if (!input) {
@@ -12,7 +12,7 @@ export function SuffixFrom(input: string) {
 }
 
 export function S3FileName(url: string): string {
-  const u = url.split("?")[0].split("/");
+  const u = url.split('?')[0].split('/');
   return u[u.length - 1];
 }
 

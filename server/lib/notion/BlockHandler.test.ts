@@ -1,6 +1,7 @@
 import path from 'path';
 import os from 'os';
 
+import * as dotenv from 'dotenv';
 import CustomExporter from '../parser/CustomExporter';
 import Note from '../parser/Note';
 import ParserRules from '../parser/ParserRules';
@@ -11,7 +12,6 @@ import BlockHandler from './BlockHandler';
 import { pageId as examplId } from '../../test/test-utils';
 import MockNotionAPI from './_mock/MockNotionAPI';
 
-import * as dotenv from 'dotenv';
 dotenv.config({ path: 'test/.env' });
 const api = new MockNotionAPI(process.env.NOTION_KEY!);
 
@@ -19,7 +19,7 @@ const loadCards = async (
   options: any,
   pageId: string,
   ws: Workspace,
-  rules?: ParserRules
+  rules?: ParserRules,
 ): Promise<Note[]> => {
   const settings = new Settings(options);
   const r = rules || new ParserRules();
@@ -31,17 +31,15 @@ const loadCards = async (
 
 async function findCardByName(
   name: string,
-  options: Object
+  options: Object,
 ): Promise<Note | undefined> {
   const flashcards = await loadCards(
     options,
     examplId,
     new Workspace(true, 'fs'),
-    new ParserRules()
+    new ParserRules(),
   );
-  return flashcards.find((f) => {
-    return f.name === name;
-  });
+  return flashcards.find((f) => f.name === name);
 }
 
 beforeEach(() => {
@@ -59,7 +57,7 @@ describe('BlockHandler', () => {
     // This should be mocked
     const blocks = await api.getBlocks(
       '07a7b319183642b9afecdcc4c456f73d',
-      true
+      true,
     );
     /* @ts-ignore */
     const topLevelToggles = blocks.results.filter((t) => t.type === 'toggle');
@@ -73,7 +71,7 @@ describe('BlockHandler', () => {
       {},
       '25226df63b4d4895a71f3bba01d8a8f3',
       new Workspace(true, 'fs'),
-      r
+      r,
     );
     console.log('cards', JSON.stringify(cards, null, 4));
     expect(cards.length).toBe(1);
@@ -95,7 +93,7 @@ describe('BlockHandler', () => {
       {},
       examplId,
       new Workspace(true, 'fs'),
-      new ParserRules()
+      new ParserRules(),
     );
     const nestedOnes = flashcards.find((c) => c.name.match(/Nested/i));
     expect(nestedOnes?.back).toBe(true);
@@ -114,11 +112,11 @@ describe('BlockHandler', () => {
       { cloze: 'false' },
       examplId,
       new Workspace(true, 'fs'),
-      new ParserRules()
+      new ParserRules(),
     );
     const card = flashcards[0];
     expect(card.name).toBe('1 - This is a basic card');
-    expect(card.back).toBe(`<p class=\"\" id=\"f83ce56a-9039-4888-81be-375b19a84790\">This is the back of the card</p>`);
+    expect(card.back).toBe('<p class=\"\" id=\"f83ce56a-9039-4888-81be-375b19a84790\">This is the back of the card</p>');
   });
 
   test('Cloze Deletion from Blocks', async () => {
@@ -126,13 +124,13 @@ describe('BlockHandler', () => {
       { cloze: 'true' },
       examplId,
       new Workspace(true, 'fs'),
-      new ParserRules()
+      new ParserRules(),
     );
     const card = flashcards.find(
-      (c) => c.name === '2 - This is a {{c1::cloze deletion}}'
+      (c) => c.name === '2 - This is a {{c1::cloze deletion}}',
     );
     expect(card?.back).toBe(
-      `<p class="" id="34be35bd-db68-4588-85d9-e1adc84c45a5">Extra</p>`
+      '<p class="" id="34be35bd-db68-4588-85d9-e1adc84c45a5">Extra</p>',
     );
   });
 
@@ -141,7 +139,7 @@ describe('BlockHandler', () => {
       { cloze: 'false', input: 'true' },
       examplId,
       new Workspace(true, 'fs'),
-      new ParserRules()
+      new ParserRules(),
     );
     expect(flashcards.find((n) => n.name == '6 - 21 + 21 is ')).toBeTruthy();
   });
@@ -150,7 +148,7 @@ describe('BlockHandler', () => {
     const flashcards = await loadCards(
       { cherry: 'true', cloze: 'true' },
       examplId,
-      new Workspace(true, 'fs')
+      new Workspace(true, 'fs'),
     );
     expect(flashcards.length).toBe(2);
   });
@@ -160,15 +158,14 @@ describe('BlockHandler', () => {
       { avocado: 'true' },
       examplId,
       new Workspace(true, 'fs'),
-      new ParserRules()
+      new ParserRules(),
     );
     const avocado = flashcards.find((c) => c.name.includes('🥑'));
     expect(avocado).toBeFalsy();
   });
 
   test('Add Notion Link', async () => {
-    const expected =
-      'https://www.notion.so/Notion-API-Test-Page-3ce6b147ac8a425f836b51cc21825b85#e5201f35c72240d38e3a5d218e5d80a5';
+    const expected = 'https://www.notion.so/Notion-API-Test-Page-3ce6b147ac8a425f836b51cc21825b85#e5201f35c72240d38e3a5d218e5d80a5';
     const flashcards = await loadCards(
       {
         'add-notion-link': true,
@@ -176,10 +173,10 @@ describe('BlockHandler', () => {
       },
       examplId,
       new Workspace(true, 'fs'),
-      new ParserRules()
+      new ParserRules(),
     );
     const card = flashcards.find(
-      (f) => f.name === `1 - This is a basic card`
+      (f) => f.name === '1 - This is a basic card',
     );
     expect(card).toBeTruthy();
     expect(card?.notionLink).toBe(expected);
@@ -190,10 +187,10 @@ describe('BlockHandler', () => {
       { 'use-notion-id': 'true' },
       examplId,
       new Workspace(true, 'fs'),
-      new ParserRules()
+      new ParserRules(),
     );
     const card = flashcards.find(
-      (f) => f.name === '3 - 21 + 21 is #buddy'
+      (f) => f.name === '3 - 21 + 21 is #buddy',
     );
     const expected = 'a5445230-bfa9-4bf1-bc35-a706c1d129d1';
     expect(card?.notionId).toBe(expected);
@@ -212,7 +209,7 @@ describe('BlockHandler', () => {
       { paragraph: 'true' },
       examplId,
       new Workspace(true, 'fs'),
-      new ParserRules()
+      new ParserRules(),
     );
     const card = flashcards.find((c) => c.name === '1 - This is a basic card');
     expect(card?.back).toBe('This is the back of the card');
@@ -223,7 +220,7 @@ describe('BlockHandler', () => {
       { 'basic-reversed': 'true' },
       'fb300010f93745e882e1fd04e0cae6ef',
       new Workspace(true, 'fs'),
-      new ParserRules()
+      new ParserRules(),
     );
     expect(flashcards.length).toBe(2);
   });
@@ -238,7 +235,7 @@ describe('BlockHandler', () => {
       },
       'eb64d738c17b444ab9d8a747372bed85',
       new Workspace(true, 'fs'),
-      rules
+      rules,
     );
     expect(flashcards.length).toBe(1);
   });

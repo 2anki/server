@@ -1,27 +1,27 @@
-import { GetBlockResponse } from "@notionhq/client/build/src/api-endpoints";
-import { renderToStaticMarkup } from "react-dom/server";
-import getYouTubeEmbedLink from "../../../parser/helpers/getYouTubeEmbedLink";
-import getYouTubeID from "../../../parser/helpers/getYouTubeID";
-import BlockHandler from "../../BlockHandler";
+import { GetBlockResponse } from '@notionhq/client/build/src/api-endpoints';
+import { renderToStaticMarkup } from 'react-dom/server';
+import getYouTubeEmbedLink from '../../../parser/helpers/getYouTubeEmbedLink';
+import getYouTubeID from '../../../parser/helpers/getYouTubeID';
+import BlockHandler from '../../BlockHandler';
 
 export const BlockEmbed = (c: GetBlockResponse, handler: BlockHandler) => {
   if (handler.settings?.isTextOnlyBack) {
     return '';
   }
-  /* @ts-ignore*/
-  const embed = c.embed;
-  let url = embed.url;
+  /* @ts-ignore */
+  const { embed } = c;
+  let { url } = embed;
   if (url) {
-    if (url.match("soundcloud.com")) {
+    if (url.match('soundcloud.com')) {
       url = `https://w.soundcloud.com/player/?url=${url}`;
-    } else if (url.match("twitter.com")) {
+    } else if (url.match('twitter.com')) {
       return renderToStaticMarkup(
         <div className="source">
           <a href={url}>{url}</a>
-        </div>
+        </div>,
       );
-    } 
-   
+    }
+
     const yt = getYouTubeID(url);
     if (yt) {
       url = getYouTubeEmbedLink(yt);
@@ -36,6 +36,6 @@ export const BlockEmbed = (c: GetBlockResponse, handler: BlockHandler) => {
         frameBorder="0"
         allowFullScreen
       ></iframe>
-    </>
+    </>,
   );
 };

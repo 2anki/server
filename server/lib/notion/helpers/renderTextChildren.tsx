@@ -10,7 +10,7 @@ import preserveNewlinesIfApplicable from './preserveNewlinesIfApplicable';
 
 export default function renderTextChildren(
   text: any[],
-  settings: Settings
+  settings: Settings,
 ): string {
   if (text.length === 0) {
     return '';
@@ -25,10 +25,10 @@ export default function renderTextChildren(
       /* @ts-ignore */
       if (isText(t)) {
         /* @ts-ignore */
-        const annotations = t.annotations;
+        const { annotations } = t;
         return ReactDOMServer.renderToStaticMarkup(
           /* @ts-ignore */
-          <>{HandleBlockAnnotations(annotations, t.text)}</>
+          <>{HandleBlockAnnotations(annotations, t.text)}</>,
         );
       }
 
