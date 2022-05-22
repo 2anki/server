@@ -27,7 +27,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 class EmailHandler {
   static SendResetEmail(email: any, token: string) {
     const link = `${process.env.DOMAIN}/api/users/r/${token}`;
-    const markup = PASSWORD_RESET_TEMPLATE.replace("{{link}}", link);
+    const markup = PASSWORD_RESET_TEMPLATE.replace('{{link}}', link);
     const msg = {
       to: email,
       from: DEFAULT_SENDER,
@@ -42,7 +42,7 @@ class EmailHandler {
 
   static async SendVerificationEmail(email: string, token: string) {
     const link = `${process.env.DOMAIN}/api/users/v/${token}`;
-    const markup = VERIFICATION_TEMPLATE.replace("{{link}}", link);
+    const markup = VERIFICATION_TEMPLATE.replace('{{link}}', link);
     const msg = {
       to: email,
       from: DEFAULT_SENDER,
