@@ -18,7 +18,7 @@ export const BlockEmbed = (c: GetBlockResponse, handler: BlockHandler) => {
       return renderToStaticMarkup(
         <div className="source">
           <a href={url}>{url}</a>
-        </div>,
+        </div>
       );
     }
 
@@ -36,6 +36,6 @@ export const BlockEmbed = (c: GetBlockResponse, handler: BlockHandler) => {
         frameBorder="0"
         allowFullScreen
       ></iframe>
-    </>,
+    </>
   );
 };

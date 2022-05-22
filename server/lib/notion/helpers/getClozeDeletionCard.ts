@@ -8,7 +8,7 @@ import isColumnList from './isColumnList';
 // This all should be tested with Jest
 export default async function getClozeDeletionCard(
   rules: ParserRules,
-  block: GetBlockResponse,
+  block: GetBlockResponse
 ): Promise<Note | undefined> {
   let isCloze = false;
   let name = '';

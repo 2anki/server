@@ -1,7 +1,7 @@
 export default function replaceAll(
   original: string,
   oldValue: string,
-  newValue: string,
+  newValue: string
 ): string {
   // escaping all special Characters
   const escaped = oldValue.replace(/[{}()[\].?*+$^\\/]/g, '\\$&');

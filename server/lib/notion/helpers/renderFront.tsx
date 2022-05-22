@@ -12,7 +12,7 @@ import renderTextChildren from './renderTextChildren';
 
 export default async function renderFront(
   block: GetBlockResponse,
-  handler: BlockHandler,
+  handler: BlockHandler
 ) {
   /* @ts-ignore */
   const { type } = block;

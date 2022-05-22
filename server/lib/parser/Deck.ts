@@ -26,7 +26,7 @@ export default class Deck {
     image: string | undefined,
     style: string | null,
     id: number,
-    settings: Settings,
+    settings: Settings
   ) {
     this.settings = settings;
     this.name = name;

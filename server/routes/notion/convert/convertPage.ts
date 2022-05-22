@@ -6,7 +6,7 @@ import performConversion from './helpers/performConversion';
 export default async function convertPage(
   api: NotionAPIWrapper,
   req: express.Request,
-  res: express.Response,
+  res: express.Response
 ) {
   const { id } = req.params;
   if (!id) {

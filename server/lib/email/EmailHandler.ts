@@ -5,19 +5,19 @@ const EMAIL_TEMPLATES_DIRECTORY = path.join(__dirname, 'templates');
 
 const VERIFICATION_TEMPLATE = fs.readFileSync(
   path.join(EMAIL_TEMPLATES_DIRECTORY, 'verification.html'),
-  'utf8',
+  'utf8'
 );
 const PASSWORD_RESET_TEMPLATE = fs.readFileSync(
   path.join(EMAIL_TEMPLATES_DIRECTORY, 'reset.html'),
-  'utf8',
+  'utf8'
 );
 const CONVERT_TEMPLATE = fs.readFileSync(
   path.join(EMAIL_TEMPLATES_DIRECTORY, 'convert.html'),
-  'utf8',
+  'utf8'
 );
 const CONVERT_LINK_TEMPLATE = fs.readFileSync(
   path.join(EMAIL_TEMPLATES_DIRECTORY, 'convert-link.html'),
-  'utf8',
+  'utf8'
 );
 const DEFAULT_SENDER = '2anki.net <info@2anki.net>';
 const sgMail = require('@sendgrid/mail');
@@ -32,9 +32,7 @@ class EmailHandler {
       to: email,
       from: DEFAULT_SENDER,
       subject: 'Reset your 2anki.net password',
-      text:
-        `I received your password change request, you can change it here${
-          link}`,
+      text: `I received your password change request, you can change it here${link}`,
       html: markup,
       replyTo: 'alexander@alemayhu.com',
     };
@@ -60,7 +58,7 @@ class EmailHandler {
   static async SendConversionEmail(
     email: string,
     filename: string,
-    contents: Buffer,
+    contents: Buffer
   ) {
     const markup = CONVERT_TEMPLATE;
 
@@ -91,7 +89,7 @@ class EmailHandler {
   static async SendConversionLinkEmail(
     email: string,
     filename: string,
-    link: string,
+    link: string
   ) {
     const markup = CONVERT_LINK_TEMPLATE.replace(/{{link}}/g, link);
     const msg = {

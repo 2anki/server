@@ -49,7 +49,7 @@ export class DeckParser {
         name,
         firstFile.contents.toString(),
         this.settings.deckName || '',
-        [],
+        []
       );
     } else {
       throw new Error(`Error Unknown file ${name}`);
@@ -62,17 +62,19 @@ export class DeckParser {
       return undefined;
     }
     const next = global.decodeURIComponent(href);
-    const nextFile = this.files.find((file) => file.name.match(next.replace(/[#-.]|[[-^]|[?|{}]/g, '\\$&')));
+    const nextFile = this.files.find((file) =>
+      file.name.match(next.replace(/[#-.]|[[-^]|[?|{}]/g, '\\$&'))
+    );
     return nextFile ? nextFile.contents : undefined;
   }
 
   noteHasCherry(note: Note) {
     const cherry = '&#x1F352;';
     return (
-      note.name.includes(cherry)
-      || note.back.includes(cherry)
-      || note.name.includes('🍒')
-      || note.back.includes('🍒')
+      note.name.includes(cherry) ||
+      note.back.includes(cherry) ||
+      note.name.includes('🍒') ||
+      note.back.includes('🍒')
     );
   }
 
@@ -82,9 +84,10 @@ export class DeckParser {
   }
 
   findToggleLists(dom: cheerio.Root) {
-    const selector = this.settings.isCherry || this.settings.isAll
-      ? '.toggle'
-      : '.page-body > ul';
+    const selector =
+      this.settings.isCherry || this.settings.isAll
+        ? '.toggle'
+        : '.page-body > ul';
     return dom(selector).toArray();
   }
 
@@ -132,12 +135,12 @@ export class DeckParser {
     fileName: string,
     contents: string,
     deckName: string,
-    decks: Deck[],
+    decks: Deck[]
   ) {
     const dom = cheerio.load(
       this.settings.noUnderline
         ? contents.replace(/border-bottom:0.05em solid/g, '')
-        : contents,
+        : contents
     );
     /* @ts-ignore */
     let name = deckName || dom('title').text();
@@ -159,16 +162,18 @@ export class DeckParser {
     if (pi && this.settings.pageEmoji !== 'disable_emoji') {
       if (!name.includes(pi) && decks.length === 0) {
         if (!name.includes('::') && !name.startsWith(pi)) {
-          name = this.settings.pageEmoji === 'first_emoji'
-            ? `${pi} ${name}`
-            : `${name} ${pi}`;
+          name =
+            this.settings.pageEmoji === 'first_emoji'
+              ? `${pi} ${name}`
+              : `${name} ${pi}`;
         } else {
           const names = name.split(/::/);
           const end = names.length - 1;
           const last = names[end];
-          names[end] = this.settings.pageEmoji === 'first_emoji'
-            ? `${pi} ${last}`
-            : `${last} ${pi}`;
+          names[end] =
+            this.settings.pageEmoji === 'first_emoji'
+              ? `${pi} ${last}`
+              : `${last} ${pi}`;
           name = names.join('::');
         }
       }
@@ -197,7 +202,11 @@ export class DeckParser {
         const toggle = parentUL.find('details').first();
 
         if (summary && summary.text()) {
-          const validSummary = (() => preserveNewlinesIfApplicable(summary.html() || '', this.settings))();
+          const validSummary = (() =>
+            preserveNewlinesIfApplicable(
+              summary.html() || '',
+              this.settings
+            ))();
           const front = parentClass
             ? `<div class='${parentClass}'>${validSummary}</div>`
             : validSummary;
@@ -235,8 +244,8 @@ export class DeckParser {
                 }
               }
               if (
-                (this.settings.isAvocado && this.noteHasAvocado(note))
-                || (this.settings.isCherry && !this.noteHasCherry(note))
+                (this.settings.isAvocado && this.noteHasAvocado(note)) ||
+                (this.settings.isCherry && !this.noteHasCherry(note))
               ) {
                 console.debug('dropping due to matching rules');
               } else {
@@ -253,7 +262,7 @@ export class DeckParser {
     cards = this.sanityCheck(cards);
 
     decks.push(
-      new Deck(name, cards, image, style, Deck.GenerateId(), this.settings),
+      new Deck(name, cards, image, style, Deck.GenerateId(), this.settings)
     );
 
     const subpages = dom('.link-to-page').toArray();
@@ -268,7 +277,7 @@ export class DeckParser {
           fileName,
           pageContent.toString(),
           `${name}::${subDeckName}`,
-          decks,
+          decks
         );
       }
     }
@@ -291,8 +300,9 @@ export class DeckParser {
 
   sanityCheck(cards: Note[]) {
     return cards.filter(
-      (c) => c.name
-        && (this.hasClozeDeletions(c.name) || c.back || this.validInputCard(c)),
+      (c) =>
+        c.name &&
+        (this.hasClozeDeletions(c.name) || c.back || this.validInputCard(c))
     );
   }
 
@@ -307,14 +317,14 @@ export class DeckParser {
   embedFile(
     exporter: CustomExporter,
     files: File[],
-    filePath: string,
+    filePath: string
   ): string | null {
     const suffix = SuffixFrom(filePath);
     let file = files.find((f) => f.name === filePath);
     if (!file) {
       const lookup = `${exporter.firstDeckName}/${filePath}`.replace(
         /\.\.\//g,
-        '',
+        ''
       );
       file = files.find((f) => {
         if (f.name === lookup || f.name.endsWith(filePath)) {
@@ -323,7 +333,7 @@ export class DeckParser {
       });
       if (!file) {
         console.warn(
-          `Missing relative path to ${filePath} used ${exporter.firstDeckName}`,
+          `Missing relative path to ${filePath} used ${exporter.firstDeckName}`
         );
         return null;
       }
@@ -427,9 +437,7 @@ export class DeckParser {
         }
         deletions.each((_i: number, elem: cheerio.Element) => {
           const del = dom(elem);
-          card.tags.push(
-            ...sanitizeTags(del.text().split(',')),
-          );
+          card.tags.push(...sanitizeTags(del.text().split(',')));
           card.back = replaceAll(card.back, `<del>${del.html()}</del>`, '');
           card.name = replaceAll(card.name, `<del>${del.html()}</del>`, '');
         });
@@ -479,7 +487,7 @@ export class DeckParser {
                 const newName = this.embedFile(
                   exporter,
                   this.files,
-                  decodeURIComponent(originalName),
+                  decodeURIComponent(originalName)
                 );
                 if (newName) {
                   dom(elem).attr('src', newName);
@@ -495,13 +503,13 @@ export class DeckParser {
             if (this.settings.removeMP3Links) {
               card.back = card.back.replace(
                 /<figure.*<a\shref=["'].*\.mp3["']>.*<\/a>.*<\/figure>/,
-                '',
+                ''
               );
             }
             const newFileName = this.embedFile(
               exporter,
               this.files,
-              global.decodeURIComponent(audiofile),
+              global.decodeURIComponent(audiofile)
             );
             if (newFileName) {
               card.back += `[sound:${newFileName}]`;
@@ -563,7 +571,7 @@ export class DeckParser {
 export async function PrepareDeck(
   fileName: string,
   files: File[],
-  settings: Settings,
+  settings: Settings
 ) {
   const parser = new DeckParser(fileName, settings, files);
   const apkg = await parser.build();

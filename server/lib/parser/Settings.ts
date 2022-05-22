@@ -152,7 +152,7 @@ export default class Settings {
   static async LoadFrom(
     DB: Knex,
     owner: string,
-    id: string,
+    id: string
   ): Promise<Settings> {
     try {
       const result = await DB('settings')

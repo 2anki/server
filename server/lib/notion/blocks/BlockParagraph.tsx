@@ -8,7 +8,7 @@ import renderTextChildren from '../helpers/renderTextChildren';
 
 const BlockParagraph = async (
   block: GetBlockResponse,
-  handler: BlockHandler,
+  handler: BlockHandler
 ): Promise<string | null> => {
   /* @ts-ignore */
   const { paragraph } = block;
@@ -16,10 +16,12 @@ const BlockParagraph = async (
 
   const markup = ReactDOMServer.renderToStaticMarkup(
     <p
-    className={styleWithColors(paragraph.color)}
-    id={block.id}
-    dangerouslySetInnerHTML={{ __html: renderTextChildren(text, handler.settings) }}>
-    </p>,
+      className={styleWithColors(paragraph.color)}
+      id={block.id}
+      dangerouslySetInnerHTML={{
+        __html: renderTextChildren(text, handler.settings),
+      }}
+    ></p>
   );
 
   if (handler.settings?.isTextOnlyBack) {

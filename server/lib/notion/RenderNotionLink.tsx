@@ -3,7 +3,7 @@ import BlockHandler from './BlockHandler';
 
 const RenderNotionLink = (
   link: string,
-  handler: BlockHandler,
+  handler: BlockHandler
 ): string | null => {
   if (handler.settings?.isTextOnlyBack) {
     return link;
@@ -13,7 +13,7 @@ const RenderNotionLink = (
       <a style={{ textDecoration: 'none', color: 'grey' }} href={link}>
         Open in Notion
       </a>
-    </div>,
+    </div>
   );
 };
 

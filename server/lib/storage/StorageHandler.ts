@@ -15,12 +15,12 @@ class StorageHandler {
     name: string,
     prefix: string,
     maxLength: number,
-    suffix: string,
+    suffix: string
   ): string {
     const now = Date.now().toString();
     let uniqueName = `${prefix}-${now}-${name}`.substring(
       0,
-      maxLength - (suffix.length + 1),
+      maxLength - (suffix.length + 1)
     );
     if (!uniqueName.endsWith(suffix)) {
       uniqueName += `.${suffix}`;
@@ -49,7 +49,7 @@ class StorageHandler {
           } else {
             resolve();
           }
-        },
+        }
       );
     });
   }
@@ -66,7 +66,7 @@ class StorageHandler {
             return reject(err);
           }
           resolve(data.Contents);
-        },
+        }
       );
     });
   }
@@ -84,14 +84,14 @@ class StorageHandler {
             /* @ts-ignore */
             resolve(data.Body);
           }
-        },
+        }
       );
     });
   }
 
   uploadFile(
     name: string,
-    data: Buffer | string,
+    data: Buffer | string
   ): Promise<aws.S3.PutObjectOutput> {
     const { s3 } = this;
 
@@ -109,7 +109,7 @@ class StorageHandler {
           } else {
             resolve(response);
           }
-        },
+        }
       );
     });
   }

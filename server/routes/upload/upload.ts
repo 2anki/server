@@ -13,8 +13,8 @@ export default function upload(storage: StorageHandler) {
       key(_request, file, cb) {
         let suffix = '.zip';
         if (
-          file.originalname.includes('.')
-          && file.originalname.split('.').length > 1
+          file.originalname.includes('.') &&
+          file.originalname.split('.').length > 1
         ) {
           const parts = file.originalname.split('.');
           suffix = parts[parts.length - 1];

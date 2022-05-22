@@ -6,7 +6,7 @@ import NotionID from '../../lib/notion/NotionID';
 export default async function getPage(
   api: NotionAPIWrapper,
   query: string,
-  res: express.Response,
+  res: express.Response
 ) {
   const pageId = NotionID.fromString(query);
   const page = await api.getPage(pageId);

@@ -13,7 +13,7 @@ import savePayload from './helpers/savePayload';
 export default class MockNotionAPI extends NotionAPIWrapper {
   async getBlocks(
     id: string,
-    all?: boolean,
+    all?: boolean
   ): Promise<ListBlockChildrenResponse> {
     if (mockDataExists('ListBlockChildrenResponse', id)) {
       return getPayload(dataMockPath('ListBlockChildrenResponse', id));
@@ -43,7 +43,7 @@ export default class MockNotionAPI extends NotionAPIWrapper {
 
   async queryDatabase(
     id: string,
-    all?: boolean,
+    all?: boolean
   ): Promise<QueryDatabaseResponse> {
     if (mockDataExists('QueryDatabaseResponse', id)) {
       return getPayload(dataMockPath('QueryDatabaseResponse', id));

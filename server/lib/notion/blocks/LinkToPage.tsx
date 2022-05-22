@@ -4,7 +4,7 @@ import renderLink from '../helpers/renderLink';
 
 export default async function LinkToPage(
   block: GetBlockResponse,
-  handler: BlockHandler,
+  handler: BlockHandler
 ) {
   /* @ts-ignore */
   const linkToPage = block.link_to_page;

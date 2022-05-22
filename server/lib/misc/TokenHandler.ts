@@ -39,7 +39,7 @@ class TokenHandler {
   static SavePatreonToken(
     user: number,
     token: string,
-    data: any,
+    data: any
   ): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
       DB('patreon_tokens')
@@ -162,7 +162,7 @@ class TokenHandler {
           } else {
             resolve(token);
           }
-        },
+        }
       );
     });
   }

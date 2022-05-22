@@ -15,7 +15,10 @@ const BlockCode = (block: GetBlockResponse, handler: BlockHandler) => {
   }
 
   return ReactDOMServer.renderToStaticMarkup(
-    <pre id={block.id} className={`code code-wrap${styleWithColors(code.color)}`}>
+    <pre
+      id={block.id}
+      className={`code code-wrap${styleWithColors(code.color)}`}
+    >
       <code>
         {text.map((t: GetBlockResponse) => {
           /* @ts-ignore */
@@ -24,7 +27,7 @@ const BlockCode = (block: GetBlockResponse, handler: BlockHandler) => {
           return HandleBlockAnnotations(annotations, t.text);
         })}
       </code>
-    </pre>,
+    </pre>
   );
 };
 

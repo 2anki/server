@@ -10,7 +10,7 @@ interface Annotations {
 
 const HandleBlockAnnotations = (
   annotations: Annotations,
-  text: { content: string; link: null | { url: string } },
+  text: { content: string; link: null | { url: string } }
 ) => {
   if (!text || !text.content) {
     return null;
@@ -36,14 +36,18 @@ const HandleBlockAnnotations = (
         {content}
       </span>
     );
-  } if (annotations.bold) {
+  }
+  if (annotations.bold) {
     return <strong>{content}</strong>;
-  } if (annotations.italic) {
+  }
+  if (annotations.italic) {
     return <em>{content}</em>;
-  } if (annotations.strikethrough) {
+  }
+  if (annotations.strikethrough) {
     TagRegistry.getInstance().addStrikethrough(content);
     return <del>{content}</del>;
-  } if (annotations.code) {
+  }
+  if (annotations.code) {
     return <code>{content}</code>;
   }
   return <>{content}</>;

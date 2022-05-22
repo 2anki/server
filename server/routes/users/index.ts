@@ -23,10 +23,10 @@ router.post('/new-password', async (req, res, next) => {
   const resetToken = req.body.reset_token;
   const { password } = req.body;
   if (
-    !resetToken
-    || resetToken.length < 128
-    || !password
-    || password.length < 8
+    !resetToken ||
+    resetToken.length < 128 ||
+    !password ||
+    password.length < 8
   ) {
     return res.status(400).send({ message: 'invalid' });
   }
@@ -57,22 +57,18 @@ router.post('/forgot-password', async (req, res, next) => {
   console.debug('user found');
   if (user.reset_token) {
     console.debug('has active reset token, so resending');
-    await EmailHandler.SendResetEmail(
-      req.body.email,
-      user.reset_token,
-    );
+    await EmailHandler.SendResetEmail(req.body.email, user.reset_token);
     return res.status(200).json({ message: 'ok' });
   }
   console.debug('no active reset token, so creating');
   const resetToken = TokenHandler.NewResetToken();
   try {
     console.debug('updating user reset token');
-    await DB('users').where({ email: req.body.email }).update({ reset_token: resetToken });
+    await DB('users')
+      .where({ email: req.body.email })
+      .update({ reset_token: resetToken });
     console.debug('sending reset email');
-    await EmailHandler.SendResetEmail(
-      req.body.email,
-      resetToken,
-    );
+    await EmailHandler.SendResetEmail(req.body.email, resetToken);
     return res.status(200).json({ message: 'ok' });
   } catch (error) {
     /* @ts-ignore */
@@ -158,8 +154,8 @@ router.post('/login', async (req, res, next) => {
 
 router.post('/register', async (req, res, next) => {
   if (
-    !req.body
-    || !isValidUser(req.body.password, req.body.name, req.body.email)
+    !req.body ||
+    !isValidUser(req.body.password, req.body.name, req.body.email)
   ) {
     res.status(400).json({
       message: 'Invalid user data. Required name, email and password!',
@@ -174,13 +170,13 @@ router.post('/register', async (req, res, next) => {
   try {
     await DB('users')
       .insert({
-        name, password, email, verification_token: token,
+        name,
+        password,
+        email,
+        verification_token: token,
       })
       .returning(['id']);
-    await EmailHandler.SendVerificationEmail(
-      email,
-      token,
-    );
+    await EmailHandler.SendVerificationEmail(email, token);
     res.status(200).json({ message: 'ok' });
   } catch (error) {
     console.error(error);

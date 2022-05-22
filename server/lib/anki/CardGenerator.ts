@@ -20,7 +20,7 @@ class CardGenerator {
   constructor(workspace: string) {
     this.createDeckScriptPath = resolvePath(
       __dirname,
-      '../../genanki/create_deck.py',
+      '../../genanki/create_deck.py'
     );
     this.currentDirectory = workspace;
   }
@@ -46,7 +46,7 @@ class CardGenerator {
           } else {
             resolve(stdout);
           }
-        },
+        }
       );
     });
   }

@@ -11,7 +11,7 @@ import getListItems from '../../helpers/getListItems';
 export const BlockNumberedList = async (
   block: GetBlockResponse,
   response: ListBlockChildrenResponse,
-  handler: BlockHandler,
+  handler: BlockHandler
 ) => {
   /* @ts-ignore */
   const list = block.numbered_list_item;
@@ -20,7 +20,7 @@ export const BlockNumberedList = async (
   const markup = ReactDOMServer.renderToStaticMarkup(
     <ol id={block.id} className={`numbered-list${styleWithColors(list.color)}`}>
       {listItems}
-    </ol>,
+    </ol>
   );
   if (handler.settings?.isTextOnlyBack) {
     return convert(markup);

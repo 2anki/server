@@ -4,7 +4,7 @@ import sendError from './sendError';
 
 export default async function ensureResponse(
   call: () => Promise<any>,
-  res: Response,
+  res: Response
 ): Promise<void> {
   try {
     await call();

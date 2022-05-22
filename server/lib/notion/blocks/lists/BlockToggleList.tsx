@@ -9,7 +9,7 @@ import getChildren from '../../helpers/getChildren';
 
 export async function BlockToggleList(
   block: GetBlockResponse,
-  handler: BlockHandler,
+  handler: BlockHandler
 ) {
   /* @ts-ignore */
   const list = block.toggle;
@@ -20,11 +20,12 @@ export async function BlockToggleList(
    * The open attribute has to be omitted.
    */
   /* @ts-ignore */
-  const Details = ({ children }) => (handler.settings?.toggleMode === 'open_toggle' ? (
+  const Details = ({ children }) =>
+    handler.settings?.toggleMode === 'open_toggle' ? (
       <details open>{children}</details>
-  ) : (
+    ) : (
       <details>{children}</details>
-  ));
+    );
 
   const markup = ReactDOMServer.renderToStaticMarkup(
     <>
@@ -32,13 +33,15 @@ export async function BlockToggleList(
         <li>
           <Details>
             <summary
-              dangerouslySetInnerHTML={{ __html: renderTextChildren(text, handler.settings) }}
+              dangerouslySetInnerHTML={{
+                __html: renderTextChildren(text, handler.settings),
+              }}
             ></summary>
             <div dangerouslySetInnerHTML={{ __html: backSide }} />
           </Details>
         </li>
       </ul>
-    </>,
+    </>
   );
 
   if (handler.settings?.isTextOnlyBack) {

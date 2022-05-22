@@ -17,7 +17,7 @@ class NotionConnectionHandler {
     return new NotionConnectionHandler(
       process.env.NOTION_CLIENT_ID!,
       process.env.NOTION_CLIENT_SECRET!,
-      process.env.NOTION_REDIRECT_URI!,
+      process.env.NOTION_REDIRECT_URI!
     );
   }
 

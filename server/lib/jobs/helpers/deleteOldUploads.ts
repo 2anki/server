@@ -23,7 +23,7 @@ export default async function deleteOldUploads(db: Knex) {
       } else {
         await s.delete(file);
         console.debug(
-          `Delete **** which was last modified on ${file.LastModified}`,
+          `Delete **** which was last modified on ${file.LastModified}`
         );
       }
     }

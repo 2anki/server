@@ -5,7 +5,7 @@ import { ALLOWED_ORIGINS } from '../lib/constants';
 const RequireAllowedOrigin = async (
   req: Request,
   res: Response,
-  next: () => any,
+  next: () => any
 ) => {
   const { origin } = req.headers;
   if (!origin) {

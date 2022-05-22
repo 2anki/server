@@ -30,7 +30,7 @@ class NotionAPIWrapper {
 
   async getBlocks(
     id: string,
-    all?: boolean,
+    all?: boolean
   ): Promise<ListBlockChildrenResponse> {
     console.log('getBlocks', id, all);
     const response = await this.notion.blocks.children.list({
@@ -41,12 +41,11 @@ class NotionAPIWrapper {
     if (all && response.has_more && response.next_cursor) {
       while (true) {
         /* @ts-ignore */
-        const { results, next_cursor: nextCursor } = await this.notion.blocks.children.list(
-          {
+        const { results, next_cursor: nextCursor } =
+          await this.notion.blocks.children.list({
             block_id: id,
             start_cursor: response.next_cursor!,
-          },
-        );
+          });
         response.results.push(...results);
         if (nextCursor) {
           response.next_cursor = nextCursor;
@@ -70,7 +69,7 @@ class NotionAPIWrapper {
 
   async queryDatabase(
     id: string,
-    all?: boolean,
+    all?: boolean
   ): Promise<QueryDatabaseResponse> {
     console.log('queryDatabase', id, all);
     const response = await this.notion.databases.query({
@@ -81,11 +80,12 @@ class NotionAPIWrapper {
     if (all && response.has_more && response.next_cursor) {
       while (true) {
         /* @ts-ignore */
-        const { results, next_cursor: nextCursor } = await this.notion.databases.query({
-          database_id: id,
-          page_size: all ? PATREON_LIMIT : ANON_LIMIT,
-          start_cursor: response.next_cursor!,
-        });
+        const { results, next_cursor: nextCursor } =
+          await this.notion.databases.query({
+            database_id: id,
+            page_size: all ? PATREON_LIMIT : ANON_LIMIT,
+            start_cursor: response.next_cursor!,
+          });
         response.results.push(...results);
         if (nextCursor) {
           response.next_cursor = nextCursor;
@@ -152,7 +152,7 @@ class NotionAPIWrapper {
     } else {
       const paragraphs = response.results.filter(
         /* @ts-ignore */
-        (block) => block.type === 'paragraph',
+        (block) => block.type === 'paragraph'
       );
       for (const p of paragraphs) {
         /* @ts-ignore */
@@ -179,7 +179,7 @@ class NotionAPIWrapper {
 
   async getPageTitle(
     page: GetPageResponse | null,
-    settings: Settings,
+    settings: Settings
   ): Promise<string> {
     if (!page) {
       return '';
@@ -212,9 +212,9 @@ class NotionAPIWrapper {
     if (properties.title && properties.title.title.length > 0) {
       title = properties.title.title[0].plain_text;
     } else if (
-      properties.Name
-      && properties.Name.title
-      && properties.Name.title.length > 0
+      properties.Name &&
+      properties.Name.title &&
+      properties.Name.title.length > 0
     ) {
       title = properties.Name.title[0].plain_text;
     }

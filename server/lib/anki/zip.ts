@@ -20,7 +20,9 @@ class ZipHandler {
   async build(zipData: Buffer) {
     const size = Buffer.byteLength(zipData);
     if (size > MAX_UPLOAD_SIZE) {
-      throw new Error(`Zip data is too big max is ${MAX_UPLOAD_SIZE} but got ${size}`);
+      throw new Error(
+        `Zip data is too big max is ${MAX_UPLOAD_SIZE} but got ${size}`
+      );
     }
 
     const loadedZip = await JSZip.loadAsync(zipData);

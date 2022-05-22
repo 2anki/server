@@ -59,7 +59,7 @@ class BlockHandler {
   constructor(
     exporter: CustomExporter,
     api: NotionAPIWrapper,
-    settings: Settings,
+    settings: Settings
   ) {
     this.exporter = exporter;
     this.api = api;
@@ -122,7 +122,7 @@ class BlockHandler {
    */
   async getBackSide(
     block: GetBlockResponse,
-    handleChildren?: boolean,
+    handleChildren?: boolean
   ): Promise<string | null> {
     let response: ListBlockChildrenResponse | null;
 
@@ -254,7 +254,7 @@ class BlockHandler {
     rules: ParserRules,
     flashcardBlocks: GetBlockResponse[],
     tags: string[],
-    settings: Settings,
+    settings: Settings
   ): Promise<Note[]> {
     let cards = [];
 
@@ -267,7 +267,7 @@ class BlockHandler {
       const page = await this.api.getPage(settings.parentBlockId);
 
       if (page) {
-      /* @ts-ignore */
+        /* @ts-ignore */
         notionBaseLink = page.url;
       }
     }
@@ -354,7 +354,7 @@ class BlockHandler {
     rules: ParserRules,
     settings: Settings,
     decks: Deck[],
-    parentName: string = '',
+    parentName: string = ''
   ): Promise<Deck[]> {
     if (rules.DECK === 'page') {
       return this.findFlashcardsFromPage(
@@ -362,7 +362,7 @@ class BlockHandler {
         rules,
         settings,
         decks,
-        parentName,
+        parentName
       );
     }
     if (rules.DECK === 'database') {
@@ -375,7 +375,7 @@ class BlockHandler {
           rules,
           settings,
           decks,
-          dbName,
+          dbName
         );
       }
     }
@@ -387,7 +387,7 @@ class BlockHandler {
     rules: ParserRules,
     settings: Settings,
     decks: Deck[],
-    parentName: string = '',
+    parentName: string = ''
   ): Promise<Deck[]> {
     const tags = await this.api.getTopLevelTags(topLevelId, rules);
     const response = await this.api.getBlocks(topLevelId, rules.UNLIMITED);
@@ -396,7 +396,7 @@ class BlockHandler {
     // Locate the card blocks to be used from the parser rules
     const cBlocks = blocks.filter((b: GetBlockResponse) =>
       /* @ts-ignore */
-      flashCardTypes.includes(b.type),
+      flashCardTypes.includes(b.type)
     );
     const page = await this.api.getPage(topLevelId);
     if (!page) {
@@ -411,7 +411,7 @@ class BlockHandler {
     const cards = await this.getFlashcards(rules, cBlocks, tags, settings);
     const NOTION_STYLE = fs.readFileSync(
       path.join(__dirname, '../../templates/notion.css'),
-      'utf8',
+      'utf8'
     );
     const deck = new Deck(
       getDeckName(parentName, title),
@@ -419,7 +419,7 @@ class BlockHandler {
       undefined,
       NOTION_STYLE,
       Deck.GenerateId(),
-      settings,
+      settings
     );
     decks.push(deck);
 
@@ -434,7 +434,7 @@ class BlockHandler {
             rules,
             settings,
             decks,
-            deck.name,
+            deck.name
           );
           decks = nested;
         }

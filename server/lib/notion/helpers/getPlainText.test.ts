@@ -6,6 +6,8 @@ describe('getPlainText', () => {
   });
 
   test('joins multiple text blocks', () => {
-    expect(getPlainText([{ plain_text: '21' }, { plain_text: '21' }])).toBe('21<br>21');
+    expect(getPlainText([{ plain_text: '21' }, { plain_text: '21' }])).toBe(
+      '21<br>21'
+    );
   });
 });

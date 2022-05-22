@@ -5,7 +5,7 @@ import NotionID from '../../lib/notion/NotionID';
 export default async function getDatabase(
   api: NotionAPIWrapper,
   req: express.Request,
-  res: express.Response,
+  res: express.Response
 ) {
   try {
     let { id } = req.params;

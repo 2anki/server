@@ -87,27 +87,23 @@ function serve() {
     (
       _req: express.Request,
       res: express.Response,
-      next: express.NextFunction,
+      next: express.NextFunction
     ) => {
       res.header('Access-Control-Allow-Origin', ALLOWED_ORIGINS.join(','));
       res.header(
         'Access-Control-Allow-Headers',
-        'Origin, X-Requested-With, Content-Type, Accept, Content-Disposition',
+        'Origin, X-Requested-With, Content-Type, Accept, Content-Disposition'
       );
       next();
-    },
+    }
   );
 
   if (process.env.NODE_ENV === 'production') {
     CrashReporter.AddErrorHandler(app);
   }
 
-  app.use(
-    (
-      err: Error,
-      _req: express.Request,
-      res: express.Response,
-    ) => ErrorHandler(res, err),
+  app.use((err: Error, _req: express.Request, res: express.Response) =>
+    ErrorHandler(res, err)
   );
 
   process.on('uncaughtException', (err: Error) => {

@@ -4,7 +4,7 @@ import getChildren from '../../helpers/getChildren';
 
 export default async function BlockColumn(
   block: GetBlockResponse,
-  handler: BlockHandler,
+  handler: BlockHandler
 ) {
   return getChildren(block, handler);
 }

@@ -4,7 +4,7 @@ import renderLink from '../helpers/renderLink';
 
 export const BlockChildPage = async (
   block: GetBlockResponse,
-  handler: BlockHandler,
+  handler: BlockHandler
 ) => {
   /* @ts-ignore */
   const childPage = block.child_page;

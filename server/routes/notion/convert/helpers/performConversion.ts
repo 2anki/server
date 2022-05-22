@@ -23,7 +23,7 @@ export default async function performConversion(
   id: string,
   owner: string,
   req: express.Request | null,
-  res: express.Response | null,
+  res: express.Response | null
 ) {
   const storage = new StorageHandler();
   try {
@@ -85,7 +85,7 @@ export default async function performConversion(
       rules,
       settings,
       [],
-      settings.deckName,
+      settings.deckName
     );
     exporter.configure(decks);
     const gen = new CardGenerator(ws.location);

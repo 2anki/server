@@ -5,10 +5,7 @@ import getPlainText from '../helpers/getPlainText';
 import { styleWithColors } from '../NotionColors';
 import HandleBlockAnnotations from './HandleBlockAnnotations';
 
-export const BlockQuote = (
-  block: GetBlockResponse,
-  handler: BlockHandler,
-) => {
+export const BlockQuote = (block: GetBlockResponse, handler: BlockHandler) => {
   /* @ts-ignore */
   const { quote } = block;
   const { text } = quote;
@@ -25,6 +22,6 @@ export const BlockQuote = (
         /* @ts-ignore */
         return HandleBlockAnnotations(annotations, t.text);
       })}
-    </blockquote>,
+    </blockquote>
   );
 };

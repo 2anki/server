@@ -5,7 +5,10 @@ import getPlainText from '../helpers/getPlainText';
 import { styleWithColors } from '../NotionColors';
 import HandleBlockAnnotations from './HandleBlockAnnotations';
 
-export const BlockCallout = (block: GetBlockResponse, handler: BlockHandler) => {
+export const BlockCallout = (
+  block: GetBlockResponse,
+  handler: BlockHandler
+) => {
   /* @ts-ignore */
   const { callout } = block;
   const { icon } = callout;
@@ -34,6 +37,6 @@ export const BlockCallout = (block: GetBlockResponse, handler: BlockHandler) => 
           return HandleBlockAnnotations(annotations, t.text);
         })}
       </div>
-    </figure>,
+    </figure>
   );
 };

@@ -11,27 +11,37 @@ interface HeadingProps {
   id: string;
   level: string;
   className: string;
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 const Heading = (props: HeadingProps) => {
-  const {
-    id, level, children, className,
-  } = props;
+  const { id, level, children, className } = props;
   switch (level) {
     case 'heading_3':
-      return <h3 id={id} className={className}>{children}</h3>;
+      return (
+        <h3 id={id} className={className}>
+          {children}
+        </h3>
+      );
     case 'heading_2':
-      return <h2 id={id} className={className}>{children}</h2>;
+      return (
+        <h2 id={id} className={className}>
+          {children}
+        </h2>
+      );
     default:
-      return <h1 id={id} className={className}>{children}</h1>;
+      return (
+        <h1 id={id} className={className}>
+          {children}
+        </h1>
+      );
   }
 };
 
 export const BlockHeading = async (
   level: string,
   block: GetBlockResponse,
-  handler: BlockHandler,
+  handler: BlockHandler
 ) => {
   /* @ts-ignore */
   const heading = block[level];
@@ -42,7 +52,11 @@ export const BlockHeading = async (
   }
 
   return ReactDOMServer.renderToStaticMarkup(
-    <Heading level={level} className={styleWithColors(heading.color)} id={block.id}>
+    <Heading
+      level={level}
+      className={styleWithColors(heading.color)}
+      id={block.id}
+    >
       {text.map((t: GetBlockResponse) => {
         /* @ts-ignore */
         TagRegistry.getInstance().addHeading(t.plain_text);
@@ -51,6 +65,6 @@ export const BlockHeading = async (
         /* @ts-ignore */
         return HandleBlockAnnotations(annotations, t.text);
       })}
-    </Heading>,
+    </Heading>
   );
 };

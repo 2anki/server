@@ -7,7 +7,7 @@
  */
 export default function getDeckName(
   parent: string | undefined,
-  name: string,
+  name: string
 ): string {
   if (parent && parent !== name) {
     return `${parent}::${name}`;

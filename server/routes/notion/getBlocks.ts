@@ -4,7 +4,7 @@ import NotionAPIWrapper from '../../lib/notion/NotionAPIWrapper';
 export default async function getBlocks(
   api: NotionAPIWrapper,
   req: express.Request,
-  res: express.Response,
+  res: express.Response
 ) {
   const { id } = req.params;
   if (!id) {

@@ -22,7 +22,7 @@ const FrontFlashcard = (block: GetBlockResponse, handler: BlockHandler) => {
         /* @ts-ignore */
         return HandleBlockAnnotations(annotations, t.text);
       })}
-    </div>,
+    </div>
   );
 };
 

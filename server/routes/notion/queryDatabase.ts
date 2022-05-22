@@ -5,7 +5,7 @@ import NotionAPIWrapper from '../../lib/notion/NotionAPIWrapper';
 export async function queryDatabase(
   api: NotionAPIWrapper,
   req: express.Request,
-  res: express.Response,
+  res: express.Response
 ) {
   const { id } = req.params;
   if (!id) {

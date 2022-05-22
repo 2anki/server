@@ -15,7 +15,7 @@ import loadREADME from './loadREADME';
 export default async function handleUpload(
   storage: StorageHandler,
   req: express.Request,
-  res: express.Response,
+  res: express.Response
 ) {
   const isLoggedIn = res.locals.owner;
 
@@ -48,7 +48,7 @@ export default async function handleUpload(
         const d = await PrepareDeck(
           filename,
           [{ name: filename, contents: fileContents }],
-          settings,
+          settings
         );
         const pkg = new Package(d.name, d.apkg);
         packages = packages.concat(pkg);
@@ -90,7 +90,7 @@ export default async function handleUpload(
       try {
         await storage.uploadFile(
           storage.uniqify(first.name, 'apkg', 255, 'apkg'),
-          first.apkg,
+          first.apkg
         );
       } catch (err) {
         console.error('failed to upload to spaces', err);
@@ -109,7 +109,7 @@ export default async function handleUpload(
         try {
           await storage.uploadFile(
             storage.uniqify(pkg.name, 'apkg', 255, 'apkg'),
-            pkg.apkg,
+            pkg.apkg
           );
         } catch (err) {
           console.debug(`failed to upload to spaces ${err}`);
@@ -123,7 +123,7 @@ export default async function handleUpload(
       res.status(200).send(payload);
     } else {
       throw new Error(
-        'Could not create any cards. Did you write any togglelists?',
+        'Could not create any cards. Did you write any togglelists?'
       );
     }
   } catch (err) {

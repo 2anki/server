@@ -10,7 +10,7 @@ type ListType = 'numbered_list_item' | 'bulleted_list_item' | 'to_do';
 export default async function getListItems(
   response: ListBlockChildrenResponse,
   handler: BlockHandler,
-  type: ListType,
+  type: ListType
 ) {
   return Promise.all(
     response.results.map(async (result) => {
@@ -22,7 +22,10 @@ export default async function getListItems(
       const backSide = await getChildren(result, handler);
       handler.skip.push(result.id);
       const isTodo = type === 'to_do';
-      const checked = isTodo && list.checked ? 'to-do-children-checked' : 'to-do-children-unchecked';
+      const checked =
+        isTodo && list.checked
+          ? 'to-do-children-checked'
+          : 'to-do-children-unchecked';
       const checkedClass = isTodo ? checked : '';
 
       return (
@@ -42,6 +45,6 @@ export default async function getListItems(
           )}
         </li>
       );
-    }),
+    })
   );
 }

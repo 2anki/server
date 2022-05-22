@@ -26,7 +26,7 @@ export const BlockVideo = (c: GetBlockResponse, handler: BlockHandler) => {
           height="368"
           frameBorder="0"
           allowFullScreen
-        ></iframe>,
+        ></iframe>
       );
     }
   }
@@ -39,6 +39,6 @@ export const BlockVideo = (c: GetBlockResponse, handler: BlockHandler) => {
         frameBorder="0"
         allowFullScreen
       ></iframe>
-    </>,
+    </>
   );
 };

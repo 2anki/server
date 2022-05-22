@@ -9,7 +9,7 @@ export default async function findSetting(req: Request, res: Response) {
   if (!id) {
     return res.status(400).send();
   }
-  
+
   await DB('settings')
     .where({ object_id: id })
     .returning(['payload'])

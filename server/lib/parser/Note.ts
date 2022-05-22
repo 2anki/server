@@ -28,17 +28,17 @@ export default class Note {
   hasCherry() {
     const cherry = '&#x1F352;';
     return (
-      (this.name && (this.name.includes(cherry) || this.name.includes('🍒')))
-      || (this.back && (this.back.includes(cherry) || this.back.includes('🍒')))
+      (this.name && (this.name.includes(cherry) || this.name.includes('🍒'))) ||
+      (this.back && (this.back.includes(cherry) || this.back.includes('🍒')))
     );
   }
 
   hasAvocado() {
     const avocado = '&#x1F951';
     return (
-      (this.name
-        && (this.name.includes(avocado) || this.name.includes('🥑')))
-      || (this.back && (this.back.includes(avocado) || this.back.includes('🥑')))
+      (this.name &&
+        (this.name.includes(avocado) || this.name.includes('🥑'))) ||
+      (this.back && (this.back.includes(avocado) || this.back.includes('🥑')))
     );
   }
 
@@ -67,9 +67,9 @@ export default class Note {
 
     // Cloze and input cards can have an empty back
     if (
-      (this.cloze || this.enableInput)
-      && this.name.includes('{{')
-      && this.name.includes('}}')
+      (this.cloze || this.enableInput) &&
+      this.name.includes('{{') &&
+      this.name.includes('}}')
     ) {
       return true;
     }
