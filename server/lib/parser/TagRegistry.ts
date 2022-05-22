@@ -1,5 +1,6 @@
 export default class TagRegistry {
   headings: string[];
+
   strikethroughs: string[];
 
   // singleton instance

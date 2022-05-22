@@ -1,5 +1,3 @@
-import ReactDOMServer from "react-dom/server";
+import ReactDOMServer from 'react-dom/server';
 
-export const BlockDivider = () => {
-  return ReactDOMServer.renderToStaticMarkup(<hr />);
-};
+export const BlockDivider = () => ReactDOMServer.renderToStaticMarkup(<hr />);

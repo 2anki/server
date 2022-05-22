@@ -1,6 +1,6 @@
-import { GetBlockResponse } from "@notionhq/client/build/src/api-endpoints";
-import BlockHandler from "../BlockHandler";
-import renderLink from "../helpers/renderLink";
+import { GetBlockResponse } from '@notionhq/client/build/src/api-endpoints';
+import BlockHandler from '../BlockHandler';
+import renderLink from '../helpers/renderLink';
 
 export const BlockChildPage = async (
   block: GetBlockResponse,
@@ -8,11 +8,11 @@ export const BlockChildPage = async (
 ) => {
   /* @ts-ignore */
   const childPage = block.child_page;
-  const api = handler.api;
+  const { api } = handler;
   const page = await api.getPage(block.id);
   /* @ts-ignore */
-  const icon = page.icon;
-  
+  const { icon } = page;
+
   if (handler.settings?.isTextOnlyBack && childPage) {
     return childPage.title;
   }

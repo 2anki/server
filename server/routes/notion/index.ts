@@ -19,13 +19,13 @@ const ConfigureNotionAPI = async (
   req: express.Request,
   res: express.Response
 ): Promise<NotionAPIWrapper> => {
-  console.debug('Configuring Notion API for ' + req.originalUrl);
+  console.debug(`Configuring Notion API for ${req.originalUrl}`);
   const token = await TokenHandler.GetNotionToken(res.locals.owner);
   return new NotionAPIWrapper(token!);
 };
 
 router.get('/connect', RequireAuthentication, async (req, res) => {
-  const code = req.query.code;
+  const { code } = req.query;
   if (code) {
     try {
       const n = NotionConnectionHandler.Default();
@@ -41,8 +41,8 @@ router.get('/connect', RequireAuthentication, async (req, res) => {
   }
 });
 
-router.post('/pages', RequireAuthentication, async (req, res) => {
-  return ensureResponse(async () => {
+router.post('/pages', RequireAuthentication, async (req, res) =>
+  ensureResponse(async () => {
     const query = req.body.query.toString() || '';
     const api = await ConfigureNotionAPI(req, res);
 
@@ -52,19 +52,18 @@ router.post('/pages', RequireAuthentication, async (req, res) => {
         return page;
       }
       return page;
-    } else {
-      try {
-        const s = await api.search(query);
-        res.json(s);
-      } catch (error) {
-        res.status(500).send();
-      }
     }
-  }, res);
-});
+    try {
+      const s = await api.search(query);
+      res.json(s);
+    } catch (error) {
+      res.status(500).send();
+    }
+  }, res)
+);
 
 router.get('/get-notion-link', RequireAuthentication, async (_req, res) => {
-  console.debug(`/get-notion-link`);
+  console.debug('/get-notion-link');
   const clientId = NotionAPIWrapper.GetClientID();
 
   if (!clientId) {
@@ -83,60 +82,59 @@ router.get('/get-notion-link', RequireAuthentication, async (_req, res) => {
       isConnected: !!notionData.token,
       workspace: notionData.workspace_name,
     });
-  } else {
-    return res.status(200).send({
-      link,
-      isConnected: false,
-      workspace: null,
-    });
   }
+  return res.status(200).send({
+    link,
+    isConnected: false,
+    workspace: null,
+  });
 });
 
-router.get('/convert/:id', RequireAuthentication, async (req, res) => {
-  return ensureResponse(async () => {
+router.get('/convert/:id', RequireAuthentication, async (req, res) =>
+  ensureResponse(async () => {
     const api = await ConfigureNotionAPI(req, res);
     return convertPage(api, req, res);
-  }, res);
-});
+  }, res)
+);
 
-router.get('/page/:id', RequireAuthentication, async (req, res) => {
-  return ensureResponse(async () => {
-    const id = req.params.id;
+router.get('/page/:id', RequireAuthentication, async (req, res) =>
+  ensureResponse(async () => {
+    const { id } = req.params;
     if (!id) {
       return res.status(400).send();
     }
     const api = await ConfigureNotionAPI(req, res);
     const page = await api.getPage(id.replace(/\-/g, ''));
     return res.json(page);
-  }, res);
-});
+  }, res)
+);
 
-router.get('/blocks/:id', RequireAuthentication, async (req, res) => {
-  return ensureResponse(async () => {
+router.get('/blocks/:id', RequireAuthentication, async (req, res) =>
+  ensureResponse(async () => {
     const api = await ConfigureNotionAPI(req, res);
     return getBlocks(api, req, res);
-  }, res);
-});
+  }, res)
+);
 
-router.get('/block/:id', RequireAuthentication, async (req, res) => {
-  return ensureResponse(async () => {
+router.get('/block/:id', RequireAuthentication, async (req, res) =>
+  ensureResponse(async () => {
     const api = await ConfigureNotionAPI(req, res);
     return getBlock(api, req, res);
-  }, res);
-});
+  }, res)
+);
 
-router.get('/database/:id', RequireAuthentication, async (req, res) => {
-  return ensureResponse(async () => {
+router.get('/database/:id', RequireAuthentication, async (req, res) =>
+  ensureResponse(async () => {
     const api = await ConfigureNotionAPI(req, res);
     return getDatabase(api, req, res);
-  }, res);
-});
+  }, res)
+);
 
-router.get('/database/query/:id', RequireAuthentication, async (req, res) => {
-  return ensureResponse(async () => {
+router.get('/database/query/:id', RequireAuthentication, async (req, res) =>
+  ensureResponse(async () => {
     const api = await ConfigureNotionAPI(req, res);
     return queryDatabase(api, req, res);
-  }, res);
-});
+  }, res)
+);
 
 export default router;

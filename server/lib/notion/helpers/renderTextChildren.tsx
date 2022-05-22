@@ -3,10 +3,10 @@ import ReactDOMServer from 'react-dom/server';
 import Settings from '../../parser/Settings';
 
 import BlockEquation from '../blocks/BlockEquation';
-import HandleBlockAnnotations from '../blocks/utils';
+import HandleBlockAnnotations from '../blocks/HandleBlockAnnotations';
 import isEquation from './isEquation';
 import isText from './isText';
-import preserveNewlinesIfApplicable from './perserveNewlinesIfApplicable';
+import preserveNewlinesIfApplicable from './preserveNewlinesIfApplicable';
 
 export default function renderTextChildren(
   text: any[],
@@ -25,7 +25,7 @@ export default function renderTextChildren(
       /* @ts-ignore */
       if (isText(t)) {
         /* @ts-ignore */
-        const annotations = t.annotations;
+        const { annotations } = t;
         return ReactDOMServer.renderToStaticMarkup(
           /* @ts-ignore */
           <>{HandleBlockAnnotations(annotations, t.text)}</>

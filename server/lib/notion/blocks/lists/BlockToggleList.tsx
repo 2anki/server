@@ -13,7 +13,7 @@ export async function BlockToggleList(
 ) {
   /* @ts-ignore */
   const list = block.toggle;
-  const text = list.text;
+  const { text } = list;
   const backSide = await getChildren(block, handler);
   /**
    * We can't just set open to false that won't work since it's a boolean and will be truthy.
@@ -33,7 +33,9 @@ export async function BlockToggleList(
         <li>
           <Details>
             <summary
-              dangerouslySetInnerHTML={{ __html: renderTextChildren(text, handler.settings) }}
+              dangerouslySetInnerHTML={{
+                __html: renderTextChildren(text, handler.settings),
+              }}
             ></summary>
             <div dangerouslySetInnerHTML={{ __html: backSide }} />
           </Details>

@@ -1,6 +1,4 @@
-import { GetBlockResponse } from "@notionhq/client/build/src/api-endpoints";
-import TagRegistry from "../../parser/TagRegistry";
-import BlockHandler from "../BlockHandler";
+import TagRegistry from '../../parser/TagRegistry';
 
 interface Annotations {
   underline: boolean;
@@ -17,7 +15,7 @@ const HandleBlockAnnotations = (
   if (!text || !text.content) {
     return null;
   }
-  const content = text.content;
+  const { content } = text;
 
   if (text.link) {
     const mangle = HandleBlockAnnotations(annotations, {
@@ -32,25 +30,27 @@ const HandleBlockAnnotations = (
     return (
       <span
         style={{
-          borderBottom: annotations.underline ? "0.05em solid" : "",
+          borderBottom: annotations.underline ? '0.05em solid' : '',
         }}
       >
         {content}
       </span>
     );
-  } else if (annotations.bold) {
+  }
+  if (annotations.bold) {
     return <strong>{content}</strong>;
-  } else if (annotations.italic) {
+  }
+  if (annotations.italic) {
     return <em>{content}</em>;
-  } else if (annotations.strikethrough) {
+  }
+  if (annotations.strikethrough) {
     TagRegistry.getInstance().addStrikethrough(content);
     return <del>{content}</del>;
-  } else if (annotations.code) {
-    return <code>{content}</code>;
-  } else {
-    return <>{content}</>;
   }
+  if (annotations.code) {
+    return <code>{content}</code>;
+  }
+  return <>{content}</>;
 };
-
 
 export default HandleBlockAnnotations;

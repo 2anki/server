@@ -1,8 +1,8 @@
-import { Knex } from "knex";
+import { Knex } from 'knex';
 
 export default function getOwnerFromAccessToken(DB: Knex, token: string) {
-  return DB("access_tokens")
-    .where({ token, host: "2anki.net" })
-    .returning(["owner"])
+  return DB('access_tokens')
+    .where({ token, host: '2anki.net' })
+    .returning(['owner'])
     .first();
 }

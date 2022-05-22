@@ -11,6 +11,6 @@ export default async function LinkToPage(
   const page = await handler.api.getPage(linkToPage.page_id);
   const title = await handler.api.getPageTitle(page, handler.settings);
   /* @ts-ignore */
-  const icon = page.icon;
+  const { icon } = page;
   return renderLink(title, block, icon);
 }

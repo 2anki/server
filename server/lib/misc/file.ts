@@ -1,12 +1,4 @@
-import crypto from "crypto";
-import fs from "fs";
-
-// Try to avoid name conflicts && invalid characters by hashing
-export function NewUniqueFileNameFrom(input: string) {
-  const shasum = crypto.createHash("sha1");
-  shasum.update(input);
-  return shasum.digest("hex");
-}
+import fs from 'fs';
 
 export function SuffixFrom(input: string) {
   if (!input) {
@@ -20,7 +12,7 @@ export function SuffixFrom(input: string) {
 }
 
 export function S3FileName(url: string): string {
-  const u = url.split("?")[0].split("/");
+  const u = url.split('?')[0].split('/');
   return u[u.length - 1];
 }
 
@@ -32,3 +24,6 @@ export function FileSizeInMegaBytes(filePath: string): number {
   const stats = fs.statSync(filePath);
   return BytesToMegaBytes(stats.size);
 }
+
+export const MAX_FIELD_SIZE = 2 * 1024 * 1024;
+export const MAX_UPLOAD_SIZE = 100 * 1024 * 1024;

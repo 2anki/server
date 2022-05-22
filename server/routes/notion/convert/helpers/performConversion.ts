@@ -1,22 +1,22 @@
-import fs from "fs";
+import fs from 'fs';
 
-import express from "express";
-import CardGenerator from "../../../../lib/anki/CardGenerator";
-import ConversionJob from "../../../../lib/jobs/ConversionJob";
-import BlockHandler from "../../../../lib/notion/BlockHandler";
+import express from 'express';
+import CardGenerator from '../../../../lib/anki/CardGenerator';
+import ConversionJob from '../../../../lib/jobs/ConversionJob';
+import BlockHandler from '../../../../lib/notion/BlockHandler';
 
-import NotionAPIWrapper from "../../../../lib/notion/NotionAPIWrapper";
-import CustomExporter from "../../../../lib/parser/CustomExporter";
-import ParserRules from "../../../../lib/parser/ParserRules";
-import Settings from "../../../../lib/parser/Settings";
-import Workspace from "../../../../lib/parser/WorkSpace";
-import DB from "../../../../lib/storage/db";
-import getQuota from "../../../../lib/User/getQuota";
-import isPatron from "../../../../lib/User/isPatron";
-import StorageHandler from "../../../../lib/storage/StorageHandler";
-import { FileSizeInMegaBytes } from "../../../../lib/misc/file";
-import getEmailFromOwner from "../../../../lib/User/getEmailFromOwner";
-import EmailHandler from "../../../../lib/email/EmailHandler";
+import NotionAPIWrapper from '../../../../lib/notion/NotionAPIWrapper';
+import CustomExporter from '../../../../lib/parser/CustomExporter';
+import ParserRules from '../../../../lib/parser/ParserRules';
+import Settings from '../../../../lib/parser/Settings';
+import Workspace from '../../../../lib/parser/WorkSpace';
+import DB from '../../../../lib/storage/db';
+import getQuota from '../../../../lib/User/getQuota';
+import isPatron from '../../../../lib/User/isPatron';
+import StorageHandler from '../../../../lib/storage/StorageHandler';
+import { FileSizeInMegaBytes } from '../../../../lib/misc/file';
+import getEmailFromOwner from '../../../../lib/User/getEmailFromOwner';
+import EmailHandler from '../../../../lib/email/EmailHandler';
 
 export default async function performConversion(
   api: NotionAPIWrapper,
@@ -30,10 +30,10 @@ export default async function performConversion(
     console.log(`Performing conversion for ${id}`);
     const job = new ConversionJob(DB);
     const allJobs = await job.AllStartedJobs(owner);
-    console.log("user has jobs", allJobs.length);
+    console.log('user has jobs', allJobs.length);
 
     if (allJobs.length === 1 && !res?.locals.patreon) {
-      console.log("skipping conversion");
+      console.log('skipping conversion');
       return res?.status(429).send({
         message:
           "Request denied, only <a href='https://www.patreon.com/alemayhu'>patrons</a> are allowed to make multiple conversions at a time. You already have a conversion in progress. Wait for your current conversion to finish or cancel it under <a href='/uploads'>Uploads</a>.",
@@ -50,26 +50,29 @@ export default async function performConversion(
     if (quota > 21 && !res?.locals.patreon) {
       return res
         ?.status(429)
-        .json({ message: "You have reached your quota max of 21MB" });
+        .json({ message: 'You have reached your quota max of 21MB' });
     }
-    console.log("user quota", quota);
+    console.log('user quota', quota);
 
     console.log(`job ${id} is not active, starting`);
     await job.started(id, owner);
 
-    if (res) res.status(200).send();
+    if (res) {
+      res.status(200).send();
+    }
 
-    const ws = new Workspace(true, "fs");
+    const ws = new Workspace(true, 'fs');
     console.debug(`using workspace ${ws.location}`);
-    const exporter = new CustomExporter("", ws.location);
+    const exporter = new CustomExporter('', ws.location);
     const settings = await Settings.LoadFrom(DB, owner, id);
     const bl = new BlockHandler(exporter, api, settings);
     const rules = await ParserRules.Load(owner, id);
 
-    if (res) bl.useAll = rules.UNLIMITED = res?.locals.patreon;
-    else {
+    if (res) {
+      bl.useAll = rules.UNLIMITED = res?.locals.patreon;
+    } else {
       const user = await isPatron(DB, owner);
-      console.log("checking if user is patreon", user);
+      console.log('checking if user is patreon', user);
       bl.useAll = rules.UNLIMITED = user.patreon;
     }
 
@@ -78,7 +81,7 @@ export default async function performConversion(
     }
 
     const decks = await bl.findFlashcards(
-      id.replace(/\-/g, ""),
+      id.replace(/\-/g, ''),
       rules,
       settings,
       [],
@@ -90,16 +93,16 @@ export default async function performConversion(
     const apkg = fs.readFileSync(payload);
     const filename = (() => {
       const f = settings.deckName || bl.firstPageTitle || id;
-      if (f.endsWith(".apkg")) {
+      if (f.endsWith('.apkg')) {
         return f;
       }
-      return f + ".apkg";
+      return `${f}.apkg`;
     })();
 
-    const key = storage.uniqify(id, owner, 200, "apkg");
+    const key = storage.uniqify(id, owner, 200, 'apkg');
     await storage.uploadFile(key, apkg);
     const size = FileSizeInMegaBytes(payload);
-    await DB("uploads").insert({
+    await DB('uploads').insert({
       object_id: id,
       owner,
       filename,
@@ -108,7 +111,7 @@ export default async function performConversion(
       size_mb: size,
     });
 
-    console.log("rules.email", rules.EMAIL_NOTIFICATION);
+    console.log('rules.email', rules.EMAIL_NOTIFICATION);
     await job.completed(id, owner);
     const email = await getEmailFromOwner(DB, owner);
     if (size > 24) {

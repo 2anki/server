@@ -1,6 +1,6 @@
 export type MockType =
-  | "ListBlockChildrenResponse"
-  | "GetPageResponse"
-  | "GetDatabaseResponse"
-  | "QueryDatabaseResponse"
-  | "GetBlockResponse";
+  | 'ListBlockChildrenResponse'
+  | 'GetPageResponse'
+  | 'GetDatabaseResponse'
+  | 'QueryDatabaseResponse'
+  | 'GetBlockResponse';

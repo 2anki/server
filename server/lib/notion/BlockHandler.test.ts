@@ -1,6 +1,7 @@
 import path from 'path';
 import os from 'os';
 
+import * as dotenv from 'dotenv';
 import CustomExporter from '../parser/CustomExporter';
 import Note from '../parser/Note';
 import ParserRules from '../parser/ParserRules';
@@ -11,7 +12,6 @@ import BlockHandler from './BlockHandler';
 import { pageId as examplId } from '../../test/test-utils';
 import MockNotionAPI from './_mock/MockNotionAPI';
 
-import * as dotenv from 'dotenv';
 dotenv.config({ path: 'test/.env' });
 const api = new MockNotionAPI(process.env.NOTION_KEY!);
 
@@ -39,9 +39,7 @@ async function findCardByName(
     new Workspace(true, 'fs'),
     new ParserRules()
   );
-  return flashcards.find((f) => {
-    return f.name === name;
-  });
+  return flashcards.find((f) => f.name === name);
 }
 
 beforeEach(() => {
@@ -118,7 +116,9 @@ describe('BlockHandler', () => {
     );
     const card = flashcards[0];
     expect(card.name).toBe('1 - This is a basic card');
-    expect(card.back).toBe(`<p class=\"\" id=\"f83ce56a-9039-4888-81be-375b19a84790\">This is the back of the card</p>`);
+    expect(card.back).toBe(
+      '<p class="" id="f83ce56a-9039-4888-81be-375b19a84790">This is the back of the card</p>'
+    );
   });
 
   test('Cloze Deletion from Blocks', async () => {
@@ -132,7 +132,7 @@ describe('BlockHandler', () => {
       (c) => c.name === '2 - This is a {{c1::cloze deletion}}'
     );
     expect(card?.back).toBe(
-      `<p class="" id="34be35bd-db68-4588-85d9-e1adc84c45a5">Extra</p>`
+      '<p class="" id="34be35bd-db68-4588-85d9-e1adc84c45a5">Extra</p>'
     );
   });
 
@@ -178,9 +178,7 @@ describe('BlockHandler', () => {
       new Workspace(true, 'fs'),
       new ParserRules()
     );
-    const card = flashcards.find(
-      (f) => f.name === `1 - This is a basic card`
-    );
+    const card = flashcards.find((f) => f.name === '1 - This is a basic card');
     expect(card).toBeTruthy();
     expect(card?.notionLink).toBe(expected);
   });
@@ -192,9 +190,7 @@ describe('BlockHandler', () => {
       new Workspace(true, 'fs'),
       new ParserRules()
     );
-    const card = flashcards.find(
-      (f) => f.name === '3 - 21 + 21 is #buddy'
-    );
+    const card = flashcards.find((f) => f.name === '3 - 21 + 21 is #buddy');
     const expected = 'a5445230-bfa9-4bf1-bc35-a706c1d129d1';
     expect(card?.notionId).toBe(expected);
   });

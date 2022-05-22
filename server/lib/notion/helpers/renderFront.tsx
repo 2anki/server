@@ -15,7 +15,7 @@ export default async function renderFront(
   handler: BlockHandler
 ) {
   /* @ts-ignore */
-  const type = block.type;
+  const { type } = block;
   if (isHeading(block)) {
     return BlockHeading(type, block, handler);
   }
@@ -29,7 +29,7 @@ export default async function renderFront(
 
   if (isToggle(block)) {
     // @ts-ignore
-    const toggle = block.toggle;
+    const { toggle } = block;
     if (toggle && toggle.text?.length > 0) {
       return renderTextChildren(toggle.text, handler.settings);
     }
