@@ -3,7 +3,7 @@ import { Response } from 'express';
 import sendError from './sendError';
 
 export default async function ensureResponse(
-  call: () => Promise<any>,
+  call: () => Promise<void>,
   res: Response
 ): Promise<void> {
   try {

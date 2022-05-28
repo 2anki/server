@@ -1,4 +1,5 @@
 import aws from 'aws-sdk';
+import { ObjectList } from 'aws-sdk/clients/s3';
 
 class StorageHandler {
   s3: aws.S3;
@@ -54,7 +55,7 @@ class StorageHandler {
     });
   }
 
-  getContents(): Promise<any> {
+  getContents(): Promise<ObjectList | undefined> {
     const { s3 } = this;
     return new Promise((resolve, reject) => {
       /* @ts-ignore */
