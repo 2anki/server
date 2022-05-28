@@ -15,8 +15,10 @@ import MockNotionAPI from './_mock/MockNotionAPI';
 dotenv.config({ path: 'test/.env' });
 const api = new MockNotionAPI(process.env.NOTION_KEY!);
 
+type Options = { [key: string]: string };
+
 const loadCards = async (
-  options: any,
+  options: Options,
   pageId: string,
   ws: Workspace,
   rules?: ParserRules
@@ -31,7 +33,7 @@ const loadCards = async (
 
 async function findCardByName(
   name: string,
-  options: Object
+  options: Options
 ): Promise<Note | undefined> {
   const flashcards = await loadCards(
     options,
@@ -171,7 +173,7 @@ describe('BlockHandler', () => {
       'https://www.notion.so/Notion-API-Test-Page-3ce6b147ac8a425f836b51cc21825b85#e5201f35c72240d38e3a5d218e5d80a5';
     const flashcards = await loadCards(
       {
-        'add-notion-link': true,
+        'add-notion-link': 'true',
         parentBlockId: examplId,
       },
       examplId,

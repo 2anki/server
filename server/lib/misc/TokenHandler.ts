@@ -12,7 +12,10 @@ interface User {
 }
 
 class TokenHandler {
-  static SaveNotionToken(user: number, data: any): Promise<boolean> {
+  static SaveNotionToken(
+    user: number,
+    data: { [key: string]: string }
+  ): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
       DB('notion_tokens')
         .insert({
@@ -39,7 +42,7 @@ class TokenHandler {
   static SavePatreonToken(
     user: number,
     token: string,
-    data: any
+    data: { [key: string]: string }
   ): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
       DB('patreon_tokens')

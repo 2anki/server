@@ -1,5 +1,7 @@
 import fs from 'fs';
 
-export default function getPayload(path: string): any {
+import { Payload } from './types';
+
+export default function getPayload(path: string): Payload {
   return JSON.parse(fs.readFileSync(path).toString());
 }

@@ -70,7 +70,7 @@ export default class Settings {
 
   parentBlockId: string;
 
-  constructor(input: any) {
+  constructor(input: { [key: string]: string }) {
     this.deckName = input.deckName;
     if (this.deckName && !this.deckName.trim()) {
       this.deckName = undefined;
@@ -129,7 +129,7 @@ export default class Settings {
     }
   }
 
-  static LoadDefaultOptions(): Object {
+  static LoadDefaultOptions(): { [key: string]: string } {
     return {
       'add-notion-link': 'true',
       'use-notion-id': 'true',
