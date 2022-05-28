@@ -26,15 +26,10 @@ body {
 }
 
 .front-text-post {
-  color: gray;
   font-size: 1rem;
 }
 
 .back-text {
   font-size: 1.5rem;
   text-align: left;
-}
-
-.extra {
-  color: gray;
 }
