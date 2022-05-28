@@ -29,7 +29,7 @@ When that is said, if you are not content with Anki, you might want to checkout 
 
 ## Sponsors
 
-[![Scrimba.com](https://github.com/alemayhu/Notion-to-Anki/raw/main/web/public/sponsors/Scrimba.png)](https://scrimba.com/)
+[![Scrimba.com](https://raw.githubusercontent.com/2anki/web/main/public/sponsors/Scrimba.png)](https://scrimba.com/)
 
 👩🏼‍🎓👨‍🎓️👨‍🏫️👩🏽‍🏫 [Scrimba](https://scrimba.com) - the mind-blowing way to to code!
 
