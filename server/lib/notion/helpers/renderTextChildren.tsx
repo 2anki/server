@@ -9,7 +9,7 @@ import isText from './isText';
 import preserveNewlinesIfApplicable from './preserveNewlinesIfApplicable';
 
 export default function renderTextChildren(
-  text: any[],
+  text: GetBlockResponse[],
   settings: Settings
 ): string {
   if (text.length === 0) {

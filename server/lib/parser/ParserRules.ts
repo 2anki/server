@@ -71,7 +71,11 @@ class ParserRules {
     return false;
   }
 
-  static async Save(id: string, owner: string, input: any) {
+  static async Save(
+    id: string,
+    owner: string,
+    input: { [key: string]: string }
+  ) {
     await DB('parser_rules')
       .insert({
         owner,

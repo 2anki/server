@@ -29,8 +29,8 @@ router.get('/connect', RequireAuthentication, async (req, res) => {
   if (code) {
     try {
       const n = NotionConnectionHandler.Default();
-      const token = await n.getAccessData(code.toString());
-      await TokenHandler.SaveNotionToken(res.locals.owner, token);
+      const accessData = await n.getAccessData(code.toString());
+      await TokenHandler.SaveNotionToken(res.locals.owner, accessData);
       return res.redirect('/search');
     } catch (err) {
       console.error(err);

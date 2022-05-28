@@ -1,8 +1,8 @@
 import path from 'path';
 import ensureExists from './ensureExists';
-import { MockType } from './MockType';
+import { Mock } from './types';
 
-export default function dataMockPath(type: MockType, id: string): string {
+export default function dataMockPath(type: Mock, id: string): string {
   const dir = path.join(__dirname, `../payloads/${type}`);
   ensureExists(dir);
   return path.join(dir, `${id}.json`);
