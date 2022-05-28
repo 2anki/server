@@ -7,6 +7,12 @@ import cookieParser from 'cookie-parser';
 import * as dotenv from 'dotenv';
 
 import { IsDebug } from './lib/debug';
+if (IsDebug()) {
+  const localEnvFile = path.join(__dirname, '.env');
+  if (existsSync(localEnvFile)) {
+    dotenv.config({ path: localEnvFile });
+  }
+}
 
 import { ALLOWED_ORIGINS, BUILD_DIR, INDEX_FILE } from './lib/constants';
 import ErrorHandler from './lib/misc/ErrorHandler';
@@ -29,13 +35,6 @@ import CrashReporter from './lib/CrashReporter';
 import { ScheduleCleanup } from './lib/jobs/JobHandler';
 import ConversionJob from './lib/jobs/ConversionJob';
 import RequireAuthentication from './middleware/RequireAuthentication';
-
-if (IsDebug()) {
-  const localEnvFile = path.join(__dirname, '.env');
-  if (existsSync(localEnvFile)) {
-    dotenv.config({ path: localEnvFile });
-  }
-}
 
 function serve() {
   const templateDir = path.join(__dirname, 'templates');
