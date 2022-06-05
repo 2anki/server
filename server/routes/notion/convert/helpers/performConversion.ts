@@ -36,7 +36,7 @@ export default async function performConversion(
       console.log('skipping conversion');
       return res?.status(429).send({
         message:
-          "Request denied, only <a href='https://www.patreon.com/alemayhu'>patrons</a> are allowed to make multiple conversions at a time. You already have a conversion in progress. Wait for your current conversion to finish or cancel it under <a href='/uploads'>Uploads</a>.",
+          'Request denied, only patrons are allowed to make multiple conversions at a time. You already have a conversion in progress. Wait for your current conversion to finish or cancel it under Uploads.',
       });
     }
 
@@ -76,17 +76,14 @@ export default async function performConversion(
       bl.useAll = rules.UNLIMITED = user.patreon;
     }
 
-    if (req && req.query && req.query.type) {
-      rules.setDeckIs(req.query.type.toString(), id, owner);
-    }
-
-    const decks = await bl.findFlashcards(
-      id.replace(/\-/g, ''),
+    const decks = await bl.findFlashcards({
+      parentType: req?.query.type?.toString() || 'page',
+      topLevelId: id.replace(/\-/g, ''),
       rules,
       settings,
-      [],
-      settings.deckName
-    );
+      decks: [],
+      parentName: settings.deckName || '',
+    });
     exporter.configure(decks);
     const gen = new CardGenerator(ws.location);
     const payload = (await gen.run()) as string;
