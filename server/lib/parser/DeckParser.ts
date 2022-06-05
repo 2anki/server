@@ -1,24 +1,30 @@
-import cheerio from "cheerio";
+import cheerio from 'cheerio';
 
-import CustomExporter from "./CustomExporter";
-import Settings from "./Settings";
-import Note from "./Note";
-import Deck from "./Deck";
-import { File } from "../anki/zip";
-import Workspace from "./WorkSpace";
-import { NewUniqueFileNameFrom, SuffixFrom } from "../misc/file";
-import replaceAll from "./helpers/replaceAll";
-import handleClozeDeletions from "./helpers/handleClozeDeletions";
-import sanitizeTags from "../anki/sanitizeTags";
-import preserveNewlinesIfApplicable from "../notion/helpers/perserveNewlinesIfApplicable";
+import CustomExporter from './CustomExporter';
+import Settings from './Settings';
+import Note from './Note';
+import Deck from './Deck';
+import { File } from '../anki/zip';
+import Workspace from './WorkSpace';
+import { SuffixFrom } from '../misc/file';
+import replaceAll from './helpers/replaceAll';
+import handleClozeDeletions from './helpers/handleClozeDeletions';
+import sanitizeTags from '../anki/sanitizeTags';
+import preserveNewlinesIfApplicable from '../notion/helpers/preserveNewlinesIfApplicable';
 
-import getYouTubeID from "./helpers/getYouTubeID";
-import getYouTubeEmbedLink from "./helpers/getYouTubeEmbedLink";
+import getYouTubeID from './helpers/getYouTubeID';
+import getYouTubeEmbedLink from './helpers/getYouTubeEmbedLink';
+import getUniqueFileName from '../misc/getUniqueFileName';
+
 export class DeckParser {
   globalTags: cheerio.Cheerio | null;
+
   firstDeckName: string;
+
   settings: Settings;
+
   payload: Deck[];
+
   files: File[];
 
   public get name() {
@@ -42,7 +48,7 @@ export class DeckParser {
       this.payload = this.handleHTML(
         name,
         firstFile.contents.toString(),
-        this.settings.deckName || "",
+        this.settings.deckName || '',
         []
       );
     } else {
@@ -52,65 +58,64 @@ export class DeckParser {
 
   findNextPage(href: string | undefined): string | Uint8Array | undefined {
     if (!href) {
-      console.debug("skipping next page, due to href being " + href);
+      console.debug(`skipping next page, due to href being ${href}`);
       return undefined;
     }
     const next = global.decodeURIComponent(href);
-    const nextFile = this.files.find((file) => {
-      return file.name.match(next.replace(/[#-.]|[[-^]|[?|{}]/g, "\\$&"));
-    });
+    const nextFile = this.files.find((file) =>
+      file.name.match(next.replace(/[#-.]|[[-^]|[?|{}]/g, '\\$&'))
+    );
     return nextFile ? nextFile.contents : undefined;
   }
 
   noteHasCherry(note: Note) {
-    const cherry = "&#x1F352;";
+    const cherry = '&#x1F352;';
     return (
       note.name.includes(cherry) ||
       note.back.includes(cherry) ||
-      note.name.includes("🍒") ||
-      note.back.includes("🍒")
+      note.name.includes('🍒') ||
+      note.back.includes('🍒')
     );
   }
 
   noteHasAvocado(note: Note) {
-    const avocado = "&#x1F951";
-    return note.name.includes(avocado) || note.name.includes("🥑");
+    const avocado = '&#x1F951';
+    return note.name.includes(avocado) || note.name.includes('🥑');
   }
-
 
   findToggleLists(dom: cheerio.Root) {
     const selector =
       this.settings.isCherry || this.settings.isAll
-        ? ".toggle"
-        : ".page-body > ul";
+        ? '.toggle'
+        : '.page-body > ul';
     return dom(selector).toArray();
   }
 
   removeNestedToggles(input: string) {
     return input
-      .replace(/<details(.*?)>(.*?)<\/details>/g, "")
-      .replace(/<summary>(.*?)<\/summary>/g, "")
-      .replace(/<li><\/li>/g, "")
-      .replace(/<ul[^/>][^>]*><\/ul>/g, "")
-      .replace(/<\/details><\/li><\/ul><\/details><\/li><\/ul>/g, "")
-      .replace(/<\/details><\/li><\/ul>/g, "")
-      .replace(/<p[^/>][^>]*><\/p>/g, "")
-      .replace('<summary class="toggle"></summary>', "");
+      .replace(/<details(.*?)>(.*?)<\/details>/g, '')
+      .replace(/<summary>(.*?)<\/summary>/g, '')
+      .replace(/<li><\/li>/g, '')
+      .replace(/<ul[^/>][^>]*><\/ul>/g, '')
+      .replace(/<\/details><\/li><\/ul><\/details><\/li><\/ul>/g, '')
+      .replace(/<\/details><\/li><\/ul>/g, '')
+      .replace(/<p[^/>][^>]*><\/p>/g, '')
+      .replace('<summary class="toggle"></summary>', '');
   }
 
   setFontSize(style: string) {
-    let fontSize = this.settings.fontSize;
-    if (fontSize && fontSize !== "20px") {
+    let { fontSize } = this.settings;
+    if (fontSize && fontSize !== '20px') {
       // For backwards compatability, don't touch the font-size if it's 20px
-      fontSize = fontSize.trim().endsWith("px") ? fontSize : fontSize + "px";
-      style += "\n" + "* { font-size:" + fontSize + "}";
+      fontSize = fontSize.trim().endsWith('px') ? fontSize : `${fontSize}px`;
+      style += '\n' + `* { font-size:${fontSize}}`;
     }
     return style;
   }
 
   getLink(pageId: string | undefined, note: Note): string | null {
     try {
-      const page = pageId!.replace(/-/g, "");
+      const page = pageId!.replace(/-/g, '');
       const link = `https://www.notion.so/${page}#${note.notionId}`;
       return `
                 <a
@@ -120,7 +125,7 @@ export class DeckParser {
                 </a>
                 `;
     } catch (error) {
-      console.info("experienced error while getting link");
+      console.info('experienced error while getting link');
       console.error(error);
       return null;
     }
@@ -134,31 +139,31 @@ export class DeckParser {
   ) {
     const dom = cheerio.load(
       this.settings.noUnderline
-        ? contents.replace(/border-bottom:0.05em solid/g, "")
+        ? contents.replace(/border-bottom:0.05em solid/g, '')
         : contents
     );
     /* @ts-ignore */
-    let name = deckName || dom("title").text();
-    let style = dom("style").html();
-    const pageId = dom("article").attr("id");
+    let name = deckName || dom('title').text();
+    let style = dom('style').html();
+    const pageId = dom('article').attr('id');
     if (style) {
-      style = style.replace(/white-space: pre-wrap;/g, "");
+      style = style.replace(/white-space: pre-wrap;/g, '');
       style = this.setFontSize(style);
     }
 
-    let image: string | undefined = "";
-    const pageCoverImage = dom(".page-cover-image");
+    let image: string | undefined = '';
+    const pageCoverImage = dom('.page-cover-image');
     if (pageCoverImage) {
-      image = pageCoverImage.attr("src");
+      image = pageCoverImage.attr('src');
     }
 
-    const pageIcon = dom(".page-header-icon > .icon");
+    const pageIcon = dom('.page-header-icon > .icon');
     const pi = pageIcon.html();
-    if (pi && this.settings.pageEmoji !== "disable_emoji") {
+    if (pi && this.settings.pageEmoji !== 'disable_emoji') {
       if (!name.includes(pi) && decks.length === 0) {
-        if (!name.includes("::") && !name.startsWith(pi)) {
+        if (!name.includes('::') && !name.startsWith(pi)) {
           name =
-            this.settings.pageEmoji === "first_emoji"
+            this.settings.pageEmoji === 'first_emoji'
               ? `${pi} ${name}`
               : `${name} ${pi}`;
         } else {
@@ -166,15 +171,15 @@ export class DeckParser {
           const end = names.length - 1;
           const last = names[end];
           names[end] =
-            this.settings.pageEmoji === "first_emoji"
+            this.settings.pageEmoji === 'first_emoji'
               ? `${pi} ${last}`
               : `${last} ${pi}`;
-          name = names.join("::");
+          name = names.join('::');
         }
       }
     }
 
-    this.globalTags = dom(".page-body > p > del");
+    this.globalTags = dom('.page-body > p > del');
     const toggleList = this.findToggleLists(dom);
     let cards: Note[] = [];
 
@@ -182,24 +187,26 @@ export class DeckParser {
       // We want to perserve the parent's style, so getting the class
       const p = dom(t);
       const parentUL = p;
-      const parentClass = p.attr("class") || "";
+      const parentClass = p.attr('class') || '';
 
-      if (this.settings.toggleMode === "open_toggle") {
-        dom("details").attr("open", "");
-      } else if (this.settings.toggleMode === "close_toggle") {
-        dom("details").removeAttr("open");
+      if (this.settings.toggleMode === 'open_toggle') {
+        dom('details').attr('open', '');
+      } else if (this.settings.toggleMode === 'close_toggle') {
+        dom('details').removeAttr('open');
       }
 
       if (parentUL) {
-        dom("details").addClass(parentClass);
-        dom("summary").addClass(parentClass);
-        const summary = parentUL.find("summary").first();
-        const toggle = parentUL.find("details").first();
+        dom('details').addClass(parentClass);
+        dom('summary').addClass(parentClass);
+        const summary = parentUL.find('summary').first();
+        const toggle = parentUL.find('details').first();
 
         if (summary && summary.text()) {
-          const validSummary = (() => {
-            return preserveNewlinesIfApplicable(summary.html() || "", this.settings);
-          })();
+          const validSummary = (() =>
+            preserveNewlinesIfApplicable(
+              summary.html() || '',
+              this.settings
+            ))();
           const front = parentClass
             ? `<div class='${parentClass}'>${validSummary}</div>`
             : validSummary;
@@ -207,10 +214,10 @@ export class DeckParser {
           if (toggle || (this.settings.maxOne && toggle.text())) {
             const toggleHTML = toggle.html();
             if (toggleHTML) {
-              let b = toggleHTML.replace(summary.html() || "", "");
+              let b = toggleHTML.replace(summary.html() || '', '');
               if (this.settings.isTextOnlyBack) {
-                const paragraphs = dom(toggle).find("> p").toArray();
-                b = "";
+                const paragraphs = dom(toggle).find('> p').toArray();
+                b = '';
                 for (const paragraph of paragraphs) {
                   if (paragraph) {
                     b += dom(paragraph).html();
@@ -219,17 +226,17 @@ export class DeckParser {
               }
 
               const backSide = (() => {
-                let _b = b;
+                let mangleBackSide = b;
                 if (this.settings.maxOne) {
-                  _b = this.removeNestedToggles(b);
+                  mangleBackSide = this.removeNestedToggles(b);
                 }
                 if (this.settings.perserveNewLines) {
-                  _b = replaceAll(_b, "\n", "<br />");
+                  mangleBackSide = replaceAll(mangleBackSide, '\n', '<br />');
                 }
-                return _b;
+                return mangleBackSide;
               })();
-              const note = new Note(front || "", backSide);
-              note.notionId = parentUL.attr("id");
+              const note = new Note(front || '', backSide);
+              note.notionId = parentUL.attr('id');
               if (note.notionId && this.settings.addNotionLink) {
                 const link = this.getLink(pageId, note);
                 if (link !== null) {
@@ -240,7 +247,7 @@ export class DeckParser {
                 (this.settings.isAvocado && this.noteHasAvocado(note)) ||
                 (this.settings.isCherry && !this.noteHasCherry(note))
               ) {
-                console.debug("dropping due to matching rules");
+                console.debug('dropping due to matching rules');
               } else {
                 cards.push(note);
               }
@@ -258,14 +265,14 @@ export class DeckParser {
       new Deck(name, cards, image, style, Deck.GenerateId(), this.settings)
     );
 
-    const subpages = dom(".link-to-page").toArray();
+    const subpages = dom('.link-to-page').toArray();
     for (const page of subpages) {
       const spDom = dom(page);
-      const ref = spDom.find("a").first();
-      const href = ref.attr("href");
+      const ref = spDom.find('a').first();
+      const href = ref.attr('href');
       const pageContent = this.findNextPage(href);
       if (pageContent && name) {
-        const subDeckName = spDom.find("title").text() || ref.text();
+        const subDeckName = spDom.find('title').text() || ref.text();
         this.handleHTML(
           fileName,
           pageContent.toString(),
@@ -281,14 +288,14 @@ export class DeckParser {
     if (!input) {
       return false;
     }
-    return input.includes("code");
+    return input.includes('code');
   }
 
   validInputCard(input: Note) {
     if (!this.settings.useInput) {
       return false;
     }
-    return input.name && input.name.includes("strong");
+    return input.name && input.name.includes('strong');
   }
 
   sanityCheck(cards: Note[]) {
@@ -317,7 +324,7 @@ export class DeckParser {
     if (!file) {
       const lookup = `${exporter.firstDeckName}/${filePath}`.replace(
         /\.\.\//g,
-        ""
+        ''
       );
       file = files.find((f) => {
         if (f.name === lookup || f.name.endsWith(filePath)) {
@@ -331,7 +338,7 @@ export class DeckParser {
         return null;
       }
     }
-    const newName = NewUniqueFileNameFrom(filePath) + suffix;
+    const newName = getUniqueFileName(filePath) + suffix;
     const contents = file.contents as string;
     if (contents) {
       exporter.addMedia(newName, contents);
@@ -345,7 +352,7 @@ export class DeckParser {
       try {
         return getYouTubeID(input);
       } catch (error) {
-        console.debug("error in getYouTubeID");
+        console.debug('error in getYouTubeID');
         console.error(error);
         return null;
       }
@@ -355,9 +362,8 @@ export class DeckParser {
   ensureNotNull(input: string, cb: () => void) {
     if (!input || !input.trim()) {
       return null;
-    } else {
-      return cb();
     }
+    return cb();
   }
 
   getSoundCloudURL(input: string) {
@@ -370,7 +376,7 @@ export class DeckParser {
         }
         return m[0].split('">')[0];
       } catch (error) {
-        console.debug("error in getSoundCloudURL");
+        console.debug('error in getSoundCloudURL');
         console.error(error);
         return null;
       }
@@ -385,7 +391,7 @@ export class DeckParser {
           return null;
         }
         const ma = m[2];
-        if (!ma.endsWith(".mp3") || ma.startsWith("http")) {
+        if (!ma.endsWith('.mp3') || ma.startsWith('http')) {
           return null;
         }
         return ma;
@@ -397,14 +403,14 @@ export class DeckParser {
 
   treatBoldAsInput(input: string, inline: boolean) {
     const dom = cheerio.load(input);
-    const underlines = dom("strong");
+    const underlines = dom('strong');
     let mangle = input;
-    let answer = "";
+    let answer = '';
     underlines.each((_i, elem) => {
       const v = dom(elem).html();
       if (v) {
         const old = `<strong>${v}</strong>`;
-        mangle = replaceAll(mangle, old, inline ? v : "{{type:Input}}");
+        mangle = replaceAll(mangle, old, inline ? v : '{{type:Input}}');
         answer = v;
       }
     });
@@ -420,7 +426,7 @@ export class DeckParser {
       }
 
       const dom = cheerio.load(i);
-      const deletionsDOM = dom("del");
+      const deletionsDOM = dom('del');
       const deletionsArray = [deletionsDOM, this.globalTags];
       if (!card.tags) {
         card.tags = [];
@@ -431,11 +437,9 @@ export class DeckParser {
         }
         deletions.each((_i: number, elem: cheerio.Element) => {
           const del = dom(elem);
-          card.tags.push(
-            ...sanitizeTags(del.text().split(","))
-          );
-          card.back = replaceAll(card.back, `<del>${del.html()}</del>`, "");
-          card.name = replaceAll(card.name, `<del>${del.html()}</del>`, "");
+          card.tags.push(...sanitizeTags(del.text().split(',')));
+          card.back = replaceAll(card.back, `<del>${del.html()}</del>`, '');
+          card.name = replaceAll(card.name, `<del>${del.html()}</del>`, '');
         });
       }
     }
@@ -443,7 +447,7 @@ export class DeckParser {
   }
 
   async build() {
-    const ws = new Workspace(true, "fs");
+    const ws = new Workspace(true, 'fs');
     const exporter = this.setupExporter(this.payload, ws.location);
 
     for (const d of this.payload) {
@@ -465,7 +469,7 @@ export class DeckParser {
           card.name = handleClozeDeletions(card.name);
         }
 
-        if (this.settings.useInput && card.name.includes("<strong>")) {
+        if (this.settings.useInput && card.name.includes('<strong>')) {
           const inputInfo = this.treatBoldAsInput(card.name, false);
           card.name = inputInfo.mangle;
           card.answer = inputInfo.answer;
@@ -474,18 +478,19 @@ export class DeckParser {
         card.media = [];
         if (card.back) {
           const dom = cheerio.load(card.back);
-          const images = dom("img");
+          const images = dom('img');
+          const decodeURIComponent = global.decodeURIComponent;
           if (images.length > 0) {
             images.each((_i, elem) => {
-              const originalName = dom(elem).attr("src");
-              if (originalName && !originalName.startsWith("http")) {
+              const originalName = dom(elem).attr('src');
+              if (originalName && !originalName.startsWith('http')) {
                 const newName = this.embedFile(
                   exporter,
                   this.files,
-                  global.decodeURIComponent(originalName)
+                  decodeURIComponent(originalName)
                 );
                 if (newName) {
-                  dom(elem).attr("src", newName);
+                  dom(elem).attr('src', newName);
                   card.media.push(newName);
                 }
               }
@@ -498,7 +503,7 @@ export class DeckParser {
             if (this.settings.removeMP3Links) {
               card.back = card.back.replace(
                 /<figure.*<a\shref=["'].*\.mp3["']>.*<\/a>.*<\/figure>/,
-                ""
+                ''
               );
             }
             const newFileName = this.embedFile(
@@ -525,7 +530,7 @@ export class DeckParser {
             card.back += audio;
           }
 
-          if (this.settings.useInput && card.back.includes("<strong>")) {
+          if (this.settings.useInput && card.back.includes('<strong>')) {
             const inputInfo = this.treatBoldAsInput(card.back, true);
             card.back = inputInfo.mangle;
           }

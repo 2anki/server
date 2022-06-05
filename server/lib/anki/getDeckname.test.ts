@@ -6,8 +6,8 @@ describe('getDeckname', () => {
   });
   it('has parent', () => {
     expect(getDeckName('parent', 'test')).toBe('parent::test');
-  })
-  it("ignores parent is same as child", () => {
+  });
+  it('ignores parent is same as child', () => {
     expect(getDeckName('test', 'test')).toBe('test');
-  })
+  });
 });

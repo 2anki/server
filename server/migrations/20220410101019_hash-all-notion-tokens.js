@@ -1,4 +1,4 @@
-const CryptoJS = require("crypto-js");
+const CryptoJS = require('crypto-js');
 
 function unHashToken(token) {
   return CryptoJS.AES.decrypt(token, process.env.THE_HASHING_SECRET).toString(
@@ -13,14 +13,14 @@ function hashToken(token) {
 module.exports.up = (knex) => {
   return knex
     .select()
-    .from("notion_tokens")
+    .from('notion_tokens')
     .then((users) => {
       return knex.transaction((trx) => {
         return knex.schema
-          .table("notion_tokens", () =>
+          .table('notion_tokens', () =>
             Promise.all(
               users.map((row) => {
-                return knex("notion_tokens")
+                return knex('notion_tokens')
                   .update({ token: hashToken(row.token), encrypted: true })
                   .where({ owner: row.owner, encrypted: false })
                   .transacting(trx);
@@ -36,14 +36,14 @@ module.exports.up = (knex) => {
 module.exports.down = (knex) => {
   return knex
     .select()
-    .from("notion_tokens")
+    .from('notion_tokens')
     .then((users) => {
       return knex.transaction((trx) => {
         return knex.schema
-          .table("notion_tokens", () =>
+          .table('notion_tokens', () =>
             Promise.all(
               users.map((row) => {
-                return knex("notion_tokens")
+                return knex('notion_tokens')
                   .update({ token: unHashToken(row.token), encrypted: false })
                   .where({ owner: row.owner, encrypted: true })
                   .transacting(trx);

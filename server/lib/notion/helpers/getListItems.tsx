@@ -19,10 +19,13 @@ export default async function getListItems(
       if (!list) {
         return null;
       }
-      const backSide = await getChildren(result, handler);
+      const backSide = await getChildren(list, handler);
       handler.skip.push(result.id);
       const isTodo = type === 'to_do';
-      const checked = isTodo && list.checked ? 'to-do-children-checked' : 'to-do-children-unchecked'
+      const checked =
+        isTodo && list.checked
+          ? 'to-do-children-checked'
+          : 'to-do-children-unchecked';
       const checkedClass = isTodo ? checked : '';
 
       return (
@@ -33,7 +36,11 @@ export default async function getListItems(
               className={`checkbox checkbox-${list.checked ? 'on' : 'off'}`}
             ></div>
           )}
-          {renderTextChildren(list.text, handler.settings)}
+          <div
+            dangerouslySetInnerHTML={{
+              __html: renderTextChildren(list.text, handler.settings),
+            }}
+          />
           {backSide && (
             <div
               className={`${checkedClass}`}

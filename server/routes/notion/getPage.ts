@@ -1,7 +1,7 @@
-import express from "express";
+import express from 'express';
 
-import NotionAPIWrapper from "../../lib/notion/NotionAPIWrapper";
-import NotionID from "../../lib/notion/NotionID";
+import NotionAPIWrapper from '../../lib/notion/NotionAPIWrapper';
+import NotionID from '../../lib/notion/NotionID';
 
 export default async function getPage(
   api: NotionAPIWrapper,

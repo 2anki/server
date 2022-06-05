@@ -1,13 +1,18 @@
 import DB from '../storage/db';
 
-import addHeadings from "./helpers/addHeadings";
+import addHeadings from './helpers/addHeadings';
 
 class ParserRules {
   private FLASHCARD = ['toggle'];
+
   DECK = 'page';
+
   SUB_DECKS = 'child_page';
+
   TAGS = 'strikethrough';
+
   UNLIMITED = false;
+
   EMAIL_NOTIFICATION = false;
 
   /**
@@ -65,7 +70,11 @@ class ParserRules {
     return false;
   }
 
-  static async Save(id: string, owner: string, input: any) {
+  static async Save(
+    id: string,
+    owner: string,
+    input: { [key: string]: string }
+  ) {
     await DB('parser_rules')
       .insert({
         owner,
@@ -74,6 +83,7 @@ class ParserRules {
         deck_is: input.DECK,
         sub_deck_is: input.SUB_DECKS,
         tags_is: input.TAGS,
+        email_notification: input.EMAIL_NOTIFICATION,
       })
       .onConflict('object_id')
       .merge();

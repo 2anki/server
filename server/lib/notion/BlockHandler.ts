@@ -1,18 +1,18 @@
 import path from 'path';
 import fs from 'fs';
 
+import {
+  GetBlockResponse,
+  ListBlockChildrenResponse,
+} from '@notionhq/client/build/src/api-endpoints';
+import axios from 'axios';
 import NotionAPIWrapper from './NotionAPIWrapper';
 import Note from '../parser/Note';
 import Settings from '../parser/Settings';
 import ParserRules from '../parser/ParserRules';
 import Deck from '../parser/Deck';
 import CustomExporter from '../parser/CustomExporter';
-import {
-  GetBlockResponse,
-  ListBlockChildrenResponse,
-} from '@notionhq/client/build/src/api-endpoints';
-import { NewUniqueFileNameFrom, S3FileName, SuffixFrom } from '../misc/file';
-import axios from 'axios';
+import { S3FileName, SuffixFrom } from '../misc/file';
 import BlockParagraph from './blocks/BlockParagraph';
 import BlockCode from './blocks/BlockCode';
 import { BlockHeading } from './blocks/BlockHeadings';
@@ -38,16 +38,22 @@ import isColumnList from './helpers/isColumnList';
 import isTesting from './helpers/isTesting';
 import BlockEquation from './blocks/BlockEquation';
 import renderFront from './helpers/renderFront';
-import perserveNewlinesIfApplicable from './helpers/perserveNewlinesIfApplicable';
+import perserveNewlinesIfApplicable from './helpers/preserveNewlinesIfApplicable';
 import getDeckName from '../anki/getDeckname';
 import LinkToPage from './blocks/LinkToPage';
+import getUniqueFileName from '../misc/getUniqueFileName';
 
 class BlockHandler {
   api: NotionAPIWrapper;
+
   exporter;
+
   skip: string[];
+
   firstPageTitle?: string;
+
   useAll: boolean = false;
+
   settings: Settings;
 
   constructor(
@@ -68,10 +74,10 @@ class BlockHandler {
     /* @ts-ignore */
     const t = c.image.type;
     /* @ts-ignore */
-    const url = c.image[t].url;
+    const { url } = c.image[t];
 
     const suffix = SuffixFrom(S3FileName(url));
-    const newName = NewUniqueFileNameFrom(url) + (suffix || '');
+    const newName = getUniqueFileName(url) + (suffix || '');
     const imageRequest = await axios.get(url, { responseType: 'arraybuffer' });
     const contents = imageRequest.data;
     this.exporter.addMedia(newName, contents);
@@ -83,9 +89,9 @@ class BlockHandler {
       return '';
     }
     /* @ts-ignore */
-    const audio = c.audio;
-    const url = audio.file.url;
-    const newName = NewUniqueFileNameFrom(url);
+    const { audio } = c;
+    const { url } = audio.file;
+    const newName = getUniqueFileName(url);
 
     const audioRequest = await axios.get(url, { responseType: 'arraybuffer' });
     const contents = audioRequest.data;
@@ -99,9 +105,9 @@ class BlockHandler {
       return '';
     }
     /* @ts-ignore */
-    const file = c.file;
-    const url = file.file.url;
-    const newName = NewUniqueFileNameFrom(url);
+    const { file } = c;
+    const { url } = file.file;
+    const newName = getUniqueFileName(url);
     const fileRequest = await axios.get(url, { responseType: 'arraybuffer' });
     const contents = fileRequest.data;
     this.exporter.addMedia(newName, contents);
@@ -215,7 +221,7 @@ class BlockHandler {
           ${JSON.stringify(c, null, 4)}
           </pre>`;
             /* @ts-ignore */
-            console.debug('unsupported ' + c.type);
+            console.debug(`unsupported ${c.type}`);
         }
 
         // Nesting applies to all not just toggles
@@ -259,8 +265,11 @@ class BlockHandler {
     let notionBaseLink = null;
     if (settings.addNotionLink && settings.parentBlockId) {
       const page = await this.api.getPage(settings.parentBlockId);
-      /* @ts-ignore */
-      if (page) notionBaseLink = page.url;
+
+      if (page) {
+        /* @ts-ignore */
+        notionBaseLink = page.url;
+      }
     }
 
     let counter = 0;
@@ -284,16 +293,16 @@ class BlockHandler {
         const clozeCard = await getClozeDeletionCard(rules, block);
         if (clozeCard) {
           isBasicType = false;
+          ankiNote.copyValues(clozeCard);
         }
-        clozeCard && ankiNote.copyValues(clozeCard);
       }
       // Look for input cards
       if (settings.useInput) {
         const inputCard = await getInputCard(rules, block);
         if (inputCard) {
           isBasicType = false;
+          ankiNote.copyValues(inputCard);
         }
-        inputCard && ankiNote.copyValues(inputCard);
       }
 
       ankiNote.back = back!;
@@ -325,14 +334,10 @@ class BlockHandler {
     }
 
     if (settings.isCherry) {
-      cards = cards.filter((c) => {
-        return c.hasCherry();
-      });
+      cards = cards.filter((c) => c.hasCherry());
     }
     if (settings.isAvocado) {
-      cards = cards.filter((c) => {
-        return !c.hasAvocado();
-      });
+      cards = cards.filter((c) => !c.hasAvocado());
     }
 
     if (settings.useTags && tags.length > 0) {
@@ -359,7 +364,8 @@ class BlockHandler {
         decks,
         parentName
       );
-    } else if (rules.DECK === 'database') {
+    }
+    if (rules.DECK === 'database') {
       const dbResult = await this.api.queryDatabase(topLevelId);
       const database = await this.api.getDatabase(topLevelId);
       const dbName = this.api.getDatabaseTitle(database, settings);

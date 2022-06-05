@@ -10,7 +10,7 @@ export default async function getColumn(
   const blocks = getBlocks?.results;
   if (blocks?.length > 0 && blocks?.length >= index + 1) {
     /* @ts-ignore */
-    return blocks[index]
+    return blocks[index];
   }
-  return null
+  return null;
 }

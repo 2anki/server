@@ -1,23 +1,23 @@
-import { Request, Response } from "express";
+import { Request, Response } from 'express';
 
-import DB from "../../lib/storage/db";
+import DB from '../../lib/storage/db';
 
 export default async function createSetting(req: Request, res: Response) {
   console.info(`/settings/create ${req.params.id}`);
-  const _settings = req.body.settings;
-  const access = await DB("access_tokens")
+  const { settings } = req.body;
+  const access = await DB('access_tokens')
     .where({ token: req.cookies.token })
-    .returning(["owner"])
+    .returning(['owner'])
     .first();
 
-  DB("settings")
+  DB('settings')
     .insert({
       /* @ts-ignore */
       owner: access.owner,
-      object_id: _settings.object_id,
-      payload: _settings.payload,
+      object_id: settings.object_id,
+      payload: settings.payload,
     })
-    .onConflict("object_id")
+    .onConflict('object_id')
     .merge()
     .then(() => {
       res.status(200).send();

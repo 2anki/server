@@ -4,8 +4,8 @@ export default function replaceAll(
   newValue: string
 ): string {
   // escaping all special Characters
-  const escaped = oldValue.replace(/[{}()[\].?*+$^\\/]/g, "\\$&");
+  const escaped = oldValue.replace(/[{}()[\].?*+$^\\/]/g, '\\$&');
   // creating regex with global flag
-  const reg = new RegExp(escaped, "g");
+  const reg = new RegExp(escaped, 'g');
   return original.replace(reg, newValue);
 }

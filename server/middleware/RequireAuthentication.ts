@@ -1,6 +1,6 @@
-import express from "express";
+import express from 'express';
 
-import TokenHandler from "../lib/misc/TokenHandler";
+import TokenHandler from '../lib/misc/TokenHandler';
 
 const RequireAuthentication = async (
   req: { cookies: { token: string } },
@@ -9,12 +9,11 @@ const RequireAuthentication = async (
 ) => {
   const user = await TokenHandler.GetUserFrom(req.cookies.token);
   if (!user) {
-    return res.redirect("/login#login");
-  } else {
-    res.locals.owner = user.owner;
-    res.locals.patreon = user.patreon;
-    return next();
+    return res.redirect('/login#login');
   }
+  res.locals.owner = user.owner;
+  res.locals.patreon = user.patreon;
+  return next();
 };
 
 export default RequireAuthentication;

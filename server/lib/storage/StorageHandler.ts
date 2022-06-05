@@ -1,4 +1,4 @@
-import aws from "aws-sdk";
+import aws from 'aws-sdk';
 
 class StorageHandler {
   s3: aws.S3;
@@ -18,14 +18,14 @@ class StorageHandler {
     suffix: string
   ): string {
     const now = Date.now().toString();
-    let _name = `${prefix}-${now}-${name}`.substring(
+    let uniqueName = `${prefix}-${now}-${name}`.substring(
       0,
       maxLength - (suffix.length + 1)
     );
-    if (!_name.endsWith(suffix)) {
-      _name += "." + suffix;
+    if (!uniqueName.endsWith(suffix)) {
+      uniqueName += `.${suffix}`;
     }
-    return _name;
+    return uniqueName;
   }
 
   static DefaultBucketName(): string {
@@ -38,11 +38,11 @@ class StorageHandler {
   }
 
   deleteWith(key: string): Promise<void> {
-    const s3 = this.s3;
+    const { s3 } = this;
     return new Promise((resolve, reject) => {
       s3.deleteObject(
         { Bucket: StorageHandler.DefaultBucketName(), Key: key },
-        function (err, _data) {
+        (err) => {
           if (err) {
             console.error(err);
             reject(err);
@@ -55,25 +55,24 @@ class StorageHandler {
   }
 
   getContents(): Promise<any> {
-    const s3 = this.s3;
+    const { s3 } = this;
     return new Promise((resolve, reject) => {
       /* @ts-ignore */
       s3.listObjects(
         { Bucket: StorageHandler.DefaultBucketName() },
-        function (err, data) {
+        (err, data) => {
           if (err) {
             console.error(err);
             return reject(err);
-          } else {
-            resolve(data.Contents);
           }
+          resolve(data.Contents);
         }
       );
     });
   }
 
   getFileContents(key: string): Promise<string> {
-    const s3 = this.s3;
+    const { s3 } = this;
     return new Promise<string>((resolve, reject) => {
       s3.getObject(
         /* @ts-ignore */
@@ -94,7 +93,7 @@ class StorageHandler {
     name: string,
     data: Buffer | string
   ): Promise<aws.S3.PutObjectOutput> {
-    const s3 = this.s3;
+    const { s3 } = this;
 
     return new Promise<aws.S3.PutObjectOutput>((resolve, reject) => {
       s3.putObject(

@@ -1,13 +1,13 @@
-import { Knex } from "knex";
+import { Knex } from 'knex';
 
-import hashPassword from "./hashPassword";
+import hashPassword from './hashPassword';
 
 export default async function updatePassword(
   DB: Knex,
-  password: any,
-  reset_token: any
+  password: string,
+  reset_token: string
 ) {
-  return DB("users")
+  return DB('users')
     .where({ reset_token })
     .update({ password: hashPassword(password), reset_token: null });
 }

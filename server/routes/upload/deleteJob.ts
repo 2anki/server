@@ -1,10 +1,10 @@
-import { Request, Response } from "express";
+import { Request, Response } from 'express';
 
-import ConversionJob from "../../lib/jobs/ConversionJob";
-import DB from "../../lib/storage/db";
+import ConversionJob from '../../lib/jobs/ConversionJob';
+import DB from '../../lib/storage/db';
 
 export default async function deleteJob(req: Request, res: Response) {
-  console.log("delete job", req.params.id);
+  console.log('delete job', req.params.id);
   try {
     const c = new ConversionJob(DB);
     await c.completed(req.params.id, res.locals.owner);

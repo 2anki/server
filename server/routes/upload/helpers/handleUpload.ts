@@ -1,17 +1,16 @@
-import { nanoid } from "nanoid";
-import express from "express";
+import { nanoid } from 'nanoid';
+import express from 'express';
 
-import TriggerUnsupportedFormat from "./TriggerUnsupportedFormat";
-import StorageHandler from "../../../lib/storage/StorageHandler";
-import { PrepareDeck } from "../../../lib/parser/DeckParser";
-import { BytesToMegaBytes } from "../../../lib/misc/file";
-import Settings from "../../../lib/parser/Settings";
-import { ZipHandler } from "../../../lib/anki/zip";
-import ErrorHandler from "../../../lib/misc/ErrorHandler";
-import Package from "../../../lib/parser/Package";
-import cleanDeckName from "./cleanDeckname";
-import DB from "../../../lib/storage/db";
-import loadREADME from "./loadREADME";
+import StorageHandler from '../../../lib/storage/StorageHandler';
+import { PrepareDeck } from '../../../lib/parser/DeckParser';
+import { BytesToMegaBytes } from '../../../lib/misc/file';
+import Settings from '../../../lib/parser/Settings';
+import { ZipHandler } from '../../../lib/anki/zip';
+import ErrorHandler from '../../../lib/misc/ErrorHandler';
+import Package from '../../../lib/parser/Package';
+import cleanDeckName from './cleanDeckname';
+import DB from '../../../lib/storage/db';
+import loadREADME from './loadREADME';
 
 export default async function handleUpload(
   storage: StorageHandler,
@@ -29,7 +28,7 @@ export default async function handleUpload(
       const settings = new Settings(req.body || {});
       if (isLoggedIn) {
         try {
-          await DB("uploads").insert({
+          await DB('uploads').insert({
             owner: res.locals.owner,
             filename,
             /* @ts-ignore */
@@ -37,7 +36,7 @@ export default async function handleUpload(
             size_mb: BytesToMegaBytes(file.size),
           });
         } catch (error) {
-          console.info("failed to register upload");
+          console.info('failed to register upload');
           console.error(error);
         }
       }
@@ -53,18 +52,14 @@ export default async function handleUpload(
         );
         const pkg = new Package(d.name, d.apkg);
         packages = packages.concat(pkg);
-      } else if (filename.match(/.md$/)) {
-        TriggerUnsupportedFormat();
       } else {
         const zipHandler = new ZipHandler();
         /* @ts-ignore */
         await zipHandler.build(fileContents);
         for (const fileName of zipHandler.getFileNames()) {
-          if (fileName.match(/.html$/) && !fileName.includes("/")) {
+          if (fileName.match(/.html$/) && !fileName.includes('/')) {
             const d = await PrepareDeck(fileName, zipHandler.files, settings);
             packages.push(new Package(d.name, d.apkg));
-          } else if (fileName.match(/.md$/)) {
-            TriggerUnsupportedFormat();
           }
         }
       }
@@ -75,60 +70,60 @@ export default async function handleUpload(
     const first = packages[0];
     if (packages.length === 1) {
       if (!first.apkg) {
-        const name = first ? first.name : "untitled";
+        const name = first ? first.name : 'untitled';
         throw new Error(`Could not produce APKG for ${name}`);
       }
       payload = first.apkg;
       plen = Buffer.byteLength(first.apkg);
-      res.set("Content-Type", "application/apkg");
-      res.set("Content-Length", plen.toString());
+      res.set('Content-Type', 'application/apkg');
+      res.set('Content-Length', plen.toString());
       first.name = cleanDeckName(first.name);
       try {
-        res.set("File-Name", first.name);
+        res.set('File-Name', first.name);
       } catch (err) {
         /* @ts-ignore */
         console.error(err.toString());
-        console.info("failed to set name " + first.name);
+        console.info(`failed to set name ${first.name}`);
       }
 
       // Persisting the deck to spaces
       try {
         await storage.uploadFile(
-          storage.uniqify(first.name, "apkg", 255, "apkg"),
+          storage.uniqify(first.name, 'apkg', 255, 'apkg'),
           first.apkg
         );
       } catch (err) {
-        console.error("failed to upload to spaces", err);
+        console.error('failed to upload to spaces', err);
       }
 
-      res.attachment("/" + first.name);
+      res.attachment(`/${first.name}`);
       res.status(200).send(payload);
     } else if (packages.length > 1) {
       const filename = `Your decks-${nanoid()}.zip`;
       const ws = process.env.WORKSPACE_BASE;
       if (!ws) {
-        throw new Error("Missing workspace value");
+        throw new Error('Missing workspace value');
       }
       payload = await ZipHandler.toZip(packages, loadREADME());
       for (const pkg of packages) {
         try {
           await storage.uploadFile(
-            storage.uniqify(pkg.name, "apkg", 255, "apkg"),
+            storage.uniqify(pkg.name, 'apkg', 255, 'apkg'),
             pkg.apkg
           );
         } catch (err) {
-          console.debug("failed to upload to spaces " + err);
+          console.debug(`failed to upload to spaces ${err}`);
         }
       }
       try {
-        res.set("File-Name", cleanDeckName(filename));
+        res.set('File-Name', cleanDeckName(filename));
       } catch (err) {
-        console.debug("failed to set name ***");
+        console.debug('failed to set name ***');
       }
       res.status(200).send(payload);
     } else {
       throw new Error(
-        "Could not create any cards. Did you write any togglelists?"
+        'Could not create any cards. Did you write any togglelists?'
       );
     }
   } catch (err) {

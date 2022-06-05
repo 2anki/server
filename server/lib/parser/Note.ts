@@ -1,13 +1,22 @@
 export default class Note {
   name: string;
+
   back: string;
+
   tags: string[];
+
   cloze = false;
+
   number = 0;
+
   enableInput = false;
-  answer = "";
+
+  answer = '';
+
   media: string[] = [];
+
   notionId?: string;
+
   notionLink?: string;
 
   constructor(name: string, back: string) {
@@ -15,19 +24,21 @@ export default class Note {
     this.back = back;
     this.tags = [];
   }
+
   hasCherry() {
-    const cherry = "&#x1F352;";
+    const cherry = '&#x1F352;';
     return (
-      (this.name && (this.name.includes(cherry) || this.name.includes("🍒"))) ||
-      (this.back && (this.back.includes(cherry) || this.back.includes("🍒")))
+      (this.name && (this.name.includes(cherry) || this.name.includes('🍒'))) ||
+      (this.back && (this.back.includes(cherry) || this.back.includes('🍒')))
     );
   }
+
   hasAvocado() {
-    const avocado = "&#x1F951";
+    const avocado = '&#x1F951';
     return (
       (this.name &&
-        (this.name.includes(avocado) || this.name.includes("🥑"))) ||
-      (this.back && (this.back.includes(avocado) || this.back.includes("🥑")))
+        (this.name.includes(avocado) || this.name.includes('🥑'))) ||
+      (this.back && (this.back.includes(avocado) || this.back.includes('🥑')))
     );
   }
 
@@ -57,10 +68,11 @@ export default class Note {
     // Cloze and input cards can have an empty back
     if (
       (this.cloze || this.enableInput) &&
-      this.name.includes("{{") &&
-      this.name.includes("}}")
-    )
+      this.name.includes('{{') &&
+      this.name.includes('}}')
+    ) {
       return true;
+    }
 
     // Basic flashcards must have a back to be valid
     if (this.back) {
@@ -71,15 +83,15 @@ export default class Note {
   }
 
   hasRefreshIcon() {
-    return this.name.includes("&#x1F504") || this.name.includes("🔄");
+    return this.name.includes('&#x1F504') || this.name.includes('🔄');
   }
 
   reversed(input: Note): Note {
-      const note = new Note(input.back, input.name);
-      note.tags = input.tags;
-      note.media = input.media;
-      // Due to backwards compatability, do not increment number here
-      note.number = -1;
-      return note;
+    const note = new Note(input.back, input.name);
+    note.tags = input.tags;
+    note.media = input.media;
+    // Due to backwards compatability, do not increment number here
+    note.number = -1;
+    return note;
   }
 }
