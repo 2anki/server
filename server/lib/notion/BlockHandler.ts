@@ -271,12 +271,8 @@ class BlockHandler {
     notionBaseLink: string | undefined
   ): Promise<Note[]> {
     let cards = [];
-
-    if (!this.settings) {
-      this.settings = settings;
-    }
-
     let counter = 0;
+
     for (const block of flashcardBlocks) {
       // Assume it's a basic card then check for children
       const name = await renderFront(block, this);
@@ -390,15 +386,11 @@ class BlockHandler {
     const flashCardTypes = rules.flaschardTypeNames();
 
     const page = await this.api.getPage(topLevelId);
-    if (!page) {
-      console.info(`No page found for ${topLevelId}`);
-      return [];
-    }
     const title = await this.api.getPageTitle(page, settings);
     if (!this.firstPageTitle) {
       this.firstPageTitle = title;
     }
-    if (rules.permitsDeckAsPage() && parentType === 'page') {
+    if (rules.permitsDeckAsPage() && parentType === 'page' && page) {
       // Locate the card blocks to be used from the parser rules
       const cBlocks = blocks.filter((b: GetBlockResponse) =>
         /* @ts-ignore */

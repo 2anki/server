@@ -1,4 +1,4 @@
-import addHeadings from "./addHeadings";
+import addHeadings from './addHeadings';
 
 describe('addHeadings', () => {
   test('should add headings to the array', () => {
@@ -9,6 +9,6 @@ describe('addHeadings', () => {
     ]);
   });
   test('should not add headings', () => {
-      expect(addHeadings(['page'])).toEqual(['page']);
-  })
+    expect(addHeadings(['page'])).toEqual(['page']);
+  });
 });
