@@ -42,6 +42,16 @@ import perserveNewlinesIfApplicable from './helpers/preserveNewlinesIfApplicable
 import getDeckName from '../anki/getDeckname';
 import LinkToPage from './blocks/LinkToPage';
 import getUniqueFileName from '../misc/getUniqueFileName';
+import getPlainText from './helpers/getPlainText';
+
+interface Finder {
+  parentType: string;
+  topLevelId: string;
+  rules: ParserRules;
+  settings: Settings;
+  decks: Deck[];
+  parentName: string;
+}
 
 class BlockHandler {
   api: NotionAPIWrapper;
@@ -244,7 +254,10 @@ class BlockHandler {
     }
   }
 
-  __notionLink(id: string, notionBaseLink: string | null): string | undefined {
+  __notionLink(
+    id: string,
+    notionBaseLink: string | undefined
+  ): string | undefined {
     return notionBaseLink
       ? `${notionBaseLink}#${id.replace(/-/g, '')}`
       : undefined;
@@ -254,25 +267,12 @@ class BlockHandler {
     rules: ParserRules,
     flashcardBlocks: GetBlockResponse[],
     tags: string[],
-    settings: Settings
+    settings: Settings,
+    notionBaseLink: string | undefined
   ): Promise<Note[]> {
     let cards = [];
-
-    if (!this.settings) {
-      this.settings = settings;
-    }
-
-    let notionBaseLink = null;
-    if (settings.addNotionLink && settings.parentBlockId) {
-      const page = await this.api.getPage(settings.parentBlockId);
-
-      if (page) {
-        /* @ts-ignore */
-        notionBaseLink = page.url;
-      }
-    }
-
     let counter = 0;
+
     for (const block of flashcardBlocks) {
       // Assume it's a basic card then check for children
       const name = await renderFront(block, this);
@@ -349,93 +349,139 @@ class BlockHandler {
     return cards; // .filter((c) => !c.isValid());
   }
 
-  async findFlashcards(
-    topLevelId: string,
-    rules: ParserRules,
-    settings: Settings,
-    decks: Deck[],
-    parentName: string = ''
-  ): Promise<Deck[]> {
-    if (rules.DECK === 'page') {
-      return this.findFlashcardsFromPage(
-        topLevelId,
-        rules,
-        settings,
-        decks,
-        parentName
-      );
-    }
-    if (rules.DECK === 'database') {
+  async findFlashcards(locator: Finder): Promise<Deck[]> {
+    const { parentType, topLevelId, rules, settings, decks } = locator;
+    if (parentType === 'page') {
+      return this.findFlashcardsFromPage(locator);
+    } else if (parentType === 'database') {
       const dbResult = await this.api.queryDatabase(topLevelId);
       const database = await this.api.getDatabase(topLevelId);
       const dbName = this.api.getDatabaseTitle(database, settings);
+      let dbDecks = [];
       for (const entry of dbResult.results) {
-        decks = await this.findFlashcardsFromPage(
-          entry.id,
+        dbDecks = await this.findFlashcardsFromPage({
+          parentType: 'database',
+          topLevelId: entry.id,
           rules,
           settings,
           decks,
-          dbName
-        );
+          parentName: dbName,
+        });
+        return dbDecks;
       }
+    } else {
+      // in the case user selects something other than db and page
+      // search in both database and page
     }
     return decks;
   }
 
-  async findFlashcardsFromPage(
-    topLevelId: string,
-    rules: ParserRules,
-    settings: Settings,
-    decks: Deck[],
-    parentName: string = ''
-  ): Promise<Deck[]> {
+  async findFlashcardsFromPage(locator: Finder): Promise<Deck[]> {
+    const { topLevelId, rules, settings, parentName, parentType } = locator;
+    let { decks } = locator;
+
     const tags = await this.api.getTopLevelTags(topLevelId, rules);
     const response = await this.api.getBlocks(topLevelId, rules.UNLIMITED);
     const blocks = response.results;
     const flashCardTypes = rules.flaschardTypeNames();
-    // Locate the card blocks to be used from the parser rules
-    const cBlocks = blocks.filter((b: GetBlockResponse) =>
-      /* @ts-ignore */
-      flashCardTypes.includes(b.type)
-    );
+
     const page = await this.api.getPage(topLevelId);
-    if (!page) {
-      console.info(`No page found for ${topLevelId}`);
-      return [];
-    }
     const title = await this.api.getPageTitle(page, settings);
     if (!this.firstPageTitle) {
       this.firstPageTitle = title;
     }
-    settings.parentBlockId = page.id;
-    const cards = await this.getFlashcards(rules, cBlocks, tags, settings);
-    const NOTION_STYLE = fs.readFileSync(
-      path.join(__dirname, '../../templates/notion.css'),
-      'utf8'
-    );
-    const deck = new Deck(
-      getDeckName(parentName, title),
-      cards,
-      undefined,
-      NOTION_STYLE,
-      Deck.GenerateId(),
-      settings
-    );
-    decks.push(deck);
+    if (rules.permitsDeckAsPage() && parentType === 'page' && page) {
+      // Locate the card blocks to be used from the parser rules
+      const cBlocks = blocks.filter((b: GetBlockResponse) =>
+        /* @ts-ignore */
+        flashCardTypes.includes(b.type)
+      );
+      settings.parentBlockId = page.id;
+
+      let notionBaseLink =
+        settings.addNotionLink && settings.parentBlockId
+          ? /* @ts-ignore */
+            page?.url
+          : undefined;
+      const cards = await this.getFlashcards(
+        rules,
+        cBlocks,
+        tags,
+        settings,
+        notionBaseLink
+      );
+      const NOTION_STYLE = fs.readFileSync(
+        path.join(__dirname, '../../templates/notion.css'),
+        'utf8'
+      );
+      const deck = new Deck(
+        getDeckName(parentName, title),
+        cards,
+        undefined,
+        NOTION_STYLE,
+        Deck.GenerateId(),
+        settings
+      );
+
+      decks.push(deck);
+    }
 
     if (settings.isAll) {
       /* @ts-ignore */
-      const subDecks = blocks.filter((b) => b.type === rules.SUB_DECKS);
+      const subDecks = blocks.filter((b) => rules.SUB_DECKS.includes(b.type));
       for (const sd of subDecks) {
+        /* @ts-ignore */
+        const subDeckType = sd.type;
+        if (subDeckType !== 'page') {
+          console.log('sd.type', subDeckType);
+          const res = await this.api.getBlocks(sd.id, rules.UNLIMITED);
+          const cBlocks = res.results.filter((b: GetBlockResponse) =>
+            /* @ts-ignore */
+            flashCardTypes.includes(b.type)
+          );
+
+          settings.parentBlockId = sd.id;
+          const cards = await this.getFlashcards(
+            rules,
+            cBlocks,
+            tags,
+            settings,
+            undefined
+          );
+          const NOTION_STYLE = fs.readFileSync(
+            path.join(__dirname, '../../templates/notion.css'),
+            'utf8'
+          );
+          /* @ts-ignore */
+          const text = sd[sd.type].text;
+          decks.push(
+            new Deck(
+              /* @ts-ignore */
+              getDeckName(
+                this.settings.deckName || this.firstPageTitle,
+                getPlainText(text)
+              ),
+              cards,
+              undefined,
+              NOTION_STYLE,
+              Deck.GenerateId(),
+              settings
+            )
+          );
+          continue;
+        }
         const subPage = await this.api.getPage(sd.id);
         if (subPage) {
-          const nested = await this.findFlashcardsFromPage(
-            sd.id,
+          /* @ts-ignore */
+          const nested = await this.findFlashcardsFromPage({
+            /* @ts-ignore */
+            parentType: sd.type,
+            topLevelId: sd.id,
             rules,
             settings,
             decks,
-            deck.name
-          );
+            parentName: parentName,
+          });
           decks = nested;
         }
       }

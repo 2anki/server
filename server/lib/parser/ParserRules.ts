@@ -1,11 +1,13 @@
 import DB from '../storage/db';
 
+import addHeadings from './helpers/addHeadings';
+
 class ParserRules {
   private FLASHCARD = ['toggle'];
 
-  DECK = 'page';
+  DECK = ['page', 'database'];
 
-  SUB_DECKS = 'child_page';
+  SUB_DECKS = ['child_page'];
 
   TAGS = 'strikethrough';
 
@@ -19,10 +21,7 @@ class ParserRules {
    */
   flaschardTypeNames(): string[] {
     let names = this.FLASHCARD;
-    if (names.includes('heading')) {
-      names = names.filter((n) => n != 'heading');
-      names.push(...['heading_1', 'heading_2', 'heading_3']);
-    }
+    names = addHeadings(names);
     return names;
   }
 
@@ -60,17 +59,6 @@ class ParserRules {
     }
   }
 
-  async setDeckIs(type: string, id: string, owner: string): Promise<boolean> {
-    this.DECK = type;
-    try {
-      await DB('parser_rules').where({ object_id: id, owner }).update({
-        deck_is: type,
-      });
-      return true;
-    } catch (error) {}
-    return false;
-  }
-
   static async Save(
     id: string,
     owner: string,
@@ -92,6 +80,10 @@ class ParserRules {
 
   useColums() {
     return this.FLASHCARD.includes('column_list');
+  }
+
+  permitsDeckAsPage(): boolean {
+    return this.DECK.includes('page');
   }
 }
 

@@ -27,7 +27,14 @@ const loadCards = async (
   const r = rules || new ParserRules();
   const exporter = new CustomExporter('', ws.location);
   const bl = new BlockHandler(exporter, api, settings);
-  const decks = await bl.findFlashcards(pageId, r, settings, []);
+  const decks = await bl.findFlashcards({
+    parentType: 'page',
+    topLevelId: pageId,
+    rules: r,
+    settings,
+    decks: [],
+    parentName: '',
+  });
   return decks[0].cards;
 };
 
@@ -84,7 +91,14 @@ describe('BlockHandler', () => {
     const rules = new ParserRules();
     const exporter = new CustomExporter('', new Workspace(true, 'fs').location);
     const bl = new BlockHandler(exporter, api, settings);
-    const decks = await bl.findFlashcards(examplId, rules, settings, []);
+    const decks = await bl.findFlashcards({
+      parentType: 'page',
+      topLevelId: examplId,
+      rules,
+      settings,
+      decks: [],
+      parentName: '',
+    });
 
     expect(decks.length > 1).toBe(true);
     expect(decks[1].name.includes('::')).toBe(true);
