@@ -58,7 +58,7 @@ if (IsDebug()) {
       });
     });
   } catch (ex: unknown) {
+    console.info('uncaught exception');
     console.error(ex);
-    process.exit(1);
   }
 })();
