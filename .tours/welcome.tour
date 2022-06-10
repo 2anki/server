@@ -7,7 +7,7 @@
       "description": "Hei there!\n\nWelcome to the Notion to Anki Code base. This is a code tour to introduce you the project."
     },
     {
-      "file": "server/server.ts",
+      "file": "src/server.ts",
       "description": "The project consists of a backend and frontend. In this file you can see the setup of the server.",
       "line": 98,
       "title": "The Backend"

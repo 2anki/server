@@ -2,9 +2,6 @@ dist/bundle.*
 
 .DS_Store
 
-# Webstorm
-.idea
-
 # Logs
 logs
 *.log
@@ -134,4 +131,5 @@ build/create_deck
 __pycache__
 
 # Built
-server/server.js
+src/server.js
+cache
