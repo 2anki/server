@@ -101,8 +101,19 @@ function serve() {
     CrashReporter.AddErrorHandler(app);
   }
 
-  app.use((err: Error, _req: express.Request, res: express.Response) =>
-    ErrorHandler(res, err)
+  app.use(
+    (
+      err: Error,
+      _req: express.Request,
+      res: express.Response,
+      next: () => void
+    ) => {
+      if (!err) {
+        next();
+      } else {
+        ErrorHandler(res, err);
+      }
+    }
   );
 
   process.on('uncaughtException', (err: Error) => {
