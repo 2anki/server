@@ -21,9 +21,8 @@ jobs:
         run: |
           npm install
           npm run build
-          pip3 install setuptools==33.1.1
-          pip3 install -r src/genanki/requirements.txt
           npm run test
         env:
           CI: true
           NOTION_KEY: ${{ secrets.NOTION_KEY }}
+          SKIP_CREATE_DECK: true

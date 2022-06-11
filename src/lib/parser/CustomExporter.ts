@@ -1,5 +1,5 @@
 import path from 'path';
-import fs from 'fs';
+import fs, { PathLike } from 'fs';
 
 import CardGenerator from '../anki/CardGenerator';
 import Deck from './Deck';
@@ -26,14 +26,23 @@ class CustomExporter {
   }
 
   configure(payload: Deck[]) {
-    const payloadInfo = path.join(this.workspace, 'deck_info.json');
-    fs.writeFileSync(payloadInfo, JSON.stringify(payload, null, 2));
+    fs.writeFileSync(
+      this.getPayloadInfoPath(),
+      JSON.stringify(payload, null, 2)
+    );
   }
 
   async save() {
     const gen = new CardGenerator(this.workspace);
-    const payload = (await gen.run()) as string;
-    return fs.readFileSync(payload);
+    if (process.env.SKIP_CREATE_DECK) {
+      return fs.readFileSync(this.getPayloadInfoPath());
+    }
+    const apkgPath = (await gen.run()) as string;
+    return fs.readFileSync(apkgPath);
+  }
+
+  getPayloadInfoPath(): PathLike {
+    return path.join(this.workspace, 'deck_info.json');
   }
 }
 

@@ -2,7 +2,7 @@ import { execFile } from 'child_process';
 import { homedir } from 'os';
 import path from 'path';
 
-import { resolvePath } from '../constants';
+import { CREATE_DECK_SCRIPT_PATH, resolvePath } from '../constants';
 
 function PYTHON() {
   const os = process.platform;
@@ -13,15 +13,9 @@ function PYTHON() {
 }
 
 class CardGenerator {
-  createDeckScriptPath: string;
-
   currentDirectory: string;
 
   constructor(workspace: string) {
-    this.createDeckScriptPath = resolvePath(
-      __dirname,
-      '../../genanki/create_deck.py'
-    );
     this.currentDirectory = workspace;
   }
 
@@ -29,11 +23,7 @@ class CardGenerator {
     const dpayload = path.join(this.currentDirectory, 'deck_info.json');
     const tdir = resolvePath(__dirname, '../../templates/');
 
-    const createDeckScriptPathARGS = [
-      this.createDeckScriptPath,
-      dpayload,
-      tdir,
-    ];
+    const createDeckScriptPathARGS = [CREATE_DECK_SCRIPT_PATH, dpayload, tdir];
     return new Promise((resolve, reject) => {
       execFile(
         PYTHON(),
