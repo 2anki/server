@@ -17,16 +17,12 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-          repository: 2anki/create_deck
-          path: create_deck
       - name: test
         run: |
           npm install
           npm run build
-          pip3 install setuptools==33.1.1
-          pip3 install -r create_deck/requirements.txt
           npm run test
         env:
           CI: true
           NOTION_KEY: ${{ secrets.NOTION_KEY }}
-          CREATE_DECK_DIR : ./create_deck/
+          SKIP_CREATE_DECK: true
