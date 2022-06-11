@@ -4,7 +4,7 @@ RUN mkdir -pv /tmp/workspaces
 
 WORKDIR /app
 
-COPY . .
+COPY . /app/server
 
 RUN node --version
 
@@ -21,7 +21,8 @@ RUN npm --prefix /app/web run build
 # Clean up
 RUN rm -rf /app/web/node_modules
 
+ENV WEB_BUILD_DIR /app/web/build
 ENV PORT 8080
 EXPOSE 8080
 
-CMD ["node", "/app/src/server.js"]
+CMD ["node", "/app/server/src/server.js"]
