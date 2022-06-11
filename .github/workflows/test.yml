@@ -12,16 +12,13 @@ jobs:
         node-version: [16.15.1]
 
     steps:
-      - name: Checkout create_deck
-        uses: actions/checkout@v2
-        with:
-          repository: 2anki/create_deck
-          path: create_deck
       - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
+          repository: 2anki/create_deck
+          path: create_deck
       - name: test
         run: |
           npm install
