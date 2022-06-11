@@ -24,4 +24,4 @@ RUN rm -rf /app/web/node_modules
 ENV PORT 8080
 EXPOSE 8080
 
-CMD ["node", "/app/server/server.js"]
+CMD ["node", "/app/src/server.js"]

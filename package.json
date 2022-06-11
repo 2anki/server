@@ -7,7 +7,7 @@
     "notion2anki"
   ],
   "author": "Alexander Alemayhu",
-  "version": "1.0.0-alpha.6",
+  "version": "1.0.0-alpha.7",
   "engines": {
     "node": ">=12.0.0"
   },
@@ -17,12 +17,12 @@
     "test:watch": "jest --watch",
     "start": "npm run dev",
     "build": "tsc -p .",
-    "dev": " SPACES_DEFAULT_BUCKET_NAME=dev.2anki.net SPACES_ENDPOINT=fra1.digitaloceanspaces.com WORKSPACE_BASE=/tmp/w nodemon --watch '**/*.ts' --exec \"ts-node\" server.ts",
+    "dev": " SPACES_DEFAULT_BUCKET_NAME=dev.2anki.net SPACES_ENDPOINT=fra1.digitaloceanspaces.com WORKSPACE_BASE=/tmp/w nodemon --watch '**/*.ts' --exec \"ts-node\" src/server.ts",
     "lint": "eslint '**/*.ts' '**/*.tsx'",
     "lint:fix": "eslint --fix '**/*.ts' '**/*.tsx'",
     "purge-js": "rm `find . -name '*.js'|grep -v node_modules`",
     "test:mock": "FORCE_BUILD=true ts-node lib/notion/_mock/build-mock-data.tsx",
-    "prepare": "cd .. && husky install server/.husky"
+    "prepare": "cd .. && husky install src/.husky"
   },
   "repository": {
     "type": "git",
