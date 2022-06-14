@@ -57,7 +57,7 @@
     "metascraper-image": "^5.25.2",
     "metascraper-logo-favicon": "^5.29.7",
     "metascraper-title": "^5.29.7",
-    "metascraper-url": "^5.25.2",
+    "metascraper-url": "^5.29.7",
     "morgan": "^1.10.0",
     "multer": "^1.4.2",
     "multer-s3": "^2.9.0",
