@@ -52,7 +52,7 @@
     "jsonwebtoken": "^8.5.1",
     "jszip": "https://github.com/alemayhu/jszip#v3.7.3",
     "knex": "^0.95.11",
-    "metascraper": "^5.25.2",
+    "metascraper": "^5.29.8",
     "metascraper-description": "^5.29.7",
     "metascraper-image": "^5.25.2",
     "metascraper-logo-favicon": "^5.29.7",
