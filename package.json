@@ -37,7 +37,7 @@
     "@sentry/tracing": "^7.1.1",
     "@types/bcryptjs": "^2.4.2",
     "@types/multer-s3": "^2.7.10",
-    "@types/react": "^17.0.37",
+    "@types/react": "^18.0.14",
     "aws-sdk": "^2.1157.0",
     "axios": "^0.21.4",
     "bcryptjs": "^2.4.3",
@@ -63,8 +63,8 @@
     "multer-s3": "^2.9.0",
     "nanoid": "^3.1.31",
     "pg": "^8.7.1",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@types/base-64": "^1.0.0",
