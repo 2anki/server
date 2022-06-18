@@ -55,7 +55,7 @@
     "metascraper": "^5.25.2",
     "metascraper-description": "^5.29.7",
     "metascraper-image": "^5.25.2",
-    "metascraper-logo-favicon": "^5.29.7",
+    "metascraper-logo-favicon": "^5.29.10",
     "metascraper-title": "^5.29.7",
     "metascraper-url": "^5.29.7",
     "morgan": "^1.10.0",
