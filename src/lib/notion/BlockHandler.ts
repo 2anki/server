@@ -43,6 +43,8 @@ import getDeckName from '../anki/getDeckname';
 import LinkToPage from './blocks/LinkToPage';
 import getUniqueFileName from '../misc/getUniqueFileName';
 import getPlainText from './helpers/getPlainText';
+import { captureException } from '@sentry/node';
+import getSubDeckName from './helpers/getSubDeckName';
 
 interface Finder {
   parentType: string;
@@ -453,13 +455,15 @@ class BlockHandler {
             'utf8'
           );
           /* @ts-ignore */
-          const text = sd[sd.type].text;
+          const block = sd[sd.type];
+          let subDeckName = getSubDeckName(block);
+
           decks.push(
             new Deck(
               /* @ts-ignore */
               getDeckName(
                 this.settings.deckName || this.firstPageTitle,
-                getPlainText(text)
+                subDeckName
               ),
               cards,
               undefined,
