@@ -68,7 +68,7 @@
   },
   "devDependencies": {
     "@types/base-64": "^1.0.0",
-    "@types/cheerio": "^0.22.28",
+    "@types/cheerio": "^0.22.31",
     "@types/cookie-parser": "^1.4.2",
     "@types/crypto-js": "^4.1.1",
     "@types/dotenv": "^8.2.0",
