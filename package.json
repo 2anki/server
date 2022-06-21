@@ -53,7 +53,7 @@
     "jszip": "https://github.com/alemayhu/jszip#v3.7.3",
     "knex": "^0.95.11",
     "metascraper": "^5.29.10",
-    "metascraper-description": "^5.29.7",
+    "metascraper-description": "^5.29.11",
     "metascraper-image": "^5.25.2",
     "metascraper-logo-favicon": "^5.29.10",
     "metascraper-title": "^5.29.7",
