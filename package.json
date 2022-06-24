@@ -38,7 +38,7 @@
     "@types/bcryptjs": "^2.4.2",
     "@types/multer-s3": "^2.7.10",
     "@types/react": "^18.0.14",
-    "aws-sdk": "^2.1157.0",
+    "aws-sdk": "^2.1161.0",
     "axios": "^0.21.4",
     "bcryptjs": "^2.4.3",
     "cheerio": "^1.0.0-rc.10",
