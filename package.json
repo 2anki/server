@@ -32,8 +32,8 @@
   "dependencies": {
     "@notionhq/client": "^0.4.12",
     "@sendgrid/mail": "^7.7.0",
-    "@sentry/node": "^6.12.0",
-    "@sentry/tracing": "^7.1.1",
+    "@sentry/node": "^6.19.7",
+    "@sentry/tracing": "^7.3.0",
     "aws-sdk": "^2.1157.0",
     "axios": "^0.21.4",
     "bcryptjs": "^2.4.3",
@@ -63,10 +63,8 @@
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@types/bcryptjs": "^2.4.2",
-    "@types/multer-s3": "^2.7.10",
-    "@types/react": "^18.0.14",
     "@types/base-64": "^1.0.0",
+    "@types/bcryptjs": "^2.4.2",
     "@types/cheerio": "^0.22.31",
     "@types/cookie-parser": "^1.4.2",
     "@types/crypto-js": "^4.1.1",
@@ -78,8 +76,10 @@
     "@types/jsonwebtoken": "^8.5.8",
     "@types/morgan": "^1.9.2",
     "@types/multer": "^1.4.5",
+    "@types/multer-s3": "^2.7.10",
     "@types/node": "^14.14.36",
     "@types/node-fetch": "^2.6.2",
+    "@types/react": "^18.0.14",
     "@types/react-dom": "18.0.5",
     "@typescript-eslint/eslint-plugin": "^5.29.0",
     "@typescript-eslint/parser": "^5.28.0",
