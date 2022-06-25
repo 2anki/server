@@ -1,5 +1,6 @@
 import JSZip from 'jszip';
-import { MAX_UPLOAD_SIZE } from '../misc/file';
+
+import { getUploadLimits } from '../misc/getUploadLimits';
 import Package from '../parser/Package';
 
 interface File {
@@ -17,11 +18,13 @@ class ZipHandler {
     this.files = [];
   }
 
-  async build(zipData: Buffer) {
+  async build(zipData: Buffer, isPatron: boolean) {
     const size = Buffer.byteLength(zipData);
-    if (size > MAX_UPLOAD_SIZE) {
+    const limits = getUploadLimits(isPatron);
+
+    if (size > limits.fileSize) {
       throw new Error(
-        `Zip data is too big max is ${MAX_UPLOAD_SIZE} but got ${size}`
+        `Your upload is too big, there is a max of ${size} / ${limits.fileSize} currently. Become a patron to request unlimited access.`
       );
     }
 
