@@ -55,7 +55,7 @@ export default async function handleUpload(
       } else {
         const zipHandler = new ZipHandler();
         /* @ts-ignore */
-        await zipHandler.build(fileContents);
+        await zipHandler.build(fileContents, res.locals.patreon);
         for (const fileName of zipHandler.getFileNames()) {
           if (fileName.match(/.html$/) && !fileName.includes('/')) {
             const d = await PrepareDeck(fileName, zipHandler.files, settings);

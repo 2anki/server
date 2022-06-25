@@ -9,12 +9,26 @@ import deleteUpload from './deleteUpload';
 import getUploads from './getUploads';
 import deleteJob from './deleteJob';
 import upload from './upload';
+import TokenHandler from '../../lib/misc/TokenHandler';
+import { captureException } from '@sentry/node';
 
 const router = express.Router();
 
 const storage = new StorageHandler();
 
-router.post('/file', RequireAllowedOrigin, (req, res) => {
+router.post('/file', RequireAllowedOrigin, async (req, res) => {
+  /**
+   * This endpoint is open for everyone by default so we can't assume the user is a patron.
+   */
+  try {
+    const user = await TokenHandler.GetUserFrom(req.cookies.token);
+    if (user) {
+      res.locals.patreon = user.patreon;
+    }
+  } catch (error) {
+    captureException(error);
+  }
+
   const u = upload(storage, res.locals.patreon);
 
   u(req, res, (error) => {
