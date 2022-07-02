@@ -24,6 +24,7 @@ class CardGenerator {
     const tdir = resolvePath(__dirname, '../../templates/');
 
     const createDeckScriptPathARGS = [CREATE_DECK_SCRIPT_PATH, dpayload, tdir];
+    console.log('execFile', PYTHON(), createDeckScriptPathARGS);
     return new Promise((resolve, reject) => {
       execFile(
         PYTHON(),
