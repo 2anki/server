@@ -160,6 +160,23 @@ export default class Settings {
         .where({ object_id: id, owner })
         .returning(['payload'])
         .first();
+
+      const templates = await DB('templates')
+        .where({ owner: owner })
+        .returning(['payload'])
+        .first();
+      if (templates) {
+        result.payload.n2aBasic = templates.payload.find(
+          (tm: TemplateFile) => tm.storageKey === 'n2a-basic'
+        );
+        result.payload.n2aCloze = templates.payload.find(
+          (tm: TemplateFile) => tm.storageKey === 'n2a-cloze'
+        );
+        result.payload.n2aInput = templates.payload.find(
+          (tm: TemplateFile) => tm.storageKey === 'n2a-input'
+        );
+      }
+
       if (result) {
         return new Settings(result.payload);
       }

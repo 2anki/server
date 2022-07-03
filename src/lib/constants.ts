@@ -39,3 +39,5 @@ export const CREATE_DECK_SCRIPT_PATH = path.join(
   CREATE_DECK_DIR,
   'create_deck.py'
 );
+
+export const ONE_SECOND_MS = 1000;
