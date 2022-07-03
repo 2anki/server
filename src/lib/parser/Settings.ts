@@ -57,11 +57,11 @@ export default class Settings {
 
   readonly perserveNewLines: boolean;
 
-  readonly n2aCloze: TemplateFile | undefined;
+  public n2aCloze: TemplateFile | undefined;
 
-  readonly n2aBasic: TemplateFile | undefined;
+  public n2aBasic: TemplateFile | undefined;
 
-  readonly n2aInput: TemplateFile | undefined;
+  public n2aInput: TemplateFile | undefined;
 
   readonly useNotionId: boolean;
 
@@ -91,9 +91,9 @@ export default class Settings {
     this.reversed = input.reversed !== 'false';
     this.removeMP3Links = input['remove-mp3-links'] === 'true' || false;
     this.perserveNewLines = input['perserve-newlines'] === 'true' || false;
-    this.clozeModelName = input.cloze_model_name;
-    this.basicModelName = input.basic_model_name;
-    this.inputModelName = input.input_model_name;
+    this.clozeModelName = input.cloze_model_name || 'n2a-cloze';
+    this.basicModelName = input.basic_model_name || 'n2a-basic';
+    this.inputModelName = input.input_model_name || 'n2a-input';
     this.clozeModelId = input.cloze_model_id;
     this.basicModelId = input.basic_model_id;
     this.inputModelId = input.input_model_id;
@@ -160,8 +160,29 @@ export default class Settings {
         .where({ object_id: id, owner })
         .returning(['payload'])
         .first();
+
+      const templates = await DB('templates')
+        .where({ owner: owner })
+        .returning(['payload'])
+        .first();
       if (result) {
-        return new Settings(result.payload);
+        const settings = new Settings(result.payload);
+        if (templates && settings.template === 'custom') {
+          settings.loadCustomTeplate(
+            'n2a-basic',
+            templates.payload['n2a-basic']
+          );
+          settings.n2aBasic = templates.payload.find(
+            (tm: TemplateFile) => tm.storageKey === 'n2a-basic'
+          );
+          settings.n2aCloze = templates.payload.find(
+            (tm: TemplateFile) => tm.storageKey === 'n2a-cloze'
+          );
+          settings.n2aInput = templates.payload.find(
+            (tm: TemplateFile) => tm.storageKey === 'n2a-input'
+          );
+        }
+        return settings;
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
@@ -170,5 +191,21 @@ export default class Settings {
       captureException(error);
     }
     return new Settings(Settings.LoadDefaultOptions());
+  }
+
+  loadCustomTeplate(storageKey: string, template: TemplateFile) {
+    switch (storageKey) {
+      case 'n2a-basic':
+        this.n2aBasic = template;
+        break;
+      case 'n2a-cloze':
+        this.n2aCloze = template;
+        break;
+      case 'n2a-input':
+        this.n2aInput = template;
+        break;
+      default:
+        throw new Error(`Unsupported template ${storageKey}`);
+    }
   }
 }

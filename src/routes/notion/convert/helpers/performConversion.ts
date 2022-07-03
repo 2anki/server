@@ -81,7 +81,6 @@ export default async function performConversion(
       parentType: req?.query.type?.toString() || 'page',
       topLevelId: id.replace(/\-/g, ''),
       rules,
-      settings,
       decks: [],
       parentName: settings.deckName || '',
     });

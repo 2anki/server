@@ -27,6 +27,7 @@ import notion from './routes/notion';
 import rules from './routes/rules';
 import download from './routes/download/u';
 import favorite from './routes/favorite';
+import templates from './routes/templates';
 
 import DB from './lib/storage/db';
 import KnexConfig from './KnexConfig';
@@ -77,6 +78,7 @@ function serve() {
   app.use('/api/settings', _settings);
   app.use('/api/download', download);
   app.use('/api/favorite', favorite);
+  app.use('/api/templates', templates);
 
   // Note: this has to be the last handler
   app.get('*', (_req, res) => {
