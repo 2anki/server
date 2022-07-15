@@ -1,3 +1,4 @@
+import { captureException } from '@sentry/node';
 import { Knex } from 'knex';
 
 interface TemplateFile {
@@ -110,21 +111,21 @@ export default class Settings {
       try {
         this.n2aBasic = JSON.parse(input['n2a-basic']);
       } catch (error) {
-        console.error(error);
+        captureException(error);
       }
     }
     if (input['n2a-cloze']) {
       try {
         this.n2aCloze = JSON.parse(input['n2a-cloze']);
       } catch (error) {
-        console.error(error);
+        captureException(error);
       }
     }
     if (input['n2a-input']) {
       try {
         this.n2aInput = JSON.parse(input['n2a-input']);
       } catch (error) {
-        console.error(error);
+        captureException(error);
       }
     }
   }
@@ -164,9 +165,9 @@ export default class Settings {
       }
     } catch (error: unknown) {
       if (error instanceof Error) {
-        console.error(`Failed to load settings from db ${error.toString()}`);
+        captureException(`Failed to load settings from db ${error.toString()}`);
       }
-      console.error(error);
+      captureException(error);
     }
     return new Settings(Settings.LoadDefaultOptions());
   }

@@ -17,6 +17,7 @@ import StorageHandler from '../../../../lib/storage/StorageHandler';
 import { FileSizeInMegaBytes } from '../../../../lib/misc/file';
 import getEmailFromOwner from '../../../../lib/User/getEmailFromOwner';
 import EmailHandler from '../../../../lib/email/EmailHandler';
+import { captureException } from '@sentry/node';
 
 export default async function performConversion(
   api: NotionAPIWrapper,
@@ -118,6 +119,6 @@ export default async function performConversion(
       await EmailHandler.SendConversionEmail(email, id, apkg);
     }
   } catch (error) {
-    console.error(error);
+    captureException(error);
   }
 }

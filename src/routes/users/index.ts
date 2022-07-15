@@ -9,6 +9,7 @@ import updatePassword from '../../lib/User/updatePassword';
 import comparePassword from '../../lib/User/comparePassword';
 import hashPassword from '../../lib/User/hashPassword';
 import { INDEX_FILE } from '../../lib/constants';
+import { captureException } from '@sentry/node';
 
 const router = express.Router();
 
@@ -72,7 +73,7 @@ router.post('/forgot-password', async (req, res, next) => {
     return res.status(200).json({ message: 'ok' });
   } catch (error) {
     /* @ts-ignore */
-    console.error(error.message);
+    captureException(error.message);
     return next(error);
   }
 });
@@ -102,7 +103,7 @@ router.get('/logout', RequireAuthentication, async (req, res, next) => {
       res.status(200).end();
     })
     .catch((err) => {
-      console.error(err);
+      captureException(err);
       next(err);
     });
 });
@@ -143,7 +144,7 @@ router.post('/login', async (req, res, next) => {
         .merge()
         .then(() => res.status(200).json({ token }))
         .catch((err) => {
-          console.error(err);
+          captureException(err);
           next(err);
         });
     }
@@ -179,7 +180,7 @@ router.post('/register', async (req, res, next) => {
     await EmailHandler.SendVerificationEmail(email, token);
     res.status(200).json({ message: 'ok' });
   } catch (error) {
-    console.error(error);
+    captureException(error);
     return next(error);
   }
 });
@@ -193,7 +194,7 @@ router.get('/r/:id', async (req, res, next) => {
     }
     return res.redirect('/login#login');
   } catch (err) {
-    console.error(err);
+    captureException(err);
     next(err);
   }
 });

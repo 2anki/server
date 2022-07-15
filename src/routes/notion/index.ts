@@ -12,6 +12,7 @@ import getBlock from './getBlock';
 import getDatabase from './getDatabase';
 import { queryDatabase } from './queryDatabase';
 import ensureResponse from './helpers/ensureResponse';
+import { captureException } from '@sentry/node';
 
 const router = express.Router();
 
@@ -33,7 +34,7 @@ router.get('/connect', RequireAuthentication, async (req, res) => {
       await TokenHandler.SaveNotionToken(res.locals.owner, accessData);
       return res.redirect('/search');
     } catch (err) {
-      console.error(err);
+      captureException(err);
       return res.redirect('/search');
     }
   } else {

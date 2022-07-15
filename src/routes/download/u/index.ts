@@ -3,6 +3,7 @@ import express from 'express';
 import RequireAuthentication from '../../../middleware/RequireAuthentication';
 import DB from '../../../lib/storage/db';
 import StorageHandler from '../../../lib/storage/StorageHandler';
+import { captureException } from '@sentry/node';
 
 const router = express.Router();
 
@@ -30,7 +31,7 @@ router.get('/u/:key', RequireAuthentication, async (req, res) => {
       return res.redirect('/uploads');
     }
     console.info('unknown error');
-    console.error(error);
+    captureException(error);
   }
 });
 

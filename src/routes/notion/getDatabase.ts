@@ -1,3 +1,4 @@
+import { captureException } from '@sentry/node';
 import express from 'express';
 import NotionAPIWrapper from '../../lib/notion/NotionAPIWrapper';
 import NotionID from '../../lib/notion/NotionID';
@@ -20,7 +21,7 @@ export default async function getDatabase(
     console.log('database', database);
     res.json(database);
   } catch (error) {
-    console.error(error);
+    captureException(error);
     res.status(500).send();
   }
 }

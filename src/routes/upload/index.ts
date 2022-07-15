@@ -33,7 +33,7 @@ router.post('/file', RequireAllowedOrigin, async (req, res) => {
 
   u(req, res, (error) => {
     if (error) {
-      console.error(error);
+      captureException(error);
       return res.status(500).end();
     }
     handleUpload(storage, req, res);

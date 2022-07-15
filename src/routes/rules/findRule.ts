@@ -1,3 +1,4 @@
+import { captureException } from '@sentry/node';
 import { Request, Response } from 'express';
 
 import DB from '../../lib/storage/db';
@@ -19,7 +20,7 @@ export default async function findRule(req: Request, res: Response) {
       res.json(result);
     })
     .catch((err) => {
-      console.error(err);
+      captureException(err);
       res.status(400).send();
     });
 }

@@ -1,3 +1,4 @@
+import { captureException } from '@sentry/node';
 import { Request, Response } from 'express';
 
 import DB from '../../lib/storage/db';
@@ -23,7 +24,7 @@ export default async function createSetting(req: Request, res: Response) {
       res.status(200).send();
     })
     .catch((err) => {
-      console.error(err);
+      captureException(err);
       res.status(400).send();
     });
 }
