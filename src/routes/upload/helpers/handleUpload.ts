@@ -33,8 +33,10 @@ export default async function handleUpload(
           [{ name: filename, contents: fileContents }],
           settings
         );
-        const pkg = new Package(d.name, d.apkg);
-        packages = packages.concat(pkg);
+        if (d) {
+          const pkg = new Package(d.name, d.apkg);
+          packages = packages.concat(pkg);
+        }
       } else {
         const zipHandler = new ZipHandler();
         /* @ts-ignore */
@@ -42,7 +44,9 @@ export default async function handleUpload(
         for (const fileName of zipHandler.getFileNames()) {
           if (fileName.match(/.html$/) && !fileName.includes('/')) {
             const d = await PrepareDeck(fileName, zipHandler.files, settings);
-            packages.push(new Package(d.name, d.apkg));
+            if (d) {
+              packages.push(new Package(d.name, d.apkg));
+            }
           }
         }
       }

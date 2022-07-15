@@ -5,7 +5,7 @@ import express from 'express';
 export const NO_PACKAGE_ERROR = new Error(
   renderToStaticMarkup(
     <div className="info">
-      Could not create a deck using your file and rules. Please review the{' '}
+      Could not create a deck using your file and rules. Please review your{' '}
       <a href="/upload?view=template">settings</a>
     </div>
   )

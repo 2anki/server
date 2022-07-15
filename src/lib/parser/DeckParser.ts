@@ -575,6 +575,11 @@ export async function PrepareDeck(
   settings: Settings
 ) {
   const parser = new DeckParser(fileName, settings, files);
+  const total = parser.payload.map((p) => p.cardCount).reduce((a, b) => a + b);
+  if (total === 0) {
+    return null;
+  }
+
   const apkg = await parser.build();
   return { name: `${parser.name}.apkg`, apkg, deck: parser.payload };
 }
