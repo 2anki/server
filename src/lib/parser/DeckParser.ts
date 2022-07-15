@@ -15,6 +15,7 @@ import preserveNewlinesIfApplicable from '../notion/helpers/preserveNewlinesIfAp
 import getYouTubeID from './helpers/getYouTubeID';
 import getYouTubeEmbedLink from './helpers/getYouTubeEmbedLink';
 import getUniqueFileName from '../misc/getUniqueFileName';
+import { captureException } from '@sentry/node';
 
 export class DeckParser {
   globalTags: cheerio.Cheerio | null;
@@ -40,7 +41,7 @@ export class DeckParser {
       try {
         return file.name === global.decodeURIComponent(name);
       } catch (error) {
-        console.error(error);
+        captureException(error);
         return file.name === name;
       }
     });
@@ -126,7 +127,7 @@ export class DeckParser {
                 `;
     } catch (error) {
       console.info('experienced error while getting link');
-      console.error(error);
+      captureException(error);
       return null;
     }
   }
@@ -353,7 +354,7 @@ export class DeckParser {
         return getYouTubeID(input);
       } catch (error) {
         console.debug('error in getYouTubeID');
-        console.error(error);
+        captureException(error);
         return null;
       }
     });
@@ -377,7 +378,7 @@ export class DeckParser {
         return m[0].split('">')[0];
       } catch (error) {
         console.debug('error in getSoundCloudURL');
-        console.error(error);
+        captureException(error);
         return null;
       }
     });

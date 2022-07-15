@@ -1,3 +1,4 @@
+import { captureException } from '@sentry/node';
 import { Request, Response } from 'express';
 
 import ConversionJob from '../../lib/jobs/ConversionJob';
@@ -11,6 +12,6 @@ export default async function deleteJob(req: Request, res: Response) {
     res.status(200).send();
   } catch (err) {
     res.status(500).send();
-    console.error(err);
+    captureException(err);
   }
 }

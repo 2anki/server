@@ -35,6 +35,7 @@ import CrashReporter from './lib/CrashReporter';
 import { ScheduleCleanup } from './lib/jobs/JobHandler';
 import ConversionJob from './lib/jobs/ConversionJob';
 import RequireAuthentication from './middleware/RequireAuthentication';
+import { captureException } from '@sentry/node';
 
 function serve() {
   const templateDir = path.join(__dirname, 'templates');
@@ -117,7 +118,7 @@ function serve() {
   );
 
   process.on('uncaughtException', (err: Error) => {
-    console.error(err);
+    captureException(err);
   });
 
   DB.raw('SELECT 1').then(() => {

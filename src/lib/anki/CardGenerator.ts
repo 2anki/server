@@ -1,3 +1,4 @@
+import { captureException } from '@sentry/node';
 import { execFile } from 'child_process';
 import { homedir } from 'os';
 import path from 'path';
@@ -32,7 +33,7 @@ class CardGenerator {
         { cwd: this.currentDirectory },
         (err, stdout) => {
           if (err) {
-            console.error(err);
+            captureException(err);
             reject(err);
           } else {
             resolve(stdout);

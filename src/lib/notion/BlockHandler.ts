@@ -43,6 +43,7 @@ import getDeckName from '../anki/getDeckname';
 import LinkToPage from './blocks/LinkToPage';
 import getUniqueFileName from '../misc/getUniqueFileName';
 import getSubDeckName from './helpers/getSubDeckName';
+import { captureException } from '@sentry/node';
 
 interface Finder {
   parentType: string;
@@ -249,7 +250,7 @@ class BlockHandler {
       }
       return back;
     } catch (e: unknown) {
-      console.error(e);
+      captureException(e);
       return null;
     }
   }

@@ -1,3 +1,4 @@
+import { captureException } from '@sentry/node';
 import axios from 'axios';
 
 class NotionConnectionHandler {
@@ -48,7 +49,7 @@ class NotionConnectionHandler {
           resolve(res.data);
         }
       } catch (err) {
-        console.error(err);
+        captureException(err);
         reject(err);
       }
     });
