@@ -66,7 +66,7 @@ export default async function handleUpload(
       res.set('Content-Length', plen.toString());
       first.name = cleanDeckName(first.name);
       try {
-        res.set('File-Name', first.name);
+        res.set('File-Name', encodeURIComponent(first.name));
       } catch (err) {
         /* @ts-ignore */
         captureException(err.toString());
