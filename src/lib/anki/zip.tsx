@@ -1,4 +1,5 @@
 import JSZip from 'jszip';
+import { renderToStaticMarkup } from 'react-dom/server';
 
 import { getUploadLimits } from '../misc/getUploadLimits';
 import Package from '../parser/Package';
@@ -24,7 +25,14 @@ class ZipHandler {
 
     if (size > limits.fileSize) {
       throw new Error(
-        `Your upload is too big, there is a max of ${size} / ${limits.fileSize} currently. Become a patron to request unlimited access.`
+        renderToStaticMarkup(
+          <>
+            Your upload is too big, there is a max of {size} / $
+            {limits.fileSize} currently.{' '}
+            <a href="https://alemayhu.com/patreon">Become a patron</a> to remove
+            default limit.
+          </>
+        )
       );
     }
 
