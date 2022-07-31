@@ -49,7 +49,6 @@ interface Finder {
   parentType: string;
   topLevelId: string;
   rules: ParserRules;
-  settings: Settings;
   decks: Deck[];
   parentName: string;
 }
@@ -268,7 +267,6 @@ class BlockHandler {
     rules: ParserRules,
     flashcardBlocks: GetBlockResponse[],
     tags: string[],
-    settings: Settings,
     notionBaseLink: string | undefined
   ): Promise<Note[]> {
     let cards = [];
@@ -290,7 +288,7 @@ class BlockHandler {
       ankiNote.media = this.exporter.media;
       let isBasicType = true;
       // Look for cloze deletion cards
-      if (settings.isCloze) {
+      if (this.settings.isCloze) {
         const clozeCard = await getClozeDeletionCard(rules, block);
         if (clozeCard) {
           isBasicType = false;
@@ -298,7 +296,7 @@ class BlockHandler {
         }
       }
       // Look for input cards
-      if (settings.useInput) {
+      if (this.settings.useInput) {
         const inputCard = await getInputCard(rules, block);
         if (inputCard) {
           isBasicType = false;
@@ -308,10 +306,10 @@ class BlockHandler {
 
       ankiNote.back = back!;
       ankiNote.notionLink = this.__notionLink(block.id, notionBaseLink);
-      if (settings.addNotionLink) {
+      if (this.settings.addNotionLink) {
         ankiNote.back += RenderNotionLink(ankiNote.notionLink!, this);
       }
-      ankiNote.notionId = settings.useNotionId ? block.id : undefined;
+      ankiNote.notionId = this.settings.useNotionId ? block.id : undefined;
       ankiNote.media = this.exporter.media;
       this.exporter.media = [];
 
@@ -320,13 +318,19 @@ class BlockHandler {
         rules.TAGS === 'heading' ? tr.headings : tr.strikethroughs;
       ankiNote.number = counter++;
 
-      ankiNote.name = perserveNewlinesIfApplicable(ankiNote.name, settings);
-      ankiNote.back = perserveNewlinesIfApplicable(ankiNote.back, settings);
+      ankiNote.name = perserveNewlinesIfApplicable(
+        ankiNote.name,
+        this.settings
+      );
+      ankiNote.back = perserveNewlinesIfApplicable(
+        ankiNote.back,
+        this.settings
+      );
 
       cards.push(ankiNote);
       if (
-        !settings.isCherry &&
-        (settings.basicReversed || ankiNote.hasRefreshIcon()) &&
+        !this.settings.isCherry &&
+        (this.settings.basicReversed || ankiNote.hasRefreshIcon()) &&
         isBasicType
       ) {
         cards.push(ankiNote.reversed(ankiNote));
@@ -334,14 +338,14 @@ class BlockHandler {
       tr.clear();
     }
 
-    if (settings.isCherry) {
+    if (this.settings.isCherry) {
       cards = cards.filter((c) => c.hasCherry());
     }
-    if (settings.isAvocado) {
+    if (this.settings.isAvocado) {
       cards = cards.filter((c) => !c.hasAvocado());
     }
 
-    if (settings.useTags && tags.length > 0) {
+    if (this.settings.useTags && tags.length > 0) {
       cards.forEach((c) => {
         c.tags ||= [];
         c.tags = tags.concat(sanitizeTags(c.tags));
@@ -351,20 +355,19 @@ class BlockHandler {
   }
 
   async findFlashcards(locator: Finder): Promise<Deck[]> {
-    const { parentType, topLevelId, rules, settings, decks } = locator;
+    const { parentType, topLevelId, rules, decks } = locator;
     if (parentType === 'page') {
       return this.findFlashcardsFromPage(locator);
     } else if (parentType === 'database') {
       const dbResult = await this.api.queryDatabase(topLevelId);
       const database = await this.api.getDatabase(topLevelId);
-      const dbName = this.api.getDatabaseTitle(database, settings);
+      const dbName = this.api.getDatabaseTitle(database, this.settings);
       let dbDecks = [];
       for (const entry of dbResult.results) {
         dbDecks = await this.findFlashcardsFromPage({
           parentType: 'database',
           topLevelId: entry.id,
           rules,
-          settings,
           decks,
           parentName: dbName,
         });
@@ -378,7 +381,7 @@ class BlockHandler {
   }
 
   async findFlashcardsFromPage(locator: Finder): Promise<Deck[]> {
-    const { topLevelId, rules, settings, parentName, parentType } = locator;
+    const { topLevelId, rules, parentName, parentType } = locator;
     let { decks } = locator;
 
     const tags = await this.api.getTopLevelTags(topLevelId, rules);
@@ -387,7 +390,7 @@ class BlockHandler {
     const flashCardTypes = rules.flaschardTypeNames();
 
     const page = await this.api.getPage(topLevelId);
-    const title = await this.api.getPageTitle(page, settings);
+    const title = await this.api.getPageTitle(page, this.settings);
     if (!this.firstPageTitle) {
       this.firstPageTitle = title;
     }
@@ -397,10 +400,10 @@ class BlockHandler {
         /* @ts-ignore */
         flashCardTypes.includes(b.type)
       );
-      settings.parentBlockId = page.id;
+      this.settings.parentBlockId = page.id;
 
       let notionBaseLink =
-        settings.addNotionLink && settings.parentBlockId
+        this.settings.addNotionLink && this.settings.parentBlockId
           ? /* @ts-ignore */
             page?.url
           : undefined;
@@ -408,7 +411,6 @@ class BlockHandler {
         rules,
         cBlocks,
         tags,
-        settings,
         notionBaseLink
       );
       const NOTION_STYLE = fs.readFileSync(
@@ -421,13 +423,13 @@ class BlockHandler {
         undefined,
         NOTION_STYLE,
         Deck.GenerateId(),
-        settings
+        this.settings
       );
 
       decks.push(deck);
     }
 
-    if (settings.isAll) {
+    if (this.settings.isAll) {
       /* @ts-ignore */
       const subDecks = blocks.filter((b) => rules.SUB_DECKS.includes(b.type));
       for (const sd of subDecks) {
@@ -441,12 +443,11 @@ class BlockHandler {
             flashCardTypes.includes(b.type)
           );
 
-          settings.parentBlockId = sd.id;
+          this.settings.parentBlockId = sd.id;
           const cards = await this.getFlashcards(
             rules,
             cBlocks,
             tags,
-            settings,
             undefined
           );
           const NOTION_STYLE = fs.readFileSync(
@@ -468,7 +469,7 @@ class BlockHandler {
               undefined,
               NOTION_STYLE,
               Deck.GenerateId(),
-              settings
+              this.settings
             )
           );
           continue;
@@ -481,7 +482,6 @@ class BlockHandler {
             parentType: sd.type,
             topLevelId: sd.id,
             rules,
-            settings,
             decks,
             parentName: parentName,
           });

@@ -8,7 +8,6 @@ import BlockHandler from '../../../../lib/notion/BlockHandler';
 import NotionAPIWrapper from '../../../../lib/notion/NotionAPIWrapper';
 import CustomExporter from '../../../../lib/parser/CustomExporter';
 import ParserRules from '../../../../lib/parser/ParserRules';
-import Settings from '../../../../lib/parser/Settings';
 import Workspace from '../../../../lib/parser/WorkSpace';
 import DB from '../../../../lib/storage/db';
 import getQuota from '../../../../lib/User/getQuota';
@@ -18,6 +17,7 @@ import { FileSizeInMegaBytes } from '../../../../lib/misc/file';
 import getEmailFromOwner from '../../../../lib/User/getEmailFromOwner';
 import EmailHandler from '../../../../lib/email/EmailHandler';
 import { captureException } from '@sentry/node';
+import { loadSettingsFromDatabase } from '../../../../lib/parser/Settings/loadSettingsFromDatabase';
 
 export default async function performConversion(
   api: NotionAPIWrapper,
@@ -65,7 +65,7 @@ export default async function performConversion(
     const ws = new Workspace(true, 'fs');
     console.debug(`using workspace ${ws.location}`);
     const exporter = new CustomExporter('', ws.location);
-    const settings = await Settings.LoadFrom(DB, owner, id);
+    const settings = await loadSettingsFromDatabase(DB, owner, id);
     const bl = new BlockHandler(exporter, api, settings);
     const rules = await ParserRules.Load(owner, id);
 
@@ -81,7 +81,6 @@ export default async function performConversion(
       parentType: req?.query.type?.toString() || 'page',
       topLevelId: id.replace(/\-/g, ''),
       rules,
-      settings,
       decks: [],
       parentName: settings.deckName || '',
     });

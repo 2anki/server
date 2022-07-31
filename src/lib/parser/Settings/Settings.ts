@@ -1,16 +1,9 @@
 import { captureException } from '@sentry/node';
-import { Knex } from 'knex';
+import { parseTemplate } from './helpers/parseTemplate';
 
-interface TemplateFile {
-  parent: string;
-  name: string;
-  front: string;
-  back: string;
-  styling: string;
-  storageKey: string;
-}
+import { UserSuppliedTemplateFile } from './types';
 
-export default class Settings {
+export class Settings {
   readonly deckName: string | undefined;
 
   readonly useInput: boolean;
@@ -57,11 +50,11 @@ export default class Settings {
 
   readonly perserveNewLines: boolean;
 
-  readonly n2aCloze: TemplateFile | undefined;
+  public n2aCloze: UserSuppliedTemplateFile;
 
-  readonly n2aBasic: TemplateFile | undefined;
+  public n2aBasic: UserSuppliedTemplateFile;
 
-  readonly n2aInput: TemplateFile | undefined;
+  public n2aInput: UserSuppliedTemplateFile;
 
   readonly useNotionId: boolean;
 
@@ -91,9 +84,9 @@ export default class Settings {
     this.reversed = input.reversed !== 'false';
     this.removeMP3Links = input['remove-mp3-links'] === 'true' || false;
     this.perserveNewLines = input['perserve-newlines'] === 'true' || false;
-    this.clozeModelName = input.cloze_model_name;
-    this.basicModelName = input.basic_model_name;
-    this.inputModelName = input.input_model_name;
+    this.clozeModelName = input.cloze_model_name || 'n2a-cloze';
+    this.basicModelName = input.basic_model_name || 'n2a-basic';
+    this.inputModelName = input.input_model_name || 'n2a-input';
     this.clozeModelId = input.cloze_model_id;
     this.basicModelId = input.basic_model_id;
     this.inputModelId = input.input_model_id;
@@ -107,26 +100,16 @@ export default class Settings {
       this.addNotionLink = true;
     }
 
-    if (input['n2a-basic']) {
-      try {
-        this.n2aBasic = JSON.parse(input['n2a-basic']);
-      } catch (error) {
-        captureException(error);
-      }
-    }
-    if (input['n2a-cloze']) {
-      try {
-        this.n2aCloze = JSON.parse(input['n2a-cloze']);
-      } catch (error) {
-        captureException(error);
-      }
-    }
-    if (input['n2a-input']) {
-      try {
-        this.n2aInput = JSON.parse(input['n2a-input']);
-      } catch (error) {
-        captureException(error);
-      }
+    this.retrieveTemplates(input);
+  }
+
+  retrieveTemplates(input: { [key: string]: string }) {
+    try {
+      this.n2aBasic = parseTemplate(input['n2a-basic']);
+      this.n2aCloze = parseTemplate(input['n2a-cloze']);
+      this.n2aInput = parseTemplate(input['n2a-input']);
+    } catch (error) {
+      captureException(error);
     }
   }
 
@@ -148,27 +131,5 @@ export default class Settings {
       'perserve-newlines': 'false',
       'page-emoji': 'first-emoji',
     };
-  }
-
-  static async LoadFrom(
-    DB: Knex,
-    owner: string,
-    id: string
-  ): Promise<Settings> {
-    try {
-      const result = await DB('settings')
-        .where({ object_id: id, owner })
-        .returning(['payload'])
-        .first();
-      if (result) {
-        return new Settings(result.payload);
-      }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        captureException(`Failed to load settings from db ${error.toString()}`);
-      }
-      captureException(error);
-    }
-    return new Settings(Settings.LoadDefaultOptions());
   }
 }
