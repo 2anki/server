@@ -1,5 +1,6 @@
 import { captureException } from '@sentry/node';
 import { Knex } from 'knex';
+import { getCustomTemplate } from './helpers/getCustomTemplate';
 
 import { TemplateFile } from './types';
 
@@ -50,11 +51,11 @@ export class Settings {
 
   readonly perserveNewLines: boolean;
 
-  public n2aCloze: TemplateFile | undefined;
+  public n2aCloze: TemplateFile | undefined | null;
 
-  public n2aBasic: TemplateFile | undefined;
+  public n2aBasic: TemplateFile | undefined | null;
 
-  public n2aInput: TemplateFile | undefined;
+  public n2aInput: TemplateFile | undefined | null;
 
   readonly useNotionId: boolean;
 
@@ -161,19 +162,9 @@ export class Settings {
       if (result) {
         const settings = new Settings(result.payload);
         if (templates && settings.template === 'custom') {
-          settings.loadCustomTeplate(
-            'n2a-basic',
-            templates.payload['n2a-basic']
-          );
-          settings.n2aBasic = templates.payload.find(
-            (tm: TemplateFile) => tm.storageKey === 'n2a-basic'
-          );
-          settings.n2aCloze = templates.payload.find(
-            (tm: TemplateFile) => tm.storageKey === 'n2a-cloze'
-          );
-          settings.n2aInput = templates.payload.find(
-            (tm: TemplateFile) => tm.storageKey === 'n2a-input'
-          );
+          settings.n2aBasic = getCustomTemplate('n2a-basic', templates.payload);
+          settings.n2aCloze = getCustomTemplate('n2a-cloze', templates.payload);
+          settings.n2aInput = getCustomTemplate('n2a-input', templates.payload);
         }
         return settings;
       }
@@ -184,21 +175,5 @@ export class Settings {
       captureException(error);
     }
     return new Settings(Settings.LoadDefaultOptions());
-  }
-
-  loadCustomTeplate(storageKey: string, template: TemplateFile) {
-    switch (storageKey) {
-      case 'n2a-basic':
-        this.n2aBasic = template;
-        break;
-      case 'n2a-cloze':
-        this.n2aCloze = template;
-        break;
-      case 'n2a-input':
-        this.n2aInput = template;
-        break;
-      default:
-        throw new Error(`Unsupported template ${storageKey}`);
-    }
   }
 }
