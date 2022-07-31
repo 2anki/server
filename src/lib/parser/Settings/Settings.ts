@@ -1,6 +1,7 @@
 import { captureException } from '@sentry/node';
 import { Knex } from 'knex';
 import { getCustomTemplate } from './helpers/getCustomTemplate';
+import { parseTemplate } from './helpers/parseTemplate';
 
 import { TemplateFile } from './types';
 
@@ -101,26 +102,16 @@ export class Settings {
       this.addNotionLink = true;
     }
 
-    if (input['n2a-basic']) {
-      try {
-        this.n2aBasic = JSON.parse(input['n2a-basic']);
-      } catch (error) {
-        captureException(error);
-      }
-    }
-    if (input['n2a-cloze']) {
-      try {
-        this.n2aCloze = JSON.parse(input['n2a-cloze']);
-      } catch (error) {
-        captureException(error);
-      }
-    }
-    if (input['n2a-input']) {
-      try {
-        this.n2aInput = JSON.parse(input['n2a-input']);
-      } catch (error) {
-        captureException(error);
-      }
+    this.retrieveTemplates(input);
+  }
+
+  retrieveTemplates(input: { [key: string]: string }) {
+    try {
+      this.n2aBasic = parseTemplate(input['n2a-basic']);
+      this.n2aCloze = parseTemplate(input['n2a-cloze']);
+      this.n2aInput = parseTemplate(input['n2a-input']);
+    } catch (error) {
+      captureException(error);
     }
   }
 
