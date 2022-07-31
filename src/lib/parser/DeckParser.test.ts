@@ -2,7 +2,7 @@ import path from 'path';
 import os from 'os';
 
 import { getDeck } from '../../test/test-utils';
-import Settings from './Settings';
+import Settings from './Settings/';
 
 beforeEach(() => {
   process.env.WORKSPACE_BASE = path.join(os.tmpdir(), 'workspaces');

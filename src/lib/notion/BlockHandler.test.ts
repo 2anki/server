@@ -31,7 +31,6 @@ const loadCards = async (
     parentType: 'page',
     topLevelId: pageId,
     rules: r,
-    settings,
     decks: [],
     parentName: '',
   });
@@ -95,7 +94,6 @@ describe('BlockHandler', () => {
       parentType: 'page',
       topLevelId: examplId,
       rules,
-      settings,
       decks: [],
       parentName: '',
     });

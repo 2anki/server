@@ -1,16 +1,9 @@
 import { captureException } from '@sentry/node';
 import { Knex } from 'knex';
 
-interface TemplateFile {
-  parent: string;
-  name: string;
-  front: string;
-  back: string;
-  styling: string;
-  storageKey: string;
-}
+import { TemplateFile } from './types';
 
-export default class Settings {
+export class Settings {
   readonly deckName: string | undefined;
 
   readonly useInput: boolean;
