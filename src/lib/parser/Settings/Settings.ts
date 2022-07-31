@@ -1,9 +1,7 @@
 import { captureException } from '@sentry/node';
-import { Knex } from 'knex';
-import { getCustomTemplate } from './helpers/getCustomTemplate';
 import { parseTemplate } from './helpers/parseTemplate';
 
-import { TemplateFile } from './types';
+import { UserSuppliedTemplateFile } from './types';
 
 export class Settings {
   readonly deckName: string | undefined;
@@ -52,11 +50,11 @@ export class Settings {
 
   readonly perserveNewLines: boolean;
 
-  public n2aCloze: TemplateFile | undefined | null;
+  public n2aCloze: UserSuppliedTemplateFile;
 
-  public n2aBasic: TemplateFile | undefined | null;
+  public n2aBasic: UserSuppliedTemplateFile;
 
-  public n2aInput: TemplateFile | undefined | null;
+  public n2aInput: UserSuppliedTemplateFile;
 
   readonly useNotionId: boolean;
 

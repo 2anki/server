@@ -6,3 +6,5 @@ export interface TemplateFile {
   styling: string;
   storageKey: string;
 }
+
+export type UserSuppliedTemplateFile = TemplateFile | undefined | null;

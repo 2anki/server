@@ -8,7 +8,6 @@ import BlockHandler from '../../../../lib/notion/BlockHandler';
 import NotionAPIWrapper from '../../../../lib/notion/NotionAPIWrapper';
 import CustomExporter from '../../../../lib/parser/CustomExporter';
 import ParserRules from '../../../../lib/parser/ParserRules';
-import Settings from '../../../../lib/parser/Settings';
 import Workspace from '../../../../lib/parser/WorkSpace';
 import DB from '../../../../lib/storage/db';
 import getQuota from '../../../../lib/User/getQuota';
