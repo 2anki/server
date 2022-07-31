@@ -25,6 +25,16 @@ export const loadSettingsFromDatabase = async (
         settings.n2aBasic = getCustomTemplate('n2a-basic', templates.payload);
         settings.n2aCloze = getCustomTemplate('n2a-cloze', templates.payload);
         settings.n2aInput = getCustomTemplate('n2a-input', templates.payload);
+
+        if (settings.n2aBasic) {
+          settings.n2aBasic.name = settings.basicModelName;
+        }
+        if (settings.n2aCloze) {
+          settings.n2aCloze.name = settings.clozeModelName;
+        }
+        if (settings.n2aInput) {
+          settings.n2aInput.name = settings.inputModelName;
+        }
       }
       return settings;
     }
