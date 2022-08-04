@@ -1,22 +1,24 @@
 span {
-	color: white !important;
+  color: white !important;
 }
 
-html, body {
-	background: #5397f5;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	flex-direction: column;
-	height: 80vh;
+html,
+body {
+  background: #5397f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  height: 80vh;
 }
 
-.container-front, .container-back {	
+.container-front,
+.container-back {
   font-size: 2.81em;
   padding: 1rem;
   background: #5397f5;
   max-width: 80vw;
-	width: 100%;
+  width: 100%;
   margin: 0 auto;
   color: white;
 }
@@ -28,13 +30,12 @@ hr {
 }
 
 a {
-	color: white;
+  color: white;
 }
 
 .container-back .cloze {
-	text-decoration: underline;
+  text-decoration: underline;
 }
-
 
 hr {
   background-color: white;
@@ -43,15 +44,15 @@ hr {
 }
 
 div a {
-	color: black !important;
-	font-weight: bold
-	border: 0.9px solid white;
-	background: white;
-	padding: 0.2rem 0.3rem;
-	border-radius: 6px;
+  color: black !important;
+  font-weight: bold;
+  border: 0.9px solid white;
+  background: white;
+  padding: 0.2rem 0.3rem;
+  border-radius: 6px;
 }
 
 div a:hover {
-	background: blue;
-	color: pink !important;
+  background: blue;
+  color: pink !important;
 }
