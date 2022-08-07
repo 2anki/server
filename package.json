@@ -29,10 +29,6 @@
     "test:mock": "FORCE_BUILD=true ts-node lib/notion/_mock/build-mock-data.tsx",
     "prepare": "cd .. && husky install .husky"
   },
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/2anki/server.git"
-  },
   "license": "MIT",
   "dependencies": {
     "@notionhq/client": "^0.4.12",
