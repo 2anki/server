@@ -1,15 +1,14 @@
 {
   "name": "notion2anki-server",
   "description": "Go from Notion togglelists to Anki Cards easily!",
-  "keywords": [
-    "notion",
-    "anki",
-    "notion2anki"
-  ],
+  "keywords": ["notion", "anki", "notion2anki"],
   "author": "Alexander Alemayhu",
   "version": "1.0.0-alpha.16",
   "engines": {
     "node": ">=12.0.0"
+  },
+  "release": {
+    "branches": ["main"]
   },
   "main": "main.js",
   "scripts": {
