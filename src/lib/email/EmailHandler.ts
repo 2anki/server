@@ -26,7 +26,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 class EmailHandler {
   static SendResetEmail(email: string, token: string) {
-    const link = `${process.env.DOMAIN}/api/users/r/${token}`;
+    const link = `${process.env.DOMAIN}/users/r/${token}`;
     const markup = PASSWORD_RESET_TEMPLATE.replace('{{link}}', link);
     const msg = {
       to: email,
