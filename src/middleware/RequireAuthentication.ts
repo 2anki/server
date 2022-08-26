@@ -1,11 +1,11 @@
-import express from 'express';
+import express, { NextFunction } from 'express';
 
 import TokenHandler from '../lib/misc/TokenHandler';
 
 const RequireAuthentication = async (
   req: { cookies: { token: string } },
   res: express.Response,
-  next: () => any
+  next: NextFunction
 ) => {
   const user = await TokenHandler.GetUserFrom(req.cookies.token);
   if (!user) {
