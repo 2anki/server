@@ -82,7 +82,7 @@
     "@types/node-fetch": "^2.6.2",
     "@types/react": "^18.0.14",
     "@types/react-dom": "18.0.6",
-    "@typescript-eslint/eslint-plugin": "^5.33.1",
+    "@typescript-eslint/eslint-plugin": "^5.35.1",
     "@typescript-eslint/parser": "^5.28.0",
     "eslint": "^8.19.0",
     "eslint-config-airbnb-typescript": "^17.0.0",
