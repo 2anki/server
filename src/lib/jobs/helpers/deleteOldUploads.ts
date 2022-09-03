@@ -10,6 +10,10 @@ export default async function deleteOldUploads(db: Knex) {
   const files = await s.getContents();
   const now = new Date();
 
+  if (!files) {
+    return;
+  }
+
   for (const file of files) {
     /* @ts-ignore */
     if (now - new Date(file.LastModified) > MS_21) {

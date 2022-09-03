@@ -1,5 +1,9 @@
 import { GetBlockResponse } from '@notionhq/client/build/src/api-endpoints';
 
-export default function isColumnList(block: GetBlockResponse | any) {
-  return block.type === 'column_list';
+interface BlockWithType {
+  type: string;
+}
+
+export default function isColumnList(block: GetBlockResponse) {
+  return (block as BlockWithType).type === 'column_list';
 }

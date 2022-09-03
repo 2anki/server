@@ -1,11 +1,11 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 
 import { ALLOWED_ORIGINS } from '../lib/constants';
 
 const RequireAllowedOrigin = async (
   req: Request,
   res: Response,
-  next: () => any
+  next: NextFunction
 ) => {
   const { origin } = req.headers;
   if (!origin) {
