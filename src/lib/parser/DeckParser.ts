@@ -16,6 +16,7 @@ import getYouTubeID from './helpers/getYouTubeID';
 import getYouTubeEmbedLink from './helpers/getYouTubeEmbedLink';
 import getUniqueFileName from '../misc/getUniqueFileName';
 import { captureException } from '@sentry/node';
+import { findToggleHeadings } from './helpers/findToggleHeadings';
 
 export class DeckParser {
   globalTags: cheerio.Cheerio | null;
@@ -84,7 +85,7 @@ export class DeckParser {
     return note.name.includes(avocado) || note.name.includes('🥑');
   }
 
-  findToggleLists(dom: cheerio.Root) {
+  findToggleLists(dom: cheerio.Root): cheerio.Element[] {
     const selector =
       this.settings.isCherry || this.settings.isAll
         ? '.toggle'
@@ -181,7 +182,9 @@ export class DeckParser {
     }
 
     this.globalTags = dom('.page-body > p > del');
-    const toggleList = this.findToggleLists(dom);
+    const toggleList = this.findToggleLists(dom).concat(
+      findToggleHeadings(dom)
+    );
     let cards: Note[] = [];
 
     toggleList.forEach((t) => {
