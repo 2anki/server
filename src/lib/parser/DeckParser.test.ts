@@ -8,12 +8,12 @@ beforeEach(() => {
   process.env.WORKSPACE_BASE = path.join(os.tmpdir(), 'workspaces');
 });
 
-test.skip('Toggle Headings', async () => {
+test('Toggle Headings', async () => {
   const deck = await getDeck(
     'Toggle Hea 0e02b 2.html',
     new Settings({ cherry: 'false' })
   );
-  expect(deck.cards.length).toBe(1);
+  expect(deck.cards.length).toBeGreaterThan(0);
 });
 
 test('Grouped cloze deletions', async () => {
