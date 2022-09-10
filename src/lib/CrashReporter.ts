@@ -1,11 +1,11 @@
 import * as Sentry from '@sentry/node';
 import * as Tracing from '@sentry/tracing';
-import express from 'express';
+import express, { ErrorRequestHandler, RequestHandler } from 'express';
 import { Express } from 'express-serve-static-core';
 
 export default class CrashReporter {
   static AddErrorHandler(app: Express) {
-    app.use(Sentry.Handlers.errorHandler());
+    app.use(Sentry.Handlers.errorHandler() as ErrorRequestHandler);
   }
 
   static Configure(app: express.Application) {
@@ -23,7 +23,7 @@ export default class CrashReporter {
       // We recommend adjusting this value in production
       tracesSampleRate: 1.0,
     });
-    app.use(Sentry.Handlers.requestHandler());
-    app.use(Sentry.Handlers.tracingHandler());
+    app.use(Sentry.Handlers.requestHandler() as RequestHandler);
+    app.use(Sentry.Handlers.tracingHandler() as RequestHandler);
   }
 }

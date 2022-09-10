@@ -2,7 +2,7 @@ import { existsSync } from 'fs';
 import path from 'path';
 
 import morgan from 'morgan';
-import express from 'express';
+import express, { RequestHandler } from 'express';
 import cookieParser from 'cookie-parser';
 import * as dotenv from 'dotenv';
 
@@ -42,14 +42,14 @@ function serve() {
   const templateDir = path.join(__dirname, 'templates');
   const app = express();
 
-  app.use(express.json());
+  app.use(express.json() as RequestHandler);
   app.use(cookieParser());
   if (process.env.NODE_ENV === 'production') {
     CrashReporter.Configure(app);
   }
 
   if (process.env.SPACES_DEFAULT_BUCKET_NAME !== 'dev.2anki.net') {
-    app.use(morgan('combined'));
+    app.use(morgan('combined') as RequestHandler);
   }
 
   app.use('/templates', express.static(templateDir));
