@@ -73,7 +73,7 @@
     "@types/find-remove": "^2.0.1",
     "@types/html-to-text": "^8.1.0",
     "@types/jest": "^27.4.1",
-    "@types/jsonwebtoken": "^8.5.8",
+    "@types/jsonwebtoken": "^8.5.9",
     "@types/morgan": "^1.9.2",
     "@types/multer": "^1.4.5",
     "@types/multer-s3": "^2.7.10",
