@@ -34,7 +34,7 @@
     "@notionhq/client": "^0.4.12",
     "@sendgrid/mail": "^7.7.0",
     "@sentry/node": "^6.19.7",
-    "@sentry/tracing": "^7.7.0",
+    "@sentry/tracing": "^7.12.1",
     "aws-sdk": "^2.1171.0",
     "axios": "^0.21.4",
     "bcryptjs": "^2.4.3",
