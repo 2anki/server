@@ -42,7 +42,9 @@ export const findToggleHeadings = (dom: cheerio.Root): cheerio.Element[] => {
         details: null,
       };
     } else if (el.attribs.class === 'indented') {
-      toggleHeadings[i++].details = dom(element).html();
+      if (toggleHeadings[i + 1]) {
+        toggleHeadings[i++].details = dom(element).html();
+      }
     }
   }
   // @ts-ignore
