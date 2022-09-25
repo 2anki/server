@@ -13,6 +13,7 @@ import getDatabase from './getDatabase';
 import { queryDatabase } from './queryDatabase';
 import ensureResponse from './helpers/ensureResponse';
 import { captureException } from '@sentry/node';
+import renderBlock from './renderBlock';
 
 const router = express.Router();
 
@@ -121,6 +122,20 @@ router.get('/block/:id', RequireAuthentication, async (req, res) =>
   ensureResponse(async () => {
     const api = await ConfigureNotionAPI(req, res);
     return getBlock(api, req, res);
+  }, res)
+);
+
+router.get('/render-block/:id', RequireAuthentication, async (req, res) =>
+  ensureResponse(async () => {
+    if (!res.locals.patreon) {
+      return res.redirect('https://alemayhu.com/patreon');
+    }
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).send();
+    }
+    const api = await ConfigureNotionAPI(req, res);
+    await renderBlock(api, id.replace(/\-/g, ''), res);
   }, res)
 );
 
