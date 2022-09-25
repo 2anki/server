@@ -88,7 +88,7 @@ export default async function handleUpload(
     } else if (packages.length > 1) {
       sendBundle(packages, storage, res);
     } else {
-      throw NO_PACKAGE_ERROR;
+      ErrorHandler(res, NO_PACKAGE_ERROR);
     }
   } catch (err) {
     captureException(err);
