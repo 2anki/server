@@ -1,4 +1,5 @@
 import { GetBlockResponse } from '@notionhq/client/build/src/api-endpoints';
+import axios from 'axios';
 
 import BlockHandler from '../BlockHandler';
 import { BlockHeading } from '../blocks/BlockHeadings';
@@ -25,6 +26,13 @@ export default async function renderFront(
     if (firstColumn) {
       return BlockColumn(firstColumn, handler);
     }
+  }
+
+  // Do not add the images in default mode
+  if (handler.settings.learnMode && type === 'image') {
+    /* @ts-ignore */
+    const { url } = block.image.file;
+    return `<img src='${url}' />`;
   }
 
   if (isToggle(block)) {

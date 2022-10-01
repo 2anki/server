@@ -1,5 +1,6 @@
 import express from 'express';
 import BlockHandler from '../../lib/notion/BlockHandler';
+import renderFront from '../../lib/notion/helpers/renderFront';
 
 import NotionAPIWrapper from '../../lib/notion/NotionAPIWrapper';
 import NotionID from '../../lib/notion/NotionID';
@@ -14,12 +15,15 @@ export default async function renderBlock(
 ) {
   const blockId = NotionID.fromString(query);
   const block = await api.getBlock(blockId);
+  const settings = new Settings(Settings.LoadDefaultOptions());
+  settings.learnMode = true; // option to handle breaking changes
   let handler = new BlockHandler(
     new CustomExporter('x', new Workspace(true, 'fs').location),
     api,
-    new Settings(Settings.LoadDefaultOptions())
+    settings
   );
-  const data = await handler.getBackSide(block, false);
+  const backSide = await handler.getBackSide(block, false);
+  const frontSide = await renderFront(block, handler);
 
-  return res.json({ data });
+  return res.json({ backSide, frontSide });
 }
