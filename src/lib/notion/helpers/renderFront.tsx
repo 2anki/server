@@ -1,5 +1,4 @@
 import { GetBlockResponse } from '@notionhq/client/build/src/api-endpoints';
-import axios from 'axios';
 
 import BlockHandler from '../BlockHandler';
 import { BlockHeading } from '../blocks/BlockHeadings';
