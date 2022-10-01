@@ -27,6 +27,13 @@ export default async function renderFront(
     }
   }
 
+  // Do not add the images in default mode
+  if (handler.settings.learnMode && type === 'image') {
+    /* @ts-ignore */
+    const { url } = block.image.file;
+    return `<img src='${url}' />`;
+  }
+
   if (isToggle(block)) {
     // @ts-ignore
     const { toggle } = block;

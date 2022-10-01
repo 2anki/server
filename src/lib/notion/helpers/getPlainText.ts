@@ -3,7 +3,7 @@ interface Text {
 }
 
 export default function getPlainText(text: Text[]): string {
-  if (text.length === 0) {
+  if (!text || text.length === 0) {
     return '';
   }
   return text
