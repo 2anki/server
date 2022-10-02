@@ -11,6 +11,7 @@ import sanitizeTags from '../anki/sanitizeTags';
 import ParserRules from '../parser/ParserRules';
 import Settings from '../parser/Settings';
 import isHeading from './helpers/isHeading';
+import { ParagraphBlockObject } from './types';
 
 const ANON_LIMIT = 21 * 2;
 const PATREON_LIMIT = 100 * 2;
@@ -66,6 +67,17 @@ class NotionAPIWrapper {
   async deleteBlock(id: string): Promise<GetBlockResponse> {
     return this.notion.blocks.delete({
       block_id: id,
+    });
+  }
+
+  async createBlock(
+    parent: string,
+    newBlock: ParagraphBlockObject
+  ): Promise<ListBlockChildrenResponse> {
+    return this.notion.blocks.children.append({
+      block_id: parent,
+      /* @ts-ignore */
+      children: [newBlock],
     });
   }
 
