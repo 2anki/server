@@ -63,6 +63,12 @@ class NotionAPIWrapper {
     });
   }
 
+  async deleteBlock(id: string): Promise<GetBlockResponse> {
+    return this.notion.blocks.delete({
+      block_id: id,
+    });
+  }
+
   async getDatabase(id: string): Promise<GetDatabaseResponse> {
     return this.notion.databases.retrieve({ database_id: id });
   }
