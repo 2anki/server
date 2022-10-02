@@ -64,6 +64,8 @@ export class Settings {
 
   parentBlockId: string;
 
+  learnMode: boolean;
+
   constructor(input: { [key: string]: string }) {
     this.deckName = input.deckName;
     if (this.deckName && !this.deckName.trim()) {
@@ -100,6 +102,7 @@ export class Settings {
       this.addNotionLink = true;
     }
 
+    this.learnMode = false;
     this.retrieveTemplates(input);
   }
 
