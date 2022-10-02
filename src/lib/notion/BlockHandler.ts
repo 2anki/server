@@ -44,6 +44,7 @@ import LinkToPage from './blocks/LinkToPage';
 import getUniqueFileName from '../misc/getUniqueFileName';
 import getSubDeckName from './helpers/getSubDeckName';
 import { captureException } from '@sentry/node';
+import { getImageUrl } from './helpers/getImageUrl';
 
 interface Finder {
   parentType: string;
@@ -151,9 +152,13 @@ class BlockHandler {
         /* @ts-ignore */
         switch (c.type) {
           case 'image':
-            /* @ts-ignore */
-            const image = await this.embedImage(c);
-            back += image;
+            if (!this.settings.learnMode) {
+              /* @ts-ignore */
+              const image = await this.embedImage(c);
+              back += image;
+            } else {
+              back += `<img src='${getImageUrl(c)}' />`;
+            }
             break;
           case 'audio':
             /* @ts-ignore */
