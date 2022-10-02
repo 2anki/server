@@ -47,7 +47,6 @@ export default async function renderFront(
     return FrontFlashcard(block[type], handler);
   } catch (error) {
     captureException(error);
-  } finally {
     return `Unsupported block type in front: ${type}\n${JSON.stringify(
       block,
       null,
