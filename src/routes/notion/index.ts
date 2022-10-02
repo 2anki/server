@@ -15,6 +15,7 @@ import ensureResponse from './helpers/ensureResponse';
 import { captureException } from '@sentry/node';
 import renderBlock from './renderBlock';
 import deleteBlock from './deleteBlock';
+import createBlock from './createBlock';
 
 const router = express.Router();
 
@@ -125,6 +126,13 @@ router.get('/block/:id', RequireAuthentication, async (req, res) =>
     return getBlock(api, req, res);
   }, res)
 );
+
+router.post('/block/:id', RequireAuthentication, async (req, res) => {
+  ensureResponse(async () => {
+    const api = await ConfigureNotionAPI(req, res);
+    return createBlock(api, req, res);
+  }, res);
+});
 
 router.delete('/block/:id', RequireAuthentication, async (req, res) =>
   ensureResponse(async () => {
