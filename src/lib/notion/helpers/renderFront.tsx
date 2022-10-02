@@ -1,12 +1,15 @@
 import { GetBlockResponse } from '@notionhq/client/build/src/api-endpoints';
+import { captureException } from '@sentry/node';
 
 import BlockHandler from '../BlockHandler';
 import { BlockHeading } from '../blocks/BlockHeadings';
 import FrontFlashcard from '../blocks/FrontFlashcard';
 import BlockColumn from '../blocks/lists/BlockColumn';
 import getColumn from './getColumn';
+import { getImageUrl } from './getImageUrl';
 import isColumnList from './isColumnList';
 import isHeading from './isHeading';
+import { isImage } from './isImage';
 import isToggle from './isToggle';
 import renderTextChildren from './renderTextChildren';
 
@@ -28,10 +31,8 @@ export default async function renderFront(
   }
 
   // Do not add the images in default mode
-  if (handler.settings.learnMode && type === 'image') {
-    /* @ts-ignore */
-    const { url } = block.image.file;
-    return `<img src='${url}' />`;
+  if (handler.settings.learnMode && isImage(block)) {
+    return `<img src='${getImageUrl(block)}' />`;
   }
 
   if (isToggle(block)) {
@@ -41,6 +42,16 @@ export default async function renderFront(
       return renderTextChildren(toggle.text, handler.settings);
     }
   }
-  // @ts-ignore
-  return FrontFlashcard(block[type], handler);
+  try {
+    // @ts-ignore
+    return FrontFlashcard(block[type], handler);
+  } catch (error) {
+    captureException(error);
+  } finally {
+    return `Unsupported block type in front: ${type}\n${JSON.stringify(
+      block,
+      null,
+      4
+    )}`;
+  }
 }
