@@ -92,6 +92,11 @@ https://www.reddit.com/r/Anki/comments/g29mzk/cards_imported_from_notion/
 
 We are still heavily relying on the APKG format. Long term we want to support AnkiWeb and make it possible to do true realtime collaboration.
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=2anki/server&type=Date)](https://star-history.com/#2anki/server&Date)
+
+
 ## Credits
 
 Special thanks to following developers / artistans
