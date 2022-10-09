@@ -2,6 +2,7 @@ import { GetBlockResponse } from '@notionhq/client/build/src/api-endpoints';
 import { captureException } from '@sentry/node';
 
 import BlockHandler from '../BlockHandler';
+import BlockCode from '../blocks/BlockCode';
 import { BlockHeading } from '../blocks/BlockHeadings';
 import FrontFlashcard from '../blocks/FrontFlashcard';
 import BlockColumn from '../blocks/lists/BlockColumn';
@@ -31,6 +32,11 @@ export default async function renderFront(
       // Do not add the images in default mode
       if (handler.settings.learnMode) {
         return `<img src='${getImageUrl(block)}' />`;
+      }
+      break;
+    case 'code':
+      if (handler.settings.learnMode) {
+        return BlockCode(block, handler);
       }
       break;
     case 'toggle':
