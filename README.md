@@ -18,7 +18,7 @@ For the frontend code, please see [2anki/web](https://github.com/2anki/web).
 
 If you are looking for a Anki or Notion replacement then this project is probably not right for you. Watch this video [Notion + Anki](https://youtu.be/FjifJG4FoXY) to understand the project's goal. **We are never going to compete against Anki in this project**. We are building bridges.
 
-When that is said, if you are not content with Anki, you might want to checkout [Zorbi](https://youtu.be/ReQvcQKoalU) or [SuperMemo](https://www.super-memory.com/).
+When that is said, if you are not content with Anki, you might want to checkout [SuperMemo](https://www.super-memory.com/).
 
 ## Benefits
 
