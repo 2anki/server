@@ -32,11 +32,9 @@ When that is said, if you are not content with Anki, you might want to checkout 
 
 [![Scrimba.com](https://raw.githubusercontent.com/2anki/web/main/public/sponsors/Scrimba.png)](https://scrimba.com/)
 
-👩🏼‍🎓👨‍🎓️👨‍🏫️👩🏽‍🏫 [Scrimba](https://scrimba.com) - the mind-blowing way to to code!
+👩🏼‍🎓👨‍🎓️👨‍🏫️👩🏽‍🏫 [Scrimba](https://scrimba.com) - the mind-blowing way learn to code!
 
 <a href="https://fortress.no"><img src="https://fortress.no/icons/logo.svg"  style="width:114px;" src=""></img></a>
-
-🧱🏢🖌️🏰 [Fortress](https://fortress.no/) - An untraditional, multidisciplinary agency that works to contribute to development and growth.
 
 ## 🎁 Support the Project
 
