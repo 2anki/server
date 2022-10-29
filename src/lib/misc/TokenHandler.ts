@@ -84,10 +84,6 @@ class TokenHandler {
     return crypto.randomBytes(64).toString('hex');
   }
 
-  static NewVerificationToken(): string {
-    return crypto.randomBytes(64).toString('hex');
-  }
-
   static async IsValidResetToken(token: string): Promise<boolean> {
     if (!token || token.length < 128) {
       return false;
@@ -95,24 +91,6 @@ class TokenHandler {
     const user = await DB('users').where({ reset_token: token }).first();
     /* @ts-ignore */
     return user && user.reset_token;
-  }
-
-  static async IsValidVerificationToken(token: string): Promise<boolean> {
-    if (!token || token.length < 128) {
-      return false;
-    }
-    const user = await DB('users')
-      .where({
-        verification_token: token,
-      })
-      .first();
-    if (user) {
-      console.debug('found user with verification token');
-    } else {
-      console.debug('no user with verification token');
-    }
-    /* @ts-ignore */
-    return user && user.verification_token;
   }
 
   static async IsValidJWTToken(token: string): Promise<boolean> {

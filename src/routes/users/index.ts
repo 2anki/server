@@ -79,21 +79,6 @@ router.post('/forgot-password', async (req, res, next) => {
   }
 });
 
-router.get('/v/:id', async (req, res, next) => {
-  console.debug(`verify user ${req.params.id}`);
-  const valid = await TokenHandler.IsValidVerificationToken(req.params.id);
-  if (!valid) {
-    console.debug('invalid verification token');
-    return res.redirect('/login#login');
-  }
-  const token = req.params.id;
-  DB('users')
-    .where({ verification_token: token })
-    .update({ verified: true })
-    .then(() => res.redirect('/search'))
-    .catch((err) => next(err));
-});
-
 router.get('/logout', RequireAuthentication, async (req, res, next) => {
   const { token } = req.cookies;
   res.clearCookie('token');
@@ -171,17 +156,14 @@ router.post('/register', async (req, res, next) => {
   const password = hashPassword(req.body.password);
   const { name } = req.body;
   const email = req.body.email.toLowerCase();
-  const token = TokenHandler.NewVerificationToken();
   try {
     await DB('users')
       .insert({
         name,
         password,
         email,
-        verification_token: token,
       })
       .returning(['id']);
-    await EmailHandler.SendVerificationEmail(email, token);
     res.status(200).json({ message: 'ok' });
   } catch (error) {
     captureException(error);
