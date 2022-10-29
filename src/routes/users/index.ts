@@ -36,7 +36,8 @@ router.post('/new-password', async (req, res, next) => {
     await updatePassword(DB, password, resetToken);
     res.status(200).send({ message: 'ok' });
   } catch (error) {
-    next(error);
+    captureException(error);
+    next(new Error('Failed to create new password.'));
   }
 });
 
@@ -149,7 +150,10 @@ router.post('/login', async (req, res, next) => {
         });
     }
   } catch (error) {
-    next(error);
+    captureException(error);
+    next(
+      new Error('Failed to login, please try again or register your account.')
+    );
   }
 });
 
