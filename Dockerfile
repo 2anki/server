@@ -10,7 +10,6 @@ RUN node --version
 
 RUN rm -rvf /app/node_modules
 RUN git clone https://github.com/2anki/web /app/web
-RUN git -C /app/web checkout 2c195d254bef9398db2a32888f570b8bf1e765d8
 RUN git clone https://github.com/2anki/create_deck /app/create_deck
 RUN npm --prefix /app/web install
 
