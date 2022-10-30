@@ -190,9 +190,14 @@ router.get('/debug/locals', RequireAuthentication, (_req, res) => {
   return res.json({ locals });
 });
 
-router.get('/is-patreon', (_req, res) => {
-  const { patreon } = res.locals;
-  return res.json({ patreon });
+router.get('/is-patreon', async (_req, res) => {
+  const token = _req.cookies?.token;
+  if (token) {
+    const user = await TokenHandler.GetUserFrom(token);
+    let patreon = user?.patreon;
+    return res.json({ patreon });
+  }
+  return res.json({ patreon: false });
 });
 
 export default router;
