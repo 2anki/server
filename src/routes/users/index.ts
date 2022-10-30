@@ -190,7 +190,7 @@ router.get('/debug/locals', RequireAuthentication, (_req, res) => {
   return res.json({ locals });
 });
 
-router.get('/is-patreon', RequireAuthentication, (_req, res) => {
+router.get('/is-patreon', (_req, res) => {
   const { patreon } = res.locals;
   return res.json({ patreon });
 });
