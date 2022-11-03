@@ -4,7 +4,10 @@ import StorageHandler from '../../../lib/storage/StorageHandler';
 import { PrepareDeck } from '../../../lib/parser/DeckParser';
 import Settings from '../../../lib/parser/Settings';
 import { ZipHandler } from '../../../lib/anki/zip';
-import ErrorHandler, { NO_PACKAGE_ERROR } from '../../../lib/misc/ErrorHandler';
+import ErrorHandler, {
+  NO_PACKAGE_ERROR,
+  UNSUPPORTED_FORMAT_MD,
+} from '../../../lib/misc/ErrorHandler';
 import Package from '../../../lib/parser/Package';
 import cleanDeckName from './cleanDeckname';
 import { registerUploadSize } from './registerUploadSize';
@@ -19,7 +22,7 @@ export default async function handleUpload(
   try {
     const files = req.files as Express.Multer.File[];
     let packages: Package[] = [];
-
+    let hasMarkdown = false;
     for (const file of files) {
       const filename = file.originalname;
       const settings = new Settings(req.body || {});
@@ -37,6 +40,8 @@ export default async function handleUpload(
           const pkg = new Package(d.name, d.apkg);
           packages = packages.concat(pkg);
         }
+      } else if (filename.match(/.md$/)) {
+        hasMarkdown = true;
       } else {
         const zipHandler = new ZipHandler();
         /* @ts-ignore */
@@ -47,6 +52,8 @@ export default async function handleUpload(
             if (d) {
               packages.push(new Package(d.name, d.apkg));
             }
+          } else if (fileName.match(/.md$/)) {
+            hasMarkdown = true;
           }
         }
       }
@@ -88,7 +95,11 @@ export default async function handleUpload(
     } else if (packages.length > 1) {
       sendBundle(packages, storage, res);
     } else {
-      ErrorHandler(res, NO_PACKAGE_ERROR);
+      if (hasMarkdown) {
+        ErrorHandler(res, UNSUPPORTED_FORMAT_MD);
+      } else {
+        ErrorHandler(res, NO_PACKAGE_ERROR);
+      }
     }
   } catch (err) {
     captureException(err);

@@ -14,6 +14,19 @@ export const NO_PACKAGE_ERROR = new Error(
   )
 );
 
+const NOTION_INFO_LINK =
+  'https://www.notion.so/help/export-your-content#export-as-html';
+export const UNSUPPORTED_FORMAT_MD = new Error(
+  renderToStaticMarkup(
+    <>
+      Markdown support has been removed, please Export as HTML:{' '}
+      <a target="_blank" href="${NOTION_INFO_LINK}">
+        ${NOTION_INFO_LINK}
+      </a>
+    </>
+  )
+);
+
 export default function ErrorHandler(res: express.Response, err: Error) {
   if (process.env.NODE_ENV === 'production') {
     Sentry.captureException(err);
