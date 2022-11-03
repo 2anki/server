@@ -37,6 +37,8 @@ export default async function handleUpload(
           const pkg = new Package(d.name, d.apkg);
           packages = packages.concat(pkg);
         }
+      } else if (filename.match(/.md$/)) {
+        TriggerUnsupportedFormat();
       } else {
         const zipHandler = new ZipHandler();
         /* @ts-ignore */
