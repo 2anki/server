@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/node';
 import express from 'express';
 
 import DB from '../../lib/storage/db';
@@ -86,6 +87,7 @@ router.get('/logout', RequireAuthentication, async (req, res, next) => {
     .where({ token })
     .del()
     .then(() => {
+      Sentry.setUser(null);
       res.status(200).end();
     })
     .catch((err) => {
