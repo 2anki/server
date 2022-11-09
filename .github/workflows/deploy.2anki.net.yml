@@ -1,35 +1,3 @@
-
-on:
-  push:
-    branches:
-      - main
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    concurrency: 'production'
-    steps:
-      - uses: actions/checkout@v1
-      - name: Dokku deploy
-        uses: vitalyliber/dokku-github-action@v7.0
-        env:
-          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-          HOST: 2anki.net
-          PROJECT: notion
-      - uses: actions/checkout@v2
-      - name: Create Sentry release
-        uses: getsentry/action-release@v1
-        env:
-          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
-          SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
-        with:
-          environment: production
-          
-          
-
-
----
 name: Deploy to 2anki.net
 
 # yamllint disable-line rule:truthy
