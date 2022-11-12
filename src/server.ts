@@ -42,7 +42,7 @@ function serve() {
   const templateDir = path.join(__dirname, 'templates');
   const app = express();
 
-  app.use(express.json() as RequestHandler);
+  app.use(express.json({ limit: '1000mb' }) as RequestHandler);
   app.use(cookieParser());
   if (process.env.NODE_ENV === 'production') {
     CrashReporter.Configure(app);
