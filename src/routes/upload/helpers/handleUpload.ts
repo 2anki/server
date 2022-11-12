@@ -3,7 +3,6 @@ import express from 'express';
 import StorageHandler from '../../../lib/storage/StorageHandler';
 import { PrepareDeck } from '../../../lib/parser/DeckParser';
 import Settings from '../../../lib/parser/Settings';
-import { ZipHandler } from '../../../lib/anki/zip';
 import ErrorHandler, {
   NO_PACKAGE_ERROR,
   UNSUPPORTED_FORMAT_MD,
