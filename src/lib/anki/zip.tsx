@@ -19,7 +19,7 @@ class ZipHandler {
     this.files = [];
   }
 
-  async build(zipData: Buffer, isPatron: boolean) {
+  async build(zipData: string, isPatron: boolean) {
     const size = Buffer.byteLength(zipData);
     const limits = getUploadLimits(isPatron);
 

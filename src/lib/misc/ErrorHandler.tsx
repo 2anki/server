@@ -28,6 +28,7 @@ export const UNSUPPORTED_FORMAT_MD = new Error(
 );
 
 export default function ErrorHandler(res: express.Response, err: Error) {
+  console.error(err);
   if (process.env.NODE_ENV === 'production') {
     Sentry.captureException(err);
   }

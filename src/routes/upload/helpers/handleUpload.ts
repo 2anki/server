@@ -13,6 +13,7 @@ import cleanDeckName from './cleanDeckname';
 import { registerUploadSize } from './registerUploadSize';
 import { sendBundle } from './sendBundle';
 import { captureException } from '@sentry/node';
+import { getPackagesFromZip } from './getPackagesFromZip';
 
 export default async function handleUpload(
   storage: StorageHandler,
@@ -29,6 +30,7 @@ export default async function handleUpload(
       registerUploadSize(file, res);
       /* @ts-ignore */
       const fileContents = await storage.getFileContents(file.key);
+      console.log('reading', filename);
 
       if (filename.match(/.html$/)) {
         const d = await PrepareDeck(
@@ -42,19 +44,15 @@ export default async function handleUpload(
         }
       } else if (filename.match(/.md$/)) {
         hasMarkdown = true;
-      } else {
-        const zipHandler = new ZipHandler();
-        /* @ts-ignore */
-        await zipHandler.build(fileContents, res.locals.patreon);
-        for (const fileName of zipHandler.getFileNames()) {
-          if (fileName.match(/.html$/) && !fileName.includes('/')) {
-            const d = await PrepareDeck(fileName, zipHandler.files, settings);
-            if (d) {
-              packages.push(new Package(d.name, d.apkg));
-            }
-          } else if (fileName.match(/.md$/)) {
-            hasMarkdown = true;
-          }
+      } else if (filename.match(/.zip$/)) {
+        const [extraPackages, md] = await getPackagesFromZip(
+          fileContents,
+          res.locals.patreon,
+          settings
+        );
+        packages = packages.concat(extraPackages as Package[]);
+        if (md) {
+          hasMarkdown = true;
         }
       }
     }
