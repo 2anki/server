@@ -1,19 +1,23 @@
 name: Deploy to 2anki.net
 
+# yamllint disable-line rule:truthy
 on:
   push:
     branches:
       - main
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
-    concurrency: "production"
     steps:
-      - uses: actions/checkout@v1
-      - name: Dokku deploy
-        uses: vitalyliber/dokku-github-action@v7.0
-        env:
-          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-          HOST: 2anki.net
-          PROJECT: notion
+      - name: Cloning repo
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Push to dokku
+        uses: dokku/github-action@master
+        with:
+          branch: ${{ secrets.BRANCH }}
+          git_remote_url: ${{ secrets.REMOTE_URL }}
+          ssh_private_key: ${{ secrets.PRIVATE_KEY }}

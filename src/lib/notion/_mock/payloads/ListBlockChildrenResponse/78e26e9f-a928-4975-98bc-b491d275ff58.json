@@ -1,0 +1,46 @@
+{
+  "object": "list",
+  "results": [
+    {
+      "object": "block",
+      "id": "474a0f78-e156-4699-8061-3e653f50ddf6",
+      "created_time": "2021-10-06T19:20:00.000Z",
+      "last_edited_time": "2021-10-09T19:14:00.000Z",
+      "created_by": {
+        "object": "user",
+        "id": "1590db54-99fe-467c-a656-be319fe6ca8b"
+      },
+      "last_edited_by": {
+        "object": "user",
+        "id": "1590db54-99fe-467c-a656-be319fe6ca8b"
+      },
+      "has_children": true,
+      "archived": false,
+      "type": "toggle",
+      "toggle": {
+        "color": "default",
+        "text": [
+          {
+            "type": "text",
+            "text": {
+              "content": "Toggle Mode",
+              "link": null
+            },
+            "annotations": {
+              "bold": false,
+              "italic": false,
+              "strikethrough": false,
+              "underline": false,
+              "code": false,
+              "color": "default"
+            },
+            "plain_text": "Toggle Mode",
+            "href": null
+          }
+        ]
+      }
+    }
+  ],
+  "next_cursor": null,
+  "has_more": false
+}
