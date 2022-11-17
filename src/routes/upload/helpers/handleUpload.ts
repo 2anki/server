@@ -28,8 +28,8 @@ export default async function handleUpload(
       const settings = new Settings(req.body || {});
       registerUploadSize(file, res);
       /* @ts-ignore */
-      const fileContents = await storage.getFileContents(file.key);
-      console.log('reading', filename);
+      const key = file.key;
+      const fileContents = await storage.getFileContents(key);
 
       if (filename.match(/.html$/)) {
         const d = await PrepareDeck(
@@ -43,7 +43,7 @@ export default async function handleUpload(
         }
       } else if (filename.match(/.md$/)) {
         hasMarkdown = true;
-      } else if (filename.match(/.zip$/)) {
+      } else if (filename.match(/.zip$/) || key.match(/.zip$/)) {
         const [extraPackages, md] = await getPackagesFromZip(
           fileContents,
           res.locals.patreon,
