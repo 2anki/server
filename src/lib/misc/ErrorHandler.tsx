@@ -2,14 +2,13 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import * as Sentry from '@sentry/node';
 import express from 'express';
 
-const ADMIN_EMAIL = 'alexander@alemayhu.com';
+const NEW_GITHUB_ISSUE = 'https://github.com/2anki/server/issues/new/choose';
 export const NO_PACKAGE_ERROR = new Error(
   renderToStaticMarkup(
     <div className="info">
       Could not create a deck using your file and rules. Please review your{' '}
-      <a href="/upload?view=template">settings</a> or send an email to{' '}
-      <a href={`mailto:${ADMIN_EMAIL}`}> {ADMIN_EMAIL}</a> with the page you
-      uploaded.
+      <a href="/upload?view=template">settings</a> or report a
+      <a href={NEW_GITHUB_ISSUE}>issue on GitHub with an example</a>
     </div>
   )
 );
