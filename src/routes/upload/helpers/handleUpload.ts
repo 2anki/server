@@ -34,7 +34,7 @@ export default async function handleUpload(
       if (filename.match(/.html$/)) {
         const d = await PrepareDeck(
           filename,
-          [{ name: filename, contents: fileContents }],
+          [{ name: filename, contents: fileContents.Body }],
           settings
         );
         if (d) {
@@ -45,7 +45,7 @@ export default async function handleUpload(
         hasMarkdown = true;
       } else if (filename.match(/.zip$/) || key.match(/.zip$/)) {
         const [extraPackages, md] = await getPackagesFromZip(
-          fileContents,
+          fileContents.Body,
           res.locals.patreon,
           settings
         );

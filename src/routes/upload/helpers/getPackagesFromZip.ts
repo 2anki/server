@@ -1,10 +1,11 @@
+import { Body } from 'aws-sdk/clients/s3';
 import { ZipHandler } from '../../../lib/anki/zip';
 import { PrepareDeck } from '../../../lib/parser/DeckParser';
 import Package from '../../../lib/parser/Package';
 import Settings from '../../../lib/parser/Settings';
 
 export const getPackagesFromZip = async (
-  fileContents: string,
+  fileContents: Body | undefined,
   isPatreon: boolean,
   settings: Settings
 ) => {
@@ -12,7 +13,11 @@ export const getPackagesFromZip = async (
   let hasMarkdown = false;
   const packages = [];
 
-  await zipHandler.build(fileContents, isPatreon);
+  if (!fileContents) {
+    return [];
+  }
+
+  await zipHandler.build(fileContents as Uint8Array, isPatreon);
 
   for (const fileName of zipHandler.getFileNames()) {
     if (fileName.match(/.html$/)) {

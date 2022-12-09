@@ -46,10 +46,11 @@ export class DeckParser {
         return file.name === name;
       }
     });
-    if (firstFile) {
+    const contents = firstFile?.contents;
+    if (contents) {
       this.payload = this.handleHTML(
         name,
-        firstFile.contents.toString(),
+        contents.toString(),
         this.settings.deckName || '',
         []
       );
@@ -67,7 +68,7 @@ export class DeckParser {
     const nextFile = this.files.find((file) =>
       file.name.match(next.replace(/[#-.]|[[-^]|[?|{}]/g, '\\$&'))
     );
-    return nextFile ? nextFile.contents : undefined;
+    return nextFile?.contents?.toString();
   }
 
   noteHasCherry(note: Note) {
