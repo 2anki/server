@@ -20,7 +20,7 @@ router.get('/u/:key', RequireAuthentication, async (req, res) => {
     const match = await DB('uploads').where(query).returning(['key']).first();
     if (match) {
       const file = await storage.getFileContents(match.key);
-      res.send(file);
+      res.send(file.Body);
     } else {
       res.status(404).send();
     }
