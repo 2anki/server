@@ -96,6 +96,7 @@ function serve() {
         'Access-Control-Allow-Headers',
         'Origin, X-Requested-With, Content-Type, Accept, Content-Disposition'
       );
+      res.header('Access-Control-Request-Headers', '*');
       next();
     }
   );
