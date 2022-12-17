@@ -49,7 +49,7 @@ router.post('/forgot-password', async (req, res, next) => {
     return res.status(400).json({ message: 'Email is required' });
   }
   const user = await DB('users')
-    .where({ email: req.body.email, verified: true })
+    .where({ email: req.body.email })
     .returning(['reset_token', 'id'])
     .first();
   /* @ts-ignore */
@@ -74,8 +74,7 @@ router.post('/forgot-password', async (req, res, next) => {
     await EmailHandler.SendResetEmail(req.body.email, resetToken);
     return res.status(200).json({ message: 'ok' });
   } catch (error) {
-    /* @ts-ignore */
-    captureException(error.message);
+    captureException(error);
     return next(error);
   }
 });
