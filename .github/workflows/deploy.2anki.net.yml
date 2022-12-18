@@ -11,8 +11,8 @@ jobs:
     concurrency: 'production'
     steps:
       - name: Mark github workspace as safe
-      run: |
-        git config --global --add safe.directory /github/workspace
+        run: |
+          git config --global --add safe.directory /github/workspace
       - uses: actions/checkout@v1
       - name: Dokku deploy
         uses: vitalyliber/dokku-github-action@v7.0
