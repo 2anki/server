@@ -73,18 +73,16 @@ class StorageHandler {
     });
   }
 
-  getFileContents(key: string): Promise<string> {
+  getFileContents(key: string): Promise<aws.S3.GetObjectOutput> {
     const { s3 } = this;
-    return new Promise<string>((resolve, reject) => {
+    return new Promise<aws.S3.GetObjectOutput>((resolve, reject) => {
       s3.getObject(
-        /* @ts-ignore */
         { Bucket: StorageHandler.DefaultBucketName(), Key: key },
         (err, data) => {
           if (err) {
             reject(err);
           } else {
-            /* @ts-ignore */
-            resolve(data.Body);
+            resolve(data);
           }
         }
       );

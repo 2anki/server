@@ -1,12 +1,15 @@
 import JSZip from 'jszip';
+import { unzipSync, strFromU8 } from 'fflate';
+
 import { renderToStaticMarkup } from 'react-dom/server';
 
 import { getUploadLimits } from '../misc/getUploadLimits';
 import Package from '../parser/Package';
+import { Body } from 'aws-sdk/clients/s3';
 
 interface File {
   name: string;
-  contents: string | Uint8Array;
+  contents?: Body | string;
 }
 
 class ZipHandler {
@@ -19,7 +22,7 @@ class ZipHandler {
     this.files = [];
   }
 
-  async build(zipData: Buffer, isPatron: boolean) {
+  async build(zipData: Uint8Array, isPatron: boolean) {
     const size = Buffer.byteLength(zipData);
     const limits = getUploadLimits(isPatron);
 
@@ -36,19 +39,20 @@ class ZipHandler {
       );
     }
 
-    const loadedZip = await JSZip.loadAsync(zipData);
-    this.fileNames = Object.keys(loadedZip.files);
-    this.fileNames = this.fileNames.filter((f) => !f.endsWith('/'));
+    const loadedZip = unzipSync(zipData, {
+      filter(file) {
+        return !file.name.endsWith('/');
+      },
+    });
+    this.fileNames = Object.keys(loadedZip);
     this.files = [];
 
     for (const name of this.fileNames) {
-      let contents;
-      if (name.match(/.(md|html)$/)) {
-        contents = await loadedZip.files[name].async('text');
-      } else {
-        contents = await loadedZip.files[name].async('uint8array');
-      }
-      if (contents) {
+      const file = loadedZip[name];
+      let contents = file;
+      if (name.match(/.(md|html)$/) && contents) {
+        this.files.push({ name, contents: strFromU8(file) });
+      } else if (contents) {
         this.files.push({ name, contents });
       }
     }

@@ -10,9 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     concurrency: 'production'
     steps:
+      - name: Mark github workspace as safe
+        run: |
+          git config --global --add safe.directory /github/workspace
       - uses: actions/checkout@v1
       - name: Dokku deploy
-        uses: vitalyliber/dokku-github-action@v7.0
+        uses: vitalyliber/dokku-github-action@v7.1
         env:
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
           HOST: 2anki.net

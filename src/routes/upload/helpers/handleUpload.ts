@@ -3,7 +3,6 @@ import express from 'express';
 import StorageHandler from '../../../lib/storage/StorageHandler';
 import { PrepareDeck } from '../../../lib/parser/DeckParser';
 import Settings from '../../../lib/parser/Settings';
-import { ZipHandler } from '../../../lib/anki/zip';
 import ErrorHandler, {
   NO_PACKAGE_ERROR,
   UNSUPPORTED_FORMAT_MD,
@@ -13,6 +12,7 @@ import cleanDeckName from './cleanDeckname';
 import { registerUploadSize } from './registerUploadSize';
 import { sendBundle } from './sendBundle';
 import { captureException } from '@sentry/node';
+import { getPackagesFromZip } from './getPackagesFromZip';
 
 export default async function handleUpload(
   storage: StorageHandler,
@@ -28,12 +28,13 @@ export default async function handleUpload(
       const settings = new Settings(req.body || {});
       registerUploadSize(file, res);
       /* @ts-ignore */
-      const fileContents = await storage.getFileContents(file.key);
+      const key = file.key;
+      const fileContents = await storage.getFileContents(key);
 
       if (filename.match(/.html$/)) {
         const d = await PrepareDeck(
           filename,
-          [{ name: filename, contents: fileContents }],
+          [{ name: filename, contents: fileContents.Body }],
           settings
         );
         if (d) {
@@ -42,19 +43,15 @@ export default async function handleUpload(
         }
       } else if (filename.match(/.md$/)) {
         hasMarkdown = true;
-      } else {
-        const zipHandler = new ZipHandler();
-        /* @ts-ignore */
-        await zipHandler.build(fileContents, res.locals.patreon);
-        for (const fileName of zipHandler.getFileNames()) {
-          if (fileName.match(/.html$/) && !fileName.includes('/')) {
-            const d = await PrepareDeck(fileName, zipHandler.files, settings);
-            if (d) {
-              packages.push(new Package(d.name, d.apkg));
-            }
-          } else if (fileName.match(/.md$/)) {
-            hasMarkdown = true;
-          }
+      } else if (filename.match(/.zip$/) || key.match(/.zip$/)) {
+        const [extraPackages, md] = await getPackagesFromZip(
+          fileContents.Body,
+          res.locals.patreon,
+          settings
+        );
+        packages = packages.concat(extraPackages as Package[]);
+        if (md) {
+          hasMarkdown = true;
         }
       }
     }

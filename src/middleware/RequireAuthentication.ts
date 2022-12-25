@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/node';
 import express, { NextFunction } from 'express';
 
 import TokenHandler from '../lib/misc/TokenHandler';
@@ -13,6 +14,7 @@ const RequireAuthentication = async (
   }
   res.locals.owner = user.owner;
   res.locals.patreon = user.patreon;
+  Sentry.setUser({ id: user.owner });
   return next();
 };
 
