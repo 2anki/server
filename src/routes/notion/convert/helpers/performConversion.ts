@@ -123,6 +123,7 @@ export default async function performConversion(
       await EmailHandler.SendConversionEmail(email, id, apkg);
     }
   } catch (error) {
+    console.error(error);
     captureException(error);
   }
 }

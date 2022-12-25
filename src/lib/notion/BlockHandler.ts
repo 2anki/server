@@ -253,8 +253,13 @@ class BlockHandler {
         return dbDecks;
       }
     } else {
+      console.log('xxx: to be implemented:');
+      console.log(
+        `
       // in the case user selects something other than db and page
       // search in both database and page
+       `
+      );
     }
     return decks;
   }
@@ -370,6 +375,7 @@ class BlockHandler {
         }
       }
     }
+    console.log('have ', decks.length, ' decks so far');
     return decks;
   }
 }

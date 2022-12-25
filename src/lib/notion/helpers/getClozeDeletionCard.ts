@@ -17,11 +17,11 @@ export default async function getClozeDeletionCard(
   for (const FLASHCARD of flashCardTypes) {
     // @ts-ignore
     const flashcardBlock = block[FLASHCARD];
-    // @ts-ignore
-    if (!flashcardBlock || isColumnList(block)) {
+    if ((!flashcardBlock && !flashcardBlock.rich_text) || isColumnList(block)) {
       continue;
     }
-    for (const cb of flashcardBlock.text) {
+    console.log(flashcardBlock);
+    for (const cb of flashcardBlock.rich_text) {
       if (cb.annotations.code) {
         const { content } = cb.text;
         if (content.includes('::')) {

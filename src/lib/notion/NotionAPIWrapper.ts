@@ -38,19 +38,21 @@ class NotionAPIWrapper {
       block_id: id,
       page_size: ANON_LIMIT,
     });
+    console.log('received', response.results.length, 'blocks');
 
     if (all && response.has_more && response.next_cursor) {
       while (true) {
-        /* @ts-ignore */
-        const { results, next_cursor: nextCursor } =
+        const { results, next_cursor: nextCursor }: ListBlockChildrenResponse =
           await this.notion.blocks.children.list({
             block_id: id,
             start_cursor: response.next_cursor!,
           });
+        console.log('found more', results.length, 'blocks');
         response.results.push(...results);
         if (nextCursor) {
           response.next_cursor = nextCursor;
         } else {
+          console.log('done getting blocks');
           break;
         }
       }
