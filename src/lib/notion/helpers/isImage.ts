@@ -1,6 +1,5 @@
-import { GetBlockResponse } from '@notionhq/client/build/src/api-endpoints';
+import { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 
-export const isImage = (block: GetBlockResponse) => {
-  /* @ts-ignore */
-  return block.type === 'image';
+export const isImage = (block: BlockObjectResponse) => {
+  return block.type === 'image' && 'image' in block;
 };

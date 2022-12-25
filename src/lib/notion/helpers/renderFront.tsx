@@ -1,4 +1,8 @@
-import { GetBlockResponse } from '@notionhq/client/build/src/api-endpoints';
+import {
+  GetBlockResponse,
+  ImageBlockObjectResponse,
+  ToggleBlockObjectResponse,
+} from '@notionhq/client/build/src/api-endpoints';
 import { captureException } from '@sentry/node';
 
 import BlockHandler from '../BlockHandler';
@@ -30,8 +34,9 @@ export default async function renderFront(
       break;
     case 'image':
       // Do not add the images in default mode
-      if (handler.settings.learnMode) {
-        return `<img src='${getImageUrl(block)}' />`;
+      const image = getImageUrl(block as ImageBlockObjectResponse);
+      if (handler.settings.learnMode && image) {
+        return `<img src='${image}' />`;
       }
       break;
     case 'code':
@@ -40,10 +45,9 @@ export default async function renderFront(
       }
       break;
     case 'toggle':
-      // @ts-ignore
-      const { toggle } = block;
-      if (toggle && toggle.text?.length > 0) {
-        return renderTextChildren(toggle.text, handler.settings);
+      const toggle = (block as ToggleBlockObjectResponse).toggle;
+      if (toggle && toggle.rich_text.length > 0) {
+        return renderTextChildren(toggle.rich_text, handler.settings);
       }
       break;
     case 'video':

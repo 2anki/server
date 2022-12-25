@@ -2,7 +2,11 @@ import path from 'path';
 import fs from 'fs';
 
 import {
+  AudioBlockObjectResponse,
+  BlockObjectResponse,
+  FileBlockObjectResponse,
   GetBlockResponse,
+  ImageBlockObjectResponse,
   ListBlockChildrenResponse,
 } from '@notionhq/client/build/src/api-endpoints';
 import axios from 'axios';
@@ -13,20 +17,6 @@ import ParserRules from '../parser/ParserRules';
 import Deck from '../parser/Deck';
 import CustomExporter from '../parser/CustomExporter';
 import { S3FileName, SuffixFrom } from '../misc/file';
-import BlockParagraph from './blocks/BlockParagraph';
-import BlockCode from './blocks/BlockCode';
-import { BlockHeading } from './blocks/BlockHeadings';
-import { BlockQuote } from './blocks/BlockQuote';
-import { BlockDivider } from './blocks/BlockDivider';
-import { BlockChildPage } from './blocks/BlockChildPage';
-import { BlockTodoList } from './blocks/lists/BlockTodoList';
-import { BlockCallout } from './blocks/BlockCallout';
-import { BlockBulletList } from './blocks/lists/BlockBulletList';
-import { BlockNumberedList } from './blocks/lists/BlockNumberedList';
-import { BlockToggleList } from './blocks/lists/BlockToggleList';
-import BlockBookmark from './blocks/media/BlockBookmark';
-import { BlockVideo } from './blocks/media/BlockVideo';
-import { BlockEmbed } from './blocks/media/BlockEmbed';
 import RenderNotionLink from './RenderNotionLink';
 import TagRegistry from '../parser/TagRegistry';
 import sanitizeTags from '../anki/sanitizeTags';
@@ -36,15 +26,17 @@ import getInputCard from './helpers/getInputCard';
 import getColumn from './helpers/getColumn';
 import isColumnList from './helpers/isColumnList';
 import isTesting from './helpers/isTesting';
-import BlockEquation from './blocks/BlockEquation';
 import renderFront from './helpers/renderFront';
 import perserveNewlinesIfApplicable from './helpers/preserveNewlinesIfApplicable';
 import getDeckName from '../anki/getDeckname';
-import LinkToPage from './blocks/LinkToPage';
 import getUniqueFileName from '../misc/getUniqueFileName';
 import getSubDeckName from './helpers/getSubDeckName';
 import { captureException } from '@sentry/node';
+import { renderBack } from './helpers/renderBack';
 import { getImageUrl } from './helpers/getImageUrl';
+import { getAudioUrl } from './helpers/getAudioUrl';
+import { getFileUrl } from './helpers/getFileUrl';
+import { isFullBlock, isFullPage } from '@notionhq/client';
 
 interface Finder {
   parentType: string;
@@ -78,57 +70,51 @@ class BlockHandler {
     this.settings = settings;
   }
 
-  async embedImage(c: GetBlockResponse): Promise<string> {
-    if (this.settings.isTextOnlyBack || isTesting()) {
+  async embedImage(c: BlockObjectResponse): Promise<string> {
+    const url = getImageUrl(c as ImageBlockObjectResponse);
+    if (this.settings.isTextOnlyBack || isTesting() || !url) {
       return '';
     }
-    /* @ts-ignore */
-    const t = c.image.type;
-    /* @ts-ignore */
-    const { url } = c.image[t];
 
     const suffix = SuffixFrom(S3FileName(url));
     const newName = getUniqueFileName(url) + (suffix || '');
-    const imageRequest = await axios.get(url, { responseType: 'arraybuffer' });
+    const imageRequest = await axios.get(url, {
+      responseType: 'arraybuffer',
+    });
     const contents = imageRequest.data;
     this.exporter.addMedia(newName, contents);
     return `<img src='${newName}' />`;
   }
 
-  async embedAudioFile(c: GetBlockResponse): Promise<string> {
-    if (this.settings.isTextOnlyBack || isTesting()) {
+  async embedAudioFile(c: AudioBlockObjectResponse): Promise<string> {
+    const url = getAudioUrl(c);
+    if (this.settings.isTextOnlyBack || isTesting() || !url) {
       return '';
     }
-    /* @ts-ignore */
-    const { audio } = c;
-    const { url } = audio.file;
     const newName = getUniqueFileName(url);
 
     const audioRequest = await axios.get(url, { responseType: 'arraybuffer' });
     const contents = audioRequest.data;
     this.exporter.addMedia(newName, contents);
-    /* @ts-ignore */
     return `[sound:${newName}]`;
   }
 
-  async embedFile(c: GetBlockResponse): Promise<string> {
-    if (this.settings.isTextOnlyBack || isTesting()) {
+  async embedFile(block: FileBlockObjectResponse): Promise<string> {
+    const url = getFileUrl(block);
+    if (this.settings.isTextOnlyBack || isTesting() || !url) {
       return '';
     }
-    /* @ts-ignore */
-    const { file } = c;
-    const { url } = file.file;
     const newName = getUniqueFileName(url);
     const fileRequest = await axios.get(url, { responseType: 'arraybuffer' });
     const contents = fileRequest.data;
     this.exporter.addMedia(newName, contents);
-    /* @ts-ignore */
     return `<embed src='${newName}' />`;
   }
 
   /**
    * Retrieve the back side of a toggle
    * @param block
+   * @param handleChildren
    * @returns
    */
   async getBackSide(
@@ -139,120 +125,8 @@ class BlockHandler {
 
     try {
       response = await this.api.getBlocks(block.id, this.useAll);
-      /* @ts-ignore */
       const requestChildren = response.results;
-
-      let back = '';
-      for (const c of requestChildren) {
-        // If the block has been handled before, skip it.
-        // This can be true due to nesting
-        if (this.skip.includes(c.id)) {
-          continue;
-        }
-        /* @ts-ignore */
-        switch (c.type) {
-          case 'image':
-            if (!this.settings.learnMode) {
-              /* @ts-ignore */
-              const image = await this.embedImage(c);
-              back += image;
-            } else {
-              back += `<img src='${getImageUrl(c)}' />`;
-            }
-            break;
-          case 'audio':
-            /* @ts-ignore */
-            const audio = await this.embedAudioFile(c);
-            back += audio;
-            break;
-          case 'file':
-            /* @ts-ignore */
-            const file = await this.embedFile(c);
-            back += file;
-            break;
-          case 'paragraph':
-            back += await BlockParagraph(c, this);
-            break;
-          case 'code':
-            back += BlockCode(c, this);
-            break;
-          case 'heading_1':
-            back += await BlockHeading('heading_1', c, this);
-            break;
-          case 'heading_2':
-            back += await BlockHeading('heading_2', c, this);
-            break;
-          case 'heading_3':
-            back += await BlockHeading('heading_3', c, this);
-            break;
-          case 'quote':
-            back += BlockQuote(c, this);
-            break;
-          case 'divider':
-            back += BlockDivider();
-            break;
-          case 'child_page':
-            back += await BlockChildPage(c, this);
-            break;
-          case 'to_do':
-            back += await BlockTodoList(c, response, this);
-            break;
-          case 'callout':
-            back += BlockCallout(c, this);
-            break;
-          case 'bulleted_list_item':
-            back += await BlockBulletList(c, response, this);
-            break;
-          case 'numbered_list_item':
-            back += await BlockNumberedList(c, response, this);
-            break;
-          case 'toggle':
-            back += await BlockToggleList(c, this);
-            break;
-          case 'bookmark':
-            back += await BlockBookmark(c, this);
-            break;
-          case 'video':
-            back += BlockVideo(c, this);
-            break;
-          case 'embed':
-            back += BlockEmbed(c, this);
-            break;
-          case 'column':
-            back += await BlockColumn(c, this);
-            break;
-          case 'equation':
-            back += BlockEquation(c);
-            break;
-          case 'link_to_page':
-            back += await LinkToPage(c, this);
-            break;
-          default:
-            /* @ts-ignore */
-            back += `unsupported: ${c.type}`;
-            back += BlockDivider();
-            back += `
-          <pre>
-          ${JSON.stringify(c, null, 4)}
-          </pre>`;
-            /* @ts-ignore */
-            console.debug(`unsupported ${c.type}`);
-        }
-
-        // Nesting applies to all not just toggles
-        if (
-          handleChildren ||
-          /* @ts-ignore */
-          (c.has_children &&
-            /* @ts-ignore */
-            c.type !== 'toggle' &&
-            /* @ts-ignore */
-            c.type !== 'bulleted_list_item')
-        ) {
-          back += await this.getBackSide(c);
-        }
-      }
-      return back;
+      return await renderBack(this, requestChildren, response, handleChildren);
     } catch (e: unknown) {
       captureException(e);
       return null;
@@ -401,16 +275,19 @@ class BlockHandler {
     }
     if (rules.permitsDeckAsPage() && parentType === 'page' && page) {
       // Locate the card blocks to be used from the parser rules
-      const cBlocks = blocks.filter((b: GetBlockResponse) =>
-        /* @ts-ignore */
-        flashCardTypes.includes(b.type)
-      );
+      const cBlocks = blocks.filter((b: GetBlockResponse) => {
+        if (!isFullBlock(b)) {
+          return false;
+        }
+        return flashCardTypes.includes(b.type);
+      });
       this.settings.parentBlockId = page.id;
 
       let notionBaseLink =
         this.settings.addNotionLink && this.settings.parentBlockId
-          ? /* @ts-ignore */
-            page?.url
+          ? isFullPage(page)
+            ? page?.url
+            : undefined
           : undefined;
       const cards = await this.getFlashcards(
         rules,
@@ -435,17 +312,20 @@ class BlockHandler {
     }
 
     if (this.settings.isAll) {
-      /* @ts-ignore */
-      const subDecks = blocks.filter((b) => rules.SUB_DECKS.includes(b.type));
+      const subDecks = blocks.filter((b) => {
+        if (!isFullBlock(b)) {
+          return;
+        }
+        return rules.SUB_DECKS.includes(b.type);
+      });
+
       for (const sd of subDecks) {
-        /* @ts-ignore */
-        const subDeckType = sd.type;
-        if (subDeckType !== 'page') {
+        if (isFullBlock(sd)) {
+          const subDeckType = sd.type;
           console.log('sd.type', subDeckType);
           const res = await this.api.getBlocks(sd.id, rules.UNLIMITED);
           const cBlocks = res.results.filter((b: GetBlockResponse) =>
-            /* @ts-ignore */
-            flashCardTypes.includes(b.type)
+            flashCardTypes.includes((b as BlockObjectResponse).type)
           );
 
           this.settings.parentBlockId = sd.id;
@@ -459,13 +339,12 @@ class BlockHandler {
             path.join(__dirname, '../../templates/notion.css'),
             'utf8'
           );
-          /* @ts-ignore */
+          // @ts-ignore
           const block = sd[sd.type];
           let subDeckName = getSubDeckName(block);
 
           decks.push(
             new Deck(
-              /* @ts-ignore */
               getDeckName(
                 this.settings.deckName || this.firstPageTitle,
                 subDeckName
@@ -480,17 +359,14 @@ class BlockHandler {
           continue;
         }
         const subPage = await this.api.getPage(sd.id);
-        if (subPage) {
-          /* @ts-ignore */
-          const nested = await this.findFlashcardsFromPage({
-            /* @ts-ignore */
+        if (subPage && isFullBlock(sd)) {
+          decks = await this.findFlashcardsFromPage({
             parentType: sd.type,
             topLevelId: sd.id,
             rules,
             decks,
             parentName: parentName,
           });
-          decks = nested;
         }
       }
     }
