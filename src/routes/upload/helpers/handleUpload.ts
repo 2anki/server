@@ -13,6 +13,7 @@ import { registerUploadSize } from './registerUploadSize';
 import { sendBundle } from './sendBundle';
 import { captureException } from '@sentry/node';
 import { getPackagesFromZip } from './getPackagesFromZip';
+import { DECK_NAME_SUFFIX } from '../../../lib/anki/format';
 
 export default async function handleUpload(
   storage: StorageHandler,
@@ -80,7 +81,7 @@ export default async function handleUpload(
       // Persisting the deck to spaces
       try {
         await storage.uploadFile(
-          storage.uniqify(first.name, 'apkg', 255, 'apkg'),
+          storage.uniqify(first.name, DECK_NAME_SUFFIX, 255, DECK_NAME_SUFFIX),
           first.apkg
         );
       } catch (err) {

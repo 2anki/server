@@ -17,6 +17,7 @@ import getYouTubeEmbedLink from './helpers/getYouTubeEmbedLink';
 import getUniqueFileName from '../misc/getUniqueFileName';
 import { captureException } from '@sentry/node';
 import { findToggleHeadings } from './helpers/findToggleHeadings';
+import { isValidAudioFile } from '../anki/format';
 
 export class DeckParser {
   globalTags: cheerio.Cheerio | null;
@@ -396,7 +397,7 @@ export class DeckParser {
           return null;
         }
         const ma = m[2];
-        if (!ma.endsWith('.mp3') || ma.startsWith('http')) {
+        if (!isValidAudioFile(ma) || ma.startsWith('http')) {
           return null;
         }
         return ma;

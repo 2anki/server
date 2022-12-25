@@ -18,6 +18,11 @@ import getEmailFromOwner from '../../../../lib/User/getEmailFromOwner';
 import EmailHandler from '../../../../lib/email/EmailHandler';
 import { captureException } from '@sentry/node';
 import { loadSettingsFromDatabase } from '../../../../lib/parser/Settings/loadSettingsFromDatabase';
+import {
+  addDeckNameSuffix,
+  DECK_NAME_SUFFIX,
+  isValidDeckName,
+} from '../../../../lib/anki/format';
 
 export default async function performConversion(
   api: NotionAPIWrapper,
@@ -90,13 +95,13 @@ export default async function performConversion(
     const apkg = fs.readFileSync(payload);
     const filename = (() => {
       const f = settings.deckName || bl.firstPageTitle || id;
-      if (f.endsWith('.apkg')) {
+      if (isValidDeckName(f)) {
         return f;
       }
-      return `${f}.apkg`;
+      return addDeckNameSuffix(f);
     })();
 
-    const key = storage.uniqify(id, owner, 200, 'apkg');
+    const key = storage.uniqify(id, owner, 200, DECK_NAME_SUFFIX);
     await storage.uploadFile(key, apkg);
     const size = FileSizeInMegaBytes(payload);
     await DB('uploads').insert({

@@ -7,6 +7,7 @@ import Package from '../../../lib/parser/Package';
 import StorageHandler from '../../../lib/storage/StorageHandler';
 import cleanDeckName from './cleanDeckname';
 import loadREADME from './loadREADME';
+import { DECK_NAME_SUFFIX } from '../../../lib/anki/format';
 
 const setFilename = (res: Response, filename: string) => {
   try {
@@ -20,7 +21,7 @@ const uploadToSpaces = async (storage: StorageHandler, packages: Package[]) => {
   for (const pkg of packages) {
     try {
       await storage.uploadFile(
-        storage.uniqify(pkg.name, 'apkg', 255, 'apkg'),
+        storage.uniqify(pkg.name, DECK_NAME_SUFFIX, 255, DECK_NAME_SUFFIX),
         pkg.apkg
       );
     } catch (err) {

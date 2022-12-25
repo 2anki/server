@@ -1,5 +1,6 @@
 import path from 'path';
 import fs from 'fs';
+import { addDeckNameSuffix, isValidDeckName } from '../anki/format';
 
 const EMAIL_TEMPLATES_DIRECTORY = path.join(__dirname, 'templates');
 
@@ -44,8 +45,8 @@ class EmailHandler {
     const markup = CONVERT_TEMPLATE;
 
     let attachedFilename = filename;
-    if (!filename.endsWith('.apkg')) {
-      attachedFilename = `${filename}.apkg`;
+    if (!isValidDeckName(filename)) {
+      attachedFilename = addDeckNameSuffix(filename);
     }
     const msg = {
       to: email,
