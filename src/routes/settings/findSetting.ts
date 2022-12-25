@@ -1,4 +1,3 @@
-import { captureException } from '@sentry/node';
 import { Request, Response } from 'express';
 
 import DB from '../../lib/storage/db';
@@ -11,15 +10,9 @@ export default async function findSetting(req: Request, res: Response) {
     return res.status(400).send();
   }
 
-  await DB('settings')
+  const storedSettings = await DB('settings')
     .where({ object_id: id })
     .returning(['payload'])
-    .first()
-    .then((result) => {
-      res.json(result);
-    })
-    .catch((err) => {
-      captureException(err);
-      res.status(400).send();
-    });
+    .first();
+  return res.json({ payload: storedSettings });
 }
