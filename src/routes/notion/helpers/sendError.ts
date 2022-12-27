@@ -6,12 +6,11 @@ export default function sendError(
   error: Error | APIResponseError | unknown,
   response: Response
 ) {
+  let status = 500;
+  let body = { message: 'Unknown error.' };
   if (error instanceof APIResponseError) {
-    return response
-      .status(error.status)
-      .json({ message: error.message })
-      .send();
+    status = error.status;
+    body = { message: error.message };
   }
-  /* @ts-ignore */
-  return response.status(500).json({ message: error?.message }).send();
+  return response.status(status).json(body).send();
 }

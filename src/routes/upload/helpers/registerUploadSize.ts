@@ -2,11 +2,9 @@ import { captureException } from '@sentry/node';
 import { Response } from 'express';
 import { BytesToMegaBytes } from '../../../lib/misc/file';
 import DB from '../../../lib/storage/db';
+import { UploadedFile } from '../../../lib/storage/types';
 
-export const registerUploadSize = async (
-  file: Express.Multer.File,
-  res: Response
-) => {
+export const registerUploadSize = async (file: UploadedFile, res: Response) => {
   const isLoggedIn = res.locals.owner;
   if (!isLoggedIn) {
     return;
@@ -17,7 +15,6 @@ export const registerUploadSize = async (
     await DB('uploads').insert({
       owner: res.locals.owner,
       filename,
-      /* @ts-ignore */
       key: file.key,
       size_mb: BytesToMegaBytes(file.size),
     });

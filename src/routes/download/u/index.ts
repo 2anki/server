@@ -25,12 +25,9 @@ router.get('/u/:key', RequireAuthentication, async (req, res) => {
       res.status(404).send();
     }
   } catch (error) {
-    // @ts-ignore
-    if (error && error.code === 'NoSuchKey') {
-      await DB('uploads').del().where(query);
-      return res.redirect('/uploads');
-    }
+    console.error(error);
     console.info('unknown error');
+    res.status(404).send();
     captureException(error);
   }
 });

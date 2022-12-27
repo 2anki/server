@@ -4,6 +4,7 @@ import fs from 'fs';
 import {
   AudioBlockObjectResponse,
   BlockObjectResponse,
+  ColumnBlockObjectResponse,
   FileBlockObjectResponse,
   GetBlockResponse,
   ImageBlockObjectResponse,
@@ -26,7 +27,6 @@ import getInputCard from './helpers/getInputCard';
 import getColumn from './helpers/getColumn';
 import isColumnList from './helpers/isColumnList';
 import isTesting from './helpers/isTesting';
-import renderFront from './helpers/renderFront';
 import perserveNewlinesIfApplicable from './helpers/preserveNewlinesIfApplicable';
 import getDeckName from '../anki/getDeckname';
 import getUniqueFileName from '../misc/getUniqueFileName';
@@ -37,6 +37,7 @@ import { getImageUrl } from './helpers/getImageUrl';
 import { getAudioUrl } from './helpers/getAudioUrl';
 import { getFileUrl } from './helpers/getFileUrl';
 import { isFullBlock, isFullPage } from '@notionhq/client';
+import { blockToStaticMarkup } from './helpers/blockToStaticMarkup';
 
 interface Finder {
   parentType: string;
@@ -121,12 +122,11 @@ class BlockHandler {
     block: GetBlockResponse,
     handleChildren?: boolean
   ): Promise<string | null> {
-    let response: ListBlockChildrenResponse | null;
-
+    let response2: ListBlockChildrenResponse | null;
     try {
-      response = await this.api.getBlocks(block.id, this.useAll);
-      const requestChildren = response.results;
-      return await renderBack(this, requestChildren, response, handleChildren);
+      response2 = await this.api.getBlocks(block.id, this.useAll);
+      const requestChildren = response2.results;
+      return await renderBack(this, requestChildren, response2, handleChildren);
     } catch (e: unknown) {
       captureException(e);
       return null;
@@ -153,15 +153,25 @@ class BlockHandler {
 
     for (const block of flashcardBlocks) {
       // Assume it's a basic card then check for children
-      const name = await renderFront(block, this);
+      const name = await blockToStaticMarkup(
+        this,
+        block as BlockObjectResponse
+      );
       let back: null | string = '';
       if (isColumnList(block) && rules.useColums()) {
         const secondColumn = await getColumn(block.id, this, 1);
         if (secondColumn) {
-          back = await BlockColumn(secondColumn, this);
+          back = await BlockColumn(
+            secondColumn as ColumnBlockObjectResponse,
+            this
+          );
         }
       } else {
         back = await this.getBackSide(block);
+      }
+      if (!name) {
+        console.debug('name is not valid for front, skipping', name, back);
+        continue;
       }
       const ankiNote = new Note(name, back || '');
       ankiNote.media = this.exporter.media;
@@ -344,9 +354,7 @@ class BlockHandler {
             path.join(__dirname, '../../templates/notion.css'),
             'utf8'
           );
-          // @ts-ignore
-          const block = sd[sd.type];
-          let subDeckName = getSubDeckName(block);
+          let subDeckName = getSubDeckName(sd);
 
           decks.push(
             new Deck(

@@ -1,7 +1,16 @@
-import { GetBlockResponse } from '@notionhq/client/build/src/api-endpoints';
+import {
+  BlockObjectResponse,
+  PartialBlockObjectResponse,
+} from '@notionhq/client/build/src/api-endpoints';
+import { isFullBlock } from '@notionhq/client';
 
-export default function isHeading(block: GetBlockResponse): boolean {
-  /* @ts-ignore */
+export const isHeading = (
+  block: BlockObjectResponse | PartialBlockObjectResponse
+): boolean => {
+  if (!isFullBlock(block)) {
+    return false;
+  }
+
   switch (block.type) {
     case 'heading_1':
       return true;
@@ -12,4 +21,4 @@ export default function isHeading(block: GetBlockResponse): boolean {
     default:
       return false;
   }
-}
+};

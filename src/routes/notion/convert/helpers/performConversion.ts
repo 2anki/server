@@ -108,7 +108,6 @@ export default async function performConversion(
       object_id: id,
       owner,
       filename,
-      /* @ts-ignore */
       key,
       size_mb: size,
     });

@@ -16,7 +16,6 @@ import getYouTubeID from './helpers/getYouTubeID';
 import getYouTubeEmbedLink from './helpers/getYouTubeEmbedLink';
 import getUniqueFileName from '../misc/getUniqueFileName';
 import { captureException } from '@sentry/node';
-import { findToggleHeadings } from './helpers/findToggleHeadings';
 import { isValidAudioFile } from '../anki/format';
 
 export class DeckParser {
@@ -146,7 +145,6 @@ export class DeckParser {
         ? contents.replace(/border-bottom:0.05em solid/g, '')
         : contents
     );
-    /* @ts-ignore */
     let name = deckName || dom('title').text();
     let style = dom('style').html();
     const pageId = dom('article').attr('id');
@@ -184,9 +182,7 @@ export class DeckParser {
     }
 
     this.globalTags = dom('.page-body > p > del');
-    const toggleList = this.findToggleLists(dom).concat(
-      findToggleHeadings(dom)
-    );
+    const toggleList = this.findToggleLists(dom);
     let cards: Note[] = [];
 
     toggleList.forEach((t) => {
@@ -216,8 +212,7 @@ export class DeckParser {
           const front = parentClass
             ? `<div class='${parentClass}'>${validSummary}</div>`
             : validSummary;
-          /* @ts-ignore */
-          if (toggle || (this.settings.maxOne && toggle.text())) {
+          if (toggle || this.settings.maxOne) {
             const toggleHTML = toggle.html();
             if (toggleHTML) {
               let b = toggleHTML.replace(summary.html() || '', '');
@@ -316,7 +311,6 @@ export class DeckParser {
     for (const d of decks) {
       d.style = d.cleanStyle();
     }
-    /* @ts-ignore */
     return new CustomExporter(this.firstDeckName, workspace);
   }
 

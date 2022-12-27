@@ -1,4 +1,5 @@
 import TagRegistry from '../../parser/TagRegistry';
+import { RichTextItemResponse } from '@notionhq/client/build/src/api-endpoints';
 
 interface Annotations {
   underline: boolean;
@@ -10,22 +11,19 @@ interface Annotations {
 
 const HandleBlockAnnotations = (
   annotations: Annotations,
-  text: { content: string; link: null | { url: string } }
+  text: RichTextItemResponse
 ) => {
-  if (!text || !text.content) {
+  if (!text) {
     return null;
   }
-  const { content } = text;
-
-  if (text.link) {
-    const mangle = HandleBlockAnnotations(annotations, {
-      content: text.content,
-      link: null,
-    });
-    /* @ts-ignore */
-    return <a href={text.link.url}>{mangle}</a>;
-  }
-
+  // if (text.link) {
+  //   const mangle = HandleBlockAnnotations(annotations, {
+  //     content: text.content,
+  //     link: null,
+  //   });
+  //   return <a href={text.link.url}>{mangle}</a>;
+  // }
+  const content = text.plain_text;
   if (annotations.underline) {
     return (
       <span

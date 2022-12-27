@@ -14,6 +14,7 @@ import { sendBundle } from './sendBundle';
 import { captureException } from '@sentry/node';
 import { getPackagesFromZip } from './getPackagesFromZip';
 import { DECK_NAME_SUFFIX } from '../../../lib/anki/format';
+import { UploadedFile } from '../../../lib/storage/types';
 
 export default async function handleUpload(
   storage: StorageHandler,
@@ -21,14 +22,13 @@ export default async function handleUpload(
   res: express.Response
 ) {
   try {
-    const files = req.files as Express.Multer.File[];
+    const files = req.files as UploadedFile[];
     let packages: Package[] = [];
     let hasMarkdown = false;
     for (const file of files) {
       const filename = file.originalname;
       const settings = new Settings(req.body || {});
       registerUploadSize(file, res);
-      /* @ts-ignore */
       const key = file.key;
       const fileContents = await storage.getFileContents(key);
 
@@ -73,8 +73,7 @@ export default async function handleUpload(
       try {
         res.set('File-Name', encodeURIComponent(first.name));
       } catch (err) {
-        /* @ts-ignore */
-        captureException(err.toString());
+        captureException(err);
         console.info(`failed to set name ${first.name}`);
       }
 

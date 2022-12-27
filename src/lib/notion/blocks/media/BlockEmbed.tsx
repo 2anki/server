@@ -1,14 +1,16 @@
-import { GetBlockResponse } from '@notionhq/client/build/src/api-endpoints';
+import { EmbedBlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 import { renderToStaticMarkup } from 'react-dom/server';
 import getYouTubeEmbedLink from '../../../parser/helpers/getYouTubeEmbedLink';
 import getYouTubeID from '../../../parser/helpers/getYouTubeID';
 import BlockHandler from '../../BlockHandler';
 
-export const BlockEmbed = (c: GetBlockResponse, handler: BlockHandler) => {
+export const BlockEmbed = (
+  c: EmbedBlockObjectResponse,
+  handler: BlockHandler
+) => {
   if (handler.settings?.isTextOnlyBack) {
     return '';
   }
-  /* @ts-ignore */
   const { embed } = c;
   let { url } = embed;
   if (url) {

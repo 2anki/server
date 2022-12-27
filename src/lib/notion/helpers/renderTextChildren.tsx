@@ -1,7 +1,6 @@
 import {
   EquationRichTextItemResponse,
   RichTextItemResponse,
-  TextRichTextItemResponse,
 } from '@notionhq/client/build/src/api-endpoints';
 import ReactDOMServer from 'react-dom/server';
 import Settings from '../../parser/Settings';
@@ -13,10 +12,10 @@ import isText from './isText';
 import preserveNewlinesIfApplicable from './preserveNewlinesIfApplicable';
 
 export default function renderTextChildren(
-  text: RichTextItemResponse[],
+  text: RichTextItemResponse[] | undefined,
   settings: Settings
 ): string {
-  if (text.length === 0) {
+  if (!text || text?.length === 0) {
     return '';
   }
   const content = text
@@ -28,12 +27,7 @@ export default function renderTextChildren(
       if (isText(t)) {
         const { annotations } = t;
         return ReactDOMServer.renderToStaticMarkup(
-          <>
-            {HandleBlockAnnotations(
-              annotations,
-              (t as TextRichTextItemResponse).text
-            )}
-          </>
+          <>{HandleBlockAnnotations(annotations, t)}</>
         );
       }
 

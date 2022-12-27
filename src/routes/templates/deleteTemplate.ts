@@ -10,7 +10,6 @@ export default async function (req: Request, res: Response) {
   await DB('templates')
     .del()
     .where({
-      /* @ts-ignore */
       owner: access.owner,
     })
     .then(() => {

@@ -34,9 +34,10 @@ class StorageHandler {
     return process.env.SPACES_DEFAULT_BUCKET_NAME!;
   }
 
-  delete(file: aws.S3.Object): Promise<void> {
-    /* @ts-ignore */
-    return this.deleteWith(file.Key);
+  delete(file: aws.S3.Object) {
+    if (file.Key) {
+      return this.deleteWith(file.Key);
+    }
   }
 
   deleteWith(key: string): Promise<void> {
@@ -59,7 +60,6 @@ class StorageHandler {
   getContents(): Promise<ObjectList | undefined> {
     const { s3 } = this;
     return new Promise((resolve, reject) => {
-      /* @ts-ignore */
       s3.listObjects(
         { Bucket: StorageHandler.DefaultBucketName() },
         (err, data) => {

@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/node';
+import { captureException } from '@sentry/node';
 import express from 'express';
 
 import DB from '../../lib/storage/db';
@@ -10,7 +11,6 @@ import updatePassword from '../../lib/User/updatePassword';
 import comparePassword from '../../lib/User/comparePassword';
 import hashPassword from '../../lib/User/hashPassword';
 import { INDEX_FILE } from '../../lib/constants';
-import { captureException } from '@sentry/node';
 
 const router = express.Router();
 
@@ -52,7 +52,6 @@ router.post('/forgot-password', async (req, res, next) => {
     .where({ email: req.body.email })
     .returning(['reset_token', 'id'])
     .first();
-  /* @ts-ignore */
   if (!user || !user.id) {
     console.debug('no user found');
     return res.status(200).json({ message: 'ok' });

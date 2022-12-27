@@ -1,48 +1,41 @@
 import ReactDOMServer from 'react-dom/server';
 import { convert } from 'html-to-text';
 
-import { GetBlockResponse } from '@notionhq/client/build/src/api-endpoints';
+import { BookmarkBlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 import useMetadata from './hooks/useMetadata';
 import BlockHandler from '../../../BlockHandler';
+import React from 'react';
+import { BookmarkTitle } from './components/BookmarkTitle';
+import { BookmarkDescription } from './components/BookmarkDescription';
+import { BookmarkLogo } from './components/BookmarkLogo';
+import { BookmarkImage } from './components/BookmarkImage';
+import { BookmarkContainer } from './components/BookmarkContainer';
 
 const BlockBookmark = async (
-  block: GetBlockResponse,
+  block: BookmarkBlockObjectResponse,
   handler: BlockHandler
 ): Promise<string | null> => {
-  /* @ts-ignore */
   const { bookmark } = block;
   const metadata = await useMetadata(bookmark.url);
 
   if (handler.settings?.isTextOnlyBack && bookmark) {
-    return `${bookmark.title} ${bookmark.url}`;
+    return `${metadata.title} ${bookmark.url}`;
   }
 
   const markup = ReactDOMServer.renderToStaticMarkup(
-    <a
-      style={{ margin: '4px' }}
-      href={bookmark.url}
-      className="bookmark source"
-    >
+    <BookmarkContainer url={bookmark.url}>
       <div className="bookmark-info">
         <div className="bookmark-text">
-          {metadata.title && (
-            <div className="bookmark-title">{metadata.title}</div>
-          )}
-          {metadata.description && (
-            <div className="bookmark-description">{metadata.description}</div>
-          )}
+          <BookmarkTitle title={metadata.title} />
+          <BookmarkDescription description={metadata.description} />
         </div>
         <div className="bookmark-href">
-          {metadata.logo && (
-            <img src={metadata.logo} className="icon bookmark-icon" />
-          )}
+          <BookmarkLogo logo={metadata.logo} />
           {bookmark.url}
         </div>
       </div>
-      {metadata.image && (
-        <img src={metadata.image} className="bookmark-image" />
-      )}
-    </a>
+      <BookmarkImage image={metadata.image} />
+    </BookmarkContainer>
   );
 
   if (handler.settings?.isTextOnlyBack) {

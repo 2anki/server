@@ -1,44 +1,54 @@
-import { ListBlockChildrenResponse } from '@notionhq/client/build/src/api-endpoints';
+import {
+  ListBlockChildrenResponse,
+  ToDoBlockObjectResponse,
+} from '@notionhq/client/build/src/api-endpoints';
 
 import renderTextChildren from './renderTextChildren';
 import { styleWithColors } from '../NotionColors';
 import BlockHandler from '../BlockHandler';
 import getChildren from './getChildren';
+import { getListBlock } from './getListBlock';
+import { getListColor } from './getListColor';
+import { getRichTextFromBlock } from './getRichTextFromBlock';
 
 type ListType = 'numbered_list_item' | 'bulleted_list_item' | 'to_do';
 
 export default async function getListItems(
-  response: ListBlockChildrenResponse,
+  response: ListBlockChildrenResponse | undefined,
   handler: BlockHandler,
   type: ListType
 ) {
+  if (!response) {
+    return [];
+  }
   return Promise.all(
     response.results.map(async (result) => {
-      /* @ts-ignore */
-      const list = result[type];
+      const list = getListBlock(result);
       if (!list) {
         return null;
       }
       const backSide = await getChildren(list, handler);
       handler.skip.push(result.id);
-      const isTodo = type === 'to_do';
-      const checked =
-        isTodo && list.checked
-          ? 'to-do-children-checked'
-          : 'to-do-children-unchecked';
-      const checkedClass = isTodo ? checked : '';
+      const todo =
+        type === 'to_do' ? (list as ToDoBlockObjectResponse).to_do : null;
+      const checked = todo?.checked
+        ? 'to-do-children-checked'
+        : 'to-do-children-unchecked';
+      const checkedClass = todo ? checked : '';
 
       return (
-        <li id={result.id} className={`${styleWithColors(list.color)}`}>
-          {isTodo && (
+        <li id={result.id} className={`${styleWithColors(getListColor(list))}`}>
+          {todo && (
             <div
-              /* @ts-ignore */
-              className={`checkbox checkbox-${list.checked ? 'on' : 'off'}`}
+              className={`checkbox checkbox-${checked ? 'on' : 'off'}`}
             ></div>
           )}
           <div
             dangerouslySetInnerHTML={{
-              __html: renderTextChildren(list.text, handler.settings),
+              __html: renderTextChildren(
+                getRichTextFromBlock(list),
+                handler.settings
+              ),
             }}
           />
           {backSide && (

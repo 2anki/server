@@ -7,13 +7,6 @@ import cookieParser from 'cookie-parser';
 import * as dotenv from 'dotenv';
 
 import { IsDebug } from './lib/debug';
-if (IsDebug()) {
-  const localEnvFile = path.join(__dirname, '.env');
-  if (existsSync(localEnvFile)) {
-    dotenv.config({ path: localEnvFile });
-  }
-}
-
 import { ALLOWED_ORIGINS, BUILD_DIR, INDEX_FILE } from './lib/constants';
 import ErrorHandler from './lib/misc/ErrorHandler';
 
@@ -37,6 +30,16 @@ import { ScheduleCleanup } from './lib/jobs/JobHandler';
 import ConversionJob from './lib/jobs/ConversionJob';
 import RequireAuthentication from './middleware/RequireAuthentication';
 import { captureException } from '@sentry/node';
+import { Knex } from 'knex';
+
+if (IsDebug()) {
+  const localEnvFile = path.join(__dirname, '.env');
+  if (existsSync(localEnvFile)) {
+    dotenv.config({ path: localEnvFile });
+  }
+}
+
+import MigratorConfig = Knex.MigratorConfig;
 
 function serve() {
   const templateDir = path.join(__dirname, 'templates');
@@ -132,8 +135,7 @@ function serve() {
     process.chdir(path.join(process.env.MIGRATIONS_DIR, '..'));
   }
   ScheduleCleanup(DB);
-  /* @ts-ignore */
-  DB.migrate.latest(KnexConfig).then(() => {
+  DB.migrate.latest(KnexConfig as MigratorConfig).then(() => {
     process.chdir(cwd);
     process.env.SECRET ||= 'victory';
     const port = process.env.PORT || 2020;

@@ -89,7 +89,6 @@ class TokenHandler {
       return false;
     }
     const user = await DB('users').where({ reset_token: token }).first();
-    /* @ts-ignore */
     return user && user.reset_token;
   }
 
@@ -135,13 +134,15 @@ class TokenHandler {
       jwt.sign(
         { userId },
         process.env.SECRET!,
+        // TODO: let user decide expiry
         // { expiresIn: "1d" },
-        /* @ts-ignore */
-        (error, token) => {
+        (error: Error | null, token: string | undefined) => {
           if (error) {
             reject(error);
-          } else {
+          } else if (token) {
             resolve(token);
+          } else {
+            reject(new Error('Token is undefined'));
           }
         }
       );

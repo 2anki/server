@@ -11,6 +11,7 @@ import Workspace from '../parser/WorkSpace';
 import BlockHandler from './BlockHandler';
 import { pageId as examplId } from '../../test/test-utils';
 import MockNotionAPI from './_mock/MockNotionAPI';
+import { getToggleBlocks } from './helpers/getToggleBlocks';
 
 dotenv.config({ path: 'test/.env' });
 const api = new MockNotionAPI(process.env.NOTION_KEY!);
@@ -67,8 +68,7 @@ describe('BlockHandler', () => {
       '07a7b319183642b9afecdcc4c456f73d',
       true
     );
-    /* @ts-ignore */
-    const topLevelToggles = blocks.results.filter((t) => t.type === 'toggle');
+    const topLevelToggles = getToggleBlocks(blocks.results);
     expect(topLevelToggles.length).toEqual(14);
   });
 

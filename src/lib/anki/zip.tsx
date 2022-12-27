@@ -1,5 +1,5 @@
 import JSZip from 'jszip';
-import { unzipSync, strFromU8 } from 'fflate';
+import { strFromU8, unzipSync } from 'fflate';
 
 import { renderToStaticMarkup } from 'react-dom/server';
 

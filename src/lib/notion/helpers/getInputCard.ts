@@ -1,8 +1,12 @@
-import { GetBlockResponse } from '@notionhq/client/build/src/api-endpoints';
+import {
+  GetBlockResponse,
+  TextRichTextItemResponse,
+} from '@notionhq/client/build/src/api-endpoints';
 
 import ParserRules from '../../parser/ParserRules';
 import Note from '../../parser/Note';
 import isColumnList from './isColumnList';
+import { getRichTextFromBlock } from './getRichTextFromBlock';
 
 // The user wants to turn under lines into input cards <strong>keyword</strong> becomes {{type::word}}
 export default async function getInputCard(
@@ -12,21 +16,17 @@ export default async function getInputCard(
   let isInput = false;
   let name = '';
   let answer = '';
-  const flashCardTypes = rules.flaschardTypeNames();
-  for (const FLASHCARD of flashCardTypes) {
-    // @ts-ignore
-    const flashcardBlock = block[FLASHCARD];
-    // @ts-ignore
-    if (!flashcardBlock || isColumnList(block)) {
-      continue;
-    }
-    for (const cb of flashcardBlock.text) {
-      if (cb.annotations.underline || cb.annotations.bold) {
-        answer += cb.text.content;
-        isInput = true;
-      } else {
-        name += cb.text.content;
-      }
+  const flashcardBlock = getRichTextFromBlock(block);
+  if (!flashcardBlock || isColumnList(block)) {
+    return undefined;
+  }
+  for (const cb of flashcardBlock) {
+    const text = (cb as TextRichTextItemResponse).text;
+    if (cb.annotations.underline || cb.annotations.bold) {
+      answer += text?.content;
+      isInput = true;
+    } else {
+      name += text?.content;
     }
   }
   if (isInput) {

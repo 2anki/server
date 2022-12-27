@@ -1,4 +1,8 @@
-import { GetBlockResponse } from '@notionhq/client/build/src/api-endpoints';
+import {
+  BlockObjectResponse,
+  GetBlockResponse,
+  RichTextItemResponse,
+} from '@notionhq/client/build/src/api-endpoints';
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import TagRegistry from '../../parser/TagRegistry';
@@ -6,6 +10,8 @@ import BlockHandler from '../BlockHandler';
 import getPlainText from '../helpers/getPlainText';
 import { styleWithColors } from '../NotionColors';
 import HandleBlockAnnotations from './HandleBlockAnnotations';
+import { getHeadingText } from '../helpers/getHeadingText';
+import { getHeadingColor } from '../helpers/getHeadingColor';
 
 interface HeadingProps {
   id: string;
@@ -39,31 +45,29 @@ const Heading = (props: HeadingProps) => {
 };
 
 export const BlockHeading = async (
-  level: string,
+  level: 'heading_1' | 'heading_2' | 'heading_3',
   block: GetBlockResponse,
   handler: BlockHandler
 ) => {
-  /* @ts-ignore */
-  const heading = block[level];
-  const { text } = heading;
+  const headingText = getHeadingText(block as BlockObjectResponse);
+  if (!headingText) {
+    return null;
+  }
 
   if (handler.settings?.isTextOnlyBack) {
-    return getPlainText(text);
+    return getPlainText(headingText);
   }
 
   return ReactDOMServer.renderToStaticMarkup(
     <Heading
       level={level}
-      className={styleWithColors(heading.color)}
+      className={styleWithColors(getHeadingColor(block as BlockObjectResponse))}
       id={block.id}
     >
-      {text.map((t: GetBlockResponse) => {
-        /* @ts-ignore */
+      {headingText.map((t: RichTextItemResponse) => {
         TagRegistry.getInstance().addHeading(t.plain_text);
-        /* @ts-ignore */
         const { annotations } = t;
-        /* @ts-ignore */
-        return HandleBlockAnnotations(annotations, t.text);
+        return HandleBlockAnnotations(annotations, t);
       })}
     </Heading>
   );

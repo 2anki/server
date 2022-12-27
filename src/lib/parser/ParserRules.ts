@@ -16,7 +16,7 @@ class ParserRules {
   EMAIL_NOTIFICATION = false;
 
   /**
-   *  Function to handle transforming flaschard types to proper names for use in traverseral
+   *  Function to handle transforming flaschard types to proper names for use in traversal
    * @returns all type names for flashcards
    */
   flaschardTypeNames(): string[] {

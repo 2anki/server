@@ -13,7 +13,6 @@ export default async function createSetting(req: Request, res: Response) {
 
   DB('settings')
     .insert({
-      /* @ts-ignore */
       owner: access.owner,
       object_id: settings.object_id,
       payload: settings.payload,

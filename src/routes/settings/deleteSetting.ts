@@ -11,7 +11,6 @@ export default async function (req: Request, res: Response) {
   await DB('settings')
     .del()
     .where({
-      /* @ts-ignore */
       owner: access.owner,
       object_id: req.body.object_id,
     })

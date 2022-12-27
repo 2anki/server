@@ -5,10 +5,7 @@
  * In the real world this does not really matter but adding this note in case that assumption
  * changes.
  */
-export default function getDeckName(
-  parent: string | undefined,
-  name: string
-): string {
+export default function getDeckName(parent: string, name: string): string {
   if (parent && parent !== name) {
     return `${parent}::${name}`;
   }

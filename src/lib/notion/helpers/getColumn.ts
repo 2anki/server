@@ -9,7 +9,6 @@ export default async function getColumn(
   const getBlocks = await handler.api.getBlocks(parentId);
   const blocks = getBlocks?.results;
   if (blocks?.length > 0 && blocks?.length >= index + 1) {
-    /* @ts-ignore */
     return blocks[index];
   }
   return null;

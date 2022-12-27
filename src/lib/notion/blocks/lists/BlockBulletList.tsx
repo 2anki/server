@@ -1,5 +1,5 @@
 import {
-  GetBlockResponse,
+  BulletedListItemBlockObjectResponse,
   ListBlockChildrenResponse,
 } from '@notionhq/client/build/src/api-endpoints';
 import ReactDOMServer from 'react-dom/server';
@@ -9,11 +9,10 @@ import { styleWithColors } from '../../NotionColors';
 import getListItems from '../../helpers/getListItems';
 
 export const BlockBulletList = async (
-  block: GetBlockResponse,
-  response: ListBlockChildrenResponse,
+  block: BulletedListItemBlockObjectResponse,
+  response: ListBlockChildrenResponse | undefined,
   handler: BlockHandler
 ) => {
-  /* @ts-ignore */
   const list = block.bulleted_list_item;
   const items = await getListItems(response, handler, 'bulleted_list_item');
   const listItems = items.filter(Boolean);
