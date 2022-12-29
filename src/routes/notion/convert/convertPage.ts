@@ -8,9 +8,16 @@ export default async function convertPage(
   req: express.Request,
   res: express.Response
 ) {
-  const { id } = req.params;
+  const { id, title } = req.body;
   if (!id) {
-    return res.status(400).send();
+    return res.status(400).send({ error: 'id is required' });
   }
-  return performConversion(api, id, res.locals.owner, req, res);
+  return performConversion({
+    api,
+    id,
+    owner: res.locals.owner,
+    req,
+    res,
+    title,
+  });
 }

@@ -41,8 +41,9 @@ export default class ConversionJob {
       .first();
   }
 
-  createJob(id: string, owner: string) {
+  createJob(id: string, owner: string, title?: string | null) {
     return this.db('jobs').insert({
+      title,
       object_id: id,
       owner,
       status: 'started',
@@ -50,16 +51,16 @@ export default class ConversionJob {
     });
   }
 
-  async load(object_id: string, owner: string) {
+  async load(object_id: string, owner: string, title?: string | null) {
     let record = await this.findJob(object_id, owner);
     if (!record) {
-      await this.createJob(object_id, owner);
+      await this.createJob(object_id, owner, title);
       record = await this.findJob(object_id, owner);
     }
     this.raw = record as Job;
   }
 
-  isActive() {
+  isStarted() {
     return this.raw?.status === 'started';
   }
 
@@ -91,10 +92,17 @@ export default class ConversionJob {
   }
 
   completed() {
-    return this.setStatus('completed');
+    if (!this.raw) {
+      throw new Error('invalid job');
+    }
+    const { owner, object_id: id } = this.raw;
+    if (!owner || !id) {
+      throw new Error('Missing owner and / or id');
+    }
+    return this.db('jobs').where({ owner: owner, object_id: id }).del();
   }
 
-  async resume() {
+  async resume(title: string) {
     const job = this.raw;
     if (!job) {
       throw new Error('Invalid job');
@@ -102,9 +110,16 @@ export default class ConversionJob {
     try {
       const token = await TokenHandler.GetNotionToken(job.owner);
       const api = new NotionAPIWrapper(token!);
-      await performConversion(api, job.object_id, job.owner, null, null);
+      await performConversion({
+        title,
+        api,
+        id: job.object_id,
+        owner: job.owner,
+        req: null,
+        res: null,
+      });
     } catch (error) {
-      await new ConversionJob(DB).load(job.object_id, job.owner);
+      await new ConversionJob(DB).load(job.object_id, job.owner, null);
     }
   }
 

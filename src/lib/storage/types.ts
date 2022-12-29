@@ -19,14 +19,15 @@ export type JobStatus =
   | 'step1_create_workspace'
   | 'step2_creating_flashcards'
   | 'step3_building_deck'
-  | 'completed'
   | 'stale'
   | 'failed';
 export interface Job {
-  id: number;
+  id: string;
   owner: string;
   object_id: string;
   status: JobStatus;
   created_at: Date;
   last_edited_time: Date;
+  title: string;
+  type: string;
 }

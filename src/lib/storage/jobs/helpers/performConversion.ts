@@ -7,21 +7,33 @@ import StorageHandler from '../../StorageHandler';
 import { captureException } from '@sentry/node';
 import { notifyUserIfNecessary } from './notifyUserIfNecessary';
 
-export default async function performConversion(
-  api: NotionAPIWrapper,
-  id: string,
-  owner: string,
-  req: express.Request | null,
-  res: express.Response | null
-) {
+interface ConversionRequest {
+  title: string | null;
+  api: NotionAPIWrapper;
+  id: string;
+  owner: string;
+  req: express.Request | null;
+  res: express.Response | null;
+}
+
+export default async function performConversion({
+  title,
+  api,
+  id,
+  owner,
+  req,
+  res,
+}: ConversionRequest) {
   console.log(`Performing conversion for ${id}`);
   const storage = new StorageHandler();
   const job = new ConversionJob(DB);
-  await job.load(id, owner);
+  await job.load(id, owner, title);
   try {
-    if (job.isActive()) {
-      console.log(`job ${id} is already active`);
-      return res ? res.status(200).send() : null;
+    if (!job.isStarted()) {
+      console.log(`job ${id} was not started`);
+      return res
+        ? res.status(405).send({ message: 'Job is already active' })
+        : null;
     }
 
     console.log(`job ${id} is not active, starting`);

@@ -28,7 +28,7 @@ export default async function handleUpload(
     for (const file of files) {
       const filename = file.originalname;
       const settings = new Settings(req.body || {});
-      registerUploadSize(file, res);
+      await registerUploadSize(file, res);
       const key = file.key;
       const fileContents = await storage.getFileContents(key);
 

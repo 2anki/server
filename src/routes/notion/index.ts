@@ -94,7 +94,7 @@ router.get('/get-notion-link', RequireAuthentication, async (_req, res) => {
   });
 });
 
-router.get('/convert/:id', RequireAuthentication, async (req, res) =>
+router.post('/convert/', RequireAuthentication, async (req, res) =>
   ensureResponse(async () => {
     const api = await ConfigureNotionAPI(req, res);
     return convertPage(api, req, res);
