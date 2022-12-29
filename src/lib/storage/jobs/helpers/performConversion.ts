@@ -5,8 +5,6 @@ import NotionAPIWrapper from '../../../notion/NotionAPIWrapper';
 import DB from '../../db';
 import StorageHandler from '../../StorageHandler';
 import { captureException } from '@sentry/node';
-import { skipJobIfLimitHit } from './skipJobIfLimitHit';
-import { skipDueToQuotaLimit } from './skipDueToQuotaLimit';
 import { notifyUserIfNecessary } from './notifyUserIfNecessary';
 
 export default async function performConversion(
@@ -20,17 +18,10 @@ export default async function performConversion(
   const storage = new StorageHandler();
   const job = new ConversionJob(DB);
   await job.load(id, owner);
-  if (await skipJobIfLimitHit(owner, res)) {
-    return job.skipped();
-  }
   try {
     if (job.isActive()) {
       console.log(`job ${id} is already active`);
       return res ? res.status(200).send() : null;
-    }
-
-    if (await skipDueToQuotaLimit(owner, res)) {
-      return await job.skipped();
     }
 
     console.log(`job ${id} is not active, starting`);

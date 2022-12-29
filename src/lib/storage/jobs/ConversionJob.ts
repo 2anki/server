@@ -34,11 +34,28 @@ export default class ConversionJob {
     this.db = db;
   }
 
-  async load(object_id: string, owner: string) {
-    const record = await this.db('jobs')
-      .where({ object_id, owner })
+  findJob(id: string, owner: string) {
+    return this.db('jobs')
+      .where({ object_id: id, owner })
       .returning('*')
       .first();
+  }
+
+  createJob(id: string, owner: string) {
+    return this.db('jobs').insert({
+      object_id: id,
+      owner,
+      status: 'started',
+      last_edited_time: new Date(),
+    });
+  }
+
+  async load(object_id: string, owner: string) {
+    let record = await this.findJob(object_id, owner);
+    if (!record) {
+      await this.createJob(object_id, owner);
+      record = await this.findJob(object_id, owner);
+    }
     this.raw = record as Job;
   }
 
@@ -93,10 +110,6 @@ export default class ConversionJob {
 
   failed() {
     return this.setStatus('failed');
-  }
-
-  skipped() {
-    return this.setStatus('skipped');
   }
 
   async createWorkSpace(api: NotionAPIWrapper, res: express.Response | null) {

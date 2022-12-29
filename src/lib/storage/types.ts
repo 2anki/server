@@ -21,8 +21,7 @@ export type JobStatus =
   | 'step3_building_deck'
   | 'completed'
   | 'stale'
-  | 'failed'
-  | 'skipped';
+  | 'failed';
 export interface Job {
   id: number;
   owner: string;
