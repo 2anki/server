@@ -3,7 +3,7 @@ import { EquationBlockObjectResponse } from '@notionhq/client/build/src/api-endp
 
 describe('BlockEquation', () => {
   test('MathJax transform', () => {
-    const expected = '\\(sqrt{x}\\)';
+    const expected = '\\(\\sqrt{x}\\)';
     const input = {
       object: 'block',
       id: 'be5503f9-7544-460d-a500-fdc3c04431e8',
@@ -24,7 +24,7 @@ describe('BlockEquation', () => {
       has_children: false,
       archived: false,
       type: 'equation',
-      equation: { expression: '\\(sqrt{x}\\)' },
+      equation: { expression: '\\sqrt{x}' },
     } as EquationBlockObjectResponse;
     expect(BlockEquation(input)).toBe(expected);
   });

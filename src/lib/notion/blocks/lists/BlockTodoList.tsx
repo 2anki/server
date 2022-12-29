@@ -4,7 +4,7 @@ import {
 } from '@notionhq/client/build/src/api-endpoints';
 import ReactDOMServer from 'react-dom/server';
 import { convert } from 'html-to-text';
-import BlockHandler from '../../BlockHandler';
+import BlockHandler from '../../BlockHandler/BlockHandler';
 import { styleWithColors } from '../../NotionColors';
 import getListItems from '../../helpers/getListItems';
 

@@ -62,7 +62,7 @@ class TokenHandler {
     });
   }
 
-  static async GetNotionToken(owner: number) {
+  static async GetNotionToken(owner: string) {
     if (!owner) {
       return null;
     }

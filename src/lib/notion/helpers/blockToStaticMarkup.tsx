@@ -21,7 +21,7 @@ import {
   ListBlockChildrenResponse,
 } from '@notionhq/client/build/src/api-endpoints';
 import LinkToPage from '../blocks/LinkToPage/LinkToPage';
-import BlockHandler from '../BlockHandler';
+import BlockHandler from '../BlockHandler/BlockHandler';
 
 export const blockToStaticMarkup = async (
   handler: BlockHandler,

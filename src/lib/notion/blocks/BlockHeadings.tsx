@@ -6,7 +6,7 @@ import {
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import TagRegistry from '../../parser/TagRegistry';
-import BlockHandler from '../BlockHandler';
+import BlockHandler from '../BlockHandler/BlockHandler';
 import getPlainText from '../helpers/getPlainText';
 import { styleWithColors } from '../NotionColors';
 import HandleBlockAnnotations from './HandleBlockAnnotations';

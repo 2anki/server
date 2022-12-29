@@ -1,6 +1,6 @@
 import { VideoBlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 import { renderToStaticMarkup } from 'react-dom/server';
-import BlockHandler from '../../BlockHandler';
+import BlockHandler from '../../BlockHandler/BlockHandler';
 import { getVideoUrl } from './helpers/getVideoUrl';
 import { isVimeoLink } from './helpers/isVimeoLink';
 

@@ -1,6 +1,6 @@
 import { QuoteBlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 import ReactDOMServer from 'react-dom/server';
-import BlockHandler from '../BlockHandler';
+import BlockHandler from '../BlockHandler/BlockHandler';
 import getPlainText from '../helpers/getPlainText';
 import { styleWithColors } from '../NotionColors';
 import HandleBlockAnnotations from './HandleBlockAnnotations';

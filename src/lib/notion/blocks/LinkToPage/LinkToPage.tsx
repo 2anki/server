@@ -1,5 +1,5 @@
 import { LinkToPageBlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';
-import BlockHandler from '../../BlockHandler';
+import BlockHandler from '../../BlockHandler/BlockHandler';
 import renderLink from '../../helpers/renderLink';
 import getBlockIcon, { WithIcon } from '../getBlockIcon';
 

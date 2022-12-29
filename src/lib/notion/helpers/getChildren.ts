@@ -1,6 +1,6 @@
 import { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 
-import BlockHandler from '../BlockHandler';
+import BlockHandler from '../BlockHandler/BlockHandler';
 
 export default async function getChildren(
   block: BlockObjectResponse,

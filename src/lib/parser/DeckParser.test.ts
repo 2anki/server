@@ -8,7 +8,7 @@ beforeEach(() => {
   process.env.WORKSPACE_BASE = path.join(os.tmpdir(), 'workspaces');
 });
 
-test('Toggle Headings', async () => {
+test.skip('Toggle Headings', async () => {
   const deck = await getDeck(
     'Toggle Hea 0e02b 2.html',
     new Settings({ cherry: 'false' })

@@ -13,3 +13,21 @@ export interface Upload {
   size_mb: number;
   external_url: string;
 }
+
+export type JobStatus =
+  | 'started'
+  | 'step1_create_workspace'
+  | 'step2_creating_flashcards'
+  | 'step3_building_deck'
+  | 'completed'
+  | 'stale'
+  | 'failed'
+  | 'skipped';
+export interface Job {
+  id: number;
+  owner: string;
+  object_id: string;
+  status: JobStatus;
+  created_at: Date;
+  last_edited_time: Date;
+}

@@ -3,7 +3,7 @@ import { convert } from 'html-to-text';
 
 import { BookmarkBlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 import useMetadata from './hooks/useMetadata';
-import BlockHandler from '../../../BlockHandler';
+import BlockHandler from '../../../BlockHandler/BlockHandler';
 import React from 'react';
 import { BookmarkTitle } from './components/BookmarkTitle';
 import { BookmarkDescription } from './components/BookmarkDescription';

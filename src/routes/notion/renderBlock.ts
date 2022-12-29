@@ -1,5 +1,5 @@
 import express from 'express';
-import BlockHandler from '../../lib/notion/BlockHandler';
+import BlockHandler from '../../lib/notion/BlockHandler/BlockHandler';
 
 import NotionAPIWrapper from '../../lib/notion/NotionAPIWrapper';
 import NotionID from '../../lib/notion/NotionID';
@@ -23,10 +23,10 @@ export default async function renderBlock(
     api,
     settings
   );
-  const backSide = await handler.getBackSide(block, false);
+  await handler.getBackSide(block, false);
   const frontSide = await blockToStaticMarkup(
     handler,
     block as BlockObjectResponse
   );
-  return res.json({ backSide, frontSide });
+  return res.json({ html: frontSide });
 }

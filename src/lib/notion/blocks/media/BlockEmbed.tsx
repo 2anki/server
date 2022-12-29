@@ -2,7 +2,7 @@ import { EmbedBlockObjectResponse } from '@notionhq/client/build/src/api-endpoin
 import { renderToStaticMarkup } from 'react-dom/server';
 import getYouTubeEmbedLink from '../../../parser/helpers/getYouTubeEmbedLink';
 import getYouTubeID from '../../../parser/helpers/getYouTubeID';
-import BlockHandler from '../../BlockHandler';
+import BlockHandler from '../../BlockHandler/BlockHandler';
 
 export const BlockEmbed = (
   c: EmbedBlockObjectResponse,

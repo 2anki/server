@@ -1,6 +1,6 @@
 import { isFullBlock } from '@notionhq/client';
 import { captureMessage } from '@sentry/node';
-import BlockHandler from '../BlockHandler';
+import BlockHandler from '../BlockHandler/BlockHandler';
 import {
   BlockObjectResponse,
   ListBlockChildrenResponse,

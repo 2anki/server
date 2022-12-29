@@ -26,8 +26,7 @@ import DB from './lib/storage/db';
 import KnexConfig from './KnexConfig';
 import TokenHandler from './lib/misc/TokenHandler';
 import CrashReporter from './lib/CrashReporter';
-import { ScheduleCleanup } from './lib/jobs/JobHandler';
-import ConversionJob from './lib/jobs/ConversionJob';
+import { ScheduleCleanup } from './lib/storage/jobs/JobHandler';
 import RequireAuthentication from './middleware/RequireAuthentication';
 import { captureException } from '@sentry/node';
 import { Knex } from 'knex';
@@ -143,21 +142,15 @@ function serve() {
       console.info(`🟢 Running on http://localhost:${port}`);
     });
 
-    const HandleStartedJobs = async () => {
-      await ConversionJob.MarkStartedJobsStale(DB);
-    };
-
     process.on('SIGTERM', () => {
       console.debug('SIGTERM signal received: closing HTTP server');
       server.close(async () => {
         console.debug('HTTP server closed');
-        await HandleStartedJobs();
       });
     });
     process.on('SIGINT', async () => {
       server.close(async () => {
         console.debug('HTTP server closed');
-        await HandleStartedJobs();
       });
     });
   });

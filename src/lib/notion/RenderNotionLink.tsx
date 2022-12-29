@@ -1,5 +1,5 @@
 import ReactDOMServer from 'react-dom/server';
-import BlockHandler from './BlockHandler';
+import BlockHandler from './BlockHandler/BlockHandler';
 
 const RenderNotionLink = (
   link: string,
