@@ -5,8 +5,11 @@ import morgan from 'morgan';
 import express, { RequestHandler } from 'express';
 import cookieParser from 'cookie-parser';
 import * as dotenv from 'dotenv';
+const localEnvFile = path.join(__dirname, '/../.env');
+if (existsSync(localEnvFile)) {
+  dotenv.config({ path: localEnvFile });
+}
 
-import { IsDebug } from './lib/debug';
 import { ALLOWED_ORIGINS, BUILD_DIR, INDEX_FILE } from './lib/constants';
 import ErrorHandler from './lib/misc/ErrorHandler';
 
@@ -30,13 +33,6 @@ import { ScheduleCleanup } from './lib/storage/jobs/JobHandler';
 import RequireAuthentication from './middleware/RequireAuthentication';
 import { captureException } from '@sentry/node';
 import { Knex } from 'knex';
-
-if (IsDebug()) {
-  const localEnvFile = path.join(__dirname, '.env');
-  if (existsSync(localEnvFile)) {
-    dotenv.config({ path: localEnvFile });
-  }
-}
 
 import MigratorConfig = Knex.MigratorConfig;
 
@@ -123,6 +119,7 @@ function serve() {
   );
 
   process.on('uncaughtException', (err: Error) => {
+    console.error(err);
     captureException(err);
   });
 
