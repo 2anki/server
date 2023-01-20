@@ -1,7 +1,5 @@
 import { Knex } from 'knex';
 
-import performConversion from './helpers/performConversion';
-import TokenHandler from '../../misc/TokenHandler';
 import NotionAPIWrapper from '../../notion/NotionAPIWrapper';
 import { Job, JobStatus } from '../types';
 import Workspace from '../../parser/WorkSpace';
@@ -102,27 +100,6 @@ export default class ConversionJob {
     return this.db('jobs').where({ owner: owner, object_id: id }).del();
   }
 
-  async resume(title: string) {
-    const job = this.raw;
-    if (!job) {
-      throw new Error('Invalid job');
-    }
-    try {
-      const token = await TokenHandler.GetNotionToken(job.owner);
-      const api = new NotionAPIWrapper(token!);
-      await performConversion({
-        title,
-        api,
-        id: job.object_id,
-        owner: job.owner,
-        req: null,
-        res: null,
-      });
-    } catch (error) {
-      await new ConversionJob(DB).load(job.object_id, job.owner, null);
-    }
-  }
-
   failed() {
     return this.setStatus('failed');
   }
@@ -139,6 +116,7 @@ export default class ConversionJob {
     console.debug(`using workspace ${ws.location}`);
     const exporter = new CustomExporter('', ws.location);
     const settings = await loadSettingsFromDatabase(DB, owner, id);
+    console.debug(`using settings ${JSON.stringify(settings, null, 2)}`);
     const bl = new BlockHandler(exporter, api, settings);
     const rules = await ParserRules.Load(owner, id);
 

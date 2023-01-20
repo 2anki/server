@@ -16,6 +16,7 @@ import renderIcon from './helpers/renderIcon';
 import getBlockIcon, { WithIcon } from './blocks/getBlockIcon';
 import { isHeading } from './helpers/isHeading';
 import { getHeadingText } from './helpers/getHeadingText';
+import getObjectTitle from './helpers/getObjectTitle';
 
 const DEFAULT_PAGE_SIZE_LIMIT = 100 * 2;
 
@@ -201,10 +202,8 @@ class NotionAPIWrapper {
     if (!page) {
       return '';
     }
-    let title = `Untitled: ${new Date()}`;
+    let title = getObjectTitle(page) ?? `Untitled: ${new Date()}`;
     let icon = renderIcon(getBlockIcon(page as WithIcon, settings.pageEmoji));
-
-    // XXX: get the page title
 
     // the order here matters due to icon not being set and last not being default
     return settings.pageEmoji !== 'last_emoji'

@@ -15,6 +15,7 @@ export const loadSettingsFromDatabase = async (
       .returning(['payload'])
       .first();
     if (!result) {
+      console.log('using default settings');
       return new Settings(Settings.LoadDefaultOptions());
     }
 
