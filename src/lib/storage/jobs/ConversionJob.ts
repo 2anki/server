@@ -60,8 +60,8 @@ export default class ConversionJob {
     this.raw = record as Job;
   }
 
-  isStarted() {
-    return this.raw?.status === 'started';
+  canStart() {
+    return this.raw?.status === 'failed' || this.raw?.status === 'started';
   }
 
   async setStatus(status: JobStatus) {
@@ -171,6 +171,7 @@ export default class ConversionJob {
       });
       return decks;
     } catch (error) {
+      sendError(error);
       await this.failed();
       return undefined;
     }
@@ -208,7 +209,6 @@ export default class ConversionJob {
       key,
       size_mb: size,
     });
-    await this.completed();
     return { size, key, apkg };
   };
 }

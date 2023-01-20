@@ -5,11 +5,6 @@ import morgan from 'morgan';
 import express, { RequestHandler } from 'express';
 import cookieParser from 'cookie-parser';
 import * as dotenv from 'dotenv';
-const localEnvFile = path.join(__dirname, '/../.env');
-if (existsSync(localEnvFile)) {
-  dotenv.config({ path: localEnvFile });
-}
-
 import { ALLOWED_ORIGINS, BUILD_DIR, INDEX_FILE } from './lib/constants';
 import ErrorHandler from './lib/misc/ErrorHandler';
 
@@ -32,9 +27,14 @@ import CrashReporter from './lib/CrashReporter';
 import { ScheduleCleanup } from './lib/storage/jobs/JobHandler';
 import RequireAuthentication from './middleware/RequireAuthentication';
 import { Knex } from 'knex';
+import { sendError } from './lib/error/sendError';
+
+const localEnvFile = path.join(__dirname, '/../.env');
+if (existsSync(localEnvFile)) {
+  dotenv.config({ path: localEnvFile });
+}
 
 import MigratorConfig = Knex.MigratorConfig;
-import { sendError } from './lib/error/sendError';
 
 function serve() {
   const templateDir = path.join(__dirname, 'templates');

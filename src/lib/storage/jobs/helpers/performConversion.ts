@@ -29,7 +29,7 @@ export default async function performConversion({
   const job = new ConversionJob(DB);
   await job.load(id, owner, title);
   try {
-    if (!job.isStarted()) {
+    if (!job.canStart()) {
       console.log(`job ${id} was not started`);
       return res
         ? res.status(405).send({ message: 'Job is already active' })
@@ -70,8 +70,9 @@ export default async function performConversion({
       id,
       apkg,
     });
+    await job.completed();
   } catch (error) {
-    await job.failed();
     sendError(error);
+    await job.failed();
   }
 }
