@@ -1,5 +1,5 @@
-import { captureException } from '@sentry/node';
 import axios from 'axios';
+import { sendError } from '../error/sendError';
 
 class NotionConnectionHandler {
   clientId: string;
@@ -49,7 +49,7 @@ class NotionConnectionHandler {
           resolve(res.data);
         }
       } catch (err) {
-        captureException(err);
+        sendError(err);
         reject(err);
       }
     });

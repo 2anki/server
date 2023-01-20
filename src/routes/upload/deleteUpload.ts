@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 
 import StorageHandler from '../../lib/storage/StorageHandler';
 import DB from '../../lib/storage/db';
-import { captureException } from '@sentry/node';
+import { sendError } from '../../lib/error/sendError';
 
 export default async function deleteUpload(req: Request, res: Response) {
   const { key } = req.params;
@@ -16,7 +16,7 @@ export default async function deleteUpload(req: Request, res: Response) {
     await s.deleteWith(key);
     console.log('done deleting', key);
   } catch (error) {
-    captureException(error);
+    sendError(error);
     return res.status(500).send();
   }
   return res.status(200).send();

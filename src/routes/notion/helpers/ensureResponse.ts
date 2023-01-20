@@ -9,6 +9,7 @@ export default async function ensureResponse(
   try {
     await call();
   } catch (error) {
+    console.error(error);
     sendError(error, res);
   }
 }

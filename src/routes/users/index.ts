@@ -1,5 +1,4 @@
 import * as Sentry from '@sentry/node';
-import { captureException } from '@sentry/node';
 import express from 'express';
 
 import DB from '../../lib/storage/db';
@@ -11,6 +10,7 @@ import updatePassword from '../../lib/User/updatePassword';
 import comparePassword from '../../lib/User/comparePassword';
 import hashPassword from '../../lib/User/hashPassword';
 import { INDEX_FILE } from '../../lib/constants';
+import { sendError } from '../../lib/error/sendError';
 
 const router = express.Router();
 
@@ -37,7 +37,7 @@ router.post('/new-password', async (req, res, next) => {
     await updatePassword(DB, password, resetToken);
     res.status(200).send({ message: 'ok' });
   } catch (error) {
-    captureException(error);
+    sendError(error);
     next(new Error('Failed to create new password.'));
   }
 });
@@ -73,7 +73,7 @@ router.post('/forgot-password', async (req, res, next) => {
     await EmailHandler.SendResetEmail(req.body.email, resetToken);
     return res.status(200).json({ message: 'ok' });
   } catch (error) {
-    captureException(error);
+    sendError(error);
     return next(error);
   }
 });
@@ -89,7 +89,7 @@ router.get('/logout', RequireAuthentication, async (req, res, next) => {
       res.status(200).end();
     })
     .catch((err) => {
-      captureException(err);
+      sendError(err);
       next(err);
     });
 });
@@ -130,12 +130,12 @@ router.post('/login', async (req, res, next) => {
         .merge()
         .then(() => res.status(200).json({ token }))
         .catch((err) => {
-          captureException(err);
+          sendError(err);
           next(err);
         });
     }
   } catch (error) {
-    captureException(error);
+    sendError(error);
     next(
       new Error('Failed to login, please try again or register your account.')
     );
@@ -166,7 +166,7 @@ router.post('/register', async (req, res, next) => {
       .returning(['id']);
     res.status(200).json({ message: 'ok' });
   } catch (error) {
-    captureException(error);
+    sendError(error);
     return next(error);
   }
 });
@@ -180,7 +180,7 @@ router.get('/r/:id', async (req, res, next) => {
     }
     return res.redirect('/login#login');
   } catch (err) {
-    captureException(err);
+    sendError(err);
     next(err);
   }
 });
@@ -188,16 +188,6 @@ router.get('/r/:id', async (req, res, next) => {
 router.get('/debug/locals', RequireAuthentication, (_req, res) => {
   const { locals } = res;
   return res.json({ locals });
-});
-
-router.get('/is-patreon', async (_req, res) => {
-  const token = _req.cookies?.token;
-  if (token) {
-    const user = await TokenHandler.GetUserFrom(token);
-    let patreon = user?.patreon;
-    return res.json({ patreon });
-  }
-  return res.json({ patreon: false });
 });
 
 export default router;

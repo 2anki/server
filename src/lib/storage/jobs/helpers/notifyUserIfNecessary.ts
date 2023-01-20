@@ -1,13 +1,11 @@
 import getEmailFromOwner from '../../../User/getEmailFromOwner';
 import EmailHandler from '../../../email/EmailHandler';
 import ParserRules from '../../../parser/ParserRules';
-import ConversionJob from '../ConversionJob';
 import { Knex } from 'knex';
 
 interface JobInfo {
   owner: string;
   rules: ParserRules;
-  job: ConversionJob;
   db: Knex;
   key: string;
   id: string;
@@ -18,14 +16,12 @@ export const notifyUserIfNecessary = async ({
   id,
   owner,
   rules,
-  job,
   db,
   size,
   key,
   apkg,
 }: JobInfo) => {
   console.log('rules.email', rules.EMAIL_NOTIFICATION);
-  await job.completed();
   const email = await getEmailFromOwner(db, owner);
   if (size > 24) {
     const link = `${process.env.DOMAIN}/download/u/${key}`;

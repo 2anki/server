@@ -17,8 +17,7 @@ import getBlockIcon, { WithIcon } from './blocks/getBlockIcon';
 import { isHeading } from './helpers/isHeading';
 import { getHeadingText } from './helpers/getHeadingText';
 
-const ANON_LIMIT = 21 * 2;
-const PATREON_LIMIT = 100 * 2;
+const DEFAULT_PAGE_SIZE_LIMIT = 100 * 2;
 
 class NotionAPIWrapper {
   private notion: Client;
@@ -40,7 +39,7 @@ class NotionAPIWrapper {
     console.log('getBlocks', id, all);
     const response = await this.notion.blocks.children.list({
       block_id: id,
-      page_size: ANON_LIMIT,
+      page_size: DEFAULT_PAGE_SIZE_LIMIT,
     });
     console.log('received', response.results.length, 'blocks');
 
@@ -97,14 +96,14 @@ class NotionAPIWrapper {
     console.log('queryDatabase', id, all);
     const response = await this.notion.databases.query({
       database_id: id,
-      page_size: all ? PATREON_LIMIT : ANON_LIMIT,
+      page_size: DEFAULT_PAGE_SIZE_LIMIT,
     });
 
     if (all && response.has_more && response.next_cursor) {
       while (true) {
         const res2: QueryDatabaseResponse = await this.notion.databases.query({
           database_id: id,
-          page_size: all ? PATREON_LIMIT : ANON_LIMIT,
+          page_size: DEFAULT_PAGE_SIZE_LIMIT,
           start_cursor: response.next_cursor!,
         });
         response.results.push(...res2.results);
@@ -121,7 +120,7 @@ class NotionAPIWrapper {
   async search(query: string, all?: boolean) {
     console.debug(`search: ${query}`);
     const response = await this.notion.search({
-      page_size: all ? PATREON_LIMIT : ANON_LIMIT,
+      page_size: DEFAULT_PAGE_SIZE_LIMIT,
       query,
       sort: {
         direction: 'descending',
@@ -132,7 +131,7 @@ class NotionAPIWrapper {
     if (all && response.has_more && response.next_cursor) {
       while (true) {
         const res2: SearchResponse = await this.notion.search({
-          page_size: all ? PATREON_LIMIT : ANON_LIMIT,
+          page_size: DEFAULT_PAGE_SIZE_LIMIT,
           query,
           start_cursor: response.next_cursor!,
           sort: {

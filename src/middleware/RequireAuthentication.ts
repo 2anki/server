@@ -13,7 +13,6 @@ const RequireAuthentication = async (
     return res.redirect('/login#login');
   }
   res.locals.owner = user.owner;
-  res.locals.patreon = user.patreon;
   Sentry.setUser({ id: user.owner });
   return next();
 };

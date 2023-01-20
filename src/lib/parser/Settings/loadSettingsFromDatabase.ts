@@ -1,8 +1,8 @@
-import { captureException } from '@sentry/node';
 import { Knex } from 'knex';
 
 import { getCustomTemplate } from './helpers/getCustomTemplate';
 import { Settings } from './Settings';
+import { sendError } from '../../error/sendError';
 
 export const loadSettingsFromDatabase = async (
   DB: Knex,
@@ -41,10 +41,7 @@ export const loadSettingsFromDatabase = async (
     }
     return settings;
   } catch (error: unknown) {
-    if (error instanceof Error) {
-      captureException(`Failed to load settings from db ${error.toString()}`);
-    }
-    captureException(error);
+    sendError(error);
   }
   return new Settings(Settings.LoadDefaultOptions());
 };

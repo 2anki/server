@@ -1,7 +1,7 @@
-import { captureException } from '@sentry/node';
 import { Request, Response } from 'express';
 
 import DB from '../../lib/storage/db';
+import { sendError } from '../../lib/error/sendError';
 
 export default async function getUploads(_req: Request, res: Response) {
   console.debug('download mine');
@@ -12,7 +12,7 @@ export default async function getUploads(_req: Request, res: Response) {
       .returning('*');
     res.json(uploads);
   } catch (error) {
-    captureException(error);
+    sendError(error);
     res.status(400);
   }
 }

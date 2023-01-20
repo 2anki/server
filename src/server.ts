@@ -31,10 +31,10 @@ import TokenHandler from './lib/misc/TokenHandler';
 import CrashReporter from './lib/CrashReporter';
 import { ScheduleCleanup } from './lib/storage/jobs/JobHandler';
 import RequireAuthentication from './middleware/RequireAuthentication';
-import { captureException } from '@sentry/node';
 import { Knex } from 'knex';
 
 import MigratorConfig = Knex.MigratorConfig;
+import { sendError } from './lib/error/sendError';
 
 function serve() {
   const templateDir = path.join(__dirname, 'templates');
@@ -118,11 +118,7 @@ function serve() {
     }
   );
 
-  process.on('uncaughtException', (err: Error) => {
-    console.error(err);
-    captureException(err);
-  });
-
+  process.on('uncaughtException', sendError);
   DB.raw('SELECT 1').then(() => {
     console.info('DB is ready');
   });

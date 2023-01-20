@@ -1,15 +1,9 @@
 import { getUploadLimits } from './getUploadLimits';
 
+const about1GB = 10485760000;
 describe('getUploadLimits', () => {
-  test('not patron', () => {
-    const limits = getUploadLimits(false);
-    const about100MB = 104857600;
-    expect(limits.fileSize).toBe(about100MB);
-  });
-
-  test('patron', () => {
-    const limits = getUploadLimits(true);
-    const about1GB = 10485760000;
+  test('default', () => {
+    const limits = getUploadLimits();
     expect(limits.fileSize).toBe(about1GB);
   });
 });

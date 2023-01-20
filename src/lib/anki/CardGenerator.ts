@@ -1,9 +1,9 @@
-import { captureException } from '@sentry/node';
 import { execFile } from 'child_process';
 import { homedir } from 'os';
 import path from 'path';
 
 import { CREATE_DECK_SCRIPT_PATH, resolvePath } from '../constants';
+import { sendError } from '../error/sendError';
 
 function PYTHON() {
   const os = process.platform;
@@ -33,7 +33,7 @@ class CardGenerator {
         { cwd: this.currentDirectory },
         (err, stdout) => {
           if (err) {
-            captureException(err);
+            sendError(err);
             reject(err);
           } else {
             resolve(stdout);

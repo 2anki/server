@@ -1,7 +1,7 @@
-import { captureException } from '@sentry/node';
 import { Request, Response } from 'express';
 
 import DB from '../../lib/storage/db';
+import { sendError } from '../../lib/error/sendError';
 
 export default async function (req: Request, res: Response) {
   const access = await DB('access_tokens')
@@ -18,7 +18,7 @@ export default async function (req: Request, res: Response) {
       res.status(200).send();
     })
     .catch((err) => {
-      captureException(err);
+      sendError(err);
       res.status(400).send();
     });
 }

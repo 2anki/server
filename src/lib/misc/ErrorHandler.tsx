@@ -1,6 +1,6 @@
 import { renderToStaticMarkup } from 'react-dom/server';
-import * as Sentry from '@sentry/node';
 import express from 'express';
+import { sendError } from '../error/sendError';
 
 const NEW_GITHUB_ISSUE = 'https://github.com/2anki/server/issues/new/choose';
 export const NO_PACKAGE_ERROR = new Error(
@@ -27,10 +27,7 @@ export const UNSUPPORTED_FORMAT_MD = new Error(
 );
 
 export default function ErrorHandler(res: express.Response, err: Error) {
-  console.error(err);
-  if (process.env.NODE_ENV === 'production') {
-    Sentry.captureException(err);
-  }
+  sendError(err);
   res.set('Content-Type', 'text/plain');
   res.status(400).send(err.message);
 }

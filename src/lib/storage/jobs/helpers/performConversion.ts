@@ -4,8 +4,8 @@ import ConversionJob from '../ConversionJob';
 import NotionAPIWrapper from '../../../notion/NotionAPIWrapper';
 import DB from '../../db';
 import StorageHandler from '../../StorageHandler';
-import { captureException } from '@sentry/node';
 import { notifyUserIfNecessary } from './notifyUserIfNecessary';
+import { sendError } from '../../../error/sendError';
 
 interface ConversionRequest {
   title: string | null;
@@ -64,7 +64,6 @@ export default async function performConversion({
     await notifyUserIfNecessary({
       owner,
       rules,
-      job,
       db: DB,
       size,
       key,
@@ -73,7 +72,6 @@ export default async function performConversion({
     });
   } catch (error) {
     await job.failed();
-    console.error(error);
-    captureException(error);
+    sendError(error);
   }
 }

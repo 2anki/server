@@ -3,7 +3,7 @@ import express from 'express';
 import RequireAuthentication from '../../../middleware/RequireAuthentication';
 import DB from '../../../lib/storage/db';
 import StorageHandler from '../../../lib/storage/StorageHandler';
-import { captureException } from '@sentry/node';
+import { sendError } from '../../../lib/error/sendError';
 
 const router = express.Router();
 
@@ -28,7 +28,7 @@ router.get('/u/:key', RequireAuthentication, async (req, res) => {
     console.error(error);
     console.info('unknown error');
     res.status(404).send();
-    captureException(error);
+    sendError(error);
   }
 });
 

@@ -1,6 +1,6 @@
-import { captureException } from '@sentry/node';
 import aws from 'aws-sdk';
 import { ObjectList } from 'aws-sdk/clients/s3';
+import { sendError } from '../error/sendError';
 
 class StorageHandler {
   s3: aws.S3;
@@ -47,7 +47,7 @@ class StorageHandler {
         { Bucket: StorageHandler.DefaultBucketName(), Key: key },
         (err) => {
           if (err) {
-            captureException(err);
+            sendError(err);
             reject(err);
           } else {
             resolve();
@@ -64,7 +64,7 @@ class StorageHandler {
         { Bucket: StorageHandler.DefaultBucketName() },
         (err, data) => {
           if (err) {
-            captureException(err);
+            sendError(err);
             return reject(err);
           }
           resolve(data.Contents);
@@ -104,7 +104,7 @@ class StorageHandler {
         },
         (err, response) => {
           if (err) {
-            captureException(err);
+            sendError(err);
             reject(err);
           } else {
             resolve(response);

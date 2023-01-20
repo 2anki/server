@@ -28,7 +28,6 @@ import perserveNewlinesIfApplicable from '../helpers/preserveNewlinesIfApplicabl
 import getDeckName from '../../anki/getDeckname';
 import getUniqueFileName from '../../misc/getUniqueFileName';
 import getSubDeckName from './helpers/getSubDeckName';
-import { captureException } from '@sentry/node';
 import { renderBack } from '../helpers/renderBack';
 import { getImageUrl } from '../helpers/getImageUrl';
 import { getAudioUrl } from '../helpers/getAudioUrl';
@@ -36,6 +35,7 @@ import { getFileUrl } from '../helpers/getFileUrl';
 import { isFullBlock, isFullPage } from '@notionhq/client';
 import { blockToStaticMarkup } from '../helpers/blockToStaticMarkup';
 import { NOTION_STYLE } from '../../../templates/helper';
+import { sendError } from '../../error/sendError';
 
 interface Finder {
   parentType: string;
@@ -126,7 +126,7 @@ class BlockHandler {
       const requestChildren = response2.results;
       return await renderBack(this, requestChildren, response2, handleChildren);
     } catch (e: unknown) {
-      captureException(e);
+      sendError(e);
       return null;
     }
   }

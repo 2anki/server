@@ -1,7 +1,7 @@
-import { captureException } from '@sentry/node';
 import { parseTemplate } from './helpers/parseTemplate';
 
 import { UserSuppliedTemplateFile } from './types';
+import { sendError } from '../../error/sendError';
 
 export class Settings {
   readonly deckName: string | undefined;
@@ -112,7 +112,7 @@ export class Settings {
       this.n2aCloze = parseTemplate(input['n2a-cloze']);
       this.n2aInput = parseTemplate(input['n2a-input']);
     } catch (error) {
-      captureException(error);
+      sendError(error);
     }
   }
 

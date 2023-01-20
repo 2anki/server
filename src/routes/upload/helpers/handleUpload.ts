@@ -11,10 +11,10 @@ import Package from '../../../lib/parser/Package';
 import cleanDeckName from './cleanDeckname';
 import { registerUploadSize } from './registerUploadSize';
 import { sendBundle } from './sendBundle';
-import { captureException } from '@sentry/node';
 import { getPackagesFromZip } from './getPackagesFromZip';
 import { DECK_NAME_SUFFIX } from '../../../lib/anki/format';
 import { UploadedFile } from '../../../lib/storage/types';
+import { sendError } from '../../../lib/error/sendError';
 
 export default async function handleUpload(
   storage: StorageHandler,
@@ -47,7 +47,6 @@ export default async function handleUpload(
       } else if (filename.match(/.zip$/) || key.match(/.zip$/)) {
         const [extraPackages, md] = await getPackagesFromZip(
           fileContents.Body,
-          res.locals.patreon,
           settings
         );
         packages = packages.concat(extraPackages as Package[]);
@@ -73,7 +72,7 @@ export default async function handleUpload(
       try {
         res.set('File-Name', encodeURIComponent(first.name));
       } catch (err) {
-        captureException(err);
+        sendError(err);
         console.info(`failed to set name ${first.name}`);
       }
 
@@ -84,7 +83,7 @@ export default async function handleUpload(
           first.apkg
         );
       } catch (err) {
-        captureException(err);
+        sendError(err);
       }
 
       res.attachment(`/${first.name}`);
@@ -99,7 +98,7 @@ export default async function handleUpload(
       }
     }
   } catch (err) {
-    captureException(err);
+    sendError(err);
     ErrorHandler(res, err as Error);
   }
 }

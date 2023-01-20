@@ -1,4 +1,3 @@
-import { captureException } from '@sentry/node';
 import { Response } from 'express';
 import { nanoid } from 'nanoid';
 
@@ -8,12 +7,13 @@ import StorageHandler from '../../../lib/storage/StorageHandler';
 import cleanDeckName from './cleanDeckname';
 import loadREADME from './loadREADME';
 import { DECK_NAME_SUFFIX } from '../../../lib/anki/format';
+import { sendError } from '../../../lib/error/sendError';
 
 const setFilename = (res: Response, filename: string) => {
   try {
     res.set('File-Name', cleanDeckName(filename));
   } catch (err) {
-    captureException(err);
+    sendError(err);
   }
 };
 

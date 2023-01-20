@@ -12,10 +12,10 @@ import getBlock from './getBlock';
 import getDatabase from './getDatabase';
 import { queryDatabase } from './queryDatabase';
 import ensureResponse from './helpers/ensureResponse';
-import { captureException } from '@sentry/node';
 import renderBlock from './renderBlock';
 import deleteBlock from './deleteBlock';
 import createBlock from './createBlock';
+import { sendError } from '../../lib/error/sendError';
 
 const router = express.Router();
 
@@ -37,7 +37,7 @@ router.get('/connect', RequireAuthentication, async (req, res) => {
       await TokenHandler.SaveNotionToken(res.locals.owner, accessData);
       return res.redirect('/search');
     } catch (err) {
-      captureException(err);
+      sendError(err);
       return res.redirect('/search');
     }
   } else {
@@ -136,9 +136,6 @@ router.post('/block/:id', RequireAuthentication, async (req, res) => {
 
 router.delete('/block/:id', RequireAuthentication, async (req, res) =>
   ensureResponse(async () => {
-    if (!res.locals.patreon) {
-      return res.redirect('https://alemayhu.com/patreon');
-    }
     const api = await ConfigureNotionAPI(req, res);
     return deleteBlock(api, req, res);
   }, res)
@@ -146,9 +143,6 @@ router.delete('/block/:id', RequireAuthentication, async (req, res) =>
 
 router.get('/render-block/:id', RequireAuthentication, async (req, res) =>
   ensureResponse(async () => {
-    if (!res.locals.patreon) {
-      return res.redirect('https://alemayhu.com/patreon');
-    }
     const { id } = req.params;
     if (!id) {
       return res.status(400).send();

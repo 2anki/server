@@ -10,6 +10,6 @@ export default async function getBlocks(
   if (!id) {
     return res.status(400).send();
   }
-  const blocks = await api.getBlocks(id, res.locals.patreon);
+  const blocks = await api.getBlocks(id);
   res.json(blocks);
 }

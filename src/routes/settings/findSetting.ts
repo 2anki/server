@@ -1,7 +1,7 @@
-import { captureException } from '@sentry/node';
 import { Request, Response } from 'express';
 
 import DB from '../../lib/storage/db';
+import { sendError } from '../../lib/error/sendError';
 
 export default async function findSetting(req: Request, res: Response) {
   console.debug(`find settings ${req.params.id}`);
@@ -19,7 +19,7 @@ export default async function findSetting(req: Request, res: Response) {
       res.json(result);
     })
     .catch((err) => {
-      captureException(err);
+      sendError(err);
       res.status(400).send();
     });
 }

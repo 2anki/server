@@ -4,7 +4,6 @@ import performConversion from './helpers/performConversion';
 import TokenHandler from '../../misc/TokenHandler';
 import NotionAPIWrapper from '../../notion/NotionAPIWrapper';
 import { Job, JobStatus } from '../types';
-import { captureException } from '@sentry/node';
 import Workspace from '../../parser/WorkSpace';
 import CustomExporter from '../../parser/CustomExporter';
 import { loadSettingsFromDatabase } from '../../parser/Settings/loadSettingsFromDatabase';
@@ -24,6 +23,7 @@ import {
 import { FileSizeInMegaBytes } from '../../misc/file';
 import Deck from '../../parser/Deck';
 import StorageHandler from '../StorageHandler';
+import { sendError } from '../../error/sendError';
 
 export default class ConversionJob {
   db: Knex;
@@ -83,7 +83,7 @@ export default class ConversionJob {
       return true;
     } catch (error) {
       console.error(error);
-      captureException(error);
+      sendError(error);
     }
   }
 
@@ -143,11 +143,11 @@ export default class ConversionJob {
     const rules = await ParserRules.Load(owner, id);
 
     if (res) {
-      bl.useAll = rules.UNLIMITED = res?.locals.patreon;
+      bl.useAll = rules.UNLIMITED;
     } else {
       const user = await isPatron(DB, owner);
       console.log('checking if user is patreon', user);
-      bl.useAll = rules.UNLIMITED = user.patreon;
+      bl.useAll = rules.UNLIMITED;
     }
 
     return { ws, exporter, settings, bl, rules };
@@ -208,6 +208,7 @@ export default class ConversionJob {
       key,
       size_mb: size,
     });
+    await this.completed();
     return { size, key, apkg };
   };
 }
