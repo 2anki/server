@@ -1,6 +1,6 @@
 import express from 'express';
 import NotionAPIWrapper from '../../lib/notion/NotionAPIWrapper';
-import NotionID from '../../lib/notion/NotionID';
+import { getNotionId } from '../../lib/notion/getNotionId';
 import { sendError } from '../../lib/error/sendError';
 
 export default async function getDatabase(
@@ -15,7 +15,7 @@ export default async function getDatabase(
     }
     id = id.replace(/-/g, '');
     if (id.includes('/')) {
-      id = NotionID.fromString(req.params.id);
+      id = getNotionId(req.params.id) ?? id;
     }
     const database = await api.getDatabase(id);
     console.log('database', database);

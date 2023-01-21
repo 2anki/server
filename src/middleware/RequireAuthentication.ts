@@ -4,7 +4,7 @@ import express, { NextFunction } from 'express';
 import TokenHandler from '../lib/misc/TokenHandler';
 
 const RequireAuthentication = async (
-  req: { cookies: { token: string } },
+  req: express.Request,
   res: express.Response,
   next: NextFunction
 ) => {

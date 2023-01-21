@@ -15,4 +15,5 @@ module.exports = {
     'react/jsx-filename-extension': 'off',
     'prettier/prettier': ['error'],
   },
+  "ignorePatterns": ["src/schemas"],
 };

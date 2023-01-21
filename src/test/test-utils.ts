@@ -6,7 +6,6 @@ import fs from 'fs';
 
 import { DeckParser } from '../lib/parser/DeckParser';
 import Settings from '../lib/parser/Settings';
-import NotionAPIWrapper from '../lib/notion/NotionAPIWrapper';
 
 function mockPayload(name: string, contents: string) {
   return [{ name, contents }];
@@ -28,13 +27,4 @@ export async function getDeck(fileName: string, opts: Settings) {
   await p.build();
   return p.payload[0];
 }
-
-export function configureAPI(): NotionAPIWrapper {
-  if (!process.env.NOTION_KEY) {
-    console.info(`Make sure to add .env file here:  ${__dirname}/.env`);
-    throw new Error('Missing Notion API KEY');
-  }
-  return new NotionAPIWrapper(process.env.NOTION_KEY!);
-}
-
 export const pageId = '3ce6b147ac8a425f836b51cc21825b85';

@@ -6,28 +6,23 @@ import DB from '../../lib/storage/db';
 
 import RequireAuthentication from '../../middleware/RequireAuthentication';
 import convertPage from './convert/convertPage';
-import getPage from './getPage';
 import getBlocks from './getBlocks';
 import getBlock from './getBlock';
 import getDatabase from './getDatabase';
 import { queryDatabase } from './queryDatabase';
-import ensureResponse from './helpers/ensureResponse';
 import renderBlock from './renderBlock';
 import deleteBlock from './deleteBlock';
 import createBlock from './createBlock';
 import { sendError } from '../../lib/error/sendError';
+import { getNotionAPI } from '../../lib/notion/helpers/getNotionAPI';
+import { isValidID } from './isValidID';
 
 const router = express.Router();
 
-const ConfigureNotionAPI = async (
-  req: express.Request,
-  res: express.Response
-): Promise<NotionAPIWrapper> => {
-  console.debug(`Configuring Notion API for ${req.originalUrl}`);
-  const token = await TokenHandler.GetNotionToken(res.locals.owner);
-  return new NotionAPIWrapper(token!);
-};
-
+/**
+ * Endpoint for establishing a connection to Notion. We need a token for this.
+ * Reference: https://developers.notion.so/
+ */
 router.get('/connect', RequireAuthentication, async (req, res) => {
   const { code } = req.query;
   if (code) {
@@ -45,26 +40,12 @@ router.get('/connect', RequireAuthentication, async (req, res) => {
   }
 });
 
-router.post('/pages', RequireAuthentication, async (req, res) =>
-  ensureResponse(async () => {
-    const query = req.body.query.toString() || '';
-    const api = await ConfigureNotionAPI(req, res);
-
-    if (query.includes('https://www.notion.so/')) {
-      const page = await getPage(api, query, res);
-      if (page) {
-        return page;
-      }
-      return page;
-    }
-    try {
-      const s = await api.search(query);
-      res.json(s);
-    } catch (error) {
-      res.status(500).send();
-    }
-  }, res)
-);
+router.post('/pages', RequireAuthentication, async (req, res) => {
+  const query = req.body.query.toString() || '';
+  const api = await getNotionAPI(req, res);
+  const s = await api.search(query);
+  res.json(s);
+});
 
 router.get('/get-notion-link', RequireAuthentication, async (_req, res) => {
   console.debug('/get-notion-link');
@@ -94,76 +75,61 @@ router.get('/get-notion-link', RequireAuthentication, async (_req, res) => {
   });
 });
 
-router.post('/convert/', RequireAuthentication, async (req, res) =>
-  ensureResponse(async () => {
-    const api = await ConfigureNotionAPI(req, res);
-    return convertPage(api, req, res);
-  }, res)
-);
-
-router.get('/page/:id', RequireAuthentication, async (req, res) =>
-  ensureResponse(async () => {
-    const { id } = req.params;
-    if (!id) {
-      return res.status(400).send();
-    }
-    const api = await ConfigureNotionAPI(req, res);
-    const page = await api.getPage(id.replace(/\-/g, ''));
-    return res.json(page);
-  }, res)
-);
-
-router.get('/blocks/:id', RequireAuthentication, async (req, res) =>
-  ensureResponse(async () => {
-    const api = await ConfigureNotionAPI(req, res);
-    return getBlocks(api, req, res);
-  }, res)
-);
-
-router.get('/block/:id', RequireAuthentication, async (req, res) =>
-  ensureResponse(async () => {
-    const api = await ConfigureNotionAPI(req, res);
-    return getBlock(api, req, res);
-  }, res)
-);
-
-router.post('/block/:id', RequireAuthentication, async (req, res) => {
-  ensureResponse(async () => {
-    const api = await ConfigureNotionAPI(req, res);
-    return createBlock(api, req, res);
-  }, res);
+router.post('/convert/', RequireAuthentication, async (req, res) => {
+  const api = await getNotionAPI(req, res);
+  return convertPage(api, req, res);
+});
+router.get('/page/:id', RequireAuthentication, async (req, res) => {
+  const { id } = req.params;
+  if (!id) {
+    return res.status(400).send();
+  }
+  const api = await getNotionAPI(req, res);
+  const page = await api.getPage(id.replace(/\-/g, ''));
+  return res.json(page);
 });
 
-router.delete('/block/:id', RequireAuthentication, async (req, res) =>
-  ensureResponse(async () => {
-    const api = await ConfigureNotionAPI(req, res);
-    return deleteBlock(api, req, res);
-  }, res)
-);
+router.get('/blocks/:id', RequireAuthentication, async (req, res) => {
+  const api = await getNotionAPI(req, res);
+  return getBlocks(api, req, res);
+});
 
-router.get('/render-block/:id', RequireAuthentication, async (req, res) =>
-  ensureResponse(async () => {
-    const { id } = req.params;
-    if (!id) {
-      return res.status(400).send();
-    }
-    const api = await ConfigureNotionAPI(req, res);
-    await renderBlock(api, id.replace(/\-/g, ''), res);
-  }, res)
-);
+router.get('/block/:id', RequireAuthentication, async (req, res) => {
+  const api = await getNotionAPI(req, res);
+  return getBlock(api, req, res);
+});
 
-router.get('/database/:id', RequireAuthentication, async (req, res) =>
-  ensureResponse(async () => {
-    const api = await ConfigureNotionAPI(req, res);
-    return getDatabase(api, req, res);
-  }, res)
-);
+router.post('/block/:id', RequireAuthentication, async (req, res) => {
+  const api = await getNotionAPI(req, res);
+  return createBlock(api, req, res);
+});
 
-router.get('/database/query/:id', RequireAuthentication, async (req, res) =>
-  ensureResponse(async () => {
-    const api = await ConfigureNotionAPI(req, res);
-    return queryDatabase(api, req, res);
-  }, res)
-);
+router.delete('/block/:id', RequireAuthentication, async (req, res) => {
+  const api = await getNotionAPI(req, res);
+  return deleteBlock(api, req, res);
+});
+
+router.get('/render-block/:id', RequireAuthentication, async (req, res) => {
+  const { id } = req.params;
+  if (!isValidID(id)) {
+    return res.status(400).send();
+  }
+  const api = await getNotionAPI(req, res);
+  await renderBlock(api, id.replace(/\-/g, ''), res);
+});
+
+router.get('/database/:id', RequireAuthentication, async (req, res) => {
+  const { id } = req.params;
+  if (!isValidID(id)) {
+    return res.status(400).send();
+  }
+  const api = await getNotionAPI(req, res);
+  return getDatabase(api, req, res);
+});
+
+router.get('/database/query/:id', RequireAuthentication, async (req, res) => {
+  const api = await getNotionAPI(req, res);
+  return queryDatabase(api, req, res);
+});
 
 export default router;
