@@ -190,4 +190,23 @@ router.get('/debug/locals', RequireAuthentication, (_req, res) => {
   return res.json({ locals });
 });
 
+router.post('/delete-account', RequireAuthentication, async (req, res) => {
+  const { owner } = res.locals;
+  if (!owner && req.body.confirmed === true) {
+    return res.status(400).json({});
+  }
+
+  await DB('access_tokens').where({ owner }).del();
+  await DB('favorites').where({ owner }).del();
+  await DB('jobs').where({ owner }).del();
+  await DB('notion_tokens').where({ owner }).del();
+  await DB('parser_rules').where({ owner }).del();
+  await DB('patreon_tokens').where({ owner }).del();
+  await DB('settings').where({ owner }).del();
+  await DB('templates').where({ owner }).del();
+  await DB('uploads').where({ owner }).del();
+  await DB('users').where({ id: owner }).del();
+  res.status(200).json({});
+});
+
 export default router;
