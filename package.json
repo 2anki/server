@@ -49,7 +49,7 @@
     "json-markup": "^1.1.3",
     "jsonwebtoken": "^9.0.0",
     "jszip": "^3.10.1",
-    "knex": "^2.1.0",
+    "knex": "^2.4.1",
     "metascraper": "^5.29.10",
     "metascraper-description": "^5.31.1",
     "metascraper-image": "^5.31.1",
