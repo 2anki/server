@@ -82,14 +82,17 @@ class NotionAPIWrapper {
     if (!createdAt || !lastEditedAt) {
       console.log('not enough input block cache');
     } else {
-      await DB('blocks').insert({
-        owner: this.owner,
-        object_id: id,
-        payload: JSON.stringify(response),
-        fetch: 1,
-        created_at: createdAt,
-        last_edited_time: lastEditedAt,
-      });
+      await DB('blocks')
+        .insert({
+          owner: this.owner,
+          object_id: id,
+          payload: JSON.stringify(response),
+          fetch: 1,
+          created_at: createdAt,
+          last_edited_time: lastEditedAt,
+        })
+        .onConflict('object_id')
+        .merge();
     }
     return response;
   }

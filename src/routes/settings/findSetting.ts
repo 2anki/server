@@ -11,7 +11,7 @@ export default async function findSetting(req: Request, res: Response) {
     return res.status(400).send();
   }
 
-  await DB('settings')
+  const storedSettings = await DB('settings')
     .where({ object_id: id })
     .returning(['payload'])
     .first()
@@ -22,4 +22,5 @@ export default async function findSetting(req: Request, res: Response) {
       sendError(err);
       res.status(400).send();
     });
+  return res.json({ payload: storedSettings });
 }
