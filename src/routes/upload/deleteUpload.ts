@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import StorageHandler from '../../lib/storage/StorageHandler';
 import DB from '../../lib/storage/db';
 import { sendError } from '../../lib/error/sendError';
+import { purgeBlockCache } from './purgeBlockCache';
 
 export default async function deleteUpload(req: Request, res: Response) {
   const { key } = req.params;
@@ -11,7 +12,9 @@ export default async function deleteUpload(req: Request, res: Response) {
     return res.status(400).send();
   }
   try {
-    await DB('uploads').del().where({ owner: res.locals.owner, key });
+    const owner = res.locals.owner;
+    await DB('uploads').del().where({ owner, key });
+    await purgeBlockCache(owner);
     const s = new StorageHandler();
     await s.deleteWith(key);
     console.log('done deleting', key);

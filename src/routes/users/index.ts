@@ -195,16 +195,20 @@ router.post('/delete-account', RequireAuthentication, async (req, res) => {
   if (!owner && req.body.confirmed === true) {
     return res.status(400).json({});
   }
-
-  await DB('access_tokens').where({ owner }).del();
-  await DB('favorites').where({ owner }).del();
-  await DB('jobs').where({ owner }).del();
-  await DB('notion_tokens').where({ owner }).del();
-  await DB('parser_rules').where({ owner }).del();
-  await DB('patreon_tokens').where({ owner }).del();
-  await DB('settings').where({ owner }).del();
-  await DB('templates').where({ owner }).del();
-  await DB('uploads').where({ owner }).del();
+  const ownerTables = [
+    'access_tokens',
+    'favorites',
+    'jobs',
+    'notion_tokens',
+    'patreon_tokens',
+    'settings',
+    'templates',
+    'uploads',
+    'blocks',
+  ];
+  await Promise.all(
+    ownerTables.map((tableName) => DB(tableName).where({ owner }).del())
+  );
   await DB('users').where({ id: owner }).del();
   res.status(200).json({});
 });

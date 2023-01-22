@@ -6,6 +6,7 @@ import {
   GetBlockResponse,
   ImageBlockObjectResponse,
   ListBlockChildrenResponse,
+  PageObjectResponse,
 } from '@notionhq/client/build/src/api-endpoints';
 import axios from 'axios';
 import NotionAPIWrapper from '../NotionAPIWrapper';
@@ -117,12 +118,17 @@ class BlockHandler {
    * @returns
    */
   async getBackSide(
-    block: GetBlockResponse,
+    block: BlockObjectResponse,
     handleChildren?: boolean
   ): Promise<string | null> {
     let response2: ListBlockChildrenResponse | null;
     try {
-      response2 = await this.api.getBlocks(block.id, this.useAll);
+      response2 = await this.api.getBlocks({
+        createdAt: block.created_time,
+        lastEditedAt: block.last_edited_time,
+        id: block.id,
+        all: this.useAll,
+      });
       const requestChildren = response2.results;
       return await renderBack(this, requestChildren, response2, handleChildren);
     } catch (e: unknown) {
@@ -165,7 +171,7 @@ class BlockHandler {
           );
         }
       } else {
-        back = await this.getBackSide(block);
+        back = await this.getBackSide(block as BlockObjectResponse);
       }
       if (!name) {
         console.debug('name is not valid for front, skipping', name, back);
@@ -248,7 +254,7 @@ class BlockHandler {
     } else if (parentType === 'database') {
       const dbResult = await this.api.queryDatabase(topLevelId);
       const database = await this.api.getDatabase(topLevelId);
-      const dbName = this.api.getDatabaseTitle(database, this.settings);
+      const dbName = await this.api.getDatabaseTitle(database, this.settings);
       let dbDecks = [];
       for (const entry of dbResult.results) {
         dbDecks = await this.findFlashcardsFromPage({
@@ -276,12 +282,17 @@ class BlockHandler {
     const { topLevelId, rules, parentName, parentType } = locator;
     let { decks } = locator;
 
+    const page = await this.api.getPage(topLevelId);
     const tags = await this.api.getTopLevelTags(topLevelId, rules);
-    const response = await this.api.getBlocks(topLevelId, rules.UNLIMITED);
+    const response = await this.api.getBlocks({
+      createdAt: (page as PageObjectResponse).created_time,
+      lastEditedAt: (page as PageObjectResponse).last_edited_time,
+      id: topLevelId,
+      all: rules.UNLIMITED,
+    });
     const blocks = response.results;
     const flashCardTypes = rules.flaschardTypeNames();
 
-    const page = await this.api.getPage(topLevelId);
     const title = await this.api.getPageTitle(page, this.settings);
     if (!this.firstPageTitle) {
       this.firstPageTitle = title;
@@ -332,7 +343,12 @@ class BlockHandler {
         if (isFullBlock(sd)) {
           const subDeckType = sd.type;
           console.log('sd.type', subDeckType);
-          const res = await this.api.getBlocks(sd.id, rules.UNLIMITED);
+          const res = await this.api.getBlocks({
+            createdAt: sd.created_time,
+            lastEditedAt: sd.last_edited_time,
+            id: sd.id,
+            all: rules.UNLIMITED,
+          });
           const cBlocks = res.results.filter((b: GetBlockResponse) =>
             flashCardTypes.includes((b as BlockObjectResponse).type)
           );

@@ -17,27 +17,45 @@ import getBlockIcon, { WithIcon } from './blocks/getBlockIcon';
 import { isHeading } from './helpers/isHeading';
 import { getHeadingText } from './helpers/getHeadingText';
 import getObjectTitle from './helpers/getObjectTitle';
+import DB from '../storage/db';
+import { getBlockCache } from './helpers/getBlockCache';
 
 const DEFAULT_PAGE_SIZE_LIMIT = 100 * 2;
+export interface GetBlockParams {
+  createdAt: string;
+  lastEditedAt: string;
+  id: string;
+  all?: boolean;
+}
 
 class NotionAPIWrapper {
   private notion: Client;
 
   page?: GetPageResponse;
 
-  constructor(key: string) {
+  private owner: string;
+
+  constructor(key: string, owner: string) {
     this.notion = new Client({ auth: key });
+    this.owner = owner;
   }
 
   async getPage(id: string): Promise<GetPageResponse | null> {
     return this.notion.pages.retrieve({ page_id: id });
   }
 
-  async getBlocks(
-    id: string,
-    all?: boolean
-  ): Promise<ListBlockChildrenResponse> {
+  async getBlocks({
+    createdAt,
+    lastEditedAt,
+    id,
+    all,
+  }: GetBlockParams): Promise<ListBlockChildrenResponse> {
     console.log('getBlocks', id, all);
+    const cachedPayload = await getBlockCache(id, this.owner, lastEditedAt);
+    if (cachedPayload) {
+      console.log('using payload cache');
+      return cachedPayload;
+    }
     const response = await this.notion.blocks.children.list({
       block_id: id,
       page_size: DEFAULT_PAGE_SIZE_LIMIT,
@@ -60,6 +78,18 @@ class NotionAPIWrapper {
           break;
         }
       }
+    }
+    if (!createdAt || !lastEditedAt) {
+      console.log('not enough input block cache');
+    } else {
+      await DB('blocks').insert({
+        owner: this.owner,
+        object_id: id,
+        payload: JSON.stringify(response),
+        fetch: 1,
+        created_at: createdAt,
+        last_edited_time: lastEditedAt,
+      });
     }
     return response;
   }
@@ -157,8 +187,14 @@ class NotionAPIWrapper {
   }
 
   async getTopLevelTags(pageId: string, rules: ParserRules) {
+    console.info('[NO_CACHE] - getTopLevelTags');
     const useHeadings = rules.TAGS === 'heading';
-    const response = await this.getBlocks(pageId, rules.UNLIMITED);
+    const response = await this.getBlocks({
+      createdAt: '',
+      lastEditedAt: '',
+      id: pageId,
+      all: rules.UNLIMITED,
+    });
     const globalTags = [];
     if (useHeadings) {
       const headings = response.results.filter((block) => isHeading(block));
@@ -195,6 +231,17 @@ class NotionAPIWrapper {
     return sanitizeTags(globalTags);
   }
 
+  async getBlockTitle(icon: string | null, title: string, settings: Settings) {
+    if (!icon) {
+      return title;
+    }
+
+    // the order here matters due to icon not being set and last not being default
+    return settings.pageEmoji !== 'last_emoji'
+      ? `${icon}${title}`
+      : `${title}${icon}`;
+  }
+
   async getPageTitle(
     page: GetPageResponse | null,
     settings: Settings
@@ -204,24 +251,20 @@ class NotionAPIWrapper {
     }
     let title = getObjectTitle(page) ?? `Untitled: ${new Date()}`;
     let icon = renderIcon(getBlockIcon(page as WithIcon, settings.pageEmoji));
-
-    // the order here matters due to icon not being set and last not being default
-    return settings.pageEmoji !== 'last_emoji'
-      ? `${icon}${title}`
-      : `${title}${icon}`;
+    return this.getBlockTitle(icon, title, settings);
   }
 
-  getDatabaseTitle(database: GetDatabaseResponse, settings: Settings): string {
+  getDatabaseTitle(
+    database: GetDatabaseResponse,
+    settings: Settings
+  ): Promise<string> {
     let icon = renderIcon(
       getBlockIcon(database as WithIcon, settings.pageEmoji)
     );
     let title = isFullDatabase(database)
       ? database.title.map((t) => t.plain_text).join('')
       : '';
-
-    return settings.pageEmoji !== 'last_emoji'
-      ? `${icon}${title}`
-      : `${title}${icon}`;
+    return this.getBlockTitle(icon, title, settings);
   }
 }
 

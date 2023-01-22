@@ -23,7 +23,7 @@ export default async function renderBlock(
     api,
     settings
   );
-  await handler.getBackSide(block, false);
+  await handler.getBackSide(block as BlockObjectResponse, false);
   const frontSide = await blockToStaticMarkup(
     handler,
     block as BlockObjectResponse

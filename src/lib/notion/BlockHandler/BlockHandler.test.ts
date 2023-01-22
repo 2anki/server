@@ -14,7 +14,7 @@ import MockNotionAPI from '../_mock/MockNotionAPI';
 import { getToggleBlocks } from '../helpers/getToggleBlocks';
 
 dotenv.config({ path: 'test/.env' });
-const api = new MockNotionAPI(process.env.NOTION_KEY!);
+const api = new MockNotionAPI(process.env.NOTION_KEY!, '3');
 
 type Options = { [key: string]: string };
 
@@ -64,10 +64,12 @@ describe('BlockHandler', () => {
 
   test('Get Blocks', async () => {
     // This should be mocked
-    const blocks = await api.getBlocks(
-      '07a7b319183642b9afecdcc4c456f73d',
-      true
-    );
+    const blocks = await api.getBlocks({
+      createdAt: '',
+      lastEditedAt: '',
+      id: '07a7b319183642b9afecdcc4c456f73d',
+      all: true,
+    });
     const topLevelToggles = getToggleBlocks(blocks.results);
     expect(topLevelToggles.length).toEqual(14);
   });

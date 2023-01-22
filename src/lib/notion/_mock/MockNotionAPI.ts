@@ -4,23 +4,28 @@ import {
   ListBlockChildrenResponse,
   QueryDatabaseResponse,
 } from '@notionhq/client/build/src/api-endpoints';
-import NotionAPIWrapper from '../NotionAPIWrapper';
+import NotionAPIWrapper, { GetBlockParams } from '../NotionAPIWrapper';
 import dataMockPath from './helpers/dataMockPath';
 import { mockDataExists } from './helpers/mockDataExists';
 import getPayload from './helpers/getPayload';
 import savePayload from './helpers/savePayload';
 
 export default class MockNotionAPI extends NotionAPIWrapper {
-  async getBlocks(
-    id: string,
-    all?: boolean
-  ): Promise<ListBlockChildrenResponse> {
+  async getBlocks({
+    id,
+    all,
+  }: GetBlockParams): Promise<ListBlockChildrenResponse> {
     if (mockDataExists('ListBlockChildrenResponse', id)) {
       return getPayload(
         dataMockPath('ListBlockChildrenResponse', id)
       ) as ListBlockChildrenResponse;
     }
-    const blocks = await super.getBlocks(id, all);
+    const blocks = await super.getBlocks({
+      createdAt: '',
+      lastEditedAt: '',
+      id,
+      all,
+    });
     savePayload(dataMockPath('ListBlockChildrenResponse', id), blocks);
     return blocks;
   }

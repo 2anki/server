@@ -8,5 +8,5 @@ export const getNotionAPI = async (
 ): Promise<NotionAPIWrapper> => {
   console.debug(`Configuring Notion API for ${req.originalUrl}`);
   const token = await TokenHandler.GetNotionToken(res.locals.owner);
-  return new NotionAPIWrapper(token!);
+  return new NotionAPIWrapper(token!, res.locals.owner);
 };

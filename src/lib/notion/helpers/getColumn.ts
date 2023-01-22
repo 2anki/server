@@ -6,7 +6,12 @@ export default async function getColumn(
   handler: BlockHandler,
   index: number
 ): Promise<GetBlockResponse | null> {
-  const getBlocks = await handler.api.getBlocks(parentId);
+  console.info('[NO_CACHE] - getColumn');
+  const getBlocks = await handler.api.getBlocks({
+    createdAt: '',
+    lastEditedAt: '',
+    id: parentId,
+  });
   const blocks = getBlocks?.results;
   if (blocks?.length > 0 && blocks?.length >= index + 1) {
     return blocks[index];

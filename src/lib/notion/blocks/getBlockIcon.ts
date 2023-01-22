@@ -2,6 +2,7 @@ export type WithIcon = {
   icon:
     | { emoji: string; type?: 'emoji' }
     | { external: { url: string }; type?: 'external' }
+    | { file: { url: string }; type?: 'file' }
     | null;
 };
 
@@ -15,6 +16,8 @@ export default function getBlockIcon(p?: WithIcon, emoji?: string): string {
       return p.icon.emoji;
     case 'external':
       return p.icon.external.url;
+    case 'file':
+      return p.icon.file.url;
     default:
       return '';
   }

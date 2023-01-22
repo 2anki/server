@@ -21,7 +21,7 @@ export const notifyUserIfNecessary = async ({
   key,
   apkg,
 }: JobInfo) => {
-  console.log('rules.email', rules.EMAIL_NOTIFICATION);
+  console.debug('rules.email', rules.EMAIL_NOTIFICATION);
   const email = await getEmailFromOwner(db, owner);
   if (size > 24) {
     const link = `${process.env.DOMAIN}/download/u/${key}`;

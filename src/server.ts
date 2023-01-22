@@ -36,7 +36,7 @@ if (existsSync(localEnvFile)) {
 
 import MigratorConfig = Knex.MigratorConfig;
 
-function serve() {
+async function serve() {
   const templateDir = path.join(__dirname, 'templates');
   const app = express();
 
@@ -119,15 +119,16 @@ function serve() {
   );
 
   process.on('uncaughtException', sendError);
-  DB.raw('SELECT 1').then(() => {
-    console.info('DB is ready');
-  });
+  console.info('DB is ready');
+  DB.raw('SELECT 1').then(() => {});
   const cwd = process.cwd();
   if (process.env.MIGRATIONS_DIR) {
     process.chdir(path.join(process.env.MIGRATIONS_DIR, '..'));
   }
   ScheduleCleanup(DB);
-  DB.migrate.latest(KnexConfig as MigratorConfig).then(() => {
+  DB.migrate.latest(KnexConfig as MigratorConfig).then(async () => {
+    // Completed jobs become uploads. Any left during startup means they failed.
+    await DB.raw("UPDATE jobs SET status = 'failed';");
     process.chdir(cwd);
     process.env.SECRET ||= 'victory';
     const port = process.env.PORT || 2020;
