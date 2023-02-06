@@ -6,7 +6,8 @@ export const getNotionAPI = async (
   req: express.Request,
   res: express.Response
 ): Promise<NotionAPIWrapper> => {
-  console.debug(`Configuring Notion API for ${req.originalUrl}`);
+  console.time(`Configuring Notion API for ${req.originalUrl}`);
   const token = await TokenHandler.GetNotionToken(res.locals.owner);
+  console.timeEnd(`Configuring Notion API for ${req.originalUrl}`);
   return new NotionAPIWrapper(token!, res.locals.owner);
 };

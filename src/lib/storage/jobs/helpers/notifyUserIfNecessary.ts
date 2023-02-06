@@ -12,6 +12,7 @@ interface JobInfo {
   size: number;
   apkg: Buffer;
 }
+
 export const notifyUserIfNecessary = async ({
   id,
   owner,

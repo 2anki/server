@@ -83,7 +83,7 @@ class BlockHandler {
     });
     const contents = imageRequest.data;
     this.exporter.addMedia(newName, contents);
-    return `<img src='${newName}' />`;
+    return `<img src="${newName}" />`;
   }
 
   async embedAudioFile(c: AudioBlockObjectResponse): Promise<string> {
@@ -108,7 +108,7 @@ class BlockHandler {
     const fileRequest = await axios.get(url, { responseType: 'arraybuffer' });
     const contents = fileRequest.data;
     this.exporter.addMedia(newName, contents);
-    return `<embed src='${newName}' />`;
+    return `<embed src="${newName}" />`;
   }
 
   /**
@@ -267,12 +267,11 @@ class BlockHandler {
         return dbDecks;
       }
     } else {
-      console.log('xxx: to be implemented:');
-      console.log(
+      throw new Error(
         `
-      // in the case user selects something other than db and page
-      // search in both database and page
-       `
+        Unsupported '${parentType}'!
+        Please report a bug.
+        `
       );
     }
     return decks;
@@ -341,8 +340,6 @@ class BlockHandler {
 
       for (const sd of subDecks) {
         if (isFullBlock(sd)) {
-          const subDeckType = sd.type;
-          console.log('sd.type', subDeckType);
           const res = await this.api.getBlocks({
             createdAt: sd.created_time,
             lastEditedAt: sd.last_edited_time,

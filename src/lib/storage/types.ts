@@ -21,6 +21,7 @@ export type JobStatus =
   | 'step3_building_deck'
   | 'stale'
   | 'failed';
+
 export interface Job {
   id: string;
   owner: string;

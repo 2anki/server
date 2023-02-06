@@ -8,7 +8,6 @@ import { loadSettingsFromDatabase } from '../../parser/Settings/loadSettingsFrom
 import DB from '../db';
 import BlockHandler from '../../notion/BlockHandler/BlockHandler';
 import ParserRules from '../../parser/ParserRules';
-import isPatron from '../../User/isPatron';
 import express from 'express';
 import Settings from '../../parser/Settings';
 import CardGenerator from '../../anki/CardGenerator';
@@ -104,7 +103,7 @@ export default class ConversionJob {
     return this.setStatus('failed');
   }
 
-  async createWorkSpace(api: NotionAPIWrapper, res: express.Response | null) {
+  async createWorkSpace(api: NotionAPIWrapper) {
     await this.setStatus('step1_create_workspace');
     if (!this.raw) {
       await this.failed();
@@ -119,15 +118,7 @@ export default class ConversionJob {
     console.debug(`using settings ${JSON.stringify(settings, null, 2)}`);
     const bl = new BlockHandler(exporter, api, settings);
     const rules = await ParserRules.Load(owner, id);
-
-    if (res) {
-      bl.useAll = rules.UNLIMITED;
-    } else {
-      const user = await isPatron(DB, owner);
-      console.log('checking if user is patreon', user);
-      bl.useAll = rules.UNLIMITED;
-    }
-
+    bl.useAll = rules.UNLIMITED;
     return { ws, exporter, settings, bl, rules };
   }
 
@@ -139,20 +130,14 @@ export default class ConversionJob {
     settings: Settings
   ) => {
     await this.setStatus('step2_creating_flashcards');
-    try {
-      const decks = await bl.findFlashcards({
-        parentType: req?.query.type?.toString() || 'page',
-        topLevelId: id.replace(/\-/g, ''),
-        rules,
-        decks: [],
-        parentName: settings.deckName || '',
-      });
-      return decks;
-    } catch (error) {
-      sendError(error);
-      await this.failed();
-      return undefined;
-    }
+    const decks = await bl.findFlashcards({
+      parentType: req?.query.type?.toString() || 'page',
+      topLevelId: id.replace(/\-/g, ''),
+      rules,
+      decks: [],
+      parentName: settings.deckName || '',
+    });
+    return decks;
   };
 
   buildingDeck = async (

@@ -21,10 +21,14 @@ class CardGenerator {
   }
 
   async run() {
-    const dpayload = path.join(this.currentDirectory, 'deck_info.json');
-    const tdir = resolvePath(__dirname, '../../templates/');
+    const deckInfo = path.join(this.currentDirectory, 'deck_info.json');
+    const templateDirectory = resolvePath(__dirname, '../../templates/');
 
-    const createDeckScriptPathARGS = [CREATE_DECK_SCRIPT_PATH, dpayload, tdir];
+    const createDeckScriptPathARGS = [
+      CREATE_DECK_SCRIPT_PATH,
+      deckInfo,
+      templateDirectory,
+    ];
     console.log('execFile', PYTHON(), createDeckScriptPathARGS);
     return new Promise((resolve, reject) => {
       execFile(

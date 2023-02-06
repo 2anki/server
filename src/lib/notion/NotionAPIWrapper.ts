@@ -21,6 +21,7 @@ import DB from '../storage/db';
 import { getBlockCache } from './helpers/getBlockCache';
 
 const DEFAULT_PAGE_SIZE_LIMIT = 100 * 2;
+
 export interface GetBlockParams {
   createdAt: string;
   lastEditedAt: string;
@@ -50,10 +51,11 @@ class NotionAPIWrapper {
     id,
     all,
   }: GetBlockParams): Promise<ListBlockChildrenResponse> {
-    console.log('getBlocks', id, all);
+    console.time(`getBlocks:${id}${all}`);
     const cachedPayload = await getBlockCache(id, this.owner, lastEditedAt);
     if (cachedPayload) {
       console.log('using payload cache');
+      console.timeEnd(`getBlocks:${id}${all}`);
       return cachedPayload;
     }
     const response = await this.notion.blocks.children.list({
@@ -94,6 +96,7 @@ class NotionAPIWrapper {
         .onConflict('object_id')
         .merge();
     }
+    console.timeEnd(`getBlocks:${id}${all}`);
     return response;
   }
 
@@ -127,7 +130,7 @@ class NotionAPIWrapper {
     id: string,
     all?: boolean
   ): Promise<QueryDatabaseResponse> {
-    console.log('queryDatabase', id, all);
+    console.time(`queryDatabase:${id}${all}`);
     const response = await this.notion.databases.query({
       database_id: id,
       page_size: DEFAULT_PAGE_SIZE_LIMIT,
@@ -148,11 +151,12 @@ class NotionAPIWrapper {
         }
       }
     }
+    console.timeEnd(`queryDatabase:${id}${all}`);
     return response;
   }
 
   async search(query: string, all?: boolean) {
-    console.debug(`search: ${query}`);
+    console.time(`search:${all}`);
     const response = await this.notion.search({
       page_size: DEFAULT_PAGE_SIZE_LIMIT,
       query,
@@ -182,6 +186,7 @@ class NotionAPIWrapper {
       }
     }
 
+    console.timeEnd(`search:${all}`);
     return response;
   }
 
@@ -190,7 +195,7 @@ class NotionAPIWrapper {
   }
 
   async getTopLevelTags(pageId: string, rules: ParserRules) {
-    console.info('[NO_CACHE] - getTopLevelTags');
+    console.time('[NO_CACHE] - getTopLevelTags');
     const useHeadings = rules.TAGS === 'heading';
     const response = await this.getBlocks({
       createdAt: '',
@@ -225,12 +230,13 @@ class NotionAPIWrapper {
           continue;
         }
 
-        // const { annotations } = tt[0];
-        // if (annotations.strikethrough) {
-        //   globalTags.push(tt[0].text.content);
-        // }
+        const { annotations } = tt[0];
+        if (annotations.strikethrough) {
+          globalTags.push(tt[0].plain_text);
+        }
       }
     }
+    console.timeEnd('[NO_CACHE] - getTopLevelTags');
     return sanitizeTags(globalTags);
   }
 
