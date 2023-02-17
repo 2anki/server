@@ -57,9 +57,9 @@ beforeEach(() => {
 
 describe('BlockHandler', () => {
   test('Get Notion Page', async () => {
-    const page = await api.getPage('699392e9387846e3a729206a126bf787');
+    const page = await api.getPage('446d09aa05d041058c16e56232188e2b');
     const title = await api.getPageTitle(page, new Settings({}));
-    expect(title).toBe('Notion API Test Page');
+    expect(title).toBe('Testing');
   });
 
   test('Get Blocks', async () => {
