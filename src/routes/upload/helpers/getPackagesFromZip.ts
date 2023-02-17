@@ -6,6 +6,7 @@ import Settings from '../../../lib/parser/Settings';
 
 export const getPackagesFromZip = async (
   fileContents: Body | undefined,
+  isPatreon: boolean,
   settings: Settings
 ) => {
   const zipHandler = new ZipHandler();
@@ -16,7 +17,7 @@ export const getPackagesFromZip = async (
     return [];
   }
 
-  await zipHandler.build(fileContents as Uint8Array);
+  await zipHandler.build(fileContents as Uint8Array, isPatreon);
 
   for (const fileName of zipHandler.getFileNames()) {
     if (fileName.match(/.html$/)) {

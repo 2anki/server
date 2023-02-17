@@ -3,10 +3,11 @@ import multerS3 from 'multer-s3';
 
 import { getUploadLimits } from '../../lib/misc/getUploadLimits';
 import StorageHandler from '../../lib/storage/StorageHandler';
+import express from 'express';
 
-export default function upload(storage: StorageHandler) {
+export default function upload(res: express.Response, storage: StorageHandler) {
   return multer({
-    limits: getUploadLimits(),
+    limits: getUploadLimits(res.locals.patreon),
     storage: multerS3({
       s3: storage.s3,
       bucket: StorageHandler.DefaultBucketName(),
