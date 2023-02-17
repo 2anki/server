@@ -48,7 +48,7 @@ async function findCardByName(
     new Workspace(true, 'fs'),
     new ParserRules()
   );
-  return flashcards.find((f) => f.name === name);
+  return flashcards.find((f) => f.name.includes(name));
 }
 
 beforeEach(() => {
@@ -131,7 +131,9 @@ describe('BlockHandler', () => {
       new ParserRules()
     );
     const card = flashcards[0];
-    expect(card.name).toBe('1 - This is a basic card');
+    expect(card.name).toBe(
+      '<ul id="e5201f35-c722-40d3-8e3a-5d218e5d80a5" class="toggle"><li><details><summary>1 - This is a basic card</summary><div><p class="" id="f83ce56a-9039-4888-81be-375b19a84790">This is the back of the card</p></div></details></li></ul>'
+    );
     expect(card.back).toBe(
       '<p class="" id="f83ce56a-9039-4888-81be-375b19a84790">This is the back of the card</p>'
     );
@@ -144,8 +146,8 @@ describe('BlockHandler', () => {
       new Workspace(true, 'fs'),
       new ParserRules()
     );
-    const card = flashcards.find(
-      (c) => c.name === '2 - This is a {{c1::cloze deletion}}'
+    const card = flashcards.find((c) =>
+      c.name.includes('2 - This is a {{c1::cloze deletion}}')
     );
     expect(card?.back).toBe(
       '<p class="" id="34be35bd-db68-4588-85d9-e1adc84c45a5">Extra</p>'
@@ -194,7 +196,9 @@ describe('BlockHandler', () => {
       new Workspace(true, 'fs'),
       new ParserRules()
     );
-    const card = flashcards.find((f) => f.name === '1 - This is a basic card');
+    const card = flashcards.find((f) =>
+      f.name.includes('1 - This is a basic card')
+    );
     expect(card).toBeTruthy();
     expect(card?.notionLink).toBe(expected);
   });
@@ -206,7 +210,9 @@ describe('BlockHandler', () => {
       new Workspace(true, 'fs'),
       new ParserRules()
     );
-    const card = flashcards.find((f) => f.name === '3 - 21 + 21 is #buddy');
+    const card = flashcards.find((f) =>
+      f.name.includes('3 - 21 + 21 is #buddy')
+    );
     const expected = 'a5445230-bfa9-4bf1-bc35-a706c1d129d1';
     expect(card?.notionId).toBe(expected);
   });
@@ -226,7 +232,9 @@ describe('BlockHandler', () => {
       new Workspace(true, 'fs'),
       new ParserRules()
     );
-    const card = flashcards.find((c) => c.name === '1 - This is a basic card');
+    const card = flashcards.find((c) =>
+      c.name.includes('1 - This is a basic card')
+    );
     expect(card?.back).toBe('This is the back of the card');
   });
 
