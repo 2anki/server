@@ -32,8 +32,15 @@ router.post('/file', RequireAllowedOrigin, async (req, res) => {
 
   u(req, res, (error) => {
     if (error) {
-      sendError(error);
-      return res.status(500).end();
+      let msg = error.message;
+      if (msg === 'File too large') {
+        msg = `Your upload is too big, there is a max to prevent abuse.
+        <a href="https://alemayhu.com/patreon">Become a patron</a> to remove
+      the limit.`;
+      } else {
+        sendError(error);
+      }
+      return res.status(500).send(msg);
     }
     handleUpload(storage, req, res);
   });
