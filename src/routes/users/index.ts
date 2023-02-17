@@ -86,7 +86,7 @@ router.get('/logout', RequireAuthentication, async (req, res, next) => {
     .del()
     .then(() => {
       Sentry.setUser(null);
-      res.status(200).end();
+      res.redirect('https://2anki.net');
     })
     .catch((err) => {
       sendError(err);
