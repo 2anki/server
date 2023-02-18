@@ -5,6 +5,7 @@ import NotionAPIWrapper from '../../../notion/NotionAPIWrapper';
 import DB from '../../db';
 import StorageHandler from '../../StorageHandler';
 import { notifyUserIfNecessary } from './notifyUserIfNecessary';
+import { getLimitMessage } from '../../../misc/getLimitMessage';
 
 interface ConversionRequest {
   title: string | null;
@@ -25,14 +26,18 @@ export default async function performConversion({
 }: ConversionRequest) {
   try {
     console.log(`Performing conversion for ${id}`);
+
     const storage = new StorageHandler();
     const job = new ConversionJob(DB);
     await job.load(id, owner, title);
     if (!job.canStart()) {
       console.log(`job ${id} was not started`);
-      return res
-        ? res.status(405).send({ message: 'Job is already active' })
-        : null;
+      return res ? res.status(500).send('Job is already active') : null;
+    }
+    const jobs = await DB('jobs').where({ owner }).returning(['*']);
+    if (!res?.locals.patreon && jobs.length > 1) {
+      await job.cancelled();
+      return res ? res.status(500).send(getLimitMessage()) : null;
     }
 
     console.log(`job ${id} is not active, starting`);

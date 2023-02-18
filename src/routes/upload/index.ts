@@ -11,6 +11,7 @@ import deleteJob from './deleteJob';
 import upload from './upload';
 import { sendError } from '../../lib/error/sendError';
 import TokenHandler from '../../lib/misc/TokenHandler';
+import { getLimitMessage } from '../../lib/misc/getLimitMessage';
 
 const router = express.Router();
 
@@ -34,9 +35,7 @@ router.post('/file', RequireAllowedOrigin, async (req, res) => {
     if (error) {
       let msg = error.message;
       if (msg === 'File too large') {
-        msg = `Your upload is too big, there is a max to prevent abuse.
-        <a href="https://alemayhu.com/patreon">Become a patron</a> to remove
-      the limit.`;
+        msg = getLimitMessage();
       } else {
         sendError(error);
       }

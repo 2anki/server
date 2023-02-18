@@ -103,6 +103,10 @@ export default class ConversionJob {
     return this.setStatus('failed');
   }
 
+  cancelled() {
+    return this.setStatus('cancelled');
+  }
+
   async createWorkSpace(api: NotionAPIWrapper) {
     await this.setStatus('step1_create_workspace');
     if (!this.raw) {
