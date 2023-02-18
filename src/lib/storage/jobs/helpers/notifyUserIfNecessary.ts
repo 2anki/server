@@ -25,7 +25,7 @@ export const notifyUserIfNecessary = async ({
   console.debug('rules.email', rules.EMAIL_NOTIFICATION);
   const email = await getEmailFromOwner(db, owner);
   if (size > 24) {
-    const link = `${process.env.DOMAIN}/download/u/${key}`;
+    const link = `${process.env.DOMAIN}/api/download/u/${key}`;
     await EmailHandler.SendConversionLinkEmail(email, id, link);
   } else if (rules.EMAIL_NOTIFICATION) {
     await EmailHandler.SendConversionEmail(email, id, apkg);
