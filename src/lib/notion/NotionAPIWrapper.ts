@@ -259,15 +259,17 @@ class NotionAPIWrapper {
       return '';
     }
     let title = getObjectTitle(page) ?? `Untitled: ${new Date()}`;
-    let icon = renderIcon(getBlockIcon(page as WithIcon, settings.pageEmoji));
+    let icon = await renderIcon(
+      getBlockIcon(page as WithIcon, settings.pageEmoji)
+    );
     return this.getBlockTitle(icon, title, settings);
   }
 
-  getDatabaseTitle(
+  async getDatabaseTitle(
     database: GetDatabaseResponse,
     settings: Settings
   ): Promise<string> {
-    let icon = renderIcon(
+    let icon = await renderIcon(
       getBlockIcon(database as WithIcon, settings.pageEmoji)
     );
     let title = isFullDatabase(database)

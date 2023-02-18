@@ -17,7 +17,7 @@ export default async function findRule(req: Request, res: Response) {
     .returning('*')
     .first()
     .then((result) => {
-      res.json(result);
+      res.status(200).json(result);
     })
     .catch((err) => {
       sendError(err);
