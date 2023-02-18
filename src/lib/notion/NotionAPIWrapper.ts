@@ -52,7 +52,9 @@ class NotionAPIWrapper {
     all,
   }: GetBlockParams): Promise<ListBlockChildrenResponse> {
     console.time(`getBlocks:${id}${all}`);
-    const cachedPayload = await getBlockCache(id, this.owner, lastEditedAt);
+    const cachedPayload = all
+      ? await getBlockCache(id, this.owner, lastEditedAt)
+      : null;
     if (cachedPayload) {
       console.log('using payload cache');
       console.timeEnd(`getBlocks:${id}${all}`);
