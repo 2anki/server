@@ -20,7 +20,8 @@ export type JobStatus =
   | 'step2_creating_flashcards'
   | 'step3_building_deck'
   | 'stale'
-  | 'failed';
+  | 'failed'
+  | 'cancelled';
 
 export interface Job {
   id: string;

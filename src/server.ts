@@ -77,6 +77,9 @@ async function serve() {
   app.use('/api/download', download);
   app.use('/api/favorite', favorite);
   app.use('/api/templates', templates);
+  app.get('/patr*on', (req, res) =>
+    res.redirect('https://www.patreon.com/alemayhu')
+  );
 
   // Note: this has to be the last handler
   app.get('*', (_req, res) => {

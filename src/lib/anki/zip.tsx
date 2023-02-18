@@ -2,6 +2,8 @@ import JSZip from 'jszip';
 import { strFromU8, unzipSync } from 'fflate';
 import Package from '../parser/Package';
 import { Body } from 'aws-sdk/clients/s3';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { getUploadLimits } from '../misc/getUploadLimits';
 
 interface File {
   name: string;
@@ -18,7 +20,22 @@ class ZipHandler {
     this.files = [];
   }
 
-  async build(zipData: Uint8Array) {
+  async build(zipData: Uint8Array, isPatron: boolean = false) {
+    const size = Buffer.byteLength(zipData);
+    const limits = getUploadLimits(isPatron);
+
+    if (size > limits.fileSize) {
+      throw new Error(
+        renderToStaticMarkup(
+          <>
+            Your upload is too big, there is a max of {size} / $
+            {limits.fileSize} currently.{' '}
+            <a href="https://alemayhu.com/patreon">Become a patron</a> to remove
+            default limit.
+          </>
+        )
+      );
+    }
     const loadedZip = unzipSync(zipData, {
       filter(file) {
         return !file.name.endsWith('/');

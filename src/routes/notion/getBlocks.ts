@@ -12,7 +12,7 @@ export default async function getBlocks(
     return res.status(400).send();
   }
   const blocks = await api.getBlocks({
-    all: true,
+    all: res.locals.patreon,
     createdAt: '',
     lastEditedAt: '',
     id,

@@ -47,6 +47,7 @@ export default async function handleUpload(
       } else if (filename.match(/.zip$/) || key.match(/.zip$/)) {
         const [extraPackages, md] = await getPackagesFromZip(
           fileContents.Body,
+          res.locals.patreon,
           settings
         );
         packages = packages.concat(extraPackages as Package[]);

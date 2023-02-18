@@ -10,18 +10,36 @@ import getUploads from './getUploads';
 import deleteJob from './deleteJob';
 import upload from './upload';
 import { sendError } from '../../lib/error/sendError';
+import TokenHandler from '../../lib/misc/TokenHandler';
+import { getLimitMessage } from '../../lib/misc/getLimitMessage';
 
 const router = express.Router();
 
 const storage = new StorageHandler();
 
 router.post('/file', RequireAllowedOrigin, async (req, res) => {
-  const u = upload(storage);
+  /**
+   * This endpoint is open for everyone by default, so we can't assume the user is a patron.
+   */
+  try {
+    const user = await TokenHandler.GetUserFrom(req.cookies.token);
+    if (user) {
+      res.locals.patreon = user.patreon;
+    }
+  } catch (error) {
+    console.error(error);
+  }
+  const u = upload(res, storage);
 
   u(req, res, (error) => {
     if (error) {
-      sendError(error);
-      return res.status(500).end();
+      let msg = error.message;
+      if (msg === 'File too large') {
+        msg = getLimitMessage();
+      } else {
+        sendError(error);
+      }
+      return res.status(500).send(msg);
     }
     handleUpload(storage, req, res);
   });

@@ -16,6 +16,7 @@ import createBlock from './createBlock';
 import { sendError } from '../../lib/error/sendError';
 import { getNotionAPI } from '../../lib/notion/helpers/getNotionAPI';
 import { isValidID } from './isValidID';
+import RequirePatron from '../../middleware/RequirePatron';
 
 const router = express.Router();
 
@@ -104,12 +105,12 @@ router.post('/block/:id', RequireAuthentication, async (req, res) => {
   return createBlock(api, req, res);
 });
 
-router.delete('/block/:id', RequireAuthentication, async (req, res) => {
+router.delete('/block/:id', RequirePatron, async (req, res) => {
   const api = await getNotionAPI(req, res);
   return deleteBlock(api, req, res);
 });
 
-router.get('/render-block/:id', RequireAuthentication, async (req, res) => {
+router.get('/render-block/:id', RequirePatron, async (req, res) => {
   const { id } = req.params;
   if (!isValidID(id)) {
     return res.status(400).send();
