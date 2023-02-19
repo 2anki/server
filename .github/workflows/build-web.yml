@@ -17,10 +17,8 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - name: npm install and build
-        working-directory: ./web
         run: |
-          echo `pwd`
-          npm install
-          npm run build
+          npm --prefix web install
+          npm --prefix web run build
         env:
           CI: true
