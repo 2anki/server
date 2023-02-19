@@ -1,4 +1,4 @@
-name: Build
+name: Build web
 
 on: [push]
 
@@ -19,6 +19,7 @@ jobs:
       - name: npm install and build
         working-directory: ./web
         run: |
+          cd web
           npm install
           npm run build
         env:
