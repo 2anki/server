@@ -23,7 +23,7 @@
     "start": "npm run dev",
     "build": "tsc -p .",
     "dev": "LOCAL_DEV=true nodemon --watch '**/*.ts' --exec \"ts-node\" src/server.ts",
-    "lint": "eslint '**/*.ts' '**/*.tsx'",
+    "lint": "eslint 'src/*.ts' 'src/*.tsx'",
     "lint:fix": "eslint --fix '**/*.ts' '**/*.tsx'",
     "purge-js": "rm `find . -name '*.js'|grep -v node_modules`",
     "test:mock": "FORCE_BUILD=true ts-node lib/notion/_mock/build-mock-data.tsx",
