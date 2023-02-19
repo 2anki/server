@@ -19,7 +19,7 @@ jobs:
       - name: npm install and build
         working-directory: ./web
         run: |
-          cd web
+          echo `pwd`
           npm install
           npm run build
         env:
