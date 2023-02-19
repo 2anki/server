@@ -1,0 +1,3 @@
+ATTEMPTS=3
+
+/checks create_deck

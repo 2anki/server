@@ -4,7 +4,7 @@
 
 The goal of the 2anki.net project is to provide a good way to make [Anki](https://apps.ankiweb.net/) flashcards easier, better and faster. The dream is to have powerful and easy ways to produce high quality flashcards. This project is a complement to Anki and Notion.
 
-For the frontend code, please see [2anki/web](https://github.com/2anki/web).
+For the frontend code, see [web](./web).
 
 ## Strategy
 
@@ -30,7 +30,7 @@ When that is said, if you are not content with Anki, you might want to checkout 
 
 ## Sponsors
 
-[![Scrimba.com](https://raw.githubusercontent.com/2anki/web/main/public/sponsors/Scrimba.png)](https://scrimba.com/)
+[![Scrimba.com](https://raw.githubusercontent.com/2anki/server/main/web/public/sponsors/Scrimba.png)](https://scrimba.com/)
 
 👩🏼‍🎓👨‍🎓️👨‍🏫️👩🏽‍🏫 [Scrimba](https://scrimba.com) - the mind-blowing way learn to code!
 

@@ -9,8 +9,6 @@ COPY . /app/server
 RUN node --version
 
 RUN rm -rvf /app/node_modules
-RUN git clone https://github.com/2anki/web /app/web
-RUN git clone https://github.com/2anki/create_deck /app/create_deck
 RUN npm --prefix /app/web install
 
 RUN npm install typescript -g
