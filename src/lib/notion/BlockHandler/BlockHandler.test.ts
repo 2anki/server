@@ -156,12 +156,14 @@ describe('BlockHandler', () => {
 
   test('Input Cards from Blocks', async () => {
     const flashcards = await loadCards(
-      { cloze: 'false', input: 'true' },
+      { cloze: 'false', 'enable-input': 'true' },
       examplId,
       new Workspace(true, 'fs'),
       new ParserRules()
     );
-    expect(flashcards.find((n) => n.name == '6 - 21 + 21 is ')).toBeTruthy();
+    expect(
+      flashcards.find((n) => n.name.includes('6 - 21 + 21 is '))
+    ).toBeTruthy();
   });
 
   test('Enable Cherry Picking Using 🍒 Emoji', async () => {

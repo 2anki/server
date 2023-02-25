@@ -76,6 +76,6 @@ export default class Note {
   }
 
   isValidInputNote() {
-    return this.enableInput && this.name && this.name.includes('strong');
+    return this.enableInput && this.name && this.answer && this.answer.trim();
   }
 }
