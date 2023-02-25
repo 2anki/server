@@ -16,7 +16,6 @@ import ParserRules from '../../parser/ParserRules';
 import Deck from '../../parser/Deck';
 import CustomExporter from '../../parser/CustomExporter';
 import { S3FileName, SuffixFrom } from '../../misc/file';
-import RenderNotionLink from '../RenderNotionLink';
 import TagRegistry from '../../parser/TagRegistry';
 import sanitizeTags from '../../anki/sanitizeTags';
 import BlockColumn from '../blocks/lists/BlockColumn';
@@ -33,7 +32,7 @@ import { renderBack } from '../helpers/renderBack';
 import { getImageUrl } from '../helpers/getImageUrl';
 import { getAudioUrl } from '../helpers/getAudioUrl';
 import { getFileUrl } from '../helpers/getFileUrl';
-import { isFullBlock, isFullPage } from '@notionhq/client';
+import { isFullBlock } from '@notionhq/client';
 import { blockToStaticMarkup } from '../helpers/blockToStaticMarkup';
 import { NOTION_STYLE } from '../../../templates/helper';
 import { sendError } from '../../error/sendError';
@@ -137,20 +136,10 @@ class BlockHandler {
     }
   }
 
-  __notionLink(
-    id: string,
-    notionBaseLink: string | undefined
-  ): string | undefined {
-    return notionBaseLink
-      ? `${notionBaseLink}#${id.replace(/-/g, '')}`
-      : undefined;
-  }
-
   private async getFlashcards(
     rules: ParserRules,
     flashcardBlocks: GetBlockResponse[],
-    tags: string[],
-    notionBaseLink: string | undefined
+    tags: string[]
   ): Promise<Note[]> {
     let cards = [];
     let counter = 0;
@@ -198,10 +187,6 @@ class BlockHandler {
       }
 
       ankiNote.back = back!;
-      ankiNote.notionLink = this.__notionLink(block.id, notionBaseLink);
-      if (this.settings.addNotionLink) {
-        ankiNote.back += RenderNotionLink(ankiNote.notionLink!, this);
-      }
       ankiNote.notionId = this.settings.useNotionId ? block.id : undefined;
       ankiNote.media = this.exporter.media;
       this.exporter.media = [];
@@ -306,21 +291,10 @@ class BlockHandler {
       });
       this.settings.parentBlockId = page.id;
 
-      let notionBaseLink =
-        this.settings.addNotionLink && this.settings.parentBlockId
-          ? isFullPage(page)
-            ? page?.url
-            : undefined
-          : undefined;
-      const cards = await this.getFlashcards(
-        rules,
-        cBlocks,
-        tags,
-        notionBaseLink
-      );
+      const cards = await this.getFlashcards(rules, cBlocks, tags);
       const deck = new Deck(
         getDeckName(parentName, title),
-        cards,
+        Deck.CleanCards(cards, this.settings),
         undefined,
         NOTION_STYLE,
         Deck.GenerateId(),
@@ -351,12 +325,7 @@ class BlockHandler {
           );
 
           this.settings.parentBlockId = sd.id;
-          const cards = await this.getFlashcards(
-            rules,
-            cBlocks,
-            tags,
-            undefined
-          );
+          const cards = await this.getFlashcards(rules, cBlocks, tags);
           let subDeckName = getSubDeckName(sd);
 
           decks.push(

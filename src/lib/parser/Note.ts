@@ -17,8 +17,6 @@ export default class Note {
 
   notionId?: string;
 
-  notionLink?: string;
-
   constructor(name: string, back: string) {
     this.name = name;
     this.back = back;
@@ -52,7 +50,6 @@ export default class Note {
     this.answer = clozeCard.answer;
     this.media = clozeCard.media;
     this.notionId = clozeCard.notionId;
-    this.notionLink = clozeCard.notionLink;
   }
 
   /**
@@ -93,5 +90,17 @@ export default class Note {
     // Due to backwards compatability, do not increment number here
     note.number = -1;
     return note;
+  }
+
+  isValidBasicNote() {
+    return this.name && this.name.trim() && this.back && this.back.trim();
+  }
+
+  isValidClozeNote() {
+    return this.name && this.name.trim() && this.name.includes('code');
+  }
+
+  isValidInputNote() {
+    return this.name && this.name.includes('strong');
   }
 }

@@ -147,7 +147,6 @@ export class DeckParser {
     );
     let name = deckName || dom('title').text();
     let style = dom('style').html();
-    const pageId = dom('article').attr('id');
     if (style) {
       style = style.replace(/white-space: pre-wrap;/g, '');
       style = this.setFontSize(style);
@@ -238,12 +237,6 @@ export class DeckParser {
               })();
               const note = new Note(front || '', backSide);
               note.notionId = parentUL.attr('id');
-              if (note.notionId && this.settings.addNotionLink) {
-                const link = this.getLink(pageId, note);
-                if (link !== null) {
-                  note.back += link;
-                }
-              }
               if (
                 (this.settings.isAvocado && this.noteHasAvocado(note)) ||
                 (this.settings.isCherry && !this.noteHasCherry(note))
@@ -260,10 +253,16 @@ export class DeckParser {
 
     //  Prevent bad cards from leaking out
     cards = cards.filter(Boolean);
-    cards = this.sanityCheck(cards);
 
     decks.push(
-      new Deck(name, cards, image, style, Deck.GenerateId(), this.settings)
+      new Deck(
+        name,
+        Deck.CleanCards(cards, this.settings),
+        image,
+        style,
+        Deck.GenerateId(),
+        this.settings
+      )
     );
 
     const subpages = dom('.link-to-page').toArray();
@@ -283,28 +282,6 @@ export class DeckParser {
       }
     }
     return decks;
-  }
-
-  hasClozeDeletions(input: string) {
-    if (!input) {
-      return false;
-    }
-    return input.includes('code');
-  }
-
-  validInputCard(input: Note) {
-    if (!this.settings.useInput) {
-      return false;
-    }
-    return input.name && input.name.includes('strong');
-  }
-
-  sanityCheck(cards: Note[]) {
-    return cards.filter(
-      (c) =>
-        c.name &&
-        (this.hasClozeDeletions(c.name) || c.back || this.validInputCard(c))
-    );
   }
 
   setupExporter(decks: Deck[], workspace: string) {

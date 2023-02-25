@@ -36,6 +36,15 @@ export default class Deck {
     this.id = id;
   }
 
+  static CleanCards(cards: Note[], settings: Settings) {
+    return cards.filter(
+      (note) =>
+        note.isValidClozeNote() ||
+        (settings.useInput && note.isValidInputNote()) ||
+        note.isValidBasicNote()
+    );
+  }
+
   cleanStyle() {
     if (this.style) {
       return this.style.replace(/'/g, '"');
