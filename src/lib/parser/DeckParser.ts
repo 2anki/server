@@ -257,7 +257,7 @@ export class DeckParser {
     decks.push(
       new Deck(
         name,
-        Deck.CleanCards(cards, this.settings),
+        Deck.CleanCards(cards),
         image,
         style,
         Deck.GenerateId(),

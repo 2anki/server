@@ -36,11 +36,11 @@ export default class Deck {
     this.id = id;
   }
 
-  static CleanCards(cards: Note[], settings: Settings) {
+  static CleanCards(cards: Note[]) {
     return cards.filter(
       (note) =>
         note.isValidClozeNote() ||
-        (settings.useInput && note.isValidInputNote()) ||
+        note.isValidInputNote() ||
         note.isValidBasicNote()
     );
   }

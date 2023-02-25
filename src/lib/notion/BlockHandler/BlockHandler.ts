@@ -294,7 +294,7 @@ class BlockHandler {
       const cards = await this.getFlashcards(rules, cBlocks, tags);
       const deck = new Deck(
         getDeckName(parentName, title),
-        Deck.CleanCards(cards, this.settings),
+        Deck.CleanCards(cards),
         undefined,
         NOTION_STYLE,
         Deck.GenerateId(),

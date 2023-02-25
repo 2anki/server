@@ -52,33 +52,6 @@ export default class Note {
     this.notionId = clozeCard.notionId;
   }
 
-  /**
-   * Check if flashcard is not empty
-   * @returns boolean
-   */
-  isValid(): boolean {
-    // All flaschards require a front side
-    if (!this.name) {
-      return false;
-    }
-
-    // Cloze and input cards can have an empty back
-    if (
-      (this.cloze || this.enableInput) &&
-      this.name.includes('{{') &&
-      this.name.includes('}}')
-    ) {
-      return true;
-    }
-
-    // Basic flashcards must have a back to be valid
-    if (this.back) {
-      return true;
-    }
-
-    return false;
-  }
-
   hasRefreshIcon() {
     return this.name.includes('&#x1F504') || this.name.includes('🔄');
   }
@@ -97,10 +70,12 @@ export default class Note {
   }
 
   isValidClozeNote() {
-    return this.name && this.name.trim() && this.name.includes('code');
+    return (
+      this.cloze && this.name && this.name.trim() && this.name.includes('code')
+    );
   }
 
   isValidInputNote() {
-    return this.name && this.name.includes('strong');
+    return this.enableInput && this.name && this.name.includes('strong');
   }
 }
