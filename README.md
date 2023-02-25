@@ -28,14 +28,6 @@ When that is said, if you are not content with Anki, you might want to checkout 
 
 <sub><sup>\* Please note that due to server costs, there are quota limits in place but you can workaround this and self-host</sup><sub>
 
-## Sponsors
-
-[![Scrimba.com](https://raw.githubusercontent.com/2anki/web/main/public/sponsors/Scrimba.png)](https://scrimba.com/)
-
-👩🏼‍🎓👨‍🎓️👨‍🏫️👩🏽‍🏫 [Scrimba](https://scrimba.com) - the mind-blowing way learn to code!
-
-<a href="https://fortress.no"><img src="https://fortress.no/icons/logo.svg"  style="width:114px;" src=""></img></a>
-
 ## 🎁 Support the Project
 
 > This project is brought to you by our amazing [patrons](https://patreon.com/alemayhu)
