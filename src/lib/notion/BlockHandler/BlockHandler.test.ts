@@ -156,12 +156,14 @@ describe('BlockHandler', () => {
 
   test('Input Cards from Blocks', async () => {
     const flashcards = await loadCards(
-      { cloze: 'false', input: 'true' },
+      { cloze: 'false', 'enable-input': 'true' },
       examplId,
       new Workspace(true, 'fs'),
       new ParserRules()
     );
-    expect(flashcards.find((n) => n.name == '6 - 21 + 21 is ')).toBeTruthy();
+    expect(
+      flashcards.find((n) => n.name.includes('6 - 21 + 21 is '))
+    ).toBeTruthy();
   });
 
   test('Enable Cherry Picking Using 🍒 Emoji', async () => {
@@ -182,25 +184,6 @@ describe('BlockHandler', () => {
     );
     const avocado = flashcards.find((c) => c.name.includes('🥑'));
     expect(avocado).toBeFalsy();
-  });
-
-  test('Add Notion Link', async () => {
-    const expected =
-      'https://www.notion.so/Notion-API-Test-Page-3ce6b147ac8a425f836b51cc21825b85#e5201f35c72240d38e3a5d218e5d80a5';
-    const flashcards = await loadCards(
-      {
-        'add-notion-link': 'true',
-        parentBlockId: examplId,
-      },
-      examplId,
-      new Workspace(true, 'fs'),
-      new ParserRules()
-    );
-    const card = flashcards.find((f) =>
-      f.name.includes('1 - This is a basic card')
-    );
-    expect(card).toBeTruthy();
-    expect(card?.notionLink).toBe(expected);
   });
 
   test('Use Notion ID', async () => {

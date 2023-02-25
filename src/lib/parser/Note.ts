@@ -17,8 +17,6 @@ export default class Note {
 
   notionId?: string;
 
-  notionLink?: string;
-
   constructor(name: string, back: string) {
     this.name = name;
     this.back = back;
@@ -52,34 +50,6 @@ export default class Note {
     this.answer = clozeCard.answer;
     this.media = clozeCard.media;
     this.notionId = clozeCard.notionId;
-    this.notionLink = clozeCard.notionLink;
-  }
-
-  /**
-   * Check if flashcard is not empty
-   * @returns boolean
-   */
-  isValid(): boolean {
-    // All flaschards require a front side
-    if (!this.name) {
-      return false;
-    }
-
-    // Cloze and input cards can have an empty back
-    if (
-      (this.cloze || this.enableInput) &&
-      this.name.includes('{{') &&
-      this.name.includes('}}')
-    ) {
-      return true;
-    }
-
-    // Basic flashcards must have a back to be valid
-    if (this.back) {
-      return true;
-    }
-
-    return false;
   }
 
   hasRefreshIcon() {
@@ -93,5 +63,17 @@ export default class Note {
     // Due to backwards compatability, do not increment number here
     note.number = -1;
     return note;
+  }
+
+  isValidBasicNote() {
+    return this.name && this.name.trim() && this.back && this.back.trim();
+  }
+
+  isValidClozeNote() {
+    return this.cloze && this.name && this.name.trim();
+  }
+
+  isValidInputNote() {
+    return this.enableInput && this.name && this.answer && this.answer.trim();
   }
 }

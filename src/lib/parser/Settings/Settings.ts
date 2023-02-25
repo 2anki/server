@@ -58,8 +58,6 @@ export class Settings {
 
   readonly useNotionId: boolean;
 
-  readonly addNotionLink: boolean;
-
   readonly pageEmoji: string;
 
   parentBlockId: string;
@@ -94,13 +92,8 @@ export class Settings {
     this.inputModelId = input.input_model_id;
     this.template = input.template;
     this.useNotionId = input['use-notion-id'] === 'true';
-    this.addNotionLink = input['add-notion-link'] === 'true';
     this.parentBlockId = input.parentBlockId;
     this.pageEmoji = input['page-emoji'] || 'first_emoji';
-    /* Is this really needed? */
-    if (this.parentBlockId) {
-      this.addNotionLink = true;
-    }
 
     this.learnMode = false;
     this.retrieveTemplates(input);
@@ -118,7 +111,6 @@ export class Settings {
 
   static LoadDefaultOptions(): { [key: string]: string } {
     return {
-      'add-notion-link': 'true',
       'use-notion-id': 'true',
       all: 'true',
       paragraph: 'false',
