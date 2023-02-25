@@ -70,9 +70,7 @@ export default class Note {
   }
 
   isValidClozeNote() {
-    return (
-      this.cloze && this.name && this.name.trim() && this.name.includes('code')
-    );
+    return this.cloze && this.name && this.name.trim();
   }
 
   isValidInputNote() {
