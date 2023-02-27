@@ -43,7 +43,7 @@
     "crypto-js": "^4.1.1",
     "date-fns": "^2.29.3",
     "dotenv": "^16.0.1",
-    "express": "^4.18.1",
+    "express": "^4.18.2",
     "fflate": "^0.7.4",
     "find-remove": "^4.0.4",
     "html-to-text": "^9.0.4",
