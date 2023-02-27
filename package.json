@@ -35,7 +35,7 @@
     "@sendgrid/mail": "^7.7.0",
     "@sentry/node": "^7.38.0",
     "@sentry/tracing": "^7.14.1",
-    "aws-sdk": "^2.1249.0",
+    "aws-sdk": "^2.1323.0",
     "axios": "^0.21.4",
     "bcryptjs": "^2.4.3",
     "cheerio": "^1.0.0-rc.12",
