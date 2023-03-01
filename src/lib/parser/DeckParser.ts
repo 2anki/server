@@ -255,14 +255,7 @@ export class DeckParser {
     cards = cards.filter(Boolean);
 
     decks.push(
-      new Deck(
-        name,
-        Deck.CleanCards(cards),
-        image,
-        style,
-        Deck.GenerateId(),
-        this.settings
-      )
+      new Deck(name, cards, image, style, Deck.GenerateId(), this.settings)
     );
 
     const subpages = dom('.link-to-page').toArray();
@@ -536,7 +529,7 @@ export class DeckParser {
           card.number = -1;
         }
       }
-      deck.cards = deck.cards.concat(addThese);
+      deck.cards = Deck.CleanCards(deck.cards.concat(addThese));
     }
 
     this.payload[0].settings = this.settings;
