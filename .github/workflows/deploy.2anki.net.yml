@@ -17,7 +17,6 @@ jobs:
       - name: Dokku deploy
         uses: vitalyliber/dokku-github-action@v7.1
         env:
-          BRANCH: main
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
           HOST: 2anki.net
           PROJECT: notion
