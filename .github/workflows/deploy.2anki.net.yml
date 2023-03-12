@@ -19,6 +19,7 @@ jobs:
       - name: Dokku deploy
         uses: alemayhu/dokku-github-action@v7.2
         env:
+          FORCE_DEPLOY: true
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
           HOST: 2anki.net
           PROJECT: notion
