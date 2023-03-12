@@ -16,6 +16,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: main
+          fetch-depth: 0
       - name: Dokku deploy
         uses: alemayhu/dokku-github-action@v7.2
         env:
