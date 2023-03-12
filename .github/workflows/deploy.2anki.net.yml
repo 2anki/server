@@ -13,7 +13,9 @@ jobs:
       - name: Mark github workspace as safe
         run: |
           git config --global --add safe.directory /github/workspace
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
+        with:
+          ref: main
       - name: Dokku deploy
         uses: vitalyliber/dokku-github-action@v7.1
         env:
