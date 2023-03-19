@@ -1,10 +1,15 @@
 import { existsSync } from 'fs';
 import path from 'path';
+import * as dotenv from 'dotenv';
+
+const localEnvFile = path.join(__dirname, '../.env');
+if (existsSync(localEnvFile)) {
+  dotenv.config({ path: localEnvFile });
+}
 
 import morgan from 'morgan';
 import express, { RequestHandler } from 'express';
 import cookieParser from 'cookie-parser';
-import * as dotenv from 'dotenv';
 import { ALLOWED_ORIGINS, BUILD_DIR, INDEX_FILE } from './lib/constants';
 import ErrorHandler from './lib/misc/ErrorHandler';
 
@@ -28,11 +33,6 @@ import { ScheduleCleanup } from './lib/storage/jobs/JobHandler';
 import RequireAuthentication from './middleware/RequireAuthentication';
 import { Knex } from 'knex';
 import { sendError } from './lib/error/sendError';
-
-const localEnvFile = path.join(__dirname, '/../.env');
-if (existsSync(localEnvFile)) {
-  dotenv.config({ path: localEnvFile });
-}
 
 import MigratorConfig = Knex.MigratorConfig;
 
