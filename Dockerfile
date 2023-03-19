@@ -13,6 +13,7 @@ RUN git clone https://github.com/2anki/web /app/web
 RUN git clone https://github.com/2anki/create_deck /app/create_deck
 RUN npm --prefix /app/web install
 
+RUN pip3 install -r /app/create_deck/requirements.txt
 RUN npm install typescript -g
 RUN npm --prefix /app/server install
 
