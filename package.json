@@ -45,7 +45,7 @@
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "fflate": "^0.7.4",
-    "find-remove": "^4.0.4",
+    "find-remove": "^4.1.0",
     "html-to-text": "^9.0.4",
     "json-markup": "^1.1.3",
     "jsonwebtoken": "^9.0.0",
