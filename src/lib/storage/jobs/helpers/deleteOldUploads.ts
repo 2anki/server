@@ -25,7 +25,7 @@ const allowedToPersist = async (
   const upload = (await db('uploads')
     .where('key', key)
     .returning(['owner', 'patreon'])) as Upload;
-  return Boolean(upload.owner);
+  return Boolean(upload.owner) && Boolean(upload.patreon);
 };
 
 export default async function deleteOldUploads(db: Knex) {
