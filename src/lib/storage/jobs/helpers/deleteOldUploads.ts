@@ -15,7 +15,7 @@ const isFileOld = (file: S3.Object) => {
   return false;
 };
 
-const hasOwner = async (
+const allowedToPersist = async (
   key: S3.ObjectKey | undefined,
   db: Knex
 ): Promise<boolean> => {
@@ -24,7 +24,7 @@ const hasOwner = async (
   }
   const upload = (await db('uploads')
     .where('key', key)
-    .returning('owner')) as Upload;
+    .returning(['owner', 'patreon'])) as Upload;
   return Boolean(upload.owner);
 };
 
@@ -41,7 +41,7 @@ export default async function deleteOldUploads(db: Knex) {
       continue;
     }
 
-    if (await hasOwner(file.Key, db)) {
+    if (await allowedToPersist(file.Key, db)) {
       console.info('file has an owner, skipping');
       continue;
     }
