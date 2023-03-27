@@ -1,9 +1,10 @@
+import { S3 } from 'aws-sdk';
 import { Knex } from 'knex';
 
 import { TIME_21_MINUTES_AS_SECONDS } from '../../../constants';
+import Users from '../../../../schemas/public/Users';
 import StorageHandler from '../../StorageHandler';
 import { Upload } from '../../types';
-import { S3 } from 'aws-sdk';
 
 export const MS_21 = TIME_21_MINUTES_AS_SECONDS * 1000;
 
@@ -24,8 +25,16 @@ const allowedToPersist = async (
   }
   const upload = (await db('uploads')
     .where('key', key)
-    .returning(['owner', 'patreon'])) as Upload;
-  return Boolean(upload.owner) && Boolean(upload.patreon);
+    .returning('owner')) as Upload;
+
+  if (upload.owner) {
+    const user = (await db('users')
+      .where('owner', upload.owner)
+      .returning('patreon')) as Users;
+    return Boolean(upload.owner) && Boolean(user.patreon);
+  }
+
+  return Boolean(upload.owner);
 };
 
 export default async function deleteOldUploads(db: Knex) {
