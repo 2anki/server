@@ -1,54 +1,28 @@
 import { Knex } from 'knex';
+import Users from '../../../../schemas/public/Users';
 
 import { TIME_21_MINUTES_AS_SECONDS } from '../../../constants';
 import StorageHandler from '../../StorageHandler';
 import { Upload } from '../../types';
-import { S3 } from 'aws-sdk';
 
 export const MS_21 = TIME_21_MINUTES_AS_SECONDS * 1000;
 
-const isFileOld = (file: S3.Object) => {
-  const now = new Date();
-  if (file.LastModified) {
-    return now.getMilliseconds() - file.LastModified.getMilliseconds() > MS_21;
-  }
-  return false;
-};
+const getFreeUsers = (db: Knex): Promise<Users[]> =>
+  db('users').where('patreon', 'false').returning(['owner']);
 
-const allowedToPersist = async (
-  key: S3.ObjectKey | undefined,
-  db: Knex
-): Promise<boolean> => {
-  if (!key) {
-    return false;
-  }
-  const upload = (await db('uploads')
-    .where('key', key)
-    .returning(['owner', 'patreon'])) as Upload;
-  return Boolean(upload.owner);
-};
+const getUploadsForUser = (user: Users, db: Knex): Promise<Upload> =>
+  db('uploads').where('owner', user.id).returning(['key']);
 
 export default async function deleteOldUploads(db: Knex) {
-  const s = new StorageHandler();
-  const files = await s.getContents();
+  const storage = new StorageHandler();
+  const users = await getFreeUsers(db);
+  const uploads = await Promise.all(
+    users.map((user) => getUploadsForUser(user, db))
+  );
 
-  if (!files) {
-    return;
-  }
-
-  for (const file of files) {
-    if (!file || !isFileOld(file)) {
-      continue;
-    }
-
-    if (await allowedToPersist(file.Key, db)) {
-      console.info('file has an owner, skipping');
-      continue;
-    }
-
-    await s.delete(file);
-    console.debug(
-      `Delete **** which was last modified on ${file.LastModified}`
-    );
+  for (const upload of uploads.flat()) {
+    console.debug('delete', upload.key);
+    await storage.deleteWith(upload.key);
+    await db('uploads').delete().where('key', upload.key);
   }
 }
