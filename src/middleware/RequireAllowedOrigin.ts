@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 
 import { ALLOWED_ORIGINS } from '../lib/constants';
+import { addUserFieldsToResponse } from './addUserFieldsToRespone';
 
 const RequireAllowedOrigin = async (
   req: Request,
@@ -18,6 +19,9 @@ const RequireAllowedOrigin = async (
   }
   console.info(`permitted access to ${origin}`);
   res.set('Access-Control-Allow-Origin', origin);
+
+  await addUserFieldsToResponse(req, res);
+
   return next();
 };
 

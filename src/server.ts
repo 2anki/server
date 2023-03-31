@@ -29,7 +29,7 @@ import DB from './lib/storage/db';
 import KnexConfig from './KnexConfig';
 import TokenHandler from './lib/misc/TokenHandler';
 import CrashReporter from './lib/CrashReporter';
-import { ScheduleCleanup } from './lib/storage/jobs/JobHandler';
+import { ScheduleCleanup } from './lib/storage/jobs/ScheduleCleanup';
 import RequireAuthentication from './middleware/RequireAuthentication';
 import { Knex } from 'knex';
 import { sendError } from './lib/error/sendError';
