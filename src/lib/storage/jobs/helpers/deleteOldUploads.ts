@@ -7,6 +7,7 @@ import StorageHandler from '../../StorageHandler';
 import { Upload } from '../../types';
 
 export const MS_21 = TIME_21_MINUTES_AS_SECONDS * 1000;
+const MAX_KEYS = 110_000;
 
 const getFreeUsers = (db: Knex): Promise<Users[]> =>
   db('users').where('patreon', 'false').returning(['owner']);
@@ -27,7 +28,7 @@ export default async function deleteOldUploads(db: Knex) {
     await db('uploads').delete().where('key', upload.key);
   }
 
-  const files = await storage.getContents();
+  const files = await storage.getContents(MAX_KEYS);
   const query = await db.raw(`
     SELECT up.key FROM users u JOIN uploads up ON u.id = up.owner WHERE u.patreon = true;
   `);
