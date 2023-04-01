@@ -8,6 +8,9 @@ export const ScheduleCleanup = (db: Knex) => {
     console.time('running cleanup');
     deleteOldFiles();
     await deleteOldUploads(db);
+    db.raw(
+      "DELETE FROM jobs WHERE created_at < NOW() - INTERVAL '14 days' AND status = 'failed'"
+    );
     console.timeEnd('running cleanup');
   }, MS_21);
 };
