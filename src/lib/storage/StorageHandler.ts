@@ -60,18 +60,30 @@ class StorageHandler {
   getContents(maxKeys: number = 1000): Promise<ObjectList | undefined> {
     const { s3 } = this;
     console.debug('getting max', maxKeys, 'keys');
-    return new Promise((resolve, reject) => {
-      s3.listObjects(
-        { Bucket: StorageHandler.DefaultBucketName(), MaxKeys: maxKeys },
-        (err, data) => {
-          if (err) {
-            sendError(err);
-            return reject(err);
+    return new Promise(async (resolve, reject) => {
+      const files = [];
+      try {
+        let hasMore = true;
+        while (hasMore) {
+          const objects = await s3
+            .listObjects({
+              Bucket: StorageHandler.DefaultBucketName(),
+              MaxKeys: maxKeys,
+            })
+            .promise();
+          if (objects.Contents) {
+            files.push(...objects.Contents);
           }
-          console.debug('recieved', data.Contents?.length, 'keys');
-          resolve(data.Contents);
+          hasMore = Boolean(objects.IsTruncated) && files.length !== maxKeys;
         }
-      );
+      } catch (err) {
+        if (err) {
+          sendError(err);
+          return reject(err);
+        }
+      }
+      console.debug('recieved', files.length, 'keys');
+      resolve(files);
     });
   }
 
