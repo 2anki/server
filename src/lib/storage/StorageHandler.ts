@@ -59,6 +59,7 @@ class StorageHandler {
 
   getContents(maxKeys: number = 1000): Promise<ObjectList | undefined> {
     const { s3 } = this;
+    console.debug('getting max', maxKeys, 'keys');
     return new Promise((resolve, reject) => {
       s3.listObjects(
         { Bucket: StorageHandler.DefaultBucketName(), MaxKeys: maxKeys },
@@ -67,6 +68,7 @@ class StorageHandler {
             sendError(err);
             return reject(err);
           }
+          console.debug('recieved', data.Contents?.length, 'keys');
           resolve(data.Contents);
         }
       );
