@@ -7,7 +7,7 @@ import StorageHandler from '../../StorageHandler';
 import { Upload } from '../../types';
 
 export const MS_21 = TIME_21_MINUTES_AS_SECONDS * 1000;
-const MAX_KEYS = 10_000;
+const MAX_KEYS = 5_000;
 
 const getFreeUsers = (db: Knex): Promise<Users[]> =>
   db('users').where('patreon', 'false').returning(['owner']);
