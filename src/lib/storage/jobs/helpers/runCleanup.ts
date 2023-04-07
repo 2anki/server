@@ -2,6 +2,7 @@ import { Knex } from 'knex';
 
 import deleteOldFiles from './deleteOldFiles';
 import deleteOldUploads from './deleteOldUploads';
+import DB from '../../db';
 
 export const runCleanup = async (db: Knex) => {
   console.time('running cleanup');
@@ -12,3 +13,7 @@ export const runCleanup = async (db: Knex) => {
   );
   console.timeEnd('running cleanup');
 };
+
+if (require.main === module) {
+  runCleanup(DB);
+}
