@@ -74,7 +74,7 @@ class StorageHandler {
           if (objects.Contents) {
             files.push(...objects.Contents);
           }
-          hasMore = Boolean(objects.IsTruncated) && files.length !== maxKeys;
+          hasMore = files.length < maxKeys && Boolean(objects.IsTruncated);
         }
       } catch (err) {
         if (err) {
