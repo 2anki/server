@@ -1,5 +1,4 @@
 import aws from 'aws-sdk';
-import { ObjectList } from 'aws-sdk/clients/s3';
 import { sendError } from '../error/sendError';
 
 class StorageHandler {
@@ -54,36 +53,6 @@ class StorageHandler {
           }
         }
       );
-    });
-  }
-
-  getContents(maxKeys: number = 1000): Promise<ObjectList | undefined> {
-    const { s3 } = this;
-    console.debug('getting max', maxKeys, 'keys');
-    return new Promise(async (resolve, reject) => {
-      const files = [];
-      try {
-        let hasMore = true;
-        while (hasMore) {
-          const objects = await s3
-            .listObjects({
-              Bucket: StorageHandler.DefaultBucketName(),
-              MaxKeys: maxKeys,
-            })
-            .promise();
-          if (objects.Contents) {
-            files.push(...objects.Contents);
-          }
-          hasMore = files.length < maxKeys && Boolean(objects.IsTruncated);
-        }
-      } catch (err) {
-        if (err) {
-          sendError(err);
-          return reject(err);
-        }
-      }
-      console.debug('recieved', files.length, 'keys');
-      resolve(files);
     });
   }
 
