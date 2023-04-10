@@ -31,8 +31,8 @@ export default async function performConversion({
     const job = new ConversionJob(DB);
     await job.load(id, owner, title);
     if (!job.canStart()) {
-      console.log(`job ${id} was not started`);
-      return res ? res.status(500).send('Job is already active') : null;
+      console.log(`job ${id} was not started. Job is already active.`);
+      return res ? res.redirect('/uploads') : null;
     }
     const jobs = await DB('jobs').where({ owner }).returning(['*']);
     if (!res?.locals.patreon && jobs.length > 1) {
