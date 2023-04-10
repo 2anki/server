@@ -7,10 +7,8 @@ export const addUserFieldsToResponse = async (req: Request, res: Response) => {
   }
 
   const user = await TokenHandler.GetUserFrom(req.cookies.token);
-  if (!user) {
-    return res.redirect('/login#login');
+  if (user) {
+    res.locals.owner = user.owner;
+    res.locals.patreon = user.patreon;
   }
-
-  res.locals.owner = user.owner;
-  res.locals.patreon = user.patreon;
 };
