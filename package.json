@@ -81,7 +81,7 @@
     "@types/multer-s3": "^2.7.10",
     "@types/node": "^18.15.11",
     "@types/node-fetch": "^2.6.2",
-    "@types/react": "^18.0.21",
+    "@types/react": "^18.0.34",
     "@types/react-dom": "18.0.11",
     "@typescript-eslint/eslint-plugin": "^5.55.0",
     "@typescript-eslint/parser": "^5.57.0",
