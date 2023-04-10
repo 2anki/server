@@ -12,7 +12,6 @@ import cleanDeckName from './cleanDeckname';
 import { registerUploadSize } from './registerUploadSize';
 import { sendBundle } from './sendBundle';
 import { getPackagesFromZip } from './getPackagesFromZip';
-import { DECK_NAME_SUFFIX } from '../../../lib/anki/format';
 import { UploadedFile } from '../../../lib/storage/types';
 import { sendError } from '../../../lib/error/sendError';
 
@@ -77,18 +76,8 @@ export default async function handleUpload(
         console.info(`failed to set name ${first.name}`);
       }
 
-      // Persisting the deck to spaces
-      try {
-        await storage.uploadFile(
-          storage.uniqify(first.name, DECK_NAME_SUFFIX, 255, DECK_NAME_SUFFIX),
-          first.apkg
-        );
-      } catch (err) {
-        sendError(err);
-      }
-
       res.attachment(`/${first.name}`);
-      res.status(200).send(payload);
+      return res.status(200).send(payload);
     } else if (packages.length > 1) {
       sendBundle(packages, storage, res);
     } else {
