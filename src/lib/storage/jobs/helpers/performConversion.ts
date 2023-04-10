@@ -5,7 +5,6 @@ import NotionAPIWrapper from '../../../notion/NotionAPIWrapper';
 import DB from '../../db';
 import StorageHandler from '../../StorageHandler';
 import { notifyUserIfNecessary } from './notifyUserIfNecessary';
-import { getLimitMessage } from '../../../misc/getLimitMessage';
 
 interface ConversionRequest {
   title: string | null;
@@ -37,7 +36,7 @@ export default async function performConversion({
     const jobs = await DB('jobs').where({ owner }).returning(['*']);
     if (!res?.locals.patreon && jobs.length > 1) {
       await job.cancelled();
-      return res ? res.status(500).send(getLimitMessage()) : null;
+      return res ? res.redirect('/uploads') : null;
     }
 
     console.log(`job ${id} is not active, starting`);
