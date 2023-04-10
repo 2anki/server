@@ -4,6 +4,7 @@ import RequireAuthentication from '../../../middleware/RequireAuthentication';
 import DB from '../../../lib/storage/db';
 import StorageHandler from '../../../lib/storage/StorageHandler';
 import { sendError } from '../../../lib/error/sendError';
+import { AWSError } from 'aws-sdk';
 
 const router = express.Router();
 
@@ -27,6 +28,10 @@ router.get('/u/:key', RequireAuthentication, async (req, res) => {
   } catch (error) {
     console.error(error);
     console.info('unknown error');
+    if ((error as AWSError).name.match(/NoSuchKey/)) {
+      await DB('uploads').where(query).delete();
+      return res.redirect('/uploads');
+    }
     res.status(404).send();
     sendError(error);
   }
