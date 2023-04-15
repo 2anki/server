@@ -9,20 +9,22 @@ const MAX_KEYS = 100_000;
 
 export default async function deleteOldUploads(db: Knex) {
   const storage = new StorageHandler();
-  const nonSubScriberUploads: Uploads[] = await db.raw(`
+  const query = await db.raw(`
     SELECT up.key FROM users u JOIN uploads up ON u.id = up.owner WHERE u.patreon = false;
   `);
+  const nonSubScriberUploads: Uploads[] | undefined = query.rows;
 
-  for (const upload of nonSubScriberUploads.flat()) {
-    console.debug('delete', upload.key);
-    await storage.deleteWith(upload.key);
-    await db('uploads').delete().where('key', upload.key);
+  if (nonSubScriberUploads) {
+    for (const upload of nonSubScriberUploads.flat()) {
+      await storage.deleteWith(upload.key);
+      await db('uploads').delete().where('key', upload.key);
+    }
   }
 
   const storedFiles = await storage.getContents(MAX_KEYS);
   const nonPatreonFiles =
     storedFiles?.filter(
-      (f) => f.Key && nonSubScriberUploads.find((up) => up.key === f.Key)
+      (f) => f.Key && nonSubScriberUploads?.find((up) => up.key === f.Key)
     ) || [];
 
   for (const file of nonPatreonFiles) {
