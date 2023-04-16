@@ -35,7 +35,6 @@ import { Knex } from 'knex';
 import { sendError } from './lib/error/sendError';
 
 import MigratorConfig = Knex.MigratorConfig;
-import { runCleanup } from './lib/storage/jobs/helpers/runCleanup';
 
 async function serve() {
   const templateDir = path.join(__dirname, 'templates');
