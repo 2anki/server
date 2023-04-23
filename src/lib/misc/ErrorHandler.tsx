@@ -6,9 +6,10 @@ const NEW_GITHUB_ISSUE = 'https://github.com/2anki/server/issues/new/choose';
 export const NO_PACKAGE_ERROR = new Error(
   renderToStaticMarkup(
     <div className="info">
-      Could not create a deck using your file and rules. Please review your{' '}
-      <a href="/upload?view=template">settings</a> or report a
-      <a href={NEW_GITHUB_ISSUE}>issue on GitHub with an example</a>
+      Deck creation failed with file/rules. Kindly double-check your{' '}
+      <a href="/upload?view=template">settings</a> or submit an issue on{' '}
+      <a href={NEW_GITHUB_ISSUE}>GitHub</a>, including an example for reference.
+      Could not create a deck using your file and rules.
     </div>
   )
 );
