@@ -14,6 +14,7 @@ import { sendBundle } from './sendBundle';
 import { getPackagesFromZip } from './getPackagesFromZip';
 import { UploadedFile } from '../../../lib/storage/types';
 import { sendError } from '../../../lib/error/sendError';
+import { hasMarkdownFileName } from '../../../lib/storage/checks';
 
 export default async function handleUpload(
   storage: StorageHandler,
@@ -23,8 +24,8 @@ export default async function handleUpload(
   try {
     const files = req.files as UploadedFile[];
     let packages: Package[] = [];
-    let hasMarkdown: Boolean = files.some((file) =>
-      file.originalname.match(/.md$/i)
+    let hasMarkdown: Boolean = hasMarkdownFileName(
+      files.map((file) => file.originalname)
     );
     for (const file of files) {
       const filename = file.originalname;
