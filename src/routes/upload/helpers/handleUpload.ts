@@ -14,7 +14,11 @@ import { sendBundle } from './sendBundle';
 import { getPackagesFromZip } from './getPackagesFromZip';
 import { UploadedFile } from '../../../lib/storage/types';
 import { sendError } from '../../../lib/error/sendError';
-import { hasMarkdownFileName } from '../../../lib/storage/checks';
+import {
+  hasMarkdownFileName,
+  isHTMLFile,
+  isZIPFile,
+} from '../../../lib/storage/checks';
 
 export default async function handleUpload(
   storage: StorageHandler,
@@ -34,7 +38,7 @@ export default async function handleUpload(
       const key = file.key;
       const fileContents = await storage.getFileContents(key);
 
-      if (filename.match(/.html$/)) {
+      if (isHTMLFile(filename)) {
         const d = await PrepareDeck(
           filename,
           [{ name: filename, contents: fileContents.Body }],
@@ -44,7 +48,7 @@ export default async function handleUpload(
           const pkg = new Package(d.name, d.apkg);
           packages = packages.concat(pkg);
         }
-      } else if (filename.match(/.zip$/) || key.match(/.zip$/)) {
+      } else if (isZIPFile(filename) || isZIPFile(key)) {
         const { packages: extraPackages, containsMarkdown } =
           await getPackagesFromZip(
             fileContents.Body,

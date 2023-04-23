@@ -3,6 +3,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import getYouTubeEmbedLink from '../../../parser/helpers/getYouTubeEmbedLink';
 import getYouTubeID from '../../../parser/helpers/getYouTubeID';
 import BlockHandler from '../../BlockHandler/BlockHandler';
+import { isSoundCloudURL, isTwitterURL } from '../../../storage/checks';
 
 export const BlockEmbed = (
   c: EmbedBlockObjectResponse,
@@ -14,9 +15,9 @@ export const BlockEmbed = (
   const { embed } = c;
   let { url } = embed;
   if (url) {
-    if (url.match('soundcloud.com')) {
+    if (isSoundCloudURL(url)) {
       url = `https://w.soundcloud.com/player/?url=${url}`;
-    } else if (url.match('twitter.com')) {
+    } else if (isTwitterURL(url)) {
       return renderToStaticMarkup(
         <div className="source">
           <a href={url}>{url}</a>

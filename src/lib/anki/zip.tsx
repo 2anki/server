@@ -4,6 +4,7 @@ import Package from '../parser/Package';
 import { Body } from 'aws-sdk/clients/s3';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { getUploadLimits } from '../misc/getUploadLimits';
+import { isHTMLFile, isMarkdownFile } from '../storage/checks';
 
 interface File {
   name: string;
@@ -47,7 +48,7 @@ class ZipHandler {
     for (const name of this.fileNames) {
       const file = loadedZip[name];
       let contents = file;
-      if (name.match(/.(md|html)$/) && contents) {
+      if ((isHTMLFile(name) || isMarkdownFile(name)) && contents) {
         this.files.push({ name, contents: strFromU8(file) });
       } else if (contents) {
         this.files.push({ name, contents });

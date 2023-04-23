@@ -3,7 +3,7 @@ import { ZipHandler } from '../../../lib/anki/zip';
 import { PrepareDeck } from '../../../lib/parser/DeckParser';
 import Package from '../../../lib/parser/Package';
 import Settings from '../../../lib/parser/Settings';
-import { hasMarkdownFileName } from '../../../lib/storage/checks';
+import { hasMarkdownFileName, isHTMLFile } from '../../../lib/storage/checks';
 
 export interface PackageResult {
   packages: Package[];
@@ -27,7 +27,7 @@ export const getPackagesFromZip = async (
   const fileNames = zipHandler.getFileNames();
 
   for (const fileName of fileNames) {
-    if (fileName.match(/.html$/)) {
+    if (isHTMLFile(fileName)) {
       const deck = await PrepareDeck(fileName, zipHandler.files, settings);
 
       if (deck) {
