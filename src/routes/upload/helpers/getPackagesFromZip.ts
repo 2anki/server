@@ -3,32 +3,38 @@ import { ZipHandler } from '../../../lib/anki/zip';
 import { PrepareDeck } from '../../../lib/parser/DeckParser';
 import Package from '../../../lib/parser/Package';
 import Settings from '../../../lib/parser/Settings';
+import { hasMarkdownFileName } from '../../../lib/storage/checks';
+
+export interface PackageResult {
+  packages: Package[];
+  containsMarkdown: boolean;
+}
 
 export const getPackagesFromZip = async (
   fileContents: Body | undefined,
   isPatreon: boolean,
   settings: Settings
-) => {
+): Promise<PackageResult> => {
   const zipHandler = new ZipHandler();
-  let hasMarkdown = false;
   const packages = [];
 
   if (!fileContents) {
-    return [];
+    return { packages: [], containsMarkdown: false };
   }
 
   await zipHandler.build(fileContents as Uint8Array, isPatreon);
 
-  for (const fileName of zipHandler.getFileNames()) {
+  const fileNames = zipHandler.getFileNames();
+
+  for (const fileName of fileNames) {
     if (fileName.match(/.html$/)) {
-      const d = await PrepareDeck(fileName, zipHandler.files, settings);
-      if (d) {
-        packages.push(new Package(d.name, d.apkg));
+      const deck = await PrepareDeck(fileName, zipHandler.files, settings);
+
+      if (deck) {
+        packages.push(new Package(deck.name, deck.apkg));
       }
-    } else if (fileName.match(/.md$/)) {
-      hasMarkdown = true;
     }
   }
 
-  return [packages, hasMarkdown];
+  return { packages, containsMarkdown: hasMarkdownFileName(fileNames) };
 };

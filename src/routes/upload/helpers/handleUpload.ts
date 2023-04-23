@@ -23,7 +23,9 @@ export default async function handleUpload(
   try {
     const files = req.files as UploadedFile[];
     let packages: Package[] = [];
-    let hasMarkdown = false;
+    let hasMarkdown: Boolean = files.some((file) =>
+      file.originalname.match(/.md$/i)
+    );
     for (const file of files) {
       const filename = file.originalname;
       const settings = new Settings(req.body || {});
@@ -41,18 +43,15 @@ export default async function handleUpload(
           const pkg = new Package(d.name, d.apkg);
           packages = packages.concat(pkg);
         }
-      } else if (filename.match(/.md$/)) {
-        hasMarkdown = true;
       } else if (filename.match(/.zip$/) || key.match(/.zip$/)) {
-        const [extraPackages, md] = await getPackagesFromZip(
-          fileContents.Body,
-          res.locals.patreon,
-          settings
-        );
+        const { packages: extraPackages, containsMarkdown } =
+          await getPackagesFromZip(
+            fileContents.Body,
+            res.locals.patreon,
+            settings
+          );
         packages = packages.concat(extraPackages as Package[]);
-        if (md) {
-          hasMarkdown = true;
-        }
+        hasMarkdown = containsMarkdown;
       }
     }
     let payload;
