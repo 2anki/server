@@ -122,8 +122,12 @@ async function serve() {
   );
 
   process.on('uncaughtException', sendError);
-  console.info('DB is ready');
-  DB.raw('SELECT 1').then(() => {});
+  DB.raw('SELECT 1')
+    .then(() => console.info('DB is ready'))
+    .catch((err) => {
+      console.error(err);
+      process.exit(1);
+    });
   const cwd = process.cwd();
   if (process.env.MIGRATIONS_DIR) {
     process.chdir(path.join(process.env.MIGRATIONS_DIR, '..'));
