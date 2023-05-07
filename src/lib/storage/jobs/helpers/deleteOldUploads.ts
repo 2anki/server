@@ -7,24 +7,33 @@ import StorageHandler from '../../StorageHandler';
 export const MS_21 = TIME_21_MINUTES_AS_SECONDS * 1000;
 const MAX_KEYS = 100_000;
 
-export default async function deleteOldUploads(db: Knex) {
-  const storage = new StorageHandler();
+const deleteNonSubScriberUploads = async (
+  db: Knex,
+  storage: StorageHandler
+) => {
   const query = await db.raw(`
     SELECT up.key FROM users u JOIN uploads up ON u.id = up.owner WHERE u.patreon = false;
   `);
   const nonSubScriberUploads: Uploads[] | undefined = query.rows;
-
-  if (nonSubScriberUploads) {
-    for (const upload of nonSubScriberUploads.flat()) {
-      await storage.deleteWith(upload.key);
-      await db('uploads').delete().where('key', upload.key);
-    }
+  if (!nonSubScriberUploads) {
+    return;
   }
 
+  for (const upload of nonSubScriberUploads.flat()) {
+    await storage.deleteWith(upload.key);
+    await db('uploads').delete().where('key', upload.key);
+  }
+};
+
+const deleteDanglingUploads = async (db: Knex, storage: StorageHandler) => {
+  const query = await db.raw(`
+    SELECT up.key FROM users u JOIN uploads up ON u.id = up.owner WHERE u.patreon = true;
+    `);
+  const subScriberUploads: Uploads[] | [] = query.rows || [];
   const storedFiles = await storage.getContents(MAX_KEYS);
   const nonPatreonFiles =
     storedFiles?.filter(
-      (f) => f.Key && nonSubScriberUploads?.find((up) => up.key === f.Key)
+      (f) => f.Key && !subScriberUploads.find((up) => up.key === f.Key)
     ) || [];
 
   for (const file of nonPatreonFiles) {
@@ -32,4 +41,10 @@ export default async function deleteOldUploads(db: Knex) {
       storage.deleteWith(file.Key);
     }
   }
+};
+
+export default async function deleteOldUploads(db: Knex) {
+  const storage = new StorageHandler();
+  await deleteNonSubScriberUploads(db, storage);
+  await deleteDanglingUploads(db, storage);
 }
