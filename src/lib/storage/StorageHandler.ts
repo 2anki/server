@@ -42,11 +42,14 @@ class StorageHandler {
 
   deleteWith(key: string): Promise<void> {
     const { s3 } = this;
+    console.debug('deleting', key);
     return new Promise((resolve, reject) => {
       s3.deleteObject(
         { Bucket: StorageHandler.DefaultBucketName(), Key: key },
         (err) => {
           if (err) {
+            console.debug('failed to delete', key);
+            console.error(err);
             sendError(err);
             reject(err);
           } else {
