@@ -2,7 +2,7 @@ import { Knex } from 'knex';
 
 import hashPassword from './hashPassword';
 
-export default async function updatePassword(
+export default function updatePassword(
   DB: Knex,
   password: string,
   reset_token: string

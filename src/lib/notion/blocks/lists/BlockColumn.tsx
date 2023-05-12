@@ -2,7 +2,7 @@ import { ColumnBlockObjectResponse } from '@notionhq/client/build/src/api-endpoi
 import BlockHandler from '../../BlockHandler/BlockHandler';
 import getChildren from '../../helpers/getChildren';
 
-export default async function BlockColumn(
+export default function BlockColumn(
   block: ColumnBlockObjectResponse,
   handler: BlockHandler
 ) {

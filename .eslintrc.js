@@ -14,6 +14,7 @@ module.exports = {
   rules: {
     'react/jsx-filename-extension': 'off',
     'prettier/prettier': ['error'],
+    'require-await': 'error',
   },
   "ignorePatterns": ["src/schemas"],
 };

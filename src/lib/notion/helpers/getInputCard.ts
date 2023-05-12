@@ -9,10 +9,10 @@ import isColumnList from './isColumnList';
 import { getRichTextFromBlock } from './getRichTextFromBlock';
 
 // The user wants to turn under lines into input cards <strong>keyword</strong> becomes {{type::word}}
-export default async function getInputCard(
+export default function getInputCard(
   rules: ParserRules,
   block: GetBlockResponse
-): Promise<Note | undefined> {
+): Note | undefined {
   let isInput = false;
   let name = '';
   let answer = '';

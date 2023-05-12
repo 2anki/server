@@ -3,7 +3,7 @@ import express from 'express';
 import NotionAPIWrapper from '../../../lib/notion/NotionAPIWrapper';
 import performConversion from '../../../lib/storage/jobs/helpers/performConversion';
 
-export default async function convertPage(
+export default function convertPage(
   api: NotionAPIWrapper,
   req: express.Request,
   res: express.Response

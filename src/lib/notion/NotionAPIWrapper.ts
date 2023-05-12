@@ -41,7 +41,7 @@ class NotionAPIWrapper {
     this.owner = owner;
   }
 
-  async getPage(id: string): Promise<GetPageResponse | null> {
+  getPage(id: string): Promise<GetPageResponse | null> {
     return this.notion.pages.retrieve({ page_id: id });
   }
 
@@ -102,19 +102,19 @@ class NotionAPIWrapper {
     return response;
   }
 
-  async getBlock(id: string): Promise<GetBlockResponse> {
+  getBlock(id: string): Promise<GetBlockResponse> {
     return this.notion.blocks.retrieve({
       block_id: id,
     });
   }
 
-  async deleteBlock(id: string): Promise<GetBlockResponse> {
+  deleteBlock(id: string): Promise<GetBlockResponse> {
     return this.notion.blocks.delete({
       block_id: id,
     });
   }
 
-  async createBlock(
+  createBlock(
     parent: string,
     newBlock: BlockObjectRequest
   ): Promise<ListBlockChildrenResponse> {
@@ -124,7 +124,7 @@ class NotionAPIWrapper {
     });
   }
 
-  async getDatabase(id: string): Promise<GetDatabaseResponse> {
+  getDatabase(id: string): Promise<GetDatabaseResponse> {
     return this.notion.databases.retrieve({ database_id: id });
   }
 
@@ -242,7 +242,7 @@ class NotionAPIWrapper {
     return sanitizeTags(globalTags);
   }
 
-  async getBlockTitle(icon: string | null, title: string, settings: Settings) {
+  getBlockTitle(icon: string | null, title: string, settings: Settings) {
     if (!icon) {
       return title;
     }

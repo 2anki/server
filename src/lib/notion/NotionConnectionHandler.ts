@@ -22,7 +22,7 @@ class NotionConnectionHandler {
     );
   }
 
-  async getAccessData(code: string): Promise<{ [key: string]: string }> {
+  getAccessData(code: string): Promise<{ [key: string]: string }> {
     const uri = this.redirectURI;
     const id = this.clientId;
     const secret = this.clientSecret;

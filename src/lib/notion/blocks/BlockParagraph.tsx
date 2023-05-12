@@ -6,10 +6,10 @@ import { styleWithColors } from '../NotionColors';
 
 import renderTextChildren from '../helpers/renderTextChildren';
 
-const BlockParagraph = async (
+const BlockParagraph = (
   block: ParagraphBlockObjectResponse,
   handler: BlockHandler
-): Promise<string | null> => {
+): string | null => {
   const { paragraph } = block;
   const { rich_text: richText } = paragraph;
 

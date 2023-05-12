@@ -10,10 +10,10 @@ import { getRichTextFromBlock } from './getRichTextFromBlock';
 
 // The user wants to turn code blocks into cloze deletions <code>word</code> becomes {{c1::word}}
 // This all should be tested with Jest
-export default async function getClozeDeletionCard(
+export default function getClozeDeletionCard(
   rules: ParserRules,
   block: GetBlockResponse
-): Promise<Note | undefined> {
+): Note | undefined {
   let isCloze = false;
   let name = '';
   let index = 1;

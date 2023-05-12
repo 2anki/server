@@ -416,7 +416,7 @@ export class DeckParser {
     return card;
   }
 
-  async build() {
+  build() {
     const ws = new Workspace(true, 'fs');
     const exporter = this.setupExporter(this.payload, ws.location);
 

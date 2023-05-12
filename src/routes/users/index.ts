@@ -78,7 +78,7 @@ router.post('/forgot-password', async (req, res, next) => {
   }
 });
 
-router.post('/logout', RequireAuthentication, async (req, res, next) => {
+router.post('/logout', RequireAuthentication, (req, res, next) => {
   const { token } = req.cookies;
   res.clearCookie('token');
   DB('access_tokens')

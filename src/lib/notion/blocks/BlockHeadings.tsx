@@ -44,7 +44,7 @@ const Heading = (props: HeadingProps) => {
   }
 };
 
-export const BlockHeading = async (
+export const BlockHeading = (
   level: 'heading_1' | 'heading_2' | 'heading_3',
   block: GetBlockResponse,
   handler: BlockHandler

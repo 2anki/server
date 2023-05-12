@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import remove from '../../lib/favorite/remove';
 import ensureResponse from '../notion/helpers/ensureResponse';
 
-export default async function deleteFavorite(req: Request, res: Response) {
+export default function deleteFavorite(req: Request, res: Response) {
   ensureResponse(async () => {
     const { id } = req.body;
     if (!id) {

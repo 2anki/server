@@ -12,7 +12,7 @@ export default async function getFavorites(req: Request, res: Response) {
 
   try {
     const notionBlocks = await Promise.all(
-      favorites.map(async (f: Favorites) =>
+      favorites.map((f: Favorites) =>
         f.type === 'page'
           ? api.getPage(f.object_id)
           : api.getDatabase(f.object_id)

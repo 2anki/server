@@ -73,7 +73,7 @@ class TokenHandler {
     return unHashToken(row.token);
   }
 
-  static async GetPatreonToken(owner: number) {
+  static GetPatreonToken(owner: number) {
     if (!owner) {
       return null;
     }
@@ -92,11 +92,12 @@ class TokenHandler {
     return user && user.reset_token;
   }
 
-  static async IsValidJWTToken(token: string): Promise<boolean> {
-    if (!token) {
-      return false;
-    }
+  static IsValidJWTToken(token: string): Promise<boolean> {
     return new Promise((resolve, reject) => {
+      if (!token) {
+        resolve(false);
+        return;
+      }
       jwt.verify(token, process.env.SECRET!, (error) => {
         if (error) {
           reject(error);
@@ -129,7 +130,7 @@ class TokenHandler {
     return { ...user, owner: user.id };
   }
 
-  static async NewJWTToken(userId: number): Promise<string> {
+  static NewJWTToken(userId: number): Promise<string> {
     return new Promise((resolve, reject) => {
       jwt.sign(
         { userId },

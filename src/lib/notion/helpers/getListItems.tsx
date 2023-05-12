@@ -13,7 +13,7 @@ import { getRichTextFromBlock } from './getRichTextFromBlock';
 
 type ListType = 'numbered_list_item' | 'bulleted_list_item' | 'to_do';
 
-export default async function getListItems(
+export default function getListItems(
   response: ListBlockChildrenResponse | undefined,
   handler: BlockHandler,
   type: ListType

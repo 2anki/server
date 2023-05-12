@@ -34,30 +34,17 @@ class StorageHandler {
     return process.env.SPACES_DEFAULT_BUCKET_NAME!;
   }
 
-  delete(file: aws.S3.Object) {
-    if (file.Key) {
-      return this.deleteWith(file.Key);
-    }
-  }
-
-  deleteWith(key: string): Promise<void> {
+  async delete(key: string): Promise<boolean> {
     const { s3 } = this;
-    console.debug('deleting', key);
-    return new Promise((resolve, reject) => {
-      s3.deleteObject(
-        { Bucket: StorageHandler.DefaultBucketName(), Key: key },
-        (err) => {
-          if (err) {
-            console.debug('failed to delete', key);
-            console.error(err);
-            sendError(err);
-            reject(err);
-          } else {
-            resolve();
-          }
-        }
-      );
-    });
+    try {
+      await s3
+        .deleteObject({ Bucket: StorageHandler.DefaultBucketName(), Key: key })
+        .promise();
+      return true;
+    } catch (err) {
+      sendError(err);
+      return false;
+    }
   }
 
   getContents(maxKeys: number = 1000): Promise<ObjectList | undefined> {

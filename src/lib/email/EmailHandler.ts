@@ -37,7 +37,7 @@ class EmailHandler {
     return sgMail.send(msg);
   }
 
-  static async SendConversionEmail(
+  static SendConversionEmail(
     email: string,
     filename: string,
     contents: Buffer
@@ -68,7 +68,7 @@ class EmailHandler {
     return sgMail.send(msg);
   }
 
-  static async SendConversionLinkEmail(
+  static SendConversionLinkEmail(
     email: string,
     filename: string,
     link: string

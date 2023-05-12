@@ -16,7 +16,7 @@ const router = express.Router();
 
 const storage = new StorageHandler();
 
-router.post('/file', RequireAllowedOrigin, async (req, res) => {
+router.post('/file', RequireAllowedOrigin, (req, res) => {
   const handleUploadEndpoint = upload(res, storage);
 
   handleUploadEndpoint(req, res, (error) => {

@@ -36,7 +36,7 @@ import { sendError } from './lib/error/sendError';
 
 import MigratorConfig = Knex.MigratorConfig;
 
-async function serve() {
+const serve = () => {
   const templateDir = path.join(__dirname, 'templates');
   const app = express();
 
@@ -55,9 +55,9 @@ async function serve() {
   app.use('/checks', checks);
   app.use('/version', version);
 
-  app.get('/search*', RequireAuthentication, async (_req, res) => {
-    res.sendFile(INDEX_FILE);
-  });
+  app.get('/search*', RequireAuthentication, (_req, res) =>
+    res.sendFile(INDEX_FILE)
+  );
 
   app.get('/login', async (req, res) => {
     const user = await TokenHandler.GetUserFrom(req.cookies.token);
@@ -145,16 +145,16 @@ async function serve() {
 
     process.on('SIGTERM', () => {
       console.debug('SIGTERM signal received: closing HTTP server');
-      server.close(async () => {
+      server.close(() => {
         console.debug('HTTP server closed');
       });
     });
-    process.on('SIGINT', async () => {
-      server.close(async () => {
+    process.on('SIGINT', () => {
+      server.close(() => {
         console.debug('HTTP server closed');
       });
     });
   });
-}
+};
 
 serve();

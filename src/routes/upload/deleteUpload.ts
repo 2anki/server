@@ -16,7 +16,7 @@ export default async function deleteUpload(req: Request, res: Response) {
     await DB('uploads').del().where({ owner, key });
     await purgeBlockCache(owner);
     const s = new StorageHandler();
-    await s.deleteWith(key);
+    await s.delete(key);
     console.log('done deleting', key);
   } catch (error) {
     sendError(error);

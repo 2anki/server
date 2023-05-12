@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 import create from '../../lib/favorite/create';
 import ensureResponse from '../notion/helpers/ensureResponse';
 
-export default async function addFavorite(req: Request, res: Response) {
+export default function addFavorite(req: Request, res: Response) {
   ensureResponse(async () => {
     const { id, type } = req.body;
     if (!id || !type) {
