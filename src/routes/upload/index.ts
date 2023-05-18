@@ -2,40 +2,30 @@ import express from 'express';
 
 import RequireAllowedOrigin from '../../middleware/RequireAllowedOrigin';
 import RequireAuthentication from '../../middleware/RequireAuthentication';
-import StorageHandler from '../../lib/storage/StorageHandler';
-import handleUpload from './helpers/handleUpload';
-import getAllJobs from './getAllJobs';
-import deleteUpload from './deleteUpload';
-import getUploads from './getUploads';
-import deleteJob from './deleteJob';
-import upload from './upload';
-import { sendError } from '../../lib/error/sendError';
-import { getLimitMessage } from '../../lib/misc/getLimitMessage';
+import UploadController from '../../controllers/UploadController';
 
-const router = express.Router();
+const useRouter = () => {
+  const router = express.Router();
 
-const storage = new StorageHandler();
+  router.post('/api/upload/file', RequireAllowedOrigin, UploadController.file);
 
-router.post('/file', RequireAllowedOrigin, (req, res) => {
-  const handleUploadEndpoint = upload(res, storage);
+  router.get(
+    '/api/upload/mine',
+    RequireAuthentication,
+    UploadController.getUploads
+  );
+  router.delete(
+    '/api/upload/jobs/:id',
+    RequireAuthentication,
+    UploadController.deleteJob
+  );
+  router.delete(
+    '/api/upload/mine/:key',
+    RequireAuthentication,
+    UploadController.deleteUpload
+  );
 
-  handleUploadEndpoint(req, res, (error) => {
-    if (error) {
-      let msg = error.message;
-      if (msg === 'File too large') {
-        msg = getLimitMessage();
-      } else {
-        sendError(error);
-      }
-      return res.status(500).send(msg);
-    }
-    handleUpload(storage, req, res);
-  });
-});
+  return router;
+};
 
-router.get('/mine', RequireAuthentication, getUploads);
-router.get('/jobs', RequireAuthentication, getAllJobs);
-router.delete('/jobs/:id', RequireAuthentication, deleteJob);
-router.delete('/mine/:key', RequireAuthentication, deleteUpload);
-
-export default router;
+export default useRouter;

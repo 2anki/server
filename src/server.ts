@@ -69,7 +69,7 @@ const serve = () => {
   });
   app.get('/api/uploads*', RequireAuthentication, upload);
 
-  app.use('/api/upload', upload);
+  app.use(upload);
   app.use('/api/users', users);
   app.use('/api/notion', notion);
   app.use('/api/rules', rules);
