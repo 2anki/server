@@ -14,16 +14,16 @@ import { ALLOWED_ORIGINS, BUILD_DIR, INDEX_FILE } from './lib/constants';
 import ErrorHandler from './lib/misc/ErrorHandler';
 
 // Server Endpoints
-import _settings from './routes/settings';
-import checks from './routes/checks';
-import version from './routes/version';
-import upload from './routes/upload';
-import users from './routes/users';
-import notion from './routes/notion';
-import rules from './routes/rules';
-import download from './routes/download/u';
-import favorite from './routes/favorite';
-import templates from './routes/templates';
+import settingsRouter from './routes/settings';
+import checksRouter from './routes/ChecksRouter';
+import versionRouter from './routes/VersionRouter';
+import uploadRouter from './routes/UploadRouter';
+import usersRouter from './routes/users';
+import notionRouter from './routes/notion';
+import rulesRouter from './routes/rules';
+import downloadRouter from './routes/DownloadRouter';
+import favoriteRouter from './routes/FavoriteRouter';
+import templatesRouter from './routes/templates';
 
 import DB from './lib/storage/db';
 import KnexConfig from './KnexConfig';
@@ -52,8 +52,8 @@ const serve = () => {
 
   app.use('/templates', express.static(templateDir));
   app.use(express.static(BUILD_DIR));
-  app.use('/checks', checks);
-  app.use('/version', version);
+  app.use(checksRouter);
+  app.use(versionRouter);
 
   app.get('/search*', RequireAuthentication, (_req, res) =>
     res.sendFile(INDEX_FILE)
@@ -67,16 +67,16 @@ const serve = () => {
       res.redirect('/search');
     }
   });
-  app.get('/api/uploads*', RequireAuthentication, upload);
+  app.get('/api/uploads*', RequireAuthentication, uploadRouter);
 
-  app.use(upload);
-  app.use('/api/users', users);
-  app.use('/api/notion', notion);
-  app.use('/api/rules', rules);
-  app.use('/api/settings', _settings);
-  app.use('/api/download', download);
-  app.use('/api/favorite', favorite);
-  app.use('/api/templates', templates);
+  app.use(uploadRouter);
+  app.use(usersRouter);
+  app.use('/api/notion', notionRouter);
+  app.use('/api/rules', rulesRouter);
+  app.use('/api/settings', settingsRouter);
+  app.use(downloadRouter);
+  app.use(favoriteRouter);
+  app.use('/api/templates', templatesRouter);
   app.get('/patr*on', (req, res) =>
     res.redirect('https://www.patreon.com/alemayhu')
   );

@@ -1,9 +1,9 @@
 import { Body } from 'aws-sdk/clients/s3';
-import { ZipHandler } from '../../../lib/anki/zip';
-import { PrepareDeck } from '../../../lib/parser/DeckParser';
-import Package from '../../../lib/parser/Package';
-import Settings from '../../../lib/parser/Settings';
-import { hasMarkdownFileName, isHTMLFile } from '../../../lib/storage/checks';
+import { ZipHandler } from './anki/zip';
+import { PrepareDeck } from './parser/DeckParser';
+import Package from './parser/Package';
+import { isHTMLFile, hasMarkdownFileName } from './storage/checks';
+import Settings from './parser/Settings';
 
 export interface PackageResult {
   packages: Package[];

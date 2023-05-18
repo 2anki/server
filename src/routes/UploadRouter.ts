@@ -1,11 +1,11 @@
 import express from 'express';
 
-import RequireAllowedOrigin from '../../middleware/RequireAllowedOrigin';
-import RequireAuthentication from '../../middleware/RequireAuthentication';
-import UploadController from '../../controllers/UploadController';
-import JobController from '../../controllers/JobController';
+import RequireAllowedOrigin from '../middleware/RequireAllowedOrigin';
+import RequireAuthentication from '../middleware/RequireAuthentication';
+import UploadController from '../controllers/UploadController';
+import JobController from '../controllers/JobController';
 
-const useRouter = () => {
+const UploadRouter = () => {
   const router = express.Router();
 
   router.post('/api/upload/file', RequireAllowedOrigin, UploadController.file);
@@ -29,4 +29,4 @@ const useRouter = () => {
   return router;
 };
 
-export default useRouter;
+export default UploadRouter;

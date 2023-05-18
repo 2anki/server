@@ -1,20 +1,20 @@
-import express from 'express';
+import { Request, Response } from 'express';
 
-import RequireAuthentication from '../../../middleware/RequireAuthentication';
-import DB from '../../../lib/storage/db';
-import StorageHandler from '../../../lib/storage/StorageHandler';
-import { sendError } from '../../../lib/error/sendError';
+import DB from '../lib/storage/db';
+import StorageHandler from '../lib/storage/StorageHandler';
 import { AWSError } from 'aws-sdk';
+import { sendError } from '../lib/error/sendError';
 
-const router = express.Router();
-
-const storage = new StorageHandler();
-router.get('/u/:key', RequireAuthentication, async (req, res) => {
+const getFile = async (req: Request, res: Response) => {
+  const storage = new StorageHandler();
   const { key } = req.params;
-  console.debug(`download ${key}`);
+
   if (!key) {
+    console.info('no key');
     return res.status(400).send();
   }
+
+  console.debug(`download ${key}`);
   const { owner } = res.locals;
   const query = { key, owner };
   try {
@@ -35,6 +35,8 @@ router.get('/u/:key', RequireAuthentication, async (req, res) => {
     res.status(404).send();
     sendError(error);
   }
-});
+};
 
-export default router;
+const DownloadController = { getFile };
+
+export default DownloadController;
