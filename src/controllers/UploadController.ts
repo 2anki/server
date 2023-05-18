@@ -64,6 +64,7 @@ const getUploads = async (_req: express.Request, res: express.Response) => {
 };
 
 const file = (req: express.Request, res: express.Response) => {
+  console.time(req.path);
   const storage = new StorageHandler();
   const handleUploadEndpoint = upload(res, storage);
 
@@ -75,9 +76,12 @@ const file = (req: express.Request, res: express.Response) => {
       } else {
         sendError(error);
       }
+      console.timeEnd(req.path);
       return res.status(500).send(msg);
     }
-    handleUpload(storage, req, res);
+    handleUpload(storage, req, res).then(() => {
+      console.timeEnd(req.path);
+    });
   });
 };
 
