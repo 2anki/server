@@ -14,16 +14,16 @@ import { ALLOWED_ORIGINS, BUILD_DIR, INDEX_FILE } from './lib/constants';
 import ErrorHandler from './lib/misc/ErrorHandler';
 
 // Server Endpoints
-import settingsRouter from './routes/settings';
+import settingsRouter from './routes/SettingsRouter';
 import checksRouter from './routes/ChecksRouter';
 import versionRouter from './routes/VersionRouter';
 import uploadRouter from './routes/UploadRouter';
-import usersRouter from './routes/users';
+import usersRouter from './routes/UserRouter';
 import notionRouter from './routes/notion';
 import rulesRouter from './routes/rules';
 import downloadRouter from './routes/DownloadRouter';
 import favoriteRouter from './routes/FavoriteRouter';
-import templatesRouter from './routes/templates';
+import templatesRouter from './routes/TemplatesRouter';
 
 import DB from './lib/storage/db';
 import KnexConfig from './KnexConfig';
@@ -73,10 +73,10 @@ const serve = () => {
   app.use(usersRouter);
   app.use('/api/notion', notionRouter);
   app.use('/api/rules', rulesRouter);
-  app.use('/api/settings', settingsRouter);
+  app.use(settingsRouter);
   app.use(downloadRouter);
   app.use(favoriteRouter);
-  app.use('/api/templates', templatesRouter);
+  app.use(templatesRouter);
   app.get('/patr*on', (req, res) =>
     res.redirect('https://www.patreon.com/alemayhu')
   );

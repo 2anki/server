@@ -1,10 +1,10 @@
 import express from 'express';
 
-import DB from '../../lib/storage/db';
+import DB from '../lib/storage/db';
 
-import RequireAuthentication from '../../middleware/RequireAuthentication';
-import UsersController from '../../controllers/UsersControllers';
-import UsersRepository from '../../data_layer/UsersRepository';
+import RequireAuthentication from '../middleware/RequireAuthentication';
+import UsersController from '../controllers/UsersControllers';
+import UsersRepository from '../data_layer/UsersRepository';
 
 const UserRouter = () => {
   const router = express.Router();
