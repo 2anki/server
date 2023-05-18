@@ -3,7 +3,6 @@ import DB from '../lib/storage/db';
 import { purgeBlockCache } from '../routes/upload/purgeBlockCache';
 import StorageHandler from '../lib/storage/StorageHandler';
 import { sendError } from '../lib/error/sendError';
-import { getAllMyJobs } from '../lib/storage/jobs/helpers/getAllStartedJobs.js';
 import upload from '../routes/upload/upload';
 import { getLimitMessage } from '../lib/misc/getLimitMessage';
 import handleUpload from '../routes/upload/helpers/handleUpload';
@@ -26,27 +25,6 @@ const deleteUpload = async (req: express.Request, res: express.Response) => {
     return res.status(500).send();
   }
   return res.status(200).send();
-};
-
-const deleteJob = async (req: express.Request, res: express.Response) => {
-  console.log('delete job', req.params.id);
-  try {
-    const id = req.params.id;
-    await DB('jobs').delete().where({
-      id: id,
-      owner: res.locals.owner,
-    });
-    res.status(200).send();
-  } catch (err) {
-    res.status(500).send();
-    sendError(err);
-  }
-};
-
-const getAllJobs = async (_req: express.Request, res: express.Response) => {
-  console.debug('getting active jobs');
-  const jobs = await getAllMyJobs(DB, res.locals.owner);
-  res.send(jobs);
 };
 
 const getUploads = async (_req: express.Request, res: express.Response) => {
@@ -87,8 +65,6 @@ const file = (req: express.Request, res: express.Response) => {
 
 const UploadController = {
   deleteUpload,
-  deleteJob,
-  getAllJobs,
   getUploads,
   file,
 };

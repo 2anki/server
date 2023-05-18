@@ -1,5 +1,5 @@
 import { Knex } from 'knex';
-import { getAllMyJobs } from './getAllStartedJobs.js';
+import { getAllMyJobs } from './getAllStartedJobs';
 
 export const markStartedJobsStale = async (db: Knex, owner: string) => {
   const allStartedJobs = await getAllMyJobs(db, owner);

@@ -1,6 +1,6 @@
 import { Response } from 'express';
 
-import sendError from './sendError';
+import sendErrorResponse from './sendErrorResponse';
 
 export default async function ensureResponse(
   call: () => Promise<any>,
@@ -10,6 +10,6 @@ export default async function ensureResponse(
     await call();
   } catch (error) {
     console.error(error);
-    sendError(error, res);
+    sendErrorResponse(error, res);
   }
 }

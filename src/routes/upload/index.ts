@@ -3,6 +3,7 @@ import express from 'express';
 import RequireAllowedOrigin from '../../middleware/RequireAllowedOrigin';
 import RequireAuthentication from '../../middleware/RequireAuthentication';
 import UploadController from '../../controllers/UploadController';
+import JobController from '../../controllers/JobController';
 
 const useRouter = () => {
   const router = express.Router();
@@ -17,7 +18,7 @@ const useRouter = () => {
   router.delete(
     '/api/upload/jobs/:id',
     RequireAuthentication,
-    UploadController.deleteJob
+    JobController.deleteJob
   );
   router.delete(
     '/api/upload/mine/:key',

@@ -2,7 +2,7 @@ import { Response } from 'express';
 
 import { APIResponseError } from '@notionhq/client/build/src';
 
-export default function sendError(
+export default function sendErrorResponse(
   error: Error | APIResponseError | unknown,
   response: Response
 ) {
