@@ -41,6 +41,7 @@ class NotionAPIWrapper {
     this.owner = owner;
   }
 
+  // TODO: implement page level caching
   getPage(id: string): Promise<GetPageResponse | null> {
     return this.notion.pages.retrieve({ page_id: id });
   }

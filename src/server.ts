@@ -19,8 +19,8 @@ import checksRouter from './routes/ChecksRouter';
 import versionRouter from './routes/VersionRouter';
 import uploadRouter from './routes/UploadRouter';
 import usersRouter from './routes/UserRouter';
-import notionRouter from './routes/notion';
-import rulesRouter from './routes/rules';
+import notionRouter from './routes/notion/NotionRouter';
+import rulesRouter from './routes/RulesRouter';
 import downloadRouter from './routes/DownloadRouter';
 import favoriteRouter from './routes/FavoriteRouter';
 import templatesRouter from './routes/TemplatesRouter';
@@ -71,8 +71,8 @@ const serve = () => {
 
   app.use(uploadRouter);
   app.use(usersRouter);
-  app.use('/api/notion', notionRouter);
-  app.use('/api/rules', rulesRouter);
+  app.use(notionRouter);
+  app.use(rulesRouter);
   app.use(settingsRouter);
   app.use(downloadRouter);
   app.use(favoriteRouter);

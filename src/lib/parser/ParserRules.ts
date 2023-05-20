@@ -59,25 +59,6 @@ class ParserRules {
     }
   }
 
-  static async Save(
-    id: string,
-    owner: string,
-    input: { [key: string]: string }
-  ) {
-    await DB('parser_rules')
-      .insert({
-        owner,
-        object_id: id,
-        flashcard_is: input.FLASHCARD,
-        deck_is: input.DECK,
-        sub_deck_is: input.SUB_DECKS,
-        tags_is: input.TAGS,
-        email_notification: input.EMAIL_NOTIFICATION,
-      })
-      .onConflict('object_id')
-      .merge();
-  }
-
   useColums() {
     return this.FLASHCARD.includes('column_list');
   }
