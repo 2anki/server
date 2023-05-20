@@ -1,10 +1,10 @@
 import express from 'express';
-import DB from '../../lib/storage/db';
+import DB from '../lib/storage/db';
 
-import RequireAuthentication from '../../middleware/RequireAuthentication';
-import RequirePatron from '../../middleware/RequirePatron';
-import NotionController from '../../controllers/NotionController';
-import NotionRepository from '../../data_layer/NotionRespository';
+import RequireAuthentication from '../middleware/RequireAuthentication';
+import RequirePatron from '../middleware/RequirePatron';
+import NotionController from '../controllers/NotionController';
+import NotionRepository from '../data_layer/NotionRespository';
 
 const NotionRouter = () => {
   const router = express.Router();

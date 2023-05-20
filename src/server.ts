@@ -19,7 +19,7 @@ import checksRouter from './routes/ChecksRouter';
 import versionRouter from './routes/VersionRouter';
 import uploadRouter from './routes/UploadRouter';
 import usersRouter from './routes/UserRouter';
-import notionRouter from './routes/notion/NotionRouter';
+import notionRouter from './routes/NotionRouter';
 import rulesRouter from './routes/RulesRouter';
 import downloadRouter from './routes/DownloadRouter';
 import favoriteRouter from './routes/FavoriteRouter';

@@ -7,13 +7,14 @@ import { sendError } from '../lib/error/sendError';
 import { getNotionAPI } from '../lib/notion/helpers/getNotionAPI';
 import NotionAPIWrapper from '../lib/notion/NotionAPIWrapper';
 import performConversion from '../lib/storage/jobs/helpers/performConversion';
-import getBlocks from '../routes/notion/getBlocks';
-import getBlock from '../routes/notion/getBlock';
-import createBlock from '../routes/notion/createBlock';
-import renderBlock from '../routes/notion/renderBlock';
-import { isValidID } from '../routes/notion/isValidID';
-import getDatabase from '../routes/notion/getDatabase';
-import { queryDatabase } from '../routes/notion/queryDatabase';
+import { isValidID } from '../lib/notion/isValidID';
+import { getNotionId } from '../lib/notion/getNotionId';
+import Settings from '../lib/parser/Settings';
+import BlockHandler from '../lib/notion/BlockHandler/BlockHandler';
+import CustomExporter from '../lib/parser/CustomExporter';
+import { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';
+import Workspace from '../lib/parser/WorkSpace';
+import { blockToStaticMarkup } from '../lib/notion/helpers/blockToStaticMarkup';
 
 class NotionController {
   constructor(private readonly repository: NotionRepository) {}
@@ -95,17 +96,38 @@ class NotionController {
 
   async getBlocks(req: Request, res: Response) {
     const api = await getNotionAPI(req, res);
-    return getBlocks(api, req, res);
+    console.info('[NO_CACHE] - getBlocks');
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).send();
+    }
+    const blocks = await api.getBlocks({
+      all: res.locals.patreon,
+      createdAt: '',
+      lastEditedAt: '',
+      id,
+    });
+    res.json(blocks);
   }
 
   async getBlock(req: Request, res: Response) {
     const api = await getNotionAPI(req, res);
-    return getBlock(api, req, res);
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).send();
+    }
+    const block = await api.getBlock(id);
+    res.json(block);
   }
 
   async createBlock(req: Request, res: Response) {
     const api = await getNotionAPI(req, res);
-    return createBlock(api, req, res);
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).send();
+    }
+    const block = await api.createBlock(id, req.body.newBlock);
+    res.json(block);
   }
 
   async deleteBlock(req: Request, res: Response) {
@@ -123,8 +145,23 @@ class NotionController {
     if (!isValidID(id)) {
       return res.status(400).send();
     }
+    const query = id.replace(/\-/g, '');
     const api = await getNotionAPI(req, res);
-    await renderBlock(api, id.replace(/\-/g, ''), res);
+    const blockId = getNotionId(query) ?? query;
+    const block = await api.getBlock(blockId);
+    const settings = new Settings(Settings.LoadDefaultOptions());
+    settings.learnMode = true; // option to handle breaking changes
+    let handler = new BlockHandler(
+      new CustomExporter('x', new Workspace(true, 'fs').location),
+      api,
+      settings
+    );
+    await handler.getBackSide(block as BlockObjectResponse, false);
+    const frontSide = await blockToStaticMarkup(
+      handler,
+      block as BlockObjectResponse
+    );
+    return res.json({ html: frontSide });
   }
 
   async getDatabase(req: Request, res: Response) {
@@ -133,12 +170,29 @@ class NotionController {
       return res.status(400).send();
     }
     const api = await getNotionAPI(req, res);
-    return getDatabase(api, req, res);
+    try {
+      // todo: review
+      let cleanId = id.replace(/-/g, '');
+      if (cleanId.includes('/')) {
+        cleanId = getNotionId(req.params.id) ?? cleanId;
+      }
+      const database = await api.getDatabase(id);
+      console.log('database', database);
+      res.json(database);
+    } catch (error) {
+      sendError(error);
+      res.status(500).send();
+    }
   }
 
   async queryDatabase(req: Request, res: Response) {
     const api = await getNotionAPI(req, res);
-    return queryDatabase(api, req, res);
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).send();
+    }
+    const results = await api.queryDatabase(id);
+    res.json(results);
   }
 }
 

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 
-import ensureResponse from '../routes/notion/helpers/ensureResponse';
+import ensureResponse from '../lib/ensureResponse';
 import { getNotionAPI } from '../lib/notion/helpers/getNotionAPI';
 import { APIResponseError } from '@notionhq/client';
 import DB from '../lib/storage/db';
