@@ -22,7 +22,7 @@ export const getPackagesFromZip = async (
     return { packages: [], containsMarkdown: false };
   }
 
-  await zipHandler.build(fileContents as Uint8Array, isPatreon);
+  zipHandler.build(fileContents as Uint8Array, isPatreon);
 
   const fileNames = zipHandler.getFileNames();
 

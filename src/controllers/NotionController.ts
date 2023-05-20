@@ -90,7 +90,7 @@ class NotionController {
       return res.status(400).send();
     }
     const api = await getNotionAPI(req, res);
-    const page = await api.getPage(id.replace(/\-/g, ''));
+    const page = await api.getPage(id.replace(/-/g, ''));
     return res.json(page);
   }
 
@@ -145,7 +145,7 @@ class NotionController {
     if (!isValidID(id)) {
       return res.status(400).send();
     }
-    const query = id.replace(/\-/g, '');
+    const query = id.replace(/-/g, '');
     const api = await getNotionAPI(req, res);
     const blockId = getNotionId(query) ?? query;
     const block = await api.getBlock(blockId);

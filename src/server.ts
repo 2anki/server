@@ -1,15 +1,17 @@
 import { existsSync } from 'fs';
 import path from 'path';
+
+import express, { RequestHandler } from 'express';
+import cookieParser from 'cookie-parser';
 import * as dotenv from 'dotenv';
+import morgan from 'morgan';
+import { Knex } from 'knex';
 
 const localEnvFile = path.join(__dirname, '../.env');
 if (existsSync(localEnvFile)) {
   dotenv.config({ path: localEnvFile });
 }
 
-import morgan from 'morgan';
-import express, { RequestHandler } from 'express';
-import cookieParser from 'cookie-parser';
 import { ALLOWED_ORIGINS, BUILD_DIR, INDEX_FILE } from './lib/constants';
 import ErrorHandler from './lib/misc/ErrorHandler';
 
@@ -27,14 +29,13 @@ import templatesRouter from './routes/TemplatesRouter';
 
 import DB from './lib/storage/db';
 import KnexConfig from './KnexConfig';
-import TokenHandler from './lib/misc/TokenHandler';
 import CrashReporter from './lib/CrashReporter';
 import { ScheduleCleanup } from './lib/storage/jobs/ScheduleCleanup';
 import RequireAuthentication from './middleware/RequireAuthentication';
-import { Knex } from 'knex';
 import { sendError } from './lib/error/sendError';
 
 import MigratorConfig = Knex.MigratorConfig;
+import { isStaging } from './lib/isStaging';
 
 const serve = () => {
   const templateDir = path.join(__dirname, 'templates');
@@ -46,7 +47,7 @@ const serve = () => {
     CrashReporter.Configure(app);
   }
 
-  if (process.env.SPACES_DEFAULT_BUCKET_NAME !== 'dev.2anki.net') {
+  if (isStaging()) {
     app.use(morgan('combined') as RequestHandler);
   }
 
@@ -59,14 +60,6 @@ const serve = () => {
     res.sendFile(INDEX_FILE)
   );
 
-  app.get('/login', async (req, res) => {
-    const user = await TokenHandler.GetUserFrom(req.cookies.token);
-    if (!user) {
-      res.sendFile(INDEX_FILE);
-    } else {
-      res.redirect('/search');
-    }
-  });
   app.get('/api/uploads*', RequireAuthentication, uploadRouter);
 
   app.use(uploadRouter);
@@ -77,9 +70,6 @@ const serve = () => {
   app.use(downloadRouter);
   app.use(favoriteRouter);
   app.use(templatesRouter);
-  app.get('/patr*on', (req, res) =>
-    res.redirect('https://www.patreon.com/alemayhu')
-  );
 
   // Note: this has to be the last handler
   app.get('*', (_req, res) => {

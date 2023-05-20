@@ -229,6 +229,19 @@ class UsersController {
     res.status(200).json({});
   }
 
+  async checkUser(req: express.Request, res: express.Response) {
+    const user = await TokenHandler.GetUserFrom(req.cookies.token);
+    if (!user) {
+      res.sendFile(INDEX_FILE);
+    } else {
+      res.redirect('/search');
+    }
+  }
+
+  patreon(req: express.Request, res: express.Response) {
+    return res.redirect('https://www.patreon.com/alemayhu');
+  }
+
   public isValidUser(password: string, name: string, email: string) {
     if (!password || !name || !email) {
       return false;

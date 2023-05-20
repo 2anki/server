@@ -29,6 +29,8 @@ const UserRouter = () => {
     RequireAuthentication,
     controller.getLocals
   );
+  router.get('/login', controller.checkUser);
+  router.get('/patr*on', controller.patreon);
 
   return router;
 };

@@ -136,7 +136,7 @@ export default class ConversionJob {
     await this.setStatus('step2_creating_flashcards');
     const decks = await bl.findFlashcards({
       parentType: req?.query.type?.toString() || 'page',
-      topLevelId: id.replace(/\-/g, ''),
+      topLevelId: id.replace(/-/g, ''),
       rules,
       decks: [],
       parentName: settings.deckName || '',

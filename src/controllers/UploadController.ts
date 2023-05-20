@@ -140,7 +140,7 @@ const handleUpload = async (
   try {
     const files = req.files as UploadedFile[];
     let packages: Package[] = [];
-    let hasMarkdown: Boolean = hasMarkdownFileName(
+    let hasMarkdown: boolean = hasMarkdownFileName(
       files.map((file) => file.originalname)
     );
     for (const file of files) {
@@ -167,7 +167,7 @@ const handleUpload = async (
             res.locals.patreon,
             settings
           );
-        packages = packages.concat(extraPackages as Package[]);
+        packages = packages.concat(extraPackages);
         hasMarkdown = containsMarkdown;
       }
     }

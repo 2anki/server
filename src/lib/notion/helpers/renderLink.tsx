@@ -9,7 +9,7 @@ export default async function renderLink(
 ) {
   const r = await renderIcon(icon);
   return ReactDOMServer.renderToStaticMarkup(
-    <a id={block.id} href={`https://notion.so/${block.id.replace(/\-/g, '')}`}>
+    <a id={block.id} href={`https://notion.so/${block.id.replace(/-/g, '')}`}>
       {r}
       {title}
     </a>
