@@ -8,9 +8,13 @@ export default function sendErrorResponse(
 ) {
   let status = 500;
   let body = { message: 'Unknown error.' };
+
   if (error instanceof APIResponseError) {
     status = error.status;
     body = { message: error.message };
   }
+
+  console.error(error);
+
   return response.status(status).json(body).send();
 }

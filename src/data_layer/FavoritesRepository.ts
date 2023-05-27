@@ -14,8 +14,8 @@ export class FavoritesRepository {
     });
   }
 
-  async create({ object_id, owner, type }: FavoritesInitializer) {
-    await DB(this.table).insert({
+  create({ object_id, owner, type }: FavoritesInitializer) {
+    return DB(this.table).insert({
       object_id,
       owner,
       type,
@@ -25,6 +25,12 @@ export class FavoritesRepository {
   async remove(id: string, owner: number) {
     await DB(this.table).delete().where({
       object_id: id,
+      owner,
+    });
+  }
+
+  deleteAll(owner: number | string) {
+    return DB('favorites').delete().where({
       owner,
     });
   }

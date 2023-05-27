@@ -1,66 +1,64 @@
 import { Request, Response } from 'express';
 
-import ensureResponse from '../lib/ensureResponse';
 import { getNotionAPI } from '../lib/notion/helpers/getNotionAPI';
 import { APIResponseError } from '@notionhq/client';
 import DB from '../lib/storage/db';
-import Favorites from '../schemas/public/Favorites';
-import { FavoritesRepository } from '../data_layer/FavoritesRepository';
 import NotionRepository from '../data_layer/NotionRespository';
+import FavoriteService from '../services/FavoriteService';
+import sendErrorResponse from '../lib/sendErrorResponse';
 
 class FavoriteController {
-  repository: FavoritesRepository;
+  constructor(private service: FavoriteService) {}
 
-  constructor(repository: FavoritesRepository) {
-    this.repository = repository;
-  }
-
-  createFavorite(req: Request, res: Response) {
-    ensureResponse(async () => {
+  async createFavorite(req: Request, res: Response) {
+    try {
       const { id, type } = req.body;
-      if (!id || !type) {
+      const { owner } = res.locals;
+
+      if (this.service.isValidInput(id, type)) {
         return res.status(400).send();
       }
-      const { owner } = res.locals;
-      await this.repository.create({ object_id: id, owner, type });
+
+      await this.service.create({ object_id: id, owner, type });
+
       return res.status(200).send();
-    }, res);
+    } catch (error) {
+      sendErrorResponse(error, res);
+    }
   }
 
-  deleteFavorite(req: Request, res: Response) {
-    ensureResponse(async () => {
+  async deleteFavorite(req: Request, res: Response) {
+    try {
+      const { owner } = res.locals;
       const { id } = req.body;
+
       if (!id) {
         return res.status(400).send();
       }
-      const { owner } = res.locals;
-      await this.repository.remove(id, owner);
-      res.status(200).send();
-    }, res);
+
+      await this.service.delete(id, owner);
+
+      return res.status(200).send();
+    } catch (error) {
+      sendErrorResponse(error, res);
+    }
   }
 
   async getFavorites(req: Request, res: Response) {
-    const { owner } = res.locals;
     const api = await getNotionAPI(req, res, new NotionRepository(DB));
-    const favorites = await this.repository.getAll(owner);
+    const { owner } = res.locals;
 
     try {
-      const notionBlocks = await Promise.all(
-        favorites.map((f: Favorites) =>
-          f.type === 'page'
-            ? api.getPage(f.object_id)
-            : api.getDatabase(f.object_id)
-        )
-      );
+      const favorites = await this.service.getFavoritesByOwner(owner);
+      const notionBlocks = await this.service.mapToNotionBlocks(favorites, api);
       res.json(notionBlocks);
-    } catch (err) {
-      if (err instanceof APIResponseError) {
+    } catch (error) {
+      if (error instanceof APIResponseError) {
         console.info('purging favorites for');
-        await DB('favorites').delete().where({
-          owner,
-        });
+        this.service.deleteMissingFavorites(owner);
       }
       res.json([]);
+      sendErrorResponse(error, res);
     }
   }
 }
