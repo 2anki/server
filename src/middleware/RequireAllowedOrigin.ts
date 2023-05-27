@@ -1,7 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
 
 import { ALLOWED_ORIGINS } from '../lib/constants';
-import { addUserFieldsToResponse } from './addUserFieldsToRespone';
+import AuthenticationService from '../services/AuthenticationService';
+import UsersRepository from '../data_layer/UsersRepository';
+import TokenRepository from '../data_layer/TokenRepository';
+import DB from '../lib/storage/db';
 
 const RequireAllowedOrigin = async (
   req: Request,
@@ -20,8 +23,19 @@ const RequireAllowedOrigin = async (
   console.info(`permitted access to ${origin}`);
   res.set('Access-Control-Allow-Origin', origin);
 
-  await addUserFieldsToResponse(req, res);
+  if (!req.cookies.token) {
+    return;
+  }
 
+  const authService = new AuthenticationService(
+    new TokenRepository(),
+    new UsersRepository(DB)
+  );
+  const user = await authService.getUserFrom(req.cookies.token);
+  if (user) {
+    res.locals.owner = user.owner;
+    res.locals.patreon = user.patreon;
+  }
   return next();
 };
 

@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 
 import NotionRepository from '../data_layer/NotionRespository';
 import NotionConnectionHandler from '../lib/notion/NotionConnectionHandler';
-import TokenHandler from '../lib/misc/TokenHandler';
 import { sendError } from '../lib/error/sendError';
 import { getNotionAPI } from '../lib/notion/helpers/getNotionAPI';
 import NotionAPIWrapper from '../lib/notion/NotionAPIWrapper';
@@ -15,6 +14,8 @@ import CustomExporter from '../lib/parser/CustomExporter';
 import { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 import Workspace from '../lib/parser/WorkSpace';
 import { blockToStaticMarkup } from '../lib/notion/helpers/blockToStaticMarkup';
+import hashToken from '../lib/misc/hashToken';
+import DB from '../lib/storage/db';
 
 class NotionController {
   constructor(private readonly repository: NotionRepository) {}
@@ -25,7 +26,11 @@ class NotionController {
       try {
         const n = NotionConnectionHandler.Default();
         const accessData = await n.getAccessData(code.toString());
-        await TokenHandler.SaveNotionToken(res.locals.owner, accessData);
+        await this.repository.saveNotionToken(
+          res.locals.owner,
+          accessData,
+          hashToken
+        );
         return res.redirect('/search');
       } catch (err) {
         sendError(err);
@@ -38,7 +43,7 @@ class NotionController {
 
   async search(req: Request, res: Response) {
     const query = req.body.query.toString() || '';
-    const api = await getNotionAPI(req, res);
+    const api = await getNotionAPI(req, res, new NotionRepository(DB));
     const s = await api.search(query);
     res.json(s);
   }
@@ -69,7 +74,7 @@ class NotionController {
   }
 
   async convert(req: Request, res: Response) {
-    const api = await getNotionAPI(req, res);
+    const api = await getNotionAPI(req, res, new NotionRepository(DB));
     const { id, title } = req.body;
     if (!id) {
       return res.status(400).send({ error: 'id is required' });
@@ -89,13 +94,13 @@ class NotionController {
     if (!id) {
       return res.status(400).send();
     }
-    const api = await getNotionAPI(req, res);
+    const api = await getNotionAPI(req, res, new NotionRepository(DB));
     const page = await api.getPage(id.replace(/-/g, ''));
     return res.json(page);
   }
 
   async getBlocks(req: Request, res: Response) {
-    const api = await getNotionAPI(req, res);
+    const api = await getNotionAPI(req, res, new NotionRepository(DB));
     console.info('[NO_CACHE] - getBlocks');
     const { id } = req.params;
     if (!id) {
@@ -111,7 +116,7 @@ class NotionController {
   }
 
   async getBlock(req: Request, res: Response) {
-    const api = await getNotionAPI(req, res);
+    const api = await getNotionAPI(req, res, new NotionRepository(DB));
     const { id } = req.params;
     if (!id) {
       return res.status(400).send();
@@ -121,7 +126,7 @@ class NotionController {
   }
 
   async createBlock(req: Request, res: Response) {
-    const api = await getNotionAPI(req, res);
+    const api = await getNotionAPI(req, res, new NotionRepository(DB));
     const { id } = req.params;
     if (!id) {
       return res.status(400).send();
@@ -131,7 +136,7 @@ class NotionController {
   }
 
   async deleteBlock(req: Request, res: Response) {
-    const api = await getNotionAPI(req, res);
+    const api = await getNotionAPI(req, res, new NotionRepository(DB));
     const { id } = req.params;
     if (!id) {
       return res.status(400).send();
@@ -146,7 +151,7 @@ class NotionController {
       return res.status(400).send();
     }
     const query = id.replace(/-/g, '');
-    const api = await getNotionAPI(req, res);
+    const api = await getNotionAPI(req, res, new NotionRepository(DB));
     const blockId = getNotionId(query) ?? query;
     const block = await api.getBlock(blockId);
     const settings = new Settings(Settings.LoadDefaultOptions());
@@ -169,7 +174,7 @@ class NotionController {
     if (!isValidID(id)) {
       return res.status(400).send();
     }
-    const api = await getNotionAPI(req, res);
+    const api = await getNotionAPI(req, res, new NotionRepository(DB));
     try {
       // todo: review
       let cleanId = id.replace(/-/g, '');
@@ -186,7 +191,7 @@ class NotionController {
   }
 
   async queryDatabase(req: Request, res: Response) {
-    const api = await getNotionAPI(req, res);
+    const api = await getNotionAPI(req, res, new NotionRepository(DB));
     const { id } = req.params;
     if (!id) {
       return res.status(400).send();

@@ -30,6 +30,10 @@ class UsersRepository {
   comparePassword(password: string, hash: string): boolean {
     return bcrypt.compareSync(password, hash);
   }
+
+  getByResetToken(token: string) {
+    return this.database(this.table).where({ reset_token: token }).first();
+  }
 }
 
 export default UsersRepository;

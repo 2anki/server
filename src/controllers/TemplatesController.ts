@@ -11,7 +11,7 @@ class TemplatesController {
   async createTemplate(req: Request, res: Response) {
     console.info(`/templates/create`);
     const { templates } = req.body;
-    const access = await new TokenRepository().getOwnerByToken(req);
+    const access = await new TokenRepository().getAccessToken(req);
     return this.repository
       .create({ owner: access.owner.toString(), payload: templates })
       .then(() => {
@@ -24,7 +24,7 @@ class TemplatesController {
   }
 
   async deleteTemplate(req: Request, res: Response) {
-    const access = await new TokenRepository().getOwnerByToken(req);
+    const access = await new TokenRepository().getAccessToken(req);
     return this.repository
       .delete(access.owner)
       .then(() => {

@@ -6,6 +6,7 @@ import { APIResponseError } from '@notionhq/client';
 import DB from '../lib/storage/db';
 import Favorites from '../schemas/public/Favorites';
 import { FavoritesRepository } from '../data_layer/FavoritesRepository';
+import NotionRepository from '../data_layer/NotionRespository';
 
 class FavoriteController {
   repository: FavoritesRepository;
@@ -40,7 +41,7 @@ class FavoriteController {
 
   async getFavorites(req: Request, res: Response) {
     const { owner } = res.locals;
-    const api = await getNotionAPI(req, res);
+    const api = await getNotionAPI(req, res, new NotionRepository(DB));
     const favorites = await this.repository.getAll(owner);
 
     try {

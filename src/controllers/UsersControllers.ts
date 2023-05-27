@@ -5,11 +5,14 @@ import UsersRepository from '../data_layer/UsersRepository';
 import { sendError } from '../lib/error/sendError';
 import DB from '../lib/storage/db';
 import EmailHandler from '../lib/email/EmailHandler';
-import TokenHandler from '../lib/misc/TokenHandler';
 import { INDEX_FILE } from '../lib/constants';
+import AuthenticationService from '../services/AuthenticationService';
 
 class UsersController {
-  constructor(private repostitory: UsersRepository) {
+  constructor(
+    private repostitory: UsersRepository,
+    private authService: AuthenticationService
+  ) {
     this.repostitory = repostitory;
   }
 
@@ -20,12 +23,7 @@ class UsersController {
   ) {
     const resetToken = req.body.reset_token;
     const { password } = req.body;
-    if (
-      !resetToken ||
-      resetToken.length < 128 ||
-      !password ||
-      password.length < 8
-    ) {
+    if (this.authService.isNewPasswordValid(resetToken, password)) {
       return res.status(400).send({ message: 'invalid' });
     }
 
@@ -63,7 +61,7 @@ class UsersController {
       return res.status(200).json({ message: 'ok' });
     }
     console.debug('no active reset token, so creating');
-    const resetToken = TokenHandler.NewResetToken();
+    const resetToken = this.authService.newResetToken();
     try {
       console.debug('updating user reset token');
       await DB('users')
@@ -126,7 +124,7 @@ class UsersController {
       if (!isMatch) {
         return res.status(401).json({ message: 'Invalid password.' });
       }
-      const token = await TokenHandler.NewJWTToken(user);
+      const token = await this.authService.newJWTToken(user);
       if (token) {
         res.cookie('token', token);
         DB('access_tokens')
@@ -190,7 +188,7 @@ class UsersController {
   ) {
     try {
       const token = req.params.id;
-      const isValid = await TokenHandler.IsValidResetToken(token);
+      const isValid = await this.authService.isValidToken(token);
       if (isValid) {
         return res.sendFile(INDEX_FILE);
       }
@@ -230,7 +228,7 @@ class UsersController {
   }
 
   async checkUser(req: express.Request, res: express.Response) {
-    const user = await TokenHandler.GetUserFrom(req.cookies.token);
+    const user = await this.authService.getUserFrom(req.cookies.token);
     if (!user) {
       res.sendFile(INDEX_FILE);
     } else {

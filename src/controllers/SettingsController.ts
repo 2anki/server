@@ -11,7 +11,7 @@ class SettingsController {
   async createSetting(req: Request, res: Response) {
     console.info(`/settings/create ${req.params.id}`);
     const { settings } = req.body;
-    const access = await new TokenRepository().getOwnerByToken(req);
+    const access = await new TokenRepository().getAccessToken(req);
     this.repository
       .create({
         owner: access.owner.toString(),
@@ -28,7 +28,7 @@ class SettingsController {
   }
 
   async deleteSetting(req: Request, res: Response) {
-    const access = await new TokenRepository().getOwnerByToken(req);
+    const access = await new TokenRepository().getAccessToken(req);
     this.repository
       .delete(access.owner, req.params.id)
       .then(() => {

@@ -14,10 +14,14 @@ class TokenRepository {
     this.database = DB;
   }
 
-  getOwnerByToken(req: express.Request): Promise<AccessTokens> {
+  getAccessToken(req: express.Request): Promise<AccessTokens> {
     return this.database(this.table)
       .where({ token: req.cookies.token })
       .first();
+  }
+
+  getAccessTokenFromString(token: string): Promise<AccessTokens> {
+    return this.database(this.table).where({ token: token }).first();
   }
 }
 

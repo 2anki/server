@@ -5,10 +5,17 @@ import DB from '../lib/storage/db';
 import RequireAuthentication from '../middleware/RequireAuthentication';
 import UsersController from '../controllers/UsersControllers';
 import UsersRepository from '../data_layer/UsersRepository';
+import TokenRepository from '../data_layer/TokenRepository';
+import AuthenticationService from '../services/AuthenticationService';
 
 const UserRouter = () => {
   const router = express.Router();
-  const controller = new UsersController(new UsersRepository(DB));
+  const authService = new AuthenticationService(
+    new TokenRepository(),
+    new UsersRepository(DB)
+  );
+  // TODO: do not use repository in the controller, the service should suffice
+  const controller = new UsersController(new UsersRepository(DB), authService);
 
   // No authentication required for new password since user has reset token
   router.post('/api/users/new-password', controller.newPassword);
