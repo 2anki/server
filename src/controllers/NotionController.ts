@@ -76,9 +76,11 @@ class NotionController {
   async convert(req: Request, res: Response) {
     const api = await getNotionAPI(req, res, new NotionRepository(DB));
     const { id, title } = req.body;
+
     if (!id) {
       return res.status(400).send({ error: 'id is required' });
     }
+
     return performConversion({
       api,
       id,
