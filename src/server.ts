@@ -53,20 +53,20 @@ const serve = () => {
 
   app.use('/templates', express.static(templateDir));
   app.use(express.static(BUILD_DIR));
-  app.use(checksRouter);
-  app.use(versionRouter);
+  app.use(checksRouter());
+  app.use(versionRouter());
 
-  app.use(uploadRouter);
-  app.use(usersRouter);
-  app.use(notionRouter);
-  app.use(rulesRouter);
-  app.use(settingsRouter);
-  app.use(downloadRouter);
-  app.use(favoriteRouter);
-  app.use(templatesRouter);
+  app.use(uploadRouter());
+  app.use(usersRouter());
+  app.use(notionRouter());
+  app.use(rulesRouter());
+  app.use(settingsRouter());
+  app.use(downloadRouter());
+  app.use(favoriteRouter());
+  app.use(templatesRouter());
 
   // Note: this has to be the last router
-  app.use(defaultRouter);
+  app.use(defaultRouter());
 
   app.use(
     (
