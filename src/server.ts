@@ -12,7 +12,7 @@ if (existsSync(localEnvFile)) {
   dotenv.config({ path: localEnvFile });
 }
 
-import { ALLOWED_ORIGINS, BUILD_DIR, INDEX_FILE } from './lib/constants';
+import { ALLOWED_ORIGINS, BUILD_DIR } from './lib/constants';
 import ErrorHandler from './lib/misc/ErrorHandler';
 
 // Server Endpoints
@@ -26,12 +26,12 @@ import rulesRouter from './routes/RulesRouter';
 import downloadRouter from './routes/DownloadRouter';
 import favoriteRouter from './routes/FavoriteRouter';
 import templatesRouter from './routes/TemplatesRouter';
+import defaultRouter from './routes/DefaultRouter';
 
 import DB from './lib/storage/db';
 import KnexConfig from './KnexConfig';
 import CrashReporter from './lib/CrashReporter';
 import { ScheduleCleanup } from './lib/storage/jobs/ScheduleCleanup';
-import RequireAuthentication from './middleware/RequireAuthentication';
 import { sendError } from './lib/error/sendError';
 
 import MigratorConfig = Knex.MigratorConfig;
@@ -56,12 +56,6 @@ const serve = () => {
   app.use(checksRouter);
   app.use(versionRouter);
 
-  app.get('/search*', RequireAuthentication, (_req, res) =>
-    res.sendFile(INDEX_FILE)
-  );
-
-  app.get('/api/uploads*', RequireAuthentication, uploadRouter);
-
   app.use(uploadRouter);
   app.use(usersRouter);
   app.use(notionRouter);
@@ -71,10 +65,8 @@ const serve = () => {
   app.use(favoriteRouter);
   app.use(templatesRouter);
 
-  // Note: this has to be the last handler
-  app.get('*', (_req, res) => {
-    res.sendFile(INDEX_FILE);
-  });
+  // Note: this has to be the last router
+  app.use(defaultRouter);
 
   app.use(
     (

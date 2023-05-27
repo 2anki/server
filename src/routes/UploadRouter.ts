@@ -26,6 +26,8 @@ const UploadRouter = () => {
     UploadController.deleteUpload
   );
 
+  router.get('/api/uploads*', RequireAuthentication, router);
+
   return router;
 };
 
