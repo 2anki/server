@@ -62,11 +62,7 @@ function loadREADME(): string {
   return fs.readFileSync(path.join(TEMPLATE_DIR, 'README.html')).toString();
 }
 
-export const sendBundle = async (
-  packages: Package[],
-  storage: StorageHandler,
-  res: Response
-) => {
+export const sendBundle = async (packages: Package[], res: Response) => {
   const filename = `Your decks-${crypto.randomUUID()}.zip`;
   const payload = await ZipHandler.toZip(packages, loadREADME());
   setFilename(res, filename);
@@ -195,7 +191,8 @@ const handleUpload = async (
       res.attachment(`/${first.name}`);
       return res.status(200).send(payload);
     } else if (packages.length > 1) {
-      sendBundle(packages, storage, res);
+      await sendBundle(packages, res);
+      console.info('Sent bundle with %d packages', packages.length);
     } else {
       if (hasMarkdown) {
         ErrorHandler(res, UNSUPPORTED_FORMAT_MD);
@@ -214,7 +211,7 @@ const file = (req: express.Request, res: express.Response) => {
   const storage = new StorageHandler();
   const handleUploadEndpoint = upload(res, storage);
 
-  handleUploadEndpoint(req, res, (error) => {
+  handleUploadEndpoint(req, res, async (error) => {
     if (error) {
       let msg = error.message;
       if (msg === 'File too large') {
@@ -225,9 +222,8 @@ const file = (req: express.Request, res: express.Response) => {
       console.timeEnd(req.path);
       return res.status(500).send(msg);
     }
-    handleUpload(storage, req, res).then(() => {
-      console.timeEnd(req.path);
-    });
+    await handleUpload(storage, req, res);
+    console.timeEnd(req.path);
   });
 };
 
