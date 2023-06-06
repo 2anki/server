@@ -1,25 +1,25 @@
 import {
   ListBlockChildrenResponse,
-  NumberedListItemBlockObjectResponse,
+  ToDoBlockObjectResponse,
 } from '@notionhq/client/build/src/api-endpoints';
 import ReactDOMServer from 'react-dom/server';
 import { convert } from 'html-to-text';
 import BlockHandler from '../../BlockHandler/BlockHandler';
-import { styleWithColors } from '../../NotionColors';
 import getListItems from '../../helpers/getListItems';
+import { styleWithColors } from '../../NotionColors';
 
-export const BlockNumberedList = async (
-  block: NumberedListItemBlockObjectResponse,
+export const BlockTodoList = async (
+  block: ToDoBlockObjectResponse,
   response: ListBlockChildrenResponse | undefined,
   handler: BlockHandler
 ) => {
-  const list = block.numbered_list_item;
-  const items = await getListItems(response, handler, 'numbered_list_item');
+  const list = block.to_do;
+  const items = await getListItems(response, handler, 'to_do');
   const listItems = items.filter(Boolean);
   const markup = ReactDOMServer.renderToStaticMarkup(
-    <ol id={block.id} className={`numbered-list${styleWithColors(list.color)}`}>
+    <ul id={block.id} className={`to-do-list${styleWithColors(list.color)}`}>
       {listItems}
-    </ol>
+    </ul>
   );
   if (handler.settings?.isTextOnlyBack) {
     return convert(markup);

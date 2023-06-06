@@ -5,13 +5,13 @@ import {
 } from '@notionhq/client/build/src/api-endpoints';
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
-import TagRegistry from '../../parser/TagRegistry';
+import TagRegistry from '../../../lib/parser/TagRegistry';
 import BlockHandler from '../BlockHandler/BlockHandler';
 import getPlainText from '../helpers/getPlainText';
-import { styleWithColors } from '../NotionColors';
 import HandleBlockAnnotations from './HandleBlockAnnotations';
 import { getHeadingText } from '../helpers/getHeadingText';
 import { getHeadingColor } from '../helpers/getHeadingColor';
+import { styleWithColors } from '../NotionColors';
 
 interface HeadingProps {
   id: string;

@@ -1,4 +1,4 @@
-import TagRegistry from '../../parser/TagRegistry';
+import TagRegistry from '../../../lib/parser/TagRegistry';
 import { RichTextItemResponse } from '@notionhq/client/build/src/api-endpoints';
 
 interface Annotations {

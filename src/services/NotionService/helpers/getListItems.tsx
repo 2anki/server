@@ -4,12 +4,12 @@ import {
 } from '@notionhq/client/build/src/api-endpoints';
 
 import renderTextChildren from './renderTextChildren';
-import { styleWithColors } from '../NotionColors';
 import BlockHandler from '../BlockHandler/BlockHandler';
 import getChildren from './getChildren';
 import { getListBlock } from './getListBlock';
 import { getListColor } from './getListColor';
 import { getRichTextFromBlock } from './getRichTextFromBlock';
+import { styleWithColors } from '../NotionColors';
 
 type ListType = 'numbered_list_item' | 'bulleted_list_item' | 'to_do';
 

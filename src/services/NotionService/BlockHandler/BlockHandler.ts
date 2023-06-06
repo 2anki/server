@@ -9,15 +9,14 @@ import {
   PageObjectResponse,
 } from '@notionhq/client/build/src/api-endpoints';
 import axios from 'axios';
-import NotionAPIWrapper from '../NotionAPIWrapper';
-import Note from '../../parser/Note';
-import Settings from '../../parser/Settings';
-import ParserRules from '../../parser/ParserRules';
-import Deck from '../../parser/Deck';
-import CustomExporter from '../../parser/CustomExporter';
-import { S3FileName, SuffixFrom } from '../../misc/file';
-import TagRegistry from '../../parser/TagRegistry';
-import sanitizeTags from '../../anki/sanitizeTags';
+import Note from '../../../lib/parser/Note';
+import Settings from '../../../lib/parser/Settings';
+import ParserRules from '../../../lib/parser/ParserRules';
+import Deck from '../../../lib/parser/Deck';
+import CustomExporter from '../../../lib/parser/CustomExporter';
+import { S3FileName, SuffixFrom } from '../../../lib/misc/file';
+import TagRegistry from '../../../lib/parser/TagRegistry';
+import sanitizeTags from '../../../lib/anki/sanitizeTags';
 import BlockColumn from '../blocks/lists/BlockColumn';
 import getClozeDeletionCard from '../helpers/getClozeDeletionCard';
 import getInputCard from '../helpers/getInputCard';
@@ -25,8 +24,8 @@ import getColumn from '../helpers/getColumn';
 import isColumnList from '../helpers/isColumnList';
 import isTesting from '../helpers/isTesting';
 import perserveNewlinesIfApplicable from '../helpers/preserveNewlinesIfApplicable';
-import getDeckName from '../../anki/getDeckname';
-import getUniqueFileName from '../../misc/getUniqueFileName';
+import getDeckName from '../../../lib/anki/getDeckname';
+import getUniqueFileName from '../../../lib/misc/getUniqueFileName';
 import getSubDeckName from './helpers/getSubDeckName';
 import { renderBack } from '../helpers/renderBack';
 import { getImageUrl } from '../helpers/getImageUrl';
@@ -35,7 +34,8 @@ import { getFileUrl } from '../helpers/getFileUrl';
 import { isFullBlock } from '@notionhq/client';
 import { blockToStaticMarkup } from '../helpers/blockToStaticMarkup';
 import { NOTION_STYLE } from '../../../templates/helper';
-import { sendError } from '../../error/sendError';
+import { sendError } from '../../../lib/error/sendError';
+import NotionAPIWrapper from '../NotionAPIWrapper';
 
 interface Finder {
   parentType: string;

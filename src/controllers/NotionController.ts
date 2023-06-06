@@ -1,17 +1,16 @@
 import { Request, Response } from 'express';
 
 import { sendError } from '../lib/error/sendError';
-import NotionAPIWrapper from '../lib/notion/NotionAPIWrapper';
 import performConversion from '../lib/storage/jobs/helpers/performConversion';
-import { getNotionId } from '../lib/notion/getNotionId';
 import Settings from '../lib/parser/Settings';
-import BlockHandler from '../lib/notion/BlockHandler/BlockHandler';
+import BlockHandler from '../services/NotionService/BlockHandler/BlockHandler';
 import CustomExporter from '../lib/parser/CustomExporter';
 import { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 import Workspace from '../lib/parser/WorkSpace';
-import { blockToStaticMarkup } from '../lib/notion/helpers/blockToStaticMarkup';
+import { blockToStaticMarkup } from '../services/NotionService/helpers/blockToStaticMarkup';
 import NotionService from '../services/NotionService';
 import { getDatabase } from '../data_layer';
+import { getNotionId } from '../services/NotionService/getNotionId';
 
 class NotionController {
   constructor(private readonly service: NotionService) {}
@@ -40,7 +39,7 @@ class NotionController {
 
   async getNotionLink(_req: Request, res: Response) {
     console.debug('/get-notion-link');
-    const clientId = NotionAPIWrapper.GetClientID();
+    const clientId = this.service.getClientId();
 
     if (!clientId) {
       return res.status(400).send();

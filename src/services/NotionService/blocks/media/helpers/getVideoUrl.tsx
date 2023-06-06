@@ -1,7 +1,7 @@
 import { VideoBlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 import { isFullBlock } from '@notionhq/client';
-import getYouTubeID from '../../../../parser/helpers/getYouTubeID';
-import getYouTubeEmbedLink from '../../../../parser/helpers/getYouTubeEmbedLink';
+import getYouTubeID from '../../../../../lib/parser/helpers/getYouTubeID';
+import getYouTubeEmbedLink from '../../../../../lib/parser/helpers/getYouTubeEmbedLink';
 import { isVimeoLink } from './isVimeoLink';
 import { renderToStaticMarkup } from 'react-dom/server';
 

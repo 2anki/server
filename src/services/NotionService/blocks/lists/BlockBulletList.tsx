@@ -1,23 +1,23 @@
 import {
+  BulletedListItemBlockObjectResponse,
   ListBlockChildrenResponse,
-  ToDoBlockObjectResponse,
 } from '@notionhq/client/build/src/api-endpoints';
 import ReactDOMServer from 'react-dom/server';
 import { convert } from 'html-to-text';
 import BlockHandler from '../../BlockHandler/BlockHandler';
-import { styleWithColors } from '../../NotionColors';
 import getListItems from '../../helpers/getListItems';
+import { styleWithColors } from '../../NotionColors';
 
-export const BlockTodoList = async (
-  block: ToDoBlockObjectResponse,
+export const BlockBulletList = async (
+  block: BulletedListItemBlockObjectResponse,
   response: ListBlockChildrenResponse | undefined,
   handler: BlockHandler
 ) => {
-  const list = block.to_do;
-  const items = await getListItems(response, handler, 'to_do');
+  const list = block.bulleted_list_item;
+  const items = await getListItems(response, handler, 'bulleted_list_item');
   const listItems = items.filter(Boolean);
   const markup = ReactDOMServer.renderToStaticMarkup(
-    <ul id={block.id} className={`to-do-list${styleWithColors(list.color)}`}>
+    <ul id={block.id} className={`bulleted-list${styleWithColors(list.color)}`}>
       {listItems}
     </ul>
   );

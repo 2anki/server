@@ -1,4 +1,4 @@
-import Settings from '../../parser/Settings';
+import Settings from '../../../lib/parser/Settings';
 
 export default function preserveNewlinesIfApplicable(
   text: string,

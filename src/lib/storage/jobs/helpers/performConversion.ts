@@ -1,10 +1,10 @@
 import express from 'express';
 import ConversionJob from '../ConversionJob';
 
-import NotionAPIWrapper from '../../../notion/NotionAPIWrapper';
 import StorageHandler from '../../StorageHandler';
 import { notifyUserIfNecessary } from './notifyUserIfNecessary';
 import { Knex } from 'knex';
+import NotionAPIWrapper from '../../../../services/NotionService/NotionAPIWrapper';
 
 interface ConversionRequest {
   title: string | null;

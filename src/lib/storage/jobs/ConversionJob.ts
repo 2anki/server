@@ -1,11 +1,10 @@
 import { Knex } from 'knex';
 
-import NotionAPIWrapper from '../../notion/NotionAPIWrapper';
 import { Job, JobStatus } from '../types';
 import Workspace from '../../parser/WorkSpace';
 import CustomExporter from '../../parser/CustomExporter';
 import { loadSettingsFromDatabase } from '../../parser/Settings/loadSettingsFromDatabase';
-import BlockHandler from '../../notion/BlockHandler/BlockHandler';
+import BlockHandler from '../../../services/NotionService/BlockHandler/BlockHandler';
 import ParserRules from '../../parser/ParserRules';
 import express from 'express';
 import Settings from '../../parser/Settings';
@@ -21,6 +20,7 @@ import Deck from '../../parser/Deck';
 import StorageHandler from '../StorageHandler';
 import { sendError } from '../../error/sendError';
 import { getDatabase } from '../../../data_layer';
+import NotionAPIWrapper from '../../../services/NotionService/NotionAPIWrapper';
 
 export default class ConversionJob {
   db: Knex;

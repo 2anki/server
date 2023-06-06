@@ -2,8 +2,8 @@ import axios from 'axios';
 
 import NotionRepository from '../../data_layer/NotionRespository';
 import hashToken from '../../lib/misc/hashToken';
-import NotionAPIWrapper from '../../lib/notion/NotionAPIWrapper';
-import { getNotionId } from '../../lib/notion/getNotionId';
+import NotionAPIWrapper from './NotionAPIWrapper';
+import { getNotionId } from './getNotionId';
 import { sendError } from '../../lib/error/sendError';
 
 export interface NotionLinkInfo {
@@ -121,5 +121,9 @@ export class NotionService {
 
   purgeBlockCache(owner: number) {
     this.notionRepository.deleteBlocksByOwner(owner);
+  }
+
+  getClientId() {
+    return this.clientId;
   }
 }

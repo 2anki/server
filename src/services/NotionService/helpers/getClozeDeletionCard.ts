@@ -3,8 +3,8 @@ import {
   TextRichTextItemResponse,
 } from '@notionhq/client/build/src/api-endpoints';
 
-import ParserRules from '../../parser/ParserRules';
-import Note from '../../parser/Note';
+import ParserRules from '../../../lib/parser/ParserRules';
+import Note from '../../../lib/parser/Note';
 import isColumnList from './isColumnList';
 import { getRichTextFromBlock } from './getRichTextFromBlock';
 

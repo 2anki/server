@@ -3,10 +3,10 @@ import ReactDOMServer from 'react-dom/server';
 import { convert } from 'html-to-text';
 
 import BlockHandler from '../../BlockHandler/BlockHandler';
-import { styleWithColors } from '../../NotionColors';
 import renderTextChildren from '../../helpers/renderTextChildren';
 import getChildren from '../../helpers/getChildren';
 import { ReactNode } from 'react';
+import { styleWithColors } from '../../NotionColors';
 
 interface DetailsProps {
   children: ReactNode;

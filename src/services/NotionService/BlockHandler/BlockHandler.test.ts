@@ -2,12 +2,12 @@ import path from 'path';
 import os from 'os';
 
 import * as dotenv from 'dotenv';
-import CustomExporter from '../../parser/CustomExporter';
-import Note from '../../parser/Note';
-import ParserRules from '../../parser/ParserRules';
+import CustomExporter from '../../../lib/parser/CustomExporter';
+import Note from '../../../lib/parser/Note';
+import ParserRules from '../../../lib/parser/ParserRules';
 
-import Settings from '../../parser/Settings';
-import Workspace from '../../parser/WorkSpace';
+import Settings from '../../../lib/parser/Settings';
+import Workspace from '../../../lib/parser/WorkSpace';
 import BlockHandler from './BlockHandler';
 import { pageId as examplId } from '../../../test/test-utils';
 import MockNotionAPI from '../_mock/MockNotionAPI';

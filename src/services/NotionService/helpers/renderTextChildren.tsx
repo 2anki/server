@@ -3,7 +3,7 @@ import {
   RichTextItemResponse,
 } from '@notionhq/client/build/src/api-endpoints';
 import ReactDOMServer from 'react-dom/server';
-import Settings from '../../parser/Settings';
+import Settings from '../../../lib/parser/Settings';
 
 import BlockEquation from '../blocks/BlockEquation';
 import HandleBlockAnnotations from '../blocks/HandleBlockAnnotations';

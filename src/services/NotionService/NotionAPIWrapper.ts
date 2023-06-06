@@ -8,9 +8,9 @@ import {
   QueryDatabaseResponse,
   SearchResponse,
 } from '@notionhq/client/build/src/api-endpoints';
-import sanitizeTags from '../anki/sanitizeTags';
-import ParserRules from '../parser/ParserRules';
-import Settings from '../parser/Settings';
+import sanitizeTags from '../../lib/anki/sanitizeTags';
+import ParserRules from '../../lib/parser/ParserRules';
+import Settings from '../../lib/parser/Settings';
 import { getParagraphBlocks } from './helpers/getParagraphBlocks';
 import renderIcon from './helpers/renderIcon';
 import getBlockIcon, { WithIcon } from './blocks/getBlockIcon';
