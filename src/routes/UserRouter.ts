@@ -21,26 +21,34 @@ const UserRouter = () => {
   );
 
   // No authentication required for new password since user has reset token
-  router.post('/api/users/new-password', controller.newPassword);
+  router.post('/api/users/new-password', (req, res, next) =>
+    controller.newPassword(req, res, next)
+  );
   // Forgot password triggers email with reset token
-  router.post('/api/users/forgot-password', controller.forgotPassword);
+  router.post('/api/users/forgot-password', (req, res, next) =>
+    controller.forgotPassword(req, res, next)
+  );
 
-  router.post('/api/users/logout', RequireAuthentication, controller.logOut);
-  router.post('/api/users/login', controller.login);
-  router.post('/api/users/register', controller.register);
-  router.get('/api/users/r/:id', controller.resetPassword);
-  router.post(
-    '/api/users/delete-account',
-    RequireAuthentication,
-    controller.deleteAccount
+  router.post('/api/users/logout', RequireAuthentication, (req, res, next) =>
+    controller.logOut(req, res, next)
   );
-  router.get(
-    '/api/users/debug/locals',
-    RequireAuthentication,
-    controller.getLocals
+  router.post('/api/users/login', (req, res, next) =>
+    controller.login(req, res, next)
   );
-  router.get('/login', controller.checkUser);
-  router.get('/patr*on', controller.patreon);
+  router.post('/api/users/register', (req, res, next) =>
+    controller.register(req, res, next)
+  );
+  router.get('/api/users/r/:id', (req, res, next) =>
+    controller.resetPassword(req, res, next)
+  );
+  router.post('/api/users/delete-account', RequireAuthentication, (req, res) =>
+    controller.deleteAccount(req, res)
+  );
+  router.get('/api/users/debug/locals', RequireAuthentication, (req, res) =>
+    controller.getLocals(req, res)
+  );
+  router.get('/login', (req, res) => controller.checkUser(req, res));
+  router.get('/patr*on', (req, res) => controller.patreon(req, res));
 
   return router;
 };

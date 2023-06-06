@@ -14,15 +14,11 @@ const FavoriteRouter = () => {
     new FavoriteService(new FavoritesRepository(getDatabase()))
   );
 
-  router.post(
-    '/api/favorite/create',
-    RequireAuthentication,
-    controller.createFavorite
+  router.post('/api/favorite/create', RequireAuthentication, (req, res) =>
+    controller.createFavorite(req, res)
   );
-  router.post(
-    '/api/favorite/remove',
-    RequireAuthentication,
-    controller.deleteFavorite
+  router.post('/api/favorite/remove', RequireAuthentication, (req, res) =>
+    controller.deleteFavorite(req, res)
   );
   router.get(
     '/api/favorite',

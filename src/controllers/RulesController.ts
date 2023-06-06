@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 
 import { sendError } from '../lib/error/sendError';
-import RulesService from '../routes/RulesService';
+import RulesService from '../services/RulesService';
 import { getOwner } from '../lib/User/getOwner';
 
 class RulesController {

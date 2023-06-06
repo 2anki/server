@@ -16,7 +16,9 @@ const DownloadRouter = () => {
   );
   const router = express.Router();
 
-  router.get('/api/download/u/:key', RequireAuthentication, controller.getFile);
+  router.get('/api/download/u/:key', RequireAuthentication, (req, res) =>
+    controller.getFile(req, res)
+  );
 
   return router;
 };

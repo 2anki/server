@@ -3,7 +3,7 @@ import express from 'express';
 import RequireAuthentication from './middleware/RequireAuthentication';
 import RulesController from '../controllers/RulesController';
 import RulesRepository from '../data_layer/RulesRepository';
-import RulesService from './RulesService';
+import RulesService from '../services/RulesService';
 import { getDatabase } from '../data_layer';
 
 const RulesRouter = () => {
@@ -14,10 +14,8 @@ const RulesRouter = () => {
   const router = express.Router();
 
   router.get('/api/rules/find/:id', RequireAuthentication, controller.findRule);
-  router.post(
-    '/api/rules/create/:id',
-    RequireAuthentication,
-    controller.createRule
+  router.post('/api/rules/create/:id', RequireAuthentication, (req, res) =>
+    controller.createRule(req, res)
   );
 
   return router;

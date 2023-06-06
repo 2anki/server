@@ -15,6 +15,7 @@ const RequireAllowedOrigin = async (
   if (!origin) {
     return res.status(400).send('unknown origin');
   }
+
   const permitted = ALLOWED_ORIGINS.includes(origin);
   console.info(`checking if ${origin} is whitelisted ${permitted}`);
   if (!permitted) {
@@ -22,10 +23,6 @@ const RequireAllowedOrigin = async (
   }
   console.info(`permitted access to ${origin}`);
   res.set('Access-Control-Allow-Origin', origin);
-
-  if (!req.cookies.token) {
-    return;
-  }
 
   const database = getDatabase();
   const authService = new AuthenticationService(
@@ -37,6 +34,7 @@ const RequireAllowedOrigin = async (
     res.locals.owner = user.owner;
     res.locals.patreon = user.patreon;
   }
+
   return next();
 };
 

@@ -7,7 +7,7 @@ const DefaultRouter = () => {
   const router = express.Router();
 
   router.get('/search*', RequireAuthentication, controller.getIndex);
-  router.get('*', controller.getIndex);
+  router.get('*', (req, res) => controller.getIndex(req, res));
 
   return router;
 };

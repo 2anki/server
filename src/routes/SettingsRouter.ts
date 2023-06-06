@@ -13,20 +13,14 @@ const SettingsRouter = () => {
     new SettingsService(new SettingsRepository(database))
   );
 
-  router.post(
-    '/api/settings/create/:id',
-    RequireAuthentication,
-    controller.createSetting
+  router.post('/api/settings/create/:id', RequireAuthentication, (req, res) =>
+    controller.createSetting(req, res)
   );
-  router.post(
-    '/api/settings/delete/:id',
-    RequireAuthentication,
-    controller.deleteSetting
+  router.post('/api/settings/delete/:id', RequireAuthentication, (req, res) =>
+    controller.deleteSetting(req, res)
   );
-  router.get(
-    '/api/settings/find/:id',
-    RequireAuthentication,
-    controller.findSetting
+  router.get('/api/settings/find/:id', RequireAuthentication, (req, res) =>
+    controller.findSetting(req, res)
   );
 
   return router;

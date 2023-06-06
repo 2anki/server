@@ -17,59 +17,53 @@ const NotionRouter = () => {
    * Endpoint for establishing a connection to Notion. We need a token for this.
    * Reference: https://developers.notion.so/
    */
-  router.get('/api/notion/connect', RequireAuthentication, controller.connect);
-
-  router.post('/api/notion/pages', RequireAuthentication, controller.search);
-
-  router.get(
-    '/api/notion/get-notion-link',
-    RequireAuthentication,
-    controller.getNotionLink
+  router.get('/api/notion/connect', RequireAuthentication, (req, res) =>
+    controller.connect(req, res)
   );
 
-  router.post(
-    '/api/notion/convert/',
-    RequireAuthentication,
-    controller.convert
-  );
-  router.get('/api/notion/page/:id', RequireAuthentication, controller.getPage);
-
-  router.get(
-    '/api/notion/blocks/:id',
-    RequireAuthentication,
-    controller.getBlocks
+  router.post('/api/notion/pages', RequireAuthentication, (req, res) =>
+    controller.search(req, res)
   );
 
-  router.get(
-    '/api/notion/block/:id',
-    RequireAuthentication,
-    controller.getBlock
+  router.get('/api/notion/get-notion-link', RequireAuthentication, (req, res) =>
+    controller.getNotionLink(req, res)
   );
 
-  router.post(
-    '/api/notion/block/:id',
-    RequireAuthentication,
-    controller.createBlock
+  router.post('/api/notion/convert/', RequireAuthentication, (req, res) =>
+    controller.convert(req, res)
+  );
+  router.get('/api/notion/page/:id', RequireAuthentication, (req, res) =>
+    controller.getPage(req, res)
   );
 
-  router.delete('/api/notion/block/:id', RequirePatron, controller.deleteBlock);
-
-  router.get(
-    '/api/notion/render-block/:id',
-    RequirePatron,
-    controller.renderBlock
+  router.get('/api/notion/blocks/:id', RequireAuthentication, (req, res) =>
+    controller.getBlocks(req, res)
   );
 
-  router.get(
-    '/api/notion/database/:id',
-    RequireAuthentication,
-    controller.getDatabase
+  router.get('/api/notion/block/:id', RequireAuthentication, (req, res) =>
+    controller.getBlock(req, res)
+  );
+
+  router.post('/api/notion/block/:id', RequireAuthentication, (req, res) =>
+    controller.createBlock(req, res)
+  );
+
+  router.delete('/api/notion/block/:id', RequirePatron, (req, res) =>
+    controller.deleteBlock(req, res)
+  );
+
+  router.get('/api/notion/render-block/:id', RequirePatron, (req, res) =>
+    controller.renderBlock(req, res)
+  );
+
+  router.get('/api/notion/database/:id', RequireAuthentication, (req, res) =>
+    controller.getDatabase(req, res)
   );
 
   router.get(
     '/api/notion/database/query/:id',
     RequireAuthentication,
-    controller.queryDatabase
+    (req, res) => controller.queryDatabase(req, res)
   );
 
   return router;

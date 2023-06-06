@@ -14,15 +14,11 @@ const TemplatesRouter = () => {
     new TemplateService(new TemplatesRepository(database))
   );
 
-  router.post(
-    '/api/templates/create',
-    RequireAuthentication,
-    controller.createTemplate
+  router.post('/api/templates/create', RequireAuthentication, (req, res) =>
+    controller.createTemplate(req, res)
   );
-  router.post(
-    '/api/templates/delete',
-    RequireAuthentication,
-    controller.deleteTemplate
+  router.post('/api/templates/delete', RequireAuthentication, (req, res) =>
+    controller.deleteTemplate(req, res)
   );
 
   return router;

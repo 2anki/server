@@ -28,25 +28,19 @@ const UploadRouter = () => {
    * It is used to upload files to the server and there is a whitelist in place to prevent
    * abuse. In the future, this API will be moved to a separate server.
    */
-  router.post('/api/upload/file', RequireAllowedOrigin, uploadController.file);
-
-  router.get(
-    '/api/upload/mine',
-    RequireAuthentication,
-    uploadController.getUploads
-  );
-  router.delete(
-    '/api/upload/jobs/:id',
-    RequireAuthentication,
-    jobController.deleteJobByOwner
-  );
-  router.delete(
-    '/api/upload/mine/:key',
-    RequireAuthentication,
-    uploadController.deleteUpload
+  router.post('/api/upload/file', RequireAllowedOrigin, (req, res) =>
+    uploadController.file(req, res)
   );
 
-  router.get('/api/uploads*', RequireAuthentication, router);
+  router.get('/api/upload/mine', RequireAuthentication, (req, res) =>
+    uploadController.getUploads(req, res)
+  );
+  router.delete('/api/upload/jobs/:id', RequireAuthentication, (req, res) =>
+    jobController.deleteJobByOwner(req, res)
+  );
+  router.delete('/api/upload/mine/:key', RequireAuthentication, (req, res) =>
+    uploadController.deleteUpload(req, res)
+  );
 
   return router;
 };
