@@ -1,10 +1,10 @@
 import { NextFunction, Request, Response } from 'express';
 
-import { ALLOWED_ORIGINS } from '../lib/constants';
-import AuthenticationService from '../services/AuthenticationService';
-import UsersRepository from '../data_layer/UsersRepository';
-import TokenRepository from '../data_layer/TokenRepository';
-import { getDatabase } from '../data_layer';
+import { ALLOWED_ORIGINS } from '../../lib/constants';
+import AuthenticationService from '../../services/AuthenticationService';
+import UsersRepository from '../../data_layer/UsersRepository';
+import TokenRepository from '../../data_layer/TokenRepository';
+import { getDatabase } from '../../data_layer';
 
 const RequireAllowedOrigin = async (
   req: Request,

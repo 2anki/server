@@ -1,5 +1,5 @@
 import express from 'express';
-import RequireAuthentication from '../middleware/RequireAuthentication';
+import RequireAuthentication from './middleware/RequireAuthentication';
 import IndexController from '../controllers/IndexController';
 
 const DefaultRouter = () => {

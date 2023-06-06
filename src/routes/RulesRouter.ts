@@ -1,6 +1,6 @@
 import express from 'express';
 
-import RequireAuthentication from '../middleware/RequireAuthentication';
+import RequireAuthentication from './middleware/RequireAuthentication';
 import RulesController from '../controllers/RulesController';
 import RulesRepository from '../data_layer/RulesRepository';
 import RulesService from './RulesService';

@@ -1,6 +1,6 @@
 import express from 'express';
 
-import RequireAuthentication from '../middleware/RequireAuthentication';
+import RequireAuthentication from './middleware/RequireAuthentication';
 import SettingsController from '../controllers/SettingsController';
 import SettingsRepository from '../data_layer/SettingsRepository';
 import { getDatabase } from '../data_layer';

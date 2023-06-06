@@ -1,7 +1,7 @@
 import express from 'express';
 
-import RequireAuthentication from '../middleware/RequireAuthentication';
-import RequirePatron from '../middleware/RequirePatron';
+import RequireAuthentication from './middleware/RequireAuthentication';
+import RequirePatron from './middleware/RequirePatron';
 import NotionController from '../controllers/NotionController';
 import NotionRepository from '../data_layer/NotionRespository';
 import NotionService from '../services/NotionService';

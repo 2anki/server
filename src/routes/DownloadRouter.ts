@@ -1,6 +1,6 @@
 import express from 'express';
 
-import RequireAuthentication from '../middleware/RequireAuthentication';
+import RequireAuthentication from './middleware/RequireAuthentication';
 import DownloadController from '../controllers/DownloadController';
 import DownloadService from '../services/DownloadService';
 import DownloadRepository from '../data_layer/DownloadRepository';

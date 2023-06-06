@@ -1,6 +1,6 @@
 import express from 'express';
 
-import RequireAuthentication from '../middleware/RequireAuthentication';
+import RequireAuthentication from './middleware/RequireAuthentication';
 import UsersController from '../controllers/UsersControllers';
 import UsersRepository from '../data_layer/UsersRepository';
 import TokenRepository from '../data_layer/TokenRepository';

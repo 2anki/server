@@ -1,6 +1,6 @@
 import express from 'express';
 
-import RequireAuthentication from '../middleware/RequireAuthentication';
+import RequireAuthentication from './middleware/RequireAuthentication';
 import TemplatesController from '../controllers/TemplatesController';
 import TemplatesRepository from '../data_layer/TemplatesRepository';
 import { getDatabase } from '../data_layer';

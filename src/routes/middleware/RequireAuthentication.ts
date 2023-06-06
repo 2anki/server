@@ -1,9 +1,9 @@
 import * as Sentry from '@sentry/node';
 import express, { NextFunction } from 'express';
-import UsersRepository from '../data_layer/UsersRepository';
-import TokenRepository from '../data_layer/TokenRepository';
-import AuthenticationService from '../services/AuthenticationService';
-import { getDatabase } from '../data_layer';
+import UsersRepository from '../../data_layer/UsersRepository';
+import TokenRepository from '../../data_layer/TokenRepository';
+import AuthenticationService from '../../services/AuthenticationService';
+import { getDatabase } from '../../data_layer';
 
 const RequireAuthentication = async (
   req: express.Request,

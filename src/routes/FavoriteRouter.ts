@@ -1,6 +1,6 @@
 import express from 'express';
 
-import RequireAuthentication from '../middleware/RequireAuthentication';
+import RequireAuthentication from './middleware/RequireAuthentication';
 import FavoriteController from '../controllers/FavoriteController';
 import FavoriteService from '../services/FavoriteService';
 import { FavoritesRepository } from '../data_layer/FavoritesRepository';
