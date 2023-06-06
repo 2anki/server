@@ -35,7 +35,8 @@ class RulesController {
     }
 
     try {
-      return this.service.getById(id);
+      const rule = this.service.getById(id);
+      res.status(200).json(rule);
     } catch (err) {
       sendError(err);
       res.status(400).send();

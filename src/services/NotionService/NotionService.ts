@@ -89,9 +89,11 @@ export class NotionService {
     const uri = this.redirectURI;
     const id = this.clientId;
     const secret = this.clientSecret;
+
     if (!uri || !id || !secret) {
       throw new Error('Notion Connection Handler not configured');
     }
+
     return new Promise(async (resolve, reject) => {
       const url = 'https://api.notion.com/v1/oauth/token';
       const data = {
