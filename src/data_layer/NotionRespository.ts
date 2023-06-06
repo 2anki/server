@@ -1,8 +1,11 @@
 import { Knex } from 'knex';
 import NotionTokens from '../schemas/public/NotionTokens';
+import unHashToken from '../lib/misc/unHashToken';
 
 class NotionRepository {
   notionTokensTable = 'notion_tokens';
+
+  notionBlocksTable = 'blocks';
 
   constructor(private readonly database: Knex) {}
 
@@ -41,7 +44,7 @@ class NotionRepository {
     });
   }
 
-  async getNotionToken(owner: string, unHash: (token: string) => string) {
+  async getNotionToken(owner: string) {
     if (!owner) {
       return null;
     }
@@ -49,7 +52,11 @@ class NotionRepository {
       .where({ owner })
       .returning('token')
       .first();
-    return unHash(row.token);
+    return unHashToken(row.token);
+  }
+
+  deleteBlocksByOwner(owner: number) {
+    return this.database(this.notionBlocksTable).del().where({ owner });
   }
 }
 

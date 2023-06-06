@@ -1,16 +1,17 @@
 import express from 'express';
-import DB from '../lib/storage/db';
 
 import RequireAuthentication from '../middleware/RequireAuthentication';
 import RequirePatron from '../middleware/RequirePatron';
 import NotionController from '../controllers/NotionController';
 import NotionRepository from '../data_layer/NotionRespository';
+import NotionService from '../services/NotionService';
+import { getDatabase } from '../data_layer';
 
 const NotionRouter = () => {
   const router = express.Router();
 
-  const repository = new NotionRepository(DB);
-  const controller = new NotionController(repository);
+  const repository = new NotionRepository(getDatabase());
+  const controller = new NotionController(new NotionService(repository));
 
   /**
    * Endpoint for establishing a connection to Notion. We need a token for this.

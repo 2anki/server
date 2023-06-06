@@ -1,11 +1,11 @@
 import { existsSync } from 'fs';
 import path from 'path';
+import http from 'http';
 
 import express, { RequestHandler } from 'express';
 import cookieParser from 'cookie-parser';
 import * as dotenv from 'dotenv';
 import morgan from 'morgan';
-import { Knex } from 'knex';
 
 const localEnvFile = path.join(__dirname, '../.env');
 if (existsSync(localEnvFile)) {
@@ -28,16 +28,27 @@ import favoriteRouter from './routes/FavoriteRouter';
 import templatesRouter from './routes/TemplatesRouter';
 import defaultRouter from './routes/DefaultRouter';
 
-import DB from './lib/storage/db';
-import KnexConfig from './KnexConfig';
 import CrashReporter from './lib/CrashReporter';
-import { ScheduleCleanup } from './lib/storage/jobs/ScheduleCleanup';
 import { sendError } from './lib/error/sendError';
 
-import MigratorConfig = Knex.MigratorConfig;
 import { isStaging } from './lib/isStaging';
+import { getDatabase, setupDatabase } from './data_layer';
+function registerSignalHandlers(server: http.Server) {
+  process.on('uncaughtException', sendError);
+  process.on('SIGTERM', () => {
+    console.debug('SIGTERM signal received: closing HTTP server');
+    server.close(() => {
+      console.debug('HTTP server closed');
+    });
+  });
+  process.on('SIGINT', () => {
+    server.close(() => {
+      console.debug('HTTP server closed');
+    });
+  });
+}
 
-const serve = () => {
+const serve = async () => {
   const templateDir = path.join(__dirname, 'templates');
   const app = express();
 
@@ -103,40 +114,16 @@ const serve = () => {
     }
   );
 
-  process.on('uncaughtException', sendError);
-  DB.raw('SELECT 1')
-    .then(() => console.info('DB is ready'))
-    .catch((err) => {
-      console.error(err);
-      process.exit(1);
-    });
   const cwd = process.cwd();
-  if (process.env.MIGRATIONS_DIR) {
-    process.chdir(path.join(process.env.MIGRATIONS_DIR, '..'));
-  }
-  ScheduleCleanup(DB);
-  DB.migrate.latest(KnexConfig as MigratorConfig).then(async () => {
-    // Completed jobs become uploads. Any left during startup means they failed.
-    await DB.raw("UPDATE jobs SET status = 'failed';");
-    process.chdir(cwd);
-    process.env.SECRET ||= 'victory';
-    const port = process.env.PORT || 2020;
-    const server = app.listen(port, () => {
-      console.info(`🟢 Running on http://localhost:${port}`);
-    });
-
-    process.on('SIGTERM', () => {
-      console.debug('SIGTERM signal received: closing HTTP server');
-      server.close(() => {
-        console.debug('HTTP server closed');
-      });
-    });
-    process.on('SIGINT', () => {
-      server.close(() => {
-        console.debug('HTTP server closed');
-      });
-    });
+  process.chdir(cwd);
+  process.env.SECRET ||= 'victory';
+  const port = process.env.PORT || 2020;
+  const server = app.listen(port, () => {
+    console.info(`🟢 Running on http://localhost:${port}`);
   });
+  registerSignalHandlers(server);
+
+  await setupDatabase(getDatabase());
 };
 
 serve();

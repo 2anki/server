@@ -1,8 +1,10 @@
 import { Knex } from 'knex';
-import { getAllMyJobs } from './getAllStartedJobs';
+import JobService from '../../../../services/JobService';
+import JobRepository from '../../../../data_layer/JobRepository';
 
 export const markStartedJobsStale = async (db: Knex, owner: string) => {
-  const allStartedJobs = await getAllMyJobs(db, owner);
+  const service = new JobService(new JobRepository(db));
+  const allStartedJobs = await service.getAllStartedJobs(owner);
   for (const job of allStartedJobs) {
     console.debug(`Marking job stale ${job.id}`);
     await db('jobs')

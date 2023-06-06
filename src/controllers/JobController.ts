@@ -1,33 +1,28 @@
 import express from 'express';
 
-import { getAllMyJobs } from '../lib/storage/jobs/helpers/getAllStartedJobs';
-import DB from '../lib/storage/db';
 import { sendError } from '../lib/error/sendError';
+import JobService from '../services/JobService';
+import { getOwner } from '../lib/User/getOwner';
 
-const getAllJobs = async (_req: express.Request, res: express.Response) => {
-  console.time('getting active jobs');
-  const jobs = await getAllMyJobs(DB, res.locals.owner);
-  console.timeEnd('getting active jobs');
-  res.send(jobs);
-};
+class JobController {
+  constructor(private readonly service: JobService) {}
 
-const deleteJob = async (req: express.Request, res: express.Response) => {
-  console.log('delete job', req.params.id);
-  try {
-    const id = req.params.id;
-    await DB('jobs').delete().where({
-      id: id,
-      owner: res.locals.owner,
-    });
-    res.status(200).send();
-  } catch (err) {
-    res.status(500).send();
-    sendError(err);
+  async getJobsByOwner(_req: express.Request, res: express.Response) {
+    const jobs = await this.service.getJobsByOwner(getOwner(res));
+    res.send(jobs);
   }
-};
-const JobController = {
-  deleteJob,
-  getAllJobs,
-};
+
+  async deleteJobByOwner(req: express.Request, res: express.Response) {
+    try {
+      const id = req.params.id;
+      await this.service.deleteJobById(id, getOwner(res));
+
+      res.status(200).send();
+    } catch (error) {
+      res.status(500).send();
+      sendError(error);
+    }
+  }
+}
 
 export default JobController;

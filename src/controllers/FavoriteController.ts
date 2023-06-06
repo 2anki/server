@@ -1,11 +1,9 @@
 import { Request, Response } from 'express';
 
-import { getNotionAPI } from '../lib/notion/helpers/getNotionAPI';
 import { APIResponseError } from '@notionhq/client';
-import DB from '../lib/storage/db';
-import NotionRepository from '../data_layer/NotionRespository';
 import FavoriteService from '../services/FavoriteService';
 import sendErrorResponse from '../lib/sendErrorResponse';
+import NotionService from '../services/NotionService';
 
 class FavoriteController {
   constructor(private service: FavoriteService) {}
@@ -44,9 +42,13 @@ class FavoriteController {
     }
   }
 
-  async getFavorites(req: Request, res: Response) {
-    const api = await getNotionAPI(req, res, new NotionRepository(DB));
+  async getFavorites(
+    _req: Request,
+    res: Response,
+    notionService: NotionService
+  ) {
     const { owner } = res.locals;
+    const api = await notionService.getNotionAPI(owner);
 
     try {
       const favorites = await this.service.getFavoritesByOwner(owner);

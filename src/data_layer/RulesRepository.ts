@@ -1,4 +1,5 @@
 import { Knex } from 'knex';
+import Jobs from '../schemas/public/Jobs';
 
 class RulesRepository {
   private readonly tableName: string;
@@ -27,7 +28,7 @@ class RulesRepository {
       .merge();
   }
 
-  getById(id: string): Promise<any> {
+  getById(id: string): Promise<Jobs> {
     return this.database(this.tableName)
       .where({ object_id: id })
       .returning('*')

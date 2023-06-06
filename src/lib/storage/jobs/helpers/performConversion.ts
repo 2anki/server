@@ -2,9 +2,9 @@ import express from 'express';
 import ConversionJob from '../ConversionJob';
 
 import NotionAPIWrapper from '../../../notion/NotionAPIWrapper';
-import DB from '../../db';
 import StorageHandler from '../../StorageHandler';
 import { notifyUserIfNecessary } from './notifyUserIfNecessary';
+import { Knex } from 'knex';
 
 interface ConversionRequest {
   title: string | null;
@@ -15,20 +15,16 @@ interface ConversionRequest {
   res: express.Response | null;
 }
 
-export default async function performConversion({
-  title,
-  api,
-  id,
-  owner,
-  req,
-  res,
-}: ConversionRequest) {
+export default async function performConversion(
+  database: Knex,
+  { title, api, id, owner, req, res }: ConversionRequest
+) {
   let waitingResponse = true;
   try {
     console.log(`Performing conversion for ${id}`);
 
     const storage = new StorageHandler();
-    const job = new ConversionJob(DB);
+    const job = new ConversionJob(database);
 
     await job.load(id, owner, title);
     if (!job.canStart()) {
@@ -36,7 +32,7 @@ export default async function performConversion({
       return res ? res.redirect('/uploads') : null;
     }
 
-    const jobs = await DB('jobs').where({ owner }).returning(['*']);
+    const jobs = await database('jobs').where({ owner }).returning(['*']);
     if (!res?.locals.patreon && jobs.length > 1) {
       await job.cancelled();
       return res ? res.redirect('/uploads') : null;
@@ -74,7 +70,7 @@ export default async function performConversion({
     await notifyUserIfNecessary({
       owner,
       rules,
-      db: DB,
+      db: database,
       size,
       key,
       id,

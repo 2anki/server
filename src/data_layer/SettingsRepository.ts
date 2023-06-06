@@ -1,15 +1,11 @@
 import { Knex } from 'knex';
-import DB from '../lib/storage/db';
 import { SettingsInitializer } from '../schemas/public/Settings';
 
 class SettingsRepository {
-  database: Knex;
-
   table: string;
 
-  constructor() {
+  constructor(private readonly database: Knex) {
     this.table = 'settings';
-    this.database = DB;
   }
 
   create({ owner, object_id, payload }: SettingsInitializer) {

@@ -1,21 +1,21 @@
-import DB from '../lib/storage/db';
+import { Knex } from 'knex';
 import Favorites, { FavoritesInitializer } from '../schemas/public/Favorites';
 
 export class FavoritesRepository {
   table: string;
 
-  constructor() {
+  constructor(private readonly database: Knex) {
     this.table = 'favorites';
   }
 
   getAll(owner: number): Promise<Favorites[]> {
-    return DB(this.table).select('*').where({
+    return this.database(this.table).select('*').where({
       owner,
     });
   }
 
   create({ object_id, owner, type }: FavoritesInitializer) {
-    return DB(this.table).insert({
+    return this.database(this.table).insert({
       object_id,
       owner,
       type,
@@ -23,14 +23,14 @@ export class FavoritesRepository {
   }
 
   async remove(id: string, owner: number) {
-    await DB(this.table).delete().where({
+    await this.database(this.table).delete().where({
       object_id: id,
       owner,
     });
   }
 
   deleteAll(owner: number | string) {
-    return DB('favorites').delete().where({
+    return this.database('favorites').delete().where({
       owner,
     });
   }

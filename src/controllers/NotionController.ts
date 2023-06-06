@@ -1,12 +1,8 @@
 import { Request, Response } from 'express';
 
-import NotionRepository from '../data_layer/NotionRespository';
-import NotionConnectionHandler from '../lib/notion/NotionConnectionHandler';
 import { sendError } from '../lib/error/sendError';
-import { getNotionAPI } from '../lib/notion/helpers/getNotionAPI';
 import NotionAPIWrapper from '../lib/notion/NotionAPIWrapper';
 import performConversion from '../lib/storage/jobs/helpers/performConversion';
-import { isValidID } from '../lib/notion/isValidID';
 import { getNotionId } from '../lib/notion/getNotionId';
 import Settings from '../lib/parser/Settings';
 import BlockHandler from '../lib/notion/BlockHandler/BlockHandler';
@@ -14,38 +10,32 @@ import CustomExporter from '../lib/parser/CustomExporter';
 import { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 import Workspace from '../lib/parser/WorkSpace';
 import { blockToStaticMarkup } from '../lib/notion/helpers/blockToStaticMarkup';
-import hashToken from '../lib/misc/hashToken';
-import DB from '../lib/storage/db';
+import NotionService from '../services/NotionService';
+import { getDatabase } from '../data_layer';
 
 class NotionController {
-  constructor(private readonly repository: NotionRepository) {}
+  constructor(private readonly service: NotionService) {}
 
   async connect(req: Request, res: Response) {
     const { code } = req.query;
-    if (code) {
-      try {
-        const n = NotionConnectionHandler.Default();
-        const accessData = await n.getAccessData(code.toString());
-        await this.repository.saveNotionToken(
-          res.locals.owner,
-          accessData,
-          hashToken
-        );
-        return res.redirect('/search');
-      } catch (err) {
-        sendError(err);
-        return res.redirect('/search');
-      }
-    } else {
+    if (!code) {
+      return res.redirect('/search');
+    }
+
+    try {
+      const authorizationCode = code as string;
+      await this.service.connectToNotion(authorizationCode, res.locals.owner);
+      return res.redirect('/search');
+    } catch (err) {
+      sendError(err);
       return res.redirect('/search');
     }
   }
 
   async search(req: Request, res: Response) {
     const query = req.body.query.toString() || '';
-    const api = await getNotionAPI(req, res, new NotionRepository(DB));
-    const s = await api.search(query);
-    res.json(s);
+    const result = await this.service.search(query, res.locals.owner);
+    res.json(result);
   }
 
   async getNotionLink(_req: Request, res: Response) {
@@ -56,32 +46,19 @@ class NotionController {
       return res.status(400).send();
     }
 
-    const notionData = await this.repository.getNotionData(res.locals.owner);
-    const link = `https://api.notion.com/v1/oauth/authorize?owner=user&client_id=${clientId}&response_type=code`;
-
-    if (notionData) {
-      return res.status(200).send({
-        link,
-        isConnected: !!notionData.token,
-        workspace: notionData.workspace_name,
-      });
-    }
-    return res.status(200).send({
-      link,
-      isConnected: false,
-      workspace: null,
-    });
+    const linkInfo = await this.service.getNotionLinkInfo(res.locals.owner);
+    return res.status(200).send(linkInfo);
   }
 
   async convert(req: Request, res: Response) {
-    const api = await getNotionAPI(req, res, new NotionRepository(DB));
+    const api = await this.service.getNotionAPI(res.locals.owner);
     const { id, title } = req.body;
 
     if (!id) {
       return res.status(400).send({ error: 'id is required' });
     }
 
-    return performConversion({
+    return performConversion(getDatabase(), {
       api,
       id,
       owner: res.locals.owner,
@@ -96,13 +73,13 @@ class NotionController {
     if (!id) {
       return res.status(400).send();
     }
-    const api = await getNotionAPI(req, res, new NotionRepository(DB));
+    const api = await this.service.getNotionAPI(res.locals.owner);
     const page = await api.getPage(id.replace(/-/g, ''));
     return res.json(page);
   }
 
   async getBlocks(req: Request, res: Response) {
-    const api = await getNotionAPI(req, res, new NotionRepository(DB));
+    const api = await this.service.getNotionAPI(res.locals.owner);
     console.info('[NO_CACHE] - getBlocks');
     const { id } = req.params;
     if (!id) {
@@ -118,7 +95,7 @@ class NotionController {
   }
 
   async getBlock(req: Request, res: Response) {
-    const api = await getNotionAPI(req, res, new NotionRepository(DB));
+    const api = await this.service.getNotionAPI(res.locals.owner);
     const { id } = req.params;
     if (!id) {
       return res.status(400).send();
@@ -128,7 +105,7 @@ class NotionController {
   }
 
   async createBlock(req: Request, res: Response) {
-    const api = await getNotionAPI(req, res, new NotionRepository(DB));
+    const api = await this.service.getNotionAPI(res.locals.owner);
     const { id } = req.params;
     if (!id) {
       return res.status(400).send();
@@ -138,7 +115,7 @@ class NotionController {
   }
 
   async deleteBlock(req: Request, res: Response) {
-    const api = await getNotionAPI(req, res, new NotionRepository(DB));
+    const api = await this.service.getNotionAPI(res.locals.owner);
     const { id } = req.params;
     if (!id) {
       return res.status(400).send();
@@ -149,11 +126,11 @@ class NotionController {
 
   async renderBlock(req: Request, res: Response) {
     const { id } = req.params;
-    if (!isValidID(id)) {
+    if (!this.service.isValidUUID(id)) {
       return res.status(400).send();
     }
     const query = id.replace(/-/g, '');
-    const api = await getNotionAPI(req, res, new NotionRepository(DB));
+    const api = await this.service.getNotionAPI(res.locals.owner);
     const blockId = getNotionId(query) ?? query;
     const block = await api.getBlock(blockId);
     const settings = new Settings(Settings.LoadDefaultOptions());
@@ -173,19 +150,15 @@ class NotionController {
 
   async getDatabase(req: Request, res: Response) {
     const { id } = req.params;
-    if (!isValidID(id)) {
+    if (!this.service.isValidUUID(id)) {
       return res.status(400).send();
     }
-    const api = await getNotionAPI(req, res, new NotionRepository(DB));
     try {
-      // todo: review
-      let cleanId = id.replace(/-/g, '');
-      if (cleanId.includes('/')) {
-        cleanId = getNotionId(req.params.id) ?? cleanId;
-      }
-      const database = await api.getDatabase(id);
-      console.log('database', database);
-      res.json(database);
+      const database = await this.service.getNotionDatabaseBlock(
+        id,
+        res.locals.owner
+      );
+      return res.json(database);
     } catch (error) {
       sendError(error);
       res.status(500).send();
@@ -193,7 +166,7 @@ class NotionController {
   }
 
   async queryDatabase(req: Request, res: Response) {
-    const api = await getNotionAPI(req, res, new NotionRepository(DB));
+    const api = await this.service.getNotionAPI(res.locals.owner);
     const { id } = req.params;
     if (!id) {
       return res.status(400).send();

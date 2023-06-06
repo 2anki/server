@@ -1,17 +1,13 @@
 import express from 'express';
 
-import DB from '../lib/storage/db';
 import AccessTokens from '../schemas/public/AccessTokens';
 import { Knex } from 'knex';
 
 class TokenRepository {
-  database: Knex;
-
   table: string;
 
-  constructor() {
+  constructor(private readonly database: Knex) {
     this.table = 'access_tokens';
-    this.database = DB;
   }
 
   getAccessToken(req: express.Request): Promise<AccessTokens> {
@@ -22,6 +18,20 @@ class TokenRepository {
 
   getAccessTokenFromString(token: string): Promise<AccessTokens> {
     return this.database(this.table).where({ token: token }).first();
+  }
+
+  deleteAccessToken(token: any) {
+    return this.database(this.table).where({ token }).del();
+  }
+
+  updateAccessToken(token: string, id: string) {
+    return this.database(this.table)
+      .insert({
+        token,
+        owner: id,
+      })
+      .onConflict('owner')
+      .merge();
   }
 }
 

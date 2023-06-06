@@ -1,20 +1,16 @@
 import express from 'express';
 import * as Sentry from '@sentry/node';
 
-import UsersRepository from '../data_layer/UsersRepository';
 import { sendError } from '../lib/error/sendError';
-import DB from '../lib/storage/db';
-import EmailHandler from '../lib/email/EmailHandler';
 import { INDEX_FILE } from '../lib/constants';
 import AuthenticationService from '../services/AuthenticationService';
+import UsersService from '../services/UsersService';
 
 class UsersController {
   constructor(
-    private repostitory: UsersRepository,
-    private authService: AuthenticationService
-  ) {
-    this.repostitory = repostitory;
-  }
+    private readonly userService: UsersService,
+    private readonly authService: AuthenticationService
+  ) {}
 
   async newPassword(
     req: express.Request,
@@ -23,12 +19,16 @@ class UsersController {
   ) {
     const resetToken = req.body.reset_token;
     const { password } = req.body;
+
     if (this.authService.isNewPasswordValid(resetToken, password)) {
       return res.status(400).send({ message: 'invalid' });
     }
 
     try {
-      await this.repostitory.updatePassword(password, resetToken);
+      await this.userService.updatePassword(
+        this.authService.getHashPassword(password),
+        resetToken
+      );
       res.status(200).send({ message: 'ok' });
     } catch (error) {
       sendError(error);
@@ -41,59 +41,37 @@ class UsersController {
     res: express.Response,
     next: express.NextFunction
   ) {
-    console.debug('forgot password');
-    if (!req.body.email) {
+    const { email } = req.body;
+
+    if (!email) {
       console.debug('no email provided');
       return res.status(400).json({ message: 'Email is required' });
     }
-    const user = await DB('users')
-      .where({ email: req.body.email })
-      .returning(['reset_token', 'id'])
-      .first();
-    if (!user || !user.id) {
-      console.debug('no user found');
-      return res.status(200).json({ message: 'ok' });
-    }
-    console.debug('user found');
-    if (user.reset_token) {
-      console.debug('has active reset token, so resending');
-      await EmailHandler.SendResetEmail(req.body.email, user.reset_token);
-      return res.status(200).json({ message: 'ok' });
-    }
-    console.debug('no active reset token, so creating');
-    const resetToken = this.authService.newResetToken();
+
     try {
-      console.debug('updating user reset token');
-      await DB('users')
-        .where({ email: req.body.email })
-        .update({ reset_token: resetToken });
-      console.debug('sending reset email');
-      await EmailHandler.SendResetEmail(req.body.email, resetToken);
+      await this.userService.sendResetEmail(email, this.authService);
       return res.status(200).json({ message: 'ok' });
     } catch (error) {
       sendError(error);
-      return next(error);
+      next(error);
     }
   }
 
-  logOut(
+  async logOut(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
   ) {
     const { token } = req.cookies;
-    res.clearCookie('token');
-    DB('access_tokens')
-      .where({ token })
-      .del()
-      .then(() => {
-        Sentry.setUser(null);
-        res.redirect('/');
-      })
-      .catch((err) => {
-        sendError(err);
-        next(err);
-      });
+    try {
+      await this.authService.logOut(token);
+      Sentry.setUser(null);
+      res.clearCookie('token');
+      res.redirect('/');
+    } catch (error) {
+      sendError(error);
+      next(error);
+    }
   }
 
   async login(
@@ -103,16 +81,14 @@ class UsersController {
   ) {
     console.debug('Login attempt');
     const { email, password } = req.body;
-    if (!email || !password || password.length < 8) {
+    if (!this.authService.isValidLogin(email, password)) {
       return res.status(400).json({
         message: 'Invalid user data. Required  email and password!',
       });
     }
 
     try {
-      const user = await DB('users')
-        .where({ email: email.toLowerCase() })
-        .first();
+      const user = await this.userService.getUserFrom(email);
       if (!user) {
         console.debug(`No user matching email ${email}`);
         return res.status(400).json({
@@ -120,25 +96,16 @@ class UsersController {
         });
       }
 
-      const isMatch = this.repostitory.comparePassword(password, user.password);
+      const isMatch = this.authService.comparePassword(password, user.password);
       if (!isMatch) {
         return res.status(401).json({ message: 'Invalid password.' });
       }
+
       const token = await this.authService.newJWTToken(user);
       if (token) {
+        await this.authService.persistToken(token, user.id.toString());
         res.cookie('token', token);
-        DB('access_tokens')
-          .insert({
-            token,
-            owner: user.id,
-          })
-          .onConflict('owner')
-          .merge()
-          .then(() => res.status(200).json({ token }))
-          .catch((err) => {
-            sendError(err);
-            next(err);
-          });
+        res.status(200).json({ token });
       }
     } catch (error) {
       sendError(error);
@@ -163,17 +130,10 @@ class UsersController {
       return;
     }
 
-    const password = this.repostitory.getHashPassword(req.body.password);
-    const { name } = req.body;
-    const email = req.body.email.toLowerCase();
+    const password = this.authService.getHashPassword(req.body.password);
+    const { name, email } = req.body;
     try {
-      await DB('users')
-        .insert({
-          name,
-          password,
-          email,
-        })
-        .returning(['id']);
+      await this.userService.register(name, password, email);
       res.status(200).json({ message: 'ok' });
     } catch (error) {
       sendError(error);
@@ -209,22 +169,14 @@ class UsersController {
     if (!owner && req.body.confirmed === true) {
       return res.status(400).json({});
     }
-    const ownerTables = [
-      'access_tokens',
-      'favorites',
-      'jobs',
-      'notion_tokens',
-      'patreon_tokens',
-      'settings',
-      'templates',
-      'uploads',
-      'blocks',
-    ];
-    await Promise.all(
-      ownerTables.map((tableName) => DB(tableName).where({ owner }).del())
-    );
-    await DB('users').where({ id: owner }).del();
-    res.status(200).json({});
+
+    try {
+      await this.userService.deleteUser(owner);
+      res.status(200).json({});
+    } catch (error) {
+      sendError(error);
+      return res.status(500).json({ message: 'Failed to delete account' });
+    }
   }
 
   async checkUser(req: express.Request, res: express.Response) {

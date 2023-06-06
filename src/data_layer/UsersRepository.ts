@@ -1,4 +1,3 @@
-import bcrypt from 'bcryptjs';
 import { Knex } from 'knex';
 
 import Users from '../schemas/public/Users';
@@ -16,23 +15,55 @@ class UsersRepository {
     return user;
   }
 
-  updatePassword(password: string, reset_token: string) {
-    const hashPassword = this.getHashPassword(password);
+  updatePassword(hashPassword: string, reset_token: string) {
     return this.database(this.table)
       .where({ reset_token })
       .update({ password: hashPassword, reset_token: null });
   }
 
-  getHashPassword(password: string) {
-    return bcrypt.hashSync(password, 12);
-  }
-
-  comparePassword(password: string, hash: string): boolean {
-    return bcrypt.compareSync(password, hash);
-  }
-
   getByResetToken(token: string) {
     return this.database(this.table).where({ reset_token: token }).first();
+  }
+
+  getByEmail(email: string) {
+    return this.database(this.table)
+      .where({ email: email.toLocaleLowerCase() })
+      .returning(['reset_token', 'id'])
+      .first();
+  }
+
+  updateResetToken(id: string, resetToken: string) {
+    this.database(this.table).where({ id }).update({ reset_token: resetToken });
+  }
+
+  createUser(name: string, password: string, email: any) {
+    return this.database(this.table)
+      .insert({
+        name,
+        password,
+        email,
+      })
+      .returning(['id']);
+  }
+
+  deleteUser(owner: string) {
+    const ownerTables = [
+      'access_tokens',
+      'favorites',
+      'jobs',
+      'notion_tokens',
+      'patreon_tokens',
+      'settings',
+      'templates',
+      'uploads',
+      'blocks',
+    ];
+    return Promise.all([
+      ...ownerTables.map((tableName) =>
+        this.database(tableName).where({ owner }).del()
+      ),
+      this.database(this.table).where({ id: owner }).del(),
+    ]);
   }
 }
 

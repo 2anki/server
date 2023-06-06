@@ -1,39 +1,35 @@
 import { Request, Response } from 'express';
 
-import TemplatesRepository from '../data_layer/TemplatesRepository';
-import TokenRepository from '../data_layer/TokenRepository';
+import { getOwner } from '../lib/User/getOwner';
+import TemplatesService from '../services/TemplatesService';
 
 class TemplatesController {
-  constructor(private repository: TemplatesRepository) {
-    this.repository = repository;
-  }
+  constructor(private readonly service: TemplatesService) {}
 
   async createTemplate(req: Request, res: Response) {
     console.info(`/templates/create`);
     const { templates } = req.body;
-    const access = await new TokenRepository().getAccessToken(req);
-    return this.repository
-      .create({ owner: access.owner.toString(), payload: templates })
-      .then(() => {
-        res.status(200).send();
-      })
-      .catch((err) => {
-        console.error(err);
-        res.status(400).send();
-      });
+    const owner = getOwner(res);
+
+    try {
+      await this.service.create(owner, templates);
+      res.status(200).send();
+    } catch (error) {
+      console.error(error);
+      res.status(400).send();
+    }
   }
 
   async deleteTemplate(req: Request, res: Response) {
-    const access = await new TokenRepository().getAccessToken(req);
-    return this.repository
-      .delete(access.owner)
-      .then(() => {
-        res.status(200).send();
-      })
-      .catch((err) => {
-        console.error(err);
-        res.status(400).send();
-      });
+    const owner = getOwner(res);
+
+    try {
+      await this.service.delete(owner);
+      res.status(200).send();
+    } catch (error) {
+      console.error(error);
+      res.status(400).send();
+    }
   }
 }
 

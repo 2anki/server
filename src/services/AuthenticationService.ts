@@ -1,7 +1,9 @@
-import TokenRepository from '../data_layer/TokenRepository';
 import crypto from 'crypto';
 
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+
+import TokenRepository from '../data_layer/TokenRepository';
 import UsersRepository from '../data_layer/UsersRepository';
 import Users from '../schemas/public/Users';
 
@@ -89,6 +91,26 @@ class AuthenticationService {
     return (
       !resetToken || resetToken.length < 128 || !password || password.length < 8
     );
+  }
+
+  logOut(token: string) {
+    return this.tokenRepository.deleteAccessToken(token);
+  }
+
+  isValidLogin(email: string, password: string) {
+    return email && password && password.length >= 8;
+  }
+
+  getHashPassword(password: string) {
+    return bcrypt.hashSync(password, 12);
+  }
+
+  comparePassword(password: string, hash: string): boolean {
+    return bcrypt.compareSync(password, hash);
+  }
+
+  persistToken(token: string, id: string) {
+    return this.tokenRepository.updateAccessToken(token, id);
   }
 }
 

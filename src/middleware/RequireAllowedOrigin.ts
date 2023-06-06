@@ -4,7 +4,7 @@ import { ALLOWED_ORIGINS } from '../lib/constants';
 import AuthenticationService from '../services/AuthenticationService';
 import UsersRepository from '../data_layer/UsersRepository';
 import TokenRepository from '../data_layer/TokenRepository';
-import DB from '../lib/storage/db';
+import { getDatabase } from '../data_layer';
 
 const RequireAllowedOrigin = async (
   req: Request,
@@ -27,9 +27,10 @@ const RequireAllowedOrigin = async (
     return;
   }
 
+  const database = getDatabase();
   const authService = new AuthenticationService(
-    new TokenRepository(),
-    new UsersRepository(DB)
+    new TokenRepository(database),
+    new UsersRepository(database)
   );
   const user = await authService.getUserFrom(req.cookies.token);
   if (user) {

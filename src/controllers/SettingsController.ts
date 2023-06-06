@@ -1,43 +1,40 @@
 import { Request, Response } from 'express';
-import TokenRepository from '../data_layer/TokenRepository';
-import SettingsRepository from '../data_layer/SettingsRepository';
 import { sendError } from '../lib/error/sendError';
+import SettingsService from '../services/SettingsService';
+import { getOwner } from '../lib/User/getOwner';
 
 class SettingsController {
-  constructor(private repository: SettingsRepository) {
-    this.repository = repository;
-  }
+  constructor(private readonly service: SettingsService) {}
 
   async createSetting(req: Request, res: Response) {
     console.info(`/settings/create ${req.params.id}`);
     const { settings } = req.body;
-    const access = await new TokenRepository().getAccessToken(req);
-    this.repository
-      .create({
-        owner: access.owner.toString(),
+    const owner = getOwner(res);
+
+    try {
+      await this.service.create({
+        owner: owner,
         payload: settings,
         object_id: settings.object_id,
-      })
-      .then(() => {
-        res.status(200).send();
-      })
-      .catch((err) => {
-        sendError(err);
-        res.status(400).send();
       });
+      res.status(200).send();
+    } catch (error) {
+      sendError(error);
+      res.status(400).send();
+    }
   }
 
   async deleteSetting(req: Request, res: Response) {
-    const access = await new TokenRepository().getAccessToken(req);
-    this.repository
-      .delete(access.owner, req.params.id)
-      .then(() => {
-        res.status(200).send();
-      })
-      .catch((err) => {
-        sendError(err);
-        res.status(400).send();
-      });
+    const owner = getOwner(res);
+    const { id } = req.params;
+
+    try {
+      await this.service.delete(owner, id);
+      res.status(200).send();
+    } catch (error) {
+      sendError(error);
+      res.status(400).send();
+    }
   }
 
   async findSetting(req: Request, res: Response) {
@@ -48,8 +45,13 @@ class SettingsController {
       return res.status(400).send();
     }
 
-    const storedSettings = await this.repository.getById(id);
-    return res.json({ payload: storedSettings });
+    try {
+      const storedSettings = await this.service.getById(id);
+      return res.json({ payload: storedSettings });
+    } catch (error) {
+      sendError(error);
+      res.status(400).send();
+    }
   }
 }
 

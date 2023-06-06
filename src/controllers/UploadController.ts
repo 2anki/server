@@ -5,7 +5,6 @@ import express, { Response } from 'express';
 import multer from 'multer';
 import multerS3 from 'multer-s3';
 
-import DB from '../lib/storage/db';
 import StorageHandler from '../lib/storage/StorageHandler';
 import { sendError } from '../lib/error/sendError';
 import { getLimitMessage } from '../lib/misc/getLimitMessage';
@@ -15,7 +14,6 @@ import ErrorHandler, {
   UNSUPPORTED_FORMAT_MD,
   NO_PACKAGE_ERROR,
 } from '../lib/misc/ErrorHandler';
-import { BytesToMegaBytes } from '../lib/misc/file';
 import { PrepareDeck } from '../lib/parser/DeckParser';
 import Package from '../lib/parser/Package';
 import Settings from '../lib/parser/Settings';
@@ -28,27 +26,9 @@ import { TEMPLATE_DIR } from '../lib/constants';
 import { ZipHandler } from '../lib/anki/zip';
 import cleanDeckName from '../lib/cleanDeckname';
 import { getPackagesFromZip } from '../lib/getPackagesFromZip';
-
-const upload = (res: express.Response, storage: StorageHandler) => {
-  return multer({
-    limits: getUploadLimits(res.locals.patreon),
-    storage: multerS3({
-      s3: storage.s3,
-      bucket: StorageHandler.DefaultBucketName(),
-      key(_request, file, cb) {
-        let suffix = '.zip';
-        if (
-          file.originalname.includes('.') &&
-          file.originalname.split('.').length > 1
-        ) {
-          const parts = file.originalname.split('.');
-          suffix = parts[parts.length - 1];
-        }
-        cb(null, storage.uniqify(file.originalname, 'upload', 256, suffix));
-      },
-    }),
-  }).array('pakker', 21);
-};
+import UploadService from '../services/UploadService';
+import { getOwner } from '../lib/User/getOwner';
+import NotionService from '../services/NotionService';
 
 const setFilename = (res: Response, filename: string) => {
   try {
@@ -69,168 +49,162 @@ export const sendBundle = async (packages: Package[], res: Response) => {
   res.status(200).send(payload);
 };
 
-// TODO: move this into notion controller, even better service?
-const purgeBlockCache = (owner: string) => DB('blocks').del().where({ owner });
+class UploadController {
+  constructor(
+    private readonly service: UploadService,
+    private readonly notionService: NotionService
+  ) {}
 
-const registerUploadSize = async (
-  file: UploadedFile,
-  res: express.Response
-) => {
-  const isLoggedIn = res.locals.owner;
-  if (!isLoggedIn) {
-    return;
+  async deleteUpload(req: express.Request, res: express.Response) {
+    const owner = getOwner(res);
+    const { key } = req.params;
+
+    if (!key) {
+      return res.status(400).send();
+    }
+
+    try {
+      await this.service.deleteUpload(owner, key);
+      await this.notionService.purgeBlockCache(owner);
+    } catch (error) {
+      sendError(error);
+      return res.status(500).send();
+    }
+
+    return res.status(200).send();
   }
 
-  const filename = file.originalname;
-  try {
-    await DB('uploads').insert({
-      owner: res.locals.owner,
-      filename,
-      key: file.key,
-      size_mb: BytesToMegaBytes(file.size),
-    });
-  } catch (error) {
-    sendError(error);
+  async getUploads(_req: express.Request, res: express.Response) {
+    const owner = getOwner(res);
+    try {
+      const uploads = await this.service.getUploadsByOwner(owner);
+      res.json(uploads);
+    } catch (error) {
+      sendError(error);
+      res.status(400);
+    }
   }
-};
 
-const deleteUpload = async (req: express.Request, res: express.Response) => {
-  const { key } = req.params;
-  console.log('delete', key);
-  if (!key) {
-    return res.status(400).send();
-  }
-  try {
-    const owner = res.locals.owner;
-    await DB('uploads').del().where({ owner, key });
-    await purgeBlockCache(owner);
-    const s = new StorageHandler();
-    await s.delete(key);
-    console.log('done deleting', key);
-  } catch (error) {
-    sendError(error);
-    return res.status(500).send();
-  }
-  return res.status(200).send();
-};
+  file(req: express.Request, res: express.Response) {
+    console.time(req.path);
+    const storage = new StorageHandler();
+    const handleUploadEndpoint = this.upload(res, storage);
 
-const getUploads = async (_req: express.Request, res: express.Response) => {
-  console.debug('download mine');
-  try {
-    const uploads = await DB('uploads')
-      .where({ owner: res.locals.owner })
-      .orderBy('id', 'desc')
-      .returning('*');
-    res.json(uploads);
-  } catch (error) {
-    sendError(error);
-    res.status(400);
-  }
-};
-
-const handleUpload = async (
-  storage: StorageHandler,
-  req: express.Request,
-  res: express.Response
-) => {
-  try {
-    const files = req.files as UploadedFile[];
-    let packages: Package[] = [];
-    let hasMarkdown: boolean = hasMarkdownFileName(
-      files.map((file) => file.originalname)
-    );
-    for (const file of files) {
-      const filename = file.originalname;
-      const settings = new Settings(req.body || {});
-      await registerUploadSize(file, res);
-      const key = file.key;
-      const fileContents = await storage.getFileContents(key);
-
-      if (isHTMLFile(filename)) {
-        const d = await PrepareDeck(
-          filename,
-          [{ name: filename, contents: fileContents.Body }],
-          settings
-        );
-        if (d) {
-          const pkg = new Package(d.name, d.apkg);
-          packages = packages.concat(pkg);
+    handleUploadEndpoint(req, res, async (error) => {
+      if (error) {
+        let msg = error.message;
+        if (msg === 'File too large') {
+          msg = getLimitMessage();
+        } else {
+          sendError(error);
         }
-      } else if (isZIPFile(filename) || isZIPFile(key)) {
-        const { packages: extraPackages, containsMarkdown } =
-          await getPackagesFromZip(
-            fileContents.Body,
-            res.locals.patreon,
+        console.timeEnd(req.path);
+        return res.status(500).send(msg);
+      }
+      await this.handleUpload(storage, req, res);
+      console.timeEnd(req.path);
+    });
+  }
+
+  private upload(res: express.Response, storage: StorageHandler) {
+    return multer({
+      limits: getUploadLimits(res.locals.patreon),
+      storage: multerS3({
+        s3: storage.s3,
+        bucket: StorageHandler.DefaultBucketName(),
+        key(_request, file, cb) {
+          let suffix = '.zip';
+          if (
+            file.originalname.includes('.') &&
+            file.originalname.split('.').length > 1
+          ) {
+            const parts = file.originalname.split('.');
+            suffix = parts[parts.length - 1];
+          }
+          cb(null, storage.uniqify(file.originalname, 'upload', 256, suffix));
+        },
+      }),
+    }).array('pakker', 21);
+  }
+
+  private async handleUpload(
+    storage: StorageHandler,
+    req: express.Request,
+    res: express.Response
+  ) {
+    try {
+      const files = req.files as UploadedFile[];
+      let packages: Package[] = [];
+      let hasMarkdown: boolean = hasMarkdownFileName(
+        files.map((file) => file.originalname)
+      );
+      for (const file of files) {
+        const filename = file.originalname;
+        const settings = new Settings(req.body || {});
+
+        await this.service.registerUploadSize(file, getOwner(res));
+        const key = file.key;
+        const fileContents = await storage.getFileContents(key);
+
+        if (isHTMLFile(filename)) {
+          const d = await PrepareDeck(
+            filename,
+            [{ name: filename, contents: fileContents.Body }],
             settings
           );
-        packages = packages.concat(extraPackages);
-        hasMarkdown = containsMarkdown;
+          if (d) {
+            const pkg = new Package(d.name, d.apkg);
+            packages = packages.concat(pkg);
+          }
+        } else if (isZIPFile(filename) || isZIPFile(key)) {
+          const { packages: extraPackages, containsMarkdown } =
+            await getPackagesFromZip(
+              fileContents.Body,
+              res.locals.patreon,
+              settings
+            );
+          packages = packages.concat(extraPackages);
+          hasMarkdown = containsMarkdown;
+        }
       }
-    }
-    let payload;
-    let plen;
+      let payload;
+      let plen;
 
-    const first = packages[0];
-    if (packages.length === 1) {
-      if (!first.apkg) {
-        const name = first ? first.name : 'untitled';
-        throw new Error(`Could not produce APKG for ${name}`);
-      }
-      payload = first.apkg;
-      plen = Buffer.byteLength(first.apkg);
-      res.set('Content-Type', 'application/apkg');
-      res.set('Content-Length', plen.toString());
-      first.name = cleanDeckName(first.name);
-      try {
-        res.set('File-Name', encodeURIComponent(first.name));
-      } catch (err) {
-        sendError(err);
-        console.info(`failed to set name ${first.name}`);
-      }
+      const first = packages[0];
+      if (packages.length === 1) {
+        if (!first.apkg) {
+          const name = first ? first.name : 'untitled';
+          throw new Error(`Could not produce APKG for ${name}`);
+        }
+        payload = first.apkg;
+        plen = Buffer.byteLength(first.apkg);
+        res.set('Content-Type', 'application/apkg');
+        res.set('Content-Length', plen.toString());
+        first.name = cleanDeckName(first.name);
+        try {
+          res.set('File-Name', encodeURIComponent(first.name));
+        } catch (err) {
+          sendError(err);
+          console.info(`failed to set name ${first.name}`);
+        }
 
-      res.attachment(`/${first.name}`);
-      return res.status(200).send(payload);
-    } else if (packages.length > 1) {
-      await sendBundle(packages, res);
-      console.info('Sent bundle with %d packages', packages.length);
-    } else {
-      if (hasMarkdown) {
-        ErrorHandler(res, UNSUPPORTED_FORMAT_MD);
+        res.attachment(`/${first.name}`);
+        return res.status(200).send(payload);
+      } else if (packages.length > 1) {
+        await sendBundle(packages, res);
+        console.info('Sent bundle with %d packages', packages.length);
       } else {
-        ErrorHandler(res, NO_PACKAGE_ERROR);
+        if (hasMarkdown) {
+          ErrorHandler(res, UNSUPPORTED_FORMAT_MD);
+        } else {
+          ErrorHandler(res, NO_PACKAGE_ERROR);
+        }
       }
+    } catch (err) {
+      sendError(err);
+      ErrorHandler(res, err as Error);
     }
-  } catch (err) {
-    sendError(err);
-    ErrorHandler(res, err as Error);
   }
-};
-
-const file = (req: express.Request, res: express.Response) => {
-  console.time(req.path);
-  const storage = new StorageHandler();
-  const handleUploadEndpoint = upload(res, storage);
-
-  handleUploadEndpoint(req, res, async (error) => {
-    if (error) {
-      let msg = error.message;
-      if (msg === 'File too large') {
-        msg = getLimitMessage();
-      } else {
-        sendError(error);
-      }
-      console.timeEnd(req.path);
-      return res.status(500).send(msg);
-    }
-    await handleUpload(storage, req, res);
-    console.timeEnd(req.path);
-  });
-};
-
-const UploadController = {
-  deleteUpload,
-  getUploads,
-  file,
-};
+}
 
 export default UploadController;

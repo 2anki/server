@@ -4,11 +4,12 @@ import RequireAuthentication from '../middleware/RequireAuthentication';
 import DownloadController from '../controllers/DownloadController';
 import DownloadService from '../services/DownloadService';
 import DownloadRepository from '../data_layer/DownloadRepository';
-import DB from '../lib/storage/db';
 import StorageHandler from '../lib/storage/StorageHandler';
+import { getDatabase } from '../data_layer';
 
 const DownloadRouter = () => {
-  const repository = new DownloadRepository(DB);
+  const database = getDatabase();
+  const repository = new DownloadRepository(database);
   const storage = new StorageHandler();
   const controller = new DownloadController(
     new DownloadService(repository, storage)

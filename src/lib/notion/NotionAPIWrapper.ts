@@ -17,8 +17,8 @@ import getBlockIcon, { WithIcon } from './blocks/getBlockIcon';
 import { isHeading } from './helpers/isHeading';
 import { getHeadingText } from './helpers/getHeadingText';
 import getObjectTitle from './helpers/getObjectTitle';
-import DB from '../storage/db';
 import { getBlockCache } from './helpers/getBlockCache';
+import { getDatabase } from '../../data_layer';
 
 const DEFAULT_PAGE_SIZE_LIMIT = 100 * 2;
 
@@ -54,7 +54,12 @@ class NotionAPIWrapper {
   }: GetBlockParams): Promise<ListBlockChildrenResponse> {
     console.time(`getBlocks:${id}${all}`);
     const cachedPayload = all
-      ? await getBlockCache(id, this.owner, lastEditedAt)
+      ? await getBlockCache({
+          database: getDatabase(),
+          id,
+          owner: this.owner,
+          lastEditedAt,
+        })
       : null;
     if (cachedPayload) {
       console.log('using payload cache');
@@ -87,7 +92,8 @@ class NotionAPIWrapper {
     if (!createdAt || !lastEditedAt) {
       console.log('not enough input block cache');
     } else {
-      await DB('blocks')
+      const database = getDatabase();
+      await database('blocks')
         .insert({
           owner: this.owner,
           object_id: id,
