@@ -1,5 +1,5 @@
 import { Knex } from 'knex';
-import Uploads from '../../../../schemas/public/Uploads';
+import Uploads from '../../../../data_layer/public/Uploads';
 
 import { TIME_21_MINUTES_AS_SECONDS } from '../../../constants';
 import StorageHandler from '../../StorageHandler';

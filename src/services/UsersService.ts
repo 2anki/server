@@ -1,6 +1,6 @@
 import UsersRepository from '../data_layer/UsersRepository';
 import EmailHandler from '../lib/email/EmailHandler';
-import Users from '../schemas/public/Users';
+import Users from '../data_layer/public/Users';
 import AuthenticationService from './AuthenticationService';
 
 class UsersService {

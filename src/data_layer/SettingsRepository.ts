@@ -1,5 +1,5 @@
 import { Knex } from 'knex';
-import { SettingsInitializer } from '../schemas/public/Settings';
+import { SettingsInitializer } from './public/Settings';
 
 class SettingsRepository {
   table: string;

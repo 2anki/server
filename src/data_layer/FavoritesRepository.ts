@@ -1,5 +1,5 @@
 import { Knex } from 'knex';
-import Favorites, { FavoritesInitializer } from '../schemas/public/Favorites';
+import Favorites, { FavoritesInitializer } from './public/Favorites';
 
 export class FavoritesRepository {
   table: string;

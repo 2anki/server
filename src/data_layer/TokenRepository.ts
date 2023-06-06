@@ -1,6 +1,6 @@
 import express from 'express';
 
-import AccessTokens from '../schemas/public/AccessTokens';
+import AccessTokens from './public/AccessTokens';
 import { Knex } from 'knex';
 
 class TokenRepository {

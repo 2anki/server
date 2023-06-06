@@ -5,7 +5,7 @@ import bcrypt from 'bcryptjs';
 
 import TokenRepository from '../data_layer/TokenRepository';
 import UsersRepository from '../data_layer/UsersRepository';
-import Users from '../schemas/public/Users';
+import Users from '../data_layer/public/Users';
 
 export interface UserWithOwner extends Users {
   owner: number;

@@ -1,6 +1,6 @@
 import { Knex } from 'knex';
 
-import Users from '../schemas/public/Users';
+import Users from './public/Users';
 
 class UsersRepository {
   table: string;

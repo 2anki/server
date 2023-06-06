@@ -2,7 +2,7 @@ import { ListBlockChildrenResponse } from '@notionhq/client/build/src/api-endpoi
 import isAfter from 'date-fns/isAfter';
 import { Knex } from 'knex';
 
-import Blocks from '../../../schemas/public/Blocks';
+import Blocks from '../../../data_layer/public/Blocks';
 
 export interface BlocksCacheInitializer {
   database: Knex;

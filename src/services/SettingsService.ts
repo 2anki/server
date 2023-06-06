@@ -1,5 +1,5 @@
 import SettingsRepository from '../data_layer/SettingsRepository';
-import { SettingsInitializer } from '../schemas/public/Settings';
+import { SettingsInitializer } from '../data_layer/public/Settings';
 
 class SettingsService {
   constructor(private readonly repository: SettingsRepository) {}

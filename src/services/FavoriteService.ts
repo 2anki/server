@@ -1,5 +1,7 @@
 import { FavoritesRepository } from '../data_layer/FavoritesRepository';
-import Favorites, { FavoritesInitializer } from '../schemas/public/Favorites';
+import Favorites, {
+  FavoritesInitializer,
+} from '../data_layer/public/Favorites';
 
 class FavoriteService {
   constructor(private repository: FavoritesRepository) {}

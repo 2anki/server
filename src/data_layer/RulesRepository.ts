@@ -1,5 +1,5 @@
 import { Knex } from 'knex';
-import Jobs from '../schemas/public/Jobs';
+import Jobs from './public/Jobs';
 
 class RulesRepository {
   private readonly tableName: string;

@@ -1,6 +1,6 @@
 import { Knex } from 'knex';
 
-import { TemplatesInitializer } from '../schemas/public/Templates';
+import { TemplatesInitializer } from './public/Templates';
 
 class TemplatesRepository {
   private table = 'templates';

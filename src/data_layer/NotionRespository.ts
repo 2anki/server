@@ -1,5 +1,5 @@
 import { Knex } from 'knex';
-import NotionTokens from '../schemas/public/NotionTokens';
+import NotionTokens from './public/NotionTokens';
 import unHashToken from '../lib/misc/unHashToken';
 
 class NotionRepository {
