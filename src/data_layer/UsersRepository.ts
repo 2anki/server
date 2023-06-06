@@ -33,7 +33,9 @@ class UsersRepository {
   }
 
   updateResetToken(id: string, resetToken: string) {
-    this.database(this.table).where({ id }).update({ reset_token: resetToken });
+    return this.database(this.table)
+      .where({ id })
+      .update({ reset_token: resetToken });
   }
 
   createUser(name: string, password: string, email: any) {

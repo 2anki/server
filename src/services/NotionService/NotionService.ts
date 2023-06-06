@@ -38,7 +38,6 @@ export class NotionService {
     return regex.exec(id);
   }
 
-  // TODO: Make this private
   getNotionAPI = async (owner: string): Promise<NotionAPIWrapper> => {
     const token = await this.notionRepository.getNotionToken(owner);
     return new NotionAPIWrapper(token!, owner);
@@ -120,7 +119,7 @@ export class NotionService {
   }
 
   purgeBlockCache(owner: number) {
-    this.notionRepository.deleteBlocksByOwner(owner);
+    return this.notionRepository.deleteBlocksByOwner(owner);
   }
 
   getClientId() {

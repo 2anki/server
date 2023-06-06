@@ -12,7 +12,7 @@ class UsersService {
 
   async sendResetEmail(email: string, authService: AuthenticationService) {
     const user = await this.repository.getByEmail(email);
-    if (!user || !user.id) {
+    if (!user?.id) {
       console.debug('no user found');
       return;
     }

@@ -42,7 +42,7 @@ class AuthenticationService {
       return false;
     }
     const user = await this.usersRepository.getByResetToken(token);
-    return user && user.reset_token;
+    return user?.reset_token;
   }
 
   newJWTToken(userId: number): Promise<string> {
@@ -81,7 +81,7 @@ class AuthenticationService {
     const user = await this.usersRepository.getById(
       accessToken.owner.toString()
     );
-    if (!user || !user.id) {
+    if (!user?.id) {
       return null;
     }
     return { ...user, owner: user.id };

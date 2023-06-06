@@ -47,7 +47,6 @@ export default async function performConversion(
       res.status(200).send();
     }
 
-    // TODO: this is a bit of a mess, we should probably refactor this
     const { ws, exporter, settings, bl, rules } = await job.createWorkSpace(
       api
     );

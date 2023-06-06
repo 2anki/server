@@ -17,7 +17,7 @@ const RequirePatron = async (
   );
   const user = await authService.getUserFrom(req.cookies.token);
 
-  if (!user || !user.patreon) {
+  if (!user?.patreon) {
     return res.redirect('/patreon');
   }
 

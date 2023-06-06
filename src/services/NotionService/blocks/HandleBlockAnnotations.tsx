@@ -16,13 +16,6 @@ const HandleBlockAnnotations = (
   if (!text) {
     return null;
   }
-  // if (text.link) {
-  //   const mangle = HandleBlockAnnotations(annotations, {
-  //     content: text.content,
-  //     link: null,
-  //   });
-  //   return <a href={text.link.url}>{mangle}</a>;
-  // }
   const content = text.plain_text;
   if (annotations.underline) {
     return (

@@ -76,7 +76,7 @@ class BlockHandler {
     }
 
     const suffix = SuffixFrom(S3FileName(url));
-    const newName = getUniqueFileName(url) + (suffix || '');
+    const newName = getUniqueFileName(url) + (suffix ?? '');
     const imageRequest = await axios.get(url, {
       responseType: 'arraybuffer',
     });
@@ -166,7 +166,7 @@ class BlockHandler {
         console.debug('name is not valid for front, skipping', name, back);
         continue;
       }
-      const ankiNote = new Note(name, back || '');
+      const ankiNote = new Note(name, back ?? '');
       ankiNote.media = this.exporter.media;
       let isBasicType = true;
       // Look for cloze deletion cards

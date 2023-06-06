@@ -11,12 +11,10 @@ import UsersService from '../services/UsersService';
 const UserRouter = () => {
   const router = express.Router();
   const database = getDatabase();
-
   const authService = new AuthenticationService(
     new TokenRepository(database),
     new UsersRepository(database)
   );
-  // TODO: do not use repository in the controller, the service should suffice
   const controller = new UsersController(
     new UsersService(new UsersRepository(database)),
     authService

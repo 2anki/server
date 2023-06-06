@@ -22,7 +22,7 @@ export const NOTION_COLORS = [
 
 export default function notionColorToHex(color: string) {
   const match = NOTION_COLORS.find((c) => c.name === color);
-  return match?.color || NOTION_COLORS[0].color;
+  return match?.color ?? NOTION_COLORS[0].color;
 }
 
 export function isNotionColorBackground(color: string) {
