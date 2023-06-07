@@ -35,6 +35,9 @@ const UploadRouter = () => {
   router.get('/api/upload/mine', RequireAuthentication, (req, res) =>
     uploadController.getUploads(req, res)
   );
+  router.get('/api/upload/jobs', RequireAuthentication, (req, res) =>
+    jobController.getJobsByOwner(req, res)
+  );
   router.delete('/api/upload/jobs/:id', RequireAuthentication, (req, res) =>
     jobController.deleteJobByOwner(req, res)
   );
