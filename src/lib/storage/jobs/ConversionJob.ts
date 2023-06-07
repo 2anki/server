@@ -21,6 +21,7 @@ import StorageHandler from '../StorageHandler';
 import { sendError } from '../../error/sendError';
 import { getDatabase } from '../../../data_layer';
 import NotionAPIWrapper from '../../../services/NotionService/NotionAPIWrapper';
+import { toText } from '../../../services/NotionService/BlockHandler/helpers/deckNameToText';
 
 export default class ConversionJob {
   db: Knex;
@@ -158,13 +159,15 @@ export default class ConversionJob {
     const gen = new CardGenerator(ws.location);
     const payload = (await gen.run()) as string;
     const apkg = fs.readFileSync(payload);
-    const filename = (() => {
-      const f = settings.deckName || bl.firstPageTitle || id;
-      if (isValidDeckName(f)) {
-        return f;
-      }
-      return addDeckNameSuffix(f);
-    })();
+    const filename = toText(
+      (() => {
+        const f = settings.deckName || bl.firstPageTitle || id;
+        if (isValidDeckName(f)) {
+          return f;
+        }
+        return addDeckNameSuffix(f);
+      })()
+    );
 
     const key = storage.uniqify(id, owner, 200, DECK_NAME_SUFFIX);
     await storage.uploadFile(key, apkg);

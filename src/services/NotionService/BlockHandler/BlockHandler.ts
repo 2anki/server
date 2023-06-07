@@ -36,6 +36,7 @@ import { blockToStaticMarkup } from '../helpers/blockToStaticMarkup';
 import { NOTION_STYLE } from '../../../templates/helper';
 import { sendError } from '../../../lib/error/sendError';
 import NotionAPIWrapper from '../NotionAPIWrapper';
+import { toText } from './helpers/deckNameToText';
 
 interface Finder {
   parentType: string;
@@ -293,7 +294,7 @@ class BlockHandler {
 
       const cards = await this.getFlashcards(rules, cBlocks, tags);
       const deck = new Deck(
-        getDeckName(parentName, title),
+        toText(getDeckName(parentName, title)),
         Deck.CleanCards(cards),
         undefined,
         NOTION_STYLE,
