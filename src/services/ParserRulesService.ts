@@ -1,7 +1,7 @@
-import RulesRepository from '../data_layer/RulesRepository';
+import ParserRulesRepository from '../data_layer/ParserRulesRepository';
 
-class RulesService {
-  constructor(private readonly repository: RulesRepository) {}
+class ParserRulesService {
+  constructor(private readonly repository: ParserRulesRepository) {}
 
   createRule(id: string, owner: string, payload: { [key: string]: string }) {
     return this.repository.create(id, owner, payload);
@@ -12,4 +12,4 @@ class RulesService {
   }
 }
 
-export default RulesService;
+export default ParserRulesService;

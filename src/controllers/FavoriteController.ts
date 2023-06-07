@@ -13,7 +13,7 @@ class FavoriteController {
       const { id, type } = req.body;
       const { owner } = res.locals;
 
-      if (this.service.isValidInput(id, type)) {
+      if (!this.service.isValidInput(id, type)) {
         return res.status(400).send();
       }
 

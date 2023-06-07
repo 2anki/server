@@ -1,11 +1,11 @@
 import { Knex } from 'knex';
 import Jobs from './public/Jobs';
 
-class RulesRepository {
+class ParserRulesRepository {
   private readonly tableName: string;
 
   constructor(private database: Knex) {
-    this.tableName = 'rules';
+    this.tableName = 'parser_rules';
     this.database = database;
   }
 
@@ -36,4 +36,4 @@ class RulesRepository {
   }
 }
 
-export default RulesRepository;
+export default ParserRulesRepository;

@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
 
 import { sendError } from '../lib/error/sendError';
-import RulesService from '../services/RulesService';
+import ParserRulesService from '../services/ParserRulesService';
 import { getOwner } from '../lib/User/getOwner';
 
 class RulesController {
-  constructor(private readonly service: RulesService) {}
+  constructor(private readonly service: ParserRulesService) {}
 
   async createRule(req: Request, res: Response) {
     const { id } = req.params;
@@ -27,7 +27,7 @@ class RulesController {
     }
   }
 
-  findRule(req: Request, res: Response) {
+  async findRule(req: Request, res: Response) {
     const { id } = req.params;
 
     if (!id) {
@@ -35,11 +35,11 @@ class RulesController {
     }
 
     try {
-      const rule = this.service.getById(id);
+      const rule = await this.service.getById(id);
       res.status(200).json(rule);
     } catch (err) {
       sendError(err);
-      res.status(400).send();
+      res.status(200).json();
     }
   }
 }

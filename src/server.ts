@@ -22,7 +22,7 @@ import versionRouter from './routes/VersionRouter';
 import uploadRouter from './routes/UploadRouter';
 import usersRouter from './routes/UserRouter';
 import notionRouter from './routes/NotionRouter';
-import rulesRouter from './routes/RulesRouter';
+import rulesRouter from './routes/ParserRulesRouter';
 import downloadRouter from './routes/DownloadRouter';
 import favoriteRouter from './routes/FavoriteRouter';
 import templatesRouter from './routes/TemplatesRouter';
