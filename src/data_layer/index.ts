@@ -7,11 +7,15 @@ import MigratorConfig = Knex.MigratorConfig;
 import { ScheduleCleanup } from '../lib/storage/jobs/ScheduleCleanup';
 import KnexConfig from '../KnexConfig';
 
-export const getDatabase = () =>
-  knex({
-    client: 'pg',
-    connection: process.env.DATABASE_URL || 'postgresql://localhost:5432/n',
-  });
+/**
+ * Performing this assignment here to prevent new connections from being created.
+ */
+const SINGLE_CONNECTION = knex({
+  client: 'pg',
+  connection: process.env.DATABASE_URL || 'postgresql://localhost:5432/n',
+});
+
+export const getDatabase = () => SINGLE_CONNECTION;
 
 export const setupDatabase = async (database: Knex) => {
   try {
