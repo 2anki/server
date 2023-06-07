@@ -5,7 +5,6 @@ import express, { Response } from 'express';
 
 import { getOwner } from '../lib/User/getOwner';
 import { ZipHandler } from '../lib/anki/zip';
-import cleanDeckName from '../lib/cleanDeckname';
 import { TEMPLATE_DIR } from '../lib/constants';
 import { sendError } from '../lib/error/sendError';
 import { getLimitMessage } from '../lib/misc/getLimitMessage';
@@ -13,10 +12,11 @@ import Package from '../lib/parser/Package';
 import StorageHandler from '../lib/storage/StorageHandler';
 import NotionService from '../services/NotionService';
 import UploadService from '../services/UploadService';
+import { toText } from '../services/NotionService/BlockHandler/helpers/deckNameToText';
 
 const setFilename = (res: Response, filename: string) => {
   try {
-    res.set('File-Name', cleanDeckName(filename));
+    res.set('File-Name', toText(filename));
   } catch (err) {
     sendError(err);
   }

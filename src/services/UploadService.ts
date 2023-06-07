@@ -9,7 +9,6 @@ import StorageHandler from '../lib/storage/StorageHandler';
 import { UploadedFile } from '../lib/storage/types';
 import { sendBundle } from '../controllers/UploadController';
 import { getOwner } from '../lib/User/getOwner';
-import cleanDeckName from '../lib/cleanDeckname';
 import { sendError } from '../lib/error/sendError';
 import { getPackagesFromZip } from '../lib/getPackagesFromZip';
 import ErrorHandler, {
@@ -24,6 +23,7 @@ import {
   isHTMLFile,
   isZIPFile,
 } from '../lib/storage/checks';
+import { toText } from './NotionService/BlockHandler/helpers/deckNameToText';
 
 class UploadService {
   getUploadsByOwner(owner: number) {
@@ -127,7 +127,7 @@ class UploadService {
         plen = Buffer.byteLength(first.apkg);
         res.set('Content-Type', 'application/apkg');
         res.set('Content-Length', plen.toString());
-        first.name = cleanDeckName(first.name);
+        first.name = toText(first.name);
         try {
           res.set('File-Name', encodeURIComponent(first.name));
         } catch (err) {
