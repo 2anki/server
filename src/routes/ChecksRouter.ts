@@ -1,5 +1,5 @@
 import express from 'express';
-import ChecksController from '../controllers/ChecksController';
+import ChecksController from '../controllers/ChecksController/ChecksController';
 
 const ChecksRouter = () => {
   const router = express.Router();
