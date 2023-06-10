@@ -26,7 +26,7 @@
     "lint": "eslint '**/*.ts' '**/*.tsx'",
     "lint:fix": "eslint --fix '**/*.ts' '**/*.tsx'",
     "purge-js": "rm `find . -name '*.js'|grep -v node_modules`",
-    "test:mock": "FORCE_BUILD=true ts-node lib/notion/_mock/build-mock-data.tsx",
+    "test:mock": "FORCE_BUILD=true ts-node lib/notion/_mock/build-mock-data.tsx"
   },
   "license": "MIT",
   "dependencies": {
