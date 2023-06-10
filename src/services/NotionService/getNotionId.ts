@@ -1,5 +1,5 @@
 export const getNotionId = (query: string): string | undefined => {
-  if (query?.includes('/')) {
+  if (!query?.includes('/')) {
     return undefined;
   }
 
