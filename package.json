@@ -27,7 +27,6 @@
     "lint:fix": "eslint --fix '**/*.ts' '**/*.tsx'",
     "purge-js": "rm `find . -name '*.js'|grep -v node_modules`",
     "test:mock": "FORCE_BUILD=true ts-node lib/notion/_mock/build-mock-data.tsx",
-    "prepare": "cd .. && husky install .husky"
   },
   "license": "MIT",
   "dependencies": {
