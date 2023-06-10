@@ -7,7 +7,7 @@
     "notion2anki"
   ],
   "author": "Alexander Alemayhu",
-  "version": "1.0.0-alpha.54",
+  "version": "1.0.1-0",
   "engines": {
     "node": ">=12.0.0"
   },
@@ -26,8 +26,7 @@
     "lint": "eslint '**/*.ts' '**/*.tsx'",
     "lint:fix": "eslint --fix '**/*.ts' '**/*.tsx'",
     "purge-js": "rm `find . -name '*.js'|grep -v node_modules`",
-    "test:mock": "FORCE_BUILD=true ts-node lib/notion/_mock/build-mock-data.tsx",
-    "prepare": "cd .. && husky install .husky"
+    "test:mock": "FORCE_BUILD=true ts-node lib/notion/_mock/build-mock-data.tsx"
   },
   "license": "MIT",
   "dependencies": {

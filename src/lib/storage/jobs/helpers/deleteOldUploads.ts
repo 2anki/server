@@ -1,5 +1,5 @@
 import { Knex } from 'knex';
-import Uploads from '../../../../schemas/public/Uploads';
+import Uploads from '../../../../data_layer/public/Uploads';
 
 import { TIME_21_MINUTES_AS_SECONDS } from '../../../constants';
 import StorageHandler from '../../StorageHandler';
@@ -20,7 +20,7 @@ const deleteNonSubScriberUploads = async (
   }
 
   for (const upload of nonSubScriberUploads.flat()) {
-    await storage.deleteWith(upload.key);
+    await storage.delete(upload.key);
     await db('uploads').delete().where('key', upload.key);
   }
 };
@@ -38,7 +38,7 @@ const deleteDanglingUploads = async (db: Knex, storage: StorageHandler) => {
 
   for (const file of nonPatreonFiles) {
     if (file.Key) {
-      storage.deleteWith(file.Key);
+      storage.delete(file.Key);
     }
   }
 };

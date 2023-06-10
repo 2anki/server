@@ -20,7 +20,7 @@ class CardGenerator {
     this.currentDirectory = workspace;
   }
 
-  async run() {
+  run() {
     const deckInfo = path.join(this.currentDirectory, 'deck_info.json');
     const templateDirectory = resolvePath(__dirname, '../../templates/');
 

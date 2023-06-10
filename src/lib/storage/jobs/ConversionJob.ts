@@ -1,12 +1,10 @@
 import { Knex } from 'knex';
 
-import NotionAPIWrapper from '../../notion/NotionAPIWrapper';
 import { Job, JobStatus } from '../types';
 import Workspace from '../../parser/WorkSpace';
 import CustomExporter from '../../parser/CustomExporter';
 import { loadSettingsFromDatabase } from '../../parser/Settings/loadSettingsFromDatabase';
-import DB from '../db';
-import BlockHandler from '../../notion/BlockHandler/BlockHandler';
+import BlockHandler from '../../../services/NotionService/BlockHandler/BlockHandler';
 import ParserRules from '../../parser/ParserRules';
 import express from 'express';
 import Settings from '../../parser/Settings';
@@ -21,6 +19,9 @@ import { FileSizeInMegaBytes } from '../../misc/file';
 import Deck from '../../parser/Deck';
 import StorageHandler from '../StorageHandler';
 import { sendError } from '../../error/sendError';
+import { getDatabase } from '../../../data_layer';
+import NotionAPIWrapper from '../../../services/NotionService/NotionAPIWrapper';
+import { toText } from '../../../services/NotionService/BlockHandler/helpers/deckNameToText';
 
 export default class ConversionJob {
   db: Knex;
@@ -118,7 +119,7 @@ export default class ConversionJob {
     const ws = new Workspace(true, 'fs');
     console.debug(`using workspace ${ws.location}`);
     const exporter = new CustomExporter('', ws.location);
-    const settings = await loadSettingsFromDatabase(DB, owner, id);
+    const settings = await loadSettingsFromDatabase(getDatabase(), owner, id);
     console.debug(`using settings ${JSON.stringify(settings, null, 2)}`);
     const bl = new BlockHandler(exporter, api, settings);
     const rules = await ParserRules.Load(owner, id);
@@ -136,7 +137,7 @@ export default class ConversionJob {
     await this.setStatus('step2_creating_flashcards');
     const decks = await bl.findFlashcards({
       parentType: req?.query.type?.toString() || 'page',
-      topLevelId: id.replace(/\-/g, ''),
+      topLevelId: id.replace(/-/g, ''),
       rules,
       decks: [],
       parentName: settings.deckName || '',
@@ -158,18 +159,20 @@ export default class ConversionJob {
     const gen = new CardGenerator(ws.location);
     const payload = (await gen.run()) as string;
     const apkg = fs.readFileSync(payload);
-    const filename = (() => {
-      const f = settings.deckName || bl.firstPageTitle || id;
-      if (isValidDeckName(f)) {
-        return f;
-      }
-      return addDeckNameSuffix(f);
-    })();
+    const filename = toText(
+      (() => {
+        const f = settings.deckName || bl.firstPageTitle || id;
+        if (isValidDeckName(f)) {
+          return f;
+        }
+        return addDeckNameSuffix(f);
+      })()
+    );
 
     const key = storage.uniqify(id, owner, 200, DECK_NAME_SUFFIX);
     await storage.uploadFile(key, apkg);
     const size = FileSizeInMegaBytes(payload);
-    await DB('uploads').insert({
+    await getDatabase()('uploads').insert({
       object_id: id,
       owner,
       filename,

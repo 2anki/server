@@ -1,5 +1,4 @@
-import DB from '../storage/db';
-
+import { getDatabase } from '../../data_layer';
 import addHeadings from './helpers/addHeadings';
 
 class ParserRules {
@@ -44,7 +43,7 @@ class ParserRules {
   static async Load(owner: string, id: string): Promise<ParserRules> {
     try {
       const rules = new ParserRules();
-      const result = await DB('parser_rules')
+      const result = await getDatabase()('parser_rules')
         .where({ object_id: id, owner })
         .returning(['*'])
         .first();
@@ -57,25 +56,6 @@ class ParserRules {
     } catch (error) {
       return new ParserRules();
     }
-  }
-
-  static async Save(
-    id: string,
-    owner: string,
-    input: { [key: string]: string }
-  ) {
-    await DB('parser_rules')
-      .insert({
-        owner,
-        object_id: id,
-        flashcard_is: input.FLASHCARD,
-        deck_is: input.DECK,
-        sub_deck_is: input.SUB_DECKS,
-        tags_is: input.TAGS,
-        email_notification: input.EMAIL_NOTIFICATION,
-      })
-      .onConflict('object_id')
-      .merge();
   }
 
   useColums() {

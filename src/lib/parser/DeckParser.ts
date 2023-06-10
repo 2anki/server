@@ -10,7 +10,7 @@ import { SuffixFrom } from '../misc/file';
 import replaceAll from './helpers/replaceAll';
 import handleClozeDeletions from './helpers/handleClozeDeletions';
 import sanitizeTags from '../anki/sanitizeTags';
-import preserveNewlinesIfApplicable from '../notion/helpers/preserveNewlinesIfApplicable';
+import preserveNewlinesIfApplicable from '../../services/NotionService/helpers/preserveNewlinesIfApplicable';
 
 import getYouTubeID from './helpers/getYouTubeID';
 import getYouTubeEmbedLink from './helpers/getYouTubeEmbedLink';
@@ -416,7 +416,7 @@ export class DeckParser {
     return card;
   }
 
-  async build() {
+  build() {
     const ws = new Workspace(true, 'fs');
     const exporter = this.setupExporter(this.payload, ws.location);
 
