@@ -1,10 +1,12 @@
 import express from 'express';
-import ChecksController from '../controllers/ChecksController/ChecksController';
+import ChecksController from '../controllers/ChecksController';
 
 const ChecksRouter = () => {
   const router = express.Router();
+  const controller = new ChecksController();
+
   router.get('/api/checks', (req, res) =>
-    ChecksController.getStatusCheck(req, res)
+    controller.getStatusCheck(req, res)
   );
   return router;
 };
