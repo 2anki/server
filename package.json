@@ -32,7 +32,7 @@
   "dependencies": {
     "@notionhq/client": "^2.2.3",
     "@sendgrid/mail": "^7.7.0",
-    "@sentry/node": "^7.46.0",
+    "@sentry/node": "^7.54.0",
     "@sentry/tracing": "^7.48.0",
     "aws-sdk": "^2.1359.0",
     "axios": "^0.21.4",
