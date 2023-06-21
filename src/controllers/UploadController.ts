@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 import express, { Response } from 'express';
+import crypto from 'crypto';
 
 import { getOwner } from '../lib/User/getOwner';
 import { ZipHandler } from '../lib/anki/zip';
