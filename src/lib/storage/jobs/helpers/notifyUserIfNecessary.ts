@@ -1,5 +1,5 @@
+import { useDefaultEmailService } from '../../../../services/EmailService/EmailService';
 import getEmailFromOwner from '../../../User/getEmailFromOwner';
-import EmailHandler from '../../../email/EmailHandler';
 import ParserRules from '../../../parser/ParserRules';
 import { Knex } from 'knex';
 
@@ -24,10 +24,12 @@ export const notifyUserIfNecessary = async ({
 }: JobInfo) => {
   console.debug('rules.email', rules.EMAIL_NOTIFICATION);
   const email = await getEmailFromOwner(db, owner);
+  const emailService = useDefaultEmailService();
+
   if (size > 24) {
     const link = `${process.env.DOMAIN}/api/download/u/${key}`;
-    await EmailHandler.SendConversionLinkEmail(email, id, link);
+    await emailService.sendConversionLinkEmail(email, id, link);
   } else if (rules.EMAIL_NOTIFICATION) {
-    await EmailHandler.SendConversionEmail(email, id, apkg);
+    await emailService.sendConversionEmail(email, id, apkg);
   }
 };
