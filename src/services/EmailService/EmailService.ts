@@ -15,11 +15,10 @@ export interface IEmailService {
 
 class EmailService implements IEmailService {
   constructor(apiKey: string, readonly defaultSender: string) {
-    // sgMail.setApiKey(process.env.SENDGRID_API_KEY);
     sgMail.setApiKey(apiKey);
   }
 
-  async sendResetEmail(email: string, token: string) {
+  sendResetEmail(email: string, token: string) {
     const link = `${process.env.DOMAIN}/users/r/${token}`.replace('//', '/');
     const markup = PASSWORD_RESET_TEMPLATE.replace('{{link}}', link);
     const msg = {
@@ -31,7 +30,7 @@ class EmailService implements IEmailService {
       replyTo: 'alexander@alemayhu.com',
     };
 
-    await sgMail.send(msg);
+    sgMail.send(msg);
   }
 
   async sendConversionEmail(email: string, filename: string, contents: Buffer) {
@@ -58,7 +57,7 @@ class EmailService implements IEmailService {
       ],
     };
 
-    await sgMail.send(msg);
+    sgMail.send(msg);
   }
 
   async sendConversionLinkEmail(email: string, filename: string, link: string) {
