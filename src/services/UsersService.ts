@@ -1,10 +1,13 @@
 import UsersRepository from '../data_layer/UsersRepository';
-import EmailHandler from '../lib/email/EmailHandler';
 import Users from '../data_layer/public/Users';
 import AuthenticationService from './AuthenticationService';
+import { IEmailService } from './EmailService/EmailService';
 
 class UsersService {
-  constructor(private readonly repository: UsersRepository) {}
+  constructor(
+    private readonly repository: UsersRepository,
+    private readonly emailService: IEmailService
+  ) {}
 
   updatePassword(password: string, resetToken: string) {
     return this.repository.updatePassword(password, resetToken);
@@ -19,7 +22,7 @@ class UsersService {
     console.debug('user found');
 
     const resetToken = await this.getOrCreateResetToken(user, authService);
-    await EmailHandler.SendResetEmail(email, resetToken);
+    await this.emailService.sendResetEmail(email, resetToken);
   }
 
   private async getOrCreateResetToken(
