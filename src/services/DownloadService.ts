@@ -3,20 +3,18 @@ import StorageHandler from '../lib/storage/StorageHandler';
 import DownloadRepository from '../data_layer/DownloadRepository';
 
 class DownloadService {
-  constructor(
-    private downloadRepository: DownloadRepository,
-    private storage: StorageHandler
-  ) {}
+  constructor(private downloadRepository: DownloadRepository) {}
 
   async getFileBody(
     owner: string,
-    key: string
+    key: string,
+    storage: StorageHandler
   ): Promise<S3.Body | null | undefined> {
     const fileEntry = await this.downloadRepository.getFile(owner, key);
     if (!fileEntry) {
       return null;
     }
-    const file = await this.storage.getFileContents(fileEntry.key);
+    const file = await storage.getFileContents(fileEntry.key);
     return file?.Body;
   }
 
