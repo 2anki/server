@@ -6,7 +6,7 @@ const VersionRouter = () => {
   const controller = new VersionController(new VersionService());
   const router = express.Router();
 
-  router.get('/api/version', controller.getVersionInfo);
+  router.get('/api/version', (req, res) => controller.getVersionInfo(req, res));
 
   return router;
 };
