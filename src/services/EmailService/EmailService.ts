@@ -1,4 +1,5 @@
-import * as sgMail from '@sendgrid/mail';
+import sgMail = require('@sendgrid/mail');
+
 import {
   CONVERT_LINK_TEMPLATE,
   CONVERT_TEMPLATE,
