@@ -33,7 +33,7 @@ class EmailService implements IEmailService {
     sgMail.send(msg);
   }
 
-  async sendConversionEmail(email: string, filename: string, contents: Buffer) {
+  sendConversionEmail(email: string, filename: string, contents: Buffer) {
     const markup = CONVERT_TEMPLATE;
 
     let attachedFilename = filename;
