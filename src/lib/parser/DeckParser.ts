@@ -19,6 +19,7 @@ import { isValidAudioFile } from '../anki/format';
 import { sendError } from '../error/sendError';
 import FallbackParser from './experimental/FallbackParser';
 import { NO_PACKAGE_ERROR } from '../misc/ErrorHandler';
+import get16DigitRandomId from '../../shared/helpers/get16DigitRandomId';
 
 export class DeckParser {
   globalTags: cheerio.Cheerio | null;
@@ -286,7 +287,7 @@ export class DeckParser {
     cards = cards.filter(Boolean);
 
     decks.push(
-      new Deck(name, cards, image, style, Deck.GenerateId(), this.settings)
+      new Deck(name, cards, image, style, get16DigitRandomId(), this.settings)
     );
 
     const subpages = dom('.link-to-page').toArray();
@@ -453,7 +454,7 @@ export class DeckParser {
 
     for (const d of this.payload) {
       const deck = d;
-      deck.id = Deck.GenerateId();
+      deck.id = get16DigitRandomId();
       // Is it necessary to delete the style here?
       // delete deck.style;
 

@@ -1,5 +1,3 @@
-import { customAlphabet } from 'nanoid';
-
 import Note from './Note';
 import Settings from './Settings';
 
@@ -50,9 +48,5 @@ export default class Deck {
       return this.style.replace(/'/g, '"');
     }
     return '';
-  }
-
-  static GenerateId() {
-    return parseInt(customAlphabet('1234567890', 16)(), 10);
   }
 }

@@ -37,6 +37,7 @@ import { NOTION_STYLE } from '../../../templates/helper';
 import { sendError } from '../../../lib/error/sendError';
 import NotionAPIWrapper from '../NotionAPIWrapper';
 import { toText } from './helpers/deckNameToText';
+import get16DigitRandomId from '../../../shared/helpers/get16DigitRandomId';
 
 interface Finder {
   parentType: string;
@@ -300,7 +301,7 @@ class BlockHandler {
         Deck.CleanCards(cards),
         undefined,
         NOTION_STYLE,
-        Deck.GenerateId(),
+        get16DigitRandomId(),
         this.settings
       );
 
@@ -341,7 +342,7 @@ class BlockHandler {
               cards,
               undefined,
               NOTION_STYLE,
-              Deck.GenerateId(),
+              get16DigitRandomId(),
               this.settings
             )
           );

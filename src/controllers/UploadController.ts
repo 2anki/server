@@ -14,6 +14,7 @@ import StorageHandler from '../lib/storage/StorageHandler';
 import NotionService from '../services/NotionService';
 import UploadService from '../services/UploadService';
 import { toText } from '../services/NotionService/BlockHandler/helpers/deckNameToText';
+import { getRandomUUID } from '../shared/helpers/getRandomUUID';
 
 const setFilename = (res: Response, filename: string) => {
   try {
@@ -28,7 +29,7 @@ function loadREADME(): string {
 }
 
 export const sendBundle = async (packages: Package[], res: Response) => {
-  const filename = `Your decks-${crypto.randomUUID()}.zip`;
+  const filename = `Your decks-${getRandomUUID()}.zip`;
   const payload = await ZipHandler.toZip(packages, loadREADME());
   setFilename(res, filename);
   res.status(200).send(payload);
