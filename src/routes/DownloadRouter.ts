@@ -10,15 +10,13 @@ import { getDatabase } from '../data_layer';
 const DownloadRouter = () => {
   const database = getDatabase();
   const repository = new DownloadRepository(database);
-  const storage = new StorageHandler();
-  const controller = new DownloadController(
-    new DownloadService(repository, storage)
-  );
+  const controller = new DownloadController(new DownloadService(repository));
   const router = express.Router();
 
-  router.get('/api/download/u/:key', RequireAuthentication, (req, res) =>
-    controller.getFile(req, res)
-  );
+  router.get('/api/download/u/:key', RequireAuthentication, (req, res) => {
+    const storage = new StorageHandler();
+    controller.getFile(req, res, storage);
+  });
 
   return router;
 };

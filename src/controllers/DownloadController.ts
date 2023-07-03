@@ -2,11 +2,12 @@ import { Request, Response } from 'express';
 
 import { sendError } from '../lib/error/sendError';
 import DownloadService from '../services/DownloadService';
+import StorageHandler from '../lib/storage/StorageHandler';
 
 class DownloadController {
   constructor(private service: DownloadService) {}
 
-  async getFile(req: Request, res: Response) {
+  async getFile(req: Request, res: Response, storage: StorageHandler) {
     const { key } = req.params;
 
     if (!this.service.isValidKey(key)) {
@@ -16,7 +17,7 @@ class DownloadController {
     console.debug(`download ${key}`);
     const { owner } = res.locals;
     try {
-      const body = await this.service.getFileBody(owner, key);
+      const body = await this.service.getFileBody(owner, key, storage);
       if (body) {
         res.send(body);
       } else {
