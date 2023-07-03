@@ -6,6 +6,7 @@ import {
   PASSWORD_RESET_TEMPLATE,
 } from './constants';
 import { isValidDeckName, addDeckNameSuffix } from '../../lib/anki/format';
+import { ClientResponse } from '@sendgrid/mail';
 
 export interface IEmailService {
   sendResetEmail(email: string, token: string): void;
@@ -33,7 +34,11 @@ class EmailService implements IEmailService {
     sgMail.send(msg);
   }
 
-  sendConversionEmail(email: string, filename: string, contents: Buffer) {
+  sendConversionEmail(
+    email: string,
+    filename: string,
+    contents: Buffer
+  ): Promise<[ClientResponse, {}]> {
     const markup = CONVERT_TEMPLATE;
 
     let attachedFilename = filename;
@@ -57,7 +62,7 @@ class EmailService implements IEmailService {
       ],
     };
 
-    sgMail.send(msg);
+    return sgMail.send(msg);
   }
 
   async sendConversionLinkEmail(email: string, filename: string, link: string) {
