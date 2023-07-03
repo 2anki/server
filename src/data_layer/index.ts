@@ -18,6 +18,14 @@ const SINGLE_CONNECTION = knex({
 export const getDatabase = () => SINGLE_CONNECTION;
 
 export const setupDatabase = async (database: Knex) => {
+  if (!process.env.DATABASE_URL) {
+    console.info('DATABASE_URL is not set, skipping DB setup.');
+    console.warn(
+      "Things might not work as expected. If you're running this locally, you can ignore this warning if you are only interested in HTML uploads."
+    );
+    return;
+  }
+
   try {
     await database.raw('SELECT 1');
     if (process.env.MIGRATIONS_DIR) {
