@@ -1,13 +1,11 @@
 import { Request, Response } from 'express';
 
-import { APIResponseError } from '@notionhq/client';
-import FavoriteService from '../services/FavoriteService';
-import sendErrorResponse from '../lib/sendErrorResponse';
-import { getReturnStatusCodeFromBoolean } from './helpers/getReturnStatusCodeFromBoolean';
-import NotionService from '../services/NotionService';
-import NotionRepository from '../data_layer/NotionRespository';
 import { getDatabase } from '../data_layer';
-import { purgeMissingFavorites } from '../data_layer/helpers/purgeMissingFavorites';
+import NotionRepository from '../data_layer/NotionRespository';
+import sendErrorResponse from '../lib/sendErrorResponse';
+import FavoriteService from '../services/FavoriteService';
+import NotionService from '../services/NotionService';
+import { getReturnStatusCodeFromBoolean } from './helpers/getReturnStatusCodeFromBoolean';
 
 class FavoritesController {
   constructor(private service: FavoriteService) {}
@@ -51,9 +49,6 @@ class FavoritesController {
       );
       res.json(favorites);
     } catch (error) {
-      if (error instanceof APIResponseError) {
-        await purgeMissingFavorites(owner);
-      }
       res.json([]);
       sendErrorResponse(error, res);
     }
