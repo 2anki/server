@@ -1,5 +1,7 @@
 import { Knex } from 'knex';
-import Favorites, { FavoritesInitializer } from './public/Favorites';
+
+import Favorites from './public/Favorites';
+import { NewFavorite } from '../entities/favorites';
 
 export class FavoritesRepository {
   table: string;
@@ -8,13 +10,13 @@ export class FavoritesRepository {
     this.table = 'favorites';
   }
 
-  getAll(owner: number): Promise<Favorites[]> {
+  getAllByOwner(owner: string): Promise<Favorites[]> {
     return this.database(this.table).select('*').where({
       owner,
     });
   }
 
-  create({ object_id, owner, type }: FavoritesInitializer) {
+  addToFavorites({ object_id, owner, type }: NewFavorite) {
     return this.database(this.table).insert({
       object_id,
       owner,
@@ -22,7 +24,7 @@ export class FavoritesRepository {
     });
   }
 
-  async remove(id: string, owner: number) {
+  async remove(id: string, owner: string | number) {
     await this.database(this.table).delete().where({
       object_id: id,
       owner,
@@ -30,8 +32,17 @@ export class FavoritesRepository {
   }
 
   deleteAll(owner: number | string) {
-    return this.database('favorites').delete().where({
+    return this.database(this.table).delete().where({
       owner,
     });
+  }
+
+  findById(id: string): Promise<Favorites> {
+    return this.database(this.table)
+      .select('*')
+      .where({
+        object_id: id,
+      })
+      .first();
   }
 }

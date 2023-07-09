@@ -1,16 +1,14 @@
 import express from 'express';
 
-import RequireAuthentication from './middleware/RequireAuthentication';
-import FavoriteController from '../controllers/FavoriteController';
-import FavoriteService from '../services/FavoriteService';
-import { FavoritesRepository } from '../data_layer/FavoritesRepository';
-import NotionRepository from '../data_layer/NotionRespository';
+import FavoritesController from '../controllers/FavoritesController';
 import { getDatabase } from '../data_layer';
-import NotionService from '../services/NotionService';
+import { FavoritesRepository } from '../data_layer/FavoritesRepository';
+import FavoriteService from '../services/FavoriteService';
+import RequireAuthentication from './middleware/RequireAuthentication';
 
 const FavoriteRouter = () => {
   const router = express.Router();
-  const controller = new FavoriteController(
+  const controller = new FavoritesController(
     new FavoriteService(new FavoritesRepository(getDatabase()))
   );
 
@@ -24,11 +22,7 @@ const FavoriteRouter = () => {
     '/api/favorite',
     RequireAuthentication,
     (request: express.Request, response: express.Response) => {
-      controller.getFavorites(
-        request,
-        response,
-        new NotionService(new NotionRepository(getDatabase()))
-      );
+      controller.getFavorites(request, response);
     }
   );
 
