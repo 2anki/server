@@ -50,7 +50,6 @@ class FavoritesController {
       res.json(favorites);
     } catch (error) {
       res.json([]);
-      sendErrorResponse(error, res);
     }
   }
 }
