@@ -7,6 +7,7 @@ import { getReturnStatusCodeFromBoolean } from './helpers/getReturnStatusCodeFro
 import NotionService from '../services/NotionService';
 import NotionRepository from '../data_layer/NotionRespository';
 import { getDatabase } from '../data_layer';
+import { purgeMissingFavorites } from '../data_layer/helpers/purgeMissingFavorites';
 
 class FavoritesController {
   constructor(private service: FavoriteService) {}
@@ -51,7 +52,7 @@ class FavoritesController {
       res.json(favorites);
     } catch (error) {
       if (error instanceof APIResponseError) {
-        purgeMissingFavorites(owner);
+        await purgeMissingFavorites(owner);
       }
       res.json([]);
       sendErrorResponse(error, res);

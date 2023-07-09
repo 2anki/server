@@ -2,9 +2,8 @@ import { FavoritesRepository } from '../data_layer/FavoritesRepository';
 import Favorites from '../data_layer/public/Favorites';
 import { NewFavorite, isValidFavoriteInput } from '../entities/favorites';
 import AddToFavoritesUseCase from '../usecases/favorites/AddToFavoritesUseCase';
-import DeleteMissingFavoritesUseCase from '../usecases/favorites/DeleteMissingFavoritesUseCase';
-import GetAllFavoritesByOwnerUseCase from '../usecases/favorites/GetAllFavoritesByOwnerUseCase';
 import DeleteFavoriteUseCase from '../usecases/favorites/DeleteFavoriteUseCase';
+import GetAllFavoritesByOwnerUseCase from '../usecases/favorites/GetAllFavoritesByOwnerUseCase';
 import NotionService from './NotionService';
 
 class FavoriteService {
