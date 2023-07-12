@@ -11,6 +11,9 @@ import { blockToStaticMarkup } from '../services/NotionService/helpers/blockToSt
 import NotionService from '../services/NotionService';
 import { getDatabase } from '../data_layer';
 import { getNotionId } from '../services/NotionService/getNotionId';
+import { getOwner } from '../lib/User/getOwner';
+import { APIErrorCode, APIResponseError } from '@notionhq/client';
+import sendErrorResponse from '../lib/sendErrorResponse';
 
 class NotionController {
   constructor(private readonly service: NotionService) {}
@@ -32,9 +35,21 @@ class NotionController {
   }
 
   async search(req: Request, res: Response) {
-    const query = req.body.query.toString() || '';
-    const result = await this.service.search(query, res.locals.owner);
-    res.json(result);
+    try {
+      const query = req.body.query.toString() || '';
+      const result = await this.service.search(query, getOwner(res));
+      res.json(result);
+    } catch (err) {
+      if (err instanceof APIResponseError) {
+        if (err.code === APIErrorCode.Unauthorized) {
+          const renewalLink = this.service.getNotionAuthorizationLink(
+            this.service.getClientId()
+          );
+          err.message += `You can renew it <a href='${renewalLink}'>here</a>.`;
+        }
+        sendErrorResponse(err, res);
+      }
+    }
   }
 
   async getNotionLink(_req: Request, res: Response) {

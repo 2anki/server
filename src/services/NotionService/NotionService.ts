@@ -12,9 +12,6 @@ export interface NotionLinkInfo {
   workspace: string | null;
 }
 
-const getNotionAuthorizationLink = (clientId: string) =>
-  `https://api.notion.com/v1/oauth/authorize?owner=user&client_id=${clientId}&response_type=code`;
-
 export class NotionService {
   clientId: string;
 
@@ -26,6 +23,10 @@ export class NotionService {
     this.clientId = process.env.NOTION_CLIENT_ID!;
     this.clientSecret = process.env.NOTION_CLIENT_SECRET!;
     this.redirectURI = process.env.NOTION_REDIRECT_URI!;
+  }
+
+  getNotionAuthorizationLink(clientId: string) {
+    return `https://api.notion.com/v1/oauth/authorize?owner=user&client_id=${clientId}&response_type=code`;
   }
 
   isValidUUID(id: string | undefined | null) {
@@ -68,7 +69,7 @@ export class NotionService {
   async getNotionLinkInfo(owner: number): Promise<NotionLinkInfo> {
     const notionData = await this.notionRepository.getNotionData(owner);
     const clientId = this.clientId;
-    const link = getNotionAuthorizationLink(clientId);
+    const link = this.getNotionAuthorizationLink(clientId);
 
     if (!notionData) {
       return {
