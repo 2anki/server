@@ -8,7 +8,7 @@ import {
   QueryDatabaseResponse,
   SearchResponse,
 } from '@notionhq/client/build/src/api-endpoints';
-import getNotionBlockTitle from 'get-notion-object-title';
+import { getNotionBlockTitle } from 'get-notion-object-title';
 
 import sanitizeTags from '../../lib/anki/sanitizeTags';
 import ParserRules from '../../lib/parser/ParserRules';
