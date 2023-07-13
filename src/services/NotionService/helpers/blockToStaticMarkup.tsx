@@ -14,7 +14,7 @@ import BlockParagraph from '../blocks/BlockParagraph';
 import { BlockQuote } from '../blocks/BlockQuote';
 import LinkToPage from '../blocks/LinkToPage/LinkToPage';
 import { BlockBulletList } from '../blocks/lists/BlockBulletList';
-import BlockColumn from '../blocks/lists/BlockColumn';
+import BlockColumnList from '../blocks/lists/BlockColumnList';
 import { BlockNumberedList } from '../blocks/lists/BlockNumberedList';
 import { BlockTodoList } from '../blocks/lists/BlockTodoList';
 import { BlockToggleList } from '../blocks/lists/BlockToggleList';
@@ -89,8 +89,8 @@ export const blockToStaticMarkup = async (
     case 'embed':
       back += BlockEmbed(c, handler);
       break;
-    case 'column':
-      back += await BlockColumn(c, handler);
+    case 'column_list':
+      back += await BlockColumnList(c, handler);
       break;
     case 'equation':
       back += BlockEquation(c as EquationBlockObjectResponse);
