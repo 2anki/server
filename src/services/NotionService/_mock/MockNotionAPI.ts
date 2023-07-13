@@ -25,6 +25,7 @@ export default class MockNotionAPI extends NotionAPIWrapper {
       lastEditedAt: '',
       id,
       all,
+      type: 'page',
     });
     savePayload(dataMockPath('ListBlockChildrenResponse', id), blocks);
     return blocks;

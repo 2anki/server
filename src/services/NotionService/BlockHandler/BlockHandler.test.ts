@@ -69,6 +69,7 @@ describe('BlockHandler', () => {
       lastEditedAt: '',
       id: '07a7b319183642b9afecdcc4c456f73d',
       all: true,
+      type: 'page',
     });
     const topLevelToggles = getToggleBlocks(blocks.results);
     expect(topLevelToggles.length).toEqual(14);
