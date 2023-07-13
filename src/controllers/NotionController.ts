@@ -148,7 +148,6 @@ class NotionController {
     const blockId = getNotionId(query) ?? query;
     const block = await api.getBlock(blockId);
     const settings = new Settings(Settings.LoadDefaultOptions());
-    settings.learnMode = true; // option to handle breaking changes
     let handler = new BlockHandler(
       new CustomExporter('x', new Workspace(true, 'fs').location),
       api,
