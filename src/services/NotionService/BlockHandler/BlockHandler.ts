@@ -128,6 +128,7 @@ class BlockHandler {
         lastEditedAt: block.last_edited_time,
         id: block.id,
         all: this.useAll,
+        type: block.type,
       });
       const requestChildren = response2.results;
       return await renderBack(this, requestChildren, response2, handleChildren);
@@ -274,6 +275,7 @@ class BlockHandler {
       lastEditedAt: (page as PageObjectResponse).last_edited_time,
       id: topLevelId,
       all: rules.UNLIMITED,
+      type: 'page',
     });
     const blocks = response.results;
     const flashCardTypes = rules.flaschardTypeNames();
@@ -320,6 +322,7 @@ class BlockHandler {
             lastEditedAt: sd.last_edited_time,
             id: sd.id,
             all: rules.UNLIMITED,
+            type: sd.type,
           });
           const cBlocks = res.results.filter((b: GetBlockResponse) =>
             flashCardTypes.includes((b as BlockObjectResponse).type)

@@ -11,6 +11,7 @@ export default async function getColumn(
     createdAt: '',
     lastEditedAt: '',
     id: parentId,
+    type: 'column_list',
   });
   const blocks = getBlocks?.results;
   if (blocks?.length > 0 && blocks?.length >= index + 1) {
