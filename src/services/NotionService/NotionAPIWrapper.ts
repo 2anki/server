@@ -8,7 +8,7 @@ import {
   QueryDatabaseResponse,
   SearchResponse,
 } from '@notionhq/client/build/src/api-endpoints';
-import { getNotionBlockTitle } from 'get-notion-object-title';
+import { getNotionObjectTitle } from 'get-notion-object-title';
 
 import sanitizeTags from '../../lib/anki/sanitizeTags';
 import ParserRules from '../../lib/parser/ParserRules';
@@ -284,7 +284,7 @@ class NotionAPIWrapper {
     if (!page) {
       return '';
     }
-    let title = getNotionBlockTitle(page) ?? `Untitled: ${new Date()}`;
+    let title = getNotionObjectTitle(page) ?? `Untitled: ${new Date()}`;
     let icon = await renderIcon(
       getBlockIcon(page as WithIcon, settings.pageEmoji)
     );
