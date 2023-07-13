@@ -1,27 +1,26 @@
-import { getImageUrl } from './getImageUrl';
-import BlockParagraph from '../blocks/BlockParagraph';
-import BlockCode from '../blocks/BlockCode';
-import { BlockHeading } from '../blocks/BlockHeadings';
-import { BlockQuote } from '../blocks/BlockQuote';
-import { BlockDivider } from '../blocks/BlockDivider';
-import { BlockChildPage } from '../blocks/BlockChildPage';
-import { BlockTodoList } from '../blocks/lists/BlockTodoList';
-import { BlockCallout } from '../blocks/BlockCallout';
-import { BlockBulletList } from '../blocks/lists/BlockBulletList';
-import { BlockNumberedList } from '../blocks/lists/BlockNumberedList';
-import { BlockToggleList } from '../blocks/lists/BlockToggleList';
-import BlockBookmark from '../blocks/media/BlockBookmark';
-import { BlockVideo } from '../blocks/media/BlockVideo';
-import { BlockEmbed } from '../blocks/media/BlockEmbed';
-import BlockColumn from '../blocks/lists/BlockColumn';
-import BlockEquation from '../blocks/BlockEquation';
 import {
   BlockObjectResponse,
   EquationBlockObjectResponse,
   ListBlockChildrenResponse,
 } from '@notionhq/client/build/src/api-endpoints';
-import LinkToPage from '../blocks/LinkToPage/LinkToPage';
 import BlockHandler from '../BlockHandler/BlockHandler';
+import { BlockCallout } from '../blocks/BlockCallout';
+import { BlockChildPage } from '../blocks/BlockChildPage';
+import BlockCode from '../blocks/BlockCode';
+import { BlockDivider } from '../blocks/BlockDivider';
+import BlockEquation from '../blocks/BlockEquation';
+import { BlockHeading } from '../blocks/BlockHeadings';
+import BlockParagraph from '../blocks/BlockParagraph';
+import { BlockQuote } from '../blocks/BlockQuote';
+import LinkToPage from '../blocks/LinkToPage/LinkToPage';
+import { BlockBulletList } from '../blocks/lists/BlockBulletList';
+import BlockColumnList from '../blocks/lists/BlockColumnList';
+import { BlockNumberedList } from '../blocks/lists/BlockNumberedList';
+import { BlockTodoList } from '../blocks/lists/BlockTodoList';
+import { BlockToggleList } from '../blocks/lists/BlockToggleList';
+import BlockBookmark from '../blocks/media/BlockBookmark';
+import { BlockEmbed } from '../blocks/media/BlockEmbed';
+import { BlockVideo } from '../blocks/media/BlockVideo';
 
 export const blockToStaticMarkup = async (
   handler: BlockHandler,
@@ -31,12 +30,8 @@ export const blockToStaticMarkup = async (
   let back = '';
   switch (c.type) {
     case 'image':
-      if (!handler.settings.learnMode) {
-        const image = await handler.embedImage(c);
-        back += image;
-      } else {
-        back += `<img src='${getImageUrl(c)}' />`;
-      }
+      const image = await handler.embedImage(c);
+      back += image;
       break;
     case 'audio':
       const audio = await handler.embedAudioFile(c);
@@ -94,8 +89,8 @@ export const blockToStaticMarkup = async (
     case 'embed':
       back += BlockEmbed(c, handler);
       break;
-    case 'column':
-      back += await BlockColumn(c, handler);
+    case 'column_list':
+      back += await BlockColumnList(c, handler);
       break;
     case 'equation':
       back += BlockEquation(c as EquationBlockObjectResponse);

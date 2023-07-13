@@ -62,8 +62,6 @@ export class Settings {
 
   parentBlockId: string;
 
-  learnMode: boolean;
-
   constructor(input: { [key: string]: string }) {
     this.deckName = input.deckName;
     if (this.deckName && !this.deckName.trim()) {
@@ -95,7 +93,6 @@ export class Settings {
     this.parentBlockId = input.parentBlockId;
     this.pageEmoji = input['page-emoji'] || 'first_emoji';
 
-    this.learnMode = false;
     this.retrieveTemplates(input);
   }
 
