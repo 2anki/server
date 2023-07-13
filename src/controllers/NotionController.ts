@@ -104,6 +104,7 @@ class NotionController {
       createdAt: '',
       lastEditedAt: '',
       id,
+      type: 'page',
     });
     res.json(blocks);
   }

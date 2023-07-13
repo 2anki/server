@@ -19,6 +19,7 @@ import { getHeadingText } from './helpers/getHeadingText';
 import getObjectTitle from './helpers/getObjectTitle';
 import { getBlockCache } from './helpers/getBlockCache';
 import { getDatabase } from '../../data_layer';
+import { ValidNotionType } from './types';
 
 const DEFAULT_PAGE_SIZE_LIMIT = 100 * 2;
 
@@ -26,6 +27,7 @@ export interface GetBlockParams {
   createdAt: string;
   lastEditedAt: string;
   id: string;
+  type: ValidNotionType;
   all?: boolean;
 }
 
@@ -50,8 +52,22 @@ class NotionAPIWrapper {
     lastEditedAt,
     id,
     all,
+    type,
   }: GetBlockParams): Promise<ListBlockChildrenResponse> {
     console.time(`getBlocks:${id}${all}`);
+
+    // Skip unsupported types to prevent validation errors
+    if (type === 'unsupported') {
+      return {
+        type: 'block',
+        block: {},
+        object: 'list',
+        next_cursor: null,
+        has_more: false,
+        results: [],
+      };
+    }
+
     const cachedPayload = all
       ? await getBlockCache({
           database: getDatabase(),
@@ -210,6 +226,7 @@ class NotionAPIWrapper {
       lastEditedAt: '',
       id: pageId,
       all: rules.UNLIMITED,
+      type: 'page',
     });
     const globalTags = [];
     if (useHeadings) {
