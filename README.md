@@ -147,7 +147,7 @@ Special thanks to following developers / artistans
 
 Unless otherwise specified in the source:
 
-The code is licensed under the [MIT](./LICENSE) Copyright (c) 2020-2022, [Alexander Alemayhu][1]
+The code is licensed under the [MIT](./LICENSE) Copyright (c) 2020-2023, [Alexander Alemayhu][1]
 
 [1]: https://alemayhu.com
 
