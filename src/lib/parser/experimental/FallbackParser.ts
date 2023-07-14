@@ -51,7 +51,7 @@ class FallbackParser {
   }
 
   getMarkdownBulletLists(markdown: string) {
-    const bulletListRegex = /(\*|\-|\+)( .*)+/g;
+    const bulletListRegex = /[-*+]( .*)+/g;
     return markdown.match(bulletListRegex);
   }
 

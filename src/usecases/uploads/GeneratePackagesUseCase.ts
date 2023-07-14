@@ -18,7 +18,7 @@ export interface PackageResult {
 }
 
 export const isFileSupported = (filename: string) =>
-  isHTMLFile(filename) || isMarkdownFile(filename) || isPlainText(filename);
+  isHTMLFile(filename) ?? isMarkdownFile(filename) ?? isPlainText(filename);
 
 const getPackagesFromZip = async (
   fileContents: Body | undefined,

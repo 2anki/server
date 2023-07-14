@@ -20,7 +20,7 @@ export class PlainTextParser {
 
     for (let i = 0; i < answerList.length; i++) {
       clozeSentence = clozeSentence.replace(
-        /_{1,}/,
+        /_+/,
         `{{c${i + 1}::${answerList[i]}}}`
       );
     }
