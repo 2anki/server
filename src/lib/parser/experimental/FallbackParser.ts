@@ -84,6 +84,14 @@ class FallbackParser {
         note.cloze = true;
       } else {
         note.back = card.back;
+
+        if (!note.back || note.back.trim().length === 0) {
+          const parts = note.name.split('\n');
+          if (parts.length > 1) {
+            note.name = parts[0];
+            note.back = parts.slice(1).join('\n');
+          }
+        }
       }
       return note;
     });
@@ -119,7 +127,7 @@ class FallbackParser {
       decks.push(
         new Deck(
           deckName,
-          cards,
+          Deck.CleanCards(cards),
           '', // skip cover image
           '', // skip style
           Deck.GenerateId(),

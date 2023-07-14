@@ -543,9 +543,9 @@ export class DeckParser {
     const ws = new Workspace(true, 'fs');
     const exporter = this.setupExporter(this.payload, ws.location);
 
-    const payload = fallback.run(this.settings);
-    payload[0].settings = this.settings;
-    exporter.configure(payload);
+    this.payload = fallback.run(this.settings);
+    this.payload[0].settings = this.settings;
+    exporter.configure(this.payload);
 
     return exporter.save();
   }
