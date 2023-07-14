@@ -4,6 +4,8 @@ export const isHTMLFile = (fileName: string) => fileName.match(/.html$/i);
 
 export const isZIPFile = (fileName: string) => fileName.match(/.zip$/i);
 
+export const isPlainText = (fileName: string) => fileName.match(/.txt$/i);
+
 export function hasMarkdownFileName(fileNames: string[]) {
   return fileNames.some(isMarkdownFile);
 }

@@ -546,23 +546,37 @@ export class DeckParser {
     const payload = fallback.run(this.settings);
     payload[0].settings = this.settings;
     exporter.configure(payload);
+
     return exporter.save();
   }
 }
 
+interface PrepareDeckResult {
+  name: string;
+  apkg: Buffer;
+  deck: Deck[];
+}
 export async function PrepareDeck(
   fileName: string,
   files: File[],
   settings: Settings
-) {
+): Promise<PrepareDeckResult> {
   const parser = new DeckParser(fileName, settings, files);
   const total = parser.payload.map((p) => p.cardCount).reduce((a, b) => a + b);
 
   if (total === 0) {
     const apkg = await parser.tryExperimental();
-    return { name: `${parser.name}.apkg`, apkg };
+    return {
+      name: `${parser.name ?? fileName}.apkg`,
+      apkg,
+      deck: parser.payload,
+    };
   }
 
   const apkg = await parser.build();
-  return { name: `${parser.name}.apkg`, apkg, deck: parser.payload };
+  return {
+    name: `${parser.name}.apkg`,
+    apkg,
+    deck: parser.payload,
+  };
 }

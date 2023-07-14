@@ -5,17 +5,13 @@ import multerS3 from 'multer-s3';
 import { sendBundle } from '../controllers/UploadController';
 import UploadRepository from '../data_layer/UploadRespository';
 import { sendError } from '../lib/error/sendError';
-import ErrorHandler, {
-  NO_PACKAGE_ERROR,
-  UNSUPPORTED_FORMAT_MD,
-} from '../lib/misc/ErrorHandler';
-import { BytesToMegaBytes } from '../lib/misc/file';
+import ErrorHandler, { NO_PACKAGE_ERROR } from '../lib/misc/ErrorHandler';
 import { getUploadLimits } from '../lib/misc/getUploadLimits';
 import Settings from '../lib/parser/Settings';
 import StorageHandler from '../lib/storage/StorageHandler';
+import { UploadedFile } from '../lib/storage/types';
 import GeneratePackagesUseCase from '../usecases/uploads/GeneratePackagesUseCase';
 import { toText } from './NotionService/BlockHandler/helpers/deckNameToText';
-import { UploadedFile } from '../lib/storage/types';
 
 class UploadService {
   getUploadsByOwner(owner: number) {
@@ -62,7 +58,7 @@ class UploadService {
       const settings = new Settings(req.body || {});
 
       const useCase = new GeneratePackagesUseCase(storage);
-      const packages = await useCase.execute(
+      const { packages } = await useCase.execute(
         res.locals.patreon,
         req.files as UploadedFile[],
         settings
