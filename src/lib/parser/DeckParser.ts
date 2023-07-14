@@ -17,6 +17,7 @@ import getYouTubeEmbedLink from './helpers/getYouTubeEmbedLink';
 import getUniqueFileName from '../misc/getUniqueFileName';
 import { isValidAudioFile } from '../anki/format';
 import { sendError } from '../error/sendError';
+import FallbackParser from './experimental/FallbackParser';
 
 export class DeckParser {
   globalTags: cheerio.Cheerio | null;
@@ -536,6 +537,17 @@ export class DeckParser {
     exporter.configure(this.payload);
     return exporter.save();
   }
+
+  tryExperimental() {
+    const fallback = new FallbackParser(this.files);
+    const ws = new Workspace(true, 'fs');
+    const exporter = this.setupExporter(this.payload, ws.location);
+
+    const payload = fallback.run(this.settings);
+    payload[0].settings = this.settings;
+    exporter.configure(payload);
+    return exporter.save();
+  }
 }
 
 export async function PrepareDeck(
@@ -545,8 +557,10 @@ export async function PrepareDeck(
 ) {
   const parser = new DeckParser(fileName, settings, files);
   const total = parser.payload.map((p) => p.cardCount).reduce((a, b) => a + b);
+
   if (total === 0) {
-    return null;
+    const apkg = await parser.tryExperimental();
+    return { name: `${parser.name}.apkg`, apkg };
   }
 
   const apkg = await parser.build();

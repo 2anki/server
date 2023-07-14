@@ -2,12 +2,11 @@ import { Body } from 'aws-sdk/clients/s3';
 import { ZipHandler } from './anki/zip';
 import { PrepareDeck } from './parser/DeckParser';
 import Package from './parser/Package';
-import { isHTMLFile, hasMarkdownFileName } from './storage/checks';
 import Settings from './parser/Settings';
+import { isHTMLFile } from './storage/checks';
 
 export interface PackageResult {
   packages: Package[];
-  containsMarkdown: boolean;
 }
 
 export const getPackagesFromZip = async (
@@ -19,7 +18,7 @@ export const getPackagesFromZip = async (
   const packages = [];
 
   if (!fileContents) {
-    return { packages: [], containsMarkdown: false };
+    return { packages: [] };
   }
 
   zipHandler.build(fileContents as Uint8Array, isPatreon);
@@ -36,5 +35,5 @@ export const getPackagesFromZip = async (
     }
   }
 
-  return { packages, containsMarkdown: hasMarkdownFileName(fileNames) };
+  return { packages };
 };
