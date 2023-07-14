@@ -18,6 +18,7 @@ import getUniqueFileName from '../misc/getUniqueFileName';
 import { isValidAudioFile } from '../anki/format';
 import { sendError } from '../error/sendError';
 import FallbackParser from './experimental/FallbackParser';
+import { NO_PACKAGE_ERROR } from '../misc/ErrorHandler';
 
 export class DeckParser {
   globalTags: cheerio.Cheerio | null;
@@ -549,6 +550,10 @@ export class DeckParser {
 
     return exporter.save();
   }
+
+  totalCardCount() {
+    return this.payload.map((p) => p.cardCount).reduce((a, b) => a + b);
+  }
 }
 
 interface PrepareDeckResult {
@@ -562,10 +567,12 @@ export async function PrepareDeck(
   settings: Settings
 ): Promise<PrepareDeckResult> {
   const parser = new DeckParser(fileName, settings, files);
-  const total = parser.payload.map((p) => p.cardCount).reduce((a, b) => a + b);
 
-  if (total === 0) {
+  if (parser.totalCardCount() === 0) {
     const apkg = await parser.tryExperimental();
+    if (parser.totalCardCount() === 0) {
+      throw NO_PACKAGE_ERROR;
+    }
     return {
       name: `${parser.name ?? fileName}.apkg`,
       apkg,
