@@ -44,14 +44,26 @@ class NotionRepository {
     });
   }
 
+  /**
+   * Retrieve the users notion token.
+   * If the user does not have a token, throws error.
+   * The caller is expected to handle this error.
+   *
+   * @param owner user id
+   * @returns unhashed token
+   */
   async getNotionToken(owner: string) {
-    if (!owner) {
-      return null;
-    }
     const row = await this.database('notion_tokens')
       .where({ owner })
       .returning('token')
       .first();
+
+    if (!row) {
+      throw new Error(
+        `Could not find your Notion token. Please report this issue with your userid: ${owner}`
+      );
+    }
+
     return unHashToken(row.token);
   }
 
