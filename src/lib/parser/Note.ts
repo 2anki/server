@@ -65,8 +65,11 @@ export default class Note {
     return note;
   }
 
-  isValidBasicNote() {
-    return this.name && this.name.trim() && this.back && this.back.trim();
+  isValidBasicNote(): boolean {
+    if (!this.name || !this.back) {
+      return false;
+    }
+    return this.name.trim().length > 0 && this.back.trim().length > 0;
   }
 
   isValidClozeNote() {

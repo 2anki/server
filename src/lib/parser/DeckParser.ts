@@ -17,6 +17,8 @@ import getYouTubeEmbedLink from './helpers/getYouTubeEmbedLink';
 import getUniqueFileName from '../misc/getUniqueFileName';
 import { isValidAudioFile } from '../anki/format';
 import { sendError } from '../error/sendError';
+import FallbackParser from './experimental/FallbackParser';
+import { NO_PACKAGE_ERROR } from '../misc/ErrorHandler';
 
 export class DeckParser {
   globalTags: cheerio.Cheerio | null;
@@ -536,19 +538,52 @@ export class DeckParser {
     exporter.configure(this.payload);
     return exporter.save();
   }
+
+  tryExperimental() {
+    const fallback = new FallbackParser(this.files);
+    const ws = new Workspace(true, 'fs');
+    const exporter = this.setupExporter(this.payload, ws.location);
+
+    this.payload = fallback.run(this.settings);
+    this.payload[0].settings = this.settings;
+    exporter.configure(this.payload);
+
+    return exporter.save();
+  }
+
+  totalCardCount() {
+    return this.payload.map((p) => p.cardCount).reduce((a, b) => a + b);
+  }
 }
 
+interface PrepareDeckResult {
+  name: string;
+  apkg: Buffer;
+  deck: Deck[];
+}
 export async function PrepareDeck(
   fileName: string,
   files: File[],
   settings: Settings
-) {
+): Promise<PrepareDeckResult> {
   const parser = new DeckParser(fileName, settings, files);
-  const total = parser.payload.map((p) => p.cardCount).reduce((a, b) => a + b);
-  if (total === 0) {
-    return null;
+
+  if (parser.totalCardCount() === 0) {
+    const apkg = await parser.tryExperimental();
+    if (parser.totalCardCount() === 0) {
+      throw NO_PACKAGE_ERROR;
+    }
+    return {
+      name: `${parser.name ?? fileName}.apkg`,
+      apkg,
+      deck: parser.payload,
+    };
   }
 
   const apkg = await parser.build();
-  return { name: `${parser.name}.apkg`, apkg, deck: parser.payload };
+  return {
+    name: `${parser.name}.apkg`,
+    apkg,
+    deck: parser.payload,
+  };
 }

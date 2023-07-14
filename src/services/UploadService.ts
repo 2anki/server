@@ -2,27 +2,15 @@ import express from 'express';
 import multer from 'multer';
 import multerS3 from 'multer-s3';
 
+import { sendBundle } from '../controllers/UploadController';
 import UploadRepository from '../data_layer/UploadRespository';
-import { BytesToMegaBytes } from '../lib/misc/file';
+import { sendError } from '../lib/error/sendError';
+import ErrorHandler, { NO_PACKAGE_ERROR } from '../lib/misc/ErrorHandler';
 import { getUploadLimits } from '../lib/misc/getUploadLimits';
+import Settings from '../lib/parser/Settings';
 import StorageHandler from '../lib/storage/StorageHandler';
 import { UploadedFile } from '../lib/storage/types';
-import { sendBundle } from '../controllers/UploadController';
-import { getOwner } from '../lib/User/getOwner';
-import { sendError } from '../lib/error/sendError';
-import { getPackagesFromZip } from '../lib/getPackagesFromZip';
-import ErrorHandler, {
-  UNSUPPORTED_FORMAT_MD,
-  NO_PACKAGE_ERROR,
-} from '../lib/misc/ErrorHandler';
-import { PrepareDeck } from '../lib/parser/DeckParser';
-import Package from '../lib/parser/Package';
-import Settings from '../lib/parser/Settings';
-import {
-  hasMarkdownFileName,
-  isHTMLFile,
-  isZIPFile,
-} from '../lib/storage/checks';
+import GeneratePackagesUseCase from '../usecases/uploads/GeneratePackagesUseCase';
 import { toText } from './NotionService/BlockHandler/helpers/deckNameToText';
 
 class UploadService {
@@ -36,21 +24,6 @@ class UploadService {
     const s = new StorageHandler();
     await this.uploadRepository.deleteUpload(owner, key);
     await s.delete(key);
-  }
-
-  registerUploadSize(file: UploadedFile, owner?: number) {
-    const { originalname, key, size } = file;
-
-    if (!owner) {
-      return;
-    }
-
-    return this.uploadRepository.update(
-      owner,
-      originalname,
-      key,
-      BytesToMegaBytes(size)
-    );
   }
 
   getUploadHandler(res: express.Response, storage: StorageHandler) {
@@ -80,42 +53,16 @@ class UploadService {
     res: express.Response
   ) {
     try {
-      const files = req.files as UploadedFile[];
-      let packages: Package[] = [];
-      let hasMarkdown: boolean = hasMarkdownFileName(
-        files.map((file) => file.originalname)
-      );
-      for (const file of files) {
-        const filename = file.originalname;
-        const settings = new Settings(req.body || {});
-
-        await this.registerUploadSize(file, getOwner(res));
-        const key = file.key;
-        const fileContents = await storage.getFileContents(key);
-
-        if (isHTMLFile(filename)) {
-          const d = await PrepareDeck(
-            filename,
-            [{ name: filename, contents: fileContents.Body }],
-            settings
-          );
-          if (d) {
-            const pkg = new Package(d.name, d.apkg);
-            packages = packages.concat(pkg);
-          }
-        } else if (isZIPFile(filename) || isZIPFile(key)) {
-          const { packages: extraPackages, containsMarkdown } =
-            await getPackagesFromZip(
-              fileContents.Body,
-              res.locals.patreon,
-              settings
-            );
-          packages = packages.concat(extraPackages);
-          hasMarkdown = containsMarkdown;
-        }
-      }
       let payload;
       let plen;
+      const settings = new Settings(req.body || {});
+
+      const useCase = new GeneratePackagesUseCase(storage);
+      const { packages } = await useCase.execute(
+        res.locals.patreon,
+        req.files as UploadedFile[],
+        settings
+      );
 
       const first = packages[0];
       if (packages.length === 1) {
@@ -141,11 +88,7 @@ class UploadService {
         await sendBundle(packages, res);
         console.info('Sent bundle with %d packages', packages.length);
       } else {
-        if (hasMarkdown) {
-          ErrorHandler(res, UNSUPPORTED_FORMAT_MD);
-        } else {
-          ErrorHandler(res, NO_PACKAGE_ERROR);
-        }
+        ErrorHandler(res, NO_PACKAGE_ERROR);
       }
     } catch (err) {
       sendError(err);
