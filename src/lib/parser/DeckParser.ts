@@ -545,6 +545,14 @@ export class DeckParser {
     const exporter = this.setupExporter(this.payload, ws.location);
 
     this.payload = fallback.run(this.settings);
+    if (
+      !this.payload ||
+      this.payload.length === 0 ||
+      this.totalCardCount() === 0
+    ) {
+      throw NO_PACKAGE_ERROR;
+    }
+
     this.payload[0].settings = this.settings;
     exporter.configure(this.payload);
 
@@ -570,9 +578,6 @@ export async function PrepareDeck(
 
   if (parser.totalCardCount() === 0) {
     const apkg = await parser.tryExperimental();
-    if (parser.totalCardCount() === 0) {
-      throw NO_PACKAGE_ERROR;
-    }
     return {
       name: `${parser.name ?? fileName}.apkg`,
       apkg,
