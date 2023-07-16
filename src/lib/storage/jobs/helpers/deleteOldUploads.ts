@@ -1,10 +1,8 @@
 import { Knex } from 'knex';
 import Uploads from '../../../../data_layer/public/Uploads';
 
-import { TIME_21_MINUTES_AS_SECONDS } from '../../../constants';
 import StorageHandler from '../../StorageHandler';
 
-export const MS_21 = TIME_21_MINUTES_AS_SECONDS * 1000;
 const MAX_KEYS = 100_000;
 
 const deleteNonSubScriberUploads = async (

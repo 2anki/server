@@ -24,8 +24,6 @@ export function resolvePath(dir: string, x: string) {
   return x.endsWith('/') ? `${p}/` : p;
 }
 
-export const TIME_21_MINUTES_AS_SECONDS = 1260;
-
 export const ONE_HOUR = 60 * 60 * 1000;
 
 export const BUILD_DIR =
