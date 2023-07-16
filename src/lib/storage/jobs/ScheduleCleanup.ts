@@ -1,8 +1,10 @@
 import { Knex } from 'knex';
 
-import { MS_21 } from './helpers/deleteOldUploads';
+import { ONE_HOUR } from '../../constants';
 import { runCleanup } from './helpers/runCleanup';
 
+const EVERY_HOUR_MS = ONE_HOUR * 1000;
+
 export const ScheduleCleanup = (db: Knex) => {
-  setInterval(() => runCleanup(db), MS_21);
+  setInterval(() => runCleanup(db), EVERY_HOUR_MS);
 };
