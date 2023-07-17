@@ -8,9 +8,11 @@ import {
 export class PlainTextParser {
   getOneOrMoreAnswers(answers: string): string[] {
     const answerList = answers.split(', ');
-    if (!answerList || answerList.length === 0) {
+
+    if (answerList.length === 0) {
       return [answers];
     }
+    
     return answerList;
   }
 
@@ -47,7 +49,7 @@ export class PlainTextParser {
     for (const bulletPoint of bulletPoints) {
       const [question, answers] = bulletPoint.split(' - ');
 
-      if (isPossiblyClozeFlashcard(question)) {
+      if (answers && isPossiblyClozeFlashcard(question)) {
         const cards = this.fillInTheBlanks(question, answers);
         if (cards) {
           flashcards.push(cards);
