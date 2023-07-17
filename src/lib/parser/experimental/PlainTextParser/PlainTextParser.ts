@@ -12,7 +12,7 @@ export class PlainTextParser {
     if (answerList.length === 0) {
       return [answers];
     }
-    
+
     return answerList;
   }
 
@@ -50,10 +50,12 @@ export class PlainTextParser {
       const [question, answers] = bulletPoint.split(' - ');
 
       if (answers && isPossiblyClozeFlashcard(question)) {
-        const cards = this.fillInTheBlanks(question, answers);
-        if (cards) {
-          flashcards.push(cards);
+        const clozeCard = this.fillInTheBlanks(question, answers);
+
+        if (clozeCard) {
+          flashcards.push(clozeCard);
         }
+        
         continue;
       }
 
