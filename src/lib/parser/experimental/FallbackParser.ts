@@ -7,7 +7,7 @@ import Note from '../Note';
 import Settings from '../Settings';
 import { PlainTextParser } from './PlainTextParser/PlainTextParser';
 import { Flashcard, isClozeFlashcard } from './PlainTextParser/types';
-import { get16DigitRandomId } from "../../../shared/helpers/get16DigitRandomId.ts"
+import get16DigitRandomId from '../../../shared/helpers/get16DigitRandomId';
 
 class FallbackParser {
   constructor(private readonly files: File[]) {}
