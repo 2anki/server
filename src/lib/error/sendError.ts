@@ -1,3 +1,4 @@
+/* eslint-disable import/no-extraneous-dependencies */
 import Bugsnag from '@bugsnag/js';
 
 export const sendError = (error: unknown) => {

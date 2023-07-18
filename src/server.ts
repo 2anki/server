@@ -28,11 +28,12 @@ import favoriteRouter from './routes/FavoriteRouter';
 import templatesRouter from './routes/TemplatesRouter';
 import defaultRouter from './routes/DefaultRouter';
 
-import CrashReporter from './lib/CrashReporter';
+import CrashReporter from './lib/error/CrashReporter';
 import { sendError } from './lib/error/sendError';
 
 import { isStaging } from './lib/isStaging';
 import { getDatabase, setupDatabase } from './data_layer';
+import { getErrorReporterApiKey } from './lib/error/getErrorReporterApiKey';
 function registerSignalHandlers(server: http.Server) {
   process.on('uncaughtException', sendError);
   process.on('SIGTERM', () => {
@@ -55,9 +56,9 @@ const serve = async () => {
   app.use(express.json({ limit: '1000mb' }) as RequestHandler);
   app.use(cookieParser());
 
-  const apiKey = process.env.BUGSNAG_API_KEY;
-  if (apiKey && process.env.NODE_ENV === 'production') {
-    CrashReporter.Configure(app, apiKey);
+  const errorReporterApiKey = getErrorReporterApiKey();
+  if (errorReporterApiKey) {
+    CrashReporter.Configure(app, errorReporterApiKey);
   }
 
   if (isStaging()) {
@@ -97,7 +98,7 @@ const serve = async () => {
     }
   );
 
-  if (process.env.NODE_ENV === 'production') {
+  if (errorReporterApiKey) {
     CrashReporter.AddErrorHandler(app);
   }
 
