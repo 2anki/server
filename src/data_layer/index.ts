@@ -12,7 +12,7 @@ import KnexConfig from '../KnexConfig';
  */
 const SINGLE_CONNECTION = knex({
   client: 'pg',
-  connection: process.env.DATABASE_URL || 'postgresql://localhost:5432/n',
+  connection: process.env.DATABASE_URL,
 });
 
 export const getDatabase = () => SINGLE_CONNECTION;
