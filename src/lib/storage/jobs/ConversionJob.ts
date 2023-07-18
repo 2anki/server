@@ -1,27 +1,26 @@
 import { Knex } from 'knex';
 
-import { Job, JobStatus } from '../types';
-import Workspace from '../../parser/WorkSpace';
-import CustomExporter from '../../parser/CustomExporter';
-import { loadSettingsFromDatabase } from '../../parser/Settings/loadSettingsFromDatabase';
-import BlockHandler from '../../../services/NotionService/BlockHandler/BlockHandler';
-import ParserRules from '../../parser/ParserRules';
-import express from 'express';
-import Settings from '../../parser/Settings';
-import CardGenerator from '../../anki/CardGenerator';
 import fs from 'fs';
+import { getDatabase } from '../../../data_layer';
+import BlockHandler from '../../../services/NotionService/BlockHandler/BlockHandler';
+import { toText } from '../../../services/NotionService/BlockHandler/helpers/deckNameToText';
+import NotionAPIWrapper from '../../../services/NotionService/NotionAPIWrapper';
+import CardGenerator from '../../anki/CardGenerator';
 import {
-  addDeckNameSuffix,
   DECK_NAME_SUFFIX,
+  addDeckNameSuffix,
   isValidDeckName,
 } from '../../anki/format';
-import { FileSizeInMegaBytes } from '../../misc/file';
-import Deck from '../../parser/Deck';
-import StorageHandler from '../StorageHandler';
 import { sendError } from '../../error/sendError';
-import { getDatabase } from '../../../data_layer';
-import NotionAPIWrapper from '../../../services/NotionService/NotionAPIWrapper';
-import { toText } from '../../../services/NotionService/BlockHandler/helpers/deckNameToText';
+import { FileSizeInMegaBytes } from '../../misc/file';
+import CustomExporter from '../../parser/CustomExporter';
+import Deck from '../../parser/Deck';
+import ParserRules from '../../parser/ParserRules';
+import Settings from '../../parser/Settings';
+import { loadSettingsFromDatabase } from '../../parser/Settings/loadSettingsFromDatabase';
+import Workspace from '../../parser/WorkSpace';
+import StorageHandler from '../StorageHandler';
+import { Job, JobStatus } from '../types';
 
 export default class ConversionJob {
   db: Knex;
