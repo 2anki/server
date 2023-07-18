@@ -39,8 +39,9 @@ export default class ConversionJob {
       .first();
   }
 
-  createJob(id: string, owner: string, title?: string | null) {
+  createJob(id: string, owner: string, title?: string | null, type?: string) {
     return this.db('jobs').insert({
+      type,
       title,
       object_id: id,
       owner,
@@ -49,10 +50,15 @@ export default class ConversionJob {
     });
   }
 
-  async load(object_id: string, owner: string, title?: string | null) {
+  async load(
+    object_id: string,
+    owner: string,
+    title?: string | null,
+    type?: string
+  ) {
     let record = await this.findJob(object_id, owner);
     if (!record) {
-      await this.createJob(object_id, owner, title);
+      await this.createJob(object_id, owner, title, type);
       record = await this.findJob(object_id, owner);
     }
     this.raw = record as Job;
@@ -129,14 +135,14 @@ export default class ConversionJob {
 
   createFlashcards = async (
     bl: BlockHandler,
-    req: express.Request | null,
     id: string,
     rules: ParserRules,
-    settings: Settings
+    settings: Settings,
+    type?: string
   ) => {
     await this.setStatus('step2_creating_flashcards');
     const decks = await bl.findFlashcards({
-      parentType: req?.query.type?.toString() || 'page',
+      parentType: type || 'page',
       topLevelId: id.replace(/-/g, ''),
       rules,
       decks: [],
