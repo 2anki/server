@@ -1,11 +1,10 @@
 import { isFullBlock } from '@notionhq/client';
-import { captureMessage } from '@sentry/node';
-import BlockHandler from '../BlockHandler/BlockHandler';
 import {
   BlockObjectResponse,
   ListBlockChildrenResponse,
   PartialBlockObjectResponse,
 } from '@notionhq/client/build/src/api-endpoints';
+import BlockHandler from '../BlockHandler/BlockHandler';
 import { blockToStaticMarkup } from './blockToStaticMarkup';
 
 export const renderBack = async (
@@ -23,10 +22,6 @@ export const renderBack = async (
     }
 
     if (!isFullBlock(c)) {
-      captureMessage('Block is not full', {
-        extra: c,
-        level: 'warning',
-      });
       continue;
     }
     back += await blockToStaticMarkup(handler, c, response);
