@@ -7,6 +7,7 @@ import Note from '../Note';
 import Settings from '../Settings';
 import { PlainTextParser } from './PlainTextParser/PlainTextParser';
 import { Flashcard, isClozeFlashcard } from './PlainTextParser/types';
+import { get16DigitRandomId } from "../../../shared/helpers/get16DigitRandomId.ts"
 
 class FallbackParser {
   constructor(private readonly files: File[]) {}
@@ -130,7 +131,7 @@ class FallbackParser {
           Deck.CleanCards(cards),
           '', // skip cover image
           '', // skip style
-          Deck.GenerateId(),
+          get16DigitRandomId(),
           settings
         )
       );
