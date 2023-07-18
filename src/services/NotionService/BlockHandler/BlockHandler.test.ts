@@ -1,6 +1,3 @@
-import path from 'path';
-import os from 'os';
-
 import * as dotenv from 'dotenv';
 import CustomExporter from '../../../lib/parser/CustomExporter';
 import Note from '../../../lib/parser/Note';
@@ -8,10 +5,11 @@ import ParserRules from '../../../lib/parser/ParserRules';
 
 import Settings from '../../../lib/parser/Settings';
 import Workspace from '../../../lib/parser/WorkSpace';
-import BlockHandler from './BlockHandler';
+import { setupTests } from '../../../test/configure-jest';
 import { pageId as examplId } from '../../../test/test-utils';
 import MockNotionAPI from '../_mock/MockNotionAPI';
 import { getToggleBlocks } from '../helpers/getToggleBlocks';
+import BlockHandler from './BlockHandler';
 
 dotenv.config({ path: 'test/.env' });
 const api = new MockNotionAPI(process.env.NOTION_KEY!, '3');
@@ -51,9 +49,7 @@ async function findCardByName(
   return flashcards.find((f) => f.name.includes(name));
 }
 
-beforeEach(() => {
-  process.env.WORKSPACE_BASE = path.join(os.tmpdir(), 'workspaces');
-});
+beforeEach(() => setupTests());
 
 describe('BlockHandler', () => {
   test('Get Notion Page', async () => {
