@@ -55,7 +55,7 @@ export class PlainTextParser {
         if (clozeCard) {
           flashcards.push(clozeCard);
         }
-        
+
         continue;
       }
 
