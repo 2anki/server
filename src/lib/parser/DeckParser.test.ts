@@ -1,12 +1,8 @@
-import path from 'path';
-import os from 'os';
-
+import { setupTests } from '../../test/configure-jest';
 import { getDeck } from '../../test/test-utils';
 import Settings from './Settings/';
 
-beforeEach(() => {
-  process.env.WORKSPACE_BASE = path.join(os.tmpdir(), 'workspaces');
-});
+beforeEach(() => setupTests());
 
 test.skip('Toggle Headings', async () => {
   const deck = await getDeck(
