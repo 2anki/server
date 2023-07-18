@@ -11,22 +11,22 @@ interface ConversionRequest {
   api: NotionAPIWrapper;
   id: string;
   owner: string;
-  req: express.Request | null;
   res: express.Response | null;
+  type?: string;
 }
 
 export default async function performConversion(
   database: Knex,
-  { title, api, id, owner, req, res }: ConversionRequest
+  { title, api, id, owner, res, type }: ConversionRequest
 ) {
   let waitingResponse = true;
+  console.log(`Performing conversion for ${id}`);
+
+  const storage = new StorageHandler();
+  const job = new ConversionJob(database);
+
+  await job.load(id, owner, title, type);
   try {
-    console.log(`Performing conversion for ${id}`);
-
-    const storage = new StorageHandler();
-    const job = new ConversionJob(database);
-
-    await job.load(id, owner, title);
     if (!job.canStart()) {
       console.log(`job ${id} was not started. Job is already active.`);
       return res ? res.redirect('/uploads') : null;
@@ -50,7 +50,7 @@ export default async function performConversion(
     const { ws, exporter, settings, bl, rules } = await job.createWorkSpace(
       api
     );
-    const decks = await job.createFlashcards(bl, req, id, rules, settings);
+    const decks = await job.createFlashcards(bl, id, rules, settings, type);
     if (!decks) {
       await job.failed();
       return;
@@ -77,6 +77,7 @@ export default async function performConversion(
     });
     await job.completed();
   } catch (error) {
+    await job.failed();
     if (waitingResponse) {
       res?.status(400).send('conversion failed.');
     }

@@ -66,7 +66,7 @@ class NotionController {
 
   async convert(req: Request, res: Response) {
     const api = await this.service.getNotionAPI(res.locals.owner);
-    const { id, title } = req.body;
+    const { id, title, type } = req.body;
 
     if (!id) {
       return res.status(400).send({ error: 'id is required' });
@@ -75,8 +75,8 @@ class NotionController {
     return performConversion(getDatabase(), {
       api,
       id,
+      type,
       owner: res.locals.owner,
-      req,
       res,
       title,
     });
