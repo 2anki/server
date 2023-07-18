@@ -1,29 +1,37 @@
-import * as Sentry from '@sentry/node';
-import * as Tracing from '@sentry/tracing';
-import express, { ErrorRequestHandler, RequestHandler } from 'express';
+import Bugsnag from '@bugsnag/js';
+import BugsnagPluginExpress from '@bugsnag/plugin-express';
+
 import { Express } from 'express-serve-static-core';
 
 export default class CrashReporter {
+  /**
+   * Add the error handler to the Express app
+   * It must be called after setting up all routes.
+   * @param app the Express app
+   */
   static AddErrorHandler(app: Express) {
-    app.use(Sentry.Handlers.errorHandler() as ErrorRequestHandler);
+    const middleware = Bugsnag.getPlugin('express');
+    if (middleware) {
+      // This handles any errors that Express catches
+      app.use(middleware.errorHandler);
+    }
   }
 
-  static Configure(app: express.Application) {
-    Sentry.init({
-      dsn: 'https://067ae1c6d7c847278d84a7bbd12515ec@o404766.ingest.sentry.io/5965064',
-      integrations: [
-        // enable HTTP calls tracing
-        new Sentry.Integrations.Http({ tracing: true }),
-        // enable Express.js middleware tracing
-        new Tracing.Integrations.Express({ app }),
-      ],
-
-      // Set tracesSampleRate to 1.0 to capture 100%
-      // of transactions for performance monitoring.
-      // We recommend adjusting this value in production
-      tracesSampleRate: 1.0,
+  /**
+   * Configure the crash reporter
+   * It must be called before setting any routes up.
+   * @param app the Express app
+   * @param apiKey the Bugsnag API key
+   */
+  static Configure(app: Express, apiKey: string) {
+    Bugsnag.start({
+      apiKey,
+      plugins: [BugsnagPluginExpress],
     });
-    app.use(Sentry.Handlers.requestHandler() as RequestHandler);
-    app.use(Sentry.Handlers.tracingHandler() as RequestHandler);
+
+    const middleware = Bugsnag.getPlugin('express');
+    if (middleware) {
+      app.use(middleware.requestHandler);
+    }
   }
 }

@@ -54,8 +54,10 @@ const serve = async () => {
 
   app.use(express.json({ limit: '1000mb' }) as RequestHandler);
   app.use(cookieParser());
-  if (process.env.NODE_ENV === 'production') {
-    CrashReporter.Configure(app);
+
+  const apiKey = process.env.BUGSNAG_API_KEY;
+  if (apiKey && process.env.NODE_ENV === 'production') {
+    CrashReporter.Configure(app, apiKey);
   }
 
   if (isStaging()) {

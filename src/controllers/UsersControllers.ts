@@ -1,8 +1,7 @@
 import express from 'express';
-import * as Sentry from '@sentry/node';
 
-import { sendError } from '../lib/error/sendError';
 import { INDEX_FILE } from '../lib/constants';
+import { sendError } from '../lib/error/sendError';
 import AuthenticationService from '../services/AuthenticationService';
 import UsersService from '../services/UsersService';
 
@@ -65,7 +64,6 @@ class UsersController {
     const { token } = req.cookies;
     try {
       await this.authService.logOut(token);
-      Sentry.setUser(null);
       res.clearCookie('token');
       res.redirect('/');
     } catch (error) {
@@ -161,6 +159,8 @@ class UsersController {
 
   getLocals(_req: express.Request, res: express.Response) {
     const { locals } = res;
+    sendError(new Error('Test error'));
+
     return res.json({ locals });
   }
 
