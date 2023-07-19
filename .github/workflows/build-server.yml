@@ -1,6 +1,9 @@
 name: Build Server
 
-on: [push]
+on:
+  push:
+    paths-ignore:
+      - '**.md'
 
 jobs:
   build:

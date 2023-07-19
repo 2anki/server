@@ -2,6 +2,8 @@ name: Deploy to 2anki.net
 
 on:
   push:
+    paths-ignore:
+      - '**.md'
     branches:
       - main
 
