@@ -84,8 +84,13 @@ We are still heavily relying on the APKG format. Long term we want to support An
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=2anki/server&type=Date)](https://star-history.com/#2anki/server&Date)
-
+<a href="https://star-history.com/#2anki/2anki.net&2anki/web&Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=2anki/2anki.net,2anki/web&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=2anki/2anki.net,2anki/web&type=Date" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=2anki/2anki.net,2anki/web&type=Date" />
+  </picture>
+</a>
 
 ## Credits
 
