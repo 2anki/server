@@ -284,7 +284,8 @@ class NotionAPIWrapper {
     if (!page) {
       return '';
     }
-    let title = getNotionObjectTitle(page) ?? `Untitled: ${new Date()}`;
+    let title =
+      getNotionObjectTitle(page, { emoji: false }) ?? `Untitled: ${new Date()}`;
     let icon = await renderIcon(
       getBlockIcon(page as WithIcon, settings.pageEmoji)
     );
