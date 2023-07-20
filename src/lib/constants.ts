@@ -15,6 +15,7 @@ export const ALLOWED_ORIGINS = [
   'https://notion.2anki.net/',
   'https://staging.2anki.net',
   'https://templates.2anki.net/',
+  'https://app.2anki.net',
 ];
 
 export function resolvePath(dir: string, x: string) {
