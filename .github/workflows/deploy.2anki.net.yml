@@ -12,17 +12,32 @@ jobs:
     runs-on: ubuntu-latest
     concurrency: 'production'
     steps:
-      - name: Mark github workspace as safe
-        run: |
-          git config --global --add safe.directory /github/workspace
-      - uses: actions/checkout@v3
+      - name: SSH and run script
+        uses: appleboy/ssh-action@master
         with:
-          ref: main
-          fetch-depth: 0
-      - name: Dokku deploy
-        uses: alemayhu/dokku-github-action@v7.2
-        env:
-          FORCE_DEPLOY: true
-          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-          HOST: 2anki.net
-          PROJECT: notion
+          host: 2anki.net
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            mkdir -pv /tmp/workspaces
+            node --version
+
+            WEB_DIR=~/src/github.com/2anki/web
+            CREATE_DECK_DIR=~/src/github.com/2anki/create_deck
+            SERVER_DIR=~/src/github.com/2anki/2anki.net
+
+            git -C ${CREATE_DECK_DIR} pull origin
+            git -C ${SERVER_DIR}      pull origin
+            git -C ${WEB_DIR}         pull origin
+
+            git -C ${SERVER_DIR} clean -fd 
+            npm --prefix ${WEB_DIR} install
+            npm --prefix ${SERVER_DIR} install
+
+            pip install -r ${CREATE_DECK_DIR}/requirements.txt
+
+            npm --prefix ${SERVER_DIR} run build
+            npm --prefix ${WEB_DIR} run build
+
+            cd ${SERVER_DIR}/..
+            pm2 restart server
