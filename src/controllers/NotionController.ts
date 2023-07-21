@@ -4,7 +4,7 @@ import { sendError } from '../lib/error/sendError';
 import performConversion from '../lib/storage/jobs/helpers/performConversion';
 import Settings from '../lib/parser/Settings';
 import BlockHandler from '../services/NotionService/BlockHandler/BlockHandler';
-import CustomExporter from '../lib/parser/CustomExporter';
+import CustomExporter from '../lib/parser/exporters/CustomExporter';
 import { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 import Workspace from '../lib/parser/WorkSpace';
 import { blockToStaticMarkup } from '../services/NotionService/helpers/blockToStaticMarkup';

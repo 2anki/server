@@ -1,8 +1,8 @@
 import path from 'path';
 import fs, { PathLike } from 'fs';
 
-import CardGenerator from '../anki/CardGenerator';
-import Deck from './Deck';
+import CardGenerator from '../../anki/CardGenerator';
+import Deck from '../Deck';
 
 class CustomExporter {
   firstDeckName: string;

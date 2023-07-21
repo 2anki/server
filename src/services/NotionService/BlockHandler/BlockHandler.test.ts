@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv';
-import CustomExporter from '../../../lib/parser/CustomExporter';
+import CustomExporter from '../../../lib/parser/exporters/CustomExporter';
 import Note from '../../../lib/parser/Note';
 import ParserRules from '../../../lib/parser/ParserRules';
 
