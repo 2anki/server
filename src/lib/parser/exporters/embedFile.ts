@@ -1,25 +1,37 @@
+import Bugsnag from '@bugsnag/js';
+import { File } from '../../anki/zip';
 import { SuffixFrom } from '../../misc/file';
 import getUniqueFileName from '../../misc/getUniqueFileName';
 import CustomExporter from './CustomExporter';
-import { File } from '../../anki/zip';
-import { isFileNameEqual } from '../../storage/types';
-import Bugsnag from '@bugsnag/js';
 
 export const embedFile = (
   exporter: CustomExporter,
   files: File[],
   filePath: string
 ): string | null => {
-  const newName = getUniqueFileName(filePath) + SuffixFrom(filePath);
-  const file = files.find((f) => isFileNameEqual(f, filePath));
-  const contents = file?.contents;
-
-  if (typeof contents === 'string') {
-    exporter.addMedia(newName, contents);
-  } else {
-    Bugsnag.notify(new Error(`Failed to embed file ${filePath}`));
-    return null;
+  const suffix = SuffixFrom(filePath);
+  let file = files.find((f) => f.name === filePath);
+  if (!file) {
+    const lookup = `${exporter.firstDeckName}/${filePath}`.replace(
+      /\.\.\//g,
+      ''
+    );
+    file = files.find((f) => {
+      if (f.name === lookup || f.name.endsWith(filePath)) {
+        return f;
+      }
+    });
+    if (!file) {
+      Bugsnag.notify(
+        `Missing relative path to ${filePath} used ${exporter.firstDeckName}`
+      );
+      return null;
+    }
   }
-
+  const newName = getUniqueFileName(filePath) + suffix;
+  const contents = file.contents as string;
+  if (contents) {
+    exporter.addMedia(newName, contents);
+  }
   return newName;
 };
