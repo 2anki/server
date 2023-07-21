@@ -1,25 +1,25 @@
 import cheerio from 'cheerio';
 
-import CustomExporter from './CustomExporter';
-import Settings from './Settings';
-import Note from './Note';
-import Deck from './Deck';
-import { File } from '../anki/zip';
-import Workspace from './WorkSpace';
-import { SuffixFrom } from '../misc/file';
-import replaceAll from './helpers/replaceAll';
-import handleClozeDeletions from './helpers/handleClozeDeletions';
-import sanitizeTags from '../anki/sanitizeTags';
 import preserveNewlinesIfApplicable from '../../services/NotionService/helpers/preserveNewlinesIfApplicable';
+import sanitizeTags from '../anki/sanitizeTags';
+import { File } from '../anki/zip';
+import Deck from './Deck';
+import Note from './Note';
+import Settings from './Settings';
+import Workspace from './WorkSpace';
+import CustomExporter from './exporters/CustomExporter';
+import handleClozeDeletions from './helpers/handleClozeDeletions';
+import replaceAll from './helpers/replaceAll';
 
-import getYouTubeID from './helpers/getYouTubeID';
-import getYouTubeEmbedLink from './helpers/getYouTubeEmbedLink';
-import getUniqueFileName from '../misc/getUniqueFileName';
+import get16DigitRandomId from '../../shared/helpers/get16DigitRandomId';
 import { isValidAudioFile } from '../anki/format';
 import { sendError } from '../error/sendError';
-import FallbackParser from './experimental/FallbackParser';
 import { NO_PACKAGE_ERROR } from '../misc/ErrorHandler';
-import get16DigitRandomId from '../../shared/helpers/get16DigitRandomId';
+import FallbackParser from './experimental/FallbackParser';
+import { embedFile } from './exporters/embedFile';
+import getYouTubeEmbedLink from './helpers/getYouTubeEmbedLink';
+import getYouTubeID from './helpers/getYouTubeID';
+import { isFileNameEqual } from '../storage/types';
 
 export class DeckParser {
   globalTags: cheerio.Cheerio | null;
@@ -42,9 +42,7 @@ export class DeckParser {
     this.firstDeckName = name;
     this.globalTags = null;
 
-    const firstFile = this.files.find((file) =>
-      this.isFileNameEqual(file, name)
-    );
+    const firstFile = this.files.find((file) => isFileNameEqual(file, name));
 
     const contents = firstFile?.contents;
     if (contents) {
@@ -57,38 +55,6 @@ export class DeckParser {
     } else {
       throw new Error(`Error Unknown file ${name}`);
     }
-  }
-
-  /**
-   * Check if the file name is equal to the name
-   * This can be used to find the contents of a file in the payload.
-   * Due to encoding issues, we need to check both the encoded and decoded names
-   *
-   * @param file uploaded file from user
-   * @param name name of the file
-   * @returns true if the file name is equal to the name
-   */
-  isFileNameEqual(file: File, name: string) {
-    try {
-      // For backwards compatibility, we need to support the old way of parsing
-      const decodedName = global.decodeURIComponent(name);
-      if (file.name === decodedName) {
-        return true;
-      }
-    } catch (error) {
-      console.debug('Failed to decode name');
-    }
-
-    try {
-      const decodedFilename = global.decodeURIComponent(file.name);
-      const decodedName = global.decodeURIComponent(name);
-
-      return decodedFilename === decodedName;
-    } catch (error) {
-      console.debug('Failed to decode names');
-    }
-
-    return file.name === name;
   }
 
   findNextPage(href: string | undefined): string | Uint8Array | undefined {
@@ -316,38 +282,6 @@ export class DeckParser {
     return new CustomExporter(this.firstDeckName, workspace);
   }
 
-  embedFile(
-    exporter: CustomExporter,
-    files: File[],
-    filePath: string
-  ): string | null {
-    const suffix = SuffixFrom(filePath);
-    let file = files.find((f) => f.name === filePath);
-    if (!file) {
-      const lookup = `${exporter.firstDeckName}/${filePath}`.replace(
-        /\.\.\//g,
-        ''
-      );
-      file = files.find((f) => {
-        if (f.name === lookup || f.name.endsWith(filePath)) {
-          return f;
-        }
-      });
-      if (!file) {
-        console.warn(
-          `Missing relative path to ${filePath} used ${exporter.firstDeckName}`
-        );
-        return null;
-      }
-    }
-    const newName = getUniqueFileName(filePath) + suffix;
-    const contents = file.contents as string;
-    if (contents) {
-      exporter.addMedia(newName, contents);
-    }
-    return newName;
-  }
-
   // https://stackoverflow.com/questions/6903823/regex-for-youtube-id
   _getYouTubeID(input: string) {
     return this.ensureNotNull(input, () => {
@@ -486,7 +420,7 @@ export class DeckParser {
             images.each((_i, elem) => {
               const originalName = dom(elem).attr('src');
               if (originalName && !originalName.startsWith('http')) {
-                const newName = this.embedFile(
+                const newName = embedFile(
                   exporter,
                   this.files,
                   decodeURIComponent(originalName)
@@ -508,7 +442,7 @@ export class DeckParser {
                 ''
               );
             }
-            const newFileName = this.embedFile(
+            const newFileName = embedFile(
               exporter,
               this.files,
               global.decodeURIComponent(audiofile)

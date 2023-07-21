@@ -13,7 +13,7 @@ import Note from '../../../lib/parser/Note';
 import Settings from '../../../lib/parser/Settings';
 import ParserRules from '../../../lib/parser/ParserRules';
 import Deck from '../../../lib/parser/Deck';
-import CustomExporter from '../../../lib/parser/CustomExporter';
+import CustomExporter from '../../../lib/parser/exporters/CustomExporter';
 import { S3FileName, SuffixFrom } from '../../../lib/misc/file';
 import TagRegistry from '../../../lib/parser/TagRegistry';
 import sanitizeTags from '../../../lib/anki/sanitizeTags';

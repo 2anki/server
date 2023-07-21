@@ -13,7 +13,7 @@ import {
 } from '../../anki/format';
 import { sendError } from '../../error/sendError';
 import { FileSizeInMegaBytes } from '../../misc/file';
-import CustomExporter from '../../parser/CustomExporter';
+import CustomExporter from '../../parser/exporters/CustomExporter';
 import Deck from '../../parser/Deck';
 import ParserRules from '../../parser/ParserRules';
 import Settings from '../../parser/Settings';
