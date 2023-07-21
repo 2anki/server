@@ -5,11 +5,6 @@ import deleteOldUploads from './deleteOldUploads';
 import { getDatabase } from '../../../../data_layer';
 
 export const runCleanup = async (database: Knex) => {
-  if (process.env.SKIP_CLEANUP === 'true') {
-    console.info('Skipping cleanup');
-    return;
-  }
-
   console.time('running cleanup');
   deleteOldFiles();
   await deleteOldUploads(database);
