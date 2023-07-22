@@ -1,3 +1,5 @@
+import fs from 'fs';
+
 import { ZipHandler } from '../../lib/anki/zip';
 import { PrepareDeck } from '../../lib/parser/DeckParser';
 import Package from '../../lib/parser/Package';
@@ -60,14 +62,14 @@ class GeneratePackagesUseCase {
     let packages: Package[] = [];
 
     for (const file of files) {
-      const fileContents = await this.storage.getFileContents(file.key);
+      const fileContents = fs.readFileSync(file.path);
       const filename = file.originalname;
       const key = file.key;
 
       if (isFileSupported(filename)) {
         const d = await PrepareDeck(
           filename,
-          [{ name: filename, contents: fileContents.Body }],
+          [{ name: filename, contents: fileContents }],
           settings
         );
         if (d) {
@@ -76,7 +78,7 @@ class GeneratePackagesUseCase {
         }
       } else if (isZIPFile(filename) || isZIPFile(key)) {
         const { packages: extraPackages } = await getPackagesFromZip(
-          fileContents.Body,
+          fileContents,
           isPatreon,
           settings
         );
