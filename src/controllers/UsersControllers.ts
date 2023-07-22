@@ -150,7 +150,7 @@ class UsersController {
       if (isValid) {
         return res.sendFile(INDEX_FILE);
       }
-      return res.redirect('/login#login');
+      return res.redirect('/login');
     } catch (err) {
       sendError(err);
       next(err);

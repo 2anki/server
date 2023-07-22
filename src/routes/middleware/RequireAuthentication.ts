@@ -16,7 +16,7 @@ const RequireAuthentication = async (
   );
   const user = await authService.getUserFrom(req.cookies.token);
   if (!user) {
-    return res.redirect('/login#login');
+    return res.redirect('/login');
   }
   res.locals.owner = user.owner;
   res.locals.patreon = user.patreon;
