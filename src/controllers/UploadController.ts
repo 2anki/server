@@ -74,7 +74,7 @@ class UploadController {
     console.info('uploading file');
     console.time(req.path);
     const storage = new StorageHandler();
-    const handleUploadEndpoint = this.service.getUploadHandler(res, storage);
+    const handleUploadEndpoint = this.service.getUploadHandler(res);
 
     handleUploadEndpoint(req, res, async (error) => {
       if (error) {

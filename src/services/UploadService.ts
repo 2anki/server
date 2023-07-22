@@ -1,6 +1,5 @@
 import express from 'express';
 import multer from 'multer';
-import multerS3 from 'multer-s3';
 
 import { sendBundle } from '../controllers/UploadController';
 import UploadRepository from '../data_layer/UploadRespository';
@@ -26,25 +25,12 @@ class UploadService {
     await s.delete(key);
   }
 
-  getUploadHandler(res: express.Response, storage: StorageHandler) {
+  getUploadHandler(res: express.Response) {
+    const maxUploadCount = 21;
     return multer({
       limits: getUploadLimits(res.locals.patreon),
-      storage: multerS3({
-        s3: storage.s3,
-        bucket: StorageHandler.DefaultBucketName(),
-        key(_request, file, cb) {
-          let suffix = '.zip';
-          if (
-            file.originalname.includes('.') &&
-            file.originalname.split('.').length > 1
-          ) {
-            const parts = file.originalname.split('.');
-            suffix = parts[parts.length - 1];
-          }
-          cb(null, storage.uniqify(file.originalname, 'upload', 256, suffix));
-        },
-      }),
-    }).array('pakker', 21);
+      dest: process.env.UPLOAD_BASE,
+    }).array('pakker', maxUploadCount);
   }
 
   async handleUpload(
