@@ -4,6 +4,7 @@ import { INDEX_FILE } from '../lib/constants';
 import { sendError } from '../lib/error/sendError';
 import AuthenticationService from '../services/AuthenticationService';
 import UsersService from '../services/UsersService';
+import { getRedirect } from './helpers/getRedirect';
 
 class UsersController {
   constructor(
@@ -103,7 +104,7 @@ class UsersController {
       if (token) {
         await this.authService.persistToken(token, user.id.toString());
         res.cookie('token', token);
-        res.status(200).json({ token });
+        res.status(200).json({ token, redirect: getRedirect(req) });
       }
     } catch (error) {
       sendError(error);
@@ -184,7 +185,7 @@ class UsersController {
     if (!user) {
       res.sendFile(INDEX_FILE);
     } else {
-      res.redirect('/search');
+      res.redirect(getRedirect(req));
     }
   }
 
