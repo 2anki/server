@@ -14,7 +14,8 @@ export const getLimitMessage = () =>
         </li>
         <li>
           <a href="https://alemayhu.com/patreon">Become a patron</a> to remove
-          the limit.
+          the limit or <a href="/login">login</a> if you already have an
+          account.
         </li>
       </ul>
     </>
