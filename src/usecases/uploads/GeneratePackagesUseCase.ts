@@ -14,7 +14,6 @@ import {
 import { UploadedFile } from '../../lib/storage/types';
 
 import { Body } from 'aws-sdk/clients/s3';
-import Bugsnag from '@bugsnag/js';
 
 export interface PackageResult {
   packages: Package[];
@@ -64,12 +63,6 @@ class GeneratePackagesUseCase {
 
     for (const file of files) {
       const fileContents = fs.readFileSync(file.path);
-
-      Bugsnag.leaveBreadcrumb('using originalname', {
-        filename: file.filename,
-        originalname: file.originalname,
-      });
-
       const filename = file.originalname;
       const key = file.key;
 
