@@ -64,12 +64,6 @@ class GeneratePackagesUseCase {
 
     for (const file of files) {
       const fileContents = fs.readFileSync(file.path);
-
-      Bugsnag.leaveBreadcrumb('using originalname', {
-        filename: file.filename,
-        originalname: file.originalname,
-      });
-
       const filename = file.originalname;
       const key = file.key;
 

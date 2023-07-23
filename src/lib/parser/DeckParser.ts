@@ -20,7 +20,7 @@ import { embedFile } from './exporters/embedFile';
 import getYouTubeEmbedLink from './helpers/getYouTubeEmbedLink';
 import getYouTubeID from './helpers/getYouTubeID';
 import { isFileNameEqual } from '../storage/types';
-import { isFileEmbedable } from '../storage/checks';
+import { isImageFileEmbedable } from '../storage/checks';
 
 export class DeckParser {
   globalTags: cheerio.Cheerio | null;
@@ -420,7 +420,7 @@ export class DeckParser {
           if (images.length > 0) {
             images.each((_i, elem) => {
               const originalName = dom(elem).attr('src');
-              if (originalName && isFileEmbedable(originalName)) {
+              if (originalName && isImageFileEmbedable(originalName)) {
                 const newName = embedFile(
                   exporter,
                   this.files,

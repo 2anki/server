@@ -16,5 +16,5 @@ export const isTwitterURL = (url: string) => url.match(/twitter\.com/i);
 
 export const isVimeoURL = (url: string) => url.match(/vimeo\.com/i);
 
-export const isFileEmbedable = (url: string) =>
+export const isImageFileEmbedable = (url: string) =>
   !url.startsWith('http') && !url.startsWith('data:image');
