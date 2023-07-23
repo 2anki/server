@@ -15,3 +15,6 @@ export const isSoundCloudURL = (url: string) => url.match(/soundcloud\.com/i);
 export const isTwitterURL = (url: string) => url.match(/twitter\.com/i);
 
 export const isVimeoURL = (url: string) => url.match(/vimeo\.com/i);
+
+export const isFileEmbedable = (url: string) =>
+  !url.startsWith('http') && !url.startsWith('data:image');
