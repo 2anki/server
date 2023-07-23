@@ -157,10 +157,7 @@ class BlockHandler {
       if (isColumnList(block) && rules.useColums()) {
         const secondColumn = await getColumn(block.id, this, 1);
         if (secondColumn) {
-          back = await BlockColumn(
-            secondColumn as ColumnBlockObjectResponse,
-            this
-          );
+          back = await BlockColumn(secondColumn, this);
         }
       } else {
         back = await this.getBackSide(block as BlockObjectResponse);
@@ -174,7 +171,7 @@ class BlockHandler {
       let isBasicType = true;
       // Look for cloze deletion cards
       if (this.settings.isCloze) {
-        const clozeCard = await getClozeDeletionCard(rules, block);
+        const clozeCard = await getClozeDeletionCard(block);
         if (clozeCard) {
           isBasicType = false;
           ankiNote.copyValues(clozeCard);

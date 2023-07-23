@@ -3,15 +3,13 @@ import {
   TextRichTextItemResponse,
 } from '@notionhq/client/build/src/api-endpoints';
 
-import ParserRules from '../../../lib/parser/ParserRules';
 import Note from '../../../lib/parser/Note';
-import isColumnList from './isColumnList';
 import { getRichTextFromBlock } from './getRichTextFromBlock';
+import isColumnList from './isColumnList';
 
 // The user wants to turn code blocks into cloze deletions <code>word</code> becomes {{c1::word}}
 // This all should be tested with Jest
 export default function getClozeDeletionCard(
-  rules: ParserRules,
   block: GetBlockResponse
 ): Note | undefined {
   let isCloze = false;

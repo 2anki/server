@@ -34,7 +34,7 @@ const deleteDanglingUploads = async (db: Knex, storage: StorageHandler) => {
   const nonPatreonFiles =
     storedFiles?.filter(
       (f) => f.Key && !subScriberUploads.find((up) => up.key === f.Key)
-    ) || [];
+    ) ?? [];
 
   for (const file of nonPatreonFiles) {
     if (file.Key) {
