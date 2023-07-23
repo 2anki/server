@@ -51,6 +51,12 @@ export const embedFile = (
     }
     return newName;
   } else {
+    // use bugsnag breadcrumb to add all file names
+    Bugsnag.leaveBreadcrumb('Missing relative path', {
+      filePath: filePath,
+      fileNames: files.map((f) => f.name),
+    });
+
     Bugsnag.notify(
       `Missing relative path to ${filePath} used ${exporter.firstDeckName}`
     );
