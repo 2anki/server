@@ -14,7 +14,6 @@ import {
 import { UploadedFile } from '../../lib/storage/types';
 
 import { Body } from 'aws-sdk/clients/s3';
-import Bugsnag from '@bugsnag/js';
 
 export interface PackageResult {
   packages: Package[];
