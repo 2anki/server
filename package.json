@@ -52,7 +52,7 @@
     "jszip": "^3.10.1",
     "knex": "^2.5.1",
     "metascraper": "^5.34.7",
-    "metascraper-description": "^5.34.9",
+    "metascraper-description": "^5.34.10",
     "metascraper-image": "^5.34.7",
     "metascraper-logo-favicon": "^5.34.10",
     "metascraper-title": "^5.34.9",
