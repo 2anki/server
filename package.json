@@ -32,7 +32,7 @@
   "dependencies": {
     "@bugsnag/js": "^7.20.2",
     "@bugsnag/plugin-express": "^7.19.0",
-    "@notionhq/client": "^2.2.3",
+    "@notionhq/client": "^2.2.9",
     "@sendgrid/mail": "^7.7.0",
     "aws-sdk": "^2.1359.0",
     "axios": "^1.4.0",
