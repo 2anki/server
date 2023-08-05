@@ -19,6 +19,8 @@ export default interface Jobs {
   last_edited_time: Date | null;
 
   title: string | null;
+
+  type: string | null;
 }
 
 /** Represents the initializer for the table public.jobs */
@@ -40,6 +42,8 @@ export interface JobsInitializer {
   last_edited_time?: Date | null;
 
   title?: string | null;
+
+  type?: string | null;
 }
 
 /** Represents the mutator for the table public.jobs */
@@ -57,4 +61,6 @@ export interface JobsMutator {
   last_edited_time?: Date | null;
 
   title?: string | null;
+
+  type?: string | null;
 }
