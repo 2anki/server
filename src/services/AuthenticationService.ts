@@ -97,8 +97,12 @@ class AuthenticationService {
     return this.tokenRepository.deleteAccessToken(token);
   }
 
-  isValidLogin(email: string, password: string) {
-    return email && password && password.length >= 8;
+  isValidLogin(email: unknown, password: unknown) {
+    return (
+      typeof email === 'string' &&
+      typeof password === 'string' &&
+      password.length >= 8
+    );
   }
 
   getHashPassword(password: string) {

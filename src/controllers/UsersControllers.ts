@@ -5,6 +5,12 @@ import { sendError } from '../lib/error/sendError';
 import AuthenticationService from '../services/AuthenticationService';
 import UsersService from '../services/UsersService';
 import { getRedirect } from './helpers/getRedirect';
+import Users from '../data_layer/public/Users';
+
+interface UserCredentials {
+  email: string;
+  password: string;
+}
 
 class UsersController {
   constructor(
@@ -78,29 +84,16 @@ class UsersController {
     res: express.Response,
     next: express.NextFunction
   ) {
-    console.debug('Login attempt');
-    const { email, password } = req.body;
-    if (!this.authService.isValidLogin(email, password)) {
-      return res.status(400).json({
-        message: 'Invalid user data. Required  email and password!',
-      });
-    }
-
     try {
-      const user = await this.userService.getUserFrom(email);
-      if (!user) {
-        console.debug(`No user matching email ${email}`);
-        return res.status(400).json({
-          message: 'Unknown error. Please try again or register a new account.',
-        });
-      }
+      const { email, password } = this.ensureValidLoginAttempt({
+        email: req.body.email,
+        password: req.body.password,
+      });
+      const user = await this.ensureValidUser(email);
 
-      const isMatch = this.authService.comparePassword(password, user.password);
-      if (!isMatch) {
-        return res.status(401).json({ message: 'Invalid password.' });
-      }
+      this.ensurePasswordsMatch(password, user.password);
 
-      const token = await this.authService.newJWTToken(user);
+      const token = await this.authService.newJWTToken(user.id);
       if (token) {
         await this.authService.persistToken(token, user.id.toString());
         res.cookie('token', token);
@@ -198,6 +191,33 @@ class UsersController {
       return false;
     }
     return true;
+  }
+
+  private ensureValidLoginAttempt(
+    credentials: Partial<UserCredentials>
+  ): UserCredentials {
+    const { email, password } = credentials;
+    if (!this.authService.isValidLogin(email, password)) {
+      throw new Error('Invalid user data. Required  email and password!');
+    }
+    return { email: email!, password: password! };
+  }
+
+  private async ensureValidUser(email: string): Promise<Users> {
+    const user = await this.userService.getUserFrom(email);
+    if (!user) {
+      throw new Error(
+        'Unknown error. Please try again or register a new account.'
+      );
+    }
+    return user;
+  }
+
+  private ensurePasswordsMatch(lhs: string, rhs: string) {
+    const isMatch = this.authService.comparePassword(lhs, rhs);
+    if (!isMatch) {
+      throw new Error('Invalid password.');
+    }
   }
 }
 
