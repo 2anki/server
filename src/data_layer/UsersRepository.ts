@@ -54,7 +54,6 @@ class UsersRepository {
       'favorites',
       'jobs',
       'notion_tokens',
-      'patreon_tokens',
       'settings',
       'templates',
       'uploads',

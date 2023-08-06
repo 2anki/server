@@ -11,7 +11,7 @@ module.exports = {
   },
 
   preDeleteModelFolder: true,
-  outputPath: './src/schemas',
+  outputPath: './src/data_layer',
 
   customTypeMap: {
     'pg_catalog.tsvector': 'string',
