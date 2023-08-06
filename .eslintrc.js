@@ -16,5 +16,5 @@ module.exports = {
     'prettier/prettier': ['error'],
     'require-await': 'error',
   },
-  "ignorePatterns": ["src/data_layer/public/schemas", "migrations"],
+  "ignorePatterns": ["src/data_layer/public/", "migrations"],
 };
