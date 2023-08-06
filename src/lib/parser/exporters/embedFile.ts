@@ -1,4 +1,3 @@
-import Bugsnag from '@bugsnag/js';
 import { File } from '../../anki/zip';
 import { SuffixFrom } from '../../misc/file';
 import getUniqueFileName from '../../misc/getUniqueFileName';
@@ -57,10 +56,6 @@ export const embedFile = (
         filePath: filePath,
         fileNames: files.map((f) => f.name),
       })
-    );
-
-    Bugsnag.notify(
-      `Missing relative path to ${filePath} used ${exporter.firstDeckName}`
     );
   }
 
