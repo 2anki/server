@@ -15,6 +15,8 @@ module.exports = {
     'react/jsx-filename-extension': 'off',
     'prettier/prettier': ['error'],
     'require-await': 'error',
+    "max-lines-per-function": ["error", 30],
+    "max-params": ["error", 3]
   },
   "ignorePatterns": ["src/data_layer/public/", "migrations"],
 };
