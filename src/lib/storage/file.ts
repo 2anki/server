@@ -1,14 +1,7 @@
 import fs from 'fs';
 
 export function SuffixFrom(input: string) {
-  if (!input) {
-    return null;
-  }
-  const m = input.match(/\.[0-9a-z]+$/i);
-  if (!m) {
-    return null;
-  }
-  return m[0];
+  return input ? /\.[0-9a-z]+$/i.exec(input)?.[0] ?? null : null;
 }
 
 export function S3FileName(url: string): string {

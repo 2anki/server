@@ -1,6 +1,6 @@
 import { File } from '../../anki/zip';
-import { SuffixFrom } from '../../misc/file';
 import getUniqueFileName from '../../misc/getUniqueFileName';
+import { SuffixFrom } from '../../storage/file';
 import CustomExporter from './CustomExporter';
 
 const getFile = (
