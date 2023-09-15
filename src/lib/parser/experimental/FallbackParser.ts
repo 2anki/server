@@ -1,13 +1,20 @@
 import cheerio from 'cheerio';
 
 import { File } from '../../anki/zip';
-import { isHTMLFile, isMarkdownFile, isPlainText } from '../../storage/checks';
+import {
+  isHTMLFile,
+  isMarkdownFile,
+  isPlainText,
+  isCSVFile,
+} from '../../storage/checks';
 import Deck from '../Deck';
 import Note from '../Note';
 import Settings from '../Settings';
 import { PlainTextParser } from './PlainTextParser/PlainTextParser';
 import { Flashcard, isClozeFlashcard } from './PlainTextParser/types';
 import get16DigitRandomId from '../../../shared/helpers/get16DigitRandomId';
+import { getCardsFromCSV } from '@2anki/csv-to-apkg';
+import { isUint8Array } from 'util/types';
 
 class FallbackParser {
   constructor(private readonly files: File[]) {}
@@ -100,6 +107,8 @@ class FallbackParser {
 
   run(settings: Settings) {
     const decks = [];
+    let clean = true;
+
     for (const file of this.files) {
       const contents = file.contents?.toString();
       if (!contents) {
@@ -123,12 +132,17 @@ class FallbackParser {
         const found = plainTextParser.parse(items.join('\n'));
         cards = this.mapCardsToNotes(found);
         deckName = this.getTitleMarkdown(contents);
+      } else if (isCSVFile(file.name)) {
+        const csv = new TextDecoder().decode(file.contents as Uint8Array);
+        deckName = 'Default';
+        cards = getCardsFromCSV(csv) as Note[];
+        clean = false;
       }
 
       decks.push(
         new Deck(
           deckName,
-          Deck.CleanCards(cards),
+          clean ? Deck.CleanCards(cards) : cards,
           '', // skip cover image
           '', // skip style
           get16DigitRandomId(),
