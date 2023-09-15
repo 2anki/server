@@ -21,6 +21,7 @@ import getYouTubeEmbedLink from './helpers/getYouTubeEmbedLink';
 import getYouTubeID from './helpers/getYouTubeID';
 import { isFileNameEqual } from '../storage/types';
 import { isImageFileEmbedable } from '../storage/checks';
+import getDeckFilename from '../anki/getDeckFilename';
 
 export class DeckParser {
   globalTags: cheerio.Cheerio | null;
@@ -544,7 +545,7 @@ export async function PrepareDeck(
   if (parser.totalCardCount() === 0) {
     const apkg = await parser.tryExperimental();
     return {
-      name: `${parser.name ?? fileName}.apkg`,
+      name: getDeckFilename(parser.name ?? fileName),
       apkg,
       deck: parser.payload,
     };
@@ -552,7 +553,7 @@ export async function PrepareDeck(
 
   const apkg = await parser.build();
   return {
-    name: `${parser.name}.apkg`,
+    name: getDeckFilename(parser.name),
     apkg,
     deck: parser.payload,
   };

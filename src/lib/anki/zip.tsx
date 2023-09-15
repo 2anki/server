@@ -5,6 +5,7 @@ import { Body } from 'aws-sdk/clients/s3';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { getUploadLimits } from '../misc/getUploadLimits';
 import { isHTMLFile, isMarkdownFile } from '../storage/checks';
+import getDeckFilename from './getDeckFilename';
 
 interface File {
   name: string;
@@ -63,7 +64,7 @@ class ZipHandler {
   static toZip(decks: Package[], advertisment: string | null) {
     const zip = new JSZip();
     for (const d of decks) {
-      zip.file(`${d.name}.apkg`, d.apkg);
+      zip.file(getDeckFilename(d), d.apkg);
     }
     if (advertisment) {
       zip.file('README.html', advertisment);
