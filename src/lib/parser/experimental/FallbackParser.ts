@@ -14,7 +14,6 @@ import { PlainTextParser } from './PlainTextParser/PlainTextParser';
 import { Flashcard, isClozeFlashcard } from './PlainTextParser/types';
 import get16DigitRandomId from '../../../shared/helpers/get16DigitRandomId';
 import { getCardsFromCSV } from '@2anki/csv-to-apkg';
-import { isUint8Array } from 'util/types';
 
 class FallbackParser {
   constructor(private readonly files: File[]) {}
