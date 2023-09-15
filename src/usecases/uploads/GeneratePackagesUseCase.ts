@@ -6,6 +6,7 @@ import Package from '../../lib/parser/Package';
 import Settings from '../../lib/parser/Settings';
 import StorageHandler from '../../lib/storage/StorageHandler';
 import {
+  isCSVFile,
   isHTMLFile,
   isMarkdownFile,
   isPlainText,
@@ -20,7 +21,10 @@ export interface PackageResult {
 }
 
 export const isFileSupported = (filename: string) =>
-  isHTMLFile(filename) ?? isMarkdownFile(filename) ?? isPlainText(filename);
+  isHTMLFile(filename) ??
+  isMarkdownFile(filename) ??
+  isPlainText(filename) ??
+  isCSVFile(filename);
 
 const getPackagesFromZip = async (
   fileContents: Body | undefined,
