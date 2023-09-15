@@ -18,3 +18,5 @@ export const isVimeoURL = (url: string) => /vimeo\.com/.exec(url);
 
 export const isImageFileEmbedable = (url: string) =>
   !url.startsWith('http') && !url.startsWith('data:image');
+
+export const isCSVFile = (fileName: string) => /.csv$/i.exec(fileName);
