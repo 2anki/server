@@ -86,6 +86,11 @@ export class DeckParser {
     return note.name.includes(avocado) || note.name.includes('🥑');
   }
 
+  findIndentedToggleLists(dom: cheerio.Root): cheerio.Element[] {
+    const selector = '.page-body';
+    return dom(selector).toArray();
+  }
+
   findToggleLists(dom: cheerio.Root): cheerio.Element[] {
     const selector =
       this.settings.isCherry || this.settings.isAll
@@ -181,7 +186,11 @@ export class DeckParser {
     }
 
     this.globalTags = dom('.page-body > p > del');
-    const toggleList = this.findToggleLists(dom);
+    const foundToggleLists = this.findToggleLists(dom);
+    let toggleList =
+      foundToggleLists.length > 0
+        ? foundToggleLists
+        : this.findIndentedToggleLists(dom);
     let cards: Note[] = [];
 
     toggleList.forEach((t) => {
