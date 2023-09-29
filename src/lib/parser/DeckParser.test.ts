@@ -4,7 +4,7 @@ import Settings from './Settings/';
 
 beforeEach(() => setupTests());
 
-test.skip('Toggle Headings', async () => {
+test('Toggle Headings', async () => {
   const deck = await getDeck(
     'Toggle Hea 0e02b 2.html',
     new Settings({ cherry: 'false' })
