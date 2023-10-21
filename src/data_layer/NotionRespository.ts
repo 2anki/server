@@ -2,7 +2,18 @@ import { Knex } from 'knex';
 import NotionTokens from './public/NotionTokens';
 import unHashToken from '../lib/misc/unHashToken';
 
-class NotionRepository {
+export interface INotionRepository {
+  getNotionData(owner: number | string): Promise<NotionTokens>;
+  saveNotionToken(
+    user: number,
+    data: { [key: string]: string },
+    hash: (token: string) => string
+  ): Promise<boolean>;
+  getNotionToken(owner: string): Promise<string>;
+  deleteBlocksByOwner(owner: number): Promise<number>;
+}
+
+class NotionRepository implements INotionRepository {
   notionTokensTable = 'notion_tokens';
 
   notionBlocksTable = 'blocks';
@@ -52,7 +63,7 @@ class NotionRepository {
    * @param owner user id
    * @returns unhashed token
    */
-  async getNotionToken(owner: string) {
+  async getNotionToken(owner: string): Promise<string> {
     const row = await this.database('notion_tokens')
       .where({ owner })
       .returning('token')
@@ -67,7 +78,7 @@ class NotionRepository {
     return unHashToken(row.token);
   }
 
-  deleteBlocksByOwner(owner: number) {
+  deleteBlocksByOwner(owner: number): Promise<number> {
     return this.database(this.notionBlocksTable).del().where({ owner });
   }
 }

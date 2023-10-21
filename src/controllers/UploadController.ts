@@ -71,25 +71,30 @@ class UploadController {
   }
 
   file(req: express.Request, res: express.Response) {
-    console.info('uploading file');
-    console.time(req.path);
-    const storage = new StorageHandler();
-    const handleUploadEndpoint = this.service.getUploadHandler(res);
+    try {
+      console.info('uploading file');
+      console.time(req.path);
+      const storage = new StorageHandler();
+      const handleUploadEndpoint = this.service.getUploadHandler(res);
 
-    handleUploadEndpoint(req, res, async (error) => {
-      if (error) {
-        let msg = error.message;
-        if (msg === 'File too large') {
-          msg = getLimitMessage();
-        } else {
-          sendError(error);
+      handleUploadEndpoint(req, res, async (error) => {
+        if (error) {
+          let msg = error.message;
+          if (msg === 'File too large') {
+            msg = getLimitMessage();
+          } else {
+            sendError(error);
+          }
+          console.timeEnd(req.path);
+          return res.status(500).send(msg);
         }
+        await this.service.handleUpload(storage, req, res);
         console.timeEnd(req.path);
-        return res.status(500).send(msg);
-      }
-      await this.service.handleUpload(storage, req, res);
-      console.timeEnd(req.path);
-    });
+      });
+    } catch (error) {
+      sendError(error);
+      res.status(400);
+    }
   }
 }
 
