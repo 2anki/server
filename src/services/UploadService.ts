@@ -2,7 +2,7 @@ import express from 'express';
 import multer from 'multer';
 
 import { sendBundle } from '../controllers/UploadController';
-import UploadRepository from '../data_layer/UploadRespository';
+import { IUploadRepository } from '../data_layer/UploadRespository';
 import { sendError } from '../lib/error/sendError';
 import ErrorHandler, { NO_PACKAGE_ERROR } from '../lib/misc/ErrorHandler';
 import { getUploadLimits } from '../lib/misc/getUploadLimits';
@@ -17,7 +17,7 @@ class UploadService {
     return this.uploadRepository.getUploadsByOwner(owner);
   }
 
-  constructor(private readonly uploadRepository: UploadRepository) {}
+  constructor(private readonly uploadRepository: IUploadRepository) {}
 
   async deleteUpload(owner: number, key: string) {
     const s = new StorageHandler();

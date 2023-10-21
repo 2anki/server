@@ -1,10 +1,10 @@
 import axios from 'axios';
 
-import NotionRepository from '../../data_layer/NotionRespository';
+import { INotionRepository } from '../../data_layer/NotionRespository';
+import { sendError } from '../../lib/error/sendError';
 import hashToken from '../../lib/misc/hashToken';
 import NotionAPIWrapper from './NotionAPIWrapper';
 import { getNotionId } from './getNotionId';
-import { sendError } from '../../lib/error/sendError';
 
 export interface NotionLinkInfo {
   link: string;
@@ -19,7 +19,7 @@ export class NotionService {
 
   redirectURI: string;
 
-  constructor(private notionRepository: NotionRepository) {
+  constructor(private notionRepository: INotionRepository) {
     this.clientId = process.env.NOTION_CLIENT_ID!;
     this.clientSecret = process.env.NOTION_CLIENT_SECRET!;
     this.redirectURI = process.env.NOTION_REDIRECT_URI!;
