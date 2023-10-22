@@ -22,6 +22,7 @@ jobs:
             mkdir -pv /tmp/workspaces
             node --version
 
+            TMP_BUILD_DIR=`mktemp`
             WEB_DIR=~/src/github.com/2anki/web
             CREATE_DECK_DIR=~/src/github.com/2anki/create_deck
             SERVER_DIR=~/src/github.com/2anki/2anki.net
@@ -37,7 +38,8 @@ jobs:
             pip install -r ${CREATE_DECK_DIR}/requirements.txt
 
             npm --prefix ${SERVER_DIR} run build
-            npm --prefix ${WEB_DIR} run build
+            BUILD_PATH=${TMP_BUILD_DIR} npm --prefix ${WEB_DIR} run build
+            rsync -avh ${TMP_BUILD_DIR} ${WEB_DIR} --delete
 
             cd ${SERVER_DIR}/..
             pm2 restart server
