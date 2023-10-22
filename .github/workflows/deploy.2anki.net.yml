@@ -37,6 +37,7 @@ jobs:
 
             pip install -r ${CREATE_DECK_DIR}/requirements.txt
 
+            rm -r ${TMP_BUILD_DIR}
             npm --prefix ${SERVER_DIR} run build
             BUILD_PATH=${TMP_BUILD_DIR} npm --prefix ${WEB_DIR} run build
             rsync -avh ${TMP_BUILD_DIR} ${WEB_DIR} --delete
