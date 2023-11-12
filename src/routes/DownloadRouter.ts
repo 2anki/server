@@ -18,6 +18,14 @@ const DownloadRouter = () => {
     controller.getFile(req, res, storage);
   });
 
+  router.get('/download/:id', (req, res) => {
+    controller.getDownloadPage(req, res);
+  });
+
+  router.get('/download/:id/:apkg', (req, res) => {
+    controller.getAPKGFile(req, res);
+  });
+
   return router;
 };
 

@@ -73,7 +73,6 @@ class UploadController {
   file(req: express.Request, res: express.Response) {
     try {
       console.info('uploading file');
-      console.time(req.path);
       const storage = new StorageHandler();
       const handleUploadEndpoint = this.service.getUploadHandler(res);
 
@@ -85,11 +84,9 @@ class UploadController {
           } else {
             sendError(error);
           }
-          console.timeEnd(req.path);
           return res.status(500).send(msg);
         }
         await this.service.handleUpload(storage, req, res);
-        console.timeEnd(req.path);
       });
     } catch (error) {
       sendError(error);
