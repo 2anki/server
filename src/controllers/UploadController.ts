@@ -1,38 +1,11 @@
-import fs from 'fs';
-import path from 'path';
-
-import express, { Response } from 'express';
+import express from 'express';
 
 import { getOwner } from '../lib/User/getOwner';
-import { ZipHandler } from '../lib/anki/zip';
-import { TEMPLATE_DIR } from '../lib/constants';
 import { sendError } from '../lib/error/sendError';
 import { getLimitMessage } from '../lib/misc/getLimitMessage';
-import Package from '../lib/parser/Package';
 import StorageHandler from '../lib/storage/StorageHandler';
 import NotionService from '../services/NotionService';
-import { toText } from '../services/NotionService/BlockHandler/helpers/deckNameToText';
 import UploadService from '../services/UploadService';
-import { getRandomUUID } from '../shared/helpers/getRandomUUID';
-
-const setFilename = (res: Response, filename: string) => {
-  try {
-    res.set('File-Name', toText(filename));
-  } catch (err) {
-    sendError(err);
-  }
-};
-
-function loadREADME(): string {
-  return fs.readFileSync(path.join(TEMPLATE_DIR, 'README.html')).toString();
-}
-
-export const sendBundle = async (packages: Package[], res: Response) => {
-  const filename = `Your decks-${getRandomUUID()}.zip`;
-  const payload = await ZipHandler.toZip(packages, loadREADME());
-  setFilename(res, filename);
-  res.status(200).send(payload);
-};
 
 class UploadController {
   constructor(
