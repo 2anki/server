@@ -64,20 +64,15 @@ class DownloadController {
     }
   }
 
-  getAPKGFile(req: Request, res: Response) {
-    const { id, apkg } = req.params;
+  getLocalFile(req: Request, res: Response) {
+    const { id, filename } = req.params;
     const workspace = path.join(process.env.WORKSPACE_BASE!, id);
-    const apkgFilePath = path.join(workspace, apkg);
+    const filePath = path.join(workspace, filename);
 
-    if (!fs.existsSync(apkgFilePath)) {
+    if (!fs.existsSync(filePath)) {
       return res.status(404).end();
     }
-
-    const fileContent = fs.readFileSync(apkgFilePath, 'utf8');
-    const contentLength = Buffer.byteLength(fileContent);
-    res.set('Content-Type', 'application/apkg');
-    res.set('Content-Length', contentLength.toString());
-    return res.send(fileContent);
+    return res.sendFile(filePath);
   }
 }
 
