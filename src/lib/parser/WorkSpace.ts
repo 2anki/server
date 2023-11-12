@@ -5,9 +5,12 @@ import { getRandomUUID } from '../../shared/helpers/getRandomUUID';
 class Workspace {
   location: string;
 
+  id: string;
+
   constructor(isNew: boolean, type: string) {
     if (isNew && type === 'fs') {
-      this.location = path.join(process.env.WORKSPACE_BASE!, getRandomUUID());
+      this.id = getRandomUUID();
+      this.location = path.join(process.env.WORKSPACE_BASE!, this.id);
     } else {
       throw new Error(`unsupported ${type}`);
     }

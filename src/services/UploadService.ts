@@ -1,12 +1,15 @@
+import fs from 'fs';
+import path from 'path';
+
 import express from 'express';
 import multer from 'multer';
 
-import { sendBundle } from '../controllers/UploadController';
 import { IUploadRepository } from '../data_layer/UploadRespository';
 import { sendError } from '../lib/error/sendError';
 import ErrorHandler, { NO_PACKAGE_ERROR } from '../lib/misc/ErrorHandler';
 import { getUploadLimits } from '../lib/misc/getUploadLimits';
 import Settings from '../lib/parser/Settings';
+import Workspace from '../lib/parser/WorkSpace';
 import StorageHandler from '../lib/storage/StorageHandler';
 import { UploadedFile } from '../lib/storage/types';
 import GeneratePackagesUseCase from '../usecases/uploads/GeneratePackagesUseCase';
@@ -71,8 +74,16 @@ class UploadService {
         res.attachment(`/${first.name}`);
         return res.status(200).send(payload);
       } else if (packages.length > 1) {
-        await sendBundle(packages, res);
-        console.info('Sent bundle with %d packages', packages.length);
+        const workspace = new Workspace(true, 'fs');
+
+        for (const pkg of packages) {
+          const p = path.join(workspace.location, pkg.name);
+          fs.writeFileSync(p, pkg.apkg);
+        }
+
+        const url = `/download/${workspace.id}`;
+        res.status(300);
+        return res.redirect(url);
       } else {
         ErrorHandler(res, NO_PACKAGE_ERROR);
       }

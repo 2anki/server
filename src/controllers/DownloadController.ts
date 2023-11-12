@@ -1,12 +1,13 @@
 import fs from 'fs';
 
-import { static as serve, NextFunction, Request, Response } from 'express';
+import { Request, Response } from 'express';
 
-import { sendError } from '../lib/error/sendError';
-import DownloadService from '../services/DownloadService';
-import StorageHandler from '../lib/storage/StorageHandler';
 import path from 'path';
+import { sendError } from '../lib/error/sendError';
+import StorageHandler from '../lib/storage/StorageHandler';
 import { DownloadPage } from '../pages/DownloadPage';
+import DownloadService from '../services/DownloadService';
+import { canAccess } from '../lib/misc/canAccess';
 
 class DownloadController {
   constructor(private service: DownloadService) {}
@@ -41,9 +42,10 @@ class DownloadController {
 
   getDownloadPage(req: Request, res: Response) {
     const { id } = req.params;
-    const workspace = path.join(process.env.WORKSPACE_BASE!, id);
+    const workspaceBase = process.env.WORKSPACE_BASE!;
+    const workspace = path.join(workspaceBase, id);
 
-    if (!fs.existsSync(workspace)) {
+    if (!fs.existsSync(workspace) || !canAccess(workspace, workspaceBase)) {
       return res.status(404).end();
     }
 
@@ -66,10 +68,11 @@ class DownloadController {
 
   getLocalFile(req: Request, res: Response) {
     const { id, filename } = req.params;
-    const workspace = path.join(process.env.WORKSPACE_BASE!, id);
+    const workspaceBase = process.env.WORKSPACE_BASE!;
+    const workspace = path.join(workspaceBase, id);
     const filePath = path.join(workspace, filename);
 
-    if (!fs.existsSync(filePath)) {
+    if (!canAccess(filePath, workspace) || !fs.existsSync(filePath)) {
       return res.status(404).end();
     }
     return res.sendFile(filePath);
