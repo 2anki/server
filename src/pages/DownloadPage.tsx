@@ -70,7 +70,7 @@ export const DownloadPage = ({ id, files }: DownloadPageProps) => {
             ))}
           </ul>
           <p>
-            This folder will be automatically deleted. Return to
+            This folder will be automatically deleted. Return to{' '}
             <a href="https://2anki.net">2anki.net</a>
           </p>
         </main>
