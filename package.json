@@ -68,7 +68,7 @@
     "@types/bcryptjs": "^2.4.2",
     "@types/cheerio": "^0.22.31",
     "@types/cookie-parser": "^1.4.3",
-    "@types/crypto-js": "^4.1.1",
+    "@types/crypto-js": "^4.2.1",
     "@types/dotenv": "^8.2.0",
     "@types/find-remove": "^2.0.1",
     "@types/html-to-text": "^9.0.0",
