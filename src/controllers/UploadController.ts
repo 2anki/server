@@ -3,9 +3,9 @@ import express from 'express';
 import { getOwner } from '../lib/User/getOwner';
 import { sendError } from '../lib/error/sendError';
 import { getLimitMessage } from '../lib/misc/getLimitMessage';
-import StorageHandler from '../lib/storage/StorageHandler';
 import NotionService from '../services/NotionService';
 import UploadService from '../services/UploadService';
+import { getUploadHandler } from '../lib/misc/GetUploadHandler';
 
 class UploadController {
   constructor(
@@ -46,7 +46,7 @@ class UploadController {
   file(req: express.Request, res: express.Response) {
     try {
       console.info('uploading file');
-      const handleUploadEndpoint = this.service.getUploadHandler(res);
+      const handleUploadEndpoint = getUploadHandler(res);
 
       handleUploadEndpoint(req, res, async (error) => {
         if (error) {

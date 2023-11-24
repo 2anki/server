@@ -2,23 +2,16 @@ import fs from 'fs';
 import path from 'path';
 
 import express from 'express';
-import multer from 'multer';
 
 import { sendError } from '../lib/error/sendError';
 import { getLimitMessage } from '../lib/misc/getLimitMessage';
-import { getUploadLimits } from '../lib/misc/getUploadLimits';
 import Settings from '../lib/parser/Settings';
 import Workspace from '../lib/parser/WorkSpace';
 import { UploadedFile } from '../lib/storage/types';
 import GeneratePackagesUseCase from '../usecases/uploads/GeneratePackagesUseCase';
 
-const getUploadHandler = (res: express.Response) => {
-  const maxUploadCount = 21;
-  return multer({
-    limits: getUploadLimits(res.locals.patreon),
-    dest: process.env.UPLOAD_BASE,
-  }).array('pakker', maxUploadCount);
-};
+import { getUploadHandler } from '../lib/misc/GetUploadHandler';
+
 class SimpleUploadController {
   async handleUpload(req: express.Request, res: express.Response) {
     try {

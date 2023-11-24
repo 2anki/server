@@ -28,14 +28,6 @@ class UploadService {
     await s.delete(key);
   }
 
-  getUploadHandler(res: express.Response) {
-    const maxUploadCount = 21;
-    return multer({
-      limits: getUploadLimits(res.locals.patreon),
-      dest: process.env.UPLOAD_BASE,
-    }).array('pakker', maxUploadCount);
-  }
-
   async handleUpload(req: express.Request, res: express.Response) {
     try {
       let payload;
