@@ -56,8 +56,6 @@ const getPackagesFromZip = async (
 };
 
 class GeneratePackagesUseCase {
-  constructor(private readonly storage: StorageHandler) {}
-
   async execute(
     isPatreon: boolean,
     files: UploadedFile[],

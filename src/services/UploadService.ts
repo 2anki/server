@@ -36,17 +36,13 @@ class UploadService {
     }).array('pakker', maxUploadCount);
   }
 
-  async handleUpload(
-    storage: StorageHandler,
-    req: express.Request,
-    res: express.Response
-  ) {
+  async handleUpload(req: express.Request, res: express.Response) {
     try {
       let payload;
       let plen;
       const settings = new Settings(req.body || {});
 
-      const useCase = new GeneratePackagesUseCase(storage);
+      const useCase = new GeneratePackagesUseCase();
       const { packages } = await useCase.execute(
         res.locals.patreon,
         req.files as UploadedFile[],
