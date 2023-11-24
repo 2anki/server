@@ -3,45 +3,32 @@ import path from 'path';
 
 import express from 'express';
 
-import { sendError } from '../lib/error/sendError';
-import { getLimitMessage } from '../lib/misc/getLimitMessage';
-import Settings from '../lib/parser/Settings';
-import Workspace from '../lib/parser/WorkSpace';
-import { UploadedFile } from '../lib/storage/types';
-import GeneratePackagesUseCase from '../usecases/uploads/GeneratePackagesUseCase';
+import { sendError } from '../../lib/error/sendError';
+import { getLimitMessage } from '../../lib/misc/getLimitMessage';
+import Settings from '../../lib/parser/Settings';
+import Workspace from '../../lib/parser/WorkSpace';
+import { UploadedFile } from '../../lib/storage/types';
+import GeneratePackagesUseCase from '../../usecases/uploads/GeneratePackagesUseCase';
 
-import { getUploadHandler } from '../lib/misc/GetUploadHandler';
+import { getUploadHandler } from '../../lib/misc/GetUploadHandler';
+import { createPackages } from './createPackages';
+import {CreatedDeck, createResponse} from "./createResponse";
 
 class SimpleUploadController {
   async handleUpload(req: express.Request, res: express.Response) {
     try {
-      const settings = new Settings(req.body || {});
-
-      const useCase = new GeneratePackagesUseCase();
-      const { packages } = await useCase.execute(
-        res.locals.patreon,
+      const packages = await createPackages(
         req.files as UploadedFile[],
-        settings
+        res.locals.patreon,
+        req.body
       );
-
       if (packages.length === 0) {
         return res.status(400).json({
           error: 'no decks created',
         });
       }
 
-      const response: { name: string; link: string }[] = [];
-      const workspace = new Workspace(true, 'fs');
-      const basePath = `/download/${workspace.id}`;
-      for (const pkg of packages) {
-        const p = path.join(workspace.location, pkg.name);
-        fs.writeFileSync(p, pkg.apkg);
-        response.push({
-          name: pkg.name,
-          link: `${basePath}/${pkg.name}`,
-        });
-      }
-
+      const response: CreatedDeck[] = createResponse(packages);
       return res.json(response);
     } catch (err) {
       if (err instanceof Error) {

@@ -1,6 +1,6 @@
 import express from 'express';
 
-import SimpleUploadController from '../controllers/SimpleUploadController';
+import SimpleUploadController from '../controllers/SimpleUploadController/SimpleUploadController';
 import RequireAllowedOrigin from './middleware/RequireAllowedOrigin';
 
 const UploadRouter = () => {
