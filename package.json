@@ -31,7 +31,7 @@
   "license": "MIT",
   "dependencies": {
     "@2anki/csv-to-apkg": "^1.4.4",
-    "@notionhq/client": "^2.2.9",
+    "@notionhq/client": "^2.2.13",
     "@sendgrid/mail": "^7.7.0",
     "aws-sdk": "^2.1502.0",
     "axios": "^1.6.1",
