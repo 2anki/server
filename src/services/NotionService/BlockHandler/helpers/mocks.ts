@@ -46,6 +46,7 @@ export const HEADING_MOCK: BlockObjectResponse = {
   archived: false,
   type: 'heading_2',
   heading_2: {
+    is_toggleable: true,
     rich_text: [
       {
         type: 'text',
