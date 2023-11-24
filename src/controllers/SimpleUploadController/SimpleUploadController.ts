@@ -1,18 +1,12 @@
-import fs from 'fs';
-import path from 'path';
-
 import express from 'express';
 
 import { sendError } from '../../lib/error/sendError';
 import { getLimitMessage } from '../../lib/misc/getLimitMessage';
-import Settings from '../../lib/parser/Settings';
-import Workspace from '../../lib/parser/WorkSpace';
 import { UploadedFile } from '../../lib/storage/types';
-import GeneratePackagesUseCase from '../../usecases/uploads/GeneratePackagesUseCase';
 
 import { getUploadHandler } from '../../lib/misc/GetUploadHandler';
 import { createPackages } from './createPackages';
-import {CreatedDeck, createResponse} from "./createResponse";
+import { CreatedDeck, createResponse } from './createResponse';
 
 class SimpleUploadController {
   async handleUpload(req: express.Request, res: express.Response) {
