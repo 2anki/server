@@ -4,7 +4,6 @@ import { ZipHandler } from '../../lib/anki/zip';
 import { PrepareDeck } from '../../lib/parser/DeckParser';
 import Package from '../../lib/parser/Package';
 import Settings from '../../lib/parser/Settings';
-import StorageHandler from '../../lib/storage/StorageHandler';
 import {
   isCSVFile,
   isHTMLFile,

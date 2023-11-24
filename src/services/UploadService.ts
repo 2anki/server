@@ -2,12 +2,10 @@ import fs from 'fs';
 import path from 'path';
 
 import express from 'express';
-import multer from 'multer';
 
 import { IUploadRepository } from '../data_layer/UploadRespository';
 import { sendError } from '../lib/error/sendError';
 import ErrorHandler, { NO_PACKAGE_ERROR } from '../lib/misc/ErrorHandler';
-import { getUploadLimits } from '../lib/misc/getUploadLimits';
 import Settings from '../lib/parser/Settings';
 import Workspace from '../lib/parser/WorkSpace';
 import StorageHandler from '../lib/storage/StorageHandler';
