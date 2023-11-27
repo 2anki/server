@@ -4,11 +4,11 @@ import SimpleUploadController from '../controllers/SimpleUploadController/Simple
 import RequireAllowedOrigin from './middleware/RequireAllowedOrigin';
 
 const UploadRouter = () => {
+  const controller = new SimpleUploadController();
   const router = express.Router();
-  const uploadController = new SimpleUploadController();
 
   router.post('/api/simple-upload/file', RequireAllowedOrigin, (req, res) =>
-    uploadController.file(req, res)
+    controller.file(req, res)
   );
 
   return router;
