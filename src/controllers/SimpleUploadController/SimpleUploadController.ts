@@ -16,12 +16,6 @@ class SimpleUploadController {
         res.locals.patreon,
         req.body
       );
-      if (packages.length === 0) {
-        return res.status(400).json({
-          error: 'no decks created',
-        });
-      }
-
       const response: CreatedDeck[] = createResponse(packages);
       return res.json(response);
     } catch (err) {
