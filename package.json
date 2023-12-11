@@ -46,7 +46,7 @@
     "find-remove": "^4.1.0",
     "get-notion-object-title": "^0.2.0",
     "html-to-text": "^9.0.4",
-    "json-markup": "^1.1.3",
+    "json-markup": "^1.1.4",
     "jsonwebtoken": "^9.0.0",
     "jszip": "^3.10.1",
     "knex": "^2.5.1",
