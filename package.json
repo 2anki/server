@@ -67,7 +67,7 @@
     "@types/base-64": "^1.0.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/cheerio": "^0.22.31",
-    "@types/cookie-parser": "^1.4.3",
+    "@types/cookie-parser": "^1.4.6",
     "@types/crypto-js": "^4.2.1",
     "@types/dotenv": "^8.2.0",
     "@types/find-remove": "^2.0.1",
