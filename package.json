@@ -33,7 +33,7 @@
     "@2anki/csv-to-apkg": "^1.4.4",
     "@notionhq/client": "^2.2.13",
     "@sendgrid/mail": "^7.7.0",
-    "aws-sdk": "^2.1502.0",
+    "aws-sdk": "^2.1522.0",
     "axios": "^1.6.1",
     "bcryptjs": "^2.4.3",
     "cheerio": "^1.0.0-rc.12",
