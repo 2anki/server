@@ -32,5 +32,6 @@ jobs:
               run: npm audit signatures
             - name: Release
               env:
+                  NPM_TOKEN: ${{secrets.npm_token}}
                   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: npx semantic-release
