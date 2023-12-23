@@ -26,7 +26,7 @@ class DownloadController {
       if (body) {
         res.send(body);
       } else {
-        res.status(404).send();
+        throw new Error('File not found');
       }
     } catch (error) {
       console.error(error);
@@ -35,7 +35,11 @@ class DownloadController {
         res.redirect('/uploads');
       } else {
         sendError(error);
-        res.status(404).send();
+        res
+          .status(404)
+          .send(
+            "Download link expire, try converting again <a href='/upload'>upload</a>"
+          );
       }
     }
   }
