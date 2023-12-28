@@ -139,17 +139,35 @@ export class DeckParser {
     }
   }
 
+  removeNewlinesInSVGPathAttributeD(html: string): string {
+    const dom = cheerio.load(html);
+    const pathElements = dom('path');
+
+    for (const pathElement of pathElements) {
+      if ('attribs' in pathElement && 'd' in pathElement.attribs) {
+        const dAttribute = pathElement.attribs.d;
+        const newDAttribute = dAttribute.replace(/\n/g, '').trim();
+        dom(pathElement).attr('d', newDAttribute);
+      }
+    }
+
+    return dom.html();
+  }
+
   handleHTML(
     fileName: string,
     contents: string,
     deckName: string,
     decks: Deck[]
   ) {
-    const dom = cheerio.load(
-      this.settings.noUnderline
-        ? contents.replace(/border-bottom:0.05em solid/g, '')
-        : contents
+    let dom = cheerio.load(
+      this.removeNewlinesInSVGPathAttributeD(
+        this.settings.noUnderline
+          ? contents.replace(/border-bottom:0.05em solid/g, '')
+          : contents
+      )
     );
+
     let name = deckName || dom('title').text();
     let style = dom('style').html();
     if (style) {
