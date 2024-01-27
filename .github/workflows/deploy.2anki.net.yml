@@ -27,6 +27,12 @@ jobs:
             CREATE_DECK_DIR=~/src/github.com/2anki/create_deck
             SERVER_DIR=~/src/github.com/2anki/2anki.net
 
+            git -C ${SERVER_DIR}      clean -fd
+            git -C ${WEB_DIR}         clean -fd
+            git -C ${SERVER_DIR}      stash
+            git -C ${WEB_DIR}         stash
+
+            
             git -C ${CREATE_DECK_DIR} pull origin
             git -C ${SERVER_DIR}      pull origin
             git -C ${WEB_DIR}         pull origin
