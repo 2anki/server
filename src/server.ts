@@ -96,14 +96,14 @@ const serve = async () => {
   app.use(
     (
       err: Error,
-      _req: express.Request,
+      req: express.Request,
       res: express.Response,
       next: () => void
     ) => {
       if (!err) {
         next();
       } else {
-        ErrorHandler(res, err);
+        ErrorHandler(res, req, err);
       }
     }
   );

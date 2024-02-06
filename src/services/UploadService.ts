@@ -71,11 +71,11 @@ class UploadService {
         res.status(300);
         return res.redirect(url);
       } else {
-        ErrorHandler(res, NO_PACKAGE_ERROR);
+        ErrorHandler(res, req, NO_PACKAGE_ERROR);
       }
     } catch (err) {
       sendError(err);
-      ErrorHandler(res, err as Error);
+      ErrorHandler(res, req, err as Error);
     }
   }
 }
