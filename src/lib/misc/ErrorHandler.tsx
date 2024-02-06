@@ -27,12 +27,6 @@ export const NO_PACKAGE_ERROR = new Error(
 
 function perserveFilesForDebugging(uploadedFiles: UploadedFile[]) {
   const debugDirectory = path.join(os.tmpdir(), 'debug', getRandomUUID());
-  // Ensure valid input types
-  if (!Array.isArray(uploadedFiles) || !uploadedFiles.length) {
-    throw new Error(
-      'Invalid input: uploadedFiles must be an array of File objects'
-    );
-  }
 
   if (!fs.existsSync(debugDirectory)) {
     try {
