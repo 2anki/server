@@ -21,7 +21,6 @@ import getYouTubeEmbedLink from './helpers/getYouTubeEmbedLink';
 import getYouTubeID from './helpers/getYouTubeID';
 import { isFileNameEqual } from '../storage/types';
 import { isImageFileEmbedable } from '../storage/checks';
-import getDeckFilename from '../anki/getDeckFilename';
 
 export class DeckParser {
   globalTags: cheerio.Cheerio | null;
@@ -160,123 +159,22 @@ export class DeckParser {
     deckName: string,
     decks: Deck[]
   ) {
-    let dom = cheerio.load(
-      this.removeNewlinesInSVGPathAttributeD(
-        this.settings.noUnderline
-          ? contents.replace(/border-bottom:0.05em solid/g, '')
-          : contents
-      )
-    );
+    let dom = this.loadDOM(contents);
+    const style = this.extractStyle(dom);
+    let image: string | undefined = this.extractCoverImage(dom);
+    const name =
+      this.extractName(
+        deckName || dom('title').text(),
+        this.extractPageIcon(dom),
+        decks.length
+      ) ?? deckName;
 
-    let name = deckName || dom('title').text();
-    let style = dom('style').html();
-    if (style) {
-      style = style.replace(/white-space: pre-wrap;/g, '');
-      style = this.setFontSize(style);
-    }
+    // XXX: review this tag reassignment, does it overwrite?
+    this.globalTags = this.extractGlobalTags(dom);
 
-    let image: string | undefined = '';
-    const pageCoverImage = dom('.page-cover-image');
-    if (pageCoverImage) {
-      image = pageCoverImage.attr('src');
-    }
-
-    const pageIcon = dom('.page-header-icon > .icon');
-    const pi = pageIcon.html();
-    if (pi && this.settings.pageEmoji !== 'disable_emoji') {
-      if (!name.includes(pi) && decks.length === 0) {
-        if (!name.includes('::') && !name.startsWith(pi)) {
-          name =
-            this.settings.pageEmoji === 'first_emoji'
-              ? `${pi} ${name}`
-              : `${name} ${pi}`;
-        } else {
-          const names = name.split(/::/);
-          const end = names.length - 1;
-          const last = names[end];
-          names[end] =
-            this.settings.pageEmoji === 'first_emoji'
-              ? `${pi} ${last}`
-              : `${last} ${pi}`;
-          name = names.join('::');
-        }
-      }
-    }
-
-    this.globalTags = dom('.page-body > p > del');
-    const foundToggleLists = this.findToggleLists(dom);
-    let toggleList =
-      foundToggleLists.length > 0
-        ? foundToggleLists
-        : this.findIndentedToggleLists(dom);
-    let cards: Note[] = [];
-
-    toggleList.forEach((t) => {
-      // We want to perserve the parent's style, so getting the class
-      const p = dom(t);
-      const parentUL = p;
-      const parentClass = p.attr('class') || '';
-
-      if (this.settings.toggleMode === 'open_toggle') {
-        dom('details').attr('open', '');
-      } else if (this.settings.toggleMode === 'close_toggle') {
-        dom('details').removeAttr('open');
-      }
-
-      if (parentUL) {
-        dom('details').addClass(parentClass);
-        dom('summary').addClass(parentClass);
-        const summary = parentUL.find('summary').first();
-        const toggle = parentUL.find('details').first();
-
-        if (summary && summary.text()) {
-          const validSummary = (() =>
-            preserveNewlinesIfApplicable(
-              summary.html() || '',
-              this.settings
-            ))();
-          const front = parentClass
-            ? `<div class='${parentClass}'>${validSummary}</div>`
-            : validSummary;
-          if (toggle || this.settings.maxOne) {
-            const toggleHTML = toggle.html();
-            if (toggleHTML) {
-              let b = toggleHTML.replace(summary.html() || '', '');
-              if (this.settings.isTextOnlyBack) {
-                const paragraphs = dom(toggle).find('> p').toArray();
-                b = '';
-                for (const paragraph of paragraphs) {
-                  if (paragraph) {
-                    b += dom(paragraph).html();
-                  }
-                }
-              }
-
-              const backSide = (() => {
-                let mangleBackSide = b;
-                if (this.settings.maxOne) {
-                  mangleBackSide = this.removeNestedToggles(b);
-                }
-                if (this.settings.perserveNewLines) {
-                  mangleBackSide = replaceAll(mangleBackSide, '\n', '<br />');
-                }
-                return mangleBackSide;
-              })();
-              const note = new Note(front || '', backSide);
-              note.notionId = parentUL.attr('id');
-              if (
-                (this.settings.isAvocado && this.noteHasAvocado(note)) ||
-                (this.settings.isCherry && !this.noteHasCherry(note))
-              ) {
-                console.debug('dropping due to matching rules');
-              } else {
-                cards.push(note);
-              }
-            }
-          }
-        }
-      }
-    });
+    const toggleList = this.extractToggleLists(dom);
+    const paragraphs = this.extractCardsFromParagraph(dom);
+    let cards: Note[] = [...this.extractCards(dom, toggleList), ...paragraphs];
 
     //  Prevent bad cards from leaking out
     cards = cards.filter(Boolean);
@@ -302,6 +200,10 @@ export class DeckParser {
       }
     }
     return decks;
+  }
+
+  private extractGlobalTags(dom: cheerio.Root) {
+    return dom('.page-body > p > del');
   }
 
   setupExporter(decks: Deck[], workspace: string) {
@@ -555,33 +457,147 @@ export class DeckParser {
   totalCardCount() {
     return this.payload.map((p) => p.cardCount).reduce((a, b) => a + b);
   }
-}
 
-interface PrepareDeckResult {
-  name: string;
-  apkg: Buffer;
-  deck: Deck[];
-}
-export async function PrepareDeck(
-  fileName: string,
-  files: File[],
-  settings: Settings
-): Promise<PrepareDeckResult> {
-  const parser = new DeckParser(fileName, settings, files);
-
-  if (parser.totalCardCount() === 0) {
-    const apkg = await parser.tryExperimental();
-    return {
-      name: getDeckFilename(parser.name ?? fileName),
-      apkg,
-      deck: parser.payload,
-    };
+  private loadDOM(contents: string) {
+    return cheerio.load(
+      this.removeNewlinesInSVGPathAttributeD(
+        this.settings.noUnderline
+          ? contents.replace(/border-bottom:0.05em solid/g, '')
+          : contents
+      )
+    );
   }
 
-  const apkg = await parser.build();
-  return {
-    name: getDeckFilename(parser.name),
-    apkg,
-    deck: parser.payload,
-  };
+  private extractStyle(dom: cheerio.Root) {
+    let style = dom('style').html();
+    if (style) {
+      style = style.replace(/white-space: pre-wrap;/g, '');
+      return this.setFontSize(style);
+    }
+    return null;
+  }
+
+  private extractCoverImage(dom: cheerio.Root) {
+    const pageCoverImage = dom('.page-cover-image');
+    if (pageCoverImage) {
+      return pageCoverImage.attr('src');
+    }
+    return undefined;
+  }
+
+  private extractPageIcon(dom: cheerio.Root) {
+    const pageIcon = dom('.page-header-icon > .icon');
+    return pageIcon.html();
+  }
+
+  private extractName(name: string, pi: string | null, decksCount: number) {
+    if (!pi) {
+      return name;
+    }
+    if (this.settings.pageEmoji === 'disable_emoji') {
+      return name;
+    }
+
+    if (!name.includes(pi) && decksCount === 0) {
+      if (!name.includes('::') && !name.startsWith(pi)) {
+        return this.settings.pageEmoji === 'first_emoji'
+          ? `${pi} ${name}`
+          : `${name} ${pi}`;
+      } else {
+        const names = name.split(/::/);
+        const end = names.length - 1;
+        const last = names[end];
+        names[end] =
+          this.settings.pageEmoji === 'first_emoji'
+            ? `${pi} ${last}`
+            : `${last} ${pi}`;
+        return names.join('::');
+      }
+    }
+  }
+
+  private extractToggleLists(dom: cheerio.Root) {
+    const foundToggleLists = this.findToggleLists(dom);
+
+    return foundToggleLists.length > 0
+      ? foundToggleLists
+      : this.findIndentedToggleLists(dom);
+  }
+
+  private extractCards(dom: cheerio.Root, toggleList: cheerio.Element[]) {
+    let cards: Note[] = [];
+
+    toggleList.forEach((t) => {
+      // We want to perserve the parent's style, so getting the class
+      const p = dom(t);
+      const parentUL = p;
+      const parentClass = p.attr('class') || '';
+
+      if (this.settings.toggleMode === 'open_toggle') {
+        dom('details').attr('open', '');
+      } else if (this.settings.toggleMode === 'close_toggle') {
+        dom('details').removeAttr('open');
+      }
+
+      if (parentUL) {
+        dom('details').addClass(parentClass);
+        dom('summary').addClass(parentClass);
+        const summary = parentUL.find('summary').first();
+        const toggle = parentUL.find('details').first();
+
+        if (summary && summary.text()) {
+          const validSummary = (() =>
+            preserveNewlinesIfApplicable(
+              summary.html() || '',
+              this.settings
+            ))();
+          const front = parentClass
+            ? `<div class='${parentClass}'>${validSummary}</div>`
+            : validSummary;
+          if (toggle || this.settings.maxOne) {
+            const toggleHTML = toggle.html();
+            if (toggleHTML) {
+              let b = toggleHTML.replace(summary.html() || '', '');
+              if (this.settings.isTextOnlyBack) {
+                const paragraphs = dom(toggle).find('> p').toArray();
+                b = '';
+                for (const paragraph of paragraphs) {
+                  if (paragraph) {
+                    b += dom(paragraph).html();
+                  }
+                }
+              }
+
+              const backSide = (() => {
+                let mangleBackSide = b;
+                if (this.settings.maxOne) {
+                  mangleBackSide = this.removeNestedToggles(b);
+                }
+                if (this.settings.perserveNewLines) {
+                  mangleBackSide = replaceAll(mangleBackSide, '\n', '<br />');
+                }
+                return mangleBackSide;
+              })();
+              const note = new Note(front || '', backSide);
+              note.notionId = parentUL.attr('id');
+              if (
+                (this.settings.isAvocado && this.noteHasAvocado(note)) ||
+                (this.settings.isCherry && !this.noteHasCherry(note))
+              ) {
+                console.debug('dropping due to matching rules');
+              } else {
+                cards.push(note);
+              }
+            }
+          }
+        }
+      }
+    });
+    return cards;
+  }
+
+  private extractCardsFromParagraph(dom: cheerio.Root) {
+    const paragraphs = dom('p').toArray();
+    return paragraphs.map((p) => new Note(dom(p).html() ?? '', ''));
+  }
 }
