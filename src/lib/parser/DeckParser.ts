@@ -22,6 +22,7 @@ import getYouTubeID from './helpers/getYouTubeID';
 import { isFileNameEqual } from '../storage/types';
 import { isImageFileEmbedable } from '../storage/checks';
 import getDeckFilename from '../anki/getDeckFilename';
+import { getHTMLContents } from './getHTMLContents';
 
 export class DeckParser {
   globalTags: cheerio.Cheerio | null;
@@ -45,8 +46,8 @@ export class DeckParser {
     this.globalTags = null;
 
     const firstFile = this.files.find((file) => isFileNameEqual(file, name));
+    const contents = getHTMLContents(firstFile);
 
-    const contents = firstFile?.contents;
     if (contents) {
       this.payload = this.handleHTML(
         name,
