@@ -187,11 +187,11 @@ export class DeckParser {
 
     const toggleList = this.extractToggleLists(dom);
     const paragraphs = this.extractCardsFromParagraph(dom);
-    let cards: Note[] = [...this.extractCards(dom, toggleList), ...paragraphs];
+    let cards: Note[] = this.extractCards(dom, toggleList);
 
     // Note: this is a fallback behaviour until we can provide people more flexibility on picking non-toggles
     if (cards.length === 0) {
-      cards.push(...this.extractCardsFromLists(dom));
+      cards.push(...[...this.extractCardsFromLists(dom), ...paragraphs]);
     }
 
     //  Prevent bad cards from leaking out
