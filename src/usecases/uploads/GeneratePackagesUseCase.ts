@@ -1,7 +1,6 @@
 import fs from 'fs';
 
 import { ZipHandler } from '../../lib/anki/zip';
-import { PrepareDeck } from '../../lib/parser/DeckParser';
 import Package from '../../lib/parser/Package';
 import Settings from '../../lib/parser/Settings';
 import {
@@ -14,6 +13,7 @@ import {
 import { UploadedFile } from '../../lib/storage/types';
 
 import { Body } from 'aws-sdk/clients/s3';
+import { PrepareDeck } from "../../lib/parser/PrepareDeck";
 
 export interface PackageResult {
   packages: Package[];
