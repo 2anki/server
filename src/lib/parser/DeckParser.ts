@@ -21,7 +21,6 @@ import getYouTubeEmbedLink from './helpers/getYouTubeEmbedLink';
 import getYouTubeID from './helpers/getYouTubeID';
 import { isFileNameEqual } from '../storage/types';
 import { isImageFileEmbedable } from '../storage/checks';
-import getDeckFilename from '../anki/getDeckFilename';
 import { getHTMLContents } from './getHTMLContents';
 
 export class DeckParser {
@@ -155,6 +154,15 @@ export class DeckParser {
     return dom.html();
   }
 
+  getFirstHeadingText(dom: cheerio.Root) {
+    try {
+      const firstHeading = dom('h1').first();
+      return firstHeading.text();
+    } catch (_e) {
+      return undefined;
+    }
+  }
+
   handleHTML(
     fileName: string,
     contents: string,
@@ -164,12 +172,15 @@ export class DeckParser {
     let dom = this.loadDOM(contents);
     const style = this.extractStyle(dom);
     let image: string | undefined = this.extractCoverImage(dom);
-    const name =
-      this.extractName(
-        deckName || dom('title').text(),
-        this.extractPageIcon(dom),
-        decks.length
-      ) ?? deckName;
+
+    const name = this.extractName(
+      deckName ||
+        dom('title').text() ||
+        this.getFirstHeadingText(dom) ||
+        'Default',
+      this.extractPageIcon(dom),
+      decks.length
+    );
 
     // XXX: review this tag reassignment, does it overwrite?
     this.globalTags = this.extractGlobalTags(dom);
@@ -177,6 +188,11 @@ export class DeckParser {
     const toggleList = this.extractToggleLists(dom);
     const paragraphs = this.extractCardsFromParagraph(dom);
     let cards: Note[] = [...this.extractCards(dom, toggleList), ...paragraphs];
+
+    // Note: this is a fallback behaviour until we can provide people more flexibility on picking non-toggles
+    if (cards.length === 0) {
+      cards.push(...this.extractCardsFromLists(dom));
+    }
 
     //  Prevent bad cards from leaking out
     cards = cards.filter(Boolean);
@@ -492,7 +508,11 @@ export class DeckParser {
     return pageIcon.html();
   }
 
-  private extractName(name: string, pi: string | null, decksCount: number) {
+  private extractName(
+    name: string,
+    pi: string | null,
+    decksCount: number
+  ): string {
     if (!pi) {
       return name;
     }
@@ -516,6 +536,8 @@ export class DeckParser {
         return names.join('::');
       }
     }
+
+    return name;
   }
 
   private extractToggleLists(dom: cheerio.Root) {
@@ -601,5 +623,18 @@ export class DeckParser {
   private extractCardsFromParagraph(dom: cheerio.Root) {
     const paragraphs = dom('p').toArray();
     return paragraphs.map((p) => new Note(dom(p).html() ?? '', ''));
+  }
+
+  private extractCardsFromLists(dom: cheerio.Root) {
+    const cards: Note[] = [];
+    const lists = [...dom('ul').toArray(), ...dom('ol').toArray()];
+
+    lists.forEach((list) => {
+      for (const child of dom(list).find('li')) {
+        cards.push(new Note(dom(child).html() ?? '', ''));
+      }
+    });
+
+    return cards;
   }
 }

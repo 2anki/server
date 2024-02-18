@@ -13,7 +13,7 @@ import {
 import { UploadedFile } from '../../lib/storage/types';
 
 import { Body } from 'aws-sdk/clients/s3';
-import { PrepareDeck } from "../../lib/parser/PrepareDeck";
+import { PrepareDeck } from '../../lib/parser/PrepareDeck';
 
 export interface PackageResult {
   packages: Package[];
