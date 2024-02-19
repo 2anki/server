@@ -47,16 +47,14 @@ export class DeckParser {
     const firstFile = this.files.find((file) => isFileNameEqual(file, name));
     const contents = getHTMLContents(firstFile);
 
-    if (contents) {
-      this.payload = this.handleHTML(
-        name,
-        contents.toString(),
-        this.settings.deckName || '',
-        []
-      );
-    } else {
-      throw new Error(`Error Unknown file ${name}`);
-    }
+    this.payload = contents
+      ? this.handleHTML(
+          name,
+          contents.toString(),
+          this.settings.deckName || '',
+          []
+        )
+      : [];
   }
 
   findNextPage(href: string | undefined): string | Uint8Array | undefined {
@@ -473,6 +471,9 @@ export class DeckParser {
   }
 
   totalCardCount() {
+    if (this.payload.length === 0) {
+      return 0;
+    }
     return this.payload.map((p) => p.cardCount).reduce((a, b) => a + b);
   }
 
