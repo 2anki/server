@@ -551,6 +551,7 @@ export class DeckParser {
 
   private extractCards(dom: cheerio.Root, toggleList: cheerio.Element[]) {
     let cards: Note[] = [];
+    const pageId = dom('article').attr('id');
 
     toggleList.forEach((t) => {
       // We want to perserve the parent's style, so getting the class
@@ -605,6 +606,12 @@ export class DeckParser {
               })();
               const note = new Note(front || '', backSide);
               note.notionId = parentUL.attr('id');
+              if (note.notionId && this.settings.addNotionLink) {
+                const link = this.getLink(pageId, note);
+                if (link !== null) {
+                  note.back += link;
+                }
+              }
               if (
                 (this.settings.isAvocado && this.noteHasAvocado(note)) ||
                 (this.settings.isCherry && !this.noteHasCherry(note))
