@@ -12,6 +12,7 @@ import StorageHandler from '../lib/storage/StorageHandler';
 import { UploadedFile } from '../lib/storage/types';
 import GeneratePackagesUseCase from '../usecases/uploads/GeneratePackagesUseCase';
 import { toText } from './NotionService/BlockHandler/helpers/deckNameToText';
+import { getSafeFilename } from '../lib/getSafeFilename';
 
 class UploadService {
   getUploadsByOwner(owner: number) {
@@ -63,7 +64,7 @@ class UploadService {
         const workspace = new Workspace(true, 'fs');
 
         for (const pkg of packages) {
-          const p = path.join(workspace.location, pkg.name);
+          const p = path.join(workspace.location, getSafeFilename(pkg.name));
           fs.writeFileSync(p, pkg.apkg);
         }
 
