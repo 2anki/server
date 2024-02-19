@@ -17,6 +17,8 @@ export default class Note {
 
   notionId?: string;
 
+  notionLink?: string;
+
   constructor(name: string, back: string) {
     this.name = name;
     this.back = back;
@@ -50,6 +52,7 @@ export default class Note {
     this.answer = clozeCard.answer;
     this.media = clozeCard.media;
     this.notionId = clozeCard.notionId;
+    this.notionLink = clozeCard.notionLink;
   }
 
   hasRefreshIcon() {

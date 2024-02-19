@@ -62,6 +62,8 @@ export class Settings {
 
   parentBlockId: string;
 
+  readonly addNotionLink: boolean;
+
   constructor(input: { [key: string]: string }) {
     this.deckName = input.deckName;
     if (this.deckName && !this.deckName.trim()) {
@@ -92,6 +94,11 @@ export class Settings {
     this.useNotionId = input['use-notion-id'] === 'true';
     this.parentBlockId = input.parentBlockId;
     this.pageEmoji = input['page-emoji'] || 'first_emoji';
+    this.addNotionLink = input['add-notion-link'] === 'true';
+    /* Is this really needed? */
+    if (this.parentBlockId) {
+      this.addNotionLink = true;
+    }
 
     this.retrieveTemplates(input);
   }
@@ -108,6 +115,7 @@ export class Settings {
 
   static LoadDefaultOptions(): { [key: string]: string } {
     return {
+      'add-notion-link': 'false',
       'use-notion-id': 'true',
       all: 'true',
       paragraph: 'false',
