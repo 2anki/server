@@ -1,7 +1,7 @@
 import express from 'express';
 
 import RequireAuthentication from './middleware/RequireAuthentication';
-import SettingsController from '../controllers/SettingsController';
+import SettingsController from '../controllers/SettingsController/SettingsController';
 import SettingsRepository from '../data_layer/SettingsRepository';
 import { getDatabase } from '../data_layer';
 import SettingsService from '../services/SettingsService';
@@ -22,6 +22,10 @@ const SettingsRouter = () => {
   router.get('/api/settings/find/:id', RequireAuthentication, (req, res) =>
     controller.findSetting(req, res)
   );
+  router.get('/api/settings/default', (_req, res) => {
+    const defaultOptions = controller.getDefaultOptions();
+    res.json(defaultOptions);
+  });
 
   return router;
 };
