@@ -13,7 +13,7 @@ jobs:
     concurrency: 'production'
     steps:
       - name: SSH and run script
-        uses: appleboy/ssh-action@0.1.4
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: 2anki.net
           username: ${{ secrets.SSH_USERNAME }}
