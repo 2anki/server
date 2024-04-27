@@ -21,9 +21,9 @@ class FakeSettingsService implements IServiceSettings {
 
 describe("SettingsController", () => {
 
-  test("returns default settings", () => {
+  test("returns default settings for client", () => {
     const settingsController = new SettingsController(new FakeSettingsService());
-    const defaultOptions = settingsController.getDefaultOptions();
+    const defaultOptions = settingsController.getDefaultSettingsCardOptions('client');
 
     expect(defaultOptions).toStrictEqual(
       {
@@ -45,4 +45,30 @@ describe("SettingsController", () => {
       }
     );
   })
+
+  test("returns default settings for server", () => {
+    const settingsController = new SettingsController(new FakeSettingsService());
+    const defaultOptions = settingsController.getDefaultSettingsCardOptions('server');
+
+    expect(defaultOptions).toStrictEqual(
+      {
+        'add-notion-link': 'false',
+        'use-notion-id': 'true',
+        "all": 'true',
+        "paragraph": 'false',
+        "cherry": 'false',
+        "avocado": 'false',
+        "tags": 'true',
+        "cloze": 'true',
+        'enable-input': 'false',
+        'basic-reversed': 'false',
+        "reversed": 'false',
+        'no-underline': 'false',
+        'max-one-toggle-per-card': 'true',
+        'perserve-newlines': 'false',
+        'page-emoji': 'first-emoji',
+      }
+    );
+  })
+
 })

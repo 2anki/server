@@ -23,6 +23,11 @@ const SettingsRouter = () => {
     controller.findSetting(req, res)
   );
   router.get('/api/settings/default', (_req, res) => {
+    const defaultOptions = controller.getDefaultSettingsCardOptions('client');
+    res.json(defaultOptions);
+  });
+
+  router.get('/api/settings/card-options', (_req, res) => {
     const defaultOptions = controller.getDefaultOptions();
     res.json(defaultOptions);
   });

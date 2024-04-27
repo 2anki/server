@@ -5,6 +5,7 @@ import SettingsService, {
 } from '../../services/SettingsService';
 import { getOwner } from '../../lib/User/getOwner';
 import supportedOptions, { CardOption } from './supportedOptions';
+import Settings from '../../lib/parser/Settings';
 
 class SettingsController {
   constructor(private readonly service: IServiceSettings) {}
@@ -57,15 +58,21 @@ class SettingsController {
     }
   }
 
+  getDefaultSettingsCardOptions(source: 'client' | 'server') {
+    if (source === 'client') {
+      return this.getDefaultOptions()
+        .map((option: CardOption) => {
+          return { [option.key]: option.value.toString() };
+        })
+        .reduce((accumulator, current) => {
+          return { ...accumulator, ...current };
+        }, {});
+    }
+    return Settings.LoadDefaultOptions();
+  }
+
   getDefaultOptions() {
-    const options = supportedOptions();
-    return options
-      .map((option: CardOption) => {
-        return { [option.key]: option.value.toString() };
-      })
-      .reduce((accumulator, current) => {
-        return { ...accumulator, ...current };
-      }, {});
+    return supportedOptions();
   }
 }
 
