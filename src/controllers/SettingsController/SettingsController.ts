@@ -1,8 +1,6 @@
 import { Request, Response } from 'express';
 import { sendError } from '../../lib/error/sendError';
-import {
-  IServiceSettings,
-} from '../../services/SettingsService';
+import { IServiceSettings } from '../../services/SettingsService';
 import { getOwner } from '../../lib/User/getOwner';
 import supportedOptions, { CardOption } from './supportedOptions';
 import Settings from '../../lib/parser/Settings';
