@@ -1,10 +1,12 @@
 import { Request, Response } from 'express';
-import { sendError } from '../lib/error/sendError';
-import SettingsService from '../services/SettingsService';
-import { getOwner } from '../lib/User/getOwner';
+import { sendError } from '../../lib/error/sendError';
+import { IServiceSettings } from '../../services/SettingsService';
+import { getOwner } from '../../lib/User/getOwner';
+import supportedOptions, { CardOption } from './supportedOptions';
+import Settings from '../../lib/parser/Settings';
 
 class SettingsController {
-  constructor(private readonly service: SettingsService) {}
+  constructor(private readonly service: IServiceSettings) {}
 
   async createSetting(req: Request, res: Response) {
     console.info(`/settings/create ${req.params.id}`);
@@ -52,6 +54,23 @@ class SettingsController {
       sendError(error);
       res.status(400).send();
     }
+  }
+
+  getDefaultSettingsCardOptions(source: 'client' | 'server') {
+    if (source === 'client') {
+      return this.getDefaultOptions()
+        .map((option: CardOption) => {
+          return { [option.key]: option.value.toString() };
+        })
+        .reduce((accumulator, current) => {
+          return { ...accumulator, ...current };
+        }, {});
+    }
+    return Settings.LoadDefaultOptions();
+  }
+
+  getDefaultOptions() {
+    return supportedOptions();
   }
 }
 

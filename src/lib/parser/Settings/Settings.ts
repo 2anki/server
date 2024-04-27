@@ -113,6 +113,10 @@ export class Settings {
     }
   }
 
+  /*
+   * The default options for Notion integration differ with the ones in the HTML form.
+   * To avoid regressions we have to keep the same defaults until a proper migration can be done.
+   */
   static LoadDefaultOptions(): { [key: string]: string } {
     return {
       'add-notion-link': 'false',
