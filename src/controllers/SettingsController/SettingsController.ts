@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { sendError } from '../../lib/error/sendError';
-import SettingsService, {
+import {
   IServiceSettings,
 } from '../../services/SettingsService';
 import { getOwner } from '../../lib/User/getOwner';
