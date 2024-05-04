@@ -30,7 +30,7 @@ class ZipHandler {
             Your upload is too big, there is a max of {size} / $
             {limits.fileSize} currently.{' '}
             <a href="https://alemayhu.com/patreon">Become a patron</a> to remove
-            default limit.
+            default limit or <a href="https://2anki.net/login#login">login</a>.
           </>
         )
       );
