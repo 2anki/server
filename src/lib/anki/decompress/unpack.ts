@@ -14,8 +14,7 @@ export function unpack(filePath: string, workspace: string): Promise<File[]> {
       console.log(`tar output: ${data}`);
     });
     decompressProcess.stderr.on('data', (data) => {
-      console.error(`tar error: ${data}`);
-      reportError(data);
+      console.warn(`tar partial?: ${data}`);
     });
     decompressProcess.on('close', () => {
       // We are not reading the status code because we support partial extraction
