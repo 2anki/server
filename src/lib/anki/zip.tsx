@@ -1,11 +1,8 @@
-import JSZip from 'jszip';
 import { strFromU8, unzipSync } from 'fflate';
-import Package from '../parser/Package';
 import { Body } from 'aws-sdk/clients/s3';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { getUploadLimits } from '../misc/getUploadLimits';
 import { isHTMLFile, isMarkdownFile } from '../storage/checks';
-import getDeckFilename from './getDeckFilename';
 
 interface File {
   name: string;
@@ -59,17 +56,6 @@ class ZipHandler {
 
   getFileNames() {
     return this.fileNames;
-  }
-
-  static toZip(decks: Package[], advertisment: string | null) {
-    const zip = new JSZip();
-    for (const d of decks) {
-      zip.file(getDeckFilename(d), d.apkg);
-    }
-    if (advertisment) {
-      zip.file('README.html', advertisment);
-    }
-    return zip.generateAsync({ type: 'nodebuffer' });
   }
 }
 
