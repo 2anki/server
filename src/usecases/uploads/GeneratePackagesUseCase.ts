@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-import { ZipHandler } from '../../lib/anki/zip';
+import { processAndPrepareArchiveData } from '../../lib/anki/decompress/processAndPrepareArchiveData';
 import Package from '../../lib/parser/Package';
 import Settings from '../../lib/parser/Settings';
 import {
@@ -14,6 +14,7 @@ import { UploadedFile } from '../../lib/storage/types';
 
 import { Body } from 'aws-sdk/clients/s3';
 import { PrepareDeck } from '../../lib/parser/PrepareDeck';
+import { getFileNames } from '../../lib/anki/decompress/getFileNames';
 
 export interface PackageResult {
   packages: Package[];
@@ -30,20 +31,22 @@ const getPackagesFromZip = async (
   isPatreon: boolean,
   settings: Settings
 ): Promise<PackageResult> => {
-  const zipHandler = new ZipHandler();
   const packages = [];
 
   if (!fileContents) {
     return { packages: [] };
   }
 
-  zipHandler.build(fileContents as Uint8Array, isPatreon);
+  const files = await processAndPrepareArchiveData(
+    fileContents as Uint8Array,
+    isPatreon
+  );
 
-  const fileNames = zipHandler.getFileNames();
+  const fileNames = getFileNames(files);
 
   for (const fileName of fileNames) {
     if (isFileSupported(fileName)) {
-      const deck = await PrepareDeck(fileName, zipHandler.files, settings);
+      const deck = await PrepareDeck(fileName, files, settings);
 
       if (deck) {
         packages.push(new Package(deck.name, deck.apkg));

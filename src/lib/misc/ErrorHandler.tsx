@@ -11,7 +11,8 @@ export const NO_PACKAGE_ERROR = new Error(
   renderToStaticMarkup(
     <>
       <div className="info">
-        Could not create a deck using your file(s) and rules. Make sure to at
+        Could not create a deck using your file(s) and rules. If you are
+        uploading multiple files, try uploading them one by one. Make sure to at
         least create on valid toggle or verify your{' '}
         <a href="/upload?view=template">settings</a>? Example:
       </div>
