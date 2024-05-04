@@ -1,4 +1,4 @@
-import { File } from '../anki/decompress/types';
+import { File } from '../anki/zip';
 import Settings from './Settings';
 import getDeckFilename from '../anki/getDeckFilename';
 import { DeckParser } from './DeckParser';

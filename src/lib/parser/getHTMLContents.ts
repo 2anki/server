@@ -1,6 +1,6 @@
 import { isHTMLFile, isMarkdownFile } from '../storage/checks';
 import { markdownToHTML } from '../markdown';
-import { File } from '../anki/decompress/types';
+import { File } from '../anki/zip';
 
 export function getHTMLContents(file: File | undefined) {
   const contents = file?.contents;
