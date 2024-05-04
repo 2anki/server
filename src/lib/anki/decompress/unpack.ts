@@ -3,7 +3,7 @@ import { spawn } from 'node:child_process';
 import { listFiles } from './listFiles';
 import { File } from './types';
 
-const TAR_PATH = '/usr/bin/tar';
+const TAR_PATH = '/usr/bin/bsdtar';
 
 export function unpack(filePath: string, workspace: string): Promise<File[]> {
   return new Promise((resolve, reject) => {
