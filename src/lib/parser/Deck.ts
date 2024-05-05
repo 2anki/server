@@ -32,6 +32,7 @@ export default class Deck {
     this.image = image;
     this.style = style;
     this.id = id;
+    console.log(`New Deck with ${this.cards.length} cards`);
   }
 
   static CleanCards(cards: Note[]) {
