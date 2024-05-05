@@ -147,6 +147,10 @@ export default class ConversionJob {
       decks: [],
       parentName: settings.deckName || '',
     });
+    console.log(
+      'New Deck total cards is ' +
+        decks.map((deck) => deck.cards.length).reduce((a, b) => a + b)
+    );
     return decks;
   };
 

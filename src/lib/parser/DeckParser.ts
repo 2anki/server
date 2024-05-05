@@ -55,6 +55,10 @@ export class DeckParser {
           []
         )
       : [];
+    console.log(
+      'New Deck total cards is ' +
+        this.payload.map((deck) => deck.cards.length).reduce((a, b) => a + b)
+    );
   }
 
   findNextPage(href: string | undefined): string | Uint8Array | undefined {
@@ -456,6 +460,10 @@ export class DeckParser {
     const exporter = this.setupExporter(this.payload, ws.location);
 
     this.payload = fallback.run(this.settings);
+    console.log(
+      'New Deck total cards is ' +
+        this.payload.map((deck) => deck.cards.length).reduce((a, b) => a + b)
+    );
     if (
       !this.payload ||
       this.payload.length === 0 ||
