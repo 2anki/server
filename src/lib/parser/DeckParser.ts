@@ -2,7 +2,7 @@ import cheerio from 'cheerio';
 
 import preserveNewlinesIfApplicable from '../../services/NotionService/helpers/preserveNewlinesIfApplicable';
 import sanitizeTags from '../anki/sanitizeTags';
-import { File } from '../anki/decompress/types';
+import { File } from '../anki/zip';
 import Deck from './Deck';
 import Note from './Note';
 import Settings from './Settings';
