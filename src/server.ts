@@ -28,11 +28,13 @@ import favoriteRouter from './routes/FavoriteRouter';
 import templatesRouter from './routes/TemplatesRouter';
 import defaultRouter from './routes/DefaultRouter';
 import simpleUploadRouter from './routes/SimpleUploadRouter';
+import webhookRouter from './routes/WebhookRouter';
 
 import { sendError } from './lib/error/sendError';
 
 import { isStaging } from './lib/isStaging';
 import { getDatabase, setupDatabase } from './data_layer';
+
 function registerSignalHandlers(server: http.Server) {
   process.on('uncaughtException', sendError);
   process.on('SIGTERM', () => {
@@ -52,6 +54,7 @@ const serve = async () => {
   const templateDir = path.join(__dirname, 'templates');
   const app = express();
 
+  app.use(webhookRouter());
   app.use(express.json({ limit: '1000mb' }) as RequestHandler);
   app.use(cookieParser());
 
