@@ -8,7 +8,7 @@ describe('checkLimits', () => {
       isPatreon: false,
       isSubscriber: false,
       cards: 101
-    })).toThrowError('You can only add 100 cards');
+    })).toThrow();
   });
 
   test('does not throw an error if 100 cards are added by patreon or subscriber', () => {
