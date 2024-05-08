@@ -20,6 +20,10 @@ const RequireAuthentication = async (
   }
   res.locals.owner = user.owner;
   res.locals.patreon = user.patreon;
+  res.locals.subscriber = await authService.getIsSubscriber(
+    database,
+    user.email
+  );
   return next();
 };
 
