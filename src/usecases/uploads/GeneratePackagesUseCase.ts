@@ -50,10 +50,7 @@ const getPackagesFromZip = async (
 
       if (deck) {
         packages.push(new Package(deck.name, deck.apkg));
-        cardCount += deck.deck.reduce(
-          (acc, d) => acc + d.cards.length,
-          0
-        );
+        cardCount += deck.deck.reduce((acc, d) => acc + d.cards.length, 0);
 
         // Checking the limit in place while iterating through the decks
         checkLimits({
