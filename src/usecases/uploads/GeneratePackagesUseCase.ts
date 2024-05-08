@@ -14,6 +14,7 @@ import { UploadedFile } from '../../lib/storage/types';
 
 import { Body } from 'aws-sdk/clients/s3';
 import { PrepareDeck } from '../../lib/parser/PrepareDeck';
+import { checkLimits } from '../../lib/User/checkLimits';
 
 export interface PackageResult {
   packages: Package[];
@@ -28,6 +29,7 @@ export const isFileSupported = (filename: string) =>
 const getPackagesFromZip = async (
   fileContents: Body | undefined,
   isPatreon: boolean,
+  isSubscriber: boolean,
   settings: Settings
 ): Promise<PackageResult> => {
   const zipHandler = new ZipHandler();
@@ -41,14 +43,31 @@ const getPackagesFromZip = async (
 
   const fileNames = zipHandler.getFileNames();
 
+  let cardCount = 0;
   for (const fileName of fileNames) {
     if (isFileSupported(fileName)) {
       const deck = await PrepareDeck(fileName, zipHandler.files, settings);
 
       if (deck) {
         packages.push(new Package(deck.name, deck.apkg));
+        cardCount += deck.deck.reduce((acc, deck) => acc + deck.cards.length, 0);
+
+        // Checking the limit in place while iterating through the decks
+        checkLimits({
+          cards: 0,
+          decks: deck.deck,
+          isPatreon,
+          isSubscriber,
+        })
       }
     }
+
+    // Checking the limit in place while iterating through the files
+    checkLimits({
+      cards: cardCount,
+      isPatreon,
+      isSubscriber,
+    })
   }
 
   return { packages };
@@ -57,6 +76,7 @@ const getPackagesFromZip = async (
 class GeneratePackagesUseCase {
   async execute(
     isPatreon: boolean,
+    isSubscriber: boolean,
     files: UploadedFile[],
     settings: Settings
   ): Promise<PackageResult> {
@@ -81,6 +101,7 @@ class GeneratePackagesUseCase {
         const { packages: extraPackages } = await getPackagesFromZip(
           fileContents,
           isPatreon,
+          isSubscriber,
           settings
         );
         packages = packages.concat(extraPackages);

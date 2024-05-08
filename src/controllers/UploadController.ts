@@ -51,7 +51,10 @@ class UploadController {
       handleUploadEndpoint(req, res, async (error) => {
         if (error) {
           let msg = error.message;
-          if (msg === 'File too large') {
+          if (
+            msg === 'File too large' ||
+            msg === 'You can only add 100 cards'
+          ) {
             msg = getLimitMessage();
           } else {
             sendError(error);

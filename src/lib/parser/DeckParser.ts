@@ -22,6 +22,7 @@ import getYouTubeID from './helpers/getYouTubeID';
 import { isFileNameEqual } from '../storage/types';
 import { isImageFileEmbedable } from '../storage/checks';
 import { getHTMLContents } from './getHTMLContents';
+import { checkLimits } from '../User/checkLimits';
 
 export class DeckParser {
   globalTags: cheerio.Cheerio | null;
