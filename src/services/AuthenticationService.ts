@@ -6,6 +6,7 @@ import bcrypt from 'bcryptjs';
 import TokenRepository from '../data_layer/TokenRepository';
 import UsersRepository from '../data_layer/UsersRepository';
 import Users from '../data_layer/public/Users';
+import { Knex } from 'knex';
 
 export interface UserWithOwner extends Users {
   owner: number;
@@ -111,6 +112,16 @@ class AuthenticationService {
 
   persistToken(token: string, id: string) {
     return this.tokenRepository.updateAccessToken(token, id);
+  }
+
+  async getIsSubscriber(db: Knex, email: string) {
+    const result = await db('subscriptions')
+      .select('active')
+      .where({
+        email: email,
+      })
+      .first();
+    return result?.active ?? false;
   }
 }
 

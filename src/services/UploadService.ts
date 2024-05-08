@@ -36,6 +36,7 @@ class UploadService {
       const useCase = new GeneratePackagesUseCase();
       const { packages } = await useCase.execute(
         res.locals.patreon,
+        res.locals.subscriber,
         req.files as UploadedFile[],
         settings
       );

@@ -4,13 +4,19 @@ import { UploadedFile } from '../../lib/storage/types';
 
 export const createPackages = async (
   files: UploadedFile[],
-  patreon: boolean,
+  isPatreon: boolean,
+  isSubscriber: boolean,
   body: { [key: string]: string } = {}
 ) => {
   const settings = new Settings(body);
 
   const useCase = new GeneratePackagesUseCase();
-  const { packages } = await useCase.execute(patreon, files, settings);
+  const { packages } = await useCase.execute(
+    isPatreon,
+    isSubscriber,
+    files,
+    settings
+  );
 
   return packages;
 };
