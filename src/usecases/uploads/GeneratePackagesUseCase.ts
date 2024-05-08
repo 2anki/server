@@ -50,7 +50,10 @@ const getPackagesFromZip = async (
 
       if (deck) {
         packages.push(new Package(deck.name, deck.apkg));
-        cardCount += deck.deck.reduce((acc, deck) => acc + deck.cards.length, 0);
+        cardCount += deck.deck.reduce(
+          (acc, d) => acc + d.cards.length,
+          0
+        );
 
         // Checking the limit in place while iterating through the decks
         checkLimits({
@@ -58,7 +61,7 @@ const getPackagesFromZip = async (
           decks: deck.deck,
           isPatreon,
           isSubscriber,
-        })
+        });
       }
     }
 
@@ -67,7 +70,7 @@ const getPackagesFromZip = async (
       cards: cardCount,
       isPatreon,
       isSubscriber,
-    })
+    });
   }
 
   return { packages };

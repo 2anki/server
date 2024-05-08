@@ -11,7 +11,12 @@ export const createPackages = async (
   const settings = new Settings(body);
 
   const useCase = new GeneratePackagesUseCase();
-  const { packages } = await useCase.execute(isPatreon, isSubscriber, files, settings);
+  const { packages } = await useCase.execute(
+    isPatreon,
+    isSubscriber,
+    files,
+    settings
+  );
 
   return packages;
 };

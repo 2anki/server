@@ -11,7 +11,7 @@ export const getLimitMessage = () =>
           size smaller.
         </li>
         <li>
-         <a href="https://alemayhu.com/patreon">Become a patron</a> to remove
+          <a href="https://alemayhu.com/patreon">Become a patron</a> to remove
           all the limits or{' '}
           <a href="https://buy.stripe.com/eVadTGcCI6Ny73qfZ0">subscribe</a> for
           only 2 EUR per month.
