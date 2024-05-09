@@ -25,7 +25,7 @@ export const NO_PACKAGE_ERROR = new Error(
   )
 );
 
-function perserveFilesForDebugging(uploadedFiles: UploadedFile[]) {
+function perserveFilesForDebugging(uploadedFiles: UploadedFile[], err: Error) {
   const debugDirectory = path.join(os.tmpdir(), 'debug', getRandomUUID());
 
   if (!fs.existsSync(debugDirectory)) {
@@ -38,6 +38,9 @@ function perserveFilesForDebugging(uploadedFiles: UploadedFile[]) {
     }
   }
 
+  const timestamp = new Date().toISOString();
+  const errorMessage = `${timestamp} - ${err.name}: \n${err.message}\n${err.stack}`;
+  fs.writeFileSync(`${debugDirectory}/error.txt`, errorMessage);
   uploadedFiles.forEach((file, index) => {
     try {
       const destPath = `${debugDirectory}/${index}-${path.basename(
@@ -60,7 +63,7 @@ export default function ErrorHandler(
   sendError(err);
 
   if (Array.isArray(req.files) && req.files.length > 0) {
-    perserveFilesForDebugging(req.files as UploadedFile[]);
+    perserveFilesForDebugging(req.files as UploadedFile[], err);
   }
 
   res.set('Content-Type', 'text/plain');
