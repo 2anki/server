@@ -3,6 +3,7 @@ import UsersRepository from '../../data_layer/UsersRepository';
 import TokenRepository from '../../data_layer/TokenRepository';
 import AuthenticationService from '../../services/AuthenticationService';
 import { getDatabase } from '../../data_layer';
+import { configureUserLocal } from './configureUserLocal';
 
 const RequireAuthentication = async (
   req: express.Request,
@@ -14,16 +15,7 @@ const RequireAuthentication = async (
     new TokenRepository(database),
     new UsersRepository(database)
   );
-  const user = await authService.getUserFrom(req.cookies.token);
-  if (!user) {
-    return res.redirect('/login');
-  }
-  res.locals.owner = user.owner;
-  res.locals.patreon = user.patreon;
-  res.locals.subscriber = await authService.getIsSubscriber(
-    database,
-    user.email
-  );
+  await configureUserLocal(req, res, authService, database);
   return next();
 };
 

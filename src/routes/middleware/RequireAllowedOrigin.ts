@@ -5,6 +5,7 @@ import AuthenticationService from '../../services/AuthenticationService';
 import UsersRepository from '../../data_layer/UsersRepository';
 import TokenRepository from '../../data_layer/TokenRepository';
 import { getDatabase } from '../../data_layer';
+import { configureUserLocal } from './configureUserLocal';
 
 const RequireAllowedOrigin = async (
   req: Request,
@@ -29,15 +30,8 @@ const RequireAllowedOrigin = async (
     new TokenRepository(database),
     new UsersRepository(database)
   );
-  const user = await authService.getUserFrom(req.cookies.token);
-  if (user) {
-    res.locals.owner = user.owner;
-    res.locals.patreon = user.patreon;
-    res.locals.subscriber = await authService.getIsSubscriber(
-      database,
-      user.email
-    );
-  }
+
+  await configureUserLocal(req, res, authService, database);
 
   return next();
 };

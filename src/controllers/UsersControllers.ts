@@ -1,10 +1,11 @@
 import express from 'express';
 
-import { INDEX_FILE } from '../lib/constants';
 import { sendError } from '../lib/error/sendError';
 import AuthenticationService from '../services/AuthenticationService';
 import UsersService from '../services/UsersService';
 import { getRedirect } from './helpers/getRedirect';
+
+import { getIndexFileContents } from './IndexController/getIndexFileContents';
 
 class UsersController {
   constructor(
@@ -149,7 +150,9 @@ class UsersController {
       const token = req.params.id;
       const isValid = await this.authService.isValidToken(token);
       if (isValid) {
-        return res.sendFile(INDEX_FILE);
+        return res.send(
+          getIndexFileContents(res.locals.patreon, res.locals.subscriber)
+        );
       }
       return res.redirect('/login');
     } catch (err) {
@@ -183,7 +186,7 @@ class UsersController {
   async checkUser(req: express.Request, res: express.Response) {
     const user = await this.authService.getUserFrom(req.cookies.token);
     if (!user) {
-      res.sendFile(INDEX_FILE);
+      res.send(getIndexFileContents(res.locals.patreon, res.locals.subscriber));
     } else {
       res.redirect(getRedirect(req));
     }
