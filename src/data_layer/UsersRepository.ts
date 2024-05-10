@@ -1,6 +1,7 @@
 import { Knex } from 'knex';
 
 import Users from './public/Users';
+import Subscriptions from './public/Subscriptions';
 
 class UsersRepository {
   table: string;
@@ -65,6 +66,20 @@ class UsersRepository {
       ),
       this.database(this.table).where({ id: owner }).del(),
     ]);
+  }
+
+  updateSubscriptionLinkedEmail(owner: string, email: string) {
+    return this.database('subscriptions')
+      .where({ id: owner })
+      .update({ linked_email: email });
+  }
+
+  async getSubscriptionLinkedEmail(owner: string) {
+    const subscription: Subscriptions = await this.database('subscriptions')
+      .where({ id: owner })
+      .select('linked_email')
+      .first();
+    return subscription?.linked_email;
   }
 }
 
