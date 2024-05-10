@@ -15,11 +15,13 @@ export const getLimitMessage = () =>
           all the limits or{' '}
           <a href="https://buy.stripe.com/eVadTGcCI6Ny73qfZ0">subscribe</a> for
           only 2 EUR per month.
-          <p>
-            If you already have an account, please{' '}
-            <a href="/login?redirect=/upload">login</a> and try again.
-          </p>
         </li>
       </ul>
+      <p>
+        If you already have an account, please{' '}
+        <a href="/login?redirect=/upload">login</a> and try again. If you are
+        still experiencing issues, please contact{' '}
+        <a href="mailto:alexander@alemayhu.com">alexander@alemayhu.com</a>.
+      </p>
     </div>
   );

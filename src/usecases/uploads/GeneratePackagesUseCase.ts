@@ -39,7 +39,10 @@ const getPackagesFromZip = async (
     return { packages: [] };
   }
 
-  zipHandler.build(fileContents as Uint8Array, isPatreon);
+  zipHandler.build(fileContents as Uint8Array, {
+    patron: isPatreon,
+    subscriber: isSubscriber,
+  });
 
   const fileNames = zipHandler.getFileNames();
 
