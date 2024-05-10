@@ -75,11 +75,11 @@ class UsersRepository {
   }
 
   async getSubscriptionLinkedEmail(owner: string) {
-   const subscription: Subscriptions = await this.database('subscriptions')
-        .where({ id: owner })
-        .select('linked_email')
-        .first();
-   return subscription?.linked_email;
+    const subscription: Subscriptions = await this.database('subscriptions')
+      .where({ id: owner })
+      .select('linked_email')
+      .first();
+    return subscription?.linked_email;
   }
 }
 

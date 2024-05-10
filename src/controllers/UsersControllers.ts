@@ -164,9 +164,11 @@ class UsersController {
   async getLocals(_req: express.Request, res: express.Response) {
     const { locals } = res;
 
-    const linked_email = await this.userService.getSubscriptionLinkedEmail(res.locals.owner);
+    const linkedEmail = await this.userService.getSubscriptionLinkedEmail(
+      res.locals.owner
+    );
 
-    return res.json({ locals, linked_email: linked_email });
+    return res.json({ locals, linked_email: linkedEmail });
   }
 
   async linkEmail(req: express.Request, res: express.Response) {
