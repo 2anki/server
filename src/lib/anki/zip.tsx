@@ -3,7 +3,7 @@ import { strFromU8, unzipSync } from 'fflate';
 import Package from '../parser/Package';
 import { Body } from 'aws-sdk/clients/s3';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { getUploadLimits } from '../misc/getUploadLimits';
+import { getUploadLimits, UploaderInfo } from '../misc/getUploadLimits';
 import { isHTMLFile, isMarkdownFile } from '../storage/checks';
 import getDeckFilename from './getDeckFilename';
 
@@ -22,9 +22,9 @@ class ZipHandler {
     this.files = [];
   }
 
-  build(zipData: Uint8Array, isPatron: boolean = false) {
+  build(zipData: Uint8Array, uploaderInfo: UploaderInfo) {
     const size = Buffer.byteLength(zipData);
-    const limits = getUploadLimits(isPatron);
+    const limits = getUploadLimits(uploaderInfo);
 
     if (size > limits.fileSize) {
       throw new Error(

@@ -19,9 +19,9 @@ export const getLimitMessage = () =>
       </ul>
       <p>
         If you already have an account, please{' '}
-        <a href="/login?redirect=/upload">login</a> and try again.
-        If you are still experiencing issues, please contact <a
-        href="mailto:alexander@alemayhu.com">alexander@alemayhu.com</a>.
+        <a href="/login?redirect=/upload">login</a> and try again. If you are
+        still experiencing issues, please contact{' '}
+        <a href="mailto:alexander@alemayhu.com">alexander@alemayhu.com</a>.
       </p>
     </div>
   );
