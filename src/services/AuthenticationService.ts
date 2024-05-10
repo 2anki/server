@@ -114,13 +114,23 @@ class AuthenticationService {
     return this.tokenRepository.updateAccessToken(token, id);
   }
 
-  async getIsSubscriber(db: Knex, email: string) {
+  async getIsSubscriber(owner: string, db: Knex, email: string) {
+    const linkedEmail = await this.usersRepository.getSubscriptionLinkedEmail(
+      owner
+    );
+    if (linkedEmail) {
+      const linkedEmailResult = await db('subscriptions')
+        .select('active')
+        .where({ linked_email: linkedEmail })
+        .first();
+      return linkedEmailResult?.active ?? false;
+    }
+
     const result = await db('subscriptions')
       .select('active')
-      .where({
-        email: email,
-      })
+      .where({ email: email })
       .first();
+
     return result?.active ?? false;
   }
 }
