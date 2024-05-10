@@ -48,6 +48,14 @@ class UsersService {
   deleteUser(owner: any) {
     return this.repository.deleteUser(owner);
   }
+
+  updateSubscriptionLinkedEmail(owner: string, email: string) {
+    return this.repository.updateSubscriptionLinkedEmail(owner, email);
+  }
+
+  getSubscriptionLinkedEmail(owner: string) {
+    return this.repository.getSubscriptionLinkedEmail(owner);
+  }
 }
 
 export default UsersService;

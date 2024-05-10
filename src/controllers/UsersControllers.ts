@@ -161,11 +161,33 @@ class UsersController {
     }
   }
 
-  getLocals(_req: express.Request, res: express.Response) {
+  async getLocals(_req: express.Request, res: express.Response) {
     const { locals } = res;
-    sendError(new Error('Test error'));
 
-    return res.json({ locals });
+    const linked_email = await this.userService.getSubscriptionLinkedEmail(res.locals.owner);
+
+    return res.json({ locals, linked_email: linked_email });
+  }
+
+  async linkEmail(req: express.Request, res: express.Response) {
+    const { email } = req.body;
+    const { owner } = res.locals;
+
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required' });
+    }
+
+    if (!owner) {
+      return res.status(400).json({});
+    }
+
+    try {
+      await this.userService.updateSubscriptionLinkedEmail(owner, email);
+      return res.status(200).json({});
+    } catch (error) {
+      sendError(error);
+      return res.status(500).json({ message: 'Failed to delete account' });
+    }
   }
 
   async deleteAccount(req: express.Request, res: express.Response) {

@@ -53,6 +53,8 @@ const UserRouter = () => {
   router.get('/login', (req, res) => controller.checkUser(req, res));
   router.get('/patr*on', (req, res) => controller.patreon(req, res));
 
+  router.post('/api/users/link_email', RequireAuthentication, (req, res) => controller.linkEmail(req, res));
+
   return router;
 };
 
