@@ -23,7 +23,7 @@ export const updateStoreSubscription = async (
   const active = subscription.status === 'active';
   await db('subscriptions')
     .insert({
-      email: email,
+      email: email?.toLowerCase(),
       active: active,
       payload: JSON.stringify(subscription),
     })
