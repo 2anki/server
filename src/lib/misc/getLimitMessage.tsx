@@ -4,17 +4,25 @@ export const getLimitMessage = () =>
   renderToStaticMarkup(
     <div className="content">
       <h3 className="title is-3">Your request has hit the limit</h3>
-      <p>You have two options:</p>
       <ul>
         <li>
           Split your request into multiple smaller ones (i.e.) make your upload
           size smaller.
         </li>
         <li>
-          <a href="https://alemayhu.com/patreon">Become a patron</a> to remove
-          all the limits or{' '}
-          <a href="https://buy.stripe.com/eVadTGcCI6Ny73qfZ0">subscribe</a> for
-          only 2 EUR per month.
+          <div className="is-flex is-align-items-center">
+            <a
+              className="button is-success is-medium mr-2"
+              href="https://buy.stripe.com/eVadTGcCI6Ny73qfZ0"
+            >
+              Subscribe
+            </a>{' '}
+            for only 2 EUR per month to remove all the limits.
+          </div>
+        </li>
+        <li>
+          Or <a href="https://alemayhu.com/patreon">Become a patron</a> to
+          support me.
         </li>
       </ul>
       <p>
