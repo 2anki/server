@@ -71,7 +71,7 @@ class UsersRepository {
   updateSubscriptionLinkedEmail(owner: string, email: string) {
     return this.database('subscriptions')
       .where({ id: owner })
-      .update({ linked_email: email });
+      .update({ linked_email: email.toLowerCase() });
   }
 
   async getSubscriptionLinkedEmail(owner: string) {
