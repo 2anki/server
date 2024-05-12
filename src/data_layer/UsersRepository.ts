@@ -75,8 +75,9 @@ class UsersRepository {
   }
 
   async getSubscriptionLinkedEmail(owner: string) {
+    const user = await this.database(this.table).where({ id: owner }).first();
     const subscription: Subscriptions = await this.database('subscriptions')
-      .where({ id: owner })
+      .where({ email: user.email })
       .select('linked_email')
       .first();
     return subscription?.linked_email;
