@@ -172,7 +172,6 @@ class UsersController {
   }
 
   async linkEmail(req: express.Request, res: express.Response) {
-    console.info('linkEmail');
     const { email } = req.body;
     const { owner } = res.locals;
 

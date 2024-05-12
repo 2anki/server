@@ -115,15 +115,13 @@ class AuthenticationService {
   }
 
   async getIsSubscriber(owner: string, db: Knex, email: string) {
-    const linkedEmail = await this.usersRepository.getSubscriptionLinkedEmail(
-      owner
-    );
+    const linkedEmail = await db('subscriptions')
+      .select('active')
+      .where({ linked_email: email })
+      .first();
+
     if (linkedEmail) {
-      const linkedEmailResult = await db('subscriptions')
-        .select('active')
-        .where({ linked_email: linkedEmail })
-        .first();
-      return linkedEmailResult?.active ?? false;
+      return linkedEmail?.active ?? false;
     }
 
     const result = await db('subscriptions')
