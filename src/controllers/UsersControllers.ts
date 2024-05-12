@@ -172,6 +172,7 @@ class UsersController {
   }
 
   async linkEmail(req: express.Request, res: express.Response) {
+    console.info('linkEmail');
     const { email } = req.body;
     const { owner } = res.locals;
 
@@ -187,8 +188,9 @@ class UsersController {
       await this.userService.updateSubscriptionLinkedEmail(owner, email);
       return res.status(200).json({});
     } catch (error) {
+      console.error(error);
       sendError(error);
-      return res.status(500).json({ message: 'Failed to delete account' });
+      return res.status(500).json({ message: 'Failed to link email' });
     }
   }
 
