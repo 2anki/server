@@ -6,6 +6,7 @@ import { getLimitMessage } from '../lib/misc/getLimitMessage';
 import NotionService from '../services/NotionService';
 import UploadService from '../services/UploadService';
 import { getUploadHandler } from '../lib/misc/GetUploadHandler';
+import { isLimitError } from '../lib/misc/isLimitError';
 
 class UploadController {
   constructor(
@@ -49,17 +50,8 @@ class UploadController {
       const handleUploadEndpoint = getUploadHandler(res);
 
       handleUploadEndpoint(req, res, async (error) => {
-        if (error) {
-          let msg = error.message;
-          if (
-            msg === 'File too large' ||
-            msg === 'You can only add 100 cards'
-          ) {
-            msg = getLimitMessage();
-          } else {
-            sendError(error);
-          }
-          return res.status(500).send(msg);
+        if (isLimitError(error)) {
+          return res.status(500).send(getLimitMessage());
         }
         await this.service.handleUpload(req, res);
       });

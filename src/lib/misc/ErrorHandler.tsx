@@ -6,6 +6,7 @@ import path from 'path';
 import os from 'os';
 import { getRandomUUID } from '../../shared/helpers/getRandomUUID';
 import fs from 'fs';
+import { isLimitError } from './isLimitError';
 
 export const NO_PACKAGE_ERROR = new Error(
   renderToStaticMarkup(
@@ -60,12 +61,13 @@ export default function ErrorHandler(
   req: express.Request,
   err: Error
 ) {
-  sendError(err);
+  if (!isLimitError(err)) {
+    sendError(err);
 
-  if (Array.isArray(req.files) && req.files.length > 0) {
-    perserveFilesForDebugging(req.files as UploadedFile[], err);
+    if (Array.isArray(req.files) && req.files.length > 0) {
+      perserveFilesForDebugging(req.files as UploadedFile[], err);
+    }
   }
-
   res.set('Content-Type', 'text/plain');
   res.status(400).send(err.message);
 }
