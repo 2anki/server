@@ -76,7 +76,6 @@ class UploadService {
         ErrorHandler(res, req, NO_PACKAGE_ERROR);
       }
     } catch (err) {
-      sendError(err);
       ErrorHandler(res, req, err as Error);
     }
   }
