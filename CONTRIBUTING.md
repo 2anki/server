@@ -11,13 +11,11 @@ Thanks for your interest in notion2anki. We hope you'll contribute to our projec
 
 If you know someone who can benefit from Notion to Anki, please share it with them today!
 
-- If you are missing a feature or format, let us know on GitHub or the [Discord](https://discord.gg/PSKC3uS).
+- If you are missing a feature or format, let us know on GitHub.
 
 ## Other ways to contribute
 
 - Make a video in your native language showing people how to use notion2anki
 - Write about notion2anki on your blog
-
-Join the [Discord](https://discord.gg/PSKC3uS) to find out more ways to contribute.
 
 PS: Remember to send us links when you create a video or blog post, thank you 🙏🏾
