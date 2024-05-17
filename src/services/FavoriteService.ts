@@ -33,35 +33,29 @@ class FavoriteService {
 
     const useCase = new GetAllFavoritesByOwnerUseCase(this.repository);
     const favorites = await useCase.execute(owner);
-    // return favorites;
 
     /**
      * XXX: This should be moved to a different service.
      * What is happening here is that we fetch the Notion block so we can present the user
      * with a rich object (with title and emoji) instead of just the ID.
      */
-    try {
-      const api = await notionService.getNotionAPI(owner);
-      if (!api) {
-        return [];
-      }
-
-      return await Promise.all(
-        favorites.map((f: Favorites) =>
-          (f.type === 'page'
-            ? api.getPage(f.object_id)
-            : api.getDatabase(f.object_id)
-          ).catch((error) => {
-            if (error instanceof APIResponseError) {
-              this.delete(f.object_id, owner);
-            }
-          })
-        )
-      );
-    } catch (error) {
-      console.error(error);
+    const api = await notionService.getNotionAPI(owner);
+    if (!api) {
       return [];
     }
+
+    return Promise.all(
+      favorites.map((f: Favorites) =>
+        (f.type === 'page'
+          ? api.getPage(f.object_id)
+          : api.getDatabase(f.object_id)
+        ).catch((error) => {
+          if (error instanceof APIResponseError) {
+            this.delete(f.object_id, owner);
+          }
+        })
+      )
+    );
   }
 }
 
