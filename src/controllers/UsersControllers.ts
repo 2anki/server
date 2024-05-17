@@ -6,6 +6,7 @@ import UsersService from '../services/UsersService';
 import { getRedirect } from './helpers/getRedirect';
 
 import { getIndexFileContents } from './IndexController/getIndexFileContents';
+import { getRandomUUID } from '../shared/helpers/getRandomUUID';
 
 class UsersController {
   constructor(
@@ -227,6 +228,49 @@ class UsersController {
       return false;
     }
     return true;
+  }
+
+  async loginWithGoogle(req: express.Request, res: express.Response) {
+    console.debug('Login with google');
+    const { code } = req.query;
+    if (!code) {
+      return res.redirect('/login');
+    }
+
+    const loginRequest = await this.authService.loginWithGoogle(code as string);
+
+    if (loginRequest) {
+      /**
+       * now create a new user if the user does not exist
+       */
+      const { email, name } = loginRequest;
+      let user = await this.userService.getUserFrom(email);
+      if (!user) {
+        // Create user with random password
+        await this.userService.register(name, getRandomUUID(), email);
+        user = await this.userService.getUserFrom(email);
+      }
+
+      if (!user) {
+        console.info('Failed to create user');
+        return res
+          .status(400)
+          .send('Unknown error. Please try again or register a new account.');
+      }
+
+      const token = await this.authService.newJWTToken(user);
+      if (!token) {
+        console.info('Failed to create token');
+        return res
+          .status(400)
+          .send('Unknown error. Please try again or register a new account.');
+      }
+      await this.authService.persistToken(token, user.id.toString());
+      res.cookie('token', token);
+      res.status(200).redirect(getRedirect(req));
+    } else {
+      res.redirect('/login');
+    }
   }
 }
 

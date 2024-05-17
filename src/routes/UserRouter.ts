@@ -57,6 +57,10 @@ const UserRouter = () => {
     controller.linkEmail(req, res)
   );
 
+  router.get('/api/users/auth/google', (req, res) =>
+    controller.loginWithGoogle(req, res)
+  );
+
   return router;
 };
 
