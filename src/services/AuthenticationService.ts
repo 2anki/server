@@ -1,3 +1,4 @@
+import qs from 'querystring';
 import crypto from 'crypto';
 
 import jwt from 'jsonwebtoken';
@@ -7,6 +8,8 @@ import TokenRepository from '../data_layer/TokenRepository';
 import UsersRepository from '../data_layer/UsersRepository';
 import Users from '../data_layer/public/Users';
 import { Knex } from 'knex';
+import axios from 'axios';
+import { sendError } from '../lib/error/sendError';
 
 export interface UserWithOwner extends Users {
   owner: number;
@@ -130,6 +133,32 @@ class AuthenticationService {
       .first();
 
     return result?.active ?? false;
+  }
+
+  async loginWithGoogle(code: string) {
+    const url = 'https://oauth2.googleapis.com/token';
+    const values = {
+      code,
+      client_id: process.env.GOOGLE_CLIENT_ID,
+      client_secret: process.env.GOOGLE_CLIENT_SECRET,
+      redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+      grant_type: 'authorization_code',
+    };
+    try {
+      const result = await axios.post(url, qs.stringify(values), {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      });
+      const idToken = result.data.id_token;
+      const decoded = jwt.decode(idToken)!;
+
+      // @ts-ignore
+      return { email: decoded.email, name: decoded.name };
+    } catch (error) {
+      console.info("Couldn't login with Google");
+      sendError(error);
+    }
   }
 }
 
