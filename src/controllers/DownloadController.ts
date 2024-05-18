@@ -26,7 +26,7 @@ class DownloadController {
       if (body) {
         res.send(body);
       } else {
-        throw new Error('File not found');
+        throw new Error(`File not found: ${key}`);
       }
     } catch (error) {
       console.error(error);
