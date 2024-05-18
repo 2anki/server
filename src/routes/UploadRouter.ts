@@ -9,8 +9,6 @@ import JobRepository from '../data_layer/JobRepository';
 import UploadService from '../services/UploadService';
 import { getDatabase } from '../data_layer';
 import UploadRepository from '../data_layer/UploadRespository';
-import NotionRepository from '../data_layer/NotionRespository';
-import NotionService from '../private/integrations/notion';
 
 const UploadRouter = () => {
   const router = express.Router();
@@ -19,8 +17,7 @@ const UploadRouter = () => {
     new JobService(new JobRepository(database))
   );
   const uploadController = new UploadController(
-    new UploadService(new UploadRepository(database)),
-    new NotionService(new NotionRepository(database))
+    new UploadService(new UploadRepository(database))
   );
 
   /**

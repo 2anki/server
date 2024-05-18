@@ -6,13 +6,9 @@ import { getLimitMessage } from '../lib/misc/getLimitMessage';
 import UploadService from '../services/UploadService';
 import { getUploadHandler } from '../lib/misc/GetUploadHandler';
 import { isLimitError } from '../lib/misc/isLimitError';
-import NotionService from '../private/integrations/notion';
 
 class UploadController {
-  constructor(
-    private readonly service: UploadService,
-    private readonly notionService: NotionService
-  ) {}
+  constructor(private readonly service: UploadService) {}
 
   async deleteUpload(req: express.Request, res: express.Response) {
     const owner = getOwner(res);
@@ -24,7 +20,6 @@ class UploadController {
 
     try {
       await this.service.deleteUpload(owner, key);
-      await this.notionService.purgeBlockCache(owner);
     } catch (error) {
       sendError(error);
       return res.status(500).send();

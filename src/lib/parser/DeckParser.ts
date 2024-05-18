@@ -21,7 +21,7 @@ import getYouTubeID from './helpers/getYouTubeID';
 import { isFileNameEqual } from '../storage/types';
 import { isImageFileEmbedable } from '../storage/checks';
 import { getHTMLContents } from './getHTMLContents';
-import preserveNewlinesIfApplicable from '../../private/integrations/notion/helpers/preserveNewlinesIfApplicable';
+import preserveNewlinesIfApplicable from '../preserveNewlinesIfApplicable';
 
 export class DeckParser {
   globalTags: cheerio.Cheerio | null;

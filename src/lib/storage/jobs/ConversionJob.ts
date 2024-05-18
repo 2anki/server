@@ -18,9 +18,9 @@ import { loadSettingsFromDatabase } from '../../parser/Settings/loadSettingsFrom
 import Workspace from '../../parser/WorkSpace';
 import StorageHandler from '../StorageHandler';
 import { Job, JobStatus } from '../types';
-import NotionAPIWrapper from '../../../private/integrations/notion/NotionAPIWrapper';
-import BlockHandler from '../../../private/integrations/notion/BlockHandler/BlockHandler';
-import { toText } from '../../../private/integrations/notion/BlockHandler/helpers/deckNameToText';
+import NotionAPIWrapper from '../../../private/features/notion/NotionAPIWrapper';
+import BlockHandler from '../../../private/features/notion/BlockHandler/BlockHandler';
+import { toText } from '../../deckNameToText';
 
 export default class ConversionJob {
   db: Knex;

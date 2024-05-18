@@ -4,7 +4,7 @@ import ConversionJob from '../ConversionJob';
 import StorageHandler from '../../StorageHandler';
 import { notifyUserIfNecessary } from './notifyUserIfNecessary';
 import { Knex } from 'knex';
-import NotionAPIWrapper from '../../../../private/integrations/notion/NotionAPIWrapper';
+import NotionAPIWrapper from '../../../../private/features/notion/NotionAPIWrapper';
 
 interface ConversionRequest {
   title: string | null;
