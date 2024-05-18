@@ -4,7 +4,6 @@ import { INotionRepository } from '../data_layer/NotionRespository';
 import { IUploadRepository } from '../data_layer/UploadRespository';
 import NotionTokens from '../data_layer/public/NotionTokens';
 import Uploads from '../data_layer/public/Uploads';
-import NotionService from '../services/NotionService';
 import UploadService from '../services/UploadService';
 import UploadController from './UploadController';
 
@@ -46,8 +45,7 @@ describe('Upload file', () => {
       },
     };
     const uploadService = new UploadService(repository);
-    const notionService = new NotionService(notionRepository);
-    const uploadController = new UploadController(uploadService, notionService);
+    const uploadController = new UploadController(uploadService);
 
     // Act
     const setHTTPStatusCode = (code: number) => expect(code).toBe(400);
