@@ -62,12 +62,14 @@ export default function ErrorHandler(
   req: express.Request,
   err: Error
 ) {
-  const skipError =
-    isLimitError(err) || isEmptyPayload(req.files as UploadedFile[]);
+  const uploadedFiles = req.files as UploadedFile[];
+  const skipError = isLimitError(err) || isEmptyPayload(uploadedFiles);
 
   if (skipError) {
     sendError(err);
-    perserveFilesForDebugging(req.files as UploadedFile[], err);
+    if (!isEmptyPayload(uploadedFiles)) {
+      perserveFilesForDebugging(req.files as UploadedFile[], err);
+    }
   }
 
   res.set('Content-Type', 'text/plain');
