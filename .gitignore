@@ -136,3 +136,5 @@ cache
 *.map
 
 .idea
+
+src/private
