@@ -3,10 +3,10 @@ import express from 'express';
 import { getOwner } from '../lib/User/getOwner';
 import { sendError } from '../lib/error/sendError';
 import { getLimitMessage } from '../lib/misc/getLimitMessage';
-import NotionService from '../services/NotionService';
 import UploadService from '../services/UploadService';
 import { getUploadHandler } from '../lib/misc/GetUploadHandler';
 import { isLimitError } from '../lib/misc/isLimitError';
+import NotionService from '../private/integrations/notion';
 
 class UploadController {
   constructor(

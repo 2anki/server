@@ -10,7 +10,7 @@ import UploadService from '../services/UploadService';
 import { getDatabase } from '../data_layer';
 import UploadRepository from '../data_layer/UploadRespository';
 import NotionRepository from '../data_layer/NotionRespository';
-import NotionService from '../services/NotionService';
+import NotionService from '../private/integrations/notion';
 
 const UploadRouter = () => {
   const router = express.Router();

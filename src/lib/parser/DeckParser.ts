@@ -1,6 +1,5 @@
 import cheerio from 'cheerio';
 
-import preserveNewlinesIfApplicable from '../../services/NotionService/helpers/preserveNewlinesIfApplicable';
 import sanitizeTags from '../anki/sanitizeTags';
 import { File } from '../anki/zip';
 import Deck from './Deck';
@@ -22,6 +21,7 @@ import getYouTubeID from './helpers/getYouTubeID';
 import { isFileNameEqual } from '../storage/types';
 import { isImageFileEmbedable } from '../storage/checks';
 import { getHTMLContents } from './getHTMLContents';
+import preserveNewlinesIfApplicable from '../../private/integrations/notion/helpers/preserveNewlinesIfApplicable';
 
 export class DeckParser {
   globalTags: cheerio.Cheerio | null;

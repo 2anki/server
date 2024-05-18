@@ -11,8 +11,8 @@ import Workspace from '../lib/parser/WorkSpace';
 import StorageHandler from '../lib/storage/StorageHandler';
 import { UploadedFile } from '../lib/storage/types';
 import GeneratePackagesUseCase from '../usecases/uploads/GeneratePackagesUseCase';
-import { toText } from './NotionService/BlockHandler/helpers/deckNameToText';
 import { getSafeFilename } from '../lib/getSafeFilename';
+import { toText } from '../private/integrations/notion/BlockHandler/helpers/deckNameToText';
 
 class UploadService {
   getUploadsByOwner(owner: number) {
