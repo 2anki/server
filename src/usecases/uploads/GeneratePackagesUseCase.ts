@@ -86,7 +86,7 @@ class GeneratePackagesUseCase {
     let packages: Package[] = [];
 
     for (const file of files) {
-      const fileContents = fs.readFileSync(file.path);
+      const fileContents = file.path ? fs.readFileSync(file.path) : file.buffer;
       const filename = file.originalname;
       const key = file.key;
 
