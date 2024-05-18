@@ -32,8 +32,6 @@ import { sendError } from './lib/error/sendError';
 
 import { isStaging } from './lib/isStaging';
 import { getDatabase, setupDatabase } from './data_layer';
-import notionRouter from './private/features/notion/NotionRouter';
-import favoriteRouter from './private/features/favorites/FavoriteRouter';
 
 function registerSignalHandlers(server: http.Server) {
   process.on('uncaughtException', sendError);
