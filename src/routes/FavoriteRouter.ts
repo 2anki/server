@@ -1,9 +1,9 @@
 import express from 'express';
 
-import FavoritesController from '../controllers/FavoritesController';
+import FavoritesController from '../private/features/favorites/FavoritesController';
 import { getDatabase } from '../data_layer';
 import { FavoritesRepository } from '../data_layer/FavoritesRepository';
-import FavoriteService from '../services/FavoriteService';
+import FavoriteService from '../private/features/favorites/FavoriteService';
 import RequireAuthentication from './middleware/RequireAuthentication';
 
 const FavoriteRouter = () => {

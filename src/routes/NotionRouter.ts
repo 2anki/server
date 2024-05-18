@@ -2,10 +2,10 @@ import express from 'express';
 
 import RequireAuthentication from './middleware/RequireAuthentication';
 import RequirePatron from './middleware/RequirePatron';
-import NotionController from '../controllers/NotionController';
+import NotionController from '../private/integrations/notion/NotionController';
 import NotionRepository from '../data_layer/NotionRespository';
-import NotionService from '../services/NotionService';
 import { getDatabase } from '../data_layer';
+import NotionService from '../private/integrations/notion';
 
 const NotionRouter = () => {
   const router = express.Router();
