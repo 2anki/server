@@ -21,10 +21,8 @@ import checksRouter from './routes/ChecksRouter';
 import versionRouter from './routes/VersionRouter';
 import uploadRouter from './routes/UploadRouter';
 import usersRouter from './routes/UserRouter';
-import notionRouter from './private/features/notion/NotionRouter';
 import rulesRouter from './routes/ParserRulesRouter';
 import downloadRouter from './routes/DownloadRouter';
-import favoriteRouter from './private/features/favorites/FavoriteRouter';
 import templatesRouter from './routes/TemplatesRouter';
 import defaultRouter from './routes/DefaultRouter';
 import simpleUploadRouter from './routes/SimpleUploadRouter';
@@ -34,6 +32,8 @@ import { sendError } from './lib/error/sendError';
 
 import { isStaging } from './lib/isStaging';
 import { getDatabase, setupDatabase } from './data_layer';
+import notionRouter from './private/features/notion/NotionRouter';
+import favoriteRouter from './private/features/favorites/FavoriteRouter';
 
 function registerSignalHandlers(server: http.Server) {
   process.on('uncaughtException', sendError);
@@ -69,13 +69,31 @@ const serve = async () => {
 
   app.use(uploadRouter());
   app.use(usersRouter());
-  app.use(notionRouter());
   app.use(rulesRouter());
   app.use(settingsRouter());
   app.use(downloadRouter());
-  app.use(favoriteRouter());
   app.use(templatesRouter());
   app.use(simpleUploadRouter());
+
+  if (process.env.INCLUDE_PRIVATE_FEATURES === 'true') {
+    import('./private/features/notion/NotionRouter')
+      .then((module) => {
+        const { NotionRouter } = module;
+        app.use(NotionRouter());
+      })
+      .catch((err) => {
+        console.error('Failed to load NotionRouter:', err);
+      });
+
+    import('./private/features/favorites/FavoriteRouter')
+      .then((module) => {
+        const { FavoriteRouter } = module;
+        app.use(FavoriteRouter());
+      })
+      .catch((err) => {
+        console.error('Failed to load FavoriteRouter:', err);
+      });
+  }
 
   // Note: this has to be the last router
   app.use(defaultRouter());
