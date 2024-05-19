@@ -80,3 +80,27 @@ test('Global Tags', async () => {
 test.todo('Input Cards ');
 test.todo('Multiple File Uploads');
 test.todo('Test Basic Card');
+
+test('Markdown empty deck', async () => {
+  const deck = await getDeck('empty-deck.md', new Settings({
+    "markdown-nested-bullet-points": "true"
+  }));
+  expect(deck.name).toBe('Empty Deck');
+  expect(deck.cards.length).toBe(0);
+})
+
+test('Markdown nested bullet points', async () => {
+  const deck = await getDeck('simple-deck.md', new Settings({
+    "markdown-nested-bullet-points": "true",
+    "reversed": "false",
+    "basic-reversed": "false",
+  }));
+  expect(deck.name).toBe('Simple deck');
+  expect(deck.cards[0].name).toBe('<ul>\n<li>' + 'What is the capital of Kenya?' + '</li>\n</ul>');
+  expect(deck.cards[0].back).toBe('<pre><code>Nairobi</code></pre>');
+  expect(deck.cards[1].name).toBe('<ul>\n<li>' + 'What is the capital of Norway' + '</li>\n</ul>');
+  expect(deck.cards[1].back).toBe('<pre><code>Oslo</code></pre>');
+  expect(deck.cards[2].name).toBe('<ul>\n<li>' + 'What is the capital of Sweden'+'</li>\n</ul>');
+  expect(deck.cards[2].back).toBe('<pre><code>Stockholm</code></pre>');
+  expect(deck.cards.length).toBe(3);
+})

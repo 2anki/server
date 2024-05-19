@@ -35,6 +35,7 @@ describe("SettingsController", () => {
         "avocado": "false",
         "tags": "false",
         "cloze": "true",
+        "markdown-nested-bullet-points": "false",
         "enable-input": "false",
         "basic-reversed": "false",
         "reversed": "false",

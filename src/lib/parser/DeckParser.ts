@@ -20,8 +20,9 @@ import { embedFile } from './exporters/embedFile';
 import getYouTubeEmbedLink from './helpers/getYouTubeEmbedLink';
 import getYouTubeID from './helpers/getYouTubeID';
 import { isFileNameEqual } from '../storage/types';
-import { isImageFileEmbedable } from '../storage/checks';
-import { getHTMLContents } from './getHTMLContents';
+import { isImageFileEmbedable, isMarkdownFile } from '../storage/checks';
+import { getFileContents } from './getFileContents';
+import { handleNestedBulletPointsInMarkdown } from './handleNestedBulletPointsInMarkdown';
 
 export class DeckParser {
   globalTags: cheerio.Cheerio | null;
@@ -45,16 +46,27 @@ export class DeckParser {
     this.globalTags = null;
 
     const firstFile = this.files.find((file) => isFileNameEqual(file, name));
-    const contents = getHTMLContents(firstFile);
 
-    this.payload = contents
-      ? this.handleHTML(
-          name,
-          contents.toString(),
-          this.settings.deckName || '',
-          []
-        )
-      : [];
+    if (this.settings.nestedBulletPoints && isMarkdownFile(name)) {
+      const contents = getFileContents(firstFile, false);
+      this.payload = handleNestedBulletPointsInMarkdown(
+        name,
+        contents?.toString(),
+        this.settings.deckName,
+        [],
+        this.settings
+      );
+    } else {
+      const contents = getFileContents(firstFile, true);
+      this.payload = contents
+        ? this.handleHTML(
+            name,
+            contents.toString(),
+            this.settings.deckName || '',
+            []
+          )
+        : [];
+    }
   }
 
   findNextPage(href: string | undefined): string | Uint8Array | undefined {
