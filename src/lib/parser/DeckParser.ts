@@ -703,7 +703,7 @@ export class DeckParser {
         currentFront = markdownToHTML(line);
         currentBack = '';
       } else if (isCreating) {
-        currentBack += line;
+        currentBack += line + '\n';
       }
     }
 
