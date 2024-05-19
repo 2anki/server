@@ -22,8 +22,7 @@ import getYouTubeID from './helpers/getYouTubeID';
 import { isFileNameEqual } from '../storage/types';
 import { isImageFileEmbedable, isMarkdownFile } from '../storage/checks';
 import { getFileContents } from './getFileContents';
-import { getTitleFromMarkdown } from './getTitleFromMarkdown';
-import { markdownToHTML } from '../markdown';
+import { handleNestedBulletPointsInMarkdown } from './handleNestedBulletPointsInMarkdown';
 
 export class DeckParser {
   globalTags: cheerio.Cheerio | null;
@@ -50,11 +49,12 @@ export class DeckParser {
 
     if (this.settings.nestedBulletPoints && isMarkdownFile(name)) {
       const contents = getFileContents(firstFile, false);
-      this.payload = this.handleMarkdown(
+      this.payload = handleNestedBulletPointsInMarkdown(
         name,
         contents?.toString(),
         this.settings.deckName,
-        []
+        [],
+        this.settings
       );
     } else {
       const contents = getFileContents(firstFile, true);
@@ -658,59 +658,4 @@ export class DeckParser {
     return cards;
   }
 
-  private handleMarkdown(
-    name: string,
-    contents: string | undefined,
-    deckName: string | undefined,
-    decks: Deck[]
-  ) {
-    const deck = new Deck(
-      deckName ?? getTitleFromMarkdown(contents) ?? name,
-      [],
-      '',
-      '',
-      get16DigitRandomId(),
-      this.settings
-    );
-
-    decks.push(deck);
-
-    if (!contents) {
-      return decks;
-    }
-
-    // Parse the markdown content
-    const lines = contents.split('\n');
-    let isCreating = false;
-    let currentFront = '';
-    let currentBack = '';
-
-    for (const line of lines) {
-      if (line.trim().length === 0) {
-        continue;
-      }
-
-      const isEnd = lines.length - 1 == lines.indexOf(line);
-      if (isEnd || (line.match(/^-/) && isCreating)) {
-        deck.cards.push(new Note(currentFront, markdownToHTML(currentBack)));
-        isCreating = false;
-        currentFront = '';
-        currentBack = '';
-      }
-
-      if (line.match(/^-/) && !isCreating) {
-        isCreating = true;
-        currentFront = markdownToHTML(line);
-        currentBack = '';
-      } else if (isCreating) {
-        currentBack += line + '\n';
-      }
-    }
-
-    if (currentBack !== '' || currentFront !== '') {
-      deck.cards.push(new Note(currentFront, markdownToHTML(currentBack)));
-    }
-
-    return decks;
-  }
 }
