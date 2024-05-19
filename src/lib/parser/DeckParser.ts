@@ -20,7 +20,7 @@ import { embedFile } from './exporters/embedFile';
 import getYouTubeEmbedLink from './helpers/getYouTubeEmbedLink';
 import getYouTubeID from './helpers/getYouTubeID';
 import { isFileNameEqual } from '../storage/types';
-import { isImageFileEmbedable } from '../storage/checks';
+import { isImageFileEmbedable, isMarkdownFile } from '../storage/checks';
 import { getFileContents } from './getFileContents';
 import { getTitleFromMarkdown } from './getTitleFromMarkdown';
 import { markdownToHTML } from '../markdown';
@@ -48,7 +48,7 @@ export class DeckParser {
 
     const firstFile = this.files.find((file) => isFileNameEqual(file, name));
 
-    if (this.settings.nestedBulletPoints) {
+    if (this.settings.nestedBulletPoints && isMarkdownFile(name)) {
       const contents = getFileContents(firstFile, false);
       this.payload = this.handleMarkdown(
         name,
