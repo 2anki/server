@@ -692,7 +692,7 @@ export class DeckParser {
 
       const isEnd = lines.length - 1 == lines.indexOf(line);
       if (isEnd || (line.match(/^-/) && isCreating)) {
-        deck.cards.push(new Note(currentFront, currentBack));
+        deck.cards.push(new Note(currentFront, markdownToHTML(currentBack)));
         isCreating = false;
         currentFront = '';
         currentBack = '';
@@ -703,12 +703,12 @@ export class DeckParser {
         currentFront = markdownToHTML(line);
         currentBack = '';
       } else if (isCreating) {
-        currentBack += markdownToHTML(line);
+        currentBack += line;
       }
     }
 
     if (currentBack !== '' || currentFront !== '') {
-      deck.cards.push(new Note(currentFront, currentBack));
+      deck.cards.push(new Note(currentFront, markdownToHTML(currentBack)));
     }
 
     return decks;
