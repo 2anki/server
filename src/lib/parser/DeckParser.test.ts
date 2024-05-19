@@ -85,13 +85,15 @@ test('Markdown empty deck', async () => {
   const deck = await getDeck('empty-deck.md', new Settings({
     "markdown-nested-bullet-points": "true"
   }));
-  expect(deck.name).toBe('Empty deck');
+  expect(deck.name).toBe('Empty Deck');
   expect(deck.cards.length).toBe(0);
 })
 
 test('Markdown nested bullet points', async () => {
   const deck = await getDeck('simple-deck.md', new Settings({
-    "markdown-nested-bullet-points": "true"
+    "markdown-nested-bullet-points": "true",
+    "reversed": "false",
+    "basic-reversed": "false",
   }));
   expect(deck.name).toBe('Simple deck');
   expect(deck.cards[0].name).toBe('<ul>\n<li>' + 'What is the capital of Kenya?' + '</li>\n</ul>');

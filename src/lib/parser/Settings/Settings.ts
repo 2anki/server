@@ -71,7 +71,7 @@ export class Settings {
     if (this.deckName && !this.deckName.trim()) {
       this.deckName = undefined;
     }
-    this.useInput = input['enable-input'] === 'true';
+    this.useInput = input['enable-input'] !== 'false';
     this.maxOne = input['max-one-toggle-per-card'] === 'true';
     this.noUnderline = input['no-underline'] === 'true';
     this.isCherry = input.cherry === 'true';
@@ -80,10 +80,10 @@ export class Settings {
     this.fontSize = input['font-size'];
     this.isTextOnlyBack = input.paragraph === 'true';
     this.toggleMode = input['toggle-mode'] || 'close_toggle';
-    this.isCloze = input.cloze === 'true';
-    this.useTags = input.tags === 'true';
-    this.basicReversed = input['basic-reversed'] === 'true';
-    this.reversed = input.reversed === 'true';
+    this.isCloze = input.cloze !== 'false';
+    this.useTags = input.tags !== 'false';
+    this.basicReversed = input['basic-reversed'] !== 'false';
+    this.reversed = input.reversed !== 'false';
     this.removeMP3Links = input['remove-mp3-links'] === 'true' || false;
     this.perserveNewLines = input['perserve-newlines'] === 'true' || false;
     this.clozeModelName = input.cloze_model_name || 'n2a-cloze';
