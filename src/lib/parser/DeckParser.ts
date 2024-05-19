@@ -657,5 +657,4 @@ export class DeckParser {
 
     return cards;
   }
-
 }

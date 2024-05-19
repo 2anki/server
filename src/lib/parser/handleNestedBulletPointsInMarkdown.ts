@@ -8,7 +8,6 @@ import Settings from './Settings';
 
 const BULLET_POINT_REGEX = /^-/;
 
-
 export const handleNestedBulletPointsInMarkdown = (
   name: string,
   contents: string | undefined,
