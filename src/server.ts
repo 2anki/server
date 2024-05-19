@@ -73,26 +73,6 @@ const serve = async () => {
   app.use(templatesRouter());
   app.use(simpleUploadRouter());
 
-  if (process.env.INCLUDE_PRIVATE_FEATURES === 'true') {
-    import('./private/features/notion/NotionRouter')
-      .then((module) => {
-        const { NotionRouter } = module;
-        app.use(NotionRouter());
-      })
-      .catch((err) => {
-        console.error('Failed to load NotionRouter:', err);
-      });
-
-    import('./private/features/favorites/FavoriteRouter')
-      .then((module) => {
-        const { FavoriteRouter } = module;
-        app.use(FavoriteRouter());
-      })
-      .catch((err) => {
-        console.error('Failed to load FavoriteRouter:', err);
-      });
-  }
-
   // Note: this has to be the last router
   app.use(defaultRouter());
 
