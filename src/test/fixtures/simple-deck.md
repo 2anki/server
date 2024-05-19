@@ -1,4 +1,4 @@
-# Notion Questions
+# Simple deck
 
 - What is the capital of Kenya?
 

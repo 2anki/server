@@ -2,7 +2,7 @@ import { isHTMLFile, isMarkdownFile } from '../storage/checks';
 import { markdownToHTML } from '../markdown';
 import { File } from '../anki/zip';
 
-export function getHTMLContents(file: File | undefined) {
+export function getFileContents(file: File | undefined, convertToHTML = true) {
   const contents = file?.contents;
   if (!file || !contents) {
     return undefined;
@@ -12,7 +12,9 @@ export function getHTMLContents(file: File | undefined) {
     return file.contents;
   }
 
-  if (isMarkdownFile(file.name)) {
+  if (isMarkdownFile(file.name) && convertToHTML) {
     return markdownToHTML(contents.toString());
   }
+
+  return contents.toString();
 }

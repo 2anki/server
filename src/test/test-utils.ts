@@ -11,14 +11,14 @@ function mockPayload(name: string, contents: string) {
   return [{ name, contents }];
 }
 
-function loadHTMLStructre(fileName: string) {
+function loadFixture(fileName: string) {
   const filePath = path.join(__dirname, 'fixtures', fileName);
   const html = fs.readFileSync(filePath).toString();
   return mockPayload(fileName, html);
 }
 
 function configureParser(fileName: string, opts: Settings) {
-  const info = loadHTMLStructre(fileName);
+  const info = loadFixture(fileName);
   return new DeckParser(fileName, opts, info);
 }
 

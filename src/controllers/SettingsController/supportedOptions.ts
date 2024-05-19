@@ -112,6 +112,12 @@ const supportedOptions = (): CardOption[] => {
       'This will allow you to use SHIFT-Enter in the toggles to create multiple lines for all card types (Basic, Cloze, etc.)',
       true
     ),
+    new CardOption(
+      'markdown-nested-bullet-points',
+      'Markdown Nested Bullet Points',
+      'Enable conversion of bullet and sub bullet points in Markdown. If you are a Obsidian user, enable this',
+      false
+    ),
   ];
 
   return v.filter(Boolean);

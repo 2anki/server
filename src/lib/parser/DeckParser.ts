@@ -21,7 +21,9 @@ import getYouTubeEmbedLink from './helpers/getYouTubeEmbedLink';
 import getYouTubeID from './helpers/getYouTubeID';
 import { isFileNameEqual } from '../storage/types';
 import { isImageFileEmbedable } from '../storage/checks';
-import { getHTMLContents } from './getHTMLContents';
+import { getFileContents } from './getFileContents';
+import { getTitleFromMarkdown } from './getTitleFromMarkdown';
+import { markdownToHTML } from '../markdown';
 
 export class DeckParser {
   globalTags: cheerio.Cheerio | null;
@@ -45,16 +47,26 @@ export class DeckParser {
     this.globalTags = null;
 
     const firstFile = this.files.find((file) => isFileNameEqual(file, name));
-    const contents = getHTMLContents(firstFile);
 
-    this.payload = contents
-      ? this.handleHTML(
-          name,
-          contents.toString(),
-          this.settings.deckName || '',
-          []
-        )
-      : [];
+    if (this.settings.nestedBulletPoints) {
+      const contents = getFileContents(firstFile, false);
+      this.payload = this.handleMarkdown(
+        name,
+        contents?.toString(),
+        this.settings.deckName,
+        []
+      );
+    } else {
+      const contents = getFileContents(firstFile, true);
+      this.payload = contents
+        ? this.handleHTML(
+            name,
+            contents.toString(),
+            this.settings.deckName || '',
+            []
+          )
+        : [];
+    }
   }
 
   findNextPage(href: string | undefined): string | Uint8Array | undefined {
@@ -644,5 +656,61 @@ export class DeckParser {
     });
 
     return cards;
+  }
+
+  private handleMarkdown(
+    name: string,
+    contents: string | undefined,
+    deckName: string | undefined,
+    decks: Deck[]
+  ) {
+    const deck = new Deck(
+      deckName ?? getTitleFromMarkdown(contents) ?? name,
+      [],
+      '',
+      '',
+      get16DigitRandomId(),
+      this.settings
+    );
+
+    decks.push(deck);
+
+    if (!contents) {
+      return decks;
+    }
+
+    // Parse the markdown content
+    const lines = contents.split('\n');
+    let isCreating = false;
+    let currentFront = '';
+    let currentBack = '';
+
+    for (const line of lines) {
+      if (line.trim().length === 0) {
+        continue;
+      }
+
+      const isEnd = lines.length - 1 == lines.indexOf(line);
+      if (isEnd || (line.match(/^-/) && isCreating)) {
+        deck.cards.push(new Note(currentFront, currentBack));
+        isCreating = false;
+        currentFront = '';
+        currentBack = '';
+      }
+
+      if (line.match(/^-/) && !isCreating) {
+        isCreating = true;
+        currentFront = markdownToHTML(line);
+        currentBack = '';
+      } else if (isCreating) {
+        currentBack += markdownToHTML(line);
+      }
+    }
+
+    if (currentBack !== '' || currentFront !== '') {
+      deck.cards.push(new Note(currentFront, currentBack));
+    }
+
+    return decks;
   }
 }
