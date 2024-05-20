@@ -63,7 +63,7 @@ export default function ErrorHandler(
   err: Error
 ) {
   const uploadedFiles = req.files as UploadedFile[];
-  const skipError = isLimitError(err) || isEmptyPayload(uploadedFiles);
+  const skipError = isLimitError(err);
 
   if (!skipError) {
     sendError(err);
