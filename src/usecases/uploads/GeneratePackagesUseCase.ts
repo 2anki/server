@@ -14,7 +14,8 @@ import { UploadedFile } from '../../lib/storage/types';
 
 import { Body } from 'aws-sdk/clients/s3';
 import { PrepareDeck } from '../../lib/parser/PrepareDeck';
-import { checkLimits } from '../../lib/User/checkLimits';
+import { checkFlashcardsLimits } from '../../lib/User/checkFlashcardsLimits';
+import { isPaying } from '../../lib/isPaying';
 
 export interface PackageResult {
   packages: Package[];
@@ -28,8 +29,7 @@ export const isFileSupported = (filename: string) =>
 
 const getPackagesFromZip = async (
   fileContents: Body | undefined,
-  isPatreon: boolean,
-  isSubscriber: boolean,
+  paying: boolean,
   settings: Settings
 ): Promise<PackageResult> => {
   const zipHandler = new ZipHandler();
@@ -39,10 +39,7 @@ const getPackagesFromZip = async (
     return { packages: [] };
   }
 
-  zipHandler.build(fileContents as Uint8Array, {
-    patron: isPatreon,
-    subscriber: isSubscriber,
-  });
+  zipHandler.build(fileContents as Uint8Array, paying);
 
   const fileNames = zipHandler.getFileNames();
 
@@ -56,20 +53,18 @@ const getPackagesFromZip = async (
         cardCount += deck.deck.reduce((acc, d) => acc + d.cards.length, 0);
 
         // Checking the limit in place while iterating through the decks
-        checkLimits({
+        checkFlashcardsLimits({
           cards: 0,
           decks: deck.deck,
-          isPatreon,
-          isSubscriber,
+          paying
         });
       }
     }
 
     // Checking the limit in place while iterating through the files
-    checkLimits({
+    checkFlashcardsLimits({
       cards: cardCount,
-      isPatreon,
-      isSubscriber,
+      paying: paying,
     });
   }
 
@@ -78,8 +73,7 @@ const getPackagesFromZip = async (
 
 class GeneratePackagesUseCase {
   async execute(
-    isPatreon: boolean,
-    isSubscriber: boolean,
+    paying: boolean,
     files: UploadedFile[],
     settings: Settings
   ): Promise<PackageResult> {
@@ -103,8 +97,7 @@ class GeneratePackagesUseCase {
       } else if (isZIPFile(filename) || isZIPFile(key)) {
         const { packages: extraPackages } = await getPackagesFromZip(
           fileContents,
-          isPatreon,
-          isSubscriber,
+          paying,
           settings
         );
         packages = packages.concat(extraPackages);

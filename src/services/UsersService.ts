@@ -1,6 +1,6 @@
 import UsersRepository from '../data_layer/UsersRepository';
 import Users from '../data_layer/public/Users';
-import AuthenticationService from './AuthenticationService';
+import AuthenticationService, { UserWithOwner } from './AuthenticationService';
 import { IEmailService } from './EmailService/EmailService';
 
 class UsersService {
@@ -55,6 +55,10 @@ class UsersService {
 
   getSubscriptionLinkedEmail(owner: string) {
     return this.repository.getSubscriptionLinkedEmail(owner);
+  }
+
+  getUserById(owner: string): Promise<Users> {
+    return this.repository.getById(owner);
   }
 }
 

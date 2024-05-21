@@ -9,13 +9,12 @@ const removeGoogleScript = (contents: string) => {
 };
 
 export const getIndexFileContents = (
-  isPatreon: boolean,
-  isSubscriber: boolean
+  isPaying: boolean,
 ) => {
   const indexFilePath = path.join(BUILD_DIR, 'index.html');
   const contents = fs.readFileSync(indexFilePath, 'utf8');
 
-  if (isPatreon || isSubscriber) {
+  if (isPaying) {
     return removeGoogleScript(contents);
   }
 

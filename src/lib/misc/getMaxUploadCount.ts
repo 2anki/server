@@ -1,11 +1,6 @@
-interface IGetMaxUploadCount {
-  patreon?: boolean;
-  subscriber?: boolean;
-}
-
-export function getMaxUploadCount(options?: IGetMaxUploadCount) {
+export function getMaxUploadCount(paying?: boolean) {
   const maxUploadCount = 21;
-  if (options?.patreon || options?.subscriber) {
+  if (paying) {
     return maxUploadCount * 100;
   }
   return maxUploadCount;

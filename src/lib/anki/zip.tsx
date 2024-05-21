@@ -22,9 +22,9 @@ class ZipHandler {
     this.files = [];
   }
 
-  build(zipData: Uint8Array, uploaderInfo: UploaderInfo) {
+  build(zipData: Uint8Array, paying: boolean) {
     const size = Buffer.byteLength(zipData);
-    const limits = getUploadLimits(uploaderInfo);
+    const limits = getUploadLimits(paying);
 
     if (size > limits.fileSize) {
       throw new Error(

@@ -14,6 +14,7 @@ import { getNotionId } from '../services/NotionService/getNotionId';
 import { getOwner } from '../lib/User/getOwner';
 import { APIErrorCode, APIResponseError } from '@notionhq/client';
 import sendErrorResponse from '../lib/sendErrorResponse';
+import { isPaying } from '../lib/isPaying';
 
 class NotionController {
   constructor(private readonly service: NotionService) {}
@@ -100,7 +101,7 @@ class NotionController {
       return res.status(400).send();
     }
     const blocks = await api.getBlocks({
-      all: res.locals.patreon,
+      all: isPaying(res.locals),
       createdAt: '',
       lastEditedAt: '',
       id,

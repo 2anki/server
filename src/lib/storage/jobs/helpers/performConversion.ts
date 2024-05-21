@@ -5,6 +5,7 @@ import StorageHandler from '../../StorageHandler';
 import { notifyUserIfNecessary } from './notifyUserIfNecessary';
 import { Knex } from 'knex';
 import NotionAPIWrapper from '../../../../services/NotionService/NotionAPIWrapper';
+import { isPaying } from '../../../isPaying';
 
 interface ConversionRequest {
   title: string | null;
@@ -33,7 +34,7 @@ export default async function performConversion(
     }
 
     const jobs = await database('jobs').where({ owner }).returning(['*']);
-    if (!res?.locals.patreon && jobs.length > 1) {
+    if (!isPaying(res?.locals) && jobs.length > 1) {
       await job.cancelled();
       return res ? res.redirect('/uploads') : null;
     }
