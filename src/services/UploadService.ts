@@ -14,7 +14,6 @@ import GeneratePackagesUseCase from '../usecases/uploads/GeneratePackagesUseCase
 import { toText } from './NotionService/BlockHandler/helpers/deckNameToText';
 import { getSafeFilename } from '../lib/getSafeFilename';
 import { isPaying } from '../lib/isPaying';
-import { configureUserLocal } from '../routes/middleware/configureUserLocal';
 
 class UploadService {
   getUploadsByOwner(owner: number) {
