@@ -25,7 +25,6 @@ const deleteNonSubScriberUploads = async (
   }
 };
 
-// TODO: do not delete dangling uploads for subscribers
 const deleteDanglingUploads = async (db: Knex, storage: StorageHandler) => {
   const query = await db.raw(`
     SELECT up.key FROM users u JOIN uploads up ON u.id = up.owner WHERE u.patreon = true;
