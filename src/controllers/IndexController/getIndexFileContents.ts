@@ -8,9 +8,7 @@ const removeGoogleScript = (contents: string) => {
   return contents.replace(regex, '');
 };
 
-export const getIndexFileContents = (
-  isPaying: boolean,
-) => {
+export const getIndexFileContents = (isPaying: boolean) => {
   const indexFilePath = path.join(BUILD_DIR, 'index.html');
   const contents = fs.readFileSync(indexFilePath, 'utf8');
 

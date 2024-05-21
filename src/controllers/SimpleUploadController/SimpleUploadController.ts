@@ -58,7 +58,6 @@ class SimpleUploadController {
       res.status(400);
     }
   }
-
 }
 
 export default SimpleUploadController;

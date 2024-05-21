@@ -15,7 +15,11 @@ const getCardCount = (initial: number, decks?: Deck[]) => {
   return decks.reduce((acc, deck) => acc + deck.cards.length, initial) + start;
 };
 
-export const checkFlashcardsLimits = ({ cards, decks, paying }: UserOptions) => {
+export const checkFlashcardsLimits = ({
+  cards,
+  decks,
+  paying,
+}: UserOptions) => {
   const CARD_LIMIT = 100;
   const isAbove100 = getCardCount(cards ?? 0, decks) > CARD_LIMIT;
 

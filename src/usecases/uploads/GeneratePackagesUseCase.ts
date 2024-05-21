@@ -56,7 +56,7 @@ const getPackagesFromZip = async (
         checkFlashcardsLimits({
           cards: 0,
           decks: deck.deck,
-          paying
+          paying,
         });
       }
     }
