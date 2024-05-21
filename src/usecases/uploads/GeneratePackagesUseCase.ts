@@ -15,7 +15,6 @@ import { UploadedFile } from '../../lib/storage/types';
 import { Body } from 'aws-sdk/clients/s3';
 import { PrepareDeck } from '../../lib/parser/PrepareDeck';
 import { checkFlashcardsLimits } from '../../lib/User/checkFlashcardsLimits';
-import { isPaying } from '../../lib/isPaying';
 
 export interface PackageResult {
   packages: Package[];

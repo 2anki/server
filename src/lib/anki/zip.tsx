@@ -3,7 +3,7 @@ import { strFromU8, unzipSync } from 'fflate';
 import Package from '../parser/Package';
 import { Body } from 'aws-sdk/clients/s3';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { getUploadLimits, UploaderInfo } from '../misc/getUploadLimits';
+import { getUploadLimits } from '../misc/getUploadLimits';
 import { isHTMLFile, isMarkdownFile } from '../storage/checks';
 import getDeckFilename from './getDeckFilename';
 

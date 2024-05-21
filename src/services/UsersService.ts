@@ -1,6 +1,6 @@
 import UsersRepository from '../data_layer/UsersRepository';
 import Users from '../data_layer/public/Users';
-import AuthenticationService, { UserWithOwner } from './AuthenticationService';
+import AuthenticationService from './AuthenticationService';
 import { IEmailService } from './EmailService/EmailService';
 
 class UsersService {
