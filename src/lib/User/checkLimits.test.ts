@@ -18,7 +18,8 @@ describe('checkLimits', () => {
     })).not.toThrow();
     expect(() => checkFlashcardsLimits({
       decks: [],
-      cards: 500
+      cards: 500,
+      paying: true,
     })).not.toThrow();
   })
 });
