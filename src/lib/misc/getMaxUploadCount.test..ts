@@ -7,7 +7,6 @@ describe('getMaxUploadCount', () => {
   });
 
   it('should return the 10x for subscribers and patrons', () => {
-    expect(getMaxUploadCount({ patreon: true })).toBe(2100);
-    expect(getMaxUploadCount({ subscriber: true })).toBe(2100);
+    expect(getMaxUploadCount(true)).toBe(2100);
   });
 });
