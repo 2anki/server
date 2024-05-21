@@ -56,6 +56,10 @@ class UsersService {
   getSubscriptionLinkedEmail(owner: string) {
     return this.repository.getSubscriptionLinkedEmail(owner);
   }
+
+  getUserById(owner: string): Promise<Users> {
+    return this.repository.getById(owner);
+  }
 }
 
 export default UsersService;

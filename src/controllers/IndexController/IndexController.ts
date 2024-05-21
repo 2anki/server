@@ -6,6 +6,7 @@ import AuthenticationService from '../../services/AuthenticationService';
 import TokenRepository from '../../data_layer/TokenRepository';
 import UsersRepository from '../../data_layer/UsersRepository';
 import { configureUserLocal } from '../../routes/middleware/configureUserLocal';
+import { isPaying } from '../../lib/isPaying';
 
 class IndexController {
   public getIndex(request: express.Request, response: express.Response) {
@@ -15,12 +16,7 @@ class IndexController {
       new UsersRepository(database)
     );
     configureUserLocal(request, response, authService, database).then(() => {
-      response.send(
-        getIndexFileContents(
-          response.locals.patreon,
-          response.locals.subscriber
-        )
-      );
+      response.send(getIndexFileContents(isPaying(response.locals)));
     });
   }
 }

@@ -7,6 +7,7 @@ import { getRedirect } from './helpers/getRedirect';
 
 import { getIndexFileContents } from './IndexController/getIndexFileContents';
 import { getRandomUUID } from '../shared/helpers/getRandomUUID';
+import { isPaying } from '../lib/isPaying';
 
 class UsersController {
   constructor(
@@ -151,9 +152,7 @@ class UsersController {
       const token = req.params.id;
       const isValid = await this.authService.isValidToken(token);
       if (isValid) {
-        return res.send(
-          getIndexFileContents(res.locals.patreon, res.locals.subscriber)
-        );
+        return res.send(getIndexFileContents(isPaying(res.locals)));
       }
       return res.redirect('/login');
     } catch (err) {
@@ -169,7 +168,9 @@ class UsersController {
       res.locals.owner
     );
 
-    return res.json({ locals, linked_email: linkedEmail });
+    const user = await this.userService.getUserById(res.locals.owner);
+
+    return res.json({ user, locals, linked_email: linkedEmail });
   }
 
   async linkEmail(req: express.Request, res: express.Response) {
@@ -213,7 +214,7 @@ class UsersController {
   async checkUser(req: express.Request, res: express.Response) {
     const user = await this.authService.getUserFrom(req.cookies.token);
     if (!user) {
-      res.send(getIndexFileContents(res.locals.patreon, res.locals.subscriber));
+      res.send(getIndexFileContents(isPaying(res.locals)));
     } else {
       res.redirect(getRedirect(req));
     }

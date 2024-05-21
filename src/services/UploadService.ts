@@ -13,6 +13,7 @@ import { UploadedFile } from '../lib/storage/types';
 import GeneratePackagesUseCase from '../usecases/uploads/GeneratePackagesUseCase';
 import { toText } from './NotionService/BlockHandler/helpers/deckNameToText';
 import { getSafeFilename } from '../lib/getSafeFilename';
+import { isPaying } from '../lib/isPaying';
 
 class UploadService {
   getUploadsByOwner(owner: number) {
@@ -35,8 +36,7 @@ class UploadService {
 
       const useCase = new GeneratePackagesUseCase();
       const { packages } = await useCase.execute(
-        res.locals.patreon,
-        res.locals.subscriber,
+        isPaying(res.locals),
         req.files as UploadedFile[],
         settings
       );

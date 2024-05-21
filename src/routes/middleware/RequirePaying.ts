@@ -4,8 +4,10 @@ import TokenRepository from '../../data_layer/TokenRepository';
 import UsersRepository from '../../data_layer/UsersRepository';
 import AuthenticationService from '../../services/AuthenticationService';
 import { getDatabase } from '../../data_layer';
+import { configureUserLocal } from './configureUserLocal';
+import { isPaying } from '../../lib/isPaying';
 
-const RequirePatron = async (
+const RequirePaying = (
   req: express.Request,
   res: express.Response,
   next: NextFunction
@@ -15,13 +17,13 @@ const RequirePatron = async (
     new TokenRepository(database),
     new UsersRepository(database)
   );
-  const user = await authService.getUserFrom(req.cookies.token);
+  configureUserLocal(req, res, authService, database);
 
-  if (!user?.patreon) {
-    return res.redirect('/patreon');
+  if (!isPaying(res.locals)) {
+    return res.redirect('/pricing');
   }
 
   return next();
 };
 
-export default RequirePatron;
+export default RequirePaying;

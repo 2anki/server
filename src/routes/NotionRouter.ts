@@ -1,7 +1,7 @@
 import express from 'express';
 
 import RequireAuthentication from './middleware/RequireAuthentication';
-import RequirePatron from './middleware/RequirePatron';
+import RequirePaying from './middleware/RequirePaying';
 import NotionController from '../controllers/NotionController';
 import NotionRepository from '../data_layer/NotionRespository';
 import NotionService from '../services/NotionService';
@@ -48,11 +48,11 @@ const NotionRouter = () => {
     controller.createBlock(req, res)
   );
 
-  router.delete('/api/notion/block/:id', RequirePatron, (req, res) =>
+  router.delete('/api/notion/block/:id', RequirePaying, (req, res) =>
     controller.deleteBlock(req, res)
   );
 
-  router.get('/api/notion/render-block/:id', RequirePatron, (req, res) =>
+  router.get('/api/notion/render-block/:id', RequirePaying, (req, res) =>
     controller.renderBlock(req, res)
   );
 

@@ -8,14 +8,11 @@ const removeGoogleScript = (contents: string) => {
   return contents.replace(regex, '');
 };
 
-export const getIndexFileContents = (
-  isPatreon: boolean,
-  isSubscriber: boolean
-) => {
+export const getIndexFileContents = (isPaying: boolean) => {
   const indexFilePath = path.join(BUILD_DIR, 'index.html');
   const contents = fs.readFileSync(indexFilePath, 'utf8');
 
-  if (isPatreon || isSubscriber) {
+  if (isPaying) {
     return removeGoogleScript(contents);
   }
 
