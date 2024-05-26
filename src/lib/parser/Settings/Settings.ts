@@ -82,8 +82,8 @@ export class Settings {
     this.toggleMode = input['toggle-mode'] || 'close_toggle';
     this.isCloze = input.cloze !== 'false';
     this.useTags = input.tags !== 'false';
-    this.basicReversed = input['basic-reversed'] !== 'false';
-    this.reversed = input.reversed !== 'false';
+    this.basicReversed = input['basic-reversed'] === 'true';
+    this.reversed = input.reversed === 'true';
     this.removeMP3Links = input['remove-mp3-links'] === 'true' || false;
     this.perserveNewLines = input['perserve-newlines'] === 'true' || false;
     this.clozeModelName = input.cloze_model_name || 'n2a-cloze';
