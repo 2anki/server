@@ -15,7 +15,7 @@ test('Toggle Headings', async () => {
 test('Grouped cloze deletions', async () => {
   const deck = await getDeck(
     'Grouped Cloze Deletions fbf856ad7911423dbef0bfd3e3c5ce5c 3.html',
-    new Settings({ cherry: 'false', cloze: 'true' })
+    new Settings({ cherry: 'false', cloze: 'true', reversed: 'true', 'basic-reversed': 'true' })
   );
   expect(deck.name).toBe('Grouped Cloze Deletions');
   expect(deck.cards.length).toBe(20);
@@ -24,7 +24,7 @@ test('Grouped cloze deletions', async () => {
 test('Cloze Deletions', async () => {
   const deck = await getDeck(
     'Some Cloze Deletions 1a118169ada841a99a9aaccc7eaa6775.html',
-    new Settings({ cherry: 'false' })
+    new Settings({ cherry: 'false', reversed: 'true', 'basic-reversed': 'true' })
   );
   expect(deck.cards[0].back).toBe(
     "<div class='toggle'>{{c2::Canberra}} was founded in {{c1::1913}}.</div>"
@@ -63,7 +63,7 @@ test.skip('HTML Regression Test', (t) => {
 test('Nested Toggles', async () => {
   const deck = await getDeck(
     'Nested Toggles.html',
-    new Settings({ cherry: 'true' })
+    new Settings({ cherry: 'true', reversed: 'true', 'basic-reversed': 'true' })
   );
   expect(deck.cards.length).toBe(12);
 });
