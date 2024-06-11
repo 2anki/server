@@ -21,13 +21,13 @@ class EmailService implements IEmailService {
   }
 
   sendResetEmail(email: string, token: string) {
-    const link = `${process.env.DOMAIN}/users/r/${token}`.replace('//', '/');
+    const link = `${process.env.DOMAIN}/users/r/${token}`;
     const markup = PASSWORD_RESET_TEMPLATE.replace('{{link}}', link);
     const msg = {
       to: email,
       from: this.defaultSender,
       subject: 'Reset your 2anki.net password',
-      text: `I received your password change request, you can change it here${link}`,
+      text: `I received your password change request, you can change it here ${link}`,
       html: markup,
       replyTo: 'alexander@alemayhu.com',
     };
