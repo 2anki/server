@@ -10,7 +10,7 @@ import { CreatedDeck, createResponse } from './createResponse';
 import { isPaying } from '../../lib/isPaying';
 
 const getPayingErrorMessage = () => {
-  return "There was an unknown error with your upload. Please try again. If the problem persists, please contact the developer <a href='mailto:alexander@alemayhu.com'>alexander@alemayhu.com</a>.";
+  return "There was an unknown error with your upload. Please try again. If the problem persists, please contact <a href='mailto:support@2anki.net'>support@2anki.net</a>.";
 };
 
 class SimpleUploadController {

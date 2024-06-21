@@ -27,9 +27,9 @@ class EmailService implements IEmailService {
       to: email,
       from: this.defaultSender,
       subject: 'Reset your 2anki.net password',
-      text: `I received your password change request, you can change it here ${link}`,
+      text: `We received your password change request, you can change it here ${link}`,
       html: markup,
-      replyTo: 'alexander@alemayhu.com',
+      replyTo: 'support@2anki.net',
     };
 
     sgMail.send(msg);
@@ -52,7 +52,7 @@ class EmailService implements IEmailService {
       subject: `2anki.net - Your «${filename}» deck is ready`,
       text: 'Attached is your deck',
       html: markup,
-      replyTo: 'alexander@alemayhu.com',
+      replyTo: 'support@2anki.net',
       attachments: [
         {
           content: contents.toString('base64'),
@@ -74,7 +74,7 @@ class EmailService implements IEmailService {
       subject: `2anki.net - Your «${filename}» deck is ready`,
       text: `Download your deck here: ${link}`,
       html: markup,
-      replyTo: 'alexander@alemayhu.com',
+      replyTo: 'support@2anki.net',
     };
 
     await sgMail.send(msg);
