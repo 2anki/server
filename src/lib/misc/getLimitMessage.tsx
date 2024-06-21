@@ -1,4 +1,5 @@
 import { renderToStaticMarkup } from 'react-dom/server';
+import { SUPPORT_EMAIL_ADDRESS } from '../constants';
 
 export const getLimitMessage = () =>
   renderToStaticMarkup(
@@ -29,7 +30,8 @@ export const getLimitMessage = () =>
         If you already have an account, please{' '}
         <a href="/login?redirect=/upload">login</a> and try again. If you are
         still experiencing issues, please contact{' '}
-        <a href="mailto:alexander@alemayhu.com">alexander@alemayhu.com</a>.
+        <a href={`mailto:${SUPPORT_EMAIL_ADDRESS}`}>${SUPPORT_EMAIL_ADDRESS}</a>
+        .
       </p>
     </div>
   );
