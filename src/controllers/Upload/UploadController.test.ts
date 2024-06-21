@@ -1,11 +1,11 @@
 import express from 'express';
 
-import { INotionRepository } from '../data_layer/NotionRespository';
-import { IUploadRepository } from '../data_layer/UploadRespository';
-import NotionTokens from '../data_layer/public/NotionTokens';
-import Uploads from '../data_layer/public/Uploads';
-import NotionService from '../services/NotionService';
-import UploadService from '../services/UploadService';
+import { INotionRepository } from '../../data_layer/NotionRespository';
+import { IUploadRepository } from '../../data_layer/UploadRespository';
+import NotionTokens from '../../data_layer/public/NotionTokens';
+import Uploads from '../../data_layer/public/Uploads';
+import NotionService from '../../services/NotionService';
+import UploadService from '../../services/UploadService';
 import UploadController from './UploadController';
 
 describe('Upload file', () => {

@@ -2,7 +2,7 @@ import express from 'express';
 
 import RequireAllowedOrigin from './middleware/RequireAllowedOrigin';
 import RequireAuthentication from './middleware/RequireAuthentication';
-import UploadController from '../controllers/UploadController';
+import UploadController from '../controllers/Upload/UploadController';
 import JobController from '../controllers/JobController';
 import JobService from '../services/JobService';
 import JobRepository from '../data_layer/JobRepository';

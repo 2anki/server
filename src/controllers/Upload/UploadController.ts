@@ -1,12 +1,12 @@
 import express from 'express';
 
-import { getOwner } from '../lib/User/getOwner';
-import { sendError } from '../lib/error/sendError';
-import { getLimitMessage } from '../lib/misc/getLimitMessage';
-import NotionService from '../services/NotionService';
-import UploadService from '../services/UploadService';
-import { getUploadHandler } from '../lib/misc/GetUploadHandler';
-import { isLimitError } from '../lib/misc/isLimitError';
+import { getOwner } from '../../lib/User/getOwner';
+import { sendError } from '../../lib/error/sendError';
+import NotionService from '../../services/NotionService';
+import UploadService from '../../services/UploadService';
+import { getUploadHandler } from '../../lib/misc/GetUploadHandler';
+import { isLimitError } from '../../lib/misc/isLimitError';
+import { handleUploadLimitError } from './helpers/handleUploadLimitError';
 
 class UploadController {
   constructor(
@@ -51,7 +51,7 @@ class UploadController {
 
       handleUploadEndpoint(req, res, async (error) => {
         if (isLimitError(error)) {
-          return res.status(500).send(getLimitMessage());
+          return handleUploadLimitError(req, res);
         }
         await this.service.handleUpload(req, res);
       });
