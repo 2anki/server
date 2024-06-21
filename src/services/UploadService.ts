@@ -14,6 +14,8 @@ import GeneratePackagesUseCase from '../usecases/uploads/GeneratePackagesUseCase
 import { toText } from './NotionService/BlockHandler/helpers/deckNameToText';
 import { getSafeFilename } from '../lib/getSafeFilename';
 import { isPaying } from '../lib/isPaying';
+import { isLimitError } from '../lib/misc/isLimitError';
+import { handleUploadLimitError } from '../controllers/Upload/helpers/handleUploadLimitError';
 
 class UploadService {
   getUploadsByOwner(owner: number) {
@@ -76,7 +78,11 @@ class UploadService {
         ErrorHandler(res, req, NO_PACKAGE_ERROR);
       }
     } catch (err) {
-      ErrorHandler(res, req, err as Error);
+      if (isLimitError(err as Error)) {
+        handleUploadLimitError(req, res);
+      } else {
+        return ErrorHandler(res, req, err as Error);
+      }
     }
   }
 }
