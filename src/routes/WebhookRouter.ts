@@ -7,9 +7,11 @@ import {
   updateStoreSubscription,
 } from '../lib/integrations/stripe';
 import { getDatabase } from '../data_layer';
+import { StripeController } from '../controllers/StripeController/StripeController';
 
 const WebhooksRouter = () => {
   const router = express.Router();
+  const controller = new StripeController();
 
   router.post(
     '/webhook',
@@ -72,6 +74,10 @@ const WebhooksRouter = () => {
       // Return a 200 response to acknowledge receipt of the event
       response.send();
     }
+  );
+
+  router.get('/successful-checkout', (req, res) =>
+    controller.getSuccessfulCheckout(req, res)
   );
   return router;
 };

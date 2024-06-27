@@ -120,7 +120,7 @@ class AuthenticationService {
   async getIsSubscriber(owner: string, db: Knex, email: string) {
     const linkedEmail = await db('subscriptions')
       .select('active')
-      .where({ linked_email: email })
+      .where({ linked_email: email.toLowerCase() })
       .first();
 
     if (linkedEmail) {
@@ -129,7 +129,7 @@ class AuthenticationService {
 
     const result = await db('subscriptions')
       .select('active')
-      .where({ email: email })
+      .where({ email: email.toLowerCase() })
       .first();
 
     return result?.active ?? false;

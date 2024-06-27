@@ -68,15 +68,19 @@ class UsersRepository {
     ]);
   }
 
-  async updateSubscriptionLinkedEmail(owner: string, email: string) {
+  async linkCurrentUserWithEmail(owner: string, email: string) {
     const user = await this.database(this.table).where({ id: owner }).first();
     if (!user) {
       return null;
     }
 
+    return this.updateSubScriptionEmailUsingPrimaryEmail(user.email, email);
+  }
+
+  updateSubScriptionEmailUsingPrimaryEmail(email: string, newEmail: string) {
     return this.database('subscriptions')
-      .where({ email: user.email })
-      .update({ linked_email: email.toLowerCase() });
+      .where({ email: email.toLowerCase() })
+      .update({ linked_email: newEmail.toLowerCase() });
   }
 
   async getSubscriptionLinkedEmail(owner: string) {
@@ -86,7 +90,7 @@ class UsersRepository {
     }
 
     const subscription: Subscriptions = await this.database('subscriptions')
-      .where({ email: user.email })
+      .where({ email: user.email.toLowerCase() })
       .select('linked_email')
       .first();
     return subscription?.linked_email;

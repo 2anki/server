@@ -50,7 +50,14 @@ class UsersService {
   }
 
   updateSubscriptionLinkedEmail(owner: string, email: string) {
-    return this.repository.updateSubscriptionLinkedEmail(owner, email);
+    return this.repository.linkCurrentUserWithEmail(owner, email);
+  }
+
+  updateSubScriptionEmailUsingPrimaryEmail(email: string, newEmail: string) {
+    return this.repository.updateSubScriptionEmailUsingPrimaryEmail(
+      email,
+      newEmail
+    );
   }
 
   getSubscriptionLinkedEmail(owner: string) {
