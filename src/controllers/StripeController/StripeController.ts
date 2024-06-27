@@ -36,10 +36,11 @@ export class StripeController {
     if (loggedInUser && sessionId) {
       const stripe = getStripe();
       const session = await stripe.checkout.sessions.retrieve(sessionId);
-      const email = session.customer_email;
+      const email = session.customer_details?.email;
 
       console.log('cmp', loggedInUser.email, ' ', email);
       if (loggedInUser.email !== email && email) {
+        console.log('updated email for customer');
         await usersService.updateSubScriptionEmailUsingPrimaryEmail(
           email.toLowerCase(),
           loggedInUser.email.toLowerCase()
