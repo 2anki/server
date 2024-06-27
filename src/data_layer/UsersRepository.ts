@@ -79,7 +79,7 @@ class UsersRepository {
 
   updateSubScriptionEmailUsingPrimaryEmail(email: string, newEmail: string) {
     return this.database('subscriptions')
-      .where({ email: email })
+      .where({ email: email.toLowerCase() })
       .update({ linked_email: newEmail.toLowerCase() });
   }
 
@@ -90,7 +90,7 @@ class UsersRepository {
     }
 
     const subscription: Subscriptions = await this.database('subscriptions')
-      .where({ email: user.email })
+      .where({ email: user.email.toLowerCase() })
       .select('linked_email')
       .first();
     return subscription?.linked_email;

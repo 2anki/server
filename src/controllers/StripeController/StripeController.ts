@@ -38,7 +38,7 @@ export class StripeController {
 
       if (loggedInUser.email !== email && email) {
         await usersService.updateSubScriptionEmailUsingPrimaryEmail(
-          email,
+          email.toLowerCase(),
           loggedInUser.email.toLowerCase()
         );
       }
