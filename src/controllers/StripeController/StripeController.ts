@@ -31,11 +31,14 @@ export class StripeController {
     const loggedInUser = await authService.getUserFrom(token);
     const sessionId = req.query.session_id as string;
 
+    console.log('loggedInUser', loggedInUser);
+    console.log('sessionId', sessionId);
     if (loggedInUser && sessionId) {
       const stripe = getStripe();
       const session = await stripe.checkout.sessions.retrieve(sessionId);
       const email = session.customer_email;
 
+      console.log('cmp', loggedInUser.email, ' ', email);
       if (loggedInUser.email !== email && email) {
         await usersService.updateSubScriptionEmailUsingPrimaryEmail(
           email.toLowerCase(),
