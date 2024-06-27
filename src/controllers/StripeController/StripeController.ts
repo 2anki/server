@@ -37,6 +37,7 @@ export class StripeController {
       const stripe = getStripe();
       const session = await stripe.checkout.sessions.retrieve(sessionId);
       const email = session.customer_email;
+      console.log('session', session);
 
       console.log('cmp', loggedInUser.email, ' ', email);
       if (loggedInUser.email !== email && email) {
