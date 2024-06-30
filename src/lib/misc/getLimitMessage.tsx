@@ -18,7 +18,7 @@ export const getLimitMessage = () =>
             >
               Subscribe
             </a>{' '}
-            for only 2 EUR per month to remove all the limits.
+            for only $2 per month to remove all the limits.
           </div>
         </li>
         <li>
