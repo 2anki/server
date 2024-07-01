@@ -42,7 +42,7 @@ class UsersService {
   }
 
   register(name: string, password: string, email: any) {
-    return this.repository.createUser(name, password, email);
+    return this.repository.createUser(name, password, email.toLowerCase());
   }
 
   deleteUser(owner: any) {
