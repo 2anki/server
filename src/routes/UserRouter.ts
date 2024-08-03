@@ -61,6 +61,10 @@ const UserRouter = () => {
     controller.loginWithGoogle(req, res)
   );
 
+  router.get('/api/users/avatar', RequireAuthentication, (req, res) =>
+    controller.getAvatar(req, res)
+  );
+
   return router;
 };
 

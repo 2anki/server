@@ -7,6 +7,7 @@ import { getRedirect } from './helpers/getRedirect';
 
 import { getIndexFileContents } from './IndexController/getIndexFileContents';
 import { getRandomUUID } from '../shared/helpers/getRandomUUID';
+import { getDefaultAvatarPicture } from '../lib/getDefaultAvatarPicture';
 
 class UsersController {
   constructor(
@@ -134,7 +135,12 @@ class UsersController {
     const password = this.authService.getHashPassword(req.body.password);
     const { name, email } = req.body;
     try {
-      await this.userService.register(name, password, email);
+      await this.userService.register(
+        name,
+        password,
+        email,
+        getDefaultAvatarPicture()
+      );
       res.status(200).json({ message: 'ok' });
     } catch (error) {
       sendError(error);
@@ -246,11 +252,11 @@ class UsersController {
       /**
        * now create a new user if the user does not exist
        */
-      const { email, name } = loginRequest;
+      const { email, name, picture } = loginRequest;
       let user = await this.userService.getUserFrom(email);
       if (!user) {
         // Create user with random password
-        await this.userService.register(name, getRandomUUID(), email);
+        await this.userService.register(name, getRandomUUID(), email, picture);
         user = await this.userService.getUserFrom(email);
       }
 
@@ -259,6 +265,10 @@ class UsersController {
         return res
           .status(400)
           .send('Unknown error. Please try again or register a new account.');
+      }
+
+      if (picture != user.picture) {
+        await this.userService.updatePicture(user.id, picture);
       }
 
       const token = await this.authService.newJWTToken(user);
@@ -274,6 +284,18 @@ class UsersController {
     } else {
       res.redirect('/login');
     }
+  }
+
+  async getAvatar(req: express.Request, res: express.Response) {
+    if (!res.locals.owner) {
+      return res.status(400).json({ message: 'Missing owner' });
+    }
+
+    const user = await this.userService.getUserById(res.locals.owner);
+    const name = user.name;
+    const picture = user.picture;
+
+    return res.json({ name, picture });
   }
 }
 

@@ -152,9 +152,16 @@ class AuthenticationService {
       });
       const idToken = result.data.id_token;
       const decoded = jwt.decode(idToken)!;
+      console.log('decoded', decoded);
 
-      // @ts-ignore
-      return { email: decoded.email, name: decoded.name };
+      return {
+        // @ts-ignore
+        email: decoded.email,
+        // @ts-ignore
+        name: decoded.name,
+        // @ts-ignore
+        picture: decoded.picture,
+      };
     } catch (error) {
       console.info("Couldn't login with Google");
       sendError(error);
