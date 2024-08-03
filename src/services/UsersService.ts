@@ -41,8 +41,13 @@ class UsersService {
     return this.repository.getByEmail(email);
   }
 
-  register(name: string, password: string, email: any) {
-    return this.repository.createUser(name, password, email.toLowerCase());
+  register(name: string, password: string, email: string, picture: string) {
+    return this.repository.createUser(
+      name,
+      password,
+      email.toLowerCase(),
+      picture
+    );
   }
 
   deleteUser(owner: any) {
@@ -66,6 +71,10 @@ class UsersService {
 
   getUserById(owner: string): Promise<Users> {
     return this.repository.getById(owner);
+  }
+
+  updatePicture(id: string, picture: string) {
+    return this.repository.updatePicture(id, picture);
   }
 }
 

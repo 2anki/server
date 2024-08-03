@@ -39,12 +39,13 @@ class UsersRepository {
       .update({ reset_token: resetToken });
   }
 
-  createUser(name: string, password: string, email: any) {
+  createUser(name: string, password: string, email: string, picture?: string) {
     return this.database(this.table)
       .insert({
         name,
         password,
         email,
+        picture,
       })
       .returning(['id']);
   }
@@ -94,6 +95,10 @@ class UsersRepository {
       .select('linked_email')
       .first();
     return subscription?.linked_email;
+  }
+
+  updatePicture(id: string, picture: string) {
+    return this.database(this.table).where({ id }).update({ picture });
   }
 }
 
