@@ -294,8 +294,9 @@ class UsersController {
     const user = await this.userService.getUserById(res.locals.owner);
     const name = user.name;
     const picture = user.picture;
+    const email = user.email;
 
-    return res.json({ name, picture });
+    return res.json({ name, picture, email });
   }
 }
 
