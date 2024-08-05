@@ -191,8 +191,14 @@ class NotionController {
   }
 
   async disconnect(_req: Request, res: Response) {
-    const deletion = await this.service.disconnect(res.locals.owner);
-    res.status(200).send({ didDelete: deletion });
+    try {
+      const deletion = await this.service.disconnect(res.locals.owner);
+      res.status(200).send({ didDelete: deletion });
+    } catch (err) {
+      sendError(err);
+      console.debug('Failed to disconnect');
+      res.status(500).send({ didDelete: false });
+    }
   }
 }
 
