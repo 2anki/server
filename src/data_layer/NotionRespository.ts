@@ -11,6 +11,7 @@ export interface INotionRepository {
   ): Promise<boolean>;
   getNotionToken(owner: string): Promise<string>;
   deleteBlocksByOwner(owner: number): Promise<number>;
+  deleteNotionData(owner: number): Promise<boolean>;
 }
 
 class NotionRepository implements INotionRepository {
@@ -80,6 +81,13 @@ class NotionRepository implements INotionRepository {
 
   deleteBlocksByOwner(owner: number): Promise<number> {
     return this.database(this.notionBlocksTable).del().where({ owner });
+  }
+
+  /**
+   * Delete the users notion token when they disconnect
+   */
+  deleteNotionData(owner: number | string): Promise<boolean> {
+    return this.database(this.notionTokensTable).where({ owner: owner }).del();
   }
 }
 
