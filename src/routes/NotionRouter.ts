@@ -66,6 +66,10 @@ const NotionRouter = () => {
     (req, res) => controller.queryDatabase(req, res)
   );
 
+  router.post('/api/notion/disconnect', RequireAuthentication, (req, res) =>
+    controller.disconnect(req, res)
+  );
+
   return router;
 };
 

@@ -128,4 +128,8 @@ export class NotionService {
   getClientId() {
     return this.clientId;
   }
+
+  disconnect(owner: number) {
+    return this.notionRepository.deleteNotionData(owner);
+  }
 }

@@ -189,6 +189,17 @@ class NotionController {
     const results = await api.queryDatabase(id);
     res.json(results);
   }
+
+  async disconnect(_req: Request, res: Response) {
+    try {
+      const deletion = await this.service.disconnect(res.locals.owner);
+      res.status(200).send({ didDelete: deletion });
+    } catch (err) {
+      sendError(err);
+      console.debug('Failed to disconnect');
+      res.status(500).send({ didDelete: false });
+    }
+  }
 }
 
 export default NotionController;
