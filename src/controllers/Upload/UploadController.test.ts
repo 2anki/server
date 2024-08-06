@@ -44,6 +44,9 @@ describe('Upload file', () => {
       deleteBlocksByOwner: function (owner: number): Promise<number> {
         return Promise.resolve(owner);
       },
+      deleteNotionData(owner: number): Promise<boolean> {
+        return Promise.resolve(true);
+      }
     };
     const uploadService = new UploadService(repository);
     const notionService = new NotionService(notionRepository);
