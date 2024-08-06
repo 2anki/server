@@ -8,11 +8,20 @@ import {
 } from './constants';
 import { isValidDeckName, addDeckNameSuffix } from '../../lib/anki/format';
 import { ClientResponse } from '@sendgrid/mail';
+import { SUPPORT_EMAIL_ADDRESS } from '../../lib/constants';
+
+type EmailResponse = { didSend: boolean; error?: Error };
 
 export interface IEmailService {
   sendResetEmail(email: string, token: string): void;
   sendConversionEmail(email: string, filename: string, contents: Buffer): void;
   sendConversionLinkEmail(email: string, filename: string, link: string): void;
+  sendContactEmail(
+    name: string,
+    email: string,
+    message: string,
+    attachments: Express.Multer.File[]
+  ): Promise<EmailResponse>;
 }
 
 class EmailService implements IEmailService {
@@ -79,6 +88,35 @@ class EmailService implements IEmailService {
 
     await sgMail.send(msg);
   }
+
+  async sendContactEmail(
+    name: string,
+    email: string,
+    message: string,
+    attachments: Express.Multer.File[]
+  ): Promise<EmailResponse> {
+    const msg = {
+      to: SUPPORT_EMAIL_ADDRESS,
+      from: DEFAULT_SENDER,
+      subject: `Contact form submission on behalf of ${
+        name ?? 'Anon'
+      } <${email}>`,
+      text: message,
+      attachments: attachments.map((file) => ({
+        content: file.buffer.toString('base64'),
+        filename: file.originalname,
+        type: file.mimetype,
+        disposition: 'attachment',
+      })),
+    };
+    try {
+      await sgMail.send(msg);
+      return { didSend: true };
+    } catch (e) {
+      console.error('Error sending email', e);
+      return { didSend: false, error: e as Error };
+    }
+  }
 }
 
 export class UnimplementedEmailService implements IEmailService {
@@ -92,6 +130,22 @@ export class UnimplementedEmailService implements IEmailService {
 
   sendConversionLinkEmail(email: string, filename: string, link: string): void {
     console.info('sendConversionLinkEmail not handled', email, filename, link);
+  }
+
+  sendContactEmail(
+    name: string,
+    email: string,
+    message: string,
+    attachments: Express.Multer.File[]
+  ): Promise<EmailResponse> {
+    console.info(
+      'sendContactEmail not handled',
+      name,
+      email,
+      message,
+      attachments
+    );
+    return Promise.resolve({ didSend: false });
   }
 }
 

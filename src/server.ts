@@ -56,6 +56,7 @@ const serve = async () => {
 
   app.use(webhookRouter());
   app.use(express.json({ limit: '1000mb' }) as RequestHandler);
+  app.use(express.urlencoded() as RequestHandler);
   app.use(cookieParser());
 
   if (isStaging()) {
