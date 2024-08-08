@@ -101,7 +101,7 @@ class EmailService implements IEmailService {
       subject: `Contact form submission on behalf of ${
         name ?? 'Anon'
       } <${email}>`,
-      text: message,
+      text: `Message: ${message}\n\n`,
       attachments: attachments.map((file) => ({
         content: file.buffer.toString('base64'),
         filename: file.originalname,
