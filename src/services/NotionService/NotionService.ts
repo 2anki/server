@@ -1,3 +1,4 @@
+import { APIErrorCode } from '@notionhq/client';
 import axios from 'axios';
 
 import { INotionRepository } from '../../data_layer/NotionRespository';
@@ -41,6 +42,9 @@ export class NotionService {
 
   getNotionAPI = async (owner: string): Promise<NotionAPIWrapper> => {
     const token = await this.notionRepository.getNotionToken(owner);
+    if (!token) {
+      throw new Error(APIErrorCode.Unauthorized);
+    }
     return new NotionAPIWrapper(token!, owner);
   };
 

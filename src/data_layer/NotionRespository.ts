@@ -3,13 +3,13 @@ import NotionTokens from './public/NotionTokens';
 import unHashToken from '../lib/misc/unHashToken';
 
 export interface INotionRepository {
-  getNotionData(owner: number | string): Promise<NotionTokens>;
+  getNotionData(owner: number | string): Promise<NotionTokens | null>;
   saveNotionToken(
     user: number,
     data: { [key: string]: string },
     hash: (token: string) => string
   ): Promise<boolean>;
-  getNotionToken(owner: string): Promise<string>;
+  getNotionToken(owner: string): Promise<string | null>;
   deleteBlocksByOwner(owner: number): Promise<number>;
   deleteNotionData(owner: number): Promise<boolean>;
 }
@@ -21,7 +21,11 @@ class NotionRepository implements INotionRepository {
 
   constructor(private readonly database: Knex) {}
 
-  getNotionData(owner: number | string): Promise<NotionTokens> {
+  getNotionData(owner: number | string): Promise<NotionTokens | null> {
+    if (!owner) {
+      return Promise.resolve(null);
+    }
+
     return this.database(this.notionTokensTable)
       .where({ owner: owner })
       .returning(['token', 'workspace_name'])
@@ -41,7 +45,7 @@ class NotionRepository implements INotionRepository {
           workspace_name: data.workspace_name,
           workspace_icon: data.workspace_icon,
           workspace_id: data.workspace_id,
-          notion_owner: data.owner,
+          notion_owner: data.owner, // This actually JSON blob from Notion and not related to our owner id
           token: hash(data.access_token),
           owner: user,
         })
@@ -64,16 +68,17 @@ class NotionRepository implements INotionRepository {
    * @param owner user id
    * @returns unhashed token
    */
-  async getNotionToken(owner: string): Promise<string> {
+  async getNotionToken(owner: string): Promise<string | null> {
     const row = await this.database('notion_tokens')
       .where({ owner })
       .returning('token')
       .first();
 
+    /**
+     * The user can disconnect Notion at any point so we should not throw an error here.
+     */
     if (!row) {
-      throw new Error(
-        `Could not find your Notion token. Please report this issue with your userid: ${owner}`
-      );
+      return Promise.resolve(null);
     }
 
     return unHashToken(row.token);
