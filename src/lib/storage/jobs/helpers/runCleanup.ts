@@ -23,5 +23,5 @@ export const runCleanup = async (database: Knex) => {
 };
 
 if (require.main === module) {
-  runCleanup(getDatabase());
+  runCleanup(getDatabase()).then(() => console.log('Cleanup complete'));
 }

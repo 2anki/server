@@ -7,6 +7,16 @@ import UploadService from '../../services/UploadService';
 import { getUploadHandler } from '../../lib/misc/GetUploadHandler';
 import { isLimitError } from '../../lib/misc/isLimitError';
 import { handleUploadLimitError } from './helpers/handleUploadLimitError';
+import { getUploadLimits } from '../../lib/misc/getUploadLimits';
+import { isPaying } from '../../lib/isPaying';
+import {
+  DropboxFile,
+  DropboxRepository,
+} from '../../data_layer/DropboxRepository';
+import { getDatabase } from '../../data_layer';
+import axios from 'axios';
+import { handleDropbox } from './helpers/handleDropbox';
+import { handleGoogleDrive } from './helpers/handleGoogleDrive';
 
 class UploadController {
   constructor(
@@ -59,6 +69,18 @@ class UploadController {
       sendError(error);
       res.status(400);
     }
+  }
+
+  async dropbox(req: express.Request, res: express.Response): Promise<void> {
+    await handleDropbox(req, res, this.service.handleUpload).then(() => {
+      console.debug('dropbox upload success');
+    });
+  }
+
+  async googleDrive(req: express.Request, res: express.Response) {
+    await handleGoogleDrive(req, res, this.service.handleUpload).then(() => {
+      console.debug('google drive upload success');
+    });
   }
 }
 

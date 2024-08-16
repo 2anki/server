@@ -3,6 +3,7 @@ import path from 'path';
 export const TEMPLATE_DIR = path.join(__dirname, '../templates');
 
 export const ALLOWED_ORIGINS = [
+  'http://localhost:3000',
   'http://localhost:8080',
   'http://localhost:2020',
   'https://dev.notion2anki.alemayhu.com',

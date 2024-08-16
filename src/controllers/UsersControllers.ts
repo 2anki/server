@@ -240,7 +240,7 @@ class UsersController {
   }
 
   async loginWithGoogle(req: express.Request, res: express.Response) {
-    console.debug('Login with google');
+    console.debug('Login with google', req);
     const { code } = req.query;
     if (!code) {
       return res.redirect('/login');
