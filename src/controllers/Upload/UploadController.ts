@@ -7,14 +7,6 @@ import UploadService from '../../services/UploadService';
 import { getUploadHandler } from '../../lib/misc/GetUploadHandler';
 import { isLimitError } from '../../lib/misc/isLimitError';
 import { handleUploadLimitError } from './helpers/handleUploadLimitError';
-import { getUploadLimits } from '../../lib/misc/getUploadLimits';
-import { isPaying } from '../../lib/isPaying';
-import {
-  DropboxFile,
-  DropboxRepository,
-} from '../../data_layer/DropboxRepository';
-import { getDatabase } from '../../data_layer';
-import axios from 'axios';
 import { handleDropbox } from './helpers/handleDropbox';
 import { handleGoogleDrive } from './helpers/handleGoogleDrive';
 
