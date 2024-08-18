@@ -1,4 +1,5 @@
 import express from 'express';
+import multer from 'multer';
 
 import RequireAllowedOrigin from './middleware/RequireAllowedOrigin';
 import RequireAuthentication from './middleware/RequireAuthentication';
@@ -30,6 +31,20 @@ const UploadRouter = () => {
    */
   router.post('/api/upload/file', RequireAllowedOrigin, (req, res) =>
     uploadController.file(req, res)
+  );
+
+  router.post(
+    '/api/upload/dropbox',
+    RequireAllowedOrigin,
+    multer({ dest: '/tmp' }).none(),
+    (req, res) => uploadController.dropbox(req, res)
+  );
+
+  router.post(
+    '/api/upload/google_drive',
+    RequireAllowedOrigin,
+    multer({ dest: '/tmp' }).none(),
+    (req, res) => uploadController.googleDrive(req, res)
   );
 
   router.get('/api/upload/mine', RequireAuthentication, (req, res) =>

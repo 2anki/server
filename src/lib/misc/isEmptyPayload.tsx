@@ -5,5 +5,5 @@ export const isEmptyPayload = (files: UploadedFile[] | undefined) => {
     return true;
   }
   const totalBytes = files.reduce((acc, file) => acc + file.size, 0);
-  return totalBytes > 0;
+  return totalBytes === 0;
 };
