@@ -1,4 +1,5 @@
 import express from 'express';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { sendError } from '../error/sendError';
 import { UploadedFile } from '../storage/types';
 import path from 'path';
@@ -9,7 +10,21 @@ import { isLimitError } from './isLimitError';
 import { isEmptyPayload } from './isEmptyPayload';
 
 export const NO_PACKAGE_ERROR = new Error(
-  'Deck creation failed. Ensure a valid toggle or check settings. Note: Toggle headings are only supported in the Notion integration. Avoid using Markdown; use HTML instead.'
+  renderToStaticMarkup(
+    <>
+      <div className="info">
+        Could not create a deck using your file(s) and rules. Make sure to at
+        least create on valid toggle or verify your{' '}
+        <a href="/upload?view=template">settings</a>? Example:
+      </div>
+      <div className="card" style={{ width: '50%', padding: '1rem' }}>
+        <details>
+          <summary>This the front</summary>
+          This is the back
+        </details>
+      </div>
+    </>
+  )
 );
 
 function perserveFilesForDebugging(uploadedFiles: UploadedFile[], err: Error) {
