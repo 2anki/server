@@ -1,12 +1,10 @@
 import express from 'express';
-
-import { getIndexFileContents } from './getIndexFileContents';
 import { getDatabase } from '../../data_layer';
 import AuthenticationService from '../../services/AuthenticationService';
 import TokenRepository from '../../data_layer/TokenRepository';
 import UsersRepository from '../../data_layer/UsersRepository';
 import { configureUserLocal } from '../../routes/middleware/configureUserLocal';
-import { useDefaultEmailService } from '../../services/EmailService/EmailService';
+import { getIndexFileContents } from './getIndexFileContents';
 
 class IndexController {
   public getIndex(request: express.Request, response: express.Response) {
@@ -28,13 +26,15 @@ class IndexController {
     }
 
     const attachments = req.files as Express.Multer.File[];
-    const defaultEmailService = useDefaultEmailService();
-    await defaultEmailService.sendContactEmail(
+    const database = getDatabase();
+
+    await database('feedback').insert({
       name,
       email,
       message,
-      attachments
-    );
+      attachments: JSON.stringify(attachments.map((a) => a.path)),
+    });
+
     return res.status(200).send();
   }
 }
