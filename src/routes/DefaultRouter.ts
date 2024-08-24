@@ -6,6 +6,7 @@ import IndexController from '../controllers/IndexController/IndexController';
 
 const upload = multer({
   limits: { fileSize: 25 * 1024 * 1024 },
+  dest: process.env.FEEDBACK_DIR || '~/',
 });
 
 const DefaultRouter = () => {
