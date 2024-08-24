@@ -15,9 +15,11 @@ import { UploadedFile } from '../../lib/storage/types';
 import { Body } from 'aws-sdk/clients/s3';
 import { PrepareDeck } from '../../lib/parser/PrepareDeck';
 import { checkFlashcardsLimits } from '../../lib/User/checkFlashcardsLimits';
+import Workspace from '../../lib/parser/WorkSpace';
 
 export interface PackageResult {
   packages: Package[];
+  workspace: Workspace | undefined;
 }
 
 export const isFileSupported = (filename: string) =>
@@ -35,7 +37,7 @@ const getPackagesFromZip = async (
   const packages = [];
 
   if (!fileContents) {
-    return { packages: [] };
+    return { packages: [], workspace: undefined };
   }
 
   zipHandler.build(fileContents as Uint8Array, paying);
@@ -43,9 +45,18 @@ const getPackagesFromZip = async (
   const fileNames = zipHandler.getFileNames();
 
   let cardCount = 0;
+  let workspace = undefined;
   for (const fileName of fileNames) {
     if (isFileSupported(fileName)) {
-      const deck = await PrepareDeck(fileName, zipHandler.files, settings);
+      const deck = await PrepareDeck({
+        fileName,
+        files: zipHandler.files,
+        settings,
+      });
+
+      if (workspace === undefined) {
+        workspace = deck.workspace;
+      }
 
       if (deck) {
         packages.push(new Package(deck.name, deck.apkg));
@@ -67,7 +78,7 @@ const getPackagesFromZip = async (
     });
   }
 
-  return { packages };
+  return { packages, workspace };
 };
 
 class GeneratePackagesUseCase {
@@ -77,6 +88,7 @@ class GeneratePackagesUseCase {
     settings: Settings
   ): Promise<PackageResult> {
     let packages: Package[] = [];
+    let workspace: Workspace | undefined;
 
     for (const file of files) {
       const fileContents = file.path ? fs.readFileSync(file.path) : file.buffer;
@@ -84,25 +96,27 @@ class GeneratePackagesUseCase {
       const key = file.key;
 
       if (isFileSupported(filename)) {
-        const d = await PrepareDeck(
-          filename,
-          [{ name: filename, contents: fileContents }],
-          settings
-        );
+        const d = await PrepareDeck({
+          fileName: filename,
+          files: [{ name: filename, contents: fileContents }],
+          settings,
+        });
         if (d) {
           const pkg = new Package(d.name, d.apkg);
           packages = packages.concat(pkg);
         }
+
+        if (workspace === undefined) {
+          workspace = d.workspace;
+        }
       } else if (isZIPFile(filename) || isZIPFile(key)) {
-        const { packages: extraPackages } = await getPackagesFromZip(
-          fileContents,
-          paying,
-          settings
-        );
+        const { packages: extraPackages, workspace: zipWorkspace } =
+          await getPackagesFromZip(fileContents, paying, settings);
         packages = packages.concat(extraPackages);
+        workspace = zipWorkspace;
       }
     }
-    return { packages };
+    return { packages, workspace };
   }
 }
 

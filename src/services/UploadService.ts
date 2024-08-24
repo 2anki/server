@@ -5,7 +5,10 @@ import express from 'express';
 
 import { IUploadRepository } from '../data_layer/UploadRespository';
 import { sendError } from '../lib/error/sendError';
-import ErrorHandler, { NO_PACKAGE_ERROR } from '../lib/misc/ErrorHandler';
+import ErrorHandler, {
+  NO_PACKAGE_ERROR,
+  shouldRedirect,
+} from '../lib/misc/ErrorHandler';
 import Settings from '../lib/parser/Settings';
 import Workspace from '../lib/parser/WorkSpace';
 import StorageHandler from '../lib/storage/StorageHandler';
@@ -37,7 +40,7 @@ class UploadService {
       const settings = new Settings(req.body || {});
 
       const useCase = new GeneratePackagesUseCase();
-      const { packages } = await useCase.execute(
+      const { packages, workspace } = await useCase.execute(
         isPaying(res.locals),
         req.files as UploadedFile[],
         settings
@@ -56,6 +59,7 @@ class UploadService {
         first.name = toText(first.name);
         try {
           res.set('File-Name', encodeURIComponent(first.name));
+          res.set('Deck-Id', workspace?.id);
         } catch (err) {
           sendError(err);
           console.info(`failed to set name ${first.name}`);
@@ -64,16 +68,23 @@ class UploadService {
         res.attachment(`/${first.name}`);
         return res.status(200).send(payload);
       } else if (packages.length > 1) {
-        const workspace = new Workspace(true, 'fs');
-
         for (const pkg of packages) {
-          const p = path.join(workspace.location, getSafeFilename(pkg.name));
+          const p = path.join(workspace!.location, getSafeFilename(pkg.name));
           fs.writeFileSync(p, pkg.apkg);
         }
 
-        const url = `/download/${workspace.id}`;
-        res.status(300);
-        return res.redirect(url);
+        /**
+         * The redirect handling has to be done for backwards compatibility.
+         * When the web2 client is released this can be deleted.
+         */
+        if (shouldRedirect(req)) {
+          const url = `/download/${workspace!.id}`;
+          res.status(300);
+          return res.redirect(url);
+        } else {
+          res.set('Deck-Id', workspace?.id);
+          return res.status(200).json(packages[0].apkg);
+        }
       } else {
         ErrorHandler(res, req, NO_PACKAGE_ERROR);
       }
