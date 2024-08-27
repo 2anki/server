@@ -2,10 +2,14 @@ import { existsSync } from 'fs';
 import path from 'path';
 import http from 'http';
 
+import swaggerJsdoc from 'swagger-jsdoc';
+import swaggerUI from 'swagger-ui-express';
 import express, { RequestHandler } from 'express';
 import cookieParser from 'cookie-parser';
 import * as dotenv from 'dotenv';
 import morgan from 'morgan';
+
+import packageJson from '../package.json';
 
 const localEnvFile = path.join(__dirname, '../.env');
 if (existsSync(localEnvFile)) {
@@ -76,6 +80,18 @@ const serve = async () => {
   app.use(favoriteRouter());
   app.use(templatesRouter());
   app.use(simpleUploadRouter());
+
+  const options = {
+    definition: {
+      openapi: '3.0.0',
+      info: {
+        title: '2anki.net',
+        version: packageJson.version,
+      },
+    },
+    apis: ['./src/routes/**/*.ts'], // files containing annotations as above
+  };
+  app.use('/api/docs', swaggerUI.serve, swaggerUI.setup(swaggerJsdoc(options)));
 
   // Note: this has to be the last router
   app.use(defaultRouter());
