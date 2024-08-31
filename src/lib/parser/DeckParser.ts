@@ -23,14 +23,6 @@ import { isFileNameEqual } from '../storage/types';
 import { isImageFileEmbedable, isMarkdownFile } from '../storage/checks';
 import { getFileContents } from './getFileContents';
 import { handleNestedBulletPointsInMarkdown } from './handleNestedBulletPointsInMarkdown';
-import { checkFlashcardsLimits } from '../User/checkFlashcardsLimits';
-
-export interface DeckParserInput {
-  name: string;
-  settings: Settings;
-  files: File[];
-  noLimits: boolean;
-}
 
 export class DeckParser {
   globalTags: cheerio.Cheerio | null;
@@ -43,27 +35,22 @@ export class DeckParser {
 
   files: File[];
 
-  noLimits: boolean;
-
   public get name() {
     return this.payload[0].name;
   }
 
-  constructor(input: DeckParserInput) {
-    this.settings = input.settings;
-    this.files = input.files || [];
-    this.firstDeckName = input.name;
-    this.noLimits = input.noLimits;
+  constructor(name: string, settings: Settings, files: File[]) {
+    this.settings = settings;
+    this.files = files || [];
+    this.firstDeckName = name;
     this.globalTags = null;
 
-    const firstFile = this.files.find((file) =>
-      isFileNameEqual(file, input.name)
-    );
+    const firstFile = this.files.find((file) => isFileNameEqual(file, name));
 
-    if (this.settings.nestedBulletPoints && isMarkdownFile(input.name)) {
+    if (this.settings.nestedBulletPoints && isMarkdownFile(name)) {
       const contents = getFileContents(firstFile, false);
       this.payload = handleNestedBulletPointsInMarkdown(
-        input.name,
+        name,
         contents?.toString(),
         this.settings.deckName,
         [],
@@ -73,7 +60,7 @@ export class DeckParser {
       const contents = getFileContents(firstFile, true);
       this.payload = contents
         ? this.handleHTML(
-            input.name,
+            name,
             contents.toString(),
             this.settings.deckName || '',
             []
@@ -584,8 +571,6 @@ export class DeckParser {
       const parentUL = p;
       const parentClass = p.attr('class') || '';
 
-      this.checkLimits(cards.length, []);
-
       if (this.settings.toggleMode === 'open_toggle') {
         dom('details').attr('open', '');
       } else if (this.settings.toggleMode === 'close_toggle') {
@@ -666,19 +651,10 @@ export class DeckParser {
 
     lists.forEach((list) => {
       for (const child of dom(list).find('li')) {
-        this.checkLimits(cards.length, []);
         cards.push(new Note(dom(child).html() ?? '', ''));
       }
     });
 
     return cards;
-  }
-
-  private checkLimits(cards: number, decks: Deck[]) {
-    checkFlashcardsLimits({
-      cards: cards,
-      decks: decks,
-      paying: this.noLimits,
-    });
   }
 }

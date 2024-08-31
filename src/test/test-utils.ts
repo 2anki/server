@@ -19,12 +19,7 @@ function loadFixture(fileName: string) {
 
 function configureParser(fileName: string, opts: Settings) {
   const info = loadFixture(fileName);
-  return new DeckParser({
-    name: fileName,
-    settings: opts,
-    files: info,
-    noLimits: true,
-  });
+  return new DeckParser(fileName, opts, info);
 }
 
 export async function getDeck(fileName: string, opts: Settings) {
