@@ -37,7 +37,12 @@ export const getPackagesFromZip = async (
   let cardCount = 0;
   for (const fileName of fileNames) {
     if (isFileSupported(fileName)) {
-      const deck = await PrepareDeck(fileName, zipHandler.files, settings);
+      const deck = await PrepareDeck({
+        name: fileName,
+        files: zipHandler.files,
+        settings,
+        noLimits: paying,
+      });
 
       if (deck) {
         packages.push(new Package(deck.name, deck.apkg));
