@@ -26,12 +26,11 @@ function doGenerationWork(data: GenerationData) {
       const key = file.key;
 
       if (isFileSupported(filename)) {
-        const d = await PrepareDeck({
-          name: filename,
-          files: [{ name: filename, contents: fileContents }],
-          settings,
-          noLimits: paying,
-        });
+        const d = await PrepareDeck(
+          filename,
+          [{ name: filename, contents: fileContents }],
+          settings
+        );
         if (d) {
           const pkg = new Package(d.name, d.apkg);
           packages = packages.concat(pkg);

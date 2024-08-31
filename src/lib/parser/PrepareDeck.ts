@@ -1,5 +1,7 @@
+import { File } from '../anki/zip';
+import Settings from './Settings';
 import getDeckFilename from '../anki/getDeckFilename';
-import { DeckParser, DeckParserInput } from './DeckParser';
+import { DeckParser } from './DeckParser';
 import Deck from './Deck';
 
 interface PrepareDeckResult {
@@ -9,14 +11,16 @@ interface PrepareDeckResult {
 }
 
 export async function PrepareDeck(
-  input: DeckParserInput
+  fileName: string,
+  files: File[],
+  settings: Settings
 ): Promise<PrepareDeckResult> {
-  const parser = new DeckParser(input);
+  const parser = new DeckParser(fileName, settings, files);
 
   if (parser.totalCardCount() === 0) {
     const apkg = await parser.tryExperimental();
     return {
-      name: getDeckFilename(parser.name ?? input.name),
+      name: getDeckFilename(parser.name ?? fileName),
       apkg,
       deck: parser.payload,
     };
