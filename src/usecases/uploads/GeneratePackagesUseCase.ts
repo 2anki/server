@@ -20,9 +20,7 @@ class GeneratePackagesUseCase {
       const worker = new Worker(workerPath, { workerData: { data } });
 
       worker.on('message', (result: PackageResult) => resolve(result));
-      worker.on('error', (error) => {
-        reject(error);
-      });
+      worker.on('error', (error) => reject(error));
     });
   }
 }
