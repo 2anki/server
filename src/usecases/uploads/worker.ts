@@ -48,8 +48,4 @@ function doGenerationWork(data: GenerationData) {
   });
 }
 
-doGenerationWork(workerData.data)
-  .then((result) => {
-    parentPort?.postMessage(result);
-  })
-  .catch(parentPort?.postMessage);
+parentPort?.postMessage(doGenerationWork(workerData.data));
