@@ -11,6 +11,7 @@ import {
   isMarkdownFile,
   isPlainText,
 } from '../../lib/storage/checks';
+import Workspace from '../../lib/parser/WorkSpace';
 
 export const isFileSupported = (filename: string) =>
   isHTMLFile(filename) ??
@@ -21,7 +22,8 @@ export const isFileSupported = (filename: string) =>
 export const getPackagesFromZip = async (
   fileContents: Body | undefined,
   paying: boolean,
-  settings: Settings
+  settings: Settings,
+  workspace: Workspace
 ): Promise<PackageResult> => {
   const zipHandler = new ZipHandler();
   const packages = [];
@@ -42,6 +44,7 @@ export const getPackagesFromZip = async (
         files: zipHandler.files,
         settings,
         noLimits: paying,
+        workspace,
       });
 
       if (deck) {

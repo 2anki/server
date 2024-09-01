@@ -14,7 +14,7 @@ export async function PrepareDeck(
   const parser = new DeckParser(input);
 
   if (parser.totalCardCount() === 0) {
-    const apkg = await parser.tryExperimental();
+    const apkg = await parser.tryExperimental(input.workspace);
     return {
       name: getDeckFilename(parser.name ?? input.name),
       apkg,
@@ -22,7 +22,7 @@ export async function PrepareDeck(
     };
   }
 
-  const apkg = await parser.build();
+  const apkg = await parser.build(input.workspace);
   return {
     name: getDeckFilename(parser.name),
     apkg,

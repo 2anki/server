@@ -6,18 +6,20 @@ import fs from 'fs';
 import { PrepareDeck } from '../../lib/parser/PrepareDeck';
 import { isZIPFile } from '../../lib/storage/checks';
 import { getPackagesFromZip, isFileSupported } from './getPackagesFromZip';
+import Workspace from '../../lib/parser/WorkSpace';
 
 interface GenerationData {
   paying: boolean;
   files: UploadedFile[];
   settings: Settings;
+  workspace: Workspace;
 }
 
 function doGenerationWork(data: GenerationData) {
   console.log('doGenerationWork');
   return new Promise(async (resolve) => {
     console.log('starting generation');
-    const { paying, files, settings } = data;
+    const { paying, files, settings, workspace } = data;
     let packages: Package[] = [];
 
     for (const file of files) {
@@ -31,6 +33,7 @@ function doGenerationWork(data: GenerationData) {
           files: [{ name: filename, contents: fileContents }],
           settings,
           noLimits: paying,
+          workspace,
         });
         if (d) {
           const pkg = new Package(d.name, d.apkg);
@@ -40,7 +43,8 @@ function doGenerationWork(data: GenerationData) {
         const { packages: extraPackages } = await getPackagesFromZip(
           fileContents,
           paying,
-          settings
+          settings,
+          workspace
         );
         packages = packages.concat(extraPackages);
       }

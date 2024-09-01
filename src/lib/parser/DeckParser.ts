@@ -30,6 +30,7 @@ export interface DeckParserInput {
   settings: Settings;
   files: File[];
   noLimits: boolean;
+  workspace: Workspace;
 }
 
 export class DeckParser {
@@ -354,8 +355,7 @@ export class DeckParser {
     return card;
   }
 
-  build() {
-    const ws = new Workspace(true, 'fs');
+  build(ws: Workspace) {
     const exporter = this.setupExporter(this.payload, ws.location);
 
     for (const d of this.payload) {
@@ -475,9 +475,8 @@ export class DeckParser {
     return exporter.save();
   }
 
-  tryExperimental() {
+  tryExperimental(ws: Workspace) {
     const fallback = new FallbackParser(this.files);
-    const ws = new Workspace(true, 'fs');
     const exporter = this.setupExporter(this.payload, ws.location);
 
     this.payload = fallback.run(this.settings);

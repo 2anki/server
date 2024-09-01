@@ -22,6 +22,19 @@ class Workspace {
       fs.mkdirSync(this.location, { recursive: true });
     }
   }
+
+  public getFirstAPKG(): Promise<Buffer | null> {
+    return new Promise((resolve, reject) => {
+      fs.readdir(this.location, (err, files) => {
+        const apkg = files.find((file) => file.endsWith('.apkg'));
+        if (apkg) {
+          resolve(fs.readFileSync(path.join(this.location, apkg)));
+        } else {
+          reject(null);
+        }
+      });
+    });
+  }
 }
 
 export default Workspace;
