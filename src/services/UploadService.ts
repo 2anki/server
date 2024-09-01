@@ -1,6 +1,3 @@
-import fs from 'fs';
-import path from 'path';
-
 import express from 'express';
 
 import { IUploadRepository } from '../data_layer/UploadRespository';
@@ -12,11 +9,9 @@ import StorageHandler from '../lib/storage/StorageHandler';
 import { UploadedFile } from '../lib/storage/types';
 import GeneratePackagesUseCase from '../usecases/uploads/GeneratePackagesUseCase';
 import { toText } from './NotionService/BlockHandler/helpers/deckNameToText';
-import { getSafeFilename } from '../lib/getSafeFilename';
 import { isPaying } from '../lib/isPaying';
 import { isLimitError } from '../lib/misc/isLimitError';
 import { handleUploadLimitError } from '../controllers/Upload/helpers/handleUploadLimitError';
-import workSpace from '../lib/parser/WorkSpace';
 
 class UploadService {
   getUploadsByOwner(owner: number) {
