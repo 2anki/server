@@ -47,7 +47,6 @@
     "get-notion-object-title": "^0.2.0",
     "html-to-text": "^9.0.4",
     "jsonwebtoken": "^9.0.0",
-    "jszip": "^3.10.1",
     "knex": "^3.1.0",
     "metascraper": "^5.34.7",
     "metascraper-description": "^5.39.0",
