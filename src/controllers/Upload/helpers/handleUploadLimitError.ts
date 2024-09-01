@@ -3,6 +3,7 @@ import { useDefaultEmailService } from '../../../services/EmailService/EmailServ
 import UsersService from '../../../services/UsersService';
 import UsersRepository from '../../../data_layer/UsersRepository';
 import { getDatabase } from '../../../data_layer';
+import { shouldRedirect } from '../../../lib/misc/ErrorHandler';
 
 export const handleUploadLimitError = async (
   req: express.Request,
@@ -20,10 +21,17 @@ export const handleUploadLimitError = async (
     );
 
     const user = await usersService.getUserById(response.locals.owner);
-    if (user) {
+
+    if (user && shouldRedirect(req)) {
       return response.redirect('/pricing?error=upload_limit_exceeded');
+    } else {
+      return response.status(400).send('Upload limit exceeded');
     }
   }
 
-  response.redirect('/login?error=upload_limit_exceeded');
+  if (shouldRedirect(req)) {
+    response.redirect('/login?error=upload_limit_exceeded');
+  } else {
+    response.status(400).send('Upload limit exceeded');
+  }
 };

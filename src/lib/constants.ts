@@ -3,6 +3,7 @@ import path from 'path';
 export const TEMPLATE_DIR = path.join(__dirname, '../templates');
 
 export const ALLOWED_ORIGINS = [
+  'http://localhost:3000',
   'http://localhost:8080',
   'http://localhost:2020',
   'https://dev.notion2anki.alemayhu.com',
@@ -26,9 +27,6 @@ export function resolvePath(dir: string, x: string) {
 }
 
 export const TIME_21_MINUTES_AS_SECONDS = 1260;
-
-export const ONE_HOUR = 60 * 60 * 1000;
-
 export const BUILD_DIR =
   process.env.WEB_BUILD_DIR || path.join(__dirname, '../../web/build');
 

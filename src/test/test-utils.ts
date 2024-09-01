@@ -22,7 +22,10 @@ function configureParser(fileName: string, opts: Settings) {
   return new DeckParser(fileName, opts, info);
 }
 
-export async function getDeck(fileName: string, opts: Settings) {
+export async function getFirstDeckFromPayload(
+  fileName: string,
+  opts: Settings
+) {
   const p = configureParser(fileName, opts);
   await p.build();
   return p.payload[0];

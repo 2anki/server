@@ -57,6 +57,10 @@ function perserveFilesForDebugging(uploadedFiles: UploadedFile[], err: Error) {
   });
 }
 
+export function shouldRedirect(request: express.Request): boolean {
+  return request.query?.noRedirect != 'true';
+}
+
 export default function ErrorHandler(
   res: express.Response,
   req: express.Request,
