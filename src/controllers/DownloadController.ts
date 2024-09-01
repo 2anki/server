@@ -61,7 +61,10 @@ class DownloadController {
           return;
         }
 
-        const page = DownloadPage({ id, files });
+        const page = DownloadPage({
+          id,
+          files: files.filter((file) => file.endsWith('.apkg')),
+        });
         res.send(page);
       });
     } else {

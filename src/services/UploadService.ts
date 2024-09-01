@@ -1,6 +1,3 @@
-import fs from 'fs';
-import path from 'path';
-
 import express from 'express';
 
 import { IUploadRepository } from '../data_layer/UploadRespository';
@@ -12,7 +9,6 @@ import StorageHandler from '../lib/storage/StorageHandler';
 import { UploadedFile } from '../lib/storage/types';
 import GeneratePackagesUseCase from '../usecases/uploads/GeneratePackagesUseCase';
 import { toText } from './NotionService/BlockHandler/helpers/deckNameToText';
-import { getSafeFilename } from '../lib/getSafeFilename';
 import { isPaying } from '../lib/isPaying';
 import { isLimitError } from '../lib/misc/isLimitError';
 import { handleUploadLimitError } from '../controllers/Upload/helpers/handleUploadLimitError';
@@ -35,22 +31,27 @@ class UploadService {
       let payload;
       let plen;
       const settings = new Settings(req.body || {});
+      const ws = new Workspace(true, 'fs');
 
       const useCase = new GeneratePackagesUseCase();
       const { packages } = await useCase.execute(
         isPaying(res.locals),
         req.files as UploadedFile[],
-        settings
+        settings,
+        ws
       );
+
+      console.log('packages', packages);
 
       const first = packages[0];
       if (packages.length === 1) {
-        if (!first.apkg) {
+        const apkg = await ws.getFirstAPKG();
+        if (!apkg) {
           const name = first ? first.name : 'untitled';
           throw new Error(`Could not produce APKG for ${name}`);
         }
-        payload = first.apkg;
-        plen = Buffer.byteLength(first.apkg);
+        payload = apkg;
+        plen = Buffer.byteLength(apkg);
         res.set('Content-Type', 'application/apkg');
         res.set('Content-Length', plen.toString());
         first.name = toText(first.name);
@@ -64,14 +65,7 @@ class UploadService {
         res.attachment(`/${first.name}`);
         return res.status(200).send(payload);
       } else if (packages.length > 1) {
-        const workspace = new Workspace(true, 'fs');
-
-        for (const pkg of packages) {
-          const p = path.join(workspace.location, getSafeFilename(pkg.name));
-          fs.writeFileSync(p, pkg.apkg);
-        }
-
-        const url = `/download/${workspace.id}`;
+        const url = `/download/${ws.id}`;
         res.status(300);
         return res.redirect(url);
       } else {

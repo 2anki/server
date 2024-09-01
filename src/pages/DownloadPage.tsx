@@ -44,6 +44,7 @@ export const DownloadPage = ({ id, files }: DownloadPageProps) => {
     },
     downloadItemLink: {},
   };
+  const apkgFiles = files.filter((file) => file.endsWith('.apkg'));
   return ReactDOMServer.renderToStaticMarkup(
     <html>
       <head>
@@ -56,7 +57,7 @@ export const DownloadPage = ({ id, files }: DownloadPageProps) => {
         </header>
         <main>
           <ul style={styles.downloadList}>
-            {files.map((file) => (
+            {apkgFiles.map((file) => (
               <li key={file} style={styles.downloadItem}>
                 <span style={styles.downloadItemName}>{file}</span>
                 <a
