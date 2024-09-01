@@ -10,7 +10,5 @@ test("does not append .apkg extension if it's already there", () => {
 });
 
 test("uses package name if it's available", () => {
-  expect(getDeckFilename(new Package('foo', Buffer.alloc(0)))).toEqual(
-    'foo.apkg'
-  );
+  expect(getDeckFilename(new Package('foo'))).toEqual('foo.apkg');
 });

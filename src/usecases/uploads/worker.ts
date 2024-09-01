@@ -36,7 +36,7 @@ function doGenerationWork(data: GenerationData) {
           workspace,
         });
         if (d) {
-          const pkg = new Package(d.name, d.apkg);
+          const pkg = new Package(d.name);
           packages = packages.concat(pkg);
         }
       } else if (isZIPFile(filename) || isZIPFile(key)) {

@@ -60,17 +60,6 @@ class ZipHandler {
   getFileNames() {
     return this.fileNames;
   }
-
-  static toZip(decks: Package[], advertisment: string | null) {
-    const zip = new JSZip();
-    for (const d of decks) {
-      zip.file(getDeckFilename(d), d.apkg);
-    }
-    if (advertisment) {
-      zip.file('README.html', advertisment);
-    }
-    return zip.generateAsync({ type: 'nodebuffer' });
-  }
 }
 
 export { ZipHandler, File };
