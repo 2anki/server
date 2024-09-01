@@ -61,8 +61,6 @@ class DownloadController {
           return;
         }
 
-        console.log('files', files);
-
         const page = DownloadPage({
           id,
           files: files.filter((file) => file.endsWith('.apkg')),
