@@ -43,6 +43,8 @@ class UploadService {
         settings
       );
 
+      console.log('packages', packages);
+
       const first = packages[0];
       if (packages.length === 1) {
         if (!first.apkg) {

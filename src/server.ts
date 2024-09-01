@@ -27,7 +27,6 @@ import downloadRouter from './routes/DownloadRouter';
 import favoriteRouter from './routes/FavoriteRouter';
 import templatesRouter from './routes/TemplatesRouter';
 import defaultRouter from './routes/DefaultRouter';
-import simpleUploadRouter from './routes/SimpleUploadRouter';
 import webhookRouter from './routes/WebhookRouter';
 
 import { sendError } from './lib/error/sendError';
@@ -75,7 +74,6 @@ const serve = async () => {
   app.use(downloadRouter());
   app.use(favoriteRouter());
   app.use(templatesRouter());
-  app.use(simpleUploadRouter());
 
   // Note: this has to be the last router
   app.use(defaultRouter());
