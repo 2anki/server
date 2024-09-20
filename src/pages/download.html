@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Your Download</title>
+
+  <style>
+
+      header {
+          padding: 1rem;
+      }
+
+      body {
+          margin: 0 auto;
+          maxWidth: 800px;
+          padding: 20px;
+          border: 1px solid #ccc;
+      }
+
+      .downloadHeader {
+          display: flex;
+          justify-content: space-between;
+          padding: 1rem;
+      }
+
+      .downloadList {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+      }
+
+      .downloadList li {
+          margin-bottom: 10px;
+          display: flex;
+          justify-content: space-between;
+      }
+
+      .downloadList li span {
+          display: block;
+          padding: 10px 20px;
+          background-color: #eee;
+          text-decoration: none;
+          color: #000;
+          max-width: 80%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+      }
+
+      .downloadList li a:hover {
+          background-color: #ddd;
+      }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1 class="downloadHeader">Your downloads are ready</h1>
+  <p>This is the list of Anki decks detected from your upload.</p>
+</header>
+
+<main>
+  <ul class="downloadList">
+    {DOWNLOAD_LIST}
+  </ul>
+  <p>
+    This folder will be automatically deleted. Return to
+    <a href="https://2anki.net">2anki.net</a>
+  </p>
+</main>
+
+</body>
+</html>
