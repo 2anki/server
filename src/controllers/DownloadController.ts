@@ -1,16 +1,22 @@
 import fs from 'fs';
+import path from 'path';
 
 import { Request, Response } from 'express';
 
-import path from 'path';
 import { sendError } from '../lib/error/sendError';
 import StorageHandler from '../lib/storage/StorageHandler';
-import { DownloadPage } from '../pages/DownloadPage';
 import DownloadService from '../services/DownloadService';
 import { canAccess } from '../lib/misc/canAccess';
 
 class DownloadController {
   constructor(private service: DownloadService) {}
+
+  loadTemplate(): string {
+    return fs.readFileSync(
+      path.join(__dirname, '../pages/download.html'),
+      'utf8'
+    );
+  }
 
   async getFile(req: Request, res: Response, storage: StorageHandler) {
     const { key } = req.params;
@@ -61,10 +67,23 @@ class DownloadController {
           return;
         }
 
-        const page = DownloadPage({
-          id,
-          files: files.filter((file) => file.endsWith('.apkg')),
-        });
+        const listOfFiles = files
+          .filter((file) => file.toLowerCase().endsWith('.apkg'))
+          .map(
+            (file) => `
+            <li><span>${file}</span>
+          <a download='${path.basename(file)}' href='${id}/${file}' >
+           Download
+        </a>
+        </li>
+            `
+          )
+          .join('\n');
+
+        const page = this.loadTemplate().replace(
+          '{DOWNLOAD_LIST}',
+          listOfFiles
+        );
         res.send(page);
       });
     } else {

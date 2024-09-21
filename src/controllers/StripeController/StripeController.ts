@@ -6,8 +6,9 @@ import UsersRepository from '../../data_layer/UsersRepository';
 import UsersService from '../../services/UsersService';
 import TokenRepository from '../../data_layer/TokenRepository';
 import AuthenticationService from '../../services/AuthenticationService';
-import { getStripe } from '../../lib/integrations/stripe';
+import { getCustomerId, getStripe, updateStoreSubscription } from '../../lib/integrations/stripe';
 import { extractTokenFromCookies } from './extractTokenFromCookies';
+import Stripe from 'stripe';
 
 export class StripeController {
   async getSuccessfulCheckout(req: express.Request, res: express.Response) {
@@ -49,5 +50,62 @@ export class StripeController {
     }
 
     res.send(getIndexFileContents());
+  }
+
+  async postWebhook(request: express.Request, response: express.Response) {
+    {
+      const sig = request.headers['stripe-signature'];
+      const stripe = getStripe();
+      let event;
+
+      try {
+        event = stripe.webhooks.constructEvent(
+          request.body,
+          // @ts-ignore
+          sig,
+          process.env.STRIPE_ENDPOINT_SECRET
+        );
+      } catch (err) {
+        // @ts-ignore
+        response.status(400).send(`Webhook Error: ${err.message}`);
+        console.error(err);
+        return;
+      }
+
+      // Handle the event
+      switch (event.type) {
+        case 'customer.subscription.updated':
+          const customerSubscriptionUpdated = event.data.object;
+          // Then define and call a function to handle the event customer.subscription.updated
+          const customer = await stripe.customers.retrieve(
+            getCustomerId(customerSubscriptionUpdated.customer)
+          );
+
+          await updateStoreSubscription(
+            getDatabase(),
+            customer as Stripe.Customer,
+            customerSubscriptionUpdated
+          );
+          break;
+        case 'customer.subscription.deleted':
+          const customerSubscriptionDeleted = event.data.object;
+          // Then define and call a function to handle the event customer.subscription.deleted
+          const customerDeleted = await stripe.customers.retrieve(
+            getCustomerId(customerSubscriptionDeleted.customer)
+          );
+
+          await updateStoreSubscription(
+            getDatabase(),
+            customerDeleted as Stripe.Customer,
+            customerSubscriptionDeleted
+          );
+          break;
+        default:
+          console.log(`Unhandled event type ${event.type}`);
+      }
+
+      // Return a 200 response to acknowledge receipt of the event
+      response.send();
+    }
   }
 }
