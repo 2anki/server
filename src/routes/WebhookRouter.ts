@@ -1,12 +1,5 @@
 import express from 'express';
-import Stripe from 'stripe';
 
-import {
-  getCustomerId,
-  getStripe,
-  updateStoreSubscription,
-} from '../lib/integrations/stripe';
-import { getDatabase } from '../data_layer';
 import { StripeController } from '../controllers/StripeController/StripeController';
 
 const WebhooksRouter = () => {
