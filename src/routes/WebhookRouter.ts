@@ -13,7 +13,9 @@ const WebhooksRouter = () => {
     async (
       request: express.Request,
       response: express.Response
-    ): Promise<void> => controller.postWebhook(request, response)
+    ): Promise<void> => {
+      await controller.postWebhook(request, response);
+    }
   );
 
   router.get('/successful-checkout', (req, res) =>
