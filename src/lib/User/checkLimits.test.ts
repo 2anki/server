@@ -1,25 +1,40 @@
 import { checkFlashcardsLimits } from './checkFlashcardsLimits';
 
 describe('checkLimits', () => {
-
   test('throws an error if more than 100 cards are added for anon', () => {
-    expect(() => checkFlashcardsLimits({
-      decks: [],
-      paying: false,
-      cards: 101
-    })).toThrow();
+    expect(() =>
+      checkFlashcardsLimits({
+        decks: [],
+        paying: false,
+        cards: 101,
+      })
+    ).toThrow();
   });
 
   test('does not throw an error if 100 cards are added by patreon or subscriber', () => {
-    expect(() => checkFlashcardsLimits({
-      decks: [],
-      paying: true,
-      cards: 200
-    })).not.toThrow();
-    expect(() => checkFlashcardsLimits({
-      decks: [],
-      cards: 500,
-      paying: true,
-    })).not.toThrow();
-  })
+    expect(() =>
+      checkFlashcardsLimits({
+        decks: [],
+        paying: true,
+        cards: 200,
+      })
+    ).not.toThrow();
+    expect(() =>
+      checkFlashcardsLimits({
+        decks: [],
+        cards: 500,
+        paying: true,
+      })
+    ).not.toThrow();
+  });
+
+  test('does not throw an error if 51 cards are added by anon', () => {
+    expect(() =>
+      checkFlashcardsLimits({
+        decks: [],
+        paying: undefined,
+        cards: 51,
+      })
+    ).not.toThrow();
+  });
 });
