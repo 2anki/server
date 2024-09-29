@@ -1,8 +1,16 @@
 import { Knex } from 'knex';
 
-import { MS_21 } from './helpers/deleteOldUploads';
-import { runCleanup } from './helpers/runCleanup';
+import deleteOldUploads, {
+  MS_21,
+  MS_24_HOURS,
+} from './helpers/deleteOldUploads';
+import { runFileSystemCleanup } from './helpers/runFileSystemCleanup';
 
 export const ScheduleCleanup = (db: Knex) => {
-  setInterval(() => runCleanup(db), MS_21);
+  setInterval(() => runFileSystemCleanup(db), MS_21);
+
+  setInterval(
+    () => deleteOldUploads(db).then(() => console.info('deleted old uploads')),
+    MS_24_HOURS
+  );
 };

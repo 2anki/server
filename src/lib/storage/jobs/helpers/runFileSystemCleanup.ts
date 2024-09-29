@@ -4,10 +4,9 @@ import os from 'os';
 import { Knex } from 'knex';
 
 import deleteOldFiles from './deleteOldFiles';
-import deleteOldUploads from './deleteOldUploads';
 import { getDatabase } from '../../../../data_layer';
 
-export const runCleanup = async (database: Knex) => {
+export const runFileSystemCleanup = (database: Knex) => {
   console.time('running cleanup');
   const locations = [
     process.env.WORKSPACE_BASE ?? path.join(os.tmpdir(), 'workspaces'),
@@ -15,7 +14,6 @@ export const runCleanup = async (database: Knex) => {
   ];
 
   deleteOldFiles(locations);
-  await deleteOldUploads(database);
   database.raw(
     "DELETE FROM jobs WHERE created_at < NOW() - INTERVAL '14 days' AND status = 'failed'"
   );
@@ -23,5 +21,6 @@ export const runCleanup = async (database: Knex) => {
 };
 
 if (require.main === module) {
-  runCleanup(getDatabase()).then(() => console.log('Cleanup complete'));
+  runFileSystemCleanup(getDatabase());
+  console.log('Cleanup complete');
 }
