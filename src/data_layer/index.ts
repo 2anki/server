@@ -31,8 +31,11 @@ export const setupDatabase = async (database: Knex) => {
     if (process.env.MIGRATIONS_DIR) {
       process.chdir(path.join(process.env.MIGRATIONS_DIR, '..'));
     }
-    console.info('DB is ready');
-    ScheduleCleanup(database);
+
+    if (process.env.NODE_ENV === 'production') {
+      console.info('DB is ready');
+      ScheduleCleanup(database);
+    }
 
     await database.migrate.latest(KnexConfig as MigratorConfig);
 
