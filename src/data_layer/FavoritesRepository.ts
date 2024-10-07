@@ -31,12 +31,6 @@ export class FavoritesRepository {
     });
   }
 
-  deleteAll(owner: number | string) {
-    return this.database(this.table).delete().where({
-      owner,
-    });
-  }
-
   findById(id: string): Promise<Favorites> {
     return this.database(this.table)
       .select('*')
