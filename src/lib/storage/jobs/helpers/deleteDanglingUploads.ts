@@ -9,7 +9,11 @@ export const deleteDanglingUploads = async (
   storage: StorageHandler
 ) => {
   const query = await db.raw(`
-    SELECT up.key FROM users u JOIN uploads up ON u.id = up.owner WHERE u.patreon = true;
+    SELECT up.key
+    FROM users u
+    JOIN uploads up ON u.id = up.owner
+    LEFT JOIN subscriptions s ON u.email = s.email OR u.email = s.linked_email
+    WHERE s.active = true;
     `);
   const subScriberUploads: Uploads[] | [] = query.rows || [];
   const storedFiles = await storage.getContents(MAX_KEYS);
