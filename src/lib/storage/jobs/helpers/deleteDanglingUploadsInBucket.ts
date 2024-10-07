@@ -4,7 +4,7 @@ import Uploads from '../../../../data_layer/public/Uploads';
 
 const MAX_KEYS = 100_000;
 
-export const deleteDanglingUploads = async (
+export const deleteDanglingUploadsInBucket = async (
   db: Knex,
   storage: StorageHandler
 ) => {
