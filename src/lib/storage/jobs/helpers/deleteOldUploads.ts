@@ -14,9 +14,12 @@ const deleteNonSubScriberUploads = async (
   storage: StorageHandler
 ) => {
   const query = await db.raw(`
-    SELECT up.key FROM users u JOIN uploads up ON u.id = up.owner WHERE u.patreon = false;
+    SELECT up.key 
+    FROM users u 
+    JOIN uploads up ON u.id = up.owner 
+    LEFT JOIN subscriptions s ON u.email = s.email OR u.email = s.linked_email
+    WHERE u.patreon = false AND (s.active IS NULL OR s.active = false);
   `);
-  // TODO: review this again now that we have subscriptions
   const nonSubScriberUploads: Uploads[] | undefined = query.rows;
   if (!nonSubScriberUploads) {
     return;
