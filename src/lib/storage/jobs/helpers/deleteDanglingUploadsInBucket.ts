@@ -24,7 +24,7 @@ export const deleteDanglingUploadsInBucket = async (
 
   for (const file of nonPatreonFiles) {
     if (file.Key) {
-      storage.delete(file.Key);
+      await storage.delete(file.Key);
     }
   }
 };
