@@ -2,7 +2,7 @@ import { Knex } from 'knex';
 import StorageHandler from '../../StorageHandler';
 import Uploads from '../../../../data_layer/public/Uploads';
 
-export const deleteNonSubScriberUploads = async (
+export const deleteNonSubScriberUploadsInDatabase = async (
   db: Knex,
   storage: StorageHandler
 ) => {
