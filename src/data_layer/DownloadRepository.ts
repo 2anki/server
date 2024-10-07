@@ -13,6 +13,7 @@ class DownloadRepository {
   }
 
   deleteMissingFile(owner: string, key: string) {
+    console.warn(`Deleting missing file ${key} for ${owner}`);
     return this.database.table('uploads').where({ owner, key }).delete();
   }
 }

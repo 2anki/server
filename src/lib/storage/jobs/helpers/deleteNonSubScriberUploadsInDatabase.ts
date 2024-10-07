@@ -19,6 +19,7 @@ export const deleteNonSubScriberUploadsInDatabase = async (
   }
 
   for (const upload of nonSubScriberUploads.flat()) {
+    console.info(`Deleting non-subscriber upload ${upload.key}`);
     await storage.delete(upload.key);
     await db('uploads').delete().where('key', upload.key);
   }
