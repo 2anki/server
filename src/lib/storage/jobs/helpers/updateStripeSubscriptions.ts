@@ -30,7 +30,7 @@ const updateStripeSubscriptions = async () => {
           if (sub && !sub.active) {
             console.info('Updating customer', customer.id);
             await database
-              .table('customers')
+              .table('subscriptions')
               .where({ email: customer.email })
               .update({ active: true });
           } else {
