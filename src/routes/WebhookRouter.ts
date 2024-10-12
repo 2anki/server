@@ -88,6 +88,7 @@ const WebhooksRouter = () => {
             await users.updatePatreonByEmail(lifeTimeCustomer.email, true);
           }
           console.log('checkout.session.completed');
+          break;
         default:
           console.log(`Unhandled event type ${event.type}`);
       }
