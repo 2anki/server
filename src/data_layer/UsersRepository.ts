@@ -103,6 +103,10 @@ class UsersRepository {
   updatePicture(id: string, picture: string) {
     return this.database(this.table).where({ id }).update({ picture });
   }
+
+  updatePatreonByEmail(email: string, patreon: boolean) {
+    return this.database(this.table).where({ email }).update({ patreon });
+  }
 }
 
 export default UsersRepository;

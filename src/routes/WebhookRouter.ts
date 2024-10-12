@@ -8,6 +8,7 @@ import {
 } from '../lib/integrations/stripe';
 import { getDatabase } from '../data_layer';
 import { StripeController } from '../controllers/StripeController/StripeController';
+import UsersRepository from '../data_layer/UsersRepository';
 
 const WebhooksRouter = () => {
   const router = express.Router();
@@ -45,6 +46,7 @@ const WebhooksRouter = () => {
           const customerSubscriptionUpdated = event.data.object;
           // Then define and call a function to handle the event customer.subscription.updated
           const customer = await stripe.customers.retrieve(
+            // @ts-ignore
             getCustomerId(customerSubscriptionUpdated.customer)
           );
 
@@ -56,17 +58,36 @@ const WebhooksRouter = () => {
           break;
         case 'customer.subscription.deleted':
           const customerSubscriptionDeleted = event.data.object;
-          // Then define and call a function to handle the event customer.subscription.deleted
-          const customerDeleted = await stripe.customers.retrieve(
-            getCustomerId(customerSubscriptionDeleted.customer)
-          );
+          if (typeof customerSubscriptionDeleted.customer === 'string') {
+            // Then define and call a function to handle the event customer.subscription.deleted
+            const customerDeleted = await stripe.customers.retrieve(
+              // @ts-ignore
+              getCustomerId(customerSubscriptionDeleted.customer)
+            );
 
-          await updateStoreSubscription(
-            getDatabase(),
-            customerDeleted as Stripe.Customer,
-            customerSubscriptionDeleted
-          );
+            await updateStoreSubscription(
+              getDatabase(),
+              customerDeleted as Stripe.Customer,
+              customerSubscriptionDeleted
+            );
+          }
           break;
+        case 'checkout.session.completed':
+          const session: Stripe.Checkout.Session = event.data.object;
+          const amount = session.amount_total ?? 0;
+
+          const LIFE_TIME_PRICE = 9600;
+          if (amount >= LIFE_TIME_PRICE) {
+            const lifeTimeCustomer = await stripe.customers.retrieve(
+              // @ts-ignore
+              getCustomerId(session.customer)
+            );
+
+            const users = new UsersRepository(getDatabase());
+            // @ts-ignore
+            await users.updatePatreonByEmail(lifeTimeCustomer.email, true);
+          }
+          console.log('checkout.session.completed');
         default:
           console.log(`Unhandled event type ${event.type}`);
       }

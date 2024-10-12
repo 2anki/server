@@ -6,12 +6,12 @@ const stripe = new Stripe(process.env.STRIPE_KEY!);
 export const getStripe = () => stripe;
 
 export const getCustomerId = (
-  customer: string | Stripe.Customer | Stripe.DeletedCustomer
+  customer: string | Stripe.Customer | Stripe.DeletedCustomer | null
 ) => {
   if (typeof customer === 'string') {
     return customer;
   }
-  return customer.id;
+  return customer?.id;
 };
 
 export const updateStoreSubscription = async (
