@@ -25,7 +25,10 @@ export interface IEmailService {
 }
 
 class EmailService implements IEmailService {
-  constructor(apiKey: string, readonly defaultSender: string) {
+  constructor(
+    apiKey: string,
+    readonly defaultSender: string
+  ) {
     sgMail.setApiKey(apiKey);
   }
 
