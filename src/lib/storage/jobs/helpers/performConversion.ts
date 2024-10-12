@@ -48,9 +48,8 @@ export default async function performConversion(
       res.status(200).send();
     }
 
-    const { ws, exporter, settings, bl, rules } = await job.createWorkSpace(
-      api
-    );
+    const { ws, exporter, settings, bl, rules } =
+      await job.createWorkSpace(api);
     const decks = await job.createFlashcards(bl, id, rules, settings, type);
     if (!decks) {
       await job.failed();

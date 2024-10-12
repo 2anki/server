@@ -75,9 +75,8 @@ class AuthenticationService {
       return null;
     }
 
-    const accessToken = await this.tokenRepository.getAccessTokenFromString(
-      token
-    );
+    const accessToken =
+      await this.tokenRepository.getAccessTokenFromString(token);
     if (!accessToken) {
       return null;
     }

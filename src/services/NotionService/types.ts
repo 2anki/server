@@ -6,7 +6,7 @@ export type PropertiesPageTitle = {
       id: string;
       type: string;
       title: TextRichTextItemResponse;
-    }
+    },
   ];
 };
 
