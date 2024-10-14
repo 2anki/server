@@ -61,7 +61,6 @@ class UsersRepository {
       'uploads',
       'blocks',
       'dropbox_uploads',
-      'subscriptions',
       'google_drive_uploads',
     ];
     return Promise.all([
