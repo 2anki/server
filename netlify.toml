@@ -1,7 +1,7 @@
 [build]
   base = "web"
   publish = "build"
-  command = "npm run build"
+  command = "pnpm run build"
 [[headers]]
   # Define which paths this specific [[headers]] block will cover.
   for = "*"

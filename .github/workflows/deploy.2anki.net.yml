@@ -33,20 +33,19 @@ jobs:
             git -C ${SERVER_DIR}      stash
             git -C ${WEB_DIR}         stash
 
-            
             git -C ${CREATE_DECK_DIR} pull origin
             git -C ${SERVER_DIR}      pull origin
             git -C ${WEB_DIR}         pull origin
 
-            git -C ${SERVER_DIR} clean -fd 
-            npm --prefix ${WEB_DIR} install
-            npm --prefix ${SERVER_DIR} install
+            git -C ${SERVER_DIR} clean -fd
+            pnpm --prefix ${WEB_DIR} install
+            pnpm --prefix ${SERVER_DIR} install
 
             pip install -r ${CREATE_DECK_DIR}/requirements.txt
 
             rm -r ${TMP_BUILD_DIR}
-            npm --prefix ${SERVER_DIR} run build
-            BUILD_PATH=${TMP_BUILD_DIR} npm --prefix ${WEB_DIR} run build
+            pnpm --prefix ${SERVER_DIR} run build
+            BUILD_PATH=${TMP_BUILD_DIR} pnpm --prefix ${WEB_DIR} run build
             rsync -avh ${TMP_BUILD_DIR} ${WEB_DIR} --delete
 
             cd ${SERVER_DIR}/..

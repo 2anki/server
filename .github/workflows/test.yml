@@ -22,8 +22,8 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: test
         run: |
-          npm install
-          npm run test
+          pnpm install
+          pnpm run test
         env:
           CI: true
           NOTION_KEY: ${{ secrets.NOTION_KEY }}

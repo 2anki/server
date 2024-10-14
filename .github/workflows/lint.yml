@@ -19,9 +19,9 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-      - name: npm run lint
+      - name: pnpm run lint
         run: |
-          npm install
-          npm run lint
+          pnpm install
+          pnpm run lint
         env:
           CI: true
