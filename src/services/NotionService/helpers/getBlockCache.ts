@@ -1,5 +1,4 @@
 import { ListBlockChildrenResponse } from '@notionhq/client/build/src/api-endpoints';
-import isAfter from 'date-fns/isAfter';
 import { Knex } from 'knex';
 
 import Blocks from '../../../data_layer/public/Blocks';
@@ -21,7 +20,7 @@ export async function getBlockCache({
     .where({ object_id: id, owner })
     .first();
   // We did not find a cache entry or the user has made changes
-  if (!cache || isAfter(new Date(lastEditedAt), cache.last_edited_time)) {
+  if (!cache || new Date(lastEditedAt) > new Date(cache.last_edited_time)) {
     return undefined;
   }
   // Found cache and update the fetch request (used for performance analysis)
