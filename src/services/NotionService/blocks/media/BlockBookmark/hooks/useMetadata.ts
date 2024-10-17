@@ -20,6 +20,7 @@ export default async function useMetadata(url: string): Promise<Metadata> {
     const response = await axios.get(url);
     return metascraper({ html: response.data, url });
   } catch (error) {
+    console.error(error);
     return {
       description: '',
       title: new URL(url).hostname,

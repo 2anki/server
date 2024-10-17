@@ -182,7 +182,8 @@ export class DeckParser {
     try {
       const firstHeading = dom('h1').first();
       return firstHeading.text();
-    } catch (_e) {
+    } catch (e) {
+      console.error(e);
       return undefined;
     }
   }
@@ -305,6 +306,7 @@ export class DeckParser {
         }
         return ma;
       } catch (error) {
+        console.error(error);
         return null;
       }
     });

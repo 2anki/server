@@ -15,6 +15,8 @@ module.exports = {
     'react/jsx-filename-extension': 'off',
     'prettier/prettier': ['error'],
     'require-await': 'error',
+    '@typescript-eslint/lines-between-class-members': 'off',
+    '@typescript-eslint/no-throw-literal': 'off',
   },
-  "ignorePatterns": ["src/data_layer/public/", "migrations", "*.test.*"],
+  ignorePatterns: ['src/data_layer/public/', 'migrations', '*.test.*'],
 };

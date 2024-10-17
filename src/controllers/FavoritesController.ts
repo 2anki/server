@@ -49,6 +49,7 @@ class FavoritesController {
       );
       res.json(favorites);
     } catch (error) {
+      console.error(error);
       res.json([]);
     }
   }

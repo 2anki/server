@@ -53,6 +53,7 @@ export function isFileNameEqual(file: File, name: string) {
       return true;
     }
   } catch (error) {
+    console.error(error);
     console.debug('Failed to decode name');
   }
 
@@ -62,6 +63,7 @@ export function isFileNameEqual(file: File, name: string) {
 
     return decodedFilename === decodedName;
   } catch (error) {
+    console.error(error);
     console.debug('Failed to decode names');
   }
 

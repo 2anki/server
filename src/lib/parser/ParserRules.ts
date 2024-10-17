@@ -54,6 +54,7 @@ class ParserRules {
       rules.EMAIL_NOTIFICATION = result.email_notification;
       return rules;
     } catch (error) {
+      console.error(error);
       return new ParserRules();
     }
   }
