@@ -20,3 +20,5 @@ export const isImageFileEmbedable = (url: string) =>
   !url.startsWith('http') && !url.startsWith('data:image');
 
 export const isCSVFile = (fileName: string) => /.csv$/i.exec(fileName);
+
+export const isPDFFile = (fileName: string) => /.pdf$/i.exec(fileName);

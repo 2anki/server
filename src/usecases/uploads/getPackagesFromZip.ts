@@ -12,6 +12,7 @@ import {
   isPlainText,
 } from '../../lib/storage/checks';
 import Workspace from '../../lib/parser/WorkSpace';
+import { allowPDFUpload } from './allowPDFUpload';
 
 export const isFileSupported = (filename: string) =>
   isHTMLFile(filename) ??
@@ -38,7 +39,10 @@ export const getPackagesFromZip = async (
 
   let cardCount = 0;
   for (const fileName of fileNames) {
-    if (isFileSupported(fileName)) {
+    if (
+      isFileSupported(fileName) ||
+      allowPDFUpload(fileName, paying, settings.vertexAIPDFQuestions)
+    ) {
       const deck = await PrepareDeck({
         name: fileName,
         files: zipHandler.files,

@@ -7,6 +7,7 @@ import { PrepareDeck } from '../../lib/parser/PrepareDeck';
 import { isZIPFile } from '../../lib/storage/checks';
 import { getPackagesFromZip, isFileSupported } from './getPackagesFromZip';
 import Workspace from '../../lib/parser/WorkSpace';
+import { allowPDFUpload } from './allowPDFUpload';
 
 interface GenerationData {
   paying: boolean;
@@ -27,7 +28,10 @@ function doGenerationWork(data: GenerationData) {
       const filename = file.originalname;
       const key = file.key;
 
-      if (isFileSupported(filename)) {
+      if (
+        isFileSupported(filename) ||
+        allowPDFUpload(filename, paying, settings.vertexAIPDFQuestions)
+      ) {
         const d = await PrepareDeck({
           name: filename,
           files: [{ name: filename, contents: fileContents }],

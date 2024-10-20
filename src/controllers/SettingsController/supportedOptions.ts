@@ -118,6 +118,12 @@ const supportedOptions = (): CardOption[] => {
       'Enable conversion of bullet and sub bullet points in Markdown. If you are a Obsidian user, enable this',
       false
     ),
+    new CardOption(
+      'vertex-ai-pdf-questions',
+      'Generate Questions from Single PDF File Uploads',
+      'Use Vertex AI API to generate questions from PDFs. This is a paid feature and if enabled will send your notes to Google Cloud.',
+      false
+    ),
   ];
 
   return v.filter(Boolean);

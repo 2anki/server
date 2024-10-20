@@ -66,6 +66,8 @@ export class Settings {
 
   readonly nestedBulletPoints: boolean;
 
+  readonly vertexAIPDFQuestions: boolean;
+
   constructor(input: { [key: string]: string }) {
     this.deckName = input.deckName;
     if (this.deckName && !this.deckName.trim()) {
@@ -97,6 +99,7 @@ export class Settings {
     this.parentBlockId = input.parentBlockId;
     this.pageEmoji = input['page-emoji'] || 'first_emoji';
     this.addNotionLink = input['add-notion-link'] === 'true';
+    this.vertexAIPDFQuestions = input['vertex-ai-pdf-questions'] === 'true';
     /* Is this really needed? */
     if (this.parentBlockId) {
       this.addNotionLink = true;

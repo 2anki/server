@@ -138,16 +138,19 @@ class FallbackParser {
         clean = false;
       }
 
-      decks.push(
-        new Deck(
-          deckName,
-          clean ? Deck.CleanCards(cards) : cards,
-          '', // skip cover image
-          '', // skip style
-          get16DigitRandomId(),
-          settings
-        )
-      );
+      cards = Deck.CleanCards(cards);
+      if (cards.length > 0) {
+        decks.push(
+          new Deck(
+            deckName,
+            clean ? Deck.CleanCards(cards) : cards,
+            '', // skip cover image
+            '', // skip style
+            get16DigitRandomId(),
+            settings
+          )
+        );
+      }
     }
     return decks;
   }
