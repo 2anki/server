@@ -138,12 +138,11 @@ class FallbackParser {
         clean = false;
       }
 
-      cards = Deck.CleanCards(cards);
       if (cards.length > 0) {
         decks.push(
           new Deck(
             deckName,
-            clean ? Deck.CleanCards(cards) : cards,
+            clean ? Deck.CleanCards(cards) : cards, // Do not clean csv files
             '', // skip cover image
             '', // skip style
             get16DigitRandomId(),
