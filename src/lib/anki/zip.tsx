@@ -11,12 +11,15 @@ interface File {
 
 class ZipHandler {
   fileNames: string[];
-
   files: File[];
+  zipFileCount: number;
+  maxZipFiles: number;
 
-  constructor() {
+  constructor(maxNestedZipFiles: number) {
     this.fileNames = [];
     this.files = [];
+    this.zipFileCount = 0;
+    this.maxZipFiles = maxNestedZipFiles;
   }
 
   build(zipData: Uint8Array, paying: boolean) {
@@ -35,31 +38,40 @@ class ZipHandler {
         )
       );
     }
+
+    this.processZip(zipData);
+  }
+
+  private processZip(zipData: Uint8Array) {
+    if (this.zipFileCount >= this.maxZipFiles) {
+      throw new Error('Too many zip files in the upload.');
+    }
+
     const loadedZip = unzipSync(zipData, {
       filter(file) {
         return !file.name.endsWith('/');
       },
     });
-    this.fileNames = Object.keys(loadedZip);
-    this.files = [];
 
-    for (const name of this.fileNames) {
+    for (const name in loadedZip) {
       const file = loadedZip[name];
       let contents = file;
 
-      /**
-       * For now disable batch processing of PDF files. We only want single uploads to avoid creating too many requests.
-       */
       if (name.includes('__MACOSX/') || isPDFFile(name)) {
         continue;
       }
 
-      if ((isHTMLFile(name) || isMarkdownFile(name)) && contents) {
+      if (name.endsWith('.zip')) {
+        this.zipFileCount++;
+        this.processZip(file);
+      } else if ((isHTMLFile(name) || isMarkdownFile(name)) && contents) {
         this.files.push({ name, contents: strFromU8(file) });
       } else if (contents) {
         this.files.push({ name, contents });
       }
     }
+
+    this.fileNames = this.files.map((file) => file.name);
   }
 
   getFileNames() {

@@ -13,6 +13,7 @@ import {
 } from '../../lib/storage/checks';
 import Workspace from '../../lib/parser/WorkSpace';
 import { allowPDFUpload } from './allowPDFUpload';
+import { getMaxUploadCount } from '../../lib/misc/getMaxUploadCount';
 
 export const isFileSupported = (filename: string) =>
   isHTMLFile(filename) ??
@@ -26,7 +27,7 @@ export const getPackagesFromZip = async (
   settings: Settings,
   workspace: Workspace
 ): Promise<PackageResult> => {
-  const zipHandler = new ZipHandler();
+  const zipHandler = new ZipHandler(getMaxUploadCount(paying));
   const packages = [];
 
   if (!fileContents) {
