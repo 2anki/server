@@ -111,7 +111,7 @@ export class DeckParser {
   }
 
   findIndentedToggleLists(dom: cheerio.Root): cheerio.Element[] {
-    const selector = '.page-body';
+    const selector = '.page-body > details';
     return dom(selector).toArray();
   }
 
@@ -570,9 +570,7 @@ export class DeckParser {
   private extractToggleLists(dom: cheerio.Root) {
     const foundToggleLists = this.findToggleLists(dom);
 
-    return foundToggleLists.length > 0
-      ? foundToggleLists
-      : this.findIndentedToggleLists(dom);
+    return [...foundToggleLists, ...this.findIndentedToggleLists(dom)];
   }
 
   private extractCards(dom: cheerio.Root, toggleList: cheerio.Element[]) {
@@ -597,7 +595,11 @@ export class DeckParser {
         dom('details').addClass(parentClass);
         dom('summary').addClass(parentClass);
         const summary = parentUL.find('summary').first();
-        const toggle = parentUL.find('details').first();
+        let toggle = parentUL.find('details').first();
+
+        if (!toggle?.html()) {
+          toggle = parentUL.find('.indented');
+        }
 
         if (summary && summary.text()) {
           const validSummary = (() =>
