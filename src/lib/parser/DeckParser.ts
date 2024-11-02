@@ -24,6 +24,8 @@ import { isImageFileEmbedable, isMarkdownFile } from '../storage/checks';
 import { getFileContents } from './getFileContents';
 import { handleNestedBulletPointsInMarkdown } from './handleNestedBulletPointsInMarkdown';
 import { checkFlashcardsLimits } from '../User/checkFlashcardsLimits';
+import { extractStyles } from './extractStyles';
+import { withFontSize } from './withFontSize';
 
 export interface DeckParserInput {
   name: string;
@@ -135,16 +137,6 @@ export class DeckParser {
       .replace('<summary class="toggle"></summary>', '');
   }
 
-  setFontSize(style: string) {
-    let { fontSize } = this.settings;
-    if (fontSize && fontSize !== '20px') {
-      // For backwards compatability, don't touch the font-size if it's 20px
-      fontSize = fontSize.trim().endsWith('px') ? fontSize : `${fontSize}px`;
-      style += '\n' + `* { font-size:${fontSize}}`;
-    }
-    return style;
-  }
-
   getLink(pageId: string | undefined, note: Note): string | null {
     try {
       const page = pageId!.replace(/-/g, '');
@@ -195,7 +187,7 @@ export class DeckParser {
     decks: Deck[]
   ) {
     let dom = this.loadDOM(contents);
-    const style = this.extractStyle(dom);
+    const style = withFontSize(extractStyles(dom), this.settings.fontSize);
     let image: string | undefined = this.extractCoverImage(dom);
 
     const name = this.extractName(
@@ -511,15 +503,6 @@ export class DeckParser {
           : contents
       )
     );
-  }
-
-  private extractStyle(dom: cheerio.Root) {
-    let style = dom('style').html();
-    if (style) {
-      style = style.replace(/white-space: pre-wrap;/g, '');
-      return this.setFontSize(style);
-    }
-    return null;
   }
 
   private extractCoverImage(dom: cheerio.Root) {
