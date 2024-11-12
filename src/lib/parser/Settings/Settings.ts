@@ -67,6 +67,7 @@ export class Settings {
   readonly nestedBulletPoints: boolean;
 
   readonly vertexAIPDFQuestions: boolean;
+  readonly disableIndentedBulletPoints: boolean;
 
   constructor(input: { [key: string]: string }) {
     this.deckName = input.deckName;
@@ -100,6 +101,8 @@ export class Settings {
     this.pageEmoji = input['page-emoji'] || 'first_emoji';
     this.addNotionLink = input['add-notion-link'] === 'true';
     this.vertexAIPDFQuestions = input['vertex-ai-pdf-questions'] === 'true';
+    this.disableIndentedBulletPoints =
+      input['disable-indented-bullets'] === 'true';
     /* Is this really needed? */
     if (this.parentBlockId) {
       this.addNotionLink = true;

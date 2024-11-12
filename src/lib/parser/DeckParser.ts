@@ -26,6 +26,7 @@ import { handleNestedBulletPointsInMarkdown } from './handleNestedBulletPointsIn
 import { checkFlashcardsLimits } from '../User/checkFlashcardsLimits';
 import { extractStyles } from './extractStyles';
 import { withFontSize } from './withFontSize';
+import { findToggleLists } from './findToggles';
 
 export interface DeckParserInput {
   name: string;
@@ -117,14 +118,6 @@ export class DeckParser {
     return dom(selector).toArray();
   }
 
-  findToggleLists(dom: cheerio.Root): cheerio.Element[] {
-    const selector =
-      this.settings.isCherry || this.settings.isAll
-        ? '.toggle'
-        : '.page-body > ul';
-    return dom(selector).toArray();
-  }
-
   removeNestedToggles(input: string) {
     return input
       .replace(/<details(.*?)>(.*?)<\/details>/g, '')
@@ -206,9 +199,19 @@ export class DeckParser {
     const paragraphs = this.extractCardsFromParagraph(dom);
     let cards: Note[] = this.extractCards(dom, toggleList);
 
+    const disableIndentedBullets = this.settings.disableIndentedBulletPoints;
     // Note: this is a fallback behaviour until we can provide people more flexibility on picking non-toggles
     if (cards.length === 0) {
-      cards.push(...[...this.extractCardsFromLists(dom), ...paragraphs]);
+      cards.push(
+        ...[
+          ...this.extractCardsFromLists(dom, disableIndentedBullets),
+          ...paragraphs,
+        ]
+      );
+    } else if (this.settings.disableIndentedBulletPoints) {
+      cards.push(
+        ...[...this.extractCardsFromLists(dom, disableIndentedBullets)]
+      );
     }
 
     //  Prevent bad cards from leaking out
@@ -551,7 +554,11 @@ export class DeckParser {
   }
 
   private extractToggleLists(dom: cheerio.Root) {
-    const foundToggleLists = this.findToggleLists(dom);
+    const foundToggleLists = findToggleLists(dom, {
+      isCherry: this.settings.isCherry,
+      isAll: this.settings.isAll,
+      disableIndentedBulletPoints: this.settings.disableIndentedBulletPoints,
+    });
 
     return [...foundToggleLists, ...this.findIndentedToggleLists(dom)];
   }
@@ -646,14 +653,24 @@ export class DeckParser {
     return paragraphs.map((p) => new Note(dom(p).html() ?? '', ''));
   }
 
-  private extractCardsFromLists(dom: cheerio.Root) {
+  private extractCardsFromLists(
+    dom: cheerio.Root,
+    disableIndentedBullets: boolean
+  ) {
     const cards: Note[] = [];
-    const lists = [...dom('ul').toArray(), ...dom('ol').toArray()];
+    const lists = !disableIndentedBullets
+      ? [...dom('ul').toArray(), ...dom('ol').toArray()]
+      : [...dom('.page-body > .bulleted-list').toArray()];
 
     lists.forEach((list) => {
-      for (const child of dom(list).find('li')) {
+      if (!disableIndentedBullets) {
+        for (const child of dom(list).find('li')) {
+          this.checkLimits(cards.length, []);
+          cards.push(new Note(dom(child).html() ?? '', ''));
+        }
+      } else {
         this.checkLimits(cards.length, []);
-        cards.push(new Note(dom(child).html() ?? '', ''));
+        cards.push(new Note(dom(list).html() ?? '', ''));
       }
     });
 
