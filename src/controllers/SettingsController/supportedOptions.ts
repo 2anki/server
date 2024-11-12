@@ -124,6 +124,12 @@ const supportedOptions = (): CardOption[] => {
       'Use Vertex AI API to generate questions from PDFs. This is a paid feature and if enabled will send your notes to Google Cloud.',
       false
     ),
+    new CardOption(
+      'disable-indented-bullets',
+      'Disable Indented Bullets',
+      'Disable indented bullets from becoming separate cards. This applies to bullet lists.',
+      false
+    ),
   ];
 
   return v.filter(Boolean);

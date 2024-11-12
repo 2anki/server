@@ -47,6 +47,7 @@ describe('SettingsController', () => {
       'remove-mp3-links': 'true',
       'perserve-newlines': 'true',
       'vertex-ai-pdf-questions': 'false',
+      'disable-indented-bullets': 'false',
     });
   });
 
