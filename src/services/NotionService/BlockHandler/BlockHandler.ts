@@ -278,7 +278,7 @@ class BlockHandler {
   }
 
   async findFlashcardsFromPage(locator: Finder): Promise<Deck[]> {
-    const { topLevelId, rules, parentName, parentType } = locator;
+    const { topLevelId, rules, parentName } = locator;
     let { decks } = locator;
 
     const page = await this.api.getPage(topLevelId);
@@ -297,7 +297,7 @@ class BlockHandler {
     if (!this.firstPageTitle) {
       this.firstPageTitle = title;
     }
-    if (rules.permitsDeckAsPage() && parentType === 'page' && page) {
+    if (rules.permitsDeckAsPage() && page) {
       // Locate the card blocks to be used from the parser rules
       const cBlocks = blocks.filter((b: GetBlockResponse) => {
         if (!isFullBlock(b)) {
@@ -333,14 +333,21 @@ class BlockHandler {
 
     if (this.settings.isAll) {
       const subDecks = blocks.filter((b) => {
-        if (!isFullBlock(b)) {
-          return;
+        if ('type' in b) {
+          return rules.SUB_DECKS.includes(b.type);
         }
-        return rules.SUB_DECKS.includes(b.type);
       });
 
       for (const sd of subDecks) {
         if (isFullBlock(sd)) {
+          if (
+            sd.type === 'child_database' &&
+            rules.SUB_DECKS.includes('child_database')
+          ) {
+            decks = await this.handleChildDatabase(sd, rules, decks);
+            continue;
+          }
+
           const res = await this.api.getBlocks({
             createdAt: sd.created_time,
             lastEditedAt: sd.last_edited_time,
@@ -348,7 +355,7 @@ class BlockHandler {
             all: rules.UNLIMITED,
             type: sd.type,
           });
-          const cBlocks = res.results.filter((b: GetBlockResponse) =>
+          let cBlocks = res.results.filter((b: GetBlockResponse) =>
             flashCardTypes.includes((b as BlockObjectResponse).type)
           );
 
@@ -389,6 +396,27 @@ class BlockHandler {
       }
     }
     console.log('have ', decks.length, ' decks so far');
+    return decks;
+  }
+
+  private async handleChildDatabase(
+    sd: BlockObjectResponse,
+    rules: ParserRules,
+    decks: Deck[]
+  ): Promise<Deck[]> {
+    const dbResult = await this.api.queryDatabase(sd.id);
+    const database = await this.api.getDatabase(sd.id);
+    const dbName = await this.api.getDatabaseTitle(database, this.settings);
+
+    for (const entry of dbResult.results) {
+      decks = await this.findFlashcardsFromPage({
+        parentType: 'database',
+        topLevelId: entry.id,
+        rules,
+        decks,
+        parentName: dbName,
+      });
+    }
     return decks;
   }
 }

@@ -4,6 +4,7 @@ import { getChildPageBlock } from '../../blocks/helpers/getChildPageBlock';
 import { getToggleBlock } from '../../blocks/helpers/getToggleBlock';
 import { richObjectToString } from '../../blocks/helpers/richObjectToString';
 import { getHeading } from '../../blocks/helpers/getHeading';
+import { getChildDatabaseBlock } from '../../blocks/helpers/getChildDatabaseBlock';
 
 const getSubDeckName = (
   block: BlockObjectResponse | { title: string }
@@ -17,6 +18,8 @@ const getSubDeckName = (
     switch (block.type) {
       case 'child_page':
         return getChildPageBlock(block).title;
+      case 'child_database':
+        return getChildDatabaseBlock(block).title;
       case 'toggle':
         return richObjectToString(getToggleBlock(block));
       case 'heading_1':
