@@ -1,4 +1,4 @@
-import { File } from '../../anki/zip';
+import { File } from '../../zip/zip';
 import { SuffixFrom } from '../../misc/file';
 import getUniqueFileName from '../../misc/getUniqueFileName';
 import CustomExporter from './CustomExporter';

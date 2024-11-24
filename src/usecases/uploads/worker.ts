@@ -5,9 +5,10 @@ import Package from '../../lib/parser/Package';
 import fs from 'fs';
 import { PrepareDeck } from '../../lib/parser/PrepareDeck';
 import { isZIPFile } from '../../lib/storage/checks';
-import { getPackagesFromZip, isFileSupported } from './getPackagesFromZip';
+import { getPackagesFromZip } from './getPackagesFromZip';
 import Workspace from '../../lib/parser/WorkSpace';
 import { allowPDFUpload } from './allowPDFUpload';
+import { isZipContentFileSupported } from './isZipContentFileSupported';
 
 interface GenerationData {
   paying: boolean;
@@ -29,7 +30,7 @@ function doGenerationWork(data: GenerationData) {
       const key = file.key;
 
       if (
-        isFileSupported(filename) ||
+        isZipContentFileSupported(filename) ||
         allowPDFUpload(filename, paying, settings.vertexAIPDFQuestions)
       ) {
         const d = await PrepareDeck({
