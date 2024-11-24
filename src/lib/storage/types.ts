@@ -1,4 +1,4 @@
-import { File } from '../anki/zip';
+import { File } from '../zip/zip';
 
 // Multer types
 export interface UploadedFile extends Express.Multer.File {

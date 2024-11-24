@@ -1,6 +1,6 @@
 import cheerio from 'cheerio';
 
-import { File } from '../../anki/zip';
+import { File } from '../../zip/zip';
 import {
   isHTMLFile,
   isMarkdownFile,

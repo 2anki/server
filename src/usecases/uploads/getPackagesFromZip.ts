@@ -1,25 +1,15 @@
 import { Body } from 'aws-sdk/clients/s3';
 import Settings from '../../lib/parser/Settings';
-import { ZipHandler } from '../../lib/anki/zip';
+import { ZipHandler } from '../../lib/zip/zip';
 import { PrepareDeck } from '../../lib/parser/PrepareDeck';
 import Package from '../../lib/parser/Package';
 import { checkFlashcardsLimits } from '../../lib/User/checkFlashcardsLimits';
 import { PackageResult } from './GeneratePackagesUseCase';
-import {
-  isCSVFile,
-  isHTMLFile,
-  isMarkdownFile,
-  isPlainText,
-} from '../../lib/storage/checks';
 import Workspace from '../../lib/parser/WorkSpace';
 import { allowPDFUpload } from './allowPDFUpload';
 import { getMaxUploadCount } from '../../lib/misc/getMaxUploadCount';
 
-export const isFileSupported = (filename: string) =>
-  isHTMLFile(filename) ??
-  isMarkdownFile(filename) ??
-  isPlainText(filename) ??
-  isCSVFile(filename);
+import { isZipContentFileSupported } from './isZipContentFileSupported';
 
 export const getPackagesFromZip = async (
   fileContents: Body | undefined,
@@ -34,14 +24,17 @@ export const getPackagesFromZip = async (
     return { packages: [] };
   }
 
-  zipHandler.build(fileContents as Uint8Array, paying);
+  await zipHandler.build(fileContents as Uint8Array, paying);
 
   const fileNames = zipHandler.getFileNames();
 
   let cardCount = 0;
   for (const fileName of fileNames) {
+    /**
+     * XXX: Should we also support files without extensions?
+     */
     if (
-      isFileSupported(fileName) ||
+      isZipContentFileSupported(fileName) ||
       allowPDFUpload(fileName, paying, settings.vertexAIPDFQuestions)
     ) {
       const deck = await PrepareDeck({
