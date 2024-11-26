@@ -1,10 +1,15 @@
 import sgMail = require('@sendgrid/mail');
+import * as cheerio from 'cheerio';
+import * as fs from 'fs';
+import * as path from 'path';
 
 import {
   CONVERT_LINK_TEMPLATE,
   CONVERT_TEMPLATE,
   DEFAULT_SENDER,
   PASSWORD_RESET_TEMPLATE,
+  VAT_NOTIFICATION_TEMPLATE,
+  VAT_NOTIFICATIONS_LOG_PATH,
 } from './constants';
 import { isValidDeckName, addDeckNameSuffix } from '../../lib/anki/format';
 import { ClientResponse } from '@sendgrid/mail';
@@ -22,6 +27,11 @@ export interface IEmailService {
     message: string,
     attachments: Express.Multer.File[]
   ): Promise<EmailResponse>;
+  sendVatNotificationEmail(
+    email: string,
+    currency: string,
+    name: string
+  ): Promise<void>;
 }
 
 class EmailService implements IEmailService {
@@ -120,6 +130,77 @@ class EmailService implements IEmailService {
       return { didSend: false, error: e as Error };
     }
   }
+
+  private loadVatNotificationsSent(): Set<string> {
+    try {
+      // Ensure .2anki directory exists
+      const dir = path.dirname(VAT_NOTIFICATIONS_LOG_PATH);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+
+      if (fs.existsSync(VAT_NOTIFICATIONS_LOG_PATH)) {
+        const data = fs.readFileSync(VAT_NOTIFICATIONS_LOG_PATH, 'utf8');
+        return new Set(JSON.parse(data));
+      }
+    } catch (error) {
+      console.warn('Error loading VAT notifications log:', error);
+    }
+    return new Set();
+  }
+
+  private saveVatNotificationSent(email: string): void {
+    try {
+      const vatNotificationsSent = this.loadVatNotificationsSent();
+      vatNotificationsSent.add(email);
+      fs.writeFileSync(
+        VAT_NOTIFICATIONS_LOG_PATH,
+        JSON.stringify([...vatNotificationsSent])
+      );
+    } catch (error) {
+      console.error('Error saving VAT notification log:', error);
+    }
+  }
+
+  async sendVatNotificationEmail(
+    email: string,
+    currency: string,
+    name: string
+  ): Promise<void> {
+    const vatNotificationsSent = this.loadVatNotificationsSent();
+    if (vatNotificationsSent.has(email)) {
+      console.log(`Skipping ${email} - VAT notification already sent`);
+      return;
+    }
+
+    const amount = currency === 'eur' ? '€2' : '$2';
+    const markup = VAT_NOTIFICATION_TEMPLATE.replace(
+      '{{amount}}',
+      amount
+    ).replace('{{name}}', name || 'there');
+
+    // Convert HTML to text using cheerio
+    const $ = cheerio.load(markup);
+    const text = $('body').text().replace(/\s+/g, ' ').trim();
+
+    const msg = {
+      to: email,
+      from: this.defaultSender,
+      subject: '2anki.net - Upcoming Changes to VAT',
+      text,
+      html: markup,
+      replyTo: 'support@2anki.net',
+    };
+
+    try {
+      await sgMail.send(msg);
+      this.saveVatNotificationSent(email);
+      console.log(`Successfully sent VAT notification to ${email}`);
+    } catch (error) {
+      console.error(`Failed to send VAT notification to ${email}:`, error);
+      throw error;
+    }
+  }
 }
 
 export class UnimplementedEmailService implements IEmailService {
@@ -149,6 +230,15 @@ export class UnimplementedEmailService implements IEmailService {
       attachments
     );
     return Promise.resolve({ didSend: false });
+  }
+
+  sendVatNotificationEmail(
+    email: string,
+    currency: string,
+    name: string
+  ): Promise<void> {
+    console.info('sendVatNotificationEmail not handled', email, currency, name);
+    return Promise.resolve();
   }
 }
 
