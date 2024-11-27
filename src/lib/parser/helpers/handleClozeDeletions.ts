@@ -4,12 +4,15 @@ import replaceAll from './replaceAll';
 
 export default function handleClozeDeletions(input: string) {
   // Find the highest existing cloze number or default to 0
-  const existingClozes = input.match(/c(\d+)::/g);
+  const clozeRegex = /c(\d+)::/g;
   let num = 1;
-  if (existingClozes) {
-    const m = existingClozes.map((c) => parseInt(c.match(/\d+/)![0]));
-    const maxCloze = Math.max(...m);
-    num = maxCloze + 1;
+  let match;
+  const numbers = [];
+  while ((match = clozeRegex.exec(input)) !== null) {
+    numbers.push(parseInt(match[1]));
+  }
+  if (numbers.length > 0) {
+    num = Math.max(...numbers) + 1;
   }
 
   const dom = cheerio.load(input);
