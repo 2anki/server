@@ -45,13 +45,13 @@ describe('handleClozeDeletions', () => {
     expect(handleClozeDeletions(input)).toBe(expected);
   });
 
-  it.skip('should handle KaTeX content', () => {
+  it('should handle KaTeX content', () => {
     const input = '<p>The formula is <code>KaTex:\\frac{1}{2}</code></p>';
     const expected = '<p>The formula is {{c1::\\frac{1}{2} }}</p>';
     expect(handleClozeDeletions(input)).toBe(expected);
   });
 
-  it.skip('should handle mixed KaTeX and regular clozes', () => {
+  it('should handle mixed KaTeX and regular clozes', () => {
     const input = `
       <p>
         <code>c1::First</code> then 
