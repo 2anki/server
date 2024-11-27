@@ -44,9 +44,13 @@ export default function handleClozeDeletions(input: string) {
       num += 1;
     } else {
       const old = `<code>${v}</code>`;
-      // prevent "}}" so that anki closes the Cloze at the right }} not this one
-      const vReplaced = replaceAll(v, '}}', '} }');
-      const newValue = `{{c${num}::${vReplaced}}}`;
+      // Remove 'KaTex:' from the content
+      const vReplaced = v.replace('KaTex:', '');
+      // Add space only for standalone KaTeX (when there's just one code block)
+      const isStandalone = (mangle.match(/<code>/g) || []).length === 1;
+      const newValue = isStandalone
+        ? `{{c${num}::${vReplaced} }}`
+        : `{{c${num}::${vReplaced}}}`;
       mangle = replaceAll(mangle, old, newValue);
       num += 1;
     }
