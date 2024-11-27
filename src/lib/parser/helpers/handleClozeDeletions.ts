@@ -3,10 +3,18 @@ import cheerio from 'cheerio';
 import replaceAll from './replaceAll';
 
 export default function handleClozeDeletions(input: string) {
+  // Find the highest existing cloze number or default to 0
+  const existingClozes = input.match(/c(\d+)::/g);
+  let num = 1;
+  if (existingClozes) {
+    const m = existingClozes.map((c) => parseInt(c.match(/\d+/)![0]));
+    const maxCloze = Math.max(...m);
+    num = maxCloze + 1;
+  }
+
   const dom = cheerio.load(input);
   const clozeDeletions = dom('code');
   let mangle = input;
-  let num = 1;
   clozeDeletions.each((_i, elem) => {
     const v = dom(elem).html();
     if (!v) {
