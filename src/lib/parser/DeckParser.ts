@@ -381,64 +381,70 @@ export class DeckParser {
         }
 
         card.media = [];
-        if (card.back) {
-          const dom = cheerio.load(card.back);
-          const images = dom('img');
-          const decodeURIComponent = global.decodeURIComponent;
-          if (images.length > 0) {
-            images.each((_i, elem) => {
-              const originalName = dom(elem).attr('src');
-              if (originalName && isImageFileEmbedable(originalName)) {
-                const newName = embedFile(
-                  exporter,
-                  this.files,
-                  decodeURIComponent(originalName)
-                );
-                if (newName) {
-                  dom(elem).attr('src', newName);
-                  card.media.push(newName);
+        [card.name, card.back].forEach((content) => {
+          if (content) {
+            const dom = cheerio.load(content);
+            const images = dom('img');
+            const decodeURIComponent = global.decodeURIComponent;
+            if (images.length > 0) {
+              images.each((_i, elem) => {
+                const originalName = dom(elem).attr('src');
+                if (originalName && isImageFileEmbedable(originalName)) {
+                  const newName = embedFile(
+                    exporter,
+                    this.files,
+                    decodeURIComponent(originalName)
+                  );
+                  if (newName) {
+                    dom(elem).attr('src', newName);
+                    card.media.push(newName);
+                  }
                 }
+              });
+              if (content === card.name) {
+                card.name = dom.html();
+              } else {
+                card.back = dom.html();
               }
-            });
-            card.back = dom.html();
-          }
-
-          const audiofile = this.getMP3File(card.back);
-          if (audiofile) {
-            if (this.settings.removeMP3Links) {
-              card.back = card.back.replace(
-                /<figure.*<a\shref=["'].*\.mp3["']>.*<\/a>.*<\/figure>/,
-                ''
-              );
             }
-            const newFileName = embedFile(
-              exporter,
-              this.files,
-              global.decodeURIComponent(audiofile)
+          }
+        });
+
+        const audiofile = this.getMP3File(card.back);
+        if (audiofile) {
+          if (this.settings.removeMP3Links) {
+            card.back = card.back.replace(
+              /<figure.*<a\shref=["'].*\.mp3["']>.*<\/a>.*<\/figure>/,
+              ''
             );
-            if (newFileName) {
-              card.back += `[sound:${newFileName}]`;
-              card.media.push(newFileName);
-            }
           }
-          // Check YouTube
-          const id = this._getYouTubeID(card.back);
-          if (id) {
-            const ytSrc = getYouTubeEmbedLink(id);
-            const video = `<iframe width='560' height='315' src='${ytSrc}' frameborder='0' allowfullscreen></iframe>`;
-            card.back += video;
+          const newFileName = embedFile(
+            exporter,
+            this.files,
+            global.decodeURIComponent(audiofile)
+          );
+          if (newFileName) {
+            card.back += `[sound:${newFileName}]`;
+            card.media.push(newFileName);
           }
+        }
+        // Check YouTube
+        const id = this._getYouTubeID(card.back);
+        if (id) {
+          const ytSrc = getYouTubeEmbedLink(id);
+          const video = `<iframe width='560' height='315' src='${ytSrc}' frameborder='0' allowfullscreen></iframe>`;
+          card.back += video;
+        }
 
-          const soundCloudUrl = this.getSoundCloudURL(card.back);
-          if (soundCloudUrl) {
-            const audio = `<iframe width='100%' height='166' scrolling='no' frameborder='no' src='https://w.soundcloud.com/player/?url=${soundCloudUrl}'></iframe>`;
-            card.back += audio;
-          }
+        const soundCloudUrl = this.getSoundCloudURL(card.back);
+        if (soundCloudUrl) {
+          const audio = `<iframe width='100%' height='166' scrolling='no' frameborder='no' src='https://w.soundcloud.com/player/?url=${soundCloudUrl}'></iframe>`;
+          card.back += audio;
+        }
 
-          if (this.settings.useInput && card.back.includes('<strong>')) {
-            const inputInfo = this.treatBoldAsInput(card.back, true);
-            card.back = inputInfo.mangle;
-          }
+        if (this.settings.useInput && card.back.includes('<strong>')) {
+          const inputInfo = this.treatBoldAsInput(card.back, true);
+          card.back = inputInfo.mangle;
         }
 
         if (!card.tags) {
