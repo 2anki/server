@@ -390,11 +390,12 @@ export class DeckParser {
               images.each((_i, elem) => {
                 const originalName = dom(elem).attr('src');
                 if (originalName && isImageFileEmbedable(originalName)) {
-                  const newName = embedFile(
+                  const newName = embedFile({
                     exporter,
-                    this.files,
-                    decodeURIComponent(originalName)
-                  );
+                    files: this.files,
+                    filePath: decodeURIComponent(originalName),
+                    workspace: ws,
+                  });
                   if (newName) {
                     dom(elem).attr('src', newName);
                     card.media.push(newName);
@@ -418,11 +419,12 @@ export class DeckParser {
               ''
             );
           }
-          const newFileName = embedFile(
+          const newFileName = embedFile({
             exporter,
-            this.files,
-            global.decodeURIComponent(audiofile)
-          );
+            files: this.files,
+            filePath: global.decodeURIComponent(audiofile),
+            workspace: ws,
+          });
           if (newFileName) {
             card.back += `[sound:${newFileName}]`;
             card.media.push(newFileName);

@@ -6,7 +6,6 @@ import Package from '../../lib/parser/Package';
 import { checkFlashcardsLimits } from '../../lib/User/checkFlashcardsLimits';
 import { PackageResult } from './GeneratePackagesUseCase';
 import Workspace from '../../lib/parser/WorkSpace';
-import { allowPDFUpload } from './allowPDFUpload';
 import { getMaxUploadCount } from '../../lib/misc/getMaxUploadCount';
 
 import { isZipContentFileSupported } from './isZipContentFileSupported';
@@ -33,10 +32,7 @@ export const getPackagesFromZip = async (
     /**
      * XXX: Should we also support files without extensions?
      */
-    if (
-      isZipContentFileSupported(fileName) ||
-      allowPDFUpload(fileName, paying, settings.vertexAIPDFQuestions)
-    ) {
+    if (isZipContentFileSupported(fileName)) {
       const deck = await PrepareDeck({
         name: fileName,
         files: zipHandler.files,
