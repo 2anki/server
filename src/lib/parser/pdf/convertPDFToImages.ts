@@ -6,7 +6,11 @@ import { S3 } from 'aws-sdk';
 
 function getPageCount(pdfPath: string): Promise<number> {
   return new Promise((resolve, reject) => {
-    execFile('/usr/local/bin/pdfinfo', [pdfPath], (error, stdout) => {
+    const pdfinfoBin =
+      process.platform === 'darwin'
+        ? '/usr/local/bin/pdfinfo'
+        : '/usr/bin/pdfinfo';
+    execFile(pdfinfoBin, [pdfPath], (error, stdout) => {
       if (error) {
         reject(new Error('Failed to execute pdfinfo'));
         return;
