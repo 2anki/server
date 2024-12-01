@@ -1,13 +1,27 @@
+import fs, { existsSync } from 'fs';
+import path from 'path';
+
 import { File } from '../../zip/zip';
 import { SuffixFrom } from '../../misc/file';
 import getUniqueFileName from '../../misc/getUniqueFileName';
 import CustomExporter from './CustomExporter';
+import Workspace from '../WorkSpace';
 
 const getFile = (
   exporter: CustomExporter,
   files: File[],
-  filePath: string
+  filePath: string,
+  workspace: Workspace
 ): File | undefined => {
+  const fullPath = path.resolve(workspace.location, filePath);
+  if (fullPath.startsWith(workspace.location) && existsSync(fullPath)) {
+    const buffer = fs.readFileSync(fullPath);
+    return {
+      name: fullPath,
+      contents: buffer,
+    } as File;
+  }
+
   const asRootFile = files.find((f) => f.name === filePath);
   if (asRootFile) {
     return asRootFile;
@@ -34,13 +48,18 @@ const getFile = (
   return undefined;
 };
 
-export const embedFile = (
-  exporter: CustomExporter,
-  files: File[],
-  filePath: string
-): string | null => {
+interface EmbedFileInput {
+  exporter: CustomExporter;
+  files: File[];
+  filePath: string;
+  workspace: Workspace;
+}
+
+export const embedFile = (input: EmbedFileInput): string | null => {
+  const { exporter, files, filePath, workspace } = input;
+
   const suffix = SuffixFrom(filePath);
-  const file = getFile(exporter, files, filePath);
+  const file = getFile(exporter, files, filePath, workspace);
 
   if (file) {
     const newName = getUniqueFileName(filePath) + suffix;
