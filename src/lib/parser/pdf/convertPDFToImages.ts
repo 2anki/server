@@ -35,29 +35,42 @@ function getPageCount(pdfPath: string): Promise<number> {
 
 function convertPage(
   pdfPath: string,
-  page: number,
-  totalPages: number
+  pageNumber: number,
+  totalPageCount: number
 ): Promise<string> {
+  const outputFileNameBase = `${pdfPath}-page${pageNumber}`;
+
+  const determinePaddingLength = (pageCount: number): number => {
+    if (pageCount >= 1000) return 4;
+    if (pageCount >= 100) return 3;
+    if (pageCount >= 10) return 2;
+    return 1;
+  };
+
+  const paddedPageNumber = String(pageNumber).padStart(
+    determinePaddingLength(totalPageCount),
+    '0'
+  );
+
   return new Promise((resolve, reject) => {
-    const outputBase = `${pdfPath}-page${page}`;
     execFile(
       'pdftoppm',
       [
         '-png',
         '-f',
-        page.toString(),
+        pageNumber.toString(),
         '-l',
-        page.toString(),
+        pageNumber.toString(),
         pdfPath,
-        outputBase,
+        outputFileNameBase,
       ],
       (error) => {
         if (error) {
-          reject(new Error(`Failed to convert page ${page} to PNG`));
-          return;
+          return reject(
+            new Error(`Failed to convert page ${pageNumber} to PNG`)
+          );
         }
-        const pageNum = totalPages < 10 ? page : String(page).padStart(2, '0');
-        resolve(outputBase + `-${pageNum}.png`);
+        resolve(`${outputFileNameBase}-${paddedPageNumber}.png`);
       }
     );
   });
