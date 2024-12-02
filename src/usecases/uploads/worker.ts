@@ -4,7 +4,7 @@ import Settings from '../../lib/parser/Settings';
 import Package from '../../lib/parser/Package';
 import fs from 'fs';
 import { PrepareDeck } from '../../lib/parser/PrepareDeck';
-import { isZIPFile } from '../../lib/storage/checks';
+import { isPotentialZipFile, isZIPFile } from '../../lib/storage/checks';
 import { getPackagesFromZip } from './getPackagesFromZip';
 import Workspace from '../../lib/parser/WorkSpace';
 import { isZipContentFileSupported } from './isZipContentFileSupported';
@@ -40,7 +40,11 @@ function doGenerationWork(data: GenerationData) {
           const pkg = new Package(d.name);
           packages = packages.concat(pkg);
         }
-      } else if (isZIPFile(filename) || isZIPFile(key)) {
+      } else if (
+        isZIPFile(filename) ||
+        isZIPFile(key) ||
+        isPotentialZipFile(filename)
+      ) {
         const { packages: extraPackages } = await getPackagesFromZip(
           fileContents,
           paying,
