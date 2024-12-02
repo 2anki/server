@@ -95,6 +95,9 @@ interface ConvertPDFToImagesInput {
   name?: string;
 }
 
+export const PDF_EXCEEDS_MAX_PAGE_LIMIT =
+  'PDF exceeds maximum page limit of 100 for free and anonymous users.';
+
 export async function convertPDFToImages(
   input: ConvertPDFToImagesInput
 ): Promise<Buffer> {
@@ -105,7 +108,7 @@ export async function convertPDFToImages(
   const pageCount = await getPageCount(pdfPath);
   const title = path.basename(pdfPath);
   if (!noLimits && pageCount > 100) {
-    throw new Error('PDF exceeds maximum page limit of 100');
+    throw new Error(PDF_EXCEEDS_MAX_PAGE_LIMIT);
   }
 
   const imagePaths = await Promise.all(
