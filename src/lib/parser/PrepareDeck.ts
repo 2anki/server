@@ -1,6 +1,3 @@
-import fs from 'fs';
-import path from 'path';
-
 import getDeckFilename from '../anki/getDeckFilename';
 import { DeckParser, DeckParserInput } from './DeckParser';
 import Deck from './Deck';
@@ -29,10 +26,6 @@ export async function PrepareDeck(
         noLimits: input.noLimits,
         contents: file.contents,
       });
-      fs.writeFileSync(
-        path.join(input.workspace.location, 'input.html'),
-        file.contents.toString()
-      );
     }
   }
 
