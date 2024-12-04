@@ -32,5 +32,6 @@ export const isPDFFile = (fileName: string) => /.pdf$/i.exec(fileName);
  * @param filename
  * @returns
  */
-export const isPotentialZipFile = (filename: string): boolean =>
-  !filename.includes('.');
+export const isPotentialZipFile = (filename: string): boolean => {
+  return filename.trim().endsWith('.') || !filename.includes('.');
+};
