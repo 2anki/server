@@ -1,4 +1,5 @@
 import { execFile } from 'child_process';
+import os from 'os';
 
 export function convertPage(
   pdfPath: string,
@@ -19,9 +20,14 @@ export function convertPage(
     '0'
   );
 
+  const pdftoppmPath =
+    os.platform() === 'darwin'
+      ? '/usr/local/bin/pdftoppm'
+      : '/usr/bin/pdftoppm';
+
   return new Promise((resolve, reject) => {
     execFile(
-      'pdftoppm',
+      pdftoppmPath,
       [
         '-png',
         '-f',
