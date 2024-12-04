@@ -2,7 +2,7 @@ import cheerio from 'cheerio';
 
 import Settings from './Settings';
 
-export function findToggleLists(
+export function findNotionToggleLists(
   dom: cheerio.Root,
   context: Pick<Settings, 'isAll' | 'isCherry' | 'disableIndentedBulletPoints'>
 ): cheerio.Element[] {
