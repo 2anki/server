@@ -1,4 +1,4 @@
-import { PDF_EXCEEDS_MAX_PAGE_LIMIT } from '../parser/pdf/convertPDFToImages';
+import { PDF_EXCEEDS_MAX_PAGE_LIMIT } from '../pdf/convertPDFToImages';
 
 const LIMIT_MESSAGES = [
   'File too large',

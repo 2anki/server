@@ -26,6 +26,8 @@ export const isCSVFile = (fileName: string) => /.csv$/i.exec(fileName);
 
 export const isPDFFile = (fileName: string) => /.pdf$/i.exec(fileName);
 
+export const isPPTFile = (fileName: string) => /\.(ppt|pptx)$/i.exec(fileName);
+
 /**
  * A file is considered a potential zip file if it does not contain a period.
  * Since zip files are not named with a period, but it is possible to upload such files using drag and drop.

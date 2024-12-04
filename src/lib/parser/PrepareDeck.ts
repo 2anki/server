@@ -1,9 +1,10 @@
 import getDeckFilename from '../anki/getDeckFilename';
 import { DeckParser, DeckParserInput } from './DeckParser';
 import Deck from './Deck';
-import { isPDFFile } from '../storage/checks';
+import { isPDFFile, isPPTFile } from '../storage/checks';
 import { convertPDFToHTML } from './experimental/VertexAPI/convertPDFToHTML';
-import { convertPDFToImages } from './pdf/convertPDFToImages';
+import { convertPDFToImages } from '../pdf/convertPDFToImages';
+import { convertPPTToPDF } from '../pdf/ConvertPPTToPDF';
 
 interface PrepareDeckResult {
   name: string;
@@ -15,11 +16,24 @@ export async function PrepareDeck(
   input: DeckParserInput
 ): Promise<PrepareDeckResult> {
   for (const file of input.files) {
-    if (!isPDFFile(file.name) || !file.contents) continue;
+    if ((!isPDFFile(file.name) && !isPPTFile(file.name)) || !file.contents)
+      continue;
 
-    if (input.noLimits && input.settings.vertexAIPDFQuestions) {
+    if (
+      isPDFFile(file.name) &&
+      input.noLimits &&
+      input.settings.vertexAIPDFQuestions
+    ) {
       file.contents = await convertPDFToHTML(file.contents.toString('base64'));
     } else {
+      if (isPPTFile(file.name)) {
+        file.contents = await convertPPTToPDF(
+          file.name,
+          file.contents,
+          input.workspace
+        );
+      }
+
       file.contents = await convertPDFToImages({
         name: file.name,
         workspace: input.workspace,
