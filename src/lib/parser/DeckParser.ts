@@ -188,6 +188,7 @@ export class DeckParser {
       deckName ||
         dom('title').text() ||
         this.getFirstHeadingText(dom) ||
+        fileName ||
         'Default',
       this.extractPageIcon(dom),
       decks.length
