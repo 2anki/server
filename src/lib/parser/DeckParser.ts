@@ -26,7 +26,8 @@ import { handleNestedBulletPointsInMarkdown } from './handleNestedBulletPointsIn
 import { checkFlashcardsLimits } from '../User/checkFlashcardsLimits';
 import { extractStyles } from './extractStyles';
 import { withFontSize } from './withFontSize';
-import { findToggleLists } from './findToggles';
+import { transformDetailsTagToNotionToggleList } from './transformDetailsTagToNotionToggleList';
+import { findNotionToggleLists } from './findNotionToggleLists';
 
 export interface DeckParserInput {
   name: string;
@@ -562,13 +563,27 @@ export class DeckParser {
   }
 
   private extractToggleLists(dom: cheerio.Root) {
-    const foundToggleLists = findToggleLists(dom, {
+    const foundToggleLists = findNotionToggleLists(dom, {
       isCherry: this.settings.isCherry,
       isAll: this.settings.isAll,
       disableIndentedBulletPoints: this.settings.disableIndentedBulletPoints,
     });
 
-    return [...foundToggleLists, ...this.findIndentedToggleLists(dom)];
+    const details = dom('details').toArray();
+
+    /**
+     * The document has toggles but they are not in the Notion format.
+     */
+    const convertedToggleLists =
+      foundToggleLists.length === 0 && details.length > 0
+        ? transformDetailsTagToNotionToggleList(dom, details)
+        : [];
+
+    return [
+      ...foundToggleLists,
+      ...convertedToggleLists,
+      ...this.findIndentedToggleLists(dom),
+    ];
   }
 
   private extractCards(dom: cheerio.Root, toggleList: cheerio.Element[]) {
