@@ -133,7 +133,7 @@ class FallbackParser {
         deckName = this.getTitleMarkdown(contents);
       } else if (isCSVFile(file.name)) {
         const csv = new TextDecoder().decode(file.contents as Uint8Array);
-        deckName = 'Default';
+        deckName = file.name ?? 'Default';
         cards = getCardsFromCSV(csv) as Note[];
         clean = false;
       }
