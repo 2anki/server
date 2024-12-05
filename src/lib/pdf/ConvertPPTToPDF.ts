@@ -14,13 +14,15 @@ export function convertPPTToPDF(
       process.platform === 'darwin'
         ? '/Applications/LibreOffice.app/Contents/MacOS/soffice'
         : '/usr/bin/soffice';
-    const tempFile = path.join(workspace.location, name);
+
+    const normalizedName = path.basename(name);
+    const tempFile = path.join(workspace.location, normalizedName);
 
     fs.writeFile(tempFile, Buffer.from(contents as Buffer))
       .then(() => {
         const pdfFile = path.join(
           workspace.location,
-          path.basename(name, path.extname(name)) + '.pdf'
+          path.basename(normalizedName, path.extname(normalizedName)) + '.pdf'
         );
 
         execFile(

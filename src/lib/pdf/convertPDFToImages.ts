@@ -5,6 +5,7 @@ import { S3 } from 'aws-sdk';
 import { getPageCount } from './getPageCount';
 import { convertPage } from './convertPage';
 import { combineIntoHTML } from './combineIntoHTML';
+import { existsSync } from 'fs';
 
 interface ConvertPDFToImagesInput {
   workspace: Workspace;
@@ -20,8 +21,14 @@ export async function convertPDFToImages(
   input: ConvertPDFToImagesInput
 ): Promise<Buffer> {
   const { contents, workspace, noLimits, name } = input;
-  const pdfPath = path.join(workspace.location, name ?? 'Default.pdf');
-  await writeFile(pdfPath, Buffer.from(contents as Buffer));
+  const pdfPath = path.join(
+    workspace.location,
+    name ? path.basename(name) : 'Default.pdf'
+  );
+
+  if (!existsSync(pdfPath)) {
+    await writeFile(pdfPath, Buffer.from(contents as Buffer));
+  }
 
   const pageCount = await getPageCount(pdfPath);
   const title = path.basename(pdfPath);
