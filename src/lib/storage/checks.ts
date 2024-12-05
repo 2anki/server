@@ -34,6 +34,11 @@ export const isPPTFile = (fileName: string) => /\.(ppt|pptx)$/i.exec(fileName);
  * @param filename
  * @returns
  */
-export const isPotentialZipFile = (filename: string): boolean => {
+export const isPotentialZipFile = (
+  filename: string | null | undefined
+): boolean => {
+  if (!filename) {
+    return false;
+  }
   return filename.trim().endsWith('.') || !filename.includes('.');
 };
