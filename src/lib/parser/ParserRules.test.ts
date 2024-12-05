@@ -19,8 +19,9 @@ describe('ParserRules', () => {
     try {
       await ParserRules.Load('owner', 'id');
     } catch (error) {
-      expect(error).toBeInstanceOf(TypeError);
-      expect(error.message).toContain('Cannot read properties of undefined');
+      const typedError = error as TypeError;
+      expect(typedError).toBeInstanceOf(TypeError);
+      expect(typedError.message).toContain('Cannot read properties of undefined');
     }
   });
-}); 
+});
