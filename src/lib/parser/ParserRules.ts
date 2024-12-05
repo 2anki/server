@@ -41,22 +41,29 @@ class ParserRules {
   }
 
   static async Load(owner: string, id: string): Promise<ParserRules> {
+    const rules = new ParserRules();
     try {
-      const rules = new ParserRules();
       const result = await getDatabase()('parser_rules')
         .where({ object_id: id, owner })
         .returning(['*'])
         .first();
-      rules.setFlashcardTypes(result.flashcard_is.split(','));
-      rules.DECK = result.deck_is;
-      rules.SUB_DECKS = result.sub_deck_is;
-      rules.TAGS = result.tags_is;
-      rules.EMAIL_NOTIFICATION = result.email_notification;
+
+      if (result) {
+        rules.setFlashcardTypes(result.flashcard_is.split(','));
+        rules.DECK = result.deck_is;
+        rules.SUB_DECKS = result.sub_deck_is;
+        rules.TAGS = result.tags_is;
+        rules.EMAIL_NOTIFICATION = result.email_notification;
+      } else {
+        console.info(
+          `No parser rules found for object_id: ${id} and owner: ${owner}. Using default values.`
+        );
+      }
       return rules;
     } catch (error) {
       console.error(error);
-      return new ParserRules();
     }
+    return new ParserRules();
   }
 
   useColums() {
