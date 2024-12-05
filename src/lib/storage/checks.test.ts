@@ -28,3 +28,9 @@ test('isPotentialZipFile identifies potential zip files', () => {
   expect(isPotentialZipFile(HAS_EXTENSION_TAR_GZ)).toBe(false);
   expect(isPotentialZipFile(ENDS_WITH_DOUBLE_PERIOD)).toBe(true);
 });
+
+test('isPotentialZipFile handles undefined input gracefully', () => {
+  expect(isPotentialZipFile(undefined)).toBe(false);
+  expect(isPotentialZipFile(null)).toBe(false);
+  expect(isPotentialZipFile('')).toBe(false);
+});

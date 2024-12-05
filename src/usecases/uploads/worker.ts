@@ -43,7 +43,8 @@ function doGenerationWork(data: GenerationData) {
       } else if (
         isZIPFile(filename) ||
         isZIPFile(key) ||
-        isPotentialZipFile(filename)
+        isPotentialZipFile(filename) ||
+        isPotentialZipFile(key)
       ) {
         const { packages: extraPackages } = await getPackagesFromZip(
           fileContents,
