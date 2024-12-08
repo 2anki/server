@@ -19,7 +19,7 @@ export const loadSettingsFromDatabase = async (
       return new Settings(Settings.LoadDefaultOptions());
     }
 
-    const settings = new Settings(result.payload);
+    const settings = new Settings(result.payload.payload);
     const templates = await DB('templates')
       .where({ owner: owner })
       .returning(['payload'])
