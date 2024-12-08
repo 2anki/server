@@ -69,6 +69,8 @@ export class Settings {
   readonly vertexAIPDFQuestions: boolean;
   readonly disableIndentedBulletPoints: boolean;
 
+  readonly imageQuizHtmlToAnki: boolean;
+
   constructor(input: { [key: string]: string }) {
     this.deckName = input.deckName;
     if (this.deckName && !this.deckName.trim()) {
@@ -103,6 +105,7 @@ export class Settings {
     this.vertexAIPDFQuestions = input['vertex-ai-pdf-questions'] === 'true';
     this.disableIndentedBulletPoints =
       input['disable-indented-bullets'] === 'true';
+    this.imageQuizHtmlToAnki = input['image-quiz-html-to-anki'] === 'true';
     /* Is this really needed? */
     if (this.parentBlockId) {
       this.addNotionLink = true;
@@ -143,6 +146,7 @@ export class Settings {
       'max-one-toggle-per-card': 'true',
       'perserve-newlines': 'false',
       'page-emoji': 'first-emoji',
+      'image-quiz-html-to-anki': 'false',
     };
   }
 }
