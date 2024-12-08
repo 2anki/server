@@ -4,7 +4,11 @@ import Settings from '../../lib/parser/Settings';
 import Package from '../../lib/parser/Package';
 import fs from 'fs';
 import { PrepareDeck } from '../../lib/parser/PrepareDeck';
-import { isPotentialZipFile, isZIPFile } from '../../lib/storage/checks';
+import {
+  isImageFile,
+  isPotentialZipFile,
+  isZIPFile,
+} from '../../lib/storage/checks';
 import { getPackagesFromZip } from './getPackagesFromZip';
 import Workspace from '../../lib/parser/WorkSpace';
 import { isZipContentFileSupported } from './isZipContentFileSupported';
@@ -28,7 +32,9 @@ function doGenerationWork(data: GenerationData) {
       const filename = file.originalname;
       const key = file.key;
 
-      if (isZipContentFileSupported(filename)) {
+      const allowImageQuizHtmlToAnki =
+        paying && settings.imageQuizHtmlToAnki && isImageFile(filename);
+      if (isZipContentFileSupported(filename) || allowImageQuizHtmlToAnki) {
         const d = await PrepareDeck({
           name: filename,
           files: [{ name: filename, contents: fileContents }],
