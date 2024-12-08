@@ -42,3 +42,12 @@ export const isPotentialZipFile = (
   }
   return filename.trim().endsWith('.') || !filename.includes('.');
 };
+
+export const isImageFile = (name: string) =>
+  isImageFileEmbedable(name) &&
+  (name.toLowerCase().endsWith('.png') ||
+    name.toLowerCase().endsWith('.jpg') ||
+    name.toLowerCase().endsWith('.jpeg') ||
+    name.toLowerCase().endsWith('.gif') ||
+    name.toLowerCase().endsWith('.bmp') ||
+    name.toLowerCase().endsWith('.svg'));
