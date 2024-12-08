@@ -23,7 +23,7 @@ export const getPackagesFromZip = async (
     return { packages: [] };
   }
 
-  await zipHandler.build(fileContents as Uint8Array, paying);
+  await zipHandler.build(fileContents as Uint8Array, paying, settings);
 
   const fileNames = zipHandler.getFileNames();
 

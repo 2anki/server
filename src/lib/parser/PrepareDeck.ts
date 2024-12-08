@@ -1,10 +1,11 @@
 import getDeckFilename from '../anki/getDeckFilename';
 import { DeckParser, DeckParserInput } from './DeckParser';
 import Deck from './Deck';
-import { isPDFFile, isPPTFile } from '../storage/checks';
+import { isImageFile, isPDFFile, isPPTFile } from '../storage/checks';
 import { convertPDFToHTML } from './experimental/VertexAPI/convertPDFToHTML';
 import { convertPDFToImages } from '../pdf/convertPDFToImages';
 import { convertPPTToPDF } from '../pdf/ConvertPPTToPDF';
+import { convertImageToHTML } from './experimental/VertexAPI/convertImageToHTML';
 
 interface PrepareDeckResult {
   name: string;
@@ -16,8 +17,21 @@ export async function PrepareDeck(
   input: DeckParserInput
 ): Promise<PrepareDeckResult> {
   for (const file of input.files) {
-    if ((!isPDFFile(file.name) && !isPPTFile(file.name)) || !file.contents)
+    if (!file.contents) {
       continue;
+    }
+
+    if (
+      isImageFile(file.name) &&
+      input.settings.imageQuizHtmlToAnki &&
+      input.noLimits
+    ) {
+      file.contents = await convertImageToHTML(
+        file.contents?.toString('base64')
+      );
+    }
+
+    if (!isPDFFile(file.name) && !isPPTFile(file.name)) continue;
 
     if (
       isPDFFile(file.name) &&

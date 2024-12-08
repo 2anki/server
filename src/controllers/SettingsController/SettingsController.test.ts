@@ -21,15 +21,18 @@ class FakeSettingsService implements IServiceSettings {
   }
 }
 
+function testDefaultSettings(
+  type: 'client' | 'server',
+  expectedOptions: Record<string, string>
+) {
+  const settingsController = new SettingsController(new FakeSettingsService());
+  const defaultOptions = settingsController.getDefaultSettingsCardOptions(type);
+  expect(defaultOptions).toStrictEqual(expectedOptions);
+}
+
 describe('SettingsController', () => {
   test('returns default settings for client', () => {
-    const settingsController = new SettingsController(
-      new FakeSettingsService()
-    );
-    const defaultOptions =
-      settingsController.getDefaultSettingsCardOptions('client');
-
-    expect(defaultOptions).toStrictEqual({
+    testDefaultSettings('client', {
       'add-notion-link': 'false',
       'use-notion-id': 'true',
       all: 'true',
@@ -48,17 +51,12 @@ describe('SettingsController', () => {
       'perserve-newlines': 'true',
       'vertex-ai-pdf-questions': 'false',
       'disable-indented-bullets': 'false',
+      'image-quiz-html-to-anki': 'false',
     });
   });
 
   test('returns default settings for server', () => {
-    const settingsController = new SettingsController(
-      new FakeSettingsService()
-    );
-    const defaultOptions =
-      settingsController.getDefaultSettingsCardOptions('server');
-
-    expect(defaultOptions).toStrictEqual({
+    testDefaultSettings('server', {
       'add-notion-link': 'false',
       'use-notion-id': 'true',
       all: 'true',
@@ -74,6 +72,7 @@ describe('SettingsController', () => {
       'max-one-toggle-per-card': 'true',
       'perserve-newlines': 'false',
       'page-emoji': 'first-emoji',
+      'image-quiz-html-to-anki': 'false',
     });
   });
 });
