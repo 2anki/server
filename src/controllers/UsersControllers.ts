@@ -8,6 +8,7 @@ import { getRedirect } from './helpers/getRedirect';
 import { getIndexFileContents } from './IndexController/getIndexFileContents';
 import { getRandomUUID } from '../shared/helpers/getRandomUUID';
 import { getDefaultAvatarPicture } from '../lib/getDefaultAvatarPicture';
+import Users from '../data_layer/public/Users';
 
 class UsersController {
   constructor(
@@ -168,8 +169,8 @@ class UsersController {
 
   async getLocals(_req: express.Request, res: express.Response) {
     const { locals } = res;
-    let user = {};
-    let linkedEmail;
+    let user: Users | undefined;
+    let linkedEmail: string | null = null;
 
     if (res.locals.owner) {
       user = await this.userService.getUserById(res.locals.owner);
@@ -178,7 +179,17 @@ class UsersController {
       );
     }
 
-    return res.json({ user, locals, linked_email: linkedEmail });
+    return res.json({
+      user: {
+        id: user?.id,
+        name: user?.name,
+        patreon: user?.patreon,
+        picture: user?.picture,
+        email: user?.email,
+      },
+      locals,
+      linked_email: linkedEmail,
+    });
   }
 
   async linkEmail(req: express.Request, res: express.Response) {
