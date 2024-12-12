@@ -10,10 +10,10 @@ export function convertPPTToPDF(
   workspace: Workspace
 ): Promise<Buffer> {
   return new Promise((resolve, reject) => {
-    const sofficeBin =
+    const unoconvBin =
       process.platform === 'darwin'
-        ? '/Applications/LibreOffice.app/Contents/MacOS/soffice'
-        : '/usr/bin/soffice';
+        ? '/usr/local/bin/unoconv'
+        : '/usr/bin/unoconv';
 
     const normalizedName = path.basename(name);
     const tempFile = path.join(workspace.location, normalizedName);
@@ -26,8 +26,8 @@ export function convertPPTToPDF(
         );
 
         execFile(
-          sofficeBin,
-          ['--headless', '--convert-to', 'pdf', tempFile],
+          unoconvBin,
+          ['-f', 'pdf', tempFile],
           {
             cwd: workspace.location,
           },
