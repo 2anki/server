@@ -21,10 +21,10 @@ export async function convertPDFToImages(
   input: ConvertPDFToImagesInput
 ): Promise<Buffer> {
   const { contents, workspace, noLimits, name } = input;
-  const pdfPath = path.join(
-    workspace.location,
-    name ? path.basename(name) : 'Default.pdf'
-  );
+  const fileName = name
+    ? path.basename(name).replace(/\.pptx?$/i, '.pdf')
+    : 'Default.pdf';
+  const pdfPath = path.join(workspace.location, fileName);
 
   if (!existsSync(pdfPath)) {
     await writeFile(pdfPath, Buffer.from(contents as Buffer));
