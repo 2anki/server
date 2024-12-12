@@ -7,6 +7,7 @@ import { PrepareDeck } from '../../lib/parser/PrepareDeck';
 import {
   isImageFile,
   isPotentialZipFile,
+  isPPTFile,
   isZIPFile,
 } from '../../lib/storage/checks';
 import { getPackagesFromZip } from './getPackagesFromZip';
@@ -34,7 +35,11 @@ function doGenerationWork(data: GenerationData) {
 
       const allowImageQuizHtmlToAnki =
         paying && settings.imageQuizHtmlToAnki && isImageFile(filename);
-      if (isZipContentFileSupported(filename) || allowImageQuizHtmlToAnki) {
+      const isValidSingleFile =
+        isZipContentFileSupported(filename) ||
+        isPPTFile(filename) ||
+        allowImageQuizHtmlToAnki;
+      if (isValidSingleFile) {
         const d = await PrepareDeck({
           name: filename,
           files: [{ name: filename, contents: fileContents }],
@@ -47,6 +52,7 @@ function doGenerationWork(data: GenerationData) {
           packages = packages.concat(pkg);
         }
       } else if (
+        /* compressed file upload */
         isZIPFile(filename) ||
         isZIPFile(key) ||
         isPotentialZipFile(filename) ||
