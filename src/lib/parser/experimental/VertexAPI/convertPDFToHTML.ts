@@ -9,7 +9,7 @@ export const convertPDFToHTML = async (pdf: string): Promise<string> => {
     project: 'notion-to-anki',
     location: 'europe-west3',
   });
-  const model = 'gemini-1.5-flash-002';
+  const model = 'gemini-1.5-pro-002';
   const generativeModel = vertexAI.preview.getGenerativeModel({
     model: model,
     generationConfig: {
