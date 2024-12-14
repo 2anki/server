@@ -61,22 +61,27 @@ export const embedFile = (input: EmbedFileInput): string | null => {
   const suffix = SuffixFrom(filePath);
   const file = getFile(exporter, files, filePath, workspace);
 
+  /**
+   * The found file can be a file path in the workspace or a file in the zip or url.
+   * The contents is used first to avoid name conflicts. URL can have conflicts but so far
+   * no bug reports.
+   */
   if (file) {
-    const newName = getUniqueFileName(filePath) + suffix;
     const contents = file.contents as string;
+    const newName = getUniqueFileName(contents ?? filePath) + suffix;
     if (contents) {
       exporter.addMedia(newName, contents);
     }
     return newName;
-  } else {
-    console.debug(
-      JSON.stringify({
-        hint: 'Missing relative path',
-        filePath: filePath,
-        fileNames: files.map((f) => f.name),
-      })
-    );
   }
+
+  console.debug(
+    JSON.stringify({
+      hint: 'Missing relative path',
+      filePath: filePath,
+      fileNames: files.map((f) => f.name),
+    })
+  );
 
   return null;
 };
