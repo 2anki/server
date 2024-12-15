@@ -23,6 +23,5 @@ export async function listFiles(workspace: string) {
   }
 
   await explorePath(workspace);
-  console.log('files', files);
   return files;
 }

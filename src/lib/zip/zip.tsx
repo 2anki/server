@@ -72,7 +72,7 @@ class ZipHandler {
 
       this.addCombinedHTMLToFiles(paying, settings);
     } catch (error: unknown) {
-      this.handleZipError(error, zipData, paying);
+      await this.handleZipError(error, zipData, paying);
     }
   }
 
@@ -128,7 +128,7 @@ ${this.combinedHTML}
     if (isArchiveProcessingError) {
       const foundFiles = await processAndPrepareArchiveData(zipData, paying);
       this.files.push(...foundFiles);
-      console.log('Processed files using fallback method:', this.files);
+      console.log('Processed files using fallback method:');
     } else {
       throw error;
     }
