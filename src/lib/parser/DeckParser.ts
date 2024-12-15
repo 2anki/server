@@ -14,7 +14,6 @@ import replaceAll from './helpers/replaceAll';
 import get16DigitRandomId from '../../shared/helpers/get16DigitRandomId';
 import { isValidAudioFile } from '../anki/format';
 import { sendError } from '../error/sendError';
-import { NO_PACKAGE_ERROR } from '../misc/ErrorHandler';
 import FallbackParser from './experimental/FallbackParser';
 import { embedFile } from './exporters/embedFile';
 import getYouTubeEmbedLink from './helpers/getYouTubeEmbedLink';
@@ -28,6 +27,7 @@ import { extractStyles } from './extractStyles';
 import { withFontSize } from './withFontSize';
 import { transformDetailsTagToNotionToggleList } from './transformDetailsTagToNotionToggleList';
 import { findNotionToggleLists } from './findNotionToggleLists';
+import { NO_PACKAGE_ERROR } from '../error/constants';
 
 export interface DeckParserInput {
   name: string;

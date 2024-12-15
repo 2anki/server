@@ -2,7 +2,7 @@ import express from 'express';
 
 import { IUploadRepository } from '../data_layer/UploadRespository';
 import { sendError } from '../lib/error/sendError';
-import ErrorHandler, { NO_PACKAGE_ERROR } from '../lib/misc/ErrorHandler';
+import ErrorHandler from '../routes/middleware/ErrorHandler';
 import Settings from '../lib/parser/Settings';
 import Workspace from '../lib/parser/WorkSpace';
 import StorageHandler from '../lib/storage/StorageHandler';
@@ -12,6 +12,7 @@ import { toText } from './NotionService/BlockHandler/helpers/deckNameToText';
 import { isPaying } from '../lib/isPaying';
 import { isLimitError } from '../lib/misc/isLimitError';
 import { handleUploadLimitError } from '../controllers/Upload/helpers/handleUploadLimitError';
+import { NO_PACKAGE_ERROR } from '../lib/error/constants';
 
 class UploadService {
   getUploadsByOwner(owner: number) {

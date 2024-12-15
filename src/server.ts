@@ -13,7 +13,7 @@ if (existsSync(localEnvFile)) {
 }
 
 import { ALLOWED_ORIGINS, BUILD_DIR } from './lib/constants';
-import ErrorHandler from './lib/misc/ErrorHandler';
+import ErrorHandler from './routes/middleware/ErrorHandler';
 
 // Server Endpoints
 import settingsRouter from './routes/SettingsRouter';
