@@ -40,6 +40,9 @@ export const isPotentialZipFile = (
   if (!filename) {
     return false;
   }
+  if (filename.toLowerCase().endsWith('.crdownload')) {
+    return true;
+  }
   return filename.trim().endsWith('.') || !filename.includes('.');
 };
 
