@@ -19,6 +19,7 @@ export function perserveFilesForDebugging(
 
     const timestamp = new Date().toISOString();
     const errorMessage = `${timestamp} - ${err.name}: \n${err.message}\n${err.stack}`;
+    console.info(errorMessage);
     fs.writeFileSync(`${debugDirectory}/error.txt`, errorMessage);
 
     uploadedFiles.forEach((file, index) => {
