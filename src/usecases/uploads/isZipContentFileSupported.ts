@@ -4,6 +4,7 @@ import {
   isPlainText,
   isCSVFile,
   isPDFFile,
+  isImageFile,
 } from '../../lib/storage/checks';
 
 /**
@@ -14,4 +15,5 @@ export const isZipContentFileSupported = (filename: string) =>
   isMarkdownFile(filename) ??
   isPlainText(filename) ??
   isCSVFile(filename) ??
-  isPDFFile(filename);
+  isPDFFile(filename) ??
+  isImageFile(filename);

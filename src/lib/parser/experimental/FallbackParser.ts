@@ -121,7 +121,7 @@ class FallbackParser {
         const plainTextParser = new PlainTextParser();
         const found = plainTextParser.parse(plainText);
         cards = this.mapCardsToNotes(found);
-        deckName = this.getTitleFromHTML(contents);
+        deckName = this.getTitleFromHTML(contents) ?? file.name;
       } else if (isMarkdownFile(file.name) || isPlainText(file.name)) {
         const plainTextParser = new PlainTextParser();
         const items = this.getMarkdownBulletLists(contents);
