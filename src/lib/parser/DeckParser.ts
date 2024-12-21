@@ -19,7 +19,11 @@ import { embedFile } from './exporters/embedFile';
 import getYouTubeEmbedLink from './helpers/getYouTubeEmbedLink';
 import getYouTubeID from './helpers/getYouTubeID';
 import { isFileNameEqual } from '../storage/types';
-import { isImageFileEmbedable, isMarkdownFile } from '../storage/checks';
+import {
+  isHTMLFile,
+  isImageFileEmbedable,
+  isMarkdownFile,
+} from '../storage/checks';
 import { getFileContents } from './getFileContents';
 import { handleNestedBulletPointsInMarkdown } from './handleNestedBulletPointsInMarkdown';
 import { checkFlashcardsLimits } from '../User/checkFlashcardsLimits';
@@ -60,30 +64,34 @@ export class DeckParser {
     this.firstDeckName = input.name;
     this.noLimits = input.noLimits;
     this.globalTags = null;
+    this.payload = [];
+    this.processFirstFile(input.name);
+  }
 
-    const firstFile = this.files.find((file) =>
-      isFileNameEqual(file, input.name)
-    );
+  processFirstFile(name: string) {
+    const firstFile = this.files.find((file) => isFileNameEqual(file, name));
 
-    if (this.settings.nestedBulletPoints && isMarkdownFile(input.name)) {
+    if (this.settings.nestedBulletPoints && isMarkdownFile(name)) {
       const contents = getFileContents(firstFile, false);
       this.payload = handleNestedBulletPointsInMarkdown(
-        input.name,
+        name,
         contents?.toString(),
         this.settings.deckName,
         [],
         this.settings
       );
-    } else {
+    } else if (isHTMLFile(name)) {
       const contents = getFileContents(firstFile, true);
       this.payload = contents
         ? this.handleHTML(
-            input.name,
+            name,
             contents.toString(),
             this.settings.deckName || '',
             []
           )
         : [];
+    } else {
+      this.payload = [];
     }
   }
 

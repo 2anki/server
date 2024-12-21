@@ -1,5 +1,6 @@
 import { VertexAI } from '@google-cloud/vertexai';
 import { SAFETY_SETTINGS } from './constants';
+import { removeFirstAndLastLine } from './removeFirstAndLastLine';
 
 export const convertImageToHTML = async (
   imageData: string
@@ -8,7 +9,7 @@ export const convertImageToHTML = async (
     project: 'notion-to-anki',
     location: 'europe-west3',
   });
-  const model = 'gemini-1.5-flash-002';
+  const model = 'gemini-1.5-pro-002';
 
   const generativeModel = vertexAI.preview.getGenerativeModel({
     model: model,
@@ -21,7 +22,7 @@ export const convertImageToHTML = async (
   });
 
   const text1 = {
-    text: `Convert the text in this image to the following format: 
+    text: `Convert the text in this image to the following format for (every question is their own ul):
 
         <ul class=\"toggle\">
           <li>
@@ -71,6 +72,7 @@ export const convertImageToHTML = async (
   } catch (error) {
     console.error('Error generating content stream:', error);
   }
+  htmlContent = removeFirstAndLastLine(htmlContent);
 
   return htmlContent;
 };

@@ -1,7 +1,12 @@
 import getDeckFilename from '../anki/getDeckFilename';
 import { DeckParser, DeckParserInput } from './DeckParser';
 import Deck from './Deck';
-import { isImageFile, isPDFFile, isPPTFile } from '../storage/checks';
+import {
+  isHTMLFile,
+  isImageFile,
+  isPDFFile,
+  isPPTFile,
+} from '../storage/checks';
 import { convertPDFToHTML } from './experimental/VertexAPI/convertPDFToHTML';
 import { convertPDFToImages } from '../pdf/convertPDFToImages';
 import { convertPPTToPDF } from '../pdf/ConvertPPTToPDF';
@@ -16,6 +21,8 @@ interface PrepareDeckResult {
 export async function PrepareDeck(
   input: DeckParserInput
 ): Promise<PrepareDeckResult> {
+  const convertedImageFiles = [];
+
   for (const file of input.files) {
     if (!file.contents) {
       continue;
@@ -26,9 +33,13 @@ export async function PrepareDeck(
       input.settings.imageQuizHtmlToAnki &&
       input.noLimits
     ) {
-      file.contents = await convertImageToHTML(
+      const convertedImageContents = await convertImageToHTML(
         file.contents?.toString('base64')
       );
+      convertedImageFiles.push({
+        name: `${file.name}.html`,
+        contents: convertedImageContents,
+      });
     }
 
     if (!isPDFFile(file.name) && !isPPTFile(file.name)) continue;
@@ -57,15 +68,23 @@ export async function PrepareDeck(
     }
   }
 
+  input.files.push(...convertedImageFiles);
   const parser = new DeckParser(input);
 
   if (parser.totalCardCount() === 0) {
-    const apkg = await parser.tryExperimental(input.workspace);
-    return {
-      name: getDeckFilename(parser.name ?? input.name),
-      apkg,
-      deck: parser.payload,
-    };
+    if (convertedImageFiles.length > 0) {
+      const htmlFile = convertedImageFiles.find((file) =>
+        isHTMLFile(file.name)
+      );
+      parser.processFirstFile(htmlFile?.name ?? input.name);
+    } else {
+      const apkg = await parser.tryExperimental(input.workspace);
+      return {
+        name: getDeckFilename(parser.name ?? input.name),
+        apkg,
+        deck: parser.payload,
+      };
+    }
   }
 
   const apkg = await parser.build(input.workspace);
