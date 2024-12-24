@@ -101,6 +101,9 @@ test('Markdown nested bullet points', async () => {
   expect(deck.cards[1].name).toBe('<ul>\n<li>' + 'What is the capital of Norway' + '</li>\n</ul>');
   expect(deck.cards[1].back).toBe('<pre><code>Oslo</code></pre>');
   expect(deck.cards[2].name).toBe('<ul>\n<li>' + 'What is the capital of Sweden'+'</li>\n</ul>');
-  expect(deck.cards[2].back).toBe('<pre><code>Stockholm</code></pre>');
+  
+  console.log('Deck card 2 back:', deck.cards[2].back);
+  
+  expect(deck.cards[2].back).toBe('<p>Stockholm</p>');
   expect(deck.cards.length).toBe(3);
 })

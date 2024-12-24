@@ -54,6 +54,9 @@ export class DeckParser {
 
   noLimits: boolean;
 
+  workspace: Workspace;
+  customExporter: CustomExporter;
+
   public get name() {
     return this.payload[0].name;
   }
@@ -65,6 +68,11 @@ export class DeckParser {
     this.noLimits = input.noLimits;
     this.globalTags = null;
     this.payload = [];
+    this.workspace = new Workspace(true, 'fs');
+    this.customExporter = new CustomExporter(
+      input.name,
+      this.workspace.location
+    );
     this.processFirstFile(input.name);
   }
 
@@ -73,13 +81,16 @@ export class DeckParser {
 
     if (this.settings.nestedBulletPoints && isMarkdownFile(name)) {
       const contents = getFileContents(firstFile, false);
-      this.payload = handleNestedBulletPointsInMarkdown(
+      this.payload = handleNestedBulletPointsInMarkdown({
         name,
-        contents?.toString(),
-        this.settings.deckName,
-        [],
-        this.settings
-      );
+        contents: contents?.toString(),
+        deckName: this.settings.deckName,
+        decks: [],
+        settings: this.settings,
+        exporter: this.customExporter,
+        workspace: this.workspace,
+        files: this.files,
+      });
     } else if (isHTMLFile(name)) {
       const contents = getFileContents(firstFile, true);
       this.payload = contents
@@ -254,13 +265,6 @@ export class DeckParser {
     return dom('.page-body > p > del');
   }
 
-  setupExporter(decks: Deck[], workspace: string) {
-    for (const d of decks) {
-      d.style = d.cleanStyle();
-    }
-    return new CustomExporter(this.firstDeckName, workspace);
-  }
-
   // https://stackoverflow.com/questions/6903823/regex-for-youtube-id
   _getYouTubeID(input: string) {
     return this.ensureNotNull(input, () => {
@@ -363,7 +367,11 @@ export class DeckParser {
   }
 
   build(ws: Workspace) {
-    const exporter = this.setupExporter(this.payload, ws.location);
+    if (ws.location !== this.workspace.location) {
+      console.debug('workspace location changed for build');
+      console.debug(ws.location);
+      this.customExporter = new CustomExporter(this.firstDeckName, ws.location);
+    }
 
     for (const d of this.payload) {
       const deck = d;
@@ -401,7 +409,7 @@ export class DeckParser {
                 const originalName = dom(elem).attr('src');
                 if (originalName && isImageFileEmbedable(originalName)) {
                   const newName = embedFile({
-                    exporter,
+                    exporter: this.customExporter,
                     files: this.files,
                     filePath: decodeURIComponent(originalName),
                     workspace: ws,
@@ -430,7 +438,7 @@ export class DeckParser {
             );
           }
           const newFileName = embedFile({
-            exporter,
+            exporter: this.customExporter,
             files: this.files,
             filePath: global.decodeURIComponent(audiofile),
             workspace: ws,
@@ -486,13 +494,12 @@ export class DeckParser {
     }
 
     this.payload[0].settings = this.settings;
-    exporter.configure(this.payload);
-    return exporter.save();
+    this.customExporter.configure(this.payload);
+    return this.customExporter.save();
   }
 
-  tryExperimental(ws: Workspace) {
+  tryExperimental() {
     const fallback = new FallbackParser(this.files);
-    const exporter = this.setupExporter(this.payload, ws.location);
 
     this.payload = fallback.run(this.settings);
     if (
@@ -504,9 +511,9 @@ export class DeckParser {
     }
 
     this.payload[0].settings = this.settings;
-    exporter.configure(this.payload);
+    this.customExporter.configure(this.payload);
 
-    return exporter.save();
+    return this.customExporter.save();
   }
 
   totalCardCount() {
