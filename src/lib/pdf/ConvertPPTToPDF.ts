@@ -41,7 +41,10 @@ export function convertPPTToPDF(
               stderr
             );
             if (error) {
-              reject(new Error(error.message || 'Conversion failed'));
+              await fs.writeFile(
+                path.join(workspace.location, 'error.log'),
+                error.message || 'Conversion failed'
+              );
             }
             resolve(await fs.readFile(pdfFile));
           }
