@@ -1,10 +1,24 @@
 import showdown from 'showdown';
 
-export const markdownToHTML = (html: string) => {
+export const markdownToHTML = (
+  html: string,
+  trimWhitespace: boolean = false
+) => {
   const converter = new showdown.Converter({
     noHeaderId: true,
     disableForced4SpacesIndentedSublists: true,
+    simpleLineBreaks: true,
   });
   converter.setFlavor('github');
-  return converter.makeHtml(html);
+
+  let processedHtml = html;
+
+  if (trimWhitespace) {
+    processedHtml = html.trim();
+  }
+
+  const htmlWithoutPreTags = converter
+    .makeHtml(processedHtml)
+    .replace(/<pre><code>|<\/code><\/pre>/g, '');
+  return htmlWithoutPreTags;
 };
