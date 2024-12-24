@@ -78,7 +78,7 @@ export async function PrepareDeck(
       const htmlFile = convertedFiles.find((file) => isHTMLFile(file.name));
       parser.processFirstFile(htmlFile?.name ?? input.name);
     } else {
-      const apkg = await parser.tryExperimental(input.workspace);
+      const apkg = await parser.tryExperimental();
       return {
         name: getDeckFilename(parser.name ?? input.name),
         apkg,
