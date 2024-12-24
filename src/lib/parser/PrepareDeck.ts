@@ -21,7 +21,7 @@ interface PrepareDeckResult {
 export async function PrepareDeck(
   input: DeckParserInput
 ): Promise<PrepareDeckResult> {
-  const convertedImageFiles = [];
+  const convertedFiles = [];
 
   for (const file of input.files) {
     if (!file.contents) {
@@ -36,7 +36,7 @@ export async function PrepareDeck(
       const convertedImageContents = await convertImageToHTML(
         file.contents?.toString('base64')
       );
-      convertedImageFiles.push({
+      convertedFiles.push({
         name: `${file.name}.html`,
         contents: convertedImageContents,
       });
@@ -50,32 +50,32 @@ export async function PrepareDeck(
       input.settings.vertexAIPDFQuestions
     ) {
       file.contents = await convertPDFToHTML(file.contents.toString('base64'));
-    } else {
-      if (isPPTFile(file.name)) {
-        file.contents = await convertPPTToPDF(
-          file.name,
-          file.contents,
-          input.workspace
-        );
-      }
+    } else if (isPPTFile(file.name)) {
+      const pdContents = await convertPPTToPDF(
+        file.name,
+        file.contents,
+        input.workspace
+      );
 
-      file.contents = await convertPDFToImages({
+      const convertedContents = await convertPDFToImages({
         name: file.name,
         workspace: input.workspace,
         noLimits: input.noLimits,
-        contents: file.contents,
+        contents: pdContents,
+      });
+      convertedFiles.push({
+        name: `${file.name}.html`,
+        contents: convertedContents,
       });
     }
   }
 
-  input.files.push(...convertedImageFiles);
+  input.files.push(...convertedFiles);
   const parser = new DeckParser(input);
 
   if (parser.totalCardCount() === 0) {
-    if (convertedImageFiles.length > 0) {
-      const htmlFile = convertedImageFiles.find((file) =>
-        isHTMLFile(file.name)
-      );
+    if (convertedFiles.length > 0) {
+      const htmlFile = convertedFiles.find((file) => isHTMLFile(file.name));
       parser.processFirstFile(htmlFile?.name ?? input.name);
     } else {
       const apkg = await parser.tryExperimental(input.workspace);

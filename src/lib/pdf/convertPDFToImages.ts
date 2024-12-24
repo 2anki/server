@@ -19,7 +19,7 @@ export const PDF_EXCEEDS_MAX_PAGE_LIMIT =
 
 export async function convertPDFToImages(
   input: ConvertPDFToImagesInput
-): Promise<Buffer> {
+): Promise<string> {
   const { contents, workspace, noLimits, name } = input;
   const fileName = name
     ? path.basename(name).replace(/\.pptx?$/i, '.pdf')
@@ -42,6 +42,5 @@ export async function convertPDFToImages(
     )
   );
 
-  const html = combineIntoHTML(imagePaths, title);
-  return Buffer.from(html);
+  return combineIntoHTML(imagePaths, title);
 }

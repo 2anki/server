@@ -1,4 +1,4 @@
-import { execFile } from 'child_process';
+import { spawn } from 'child_process';
 import { homedir } from 'os';
 import path from 'path';
 
@@ -31,19 +31,35 @@ class CardGenerator {
     ];
     console.log('execFile', PYTHON(), createDeckScriptPathARGS);
     return new Promise((resolve, reject) => {
-      execFile(
-        PYTHON(),
-        createDeckScriptPathARGS,
-        { cwd: this.currentDirectory },
-        (err, stdout) => {
-          if (err) {
-            sendError(err);
-            reject(err);
-          } else {
-            resolve(stdout);
-          }
+      const process = spawn(PYTHON(), createDeckScriptPathARGS, {
+        cwd: this.currentDirectory,
+      });
+
+      process.on('error', (err) => {
+        sendError(err);
+        reject(err);
+      });
+
+      const stdoutData: string[] = [];
+      process.stdout.on('data', (data) => {
+        stdoutData.push(data.toString());
+      });
+
+      const stderrData: string[] = [];
+      process.stderr.on('data', (data) => {
+        stderrData.push(data.toString());
+      });
+
+      process.on('close', (code) => {
+        if (code !== 0) {
+          const errorOutput = stderrData.join('').trim();
+          return reject(
+            new Error(`Python script exited with code ${code}: ${errorOutput}`)
+          );
         }
-      );
+        const lastLine = stdoutData.join('').trim().split('\n').pop();
+        resolve(lastLine);
+      });
     });
   }
 }
