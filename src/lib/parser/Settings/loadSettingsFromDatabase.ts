@@ -1,14 +1,14 @@
 import { Knex } from 'knex';
 
 import { getCustomTemplate } from './helpers/getCustomTemplate';
-import { Settings } from './Settings';
+import { CardOption } from './CardOption';
 import { sendError } from '../../error/sendError';
 
 export const loadSettingsFromDatabase = async (
   DB: Knex,
   owner: string,
   id: string
-): Promise<Settings> => {
+): Promise<CardOption> => {
   try {
     const result = await DB('settings')
       .where({ object_id: id, owner })
@@ -16,10 +16,10 @@ export const loadSettingsFromDatabase = async (
       .first();
     if (!result) {
       console.log('using default settings');
-      return new Settings(Settings.LoadDefaultOptions());
+      return new CardOption(CardOption.LoadDefaultOptions());
     }
 
-    const settings = new Settings(result.payload.payload);
+    const settings = new CardOption(result.payload.payload);
     const templates = await DB('templates')
       .where({ owner: owner })
       .returning(['payload'])
@@ -44,5 +44,5 @@ export const loadSettingsFromDatabase = async (
   } catch (error: unknown) {
     sendError(error);
   }
-  return new Settings(Settings.LoadDefaultOptions());
+  return new CardOption(CardOption.LoadDefaultOptions());
 };

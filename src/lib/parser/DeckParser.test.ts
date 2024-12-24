@@ -1,13 +1,13 @@
 import { setupTests } from '../../test/configure-jest';
 import { getDeck } from '../../test/test-utils';
-import Settings from './Settings/';
+import CardOption from './Settings/CardOption';
 
 beforeEach(() => setupTests());
 
 test('Toggle Headings', async () => {
   const deck = await getDeck(
     'Toggle Hea 0e02b 2.html',
-    new Settings({ cherry: 'false' })
+    new CardOption({ cherry: 'false' })
   );
   expect(deck.cards.length).toBeGreaterThan(0);
 });
@@ -15,7 +15,7 @@ test('Toggle Headings', async () => {
 test('Grouped cloze deletions', async () => {
   const deck = await getDeck(
     'Grouped Cloze Deletions fbf856ad7911423dbef0bfd3e3c5ce5c 3.html',
-    new Settings({ cherry: 'false', cloze: 'true', reversed: 'true', 'basic-reversed': 'true' })
+    new CardOption({ cherry: 'false', cloze: 'true', reversed: 'true', 'basic-reversed': 'true' })
   );
   expect(deck.name).toBe('Grouped Cloze Deletions');
   expect(deck.cards.length).toBe(20);
@@ -24,7 +24,7 @@ test('Grouped cloze deletions', async () => {
 test('Cloze Deletions', async () => {
   const deck = await getDeck(
     'Some Cloze Deletions 1a118169ada841a99a9aaccc7eaa6775.html',
-    new Settings({ cherry: 'false', reversed: 'true', 'basic-reversed': 'true' })
+    new CardOption({ cherry: 'false', reversed: 'true', 'basic-reversed': 'true' })
   );
   expect(deck.cards[0].back).toBe(
     "<div class='toggle'>{{c2::Canberra}} was founded in {{c1::1913}}.</div>"
@@ -49,7 +49,7 @@ test('Cloze Deletions', async () => {
 test('Colours', async () => {
   const deck = await getDeck(
     'Colours 0519bf7e86d84ee4ba710c1b7ff7438e.html',
-    new Settings({ cherry: 'false' })
+    new CardOption({ cherry: 'false' })
   );
   expect(deck.cards[0].back.includes('block-color')).toBe(true);
 });
@@ -63,7 +63,7 @@ test.skip('HTML Regression Test', (t) => {
 test('Nested Toggles', async () => {
   const deck = await getDeck(
     'Nested Toggles.html',
-    new Settings({ cherry: 'true', reversed: 'true', 'basic-reversed': 'true' })
+    new CardOption({ cherry: 'true', reversed: 'true', 'basic-reversed': 'true' })
   );
   expect(deck.cards.length).toBe(12);
 });
@@ -71,7 +71,7 @@ test('Nested Toggles', async () => {
 test('Global Tags', async () => {
   const deck = await getDeck(
     'Global Tag Support.html',
-    new Settings({ tags: 'true', cherry: 'false' })
+    new CardOption({ tags: 'true', cherry: 'false' })
   );
   // use toContain
   expect(deck.cards[0].tags.includes('global')).toBe(true);
@@ -82,7 +82,7 @@ test.todo('Multiple File Uploads');
 test.todo('Test Basic Card');
 
 test('Markdown empty deck', async () => {
-  const deck = await getDeck('empty-deck.md', new Settings({
+  const deck = await getDeck('empty-deck.md', new CardOption({
     "markdown-nested-bullet-points": "true"
   }));
   expect(deck.name).toBe('Empty Deck');
@@ -90,7 +90,7 @@ test('Markdown empty deck', async () => {
 })
 
 test('Markdown nested bullet points', async () => {
-  const deck = await getDeck('simple-deck.md', new Settings({
+  const deck = await getDeck('simple-deck.md', new CardOption({
     "markdown-nested-bullet-points": "true",
     "reversed": "false",
     "basic-reversed": "false",

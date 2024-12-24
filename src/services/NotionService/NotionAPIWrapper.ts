@@ -12,7 +12,7 @@ import { getNotionObjectTitle } from 'get-notion-object-title';
 
 import sanitizeTags from '../../lib/anki/sanitizeTags';
 import ParserRules from '../../lib/parser/ParserRules';
-import Settings from '../../lib/parser/Settings';
+import CardOption from '../../lib/parser/Settings/CardOption';
 import { getParagraphBlocks } from './helpers/getParagraphBlocks';
 import renderIcon from './helpers/renderIcon';
 import getBlockIcon, { WithIcon } from './blocks/getBlockIcon';
@@ -266,7 +266,7 @@ class NotionAPIWrapper {
     return sanitizeTags(globalTags);
   }
 
-  getBlockTitle(icon: string | null, title: string, settings: Settings) {
+  getBlockTitle(icon: string | null, title: string, settings: CardOption) {
     if (!icon) {
       return title;
     }
@@ -279,7 +279,7 @@ class NotionAPIWrapper {
 
   async getPageTitle(
     page: GetPageResponse | null,
-    settings: Settings
+    settings: CardOption
   ): Promise<string> {
     if (!page) {
       return '';
@@ -294,7 +294,7 @@ class NotionAPIWrapper {
 
   async getDatabaseTitle(
     database: GetDatabaseResponse,
-    settings: Settings
+    settings: CardOption
   ): Promise<string> {
     let icon = await renderIcon(
       getBlockIcon(database as WithIcon, settings.pageEmoji)

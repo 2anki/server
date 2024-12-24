@@ -5,7 +5,7 @@ import path from 'path';
 import fs from 'fs';
 
 import { DeckParser } from '../lib/parser/DeckParser';
-import Settings from '../lib/parser/Settings';
+import CardOption from '../lib/parser/Settings';
 import Workspace from '../lib/parser/WorkSpace';
 
 function mockPayload(name: string, contents: string) {
@@ -18,7 +18,7 @@ function loadFixture(fileName: string) {
   return mockPayload(fileName, html);
 }
 
-function configureParser(fileName: string, opts: Settings) {
+function configureParser(fileName: string, opts: CardOption) {
   const info = loadFixture(fileName);
   return new DeckParser({
     name: fileName,
@@ -29,7 +29,7 @@ function configureParser(fileName: string, opts: Settings) {
   });
 }
 
-export async function getDeck(fileName: string, opts: Settings) {
+export async function getDeck(fileName: string, opts: CardOption) {
   const p = configureParser(fileName, opts);
   await p.build(new Workspace(true, 'fs'));
   return p.payload[0];

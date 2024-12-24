@@ -16,7 +16,7 @@ import { FileSizeInMegaBytes } from '../../misc/file';
 import CustomExporter from '../../parser/exporters/CustomExporter';
 import Deck from '../../parser/Deck';
 import ParserRules from '../../parser/ParserRules';
-import Settings from '../../parser/Settings';
+import CardOption from '../../parser/Settings';
 import { loadSettingsFromDatabase } from '../../parser/Settings/loadSettingsFromDatabase';
 import Workspace from '../../parser/WorkSpace';
 import StorageHandler from '../StorageHandler';
@@ -136,7 +136,7 @@ export default class ConversionJob {
     bl: BlockHandler,
     id: string,
     rules: ParserRules,
-    settings: Settings,
+    settings: CardOption,
     type?: string
   ) => {
     await this.setStatus('step2_creating_flashcards');
@@ -155,7 +155,7 @@ export default class ConversionJob {
     exporter: CustomExporter,
     decks: Deck[],
     ws: Workspace,
-    settings: Settings,
+    settings: CardOption,
     storage: StorageHandler,
     id: string,
     owner: string

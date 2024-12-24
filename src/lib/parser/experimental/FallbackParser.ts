@@ -9,7 +9,7 @@ import {
 } from '../../storage/checks';
 import Deck from '../Deck';
 import Note from '../Note';
-import Settings from '../Settings';
+import CardOption from '../Settings';
 import { PlainTextParser } from './PlainTextParser/PlainTextParser';
 import { Flashcard, isClozeFlashcard } from './PlainTextParser/types';
 import get16DigitRandomId from '../../../shared/helpers/get16DigitRandomId';
@@ -104,7 +104,7 @@ class FallbackParser {
     });
   }
 
-  run(settings: Settings) {
+  run(settings: CardOption) {
     const decks = [];
     let clean = true;
 

@@ -1,5 +1,5 @@
 import Note from './Note';
-import Settings from './Settings';
+import CardOption from './Settings';
 
 export default class Deck {
   name: string;
@@ -12,7 +12,7 @@ export default class Deck {
 
   id: number;
 
-  settings: Settings | null;
+  settings: CardOption | null;
 
   get cardCount() {
     return this.cards.length;
@@ -24,7 +24,7 @@ export default class Deck {
     image: string | undefined,
     style: string | null,
     id: number,
-    settings: Settings
+    settings: CardOption
   ) {
     this.settings = settings;
     this.name = name;

@@ -1,6 +1,6 @@
 import { parentPort, workerData } from 'worker_threads';
 import { UploadedFile } from '../../lib/storage/types';
-import Settings from '../../lib/parser/Settings';
+import CardOption from '../../lib/parser/Settings/CardOption';
 import Package from '../../lib/parser/Package';
 import fs from 'fs';
 import { PrepareDeck } from '../../lib/parser/PrepareDeck';
@@ -17,7 +17,7 @@ import { isZipContentFileSupported } from './isZipContentFileSupported';
 interface GenerationData {
   paying: boolean;
   files: UploadedFile[];
-  settings: Settings;
+  settings: CardOption;
   workspace: Workspace;
 }
 

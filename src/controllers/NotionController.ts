@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 
 import { sendError } from '../lib/error/sendError';
 import performConversion from '../lib/storage/jobs/helpers/performConversion';
-import Settings from '../lib/parser/Settings';
+import CardOption from '../lib/parser/Settings';
 import BlockHandler from '../services/NotionService/BlockHandler/BlockHandler';
 import CustomExporter from '../lib/parser/exporters/CustomExporter';
 import { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';
@@ -149,7 +149,7 @@ class NotionController {
     const api = await this.service.getNotionAPI(res.locals.owner);
     const blockId = getNotionId(query) ?? query;
     const block = await api.getBlock(blockId);
-    const settings = new Settings(Settings.LoadDefaultOptions());
+    const settings = new CardOption(CardOption.LoadDefaultOptions());
     let handler = new BlockHandler(
       new CustomExporter('x', new Workspace(true, 'fs').location),
       api,

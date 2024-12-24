@@ -18,7 +18,7 @@ import getUniqueFileName from '../../../lib/misc/getUniqueFileName';
 import Deck from '../../../lib/parser/Deck';
 import Note from '../../../lib/parser/Note';
 import ParserRules from '../../../lib/parser/ParserRules';
-import Settings from '../../../lib/parser/Settings';
+import CardOption from '../../../lib/parser/Settings';
 import TagRegistry from '../../../lib/parser/TagRegistry';
 import CustomExporter from '../../../lib/parser/exporters/CustomExporter';
 import get16DigitRandomId from '../../../shared/helpers/get16DigitRandomId';
@@ -59,12 +59,12 @@ class BlockHandler {
 
   useAll: boolean = false;
 
-  settings: Settings;
+  settings: CardOption;
 
   constructor(
     exporter: CustomExporter,
     api: NotionAPIWrapper,
-    settings: Settings
+    settings: CardOption
   ) {
     this.exporter = exporter;
     this.api = api;
