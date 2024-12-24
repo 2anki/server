@@ -1,4 +1,4 @@
-import { execFile } from 'child_process';
+import { spawn } from 'child_process';
 import os from 'os';
 
 export function convertPage(
@@ -26,25 +26,29 @@ export function convertPage(
       : '/usr/bin/pdftoppm';
 
   return new Promise((resolve, reject) => {
-    execFile(
-      pdftoppmPath,
-      [
-        '-png',
-        '-f',
-        pageNumber.toString(),
-        '-l',
-        pageNumber.toString(),
-        pdfPath,
-        outputFileNameBase,
-      ],
-      (error) => {
-        if (error) {
-          return reject(
-            new Error(`Failed to convert page ${pageNumber} to PNG`)
-          );
-        }
-        resolve(`${outputFileNameBase}-${paddedPageNumber}.png`);
+    const process = spawn(pdftoppmPath, [
+      '-png',
+      '-f',
+      pageNumber.toString(),
+      '-l',
+      pageNumber.toString(),
+      pdfPath,
+      outputFileNameBase,
+    ]);
+
+    process.on('error', (error) => {
+      reject(
+        new Error(
+          `Failed to convert page ${pageNumber} to PNG: ${error.message}`
+        )
+      );
+    });
+
+    process.on('close', (code) => {
+      if (code !== 0) {
+        return reject(new Error(`pdftoppm process exited with code ${code}`));
       }
-    );
+      resolve(`${outputFileNameBase}-${paddedPageNumber}.png`);
+    });
   });
 }
