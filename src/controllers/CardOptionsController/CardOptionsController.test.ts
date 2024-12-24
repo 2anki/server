@@ -1,4 +1,4 @@
-import SettingsService, {
+import {
   IServiceSettings,
 } from '../../services/SettingsService';
 import CardOptionsController from './CardOptionsController';
