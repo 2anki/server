@@ -1,8 +1,8 @@
 import { Knex } from 'knex';
 
 import { getCustomTemplate } from './helpers/getCustomTemplate';
-import { CardOption } from './CardOption';
 import { sendError } from '../../error/sendError';
+import CardOption from './CardOption';
 
 export const loadSettingsFromDatabase = async (
   DB: Knex,

@@ -96,7 +96,7 @@ const supportedOptions = (): CardOptionDetail[] => {
       'markdown-nested-bullet-points',
       'Markdown Nested Bullet Points',
       'Enable conversion of bullet and sub bullet points in Markdown. If you are a Obsidian user, enable this',
-      false
+      true
     ),
     new CardOptionDetail(
       'vertex-ai-pdf-questions',

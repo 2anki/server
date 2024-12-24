@@ -4,6 +4,7 @@ import { IServiceSettings } from '../../services/SettingsService';
 import { getOwner } from '../../lib/User/getOwner';
 import supportedOptions from './supportedOptions';
 import CardOption from '../../lib/parser/Settings/CardOption';
+import { CardOptionDetail } from './CardOptionDetail';
 
 class CardOptionsController {
   constructor(private readonly service: IServiceSettings) {}
@@ -59,7 +60,7 @@ class CardOptionsController {
   getDefaultSettingsCardOptions(source: 'client' | 'server') {
     if (source === 'client') {
       return this.getDefaultOptions()
-        .map((option: CardOption) => {
+        .map((option: CardOptionDetail) => {
           return { [option.key]: option.value.toString() };
         })
         .reduce((accumulator, current) => {
