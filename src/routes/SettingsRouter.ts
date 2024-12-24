@@ -1,7 +1,7 @@
 import express from 'express';
 
 import RequireAuthentication from './middleware/RequireAuthentication';
-import SettingsController from '../controllers/SettingsController/SettingsController';
+import CardOptionsController from '../controllers/CardOptionsController/CardOptionsController';
 import SettingsRepository from '../data_layer/SettingsRepository';
 import { getDatabase } from '../data_layer';
 import SettingsService from '../services/SettingsService';
@@ -9,7 +9,7 @@ import SettingsService from '../services/SettingsService';
 const SettingsRouter = () => {
   const router = express.Router();
   const database = getDatabase();
-  const controller = new SettingsController(
+  const controller = new CardOptionsController(
     new SettingsService(new SettingsRepository(database))
   );
 
