@@ -1,5 +1,5 @@
 import { Body } from 'aws-sdk/clients/s3';
-import Settings from '../../lib/parser/Settings';
+import CardOption from '../../lib/parser/Settings/CardOption';
 import { ZipHandler } from '../../lib/zip/zip';
 import { PrepareDeck } from '../../lib/parser/PrepareDeck';
 import Package from '../../lib/parser/Package';
@@ -13,7 +13,7 @@ import { isZipContentFileSupported } from './isZipContentFileSupported';
 export const getPackagesFromZip = async (
   fileContents: Body | undefined,
   paying: boolean,
-  settings: Settings,
+  settings: CardOption,
   workspace: Workspace
 ): Promise<PackageResult> => {
   const zipHandler = new ZipHandler(getMaxUploadCount(paying));

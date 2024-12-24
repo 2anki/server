@@ -1,5 +1,5 @@
 import Package from '../../lib/parser/Package';
-import Settings from '../../lib/parser/Settings';
+import CardOption from '../../lib/parser/Settings/CardOption';
 import { UploadedFile } from '../../lib/storage/types';
 import { Worker } from 'worker_threads';
 import path from 'path';
@@ -13,7 +13,7 @@ class GeneratePackagesUseCase {
   execute(
     paying: boolean,
     files: UploadedFile[],
-    settings: Settings,
+    settings: CardOption,
     workspace: Workspace
   ): Promise<PackageResult> {
     return new Promise((resolve, reject) => {

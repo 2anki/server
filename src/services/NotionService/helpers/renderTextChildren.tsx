@@ -3,7 +3,7 @@ import {
   RichTextItemResponse,
 } from '@notionhq/client/build/src/api-endpoints';
 import ReactDOMServer from 'react-dom/server';
-import Settings from '../../../lib/parser/Settings';
+import CardOption from '../../../lib/parser/Settings';
 
 import BlockEquation from '../blocks/BlockEquation';
 import HandleBlockAnnotations from '../blocks/HandleBlockAnnotations';
@@ -13,7 +13,7 @@ import preserveNewlinesIfApplicable from './preserveNewlinesIfApplicable';
 
 export default function renderTextChildren(
   text: RichTextItemResponse[] | undefined,
-  settings: Settings
+  settings: CardOption
 ): string {
   if (!text || text?.length === 0) {
     return '';

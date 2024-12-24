@@ -3,7 +3,7 @@ import { parseTemplate } from './helpers/parseTemplate';
 import { UserSuppliedTemplateFile } from './types';
 import { sendError } from '../../error/sendError';
 
-export class Settings {
+class CardOption {
   readonly deckName: string | undefined;
 
   readonly useInput: boolean;
@@ -150,3 +150,5 @@ export class Settings {
     };
   }
 }
+
+export default CardOption;

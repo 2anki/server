@@ -4,7 +4,7 @@ import get16DigitRandomId from '../../shared/helpers/get16DigitRandomId';
 import Note from './Note';
 import { markdownToHTML } from '../markdown';
 
-import Settings from './Settings';
+import CardOption from './Settings';
 
 const BULLET_POINT_REGEX = /^-/;
 
@@ -13,7 +13,7 @@ export const handleNestedBulletPointsInMarkdown = (
   contents: string | undefined,
   deckName: string | undefined,
   decks: Deck[],
-  settings: Settings
+  settings: CardOption
 ) => {
   const deck = new Deck(
     deckName ?? getTitleFromMarkdown(contents) ?? name,

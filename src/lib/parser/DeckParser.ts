@@ -5,7 +5,7 @@ import sanitizeTags from '../anki/sanitizeTags';
 import { File } from '../zip/zip';
 import Deck from './Deck';
 import Note from './Note';
-import Settings from './Settings';
+import CardOption from './Settings';
 import Workspace from './WorkSpace';
 import CustomExporter from './exporters/CustomExporter';
 import handleClozeDeletions from './helpers/handleClozeDeletions';
@@ -35,7 +35,7 @@ import { NO_PACKAGE_ERROR } from '../error/constants';
 
 export interface DeckParserInput {
   name: string;
-  settings: Settings;
+  settings: CardOption;
   files: File[];
   noLimits: boolean;
   workspace: Workspace;
@@ -46,7 +46,7 @@ export class DeckParser {
 
   firstDeckName: string;
 
-  settings: Settings;
+  settings: CardOption;
 
   payload: Deck[];
 

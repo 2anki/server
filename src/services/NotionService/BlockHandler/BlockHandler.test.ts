@@ -3,7 +3,7 @@ import CustomExporter from '../../../lib/parser/exporters/CustomExporter';
 import Note from '../../../lib/parser/Note';
 import ParserRules from '../../../lib/parser/ParserRules';
 
-import Settings from '../../../lib/parser/Settings';
+import CardOption from '../../../lib/parser/Settings/CardOption';
 import Workspace from '../../../lib/parser/WorkSpace';
 import { setupTests } from '../../../test/configure-jest';
 import { pageId as examplId } from '../../../test/test-utils';
@@ -22,7 +22,7 @@ const loadCards = async (
   ws: Workspace,
   rules?: ParserRules
 ): Promise<Note[]> => {
-  const settings = new Settings(options);
+  const settings = new CardOption(options);
   const r = rules || new ParserRules();
   const exporter = new CustomExporter('', ws.location);
   const bl = new BlockHandler(exporter, api, settings);
@@ -58,7 +58,7 @@ jest.mock('get-notion-object-title', () => ({
 describe('BlockHandler', () => {
   test.skip('Get Notion Page', async () => {
     const page = await api.getPage('446d09aa05d041058c16e56232188e2b');
-    const title = await api.getPageTitle(page, new Settings({}));
+    const title = await api.getPageTitle(page, new CardOption({}));
     expect(title).toBe('Testing');
   });
 
@@ -89,7 +89,7 @@ describe('BlockHandler', () => {
   });
 
   test.skip('Subpages', async () => {
-    const settings = new Settings({ all: 'true' });
+    const settings = new CardOption({ all: 'true' });
     const rules = new ParserRules();
     const exporter = new CustomExporter('', new Workspace(true, 'fs').location);
     const bl = new BlockHandler(exporter, api, settings);

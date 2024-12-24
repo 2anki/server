@@ -10,7 +10,7 @@ import {
 } from '../storage/checks';
 import { processAndPrepareArchiveData } from './fallback/processAndPrepareArchiveData';
 import { convertImageToHTML } from '../parser/experimental/VertexAPI/convertImageToHTML';
-import Settings from '../parser/Settings';
+import CardOption from '../parser/Settings';
 import { getRandomUUID } from '../../shared/helpers/getRandomUUID';
 
 interface File {
@@ -31,7 +31,7 @@ class ZipHandler {
     this.combinedHTML = '';
   }
 
-  async build(zipData: Uint8Array, paying: boolean, settings: Settings) {
+  async build(zipData: Uint8Array, paying: boolean, settings: CardOption) {
     const size = Buffer.byteLength(zipData);
     const limits = getUploadLimits(paying);
 
@@ -54,7 +54,7 @@ class ZipHandler {
   private async processZip(
     zipData: Uint8Array,
     paying: boolean,
-    settings: Settings
+    settings: CardOption
   ) {
     if (this.zipFileCount >= this.maxZipFiles) {
       throw new Error('Too many zip files in the upload.');
@@ -80,7 +80,7 @@ class ZipHandler {
     name: string,
     file: Uint8Array,
     paying: boolean,
-    settings: Settings
+    settings: CardOption
   ) {
     if (name.includes('__MACOSX/') || isPDFFile(name)) return;
 
@@ -102,7 +102,7 @@ class ZipHandler {
     console.log('Converted image to HTML:', name, html);
   }
 
-  private addCombinedHTMLToFiles(paying: boolean, settings: Settings) {
+  private addCombinedHTMLToFiles(paying: boolean, settings: CardOption) {
     if (this.combinedHTML && paying) {
       const finalHTML = `<!DOCTYPE html>
 <html>

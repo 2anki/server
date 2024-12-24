@@ -2,8 +2,8 @@ import { Request, Response } from 'express';
 import { sendError } from '../../lib/error/sendError';
 import { IServiceSettings } from '../../services/SettingsService';
 import { getOwner } from '../../lib/User/getOwner';
-import supportedOptions, { CardOption } from './supportedOptions';
-import Settings from '../../lib/parser/Settings';
+import supportedOptions from './supportedOptions';
+import CardOption from '../../lib/parser/Settings/CardOption';
 
 class CardOptionsController {
   constructor(private readonly service: IServiceSettings) {}
@@ -66,7 +66,7 @@ class CardOptionsController {
           return { ...accumulator, ...current };
         }, {});
     }
-    return Settings.LoadDefaultOptions();
+    return CardOption.LoadDefaultOptions();
   }
 
   getDefaultOptions() {

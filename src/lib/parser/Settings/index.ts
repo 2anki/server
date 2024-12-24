@@ -1,3 +1,3 @@
-import { Settings } from './Settings';
+import { CardOption } from './CardOption';
 
-export default Settings;
+export default CardOption;

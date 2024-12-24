@@ -1,10 +1,13 @@
 import cheerio from 'cheerio';
 
-import Settings from './Settings';
+import CardOption from './Settings';
 
 export function findNotionToggleLists(
   dom: cheerio.Root,
-  context: Pick<Settings, 'isAll' | 'isCherry' | 'disableIndentedBulletPoints'>
+  context: Pick<
+    CardOption,
+    'isAll' | 'isCherry' | 'disableIndentedBulletPoints'
+  >
 ): cheerio.Element[] {
   if (context.isCherry || context.isAll) {
     return dom('.toggle').toArray();

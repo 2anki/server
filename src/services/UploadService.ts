@@ -3,7 +3,7 @@ import express from 'express';
 import { IUploadRepository } from '../data_layer/UploadRespository';
 import { sendError } from '../lib/error/sendError';
 import ErrorHandler from '../routes/middleware/ErrorHandler';
-import Settings from '../lib/parser/Settings';
+import CardOption from '../lib/parser/Settings';
 import Workspace from '../lib/parser/WorkSpace';
 import StorageHandler from '../lib/storage/StorageHandler';
 import { UploadedFile } from '../lib/storage/types';
@@ -31,7 +31,7 @@ class UploadService {
     try {
       let payload;
       let plen;
-      const settings = new Settings(req.body || {});
+      const settings = new CardOption(req.body || {});
       const ws = new Workspace(true, 'fs');
 
       const useCase = new GeneratePackagesUseCase();
