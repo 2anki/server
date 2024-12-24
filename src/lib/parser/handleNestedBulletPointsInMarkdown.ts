@@ -55,14 +55,14 @@ export const handleNestedBulletPointsInMarkdown = (
   let isCreating = false;
   let currentFront = '';
   let currentBack = '';
+  const trimWhitespace = true;
 
   for (const line of lines) {
     if (line.trim().length === 0) {
       continue;
     }
 
-    const isEnd = lines.length - 1 == lines.indexOf(line);
-    if (isEnd || (BULLET_POINT_REGEX.exec(line) && isCreating)) {
+    if (BULLET_POINT_REGEX.exec(line) && isCreating) {
       const dom = cheerio.load(currentBack, {
         xmlMode: true,
       });
@@ -85,8 +85,11 @@ export const handleNestedBulletPointsInMarkdown = (
         }
       });
 
-      currentBack = dom.html();
-      const note = new Note(currentFront, markdownToHTML(currentBack));
+      currentBack = dom.html() || '';
+      const note = new Note(
+        currentFront,
+        markdownToHTML(currentBack, trimWhitespace)
+      );
       note.media = media;
       deck.cards.push(note);
       isCreating = false;
@@ -96,13 +99,14 @@ export const handleNestedBulletPointsInMarkdown = (
 
     if (BULLET_POINT_REGEX.exec(line) && !isCreating) {
       isCreating = true;
-      currentFront = markdownToHTML(line);
+      currentFront = markdownToHTML(line, trimWhitespace);
       currentBack = '';
     } else if (isCreating) {
       currentBack += line + '\n';
     }
   }
 
+  // Ensure the last card is processed
   if (currentBack !== '' || currentFront !== '') {
     const dom = cheerio.load(currentBack, {
       xmlMode: true,
@@ -127,7 +131,10 @@ export const handleNestedBulletPointsInMarkdown = (
     });
 
     currentBack = dom.html() || '';
-    const note = new Note(currentFront, markdownToHTML(currentBack));
+    const note = new Note(
+      currentFront,
+      markdownToHTML(currentBack, trimWhitespace)
+    );
     note.media = media;
     deck.cards.push(note);
   }

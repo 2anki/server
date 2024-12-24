@@ -95,15 +95,19 @@ test('Markdown nested bullet points', async () => {
     "reversed": "false",
     "basic-reversed": "false",
   }));
-  expect(deck.name).toBe('Simple deck');
+
+  expect(deck.name).toBe('Simple Deck');
+
   expect(deck.cards[0].name).toBe('<ul>\n<li>' + 'What is the capital of Kenya?' + '</li>\n</ul>');
-  expect(deck.cards[0].back).toBe('<pre><code>Nairobi</code></pre>');
+  expect(deck.cards[0].back).toBe('<p>Nairobi</p>');
   expect(deck.cards[1].name).toBe('<ul>\n<li>' + 'What is the capital of Norway' + '</li>\n</ul>');
-  expect(deck.cards[1].back).toBe('<pre><code>Oslo</code></pre>');
+  expect(deck.cards[1].back).toBe('<p>Oslo</p>');
   expect(deck.cards[2].name).toBe('<ul>\n<li>' + 'What is the capital of Sweden'+'</li>\n</ul>');
   
   console.log('Deck card 2 back:', deck.cards[2].back);
-  
+
   expect(deck.cards[2].back).toBe('<p>Stockholm</p>');
-  expect(deck.cards.length).toBe(3);
+  expect(deck.cards[3].name).toBe('<ul>\n<li>' + 'What is the capital of Finland' + '</li>\n</ul>');
+  expect(deck.cards[3].back).toBe('<p>Helsinki</p>');
+  expect(deck.cards.length).toBe(4);
 })
