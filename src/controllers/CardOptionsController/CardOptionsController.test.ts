@@ -26,7 +26,7 @@ function testDefaultSettings(
   expectedOptions: Record<string, string>
 ) {
   const settingsController = new CardOptionsController(new FakeSettingsService());
-  const defaultOptions = settingsController.getDefaultSettingsCardOptions(type);
+  const defaultOptions = settingsController.getDefaultCardOptions(type);
   expect(defaultOptions).toStrictEqual(expectedOptions);
 }
 
@@ -41,7 +41,7 @@ describe('SettingsController', () => {
       avocado: 'false',
       tags: 'false',
       cloze: 'true',
-      'markdown-nested-bullet-points': 'false',
+      'markdown-nested-bullet-points': 'true',
       'enable-input': 'false',
       'basic-reversed': 'false',
       reversed: 'false',
@@ -73,6 +73,7 @@ describe('SettingsController', () => {
       'perserve-newlines': 'false',
       'page-emoji': 'first-emoji',
       'image-quiz-html-to-anki': 'false',
+      'markdown-nested-bullet-points': 'true',
     });
   });
 });

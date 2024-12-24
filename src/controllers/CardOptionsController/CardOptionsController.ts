@@ -57,9 +57,9 @@ class CardOptionsController {
     }
   }
 
-  getDefaultSettingsCardOptions(source: 'client' | 'server') {
+  getDefaultCardOptions(source: 'client' | 'server') {
     if (source === 'client') {
-      return this.getDefaultOptions()
+      return this.getDefaultCardOptionDetails()
         .map((option: CardOptionDetail) => {
           return { [option.key]: option.value.toString() };
         })
@@ -70,7 +70,7 @@ class CardOptionsController {
     return CardOption.LoadDefaultOptions();
   }
 
-  getDefaultOptions() {
+  getDefaultCardOptionDetails() {
     return supportedOptions();
   }
 }
