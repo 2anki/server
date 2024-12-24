@@ -147,6 +147,7 @@ class CardOption {
       'perserve-newlines': 'false',
       'page-emoji': 'first-emoji',
       'image-quiz-html-to-anki': 'false',
+      'markdown-nested-bullet-points': 'true',
     };
   }
 }
