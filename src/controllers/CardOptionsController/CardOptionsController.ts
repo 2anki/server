@@ -5,7 +5,7 @@ import { getOwner } from '../../lib/User/getOwner';
 import supportedOptions, { CardOption } from './supportedOptions';
 import Settings from '../../lib/parser/Settings';
 
-class SettingsController {
+class CardOptionsController {
   constructor(private readonly service: IServiceSettings) {}
 
   async createSetting(req: Request, res: Response) {
@@ -74,4 +74,4 @@ class SettingsController {
   }
 }
 
-export default SettingsController;
+export default CardOptionsController;
