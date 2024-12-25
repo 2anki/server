@@ -67,6 +67,17 @@ export async function PrepareDeck(
         name: `${file.name}.html`,
         contents: convertedContents,
       });
+    } else if (isPDFFile(file.name)) {
+      const convertedContents = await convertPDFToImages({
+        name: file.name,
+        workspace: input.workspace,
+        noLimits: input.noLimits,
+        contents: file.contents,
+      });
+      convertedFiles.push({
+        name: `${file.name}.html`,
+        contents: convertedContents,
+      });
     }
   }
 
