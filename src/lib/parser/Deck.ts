@@ -27,7 +27,7 @@ export default class Deck {
     settings: CardOption
   ) {
     this.settings = settings;
-    this.name = name;
+    this.name = name.replace(/\n/g, ' ');
     this.cards = cards;
     this.image = image;
     this.style = style;
