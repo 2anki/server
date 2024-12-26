@@ -32,6 +32,7 @@ import { withFontSize } from './withFontSize';
 import { transformDetailsTagToNotionToggleList } from './transformDetailsTagToNotionToggleList';
 import { findNotionToggleLists } from './findNotionToggleLists';
 import { NO_PACKAGE_ERROR } from '../error/constants';
+import { extractName } from '../extractDeckName';
 
 export interface DeckParserInput {
   name: string;
@@ -203,15 +204,17 @@ export class DeckParser {
     const style = withFontSize(extractStyles(dom), this.settings.fontSize);
     let image: string | undefined = this.extractCoverImage(dom);
 
-    const name = this.extractName(
-      deckName ||
+    const name = extractName({
+      name:
+        deckName ||
         dom('title').text() ||
         this.getFirstHeadingText(dom) ||
         fileName ||
         'Default',
-      this.extractPageIcon(dom),
-      decks.length
-    );
+      pageIcon: this.extractPageIcon(dom),
+      decksCount: decks.length,
+      settings: this.settings,
+    });
 
     // XXX: review this tag reassignment, does it overwrite?
     this.globalTags = this.extractGlobalTags(dom);
@@ -544,38 +547,6 @@ export class DeckParser {
   private extractPageIcon(dom: cheerio.Root) {
     const pageIcon = dom('.page-header-icon > .icon');
     return pageIcon.html();
-  }
-
-  private extractName(
-    name: string,
-    pi: string | null,
-    decksCount: number
-  ): string {
-    if (!pi) {
-      return name;
-    }
-    if (this.settings.pageEmoji === 'disable_emoji') {
-      return name;
-    }
-
-    if (!name.includes(pi) && decksCount === 0) {
-      if (!name.includes('::') && !name.startsWith(pi)) {
-        return this.settings.pageEmoji === 'first_emoji'
-          ? `${pi} ${name}`
-          : `${name} ${pi}`;
-      } else {
-        const names = name.split(/::/);
-        const end = names.length - 1;
-        const last = names[end];
-        names[end] =
-          this.settings.pageEmoji === 'first_emoji'
-            ? `${pi} ${last}`
-            : `${last} ${pi}`;
-        return names.join('::');
-      }
-    }
-
-    return name;
   }
 
   private extractToggleLists(dom: cheerio.Root) {
