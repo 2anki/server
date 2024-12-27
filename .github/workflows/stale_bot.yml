@@ -6,6 +6,7 @@ name: 'Close stale issues and PRs'
 on:
   schedule:
     - cron: '30 1 * * *'
+  workflow_dispatch: # Allows manual triggering
 
 env:
   LC_ALL: en_US.UTF-8
