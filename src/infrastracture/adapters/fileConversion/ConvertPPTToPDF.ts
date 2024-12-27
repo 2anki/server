@@ -1,5 +1,5 @@
 import { S3 } from 'aws-sdk';
-import Workspace from '../parser/WorkSpace';
+import Workspace from '../../../lib/parser/WorkSpace';
 import path from 'path';
 import fs from 'fs/promises';
 import { spawn } from 'child_process';

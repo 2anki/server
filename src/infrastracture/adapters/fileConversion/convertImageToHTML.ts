@@ -1,6 +1,17 @@
 import { VertexAI } from '@google-cloud/vertexai';
 import { SAFETY_SETTINGS } from './constants';
-import { removeFirstAndLastLine } from './removeFirstAndLastLine';
+
+/**
+ * Google VertexAI is returning Markdown:
+ * ```html
+ * [...]
+ * ```
+ * So we need to remove the first and last line
+ */
+export function removeFirstAndLastLine(content: string): string {
+  const lines = content.split('\n');
+  return lines.slice(1, -1).join('\n');
+}
 
 export const convertImageToHTML = async (
   imageData: string
