@@ -31,7 +31,8 @@ class Workspace {
         if (apkg) {
           resolve(fs.readFileSync(path.join(this.location, apkg)));
         } else {
-          reject(null);
+          console.log('No APKG file found', this.location);
+          reject(new Error('No APKG file found'));
         }
       });
     });
