@@ -5,9 +5,9 @@ import { Request, Response } from 'express';
 import path from 'path';
 import { sendError } from '../lib/error/sendError';
 import StorageHandler from '../lib/storage/StorageHandler';
-import { DownloadPage } from '../pages/DownloadPage';
 import DownloadService from '../services/DownloadService';
 import { canAccess } from '../lib/misc/canAccess';
+import { DownloadPage } from '../ui/pages/DownloadPage';
 
 class DownloadController {
   constructor(private service: DownloadService) {}
