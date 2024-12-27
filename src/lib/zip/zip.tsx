@@ -9,9 +9,9 @@ import {
   isPDFFile,
 } from '../storage/checks';
 import { processAndPrepareArchiveData } from './fallback/processAndPrepareArchiveData';
-import { convertImageToHTML } from '../parser/experimental/VertexAPI/convertImageToHTML';
 import CardOption from '../parser/Settings';
 import { getRandomUUID } from '../../shared/helpers/getRandomUUID';
+import { convertImageToHTML } from '../../infrastracture/adapters/fileConversion/convertImageToHTML';
 
 interface File {
   name: string;

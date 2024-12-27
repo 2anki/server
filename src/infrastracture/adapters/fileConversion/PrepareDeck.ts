@@ -1,16 +1,16 @@
-import getDeckFilename from '../anki/getDeckFilename';
-import { DeckParser, DeckParserInput } from './DeckParser';
-import Deck from './Deck';
+import getDeckFilename from '../../../lib/anki/getDeckFilename';
+import { DeckParser, DeckParserInput } from '../../../lib/parser/DeckParser';
+import Deck from '../../../lib/parser/Deck';
 import {
   isHTMLFile,
   isImageFile,
   isPDFFile,
   isPPTFile,
-} from '../storage/checks';
-import { convertPDFToHTML } from '../../infrastracture/adapters/fileConversion/convertPDFToHTML';
-import { convertPDFToImages } from '../../infrastracture/adapters/fileConversion/convertPDFToImages';
-import { convertPPTToPDF } from '../../infrastracture/adapters/fileConversion/ConvertPPTToPDF';
-import { convertImageToHTML } from '../../infrastracture/adapters/fileConversion/convertImageToHTML';
+} from '../../../lib/storage/checks';
+import { convertPDFToHTML } from './convertPDFToHTML';
+import { convertPPTToPDF } from './ConvertPPTToPDF';
+import { convertImageToHTML } from './convertImageToHTML';
+import { convertPDFToImages } from './convertPDFToImages';
 
 interface PrepareDeckResult {
   name: string;

@@ -1,4 +1,4 @@
-import { PDF_EXCEEDS_MAX_PAGE_LIMIT } from '../pdf/convertPDFToImages';
+import { PDF_EXCEEDS_MAX_PAGE_LIMIT } from '../../infrastracture/adapters/fileConversion/convertPDFToImages';
 import { isLimitError } from './isLimitError';
 
 const MOCK_MSG =

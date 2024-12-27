@@ -1,10 +1,10 @@
 import { writeFile } from 'fs/promises';
 import path from 'path';
-import Workspace from '../parser/WorkSpace';
+import Workspace from '../../../lib/parser/WorkSpace';
 import { S3 } from 'aws-sdk';
-import { getPageCount } from './getPageCount';
-import { convertPage } from './convertPage';
-import { combineIntoHTML } from './combineIntoHTML';
+import { getPageCount } from '../../../lib/pdf/getPageCount';
+import { convertPage } from '../../../lib/pdf/convertPage';
+import { combineIntoHTML } from '../../../lib/pdf/combineIntoHTML';
 import { existsSync } from 'fs';
 
 interface ConvertPDFToImagesInput {
