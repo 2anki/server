@@ -3,7 +3,7 @@ import { UploadedFile } from '../../lib/storage/types';
 import CardOption from '../../lib/parser/Settings/CardOption';
 import Package from '../../lib/parser/Package';
 import fs from 'fs';
-import { PrepareDeck } from '../../lib/parser/PrepareDeck';
+import { PrepareDeck } from '../../infrastracture/adapters/fileConversion/PrepareDeck';
 import {
   isImageFile,
   isPotentialZipFile,

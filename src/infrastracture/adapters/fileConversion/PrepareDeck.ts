@@ -6,11 +6,13 @@ import {
   isImageFile,
   isPDFFile,
   isPPTFile,
+  isXLSXFile,
 } from '../../../lib/storage/checks';
 import { convertPDFToHTML } from './convertPDFToHTML';
 import { convertPPTToPDF } from './ConvertPPTToPDF';
 import { convertImageToHTML } from './convertImageToHTML';
 import { convertPDFToImages } from './convertPDFToImages';
+import { convertXLSXToHTML } from './convertXLSXToHTML';
 
 interface PrepareDeckResult {
   name: string;
@@ -25,6 +27,15 @@ export async function PrepareDeck(
 
   for (const file of input.files) {
     if (!file.contents) {
+      continue;
+    }
+
+    if (isXLSXFile(file.name)) {
+      const htmlContent = convertXLSXToHTML(file.contents as Buffer, file.name);
+      convertedFiles.push({
+        name: `${file.name}.html`,
+        contents: Buffer.from(htmlContent),
+      });
       continue;
     }
 

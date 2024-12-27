@@ -58,3 +58,5 @@ export const isImageFile = (name: string) =>
     name.toLowerCase().endsWith('.gif') ||
     name.toLowerCase().endsWith('.bmp') ||
     name.toLowerCase().endsWith('.svg'));
+
+export const isXLSXFile = (fileName: string) => /.xlsx$/i.test(fileName);
