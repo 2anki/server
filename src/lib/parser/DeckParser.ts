@@ -69,7 +69,7 @@ export class DeckParser {
     this.noLimits = input.noLimits;
     this.globalTags = null;
     this.payload = [];
-    this.workspace = new Workspace(true, 'fs');
+    this.workspace = input.workspace ?? new Workspace(true, 'fs');
     this.customExporter = new CustomExporter(
       input.name,
       this.workspace.location
