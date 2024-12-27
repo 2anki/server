@@ -1,7 +1,7 @@
 import { Body } from 'aws-sdk/clients/s3';
 import CardOption from '../../lib/parser/Settings/CardOption';
 import { ZipHandler } from '../../lib/zip/zip';
-import { PrepareDeck } from '../../lib/parser/PrepareDeck';
+import { PrepareDeck } from '../../infrastracture/adapters/fileConversion/PrepareDeck';
 import Package from '../../lib/parser/Package';
 import { checkFlashcardsLimits } from '../../lib/User/checkFlashcardsLimits';
 import { PackageResult } from './GeneratePackagesUseCase';
@@ -43,7 +43,10 @@ export const getPackagesFromZip = async (
 
       if (deck) {
         packages.push(new Package(deck.name));
-        cardCount += deck.deck.reduce((acc, d) => acc + d.cards.length, 0);
+        cardCount += deck.deck.reduce(
+          (acc: number, d: { cards: any[] }) => acc + d.cards.length,
+          0
+        );
 
         // Checking the limit in place while iterating through the decks
         checkFlashcardsLimits({
