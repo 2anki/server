@@ -160,7 +160,12 @@ export default class ConversionJob {
     id: string,
     owner: string
   ) => {
-    exporter.configure(decks);
+    // Filter out decks with no cards
+    const filteredDecks = decks.filter(
+      (deck) => deck.cards && deck.cards.length > 0
+    );
+
+    exporter.configure(filteredDecks);
     const gen = new CardGenerator(ws.location);
     const payload = (await gen.run()) as string;
     const apkg = fs.readFileSync(payload);
