@@ -1,5 +1,5 @@
-import { VertexAI } from '@google-cloud/vertexai';
-import { SAFETY_SETTINGS } from './constants';
+import { GenerateContentRequest } from '@google-cloud/vertexai';
+import { generateContent } from './contentGenerationUtils';
 
 /**
  * Google VertexAI is returning Markdown:
@@ -16,38 +16,22 @@ export function removeFirstAndLastLine(content: string): string {
 export const convertImageToHTML = async (
   imageData: string
 ): Promise<string> => {
-  const vertexAI = new VertexAI({
-    project: 'notion-to-anki',
-    location: 'europe-west3',
-  });
-  const model = 'gemini-1.5-pro-002';
-
-  const generativeModel = vertexAI.preview.getGenerativeModel({
-    model: model,
-    generationConfig: {
-      maxOutputTokens: 8192,
-      temperature: 1,
-      topP: 0.95,
-    },
-    safetySettings: SAFETY_SETTINGS,
-  });
-
   const text1 = {
     text: `Convert the text in this image to the following format for (every question is their own ul):
 
         <ul class=\"toggle\">
-          <li>
-           <details>
-            <summary>
+          <li>
+           <details>
+            <summary>
                 n) question
-            </summary>
+            </summary>
         <p>A) ..., </p>
         <p>B)... </p>
-        etc. 
+        etc. 
         <p>and finally Answer: D</p>
-           </details>
-          </li>
-          </ul>
+           </details>
+          </li>
+          </ul>
 
         —
         - Extra rules: n=is the number for the question, question=the question text
@@ -62,28 +46,10 @@ export const convertImageToHTML = async (
     },
   };
 
-  const req = {
+  const req: GenerateContentRequest = {
     contents: [{ role: 'user', parts: [text1, image1] }],
   };
 
-  let htmlContent = '';
-  try {
-    const streamingResp = await generativeModel.generateContentStream(req);
-    for await (const item of streamingResp.stream) {
-      if (
-        item.candidates &&
-        item.candidates[0].content &&
-        item.candidates[0].content.parts
-      ) {
-        htmlContent += item.candidates[0].content.parts
-          .map((part) => part.text)
-          .join('');
-      }
-    }
-  } catch (error) {
-    console.error('Error generating content stream:', error);
-  }
-  htmlContent = removeFirstAndLastLine(htmlContent);
-
-  return htmlContent;
+  const htmlContent = await generateContent(req);
+  return removeFirstAndLastLine(htmlContent);
 };
