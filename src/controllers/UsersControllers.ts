@@ -1,6 +1,5 @@
 import express from 'express';
 
-import { sendError } from '../lib/error/sendError';
 import AuthenticationService from '../services/AuthenticationService';
 import UsersService from '../services/UsersService';
 import { getRedirect } from './helpers/getRedirect';
@@ -35,7 +34,8 @@ class UsersController {
       );
       res.status(200).send({ message: 'ok' });
     } catch (error) {
-      sendError(error);
+      console.info('Update password failed');
+      console.error(error);
       next(new Error('Failed to create new password.'));
     }
   }
@@ -56,7 +56,8 @@ class UsersController {
       await this.userService.sendResetEmail(email, this.authService);
       return res.status(200).json({ message: 'ok' });
     } catch (error) {
-      sendError(error);
+      console.info('Send reset email failed');
+      console.error(error);
       next(error);
     }
   }
@@ -72,7 +73,8 @@ class UsersController {
       res.clearCookie('token');
       res.redirect('/');
     } catch (error) {
-      sendError(error);
+      console.info('Log out failed');
+      console.error(error);
       next(error);
     }
   }
@@ -111,7 +113,8 @@ class UsersController {
         res.status(200).json({ token, redirect: getRedirect(req) });
       }
     } catch (error) {
-      sendError(error);
+      console.info('Login failed');
+      console.error(error);
       next(
         new Error('Failed to login, please try again or register your account.')
       );
@@ -144,7 +147,8 @@ class UsersController {
       );
       res.status(200).json({ message: 'ok' });
     } catch (error) {
-      sendError(error);
+      console.info('Register failed');
+      console.error(error);
       return next(error);
     }
   }
@@ -162,7 +166,8 @@ class UsersController {
       }
       return res.redirect('/login');
     } catch (err) {
-      sendError(err);
+      console.info('Reset password failed');
+      console.error(err);
       next(err);
     }
   }
@@ -209,8 +214,8 @@ class UsersController {
       await this.userService.updateSubscriptionLinkedEmail(owner, email);
       return res.status(200).json({});
     } catch (error) {
+      console.info('Link email failed');
       console.error(error);
-      sendError(error);
       return res.status(500).json({ message: 'Failed to link email' });
     }
   }
@@ -225,7 +230,8 @@ class UsersController {
       await this.userService.deleteUser(owner);
       res.status(200).json({});
     } catch (error) {
-      sendError(error);
+      console.info('Delete account failed');
+      console.error(error);
       return res.status(500).json({ message: 'Failed to delete account' });
     }
   }

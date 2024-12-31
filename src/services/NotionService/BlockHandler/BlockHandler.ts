@@ -12,7 +12,6 @@ import axios from 'axios';
 
 import getDeckName from '../../../lib/anki/getDeckname';
 import sanitizeTags from '../../../lib/anki/sanitizeTags';
-import { sendError } from '../../../lib/error/sendError';
 import { S3FileName, SuffixFrom } from '../../../lib/misc/file';
 import getUniqueFileName from '../../../lib/misc/getUniqueFileName';
 import Deck from '../../../lib/parser/Deck';
@@ -135,7 +134,8 @@ class BlockHandler {
       const requestChildren = response2.results;
       return await renderBack(this, requestChildren, response2, handleChildren);
     } catch (e: unknown) {
-      sendError(e);
+      console.info('Get back side failed');
+      console.error(e);
       return null;
     }
   }

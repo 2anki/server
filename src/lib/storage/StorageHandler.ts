@@ -1,6 +1,5 @@
 import aws from 'aws-sdk';
 import { ObjectList } from 'aws-sdk/clients/s3';
-import { sendError } from '../error/sendError';
 
 class StorageHandler {
   s3: aws.S3;
@@ -42,7 +41,8 @@ class StorageHandler {
         .promise();
       return true;
     } catch (err) {
-      sendError(err);
+      console.info('Delete file failed');
+      console.error(err);
       return false;
     }
   }
@@ -68,7 +68,8 @@ class StorageHandler {
         }
       } catch (err) {
         if (err) {
-          sendError(err);
+          console.info('Get contents failed');
+          console.error(err);
           return reject(err);
         }
       }
@@ -108,7 +109,8 @@ class StorageHandler {
         },
         (err, response) => {
           if (err) {
-            sendError(err);
+            console.info('Upload file failed');
+            console.error(err);
             reject(err);
           } else {
             resolve(response);

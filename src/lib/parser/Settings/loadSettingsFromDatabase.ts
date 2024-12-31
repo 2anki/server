@@ -1,7 +1,6 @@
 import { Knex } from 'knex';
 
 import { getCustomTemplate } from './helpers/getCustomTemplate';
-import { sendError } from '../../error/sendError';
 import CardOption from './CardOption';
 
 export const loadSettingsFromDatabase = async (
@@ -42,7 +41,8 @@ export const loadSettingsFromDatabase = async (
     }
     return settings;
   } catch (error: unknown) {
-    sendError(error);
+    console.info('Load settings from database failed');
+    console.error(error);
   }
   return new CardOption(CardOption.LoadDefaultOptions());
 };

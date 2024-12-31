@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 
-import { sendError } from '../lib/error/sendError';
 import performConversion from '../lib/storage/jobs/helpers/performConversion';
 import CardOption from '../lib/parser/Settings';
 import BlockHandler from '../services/NotionService/BlockHandler/BlockHandler';
@@ -30,7 +29,8 @@ class NotionController {
       await this.service.connectToNotion(authorizationCode, res.locals.owner);
       return res.redirect('/search');
     } catch (err) {
-      sendError(err);
+      console.info('Connect to Notion failed');
+      console.error(err);
       return res.redirect('/search');
     }
   }
@@ -175,7 +175,8 @@ class NotionController {
       );
       return res.json(database);
     } catch (error) {
-      sendError(error);
+      console.info('Get database failed');
+      console.error(error);
       res.status(500).send();
     }
   }
@@ -195,8 +196,8 @@ class NotionController {
       const deletion = await this.service.disconnect(res.locals.owner);
       res.status(200).send({ didDelete: deletion });
     } catch (err) {
-      sendError(err);
-      console.debug('Failed to disconnect');
+      console.info('Disconnect from Notion failed');
+      console.error(err);
       res.status(500).send({ didDelete: false });
     }
   }

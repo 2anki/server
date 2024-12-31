@@ -9,7 +9,6 @@ import UsersRepository from '../data_layer/UsersRepository';
 import Users from '../data_layer/public/Users';
 import { Knex } from 'knex';
 import axios from 'axios';
-import { sendError } from '../lib/error/sendError';
 
 export interface UserWithOwner extends Users {
   owner: number;
@@ -163,7 +162,7 @@ class AuthenticationService {
       };
     } catch (error) {
       console.info("Couldn't login with Google");
-      sendError(error);
+      console.error(error);
     }
   }
 }

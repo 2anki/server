@@ -29,12 +29,13 @@ import templatesRouter from './routes/TemplatesRouter';
 import defaultRouter from './routes/DefaultRouter';
 import webhookRouter from './routes/WebhookRouter';
 
-import { sendError } from './lib/error/sendError';
-
 import { getDatabase, setupDatabase } from './data_layer';
 
 function registerSignalHandlers(server: http.Server) {
-  process.on('uncaughtException', sendError);
+  process.on('uncaughtException', (error) => {
+    console.error('Uncaught Exception:', error);
+    process.exit(1);
+  });
   process.on('SIGTERM', () => {
     console.debug('SIGTERM signal received: closing HTTP server');
     server.close(() => {

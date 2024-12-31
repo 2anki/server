@@ -3,7 +3,6 @@ import fs from 'fs';
 import { Request, Response } from 'express';
 
 import path from 'path';
-import { sendError } from '../lib/error/sendError';
 import StorageHandler from '../lib/storage/StorageHandler';
 import DownloadService from '../services/DownloadService';
 import { canAccess } from '../lib/misc/canAccess';
@@ -34,7 +33,8 @@ class DownloadController {
         this.service.deleteMissingFile(owner, key);
         res.redirect('/uploads');
       } else {
-        sendError(error);
+        console.info('Download failed');
+        console.error(error);
         res
           .status(404)
           .send(

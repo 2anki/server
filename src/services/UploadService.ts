@@ -1,7 +1,6 @@
 import express from 'express';
 
 import { IUploadRepository } from '../data_layer/UploadRespository';
-import { sendError } from '../lib/error/sendError';
 import ErrorHandler from '../routes/middleware/ErrorHandler';
 import CardOption from '../lib/parser/Settings';
 import Workspace from '../lib/parser/WorkSpace';
@@ -59,8 +58,8 @@ class UploadService {
         try {
           res.set('File-Name', encodeURIComponent(first.name));
         } catch (err) {
-          sendError(err);
           console.info(`failed to set name ${first.name}`);
+          console.error(err);
         }
 
         res.attachment(`/${first.name}`);

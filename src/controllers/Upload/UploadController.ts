@@ -1,7 +1,6 @@
 import express from 'express';
 
 import { getOwner } from '../../lib/User/getOwner';
-import { sendError } from '../../lib/error/sendError';
 import NotionService from '../../services/NotionService';
 import UploadService from '../../services/UploadService';
 import { getUploadHandler } from '../../lib/misc/GetUploadHandler';
@@ -28,7 +27,8 @@ class UploadController {
       await this.service.deleteUpload(owner, key);
       await this.notionService.purgeBlockCache(owner);
     } catch (error) {
-      sendError(error);
+      console.info('Delete upload failed');
+      console.error(error);
       return res.status(500).send();
     }
 
@@ -41,7 +41,8 @@ class UploadController {
       const uploads = await this.service.getUploadsByOwner(owner);
       res.json(uploads);
     } catch (error) {
-      sendError(error);
+      console.info('Get uploads failed');
+      console.error(error);
       res.status(400);
     }
   }
@@ -58,7 +59,8 @@ class UploadController {
         await this.service.handleUpload(req, res);
       });
     } catch (error) {
-      sendError(error);
+      console.info('Upload file failed');
+      console.error(error);
       res.status(400);
     }
   }

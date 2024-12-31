@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import { sendError } from '../../lib/error/sendError';
 import { IServiceSettings } from '../../services/SettingsService';
 import { getOwner } from '../../lib/User/getOwner';
 import supportedOptions from './supportedOptions';
@@ -22,7 +21,8 @@ class CardOptionsController {
       });
       res.status(200).send();
     } catch (error) {
-      sendError(error);
+      console.info('Create setting failed');
+      console.error(error);
       res.status(400).send();
     }
   }
@@ -35,7 +35,8 @@ class CardOptionsController {
       await this.service.delete(owner, id);
       res.status(200).send();
     } catch (error) {
-      sendError(error);
+      console.info('Delete setting failed');
+      console.error(error);
       res.status(400).send();
     }
   }
@@ -52,7 +53,8 @@ class CardOptionsController {
       const storedSettings = await this.service.getById(id);
       return res.json({ payload: storedSettings });
     } catch (error) {
-      sendError(error);
+      console.info('Get setting failed');
+      console.error(error);
       res.status(400).send();
     }
   }

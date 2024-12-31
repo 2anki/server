@@ -3,7 +3,6 @@ import { homedir } from 'os';
 import path from 'path';
 
 import { CREATE_DECK_SCRIPT_PATH, resolvePath } from '../constants';
-import { sendError } from '../error/sendError';
 
 function PYTHON() {
   const os = process.platform;
@@ -36,7 +35,8 @@ class CardGenerator {
       });
 
       process.on('error', (err) => {
-        sendError(err);
+        console.info('Create deck failed');
+        console.error(err);
         reject(err);
       });
 

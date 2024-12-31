@@ -2,7 +2,6 @@ import { APIErrorCode } from '@notionhq/client';
 import axios from 'axios';
 
 import { INotionRepository } from '../../data_layer/NotionRespository';
-import { sendError } from '../../lib/error/sendError';
 import hashToken from '../../lib/misc/hashToken';
 import NotionAPIWrapper from './NotionAPIWrapper';
 import { getNotionId } from './getNotionId';
@@ -119,7 +118,8 @@ export class NotionService {
           resolve(res.data);
         }
       } catch (err) {
-        sendError(err);
+        console.info('Get access data failed');
+        console.error(err);
         reject(err);
       }
     });

@@ -1,6 +1,5 @@
 import express from 'express';
 
-import { sendError } from '../lib/error/sendError';
 import JobService from '../services/JobService';
 import { getOwner } from '../lib/User/getOwner';
 
@@ -20,7 +19,8 @@ class JobController {
       res.status(200).send();
     } catch (error) {
       res.status(500).send();
-      sendError(error);
+      console.info('Delete job failed');
+      console.error(error);
     }
   }
 }
