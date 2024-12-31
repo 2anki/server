@@ -3,6 +3,7 @@ import { Body } from 'aws-sdk/clients/s3';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { getUploadLimits } from '../misc/getUploadLimits';
 import {
+  isHiddenFileOrDirectory,
   isHTMLFile,
   isImageFile,
   isMarkdownFile,
@@ -62,12 +63,24 @@ class ZipHandler {
 
     try {
       const loadedZip = unzipSync(zipData, {
-        filter: (file) => !file.name.endsWith('/'),
+        filter: (file) => !isHiddenFileOrDirectory(file.name),
       });
+
+      let noSuffixCount = 0;
+      const totalFiles = Object.keys(loadedZip).length;
 
       for (const name in loadedZip) {
         const file = loadedZip[name];
+        if (!name.includes('.')) {
+          noSuffixCount++;
+        }
         await this.handleFile(name, file, paying, settings);
+      }
+
+      if (noSuffixCount === totalFiles) {
+        throw new Error(
+          'The zip file contains only files with no suffix. Supported file types are: .zip, .html, .csv, .md, .pdf, .ppt, and .pptx.'
+        );
       }
 
       this.addCombinedHTMLToFiles(paying, settings);

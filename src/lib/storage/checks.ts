@@ -60,3 +60,8 @@ export const isImageFile = (name: string) =>
     name.toLowerCase().endsWith('.svg'));
 
 export const isXLSXFile = (fileName: string) => /.xlsx$/i.test(fileName);
+
+export const isHiddenFileOrDirectory = (fileName: string) =>
+  fileName.startsWith('.') ||
+  fileName.endsWith('/') ||
+  fileName.startsWith('__MACOSX');
