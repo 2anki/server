@@ -13,7 +13,6 @@ import replaceAll from './helpers/replaceAll';
 
 import get16DigitRandomId from '../../shared/helpers/get16DigitRandomId';
 import { isValidAudioFile } from '../anki/format';
-import { sendError } from '../error/sendError';
 import FallbackParser from './experimental/FallbackParser';
 import { embedFile } from './exporters/embedFile';
 import getYouTubeEmbedLink from './helpers/getYouTubeEmbedLink';
@@ -164,7 +163,7 @@ export class DeckParser {
                 `;
     } catch (error) {
       console.info('experienced error while getting link');
-      sendError(error);
+      console.error(error);
       return null;
     }
   }
@@ -275,7 +274,7 @@ export class DeckParser {
         return getYouTubeID(input);
       } catch (error) {
         console.debug('error in getYouTubeID');
-        sendError(error);
+        console.error(error);
         return null;
       }
     });
@@ -299,7 +298,7 @@ export class DeckParser {
         return m[0].split('">')[0];
       } catch (error) {
         console.debug('error in getSoundCloudURL');
-        sendError(error);
+        console.error(error);
         return null;
       }
     });

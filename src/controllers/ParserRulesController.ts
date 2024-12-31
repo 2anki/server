@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 
-import { sendError } from '../lib/error/sendError';
 import ParserRulesService from '../services/ParserRulesService';
 import { getOwner } from '../lib/User/getOwner';
 
@@ -22,7 +21,8 @@ class RulesController {
       );
       res.status(200).send(result);
     } catch (error) {
-      sendError(error);
+      console.info('Create rule failed');
+      console.error(error);
       res.status(400).send();
     }
   }
@@ -38,7 +38,8 @@ class RulesController {
       const rule = await this.service.getById(id);
       res.status(200).json(rule);
     } catch (err) {
-      sendError(err);
+      console.info('Get rule failed');
+      console.error(err);
       res.status(200).json();
     }
   }

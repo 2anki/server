@@ -1,5 +1,4 @@
 import express from 'express';
-import { sendError } from '../../lib/error/sendError';
 import { UploadedFile } from '../../lib/storage/types';
 import { isLimitError } from '../../lib/misc/isLimitError';
 import { isEmptyPayload } from '../../lib/misc/isEmptyPayload';
@@ -14,7 +13,8 @@ export default function ErrorHandler(
   const skipError = isLimitError(err);
 
   if (!skipError) {
-    sendError(err);
+    console.info('Send error');
+    console.error(err);
     if (!isEmptyPayload(uploadedFiles)) {
       perserveFilesForDebugging(req.files as UploadedFile[], err);
     }

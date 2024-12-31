@@ -1,7 +1,6 @@
 import { parseTemplate } from './helpers/parseTemplate';
 
 import { UserSuppliedTemplateFile } from './types';
-import { sendError } from '../../error/sendError';
 
 class CardOption {
   readonly deckName: string | undefined;
@@ -121,7 +120,8 @@ class CardOption {
       this.n2aCloze = parseTemplate(input['n2a-cloze']);
       this.n2aInput = parseTemplate(input['n2a-input']);
     } catch (error) {
-      sendError(error);
+      console.info('Retrieve templates failed');
+      console.error(error);
     }
   }
 
