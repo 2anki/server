@@ -29,9 +29,6 @@ export const getPackagesFromZip = async (
 
   let cardCount = 0;
   for (const fileName of fileNames) {
-    /**
-     * XXX: Should we also support files without extensions?
-     */
     if (isZipContentFileSupported(fileName)) {
       const deck = await PrepareDeck({
         name: fileName,

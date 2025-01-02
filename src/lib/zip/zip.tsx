@@ -7,7 +7,6 @@ import {
   isHTMLFile,
   isImageFile,
   isMarkdownFile,
-  isPDFFile,
 } from '../storage/checks';
 import { processAndPrepareArchiveData } from './fallback/processAndPrepareArchiveData';
 import CardOption from '../parser/Settings';
@@ -95,7 +94,7 @@ class ZipHandler {
     paying: boolean,
     settings: CardOption
   ) {
-    if (name.includes('__MACOSX/') || isPDFFile(name)) return;
+    if (name.includes('__MACOSX/')) return;
 
     if (name.endsWith('.zip')) {
       this.zipFileCount++;
