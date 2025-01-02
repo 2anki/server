@@ -7,13 +7,14 @@ import {
   isXLSXFile,
 } from '../../lib/storage/checks';
 
-/**
- * XXX: Should we also support files without extensions?
- */
+const isFileWithoutExtension = (filename: string) =>
+  filename && filename.indexOf('.') === -1;
+
 export const isZipContentFileSupported = (filename: string) =>
   isHTMLFile(filename) ??
   isMarkdownFile(filename) ??
   isPlainText(filename) ??
   isCSVFile(filename) ??
   isPDFFile(filename) ??
-  isXLSXFile(filename);
+  isXLSXFile(filename) ??
+  isFileWithoutExtension(filename);
