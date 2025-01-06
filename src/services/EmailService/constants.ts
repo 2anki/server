@@ -31,3 +31,22 @@ export const VAT_NOTIFICATIONS_LOG_PATH = path.join(
   '.2anki',
   'vat-notifications-sent.json'
 );
+
+export const SUBSCRIPTION_CANCELLED_TEMPLATE = fs.readFileSync(
+  path.join(EMAIL_TEMPLATES_DIRECTORY, 'subscription-cancelled.html'),
+  'utf8'
+);
+
+export const SUBSCRIPTION_CANCELLATIONS_LOG_PATH = path.join(
+  os.homedir(),
+  '.2anki',
+  'subscriptions-cancelled-sent.json'
+);
+
+export const SUBSCRIPTION_SCHEDULED_CANCELLATION_TEMPLATE = fs.readFileSync(
+  path.join(
+    EMAIL_TEMPLATES_DIRECTORY,
+    'subscription-scheduled-cancellation.html'
+  ),
+  'utf8'
+);

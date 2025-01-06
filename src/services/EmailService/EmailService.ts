@@ -9,7 +9,10 @@ import {
   DEFAULT_SENDER,
   PASSWORD_RESET_TEMPLATE,
   VAT_NOTIFICATION_TEMPLATE,
+  SUBSCRIPTION_CANCELLED_TEMPLATE,
   VAT_NOTIFICATIONS_LOG_PATH,
+  SUBSCRIPTION_CANCELLATIONS_LOG_PATH,
+  SUBSCRIPTION_SCHEDULED_CANCELLATION_TEMPLATE,
 } from './constants';
 import { isValidDeckName, addDeckNameSuffix } from '../../lib/anki/format';
 import { ClientResponse } from '@sendgrid/mail';
@@ -31,6 +34,16 @@ export interface IEmailService {
     email: string,
     currency: string,
     name: string
+  ): Promise<void>;
+  sendSubscriptionCancelledEmail(
+    email: string,
+    name: string,
+    subscriptionId: string
+  ): Promise<void>;
+  sendSubscriptionScheduledCancellationEmail(
+    email: string,
+    name: string,
+    cancelDate: Date
   ): Promise<void>;
 }
 
@@ -201,6 +214,125 @@ class EmailService implements IEmailService {
       throw error;
     }
   }
+
+  private loadCancellationsSent(): Set<string> {
+    try {
+      // Ensure .2anki directory exists
+      const dir = path.dirname(SUBSCRIPTION_CANCELLATIONS_LOG_PATH);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+
+      if (fs.existsSync(SUBSCRIPTION_CANCELLATIONS_LOG_PATH)) {
+        const data = fs.readFileSync(
+          SUBSCRIPTION_CANCELLATIONS_LOG_PATH,
+          'utf8'
+        );
+        return new Set(JSON.parse(data));
+      }
+    } catch (error) {
+      console.warn('Error loading cancellations log:', error);
+    }
+    return new Set();
+  }
+
+  private saveCancellationSent(subscriptionId: string): void {
+    try {
+      const cancellationsSent = this.loadCancellationsSent();
+      cancellationsSent.add(subscriptionId);
+      fs.writeFileSync(
+        SUBSCRIPTION_CANCELLATIONS_LOG_PATH,
+        JSON.stringify([...cancellationsSent])
+      );
+    } catch (error) {
+      console.error('Error saving cancellation log:', error);
+    }
+  }
+
+  async sendSubscriptionCancelledEmail(
+    email: string,
+    name: string,
+    subscriptionId: string
+  ): Promise<void> {
+    const cancellationsSent = this.loadCancellationsSent();
+    if (cancellationsSent.has(subscriptionId)) {
+      console.log(
+        `Skipping ${email} - Cancellation notification already sent for subscription ${subscriptionId}`
+      );
+      return;
+    }
+
+    const markup = SUBSCRIPTION_CANCELLED_TEMPLATE.replace(
+      '{{name}}',
+      name || 'there'
+    );
+
+    const $ = cheerio.load(markup);
+    const text = $('body').text().replace(/\s+/g, ' ').trim();
+
+    const msg = {
+      to: email,
+      from: this.defaultSender,
+      subject: '2anki.net - Subscription Cancelled',
+      text,
+      html: markup,
+      replyTo: 'support@2anki.net',
+    };
+
+    try {
+      await sgMail.send(msg);
+      this.saveCancellationSent(subscriptionId);
+      console.log(`Successfully sent cancellation confirmation to ${email}`);
+    } catch (error) {
+      console.error(
+        `Failed to send cancellation confirmation to ${email}:`,
+        error
+      );
+      throw error;
+    }
+  }
+
+  async sendSubscriptionScheduledCancellationEmail(
+    email: string,
+    name: string,
+    cancelDate: Date
+  ): Promise<void> {
+    const formattedDate = cancelDate.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+
+    const markup = SUBSCRIPTION_SCHEDULED_CANCELLATION_TEMPLATE.replace(
+      '{{name}}',
+      name || 'there'
+    ).replace(/{{cancelDate}}/g, formattedDate);
+
+    const $ = cheerio.load(markup);
+    const text = $('body').text().replace(/\s+/g, ' ').trim();
+
+    const msg = {
+      to: email,
+      from: this.defaultSender,
+      subject: '2anki.net - Subscription Cancellation Scheduled',
+      text,
+      html: markup,
+      replyTo: 'support@2anki.net',
+    };
+
+    try {
+      await sgMail.send(msg);
+      console.log(
+        `Successfully sent scheduled cancellation notification to ${email}`
+      );
+    } catch (error) {
+      console.error(
+        `Failed to send scheduled cancellation notification to ${email}:`,
+        error
+      );
+      throw error;
+    }
+  }
 }
 
 export class UnimplementedEmailService implements IEmailService {
@@ -238,6 +370,34 @@ export class UnimplementedEmailService implements IEmailService {
     name: string
   ): Promise<void> {
     console.info('sendVatNotificationEmail not handled', email, currency, name);
+    return Promise.resolve();
+  }
+
+  sendSubscriptionCancelledEmail(
+    email: string,
+    name: string,
+    subscriptionId: string
+  ): Promise<void> {
+    console.info(
+      'sendSubscriptionCancelledEmail not handled',
+      email,
+      name,
+      subscriptionId
+    );
+    return Promise.resolve();
+  }
+
+  sendSubscriptionScheduledCancellationEmail(
+    email: string,
+    name: string,
+    cancelDate: Date
+  ): Promise<void> {
+    console.info(
+      'sendSubscriptionScheduledCancellationEmail not handled',
+      email,
+      name,
+      cancelDate
+    );
     return Promise.resolve();
   }
 }
