@@ -9,6 +9,7 @@ import {
 import { getDatabase } from '../data_layer';
 import { StripeController } from '../controllers/StripeController/StripeController';
 import UsersRepository from '../data_layer/UsersRepository';
+import { useDefaultEmailService } from '../services/EmailService/EmailService';
 
 const WebhooksRouter = () => {
   const router = express.Router();
@@ -44,32 +45,65 @@ const WebhooksRouter = () => {
       switch (event.type) {
         case 'customer.subscription.updated':
           const customerSubscriptionUpdated = event.data.object;
-          // Then define and call a function to handle the event customer.subscription.updated
-          const customer = await stripe.customers.retrieve(
-            // @ts-ignore
-            getCustomerId(customerSubscriptionUpdated.customer)
+          const customerId = getCustomerId(
+            customerSubscriptionUpdated.customer as string
           );
+          if (!customerId) {
+            console.error('No customer ID found');
+            return;
+          }
+          const customer = await stripe.customers.retrieve(customerId);
 
           await updateStoreSubscription(
             getDatabase(),
             customer as Stripe.Customer,
             customerSubscriptionUpdated
           );
+
+          if (
+            customerSubscriptionUpdated.cancel_at_period_end === true &&
+            event.data.previous_attributes?.cancel_at_period_end === false
+          ) {
+            const cancelDate = new Date(
+              customerSubscriptionUpdated.current_period_end * 1000
+            );
+            const emailService = useDefaultEmailService();
+            if ('email' in customer) {
+              await emailService.sendSubscriptionScheduledCancellationEmail(
+                customer.email!,
+                customer.name || 'there',
+                cancelDate
+              );
+            }
+          }
           break;
         case 'customer.subscription.deleted':
           const customerSubscriptionDeleted = event.data.object;
           if (typeof customerSubscriptionDeleted.customer === 'string') {
-            // Then define and call a function to handle the event customer.subscription.deleted
-            const customerDeleted = await stripe.customers.retrieve(
-              // @ts-ignore
-              getCustomerId(customerSubscriptionDeleted.customer)
+            const deletedCustomerId = getCustomerId(
+              customerSubscriptionDeleted.customer
             );
+            if (!deletedCustomerId) {
+              console.error('No customer ID found');
+              return;
+            }
+            const customerDeleted =
+              await stripe.customers.retrieve(deletedCustomerId);
 
             await updateStoreSubscription(
               getDatabase(),
               customerDeleted as Stripe.Customer,
               customerSubscriptionDeleted
             );
+
+            if ('email' in customerDeleted) {
+              const emailService = useDefaultEmailService();
+              await emailService.sendSubscriptionCancelledEmail(
+                customerDeleted.email!,
+                customerDeleted.name || 'there',
+                customerSubscriptionDeleted.id
+              );
+            }
           }
           break;
         case 'checkout.session.completed':
