@@ -37,6 +37,18 @@ class NotionController {
 
   async search(req: Request, res: Response) {
     try {
+      // Check for Notion connection first
+      const linkInfo = await this.service.getNotionLinkInfo(res.locals.owner);
+      if (!linkInfo.isConnected) {
+        const renewalLink = this.service.getNotionAuthorizationLink(
+          this.service.getClientId()
+        );
+        return res.status(401).json({
+          message: `Notion is not connected. Please connect your account <a href='${renewalLink}'>here</a>.`,
+        });
+      }
+
+      // Proceed with search if connected
       const query = req.body.query.toString() || '';
       const result = await this.service.search(query, getOwner(res));
       res.json(result);
