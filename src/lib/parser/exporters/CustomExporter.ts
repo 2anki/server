@@ -3,7 +3,6 @@ import fs, { PathLike } from 'fs';
 
 import CardGenerator from '../../anki/CardGenerator';
 import Deck from '../Deck';
-import { NO_PACKAGE_ERROR } from '../../error/constants';
 
 class CustomExporter {
   firstDeckName: string;
@@ -27,11 +26,6 @@ class CustomExporter {
   }
 
   configure(payload: Deck[]) {
-    const hasCards = payload.some((p) => p.cardCount > 0);
-    if (!hasCards) {
-      throw NO_PACKAGE_ERROR;
-    }
-
     fs.writeFileSync(
       this.getPayloadInfoPath(),
       JSON.stringify(payload, null, 2)
