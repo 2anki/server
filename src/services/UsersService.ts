@@ -69,6 +69,12 @@ class UsersService {
     return this.repository.getSubscriptionLinkedEmail(owner);
   }
 
+  async checkSubscriptionEmailExists(email: string): Promise<boolean> {
+    const subscription =
+      await this.repository.checkSubscriptionEmailExists(email);
+    return !!subscription;
+  }
+
   getUserById(owner: string): Promise<Users> {
     return this.repository.getById(owner);
   }
