@@ -211,6 +211,13 @@ class UsersController {
     }
 
     try {
+      const emailExists =
+        await this.userService.checkSubscriptionEmailExists(email);
+      if (!emailExists) {
+        console.warn('Linking attempted with non-existent email');
+        return res.status(400).json({ message: 'Failed to link email.' });
+      }
+
       await this.userService.updateSubscriptionLinkedEmail(owner, email);
       return res.status(200).json({});
     } catch (error) {
