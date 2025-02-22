@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+        <title>Ki Interface</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+        <style>
+                :root {
+                        --primary: #2383E2;
+                        --text-primary: rgb(55, 53, 47);
+                        --text-secondary: rgba(55, 53, 47, 0.65);
+                        --bg-primary: #ffffff;
+                        --bg-secondary: rgba(247, 246, 243, 0.8);
+                        --border-color: rgba(55, 53, 47, 0.16);
+                        --hover-bg: rgba(55, 53, 47, 0.08);
+                        --shadow-sm: rgba(15, 15, 15, 0.05) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 3px 6px, rgba(15, 15, 15, 0.2) 0px 9px 24px;
+                        --shadow-md: rgba(15, 15, 15, 0.1) 0px 0px 0px 1px, rgba(15, 15, 15, 0.2) 0px 5px 10px, rgba(15, 15, 15, 0.4) 0px 15px 40px;
+                        --radius-sm: 3px;
+                        --radius-md: 4px;
+                        --radius-lg: 6px;
+                        --transition: all 100ms ease-in;
+                        --editor-height: 250px;
+                        --font-ui: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif;
+                }
+
+                * {
+                        box-sizing: border-box;
+                        margin: 0;
+                        padding: 0;
+                }
+
+                body {
+                        background: var(--bg-primary);
+                        font-family: var(--font-ui);
+                        color: var(--text-primary);
+                        line-height: 1.5;
+                        font-size: 16px;
+                        -webkit-font-smoothing: antialiased;
+                }
+
+                .container {
+                        width: 100%;
+                        max-width: 1000px;
+                        margin: 0 auto;
+                        padding: 32px 96px;
+                        padding-bottom: 80px;
+                }
+
+                .header {
+                        position: sticky;
+                        top: 0;
+                        z-index: 100;
+                        background: rgba(255, 255, 255, 0.8);
+                        backdrop-filter: blur(8px);
+                        -webkit-backdrop-filter: blur(8px);
+                        border-bottom: 1px solid var(--border-color);
+                        padding: 12px 24px;
+                        margin-bottom: 24px;
+                }
+
+                .header-content {
+                        max-width: 900px;
+                        margin: 0 auto;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                }
+
+                .logo {
+                        font-size: 48px;
+                        font-weight: 600;
+                        color: var(--text-primary);
+                        text-decoration: none;
+                }
+
+                .header-right {
+                        display: flex;
+                        gap: 16px;
+                        align-items: center;
+                }
+
+                .header-link {
+                        color: var(--text-secondary);
+                        text-decoration: none;
+                        font-size: 14px;
+                        font-weight: 500;
+                        padding: 6px 12px;
+                        border-radius: var(--radius-md);
+                        transition: var(--transition);
+                }
+
+                .header-link:hover {
+                        color: var(--text-primary);
+                        background: var(--bg-secondary);
+                }
+
+                .editor-container {
+                        position: relative;
+                        width: 100%;
+                        background: var(--bg-primary);
+                        border: 1px solid var(--border-color);
+                        border-radius: var(--radius-lg);
+                        box-shadow: var(--shadow-sm);
+                        overflow: hidden;
+                        transition: var(--transition);
+                        z-index: 10;
+                }
+
+                .editor-container.drag-over {
+                        border-color: var(--primary);
+                        box-shadow: 0 0 0 3px var(--hover-bg);
+                }
+
+                .drag-overlay {
+                        display: none;
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: rgba(83, 121, 245, 0.1);
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 16px;
+                        color: var(--primary);
+                        pointer-events: none;
+                }
+
+                .editor-container.drag-over .drag-overlay {
+                        display: flex;
+                }
+
+                textarea {
+                        width: 100%;
+                        min-height: 148px;
+                        padding: 24px;
+                        border: none;
+                        font-family: inherit;
+                        font-size: 16px;
+                        line-height: 1.5;
+                        color: var(--text-primary);
+                        resize: none;
+                        background: transparent;
+                        transition: var(--transition);
+                }
+
+                textarea::placeholder {
+                        color: var(--text-secondary);
+                }
+
+                .file-input {
+                        border-top: 1px solid var(--border-color);
+                        padding: 12px 16px;
+                        background: var(--bg-primary);
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                }
+
+                .file-input-left {
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                }
+
+                .file-input-right {
+                        margin-left: auto;
+                }
+
+                input[type="file"] {
+                        font-size: 14px;
+                        color: var(--text-secondary);
+                }
+
+                .upload-button {
+                        padding: 6px;
+                        background: transparent;
+                        border: none;
+                        cursor: pointer;
+                        font-size: 20px;
+                        border-radius: var(--radius-sm);
+                        transition: background 20ms ease-in;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        width: 32px;
+                        height: 32px;
+                        color: var(--text-secondary);
+                }
+
+                .upload-button:hover {
+                        background: var(--bg-secondary);
+                }
+
+                .file-list-container {
+                        width: 100%;
+                        padding: 0 16px;
+                        display: flex;
+                        flex-wrap: wrap;
+                        gap: 8px;
+                        align-items: center;
+                }
+
+                #file-list {
+                        display: flex;
+                        flex-wrap: wrap;
+                        gap: 8px;
+                        align-items: center;
+                }
+
+                .download-button-container {
+                        margin-top: 24px;
+                        padding: 16px;
+                        background: rgba(255, 255, 255, 0.9);
+                        backdrop-filter: blur(10px);
+                        -webkit-backdrop-filter: blur(10px);
+                        border-top: 1px solid var(--border-color);
+                        display: flex;
+                        justify-content: center;
+                        position: sticky;
+                        bottom: 0;
+                        z-index: 1000;
+                }
+
+                .download-button {
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 8px;
+                        padding: 12px 24px;
+                        background: var(--primary);
+                        color: white;
+                        border: none;
+                        border-radius: var(--radius-md);
+                        font-size: 16px;
+                        font-weight: 500;
+                        cursor: pointer;
+                        transition: background 0.2s ease;
+                        box-shadow: var(--shadow-sm);
+                }
+
+                .download-button:hover {
+                        background: #1a6fc9;
+                }
+
+                .download-button img {
+                        width: 24px;
+                        height: 24px;
+                        filter: brightness(0) invert(1);
+                }
+
+                .file-chip {
+                        display: inline-flex;
+                        align-items: center;
+                        background: var(--bg-primary);
+                        border: 1px solid var(--border-color);
+                        border-radius: var(--radius-sm);
+                        padding: 4px 12px;
+                        font-size: 13px;
+                        color: var(--text-secondary);
+                        transition: var(--transition);
+                        height: 28px;
+                }
+
+                .file-chip:hover {
+                        border-color: var(--primary);
+                        background: var(--hover-bg);
+                }
+
+                .file-chip button {
+                        margin-left: 6px;
+                        border: none;
+                        background: none;
+                        cursor: pointer;
+                        color: var(--text-secondary);
+                        padding: 2px;
+                        border-radius: 50%;
+                }
+
+                .file-chip button:hover {
+                        background: var(--hover-bg);
+                }
+
+                .processing-state {
+                        background: var(--bg-primary);
+                        border: 1px solid var(--border-color);
+                        border-radius: var(--radius-md);
+                        padding: 14px 16px;
+                        margin-bottom: 16px;
+                        box-shadow: var(--shadow-sm);
+                }
+
+                .processing-state .icon {
+                        width: 24px;
+                        height: 24px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        border-radius: 50%;
+                        background: var(--hover-bg);
+                }
+
+                .processing-state .content {
+                        flex: 1;
+                }
+
+                .processing-state .title {
+                        font-weight: 500;
+                        color: var(--text-primary);
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        margin-bottom: 4px;
+                }
+
+                .processing-state .subtitle {
+                        color: var(--text-secondary);
+                        font-size: 14px;
+                }
+
+                .status-message {
+                        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+                        font-size: 12px;
+                        line-height: 1.4;
+                        color: var(--text-secondary);
+                        margin: 8px 0;
+                }
+
+                .processing-state .progress {
+                        width: 100%;
+                        height: 2px;
+                        background: var(--border-color);
+                        border-radius: 1px;
+                        margin-top: 8px;
+                        overflow: hidden;
+                }
+
+                .processing-state .progress-bar {
+                        height: 100%;
+                        background: var(--primary);
+                        width: 25%;
+                        border-radius: 1px;
+                        animation: progress 1s infinite linear;
+                }
+
+                @keyframes progress {
+                        0% {
+                                transform: translateX(-100%);
+                        }
+
+                        100% {
+                                transform: translateX(400%);
+                        }
+                }
+
+                .processing-state .spinner {
+                        width: 12px;
+                        height: 12px;
+                        border: 1.5px solid var(--bg-secondary);
+                        border-top: 1.5px solid var(--primary);
+                        border-radius: 50%;
+                        animation: spin 0.8s linear infinite;
+                        opacity: 0.8;
+                }
+
+                @keyframes spin {
+                        0% {
+                                transform: rotate(0deg);
+                        }
+
+                        100% {
+                                transform: rotate(360deg);
+                        }
+                }
+
+                .file-preview {
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        padding: 8px;
+                        background: var(--bg-secondary);
+                        border-radius: var(--radius-md);
+                        margin-top: 8px;
+                }
+
+                .file-preview .name {
+                        color: var(--text-secondary);
+                        font-size: 13px;
+                }
+
+                .cards-container {
+                        position: relative;
+                        padding: 4px;
+                        border-radius: var(--radius-lg);
+                        margin-top: 16px;
+                        max-height: 75vh;
+                        overflow-y: auto;
+                }
+
+                .virtual-item {
+                        position: relative;
+                        width: 100%;
+                        background: var(--bg-primary);
+                        border: 1px solid var(--border-color);
+                        border-radius: var(--radius-md);
+                        padding: 12px 14px;
+                        margin-bottom: 8px;
+                        transition: background 20ms ease-in;
+                }
+
+                .virtual-item:hover {
+                        background: var(--bg-secondary);
+                }
+
+                .virtual-item.deck {
+                        background: var(--bg-primary);
+                        border: none;
+                        box-shadow: var(--shadow-sm);
+                        margin-top: 24px;
+                        padding: 3px;
+                }
+
+                .virtual-item.deck h3 {
+                        font-size: 1.1rem;
+                        color: var(--text-primary);
+                        font-weight: 600;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        padding: 10px 12px;
+                        cursor: pointer;
+                        border-radius: var(--radius-md);
+                        transition: background 20ms ease-in;
+                }
+
+                .virtual-item.deck h3:hover {
+                        background: var(--bg-secondary);
+                }
+
+                .virtual-item.card {
+                        margin-left: 24px;
+                        border: none;
+                        background: transparent;
+                }
+
+                .virtual-item details summary {
+                        list-style: none;
+                        padding: 8px 12px;
+                        margin: -8px -12px;
+                        border-radius: var(--radius-md);
+                        cursor: pointer;
+                        transition: background 20ms ease-in;
+                }
+
+                .virtual-item details summary:hover {
+                        background: var(--bg-secondary);
+                }
+
+                .virtual-item details summary::-webkit-details-marker {
+                        display: none;
+                }
+
+                .virtual-item details p {
+                        margin: 12px 0 0;
+                        padding: 12px;
+                        background: var(--bg-secondary);
+                        border-radius: var(--radius-md);
+                        color: var(--text-primary);
+                        font-size: 15px;
+                        line-height: 1.5;
+                }
+
+                .empty-back {
+                        color: var(--text-secondary);
+                        font-style: normal;
+                        padding: 12px;
+                        background: var(--bg-secondary);
+                        border-radius: var(--radius-md);
+                        border: none;
+                        font-size: 15px;
+                }
+
+                .virtual-item .tags {
+                        display: inline-flex;
+                        margin: 8px 0 0;
+                        padding: 2px 6px;
+                        background: rgba(55, 53, 47, 0.08);
+                        color: var(--text-primary);
+                        font-size: 14px;
+                        border-radius: var(--radius-sm);
+                        transition: background 20ms ease-in;
+                }
+
+                .virtual-item .tags:hover {
+                        background: rgba(55, 53, 47, 0.12);
+                }
+
+                .toast {
+                        position: fixed;
+                        top: 16px;
+                        right: 16px;
+                        padding: 8px 12px;
+                        background: var(--bg-primary);
+                        border: 1px solid var(--border-color);
+                        border-radius: var(--radius-sm);
+                        box-shadow: var(--shadow-sm);
+                        font-size: 14px;
+                        z-index: 1000;
+                        color: var(--text-primary);
+                }
+
+                .toast.error {
+                        border-left: 4px solid #e11d48;
+                }
+
+                .toast.success {
+                        border-left: 4px solid #10b981;
+                }
+
+                .toast.info {
+                        border-left: 4px solid var(--primary);
+                }
+
+                .processing-state .cancel-button {
+                        padding: 6px 12px;
+                        border: 1px solid var(--border-color);
+                        border-radius: var(--radius-md);
+                        background: var(--bg-primary);
+                        color: var(--text-secondary);
+                        font-size: 13px;
+                        cursor: pointer;
+                        transition: var(--transition);
+                }
+
+                .processing-state .cancel-button:hover {
+                        background: var(--hover-bg);
+                        color: var(--text-primary);
+                }
+        </style>
+</head>
+
+<body>
+        <div class="container">
+                <div class="editor-container" id="editor-container">
+                        <div class="drag-overlay">Drop files here</div>
+                        <textarea placeholder="Paste your content here or drag your files here..." name="text" id="text"
+                                onkeydown="handleKeyDown(event)"></textarea>
+                        <div class="file-input">
+                                <div class="file-input-left">
+                                        <button type="button" class="upload-button" title="Upload Files (Shift + A)"
+                                                onclick="document.getElementById('files').click()">📎</button>
+                                        <input type="file" id="files" name="files" multiple style="display: none">
+                                </div>
+                                <div class="file-input-right">
+                                        <button type="button" class="upload-button" title="Generate (Alt + Enter)"
+                                                onclick="generateFlashcards()">⬆️</button>
+                                </div>
+                        </div>
+                </div>
+
+                <div id="results">
+                        <div class="cards-container"></div>
+                </div>
+
+                <div class="download-button-container" style="display: none;">
+                        <span class="download-icon" onclick="downloadDeck('Ki Deck')" style="cursor: pointer">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/3/3d/Anki-icon.svg"
+                                        style="width: 48px; height: 48px; vertical-align: middle;" alt="Download">
+                        </span>
+                </div>
+        </div>
+
+        <script>
+                // Override console methods to send status messages
+                const originalConsole = {
+                        log: console.log,
+                        error: console.error,
+                        warn: console.warn,
+                        info: console.info
+                };
+
+                function sendStatusMessage(message) {
+                        const statusMessages = document.querySelector('.status-message');
+                        if (statusMessages) {
+                                const newMessage = document.createElement('div');
+                                newMessage.textContent = message;
+                                statusMessages.appendChild(newMessage);
+
+                                while (statusMessages.children.length > 3) {
+                                        statusMessages.removeChild(statusMessages.firstChild);
+                                }
+
+                                newMessage.scrollIntoView({ behavior: 'smooth' });
+                        }
+                }
+
+                console.log = function (...args) {
+                        originalConsole.log.apply(console, args);
+                        sendStatusMessage(args.join(' '));
+                };
+
+                console.error = function (...args) {
+                        originalConsole.error.apply(console, args);
+                        sendStatusMessage(`❌ ${args.join(' ')}`);
+                };
+
+                console.warn = function (...args) {
+                        originalConsole.warn.apply(console, args);
+                        sendStatusMessage(`⚠️ ${args.join(' ')}`);
+                };
+
+                console.info = function (...args) {
+                        originalConsole.info.apply(console, args);
+                        sendStatusMessage(`ℹ️ ${args.join(' ')}`);
+                };
+
+                // Simple string hashing function
+                function hashString(str) {
+                        let hash = 0;
+                        for (let i = 0; i < str.length; i++) {
+                                const char = str.charCodeAt(i);
+                                hash = ((hash << 5) - hash) + char;
+                                hash = hash & hash;
+                        }
+                        return hash.toString(36);
+                };
+
+                // Cache management
+                const responseCache = {
+                        set: function (text, cards) {
+                                try {
+                                        const hash = hashString(text);
+                                        localStorage.setItem(`ki_cache_${hash}`, JSON.stringify({
+                                                timestamp: Date.now(),
+                                                cards: cards
+                                        }));
+                                } catch (e) {
+                                        console.warn('Cache write failed:', e);
+                                }
+                        },
+                        get: function (text) {
+                                try {
+                                        const hash = hashString(text);
+                                        const cached = localStorage.getItem(`ki_cache_${hash}`);
+                                        if (!cached) return null;
+
+                                        const data = JSON.parse(cached);
+                                        // Cache expires after 24 hours
+                                        if (Date.now() - data.timestamp > 24 * 60 * 60 * 1000) {
+                                                localStorage.removeItem(`ki_cache_${hash}`);
+                                                return null;
+                                        }
+                                        return data.cards;
+                                } catch (e) {
+                                        console.warn('Cache read failed:', e);
+                                        return null;
+                                }
+                        },
+                        clear: function () {
+                                Object.keys(localStorage)
+                                        .filter(key => key.startsWith('ki_cache_'))
+                                        .forEach(key => localStorage.removeItem(key));
+                        }
+                };
+
+                // Keyboard shortcut handling
+                function handleKeyDown(event) {
+                        if (!event) return;
+
+                        if ((event.altKey || event.metaKey) && event.key === 'Enter') {
+                                event.preventDefault();
+                                generateFlashcards();
+                        } else if (event.shiftKey && event.key === 'a') {
+                                event.preventDefault();
+                                document.getElementById('files').click();
+                        } else if (event.shiftKey && event.key === 'd') {
+                                event.preventDefault();
+                                toggleDebug();
+                        }
+                }
+
+                document.addEventListener('keydown', handleKeyDown);
+
+                // Restore text on page load
+                document.addEventListener('DOMContentLoaded', function () {
+                        const savedText = sessionStorage.getItem('savedText');
+                        if (savedText) {
+                                document.querySelector('textarea[name="text"]').value = savedText;
+                        }
+
+                        // Load and display saved cards
+                        const savedCards = localStorage.getItem('ki_last_response');
+                        if (savedCards) {
+                                const cards = JSON.parse(savedCards);
+                                displayCards(cards);
+                        }
+
+                        // Check if there is deck information in the session
+                        fetch('/ki/status')
+                                .then(response => response.json())
+                                .then(data => {
+                                        if (data.hasDeckInfo) {
+                                                document.querySelector('.download-button-container').style.display = 'flex';
+                                        }
+                                });
+                });
+
+                function displayCards(cards) {
+                        const results = document.getElementById('results');
+                        results.innerHTML = ''; // Clear existing content
+
+                        const cardsContainer = document.createElement('div');
+                        cardsContainer.className = 'cards-container';
+                        results.appendChild(cardsContainer);
+
+                        cards.forEach(card => {
+                                const cardElement = document.createElement('div');
+                                cardElement.className = 'virtual-item';
+
+                                if (card.name) {
+                                        cardElement.innerHTML = `
+                                                <h3>${card.name}</h3>`;
+                                } else {
+                                        cardElement.innerHTML = `
+                                                <details>
+                                                        <summary>${card.front.replace(/src="([^"]+)"/g, (match, src) => {
+                                                if (!src.startsWith('http') && !src.startsWith('/ki/media/')) {
+                                                        return `src="/ki/media/${src}"`;
+                                                }
+                                                return match;
+                                        })}</summary>
+                                                        ${card.back ? `<p>${card.back.replace(/src="([^"]+)"/g, (match, src) => {
+                                                if (!src.startsWith('http') && !src.startsWith('/ki/media/')) {
+                                                        return `src="/ki/media/${src}"`;
+                                                }
+                                                return match;
+                                        })}</p>` : '<p class="empty-back">No answer provided yet</p>'}
+                                                        ${card.tags?.length ? `<p class="tags">${card.tags.join(', ')}</p>` : ''}
+                                                </details>`;
+                                }
+
+                                cardsContainer.appendChild(cardElement);
+                        });
+                }
+
+                class VirtualScroller {
+                        constructor(container, itemHeight = 80) {
+                                this.container = container;
+                                this.items = [];
+                                this.itemHeight = itemHeight;
+                                this.itemHeights = new Map();
+                                this.visibleItems = new Map();
+                                this.lastScrollTop = 0;
+                                this.totalHeight = 0;
+                                this.renderQueue = [];
+                                this.isRendering = false;
+                                this.renderTimeout = null;
+
+                                this.container.addEventListener('scroll', () => {
+                                        if (this.renderTimeout) {
+                                                clearTimeout(this.renderTimeout);
+                                        }
+                                        this.renderTimeout = setTimeout(() => this.onScroll(), 16); // ~60fps
+                                });
+
+                                this.resizeObserver = new ResizeObserver((entries) => {
+                                        for (const entry of entries) {
+                                                const index = parseInt(entry.target.dataset.index);
+                                                if (!isNaN(index)) {
+                                                        this.itemHeights.set(index, entry.contentRect.height);
+                                                        this.updatePositions();
+                                                }
+                                        }
+                                });
+                        }
+
+                        updatePositions() {
+                                requestAnimationFrame(() => {
+                                        let currentOffset = 0;
+                                        for (const [index, element] of this.visibleItems.entries()) {
+                                                const height = this.itemHeights.get(index) || this.itemHeight;
+                                                element.style.transform = `translateY(${currentOffset}px)`;
+                                                currentOffset += height + 8;
+                                        }
+                                        this.totalHeight = currentOffset;
+                                        this.container.style.height = `${this.totalHeight}px`;
+                                });
+                        }
+
+                        addItem(item) {
+                                const index = this.items.length;
+                                this.items.push(item);
+
+                                // Create and add element immediately
+                                const element = document.createElement('div');
+                                element.className = 'virtual-item';
+                                element.dataset.index = index;
+                                element.innerHTML = item;
+                                element.style.opacity = '0';
+                                this.container.appendChild(element);
+                                this.visibleItems.set(index, element);
+                                this.resizeObserver.observe(element);
+
+                                // Fade in with slight delay based on index
+                                requestAnimationFrame(() => {
+                                        element.style.transition = 'opacity 0.2s ease-out';
+                                        element.style.opacity = '1';
+                                });
+
+                                // Queue position update
+                                if (!this.isRendering) {
+                                        requestAnimationFrame(() => this.updatePositions());
+                                }
+                        }
+
+                        renderLoop() {
+                                if (this.renderQueue.length === 0) {
+                                        this.isRendering = false;
+                                        return;
+                                }
+
+                                this.isRendering = true;
+                                const scrollTop = this.container.scrollTop;
+                                const viewportHeight = this.container.clientHeight;
+                                const bufferSize = 5;
+
+                                let currentOffset = 0;
+                                let startIndex = 0;
+
+                                // Find the start index based on cumulative heights
+                                for (let i = 0; i < this.items.length; i++) {
+                                        const height = this.itemHeights.get(i) || this.itemHeight;
+                                        if (currentOffset + height > scrollTop - (bufferSize * this.itemHeight)) {
+                                                startIndex = i;
+                                                break;
+                                        }
+                                        currentOffset += height + 8;
+                                }
+
+                                const endIndex = Math.min(
+                                        this.items.length,
+                                        startIndex + Math.ceil(viewportHeight / this.itemHeight) + bufferSize
+                                );
+
+                                // Process items in view
+                                const toProcess = this.renderQueue
+                                        .filter(idx => idx >= startIndex && idx <= endIndex)
+                                        .slice(0, 5);
+
+                                if (toProcess.length > 0) {
+                                        toProcess.forEach(idx => {
+                                                if (!this.visibleItems.has(idx)) {
+                                                        const element = document.createElement('div');
+                                                        element.className = 'virtual-item';
+                                                        element.dataset.index = idx;
+                                                        element.innerHTML = this.items[idx];
+                                                        this.container.appendChild(element);
+                                                        this.visibleItems.set(idx, element);
+                                                        this.resizeObserver.observe(element);
+
+                                                        // Add click listener for details elements
+                                                        const details = element.querySelector('details');
+                                                        if (details) {
+                                                                details.addEventListener('toggle', () => {
+                                                                        this.updatePositions();
+                                                                });
+                                                        }
+                                                }
+                                        });
+                                        this.renderQueue = this.renderQueue.filter(i => !toProcess.includes(i));
+                                        this.updatePositions();
+                                }
+
+                                // Clean up off-screen items
+                                for (const [index, element] of this.visibleItems.entries()) {
+                                        if (index < startIndex || index > endIndex) {
+                                                this.resizeObserver.unobserve(element);
+                                                element.remove();
+                                                this.visibleItems.delete(index);
+                                        }
+                                }
+
+                                if (this.renderQueue.length > 0) {
+                                        requestAnimationFrame(this.renderLoop);
+                                } else {
+                                        this.isRendering = false;
+                                }
+                        }
+
+                        onScroll() {
+                                if (!this.isRendering) {
+                                        this.renderLoop();
+                                }
+                        }
+
+                        destroy() {
+                                this.resizeObserver.disconnect();
+                                this.isRendering = false;
+                                this.renderQueue = [];
+                                this.visibleItems.forEach(element => element.remove());
+                                this.visibleItems.clear();
+                                this.items = [];
+                                this.totalHeight = 0;
+                                this.container.style.height = '0px';
+                        }
+                }
+
+                async function generateFlashcards() {
+                        const text = document.querySelector('textarea[name="text"]').value;
+                        const files = document.getElementById('files').files;
+                        const results = document.getElementById('results');
+                        const cards = [];
+                        let cardCount = 0;
+                        let deckCount = 0;
+                        let firstDeckName = 'Ki Deck'; // Default name
+                        const startTime = performance.now();
+                        let lastUpdateTime = startTime;
+                        let timerInterval;
+                        let currentController = null;
+
+                        // Hide download button at start of generation
+                        document.querySelector('.download-button-container').style.display = 'none';
+
+                        if (!text.trim() && files.length === 0) {
+                                showToast('Please enter text or upload a file', 'error');
+                                return;
+                        }
+
+                        // Check total file size
+                        // const totalSize = Array.from(files).reduce((sum, file) => sum + file.size, 0);
+                        // const maxSize = 20 * 1024 * 1024; // 20MB
+                        // if (totalSize > maxSize) {
+                        //         showToast('Total file size exceeds 20MB limit. Please reduce file size or split into smaller files.', 'error');
+                        //         return;
+                        // }
+
+                        // Clear any existing debug info
+                        const existingDebug = results.querySelector('.virtual-item.debug');
+                        if (existingDebug) {
+                                existingDebug.remove();
+                        }
+
+                        if (localStorage.getItem('debug') === 'true') {
+                                const debugInfo = {
+                                        inputText: text,
+                                        uploadedFiles: Array.from(files).map(f => f.name)
+                                };
+
+                                const debugEl = document.createElement('div');
+                                debugEl.className = 'virtual-item debug';
+
+                                // Input Section
+                                const inputSection = document.createElement('div');
+                                inputSection.className = 'debug-section';
+                                inputSection.innerHTML = '<div class="debug-title">Input:</div><div class="debug-content">' + (text ? text.substring(0, 100) + (text.length > 100 ? '...' : '') : 'No text input') + '</div>';
+
+                                // Files Section
+                                const filesSection = document.createElement('div');
+                                filesSection.className = 'debug-section';
+                                filesSection.innerHTML = '<div class="debug-title">Files:</div><div class="debug-content">' + (debugInfo.uploadedFiles.length > 0 ? '<ul class="debug-list">' + debugInfo.uploadedFiles.map(f => '<li>' + f + '</li>').join('') + '</ul>' : 'No files uploaded') + '</div>';
+
+                                debugEl.appendChild(inputSection);
+                                debugEl.appendChild(filesSection);
+
+                                results.insertBefore(debugEl, results.firstChild);
+                        }
+
+                        // Clear previous results and storage when starting new generation
+                        localStorage.removeItem('ki_last_response');
+
+                        // Clean up any existing virtual scroller and EventSource
+                        if (results._virtualScroller) {
+                                results._virtualScroller.destroy();
+                                results._virtualScroller = null;
+                        }
+                        if (window._eventSource) {
+                                window._eventSource.close();
+                                window._eventSource = null;
+                        }
+
+                        // Check cache first if no files are being uploaded
+                        if (files.length === 0 && text.trim()) {
+                                const cachedCards = responseCache.get(text);
+                                if (cachedCards) {
+                                        const processingState = document.querySelector('.processing-state');
+                                        processingState.style.display = 'flex';
+                                        processingState.innerHTML = `
+                                            <div class="status">⚡️ Loading from cache...</div>
+                                        `;
+
+                                        const cardsContainer = results.querySelector('.cards-container');
+                                        const virtualScroller = new VirtualScroller(cardsContainer);
+                                        results._virtualScroller = virtualScroller;
+
+                                        cachedCards.forEach(card => {
+                                                const html = card.name ?
+                                                        `<h3>${card.name}</h3>` :
+                                                        `<details>
+                                            <summary>${card.front.replace(/src="([^"]+)"/g, (match, src) => {
+                                                                if (!src.startsWith('http') && !src.startsWith('/ki/media/')) {
+                                                                        return `src="/ki/media/${src}"`;
+                                                                }
+                                                                return match;
+                                                        })}</summary>
+                                            ${card.back ? `<p>${card.back.replace(/src="([^"]+)"/g, (match, src) => {
+                                                                if (!src.startsWith('http') && !src.startsWith('/ki/media/')) {
+                                                                        return `src="/ki/media/${src}"`;
+                                                                }
+                                                                return match;
+                                                        })}</p>` : '<p class="empty-back">No answer provided yet</p>'}
+                                            ${card.tags?.length ? `<p class="tags">${card.tags.join(', ')}</p>` : ''}
+                                        </details>`;
+                                                virtualScroller.addItem(html);
+                                        });
+
+                                        setTimeout(() => {
+                                                processingState.innerHTML = `
+                                                    <div class="status">✨ Loaded ${cachedCards.length} cards from cache</div>
+                                                `;
+                                                setTimeout(() => {
+                                                        processingState.style.display = 'none';
+                                                        // Show download button after successful generation
+                                                        document.querySelector('.download-button-container').style.display = 'flex';
+                                                }, 1500);
+                                        }, 300);
+                                        return;
+                                }
+                        }
+
+                        function updateTimer() {
+                                const processingState = document.querySelector('.processing-state');
+                                const timerEl = processingState?.querySelector('.timer');
+                                if (timerEl) {
+                                        const currentTime = performance.now();
+                                        const totalSeconds = Math.floor((currentTime - startTime) / 1000);
+                                        const minutes = Math.floor(totalSeconds / 60);
+                                        const seconds = totalSeconds % 60;
+                                        const timeString = minutes > 0 ?
+                                                `${minutes}m ${seconds}s` :
+                                                `${seconds}s`;
+
+                                        timerEl.textContent = timeString;
+                                        lastUpdateTime = currentTime;
+                                }
+                        }
+
+                        // Start the timer after ensuring the processing state exists
+                        timerInterval = setInterval(updateTimer, 1000);
+
+                        try {
+                                // Clear previous results and show loading, but preserve debug info if it exists
+                                const debugEl = results.querySelector('.virtual-item.debug');
+                                results.innerHTML = '';
+
+                                const cardsContainer = document.createElement('div');
+                                cardsContainer.className = 'cards-container';
+                                results.appendChild(cardsContainer);
+
+                                // Re-add debug info if it existed
+                                if (debugEl) {
+                                        results.insertBefore(debugEl, cardsContainer);
+                                }
+
+                                const virtualScroller = new VirtualScroller(cardsContainer);
+                                results._virtualScroller = virtualScroller;
+
+                                // Show processing state
+                                const processingState = document.createElement('div');
+                                processingState.className = 'processing-state';
+                                processingState.innerHTML = `
+                                    <div class="icon">📝</div>
+                                    <div class="content">
+                                        <div class="title">
+                                            Processing content
+                                            <div class="spinner"></div>
+                                            <span class="timer">0s</span>
+                                        </div>
+                                        <div class="subtitle">
+                                            <span class="status-message">Starting process...</span>
+                                        </div>
+                                        <div class="progress">
+                                            <div class="progress-bar"></div>
+                                        </div>
+                                        ${files.length ? `
+                                            <div class="file-preview">
+                                                <div class="icon">📁</div>
+                                                <div class="name">${Array.from(files).map(f => f.name).join(', ')}</div>
+                                            </div>
+                                        ` : ''}
+                                        ${text.trim() ? `
+                                            <div class="file-preview">
+                                                <div class="icon">📄</div>
+                                                <div class="name">${text.slice(0, 100)}${text.length > 100 ? '...' : ''}</div>
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                    <button class="cancel-button" onclick="cancelProcessing()">Cancel</button>
+                                `;
+                                cardsContainer.insertBefore(processingState, cardsContainer.firstChild);
+
+                                // Handle file uploads first if any
+                                if (files.length > 0) {
+                                        const formData = new FormData();
+                                        for (const file of files) {
+                                                formData.append('files', file);
+                                                console.log('Uploading file:', file.name, file.size);
+                                        }
+
+                                        const uploadResponse = await fetch('/ki/upload', {
+                                                method: 'POST',
+                                                body: formData
+                                        }).catch(error => {
+                                                console.error('Network error during upload:', error);
+                                                showToast('Network error during file upload', 'error');
+                                                throw error;
+                                        });
+
+                                        if (!uploadResponse.ok) {
+                                                const errorText = await uploadResponse.text();
+                                                console.error('Upload failed:', uploadResponse.status, errorText);
+                                                showToast(`Upload failed: ${errorText || uploadResponse.statusText}`, 'error');
+                                                throw new Error('Failed to upload files');
+                                        }
+
+                                        // Wait for upload to be processed
+                                        await new Promise(resolve => setTimeout(resolve, 500));
+                                }
+
+                                // Wait a bit for session to be updated with the new files
+                                if (files.length > 0) {
+                                        await new Promise(resolve => setTimeout(resolve, 100));
+                                }
+
+                                // Create EventSource for SSE
+                                currentController = new AbortController();
+                                const response = await fetch('/ki/generate', {
+                                        method: 'POST',
+                                        headers: {
+                                                'Content-Type': 'application/json',
+                                        },
+                                        body: JSON.stringify({
+                                                text,
+                                                files: Array.from(files).map(f => f.name)
+                                        }),
+                                        signal: currentController.signal
+                                });
+
+                                if (!response.ok) {
+                                        throw new Error(`HTTP error! status: ${response.status}`);
+                                }
+
+                                const reader = response.body.getReader();
+                                const decoder = new TextDecoder();
+                                let buffer = '';
+
+                                // Start processing cards
+                                while (true) {
+                                        const { value, done } = await reader.read();
+                                        if (done) break;
+
+                                        buffer += decoder.decode(value, { stream: true });
+                                        const events = buffer.split('\n\n');
+                                        buffer = events.pop() || '';
+
+                                        for (const event of events) {
+                                                const lines = event.split('\n');
+                                                const eventType = lines.find(line => line.startsWith('event:'))?.replace('event:', '').trim();
+                                                const data = lines.find(line => line.startsWith('data:'))?.replace('data:', '').trim();
+
+                                                if (!eventType || !data) continue;
+
+                                                if (eventType === 'card') {
+                                                        try {
+                                                                const card = JSON.parse(data);
+                                                                cards.push(card);
+                                                                console.log('[CARD RECEIVED]', card);
+
+                                                                if (card.name && !card.front && !card.back) {
+                                                                        // This is a deck definition
+                                                                        if (deckCount === 0) {
+                                                                                firstDeckName = card.name;
+                                                                                // Update the download button to use the first deck name
+                                                                                const downloadButton = document.querySelector('.download-button-container span');
+                                                                                if (downloadButton) {
+                                                                                        downloadButton.setAttribute('onclick', `downloadDeck('${card.name}')`);
+                                                                                }
+                                                                        }
+                                                                        deckCount++;
+                                                                } else {
+                                                                        cardCount++;
+                                                                }
+
+                                                                const cardElement = document.createElement('div');
+                                                                cardElement.className = 'virtual-item';
+
+                                                                if (card.name) {
+                                                                        cardElement.innerHTML = `
+                                                                                <h3>${card.name}</h3>`;
+                                                                } else {
+                                                                        cardElement.innerHTML = `
+                                                                                <details>
+                                                                                        <summary>${card.front.replace(/src="([^"]+)"/g, (match, src) => {
+                                                                                if (!src.startsWith('http') && !src.startsWith('/ki/media/')) {
+                                                                                        return `src="/ki/media/${src}"`;
+                                                                                }
+                                                                                return match;
+                                                                        })}</summary>
+                                                                                        ${card.back ? `<p>${card.back.replace(/src="([^"]+)"/g, (match, src) => {
+                                                                                if (!src.startsWith('http') && !src.startsWith('/ki/media/')) {
+                                                                                        return `src="/ki/media/${src}"`;
+                                                                                }
+                                                                                return match;
+                                                                        })}</p>` : '<p class="empty-back">No answer provided yet</p>'}
+                                                                                        ${card.tags?.length ? `<p class="tags">${card.tags.join(', ')}</p>` : ''}
+                                                                                </details>`;
+                                                                }
+
+                                                                cardsContainer.appendChild(cardElement);
+                                                        } catch (error) {
+                                                                console.error('Failed to parse card:', error);
+                                                        }
+                                                } else if (eventType === 'status') {
+                                                        try {
+                                                                const statusData = JSON.parse(data);
+                                                                const message = statusData.message || statusData;
+                                                                const statusMessages = document.querySelector('.status-message');
+                                                                if (statusMessages) {
+                                                                        const newMessage = document.createElement('div');
+                                                                        newMessage.textContent = message;
+                                                                        statusMessages.appendChild(newMessage);
+
+                                                                        // Keep only last 3 messages
+                                                                        while (statusMessages.children.length > 3) {
+                                                                                statusMessages.removeChild(statusMessages.firstChild);
+                                                                        }
+
+                                                                        // Scroll to latest message
+                                                                        newMessage.scrollIntoView({ behavior: 'smooth' });
+                                                                }
+                                                        } catch (error) {
+                                                                console.error('Failed to parse status:', error);
+                                                        }
+                                                } else if (eventType === 'error') {
+                                                        clearInterval(timerInterval);
+                                                        const errorData = JSON.parse(data);
+                                                        throw new Error(errorData.error || 'Failed to generate flashcards');
+                                                } else if (eventType === 'complete') {
+                                                        clearInterval(timerInterval);
+                                                        const processingState = document.querySelector('.processing-state');
+
+                                                        // Remove any remaining processing messages
+                                                        if (processingState) {
+                                                                processingState.remove();
+                                                        }
+
+                                                        const endTime = performance.now();
+                                                        const totalTime = Math.max(1, Math.floor((endTime - startTime) / 1000)); // Ensure at least 1 second
+                                                        const minutes = Math.floor(totalTime / 60);
+                                                        const seconds = totalTime % 60;
+                                                        const timeString = minutes > 0 ?
+                                                                `${minutes}m ${seconds}s` :
+                                                                `${seconds}s`;
+                                                        const cardsPerSecond = cardCount > 0 ? (cardCount / totalTime).toFixed(1) : '0.0';
+
+                                                        if (processingState) {
+                                                                processingState.innerHTML = `
+                                                                <div class="status">✅ ${deckCount} decks • ${cardCount} cards</div>
+                                                            `;
+                                                                setTimeout(() => {
+                                                                        processingState.style.display = 'none';
+                                                                }, 3000);
+                                                        }
+
+                                                        // Remove file input reset and file list clearing
+                                                        if (files.length === 0 && text.trim() && cards.length > 0) {
+                                                                responseCache.set(text, cards);
+                                                                localStorage.setItem('ki_last_response', JSON.stringify(cards));
+                                                        }
+
+                                                        // Show download button after successful generation
+                                                        document.querySelector('.download-button-container').style.display = 'flex';
+                                                }
+                                        }
+                                }
+
+                        } catch (error) {
+                                console.error('Error:', error);
+                                clearInterval(timerInterval);
+                                const errorDiv = document.createElement('div');
+                                errorDiv.className = 'error';
+                                errorDiv.textContent = `Error: ${error.message}`;
+                                results.innerHTML = '';
+                                results.appendChild(errorDiv);
+                        }
+                }
+
+                // Debug toggle
+                function toggleDebug() {
+                        const current = localStorage.getItem('debug') === 'true';
+                        const newState = !current;
+                        localStorage.setItem('debug', newState.toString());
+
+                        const button = document.getElementById('debug-button');
+                        button.style.background = newState ? 'var(--hover-bg)' : 'transparent';
+                        button.style.color = newState ? 'var(--primary)' : 'inherit';
+                }
+
+                // Initialize debug button state
+                document.addEventListener('DOMContentLoaded', function () {
+                        const isDebug = localStorage.getItem('debug') === 'true';
+                        const button = document.getElementById('debug-button');
+                        if (button) {
+                                button.style.background = isDebug ? 'var(--hover-bg)' : 'transparent';
+                                button.style.color = isDebug ? 'var(--primary)' : 'inherit';
+                        }
+                });
+
+                function showToast(message, type = 'info') {
+                        const toast = document.createElement('div');
+                        toast.className = 'toast ' + type;
+                        toast.textContent = message;
+                        document.body.appendChild(toast);
+
+                        requestAnimationFrame(() => {
+                                toast.style.opacity = '1';
+                                toast.style.transform = 'translateY(0)';
+                        });
+
+                        setTimeout(() => {
+                                toast.style.opacity = '0';
+                                toast.style.transform = 'translateY(-48px)';
+                                setTimeout(() => toast.remove(), 300);
+                        }, 2000);
+                }
+
+                document.addEventListener('DOMContentLoaded', function () {
+                        const editorContainer = document.getElementById('editor-container');
+                        const fileInput = document.querySelector('input[type="file"]');
+
+                        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                                editorContainer.addEventListener(eventName, preventDefaults, false);
+                                document.body.addEventListener(eventName, preventDefaults, false);
+                        });
+
+                        function preventDefaults(e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                        }
+
+                        ['dragenter', 'dragover'].forEach(eventName => {
+                                editorContainer.addEventListener(eventName, highlight, false);
+                        });
+
+                        ['dragleave', 'drop'].forEach(eventName => {
+                                editorContainer.addEventListener(eventName, unhighlight, false);
+                        });
+
+                        function highlight(e) {
+                                editorContainer.classList.add('drag-over');
+                        }
+
+                        function unhighlight(e) {
+                                editorContainer.classList.remove('drag-over');
+                        }
+
+                        editorContainer.addEventListener('drop', handleDrop, false);
+
+                        function handleDrop(e) {
+                                const dt = e.dataTransfer;
+                                const files = dt.files;
+
+                                if (files.length > 0) {
+                                        fileInput.files = files;
+                                        const event = new Event('change');
+                                        fileInput.dispatchEvent(event);
+                                }
+                        }
+                });
+
+                // Add download function before the last script tag
+                async function downloadDeck(name) {
+                        try {
+                                const response = await fetch('/ki/download', {
+                                        method: 'POST',
+                                        headers: {
+                                                'Content-Type': 'application/json',
+                                        },
+                                        body: JSON.stringify({ name })
+                                });
+
+                                if (!response.ok) {
+                                        const errorData = await response.json();
+                                        throw new Error(errorData.error || 'Failed to download deck');
+                                }
+
+                                const blob = await response.blob();
+                                if (blob.size === 0) {
+                                        throw new Error('Empty deck file received');
+                                }
+
+                                const url = window.URL.createObjectURL(blob);
+                                const a = document.createElement('a');
+                                a.href = url;
+                                a.download = name.endsWith('.apkg') ? name : `${name}.apkg`;
+                                document.body.appendChild(a);
+                                a.click();
+                                window.URL.revokeObjectURL(url);
+                                a.remove();
+                        } catch (error) {
+                                console.error('Download error:', error);
+                                showToast(error.message || 'Failed to download deck', 'error');
+                        }
+                }
+
+                function cancelProcessing() {
+                        if (currentController) {
+                                currentController.abort();
+                                currentController = null;
+
+                                const processingState = document.querySelector('.processing-state');
+                                if (processingState) {
+                                        processingState.innerHTML = `
+                                            <div class="icon">❌</div>
+                                            <div class="content">
+                                                <div class="title">Processing cancelled</div>
+                                            </div>
+                                        `;
+                                        setTimeout(() => {
+                                                processingState.remove();
+                                        }, 1500);
+                                }
+                        }
+                }
+
+                document.getElementById('files').addEventListener('change', function (e) {
+                        if (e.target.files.length > 0) {
+                                generateFlashcards();
+                        }
+                });
+        </script>
+</body>
+
+</html>

@@ -1,6 +1,8 @@
 export const isMarkdownFile = (fileName: string) => /.md$/i.exec(fileName);
 
 export const isHTMLFile = (fileName: string) => /.html$/i.exec(fileName);
+export const isPotentiallyHTMLFile = (fileName: string) =>
+  isHTMLFile(fileName) || fileName.toLowerCase().endsWith('.htm');
 
 export const isZIPFile = (fileName: string) => /.zip$/i.exec(fileName);
 
