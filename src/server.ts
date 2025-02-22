@@ -28,6 +28,7 @@ import favoriteRouter from './routes/FavoriteRouter';
 import templatesRouter from './routes/TemplatesRouter';
 import defaultRouter from './routes/DefaultRouter';
 import webhookRouter from './routes/WebhookRouter';
+import kiRouter from './routes/ki/KiRouter';
 
 import { getDatabase, setupDatabase } from './data_layer';
 
@@ -63,7 +64,7 @@ const serve = async () => {
   app.use(express.static(BUILD_DIR));
   app.use(checksRouter());
   app.use(versionRouter());
-
+  app.use(kiRouter());
   app.use(uploadRouter());
   app.use(usersRouter());
   app.use(notionRouter());
