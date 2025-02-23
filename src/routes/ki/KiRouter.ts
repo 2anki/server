@@ -1,8 +1,8 @@
 import express, { Response } from 'express';
 import path from 'path';
 import multer from 'multer';
-import session from 'express-session';
 import fs from 'fs/promises';
+import oldFs from 'fs';
 import { isEmptyPayload } from '../../lib/misc/isEmptyPayload';
 import { getUploadLimits } from '../../lib/misc/getUploadLimits';
 import { isPaying } from '../../lib/isPaying';
@@ -28,121 +28,235 @@ import CardOption from '../../lib/parser/Settings/CardOption';
 import cheerio from 'cheerio';
 import { embedFile } from '../../lib/parser/exporters/embedFile';
 import mammoth from 'mammoth';
-import UsersRepository from '../../data_layer/UsersRepository';
 import { getDatabase } from '../../data_layer';
-import TokenRepository from '../../data_layer/TokenRepository';
-import AuthenticationService from '../../services/AuthenticationService';
 import { cleanLine } from './cleanLine';
 import { parseCard } from './parseCard';
 import { handlePartialJson } from './handlePartialJson';
+import SessionRepository from '../../data_layer/SessionRepository';
+import AuthenticationService from '../../services/AuthenticationService';
+import TokenRepository from '../../data_layer/TokenRepository';
+import UsersRepository from '../../data_layer/UsersRepository';
 
-async function canContinue(req: express.Request, res: express.Response) {
-  const database = getDatabase();
-  const authService = new AuthenticationService(
-    new TokenRepository(database),
-    new UsersRepository(database)
-  );
-  const user = await authService.getUserFrom(req.cookies.token);
-  if (!user) {
-    res.redirect('/login?redirect=/ki');
-    return false;
+// Define the transformToDecks function before it is used
+function transformToDecks(cards: any[]): any[] {
+  const decks = new Map<string, any>();
+
+  // First pass - collect deck names
+  for (const card of cards) {
+    if (card.name && !card.front && !card.back) {
+      // This is a deck definition
+      decks.set(card.name, {
+        settings: {
+          useInput: false,
+          maxOne: true,
+          noUnderline: false,
+          isCherry: false,
+          isAvocado: false,
+          isAll: true,
+          isTextOnlyBack: false,
+          toggleMode: 'close_toggle',
+          isCloze: true,
+          useTags: false,
+          basicReversed: false,
+          reversed: false,
+          removeMP3Links: true,
+          perserveNewLines: true,
+          clozeModelName: 'n2a-cloze',
+          basicModelName: 'n2a-basic',
+          inputModelName: 'n2a-input',
+          useNotionId: true,
+          pageEmoji: 'first_emoji',
+        },
+        name: card.name,
+        cards: [],
+        image: '',
+        style: '',
+        id: get16DigitRandomId(),
+      });
+    }
   }
 
-  console.log('[KI] User:', user.id);
-  if (!user.patreon) {
-    res.redirect('/pricing?redirect=/ki');
-    return false;
+  // If no decks were defined, create a default deck
+  if (decks.size === 0) {
+    decks.set('Default', {
+      settings: {
+        useInput: false,
+        maxOne: true,
+        noUnderline: false,
+        isCherry: false,
+        isAvocado: false,
+        isAll: true,
+        isTextOnlyBack: false,
+        toggleMode: 'close_toggle',
+        isCloze: true,
+        useTags: false,
+        basicReversed: false,
+        reversed: false,
+        removeMP3Links: true,
+        perserveNewLines: true,
+        clozeModelName: 'n2a-cloze',
+        basicModelName: 'n2a-basic',
+        inputModelName: 'n2a-input',
+        useNotionId: true,
+        pageEmoji: 'first_emoji',
+      },
+      name: 'Default',
+      cards: [],
+      image: '',
+      style: '',
+      id: get16DigitRandomId(),
+    });
   }
 
-  return true;
+  // Second pass - add cards to decks
+  for (const card of cards) {
+    if (card.front || card.back) {
+      const deckName = card.deck || 'Default';
+      const deck = decks.get(deckName);
+      if (deck) {
+        deck.cards.push({
+          name: card.front || '',
+          back: card.back || '',
+          tags: card.tags || [],
+          cloze: false,
+          number: deck.cards.length,
+          enableInput: false,
+          answer: '',
+          media: card.media || [],
+        });
+      }
+    }
+  }
+
+  return Array.from(decks.values());
 }
-
-// Define types we need
-type MammothOptions = {
-  path?: string;
-  buffer?: Buffer;
-};
-
-type MammothResult = {
-  value: string;
-  messages: any[];
-};
-
-// Cast mammoth to have the type we need
-const mammothWithTypes = mammoth as {
-  extractRawText(options: MammothOptions): Promise<MammothResult>;
-};
 
 // Extend Express Request type to include session
 declare module 'express-session' {
   interface SessionData {
-    uploadedFiles?: Array<{ id: string; name: string; path: string }>;
-    deckInfo?: Array<any>;
-    workspaceLocation?: string;
+    data?: {
+      workspace?: Workspace;
+      uploadedFiles?: Array<{ id: string; name: string; path: string }>;
+      deckInfo?: Array<any>;
+    };
   }
 }
 
-const apiKey = process.env.GOOGLE_AI_API_KEY;
-if (!apiKey) {
-  throw new Error('GOOGLE_AI_API_KEY is required');
-}
-const genAI = new GoogleGenerativeAI(apiKey);
-
-// Create multer instance with dynamic limits
-const uploadMiddleware = (
-  req: express.Request,
-  res: express.Response,
-  next: express.NextFunction
-) => {
-  const paying = isPaying(res.locals);
-  const limits = getUploadLimits(paying);
-
-  const upload = multer({
-    storage: multer.diskStorage({
-      destination: (_, __, cb) => {
-        cb(null, process.env.UPLOAD_BASE || 'uploads');
-      },
-      filename: (_, file, cb) => {
-        const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-        cb(null, `${uniqueSuffix}-${file.originalname}`);
-      },
-    }),
-    limits: {
-      fileSize: limits.fileSize,
-      fieldSize: limits.fieldSize,
-    },
-  }).array('files');
-
-  upload(req, res, (err) => {
-    if (err instanceof multer.MulterError) {
-      if (err.code === 'LIMIT_FILE_SIZE') {
-        return res.status(413).json({
-          error: 'File too large. Please upgrade for larger file uploads.',
-        });
-      }
-      return res.status(400).json({ error: err.message });
-    }
-    next();
-  });
-};
-
 const KiRouter = () => {
   const router = express.Router();
-
-  // Add session middleware
-  router.use(
-    session({
-      secret: process.env.SECRET || 'keyboard cat',
-      resave: false,
-      saveUninitialized: true,
-      cookie: { secure: process.env.NODE_ENV === 'production' },
-    })
+  const database = getDatabase();
+  const sessionRepository = new SessionRepository(database);
+  const authService = new AuthenticationService(
+    new TokenRepository(database),
+    new UsersRepository(database)
   );
+
+  const canContinue = async (req: express.Request, res: express.Response) => {
+    const user = await authService.getUserFrom(req.cookies.token);
+    if (!user) {
+      res.redirect('/login?redirect=/ki');
+      return false;
+    }
+
+    console.log('[KI] User:', user.id);
+    if (!user.patreon) {
+      res.redirect('/pricing?redirect=/ki');
+      return false;
+    }
+
+    return true;
+  };
+
+  // Define types we need
+  type MammothOptions = {
+    path?: string;
+    buffer?: Buffer;
+  };
+
+  type MammothResult = {
+    value: string;
+    messages: any[];
+  };
+
+  // Cast mammoth to have the type we need
+  const mammothWithTypes = mammoth as {
+    extractRawText(options: MammothOptions): Promise<MammothResult>;
+  };
+
+  const apiKey = process.env.GOOGLE_AI_API_KEY;
+  if (!apiKey) {
+    throw new Error('GOOGLE_AI_API_KEY is required');
+  }
+  const genAI = new GoogleGenerativeAI(apiKey);
+
+  // Create multer instance with dynamic limits
+  const uploadMiddleware = (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    const paying = isPaying(res.locals);
+    const limits = getUploadLimits(paying);
+
+    const upload = multer({
+      storage: multer.diskStorage({
+        destination: (_, __, cb) => {
+          cb(null, process.env.WORKSPACE_BASE || 'uploads');
+        },
+        filename: (_, file, cb) => {
+          const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+          cb(null, `${uniqueSuffix}-${file.originalname}`);
+        },
+      }),
+      limits: {
+        fileSize: limits.fileSize,
+        fieldSize: limits.fieldSize,
+      },
+    }).array('files');
+
+    upload(req, res, (err) => {
+      if (err instanceof multer.MulterError) {
+        if (err.code === 'LIMIT_FILE_SIZE') {
+          return res.status(413).json({
+            error: 'File too large. Please upgrade for larger file uploads.',
+          });
+        }
+        return res.status(400).json({ error: err.message });
+      }
+      next();
+    });
+  };
 
   router.get('/ki', async (req, res) => {
     const canViewKiPage = await canContinue(req, res);
     if (!canViewKiPage) {
       return; // Exit if the user cannot continue
+    }
+    const user = await authService.getUserFrom(req.cookies.token);
+    if (!user) {
+      res.redirect('/login?redirect=/ki');
+      return false;
+    }
+    const s = await sessionRepository.getSession(user.owner);
+    if (!s) {
+      const w = new Workspace(true, 'fs');
+      await sessionRepository.createSession(user.owner, {
+        uploadedFiles: [],
+        deckInfo: [],
+        workspace: w,
+      });
+    }
+
+    if (!s.data?.workspace?.location) {
+      s.data.workspace = new Workspace(true, 'fs');
+      await sessionRepository.updateSession(user.owner, {
+        workspace: s.data.workspace,
+      });
+    }
+
+    const exists = oldFs.existsSync(s.data.workspace.location);
+    if (!exists) {
+      await fs.mkdir(s.data.workspace.location, { recursive: true });
     }
     res.sendFile(path.join(__dirname, '../../templates/ki.html'));
   });
@@ -163,21 +277,24 @@ const KiRouter = () => {
   });
 
   router.post('/ki/upload', uploadMiddleware, async (req, res) => {
-    const canUploadFiles = await canContinue(req, res);
-    if (!canUploadFiles) {
-      return; // Exit if the user cannot continue
+    const user = await authService.getUserFrom(req.cookies.token);
+    if (!user) {
+      res.redirect('/login?redirect=/ki');
+      return false;
     }
+
+    const userId = user.owner; // Assuming token contains userId
+    const userSession = await sessionRepository.getSession(userId); // Ensure session is typed
+    if (!userSession || !userSession.data) {
+      // Check if userSession.data is defined
+      return res.status(403).json({ error: 'Session expired' });
+    }
+
+    const files = req.files as UploadedFile[]; // Ensure files are typed
+    console.log('[UPLOAD] Request received:', req.body);
     console.log('[UPLOAD] Starting file upload process');
     try {
-      const files = req.files as UploadedFile[];
-      console.log(
-        '[UPLOAD] Files received:',
-        files.map((f) => ({
-          name: f.originalname,
-          type: f.mimetype,
-          size: f.size,
-        }))
-      );
+      console.log('[UPLOAD] Files received:', files);
 
       if (isEmptyPayload(files)) {
         console.log('[UPLOAD] Empty payload detected');
@@ -187,7 +304,10 @@ const KiRouter = () => {
       }
 
       const existingFiles = new Map(
-        req.session.uploadedFiles?.map((f) => [f.name, f]) || []
+        userSession.data.uploadedFiles?.map((f: { name: string }) => [
+          f.name,
+          f,
+        ]) || []
       );
       console.log(
         '[UPLOAD] Existing files in session:',
@@ -195,7 +315,7 @@ const KiRouter = () => {
       );
 
       for (const file of files) {
-        const existing = existingFiles.get(file.originalname);
+        const existing = existingFiles.get(file.originalname) as UploadedFile;
         if (existing) {
           console.log(`[UPLOAD] Removing existing file: ${existing.path}`);
           await fs
@@ -220,9 +340,7 @@ const KiRouter = () => {
       console.log('[UPLOAD] Processing files...');
       const processedFiles = await Promise.all(
         files.map(async (file) => {
-          console.log(
-            `[UPLOAD] Processing file: ${file.originalname} (${file.mimetype})`
-          );
+          console.log(`[UPLOAD] Processing file: ${file.originalname}`);
           if (
             !allowedTypes.includes(file.mimetype) ||
             file.mimetype ===
@@ -292,11 +410,14 @@ const KiRouter = () => {
       }));
       console.log('[UPLOAD] Generated file IDs:', fileIds);
 
-      req.session.uploadedFiles = [
+      userSession.data.uploadedFiles = [
         ...Array.from(existingFiles.values()),
         ...fileIds,
       ];
-      console.log('[UPLOAD] Updated session files:', req.session.uploadedFiles);
+      console.log(
+        '[UPLOAD] Updated session files:',
+        userSession.data.uploadedFiles
+      );
 
       const fileListHtml = fileIds
         .map(
@@ -311,6 +432,21 @@ const KiRouter = () => {
 
       console.log('[UPLOAD] Sending response with file list HTML');
       res.send(fileListHtml);
+
+      // Check if flashcards were generated
+      if (
+        !userSession.data.deckInfo ||
+        userSession.data.deckInfo.length === 0
+      ) {
+        console.log('[UPLOAD] No flashcards generated');
+      } else {
+        console.log('[CURRENT DECK INFO]', userSession.data.deckInfo);
+      }
+
+      // Update session with uploaded files (ONLY update files here)
+      await sessionRepository.updateSession(userId, {
+        uploadedFiles: userSession.data.uploadedFiles,
+      });
     } catch (error) {
       console.error('[UPLOAD] Error during upload process:', error);
       res.status(500).json({
@@ -324,19 +460,32 @@ const KiRouter = () => {
     if (!canDeleteFile) {
       return; // Exit if the user cannot continue
     }
+
+    const user = await authService.getUserFrom(req.cookies.token);
+    if (!user) {
+      res.redirect('/login?redirect=/ki');
+      return false;
+    }
+
+    const userSession = await sessionRepository.getSession(user.owner); // Ensure session is typed
+    if (!userSession || !userSession.data) {
+      console.error('[DELETE] User session not found');
+      return res.status(403).json({ error: 'Session expired' });
+    }
+
     const fileId = req.params.fileId;
     try {
       // Remove file from session
-      if (req.session?.uploadedFiles) {
-        const fileToDelete = req.session.uploadedFiles.find(
-          (f) => f.id === fileId
+      if (userSession.data.uploadedFiles) {
+        const fileToDelete = userSession.data.uploadedFiles.find(
+          (f: { id: string }) => f.id === fileId
         );
         if (fileToDelete) {
           // Delete the actual file
           await fs.unlink(fileToDelete.path);
         }
-        req.session.uploadedFiles = req.session.uploadedFiles.filter(
-          (f) => f.id !== fileId
+        userSession.data.uploadedFiles = userSession.data.uploadedFiles.filter(
+          (f: { id: string }) => f.id !== fileId
         );
       }
       res.send('');
@@ -354,139 +503,34 @@ const KiRouter = () => {
     media?: string[];
   }
 
-  interface DeckCard {
-    name?: string;
-    front?: string;
-    back?: string;
-    deck?: string;
-    tags?: string[];
-    media?: string[];
-  }
-
-  let currentDeckInfo: DeckCard[] = [];
-
-  function transformToDecks(cards: any[]): any[] {
-    const decks = new Map<string, any>();
-
-    // First pass - collect deck names
-    for (const card of cards) {
-      if (card.name && !card.front && !card.back) {
-        // This is a deck definition
-        decks.set(card.name, {
-          settings: {
-            useInput: false,
-            maxOne: true,
-            noUnderline: false,
-            isCherry: false,
-            isAvocado: false,
-            isAll: true,
-            isTextOnlyBack: false,
-            toggleMode: 'close_toggle',
-            isCloze: true,
-            useTags: false,
-            basicReversed: false,
-            reversed: false,
-            removeMP3Links: true,
-            perserveNewLines: true,
-            clozeModelName: 'n2a-cloze',
-            basicModelName: 'n2a-basic',
-            inputModelName: 'n2a-input',
-            useNotionId: true,
-            pageEmoji: 'first_emoji',
-          },
-          name: card.name,
-          cards: [],
-          image: '',
-          style: '',
-          id: get16DigitRandomId(),
-        });
-      }
-    }
-
-    // If no decks were defined, create a default deck
-    if (decks.size === 0) {
-      decks.set('Default', {
-        settings: {
-          useInput: false,
-          maxOne: true,
-          noUnderline: false,
-          isCherry: false,
-          isAvocado: false,
-          isAll: true,
-          isTextOnlyBack: false,
-          toggleMode: 'close_toggle',
-          isCloze: true,
-          useTags: false,
-          basicReversed: false,
-          reversed: false,
-          removeMP3Links: true,
-          perserveNewLines: true,
-          clozeModelName: 'n2a-cloze',
-          basicModelName: 'n2a-basic',
-          inputModelName: 'n2a-input',
-          useNotionId: true,
-          pageEmoji: 'first_emoji',
-        },
-        name: 'Default',
-        cards: [],
-        image: '',
-        style: '',
-        id: get16DigitRandomId(),
-      });
-    }
-
-    // Second pass - add cards to decks
-    for (const card of cards) {
-      if (card.front || card.back) {
-        const deckName = card.deck || 'Default';
-        const deck = decks.get(deckName);
-        if (deck) {
-          deck.cards.push({
-            name: card.front || '',
-            back: card.back || '',
-            tags: card.tags || [],
-            cloze: false,
-            number: deck.cards.length,
-            enableInput: false,
-            answer: '',
-            media: card.media || [],
-          });
-        }
-      }
-    }
-
-    return Array.from(decks.values());
-  }
-
   // Handle valid card
-  const handleValidCard = (card: any, res: Response) => {
+  const handleValidCard = (card: any, res: Response, userSession: any) => {
     if (card) {
-      currentDeckInfo.push(card);
+      userSession.data.deckInfo.push(card);
       res.write(`event: card\ndata: ${JSON.stringify(card)}\n\n`);
-      if (res.flush) res.flush();
       console.log('[CARD DATA]', JSON.stringify(card, null, 2));
     }
   };
 
   // Helper function to process each line
-  const processLine = (line: string, res: Response) => {
+  const processLine = (line: string, res: Response, userSession: any) => {
     const trimmed = cleanLine(line);
     if (!trimmed) return;
 
     try {
       const card = parseCard(trimmed);
-      handleValidCard(card, res);
+      handleValidCard(card, res, userSession);
     } catch {
-      handlePartialJson(trimmed, currentDeckInfo, res);
+      handlePartialJson(trimmed, userSession.data.deckInfo, res);
     }
   };
 
   // Main processChunk function
-  function processChunk(text: string, res: Response) {
+  function processChunk(text: string, res: Response, userSession: any) {
     const lines = text.split('\n');
 
     // Process each line
-    lines.forEach((line) => processLine(line, res));
+    lines.forEach((line) => processLine(line, res, userSession));
   }
 
   const isKiPermittedFile = (name: string) => {
@@ -507,7 +551,8 @@ const KiRouter = () => {
     chatSession: ReturnType<GenerativeModel['startChat']>,
     content: string,
     name: string,
-    res: Response
+    res: Response,
+    userSession: any
   ): Promise<void> {
     const timeLabel = `process-file-${name}`;
     console.time(timeLabel);
@@ -515,7 +560,6 @@ const KiRouter = () => {
       console.log(message);
       const data = JSON.stringify({ message });
       res.write(`event: status\ndata: ${data}\n\n`);
-      if (res.flush) res.flush();
     };
 
     try {
@@ -561,7 +605,7 @@ const KiRouter = () => {
             const fileResponse = await chatSession.sendMessage(chunkContent);
             const responseText = await fileResponse.response.text();
             console.log('[AI Response]', responseText);
-            processChunk(responseText, res);
+            processChunk(responseText, res, userSession);
 
             // Add delay between chunks to avoid rate limits
             if (i < chunks.length - 1) {
@@ -603,13 +647,24 @@ const KiRouter = () => {
   }
 
   router.post('/ki/generate', uploadMiddleware, async (req, res: Response) => {
+    const user = await authService.getUserFrom(req.cookies.token);
+    if (!user) {
+      res.redirect('/login?redirect=/ki');
+      return false;
+    }
+
+    const userSession = await sessionRepository.getSession(user.owner); // Ensure session is typed
+    if (!userSession) {
+      return res.status(403).json({ error: 'Session expired' });
+    }
+
+    console.log('[GENERATE] Request received:', req.body);
     const canGenerate = await canContinue(req, res);
     if (!canGenerate) {
       return; // Exit if the user cannot continue
     }
     const timeLabel = '[GENERATE] total-generation';
     console.time(timeLabel);
-    currentDeckInfo = [];
 
     try {
       // Set up SSE headers first
@@ -621,7 +676,6 @@ const KiRouter = () => {
         console.log(message);
         const data = JSON.stringify({ message });
         res.write(`event: status\ndata: ${data}\n\n`);
-        if (res.flush) res.flush();
       };
 
       const sendTimeEnd = (label: string) => {
@@ -636,12 +690,12 @@ const KiRouter = () => {
       const payload = {
         textLength: req.body.text?.length,
         requestedFiles: req.body.files,
-        sessionFiles: req.session?.uploadedFiles?.length || 0,
+        sessionFiles: userSession.data.uploadedFiles?.length || 0,
       };
       sendStatus(`[GENERATE] Request payload: ${JSON.stringify(payload)}`);
 
       sendStatus(
-        `[GENERATE] Session files: ${JSON.stringify(req.session?.uploadedFiles)}`
+        `[GENERATE] Session files: ${JSON.stringify(userSession.data.uploadedFiles)}`
       );
       sendStatus(
         `[GENERATE] Requested files: ${JSON.stringify(req.body.files)}`
@@ -652,7 +706,6 @@ const KiRouter = () => {
 
       sendStatus('[GENERATE] Sending start event');
       res.write(`event: start\ndata: {}\n\n`);
-      if (res.flush) res.flush();
 
       let content = inputText || '';
       const chatInitLabel = 'chat-session-init';
@@ -702,175 +755,179 @@ const KiRouter = () => {
       sendTimeEnd(chatInitLabel);
       sendStatus('AI session initialized, starting processing...');
 
-      if (req.session?.uploadedFiles && req.session.uploadedFiles.length > 0) {
+      if (
+        userSession.data.uploadedFiles &&
+        userSession.data.uploadedFiles.length > 0
+      ) {
         const fileProcessLabel = 'file-processing';
         console.time(fileProcessLabel);
-        const workspace = new Workspace(true, 'fs');
-        const filePromises = req.session.uploadedFiles.map(async (file) => {
-          const readFileLabel = `read-file-${file.name}`;
-          console.time(readFileLabel);
-          sendStatus(`[UPLOAD] Processing file: ${file.name}`);
 
-          try {
-            const filePath = path.join(
-              process.env.UPLOAD_BASE || 'uploads',
-              path.basename(file.path)
-            );
-            const fileContent = await fs.readFile(filePath);
-            sendTimeEnd(readFileLabel);
+        // Create a SINGLE workspace instance for all files
+        console.log(
+          `[WORKSPACE] Using single workspace at: ${userSession.data.workspace.location}`
+        );
 
-            if (isZIPFile(file.name) || isPotentialZipFile(file.name)) {
-              sendStatus(`[UPLOAD] Processing ZIP file: ${file.name}`);
+        const filePromises = userSession.data.uploadedFiles.map(
+          async (file: { name: string; path: string }) => {
+            const readFileLabel = `read-file-${file.name}`;
+            console.time(readFileLabel);
+            sendStatus(`[UPLOAD] Processing file: ${file.name}`);
 
-              const zipHandler = new ZipHandler(1);
-              await zipHandler.build(
-                new Uint8Array(fileContent),
-                paying,
-                new CardOption(CardOption.LoadDefaultOptions())
+            try {
+              const filePath = path.join(
+                process.env.UPLOAD_BASE || 'uploads',
+                path.basename(file.path)
               );
+              const fileContent = await fs.readFile(filePath);
+              sendTimeEnd(readFileLabel);
 
-              const exporter = new CustomExporter(
-                file.name,
-                workspace.location
-              );
+              if (isZIPFile(file.name) || isPotentialZipFile(file.name)) {
+                sendStatus(`[UPLOAD] Processing ZIP file: ${file.name}`);
 
-              // Extract media files from zip to workspace
-              for (const zipFile of zipHandler.files) {
-                if (
-                  zipFile.name &&
-                  zipFile.contents &&
-                  isImageFileEmbedable(zipFile.name)
-                ) {
-                  sendStatus(`[UPLOAD] Extracting media: ${zipFile.name}`);
+                const zipHandler = new ZipHandler(1);
+                await zipHandler.build(
+                  new Uint8Array(fileContent),
+                  paying,
+                  new CardOption(CardOption.LoadDefaultOptions())
+                );
 
-                  const destPath = path.join(workspace.location, zipFile.name);
-                  // Ensure directory exists
-                  const destDir = path.dirname(destPath);
-                  await fs.mkdir(destDir, { recursive: true });
+                const exporter = new CustomExporter(
+                  file.name,
+                  userSession.data.workspace.location
+                );
 
-                  if (typeof zipFile.contents === 'string') {
-                    await fs.writeFile(destPath, zipFile.contents, 'utf8');
-                  } else if (Buffer.isBuffer(zipFile.contents)) {
-                    await fs.writeFile(destPath, zipFile.contents);
-                  } else if (zipFile.contents instanceof Uint8Array) {
-                    await fs.writeFile(destPath, zipFile.contents);
-                  } else {
-                    const error = `Unsupported content type for file: ${zipFile.name}`;
-                    console.error(error);
-                    sendStatus(`[ERROR] ${error}`);
+                // Extract media files from zip to workspace
+                for (const zipFile of zipHandler.files) {
+                  if (
+                    zipFile.name &&
+                    zipFile.contents &&
+                    isImageFileEmbedable(zipFile.name)
+                  ) {
+                    sendStatus(`[UPLOAD] Extracting media: ${zipFile.name}`);
+
+                    const destPath = path.join(
+                      userSession.data.workspace.location,
+                      zipFile.name
+                    );
+                    // Ensure directory exists
+                    const destDir = path.dirname(destPath);
+                    await fs.mkdir(destDir, { recursive: true });
+
+                    if (typeof zipFile.contents === 'string') {
+                      await fs.writeFile(destPath, zipFile.contents, 'utf8');
+                    } else if (Buffer.isBuffer(zipFile.contents)) {
+                      await fs.writeFile(destPath, zipFile.contents);
+                    } else if (zipFile.contents instanceof Uint8Array) {
+                      await fs.writeFile(destPath, zipFile.contents);
+                    } else {
+                      const error = `Unsupported content type for file: ${zipFile.name}`;
+                      console.error(error);
+                      sendStatus(`[ERROR] ${error}`);
+                    }
                   }
                 }
-              }
 
-              return zipHandler.files.map((f): ProcessedFile => {
-                let extractedContent = f.contents?.toString() || '';
-                const mediaFiles: string[] = [];
+                return zipHandler.files.map((f): ProcessedFile => {
+                  let extractedContent = f.contents?.toString() || '';
+                  const mediaFiles: string[] = [];
 
-                if (extractedContent) {
-                  const dom = cheerio.load(extractedContent);
-                  const webDom = cheerio.load(extractedContent);
+                  if (extractedContent) {
+                    const dom = cheerio.load(extractedContent);
+                    const webDom = cheerio.load(extractedContent);
 
-                  // Handle both direct img tags and linked images
-                  const images = dom('img');
-                  const imageLinks = dom(
-                    'a[href*=".png"], a[href*=".jpg"], a[href*=".jpeg"], a[href*=".gif"]'
-                  );
+                    // Handle both direct img tags and linked images
+                    const images = dom('img');
+                    const imageLinks = dom(
+                      'a[href*=".png"], a[href*=".jpg"], a[href*=".jpeg"], a[href*=".gif"]'
+                    );
 
-                  if (images.length > 0 || imageLinks.length > 0) {
-                    // Process direct image tags
-                    images.each((i, elem) => {
-                      const originalName = dom(elem).attr('src');
-                      if (originalName && isImageFileEmbedable(originalName)) {
-                        const decodedPath = decodeURIComponent(originalName);
-                        const imagePath = decodedPath.split('/').pop();
-                        if (imagePath) {
-                          const newName = embedFile({
-                            exporter,
-                            files: zipHandler.files,
-                            filePath: decodedPath,
-                            workspace,
-                          });
-                          if (newName) {
-                            // Set actual path for APKG
-                            dom(elem).attr('src', newName);
-                            // Set preview URL for web
-                            webDom('img')
-                              .eq(i)
-                              .attr(
-                                'src',
-                                `/ki/media/${encodeURIComponent(newName)}`
-                              );
-                            mediaFiles.push(newName);
-                          }
-                        }
-                      }
-                    });
-
-                    // Process linked images
-                    imageLinks.each((i, elem) => {
-                      const originalHref = dom(elem).attr('href');
-                      if (originalHref && isImageFileEmbedable(originalHref)) {
-                        const decodedPath = decodeURIComponent(originalHref);
-                        const imagePath = decodedPath.split('/').pop();
-                        if (imagePath) {
-                          const newName = embedFile({
-                            exporter,
-                            files: zipHandler.files,
-                            filePath: decodedPath,
-                            workspace,
-                          });
-                          if (newName) {
-                            // Set actual path for APKG
-                            dom(elem).attr('href', newName);
-                            // Set preview URL for web
-                            webDom('a')
-                              .eq(i)
-                              .attr(
-                                'href',
-                                `/ki/media/${encodeURIComponent(newName)}`
-                              );
-                            mediaFiles.push(newName);
-                            // If this link contains an img, update its src too
-                            const linkedImg = dom(elem).find('img');
-                            const webLinkedImg = webDom('a').eq(i).find('img');
-                            if (linkedImg.length > 0) {
-                              linkedImg.attr('src', newName);
-                              webLinkedImg.attr(
-                                'src',
-                                `/ki/media/${encodeURIComponent(newName)}`
-                              );
+                    if (images.length > 0 || imageLinks.length > 0) {
+                      // Process direct image tags
+                      images.each((i, elem) => {
+                        const originalName = dom(elem).attr('src');
+                        if (
+                          originalName &&
+                          isImageFileEmbedable(originalName)
+                        ) {
+                          const decodedPath = decodeURIComponent(originalName);
+                          const imagePath = decodedPath.split('/').pop();
+                          if (imagePath) {
+                            const newName = embedFile({
+                              exporter,
+                              files: zipHandler.files,
+                              filePath: decodedPath,
+                              workspace: userSession.data.workspace,
+                            });
+                            if (newName) {
+                              dom(elem).attr('src', newName);
+                              webDom('img')
+                                .eq(i)
+                                .attr(
+                                  'src',
+                                  `/ki/media/${encodeURIComponent(newName)}`
+                                );
+                              mediaFiles.push(newName);
                             }
                           }
                         }
-                      }
-                    });
+                      });
 
-                    // Store APKG content
-                    extractedContent = dom.html() || extractedContent;
-                    // Send web preview content to client
-                    res.write(
-                      `event: preview\ndata: ${JSON.stringify({ html: webDom.html() })}\n\n`
-                    );
-                    if (res.flush) res.flush();
+                      // Process linked images
+                      imageLinks.each((i, elem) => {
+                        const originalHref = dom(elem).attr('href');
+                        if (
+                          originalHref &&
+                          isImageFileEmbedable(originalHref)
+                        ) {
+                          const decodedPath = decodeURIComponent(originalHref);
+                          const imagePath = decodedPath.split('/').pop();
+                          if (imagePath) {
+                            const newName = embedFile({
+                              exporter,
+                              files: zipHandler.files,
+                              filePath: decodedPath,
+                              workspace: userSession.data.workspace,
+                            });
+                            if (newName) {
+                              dom(elem).attr('href', newName);
+                              webDom('a')
+                                .eq(i)
+                                .attr(
+                                  'href',
+                                  `/ki/media/${encodeURIComponent(newName)}`
+                                );
+                              mediaFiles.push(newName);
+                            }
+                          }
+                        }
+                      });
+
+                      // Store APKG content
+                      extractedContent = dom.html() || extractedContent;
+                      // Send web preview content to client
+                      res.write(
+                        `event: preview\ndata: ${JSON.stringify({ html: webDom.html() })}\n\n`
+                      );
+                    }
                   }
-                }
-                return {
-                  content: extractedContent,
-                  name: f.name,
-                  media: mediaFiles,
-                };
-              });
-            }
+                  return {
+                    content: extractedContent,
+                    name: f.name,
+                    media: mediaFiles,
+                  };
+                });
+              }
 
-            console.timeEnd(`read-file-${file.name}`);
-            return [
-              { content: fileContent.toString('utf-8'), name: file.name },
-            ];
-          } catch (error) {
-            console.error(`Failed to read file ${file.name}:`, error);
-            return [{ content: '', name: file.name }];
+              console.timeEnd(`read-file-${file.name}`);
+              return [
+                { content: fileContent.toString('utf-8'), name: file.name },
+              ];
+            } catch (error) {
+              console.error(`Failed to read file ${file.name}:`, error);
+              return [{ content: '', name: file.name }];
+            }
           }
-        });
+        );
 
         const fileContentsArrays = await Promise.all(filePromises);
         const fileContents = fileContentsArrays.flat();
@@ -878,28 +935,26 @@ const KiRouter = () => {
         // Process each file independently
         for (const { content: fileText, name, media } of fileContents) {
           if (!fileText || !isKiPermittedFile(name)) continue;
-          await processFileContent(chatSession, fileText, name, res);
+          await processFileContent(
+            chatSession,
+            fileText,
+            name,
+            res,
+            userSession
+          );
           if (media?.length) {
             // Update the media array in the last card
-            const lastCardIndex = currentDeckInfo.length - 1;
-            if (lastCardIndex >= 0 && currentDeckInfo[lastCardIndex]) {
-              currentDeckInfo[lastCardIndex].media = media;
+            const lastCardIndex = userSession.data.deckInfo.length - 1;
+            if (
+              lastCardIndex >= 0 &&
+              userSession.data.deckInfo[lastCardIndex]
+            ) {
+              userSession.data.deckInfo[lastCardIndex].media = media;
             }
           }
         }
         console.timeEnd('file-processing');
-
-        // Store workspace location in session
-        req.session.workspaceLocation = workspace.location;
       } else {
-        // Ensure workspace is initialized if no files are uploaded
-        if (!req.session.workspaceLocation) {
-          req.session.workspaceLocation = path.join(
-            process.env.UPLOAD_BASE || 'uploads',
-            'temp_workspace'
-          );
-          await fs.mkdir(req.session.workspaceLocation, { recursive: true });
-        }
         // Process text input if only text is present
         if (content.trim().length > 0) {
           const textProcessLabel = 'text-input-processing';
@@ -911,16 +966,18 @@ const KiRouter = () => {
           const textResponse = await chatSession.sendMessage(content);
           const responseText = await textResponse.response.text();
           console.log('[KI Response]', responseText);
-          sendStatus(
-            `[AI Response] Text input, response length: ${responseText.length}`
-          );
-          processChunk(responseText, res);
+          processChunk(responseText, res, userSession);
           sendTimeEnd(textProcessLabel);
         }
       }
 
-      // After generation is complete, transform and store deck info in session
-      req.session.deckInfo = transformToDecks(currentDeckInfo);
+      // Keep this transform call - it's correct here after processing
+      userSession.data.deckInfo = transformToDecks(userSession.data.deckInfo);
+
+      // Update session with FINAL deck info
+      await sessionRepository.updateSession(user.owner, {
+        deckInfo: userSession.data.deckInfo,
+      });
 
       res.write(
         `event: complete\ndata: ${JSON.stringify({ hasDeckInfo: true })}\n\n`
@@ -940,111 +997,152 @@ const KiRouter = () => {
   });
 
   router.post('/ki/download', async (req, res) => {
+    console.log('[DOWNLOAD] Request received:', req.body);
     const canDownload = await canContinue(req, res);
     if (!canDownload) {
       return; // Exit if the user cannot continue
     }
-    try {
-      const { name } = req.body;
-      if (!name) {
-        return res.status(400).json({ error: 'Name is required' });
-      }
 
-      const ws = new Workspace(true, 'fs');
-      const exporter = new CustomExporter(name, ws.location);
+    const user = await authService.getUserFrom(req.cookies.token);
+    if (!user) {
+      res.redirect('/login?redirect=/ki');
+      return false;
+    }
 
-      // Get the deck info from session
-      const deckInfo = req.session?.deckInfo;
-      const sourceWorkspace = req.session?.workspaceLocation;
-      if (!deckInfo) {
-        return res.status(404).json({ error: 'No deck information found' });
-      }
-      if (!sourceWorkspace) {
-        return res
-          .status(404)
-          .json({ error: 'No workspace information found' });
-      }
+    const userSession = await sessionRepository.getSession(user.owner); // Ensure session is typed
+    if (!userSession || !userSession.data) {
+      console.error('[DOWNLOAD] User session not found');
+      return res.status(403).json({ error: 'Session expired' });
+    }
 
-      // Copy media files to workspace
-      for (const deck of deckInfo) {
-        for (const card of deck.cards) {
-          if (card.media && card.media.length > 0) {
-            for (const mediaFile of card.media) {
-              try {
-                // Copy from source workspace to new workspace
-                const sourcePath = path.join(sourceWorkspace, mediaFile);
-                const destPath = path.join(ws.location, mediaFile);
-                // Ensure directory exists
-                const destDir = path.dirname(destPath);
-                await fs.mkdir(destDir, { recursive: true });
-                await fs.copyFile(sourcePath, destPath);
-              } catch (err) {
-                console.error(`Failed to copy media file ${mediaFile}:`, err);
-              }
+    const { name } = req.body;
+    console.log('[DOWNLOAD] Deck name:', name);
+    if (!name) {
+      return res.status(400).json({ error: 'Name is required' });
+    }
+
+    const deckInfo = userSession.data.deckInfo; // Use userSession here
+    if (!deckInfo) {
+      console.error('[DOWNLOAD] No deck information found');
+      return res.status(404).json({ error: 'No deck information found' });
+    }
+
+    console.log('[DOWNLOAD] Deck info:', deckInfo);
+    const exporter = new CustomExporter(
+      name,
+      userSession.data.workspace.location
+    );
+
+    const sourceWorkspace = userSession.data.workspace.location; // Use userSession here
+    if (!sourceWorkspace) {
+      return res.status(404).json({ error: 'No workspace information found' });
+    }
+
+    // Copy media files to workspace
+    for (const deck of deckInfo) {
+      for (const card of deck.cards) {
+        if (card.media && card.media.length > 0) {
+          for (const mediaFile of card.media) {
+            try {
+              // Copy from source workspace to new workspace
+              const sourcePath = path.join(sourceWorkspace, mediaFile);
+              const destPath = path.join(
+                userSession.data.workspace.location,
+                mediaFile
+              );
+              // Ensure directory exists
+              const destDir = path.dirname(destPath);
+              await fs.mkdir(destDir, { recursive: true });
+              await fs.copyFile(sourcePath, destPath);
+            } catch (err) {
+              console.error(`Failed to copy media file ${mediaFile}:`, err);
             }
           }
         }
       }
-
-      // Configure the exporter with the deck info
-      exporter.configure(deckInfo);
-
-      // Generate the APKG file
-      const apkg = await exporter.save();
-
-      if (!apkg) {
-        return res.status(404).json({ error: 'Failed to generate APKG file' });
-      }
-
-      // Sanitize filename to remove invalid characters
-      const sanitizedName = name
-        .replace(/[^\x20-\x7E]/g, '_')
-        .replace(/[^a-zA-Z0-9-_\.]/g, '_');
-      const filename = sanitizedName.endsWith('.apkg')
-        ? sanitizedName
-        : `${sanitizedName}.apkg`;
-
-      res.set('Content-Type', 'application/apkg');
-      res.set('Content-Length', apkg.length.toString());
-      res.set('Content-Disposition', `attachment; filename="${filename}"`);
-      return res.send(apkg);
-    } catch (error) {
-      console.error('Download error:', error);
-      return res.status(500).json({ error: 'Failed to download deck' });
     }
+
+    // Configure the exporter with the deck info
+    exporter.configure(deckInfo);
+
+    // Generate the APKG file
+    const apkg = await exporter.save();
+
+    if (!apkg) {
+      return res.status(404).json({ error: 'Failed to generate APKG file' });
+    }
+
+    // Sanitize filename to remove invalid characters
+    const sanitizedName = name
+      .replace(/[^\x20-\x7E]/g, '_')
+      .replace(/[^a-zA-Z0-9-_\.]/g, '_');
+    const filename = sanitizedName.endsWith('.apkg')
+      ? sanitizedName
+      : `${sanitizedName}.apkg`;
+
+    res.set('Content-Type', 'application/apkg');
+    res.set('Content-Length', apkg.length.toString());
+    res.set('Content-Disposition', `attachment; filename="${filename}"`);
+    return res.send(apkg);
   });
 
   router.get('/ki/media/:filename', async (req, res) => {
-    const canAccessMedia = await canContinue(req, res);
-    if (!canAccessMedia) {
-      return; // Exit if the user cannot continue
+    const { filename } = req.params;
+    const user = await authService.getUserFrom(req.cookies.token);
+    if (!user) {
+      res.redirect('/login?redirect=/ki');
+      return false;
     }
-    try {
-      const { filename } = req.params;
-      const sourceWorkspace = req.session?.workspaceLocation;
-      console.log('[SOURCE WORKSPACE]', sourceWorkspace);
-      const hasTraversal = sourceWorkspace?.includes('..');
+    const userSession = await sessionRepository.getSession(user.owner);
+    const sourceWorkspace = userSession.data.workspace.location;
 
-      if (!sourceWorkspace || hasTraversal) {
-        return res.status(404).send('No workspace found');
+    try {
+      const decodedFilename = decodeURIComponent(filename);
+      const imagePath = path.join(
+        userSession.data.workspace.location,
+        decodedFilename
+      );
+
+      // Add security check
+      if (imagePath.indexOf(sourceWorkspace) !== 0) {
+        return res.status(403).send('Access denied');
       }
 
-      const decodedFilename = decodeURIComponent(filename);
-      const imagePath = path.join(sourceWorkspace, decodedFilename);
-      await fs.access(imagePath); // Check if file exists
-      res.sendFile(imagePath);
+      await fs.access(imagePath);
+      res.sendFile(imagePath, {
+        headers: {
+          'Content-Type': 'image/png', // or get proper MIME type
+        },
+      });
     } catch (error) {
-      console.error('Failed to serve media file:', error);
+      console.error('[MEDIA] Failed to serve media file:', error);
       res.status(404).send('File not found');
     }
   });
 
   router.get('/ki/status', async (req, res) => {
+    console.log('[STATUS] Status check request received');
     const canCheckStatus = await canContinue(req, res);
     if (!canCheckStatus) {
+      console.error('[STATUS] User cannot continue');
       return; // Exit if the user cannot continue
     }
-    res.json({ hasDeckInfo: !!req.session?.deckInfo });
+
+    const user = await authService.getUserFrom(req.cookies.token);
+    if (!user) {
+      res.redirect('/login?redirect=/ki');
+      return false;
+    }
+
+    const userSession = await sessionRepository.getSession(user.owner); // Ensure session is typed
+    if (!userSession || !userSession.data) {
+      console.error('[STATUS] User session not found');
+      return res.status(403).json({ error: 'Session expired' });
+    }
+
+    const hasDeckInfo = !!userSession.data?.deckInfo;
+    console.log('[STATUS] Deck info available:', hasDeckInfo);
+    res.json({ hasDeckInfo });
   });
 
   return router;
