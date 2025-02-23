@@ -15,7 +15,6 @@ export function handlePartialJson(
         if (card) {
           currentDeckInfo.push(card);
           res.write(`event: card\ndata: ${JSON.stringify(card)}\n\n`);
-          if (res.flush) res.flush();
           console.log('[CARD DATA]', JSON.stringify(card, null, 2));
         }
       } catch {
