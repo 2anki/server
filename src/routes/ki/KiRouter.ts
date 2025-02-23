@@ -1021,24 +1021,16 @@ const KiRouter = () => {
     }
     try {
       const { filename } = req.params;
-      const sourceWorkspace = path.join(
-        process.env.WORKSPACE_BASE || '',
-        req.session?.workspaceLocation || ''
-      );
+      const sourceWorkspace = req.session?.workspaceLocation;
+      console.log('[SOURCE WORKSPACE]', sourceWorkspace);
+      const hasTraversal = sourceWorkspace?.includes('..');
 
-      if (!req.session?.workspaceLocation) {
+      if (!sourceWorkspace || hasTraversal) {
         return res.status(404).send('No workspace found');
       }
 
       const decodedFilename = decodeURIComponent(filename);
-      const safeFilename = path.basename(decodedFilename); // Sanitize filename
-      const imagePath = path.join(sourceWorkspace, safeFilename); // Construct path safely
-
-      // Ensure imagePath is within the WORKSPACE_BASE
-      if (!imagePath.startsWith(process.env.WORKSPACE_BASE!)) {
-        return res.status(403).send('Access denied');
-      }
-
+      const imagePath = path.join(sourceWorkspace, decodedFilename);
       await fs.access(imagePath); // Check if file exists
       res.sendFile(imagePath);
     } catch (error) {
