@@ -344,7 +344,8 @@ class BlockHandler {
             sd.type === 'child_database' &&
             rules.SUB_DECKS.includes('child_database')
           ) {
-            decks = await this.handleChildDatabase(sd, rules, decks);
+            const dbDecks = await this.handleChildDatabase(sd, rules);
+            decks.push(...dbDecks);
             continue;
           }
 
@@ -401,23 +402,24 @@ class BlockHandler {
 
   private async handleChildDatabase(
     sd: BlockObjectResponse,
-    rules: ParserRules,
-    decks: Deck[]
+    rules: ParserRules
   ): Promise<Deck[]> {
     const dbResult = await this.api.queryDatabase(sd.id);
     const database = await this.api.getDatabase(sd.id);
     const dbName = await this.api.getDatabaseTitle(database, this.settings);
+    let dbDecks: Deck[] = [];
 
     for (const entry of dbResult.results) {
-      decks = await this.findFlashcardsFromPage({
+      const entryDecks = await this.findFlashcardsFromPage({
         parentType: 'database',
         topLevelId: entry.id,
         rules,
-        decks,
+        decks: [],
         parentName: dbName,
       });
+      dbDecks.push(...entryDecks);
     }
-    return decks;
+    return dbDecks;
   }
 }
 
