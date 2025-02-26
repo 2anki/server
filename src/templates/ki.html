@@ -22,21 +22,49 @@
 
         <style>
                 :root {
-                        --primary: #2383E2;
-                        --text-primary: rgb(55, 53, 47);
-                        --text-secondary: rgba(55, 53, 47, 0.65);
+                        /* Color System */
+                        --primary: #4F46E5;
+                        --primary-light: #818CF8;
+                        --primary-dark: #4338CA;
                         --bg-primary: #ffffff;
-                        --bg-secondary: rgba(247, 246, 243, 0.8);
-                        --border-color: rgba(55, 53, 47, 0.16);
-                        --hover-bg: rgba(55, 53, 47, 0.08);
-                        --shadow-sm: rgba(15, 15, 15, 0.05) 0px 0px 0px 1px, rgba(15, 15, 15, 0.1) 0px 3px 6px, rgba(15, 15, 15, 0.2) 0px 9px 24px;
-                        --shadow-md: rgba(15, 15, 15, 0.1) 0px 0px 0px 1px, rgba(15, 15, 15, 0.2) 0px 5px 10px, rgba(15, 15, 15, 0.4) 0px 15px 40px;
-                        --radius-sm: 3px;
-                        --radius-md: 4px;
-                        --radius-lg: 6px;
-                        --transition: all 100ms ease-in;
+                        --bg-secondary: #F9FAFB;
+                        --text-primary: #111827;
+                        --text-secondary: #4B5563;
+                        --border-color: #E5E7EB;
+                        --hover-bg: #5397f5;
+                        --success: #10B981;
+                        --error: #EF4444;
+                        --warning: #F59E0B;
+
+                        /* Shadows */
+                        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+                        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+                        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+                        /* Border Radius */
+                        --radius-sm: 0.375rem;
+                        --radius-md: 0.5rem;
+                        --radius-lg: 0.75rem;
+
+                        /* Spacing */
+                        --spacing-xs: 0.5rem;
+                        --spacing-sm: 0.75rem;
+                        --spacing-md: 1rem;
+                        --spacing-lg: 1.5rem;
+                        --spacing-xl: 2rem;
+
+                        /* Typography */
+                        --font-ui: 'Inter', system-ui, -apple-system, sans-serif;
+                        --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+                        /* Transitions */
+                        --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+                        --transition-normal: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+
+                        /* Layout */
+                        --header-height: 4rem;
                         --editor-height: 250px;
-                        --font-ui: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif;
+                        --container-max-width: 65rem;
                 }
 
                 * {
@@ -46,25 +74,31 @@
                 }
 
                 body {
-                        background: var(--bg-primary);
+                        background: var(--bg-secondary);
                         font-family: var(--font-ui);
                         color: var(--text-primary);
-                        line-height: 1.5;
+                        line-height: 1.6;
                         font-size: 16px;
                         -webkit-font-smoothing: antialiased;
+                        min-height: 100vh;
+                        width: 100%;
+                        overflow-x: hidden;
                 }
 
                 .container {
                         width: 100%;
-                        max-width: 1000px;
                         margin: 0 auto;
-                        padding: 32px 96px;
-                        padding-bottom: 80px;
+                        display: flex;
+                        flex-direction: column;
+                        min-height: 100vh;
+                        padding-bottom: calc(180px + var(--spacing-lg));
+                        overflow-x: hidden;
+                        max-width: var(--container-max-width);
                 }
 
                 @media (max-width: 600px) {
                         .container {
-                                padding: 32px 16px;
+                                padding: 0;
                         }
                 }
 
@@ -119,18 +153,20 @@
                 .editor-container {
                         position: relative;
                         width: 100%;
+                        max-width: 600px;
+                        margin: var(--spacing-lg) auto;
                         background: var(--bg-primary);
                         border: 1px solid var(--border-color);
                         border-radius: var(--radius-lg);
-                        box-shadow: var(--shadow-sm);
+                        box-shadow: var(--shadow-lg);
                         overflow: hidden;
-                        transition: var(--transition);
-                        z-index: 10;
+                        transition: var(--transition-normal);
+                        backdrop-filter: blur(8px);
                 }
 
-                .editor-container.drag-over {
-                        border-color: var(--primary);
-                        box-shadow: 0 0 0 3px var(--hover-bg);
+                .editor-container:hover {
+                        box-shadow: var(--shadow-xl);
+                        transform: translateY(-2px);
                 }
 
                 .drag-overlay {
@@ -154,16 +190,16 @@
 
                 textarea {
                         width: 100%;
-                        min-height: 148px;
-                        padding: 24px;
+                        min-height: 180px;
+                        padding: var(--spacing-lg);
                         border: none;
-                        font-family: inherit;
-                        font-size: 16px;
-                        line-height: 1.5;
+                        font-family: var(--font-ui);
+                        font-size: 1rem;
+                        line-height: 1.6;
                         color: var(--text-primary);
                         resize: none;
                         background: transparent;
-                        transition: var(--transition);
+                        transition: var(--transition-normal);
                 }
 
                 textarea::placeholder {
@@ -172,11 +208,12 @@
 
                 .file-input {
                         border-top: 1px solid var(--border-color);
-                        padding: 12px 16px;
+                        padding: var(--spacing-md) var(--spacing-lg);
                         background: var(--bg-primary);
                         display: flex;
                         align-items: center;
                         justify-content: space-between;
+                        gap: var(--spacing-md);
                 }
 
                 .file-input-left {
@@ -192,32 +229,35 @@
                 }
 
                 .file-input-right {
-                        /* margin-left: auto; */
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
                 }
 
                 input[type="file"] {
-                        font-size: 14px;
-                        color: var(--text-secondary);
+                        display: none;
                 }
 
                 .upload-button {
-                        padding: 6px;
-                        background: transparent;
-                        border: none;
                         cursor: pointer;
-                        font-size: 20px;
-                        border-radius: var(--radius-sm);
-                        transition: background 20ms ease-in;
-                        display: flex;
+                        display: inline-flex;
                         align-items: center;
-                        justify-content: center;
-                        width: 32px;
-                        height: 32px;
+                        gap: var(--spacing-sm);
+                        padding: var(--spacing-sm) var(--spacing-md);
+                        border-radius: var(--radius-md);
+                        background: var(--bg-secondary);
+                        border: 1px solid var(--border-color);
                         color: var(--text-secondary);
+                        font-size: 0.875rem;
+                        font-weight: 500;
+                        transition: var(--transition-fast);
                 }
 
                 .upload-button:hover {
-                        background: var(--bg-secondary);
+                        background: var(--hover-bg);
+                        color: white;
+                        border-color: var(--hover-bg);
+                        transform: translateY(-1px);
                 }
 
                 .file-list-container {
@@ -234,20 +274,6 @@
                         flex-wrap: wrap;
                         gap: 8px;
                         align-items: center;
-                }
-
-                .download-button-container {
-                        margin-top: 24px;
-                        padding: 16px;
-                        background: rgba(255, 255, 255, 0.9);
-                        backdrop-filter: blur(10px);
-                        -webkit-backdrop-filter: blur(10px);
-                        border-top: 1px solid var(--border-color);
-                        display: flex;
-                        justify-content: center;
-                        position: sticky;
-                        bottom: 0;
-                        z-index: 1000;
                 }
 
                 .download-button {
@@ -279,273 +305,106 @@
                 .file-chip {
                         display: inline-flex;
                         align-items: center;
-                        background: var(--bg-primary);
+                        gap: var(--spacing-xs);
+                        background: var(--bg-secondary);
                         border: 1px solid var(--border-color);
-                        border-radius: var(--radius-sm);
-                        padding: 4px 12px;
-                        font-size: 13px;
+                        border-radius: var(--radius-md);
+                        padding: var(--spacing-xs) var(--spacing-sm);
+                        font-size: 0.875rem;
                         color: var(--text-secondary);
-                        transition: var(--transition);
-                        height: 28px;
+                        transition: var(--transition-fast);
                 }
 
                 .file-chip:hover {
                         border-color: var(--primary);
-                        background: var(--hover-bg);
+                        background: var(--bg-primary);
+                        color: var(--primary);
+                        transform: translateY(-1px);
                 }
 
                 .file-chip button {
-                        margin-left: 6px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        padding: 2px;
                         border: none;
                         background: none;
                         cursor: pointer;
-                        color: var(--text-secondary);
-                        padding: 2px;
+                        color: inherit;
                         border-radius: 50%;
+                        transition: var(--transition-fast);
                 }
 
                 .file-chip button:hover {
                         background: var(--hover-bg);
+                        color: var(--error);
                 }
 
                 .processing-state {
                         background: var(--bg-primary);
                         border: 1px solid var(--border-color);
-                        border-radius: var(--radius-md);
-                        padding: 14px 16px;
-                        margin-bottom: 16px;
-                        box-shadow: var(--shadow-sm);
+                        border-radius: var(--radius-lg);
+                        padding: var(--spacing-lg);
+                        margin: var(--spacing-md) auto;
+                        max-width: 600px;
+                        box-shadow: var(--shadow-lg);
+                        animation: fadeSlideUp 0.3s var(--transition-normal);
                 }
 
                 .processing-state .icon {
-                        width: 24px;
-                        height: 24px;
+                        width: 32px;
+                        height: 32px;
                         display: flex;
                         align-items: center;
                         justify-content: center;
-                        border-radius: 50%;
-                        background: var(--hover-bg);
-                }
-
-                .processing-state .content {
-                        flex: 1;
+                        border-radius: var(--radius-md);
+                        background: var(--primary-light);
+                        color: white;
                 }
 
                 .processing-state .title {
-                        font-weight: 500;
-                        color: var(--text-primary);
+                        font-size: 1.125rem;
+                        font-weight: 600;
                         display: flex;
                         align-items: center;
-                        gap: 8px;
-                        margin-bottom: 4px;
+                        gap: var(--spacing-sm);
+                        margin-bottom: var(--spacing-sm);
+                        color: var(--text-primary);
                 }
 
                 .processing-state .subtitle {
                         color: var(--text-secondary);
-                        font-size: 14px;
-                }
-
-                .status-message {
-                        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-                        font-size: 12px;
-                        line-height: 1.4;
-                        color: var(--text-secondary);
-                        margin: 8px 0;
+                        font-size: 0.875rem;
                 }
 
                 .processing-state .progress {
-                        width: 100%;
-                        height: 2px;
-                        background: var(--border-color);
-                        border-radius: 1px;
-                        margin-top: 8px;
+                        margin-top: var(--spacing-md);
+                        height: 4px;
+                        background: var(--bg-secondary);
+                        border-radius: 2px;
                         overflow: hidden;
                 }
 
                 .processing-state .progress-bar {
                         height: 100%;
                         background: var(--primary);
-                        width: 25%;
-                        border-radius: 1px;
-                        animation: progress 1s infinite linear;
-                }
-
-                @keyframes progress {
-                        0% {
-                                transform: translateX(-100%);
-                        }
-
-                        100% {
-                                transform: translateX(400%);
-                        }
+                        border-radius: 2px;
+                        transition: width var(--transition-normal);
                 }
 
                 .processing-state .spinner {
-                        width: 12px;
-                        height: 12px;
-                        border: 1.5px solid var(--bg-secondary);
-                        border-top: 1.5px solid var(--primary);
+                        width: 16px;
+                        height: 16px;
+                        border: 2px solid var(--primary-light);
+                        border-top: 2px solid var(--primary);
                         border-radius: 50%;
                         animation: spin 0.8s linear infinite;
-                        opacity: 0.8;
                 }
 
-                @keyframes spin {
-                        0% {
-                                transform: rotate(0deg);
-                        }
-
-                        100% {
-                                transform: rotate(360deg);
-                        }
-                }
-
-                .file-preview {
-                        display: flex;
-                        align-items: center;
-                        gap: 8px;
-                        padding: 8px;
-                        background: var(--bg-secondary);
-                        border-radius: var(--radius-md);
-                        margin-top: 8px;
-                }
-
-                .file-preview .name {
-                        color: var(--text-secondary);
-                        font-size: 13px;
-                }
-
-                .cards-container {
-                        position: relative;
-                        padding: 4px;
-                        border-radius: var(--radius-lg);
-                        margin-top: 16px;
-                        max-height: 75vh;
-                        overflow-y: auto;
-                }
-
-                .virtual-item {
-                        position: relative;
-                        width: 100%;
-                        background: var(--bg-primary);
-                        border: 1px solid var(--border-color);
-                        border-radius: var(--radius-md);
-                        padding: 12px 14px;
-                        margin-bottom: 8px;
-                        transition: background 20ms ease-in;
-                }
-
-                .virtual-item:hover {
-                        background: var(--bg-secondary);
-                }
-
-                .virtual-item.deck {
-                        background: var(--bg-primary);
-                        border: none;
-                        box-shadow: var(--shadow-sm);
-                        margin-top: 24px;
-                        padding: 3px;
-                }
-
-                .virtual-item.deck h3 {
-                        font-size: 1.1rem;
-                        color: var(--text-primary);
-                        font-weight: 600;
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: center;
-                        padding: 10px 12px;
-                        cursor: pointer;
-                        border-radius: var(--radius-md);
-                        transition: background 20ms ease-in;
-                }
-
-                .virtual-item.deck h3:hover {
-                        background: var(--bg-secondary);
-                }
-
-                .virtual-item.card {
-                        margin-left: 24px;
-                        border: none;
-                        background: transparent;
-                }
-
-                .virtual-item details summary {
-                        list-style: none;
-                        padding: 8px 12px;
-                        margin: -8px -12px;
-                        border-radius: var(--radius-md);
-                        cursor: pointer;
-                        transition: background 20ms ease-in;
-                }
-
-                .virtual-item details summary:hover {
-                        background: var(--bg-secondary);
-                }
-
-                .virtual-item details summary::-webkit-details-marker {
-                        display: none;
-                }
-
-                .virtual-item details p {
-                        margin: 12px 0 0;
-                        padding: 12px;
-                        background: var(--bg-secondary);
-                        border-radius: var(--radius-md);
-                        color: var(--text-primary);
-                        font-size: 15px;
-                        line-height: 1.5;
-                }
-
-                .empty-back {
-                        color: var(--text-secondary);
-                        font-style: normal;
-                        padding: 12px;
-                        background: var(--bg-secondary);
-                        border-radius: var(--radius-md);
-                        border: none;
-                        font-size: 15px;
-                }
-
-                .virtual-item .tags {
-                        display: inline-flex;
-                        margin: 8px 0 0;
-                        padding: 2px 6px;
-                        background: rgba(55, 53, 47, 0.08);
-                        color: var(--text-primary);
+                .status-message {
                         font-size: 14px;
-                        border-radius: var(--radius-sm);
-                        transition: background 20ms ease-in;
-                }
-
-                .virtual-item .tags:hover {
-                        background: rgba(55, 53, 47, 0.12);
-                }
-
-                .toast {
-                        position: fixed;
-                        top: 16px;
-                        right: 16px;
-                        padding: 8px 12px;
-                        background: var(--bg-primary);
-                        border: 1px solid var(--border-color);
-                        border-radius: var(--radius-sm);
-                        box-shadow: var(--shadow-sm);
-                        font-size: 14px;
-                        z-index: 1000;
-                        color: var(--text-primary);
-                }
-
-                .toast.error {
-                        border-left: 4px solid #e11d48;
-                }
-
-                .toast.success {
-                        border-left: 4px solid #10b981;
-                }
-
-                .toast.info {
-                        border-left: 4px solid var(--primary);
+                        color: var(--text-secondary);
+                        margin: 4px 0;
                 }
 
                 .processing-state .cancel-button {
@@ -562,6 +421,181 @@
                 .processing-state .cancel-button:hover {
                         background: var(--hover-bg);
                         color: var(--text-primary);
+                }
+
+                .input-container {
+                        position: fixed;
+                        bottom: 0;
+                        left: 0;
+                        right: 0;
+                        padding: var(--spacing-md);
+                        background: var(--bg-secondary);
+                        backdrop-filter: blur(12px);
+                        -webkit-backdrop-filter: blur(12px);
+                        border-top: 1px solid var(--border-color);
+                        z-index: 1000;
+                }
+
+                .opacity-0 {
+                        opacity: 0;
+                }
+
+                .fade-in {
+                        opacity: 1;
+                        transition: opacity 0.2s ease-out;
+                }
+
+                .positioned {
+                        transform: translateY(var(--offset));
+                }
+
+                .scrollable {
+                        height: var(--height);
+                }
+
+                .debug-active {
+                        background: var(--hover-bg);
+                        color: var(--primary);
+                }
+
+                .virtual-item {
+                        position: relative;
+                        transition: transform 0.2s ease-out;
+                }
+
+                .visible {
+                        opacity: 1;
+                        visibility: visible;
+                }
+
+                .cancelled {
+                        opacity: 0;
+                        visibility: hidden;
+                        transition: opacity 0.3s ease-out, visibility 0.3s ease-out;
+                }
+
+                .debug-title {
+                        font-weight: 600;
+                        margin-bottom: 4px;
+                }
+
+                .debug-content {
+                        font-size: 14px;
+                        color: var(--text-secondary);
+                }
+
+                .debug-list {
+                        list-style: none;
+                        padding: 0;
+                        margin: 4px 0;
+                }
+
+                .spinner {
+                        width: 16px;
+                        height: 16px;
+                        border: 2px solid var(--bg-secondary);
+                        border-top-color: var(--primary);
+                        border-radius: 50%;
+                        animation: spin 1s linear infinite;
+                }
+
+                .progress-bar {
+                        height: 2px;
+                        background: var(--primary);
+                        width: 0;
+                        transition: width 0.3s ease-out;
+                }
+
+                @keyframes spin {
+                        to {
+                                transform: rotate(360deg);
+                        }
+                }
+
+                @keyframes fadeSlideUp {
+                        from {
+                                opacity: 0;
+                                transform: translateY(10px);
+                        }
+
+                        to {
+                                opacity: 1;
+                                transform: translateY(0);
+                        }
+                }
+
+                /* Responsive Design */
+                @media (max-width: 768px) {
+                        :root {
+                                --spacing-lg: 1.25rem;
+                                --spacing-md: 0.875rem;
+                        }
+
+                        .container {
+                                padding: var(--spacing-md);
+                        }
+
+                        .editor-container {
+                                margin: var(--spacing-md) auto;
+                        }
+
+                        .file-input {
+                                padding: var(--spacing-sm);
+                        }
+
+                        .upload-button {
+                                padding: var(--spacing-xs) var(--spacing-sm);
+                        }
+                }
+
+                /* Accessibility */
+                @media (prefers-reduced-motion: reduce) {
+                        * {
+                                animation-duration: 0.01ms !important;
+                                animation-iteration-count: 1 !important;
+                                transition-duration: 0.01ms !important;
+                                scroll-behavior: auto !important;
+                        }
+                }
+
+                .virtual-item:focus-within {
+                        outline: 2px solid var(--primary);
+                        outline-offset: 2px;
+                }
+
+                button:focus-visible,
+                textarea:focus-visible {
+                        outline: 2px solid var(--primary);
+                        outline-offset: 2px;
+                }
+
+                .history-select {
+                        padding: var(--spacing-xs) var(--spacing-sm);
+                        border: 1px solid var(--border-color);
+                        border-radius: var(--radius-md);
+                        background: var(--bg-secondary);
+                        color: var(--text-secondary);
+                        font-size: 0.875rem;
+                        cursor: pointer;
+                        transition: var(--transition-fast);
+                }
+
+                .history-select:hover {
+                        border-color: var(--hover-bg);
+                        color: var(--hover-bg);
+                }
+
+                .history-select:focus {
+                        outline: none;
+                        border-color: var(--hover-bg);
+                        box-shadow: 0 0 0 2px rgba(83, 151, 245, 0.1);
+                }
+
+                .cards-container {
+                        width: 100%;
+                        max-width: 600px;
+                        margin: 0 auto;
+                        padding: var(--spacing-md);
                 }
         </style>
 </head>
@@ -582,21 +616,27 @@
                                                 <button type="button" class="upload-button"
                                                         title="Upload Files (Shift + A)"
                                                         onclick="document.getElementById('files').click()">📎</button>
-                                                <input type="file" id="files" name="files" multiple
-                                                        style="display: none">
+                                                <button type="button" class="upload-button" title="Submit Text"
+                                                        onclick="generateFlashcards()">📝</button>
+                                                <input type="file" id="files" name="files" multiple>
                                         </div>
                                         <div class="file-input-center">
                                                 <button type="button" class="upload-button" title="Download Deck"
-                                                        onclick="downloadDeck('Ki Deck')">
+                                                        onclick="downloadDeckWithName()">
                                                         <img src="https://upload.wikimedia.org/wikipedia/commons/3/3d/Anki-icon.svg"
                                                                 style="width: 24px; height: 24px; vertical-align: middle;"
                                                                 alt="Download">
                                                 </button>
                                         </div>
                                         <div class="file-input-right">
-                                                <button type="button" class="upload-button"
-                                                        title="Generate (Alt + Enter)"
-                                                        onclick="generateFlashcards()">⬆️</button>
+                                                <select class="history-select" id="session-history"
+                                                        onchange="loadSession(this.value)">
+                                                        <option value="">Current Session</option>
+                                                </select>
+                                                <button type="button" class="upload-button" title="Delete Session"
+                                                        onclick="deleteSession()">🗑️</button>
+                                                <button type="button" class="upload-button" title="New Session"
+                                                        onclick="startNewSession()">✨</button>
                                         </div>
                                 </div>
                         </div>
@@ -604,6 +644,13 @@
         </div>
 
         <script>
+                // Cache frequently used elements
+                const processingStateEl = document.querySelector('.processing-state');
+                const statusMessageEl = document.querySelector('.status-message');
+                const textareaEl = document.querySelector('textarea[name="text"]');
+                const uploadButtonEl = document.querySelector('.file-input-left .upload-button');
+                const resultsEl = document.querySelector('.cards-container');
+
                 // Override console methods to send status messages
                 const originalConsole = {
                         log: console.log,
@@ -617,6 +664,7 @@
                         if (statusMessages) {
                                 const newMessage = document.createElement('div');
                                 newMessage.textContent = message;
+                                newMessage.classList.add('status-message');
                                 statusMessages.appendChild(newMessage);
 
                                 while (statusMessages.children.length > 3) {
@@ -658,31 +706,23 @@
                         return hash.toString(36);
                 };
 
-                // Cache management
-                const responseCache = {
+                // Remove localStorage usage and replace with API calls
+                const cache = {
                         set: function (text, cards) {
-                                try {
-                                        const hash = hashString(text);
-                                        localStorage.setItem(`ki_cache_${hash}`, JSON.stringify({
-                                                timestamp: Date.now(),
-                                                cards: cards
-                                        }));
-                                } catch (e) {
-                                        console.warn('Cache write failed:', e);
-                                }
+                                // Implement API call to save cache data
+                                fetch('/ki/cache', {
+                                        method: 'POST',
+                                        headers: {
+                                                'Content-Type': 'application/json',
+                                        },
+                                        body: JSON.stringify({ text, cards })
+                                }).catch(error => console.error('Cache save failed:', error));
                         },
-                        get: function (text) {
+                        get: async function (text) {
                                 try {
-                                        const hash = hashString(text);
-                                        const cached = localStorage.getItem(`ki_cache_${hash}`);
-                                        if (!cached) return null;
-
-                                        const data = JSON.parse(cached);
-                                        // Cache expires after 24 hours
-                                        if (Date.now() - data.timestamp > 24 * 60 * 60 * 1000) {
-                                                localStorage.removeItem(`ki_cache_${hash}`);
-                                                return null;
-                                        }
+                                        const response = await fetch(`/ki/cache?text=${encodeURIComponent(text)}`);
+                                        if (!response.ok) return null;
+                                        const data = await response.json();
                                         return data.cards;
                                 } catch (e) {
                                         console.warn('Cache read failed:', e);
@@ -690,9 +730,10 @@
                                 }
                         },
                         clear: function () {
-                                Object.keys(localStorage)
-                                        .filter(key => key.startsWith('ki_cache_'))
-                                        .forEach(key => localStorage.removeItem(key));
+                                // Implement API call to clear cache data
+                                fetch('/ki/cache', {
+                                        method: 'DELETE',
+                                }).catch(error => console.error('Cache clear failed:', error));
                         }
                 };
 
@@ -711,19 +752,28 @@
                                 document.querySelector('textarea[name="text"]').value = savedText;
                         }
 
-                        // Load and display saved cards
-                        const savedCards = localStorage.getItem('ki_last_response');
-                        if (savedCards) {
-                                const cards = JSON.parse(savedCards);
-                                displayCards(cards);
-                        }
-
                         // Check if there is deck information in the session
                         fetch('/ki/status')
                                 .then(response => response.json())
                                 .then(data => {
                                         if (data.hasDeckInfo) {
-                                                document.querySelector('.download-button-container').style.display = 'flex';
+                                                document.querySelector('.upload-button').classList.add('visible');
+                                                // Fetch and display cards from session
+                                                fetch('/ki/session/cards')
+                                                        .then(response => response.json())
+                                                        .then(cards => {
+                                                                if (cards && cards.length > 0) {
+                                                                        displayCards(cards);
+                                                                }
+                                                        })
+                                                        .catch(error => console.error('Error fetching session cards:', error));
+                                        } else {
+                                                // Load and display saved cards from local storage as fallback
+                                                const savedCards = localStorage.getItem('ki_last_response');
+                                                if (savedCards) {
+                                                        const cards = JSON.parse(savedCards);
+                                                        displayCards(cards);
+                                                }
                                         }
                                 });
                 });
@@ -783,7 +833,7 @@
                                         if (this.renderTimeout) {
                                                 clearTimeout(this.renderTimeout);
                                         }
-                                        this.renderTimeout = setTimeout(() => this.onScroll(), 16); // ~60fps
+                                        this.renderTimeout = setTimeout(() => this.onScroll(), 16);
                                 });
 
                                 this.resizeObserver = new ResizeObserver((entries) => {
@@ -802,11 +852,13 @@
                                         let currentOffset = 0;
                                         for (const [index, element] of this.visibleItems.entries()) {
                                                 const height = this.itemHeights.get(index) || this.itemHeight;
-                                                element.style.transform = `translateY(${currentOffset}px)`;
+                                                element.classList.add('positioned');
+                                                element.style.setProperty('--offset', `${currentOffset}px`);
                                                 currentOffset += height + 8;
                                         }
                                         this.totalHeight = currentOffset;
-                                        this.container.style.height = `${this.totalHeight}px`;
+                                        this.container.classList.add('scrollable');
+                                        this.container.style.setProperty('--height', `${this.totalHeight}px`);
                                 });
                         }
 
@@ -814,25 +866,39 @@
                                 const index = this.items.length;
                                 this.items.push(item);
 
-                                // Create and add element immediately
                                 const element = document.createElement('div');
-                                element.className = 'virtual-item';
+                                element.className = 'virtual-item opacity-0';
                                 element.dataset.index = index;
                                 element.innerHTML = item;
-                                element.style.opacity = '0';
                                 this.container.appendChild(element);
                                 this.visibleItems.set(index, element);
                                 this.resizeObserver.observe(element);
 
-                                // Fade in with slight delay based on index
                                 requestAnimationFrame(() => {
-                                        element.style.transition = 'opacity 0.2s ease-out';
-                                        element.style.opacity = '1';
+                                        element.classList.remove('opacity-0');
+                                        element.classList.add('fade-in');
                                 });
 
-                                // Queue position update
                                 if (!this.isRendering) {
                                         requestAnimationFrame(() => this.updatePositions());
+                                }
+                        }
+
+                        destroy() {
+                                this.resizeObserver.disconnect();
+                                this.isRendering = false;
+                                this.renderQueue = [];
+                                this.visibleItems.forEach(element => element.remove());
+                                this.visibleItems.clear();
+                                this.items = [];
+                                this.totalHeight = 0;
+                                this.container.classList.remove('scrollable');
+                                this.container.style.removeProperty('--height');
+                        }
+
+                        onScroll() {
+                                if (!this.isRendering) {
+                                        this.renderLoop();
                                 }
                         }
 
@@ -909,23 +975,6 @@
                                         this.isRendering = false;
                                 }
                         }
-
-                        onScroll() {
-                                if (!this.isRendering) {
-                                        this.renderLoop();
-                                }
-                        }
-
-                        destroy() {
-                                this.resizeObserver.disconnect();
-                                this.isRendering = false;
-                                this.renderQueue = [];
-                                this.visibleItems.forEach(element => element.remove());
-                                this.visibleItems.clear();
-                                this.items = [];
-                                this.totalHeight = 0;
-                                this.container.style.height = '0px';
-                        }
                 }
 
                 async function generateFlashcards() {
@@ -941,51 +990,9 @@
                         let timerInterval;
                         let currentController = null;
 
-                        // Hide download button at start of generation
-                        document.querySelector('.download-button-container').style.display = 'none';
-
                         if (!text.trim() && files.length === 0) {
                                 showToast('Please enter text or upload a file', 'error');
                                 return;
-                        }
-
-                        // Check total file size
-                        // const totalSize = Array.from(files).reduce((sum, file) => sum + file.size, 0);
-                        // const maxSize = 20 * 1024 * 1024; // 20MB
-                        // if (totalSize > maxSize) {
-                        //         showToast('Total file size exceeds 20MB limit. Please reduce file size or split into smaller files.', 'error');
-                        //         return;
-                        // }
-
-                        // Clear any existing debug info
-                        const existingDebug = results.querySelector('.virtual-item.debug');
-                        if (existingDebug) {
-                                existingDebug.remove();
-                        }
-
-                        if (localStorage.getItem('debug') === 'true') {
-                                const debugInfo = {
-                                        inputText: text,
-                                        uploadedFiles: Array.from(files).map(f => f.name)
-                                };
-
-                                const debugEl = document.createElement('div');
-                                debugEl.className = 'virtual-item debug';
-
-                                // Input Section
-                                const inputSection = document.createElement('div');
-                                inputSection.className = 'debug-section';
-                                inputSection.innerHTML = '<div class="debug-title">Input:</div><div class="debug-content">' + (text ? text.substring(0, 100) + (text.length > 100 ? '...' : '') : 'No text input') + '</div>';
-
-                                // Files Section
-                                const filesSection = document.createElement('div');
-                                filesSection.className = 'debug-section';
-                                filesSection.innerHTML = '<div class="debug-title">Files:</div><div class="debug-content">' + (debugInfo.uploadedFiles.length > 0 ? '<ul class="debug-list">' + debugInfo.uploadedFiles.map(f => '<li>' + f + '</li>').join('') + '</ul>' : 'No files uploaded') + '</div>';
-
-                                debugEl.appendChild(inputSection);
-                                debugEl.appendChild(filesSection);
-
-                                results.insertBefore(debugEl, results.firstChild);
                         }
 
                         // Clear previous results and storage when starting new generation
@@ -1001,53 +1008,32 @@
                                 window._eventSource = null;
                         }
 
-                        // Check cache first if no files are being uploaded
-                        if (files.length === 0 && text.trim()) {
-                                const cachedCards = responseCache.get(text);
-                                if (cachedCards) {
-                                        const processingState = document.querySelector('.processing-state');
-                                        processingState.style.display = 'flex';
-                                        processingState.innerHTML = `
-                                            <div class="status">⚡️ Loading from cache...</div>
-                                        `;
-
-                                        const cardsContainer = results.querySelector('.cards-container');
-                                        const virtualScroller = new VirtualScroller(cardsContainer);
-                                        results._virtualScroller = virtualScroller;
-
-                                        cachedCards.forEach(card => {
-                                                const html = card.name ?
-                                                        `<h3>${card.name}</h3>` :
-                                                        `<details>
-                                            <summary>${card.front.replace(/src="([^"]+)"/g, (match, src) => {
-                                                                if (!src.startsWith('http') && !src.startsWith('/ki/media/')) {
-                                                                        return `src="/ki/media/${src}"`;
-                                                                }
-                                                                return match;
-                                                        })}</summary>
-                                            ${card.back ? `<p>${card.back.replace(/src="([^"]+)"/g, (match, src) => {
-                                                                if (!src.startsWith('http') && !src.startsWith('/ki/media/')) {
-                                                                        return `src="/ki/media/${src}"`;
-                                                                }
-                                                                return match;
-                                                        })}</p>` : '<p class="empty-back">No answer provided yet</p>'}
-                                            ${card.tags?.length ? `<p class="tags">${card.tags.join(', ')}</p>` : ''}
-                                        </details>`;
-                                                virtualScroller.addItem(html);
-                                        });
-
-                                        setTimeout(() => {
-                                                processingState.innerHTML = `
-                                                    <div class="status">✨ Loaded ${cachedCards.length} cards from cache</div>
-                                                `;
-                                                setTimeout(() => {
-                                                        processingState.style.display = 'none';
-                                                        // Show download button after successful generation
-                                                        document.querySelector('.download-button-container').style.display = 'flex';
-                                                }, 1500);
-                                        }, 300);
-                                        return;
+                        // Handle file uploads first if any
+                        if (files.length > 0) {
+                                const formData = new FormData();
+                                for (const file of files) {
+                                        formData.append('files', file);
+                                        console.log('Uploading file:', file.name, file.size);
                                 }
+
+                                const uploadResponse = await fetch('/ki/upload', {
+                                        method: 'POST',
+                                        body: formData
+                                }).catch(error => {
+                                        console.error('Network error during upload:', error);
+                                        showToast('Network error during file upload', 'error');
+                                        throw error;
+                                });
+
+                                if (!uploadResponse.ok) {
+                                        const errorText = await uploadResponse.text();
+                                        console.error('Upload failed:', uploadResponse.status, errorText);
+                                        showToast(`Upload failed: ${errorText || uploadResponse.statusText}`, 'error');
+                                        throw new Error('Failed to upload files');
+                                }
+
+                                // Wait for upload to be processed
+                                await new Promise(resolve => setTimeout(resolve, 500));
                         }
 
                         function updateTimer() {
@@ -1121,39 +1107,6 @@
                                 `;
                                 cardsContainer.insertBefore(processingState, cardsContainer.firstChild);
 
-                                // Handle file uploads first if any
-                                if (files.length > 0) {
-                                        const formData = new FormData();
-                                        for (const file of files) {
-                                                formData.append('files', file);
-                                                console.log('Uploading file:', file.name, file.size);
-                                        }
-
-                                        const uploadResponse = await fetch('/ki/upload', {
-                                                method: 'POST',
-                                                body: formData
-                                        }).catch(error => {
-                                                console.error('Network error during upload:', error);
-                                                showToast('Network error during file upload', 'error');
-                                                throw error;
-                                        });
-
-                                        if (!uploadResponse.ok) {
-                                                const errorText = await uploadResponse.text();
-                                                console.error('Upload failed:', uploadResponse.status, errorText);
-                                                showToast(`Upload failed: ${errorText || uploadResponse.statusText}`, 'error');
-                                                throw new Error('Failed to upload files');
-                                        }
-
-                                        // Wait for upload to be processed
-                                        await new Promise(resolve => setTimeout(resolve, 500));
-                                }
-
-                                // Wait a bit for session to be updated with the new files
-                                if (files.length > 0) {
-                                        await new Promise(resolve => setTimeout(resolve, 100));
-                                }
-
                                 // Create EventSource for SSE
                                 currentController = new AbortController();
                                 const response = await fetch('/ki/generate', {
@@ -1199,15 +1152,6 @@
                                                                 console.log('[CARD RECEIVED]', card);
 
                                                                 if (card.name && !card.front && !card.back) {
-                                                                        // This is a deck definition
-                                                                        if (deckCount === 0) {
-                                                                                firstDeckName = card.name;
-                                                                                // Update the download button to use the first deck name
-                                                                                const downloadButton = document.querySelector('.download-button-container span');
-                                                                                if (downloadButton) {
-                                                                                        downloadButton.setAttribute('onclick', `downloadDeck('${card.name}')`);
-                                                                                }
-                                                                        }
                                                                         deckCount++;
                                                                 } else {
                                                                         cardCount++;
@@ -1250,6 +1194,7 @@
                                                                 if (statusMessages) {
                                                                         const newMessage = document.createElement('div');
                                                                         newMessage.textContent = message;
+                                                                        newMessage.classList.add('status-message');
                                                                         statusMessages.appendChild(newMessage);
 
                                                                         // Keep only last 3 messages
@@ -1273,39 +1218,38 @@
 
                                                         // Remove any remaining processing messages
                                                         if (processingState) {
-                                                                processingState.remove();
+                                                                processingState.classList.add('cancelled');
+                                                                setTimeout(() => {
+                                                                        processingState.remove();
+                                                                }, 1500);
                                                         }
 
                                                         const endTime = performance.now();
-                                                        const totalTime = Math.max(1, Math.floor((endTime - startTime) / 1000)); // Ensure at least 1 second
+                                                        const totalTime = Math.max(1, Math.floor((endTime - startTime) / 1000));
                                                         const minutes = Math.floor(totalTime / 60);
                                                         const seconds = totalTime % 60;
                                                         const timeString = minutes > 0 ?
                                                                 `${minutes}m ${seconds}s` :
                                                                 `${seconds}s`;
-                                                        const cardsPerSecond = cardCount > 0 ? (cardCount / totalTime).toFixed(1) : '0.0';
 
                                                         if (processingState) {
+                                                                processingState.classList.add('hidden');
                                                                 processingState.innerHTML = `
                                                                 <div class="status">✅ ${deckCount} decks • ${cardCount} cards</div>
                                                             `;
                                                                 setTimeout(() => {
-                                                                        processingState.style.display = 'none';
+                                                                        processingState.classList.add('hidden');
                                                                 }, 3000);
                                                         }
 
-                                                        // Remove file input reset and file list clearing
+                                                        // Cache if needed
                                                         if (files.length === 0 && text.trim() && cards.length > 0) {
-                                                                responseCache.set(text, cards);
+                                                                await cache.set(text, cards);
                                                                 localStorage.setItem('ki_last_response', JSON.stringify(cards));
                                                         }
-
-                                                        // Show download button after successful generation
-                                                        document.querySelector('.download-button-container').style.display = 'flex';
                                                 }
                                         }
                                 }
-
                         } catch (error) {
                                 console.error('Error:', error);
                                 clearInterval(timerInterval);
@@ -1324,8 +1268,9 @@
                         localStorage.setItem('debug', newState.toString());
 
                         const button = document.getElementById('debug-button');
-                        button.style.background = newState ? 'var(--hover-bg)' : 'transparent';
-                        button.style.color = newState ? 'var(--primary)' : 'inherit';
+                        if (button) {
+                                button.classList.toggle('debug-active', newState);
+                        }
                 }
 
                 // Initialize debug button state
@@ -1333,8 +1278,7 @@
                         const isDebug = localStorage.getItem('debug') === 'true';
                         const button = document.getElementById('debug-button');
                         if (button) {
-                                button.style.background = isDebug ? 'var(--hover-bg)' : 'transparent';
-                                button.style.color = isDebug ? 'var(--primary)' : 'inherit';
+                                button.classList.toggle('debug-active', isDebug);
                         }
                 });
 
@@ -1345,59 +1289,49 @@
                         document.body.appendChild(toast);
 
                         requestAnimationFrame(() => {
-                                toast.style.opacity = '1';
-                                toast.style.transform = 'translateY(0)';
+                                toast.classList.add('visible');
                         });
 
                         setTimeout(() => {
-                                toast.style.opacity = '0';
-                                toast.style.transform = 'translateY(-48px)';
+                                toast.classList.remove('visible');
                                 setTimeout(() => toast.remove(), 300);
                         }, 2000);
                 }
 
                 document.addEventListener('DOMContentLoaded', function () {
-                        const editorContainer = document.getElementById('editor-container');
-                        const fileInput = document.querySelector('input[type="file"]');
-
-                        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                                editorContainer.addEventListener(eventName, preventDefaults, false);
-                                document.body.addEventListener(eventName, preventDefaults, false);
-                        });
-
-                        function preventDefaults(e) {
-                                e.preventDefault();
-                                e.stopPropagation();
+                        const fileInput = document.getElementById('files');
+                        if (fileInput) {
+                                fileInput.addEventListener('change', function (e) {
+                                        if (e.target.files.length > 0) {
+                                                generateFlashcards();
+                                        }
+                                });
                         }
 
-                        ['dragenter', 'dragover'].forEach(eventName => {
-                                editorContainer.addEventListener(eventName, highlight, false);
-                        });
-
-                        ['dragleave', 'drop'].forEach(eventName => {
-                                editorContainer.addEventListener(eventName, unhighlight, false);
-                        });
-
-                        function highlight(e) {
-                                editorContainer.classList.add('drag-over');
+                        const processingState = document.querySelector('.processing-state');
+                        if (processingState) {
+                                processingState.classList.add('hidden');
                         }
 
-                        function unhighlight(e) {
-                                editorContainer.classList.remove('drag-over');
+                        const editorContainer = document.querySelector('.editor-container');
+                        if (editorContainer) {
+                                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                                        editorContainer.addEventListener(eventName, preventDefaults, false);
+                                        document.body.addEventListener(eventName, preventDefaults, false);
+                                });
+
+                                ['dragenter', 'dragover'].forEach(eventName => {
+                                        editorContainer.addEventListener(eventName, highlight, false);
+                                });
+
+                                ['dragleave', 'drop'].forEach(eventName => {
+                                        editorContainer.addEventListener(eventName, unhighlight, false);
+                                });
+
+                                editorContainer.addEventListener('drop', handleDrop, false);
                         }
 
-                        editorContainer.addEventListener('drop', handleDrop, false);
-
-                        function handleDrop(e) {
-                                const dt = e.dataTransfer;
-                                const files = dt.files;
-
-                                if (files.length > 0) {
-                                        fileInput.files = files;
-                                        const event = new Event('change');
-                                        fileInput.dispatchEvent(event);
-                                }
-                        }
+                        loadSessionHistory();
                 });
 
                 // Add download function before the last script tag
@@ -1442,12 +1376,7 @@
 
                                 const processingState = document.querySelector('.processing-state');
                                 if (processingState) {
-                                        processingState.innerHTML = `
-                                            <div class="icon">❌</div>
-                                            <div class="content">
-                                                <div class="title">Processing cancelled</div>
-                                            </div>
-                                        `;
+                                        processingState.classList.add('cancelled');
                                         setTimeout(() => {
                                                 processingState.remove();
                                         }, 1500);
@@ -1455,12 +1384,135 @@
                         }
                 }
 
-                // Move the event listener outside of the cancelProcessing function
-                document.getElementById('files').addEventListener('change', function (e) {
-                        if (e.target.files.length > 0) {
+                function deleteSession() {
+                        fetch('/ki/session/delete', { method: 'DELETE' })
+                                .then(() => {
+                                        window.location.reload();
+                                })
+                                .catch(error => {
+                                        showToast(error.message || 'Failed to delete session', 'error');
+                                });
+                }
+
+                function updateStatusMessage(message) {
+                        if (statusMessageEl) {
+                                statusMessageEl.textContent = message;
+                        }
+                }
+
+                function updateProcessingState(message, progress) {
+                        if (processingStateEl) {
+                                const timerEl = processingStateEl.querySelector('.timer');
+                                if (timerEl) {
+                                        timerEl.textContent = message;
+                                }
+                                if (progress !== undefined) {
+                                        const progressBar = processingStateEl.querySelector('.progress-bar');
+                                        if (progressBar) {
+                                                progressBar.style.width = `${progress}%`;
+                                        }
+                                }
+                        }
+                }
+
+                async function downloadDeckWithName() {
+                        try {
+                                const response = await fetch('/ki/session/cards');
+                                const cards = await response.json();
+                                if (cards && cards.length > 0) {
+                                        const deckName = cards[0].deck || 'Ki Deck';
+                                        downloadDeck(deckName);
+                                } else {
+                                        downloadDeck('Ki Deck');
+                                }
+                        } catch (error) {
+                                console.error('Error getting deck name:', error);
+                                downloadDeck('Ki Deck');
+                        }
+                }
+
+                async function loadSessionHistory() {
+                        try {
+                                const response = await fetch('/ki/session/history');
+                                const history = await response.json();
+                                const select = document.getElementById('session-history');
+                                select.innerHTML = '<option value="">Current Session</option>';
+
+                                history.forEach(session => {
+                                        const date = new Date(session.createdAt).toLocaleDateString();
+                                        const option = document.createElement('option');
+                                        option.value = session.id;
+                                        option.textContent = `Session ${date}`;
+                                        select.appendChild(option);
+                                });
+                        } catch (error) {
+                                console.error('Failed to load session history:', error);
+                                showToast('Failed to load session history', 'error');
+                        }
+                }
+
+                async function loadSession(sessionId) {
+                        if (!sessionId) {
+                                window.location.reload();
+                                return;
+                        }
+
+                        try {
+                                const response = await fetch(`/ki/session/${sessionId}`);
+                                if (!response.ok) throw new Error('Failed to load session');
+
+                                const data = await response.json();
+                                displayCards(data.cards);
+
+                                if (data.text) {
+                                        document.querySelector('textarea[name="text"]').value = data.text;
+                                }
+
+                                showToast('Session loaded successfully', 'success');
+                        } catch (error) {
+                                console.error('Failed to load session:', error);
+                                showToast('Failed to load session', 'error');
+                        }
+                }
+
+                async function startNewSession() {
+                        // Clear UI
+                        document.querySelector('textarea[name="text"]').value = '';
+                        document.getElementById('files').value = '';
+                        document.getElementById('results').innerHTML = '';
+                        document.getElementById('file-list').innerHTML = '';
+                        showToast('Started new session', 'success');
+                }
+
+                function preventDefaults(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                }
+
+                function highlight(e) {
+                        const editorContainer = document.querySelector('.editor-container');
+                        if (editorContainer) {
+                                editorContainer.classList.add('drag-over');
+                        }
+                }
+
+                function unhighlight(e) {
+                        const editorContainer = document.querySelector('.editor-container');
+                        if (editorContainer) {
+                                editorContainer.classList.remove('drag-over');
+                        }
+                }
+
+                function handleDrop(e) {
+                        const dt = e.dataTransfer;
+                        const files = dt.files;
+                        const fileInput = document.getElementById('files');
+
+                        if (fileInput && files.length > 0) {
+                                fileInput.files = files;
                                 generateFlashcards();
                         }
-                });
+                }
         </script>
         </div>
 </body>
