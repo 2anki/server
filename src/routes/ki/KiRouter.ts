@@ -201,7 +201,7 @@ const KiRouter = () => {
     const upload = multer({
       storage: multer.diskStorage({
         destination: (_, __, cb) => {
-          cb(null, process.env.WORKSPACE_BASE || 'uploads');
+          cb(null, process.env.WORKSPACE_BASE!);
         },
         filename: (_, file, cb) => {
           const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
@@ -237,7 +237,7 @@ const KiRouter = () => {
       res.redirect('/login?redirect=/ki');
       return false;
     }
-    const s = await sessionRepository.getSession(user.owner);
+    let s = await sessionRepository.getSession(user.owner);
     if (!s) {
       const w = new Workspace(true, 'fs');
       await sessionRepository.createSession(user.owner, {
@@ -245,6 +245,7 @@ const KiRouter = () => {
         deckInfo: [],
         workspace: w,
       });
+      s = await sessionRepository.getSession(user.owner);
     }
 
     if (!s.data?.workspace?.location) {
@@ -365,6 +366,8 @@ const KiRouter = () => {
                 `[UPLOAD] Extracted DOCX content, length: ${fileContent.length}`
               );
             } else {
+              // Check if file exists
+              await fs.access(file.path);
               fileContent = await fs.readFile(file.path, 'utf-8');
               console.log(
                 `[UPLOAD] Read file content, length: ${fileContent.length}`
@@ -406,7 +409,7 @@ const KiRouter = () => {
       const fileIds = processedFiles.map((file) => ({
         id: path.basename(file.path),
         name: file.originalname,
-        path: path.join('uploads', path.basename(file.path)),
+        path: file.path,
       }));
       console.log('[UPLOAD] Generated file IDs:', fileIds);
 
@@ -487,6 +490,9 @@ const KiRouter = () => {
         userSession.data.uploadedFiles = userSession.data.uploadedFiles.filter(
           (f: { id: string }) => f.id !== fileId
         );
+        await sessionRepository.updateSession(user.owner, {
+          uploadedFiles: userSession.data.uploadedFiles,
+        });
       }
       res.send('');
     } catch (error) {
@@ -774,10 +780,9 @@ const KiRouter = () => {
             sendStatus(`[UPLOAD] Processing file: ${file.name}`);
 
             try {
-              const filePath = path.join(
-                process.env.UPLOAD_BASE || 'uploads',
-                path.basename(file.path)
-              );
+              const filePath = file.path;
+              // Check if file exists
+              await fs.access(filePath);
               const fileContent = await fs.readFile(filePath);
               sendTimeEnd(readFileLabel);
 
@@ -979,6 +984,14 @@ const KiRouter = () => {
         deckInfo: userSession.data.deckInfo,
       });
 
+      // Store text input in session data
+      if (content.trim().length > 0) {
+        userSession.data.text = content;
+        await sessionRepository.updateSession(user.owner, {
+          text: content,
+        });
+      }
+
       res.write(
         `event: complete\ndata: ${JSON.stringify({ hasDeckInfo: true })}\n\n`
       );
@@ -1143,6 +1156,157 @@ const KiRouter = () => {
     const hasDeckInfo = !!userSession.data?.deckInfo;
     console.log('[STATUS] Deck info available:', hasDeckInfo);
     res.json({ hasDeckInfo });
+  });
+
+  router.delete('/ki/session/delete', async (req, res) => {
+    const canDeleteSession = await canContinue(req, res);
+    console.log('[DELETE SESSION] Can delete session:', canDeleteSession);
+    if (!canDeleteSession) {
+      return; // Exit if the user cannot continue
+    }
+
+    const user = await authService.getUserFrom(req.cookies.token);
+    if (!user) {
+      res.redirect('/login?redirect=/ki');
+      return false;
+    }
+
+    const userSession = await sessionRepository.getSession(user.owner);
+    if (!userSession) {
+      console.error('[DELETE SESSION] User session not found');
+      return res.status(403).json({ error: 'Session expired' });
+    }
+
+    try {
+      await sessionRepository.deleteSession(user.owner);
+      console.log('[DELETE SESSION] Session cleared for user:', user.owner);
+      res.status(200).json({ message: 'Session deleted successfully' });
+    } catch (error) {
+      console.error('[DELETE SESSION] Error clearing session:', error);
+      res.status(500).json({ error: 'Failed to delete session' });
+    }
+  });
+
+  router.get('/ki/session/cards', async (req, res) => {
+    const canViewCards = await canContinue(req, res);
+    if (!canViewCards) {
+      return;
+    }
+
+    const user = await authService.getUserFrom(req.cookies.token);
+    if (!user) {
+      res.redirect('/login?redirect=/ki');
+      return false;
+    }
+
+    const userSession = await sessionRepository.getSession(user.owner);
+    if (!userSession || !userSession.data) {
+      return res.status(403).json({ error: 'Session expired' });
+    }
+
+    const deckInfo = userSession.data.deckInfo;
+    if (!deckInfo) {
+      return res.json([]);
+    }
+
+    // Transform deck info into cards array
+    const cards = deckInfo.reduce((acc: any[], deck: any) => {
+      if (deck.cards) {
+        acc.push(
+          ...deck.cards.map((card: any) => ({
+            front: card.name,
+            back: card.back,
+            tags: card.tags,
+            media: card.media,
+            deck: deck.name, // Include the deck name
+          }))
+        );
+      }
+      return acc;
+    }, []);
+
+    res.json(cards);
+  });
+
+  router.get('/ki/session/history', async (req, res) => {
+    const canViewHistory = await canContinue(req, res);
+    if (!canViewHistory) {
+      return;
+    }
+
+    const user = await authService.getUserFrom(req.cookies.token);
+    if (!user) {
+      res.redirect('/login?redirect=/ki');
+      return false;
+    }
+
+    try {
+      const sessions = await sessionRepository.getUserSessions(
+        user.owner.toString()
+      );
+      res.json(
+        sessions.map((session) => ({
+          id: session.id,
+          createdAt: session.createdAt,
+          updatedAt: session.updatedAt,
+        }))
+      );
+    } catch (error) {
+      console.error('[HISTORY] Error fetching session history:', error);
+      res.status(500).json({ error: 'Failed to fetch session history' });
+    }
+  });
+
+  router.get('/ki/session/:sessionId', async (req, res) => {
+    const canViewSession = await canContinue(req, res);
+    if (!canViewSession) {
+      return;
+    }
+
+    const user = await authService.getUserFrom(req.cookies.token);
+    if (!user) {
+      res.redirect('/login?redirect=/ki');
+      return false;
+    }
+
+    const { sessionId } = req.params;
+
+    try {
+      const session = await sessionRepository.getSessionById(
+        sessionId,
+        user.owner.toString()
+      );
+      if (!session) {
+        return res.status(404).json({ error: 'Session not found' });
+      }
+
+      // Transform deck info into cards array
+      const cards = session.data.deckInfo
+        ? session.data.deckInfo.reduce((acc: any[], deck: any) => {
+            if (deck.cards) {
+              acc.push(
+                ...deck.cards.map((card: any) => ({
+                  front: card.name,
+                  back: card.back,
+                  tags: card.tags,
+                  media: card.media,
+                  deck: deck.name,
+                }))
+              );
+            }
+            return acc;
+          }, [])
+        : [];
+
+      res.json({
+        cards,
+        text: session.data.text || '',
+        uploadedFiles: session.data.uploadedFiles || [],
+      });
+    } catch (error) {
+      console.error('[SESSION] Error fetching session:', error);
+      res.status(500).json({ error: 'Failed to fetch session' });
+    }
   });
 
   return router;
