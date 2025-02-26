@@ -185,8 +185,14 @@
                         gap: 8px;
                 }
 
+                .file-input-center {
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                }
+
                 .file-input-right {
-                        margin-left: auto;
+                        /* margin-left: auto; */
                 }
 
                 input[type="file"] {
@@ -562,32 +568,38 @@
 
 <body>
         <div class="container">
-                <div class="editor-container" id="editor-container">
-                        <div class="drag-overlay">Drop files here</div>
-                        <textarea placeholder="Paste your content here or drag your files here..." name="text" id="text"
-                                onkeydown="handleKeyDown(event)"></textarea>
-                        <div class="file-input">
-                                <div class="file-input-left">
-                                        <button type="button" class="upload-button" title="Upload Files (Shift + A)"
-                                                onclick="document.getElementById('files').click()">📎</button>
-                                        <input type="file" id="files" name="files" multiple style="display: none">
-                                </div>
-                                <div class="file-input-right">
-                                        <button type="button" class="upload-button" title="Generate (Alt + Enter)"
-                                                onclick="generateFlashcards()">⬆️</button>
-                                </div>
-                        </div>
-                </div>
-
                 <div id="results">
                         <div class="cards-container"></div>
                 </div>
 
-                <div class="download-button-container" style="display: none;">
-                        <span class="download-icon" onclick="downloadDeck('Ki Deck')" style="cursor: pointer">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/3/3d/Anki-icon.svg"
-                                        style="width: 48px; height: 48px; vertical-align: middle;" alt="Download">
-                        </span>
+                <div class="input-container" id="input-container">
+                        <div class="editor-container">
+                                <div class="drag-overlay">Drop files here</div>
+                                <textarea placeholder="Paste your content here or drag your files here..." name="text"
+                                        id="text" onkeydown="handleKeyDown(event)"></textarea>
+                                <div class="file-input">
+                                        <div class="file-input-left">
+                                                <button type="button" class="upload-button"
+                                                        title="Upload Files (Shift + A)"
+                                                        onclick="document.getElementById('files').click()">📎</button>
+                                                <input type="file" id="files" name="files" multiple
+                                                        style="display: none">
+                                        </div>
+                                        <div class="file-input-center">
+                                                <button type="button" class="upload-button" title="Download Deck"
+                                                        onclick="downloadDeck('Ki Deck')">
+                                                        <img src="https://upload.wikimedia.org/wikipedia/commons/3/3d/Anki-icon.svg"
+                                                                style="width: 24px; height: 24px; vertical-align: middle;"
+                                                                alt="Download">
+                                                </button>
+                                        </div>
+                                        <div class="file-input-right">
+                                                <button type="button" class="upload-button"
+                                                        title="Generate (Alt + Enter)"
+                                                        onclick="generateFlashcards()">⬆️</button>
+                                        </div>
+                                </div>
+                        </div>
                 </div>
         </div>
 
@@ -686,18 +698,8 @@
 
                 // Keyboard shortcut handling
                 function handleKeyDown(event) {
-                        if (!event) return;
-
-                        if ((event.altKey || event.metaKey) && event.key === 'Enter') {
-                                event.preventDefault();
-                                generateFlashcards();
-                        } else if (event.shiftKey && event.key === 'a') {
-                                event.preventDefault();
-                                document.getElementById('files').click();
-                        } else if (event.shiftKey && event.key === 'd') {
-                                event.preventDefault();
-                                toggleDebug();
-                        }
+                        // Add your keydown handling logic here
+                        console.log('Key down event:', event);
                 }
 
                 document.addEventListener('keydown', handleKeyDown);
@@ -1453,12 +1455,14 @@
                         }
                 }
 
+                // Move the event listener outside of the cancelProcessing function
                 document.getElementById('files').addEventListener('change', function (e) {
                         if (e.target.files.length > 0) {
                                 generateFlashcards();
                         }
                 });
         </script>
+        </div>
 </body>
 
 </html>
