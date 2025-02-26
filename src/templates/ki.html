@@ -208,30 +208,30 @@
 
                 .file-input {
                         border-top: 1px solid var(--border-color);
-                        padding: var(--spacing-md) var(--spacing-lg);
+                        padding: var(--spacing-md);
                         background: var(--bg-primary);
-                        display: flex;
-                        align-items: center;
-                        justify-content: space-between;
+                        display: grid;
+                        grid-template-columns: auto 1fr auto;
                         gap: var(--spacing-md);
+                        align-items: center;
                 }
 
                 .file-input-left {
                         display: flex;
                         align-items: center;
-                        gap: 8px;
+                        gap: var(--spacing-sm);
                 }
 
                 .file-input-center {
                         display: flex;
                         align-items: center;
-                        gap: 8px;
+                        justify-content: center;
                 }
 
                 .file-input-right {
                         display: flex;
                         align-items: center;
-                        gap: 8px;
+                        gap: var(--spacing-sm);
                 }
 
                 input[type="file"] {
@@ -242,6 +242,7 @@
                         cursor: pointer;
                         display: inline-flex;
                         align-items: center;
+                        justify-content: center;
                         gap: var(--spacing-sm);
                         padding: var(--spacing-sm) var(--spacing-md);
                         border-radius: var(--radius-md);
@@ -250,7 +251,9 @@
                         color: var(--text-secondary);
                         font-size: 0.875rem;
                         font-weight: 500;
-                        transition: var(--transition-fast);
+                        min-width: 36px;
+                        height: 36px;
+                        transition: all var(--transition-fast);
                 }
 
                 .upload-button:hover {
@@ -258,6 +261,12 @@
                         color: white;
                         border-color: var(--hover-bg);
                         transform: translateY(-1px);
+                        box-shadow: var(--shadow-sm);
+                }
+
+                .upload-button img {
+                        width: 20px;
+                        height: 20px;
                 }
 
                 .file-list-container {
@@ -636,7 +645,7 @@
                                                 <button type="button" class="upload-button" title="Delete Session"
                                                         onclick="deleteSession()">🗑️</button>
                                                 <button type="button" class="upload-button" title="New Session"
-                                                        onclick="startNewSession()">✨</button>
+                                                        onclick="startNewSession()">🆕</button>
                                         </div>
                                 </div>
                         </div>
@@ -737,19 +746,51 @@
                         }
                 };
 
+                async function updateCurrentSessionName() {
+                        const select = document.getElementById('session-history');
+                        const textarea = document.querySelector('textarea[name="text"]');
+                        const text = textarea.value;
+
+                        if (text) {
+                                const displayName = text.slice(0, 30) + (text.length > 30 ? '...' : '');
+                                select.querySelector('option[value=""]').textContent = displayName;
+                        } else {
+                                const response = await fetch('/ki/session/cards');
+                                const cards = await response.json();
+                                if (cards && cards.length > 0) {
+                                        const firstDeck = cards[0].deck;
+                                        select.querySelector('option[value=""]').textContent = firstDeck + ' - Current Session';
+                                } else {
+                                        select.querySelector('option[value=""]').textContent = 'Current Session';
+                                }
+                        }
+                }
+
                 // Keyboard shortcut handling
                 function handleKeyDown(event) {
-                        // Add your keydown handling logic here
-                        console.log('Key down event:', event);
+                        // Check for cmd+enter (Mac) or alt+enter (Windows/Linux)
+                        if ((event.metaKey || event.altKey) && event.key === 'Enter') {
+                                event.preventDefault();
+                                generateFlashcards();
+                        }
                 }
 
                 document.addEventListener('keydown', handleKeyDown);
 
                 // Restore text on page load
                 document.addEventListener('DOMContentLoaded', function () {
+                        // Remove ?new=true from URL if present
+                        if (window.location.search.includes('new=true')) {
+                                window.history.replaceState({}, '', '/ki');
+                        }
+
+                        const textarea = document.querySelector('textarea[name="text"]');
+                        textarea.addEventListener('input', updateCurrentSessionName);
+
                         const savedText = sessionStorage.getItem('savedText');
                         if (savedText) {
-                                document.querySelector('textarea[name="text"]').value = savedText;
+                                textarea.value = savedText;
+                                updateCurrentSessionName();
                         }
 
                         // Check if there is deck information in the session
@@ -1246,6 +1287,7 @@
                                                         if (files.length === 0 && text.trim() && cards.length > 0) {
                                                                 await cache.set(text, cards);
                                                                 localStorage.setItem('ki_last_response', JSON.stringify(cards));
+                                                                await updateCurrentSessionName();
                                                         }
                                                 }
                                         }
@@ -1384,14 +1426,27 @@
                         }
                 }
 
-                function deleteSession() {
-                        fetch('/ki/session/delete', { method: 'DELETE' })
-                                .then(() => {
-                                        window.location.reload();
-                                })
-                                .catch(error => {
-                                        showToast(error.message || 'Failed to delete session', 'error');
-                                });
+                async function deleteSession() {
+                        try {
+                                const select = document.getElementById('session-history');
+                                const sessionId = select.value;
+                                if (!sessionId) {
+                                        showToast('No session selected', 'error');
+                                        return;
+                                }
+
+                                await fetch(`/ki/session/delete?sessionId=${sessionId}`, { method: 'DELETE' });
+                                // Clear UI
+                                document.querySelector('.cards-container').innerHTML = '';
+                                document.querySelector('textarea[name="text"]').value = '';
+                                document.getElementById('session-history').value = '';
+                                showToast('Session deleted successfully', 'success');
+                                // Refresh session history
+                                await loadSessionHistory();
+                        } catch (error) {
+                                console.error('Failed to delete session:', error);
+                                showToast('Failed to delete session', 'error');
+                        }
                 }
 
                 function updateStatusMessage(message) {
@@ -1432,32 +1487,43 @@
                 }
 
                 async function loadSessionHistory() {
-                        try {
-                                const response = await fetch('/ki/session/history');
-                                const history = await response.json();
-                                const select = document.getElementById('session-history');
-                                select.innerHTML = '<option value="">Current Session</option>';
+                        const response = await fetch('/ki/session/history');
+                        const data = await response.json();
+                        const select = document.getElementById('session-history');
+                        select.innerHTML = '<option value="">Current Session</option>';
 
-                                history.forEach(session => {
-                                        const date = new Date(session.createdAt).toLocaleDateString();
-                                        const option = document.createElement('option');
-                                        option.value = session.id;
-                                        option.textContent = `Session ${date}`;
-                                        select.appendChild(option);
-                                });
-                        } catch (error) {
-                                console.error('Failed to load session history:', error);
-                                showToast('Failed to load session history', 'error');
+                        for (const session of data.sessions) {
+                                const sessionResponse = await fetch(`/ki/session/${session.id}`);
+                                const sessionData = await sessionResponse.json();
+
+                                let displayName = new Date(session.createdAt).toLocaleString();
+                                if (sessionData.text) {
+                                        displayName = sessionData.text.slice(0, 30) + (sessionData.text.length > 30 ? '...' : '');
+                                } else if (sessionData.cards && sessionData.cards.length > 0) {
+                                        const firstDeck = sessionData.cards[0].deck;
+                                        displayName = firstDeck + ' - ' + displayName;
+                                }
+
+                                const option = document.createElement('option');
+                                option.value = session.id;
+                                option.textContent = displayName;
+                                if (session.id === data.currentSessionId) {
+                                        option.selected = true;
+                                }
+                                select.appendChild(option);
                         }
                 }
 
                 async function loadSession(sessionId) {
-                        if (!sessionId) {
-                                window.location.reload();
-                                return;
-                        }
-
                         try {
+                                if (!sessionId) {
+                                        // Clear UI for current session
+                                        document.querySelector('textarea[name="text"]').value = '';
+                                        document.querySelector('.cards-container').innerHTML = '';
+                                        showToast('Switched to current session', 'success');
+                                        return;
+                                }
+
                                 const response = await fetch(`/ki/session/${sessionId}`);
                                 if (!response.ok) throw new Error('Failed to load session');
 
@@ -1467,7 +1533,6 @@
                                 if (data.text) {
                                         document.querySelector('textarea[name="text"]').value = data.text;
                                 }
-
                                 showToast('Session loaded successfully', 'success');
                         } catch (error) {
                                 console.error('Failed to load session:', error);
@@ -1476,12 +1541,18 @@
                 }
 
                 async function startNewSession() {
-                        // Clear UI
-                        document.querySelector('textarea[name="text"]').value = '';
-                        document.getElementById('files').value = '';
-                        document.getElementById('results').innerHTML = '';
-                        document.getElementById('file-list').innerHTML = '';
-                        showToast('Started new session', 'success');
+                        try {
+                                // Clear UI immediately
+                                document.querySelector('.cards-container').innerHTML = '';
+                                document.querySelector('textarea[name="text"]').value = '';
+                                document.getElementById('session-history').value = '';
+
+                                // Create new session
+                                window.location.href = '/ki?new=true';
+                        } catch (error) {
+                                console.error('Failed to start new session:', error);
+                                showToast('Failed to start new session', 'error');
+                        }
                 }
 
                 function preventDefaults(e) {

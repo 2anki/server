@@ -237,8 +237,12 @@ const KiRouter = () => {
       res.redirect('/login?redirect=/ki');
       return false;
     }
-    let s = await sessionRepository.getSession(user.owner);
-    if (!s) {
+
+    // Create new session if requested or get existing one
+    const isNewSession = req.query.new === 'true';
+    let s;
+
+    if (isNewSession) {
       const w = new Workspace(true, 'fs');
       await sessionRepository.createSession(user.owner, {
         uploadedFiles: [],
@@ -246,13 +250,28 @@ const KiRouter = () => {
         workspace: w,
       });
       s = await sessionRepository.getSession(user.owner);
+    } else {
+      s = await sessionRepository.getSession(user.owner);
+      if (!s) {
+        const w = new Workspace(true, 'fs');
+        await sessionRepository.createSession(user.owner, {
+          uploadedFiles: [],
+          deckInfo: [],
+          workspace: w,
+        });
+        s = await sessionRepository.getSession(user.owner);
+      }
     }
 
     if (!s.data?.workspace?.location) {
       s.data.workspace = new Workspace(true, 'fs');
-      await sessionRepository.updateSession(user.owner, {
-        workspace: s.data.workspace,
-      });
+      await sessionRepository.updateSession(
+        user.owner,
+        {
+          workspace: s.data.workspace,
+        },
+        s.id
+      );
     }
 
     const exists = oldFs.existsSync(s.data.workspace.location);
@@ -447,9 +466,13 @@ const KiRouter = () => {
       }
 
       // Update session with uploaded files (ONLY update files here)
-      await sessionRepository.updateSession(userId, {
-        uploadedFiles: userSession.data.uploadedFiles,
-      });
+      await sessionRepository.updateSession(
+        userId,
+        {
+          uploadedFiles: userSession.data.uploadedFiles,
+        },
+        userSession.id
+      );
     } catch (error) {
       console.error('[UPLOAD] Error during upload process:', error);
       res.status(500).json({
@@ -490,9 +513,13 @@ const KiRouter = () => {
         userSession.data.uploadedFiles = userSession.data.uploadedFiles.filter(
           (f: { id: string }) => f.id !== fileId
         );
-        await sessionRepository.updateSession(user.owner, {
-          uploadedFiles: userSession.data.uploadedFiles,
-        });
+        await sessionRepository.updateSession(
+          user.owner,
+          {
+            uploadedFiles: userSession.data.uploadedFiles,
+          },
+          userSession.id
+        );
       }
       res.send('');
     } catch (error) {
@@ -980,16 +1007,24 @@ const KiRouter = () => {
       userSession.data.deckInfo = transformToDecks(userSession.data.deckInfo);
 
       // Update session with FINAL deck info
-      await sessionRepository.updateSession(user.owner, {
-        deckInfo: userSession.data.deckInfo,
-      });
+      await sessionRepository.updateSession(
+        user.owner,
+        {
+          deckInfo: userSession.data.deckInfo,
+        },
+        userSession.id
+      );
 
       // Store text input in session data
       if (content.trim().length > 0) {
         userSession.data.text = content;
-        await sessionRepository.updateSession(user.owner, {
-          text: content,
-        });
+        await sessionRepository.updateSession(
+          user.owner,
+          {
+            text: content,
+          },
+          userSession.id
+        );
       }
 
       res.write(
@@ -1160,7 +1195,6 @@ const KiRouter = () => {
 
   router.delete('/ki/session/delete', async (req, res) => {
     const canDeleteSession = await canContinue(req, res);
-    console.log('[DELETE SESSION] Can delete session:', canDeleteSession);
     if (!canDeleteSession) {
       return; // Exit if the user cannot continue
     }
@@ -1171,18 +1205,21 @@ const KiRouter = () => {
       return false;
     }
 
-    const userSession = await sessionRepository.getSession(user.owner);
-    if (!userSession) {
-      console.error('[DELETE SESSION] User session not found');
-      return res.status(403).json({ error: 'Session expired' });
+    const { sessionId } = req.query;
+    if (!sessionId) {
+      console.error('[DELETE SESSION] No session ID provided');
+      return res.status(400).json({ error: 'Session ID is required' });
     }
 
     try {
-      await sessionRepository.deleteSession(user.owner);
-      console.log('[DELETE SESSION] Session cleared for user:', user.owner);
+      await sessionRepository.deleteSessionById(
+        sessionId as string,
+        user.owner
+      );
+      console.log('[DELETE SESSION] Session deleted:', sessionId);
       res.status(200).json({ message: 'Session deleted successfully' });
     } catch (error) {
-      console.error('[DELETE SESSION] Error clearing session:', error);
+      console.error('[DELETE SESSION] Error deleting session:', error);
       res.status(500).json({ error: 'Failed to delete session' });
     }
   });
@@ -1244,13 +1281,15 @@ const KiRouter = () => {
       const sessions = await sessionRepository.getUserSessions(
         user.owner.toString()
       );
-      res.json(
-        sessions.map((session) => ({
+      const currentSession = await sessionRepository.getSession(user.owner);
+      res.json({
+        sessions: sessions.map((session) => ({
           id: session.id,
           createdAt: session.createdAt,
           updatedAt: session.updatedAt,
-        }))
-      );
+        })),
+        currentSessionId: currentSession?.id,
+      });
     } catch (error) {
       console.error('[HISTORY] Error fetching session history:', error);
       res.status(500).json({ error: 'Failed to fetch session history' });
