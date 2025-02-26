@@ -31,48 +31,68 @@ export default class SessionRepository {
     });
   }
 
-  getSession(userId: string | number) {
+  async getSession(userId: string | number) {
     console.log('[SESSION] Getting session for user:', userId);
-    return this.database('sessions')
+    const session = await this.database('sessions')
       .where({ userId })
-      .first()
-      .then((session) => {
-        if (!session) return null;
-        try {
-          const parsedData =
-            typeof session.data === 'string'
-              ? JSON.parse(session.data)
-              : session.data;
-          return {
-            ...session,
-            data: parsedData,
-          };
-        } catch (error) {
-          console.warn('[SESSION] Failed to parse session data:', error);
-          return {
-            ...session,
-            data: session.data,
-          };
-        }
-      });
+      .orderBy('created_at', 'desc')
+      .first();
+
+    if (!session) return null;
+    try {
+      const parsedData =
+        typeof session.data === 'string'
+          ? JSON.parse(session.data)
+          : session.data;
+      return {
+        ...session,
+        data: parsedData,
+      };
+    } catch (error) {
+      console.warn('[SESSION] Failed to parse session data:', error);
+      return {
+        ...session,
+        data: session.data,
+      };
+    }
   }
 
-  async updateSession(userId: string | number, data: any) {
-    console.log('[SESSION] Updating session for user:', userId);
-    const old = await this.getSession(userId);
+  async updateSession(userId: string | number, data: any, sessionId: string) {
+    console.log(
+      '[SESSION] Updating session for user:',
+      userId,
+      'session:',
+      sessionId
+    );
+    const query = this.database('sessions').where({ userId });
+
+    if (sessionId) {
+      query.where({ id: sessionId });
+    } else {
+      query.orderBy('created_at', 'desc');
+    }
+
+    const old = await query.first();
+    if (!old) return null;
+
     return this.database('sessions')
-      .where({ userId })
+      .where({ id: old.id })
       .update({
         data: JSON.stringify({
-          ...old?.data,
+          ...old.data,
           ...data,
         }),
       });
   }
 
-  deleteSession(userId: string | number) {
-    console.log('[SESSION] Deleting session for user:', userId);
+  deleteAllSessions(userId: string | number) {
+    console.log('[SESSION] Deleting all sessions for user:', userId);
     return this.database('sessions').where({ userId }).del();
+  }
+
+  deleteSessionById(sessionId: string, userId: string | number) {
+    console.log('[SESSION] Deleting session:', sessionId, 'for user:', userId);
+    return this.database('sessions').where({ id: sessionId, userId }).del();
   }
 
   async getUserSessions(userId: string): Promise<Session[]> {
