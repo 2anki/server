@@ -210,28 +210,26 @@
                         border-top: 1px solid var(--border-color);
                         padding: var(--spacing-md);
                         background: var(--bg-primary);
-                        display: grid;
-                        grid-template-columns: auto 1fr auto;
-                        gap: var(--spacing-md);
+                        display: flex;
+                        justify-content: space-between;
                         align-items: center;
+                        gap: var(--spacing-md);
                 }
 
                 .file-input-left {
                         display: flex;
-                        align-items: center;
-                        gap: var(--spacing-sm);
+                        gap: var(--spacing-md);
                 }
 
                 .file-input-center {
                         display: flex;
-                        align-items: center;
                         justify-content: center;
                 }
 
                 .file-input-right {
                         display: flex;
-                        align-items: center;
-                        gap: var(--spacing-sm);
+                        order: -1;
+                        gap: var(--spacing-md);
                 }
 
                 input[type="file"] {
@@ -555,6 +553,16 @@
                         .upload-button {
                                 padding: var(--spacing-xs) var(--spacing-sm);
                         }
+
+                        .input-container {
+                                display: flex;
+                                flex-direction: column;
+                        }
+
+                        .file-input-right {
+                                order: -1;
+                                margin-bottom: var(--spacing-md);
+                        }
                 }
 
                 /* Accessibility */
@@ -587,6 +595,7 @@
                         font-size: 0.875rem;
                         cursor: pointer;
                         transition: var(--transition-fast);
+                        max-width: 148px;
                 }
 
                 .history-select:hover {
@@ -643,9 +652,9 @@
                                                         <option value="">Current Session</option>
                                                 </select>
                                                 <button type="button" class="upload-button" title="Delete Session"
-                                                        onclick="deleteSession()">🗑️</button>
+                                                        onclick="deleteSession()">❌</button>
                                                 <button type="button" class="upload-button" title="New Session"
-                                                        onclick="startNewSession()">🆕</button>
+                                                        onclick="startNewSession()">✔️</button>
                                         </div>
                                 </div>
                         </div>
