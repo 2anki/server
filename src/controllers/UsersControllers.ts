@@ -173,18 +173,29 @@ class UsersController {
   }
 
   async getLocals(_req: express.Request, res: express.Response) {
+    const shouldDebug = _req.query.debug === 'true';
     const { locals } = res;
     let user: Users | undefined;
     let linkedEmail: string | null = null;
 
+    if (shouldDebug) console.info('getLocals: Starting request');
+    if (shouldDebug) console.debug('getLocals: Response locals:', locals);
+
     if (res.locals.owner) {
+      if (shouldDebug)
+        console.debug('getLocals: Found owner:', res.locals.owner);
       user = await this.userService.getUserById(res.locals.owner);
+      if (shouldDebug) console.debug('getLocals: Retrieved user:', user);
       linkedEmail = await this.userService.getSubscriptionLinkedEmail(
         res.locals.owner
       );
+      if (shouldDebug)
+        console.debug('getLocals: Retrieved linked email:', linkedEmail);
+    } else {
+      if (shouldDebug) console.warn('getLocals: No owner found in res.locals');
     }
 
-    return res.json({
+    const response = {
       user: {
         id: user?.id,
         name: user?.name,
@@ -194,7 +205,9 @@ class UsersController {
       },
       locals,
       linked_email: linkedEmail,
-    });
+    };
+    if (shouldDebug) console.debug('getLocals: Sending response:', response);
+    return res.json(response);
   }
 
   async linkEmail(req: express.Request, res: express.Response) {
