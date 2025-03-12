@@ -13,7 +13,6 @@ export async function configureUserLocal(
     res.locals.owner = user.owner;
     res.locals.patreon = user.patreon;
     res.locals.subscriber = await authService.getIsSubscriber(
-      res.locals.owner,
       database,
       user.email
     );

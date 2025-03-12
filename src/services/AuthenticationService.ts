@@ -115,7 +115,7 @@ class AuthenticationService {
     return this.tokenRepository.updateAccessToken(token, id);
   }
 
-  async getIsSubscriber(owner: string, db: Knex, email: string) {
+  async getIsSubscriber(db: Knex, email: string) {
     const linkedEmail = await db('subscriptions')
       .select('active')
       .where({ linked_email: email.toLowerCase() })

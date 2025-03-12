@@ -175,37 +175,27 @@ class UsersController {
   }
 
   async getLocals(req: express.Request, res: express.Response) {
-    const shouldDebug = req.query.debug === 'true';
     const { locals } = res;
     const user: UserWithOwner | null = await this.authService.getUserFrom(
       req.cookies.token
     );
+    console.log('User with owner:', user);
     let linkedEmail: string | null = null;
 
-    if (shouldDebug) console.info('getLocals: Starting request');
-    if (shouldDebug) console.debug('getLocals: Response locals:', locals);
-
     const database = getDatabase();
-    if (!locals.subscriber && user?.email) {
-      if (shouldDebug)
-        console.warn('getLocals: No subscriber found in res.locals');
-      locals.subscriber = await this.authService.getIsSubscriber(
-        user?.owner.toString(),
+    if (user?.email) {
+      console.log('Checking subscriber status for user:', user.email);
+      const subscriber = await this.authService.getIsSubscriber(
         database,
         user.email
       );
+      console.log('Subscriber status:', subscriber);
     }
 
     if (user?.owner) {
-      if (shouldDebug) console.debug('getLocals: Found owner:', user.owner);
-      if (shouldDebug) console.debug('getLocals: Retrieved user:', user);
       linkedEmail = await this.userService.getSubscriptionLinkedEmail(
         user?.owner.toString()
       );
-      if (shouldDebug)
-        console.debug('getLocals: Retrieved linked email:', linkedEmail);
-    } else {
-      if (shouldDebug) console.warn('getLocals: No owner found in res.locals');
     }
 
     const response = {
@@ -219,7 +209,7 @@ class UsersController {
       locals,
       linked_email: linkedEmail,
     };
-    if (shouldDebug) console.debug('getLocals: Sending response:', response);
+    console.debug('getLocals: Sending response:', response);
     return res.json(response);
   }
 
