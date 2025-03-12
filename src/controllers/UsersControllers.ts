@@ -1,13 +1,14 @@
 import express from 'express';
 
-import AuthenticationService from '../services/AuthenticationService';
+import AuthenticationService, {
+  UserWithOwner,
+} from '../services/AuthenticationService';
 import UsersService from '../services/UsersService';
 import { getRedirect } from './helpers/getRedirect';
 
 import { getIndexFileContents } from './IndexController/getIndexFileContents';
 import { getRandomUUID } from '../shared/helpers/getRandomUUID';
 import { getDefaultAvatarPicture } from '../lib/getDefaultAvatarPicture';
-import Users from '../data_layer/public/Users';
 import { getDatabase } from '../data_layer';
 
 class UsersController {
@@ -173,10 +174,12 @@ class UsersController {
     }
   }
 
-  async getLocals(_req: express.Request, res: express.Response) {
-    const shouldDebug = _req.query.debug === 'true';
+  async getLocals(req: express.Request, res: express.Response) {
+    const shouldDebug = req.query.debug === 'true';
     const { locals } = res;
-    let user: Users | undefined;
+    const user: UserWithOwner | null = await this.authService.getUserFrom(
+      req.cookies.token
+    );
     let linkedEmail: string | null = null;
 
     if (shouldDebug) console.info('getLocals: Starting request');
@@ -187,19 +190,17 @@ class UsersController {
       if (shouldDebug)
         console.warn('getLocals: No subscriber found in res.locals');
       locals.subscriber = await this.authService.getIsSubscriber(
-        res.locals.owner,
+        user?.owner.toString(),
         database,
         user.email
       );
     }
 
-    if (res.locals.owner) {
-      if (shouldDebug)
-        console.debug('getLocals: Found owner:', res.locals.owner);
-      user = await this.userService.getUserById(res.locals.owner);
+    if (user?.owner) {
+      if (shouldDebug) console.debug('getLocals: Found owner:', user.owner);
       if (shouldDebug) console.debug('getLocals: Retrieved user:', user);
       linkedEmail = await this.userService.getSubscriptionLinkedEmail(
-        res.locals.owner
+        user?.owner.toString()
       );
       if (shouldDebug)
         console.debug('getLocals: Retrieved linked email:', linkedEmail);
