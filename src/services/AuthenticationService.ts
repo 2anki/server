@@ -121,10 +121,12 @@ class AuthenticationService {
       .where({ linked_email: email.toLowerCase() })
       .first();
 
-    if (linkedEmail) {
-      return linkedEmail?.active ?? false;
+    if (linkedEmail?.active) {
+      console.log('Found active subscription for linked email:', linkedEmail);
+      return true;
     }
 
+    console.log('Checking subscriber status for email:', email);
     const result = await db('subscriptions')
       .select('active')
       .where({ email: email.toLowerCase() })
