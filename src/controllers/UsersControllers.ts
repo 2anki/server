@@ -8,6 +8,7 @@ import { getIndexFileContents } from './IndexController/getIndexFileContents';
 import { getRandomUUID } from '../shared/helpers/getRandomUUID';
 import { getDefaultAvatarPicture } from '../lib/getDefaultAvatarPicture';
 import Users from '../data_layer/public/Users';
+import { getDatabase } from '../data_layer';
 
 class UsersController {
   constructor(
@@ -180,6 +181,17 @@ class UsersController {
 
     if (shouldDebug) console.info('getLocals: Starting request');
     if (shouldDebug) console.debug('getLocals: Response locals:', locals);
+
+    const database = getDatabase();
+    if (!locals.subscriber && user?.email) {
+      if (shouldDebug)
+        console.warn('getLocals: No subscriber found in res.locals');
+      locals.subscriber = await this.authService.getIsSubscriber(
+        res.locals.owner,
+        database,
+        user.email
+      );
+    }
 
     if (res.locals.owner) {
       if (shouldDebug)
