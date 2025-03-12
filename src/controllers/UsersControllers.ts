@@ -9,7 +9,6 @@ import { getRedirect } from './helpers/getRedirect';
 import { getIndexFileContents } from './IndexController/getIndexFileContents';
 import { getRandomUUID } from '../shared/helpers/getRandomUUID';
 import { getDefaultAvatarPicture } from '../lib/getDefaultAvatarPicture';
-import { getDatabase } from '../data_layer';
 
 class UsersController {
   constructor(
@@ -179,19 +178,7 @@ class UsersController {
     const user: UserWithOwner | null = await this.authService.getUserFrom(
       req.cookies.token
     );
-    console.log('User with owner:', user);
     let linkedEmail: string | null = null;
-
-    const database = getDatabase();
-    if (user?.email) {
-      console.log('Checking subscriber status for user:', user.email);
-      const subscriber = await this.authService.getIsSubscriber(
-        database,
-        user.email
-      );
-      console.log('Subscriber status:', subscriber);
-    }
-
     if (user?.owner) {
       linkedEmail = await this.userService.getSubscriptionLinkedEmail(
         user?.owner.toString()
@@ -209,7 +196,7 @@ class UsersController {
       locals,
       linked_email: linkedEmail,
     };
-    console.debug('getLocals: Sending response:', response);
+
     return res.json(response);
   }
 
