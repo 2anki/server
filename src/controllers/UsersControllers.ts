@@ -185,6 +185,19 @@ class UsersController {
       );
     }
 
+    const featureFlags = {
+      kiUI: false,
+    };
+
+    const shouldEnableFeatures = user?.id
+      ? parseInt(user.id.toString(), 16) % 10 < 4 // Use user ID for deterministic result (40%)
+      : false;
+
+    console.log('shouldEnableFeatures', shouldEnableFeatures);
+    if (shouldEnableFeatures) {
+      featureFlags.kiUI = user?.patreon || res.locals.subscriber;
+    }
+
     const response = {
       user: {
         id: user?.id,
@@ -195,6 +208,7 @@ class UsersController {
       },
       locals,
       linked_email: linkedEmail,
+      features: featureFlags, // Add feature flags to response
     };
 
     return res.json(response);
