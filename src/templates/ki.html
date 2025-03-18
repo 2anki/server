@@ -735,34 +735,31 @@
                         return hash.toString(36);
                 };
 
-                // Remove localStorage usage and replace with API calls
+                // Replace the cache object with direct localStorage usage
                 const cache = {
                         set: function (text, cards) {
-                                // Implement API call to save cache data
-                                fetch('/ki/cache', {
-                                        method: 'POST',
-                                        headers: {
-                                                'Content-Type': 'application/json',
-                                        },
-                                        body: JSON.stringify({ text, cards })
-                                }).catch(error => console.error('Cache save failed:', error));
+                                try {
+                                        localStorage.setItem('ki_cache_' + hashString(text), JSON.stringify(cards));
+                                } catch (e) {
+                                        console.warn('Cache save failed:', e);
+                                }
                         },
                         get: async function (text) {
                                 try {
-                                        const response = await fetch(`/ki/cache?text=${encodeURIComponent(text)}`);
-                                        if (!response.ok) return null;
-                                        const data = await response.json();
-                                        return data.cards;
+                                        const data = localStorage.getItem('ki_cache_' + hashString(text));
+                                        return data ? JSON.parse(data) : null;
                                 } catch (e) {
                                         console.warn('Cache read failed:', e);
                                         return null;
                                 }
                         },
                         clear: function () {
-                                // Implement API call to clear cache data
-                                fetch('/ki/cache', {
-                                        method: 'DELETE',
-                                }).catch(error => console.error('Cache clear failed:', error));
+                                // Clear all ki_cache items
+                                Object.keys(localStorage).forEach(key => {
+                                        if (key.startsWith('ki_cache_')) {
+                                                localStorage.removeItem(key);
+                                        }
+                                });
                         }
                 };
 

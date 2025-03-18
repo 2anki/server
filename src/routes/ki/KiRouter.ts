@@ -1366,6 +1366,98 @@ const KiRouter = () => {
     }
   });
 
+  // Add cache endpoints
+  router.post('/ki/cache', async (req, res) => {
+    const user = await authService.getUserFrom(req.cookies.token);
+    if (!user) {
+      return res.status(403).json({ error: 'Session expired' });
+    }
+
+    const { text, cards } = req.body;
+    if (!text || !cards) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    try {
+      // Store in user session - simple approach
+      const userSession = await sessionRepository.getSession(user.owner);
+      if (!userSession || !userSession.data) {
+        return res.status(403).json({ error: 'Session expired' });
+      }
+
+      // Add cache data to session
+      await sessionRepository.updateSession(
+        user.owner,
+        {
+          cache: { text, cards, timestamp: Date.now() },
+        },
+        userSession.id
+      );
+
+      res.status(200).json({ success: true });
+    } catch (error) {
+      console.error('[CACHE] Error saving cache:', error);
+      res.status(500).json({ error: 'Failed to save cache' });
+    }
+  });
+
+  router.get('/ki/cache', async (req, res) => {
+    const user = await authService.getUserFrom(req.cookies.token);
+    if (!user) {
+      return res.status(403).json({ error: 'Session expired' });
+    }
+
+    const text = req.query.text as string;
+    if (!text) {
+      return res.status(400).json({ error: 'Text parameter is required' });
+    }
+
+    try {
+      const userSession = await sessionRepository.getSession(user.owner);
+      if (!userSession || !userSession.data || !userSession.data.cache) {
+        return res.status(404).json({ error: 'No cache found' });
+      }
+
+      // Simple exact match for now
+      if (userSession.data.cache.text === text) {
+        return res.status(200).json({ cards: userSession.data.cache.cards });
+      }
+
+      res.status(404).json({ error: 'Cache miss' });
+    } catch (error) {
+      console.error('[CACHE] Error retrieving cache:', error);
+      res.status(500).json({ error: 'Failed to retrieve cache' });
+    }
+  });
+
+  router.delete('/ki/cache', async (req, res) => {
+    const user = await authService.getUserFrom(req.cookies.token);
+    if (!user) {
+      return res.status(403).json({ error: 'Session expired' });
+    }
+
+    try {
+      const userSession = await sessionRepository.getSession(user.owner);
+      if (!userSession || !userSession.data) {
+        return res.status(403).json({ error: 'Session expired' });
+      }
+
+      // Remove cache from session
+      await sessionRepository.updateSession(
+        user.owner,
+        {
+          cache: null,
+        },
+        userSession.id
+      );
+
+      res.status(200).json({ success: true });
+    } catch (error) {
+      console.error('[CACHE] Error clearing cache:', error);
+      res.status(500).json({ error: 'Failed to clear cache' });
+    }
+  });
+
   return router;
 };
 
