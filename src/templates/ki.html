@@ -94,6 +94,37 @@
                         padding-bottom: calc(180px + var(--spacing-lg));
                         overflow-x: hidden;
                         max-width: var(--container-max-width);
+                        position: relative;
+                }
+
+                #results {
+                        flex: 1;
+                        overflow-y: auto;
+                        padding: var(--spacing-md);
+                        margin-bottom: 180px;
+                }
+
+                .cards-container {
+                        width: 100%;
+                        max-width: 600px;
+                        margin: 0 auto;
+                        padding: var(--spacing-md);
+                        min-height: 100%;
+                }
+
+                .input-container {
+                        position: fixed;
+                        bottom: 0;
+                        left: 0;
+                        right: 0;
+                        padding: var(--spacing-md);
+                        background: var(--bg-secondary);
+                        backdrop-filter: blur(12px);
+                        -webkit-backdrop-filter: blur(12px);
+                        border-top: 1px solid var(--border-color);
+                        z-index: 1000;
+                        max-width: var(--container-max-width);
+                        margin: 0 auto;
                 }
 
                 @media (max-width: 600px) {
@@ -430,19 +461,6 @@
                         color: var(--text-primary);
                 }
 
-                .input-container {
-                        position: fixed;
-                        bottom: 0;
-                        left: 0;
-                        right: 0;
-                        padding: var(--spacing-md);
-                        background: var(--bg-secondary);
-                        backdrop-filter: blur(12px);
-                        -webkit-backdrop-filter: blur(12px);
-                        border-top: 1px solid var(--border-color);
-                        z-index: 1000;
-                }
-
                 .opacity-0 {
                         opacity: 0;
                 }
@@ -607,13 +625,6 @@
                         outline: none;
                         border-color: var(--hover-bg);
                         box-shadow: 0 0 0 2px rgba(83, 151, 245, 0.1);
-                }
-
-                .cards-container {
-                        width: 100%;
-                        max-width: 600px;
-                        margin: 0 auto;
-                        padding: var(--spacing-md);
                 }
         </style>
 </head>
