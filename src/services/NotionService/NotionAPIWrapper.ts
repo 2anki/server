@@ -181,7 +181,8 @@ class NotionAPIWrapper {
   }
 
   async search(query: string, all?: boolean) {
-    console.time(`search:${all}`);
+    const rid = crypto.randomUUID();
+    console.time(`search:${rid}`);
     const response = await this.notion.search({
       page_size: DEFAULT_PAGE_SIZE_LIMIT,
       query,
@@ -211,7 +212,7 @@ class NotionAPIWrapper {
       }
     }
 
-    console.timeEnd(`search:${all}`);
+    console.timeEnd(`search:${rid}`);
     return response;
   }
 
