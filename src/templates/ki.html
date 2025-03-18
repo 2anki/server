@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html>
 
 <head>
@@ -94,6 +93,37 @@
                         padding-bottom: calc(180px + var(--spacing-lg));
                         overflow-x: hidden;
                         max-width: var(--container-max-width);
+                        position: relative;
+                }
+
+                #results {
+                        flex: 1;
+                        overflow-y: auto;
+                        padding: var(--spacing-md);
+                        margin-bottom: 180px;
+                }
+
+                .cards-container {
+                        width: 100%;
+                        max-width: 600px;
+                        margin: 0 auto;
+                        padding: var(--spacing-md);
+                        min-height: 100%;
+                }
+
+                .input-container {
+                        position: fixed;
+                        bottom: 0;
+                        left: 0;
+                        right: 0;
+                        padding: var(--spacing-md);
+                        background: var(--bg-secondary);
+                        backdrop-filter: blur(12px);
+                        -webkit-backdrop-filter: blur(12px);
+                        border-top: 1px solid var(--border-color);
+                        z-index: 1000;
+                        max-width: var(--container-max-width);
+                        margin: 0 auto;
                 }
 
                 @media (max-width: 600px) {
@@ -430,19 +460,6 @@
                         color: var(--text-primary);
                 }
 
-                .input-container {
-                        position: fixed;
-                        bottom: 0;
-                        left: 0;
-                        right: 0;
-                        padding: var(--spacing-md);
-                        background: var(--bg-secondary);
-                        backdrop-filter: blur(12px);
-                        -webkit-backdrop-filter: blur(12px);
-                        border-top: 1px solid var(--border-color);
-                        z-index: 1000;
-                }
-
                 .opacity-0 {
                         opacity: 0;
                 }
@@ -609,11 +626,103 @@
                         box-shadow: 0 0 0 2px rgba(83, 151, 245, 0.1);
                 }
 
-                .cards-container {
-                        width: 100%;
-                        max-width: 600px;
-                        margin: 0 auto;
-                        padding: var(--spacing-md);
+                .modal-overlay {
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: rgba(0, 0, 0, 0.5);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        z-index: 2000;
+                        opacity: 0;
+                        visibility: hidden;
+                        transition: opacity 0.2s ease;
+                }
+
+                .modal-overlay.visible {
+                        opacity: 1;
+                        visibility: visible;
+                }
+
+                .modal {
+                        background: var(--bg-primary);
+                        border-radius: var(--radius-lg);
+                        padding: var(--spacing-xl);
+                        max-width: 500px;
+                        width: 90%;
+                        box-shadow: var(--shadow-lg);
+                        position: relative;
+                }
+
+                .modal-title {
+                        font-size: 1.25rem;
+                        font-weight: 600;
+                        margin-bottom: var(--spacing-md);
+                        color: var(--text-primary);
+                }
+
+                .modal-content {
+                        color: var(--text-secondary);
+                        line-height: 1.6;
+                        margin-bottom: var(--spacing-lg);
+                }
+
+                .modal-close {
+                        position: absolute;
+                        top: var(--spacing-md);
+                        right: var(--spacing-md);
+                        background: none;
+                        border: none;
+                        font-size: 1.5rem;
+                        cursor: pointer;
+                        color: var(--text-secondary);
+                        padding: var(--spacing-xs);
+                        border-radius: var(--radius-sm);
+                        transition: var(--transition-fast);
+                }
+
+                .modal-close:hover {
+                        background: var(--bg-secondary);
+                        color: var(--text-primary);
+                }
+
+                .modal-footer {
+                        display: flex;
+                        justify-content: flex-end;
+                        gap: var(--spacing-md);
+                }
+
+                .modal-button {
+                        padding: var(--spacing-sm) var(--spacing-lg);
+                        border-radius: var(--radius-md);
+                        font-weight: 500;
+                        cursor: pointer;
+                        transition: var(--transition-fast);
+                }
+
+                .modal-button.primary {
+                        background: var(--primary);
+                        color: white;
+                        border: none;
+                }
+
+                .modal-button.primary:hover {
+                        background: var(--primary-dark);
+                }
+
+                .modal-button.secondary {
+                        background: var(--bg-secondary);
+                        color: var(--text-secondary);
+                        border: 1px solid var(--border-color);
+                }
+
+                .modal-button.secondary:hover {
+                        background: var(--bg-primary);
+                        color: var(--text-primary);
+                        border-color: var(--text-secondary);
                 }
         </style>
 </head>
@@ -657,6 +766,38 @@
                                                         onclick="startNewSession()">🔁</button>
                                         </div>
                                 </div>
+                        </div>
+                </div>
+        </div>
+
+        <div class="modal-overlay" id="disclaimer-modal">
+                <div class="modal">
+                        <button class="modal-close" onclick="closeDisclaimer()">×</button>
+                        <div class="modal-title">Welcome to the New KI 🧪 Interface!</div>
+                        <div class="modal-content">
+                                <p>Hei there ☺️ We're experimenting with an AI-powered way to create flashcards. It's
+                                        still in early testing, so expect some quirks and imperfections along the way!
+                                </p>
+                                <br>
+                                <p><strong>Quick heads up:</strong> This experimental feature uses Google AI to help
+                                        create your flashcards. Only share content you're comfortable with Google
+                                        processing.</p>
+                                <br>
+                                <p>Since this is a work in progress, you might want to review the generated cards
+                                        carefully. If you prefer a more stable experience, our classic 2anki.net
+                                        interface is always available.</p>
+                                <br>
+                                <p>Found a bug or have suggestions? We'd love to hear from you at <a
+                                                href="mailto:support@2anki.net"
+                                                style="color: var(--primary);">support@2anki.net</a></p>
+                                <br>
+                                <p>Thanks for helping us test and improve! Good luck with your studies! 🎉</p>
+                        </div>
+                        <div class="modal-footer">
+                                <button class="modal-button secondary" onclick="window.location.href='/'">Use Classic
+                                        Version</button>
+                                <button class="modal-button primary" onclick="closeDisclaimer()">Try Experimental
+                                        Version!</button>
                         </div>
                 </div>
         </div>
@@ -724,34 +865,31 @@
                         return hash.toString(36);
                 };
 
-                // Remove localStorage usage and replace with API calls
+                // Replace the cache object with direct localStorage usage
                 const cache = {
                         set: function (text, cards) {
-                                // Implement API call to save cache data
-                                fetch('/ki/cache', {
-                                        method: 'POST',
-                                        headers: {
-                                                'Content-Type': 'application/json',
-                                        },
-                                        body: JSON.stringify({ text, cards })
-                                }).catch(error => console.error('Cache save failed:', error));
+                                try {
+                                        localStorage.setItem('ki_cache_' + hashString(text), JSON.stringify(cards));
+                                } catch (e) {
+                                        console.warn('Cache save failed:', e);
+                                }
                         },
                         get: async function (text) {
                                 try {
-                                        const response = await fetch(`/ki/cache?text=${encodeURIComponent(text)}`);
-                                        if (!response.ok) return null;
-                                        const data = await response.json();
-                                        return data.cards;
+                                        const data = localStorage.getItem('ki_cache_' + hashString(text));
+                                        return data ? JSON.parse(data) : null;
                                 } catch (e) {
                                         console.warn('Cache read failed:', e);
                                         return null;
                                 }
                         },
                         clear: function () {
-                                // Implement API call to clear cache data
-                                fetch('/ki/cache', {
-                                        method: 'DELETE',
-                                }).catch(error => console.error('Cache clear failed:', error));
+                                // Clear all ki_cache items
+                                Object.keys(localStorage).forEach(key => {
+                                        if (key.startsWith('ki_cache_')) {
+                                                localStorage.removeItem(key);
+                                        }
+                                });
                         }
                 };
 
@@ -1383,6 +1521,7 @@
                         }
 
                         loadSessionHistory();
+                        showDisclaimer();
                 });
 
                 // Add download function before the last script tag
@@ -1433,6 +1572,18 @@
                                         }, 1500);
                                 }
                         }
+                }
+
+                function showDisclaimer() {
+                        const hasSeenDisclaimer = localStorage.getItem('ki_disclaimer_seen');
+                        if (!hasSeenDisclaimer) {
+                                document.getElementById('disclaimer-modal').classList.add('visible');
+                        }
+                }
+
+                function closeDisclaimer() {
+                        document.getElementById('disclaimer-modal').classList.remove('visible');
+                        localStorage.setItem('ki_disclaimer_seen', 'true');
                 }
 
                 async function deleteSession() {
@@ -1594,7 +1745,6 @@
                         }
                 }
         </script>
-        </div>
 </body>
 
 </html>
