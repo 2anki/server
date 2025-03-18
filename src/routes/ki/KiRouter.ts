@@ -303,14 +303,25 @@ const KiRouter = () => {
       return false;
     }
 
-    const userId = user.owner; // Assuming token contains userId
-    const userSession = await sessionRepository.getSession(userId); // Ensure session is typed
+    const userId = user.owner;
+    let userSession = await sessionRepository.getSession(userId);
+
+    // Create new session if none exists
     if (!userSession || !userSession.data) {
-      // Check if userSession.data is defined
+      const w = new Workspace(true, 'fs');
+      await sessionRepository.createSession(userId, {
+        uploadedFiles: [],
+        deckInfo: [],
+        workspace: w,
+      });
+      userSession = await sessionRepository.getSession(userId);
+    }
+
+    if (!userSession || !userSession.data) {
       return res.status(403).json({ error: 'Session expired' });
     }
 
-    const files = req.files as UploadedFile[]; // Ensure files are typed
+    const files = req.files as UploadedFile[];
     console.log('[UPLOAD] Request received:', req.body);
     console.log('[UPLOAD] Starting file upload process');
     try {
