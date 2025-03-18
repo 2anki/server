@@ -160,8 +160,15 @@ const KiRouter = () => {
 
     console.log('[KI] User:', user.id);
     if (!user.patreon) {
-      res.redirect('/pricing?redirect=/ki');
-      return false;
+      const subscriber = await authService.getIsSubscriber(
+        database,
+        user.email
+      );
+      console.log('[KI] Subscriber:', subscriber);
+      if (!subscriber) {
+        res.redirect('/pricing?redirect=/ki');
+        return false;
+      }
     }
 
     return true;
