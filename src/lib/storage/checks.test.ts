@@ -1,4 +1,4 @@
-import { hasMarkdownFileName, isPotentialZipFile, isCompressedFile } from './checks';
+import { hasMarkdownFileName, isCompressedFile } from './checks';
 
 const FILE_MD = 'abc.md';
 const FILE_TXT = 'def.txt';
@@ -21,14 +21,14 @@ test('hasMarkdownFileName returns false', () => {
   expect(hasMarkdownFileName([FILE_TXT, FILE_TXT])).toBe(false);
 });
 
-test('isPotentialZipFile identifies potential compressed files (alias of isCompressedFile)', () => {
-  expect(isPotentialZipFile(NO_EXTENSION)).toBe(true);
-  expect(isPotentialZipFile(ENDS_WITH_PERIOD)).toBe(true);
-  expect(isPotentialZipFile(HAS_EXTENSION_ZIP)).toBe(true); // Now returns true due to the new implementation
-  expect(isPotentialZipFile(HAS_EXTENSION_Z)).toBe(true);   // Also returns true for .z files
-  expect(isPotentialZipFile(HAS_EXTENSION_TXT)).toBe(false);
-  expect(isPotentialZipFile(HAS_EXTENSION_TAR_GZ)).toBe(false);
-  expect(isPotentialZipFile(ENDS_WITH_DOUBLE_PERIOD)).toBe(true);
+test('isCompressedFile identifies potential compressed files', () => {
+  expect(isCompressedFile(NO_EXTENSION)).toBe(true);
+  expect(isCompressedFile(ENDS_WITH_PERIOD)).toBe(true);
+  expect(isCompressedFile(HAS_EXTENSION_ZIP)).toBe(true); // Now returns true due to the new implementation
+  expect(isCompressedFile(HAS_EXTENSION_Z)).toBe(true);   // Also returns true for .z files
+  expect(isCompressedFile(HAS_EXTENSION_TXT)).toBe(false);
+  expect(isCompressedFile(HAS_EXTENSION_TAR_GZ)).toBe(false);
+  expect(isCompressedFile(ENDS_WITH_DOUBLE_PERIOD)).toBe(true);
 });
 
 test('isCompressedFile identifies compressed files', () => {
@@ -39,12 +39,6 @@ test('isCompressedFile identifies compressed files', () => {
   expect(isCompressedFile(HAS_EXTENSION_TXT)).toBe(false);
   expect(isCompressedFile(HAS_EXTENSION_TAR_GZ)).toBe(false);
   expect(isCompressedFile(ENDS_WITH_DOUBLE_PERIOD)).toBe(true);
-});
-
-test('isPotentialZipFile handles undefined input gracefully', () => {
-  expect(isPotentialZipFile(undefined)).toBe(false);
-  expect(isPotentialZipFile(null)).toBe(false);
-  expect(isPotentialZipFile('')).toBe(false);
 });
 
 test('isCompressedFile handles undefined input gracefully', () => {

@@ -13,8 +13,6 @@ import { GoogleGenerativeAI, GenerativeModel } from '@google/generative-ai';
 import get16DigitRandomId from '../../shared/helpers/get16DigitRandomId';
 import { ZipHandler } from '../../lib/zip/zip';
 import {
-  isZIPFile,
-  isPotentialZipFile,
   isImageFileEmbedable,
   isPlainText,
   isPDFFile,
@@ -23,6 +21,7 @@ import {
   isCSVFile,
   isMarkdownFile,
   isPotentiallyHTMLFile,
+  isCompressedFile,
 } from '../../lib/storage/checks';
 import CardOption from '../../lib/parser/Settings/CardOption';
 import cheerio from 'cheerio';
@@ -588,8 +587,7 @@ const KiRouter = () => {
     return (
       isPlainText(name) ||
       isPDFFile(name) ||
-      isPotentialZipFile(name) ||
-      isZIPFile(name) ||
+      isCompressedFile(name) ||
       isHTMLFile(name) ||
       isCSVFile(name) ||
       isPPTFile(name) ||
@@ -831,7 +829,7 @@ const KiRouter = () => {
               const fileContent = await fs.readFile(filePath);
               sendTimeEnd(readFileLabel);
 
-              if (isZIPFile(file.name) || isPotentialZipFile(file.name)) {
+              if (isCompressedFile(file.name)) {
                 sendStatus(`[UPLOAD] Processing ZIP file: ${file.name}`);
 
                 const zipHandler = new ZipHandler(1);

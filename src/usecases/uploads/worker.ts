@@ -6,9 +6,8 @@ import fs from 'fs';
 import { PrepareDeck } from '../../infrastracture/adapters/fileConversion/PrepareDeck';
 import {
   isImageFile,
-  isPotentialZipFile,
+  isCompressedFile,
   isPPTFile,
-  isZIPFile,
 } from '../../lib/storage/checks';
 import { getPackagesFromZip } from './getPackagesFromZip';
 import Workspace from '../../lib/parser/WorkSpace';
@@ -52,11 +51,8 @@ function doGenerationWork(data: GenerationData) {
           packages = packages.concat(pkg);
         }
       } else if (
-        /* compressed file upload */
-        isZIPFile(filename) ||
-        isZIPFile(key) ||
-        isPotentialZipFile(filename) ||
-        isPotentialZipFile(key)
+        isCompressedFile(filename) ||
+        isCompressedFile(key)
       ) {
         const { packages: extraPackages } = await getPackagesFromZip(
           fileContents,
