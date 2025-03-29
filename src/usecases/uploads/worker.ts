@@ -50,10 +50,7 @@ function doGenerationWork(data: GenerationData) {
           const pkg = new Package(d.name);
           packages = packages.concat(pkg);
         }
-      } else if (
-        isCompressedFile(filename) ||
-        isCompressedFile(key)
-      ) {
+      } else if (isCompressedFile(filename) || isCompressedFile(key)) {
         const { packages: extraPackages } = await getPackagesFromZip(
           fileContents,
           paying,
