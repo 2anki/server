@@ -31,12 +31,13 @@ export const isPDFFile = (fileName: string) => /.pdf$/i.exec(fileName);
 export const isPPTFile = (fileName: string) => /\.(ppt|pptx)$/i.exec(fileName);
 
 /**
- * A file is considered a potential zip file if it does not contain a period.
- * Since zip files are not named with a period, but it is possible to upload such files using drag and drop.
+ * Checks if a file is a compressed file based on its extension or naming pattern.
+ * This includes .zip files, .z files (Unix compress format), temporary downloads,
+ * and files without a proper extension.
  * @param filename
- * @returns
+ * @returns boolean indicating if the file is likely a compressed file
  */
-export const isPotentialZipFile = (
+export const isCompressedFile = (
   filename: string | null | undefined
 ): boolean => {
   if (!filename) {
@@ -45,12 +46,17 @@ export const isPotentialZipFile = (
   const lowerCaseFilename = filename.toLowerCase();
   if (
     lowerCaseFilename.endsWith('.crdownload') ||
-    lowerCaseFilename.endsWith('.tmp')
+    lowerCaseFilename.endsWith('.tmp') ||
+    lowerCaseFilename.endsWith('.zip') ||
+    lowerCaseFilename.endsWith('.z')
   ) {
     return true;
   }
   return filename.trim().endsWith('.') || !filename.includes('.');
 };
+
+// Maintain backward compatibility
+export const isPotentialZipFile = isCompressedFile;
 
 export const isImageFile = (name: string) =>
   isImageFileEmbedable(name) &&
