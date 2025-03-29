@@ -21,21 +21,11 @@ test('hasMarkdownFileName returns false', () => {
   expect(hasMarkdownFileName([FILE_TXT, FILE_TXT])).toBe(false);
 });
 
-test('isCompressedFile identifies potential compressed files', () => {
+test('isCompressedFile identifies compressed files', () => {
   expect(isCompressedFile(NO_EXTENSION)).toBe(true);
   expect(isCompressedFile(ENDS_WITH_PERIOD)).toBe(true);
   expect(isCompressedFile(HAS_EXTENSION_ZIP)).toBe(true); // Now returns true due to the new implementation
   expect(isCompressedFile(HAS_EXTENSION_Z)).toBe(true);   // Also returns true for .z files
-  expect(isCompressedFile(HAS_EXTENSION_TXT)).toBe(false);
-  expect(isCompressedFile(HAS_EXTENSION_TAR_GZ)).toBe(false);
-  expect(isCompressedFile(ENDS_WITH_DOUBLE_PERIOD)).toBe(true);
-});
-
-test('isCompressedFile identifies compressed files', () => {
-  expect(isCompressedFile(NO_EXTENSION)).toBe(true);
-  expect(isCompressedFile(ENDS_WITH_PERIOD)).toBe(true);
-  expect(isCompressedFile(HAS_EXTENSION_ZIP)).toBe(true); 
-  expect(isCompressedFile(HAS_EXTENSION_Z)).toBe(true);  
   expect(isCompressedFile(HAS_EXTENSION_TXT)).toBe(false);
   expect(isCompressedFile(HAS_EXTENSION_TAR_GZ)).toBe(false);
   expect(isCompressedFile(ENDS_WITH_DOUBLE_PERIOD)).toBe(true);
