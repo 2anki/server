@@ -6,12 +6,14 @@ import { getPageCount } from '../../../lib/pdf/getPageCount';
 import { convertPage } from '../../../lib/pdf/convertPage';
 import { combineIntoHTML } from '../../../lib/pdf/combineIntoHTML';
 import { existsSync } from 'fs';
+import CardOption from '../../../lib/parser/Settings/CardOption';
 
 interface ConvertPDFToImagesInput {
   workspace: Workspace;
   noLimits: boolean;
   contents?: S3.Body;
   name?: string;
+  settings?: CardOption;
 }
 
 export const PDF_EXCEEDS_MAX_PAGE_LIMIT =
@@ -20,7 +22,12 @@ export const PDF_EXCEEDS_MAX_PAGE_LIMIT =
 export async function convertPDFToImages(
   input: ConvertPDFToImagesInput
 ): Promise<string> {
-  const { contents, workspace, noLimits, name } = input;
+  const { contents, workspace, noLimits, name, settings } = input;
+
+  // Skip PDF processing if the option is disabled
+  if (settings?.processPDFs === false) {
+    return '';
+  }
   const fileName = name
     ? path.basename(name).replace(/\.pptx?$/i, '.pdf')
     : 'Default.pdf';

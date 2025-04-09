@@ -7,6 +7,7 @@ import {
   isHTMLFile,
   isImageFile,
   isMarkdownFile,
+  isPDFFile,
 } from '../storage/checks';
 import { processAndPrepareArchiveData } from './fallback/processAndPrepareArchiveData';
 import CardOption from '../parser/Settings';
@@ -103,6 +104,9 @@ class ZipHandler {
       this.files.push({ name, contents: strFromU8(file) });
     } else if (paying && settings.imageQuizHtmlToAnki && isImageFile(name)) {
       await this.convertAndAddImageToHTML(name, file);
+    } else if (isPDFFile(name) && settings.processPDFs === false) {
+      // Skip PDF processing when processPDFs is false
+      return;
     } else {
       this.files.push({ name, contents: file });
     }

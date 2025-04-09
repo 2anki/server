@@ -116,6 +116,12 @@ const supportedOptions = (): CardOptionDetail[] => {
       'Use OCR to extract images and answers from HTML quizzes and convert them into Anki flashcards for review. This is a premium experimental feature.',
       false
     ),
+    new CardOptionDetail(
+      'process-pdfs',
+      'Process PDF Files',
+      'When enabled, PDF files in ZIP uploads will be processed and converted to Anki cards. Disable this to skip PDF processing and speed up conversion of ZIP files containing PDFs.',
+      true
+    ),
   ];
 
   return v.filter(Boolean);
