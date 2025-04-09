@@ -27,8 +27,6 @@ function testDefaultSettings(
 ) {
   const settingsController = new CardOptionsController(new FakeSettingsService());
   const defaultOptions = settingsController.getDefaultCardOptions(type);
-  console.log('Actual options:', defaultOptions);
-  console.log('Expected options:', expectedOptions);
   expect(defaultOptions).toStrictEqual(expectedOptions);
 }
 
