@@ -70,6 +70,8 @@ class CardOption {
 
   readonly imageQuizHtmlToAnki: boolean;
 
+  readonly processPDFs: boolean;
+
   constructor(input: { [key: string]: string }) {
     this.deckName = input.deckName;
     if (this.deckName && !this.deckName.trim()) {
@@ -105,6 +107,7 @@ class CardOption {
     this.disableIndentedBulletPoints =
       input['disable-indented-bullets'] === 'true';
     this.imageQuizHtmlToAnki = input['image-quiz-html-to-anki'] === 'true';
+    this.processPDFs = input['process-pdfs'] !== 'false';
     /* Is this really needed? */
     if (this.parentBlockId) {
       this.addNotionLink = true;
@@ -148,6 +151,7 @@ class CardOption {
       'page-emoji': 'first-emoji',
       'image-quiz-html-to-anki': 'false',
       'markdown-nested-bullet-points': 'true',
+      'process-pdfs': 'true',
     };
   }
 }

@@ -58,7 +58,8 @@ export async function PrepareDeck(
     if (
       isPDFFile(file.name) &&
       input.noLimits &&
-      input.settings.vertexAIPDFQuestions
+      input.settings.vertexAIPDFQuestions &&
+      input.settings.processPDFs !== false
     ) {
       file.contents = await convertPDFToHTML(file.contents.toString('base64'));
     } else if (isPPTFile(file.name)) {
@@ -73,17 +74,19 @@ export async function PrepareDeck(
         workspace: input.workspace,
         noLimits: input.noLimits,
         contents: pdContents,
+        settings: input.settings,
       });
       convertedFiles.push({
         name: `${file.name}.html`,
         contents: convertedContents,
       });
-    } else if (isPDFFile(file.name)) {
+    } else if (isPDFFile(file.name) && input.settings.processPDFs !== false) {
       const convertedContents = await convertPDFToImages({
         name: file.name,
         workspace: input.workspace,
         noLimits: input.noLimits,
         contents: file.contents,
+        settings: input.settings,
       });
       convertedFiles.push({
         name: `${file.name}.html`,
