@@ -148,10 +148,10 @@ class CardOption {
       'no-underline': 'false',
       'max-one-toggle-per-card': 'true',
       'perserve-newlines': 'false',
+      'process-pdfs': 'true',
       'page-emoji': 'first-emoji',
       'image-quiz-html-to-anki': 'false',
       'markdown-nested-bullet-points': 'true',
-      'process-pdfs': 'true',
     };
   }
 }

@@ -27,6 +27,8 @@ function testDefaultSettings(
 ) {
   const settingsController = new CardOptionsController(new FakeSettingsService());
   const defaultOptions = settingsController.getDefaultCardOptions(type);
+  console.log('Actual options:', defaultOptions);
+  console.log('Expected options:', expectedOptions);
   expect(defaultOptions).toStrictEqual(expectedOptions);
 }
 
@@ -41,7 +43,6 @@ describe('SettingsController', () => {
       avocado: 'false',
       tags: 'false',
       cloze: 'true',
-      'markdown-nested-bullet-points': 'true',
       'enable-input': 'false',
       'basic-reversed': 'false',
       reversed: 'false',
@@ -49,6 +50,8 @@ describe('SettingsController', () => {
       'max-one-toggle-per-card': 'true',
       'remove-mp3-links': 'true',
       'perserve-newlines': 'true',
+      'process-pdfs': 'true',
+      'markdown-nested-bullet-points': 'true',
       'vertex-ai-pdf-questions': 'false',
       'disable-indented-bullets': 'false',
       'image-quiz-html-to-anki': 'false',
@@ -71,6 +74,7 @@ describe('SettingsController', () => {
       'no-underline': 'false',
       'max-one-toggle-per-card': 'true',
       'perserve-newlines': 'false',
+      'process-pdfs': 'true',
       'page-emoji': 'first-emoji',
       'image-quiz-html-to-anki': 'false',
       'markdown-nested-bullet-points': 'true',

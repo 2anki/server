@@ -93,6 +93,12 @@ const supportedOptions = (): CardOptionDetail[] => {
       true
     ),
     new CardOptionDetail(
+      'process-pdfs',
+      'Process PDF Files',
+      'When enabled, PDF files in ZIP uploads will be processed and converted to Anki cards. Disable this to skip PDF processing and speed up conversion of ZIP files containing PDFs.',
+      true
+    ),
+    new CardOptionDetail(
       'markdown-nested-bullet-points',
       'Markdown Nested Bullet Points',
       'Enable conversion of bullet and sub bullet points in Markdown. If you are a Obsidian user, enable this',
@@ -115,14 +121,8 @@ const supportedOptions = (): CardOptionDetail[] => {
       'Convert Image Quiz HTML to Anki Cards',
       'Use OCR to extract images and answers from HTML quizzes and convert them into Anki flashcards for review. This is a premium experimental feature.',
       false
-    ),
-    new CardOptionDetail(
-      'process-pdfs',
-      'Process PDF Files',
-      'When enabled, PDF files in ZIP uploads will be processed and converted to Anki cards. Disable this to skip PDF processing and speed up conversion of ZIP files containing PDFs.',
-      true
-    ),
-  ];
+    )
+    ];
 
   return v.filter(Boolean);
 };
