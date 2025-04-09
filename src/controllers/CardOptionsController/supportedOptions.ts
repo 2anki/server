@@ -121,8 +121,8 @@ const supportedOptions = (): CardOptionDetail[] => {
       'Convert Image Quiz HTML to Anki Cards',
       'Use OCR to extract images and answers from HTML quizzes and convert them into Anki flashcards for review. This is a premium experimental feature.',
       false
-    )
-    ];
+    ),
+  ];
 
   return v.filter(Boolean);
 };
