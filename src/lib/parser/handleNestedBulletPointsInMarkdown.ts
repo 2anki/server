@@ -3,7 +3,7 @@ import { getTitleFromMarkdown } from './getTitleFromMarkdown';
 import get16DigitRandomId from '../../shared/helpers/get16DigitRandomId';
 import Note from './Note';
 import { markdownToHTML } from '../markdown';
-import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
 
 import CardOption from './Settings';
 import { embedFile } from './exporters/embedFile';
