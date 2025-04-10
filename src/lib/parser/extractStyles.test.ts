@@ -1,4 +1,4 @@
-import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
 import { extractStyles } from './extractStyles';
 
 describe('extractStyles', () => {
