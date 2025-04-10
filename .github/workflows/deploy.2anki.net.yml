@@ -11,7 +11,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: main
-    concurrency: 'production'
+    concurrency:
+      group: 'production'
+      cancel-in-progress: false
     steps:
       - name: SSH and run script
         uses: appleboy/ssh-action@v1.0.3
