@@ -9,8 +9,10 @@ const database = getDatabase();
 /**
  * Fetches a batch of active subscriptions from Stripe
  */
-async function fetchSubscriptionBatch(startingAfter?: string): Promise<Stripe.ApiList<Stripe.Subscription>> {
-  return await stripe.subscriptions.list({
+function fetchSubscriptionBatch(
+  startingAfter?: string
+): Promise<Stripe.ApiList<Stripe.Subscription>> {
+  return stripe.subscriptions.list({
     limit: 100,
     status: 'active',
     starting_after: startingAfter,
@@ -20,7 +22,9 @@ async function fetchSubscriptionBatch(startingAfter?: string): Promise<Stripe.Ap
 /**
  * Retrieves customer information from Stripe
  */
-async function getCustomer(customerId: string): Promise<Stripe.Customer | null> {
+async function getCustomer(
+  customerId: string
+): Promise<Stripe.Customer | null> {
   try {
     const customer = await stripe.customers.retrieve(customerId);
     if ('email' in customer && customer.email) {
@@ -43,33 +47,33 @@ async function updateSubscriptionRecord(
   subscription: Stripe.Subscription
 ): Promise<void> {
   const email = customer.email!.toLowerCase();
-  
+
   try {
     const existingSubscription = await db
       .table('subscriptions')
       .where({ email })
       .first();
-    
+
     if (existingSubscription && !existingSubscription.active) {
       console.info('Updating customer', customer.id, email);
-      await db
-        .table('subscriptions')
-        .where({ email })
-        .update({ active: true });
+      await db.table('subscriptions').where({ email }).update({ active: true });
     } else if (!existingSubscription) {
       console.info('Creating subscription for customer', customer.id, email);
-      await db
-        .table('subscriptions')
-        .insert({
-          email,
-          active: true,
-          payload: JSON.stringify(subscription)
-        });
+      await db.table('subscriptions').insert({
+        email,
+        active: true,
+        payload: JSON.stringify(subscription),
+      });
     } else {
       console.info('Customer already active', customer.id);
     }
   } catch (error) {
-    console.error('Error updating subscription record', customer.id, email, error);
+    console.error(
+      'Error updating subscription record',
+      customer.id,
+      email,
+      error
+    );
     throw error;
   }
 }
@@ -86,10 +90,10 @@ async function processSubscription(
       console.warn('Subscription has non-string customer ID', subscription.id);
       return;
     }
-    
+
     const customer = await getCustomer(subscription.customer);
     if (!customer) return;
-    
+
     await updateSubscriptionRecord(db, customer, subscription);
   } catch (error) {
     console.error('Error processing subscription', subscription.id, error);
@@ -100,20 +104,24 @@ async function processSubscription(
 /**
  * Updates the pagination parameters based on the subscription batch
  */
-function updatePaginationParams(subscriptions: Stripe.ApiList<Stripe.Subscription>): {
+function updatePaginationParams(
+  subscriptions: Stripe.ApiList<Stripe.Subscription>
+): {
   hasMore: boolean;
   startingAfter?: string;
 } {
   const hasMore = subscriptions.has_more;
   let startingAfter: string | undefined = undefined;
-  
+
   if (hasMore && subscriptions.data.length > 0) {
     startingAfter = subscriptions.data[subscriptions.data.length - 1].id;
-    console.info(`More subscriptions available, next starting point: ${startingAfter}`);
+    console.info(
+      `More subscriptions available, next starting point: ${startingAfter}`
+    );
   } else {
     console.info('No more subscriptions to fetch');
   }
-  
+
   return { hasMore, startingAfter };
 }
 
@@ -123,36 +131,38 @@ function updatePaginationParams(subscriptions: Stripe.ApiList<Stripe.Subscriptio
 async function updateStripeSubscriptions(): Promise<void> {
   let hasMore = true;
   let startingAfter: string | undefined = undefined;
-  
+
   console.info('Starting subscription sync with Stripe');
-  
+
   try {
     while (hasMore) {
-      console.info(`Fetching subscriptions${startingAfter ? ' after ' + startingAfter : ''}`);
-      
+      console.info(
+        `Fetching subscriptions${startingAfter ? ' after ' + startingAfter : ''}`
+      );
+
       const subscriptions = await fetchSubscriptionBatch(startingAfter);
       console.info(`Processing ${subscriptions.data.length} subscriptions`);
-      
+
       // If no subscriptions were returned, exit the loop
       if (subscriptions.data.length === 0) {
         console.info('No more subscriptions to process');
         break;
       }
-      
+
       // Process each subscription
-      const processPromises = subscriptions.data.map(subscription => 
+      const processPromises = subscriptions.data.map((subscription) =>
         processSubscription(database, subscription)
       );
-      
+
       // Wait for all subscriptions to be processed
       await Promise.all(processPromises);
-      
+
       // Update pagination parameters
       const pagination = updatePaginationParams(subscriptions);
       hasMore = pagination.hasMore;
       startingAfter = pagination.startingAfter;
     }
-    
+
     console.info('Subscription sync completed successfully');
   } catch (error) {
     console.error('Error in updateStripeSubscriptions:', error);
