@@ -189,7 +189,7 @@ class UsersController {
       kiUI: false,
     };
 
-    featureFlags.kiUI = user?.patreon || res.locals.subscriber;
+    // featureFlags.kiUI = user?.patreon || res.locals.subscriber;
 
     const response = {
       user: {
