@@ -35,6 +35,7 @@ import SessionRepository from '../../data_layer/SessionRepository';
 import AuthenticationService from '../../services/AuthenticationService';
 import TokenRepository from '../../data_layer/TokenRepository';
 import UsersRepository from '../../data_layer/UsersRepository';
+import { BUILD_DIR } from '../../lib/constants';
 
 // Define the transformToDecks function before it is used
 function transformToDecks(cards: any[]): any[] {
@@ -284,7 +285,9 @@ const KiRouter = () => {
     if (!exists) {
       await fs.mkdir(s.data.workspace.location, { recursive: true });
     }
-    res.sendFile(path.join(__dirname, '../../templates/ki.html'));
+    // Serve the index.html file from the build directory
+    const indexFilePath = path.join(BUILD_DIR, 'index.html');
+    res.sendFile(indexFilePath);
   });
 
   router.post('/ki/process', async (req, res) => {
