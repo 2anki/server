@@ -24,8 +24,6 @@ import {
   isCompressedFile,
 } from '../../lib/storage/checks';
 import CardOption from '../../lib/parser/Settings/CardOption';
-import cheerio from 'cheerio';
-import { embedFile } from '../../lib/parser/exporters/embedFile';
 import mammoth from 'mammoth';
 import { getDatabase } from '../../data_layer';
 import { cleanLine } from './cleanLine';
@@ -550,12 +548,6 @@ const KiRouter = () => {
     }
   });
 
-  interface ProcessedFile {
-    content: string;
-    name: string;
-    media?: string[];
-  }
-
   // Handle valid card
   const handleValidCard = (card: any, res: Response, userSession: any) => {
     if (card) {
@@ -573,7 +565,11 @@ const KiRouter = () => {
     try {
       const card = parseCard(trimmed);
       handleValidCard(card, res, userSession);
-    } catch {
+    } catch (parseError) {
+      console.error('Error parsing card:', parseError);
+      console.log(
+        `[PROCESS LINE] Attempting to handle partial JSON: ${trimmed}`
+      );
       handlePartialJson(trimmed, userSession.data.deckInfo, res);
     }
   };
@@ -583,7 +579,13 @@ const KiRouter = () => {
     const lines = text.split('\n');
 
     // Process each line
-    lines.forEach((line) => processLine(line, res, userSession));
+    lines.forEach((line) => {
+      try {
+        processLine(line, res, userSession);
+      } catch (error) {
+        console.error(`[PROCESS CHUNK] Error processing line: ${error}`);
+      }
+    });
   }
 
   const isKiPermittedFile = (name: string) => {
@@ -606,6 +608,9 @@ const KiRouter = () => {
     res: Response,
     userSession: any
   ): Promise<void> {
+    // Make sure userSession.data.deckInfo exists
+    userSession.data.deckInfo ??= [];
+
     const timeLabel = `process-file-${name}`;
     console.time(timeLabel);
     const sendStatus = (message: string) => {
@@ -835,138 +840,107 @@ const KiRouter = () => {
               if (isCompressedFile(file.name)) {
                 sendStatus(`[UPLOAD] Processing ZIP file: ${file.name}`);
 
-                const zipHandler = new ZipHandler(1);
-                await zipHandler.build(
-                  new Uint8Array(fileContent),
-                  paying,
-                  new CardOption(CardOption.LoadDefaultOptions())
-                );
+                try {
+                  const zipHandler = new ZipHandler(1);
+                  await zipHandler.build(
+                    new Uint8Array(fileContent),
+                    paying,
+                    new CardOption(CardOption.LoadDefaultOptions())
+                  );
 
-                const exporter = new CustomExporter(
-                  file.name,
-                  userSession.data.workspace.location
-                );
+                  // Extract media files from zip to workspace
+                  for (const zipFile of zipHandler.files) {
+                    if (
+                      zipFile.name &&
+                      zipFile.contents &&
+                      isImageFileEmbedable(zipFile.name)
+                    ) {
+                      sendStatus(`[UPLOAD] Extracting media: ${zipFile.name}`);
 
-                // Extract media files from zip to workspace
-                for (const zipFile of zipHandler.files) {
-                  if (
-                    zipFile.name &&
-                    zipFile.contents &&
-                    isImageFileEmbedable(zipFile.name)
-                  ) {
-                    sendStatus(`[UPLOAD] Extracting media: ${zipFile.name}`);
+                      const destPath = path.join(
+                        userSession.data.workspace.location,
+                        zipFile.name
+                      );
+                      // Ensure directory exists
+                      const destDir = path.dirname(destPath);
+                      await fs.mkdir(destDir, { recursive: true });
 
-                    const destPath = path.join(
-                      userSession.data.workspace.location,
-                      zipFile.name
-                    );
-                    // Ensure directory exists
-                    const destDir = path.dirname(destPath);
-                    await fs.mkdir(destDir, { recursive: true });
-
-                    if (typeof zipFile.contents === 'string') {
-                      await fs.writeFile(destPath, zipFile.contents, 'utf8');
-                    } else if (Buffer.isBuffer(zipFile.contents)) {
-                      await fs.writeFile(destPath, zipFile.contents);
-                    } else if (zipFile.contents instanceof Uint8Array) {
-                      await fs.writeFile(destPath, zipFile.contents);
-                    } else {
-                      const error = `Unsupported content type for file: ${zipFile.name}`;
-                      console.error(error);
-                      sendStatus(`[ERROR] ${error}`);
+                      if (typeof zipFile.contents === 'string') {
+                        await fs.writeFile(destPath, zipFile.contents, 'utf8');
+                      } else if (Buffer.isBuffer(zipFile.contents)) {
+                        await fs.writeFile(destPath, zipFile.contents);
+                      } else if (zipFile.contents instanceof Uint8Array) {
+                        await fs.writeFile(destPath, zipFile.contents);
+                      } else {
+                        const error = `Unsupported content type for file: ${zipFile.name}`;
+                        console.error(error);
+                        sendStatus(`[ERROR] ${error}`);
+                      }
                     }
                   }
-                }
 
-                return zipHandler.files.map((f): ProcessedFile => {
-                  let extractedContent = f.contents?.toString() || '';
-                  const mediaFiles: string[] = [];
+                  // Process text files from zip for flashcard generation
+                  const textFiles = zipHandler.files.filter(
+                    (f) =>
+                      f.name &&
+                      f.contents &&
+                      isKiPermittedFile(f.name) &&
+                      !isImageFileEmbedable(f.name)
+                  );
 
-                  if (extractedContent) {
-                    const dom = cheerio.load(extractedContent);
-                    const webDom = cheerio.load(extractedContent);
+                  for (const textFile of textFiles) {
+                    try {
+                      if (!textFile.contents) continue;
 
-                    // Handle both direct img tags and linked images
-                    const images = dom('img');
-                    const imageLinks = dom(
-                      'a[href*=".png"], a[href*=".jpg"], a[href*=".jpeg"], a[href*=".gif"]'
-                    );
+                      let extractedContent = '';
+                      try {
+                        extractedContent = textFile.contents.toString();
+                      } catch (error) {
+                        console.error(
+                          `Error converting contents to string for ${textFile.name}:`,
+                          error
+                        );
+                        continue;
+                      }
 
-                    if (images.length > 0 || imageLinks.length > 0) {
-                      // Process direct image tags
-                      images.each((i, elem) => {
-                        const originalName = dom(elem).attr('src');
-                        if (
-                          originalName &&
-                          isImageFileEmbedable(originalName)
-                        ) {
-                          const decodedPath = decodeURIComponent(originalName);
-                          const imagePath = decodedPath.split('/').pop();
-                          if (imagePath) {
-                            const newName = embedFile({
-                              exporter,
-                              files: zipHandler.files,
-                              filePath: decodedPath,
-                              workspace: userSession.data.workspace,
-                            });
-                            if (newName) {
-                              dom(elem).attr('src', newName);
-                              webDom('img')
-                                .eq(i)
-                                .attr(
-                                  'src',
-                                  `/ki/media/${encodeURIComponent(newName)}`
-                                );
-                              mediaFiles.push(newName);
-                            }
-                          }
-                        }
-                      });
+                      if (!extractedContent) continue;
 
-                      // Process linked images
-                      imageLinks.each((i, elem) => {
-                        const originalHref = dom(elem).attr('href');
-                        if (
-                          originalHref &&
-                          isImageFileEmbedable(originalHref)
-                        ) {
-                          const decodedPath = decodeURIComponent(originalHref);
-                          const imagePath = decodedPath.split('/').pop();
-                          if (imagePath) {
-                            const newName = embedFile({
-                              exporter,
-                              files: zipHandler.files,
-                              filePath: decodedPath,
-                              workspace: userSession.data.workspace,
-                            });
-                            if (newName) {
-                              dom(elem).attr('href', newName);
-                              webDom('a')
-                                .eq(i)
-                                .attr(
-                                  'href',
-                                  `/ki/media/${encodeURIComponent(newName)}`
-                                );
-                              mediaFiles.push(newName);
-                            }
-                          }
-                        }
-                      });
-
-                      // Store APKG content
-                      extractedContent = dom.html() || extractedContent;
-                      // Send web preview content to client
-                      res.write(
-                        `event: preview\ndata: ${JSON.stringify({ html: webDom.html() })}\n\n`
+                      sendStatus(
+                        `[UPLOAD] Processing zip content: ${textFile.name}`
+                      );
+                      await processFileContent(
+                        chatSession,
+                        extractedContent,
+                        textFile.name,
+                        res,
+                        userSession
+                      );
+                    } catch (error) {
+                      console.error(
+                        `Error processing zip file ${textFile.name}:`,
+                        error
+                      );
+                      sendStatus(
+                        `[ERROR] Failed to process ${textFile.name}: ${error instanceof Error ? error.message : 'Unknown error'}`
                       );
                     }
                   }
-                  return {
-                    content: extractedContent,
-                    name: f.name,
-                    media: mediaFiles,
-                  };
-                });
+
+                  return zipHandler.files.map((f) => ({
+                    content: f.contents?.toString() ?? '',
+                    name: f.name || '',
+                    media: [],
+                  }));
+                } catch (error) {
+                  console.error(
+                    `Error processing zip file ${file.name}:`,
+                    error
+                  );
+                  sendStatus(
+                    `[ERROR] Failed to process zip file: ${error instanceof Error ? error.message : 'Unknown error'}`
+                  );
+                  return [{ content: '', name: file.name, media: [] }];
+                }
               }
 
               console.timeEnd(`read-file-${file.name}`);
@@ -985,23 +959,34 @@ const KiRouter = () => {
 
         // Process each file independently
         for (const { content: fileText, name, media } of fileContents) {
-          if (!fileText || !isKiPermittedFile(name)) continue;
-          await processFileContent(
-            chatSession,
-            fileText,
-            name,
-            res,
-            userSession
-          );
-          if (media?.length) {
-            // Update the media array in the last card
-            const lastCardIndex = userSession.data.deckInfo.length - 1;
-            if (
-              lastCardIndex >= 0 &&
-              userSession.data.deckInfo[lastCardIndex]
-            ) {
-              userSession.data.deckInfo[lastCardIndex].media = media;
+          // Skip files that have already been processed by the zip handler
+          if (!fileText || !isKiPermittedFile(name) || isCompressedFile(name))
+            continue;
+
+          sendStatus(`[GENERATE] Processing file: ${name}`);
+          try {
+            await processFileContent(
+              chatSession,
+              fileText,
+              name,
+              res,
+              userSession
+            );
+            if (media?.length) {
+              // Update the media array in the last card
+              const lastCardIndex = userSession.data.deckInfo.length - 1;
+              if (
+                lastCardIndex >= 0 &&
+                userSession.data.deckInfo[lastCardIndex]
+              ) {
+                userSession.data.deckInfo[lastCardIndex].media = media;
+              }
             }
+          } catch (error) {
+            console.error(`Error processing file ${name}:`, error);
+            sendStatus(
+              `[ERROR] Failed to process ${name}: ${error instanceof Error ? error.message : 'Unknown error'}`
+            );
           }
         }
         console.timeEnd('file-processing');
@@ -1077,7 +1062,10 @@ const KiRouter = () => {
     }
 
     const sessionId = req.body.sessionId as string;
-    const userSession = await sessionRepository.getSessionById(sessionId, user.owner.toString()); // Ensure session is typed
+    const userSession = await sessionRepository.getSessionById(
+      sessionId,
+      user.owner.toString()
+    ); // Ensure session is typed
     if (!userSession || !userSession.data) {
       console.error('[DOWNLOAD] User session not found');
       return res.status(403).json({ error: 'Session expired' });
