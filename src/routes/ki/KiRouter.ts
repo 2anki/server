@@ -1076,7 +1076,8 @@ const KiRouter = () => {
       return false;
     }
 
-    const userSession = await sessionRepository.getSession(user.owner); // Ensure session is typed
+    const sessionId = req.body.sessionId as string;
+    const userSession = await sessionRepository.getSessionById(sessionId, user.owner.toString()); // Ensure session is typed
     if (!userSession || !userSession.data) {
       console.error('[DOWNLOAD] User session not found');
       return res.status(403).json({ error: 'Session expired' });
