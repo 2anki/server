@@ -41,6 +41,87 @@ async function getCustomer(
 /**
  * Updates or creates a subscription record in the database
  */
+/**
+ * Determines if a subscription should be considered active based on its status and cancellation schedule
+ */
+function determineSubscriptionActiveStatus(
+  subscription: Stripe.Subscription,
+  email: string
+): boolean {
+  const isActive = subscription.status === 'active';
+  const isCancelScheduled = subscription.cancel_at_period_end === true;
+
+  // If not active or not scheduled for cancellation, just return the active status
+  if (!isActive || !isCancelScheduled) {
+    return isActive;
+  }
+
+  // For subscriptions scheduled for cancellation, check if we're still in the paid period
+  const periodEndDate = new Date(subscription.current_period_end * 1000);
+  const currentDate = new Date();
+  const shouldRemainActive = currentDate < periodEndDate;
+
+  if (shouldRemainActive) {
+    console.info(
+      `Subscription for ${email} is scheduled for cancellation but still active until ${periodEndDate.toISOString()}`
+    );
+  }
+
+  return shouldRemainActive;
+}
+
+/**
+ * Updates an existing subscription record in the database
+ */
+async function updateExistingSubscription(
+  db: Knex,
+  email: string,
+  subscription: Stripe.Subscription,
+  shouldRemainActive: boolean,
+  existingActive: boolean
+): Promise<void> {
+  const statusChanged = existingActive !== shouldRemainActive;
+  const payload = JSON.stringify(subscription);
+
+  if (statusChanged) {
+    console.info(
+      `Updating subscription status for ${email} to ${shouldRemainActive ? 'active' : 'inactive'}`
+    );
+    await db
+      .table('subscriptions')
+      .where({ email })
+      .update({ active: shouldRemainActive, payload });
+  } else {
+    console.info(
+      `Subscription status for ${email} remains ${shouldRemainActive ? 'active' : 'inactive'}`
+    );
+    await db.table('subscriptions').where({ email }).update({ payload });
+  }
+}
+
+/**
+ * Creates a new subscription record in the database
+ */
+async function createNewSubscription(
+  db: Knex,
+  email: string,
+  customerId: string,
+  subscription: Stripe.Subscription,
+  shouldRemainActive: boolean
+): Promise<void> {
+  console.info(
+    `Creating subscription for customer ${customerId}, ${email}, active: ${shouldRemainActive}`
+  );
+  await db.table('subscriptions').insert({
+    email,
+    active: shouldRemainActive,
+    payload: JSON.stringify(subscription),
+  });
+}
+
+/**
+ * Updates or creates a subscription record in the database
+ */
 async function updateSubscriptionRecord(
   db: Knex,
   customer: Stripe.Customer,
@@ -49,63 +130,31 @@ async function updateSubscriptionRecord(
   const email = customer.email!.toLowerCase();
 
   try {
-    // Determine if the subscription should be active based on status and cancellation schedule
-    const isActive = subscription.status === 'active';
-    const isCancelScheduled = subscription.cancel_at_period_end === true;
-
-    let shouldRemainActive = isActive;
-    if (isActive && isCancelScheduled) {
-      // current_period_end is in seconds since epoch, so convert to milliseconds for Date
-      const periodEndDate = new Date(subscription.current_period_end * 1000);
-      const currentDate = new Date();
-      // Keep active if current date is before the period end date
-      shouldRemainActive = currentDate < periodEndDate;
-
-      if (shouldRemainActive) {
-        console.info(
-          `Subscription for ${email} is scheduled for cancellation but still active until ${periodEndDate.toISOString()}`
-        );
-      }
-    }
-
+    const shouldRemainActive = determineSubscriptionActiveStatus(
+      subscription,
+      email
+    );
     const existingSubscription = await db
       .table('subscriptions')
       .where({ email })
       .first();
 
     if (existingSubscription) {
-      if (existingSubscription.active !== shouldRemainActive) {
-        console.info(
-          `Updating subscription status for ${email} to ${shouldRemainActive ? 'active' : 'inactive'}`
-        );
-        await db
-          .table('subscriptions')
-          .where({ email })
-          .update({
-            active: shouldRemainActive,
-            payload: JSON.stringify(subscription),
-          });
-      } else {
-        console.info(
-          `Subscription status for ${email} remains ${shouldRemainActive ? 'active' : 'inactive'}`
-        );
-        // Update payload even if active status hasn't changed
-        await db
-          .table('subscriptions')
-          .where({ email })
-          .update({
-            payload: JSON.stringify(subscription),
-          });
-      }
-    } else {
-      console.info(
-        `Creating subscription for customer ${customer.id}, ${email}, active: ${shouldRemainActive}`
-      );
-      await db.table('subscriptions').insert({
+      await updateExistingSubscription(
+        db,
         email,
-        active: shouldRemainActive,
-        payload: JSON.stringify(subscription),
-      });
+        subscription,
+        shouldRemainActive,
+        existingSubscription.active
+      );
+    } else {
+      await createNewSubscription(
+        db,
+        email,
+        customer.id,
+        subscription,
+        shouldRemainActive
+      );
     }
   } catch (error) {
     console.error(
