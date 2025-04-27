@@ -69,6 +69,12 @@ const WebhooksRouter = () => {
             );
             const emailService = useDefaultEmailService();
             if ('email' in customer) {
+              // Log the scheduled cancellation for debugging purposes
+              console.info(
+                `Subscription cancellation scheduled for user ${customer.email}, ` +
+                  `access remains until ${cancelDate.toISOString()}`
+              );
+
               await emailService.sendSubscriptionScheduledCancellationEmail(
                 customer.email!,
                 customer.name || 'there',

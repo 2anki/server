@@ -49,23 +49,63 @@ async function updateSubscriptionRecord(
   const email = customer.email!.toLowerCase();
 
   try {
+    // Determine if the subscription should be active based on status and cancellation schedule
+    const isActive = subscription.status === 'active';
+    const isCancelScheduled = subscription.cancel_at_period_end === true;
+
+    let shouldRemainActive = isActive;
+    if (isActive && isCancelScheduled) {
+      // current_period_end is in seconds since epoch, so convert to milliseconds for Date
+      const periodEndDate = new Date(subscription.current_period_end * 1000);
+      const currentDate = new Date();
+      // Keep active if current date is before the period end date
+      shouldRemainActive = currentDate < periodEndDate;
+
+      if (shouldRemainActive) {
+        console.info(
+          `Subscription for ${email} is scheduled for cancellation but still active until ${periodEndDate.toISOString()}`
+        );
+      }
+    }
+
     const existingSubscription = await db
       .table('subscriptions')
       .where({ email })
       .first();
 
-    if (existingSubscription && !existingSubscription.active) {
-      console.info('Updating customer', customer.id, email);
-      await db.table('subscriptions').where({ email }).update({ active: true });
-    } else if (!existingSubscription) {
-      console.info('Creating subscription for customer', customer.id, email);
+    if (existingSubscription) {
+      if (existingSubscription.active !== shouldRemainActive) {
+        console.info(
+          `Updating subscription status for ${email} to ${shouldRemainActive ? 'active' : 'inactive'}`
+        );
+        await db
+          .table('subscriptions')
+          .where({ email })
+          .update({
+            active: shouldRemainActive,
+            payload: JSON.stringify(subscription),
+          });
+      } else {
+        console.info(
+          `Subscription status for ${email} remains ${shouldRemainActive ? 'active' : 'inactive'}`
+        );
+        // Update payload even if active status hasn't changed
+        await db
+          .table('subscriptions')
+          .where({ email })
+          .update({
+            payload: JSON.stringify(subscription),
+          });
+      }
+    } else {
+      console.info(
+        `Creating subscription for customer ${customer.id}, ${email}, active: ${shouldRemainActive}`
+      );
       await db.table('subscriptions').insert({
         email,
-        active: true,
+        active: shouldRemainActive,
         payload: JSON.stringify(subscription),
       });
-    } else {
-      console.info('Customer already active', customer.id);
     }
   } catch (error) {
     console.error(
