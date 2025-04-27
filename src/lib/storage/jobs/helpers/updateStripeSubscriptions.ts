@@ -175,5 +175,9 @@ export { updateStripeSubscriptions };
 
 // Run directly if this file is executed directly
 if (require.main === module) {
-  updateStripeSubscriptions().catch(console.error);
+  updateStripeSubscriptions()
+    .catch(console.error)
+    .finally(async () => {
+      await database.destroy(); // 🔥 properly close DB connection
+    });
 }
