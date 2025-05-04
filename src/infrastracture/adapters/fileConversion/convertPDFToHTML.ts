@@ -1,8 +1,25 @@
 import { GenerateContentRequest } from '@google-cloud/vertexai';
 import { generateContent } from './contentGenerationUtils';
 
-const DEFAULT_PDF_TO_HTML_INSTRUCTIONS = `Create an HTML file with questions and answers formatted as follows: For each question and answer, use a <ul> tag with the CSS class <<<toggle>>>. Inside this <ul>, include a <li> tag with the details. The <details> tag should contain a <summary> tag for the question and the remaining lines for the answer. Use the same style as Notion for the HTML.
+const SYSTEM_INSTRUCTIONS = `
+Create an HTML file with questions and answers formatted as follows:
+1. For each question and answer, use a <ul> tag with the CSS class <<<toggle>>>
+2. Inside this <ul>, include a <li> tag with the details
+3. The <details> tag should contain a <summary> tag for the question and the remaining lines for the answer
+4. Use the same style as Notion for the HTML
+5. Preserve all original formatting and structure from the PDF
+6. Maintain proper HTML syntax and nesting
+7. Ensure each question-answer pair is properly closed and formatted
 
+Technical requirements:
+- Each question-answer pair must be in its own <ul> element
+- The CSS class <<<toggle>>> must be preserved exactly as shown
+- The HTML structure must match Notion's toggle block format
+- All content must be properly escaped for HTML
+- Maintain proper indentation and formatting
+`
+
+const DEFAULT_PDF_TO_HTML_INSTRUCTIONS = `
 Some extra rules and explanations:
 - Read the document from start to finish and identify any question and answers. 
 - Use the same language as the document or infer the language based on what is mostly used.
@@ -11,9 +28,10 @@ Some extra rules and explanations:
 - Be complete by finding all of the questions and answer in the document.
 - Do not limit the number of number of questions and answer but create all of them!
 - Do not make up any questions and use the questions in the document!
-- Create a ul for every question pair, not one ul for all of them with li!`;
+- Create a ul for every question pair, not one ul for all of them with li!
+`;
 
-export const convertPDFToHTML = (pdf: string): Promise<string> => {
+export const convertPDFToHTML = (pdf: string, userInstructions?: string): Promise<string> => {
   const document1 = {
     inlineData: {
       mimeType: 'application/pdf',
@@ -21,37 +39,20 @@ export const convertPDFToHTML = (pdf: string): Promise<string> => {
     },
   };
 
-  const text1 = {
-    text: DEFAULT_PDF_TO_HTML_INSTRUCTIONS,
-  };
-
   const req: GenerateContentRequest = {
-    contents: [{ role: 'user', parts: [document1, text1] }],
+    contents: [
+      { role: 'user', parts: [
+        {text: SYSTEM_INSTRUCTIONS},
+        {text: userInstructions ?? DEFAULT_PDF_TO_HTML_INSTRUCTIONS}, 
+        document1,
+      ] 
+      },
+    ],
   };
 
   return generateContent(req);
 };
 
-export const convertPDFToHTMLWithInstructions = (
-  pdf: string
-): Promise<string> => {
-  const document1 = {
-    inlineData: {
-      mimeType: 'application/pdf',
-      data: pdf,
-    },
-  };
-
-  const text1 = {
-    text: DEFAULT_PDF_TO_HTML_INSTRUCTIONS,
-  };
-
-  const req: GenerateContentRequest = {
-    contents: [{ role: 'user', parts: [document1, text1] }],
-  };
-
-  return generateContent(req);
-};
 
 export const getDefaultUserInstructions = (): string => {
   return DEFAULT_PDF_TO_HTML_INSTRUCTIONS;

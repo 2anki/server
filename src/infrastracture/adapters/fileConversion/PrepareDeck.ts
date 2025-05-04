@@ -62,7 +62,8 @@ export async function PrepareDeck(
       input.settings.processPDFs !== false
     ) {
       const htmlContent = await convertPDFToHTML(
-        file.contents.toString('base64')
+        file.contents.toString('base64'),
+        input.settings.userInstructions
       );
       convertedFiles.push({
         name: `${file.name}.html`,

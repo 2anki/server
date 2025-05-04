@@ -25,8 +25,8 @@ export const SAFETY_SETTINGS: SafetySetting[] = [
 
 export const VERTEX_AI_CONFIG = {
   project: 'notion-to-anki',
-  location: 'europe-west3',
-  model: 'gemini-1.5-pro-002',
+  location: 'europe-north1',
+  model: 'gemini-2.0-flash-001',
   generationConfig: {
     maxOutputTokens: 8192,
     temperature: 1,
