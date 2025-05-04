@@ -17,7 +17,7 @@ Technical requirements:
 - The HTML structure must match Notion's toggle block format
 - All content must be properly escaped for HTML
 - Maintain proper indentation and formatting
-`
+`;
 
 const DEFAULT_PDF_TO_HTML_INSTRUCTIONS = `
 Some extra rules and explanations:
@@ -31,7 +31,10 @@ Some extra rules and explanations:
 - Create a ul for every question pair, not one ul for all of them with li!
 `;
 
-export const convertPDFToHTML = (pdf: string, userInstructions?: string): Promise<string> => {
+export const convertPDFToHTML = (
+  pdf: string,
+  userInstructions?: string
+): Promise<string> => {
   const document1 = {
     inlineData: {
       mimeType: 'application/pdf',
@@ -41,18 +44,19 @@ export const convertPDFToHTML = (pdf: string, userInstructions?: string): Promis
 
   const req: GenerateContentRequest = {
     contents: [
-      { role: 'user', parts: [
-        {text: SYSTEM_INSTRUCTIONS},
-        {text: userInstructions ?? DEFAULT_PDF_TO_HTML_INSTRUCTIONS}, 
-        document1,
-      ] 
+      {
+        role: 'user',
+        parts: [
+          { text: SYSTEM_INSTRUCTIONS },
+          { text: userInstructions ?? DEFAULT_PDF_TO_HTML_INSTRUCTIONS },
+          document1,
+        ],
       },
     ],
   };
 
   return generateContent(req);
 };
-
 
 export const getDefaultUserInstructions = (): string => {
   return DEFAULT_PDF_TO_HTML_INSTRUCTIONS;
