@@ -117,7 +117,8 @@ class CardOption {
     }
 
     this.nestedBulletPoints = input['markdown-nested-bullet-points'] === 'true';
-    this.userInstructions = input['user-instructions'] ?? getDefaultUserInstructions();
+    this.userInstructions =
+      input['user-instructions'] ?? getDefaultUserInstructions();
     console.log('this.userInstructions', this.userInstructions);
     this.retrieveTemplates(input);
   }
