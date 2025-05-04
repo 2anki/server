@@ -1,3 +1,4 @@
+import { getDefaultUserInstructions } from '../../../infrastracture/adapters/fileConversion/convertPDFToHTML';
 import { parseTemplate } from './helpers/parseTemplate';
 
 import { UserSuppliedTemplateFile } from './types';
@@ -72,6 +73,8 @@ class CardOption {
 
   readonly processPDFs: boolean;
 
+  readonly userInstructions?: string;
+
   constructor(input: { [key: string]: string }) {
     this.deckName = input.deckName;
     if (this.deckName && !this.deckName.trim()) {
@@ -114,6 +117,8 @@ class CardOption {
     }
 
     this.nestedBulletPoints = input['markdown-nested-bullet-points'] === 'true';
+    this.userInstructions = input['user-instructions'] ?? getDefaultUserInstructions();
+    console.log('this.userInstructions', this.userInstructions);
     this.retrieveTemplates(input);
   }
 
