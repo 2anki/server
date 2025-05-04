@@ -52,3 +52,7 @@ export const convertPDFToHTMLWithInstructions = (
 
   return generateContent(req);
 };
+
+export const getDefaultUserInstructions = (): string => {
+  return DEFAULT_PDF_TO_HTML_INSTRUCTIONS;
+};
