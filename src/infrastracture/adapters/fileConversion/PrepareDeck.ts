@@ -61,7 +61,13 @@ export async function PrepareDeck(
       input.settings.vertexAIPDFQuestions &&
       input.settings.processPDFs !== false
     ) {
-      file.contents = await convertPDFToHTML(file.contents.toString('base64'));
+      const htmlContent = await convertPDFToHTML(
+        file.contents.toString('base64')
+      );
+      convertedFiles.push({
+        name: `${file.name}.html`,
+        contents: Buffer.from(htmlContent),
+      });
     } else if (isPPTFile(file.name)) {
       const pdContents = await convertPPTToPDF(
         file.name,
