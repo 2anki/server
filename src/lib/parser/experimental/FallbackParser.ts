@@ -1,4 +1,4 @@
-import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
 
 import { File } from '../../zip/zip';
 import {
@@ -19,6 +19,13 @@ class FallbackParser {
   constructor(private readonly files: File[]) {}
 
   htmlToTextWithNewlines(html: string) {
+    if (typeof html !== 'string' || !html.trim()) {
+      console.warn(
+        '[FallbackParser] htmlToTextWithNewlines called with invalid html:',
+        html
+      );
+      return [];
+    }
     const $ = cheerio.load(html);
 
     function processListItems(items: cheerio.Cheerio) {
