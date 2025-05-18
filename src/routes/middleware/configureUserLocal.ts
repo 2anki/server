@@ -16,5 +16,9 @@ export async function configureUserLocal(
       database,
       user.email
     );
+    res.locals.subscriptionInfo = await authService.getSubscriptionInfo(
+      database,
+      user.email
+    );
   }
 }

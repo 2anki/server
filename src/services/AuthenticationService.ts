@@ -133,6 +133,32 @@ class AuthenticationService {
     return result?.active ?? false;
   }
 
+  async getSubscriptionInfo(db: Knex, email: string) {
+    const linkedEmail = await db('subscriptions')
+      .select(['active', 'email', 'linked_email'])
+      .where({ linked_email: email.toLowerCase() })
+      .first();
+
+    if (linkedEmail?.active) {
+      return {
+        active: true,
+        email: linkedEmail.email,
+        linked_email: linkedEmail.linked_email,
+      };
+    }
+
+    const result = await db('subscriptions')
+      .select(['active', 'email', 'linked_email'])
+      .where({ email: email.toLowerCase() })
+      .first();
+
+    return {
+      active: result?.active ?? false,
+      email: result?.email,
+      linked_email: result?.linked_email,
+    };
+  }
+
   async loginWithGoogle(code: string) {
     const url = 'https://oauth2.googleapis.com/token';
     const values = {
