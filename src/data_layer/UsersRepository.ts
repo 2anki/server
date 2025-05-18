@@ -28,7 +28,7 @@ class UsersRepository {
 
   getByEmail(email: string) {
     return this.database(this.table)
-      .where({ email: email.toLocaleLowerCase() })
+      .whereRaw('TRIM(email) = ?', [email.toLocaleLowerCase().trim()])
       .returning(['reset_token', 'id'])
       .first();
   }
