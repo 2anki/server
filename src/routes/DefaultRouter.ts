@@ -14,9 +14,7 @@ const DefaultRouter = () => {
   const router = express.Router();
 
   router.get('/index.html', (req, res) => controller.getIndex(req, res));
-  router.get('/search*', RequireAuthentication, controller.getIndex);
-  router.get('*', (req, res) => controller.getIndex(req, res));
-
+  router.get(/^\/(?!api).*/, (req, res) => controller.getIndex(req, res));
   router.post('/api/contact-us', upload.array('attachments'), (req, res) =>
     controller.contactUs(req, res)
   );
