@@ -2,7 +2,6 @@ import express from 'express';
 import multer from 'multer';
 
 import IndexController from '../controllers/IndexController/IndexController';
-import { getDatabase } from '../data_layer';
 import { ensureIsLoggedIn } from './middleware/ensureIsLoggedIn';
 
 const upload = multer({
