@@ -6,7 +6,7 @@ import { getDatabase } from '../../data_layer';
 
 export const ensureIsLoggedIn = async (
   req: express.Request,
-  res: express.Response,
+  res: express.Response
 ): Promise<boolean> => {
   const authService = new AuthenticationService(
     new TokenRepository(getDatabase()),
