@@ -26,6 +26,7 @@ import rulesRouter from './routes/ParserRulesRouter';
 import downloadRouter from './routes/DownloadRouter';
 import favoriteRouter from './routes/FavoriteRouter';
 import templatesRouter from './routes/TemplatesRouter';
+import apiRouter from './routes/ApiRouter'; // Added for API routes
 import defaultRouter from './routes/DefaultRouter';
 import webhookRouter from './routes/WebhookRouter';
 
@@ -71,6 +72,7 @@ const serve = async () => {
   app.use(downloadRouter());
   app.use(favoriteRouter());
   app.use(templatesRouter());
+  app.use('/api', apiRouter()); // Added for API routes
 
   // Note: this has to be the last router
   app.use(defaultRouter());
