@@ -13,6 +13,8 @@ import {
   VAT_NOTIFICATIONS_LOG_PATH,
   SUBSCRIPTION_CANCELLATIONS_LOG_PATH,
   SUBSCRIPTION_SCHEDULED_CANCELLATION_TEMPLATE,
+  WELCOME_EMAIL_TEMPLATE,
+  FIRST_WEEK_EMAIL_TEMPLATE,
 } from './constants';
 import { isValidDeckName, addDeckNameSuffix } from '../../lib/anki/format';
 import { ClientResponse } from '@sendgrid/mail';
@@ -45,6 +47,8 @@ export interface IEmailService {
     name: string,
     cancelDate: Date
   ): Promise<void>;
+  sendWelcomeEmail(email: string, name: string): Promise<void>;
+  sendFirstWeekEmail(email: string, name: string): Promise<void>;
 }
 
 class EmailService implements IEmailService {
@@ -333,6 +337,36 @@ class EmailService implements IEmailService {
       throw error;
     }
   }
+
+  async sendWelcomeEmail(email: string, name: string): Promise<void> {
+    const markup = WELCOME_EMAIL_TEMPLATE.replace('{{name}}', name || 'there');
+    const $ = cheerio.load(markup);
+    const text = $('body').text().replace(/\s+/g, ' ').trim();
+    const msg = {
+      to: email,
+      from: this.defaultSender,
+      subject: 'Welcome to 2anki.net!',
+      text,
+      html: markup,
+      replyTo: SUPPORT_EMAIL_ADDRESS, // Or your preferred reply-to address
+    };
+    await sgMail.send(msg);
+  }
+
+  async sendFirstWeekEmail(email: string, name: string): Promise<void> {
+    const markup = FIRST_WEEK_EMAIL_TEMPLATE.replace('{{name}}', name || 'there');
+    const $ = cheerio.load(markup);
+    const text = $('body').text().replace(/\s+/g, ' ').trim();
+    const msg = {
+      to: email,
+      from: this.defaultSender,
+      subject: 'Your First Week with 2anki.net',
+      text,
+      html: markup,
+      replyTo: SUPPORT_EMAIL_ADDRESS, // Or your preferred reply-to address
+    };
+    await sgMail.send(msg);
+  }
 }
 
 export class UnimplementedEmailService implements IEmailService {
@@ -398,6 +432,16 @@ export class UnimplementedEmailService implements IEmailService {
       name,
       cancelDate
     );
+    return Promise.resolve();
+  }
+
+  sendWelcomeEmail(email: string, name: string): Promise<void> {
+    console.info('sendWelcomeEmail not handled', email, name);
+    return Promise.resolve();
+  }
+
+  sendFirstWeekEmail(email: string, name: string): Promise<void> {
+    console.info('sendFirstWeekEmail not handled', email, name);
     return Promise.resolve();
   }
 }

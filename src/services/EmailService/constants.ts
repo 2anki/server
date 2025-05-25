@@ -50,3 +50,13 @@ export const SUBSCRIPTION_SCHEDULED_CANCELLATION_TEMPLATE = fs.readFileSync(
   ),
   'utf8'
 );
+
+export const WELCOME_EMAIL_TEMPLATE = fs.readFileSync(
+  path.join(EMAIL_TEMPLATES_DIRECTORY, 'welcome.html'),
+  'utf8'
+);
+
+export const FIRST_WEEK_EMAIL_TEMPLATE = fs.readFileSync(
+  path.join(EMAIL_TEMPLATES_DIRECTORY, 'first-week.html'),
+  'utf8'
+);

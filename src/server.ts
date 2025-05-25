@@ -30,7 +30,7 @@ import defaultRouter from './routes/DefaultRouter';
 import webhookRouter from './routes/WebhookRouter';
 
 import { getDatabase, setupDatabase } from './data_layer';
-
+import sendFirstWeekEmailsJob from './tasks/sendFirstWeekEmails';
 function registerSignalHandlers(server: http.Server) {
   process.on('uncaughtException', (error) => {
     console.error('Uncaught Exception:', error);
@@ -116,6 +116,10 @@ const serve = async () => {
   registerSignalHandlers(server);
 
   await setupDatabase(getDatabase());
+
+  // Start the cron job
+  sendFirstWeekEmailsJob.start();
+  console.log('First week email cron job started.');
 };
 
 serve();
