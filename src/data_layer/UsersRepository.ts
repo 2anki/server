@@ -47,7 +47,7 @@ class UsersRepository {
         email,
         picture,
       })
-      .returning(['id']);
+      .returning(['id', 'name', 'email']);
   }
 
   deleteUser(owner: string) {
