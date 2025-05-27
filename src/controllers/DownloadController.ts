@@ -7,6 +7,7 @@ import StorageHandler from '../lib/storage/StorageHandler';
 import DownloadService from '../services/DownloadService';
 import { canAccess } from '../lib/misc/canAccess';
 import { DownloadPage } from '../ui/pages/DownloadPage';
+import { createZipArchive } from '../../lib/zip/archive';
 
 class DownloadController {
   constructor(private service: DownloadService) {}
@@ -83,6 +84,53 @@ class DownloadController {
       return res.status(404).end();
     }
     return res.sendFile(filePath);
+  }
+
+  async downloadAllAsZip(req: Request, res: Response) {
+    const { id } = req.params;
+    const workspaceBase = process.env.WORKSPACE_BASE!;
+    const workspacePath = path.join(workspaceBase, id);
+
+    if (!fs.existsSync(workspacePath) || !fs.statSync(workspacePath).isDirectory()) {
+      return res.status(404).send('Workspace not found or is not a directory.');
+    }
+
+    try {
+      const files = fs.readdirSync(workspacePath);
+      const apkgFiles = files
+        .filter((file) => file.endsWith('.apkg'))
+        .map((file) => ({
+          filePath: path.join(workspacePath, file),
+          name: file,
+        }));
+
+      if (apkgFiles.length === 0) {
+        return res.status(404).send('No .apkg files found in the workspace.');
+      }
+
+      res.setHeader('Content-Type', 'application/zip');
+      res.setHeader('Content-Disposition', `attachment; filename="${id}.zip"`);
+
+      const zipStream = createZipArchive(apkgFiles);
+      zipStream.pipe(res);
+
+      // Handle errors during streaming
+      zipStream.on('error', (err) => {
+        console.error('Error during ZIP streaming:', err);
+        if (!res.headersSent) {
+          // If headers are not sent, we can still send a proper error status
+          res.status(500).send('Error creating ZIP file.');
+        } else {
+          // If headers are already sent, we can only try to end the response
+          // This might result in a partially sent file, which is not ideal but better than hanging
+          res.end();
+        }
+      });
+
+    } catch (error) {
+      console.error('Error preparing to download all as ZIP:', error);
+      res.status(500).send('Error preparing files for ZIP.');
+    }
   }
 }
 

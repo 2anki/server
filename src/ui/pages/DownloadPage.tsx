@@ -27,6 +27,17 @@ export const DownloadPage = ({ id, files }: DownloadPageProps) => {
             <DownloadTitle hasFiles={hasFiles} />
           </h1>
           <DownloadMessage hasFiles={hasFiles} />
+          {hasFiles && (
+            <div style={{ marginTop: '1rem', marginBottom: '1rem', textAlign: 'center' }}>
+              <a
+                href={`/download/${id}/zip`}
+                download={`${id}.zip`}
+                style={styles.downloadAllButton}
+              >
+                Download All as ZIP
+              </a>
+            </div>
+          )}
         </header>
         <main>
           <DownloadList apkgFiles={apkgFiles} id={id} styles={styles} />

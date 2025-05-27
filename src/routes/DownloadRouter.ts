@@ -26,6 +26,10 @@ const DownloadRouter = () => {
     controller.getLocalFile(req, res);
   });
 
+  router.get('/download/:id/zip', (req, res) => {
+    controller.downloadAllAsZip(req, res);
+  });
+
   return router;
 };
 

@@ -33,4 +33,14 @@ export const styles = {
     backgroundColor: '#ddd',
   },
   downloadItemLink: {},
+  downloadAllButton: {
+    display: 'inline-block',
+    padding: '10px 15px',
+    backgroundColor: '#007bff',
+    color: 'white',
+    textDecoration: 'none',
+    borderRadius: '5px',
+    fontWeight: 'bold',
+    margin: '10px 0', // Added margin for spacing
+  },
 };
