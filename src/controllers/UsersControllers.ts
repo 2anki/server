@@ -137,6 +137,12 @@ class UsersController {
       return;
     }
 
+    const doesUserExist = await this.userService.getUserFrom(req.body.email);
+    if (doesUserExist) {
+      console.debug('User already exists');
+      return res.status(400).json({ message: 'Register failed' });
+    }
+
     const password = this.authService.getHashPassword(req.body.password);
     const { name, email } = req.body;
     try {
