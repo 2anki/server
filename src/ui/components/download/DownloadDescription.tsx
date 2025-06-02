@@ -8,20 +8,29 @@ interface DownloadMessageProps {
   };
 }
 
-const DownloadMessage: React.FC<DownloadMessageProps> = ({ hasFiles, styles = {} }) => {
+const DownloadMessage: React.FC<DownloadMessageProps> = ({
+  hasFiles,
+  styles = {},
+}) => {
   const { pageDescription = {}, footerLink = {} } = styles;
-  
+
   return (
     <p style={pageDescription}>
       {hasFiles ? (
         <>
-          <span style={{ fontWeight: 500 }}>Success!</span> Here are the Anki decks created from your upload. 
-          Click on individual deck names to download them, or use the "Download All Files" button to get everything at once.
+          <span style={{ fontWeight: 500 }}>Success!</span> Here are the Anki
+          decks created from your upload. Click on individual deck names to
+          download them, or use the "Download All Files" button to get
+          everything at once.
         </>
       ) : (
         <>
-          No Anki decks were found in your upload. Please check that your content follows the 
-          <a href="https://docs.2anki.net/" style={footerLink}>2anki.net formatting guidelines</a> for creating valid flashcards.
+          No Anki decks were found in your upload. Please check that your
+          content follows the
+          <a href="https://docs.2anki.net/" style={footerLink}>
+            2anki.net formatting guidelines
+          </a>{' '}
+          for creating valid flashcards.
         </>
       )}
     </p>
