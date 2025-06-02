@@ -17,21 +17,41 @@ const DownloadList: React.FC<DownloadListProps> = ({
   id,
   styles,
 }) => {
+  // Always show bulk download if there are any files
+  const showBulkDownload = apkgFiles.length > 0;
+  
   return (
-    <ul style={styles.downloadList}>
-      {apkgFiles.map((file) => (
-        <li key={file} style={styles.downloadItem}>
-          <span style={styles.downloadItemName}>{file}</span>
+    <>
+      {showBulkDownload && (
+        <div style={{ marginBottom: '20px', textAlign: 'center' }}>
           <a
-            style={styles.downloadItemLink}
-            download={`${path.basename(file)}`}
-            href={`${id}/${file}`}
+            href={`/download/${id}/bulk`}
+            style={{
+              ...styles.downloadItemLink,
+              padding: '10px 20px',
+              fontSize: '16px',
+              fontWeight: 'bold',
+            }}
           >
-            Download
+            Download All Files
           </a>
-        </li>
-      ))}
-    </ul>
+        </div>
+      )}
+      <ul style={styles.downloadList}>
+        {apkgFiles.map((file) => (
+          <li key={file} style={styles.downloadItem}>
+            <span style={styles.downloadItemName}>{file}</span>
+            <a
+              style={styles.downloadItemLink}
+              download={`${path.basename(file)}`}
+              href={`${id}/${file}`}
+            >
+              Download
+            </a>
+          </li>
+        ))}
+      </ul>
+    </>
   );
 };
 
