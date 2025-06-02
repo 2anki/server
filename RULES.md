@@ -13,11 +13,10 @@ Rules file Copied from @Jmen, https://avatars.githubusercontent.com/u/5757596?v=
 - **Do not add comments.**
 - After you have generated a section of code, remove any comments.
 - Instead of adding comments, use meaningful names for variables and functions.
-Commands
+## Commands
 
-- use npm run test to run the unit tests and scope them to the test file you are currently working on
-- the test output can get truncated, so that the error message is not visible, run without the coverage report to shorten the output
-
+- Use `npm run test` scoped to the current test file.
+- If test output is truncated (hiding errors), rerun tests without coverage reporting for full output.
 ## Process
 
 - use TDD to implement changes
