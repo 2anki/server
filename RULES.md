@@ -18,7 +18,7 @@ Commands
 - use npm run test to run the unit tests and scope them to the test file you are currently working on
 - the test output can get truncated, so that the error message is not visible, run without the coverage report to shorten the output
 
-Process
+## Process
 
 - use TDD to implement changes
 - write a failing test
