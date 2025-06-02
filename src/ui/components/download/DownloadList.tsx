@@ -19,7 +19,7 @@ const DownloadList: React.FC<DownloadListProps> = ({
 }) => {
   // Always show bulk download if there are any files
   const showBulkDownload = apkgFiles.length > 0;
-  
+
   return (
     <>
       {showBulkDownload && (
