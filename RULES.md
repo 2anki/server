@@ -1,7 +1,6 @@
 Rules file Copied from @Jmen, https://avatars.githubusercontent.com/u/5757596?v=4
 
-General
-
+## General
 - KEEP IT SIMPLE
 - the most important thing is for the code to be readable
 - don't remove duplication too early
