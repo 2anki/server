@@ -2,17 +2,26 @@ import React from 'react';
 
 interface DownloadMessageProps {
   hasFiles: boolean;
+  styles?: {
+    pageDescription?: React.CSSProperties;
+    footerLink?: React.CSSProperties;
+  };
 }
 
-const DownloadMessage: React.FC<DownloadMessageProps> = ({ hasFiles }) => {
+const DownloadMessage: React.FC<DownloadMessageProps> = ({ hasFiles, styles = {} }) => {
+  const { pageDescription = {}, footerLink = {} } = styles;
+  
   return (
-    <p>
+    <p style={pageDescription}>
       {hasFiles ? (
-        'This is the list of Anki decks detected from your upload.'
+        <>
+          <span style={{ fontWeight: 500 }}>Success!</span> Here are the Anki decks created from your upload. 
+          Click on individual deck names to download them, or use the "Download All Files" button to get everything at once.
+        </>
       ) : (
         <>
-          No Anki decks found. Learn more about creating valid flashcards at{' '}
-          <a href="https://docs.2anki.net/">2anki.net documentation</a>.
+          No Anki decks were found in your upload. Please check that your content follows the 
+          <a href="https://docs.2anki.net/" style={footerLink}>2anki.net formatting guidelines</a> for creating valid flashcards.
         </>
       )}
     </p>
