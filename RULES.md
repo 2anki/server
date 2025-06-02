@@ -1,6 +1,9 @@
 # RULES
+
 *Adapted from [Jmen](https://github.com/Jmen)*
+
 ## General
+
 - KEEP IT SIMPLE
 - the most important thing is for the code to be readable
 - don't remove duplication too early
@@ -13,10 +16,12 @@
 - **Do not add comments.**
 - After you have generated a section of code, remove any comments.
 - Instead of adding comments, use meaningful names for variables and functions.
+
 ## Commands
 
 - Use `npm run test` scoped to the current test file.
 - If test output is truncated (hiding errors), rerun tests without coverage reporting for full output.
+
 ## Process
 
 - use TDD to implement changes
@@ -28,7 +33,7 @@
 - prefer outside-in testing to keep the code easier to refactor later
 - if I ask you to implement a change without a test, ask me if it is a change that should be tested
 
-Architecture
+## Architecture
 
 - Handlers should only deal with either HTTP requests or event logic, not business logic
 - Commands should deal with business logic and should not directly access the database
