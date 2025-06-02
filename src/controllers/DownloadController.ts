@@ -127,7 +127,7 @@ class DownloadController {
       });
 
       archive.finalize();
-    } catch (error) {
+    } catch (_) {
       res.status(500).send('Error creating bulk download');
     }
   }
