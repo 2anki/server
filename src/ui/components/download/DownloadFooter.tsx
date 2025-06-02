@@ -7,20 +7,31 @@ interface DownloadFooterProps {
   };
 }
 
-export const DownloadFooter: React.FC<DownloadFooterProps> = ({ styles = {} }) => {
+export const DownloadFooter: React.FC<DownloadFooterProps> = ({
+  styles = {},
+}) => {
   const { footer = {}, footerLink = {} } = styles;
-  
+
   return (
     <div style={footer}>
       <p>
         These files will be automatically deleted after 24 hours.
         <br />
-        <a href="https://2anki.net" style={footerLink}>Return to 2anki.net</a> | 
-        <a href="https://docs.2anki.net" style={footerLink}>Documentation</a> | 
-        <a href="https://github.com/2anki/2anki.net" style={footerLink}>GitHub</a>
+        <a href="https://2anki.net" style={footerLink}>
+          Return to 2anki.net
+        </a>{' '}
+        |
+        <a href="https://docs.2anki.net" style={footerLink}>
+          Documentation
+        </a>{' '}
+        |
+        <a href="https://github.com/2anki/2anki.net" style={footerLink}>
+          GitHub
+        </a>
       </p>
       <p style={{ fontSize: '12px', marginTop: '10px' }}>
-        &copy; {new Date().getFullYear()} 2anki.net - Convert your notes to Anki flashcards
+        &copy; {new Date().getFullYear()} 2anki.net - Convert your notes to Anki
+        flashcards
       </p>
     </div>
   );

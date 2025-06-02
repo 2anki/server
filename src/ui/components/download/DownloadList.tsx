@@ -43,7 +43,8 @@ const DownloadList: React.FC<DownloadListProps> = ({
               Object.assign(e.currentTarget.style, buttonHoverStyle);
             }}
             onMouseOut={(e) => {
-              e.currentTarget.style.backgroundColor = styles.bulkDownloadButton.backgroundColor as string;
+              e.currentTarget.style.backgroundColor = styles.bulkDownloadButton
+                .backgroundColor as string;
             }}
           >
             <span style={{ marginRight: '8px' }}>📦</span> Download All Files
@@ -52,8 +53,8 @@ const DownloadList: React.FC<DownloadListProps> = ({
       )}
       <ul style={styles.downloadList}>
         {apkgFiles.map((file) => (
-          <li 
-            key={file} 
+          <li
+            key={file}
             style={styles.downloadItem}
             onMouseOver={(e) => {
               Object.assign(e.currentTarget.style, itemHoverStyle);
@@ -75,7 +76,8 @@ const DownloadList: React.FC<DownloadListProps> = ({
                 Object.assign(e.currentTarget.style, buttonHoverStyle);
               }}
               onMouseOut={(e) => {
-                e.currentTarget.style.backgroundColor = styles.downloadItemLink.backgroundColor as string;
+                e.currentTarget.style.backgroundColor = styles.downloadItemLink
+                  .backgroundColor as string;
               }}
             >
               Download
