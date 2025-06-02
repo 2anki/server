@@ -8,12 +8,11 @@ Rules file Copied from @Jmen, https://avatars.githubusercontent.com/u/5757596?v=
 - When tests fail, please provide the specific error message.
 - after completing a request, check if any extra unnecessary code has been added, and remove it
 
-Comments
+## Comments
 
-- DO NOT ADD COMMENTS
-- after you have generate a section of code, remove any comments
-- instead of adding comments, think about how to name variables and functions that don't need comments
-
+- **Do not add comments.**
+- After you have generated a section of code, remove any comments.
+- Instead of adding comments, use meaningful names for variables and functions.
 Commands
 
 - use npm run test to run the unit tests and scope them to the test file you are currently working on
