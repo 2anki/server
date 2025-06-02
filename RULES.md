@@ -1,5 +1,5 @@
-Rules file Copied from @Jmen, https://avatars.githubusercontent.com/u/5757596?v=4
-
+# RULES
+*Adapted from [Jmen](https://github.com/Jmen)*
 ## General
 - KEEP IT SIMPLE
 - the most important thing is for the code to be readable
