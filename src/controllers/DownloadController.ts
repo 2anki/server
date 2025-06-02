@@ -105,29 +105,30 @@ class DownloadController {
       // Get all .apkg files in the workspace
       const allFiles = fs.readdirSync(workspace);
       console.log('All files in workspace:', allFiles);
-      
-      const files = allFiles.filter(file => file.endsWith('.apkg'));
+
+      const files = allFiles.filter((file) => file.endsWith('.apkg'));
       console.log('APKG files found:', files);
-      
+
       if (files.length === 0) {
         console.log('No APKG files found in workspace');
         return res.status(404).send('No Anki deck files found');
       }
 
       // Set up the archive
-      const archive = archiver('zip', {
-        zlib: { level: 9 } // Maximum compression
-      });
+      const archive = archiver('zip', { zlib: { level: 9 } }); // Maximum compression
 
       // Set the headers
       res.setHeader('Content-Type', 'application/zip');
-      res.setHeader('Content-Disposition', `attachment; filename="anki-decks-${id}.zip"`);
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="anki-decks-${id}.zip"`
+      );
 
       // Pipe the archive to the response
       archive.pipe(res);
 
       // Add each .apkg file to the archive
-      files.forEach(file => {
+      files.forEach((file) => {
         const filePath = path.join(workspace, file);
         archive.file(filePath, { name: file });
       });
