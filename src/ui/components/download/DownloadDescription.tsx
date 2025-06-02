@@ -26,7 +26,7 @@ const DownloadMessage: React.FC<DownloadMessageProps> = ({
       ) : (
         <>
           No Anki decks were found in your upload. Please check that your
-          content follows the
+          content follows the{' '}
           <a href="https://docs.2anki.net/" style={footerLink}>
             2anki.net formatting guidelines
           </a>{' '}
