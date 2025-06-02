@@ -63,20 +63,38 @@ const DownloadList: React.FC<DownloadListProps> = ({
           <li
             key={file}
             style={styles.downloadItem}
-            onMouseOver={(e) => {
-              Object.assign(e.currentTarget.style, itemHoverStyle);
-            }}
-            onFocus={(e) => {
-              Object.assign(e.currentTarget.style, itemHoverStyle);
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.transform = '';
-              e.currentTarget.style.boxShadow = '';
-            }}
-            onBlur={(e) => {
-              e.currentTarget.style.transform = '';
-              e.currentTarget.style.boxShadow = '';
-            }}
+           <li
+             key={file}
+             style={styles.downloadItem}
++            tabIndex={0}
++            role="button"
++            aria-label={`Download ${file}`}
+             onMouseOver={(e) => {
+               Object.assign(e.currentTarget.style, itemHoverStyle);
+             }}
+             onFocus={(e) => {
+               Object.assign(e.currentTarget.style, itemHoverStyle);
+             }}
++            onKeyDown={(e) => {
++              if (e.key === 'Enter' || e.key === ' ') {
++                e.preventDefault();
++                const link = e.currentTarget.querySelector('a');
++                link?.click();
++              }
++            }}
+             onMouseOut={(e) => {
+               e.currentTarget.style.transform = '';
+               e.currentTarget.style.boxShadow = '';
+             }}
+             onBlur={(e) => {
+               e.currentTarget.style.transform = '';
+               e.currentTarget.style.boxShadow = '';
+             }}
+           >
+             <a href={fileUrl} download>
+               {file}
+             </a>
+           </li>
           >
             <span style={styles.downloadItemName}>
               <span style={{ marginRight: '10px', fontSize: '18px' }}>📄</span>
