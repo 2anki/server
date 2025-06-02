@@ -6,7 +6,7 @@ General
 - the most important thing is for the code to be readable
 - don't remove duplication too early
 - we don't want to over optimize for code that is "convenient" to change, we want it to be SIMPLE to understand
-- when test fail tell me the specific error message
+- When tests fail, please provide the specific error message.
 - after completing a request, check if any extra unnecessary code has been added, and remove it
 
 Comments
