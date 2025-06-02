@@ -84,38 +84,43 @@ class DownloadController {
     return res.sendFile(filePath);
   }
 
-  getBulkDownload(req: Request, res: Response) {
-    console.log('Bulk download requested for workspace:', req.params.id);
+  async getBulkDownload(req: Request, res: Response) {
+    console.debug('Bulk download requested for workspace:', req.params.id);
     const { id } = req.params;
     const workspaceBase = process.env.WORKSPACE_BASE!;
     const workspace = path.join(workspaceBase, id);
-    console.log('Workspace path:', workspace);
+    console.debug('Workspace path:', workspace);
 
     if (!fs.existsSync(workspace) || !canAccess(workspace, workspaceBase)) {
-      console.log('Workspace not found or access denied');
+      console.debug('Workspace not found or access denied');
       return res.status(404).end();
     }
 
     if (!fs.statSync(workspace).isDirectory()) {
-      console.log('Not a valid workspace directory');
+      console.debug('Not a valid workspace directory');
       return res.status(400).send('Not a valid workspace');
     }
 
     try {
       // Get all .apkg files in the workspace
-      const allFiles = fs.readdirSync(workspace);
-      console.log('All files in workspace:', allFiles);
+      const allFiles = await fs.promises.readdir(workspace);
+      console.debug('All files in workspace:', allFiles);
 
       const files = allFiles.filter((file) => file.endsWith('.apkg'));
-      console.log('APKG files found:', files);
+      console.debug('APKG files found:', files);
 
       if (files.length === 0) {
-        console.log('No APKG files found in workspace');
+        console.debug('No APKG files found in workspace');
         return res.status(404).send('No Anki deck files found');
       }
 
       // Set up the archive
       const archive = archiver('zip', { zlib: { level: 9 } }); // Maximum compression
+
+      archive.on('error', (err) => {
+        console.error('Archive error:', err);
+        res.status(500).send('Error creating bulk download');
+      });
 
       // Set the headers
       res.setHeader('Content-Type', 'application/zip');
@@ -130,7 +135,9 @@ class DownloadController {
       // Add each .apkg file to the archive
       files.forEach((file) => {
         const filePath = path.join(workspace, file);
-        archive.file(filePath, { name: file });
+        if (fs.existsSync(filePath)) {
+          archive.file(filePath, { name: file });
+        }
       });
 
       // Finalize the archive and send the response
