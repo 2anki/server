@@ -22,6 +22,10 @@ const DownloadRouter = () => {
     controller.getDownloadPage(req, res);
   });
 
+  router.get('/download/:id/bulk', (req, res) => {
+    controller.getBulkDownload(req, res);
+  });
+
   router.get('/download/:id/:filename', (req, res) => {
     controller.getLocalFile(req, res);
   });
