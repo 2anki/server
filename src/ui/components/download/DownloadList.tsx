@@ -42,7 +42,14 @@ const DownloadList: React.FC<DownloadListProps> = ({
             onMouseOver={(e) => {
               Object.assign(e.currentTarget.style, buttonHoverStyle);
             }}
+            onFocus={(e) => {
+              Object.assign(e.currentTarget.style, buttonHoverStyle);
+            }}
             onMouseOut={(e) => {
+              e.currentTarget.style.backgroundColor = styles.bulkDownloadButton
+                .backgroundColor as string;
+            }}
+            onBlur={(e) => {
               e.currentTarget.style.backgroundColor = styles.bulkDownloadButton
                 .backgroundColor as string;
             }}
@@ -59,7 +66,14 @@ const DownloadList: React.FC<DownloadListProps> = ({
             onMouseOver={(e) => {
               Object.assign(e.currentTarget.style, itemHoverStyle);
             }}
+            onFocus={(e) => {
+              Object.assign(e.currentTarget.style, itemHoverStyle);
+            }}
             onMouseOut={(e) => {
+              e.currentTarget.style.transform = '';
+              e.currentTarget.style.boxShadow = '';
+            }}
+            onBlur={(e) => {
               e.currentTarget.style.transform = '';
               e.currentTarget.style.boxShadow = '';
             }}
@@ -75,7 +89,14 @@ const DownloadList: React.FC<DownloadListProps> = ({
               onMouseOver={(e) => {
                 Object.assign(e.currentTarget.style, buttonHoverStyle);
               }}
+              onFocus={(e) => {
+                Object.assign(e.currentTarget.style, buttonHoverStyle);
+              }}
               onMouseOut={(e) => {
+                e.currentTarget.style.backgroundColor = styles.downloadItemLink
+                  .backgroundColor as string;
+              }}
+              onBlur={(e) => {
                 e.currentTarget.style.backgroundColor = styles.downloadItemLink
                   .backgroundColor as string;
               }}
