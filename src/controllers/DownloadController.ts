@@ -85,65 +85,49 @@ class DownloadController {
   }
 
   async getBulkDownload(req: Request, res: Response) {
-    console.debug('Bulk download requested for workspace:', req.params.id);
     const { id } = req.params;
     const workspaceBase = process.env.WORKSPACE_BASE!;
     const workspace = path.join(workspaceBase, id);
-    console.debug('Workspace path:', workspace);
 
     if (!fs.existsSync(workspace) || !canAccess(workspace, workspaceBase)) {
-      console.debug('Workspace not found or access denied');
       return res.status(404).end();
     }
 
     if (!fs.statSync(workspace).isDirectory()) {
-      console.debug('Not a valid workspace directory');
       return res.status(400).send('Not a valid workspace');
     }
 
     try {
-      // Get all .apkg files in the workspace
       const allFiles = await fs.promises.readdir(workspace);
-      console.debug('All files in workspace:', allFiles);
+      const ankiFiles = allFiles.filter((file) => file.endsWith('.apkg'));
 
-      const files = allFiles.filter((file) => file.endsWith('.apkg'));
-      console.debug('APKG files found:', files);
-
-      if (files.length === 0) {
-        console.debug('No APKG files found in workspace');
+      if (ankiFiles.length === 0) {
         return res.status(404).send('No Anki deck files found');
       }
 
-      // Set up the archive
-      const archive = archiver('zip', { zlib: { level: 9 } }); // Maximum compression
+      const archive = archiver('zip', { zlib: { level: 9 } });
 
       archive.on('error', (err) => {
         console.error('Archive error:', err);
         res.status(500).send('Error creating bulk download');
       });
 
-      // Set the headers
       res.setHeader('Content-Type', 'application/zip');
       res.setHeader(
         'Content-Disposition',
         `attachment; filename="anki-decks-${id}.zip"`
       );
 
-      // Pipe the archive to the response
       archive.pipe(res);
-
-      // Add each .apkg file to the archive
-      files.forEach((file) => {
+      ankiFiles.forEach((file) => {
         const filePath = path.join(workspace, file);
         if (fs.existsSync(filePath)) {
           archive.file(filePath, { name: file });
         }
       });
 
-      // Finalize the archive and send the response
       archive.finalize();
     } catch (error) {
-      console.error('Error creating bulk download:', error);
       res.status(500).send('Error creating bulk download');
     }
   }
