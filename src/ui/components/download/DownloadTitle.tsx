@@ -6,6 +6,6 @@ interface DownloadTitleProps {
 
 export const DownloadTitle: React.FC<DownloadTitleProps> = ({ hasFiles }) => {
   return hasFiles
-    ? '✅ Your Anki Decks Are Ready!'
-    : '❌ No Anki Decks Available';
+    ? <><span aria-hidden="true">✅</span> Your Anki Decks Are Ready!</>
+    : <><span aria-hidden="true">❌</span> No Anki Decks Available</>;
 };
