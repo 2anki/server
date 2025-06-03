@@ -18,16 +18,7 @@ const DownloadList: React.FC<DownloadListProps> = ({
   id,
   styles,
 }) => {
-  // Always show bulk download if there are any files
   const showBulkDownload = apkgFiles.length > 0;
-
-  // No longer needed as we're using proper buttons now
-  // const itemHoverStyle = {
-  //   transform: 'translateY(-2px)',
-  //   boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-  // };
-
-  // Create hover styles for buttons
   const buttonHoverStyle = {
     backgroundColor: '#1d4ed8',
   };
