@@ -27,19 +27,19 @@ const DownloadList: React.FC<DownloadListProps> = ({
     <>
       {showBulkDownload && (
         <div style={{ marginBottom: '30px', textAlign: 'center' }}>
-          <button
-            onClick={() => {
-              window.location.href = `/download/${id}/bulk`;
-            }}
+          <a
+            href={`/download/${id}/bulk`}
             style={{
               ...styles.bulkDownloadButton,
-              border: 'none',
-              cursor: 'pointer',
+              textDecoration: 'none',
+              display: 'inline-block',
               padding: '10px 20px',
               borderRadius: '4px',
+              cursor: 'pointer',
               fontFamily: 'inherit',
               fontSize: 'inherit',
             }}
+            role="button"
             aria-label="Download all Anki decks"
             onMouseOver={(e) => {
               Object.assign(e.currentTarget.style, buttonHoverStyle);
@@ -57,7 +57,7 @@ const DownloadList: React.FC<DownloadListProps> = ({
             }}
           >
             <span style={{ marginRight: '8px' }}>📦</span> Download All Files
-          </button>
+          </a>
         </div>
       )}
       <ul style={styles.downloadList}>
@@ -67,19 +67,19 @@ const DownloadList: React.FC<DownloadListProps> = ({
               <span style={{ marginRight: '10px', fontSize: '18px' }}>📄</span>
               {file}
             </span>
-            <button
+            <a
+              href={`${id}/${file}`}
               style={{
                 ...styles.downloadItemLink,
-                border: 'none',
-                cursor: 'pointer',
+                textDecoration: 'none',
+                display: 'inline-block',
                 padding: '8px 16px',
                 borderRadius: '4px',
+                cursor: 'pointer',
                 fontFamily: 'inherit',
                 fontSize: 'inherit',
               }}
-              onClick={() => {
-                window.location.href = `${id}/${file}`;
-              }}
+              role="button"
               aria-label={`Download ${file}`}
               onMouseOver={(e) => {
                 Object.assign(e.currentTarget.style, buttonHoverStyle);
@@ -97,7 +97,7 @@ const DownloadList: React.FC<DownloadListProps> = ({
               }}
             >
               Download
-            </button>
+            </a>
           </li>
         ))}
       </ul>
