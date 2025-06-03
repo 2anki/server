@@ -27,8 +27,8 @@ const DownloadMessage: React.FC<DownloadMessageProps> = ({
         <>
           No Anki decks were found in your upload. Please check that your
           content follows the{' '}
-          <a 
-            href="https://docs.2anki.net/" 
+          <a
+            href="https://docs.2anki.net/"
             style={footerLink}
             target="_blank"
             rel="noopener noreferrer"
