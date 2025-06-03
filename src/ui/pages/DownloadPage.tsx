@@ -18,7 +18,9 @@ export const DownloadPage = ({ id, files }: DownloadPageProps) => {
     <html>
       <head>
         <title>
-          <DownloadTitle hasFiles={hasFiles} />
+          {hasFiles
+            ? '✅ Your Anki Decks Are Ready!'
+            : '❌ No Anki Decks Available'}
         </title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta

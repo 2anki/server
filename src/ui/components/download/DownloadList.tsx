@@ -1,4 +1,4 @@
-import path from 'path';
+// No path import needed anymore
 import React from 'react';
 
 interface DownloadListProps {
@@ -18,16 +18,7 @@ const DownloadList: React.FC<DownloadListProps> = ({
   id,
   styles,
 }) => {
-  // Always show bulk download if there are any files
   const showBulkDownload = apkgFiles.length > 0;
-
-  // Create hover styles for download items
-  const itemHoverStyle = {
-    transform: 'translateY(-2px)',
-    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-  };
-
-  // Create hover styles for buttons
   const buttonHoverStyle = {
     backgroundColor: '#1d4ed8',
   };
@@ -38,7 +29,18 @@ const DownloadList: React.FC<DownloadListProps> = ({
         <div style={{ marginBottom: '30px', textAlign: 'center' }}>
           <a
             href={`/download/${id}/bulk`}
-            style={styles.bulkDownloadButton}
+            style={{
+              ...styles.bulkDownloadButton,
+              textDecoration: 'none',
+              display: 'inline-block',
+              padding: '10px 20px',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+              fontSize: 'inherit',
+            }}
+            role="button"
+            aria-label="Download all Anki decks"
             onMouseOver={(e) => {
               Object.assign(e.currentTarget.style, buttonHoverStyle);
             }}
@@ -60,32 +62,25 @@ const DownloadList: React.FC<DownloadListProps> = ({
       )}
       <ul style={styles.downloadList}>
         {apkgFiles.map((file) => (
-          <li
-            key={file}
-            style={styles.downloadItem}
-            onMouseOver={(e) => {
-              Object.assign(e.currentTarget.style, itemHoverStyle);
-            }}
-            onFocus={(e) => {
-              Object.assign(e.currentTarget.style, itemHoverStyle);
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.transform = '';
-              e.currentTarget.style.boxShadow = '';
-            }}
-            onBlur={(e) => {
-              e.currentTarget.style.transform = '';
-              e.currentTarget.style.boxShadow = '';
-            }}
-          >
+          <li key={file} style={styles.downloadItem}>
             <span style={styles.downloadItemName}>
               <span style={{ marginRight: '10px', fontSize: '18px' }}>📄</span>
               {file}
             </span>
             <a
-              style={styles.downloadItemLink}
-              download={`${path.basename(file)}`}
               href={`${id}/${file}`}
+              style={{
+                ...styles.downloadItemLink,
+                textDecoration: 'none',
+                display: 'inline-block',
+                padding: '8px 16px',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                fontFamily: 'inherit',
+                fontSize: 'inherit',
+              }}
+              role="button"
+              aria-label={`Download ${file}`}
               onMouseOver={(e) => {
                 Object.assign(e.currentTarget.style, buttonHoverStyle);
               }}
