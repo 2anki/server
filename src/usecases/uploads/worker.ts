@@ -20,6 +20,76 @@ interface GenerationData {
   workspace: Workspace;
 }
 
+/**
+ * Get file contents from either path or buffer
+ */
+function getFileContents(file: UploadedFile): Buffer {
+  if (!file.path) {
+    return file.buffer;
+  }
+
+  try {
+    // Check if file exists before trying to read it
+    if (fs.existsSync(file.path)) {
+      return fs.readFileSync(file.path);
+    }
+    console.warn(`File not found at path: ${file.path}, using buffer instead`);
+  } catch (error) {
+    console.error(`Error reading file at path: ${file.path}`, error);
+  }
+
+  return file.buffer;
+}
+
+/**
+ * Process a single file and return packages
+ */
+async function processFile(
+  file: UploadedFile,
+  fileContents: Buffer,
+  paying: boolean,
+  settings: CardOption,
+  workspace: Workspace
+): Promise<Package[]> {
+  const packages: Package[] = [];
+  const filename = file.originalname;
+  const key = file.key;
+
+  // Check if it's a valid single file
+  const allowImageQuizHtmlToAnki =
+    paying && settings.imageQuizHtmlToAnki && isImageFile(filename);
+  const isValidSingleFile =
+    isZipContentFileSupported(filename) ||
+    isPPTFile(filename) ||
+    allowImageQuizHtmlToAnki;
+
+  if (isValidSingleFile) {
+    const d = await PrepareDeck({
+      name: filename,
+      files: [{ name: filename, contents: fileContents }],
+      settings,
+      noLimits: paying,
+      workspace,
+    });
+
+    if (d) {
+      packages.push(new Package(d.name));
+    }
+  }
+  // Check if it's a compressed file
+  else if (isCompressedFile(filename) || isCompressedFile(key)) {
+    const { packages: extraPackages } = await getPackagesFromZip(
+      fileContents,
+      paying,
+      settings,
+      workspace
+    );
+    packages.push(...extraPackages);
+  }
+
+  return packages;
+}
+
 function doGenerationWork(data: GenerationData) {
   console.log('doGenerationWork');
   return new Promise(async (resolve) => {
@@ -28,38 +98,17 @@ function doGenerationWork(data: GenerationData) {
     let packages: Package[] = [];
 
     for (const file of files) {
-      const fileContents = file.path ? fs.readFileSync(file.path) : file.buffer;
-      const filename = file.originalname;
-      const key = file.key;
-
-      const allowImageQuizHtmlToAnki =
-        paying && settings.imageQuizHtmlToAnki && isImageFile(filename);
-      const isValidSingleFile =
-        isZipContentFileSupported(filename) ||
-        isPPTFile(filename) ||
-        allowImageQuizHtmlToAnki;
-      if (isValidSingleFile) {
-        const d = await PrepareDeck({
-          name: filename,
-          files: [{ name: filename, contents: fileContents }],
-          settings,
-          noLimits: paying,
-          workspace,
-        });
-        if (d) {
-          const pkg = new Package(d.name);
-          packages = packages.concat(pkg);
-        }
-      } else if (isCompressedFile(filename) || isCompressedFile(key)) {
-        const { packages: extraPackages } = await getPackagesFromZip(
-          fileContents,
-          paying,
-          settings,
-          workspace
-        );
-        packages = packages.concat(extraPackages);
-      }
+      const fileContents = getFileContents(file);
+      const filePackages = await processFile(
+        file,
+        fileContents,
+        paying,
+        settings,
+        workspace
+      );
+      packages = packages.concat(filePackages);
     }
+
     resolve({ packages });
   });
 }
