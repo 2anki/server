@@ -26,7 +26,7 @@ const UploadRouter = () => {
 
   /**
    * This API is open to the public and therefore does not require authentication.
-   * It is used to upload files to the server and there is a whitelist in place to prevent
+   * It is used to upload files to the server, and there is a whitelist in place to prevent
    * abuse. In the future, this API will be moved to a separate server.
    */
   router.post('/api/upload/file', RequireAllowedOrigin, (req, res) =>
