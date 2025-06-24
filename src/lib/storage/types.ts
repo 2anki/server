@@ -34,6 +34,7 @@ export interface Job {
   last_edited_time: Date;
   title: string;
   type: string;
+  job_reason_failure?: string;
 }
 
 /**
