@@ -35,7 +35,9 @@ export default async function performConversion(
 
     const jobs = await database('jobs').where({ owner }).returning(['*']);
     if (!isPaying(res?.locals) && jobs.length > 1) {
-      await job.cancelled();
+      await job.cancelled(
+        'You have reached the limit of free jobs. Max 1 at a time.'
+      );
       return res ? res.redirect('/uploads') : null;
     }
 
@@ -52,7 +54,12 @@ export default async function performConversion(
       await job.createWorkSpace(api);
     const decks = await job.createFlashcards(bl, id, rules, settings, type);
     if (!decks) {
-      await job.failed();
+      await job.failed(
+        'No decks created, please try again or contact support with' +
+          id +
+          '.' +
+          job.raw?.id
+      );
       return;
     }
 
@@ -77,7 +84,7 @@ export default async function performConversion(
     });
     await job.completed();
   } catch (error) {
-    await job.failed();
+    await job.failed('Technical error ' + error);
     if (waitingResponse) {
       res?.status(400).send('conversion failed.');
     }

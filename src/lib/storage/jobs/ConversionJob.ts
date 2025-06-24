@@ -66,7 +66,7 @@ export default class ConversionJob {
     return this.raw?.status === 'failed' || this.raw?.status === 'started';
   }
 
-  async setStatus(status: JobStatus) {
+  async setStatus(status: JobStatus, description?: string) {
     if (!this.raw) {
       return false;
     }
@@ -78,6 +78,7 @@ export default class ConversionJob {
           object_id,
           owner,
           status,
+          job_reason_failure: description,
           last_edited_time: new Date(),
         })
         .onConflict('object_id')
@@ -104,18 +105,18 @@ export default class ConversionJob {
     return this.db('jobs').where({ owner: owner, object_id: id }).del();
   }
 
-  failed() {
-    return this.setStatus('failed');
+  failed(reason: string) {
+    return this.setStatus('failed', reason);
   }
 
-  cancelled() {
-    return this.setStatus('cancelled');
+  cancelled(reason: string) {
+    return this.setStatus('cancelled', reason);
   }
 
   async createWorkSpace(api: NotionAPIWrapper) {
     await this.setStatus('step1_create_workspace');
     if (!this.raw) {
-      await this.failed();
+      await this.failed('Corrupted job data. Please contact support.');
       throw new Error('undefined job');
     }
 
@@ -163,6 +164,15 @@ export default class ConversionJob {
     const filteredDecks = decks.filter(
       (deck) => deck.cards && deck.cards.length > 0
     );
+
+    if (filteredDecks.length === 0) {
+      throw new Error(
+        'No decks created, please try again or contact support with ' +
+          id +
+          '.' +
+          this.raw?.id
+      );
+    }
 
     exporter.configure(filteredDecks);
     const gen = new CardGenerator(ws.location);
