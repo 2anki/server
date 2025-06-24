@@ -59,7 +59,7 @@
     "metascraper-title": "^5.36.0",
     "metascraper-url": "^5.37.1",
     "morgan": "^1.10.0",
-    "multer": "^1.4.4-lts.1",
+    "multer": "^2.0.1",
     "nodemailer": "^6.10.1",
     "pg": "^8.11.3",
     "react": "^19.1.0",
