@@ -92,6 +92,37 @@ export class PlainTextParser {
         continue;
       }
 
+      // Check if answers contain backticks (cloze markers)
+      if (answers && answers.includes('`')) {
+        // Extract the content inside backticks
+        const backtickMatch = answers.match(/`([^`]+)`/);
+        if (backtickMatch && backtickMatch[1]) {
+          const clozeContent = backtickMatch[1];
+          // Create a cloze card with the content from backticks
+          flashcards.push({
+            front: question.replace(/^- /, '') + ` {{c1::${clozeContent}}}`,
+            isCloze: true,
+          });
+          continue;
+        }
+      }
+
+      // Check if answers contain underscores (cloze markers)
+      if (answers && answers.includes('_')) {
+        // If answer is just underscores, use the first word from the question
+        if (answers.trim() === '___') {
+          const firstWord = question.replace(/^- /, '').split(',')[0].trim();
+          flashcards.push({
+            front: question
+              .replace(/^- /, '')
+              .replace(firstWord, `{{c1::${firstWord}}}`),
+            isCloze: true,
+          });
+          continue;
+        }
+      }
+
+      // Check if question might be a cloze card
       if (answers && isPossiblyClozeFlashcard(question)) {
         const clozeCard = this.fillInTheBlanks(question, answers);
 
