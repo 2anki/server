@@ -1,59 +1,91 @@
-import FallbackParser from './FallbackParser';
+import {
+  testCases,
+  runFallbackParserTest,
+  assertBulletPoints,
+} from './testHelpers';
 
 describe('FallbackParser.getMarkdownBulletLists', () => {
+  // Define additional test cases specific to FallbackParser
+  const fallbackTestCases = {
+    basicBulletWithDash: {
+      input: '- Item 1\n- Item 2\n- Item 3',
+      expected: ['- Item 1', '- Item 2', '- Item 3'],
+    },
+    basicBulletWithAsterisk: {
+      input: '* Item 1\n* Item 2\n* Item 3',
+      expected: ['* Item 1', '* Item 2', '* Item 3'],
+    },
+    basicBulletWithPlus: {
+      input: '+ Item 1\n+ Item 2\n+ Item 3',
+      expected: ['+ Item 1', '+ Item 2', '+ Item 3'],
+    },
+    bulletWithMultipleSpaces: {
+      input: '-  Item with two spaces\n-   Item with three spaces',
+      expected: ['-  Item with two spaces', '-   Item with three spaces'],
+    },
+    bulletWithMinimalContent: {
+      input: '- A\n- Item 2',
+      expected: ['- A', '- Item 2'],
+    },
+    bulletWithinOtherText: {
+      input: 'Some text before\n- Item 1\n- Item 2\nSome text after',
+      expected: ['- Item 1', '- Item 2'],
+    },
+  };
+
   it('should extract basic bullet points with - character', () => {
-    const parser = new FallbackParser([]);
-    const markdown = '- Item 1\n- Item 2\n- Item 3';
-    const result = parser.getMarkdownBulletLists(markdown);
-    expect(result).toEqual(['- Item 1', '- Item 2', '- Item 3']);
+    runFallbackParserTest(
+      fallbackTestCases.basicBulletWithDash,
+      (result) => expect(result).toEqual(fallbackTestCases.basicBulletWithDash.expected)
+    );
   });
 
   it('should extract basic bullet points with * character', () => {
-    const parser = new FallbackParser([]);
-    const markdown = '* Item 1\n* Item 2\n* Item 3';
-    const result = parser.getMarkdownBulletLists(markdown);
-    expect(result).toEqual(['* Item 1', '* Item 2', '* Item 3']);
+    runFallbackParserTest(
+      fallbackTestCases.basicBulletWithAsterisk,
+      (result) => expect(result).toEqual(fallbackTestCases.basicBulletWithAsterisk.expected)
+    );
   });
 
   it('should extract basic bullet points with + character', () => {
-    const parser = new FallbackParser([]);
-    const markdown = '+ Item 1\n+ Item 2\n+ Item 3';
-    const result = parser.getMarkdownBulletLists(markdown);
-    expect(result).toEqual(['+ Item 1', '+ Item 2', '+ Item 3']);
+    runFallbackParserTest(
+      fallbackTestCases.basicBulletWithPlus,
+      (result) => expect(result).toEqual(fallbackTestCases.basicBulletWithPlus.expected)
+    );
   });
 
   it('should extract bullet points with cloze deletion format using backticks and = separator', () => {
-    const parser = new FallbackParser([]);
-    const markdown = '- hübsch, schön = `bonito`';
-    const result = parser.getMarkdownBulletLists(markdown);
-    expect(result).toEqual(['- hübsch, schön = `bonito`']);
+    runFallbackParserTest(
+      testCases.clozeWithBackticksAndEquals,
+      (result) => assertBulletPoints(result, testCases.clozeWithBackticksAndEquals.expected.bulletPoint)
+    );
   });
 
   it('should extract bullet points with cloze deletion format using underscores and - separator', () => {
-    const parser = new FallbackParser([]);
-    const markdown = '- hübsch, schön - ___';
-    const result = parser.getMarkdownBulletLists(markdown);
-    expect(result).toEqual(['- hübsch, schön - ___']);
+    runFallbackParserTest(
+      testCases.clozeWithUnderscoresAndDash,
+      (result) => assertBulletPoints(result, testCases.clozeWithUnderscoresAndDash.expected.bulletPoint)
+    );
   });
 
   it('should extract bullet points with multiple spaces after the bullet character', () => {
-    const parser = new FallbackParser([]);
-    const markdown = '-  Item with two spaces\n-   Item with three spaces';
-    const result = parser.getMarkdownBulletLists(markdown);
-    expect(result).toEqual(['-  Item with two spaces', '-   Item with three spaces']);
+    runFallbackParserTest(
+      fallbackTestCases.bulletWithMultipleSpaces,
+      (result) => expect(result).toEqual(fallbackTestCases.bulletWithMultipleSpaces.expected)
+    );
   });
 
   it('should handle bullet points with minimal content', () => {
-    const parser = new FallbackParser([]);
-    const markdown = '- A\n- Item 2';
-    const result = parser.getMarkdownBulletLists(markdown);
-    expect(result).toEqual(['- A', '- Item 2']);
+    runFallbackParserTest(
+      fallbackTestCases.bulletWithMinimalContent,
+      (result) => expect(result).toEqual(fallbackTestCases.bulletWithMinimalContent.expected)
+    );
   });
 
   it('should handle bullet points within other text', () => {
-    const parser = new FallbackParser([]);
-    const markdown = 'Some text before\n- Item 1\n- Item 2\nSome text after';
-    const result = parser.getMarkdownBulletLists(markdown);
-    expect(result).toEqual(['- Item 1', '- Item 2']);
+    runFallbackParserTest(
+      fallbackTestCases.bulletWithinOtherText,
+      (result) => expect(result).toEqual(fallbackTestCases.bulletWithinOtherText.expected)
+    );
   });
 });
