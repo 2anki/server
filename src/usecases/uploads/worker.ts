@@ -29,7 +29,7 @@ function getFileContents(file: UploadedFile): Buffer {
   }
 
   try {
-    // Check if file exists before trying to read it
+    // Check if a file exists before trying to read it
     if (fs.existsSync(file.path)) {
       return fs.readFileSync(file.path);
     }
