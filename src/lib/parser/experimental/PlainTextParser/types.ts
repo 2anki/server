@@ -25,6 +25,6 @@ export const isBasicFlashcard = (
 export const isPossiblyClozeFlashcard = (question: string) => {
   return (
     (question.includes('_') || question.includes('`')) &&
-    (question.includes('-') || question.includes('='))
+    (question.split('-') || question.split('='))
   );
 };
