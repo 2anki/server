@@ -23,5 +23,8 @@ export const isBasicFlashcard = (
   'back' in flashcard && flashcard.back !== undefined;
 
 export const isPossiblyClozeFlashcard = (question: string) => {
-  return question.includes('_') && question.split('-');
+  return (
+    (question.includes('_') || question.includes('`')) &&
+    (question.split('-') || question.split('='))
+  );
 };
