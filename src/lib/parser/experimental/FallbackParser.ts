@@ -64,8 +64,18 @@ class FallbackParser {
     return styleTag.text() ?? '';
   }
 
+  /**
+   * Extract bullet points from markdown content
+   *
+   * Matches lines starting with -, *, or + followed by one or more spaces or tabs,
+   * and then any characters. This handles standard Markdown bullet point formats
+   * as well as cloze deletion formats with backticks and equals separator.
+   *
+   * @param markdown markdown content
+   * @returns array of bullet points or null if no bullet points found
+   */
   getMarkdownBulletLists(markdown: string) {
-    const bulletListRegex = /[-*+]( .*)+/g;
+    const bulletListRegex = /[-*+][ \t]+.*/g;
     return markdown.match(bulletListRegex);
   }
 

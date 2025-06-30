@@ -3,7 +3,7 @@ import nodemailer from 'nodemailer';
 import { UploadedFile } from '../../lib/storage/types';
 import { isLimitError } from '../../lib/misc/isLimitError';
 import { isEmptyPayload } from '../../lib/misc/isEmptyPayload';
-import { perserveFilesForDebugging } from '../../lib/debug/perserveFilesForDebugging';
+import { preserveFilesForDebugging } from '../../lib/debug/preserveFilesForDebugging';
 import * as cheerio from 'cheerio';
 
 const transporter = nodemailer.createTransport({
@@ -52,7 +52,7 @@ export default async function ErrorHandler(
     console.info('Send error');
     console.error(err);
     if (!isEmptyPayload(uploadedFiles)) {
-      perserveFilesForDebugging(uploadedFiles, err);
+      preserveFilesForDebugging(req, uploadedFiles, err);
     }
 
     try {
