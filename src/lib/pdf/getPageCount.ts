@@ -36,6 +36,15 @@ export function getPageCount(pdfPath: string): Promise<number> {
       );
 
       if (code !== 0) {
+        // Check if the error is due to a password-protected PDF
+        if (stderr.includes('Encrypted') || stderr.includes('password')) {
+          reject(
+            new Error(
+              'The PDF file is password-protected. Please remove the password protection and try again, or you can turn off PDF processing by unchecking "Process PDF Files" in the settings to skip PDF processing of ZIP files containing PDFs.'
+            )
+          );
+          return;
+        }
         reject(new Error('Failed to execute pdfinfo'));
         return;
       }
