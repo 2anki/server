@@ -1,6 +1,6 @@
 import { PlainTextParser } from './PlainTextParser/PlainTextParser';
 import FallbackParser from './FallbackParser';
-import { isClozeFlashcard } from './PlainTextParser/types';
+import { isClozeFlashcard, Flashcard } from './PlainTextParser/types';
 
 // Common test data
 export const testCases = {
@@ -34,8 +34,30 @@ export const testCases = {
   },
 };
 
+// Define test case interfaces
+interface TestCaseWithObjectExpected {
+  input: string;
+  expected: {
+    bulletPoint?: string;
+    clozeContent?: string;
+    front?: string;
+    back?: string;
+  };
+}
+
+interface TestCaseWithArrayExpected {
+  input: string;
+  expected: string[];
+}
+
+// Union type for both test case formats
+type TestCase = TestCaseWithObjectExpected | TestCaseWithArrayExpected;
+
 // Helper functions for PlainTextParser tests
-export const runPlainTextParserTest = (testCase, assertion) => {
+export const runPlainTextParserTest = (
+  testCase: TestCase,
+  assertion: (card: Flashcard) => void
+) => {
   const parser = new PlainTextParser();
   const result = parser.parse(testCase.input);
 
@@ -44,7 +66,10 @@ export const runPlainTextParserTest = (testCase, assertion) => {
 };
 
 // Helper functions for FallbackParser tests
-export const runFallbackParserTest = (testCase, assertion) => {
+export const runFallbackParserTest = (
+  testCase: TestCase,
+  assertion: (result: RegExpMatchArray | null) => void
+) => {
   const parser = new FallbackParser([]);
   const result = parser.getMarkdownBulletLists(testCase.input);
 
@@ -52,7 +77,7 @@ export const runFallbackParserTest = (testCase, assertion) => {
 };
 
 // Common assertions
-export const assertClozeCard = (card, expectedContent) => {
+export const assertClozeCard = (card: Flashcard, expectedContent: string) => {
   expect(isClozeFlashcard(card)).toBe(true);
 
   if (isClozeFlashcard(card)) {
@@ -60,7 +85,11 @@ export const assertClozeCard = (card, expectedContent) => {
   }
 };
 
-export const assertBasicCard = (card, expectedFront, expectedBack) => {
+export const assertBasicCard = (
+  card: Flashcard,
+  expectedFront: string,
+  expectedBack: string
+) => {
   expect(isClozeFlashcard(card)).toBe(false);
 
   if (!isClozeFlashcard(card)) {
@@ -69,6 +98,9 @@ export const assertBasicCard = (card, expectedFront, expectedBack) => {
   }
 };
 
-export const assertBulletPoints = (result, expected) => {
+export const assertBulletPoints = (
+  result: RegExpMatchArray | null,
+  expected: string
+) => {
   expect(result).toEqual([expected]);
 };
