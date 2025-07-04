@@ -1,11 +1,11 @@
 import axios from 'axios';
 
 const metascraper = require('metascraper')([
-  require('metascraper-description')(),
-  require('metascraper-image')(),
-  require('metascraper-logo-favicon')(),
-  require('metascraper-title')(),
-  require('metascraper-url')(),
+  require('metascraper-description'),
+  require('metascraper-image'),
+  require('metascraper-logo-favicon'),
+  require('metascraper-title'),
+  require('metascraper-url'),
 ]);
 
 export interface Metadata {

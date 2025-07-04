@@ -197,7 +197,7 @@ class BlockHandler {
         }
       }
 
-      ankiNote.back = back!;
+      ankiNote.back = back || '';
       ankiNote.notionLink = this.__notionLink(block.id, notionBaseLink);
       if (this.settings.addNotionLink) {
         ankiNote.back += RenderNotionLink(ankiNote.notionLink!, this);
@@ -215,10 +215,12 @@ class BlockHandler {
         ankiNote.name,
         this.settings
       );
-      ankiNote.back = perserveNewlinesIfApplicable(
-        ankiNote.back,
-        this.settings
-      );
+      if (ankiNote.back) {
+        ankiNote.back = perserveNewlinesIfApplicable(
+          ankiNote.back,
+          this.settings
+        );
+      }
 
       cards.push(ankiNote);
       if (
