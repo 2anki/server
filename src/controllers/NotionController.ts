@@ -91,7 +91,7 @@ class NotionController {
       type,
       owner: res.locals.owner,
       res,
-      title,
+      title: title ?? 'Untitled',
     });
   }
 
