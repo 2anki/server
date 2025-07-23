@@ -22,7 +22,7 @@
     "test:watch": "jest --watch",
     "start": "npm run dev",
     "build": "tsc -p .",
-    "dev": "LOCAL_DEV=true nodemon --watch '**/*.ts' --exec \"ts-node\" src/server.ts",
+    "dev": "cross-env LOCAL_DEV=true nodemon --watch '**/*.ts' --exec \"ts-node\" src/server.ts",
     "lint": "eslint '**/*.ts' '**/*.tsx'",
     "lint:fix": "eslint --fix '**/*.ts' '**/*.tsx'",
     "purge-js": "rm `find . -name '*.js'|grep -v node_modules`",
