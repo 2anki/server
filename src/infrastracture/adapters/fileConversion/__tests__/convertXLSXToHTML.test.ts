@@ -12,7 +12,10 @@ describe('convertXLSXToHTML', () => {
     const workspace = new Workspace(true, 'fs');
     const xlsxPath = join(__dirname, '../___mock/sim.xlsx');
     const buffer = readFileSync(xlsxPath);
-    const html = convertXLSXToHTML(buffer, join(workspace.location, 'Simple.html'));
+    const html = convertXLSXToHTML(
+      buffer,
+      join(workspace.location, 'Simple.html')
+    );
     expect(html).toContain('<!DOCTYPE html>');
     expect(html).toContain('Simple.html');
   });

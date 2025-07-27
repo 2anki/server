@@ -1,6 +1,4 @@
-import {
-  IServiceSettings,
-} from '../../services/SettingsService';
+import { IServiceSettings } from '../../services/SettingsService';
 import CardOptionsController from './CardOptionsController';
 import { SettingsInitializer } from '../../data_layer/public/Settings';
 
@@ -25,7 +23,9 @@ function testDefaultSettings(
   type: 'client' | 'server',
   expectedOptions: Record<string, string>
 ) {
-  const settingsController = new CardOptionsController(new FakeSettingsService());
+  const settingsController = new CardOptionsController(
+    new FakeSettingsService()
+  );
   const defaultOptions = settingsController.getDefaultCardOptions(type);
   expect(defaultOptions).toStrictEqual(expectedOptions);
 }

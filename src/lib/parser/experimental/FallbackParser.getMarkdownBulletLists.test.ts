@@ -34,58 +34,64 @@ describe('FallbackParser.getMarkdownBulletLists', () => {
   };
 
   it('should extract basic bullet points with - character', () => {
-    runFallbackParserTest(
-      fallbackTestCases.basicBulletWithDash,
-      (result) => expect(result).toEqual(fallbackTestCases.basicBulletWithDash.expected)
+    runFallbackParserTest(fallbackTestCases.basicBulletWithDash, (result) =>
+      expect(result).toEqual(fallbackTestCases.basicBulletWithDash.expected)
     );
   });
 
   it('should extract basic bullet points with * character', () => {
-    runFallbackParserTest(
-      fallbackTestCases.basicBulletWithAsterisk,
-      (result) => expect(result).toEqual(fallbackTestCases.basicBulletWithAsterisk.expected)
+    runFallbackParserTest(fallbackTestCases.basicBulletWithAsterisk, (result) =>
+      expect(result).toEqual(fallbackTestCases.basicBulletWithAsterisk.expected)
     );
   });
 
   it('should extract basic bullet points with + character', () => {
-    runFallbackParserTest(
-      fallbackTestCases.basicBulletWithPlus,
-      (result) => expect(result).toEqual(fallbackTestCases.basicBulletWithPlus.expected)
+    runFallbackParserTest(fallbackTestCases.basicBulletWithPlus, (result) =>
+      expect(result).toEqual(fallbackTestCases.basicBulletWithPlus.expected)
     );
   });
 
   it('should extract bullet points with cloze deletion format using backticks and = separator', () => {
-    runFallbackParserTest(
-      testCases.clozeWithBackticksAndEquals,
-      (result) => assertBulletPoints(result, testCases.clozeWithBackticksAndEquals.expected.bulletPoint)
+    runFallbackParserTest(testCases.clozeWithBackticksAndEquals, (result) =>
+      assertBulletPoints(
+        result,
+        testCases.clozeWithBackticksAndEquals.expected.bulletPoint
+      )
     );
   });
 
   it('should extract bullet points with cloze deletion format using underscores and - separator', () => {
-    runFallbackParserTest(
-      testCases.clozeWithUnderscoresAndDash,
-      (result) => assertBulletPoints(result, testCases.clozeWithUnderscoresAndDash.expected.bulletPoint)
+    runFallbackParserTest(testCases.clozeWithUnderscoresAndDash, (result) =>
+      assertBulletPoints(
+        result,
+        testCases.clozeWithUnderscoresAndDash.expected.bulletPoint
+      )
     );
   });
 
   it('should extract bullet points with multiple spaces after the bullet character', () => {
     runFallbackParserTest(
       fallbackTestCases.bulletWithMultipleSpaces,
-      (result) => expect(result).toEqual(fallbackTestCases.bulletWithMultipleSpaces.expected)
+      (result) =>
+        expect(result).toEqual(
+          fallbackTestCases.bulletWithMultipleSpaces.expected
+        )
     );
   });
 
   it('should handle bullet points with minimal content', () => {
     runFallbackParserTest(
       fallbackTestCases.bulletWithMinimalContent,
-      (result) => expect(result).toEqual(fallbackTestCases.bulletWithMinimalContent.expected)
+      (result) =>
+        expect(result).toEqual(
+          fallbackTestCases.bulletWithMinimalContent.expected
+        )
     );
   });
 
   it('should handle bullet points within other text', () => {
-    runFallbackParserTest(
-      fallbackTestCases.bulletWithinOtherText,
-      (result) => expect(result).toEqual(fallbackTestCases.bulletWithinOtherText.expected)
+    runFallbackParserTest(fallbackTestCases.bulletWithinOtherText, (result) =>
+      expect(result).toEqual(fallbackTestCases.bulletWithinOtherText.expected)
     );
   });
 });

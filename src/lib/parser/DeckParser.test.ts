@@ -15,7 +15,12 @@ test('Toggle Headings', async () => {
 test('Grouped cloze deletions', async () => {
   const deck = await getDeck(
     'Grouped Cloze Deletions fbf856ad7911423dbef0bfd3e3c5ce5c 3.html',
-    new CardOption({ cherry: 'false', cloze: 'true', reversed: 'true', 'basic-reversed': 'true' })
+    new CardOption({
+      cherry: 'false',
+      cloze: 'true',
+      reversed: 'true',
+      'basic-reversed': 'true',
+    })
   );
   expect(deck.name).toBe('Grouped Cloze Deletions');
   expect(deck.cards.length).toBe(20);
@@ -24,7 +29,11 @@ test('Grouped cloze deletions', async () => {
 test('Cloze Deletions', async () => {
   const deck = await getDeck(
     'Some Cloze Deletions 1a118169ada841a99a9aaccc7eaa6775.html',
-    new CardOption({ cherry: 'false', reversed: 'true', 'basic-reversed': 'true' })
+    new CardOption({
+      cherry: 'false',
+      reversed: 'true',
+      'basic-reversed': 'true',
+    })
   );
   expect(deck.cards[0].back).toBe(
     "<div class='toggle'>{{c2::Canberra}} was founded in {{c1::1913}}.</div>"
@@ -63,7 +72,11 @@ test.skip('HTML Regression Test', (t) => {
 test('Nested Toggles', async () => {
   const deck = await getDeck(
     'Nested Toggles.html',
-    new CardOption({ cherry: 'true', reversed: 'true', 'basic-reversed': 'true' })
+    new CardOption({
+      cherry: 'true',
+      reversed: 'true',
+      'basic-reversed': 'true',
+    })
   );
   expect(deck.cards.length).toBe(12);
 });
@@ -82,32 +95,46 @@ test.todo('Multiple File Uploads');
 test.todo('Test Basic Card');
 
 test('Markdown empty deck', async () => {
-  const deck = await getDeck('empty-deck.md', new CardOption({
-    "markdown-nested-bullet-points": "true"
-  }));
+  const deck = await getDeck(
+    'empty-deck.md',
+    new CardOption({
+      'markdown-nested-bullet-points': 'true',
+    })
+  );
   expect(deck.name).toBe('Empty Deck');
   expect(deck.cards.length).toBe(0);
-})
+});
 
 test('Markdown nested bullet points', async () => {
-  const deck = await getDeck('simple-deck.md', new CardOption({
-    "markdown-nested-bullet-points": "true",
-    "reversed": "false",
-    "basic-reversed": "false",
-  }));
+  const deck = await getDeck(
+    'simple-deck.md',
+    new CardOption({
+      'markdown-nested-bullet-points': 'true',
+      reversed: 'false',
+      'basic-reversed': 'false',
+    })
+  );
 
   expect(deck.name).toBe('Simple Deck');
 
-  expect(deck.cards[0].name).toBe('<ul>\n<li>' + 'What is the capital of Kenya?' + '</li>\n</ul>');
+  expect(deck.cards[0].name).toBe(
+    '<ul>\n<li>' + 'What is the capital of Kenya?' + '</li>\n</ul>'
+  );
   expect(deck.cards[0].back).toBe('<p>Nairobi</p>');
-  expect(deck.cards[1].name).toBe('<ul>\n<li>' + 'What is the capital of Norway' + '</li>\n</ul>');
+  expect(deck.cards[1].name).toBe(
+    '<ul>\n<li>' + 'What is the capital of Norway' + '</li>\n</ul>'
+  );
   expect(deck.cards[1].back).toBe('<p>Oslo</p>');
-  expect(deck.cards[2].name).toBe('<ul>\n<li>' + 'What is the capital of Sweden'+'</li>\n</ul>');
-  
+  expect(deck.cards[2].name).toBe(
+    '<ul>\n<li>' + 'What is the capital of Sweden' + '</li>\n</ul>'
+  );
+
   console.log('Deck card 2 back:', deck.cards[2].back);
 
   expect(deck.cards[2].back).toBe('<p>Stockholm</p>');
-  expect(deck.cards[3].name).toBe('<ul>\n<li>' + 'What is the capital of Finland' + '</li>\n</ul>');
+  expect(deck.cards[3].name).toBe(
+    '<ul>\n<li>' + 'What is the capital of Finland' + '</li>\n</ul>'
+  );
   expect(deck.cards[3].back).toBe('<p>Helsinki</p>');
   expect(deck.cards.length).toBe(4);
-})
+});

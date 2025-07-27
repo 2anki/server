@@ -6,7 +6,10 @@ describe('FallbackParser.htmlToTextWithNewlines', () => {
     const spy = jest.spyOn(console, 'warn').mockImplementation();
     const result = parser.htmlToTextWithNewlines(undefined as any);
     expect(result).toEqual([]);
-    expect(spy).toHaveBeenCalledWith('[FallbackParser] htmlToTextWithNewlines called with invalid html:', undefined);
+    expect(spy).toHaveBeenCalledWith(
+      '[FallbackParser] htmlToTextWithNewlines called with invalid html:',
+      undefined
+    );
     spy.mockRestore();
   });
 
@@ -15,7 +18,10 @@ describe('FallbackParser.htmlToTextWithNewlines', () => {
     const spy = jest.spyOn(console, 'warn').mockImplementation();
     const result = parser.htmlToTextWithNewlines(null as any);
     expect(result).toEqual([]);
-    expect(spy).toHaveBeenCalledWith('[FallbackParser] htmlToTextWithNewlines called with invalid html:', null);
+    expect(spy).toHaveBeenCalledWith(
+      '[FallbackParser] htmlToTextWithNewlines called with invalid html:',
+      null
+    );
     spy.mockRestore();
   });
 
@@ -24,7 +30,10 @@ describe('FallbackParser.htmlToTextWithNewlines', () => {
     const spy = jest.spyOn(console, 'warn').mockImplementation();
     const result = parser.htmlToTextWithNewlines('');
     expect(result).toEqual([]);
-    expect(spy).toHaveBeenCalledWith('[FallbackParser] htmlToTextWithNewlines called with invalid html:', '');
+    expect(spy).toHaveBeenCalledWith(
+      '[FallbackParser] htmlToTextWithNewlines called with invalid html:',
+      ''
+    );
     spy.mockRestore();
   });
 

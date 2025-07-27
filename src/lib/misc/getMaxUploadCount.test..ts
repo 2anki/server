@@ -1,6 +1,5 @@
 import { getMaxUploadCount } from './getMaxUploadCount';
 
-
 describe('getMaxUploadCount', () => {
   it('should return 21 for anon', () => {
     expect(getMaxUploadCount()).toBe(1);

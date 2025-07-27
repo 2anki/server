@@ -247,24 +247,24 @@ describe('BlockHandler', () => {
     expect(flashcards.length).toBe(1);
   });
 
- test('Add Notion Link', async () => {
-     const expected =
-         'https://www.notion.so/Notion-API-Test-Page-3ce6b147ac8a425f836b51cc21825b85#e5201f35c72240d38e3a5d218e5d80a5';
-     const flashcards = await loadCards(
-         {
-           'add-notion-link': 'true',
-           parentBlockId: examplId,
-         },
-       examplId,
-         new Workspace(true, 'fs'),
-       new ParserRules()
-     );
-     const card = flashcards.find((f) =>
-         f.name.includes('1 - This is a basic card')
-       );
-     expect(card).toBeTruthy();
-     expect(card?.notionLink).toBe(expected);
-   });
+  test('Add Notion Link', async () => {
+    const expected =
+      'https://www.notion.so/Notion-API-Test-Page-3ce6b147ac8a425f836b51cc21825b85#e5201f35c72240d38e3a5d218e5d80a5';
+    const flashcards = await loadCards(
+      {
+        'add-notion-link': 'true',
+        parentBlockId: examplId,
+      },
+      examplId,
+      new Workspace(true, 'fs'),
+      new ParserRules()
+    );
+    const card = flashcards.find((f) =>
+      f.name.includes('1 - This is a basic card')
+    );
+    expect(card).toBeTruthy();
+    expect(card?.notionLink).toBe(expected);
+  });
 
   test.todo('Maximum One Toggle Per Card');
   test.todo('Use All Toggle Lists');
