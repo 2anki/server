@@ -7,7 +7,12 @@ class JobController {
   constructor(private readonly service: JobService) {}
 
   async getJobsByOwner(_req: express.Request, res: express.Response) {
-    const jobs = await this.service.getJobsByOwner(getOwner(res));
+    const owner = getOwner(res);
+    if (!owner) {
+      res.redirect('/login');
+      return;
+    }
+    const jobs = await this.service.getJobsByOwner(owner);
     res.send(jobs);
   }
 
