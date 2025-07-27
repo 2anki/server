@@ -70,14 +70,18 @@ describe('handleClozeDeletions', () => {
   });
 
   it('should handle nested cloze deletions with same number in summary', () => {
-    const input = '<details><summary><code>c1::Good habits</code> are <code>c1::good</code> in general</summary></details>';
-    const expected = '<details><summary>{{c1::Good habits}} are {{c1::good}} in general</summary></details>';
+    const input =
+      '<details><summary><code>c1::Good habits</code> are <code>c1::good</code> in general</summary></details>';
+    const expected =
+      '<details><summary>{{c1::Good habits}} are {{c1::good}} in general</summary></details>';
     expect(handleClozeDeletions(input)).toBe(expected);
   });
 
   it('should preserve existing nested cloze deletions in summary', () => {
-    const input = '<details><summary><code>{{c1::Good}} things happen for {{c1::good}}</code> people</summary></details>';
-    const expected = '<details><summary>{{c1::Good}} things happen for {{c1::good}} people</summary></details>';
+    const input =
+      '<details><summary><code>{{c1::Good}} things happen for {{c1::good}}</code> people</summary></details>';
+    const expected =
+      '<details><summary>{{c1::Good}} things happen for {{c1::good}} people</summary></details>';
     expect(handleClozeDeletions(input)).toBe(expected);
   });
 
@@ -86,4 +90,4 @@ describe('handleClozeDeletions', () => {
     const expected = '<details><summary>Some text</summary></details>';
     expect(handleClozeDeletions(input)).toBe(expected);
   });
-}); 
+});

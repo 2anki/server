@@ -1,83 +1,84 @@
-import { canAccess } from "./canAccess";
+import { canAccess } from './canAccess';
 
+test('returns false on path traversal', () => {
+  // Arrange
+  const directoryPath = '/tmp/..';
 
-test("returns false on path traversal", () => {
-        // Arrange
-        const directoryPath = '/tmp/..';
+  // Act
+  const access = canAccess(directoryPath);
 
-        // Act
-        const access = canAccess(directoryPath);
+  // Assert
+  expect(access).toBe(false);
+});
 
-        // Assert
-        expect(access).toBe(false);
-})
+test('returns true for workspace path', () => {
+  // Arrange
+  const directoryPath = '/tmp/download/03d993ad-7b85-44bc-a810-aa3098a1b483';
 
-test("returns true for workspace path", () => {
-        // Arrange
-        const directoryPath = '/tmp/download/03d993ad-7b85-44bc-a810-aa3098a1b483'
+  // Act
+  const access = canAccess(directoryPath, '/tmp');
 
-        // Act
-        const access = canAccess(directoryPath, '/tmp');
-        
-        // Assert
-        expect(access).toBe(true);
-})
+  // Assert
+  expect(access).toBe(true);
+});
 
-test("returns false for relative path", () => {
-        // Arrange
-        const directoryPath = '~/.config';
+test('returns false for relative path', () => {
+  // Arrange
+  const directoryPath = '~/.config';
 
-        // Act
-        const access = canAccess(directoryPath);
-        
-        // Assert
-        expect(access).toBe(false);
-})
+  // Act
+  const access = canAccess(directoryPath);
 
-test("returns false if outside of basePath", () => {
-        // Arrange
-        const directoryPath = '/home/user/Downloads';
+  // Assert
+  expect(access).toBe(false);
+});
 
-        // Act
-        const access = canAccess(directoryPath, '/tmp/workspace');
+test('returns false if outside of basePath', () => {
+  // Arrange
+  const directoryPath = '/home/user/Downloads';
 
-        // Assert
-        expect(access).toBe(false);
-})
+  // Act
+  const access = canAccess(directoryPath, '/tmp/workspace');
 
-test("returns true for APKG in workspace", () => {
-        // Arrange
-        const directoryPath = '/tmp/download/03d993ad-7b85-44bc-a810-aa3098a1b483/x.apkg'
+  // Assert
+  expect(access).toBe(false);
+});
 
-        // Act
-        const access = canAccess(directoryPath, '/tmp');
-        
-        // Assert
-        expect(access).toBe(true);
-})
+test('returns true for APKG in workspace', () => {
+  // Arrange
+  const directoryPath =
+    '/tmp/download/03d993ad-7b85-44bc-a810-aa3098a1b483/x.apkg';
 
+  // Act
+  const access = canAccess(directoryPath, '/tmp');
 
-test("returns false for newlines ", () => {
-        // Arrange
-        const newLines = "This is a long string"
-        + " that spans multiple lines."
-        + "\nIt can contain newlines"
-        + " and other characters without any issues.";
-        
-        // Act
-        const access = canAccess(newLines);
-        
-        // Assert
-        expect(access).toBe(false);
-})
+  // Assert
+  expect(access).toBe(true);
+});
 
-test("returns false for long filename", () => {
-        // Arrange
-        const longString = "A musical instrument is a device created or adapted to make musical sounds. In principle, any object that produces sound can be considered a musical instrument—it is through purpose that the object becomes a musical instrument. A person who plays a musical instrument is known as an instrumentalist. The history of musical instruments dates to the beginnings of human culture. Early musical instruments may have been used for rituals, such as a horn to signal success on the hunt, or a drum in a religious ceremony. Cultures eventually developed composition and performance of melodies for entertainment. Musical instruments evolved in step with changing applications and technologies."
-        
-        // Act
-        const access = canAccess(longString);
-        
-        // Assert
-        expect(access).toBe(false);
-})
+test('returns false for newlines ', () => {
+  // Arrange
+  const newLines =
+    'This is a long string' +
+    ' that spans multiple lines.' +
+    '\nIt can contain newlines' +
+    ' and other characters without any issues.';
+
+  // Act
+  const access = canAccess(newLines);
+
+  // Assert
+  expect(access).toBe(false);
+});
+
+test('returns false for long filename', () => {
+  // Arrange
+  const longString =
+    'A musical instrument is a device created or adapted to make musical sounds. In principle, any object that produces sound can be considered a musical instrument—it is through purpose that the object becomes a musical instrument. A person who plays a musical instrument is known as an instrumentalist. The history of musical instruments dates to the beginnings of human culture. Early musical instruments may have been used for rituals, such as a horn to signal success on the hunt, or a drum in a religious ceremony. Cultures eventually developed composition and performance of melodies for entertainment. Musical instruments evolved in step with changing applications and technologies.';
+
+  // Act
+  const access = canAccess(longString);
+
+  // Assert
+  expect(access).toBe(false);
+});

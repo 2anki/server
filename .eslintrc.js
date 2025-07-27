@@ -13,7 +13,7 @@ module.exports = {
   plugins: ['import', '@typescript-eslint', 'prettier'],
   rules: {
     'react/jsx-filename-extension': 'off',
-    'prettier/prettier': ['error'],
+    'prettier/prettier': ['error', { endOfLine: 'lf' }],
     'require-await': 'error',
     '@typescript-eslint/lines-between-class-members': 'off',
     '@typescript-eslint/no-throw-literal': 'off',

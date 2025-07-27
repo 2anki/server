@@ -46,7 +46,7 @@ describe('Upload file', () => {
       },
       deleteNotionData(owner: number): Promise<boolean> {
         return Promise.resolve(true);
-      }
+      },
     };
     const uploadService = new UploadService(repository);
     const notionService = new NotionService(notionRepository);

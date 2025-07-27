@@ -11,5 +11,5 @@ describe('getUploadLimits', () => {
     const limits = getUploadLimits(true);
     const about1GB = 10485760000;
     expect(limits.fileSize).toBe(about1GB);
-  })
+  });
 });
