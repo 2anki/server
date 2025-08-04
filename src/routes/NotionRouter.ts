@@ -132,7 +132,7 @@ const NotionRouter = () => {
 
   /**
    * @swagger
-   * /api/notion/convert:
+   * /api/notion/convert/:
    *   post:
    *     summary: Convert Notion page to Anki
    *     description: Convert a Notion page to Anki flashcards
