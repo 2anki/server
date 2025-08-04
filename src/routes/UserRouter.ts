@@ -347,11 +347,17 @@ const UserRouter = () => {
    * /patreon:
    *   get:
    *     summary: Patreon integration
-   *     description: Handle Patreon authentication callback
+   *     description: Handle Patreon authentication callback and redirects (supports /patreon)
    *     tags: [Authentication]
    *     responses:
    *       302:
    *         description: Redirect after Patreon authentication
+   *       200:
+   *         description: Patreon integration page
+   *         content:
+   *           text/html:
+   *             schema:
+   *               type: string
    */
   router.get('/patr*on', (req, res) => controller.patreon(req, res));
 
