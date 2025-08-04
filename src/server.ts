@@ -12,7 +12,7 @@ if (existsSync(localEnvFile)) {
   dotenv.config({ path: localEnvFile });
 }
 
-import { ALLOWED_ORIGINS, BUILD_DIR } from './lib/constants';
+import { BUILD_DIR } from './lib/constants';
 import ErrorHandler from './routes/middleware/ErrorHandler';
 
 // Server Endpoints
