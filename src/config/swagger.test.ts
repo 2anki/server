@@ -2,6 +2,21 @@ import fs from 'fs';
 import path from 'path';
 import { swaggerSpec } from './swagger';
 
+// Define proper types for Swagger spec
+interface SwaggerSpec {
+  openapi: string;
+  info: {
+    title: string;
+    version: string;
+    description?: string;
+  };
+  paths: Record<string, Record<string, any>>;
+  components: {
+    schemas: Record<string, any>;
+    securitySchemes: Record<string, any>;
+  };
+}
+
 describe('Swagger Documentation Coverage', () => {
   const routesDir = path.join(__dirname, '../routes');
 
@@ -59,10 +74,11 @@ describe('Swagger Documentation Coverage', () => {
   // Extract documented paths from Swagger spec
   const extractSwaggerPaths = (): Set<string> => {
     const documentedPaths = new Set<string>();
+    const spec = swaggerSpec as SwaggerSpec;
 
-    if (swaggerSpec.paths) {
-      Object.keys(swaggerSpec.paths).forEach((path) => {
-        const pathItem = swaggerSpec.paths[path];
+    if (spec.paths) {
+      Object.keys(spec.paths).forEach((path) => {
+        const pathItem = spec.paths[path];
         Object.keys(pathItem).forEach((method) => {
           // Convert Swagger path format {id} to Express format :id
           const expressPath = path.replace(/\{([^}]+)\}/g, ':$1');
@@ -178,27 +194,29 @@ describe('Swagger Documentation Coverage', () => {
   });
 
   it('should have valid Swagger specification', () => {
-    expect(swaggerSpec).toBeDefined();
-    expect(swaggerSpec.openapi).toBe('3.0.0');
-    expect(swaggerSpec.info).toBeDefined();
-    expect(swaggerSpec.info.title).toBe('2anki Server API');
-    expect(swaggerSpec.paths).toBeDefined();
+    const spec = swaggerSpec as SwaggerSpec;
+    expect(spec).toBeDefined();
+    expect(spec.openapi).toBe('3.0.0');
+    expect(spec.info).toBeDefined();
+    expect(spec.info.title).toBe('2anki Server API');
+    expect(spec.paths).toBeDefined();
   });
 
   it('should have proper API documentation structure', () => {
+    const spec = swaggerSpec as SwaggerSpec;
     // Ensure we have the basic components defined
-    expect(swaggerSpec.components).toBeDefined();
-    expect(swaggerSpec.components.schemas).toBeDefined();
-    expect(swaggerSpec.components.securitySchemes).toBeDefined();
+    expect(spec.components).toBeDefined();
+    expect(spec.components.schemas).toBeDefined();
+    expect(spec.components.securitySchemes).toBeDefined();
 
     // Check that essential schemas are defined
     const requiredSchemas = ['Error', 'Success', 'User', 'Upload'];
     requiredSchemas.forEach((schema) => {
-      expect(swaggerSpec.components.schemas[schema]).toBeDefined();
+      expect(spec.components.schemas[schema]).toBeDefined();
     });
 
     // Check that security schemes are properly defined
-    expect(swaggerSpec.components.securitySchemes.bearerAuth).toBeDefined();
-    expect(swaggerSpec.components.securitySchemes.cookieAuth).toBeDefined();
+    expect(spec.components.securitySchemes.bearerAuth).toBeDefined();
+    expect(spec.components.securitySchemes.cookieAuth).toBeDefined();
   });
 });
