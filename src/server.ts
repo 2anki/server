@@ -28,6 +28,7 @@ import favoriteRouter from './routes/FavoriteRouter';
 import templatesRouter from './routes/TemplatesRouter';
 import defaultRouter from './routes/DefaultRouter';
 import webhookRouter from './routes/WebhookRouter';
+import swaggerRouter from './routes/SwaggerRouter';
 
 import { getDatabase, setupDatabase } from './data_layer';
 
@@ -61,6 +62,10 @@ const serve = async () => {
 
   app.use('/templates', express.static(templateDir));
   app.use(express.static(BUILD_DIR));
+
+  // API Documentation
+  app.use(swaggerRouter());
+
   app.use(checksRouter());
   app.use(versionRouter());
   app.use(uploadRouter());
