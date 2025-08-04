@@ -129,6 +129,34 @@ const options: swaggerJsdoc.Options = {
   apis: ['./src/routes/*.ts', './src/controllers/*.ts'],
 };
 
+/**
+ * @swagger
+ * components:
+ *   x-middleware:
+ *     authentication:
+ *       description: |
+ *         All authenticated endpoints require either:
+ *         - Bearer token in Authorization header
+ *         - Valid session cookie
+ *       behaviors:
+ *         - Validates JWT tokens
+ *         - Checks session cookies
+ *         - Returns 401 if invalid/missing
+ *     originValidation:
+ *       description: |
+ *         Public upload endpoints validate request origin
+ *       behaviors:
+ *         - Checks Origin/Referer headers
+ *         - Validates against whitelist
+ *         - Returns 403 if not allowed
+ *     paidSubscription:
+ *       description: |
+ *         Premium features require active subscription
+ *       behaviors:
+ *         - Validates subscription status
+ *         - Returns 403 if subscription expired
+ */
+
 export const swaggerSpec = swaggerJsdoc(options);
 
 // Custom CSS for swagger UI
