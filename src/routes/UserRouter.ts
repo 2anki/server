@@ -237,8 +237,8 @@ const UserRouter = () => {
    * @swagger
    * /api/users/r/{id}:
    *   get:
-   *     summary: Reset password page
-   *     description: Redirect to password reset page with token validation
+   *     summary: Password reset redirect
+   *     description: Handle password reset token and redirect to reset page
    *     tags: [Authentication]
    *     parameters:
    *       - in: path
@@ -246,16 +246,17 @@ const UserRouter = () => {
    *         required: true
    *         schema:
    *           type: string
-   *         description: Reset token ID
+   *         description: Password reset token ID
    *     responses:
    *       302:
-   *         description: Redirect to reset password page
+   *         description: Redirect to password reset page
    *       400:
    *         description: Invalid or expired token
    *         content:
-   *           application/json:
+   *           text/html:
    *             schema:
-   *               $ref: '#/components/schemas/Error'
+   *               type: string
+   *               description: Error page
    */
   router.get('/api/users/r/:id', (req, res, next) =>
     controller.resetPassword(req, res, next)

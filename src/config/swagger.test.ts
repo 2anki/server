@@ -98,24 +98,42 @@ describe('Swagger Documentation Coverage', () => {
   ): boolean => {
     const content = fs.readFileSync(path.join(routesDir, filePath), 'utf-8');
 
+    // Convert Express path format to Swagger format for better matching
+    const swaggerPath = routePath.replace(/:([^/]+)/g, '{$1}');
+
     // Handle wildcard patterns in routes (e.g., /patr*on)
-    let swaggerPathPattern = routePath.replace(/:([^/]+)/g, '{$1}');
-    // Handle Express wildcard patterns like /patr*on
-    swaggerPathPattern = swaggerPathPattern.replace(/\*/g, '.*');
+    const wildcardPath = routePath.replace(/\*/g, '.*');
 
     // Look for @swagger comment followed by the path and method
-    const swaggerPattern = new RegExp(
-      `@swagger[\\s\\S]*?${escapeRegex(routePath)}:[\\s\\S]*?${method.toLowerCase()}:`,
-      'i'
-    );
+    // Try multiple path format variations
+    const patterns = [
+      // Original Express format
+      new RegExp(
+        `@swagger[\\s\\S]*?${escapeRegex(routePath)}:[\\s\\S]*?${method.toLowerCase()}:`,
+        'i'
+      ),
+      // Swagger format with curly braces
+      new RegExp(
+        `@swagger[\\s\\S]*?${escapeRegex(swaggerPath)}:[\\s\\S]*?${method.toLowerCase()}:`,
+        'i'
+      ),
+      // Handle wildcard patterns like /patr*on -> /patreon
+      new RegExp(
+        `@swagger[\\s\\S]*?${escapeRegex(routePath.replace(/\*/g, ''))}[^/]*:[\\s\\S]*?${method.toLowerCase()}:`,
+        'i'
+      ),
+      // Handle patterns with trailing slashes
+      new RegExp(
+        `@swagger[\\s\\S]*?${escapeRegex(routePath.replace(/\/$/, ''))}/?:[\\s\\S]*?${method.toLowerCase()}:`,
+        'i'
+      ),
+      new RegExp(
+        `@swagger[\\s\\S]*?${escapeRegex(swaggerPath.replace(/\/$/, ''))}/?:[\\s\\S]*?${method.toLowerCase()}:`,
+        'i'
+      ),
+    ];
 
-    // Also check for exact path match in swagger docs
-    const exactPathPattern = new RegExp(
-      `@swagger[\\s\\S]*?${escapeRegex(routePath.replace(/\*/g, ''))}[^/]*:[\\s\\S]*?${method.toLowerCase()}:`,
-      'i'
-    );
-
-    return swaggerPattern.test(content) || exactPathPattern.test(content);
+    return patterns.some((pattern) => pattern.test(content));
   };
 
   const escapeRegex = (string: string): string => {

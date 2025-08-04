@@ -151,11 +151,7 @@ const SettingsRouter = () => {
    *                   description: Card formatting options
    *                 conversionOptions:
    *                   type: object
-   *                   description: Conversion preferences
-   *                 created_at:
-   *                   type: string
-   *                   format: date-time
-   *                   description: Setting creation timestamp
+   *                   description: Content conversion preferences
    *       401:
    *         description: Authentication required
    *         content:

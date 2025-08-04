@@ -49,14 +49,10 @@ const ParserRulesRouter = () => {
    *                   description: Regular expression pattern
    *                 replacement:
    *                   type: string
-   *                   description: Replacement string
+   *                   description: Replacement text
    *                 enabled:
    *                   type: boolean
-   *                   description: Whether the rule is active
-   *                 created_at:
-   *                   type: string
-   *                   format: date-time
-   *                   description: Rule creation timestamp
+   *                   description: Whether rule is enabled
    *       401:
    *         description: Authentication required
    *         content:
@@ -64,7 +60,7 @@ const ParserRulesRouter = () => {
    *             schema:
    *               $ref: '#/components/schemas/Error'
    *       404:
-   *         description: Parser rule not found
+   *         description: Rule not found
    *         content:
    *           application/json:
    *             schema:
@@ -79,7 +75,7 @@ const ParserRulesRouter = () => {
    * /api/rules/create/{id}:
    *   post:
    *     summary: Create parser rule
-   *     description: Create a new parser rule for customizing content conversion
+   *     description: Create a new parser rule for text processing and card generation
    *     tags: [Parser Rules]
    *     security:
    *       - bearerAuth: []
@@ -90,7 +86,7 @@ const ParserRulesRouter = () => {
    *         required: true
    *         schema:
    *           type: string
-   *         description: Upload or content ID to associate with the rule
+   *         description: Context ID for the rule
    *     requestBody:
    *       required: true
    *       content:
@@ -104,20 +100,20 @@ const ParserRulesRouter = () => {
    *             properties:
    *               name:
    *                 type: string
-   *                 description: Descriptive name for the rule
+   *                 description: Rule name
    *               pattern:
    *                 type: string
    *                 description: Regular expression pattern to match
    *               replacement:
    *                 type: string
-   *                 description: Replacement string or template
+   *                 description: Replacement text or pattern
    *               enabled:
    *                 type: boolean
    *                 default: true
-   *                 description: Whether the rule should be active
+   *                 description: Whether rule is enabled
    *               priority:
    *                 type: integer
-   *                 description: Rule execution priority (higher = earlier)
+   *                 description: Rule execution priority
    *     responses:
    *       201:
    *         description: Parser rule created successfully
@@ -128,12 +124,12 @@ const ParserRulesRouter = () => {
    *               properties:
    *                 id:
    *                   type: string
-   *                   description: New rule ID
+   *                   description: Created rule ID
    *                 message:
    *                   type: string
    *                   description: Success message
    *       400:
-   *         description: Invalid rule data or pattern
+   *         description: Invalid rule data or regex pattern
    *         content:
    *           application/json:
    *             schema:
