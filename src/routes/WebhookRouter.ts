@@ -15,6 +15,36 @@ const WebhooksRouter = () => {
   const router = express.Router();
   const controller = new StripeController();
 
+  /**
+   * @swagger
+   * /webhook:
+   *   post:
+   *     summary: Stripe webhook handler
+   *     description: Handle Stripe webhook events for payment processing and subscription management
+   *     tags: [Webhooks]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             description: Stripe webhook event payload
+   *     responses:
+   *       200:
+   *         description: Webhook processed successfully
+   *       400:
+   *         description: Invalid webhook signature or payload
+   *         content:
+   *           text/plain:
+   *             schema:
+   *               type: string
+   *               example: "Webhook Error: Invalid signature"
+   *     security: []
+   *     x-webhook-events:
+   *       - customer.subscription.updated
+   *       - customer.subscription.deleted
+   *       - checkout.session.completed
+   */
   router.post(
     '/webhook',
     // @ts-ignore
@@ -138,6 +168,22 @@ const WebhooksRouter = () => {
     }
   );
 
+  /**
+   * @swagger
+   * /successful-checkout:
+   *   get:
+   *     summary: Successful checkout page
+   *     description: Display the successful checkout confirmation page after payment
+   *     tags: [Payments]
+   *     responses:
+   *       200:
+   *         description: Checkout success page rendered
+   *         content:
+   *           text/html:
+   *             schema:
+   *               type: string
+   *               description: HTML success page
+   */
   router.get('/successful-checkout', (req, res) =>
     controller.getSuccessfulCheckout(req, res)
   );
