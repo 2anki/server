@@ -58,6 +58,41 @@ const serve = async () => {
   app.use(express.json({ limit: '1000mb' }) as RequestHandler);
   app.use(cookieParser());
 
+  // CORS middleware - MUST be before routes!
+  app.use(
+    (
+      req: express.Request,
+      res: express.Response,
+      next: express.NextFunction
+    ) => {
+      const origin = req.headers.origin;
+
+      // Check if origin is allowed
+      if (origin && ALLOWED_ORIGINS.includes(origin)) {
+        res.header('Access-Control-Allow-Origin', origin);
+      }
+
+      // Set CORS headers
+      res.header(
+        'Access-Control-Allow-Methods',
+        'GET, POST, PUT, DELETE, PATCH, OPTIONS'
+      );
+      res.header(
+        'Access-Control-Allow-Headers',
+        'Origin, X-Requested-With, Content-Type, Accept, Authorization, Content-Disposition'
+      );
+      res.header('Access-Control-Allow-Credentials', 'true');
+      res.header('Access-Control-Max-Age', '86400'); // 24 hours
+
+      // Handle preflight OPTIONS requests
+      if (req.method === 'OPTIONS') {
+        return res.sendStatus(200);
+      }
+
+      next();
+    }
+  );
+
   app.use(morgan('combined') as RequestHandler);
 
   app.use('/templates', express.static(templateDir));
@@ -79,22 +114,6 @@ const serve = async () => {
 
   // Note: this has to be the last router
   app.use(defaultRouter());
-
-  app.use(
-    (
-      _req: express.Request,
-      res: express.Response,
-      next: express.NextFunction
-    ) => {
-      res.header('Access-Control-Allow-Origin', ALLOWED_ORIGINS.join(','));
-      res.header(
-        'Access-Control-Allow-Headers',
-        'Origin, X-Requested-With, Content-Type, Accept, Content-Disposition'
-      );
-      res.header('Access-Control-Request-Headers', '*');
-      next();
-    }
-  );
 
   app.use(
     (

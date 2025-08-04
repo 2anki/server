@@ -344,7 +344,7 @@ const UserRouter = () => {
 
   /**
    * @swagger
-   * /patreon:
+   * /patr*on:
    *   get:
    *     summary: Patreon integration
    *     description: Handle Patreon authentication callback and redirects (supports /patreon)
