@@ -12,7 +12,7 @@ if (existsSync(localEnvFile)) {
   dotenv.config({ path: localEnvFile });
 }
 
-import { ALLOWED_ORIGINS, BUILD_DIR } from './lib/constants';
+import { BUILD_DIR } from './lib/constants';
 import ErrorHandler from './routes/middleware/ErrorHandler';
 
 // Server Endpoints
@@ -28,6 +28,7 @@ import favoriteRouter from './routes/FavoriteRouter';
 import templatesRouter from './routes/TemplatesRouter';
 import defaultRouter from './routes/DefaultRouter';
 import webhookRouter from './routes/WebhookRouter';
+import swaggerRouter from './routes/SwaggerRouter';
 
 import { getDatabase, setupDatabase } from './data_layer';
 
@@ -61,6 +62,10 @@ const serve = async () => {
 
   app.use('/templates', express.static(templateDir));
   app.use(express.static(BUILD_DIR));
+
+  // API Documentation
+  app.use(swaggerRouter());
+
   app.use(checksRouter());
   app.use(versionRouter());
   app.use(uploadRouter());
@@ -74,22 +79,6 @@ const serve = async () => {
 
   // Note: this has to be the last router
   app.use(defaultRouter());
-
-  app.use(
-    (
-      _req: express.Request,
-      res: express.Response,
-      next: express.NextFunction
-    ) => {
-      res.header('Access-Control-Allow-Origin', ALLOWED_ORIGINS.join(','));
-      res.header(
-        'Access-Control-Allow-Headers',
-        'Origin, X-Requested-With, Content-Type, Accept, Content-Disposition'
-      );
-      res.header('Access-Control-Request-Headers', '*');
-      next();
-    }
-  );
 
   app.use(
     (
