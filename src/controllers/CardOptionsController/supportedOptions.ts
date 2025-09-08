@@ -122,6 +122,12 @@ const supportedOptions = (): CardOptionDetail[] => {
       'Use OCR to extract images and answers from HTML quizzes and convert them into Anki flashcards for review. This is a premium experimental feature.',
       false
     ),
+    new CardOptionDetail(
+      'disable-embedding-images',
+      'Disable Embedding Images',
+      'When enabled, remote images will not be downloaded and embedded into Anki media. Instead, they remain referenced by their remote URLs. Useful for users who are online most of the time and prefer smaller Anki package sizes.',
+      false
+    ),
   ];
 
   return v.filter(Boolean);

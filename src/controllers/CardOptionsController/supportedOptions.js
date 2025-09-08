@@ -23,6 +23,7 @@ const supportedOptions = () => {
         new CardOptionDetail_1.CardOptionDetail('vertex-ai-pdf-questions', 'Generate Questions from Single PDF File Uploads', 'Use Vertex AI API to generate questions from PDFs. This is a paid feature and if enabled will send your notes to Google Cloud.', false),
         new CardOptionDetail_1.CardOptionDetail('disable-indented-bullets', 'Disable Indented Bullets', 'Disable indented bullets from becoming separate cards. This applies to bullet lists.', false),
         new CardOptionDetail_1.CardOptionDetail('image-quiz-html-to-anki', 'Convert Image Quiz HTML to Anki Cards', 'Use OCR to extract images and answers from HTML quizzes and convert them into Anki flashcards for review. This is a premium experimental feature.', false),
+        new CardOptionDetail_1.CardOptionDetail('disable-embedding-images', 'Disable Embedding Images', 'When enabled, remote images will not be downloaded and embedded into Anki media. Instead, they remain referenced by their remote URLs. Useful for users who are online most of the time and prefer smaller Anki package sizes.', false),
     ];
     return v.filter(Boolean);
 };

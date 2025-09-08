@@ -22,6 +22,8 @@ class CardOption {
 
   readonly isTextOnlyBack: boolean;
 
+  readonly disableEmbeddingImages: boolean;
+
   readonly toggleMode: string;
 
   readonly isCloze: boolean;
@@ -88,6 +90,7 @@ class CardOption {
     this.isAll = input.all === 'true';
     this.fontSize = input['font-size'];
     this.isTextOnlyBack = input.paragraph === 'true';
+    this.disableEmbeddingImages = input['disable-embedding-images'] === 'true';
     this.toggleMode = input['toggle-mode'] || 'close_toggle';
     this.isCloze = input.cloze !== 'false';
     this.useTags = input.tags !== 'false';
@@ -158,6 +161,7 @@ class CardOption {
       'page-emoji': 'first-emoji',
       'image-quiz-html-to-anki': 'false',
       'markdown-nested-bullet-points': 'true',
+      'disable-embedding-images': 'false',
     };
   }
 }

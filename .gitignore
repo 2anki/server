@@ -136,3 +136,7 @@ cache
 *.map
 
 .idea
+
+# Compiled TypeScript files
+src/**/*.js
+!src/**/*.js.template

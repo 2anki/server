@@ -52,6 +52,10 @@ class BlockHandler {
             if (this.settings.isTextOnlyBack || (0, isTesting_1.default)() || !url) {
                 return '';
             }
+            // If disable-embedding-images is enabled, return image tag with remote URL
+            if (this.settings.disableEmbeddingImages) {
+                return `<img src="${url}" />`;
+            }
             const suffix = (0, file_1.SuffixFrom)((0, file_1.S3FileName)(url));
             const newName = (0, getUniqueFileName_1.default)(url) + (suffix !== null && suffix !== void 0 ? suffix : '');
             const imageRequest = yield axios_1.default.get(url, {
