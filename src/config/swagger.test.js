@@ -1,0 +1,158 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const fs_1 = __importDefault(require("fs"));
+const path_1 = __importDefault(require("path"));
+const swagger_1 = require("./swagger");
+describe('Swagger Documentation Coverage', () => {
+    const routesDir = path_1.default.join(__dirname, '../routes');
+    // Extract all route definitions from route files
+    const extractRouteDefinitions = () => {
+        const routes = [];
+        const routeFiles = fs_1.default
+            .readdirSync(routesDir)
+            .filter((file) => file.endsWith('.ts') && !file.endsWith('.test.ts'));
+        routeFiles.forEach((file) => {
+            const filePath = path_1.default.join(routesDir, file);
+            const content = fs_1.default.readFileSync(filePath, 'utf-8');
+            const lines = content.split('\n');
+            lines.forEach((line, index) => {
+                // Match router method calls: router.get(), router.post(), etc.
+                const routeMatch = line.match(/router\.(get|post|put|delete|patch)\s*\(\s*['"`]([^'"`]+)['"`]/);
+                if (routeMatch) {
+                    const [, method, routePath] = routeMatch;
+                    // Skip middleware-only routes and Swagger documentation routes
+                    if (!routePath.includes('/docs') &&
+                        !routePath.includes('swagger') &&
+                        !line.includes('swaggerUi.serve') &&
+                        !line.includes('swaggerUi.setup')) {
+                        routes.push({
+                            file,
+                            method: method.toUpperCase(),
+                            path: routePath,
+                            line: index + 1,
+                        });
+                    }
+                }
+            });
+        });
+        return routes;
+    };
+    // Extract documented paths from Swagger spec
+    const extractSwaggerPaths = () => {
+        const documentedPaths = new Set();
+        const spec = swagger_1.swaggerSpec;
+        if (spec.paths) {
+            Object.keys(spec.paths).forEach((path) => {
+                const pathItem = spec.paths[path];
+                Object.keys(pathItem).forEach((method) => {
+                    // Convert Swagger path format {id} to Express format :id
+                    const expressPath = path.replace(/\{([^}]+)\}/g, ':$1');
+                    documentedPaths.add(`${method.toUpperCase()} ${expressPath}`);
+                });
+            });
+        }
+        return documentedPaths;
+    };
+    // Check if a route has Swagger documentation in the file
+    const hasSwaggerDocInFile = (filePath, routePath, method) => {
+        const content = fs_1.default.readFileSync(path_1.default.join(routesDir, filePath), 'utf-8');
+        // Convert Express path format to Swagger format for better matching
+        const swaggerPath = routePath.replace(/:([^/]+)/g, '{$1}');
+        // Handle wildcard patterns in routes (e.g., /patr*on)
+        const wildcardPath = routePath.replace(/\*/g, '.*');
+        // Look for @swagger comment followed by the path and method
+        // Try multiple path format variations
+        const patterns = [
+            // Original Express format
+            new RegExp(`@swagger[\\s\\S]*?${escapeRegex(routePath)}:[\\s\\S]*?${method.toLowerCase()}:`, 'i'),
+            // Swagger format with curly braces
+            new RegExp(`@swagger[\\s\\S]*?${escapeRegex(swaggerPath)}:[\\s\\S]*?${method.toLowerCase()}:`, 'i'),
+            // Handle wildcard patterns like /patr*on -> /patreon
+            new RegExp(`@swagger[\\s\\S]*?${escapeRegex(routePath.replace(/\*/g, ''))}[^/]*:[\\s\\S]*?${method.toLowerCase()}:`, 'i'),
+            // Handle patterns with trailing slashes
+            new RegExp(`@swagger[\\s\\S]*?${escapeRegex(routePath.replace(/\/$/, ''))}/?:[\\s\\S]*?${method.toLowerCase()}:`, 'i'),
+            new RegExp(`@swagger[\\s\\S]*?${escapeRegex(swaggerPath.replace(/\/$/, ''))}/?:[\\s\\S]*?${method.toLowerCase()}:`, 'i'),
+        ];
+        return patterns.some((pattern) => pattern.test(content));
+    };
+    const escapeRegex = (string) => {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    };
+    it('should have Swagger documentation for all endpoints', () => {
+        const routes = extractRouteDefinitions();
+        const documentedPaths = extractSwaggerPaths();
+        const undocumentedRoutes = [];
+        console.log('\n=== Swagger Documentation Coverage Report ===');
+        console.log(`Found ${routes.length} route endpoints`);
+        console.log(`Found ${documentedPaths.size} documented paths in Swagger spec`);
+        routes.forEach((route) => {
+            const routeKey = `${route.method} ${route.path}`;
+            const swaggerPath = route.path.replace(/:([^/]+)/g, '{$1}');
+            const swaggerKey = `${route.method} ${swaggerPath}`;
+            // Check if documented in Swagger spec or has inline documentation
+            const isDocumentedInSpec = documentedPaths.has(swaggerKey);
+            const hasInlineDoc = hasSwaggerDocInFile(route.file, route.path, route.method);
+            if (!isDocumentedInSpec && !hasInlineDoc) {
+                undocumentedRoutes.push(route);
+                console.log(`❌ MISSING: ${routeKey} (${route.file}:${route.line})`);
+            }
+            else {
+                console.log(`✅ DOCUMENTED: ${routeKey}`);
+            }
+        });
+        if (undocumentedRoutes.length > 0) {
+            console.log(`\n🚨 Found ${undocumentedRoutes.length} undocumented endpoints:`);
+            undocumentedRoutes.forEach((route) => {
+                console.log(`   - ${route.method} ${route.path} in ${route.file}:${route.line}`);
+            });
+            console.log('\nPlease add Swagger documentation for these endpoints.');
+            console.log('Example format:');
+            console.log('/**');
+            console.log(' * @swagger');
+            console.log(' * /api/example/{id}:');
+            console.log(' *   get:');
+            console.log(' *     summary: Example endpoint');
+            console.log(' *     description: Description of what this endpoint does');
+            console.log(' *     tags: [Tag]');
+            console.log(' *     parameters:');
+            console.log(' *       - in: path');
+            console.log(' *         name: id');
+            console.log(' *         required: true');
+            console.log(' *         schema:');
+            console.log(' *           type: string');
+            console.log(' *     responses:');
+            console.log(' *       200:');
+            console.log(' *         description: Success');
+            console.log(' */');
+        }
+        // The test fails if there are undocumented routes
+        expect(undocumentedRoutes).toHaveLength(0);
+    });
+    it('should have valid Swagger specification', () => {
+        const spec = swagger_1.swaggerSpec;
+        expect(spec).toBeDefined();
+        expect(spec.openapi).toBe('3.0.0');
+        expect(spec.info).toBeDefined();
+        expect(spec.info.title).toBe('2anki Server API');
+        expect(spec.paths).toBeDefined();
+    });
+    it('should have proper API documentation structure', () => {
+        const spec = swagger_1.swaggerSpec;
+        // Ensure we have the basic components defined
+        expect(spec.components).toBeDefined();
+        expect(spec.components.schemas).toBeDefined();
+        expect(spec.components.securitySchemes).toBeDefined();
+        // Check that essential schemas are defined
+        const requiredSchemas = ['Error', 'Success', 'User', 'Upload'];
+        requiredSchemas.forEach((schema) => {
+            expect(spec.components.schemas[schema]).toBeDefined();
+        });
+        // Check that security schemes are properly defined
+        expect(spec.components.securitySchemes.bearerAuth).toBeDefined();
+        expect(spec.components.securitySchemes.cookieAuth).toBeDefined();
+    });
+});
+//# sourceMappingURL=swagger.test.js.map

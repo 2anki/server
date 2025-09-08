@@ -1,0 +1,9 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getLimitMessage = void 0;
+const jsx_runtime_1 = require("react/jsx-runtime");
+const server_1 = require("react-dom/server");
+const constants_1 = require("../constants");
+const getLimitMessage = () => (0, server_1.renderToStaticMarkup)((0, jsx_runtime_1.jsxs)("div", { className: "content", children: [(0, jsx_runtime_1.jsx)("h3", { className: "title is-3", children: "Your request has hit the limit" }), (0, jsx_runtime_1.jsxs)("ul", { children: [(0, jsx_runtime_1.jsx)("li", { children: "Split your request into multiple smaller ones (i.e.) make your upload size smaller." }), (0, jsx_runtime_1.jsx)("li", { children: (0, jsx_runtime_1.jsxs)("div", { className: "is-flex is-align-items-center", children: [(0, jsx_runtime_1.jsx)("a", { className: "button is-success is-medium mr-2", href: "https://buy.stripe.com/eVadTGcCI6Ny73qfZ0", children: "Subscribe" }), ' ', "for only $2 per month to remove all the limits."] }) }), (0, jsx_runtime_1.jsxs)("li", { children: ["Or ", (0, jsx_runtime_1.jsx)("a", { href: "https://alemayhu.com/patreon", children: "Become a patron" }), " to support me."] })] }), (0, jsx_runtime_1.jsxs)("p", { children: ["If you already have an account, please", ' ', (0, jsx_runtime_1.jsx)("a", { href: "/login?redirect=/upload", children: "login" }), " and try again. If you are still experiencing issues, please contact", ' ', (0, jsx_runtime_1.jsxs)("a", { href: `mailto:${constants_1.SUPPORT_EMAIL_ADDRESS}`, children: ["$", constants_1.SUPPORT_EMAIL_ADDRESS] }), "."] })] }));
+exports.getLimitMessage = getLimitMessage;
+//# sourceMappingURL=getLimitMessage.js.map
