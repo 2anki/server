@@ -12,7 +12,7 @@ class JobRepository {
 
   deleteJob(id: string, owner: string) {
     return this.database(this.tableName).delete().where({
-      object_id: id,
+      id: id,
       owner: owner,
     });
   }
