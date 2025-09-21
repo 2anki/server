@@ -69,13 +69,17 @@ class UsersController {
     next: express.NextFunction
   ) {
     const { token } = req.cookies;
+
+    if (!token) {
+      res.status(400).json({ error: 'Token cookie missing' });
+      return;
+    }
+
     try {
       await this.authService.logOut(token);
       res.clearCookie('token');
       res.redirect('/');
     } catch (error) {
-      console.info('Log out failed');
-      console.error(error);
       next(error);
     }
   }
