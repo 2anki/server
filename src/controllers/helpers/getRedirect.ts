@@ -1,4 +1,5 @@
 import { Request } from 'express';
+import { ALLOWED_ORIGINS } from '../../lib/constants';
 
 const ALLOWED_REDIRECT_PATHS = [
   '/search',
@@ -11,21 +12,6 @@ const ALLOWED_REDIRECT_PATHS = [
   '/anki',
 ];
 
-const ALLOWED_REDIRECT_HOSTS = [
-  'localhost:8080',
-  'localhost:2020', 
-  'dev.notion2anki.alemayhu.com',
-  'dev.2anki.net',
-  'notion.2anki.com',
-  '2anki.net',
-  '2anki.com',
-  'notion.2anki.net',
-  'dev.notion.2anki.net',
-  'staging.2anki.net',
-  'templates.2anki.net',
-  'app.2anki.net',
-];
-
 const isValidRedirectUrl = (url: string): boolean => {
   try {
     // Check if it's a relative path (starts with /)
@@ -36,7 +22,7 @@ const isValidRedirectUrl = (url: string): boolean => {
       );
     }
 
-    // For absolute URLs, validate the host
+    // For absolute URLs, validate against allowed origins
     const parsedUrl = new URL(url);
     
     // Only allow HTTPS (except localhost for development)
@@ -45,9 +31,13 @@ const isValidRedirectUrl = (url: string): boolean => {
       return false;
     }
     
-    // Check if host is in allow-list
-    const hostWithPort = parsedUrl.host;
-    return ALLOWED_REDIRECT_HOSTS.includes(hostWithPort);
+    // Check if full URL is in ALLOWED_ORIGINS or if the origin is allowed
+    const fullUrl = url;
+    const origin = parsedUrl.origin;
+    
+    return ALLOWED_ORIGINS.includes(fullUrl) || 
+           ALLOWED_ORIGINS.includes(origin) ||
+           ALLOWED_ORIGINS.includes(origin + '/');
     
   } catch {
     // Invalid URL format
