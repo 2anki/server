@@ -84,7 +84,7 @@
     "@types/jest": "^29.5.11",
     "@types/jsonwebtoken": "^9.0.2",
     "@types/morgan": "^1.9.4",
-    "@types/multer": "^1.4.5",
+    "@types/multer": "^2.0.0",
     "@types/multer-s3": "^3.0.3",
     "@types/node": "^22.0.0",
     "@types/node-fetch": "^2.6.4",
