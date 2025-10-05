@@ -28,7 +28,8 @@ export function validateEnvironment(): void {
   ];
 
   for (const varName of requiredVars) {
-    if (!process.env[varName] || process.env[varName]!.trim() === '') {
+    const envValue = process.env[varName];
+    if (!envValue || envValue.trim() === '') {
       error(
         `${varName} is not set or is empty. Please provide your DigitalOcean database credentials.`
       );
@@ -37,7 +38,8 @@ export function validateEnvironment(): void {
   }
 
   // Validate host format (basic check)
-  if (!process.env.DO_POSTGRES_HOST!.includes('.')) {
+  const doPostgresHost = process.env.DO_POSTGRES_HOST;
+  if (doPostgresHost && !doPostgresHost.includes('.')) {
     error('DO_POSTGRES_HOST does not appear to be a valid hostname.');
     process.exit(1);
   }
