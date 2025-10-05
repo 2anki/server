@@ -1,7 +1,7 @@
 import fs from 'fs';
 import { info, warning } from './logger';
 
-export function cleanupDumpFile(dumpFile: string): void {
+export function cleanup(dumpFile: string): void {
   try {
     if (fs.existsSync(dumpFile)) {
       fs.unlinkSync(dumpFile);

@@ -1,8 +1,8 @@
 # DigitalOcean Database Migration Makefile
 
-# Load nvm and use LTS Node.js
+# Use tsx for TypeScript execution (better than --experimental-strip-types)
 SHELL := /bin/bash
-NODE_CMD := export NVM_DIR="$$HOME/.nvm" && [ -s "$$NVM_DIR/nvm.sh" ] && \. "$$NVM_DIR/nvm.sh" && nvm use --lts > /dev/null && node --experimental-strip-types
+NODE_CMD := npx tsx
 
 # Default target
 .PHONY: help
