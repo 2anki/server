@@ -3,5 +3,8 @@
         "version": "1.0.0",
         "description": "DigitalOcean PostgreSQL migration scripts",
         "private": true,
-        "type": "module"
+        "type": "module",
+        "dependencies": {
+                "dotenv": "^17.2.3"
+        }
 }

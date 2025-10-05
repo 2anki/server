@@ -1,12 +1,24 @@
 #!/usr/bin/env node
 
+// Load environment variables from project root .env file
+import { config } from 'dotenv';
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const rootDir = path.resolve(__dirname, '../..');
+
+// Load .env from project root
+config({ path: path.join(rootDir, '.env') });
+
 /**
  * Database Migration Script: Baremetal to DigitalOcean PostgreSQL
  *
  * This script migrates data from the current baremetal PostgreSQL server
  * to a managed DigitalOcean PostgreSQL database.
  *
- * Required environment variables:
+ * Uses existing environment variables from project .env file:
  * - DATABASE_URL (source database - current baremetal server)
  * - DO_POSTGRES_USER (DigitalOcean username)
  * - DO_POSTGRES_PASSWORD (DigitalOcean password)
@@ -15,8 +27,6 @@
  * - DO_POSTGRES_DATABASE (DigitalOcean database, default: defaultdb)
  * - DO_POSTGRES_SSLMODE (SSL mode, default: require)
  */
-
-import { fileURLToPath } from 'url';
 import { validateEnvironment } from './config';
 import { testConnections } from './connection-test';
 import { promptForConfirmation } from './prompt';
