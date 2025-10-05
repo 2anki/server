@@ -23,7 +23,7 @@ migrate:
 .PHONY: test
 test:
 	@echo "🔍 Testing database connections..."
-	@$(NODE_CMD) -e "import('./config.ts').then(m => m.validateEnvironment()); import('./connection-test.ts').then(m => m.testConnections());"
+	@$(NODE_CMD) -e "import('./config.ts').then(m => m.validateEnvironment()); import('./connection-test.ts').then(m => m.testConnections()).catch(e => { console.error(e); process.exit(1); });"
 
 # Clean temporary files
 .PHONY: clean

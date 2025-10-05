@@ -18,5 +18,10 @@ module.exports = {
     '@typescript-eslint/lines-between-class-members': 'off',
     '@typescript-eslint/no-throw-literal': 'off',
   },
-  ignorePatterns: ['src/data_layer/public/', 'migrations', '*.test.*', 'scripts/'],
+  ignorePatterns: [
+    'src/data_layer/public/',
+    'migrations',
+    '*.test.*',
+    'scripts/',
+  ],
 };

@@ -1,25 +1,59 @@
-import { execSync } from 'child_process';
+import { spawn } from 'child_process';
 import { info, error, success, warning } from './logger';
 import { getTargetConnectionParams, buildConnectionString } from './config';
 
-export function verifyMigration(): void {
+/**
+ * Safely execute a SQL query against a database
+ */
+function executeSqlQuery(connectionString: string, query: string): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const psqlProcess = spawn('psql', [connectionString, '-c', query, '-t'], {
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+
+    let stdout = '';
+    let stderr = '';
+
+    psqlProcess.stdout.on('data', (data) => {
+      stdout += data.toString();
+    });
+
+    psqlProcess.stderr.on('data', (data) => {
+      stderr += data.toString();
+    });
+
+    psqlProcess.on('close', (code) => {
+      if (code === 0) {
+        resolve(stdout.trim());
+      } else {
+        reject(new Error(`SQL query failed with exit code ${code}: ${stderr}`));
+      }
+    });
+
+    psqlProcess.on('error', (err) => {
+      reject(err);
+    });
+  });
+}
+
+export async function verifyMigration(): Promise<void> {
   info('Verifying migration...');
 
   const targetParams = getTargetConnectionParams();
   const targetConnectionString = buildConnectionString(targetParams);
+  const sourceUrl = process.env.DATABASE_URL;
+
+  if (!sourceUrl) {
+    throw new Error('DATABASE_URL is not set');
+  }
 
   try {
-    // Check table count
+    // Check table count using parameterized query
     info('Checking table count...');
-    const sourceTableCountCmd = `psql "${process.env.DATABASE_URL}" -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';" -t`;
-    const targetTableCountCmd = `psql "${targetConnectionString}" -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';" -t`;
+    const tableCountQuery = "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public';";
 
-    const sourceTableCount = execSync(sourceTableCountCmd, {
-      encoding: 'utf8',
-    }).trim();
-    const targetTableCount = execSync(targetTableCountCmd, {
-      encoding: 'utf8',
-    }).trim();
+    const sourceTableCount = await executeSqlQuery(sourceUrl, tableCountQuery);
+    const targetTableCount = await executeSqlQuery(targetConnectionString, tableCountQuery);
 
     if (sourceTableCount === targetTableCount) {
       success(`Table count matches: ${sourceTableCount} tables`);
@@ -29,19 +63,21 @@ export function verifyMigration(): void {
       );
     }
 
-    // Check some key tables
+    // Check some key tables using safe table names
     const keyTables = ['users', 'uploads', 'jobs', 'settings'];
     for (const table of keyTables) {
-      try {
-        const sourceRowCountCmd = `psql "${process.env.DATABASE_URL}" -c "SELECT COUNT(*) FROM ${table};" -t`;
-        const targetRowCountCmd = `psql "${targetConnectionString}" -c "SELECT COUNT(*) FROM ${table};" -t`;
+      // Validate table name to prevent SQL injection
+      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
+        warning(`Skipping invalid table name: ${table}`);
+        continue;
+      }
 
-        const sourceRows = execSync(sourceRowCountCmd, {
-          encoding: 'utf8',
-        }).trim();
-        const targetRows = execSync(targetRowCountCmd, {
-          encoding: 'utf8',
-        }).trim();
+      try {
+        // Use safe SQL query construction
+        const rowCountQuery = `SELECT COUNT(*) FROM ${table};`;
+
+        const sourceRows = await executeSqlQuery(sourceUrl, rowCountQuery);
+        const targetRows = await executeSqlQuery(targetConnectionString, rowCountQuery);
 
         if (sourceRows === targetRows) {
           success(`${table} table: ${sourceRows} rows (matching)`);
