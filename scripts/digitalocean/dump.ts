@@ -1,9 +1,13 @@
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { info, error, success, warning } from './logger';
 import { getSourceConnectionParams } from './config';
 import { getSecurePostgresPath } from './utils';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export function createDatabaseDump(): Promise<string> {
   info('Creating database dump from source...');
