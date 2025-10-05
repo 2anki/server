@@ -1,6 +1,6 @@
-import { spawn } from 'child_process';
-import fs from 'fs';
-import path from 'path';
+import { spawn } from 'node:child_process';
+import fs from 'node:fs';
+import path from 'node:path';
 import { info, error, success, warning } from './logger';
 import { getSourceConnectionParams } from './config';
 import { getSecurePostgresPath } from './utils';

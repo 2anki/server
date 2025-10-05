@@ -1,4 +1,4 @@
-import { spawn } from 'child_process';
+import { spawn } from 'node:child_process';
 import { info, error, success, warning } from './logger';
 import { getTargetConnectionParams, buildConnectionString } from './config';
 import { getSecurePostgresPath } from './utils';
@@ -70,7 +70,7 @@ export async function verifyMigration(): Promise<void> {
     const keyTables = ['users', 'uploads', 'jobs', 'settings'];
     for (const table of keyTables) {
       // Validate table name to prevent SQL injection
-      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
+      if (!/^[a-zA-Z_]\w*$/.test(table)) {
         warning(`Skipping invalid table name: ${table}`);
         continue;
       }

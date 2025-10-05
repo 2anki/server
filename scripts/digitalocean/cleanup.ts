@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from 'node:fs';
 import { info, warning } from './logger';
 
 export function cleanup(dumpFile: string): void {

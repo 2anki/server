@@ -45,7 +45,7 @@ export function validateEnvironment(): void {
   // Validate port if provided
   if (
     process.env.DO_POSTGRES_PORT &&
-    isNaN(parseInt(process.env.DO_POSTGRES_PORT))
+    Number.isNaN(Number.parseInt(process.env.DO_POSTGRES_PORT, 10))
   ) {
     error('DO_POSTGRES_PORT must be a valid number.');
     process.exit(1);
@@ -79,12 +79,13 @@ export function getTargetConnectionParams(): DatabaseConnectionParams {
 export function buildConnectionString(
   params: DatabaseConnectionParams
 ): string {
-  return `postgresql://${params.user}:${encodeURIComponent(params.password)}@${params.host}:${params.port}/${params.database}${params.sslmode ? `?sslmode=${params.sslmode}` : ''}`;
+  const sslSuffix = params.sslmode ? `?sslmode=${params.sslmode}` : '';
+  return `postgresql://${params.user}:${encodeURIComponent(params.password)}@${params.host}:${params.port}/${params.database}${sslSuffix}`;
 }
 
 export function sanitizeForLogging(str: string): string {
   // Replace passwords and sensitive info in logs
-  return str.replace(
+  return str.replaceAll(
     /postgresql:\/\/[^:]+:[^@]+@/g,
     'postgresql://[USER]:[PASSWORD]@'
   );

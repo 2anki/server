@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 
 /**
  * Find executable in PATH without using external dependencies
@@ -15,7 +15,7 @@ export function findExecutable(command: string): string | null {
         // Check if file is executable (on Unix systems)
         if (process.platform !== 'win32') {
           const stats = fs.statSync(fullPath);
-          if (stats.mode & parseInt('111', 8)) {
+          if (stats.mode & Number.parseInt('111', 8)) {
             return fullPath;
           }
         } else {

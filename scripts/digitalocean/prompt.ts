@@ -1,4 +1,4 @@
-import readline from 'readline';
+import readline from 'node:readline';
 import { log, warning } from './logger';
 import { getSourceConnectionParams, getTargetConnectionParams } from './config';
 

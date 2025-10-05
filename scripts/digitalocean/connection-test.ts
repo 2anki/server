@@ -1,4 +1,4 @@
-import { spawn } from 'child_process';
+import { spawn } from 'node:child_process';
 import { info, error, success } from './logger';
 import { getTargetConnectionParams, buildConnectionString } from './config';
 import { getSecurePostgresPath } from './utils';

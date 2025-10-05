@@ -2,8 +2,8 @@
 
 // Load environment variables from project root .env file
 import { config } from 'dotenv';
-import { fileURLToPath } from 'url';
-import path from 'path';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -36,13 +36,19 @@ import { verifyMigration } from './verify';
 import { cleanup } from './cleanup';
 import { info, error, success } from './logger';
 
-async function main(): Promise<void> {
-  try {
-    info('🚀 Starting Database Migration to DigitalOcean PostgreSQL');
-    console.log();
+// Handle graceful shutdown
+process.on('SIGINT', () => {
+  info('\nMigration interrupted by user');
+  process.exit(0);
+});
 
-    // Validate environment
-    validateEnvironment();
+// Main migration logic with top-level await
+try {
+  info('🚀 Starting Database Migration to DigitalOcean PostgreSQL');
+  console.log();
+
+  // Validate environment
+  validateEnvironment();
 
     // Test connections
     await testConnections();
@@ -67,7 +73,7 @@ async function main(): Promise<void> {
     await verifyMigration();
 
     // Cleanup
-    await cleanup(dumpFile);
+    cleanup(dumpFile);
 
     console.log();
     success('🎉 Migration completed successfully!');
@@ -79,21 +85,7 @@ async function main(): Promise<void> {
     info('2. Test your application thoroughly');
     info('3. Consider keeping the old database as backup for a while');
     console.log();
-  } catch (err) {
-    error(`Migration failed: ${(err as Error).message}`);
-    process.exit(1);
-  }
+} catch (err) {
+  error(`Migration failed: ${(err as Error).message}`);
+  process.exit(1);
 }
-
-// Handle graceful shutdown
-process.on('SIGINT', () => {
-  info('\nMigration interrupted by user');
-  process.exit(0);
-});
-
-// Run the migration
-if (fileURLToPath(import.meta.url) === process.argv[1]) {
-  main();
-}
-
-export { main };
