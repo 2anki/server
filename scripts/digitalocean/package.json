@@ -1,3 +1,7 @@
 {
-        "type": "module"
+  "name": "@2anki/digitalocean-migration",
+  "version": "1.0.0",
+  "description": "DigitalOcean PostgreSQL migration scripts",
+  "private": true,
+  "type": "module"
 }

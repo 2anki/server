@@ -16,6 +16,7 @@
  * - DO_POSTGRES_SSLMODE (SSL mode, default: require)
  */
 
+import { fileURLToPath } from 'url';
 import { validateEnvironment } from './config';
 import { testConnections } from './connection-test';
 import { promptForConfirmation } from './prompt';
@@ -81,7 +82,7 @@ process.on('SIGINT', () => {
 });
 
 // Run the migration
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (fileURLToPath(import.meta.url) === process.argv[1]) {
   main();
 }
 

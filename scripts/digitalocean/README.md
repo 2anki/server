@@ -4,7 +4,7 @@ Modern TypeScript-based database migration scripts for migrating from baremetal 
 
 ## Structure
 
-```
+```text
 digitalocean/
 ├── Makefile              # Build and run commands
 ├── migrate.ts           # Main migration orchestrator

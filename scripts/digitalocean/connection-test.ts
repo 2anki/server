@@ -7,10 +7,11 @@ export function testConnections(): void {
 
   // Test source connection
   try {
-    info('Testing source database connection...');
-    const sourceTestCmd = `psql "${process.env.DATABASE_URL}" -c "SELECT version();" -t`;
-    execSync(sourceTestCmd, { stdio: 'pipe' });
-    success('Source database connection successful');
+    execSync(`psql "${process.env.DATABASE_URL}" -c "SELECT 1;" -t`, {
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    success('Source database connection: ✓');
   } catch {
     error('Failed to connect to source database');
     error('Please check your DATABASE_URL and network connectivity');
@@ -19,17 +20,16 @@ export function testConnections(): void {
 
   // Test target connection
   try {
-    info('Testing target database connection...');
     const targetParams = getTargetConnectionParams();
     const targetConnectionString = buildConnectionString(targetParams);
-    const targetTestCmd = `psql "${targetConnectionString}" -c "SELECT version();" -t`;
-    execSync(targetTestCmd, { stdio: 'pipe' });
-    success('Target database connection successful');
+    execSync(`psql "${targetConnectionString}" -c "SELECT 1;" -t`, {
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+    success('Target database connection: ✓');
   } catch {
     error('Failed to connect to target database');
-    error(
-      'Please check your DigitalOcean credentials and network connectivity'
-    );
+    error('Please check your DigitalOcean database credentials');
     process.exit(1);
   }
 }

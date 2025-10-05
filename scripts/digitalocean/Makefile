@@ -29,7 +29,7 @@ test:
 .PHONY: clean
 clean:
 	@echo "🧹 Cleaning up temporary files..."
-	@rm -rf ../../tmp/migration_dump_*.sql
+	@rm -rf $${MIGRATION_TMP_DIR:-../../tmp}/migration_dump_*.sql
 	@echo "✅ Cleanup complete"
 
 # Validate environment variables
