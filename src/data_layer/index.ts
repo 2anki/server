@@ -34,7 +34,16 @@ export const setupDatabase = async (database: Knex) => {
 
     if (process.env.NODE_ENV === 'production') {
       console.info('DB is ready');
-      ScheduleCleanup(database);
+
+      // Only run cleanup jobs on main instance to avoid conflicts with Singapore instance
+      if (process.env.INSTANCE_ID === 'singapore') {
+        console.info(
+          'Singapore instance: Cleanup jobs disabled to prevent conflicts'
+        );
+      } else {
+        console.info('Main instance: Starting cleanup jobs');
+        ScheduleCleanup(database);
+      }
     }
 
     await database.migrate.latest(KnexConfig as MigratorConfig);
