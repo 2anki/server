@@ -23,7 +23,7 @@ function testDatabaseConnection(connectionString: string): Promise<void> {
     });
 
     psqlProcess.on('error', (err) => {
-      reject(err);
+      reject(err instanceof Error ? err : new Error(String(err)));
     });
   });
 }

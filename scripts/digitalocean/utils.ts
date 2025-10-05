@@ -13,13 +13,13 @@ export function findExecutable(command: string): string | null {
     try {
       if (fs.existsSync(fullPath) && fs.statSync(fullPath).isFile()) {
         // Check if file is executable (on Unix systems)
-        if (process.platform !== 'win32') {
+        if (process.platform === 'win32') {
+          return fullPath;
+        } else {
           const stats = fs.statSync(fullPath);
           if (stats.mode & Number.parseInt('111', 8)) {
             return fullPath;
           }
-        } else {
-          return fullPath;
         }
       }
     } catch {

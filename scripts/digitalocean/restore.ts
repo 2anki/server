@@ -49,7 +49,7 @@ export function restoreDatabase(dumpFile: string): Promise<void> {
 
       restoreProcess.on('error', (err) => {
         error('Failed to start psql process');
-        reject(err);
+        reject(err instanceof Error ? err : new Error(String(err)));
       });
     });
   } catch (err) {

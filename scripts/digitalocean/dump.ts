@@ -79,7 +79,7 @@ export function createDatabaseDump(): Promise<string> {
 
       dumpProcess.on('error', (err) => {
         error('Failed to start pg_dump process');
-        reject(err);
+        reject(err instanceof Error ? err : new Error(String(err)));
       });
     });
   } catch (err) {
