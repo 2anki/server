@@ -15,10 +15,9 @@ export function restoreDatabase(dumpFile: string): Promise<void> {
     
     // Use psql to restore the dump
     const restoreArgs = [
-      targetConnectionString,
       '--file',
       dumpFile,
-      '--verbose',
+      targetConnectionString,
     ];
 
     info('Running psql restore with sanitized connection string...');
