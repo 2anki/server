@@ -16,59 +16,57 @@
  * - DO_POSTGRES_SSLMODE (SSL mode, default: require)
  */
 
-import 'dotenv/config';
-import { log, error } from './logger.ts';
-import { validateEnvironment } from './config.ts';
-import { testConnections } from './connection-test.ts';
-import { promptConfirmation } from './prompt.ts';
-import { createDatabaseDump } from './dump.ts';
-import { restoreDatabaseDump } from './restore.ts';
-import { verifyMigration } from './verify.ts';
-import { cleanupDumpFile } from './cleanup.ts';
+import { validateEnvironment } from './config';
+import { testConnections } from './connection-test';
+import { promptForConfirmation } from './prompt';
+import { createDatabaseDump } from './dump';
+import { restoreDatabase } from './restore';
+import { verifyMigration } from './verify';
+import { cleanup } from './cleanup';
+import { info, error, success } from './logger';
 
 async function main(): Promise<void> {
   try {
-    log('🚀 Starting Database Migration to DigitalOcean PostgreSQL', 'bright');
+    info('🚀 Starting Database Migration to DigitalOcean PostgreSQL');
     console.log();
 
     // Validate environment
     validateEnvironment();
 
     // Test connections
-    testConnections();
+    await testConnections();
 
     // Show summary and ask for confirmation
-    const confirmed = await promptConfirmation();
+    const confirmed = await promptForConfirmation();
     if (!confirmed) {
-      log('Migration cancelled by user', 'yellow');
+      info('Migration cancelled by user');
       process.exit(0);
     }
 
     console.log();
-    log('Starting migration process...', 'bright');
+    info('Starting migration process...');
 
     // Create dump
     const dumpFile = await createDatabaseDump();
 
     // Restore dump
-    await restoreDatabaseDump(dumpFile);
+    await restoreDatabase(dumpFile);
 
     // Verify migration
-    verifyMigration();
+    await verifyMigration();
 
     // Cleanup
-    cleanupDumpFile(dumpFile);
+    await cleanup(dumpFile);
 
     console.log();
-    log('🎉 Migration completed successfully!', 'green');
+    success('🎉 Migration completed successfully!');
     console.log();
-    log('Next steps:', 'bright');
-    log(
-      '1. Update your application to use the new DATABASE_URL pointing to DigitalOcean',
-      'cyan'
+    info('Next steps:');
+    info(
+      '1. Update your application to use the new DATABASE_URL pointing to DigitalOcean'
     );
-    log('2. Test your application thoroughly', 'cyan');
-    log('3. Consider keeping the old database as backup for a while', 'cyan');
+    info('2. Test your application thoroughly');
+    info('3. Consider keeping the old database as backup for a while');
     console.log();
   } catch (err) {
     error(`Migration failed: ${(err as Error).message}`);
@@ -78,7 +76,7 @@ async function main(): Promise<void> {
 
 // Handle graceful shutdown
 process.on('SIGINT', () => {
-  log('\nMigration interrupted by user', 'yellow');
+  info('\nMigration interrupted by user');
   process.exit(0);
 });
 

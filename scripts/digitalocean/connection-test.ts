@@ -1,6 +1,6 @@
 import { execSync } from 'child_process';
-import { info, error, success } from './logger.ts';
-import { getTargetConnectionParams, buildConnectionString } from './config.ts';
+import { info, error, success } from './logger';
+import { getTargetConnectionParams, buildConnectionString } from './config';
 
 export function testConnections(): void {
   info('Testing database connections...');
@@ -11,7 +11,7 @@ export function testConnections(): void {
     const sourceTestCmd = `psql "${process.env.DATABASE_URL}" -c "SELECT version();" -t`;
     execSync(sourceTestCmd, { stdio: 'pipe' });
     success('Source database connection successful');
-  } catch (err) {
+  } catch {
     error('Failed to connect to source database');
     error('Please check your DATABASE_URL and network connectivity');
     process.exit(1);
@@ -25,7 +25,7 @@ export function testConnections(): void {
     const targetTestCmd = `psql "${targetConnectionString}" -c "SELECT version();" -t`;
     execSync(targetTestCmd, { stdio: 'pipe' });
     success('Target database connection successful');
-  } catch (err) {
+  } catch {
     error('Failed to connect to target database');
     error(
       'Please check your DigitalOcean credentials and network connectivity'

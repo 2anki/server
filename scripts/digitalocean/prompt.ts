@@ -1,8 +1,8 @@
 import readline from 'readline';
-import { log, warning } from './logger.ts';
-import { getSourceConnectionParams, getTargetConnectionParams } from './config.ts';
+import { log, warning } from './logger';
+import { getSourceConnectionParams, getTargetConnectionParams } from './config';
 
-export function promptConfirmation(): Promise<boolean> {
+export function promptForConfirmation(): Promise<boolean> {
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,

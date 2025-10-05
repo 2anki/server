@@ -1,6 +1,6 @@
 import { execSync } from 'child_process';
-import { info, error, success, warning } from './logger.ts';
-import { getTargetConnectionParams, buildConnectionString } from './config.ts';
+import { info, error, success, warning } from './logger';
+import { getTargetConnectionParams, buildConnectionString } from './config';
 
 export function verifyMigration(): void {
   info('Verifying migration...');
@@ -50,7 +50,7 @@ export function verifyMigration(): void {
             `${table} table: Source ${sourceRows} rows, Target ${targetRows} rows`
           );
         }
-      } catch (err) {
+      } catch {
         warning(`Could not verify ${table} table (might not exist)`);
       }
     }

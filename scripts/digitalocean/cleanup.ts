@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { info, warning } from './logger.ts';
+import { info, warning } from './logger';
 
 export function cleanupDumpFile(dumpFile: string): void {
   try {

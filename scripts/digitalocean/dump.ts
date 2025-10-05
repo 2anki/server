@@ -1,8 +1,8 @@
 import { spawn } from 'child_process';
 import fs from 'fs';
 import path from 'path';
-import { info, error, success, warning } from './logger.ts';
-import { getSourceConnectionParams } from './config.ts';
+import { info, error, success, warning } from './logger';
+import { getSourceConnectionParams } from './config';
 
 export function createDatabaseDump(): Promise<string> {
   info('Creating database dump from source...');
@@ -51,10 +51,7 @@ export function createDatabaseDump(): Promise<string> {
     });
 
     return new Promise((resolve, reject) => {
-      let stderr = '';
-
       dumpProcess.stderr.on('data', (data) => {
-        stderr += data.toString();
         // pg_dump writes progress to stderr, so we log it
         process.stdout.write(data);
       });
@@ -64,7 +61,7 @@ export function createDatabaseDump(): Promise<string> {
           // Set restrictive permissions on dump file
           try {
             fs.chmodSync(dumpFile, 0o600);
-          } catch (chmodErr) {
+          } catch {
             warning('Could not set restrictive permissions on dump file');
           }
           success(`Database dump created: ${path.basename(dumpFile)}`);

@@ -1,8 +1,8 @@
 import { spawn } from 'child_process';
-import { info, error, success } from './logger.ts';
-import { getTargetConnectionParams, buildConnectionString } from './config.ts';
+import { info, error, success } from './logger';
+import { getTargetConnectionParams, buildConnectionString } from './config';
 
-export function restoreDatabaseDump(dumpFile: string): Promise<void> {
+export function restoreDatabase(dumpFile: string): Promise<void> {
   info('Restoring database dump to target...');
 
   const targetParams = getTargetConnectionParams();

@@ -1,5 +1,5 @@
-import { info, error, success } from './logger.ts';
-import type { DatabaseConnectionParams } from './types.ts';
+import { info, error, success } from './logger';
+import type { DatabaseConnectionParams } from './types';
 
 export function validateEnvironment(): void {
   info('Validating environment variables...');
@@ -15,7 +15,7 @@ export function validateEnvironment(): void {
   // Validate DATABASE_URL format
   try {
     new URL(process.env.DATABASE_URL);
-  } catch (err) {
+  } catch {
     error('DATABASE_URL is not a valid URL format.');
     process.exit(1);
   }

@@ -1,4 +1,4 @@
-import type { Colors } from './types.ts';
+import type { Colors } from './types';
 
 // ANSI color codes for console output
 const colors: Colors = {
