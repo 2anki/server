@@ -86,6 +86,7 @@ try {
     info('3. Consider keeping the old database as backup for a while');
     console.log();
 } catch (err) {
-  error(`Migration failed: ${(err as Error).message}`);
+  const message = err instanceof Error ? err.message : String(err);
+  error(`Migration failed: ${message}`);
   process.exit(1);
 }

@@ -96,7 +96,8 @@ export async function verifyMigration(): Promise<void> {
 
     success('Migration verification completed');
   } catch (err) {
-    error(`Error during verification: ${(err as Error).message}`);
+    const message = err instanceof Error ? err.message : String(err);
+    error(`Error during verification: ${message}`);
     throw err;
   }
 }

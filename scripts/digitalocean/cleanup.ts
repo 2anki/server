@@ -8,6 +8,7 @@ export function cleanup(dumpFile: string): void {
       info(`Cleaned up dump file: ${dumpFile}`);
     }
   } catch (err) {
-    warning(`Could not clean up dump file: ${(err as Error).message}`);
+    const message = err instanceof Error ? err.message : String(err);
+    warning(`Could not clean up dump file: ${message}`);
   }
 }

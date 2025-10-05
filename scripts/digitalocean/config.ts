@@ -57,7 +57,11 @@ export function validateEnvironment(): void {
 }
 
 export function getSourceConnectionParams(): DatabaseConnectionParams {
-  const dbUrl = new URL(process.env.DATABASE_URL!);
+  const databaseUrl = process.env.DATABASE_URL;
+  if (!databaseUrl) {
+    throw new Error('DATABASE_URL is not set');
+  }
+  const dbUrl = new URL(databaseUrl);
   return {
     host: dbUrl.hostname,
     port: dbUrl.port || 5432,
@@ -68,11 +72,19 @@ export function getSourceConnectionParams(): DatabaseConnectionParams {
 }
 
 export function getTargetConnectionParams(): DatabaseConnectionParams {
+  const host = process.env.DO_POSTGRES_HOST;
+  const user = process.env.DO_POSTGRES_USER;
+  const password = process.env.DO_POSTGRES_PASSWORD;
+  
+  if (!host || !user || !password) {
+    throw new Error('Required DigitalOcean database environment variables are not set');
+  }
+  
   return {
-    host: process.env.DO_POSTGRES_HOST!,
+    host,
     port: process.env.DO_POSTGRES_PORT || '25060',
-    user: process.env.DO_POSTGRES_USER!,
-    password: process.env.DO_POSTGRES_PASSWORD!,
+    user,
+    password,
     database: process.env.DO_POSTGRES_DATABASE || 'defaultdb',
     sslmode: process.env.DO_POSTGRES_SSLMODE || 'require',
   };
