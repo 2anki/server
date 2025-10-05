@@ -4,6 +4,62 @@ import path from 'path';
 import { info, error, success, warning } from './logger';
 import { getSourceConnectionParams } from './config';
 
+/**
+ * Find executable in PATH without using external dependencies
+ */
+function findExecutable(command: string): string | null {
+  const envPath = process.env.PATH || '';
+  const pathDirs = envPath.split(path.delimiter);
+  
+  for (const dir of pathDirs) {
+    const fullPath = path.join(dir, command);
+    try {
+      if (fs.existsSync(fullPath) && fs.statSync(fullPath).isFile()) {
+        // Check if file is executable (on Unix systems)
+        if (process.platform !== 'win32') {
+          const stats = fs.statSync(fullPath);
+          if (stats.mode & parseInt('111', 8)) {
+            return fullPath;
+          }
+        } else {
+          return fullPath;
+        }
+      }
+    } catch {
+      // Continue to next directory if stat fails
+    }
+  }
+  return null;
+}
+
+/**
+ * Get the absolute path to pg_dump command with security validation
+ */
+function getPgDumpPath(): string {
+  const pgDumpPath = findExecutable('pg_dump');
+  if (!pgDumpPath) {
+    throw new Error('pg_dump command not found in PATH. Please install PostgreSQL client.');
+  }
+  
+  // Validate that pg_dump is in a trusted directory
+  const trustedPaths = [
+    '/usr/bin/',
+    '/usr/local/bin/',
+    '/opt/homebrew/bin/',
+    '/Applications/Postgres.app/Contents/Versions/',
+  ];
+  
+  const isInTrustedPath = trustedPaths.some(trustedPath => 
+    pgDumpPath.startsWith(trustedPath)
+  );
+  
+  if (!isInTrustedPath) {
+    throw new Error(`pg_dump found in untrusted location: ${pgDumpPath}. Expected in: ${trustedPaths.join(', ')}`);
+  }
+  
+  return pgDumpPath;
+}
+
 export function createDatabaseDump(): Promise<string> {
   info('Creating database dump from source...');
 
@@ -21,9 +77,11 @@ export function createDatabaseDump(): Promise<string> {
   }
 
   try {
+    // Get secure path to pg_dump
+    const pgDumpPath = getPgDumpPath();
+    
     // Use pg_dump to create a clean dump (schema + data)
-    const dumpCmd = [
-      'pg_dump',
+    const dumpArgs = [
       '--host',
       sourceParams.host,
       '--port',
@@ -42,10 +100,11 @@ export function createDatabaseDump(): Promise<string> {
 
     info('Running pg_dump with sanitized parameters...');
 
-    const dumpProcess = spawn(dumpCmd[0], dumpCmd.slice(1), {
+    const dumpProcess = spawn(pgDumpPath, dumpArgs, {
       env: {
         ...process.env,
         PGPASSWORD: sourceParams.password,
+        PATH: '', // Clear PATH to prevent command hijacking
       },
       stdio: ['pipe', 'pipe', 'pipe'],
     });
