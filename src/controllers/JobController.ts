@@ -23,6 +23,17 @@ class JobController {
 
       res.status(200).send();
     } catch (error) {
+      // Check if it's a job in progress error
+      if (
+        error instanceof Error &&
+        error.message === 'Cannot delete job while it is in progress'
+      ) {
+        res
+          .status(409)
+          .json({ error: 'Cannot delete job while it is in progress' });
+        return;
+      }
+
       res.status(500).send();
       console.info('Delete job failed');
       console.error(error);

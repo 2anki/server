@@ -20,6 +20,7 @@ describe('JobController', () => {
       send: jest.fn(),
       status: jest.fn().mockReturnThis(),
       redirect: jest.fn(),
+      json: jest.fn(),
     };
     jest.spyOn(getOwnerModule, 'getOwner').mockReturnValue('owner1');
   });
@@ -58,6 +59,20 @@ describe('JobController', () => {
     );
     expect(res.status).toHaveBeenCalledWith(500);
     expect(res.send).toHaveBeenCalled();
+  });
+
+  it('should handle job in progress error with 409 status', async () => {
+    (jobService.deleteJobById as jest.Mock).mockRejectedValue(
+      new Error('Cannot delete job while it is in progress')
+    );
+    await jobController.deleteJobByOwner(
+      req as express.Request,
+      res as express.Response
+    );
+    expect(res.status).toHaveBeenCalledWith(409);
+    expect(res.json).toHaveBeenCalledWith({ 
+      error: 'Cannot delete job while it is in progress' 
+    });
   });
 
   it('should redirect to login if owner is missing when getting jobs', async () => {
