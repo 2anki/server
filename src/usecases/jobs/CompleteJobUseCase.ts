@@ -14,6 +14,6 @@ export class CompleteJobUseCase {
       return job;
     }
 
-    return this.jobRepository.deleteJob(jobId, owner);
+    return this.jobRepository.deleteJob(job.id, owner);
   }
 }
