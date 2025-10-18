@@ -70,22 +70,7 @@ const NotionRouter = () => {
    *         content:
    *           application/json:
    *             schema:
-   *               type: object
-   *               properties:
-   *                 results:
-   *                   type: array
-   *                   items:
-   *                     type: object
-   *                     properties:
-   *                       id:
-   *                         type: string
-   *                         description: Page ID
-   *                       title:
-   *                         type: string
-   *                         description: Page title
-   *                       url:
-   *                         type: string
-   *                         description: Page URL
+   *               $ref: '#/components/schemas/NotionSearchResults'
    *       401:
    *         description: Authentication required or Notion not connected
    *         content:
@@ -119,6 +104,13 @@ const NotionRouter = () => {
    *                   type: string
    *                   format: uri
    *                   description: Notion OAuth authorization URL
+   *                 isConnected:
+   *                   type: boolean
+   *                   description: Whether user is connected to Notion
+   *                 workspace:
+   *                   type: string
+   *                   nullable: true
+   *                   description: Connected workspace name
    *       401:
    *         description: Authentication required
    *         content:
@@ -221,20 +213,7 @@ const NotionRouter = () => {
    *         content:
    *           application/json:
    *             schema:
-   *               type: object
-   *               properties:
-   *                 id:
-   *                   type: string
-   *                   description: Page ID
-   *                 title:
-   *                   type: string
-   *                   description: Page title
-   *                 properties:
-   *                   type: object
-   *                   description: Page properties
-   *                 children:
-   *                   type: array
-   *                   description: Page content blocks
+   *               $ref: '#/components/schemas/NotionPage'
    *       401:
    *         description: Authentication required
    *         content:
@@ -524,17 +503,7 @@ const NotionRouter = () => {
    *         content:
    *           application/json:
    *             schema:
-   *               type: object
-   *               properties:
-   *                 id:
-   *                   type: string
-   *                   description: Database ID
-   *                 title:
-   *                   type: string
-   *                   description: Database title
-   *                 properties:
-   *                   type: object
-   *                   description: Database properties/schema
+   *               $ref: '#/components/schemas/NotionDatabase'
    *       401:
    *         description: Authentication required
    *         content:
