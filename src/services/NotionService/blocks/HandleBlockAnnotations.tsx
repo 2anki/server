@@ -22,7 +22,7 @@ const HandleBlockAnnotations = (
   const content = text.plain_text;
   const color = annotations.color;
   // Compose all styles, allowing background + bold/italic/etc
-  let styledContent: JSX.Element | string = content;
+  let styledContent: React.ReactNode = content;
   if (annotations.code) {
     styledContent = <code>{styledContent}</code>;
   }
