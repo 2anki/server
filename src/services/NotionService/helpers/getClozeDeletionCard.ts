@@ -40,6 +40,7 @@ export default function getClozeDeletionCard(
       index++;
     } else if (text?.content) {
       // Convert newlines to <br /> tags for proper HTML rendering
+      // XXX: This a potential regression since the preserve newline card option is not checked.
       const contentWithBr = text.content.replace(/\n/g, '<br />');
       name += contentWithBr;
     }
