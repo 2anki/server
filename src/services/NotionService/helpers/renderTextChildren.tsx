@@ -25,9 +25,8 @@ export default function renderTextChildren(
       }
 
       if (isText(t)) {
-        const { annotations } = t;
         return ReactDOMServer.renderToStaticMarkup(
-          <>{HandleBlockAnnotations(annotations, t)}</>
+          <>{HandleBlockAnnotations(t.annotations, t)}</>
         );
       }
 

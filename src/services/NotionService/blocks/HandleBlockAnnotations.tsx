@@ -1,5 +1,7 @@
+import React from 'react';
 import TagRegistry from '../../../lib/parser/TagRegistry';
 import { RichTextItemResponse } from '@notionhq/client/build/src/api-endpoints';
+import notionColorToHex, { isNotionColorBackground } from '../NotionColors';
 
 interface Annotations {
   underline: boolean;
@@ -7,6 +9,7 @@ interface Annotations {
   italic: boolean;
   strikethrough: boolean;
   code: boolean;
+  color?: string;
 }
 
 const HandleBlockAnnotations = (
@@ -17,31 +20,35 @@ const HandleBlockAnnotations = (
     return null;
   }
   const content = text.plain_text;
-  if (annotations.underline) {
-    return (
-      <span
-        style={{
-          borderBottom: annotations.underline ? '0.05em solid' : '',
-        }}
-      >
-        {content}
-      </span>
-    );
-  }
-  if (annotations.bold) {
-    return <strong>{content}</strong>;
-  }
-  if (annotations.italic) {
-    return <em>{content}</em>;
+  const color = annotations.color;
+  // Compose all styles, allowing background + bold/italic/etc
+  let styledContent: React.ReactNode = content;
+  if (annotations.code) {
+    styledContent = <code>{styledContent}</code>;
   }
   if (annotations.strikethrough) {
     TagRegistry.getInstance().addStrikethrough(content);
-    return <del>{content}</del>;
+    styledContent = <del>{styledContent}</del>;
   }
-  if (annotations.code) {
-    return <code>{content}</code>;
+  if (annotations.italic) {
+    styledContent = <em>{styledContent}</em>;
   }
-  return <>{content}</>;
+  if (annotations.bold) {
+    styledContent = <strong>{styledContent}</strong>;
+  }
+  if (annotations.underline) {
+    styledContent = (
+      <span style={{ borderBottom: '0.05em solid' }}>{styledContent}</span>
+    );
+  }
+  if (color && isNotionColorBackground(color)) {
+    styledContent = (
+      <span style={{ backgroundColor: notionColorToHex(color) }}>
+        {styledContent}
+      </span>
+    );
+  }
+  return <>{styledContent}</>;
 };
 
 export default HandleBlockAnnotations;

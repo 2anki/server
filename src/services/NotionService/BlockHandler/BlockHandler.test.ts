@@ -1,3 +1,77 @@
+test('Highlighted text is rendered with background', async () => {
+  const mockToggleBlock = {
+    object: 'block' as const,
+    id: 'highlight-test-id',
+    parent: { type: 'page_id' as const, page_id: 'page-id' },
+    created_time: '',
+    last_edited_time: '',
+    created_by: { object: 'user' as const, id: 'user-id' },
+    last_edited_by: { object: 'user' as const, id: 'user-id' },
+    has_children: false,
+    archived: false,
+    in_trash: false,
+    type: 'toggle' as const,
+    toggle: {
+      rich_text: [
+        {
+          type: 'text' as const,
+          text: { content: 'This is a ', link: null },
+          annotations: {
+            bold: false,
+            italic: false,
+            strikethrough: false,
+            underline: false,
+            code: false,
+            color: 'default' as const,
+          },
+          plain_text: 'This is a ',
+          href: null,
+        },
+        {
+          type: 'text' as const,
+          text: { content: 'highlighted ', link: null },
+          annotations: {
+            bold: false,
+            italic: false,
+            strikethrough: false,
+            underline: false,
+            code: false,
+            color: 'yellow_background' as const,
+          },
+          plain_text: 'highlighted ',
+          href: null,
+        },
+        {
+          type: 'text' as const,
+          text: { content: 'line', link: null },
+          annotations: {
+            bold: false,
+            italic: false,
+            strikethrough: false,
+            underline: false,
+            code: false,
+            color: 'default' as const,
+          },
+          plain_text: 'line',
+          href: null,
+        },
+      ],
+      color: 'default' as const,
+    },
+  };
+  const settings = new CardOption({});
+  const exporter = new CustomExporter('', new Workspace(true, 'fs').location);
+  const bl = new BlockHandler(exporter, api, settings);
+  const flashcards = await bl.getFlashcards(
+    new ParserRules(),
+    [mockToggleBlock],
+    [],
+    undefined
+  );
+  expect(flashcards.length).toBeGreaterThan(0);
+  const card = flashcards[0];
+  expect(card.name).toContain('<span style="background-color:#DFAB01">highlighted </span>');
+});
 import * as dotenv from 'dotenv';
 import CustomExporter from '../../../lib/parser/exporters/CustomExporter';
 import Note from '../../../lib/parser/Note';
