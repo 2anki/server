@@ -172,7 +172,7 @@ class BlockHandler {
         
         // Render the toggle's rich_text (summary) as HTML for the front
         // Always preserve newlines in toggle summaries by converting \n to <br />
-        name = renderTextChildren(richText, this.settings).replace(/\n/g, '<br />');
+  name = renderTextChildren(richText, this.settings).replaceAll('\n', '<br />');
         
         // Get the children content for the back (answer)
         back = await this.getBackSide(block as BlockObjectResponse);
