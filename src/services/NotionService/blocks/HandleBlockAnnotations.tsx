@@ -1,5 +1,6 @@
 import TagRegistry from '../../../lib/parser/TagRegistry';
 import { RichTextItemResponse } from '@notionhq/client/build/src/api-endpoints';
+import notionColorToHex, { isNotionColorBackground } from '../NotionColors';
 
 interface Annotations {
   underline: boolean;
@@ -7,6 +8,7 @@ interface Annotations {
   italic: boolean;
   strikethrough: boolean;
   code: boolean;
+  color?: string;
 }
 
 const HandleBlockAnnotations = (
@@ -17,6 +19,15 @@ const HandleBlockAnnotations = (
     return null;
   }
   const content = text.plain_text;
+  const color = (text.annotations && text.annotations.color) || undefined;
+  // Always prioritize background color if present, using NotionColors util
+  if (color && isNotionColorBackground(color)) {
+    return (
+      <span style={{ backgroundColor: notionColorToHex(color) }}>
+        {content}
+      </span>
+    );
+  }
   if (annotations.underline) {
     return (
       <span
