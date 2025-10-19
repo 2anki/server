@@ -1,3 +1,4 @@
+import React from 'react';
 import TagRegistry from '../../../lib/parser/TagRegistry';
 import { RichTextItemResponse } from '@notionhq/client/build/src/api-endpoints';
 import notionColorToHex, { isNotionColorBackground } from '../NotionColors';
