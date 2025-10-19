@@ -39,7 +39,9 @@ export default function getClozeDeletionCard(
       isCloze = true;
       index++;
     } else if (text?.content) {
-      name += text?.content;
+      // Convert newlines to <br /> tags for proper HTML rendering
+      const contentWithBr = text.content.replace(/\n/g, '<br />');
+      name += contentWithBr;
     }
   }
   if (isCloze) {

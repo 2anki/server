@@ -9,6 +9,7 @@ import { setupTests } from '../../../test/configure-jest';
 import { pageId as examplId } from '../../../test/test-utils';
 import MockNotionAPI from '../_mock/MockNotionAPI';
 import { getToggleBlocks } from '../helpers/getToggleBlocks';
+import renderTextChildren from '../helpers/renderTextChildren';
 import BlockHandler from './BlockHandler';
 
 dotenv.config({ path: 'test/.env' });
@@ -132,12 +133,186 @@ describe('BlockHandler', () => {
       new ParserRules()
     );
     const card = flashcards[0];
-    // For toggle blocks, the front should contain just the plain text (question)
+    // For toggle blocks, the front should contain the rendered summary (question) as HTML
     expect(card.name).toBe('1 - This is a basic card');
     // The back should contain the rendered children content (answer)
     expect(card.back).toBe(
       '<p class="" id="f83ce56a-9039-4888-81be-375b19a84790">This is the back of the card</p>'
     );
+  });
+
+  test('Multi-line Toggle with Cloze and Newlines', async () => {
+    // Test cloze deletion with the exact data from the user's issue
+    const flashcards = await loadCards(
+      { cloze: 'true' },
+      examplId,
+      new Workspace(true, 'fs'),
+      new ParserRules()
+    );
+    
+    // Find the cloze card (should be the second card based on mock data)
+    const clozeCard = flashcards.find((c) =>
+      c.name.includes('{{c1::cloze deletion}}')
+    );
+    
+    expect(clozeCard).toBeTruthy();
+    expect(clozeCard?.name).toContain('{{c1::cloze deletion}}');
+  });
+
+  test('Multi-line Toggle with Newlines (Basic)', async () => {
+    // Test the basic (non-cloze) processing with the multi-line mock data
+    const mockToggleBlock = {
+      object: "block" as const,
+      id: "0d29f785-320d-4fce-ae81-9bf0b02b81cc",
+      parent: {
+        type: "page_id" as const,
+        page_id: "43df8b2d-4e00-4d2c-8848-07a60c2cc1cd"
+      },
+      created_time: "2021-04-13T18:35:00.000Z",
+      last_edited_time: "2021-04-13T18:35:00.000Z",
+      created_by: {
+        object: "user" as const,
+        id: "1590db54-99fe-467c-a656-be319fe6ca8b"
+      },
+      last_edited_by: {
+        object: "user" as const,
+        id: "1590db54-99fe-467c-a656-be319fe6ca8b"
+      },
+      has_children: false,
+      archived: false,
+      in_trash: false,
+      type: "toggle" as const,
+      toggle: {
+        rich_text: [
+          {
+            type: "text" as const,
+            text: {
+              content: "Mult-line cloze \n",
+              link: null
+            },
+            annotations: {
+              bold: false,
+              italic: false,
+              strikethrough: false,
+              underline: false,
+              code: false,
+              color: "default" as const
+            },
+            plain_text: "Mult-line cloze \n",
+            href: null
+          },
+          {
+            type: "text" as const,
+            text: {
+              content: "First",
+              link: null
+            },
+            annotations: {
+              bold: false,
+              italic: false,
+              strikethrough: false,
+              underline: false,
+              code: true,
+              color: "default" as const
+            },
+            plain_text: "First",
+            href: null
+          },
+          {
+            type: "text" as const,
+            text: {
+              content: "\n",
+              link: null
+            },
+            annotations: {
+              bold: false,
+              italic: false,
+              strikethrough: false,
+              underline: false,
+              code: false,
+              color: "default" as const
+            },
+            plain_text: "\n",
+            href: null
+          },
+          {
+            type: "text" as const,
+            text: {
+              content: "Second",
+              link: null
+            },
+            annotations: {
+              bold: false,
+              italic: false,
+              strikethrough: false,
+              underline: false,
+              code: true,
+              color: "default" as const
+            },
+            plain_text: "Second",
+            href: null
+          },
+          {
+            type: "text" as const,
+            text: {
+              content: " \n",
+              link: null
+            },
+            annotations: {
+              bold: false,
+              italic: false,
+              strikethrough: false,
+              underline: false,
+              code: false,
+              color: "default" as const
+            },
+            plain_text: " \n",
+            href: null
+          },
+          {
+            type: "text" as const,
+            text: {
+              content: "Third",
+              link: null
+            },
+            annotations: {
+              bold: false,
+              italic: false,
+              strikethrough: false,
+              underline: false,
+              code: true,
+              color: "default" as const
+            },
+            plain_text: "Third",
+            href: null
+          }
+        ],
+        color: "default" as const
+      }
+    };
+
+    // Test with cloze enabled to match user's scenario
+    const settings = new CardOption({ cloze: 'true' });
+    const exporter = new CustomExporter('', new Workspace(true, 'fs').location);
+    const bl = new BlockHandler(exporter, api, settings);
+    
+    // Process the block through getFlashcards
+    const flashcards = await bl.getFlashcards(
+      new ParserRules(),
+      [mockToggleBlock],
+      [],
+      undefined
+    );
+    
+    expect(flashcards.length).toBeGreaterThan(0);
+    const card = flashcards[0];
+    
+    // Should contain both cloze syntax and <br /> tags for newlines
+    expect(card.name).toBe('Mult-line cloze <br />{{c1::First}}<br />{{c2::Second}} <br />{{c3::Third}}');
+    expect(card.name).toContain('{{c1::First}}');
+    expect(card.name).toContain('{{c2::Second}}');
+    expect(card.name).toContain('{{c3::Third}}');
+    expect(card.name).toContain('<br />');
   });
 
   test('Cloze Deletion from Blocks', async () => {

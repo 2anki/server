@@ -36,6 +36,7 @@ import isColumnList from '../helpers/isColumnList';
 import isTesting from '../helpers/isTesting';
 import perserveNewlinesIfApplicable from '../helpers/preserveNewlinesIfApplicable';
 import { renderBack } from '../helpers/renderBack';
+import renderTextChildren from '../helpers/renderTextChildren';
 import { toText } from './helpers/deckNameToText';
 import getSubDeckName from './helpers/getSubDeckName';
 import RenderNotionLink from './RenderNotionLink';
@@ -150,7 +151,7 @@ class BlockHandler {
       : undefined;
   }
 
-  private async getFlashcards(
+  async getFlashcards(
     rules: ParserRules,
     flashcardBlocks: GetBlockResponse[],
     tags: string[],
@@ -169,8 +170,9 @@ class BlockHandler {
         const toggleBlock = block as ToggleBlockObjectResponse;
         const richText = toggleBlock.toggle.rich_text;
         
-        // Convert rich text to plain text for the front
-        name = richText.map(rt => rt.plain_text).join('');
+        // Render the toggle's rich_text (summary) as HTML for the front
+        // Always preserve newlines in toggle summaries by converting \n to <br />
+        name = renderTextChildren(richText, this.settings).replace(/\n/g, '<br />');
         
         // Get the children content for the back (answer)
         back = await this.getBackSide(block as BlockObjectResponse);
