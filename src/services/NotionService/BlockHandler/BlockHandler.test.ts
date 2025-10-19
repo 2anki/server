@@ -132,9 +132,9 @@ describe('BlockHandler', () => {
       new ParserRules()
     );
     const card = flashcards[0];
-    expect(card.name).toBe(
-      '<ul id="e5201f35-c722-40d3-8e3a-5d218e5d80a5" class="toggle"><li><details><summary>1 - This is a basic card</summary><div><p class="" id="f83ce56a-9039-4888-81be-375b19a84790">This is the back of the card</p></div></details></li></ul>'
-    );
+    // For toggle blocks, the front should contain just the plain text (question)
+    expect(card.name).toBe('1 - This is a basic card');
+    // The back should contain the rendered children content (answer)
     expect(card.back).toBe(
       '<p class="" id="f83ce56a-9039-4888-81be-375b19a84790">This is the back of the card</p>'
     );

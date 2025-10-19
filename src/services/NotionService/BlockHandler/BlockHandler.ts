@@ -7,6 +7,7 @@ import {
   ImageBlockObjectResponse,
   ListBlockChildrenResponse,
   PageObjectResponse,
+  ToggleBlockObjectResponse,
 } from '@notionhq/client/build/src/api-endpoints';
 import axios from 'axios';
 
@@ -159,24 +160,42 @@ class BlockHandler {
     let counter = 0;
 
     for (const block of flashcardBlocks) {
-      // Assume it's a basic card then check for children
-      const name = await blockToStaticMarkup(
-        this,
-        block as BlockObjectResponse
-      );
+      let name: string;
       let back: null | string = '';
-      if (isColumnList(block) && rules.useColums()) {
-        const secondColumn = await getColumn(block.id, this, 1);
-        if (secondColumn) {
-          back = await BlockColumn(secondColumn, this);
-        }
-      } else {
+      
+      // Handle toggle blocks specially for flashcard extraction
+      if (isFullBlock(block) && (block as BlockObjectResponse).type === 'toggle') {
+        // For toggle blocks, extract only the summary (question) for the front
+        const toggleBlock = block as ToggleBlockObjectResponse;
+        const richText = toggleBlock.toggle.rich_text;
+        
+        // Convert rich text to plain text for the front
+        name = richText.map(rt => rt.plain_text).join('');
+        
+        // Get the children content for the back (answer)
         back = await this.getBackSide(block as BlockObjectResponse);
+      } else {
+        // For non-toggle blocks, use the existing logic
+        name = await blockToStaticMarkup(
+          this,
+          block as BlockObjectResponse
+        );
+        
+        if (isColumnList(block) && rules.useColums()) {
+          const secondColumn = await getColumn(block.id, this, 1);
+          if (secondColumn) {
+            back = await BlockColumn(secondColumn, this);
+          }
+        } else {
+          back = await this.getBackSide(block as BlockObjectResponse);
+        }
       }
+      
       if (!name) {
         console.debug('name is not valid for front, skipping', name, back);
         continue;
       }
+      
       const ankiNote = new Note(name, back ?? '');
       ankiNote.media = this.exporter.media;
       let isBasicType = true;
@@ -223,6 +242,7 @@ class BlockHandler {
       }
 
       cards.push(ankiNote);
+      
       if (
         !this.settings.isCherry &&
         (this.settings.basicReversed || ankiNote.hasRefreshIcon()) &&
@@ -246,6 +266,7 @@ class BlockHandler {
         c.tags = tags.concat(sanitizeTags(c.tags));
       });
     }
+    
     return cards; // .filter((c) => !c.isValid());
   }
 
@@ -299,6 +320,7 @@ class BlockHandler {
     if (!this.firstPageTitle) {
       this.firstPageTitle = title;
     }
+    
     if (rules.permitsDeckAsPage() && page) {
       // Locate the card blocks to be used from the parser rules
       const cBlocks = blocks.filter((b: GetBlockResponse) => {
