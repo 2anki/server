@@ -19,7 +19,7 @@ const HandleBlockAnnotations = (
     return null;
   }
   const content = text.plain_text;
-  const color = (text.annotations && text.annotations.color) || undefined;
+  const color = text.annotations?.color;
   // Always prioritize background color if present, using NotionColors util
   if (color && isNotionColorBackground(color)) {
     return (
