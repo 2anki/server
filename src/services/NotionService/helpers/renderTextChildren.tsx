@@ -25,11 +25,8 @@ export default function renderTextChildren(
       }
 
       if (isText(t)) {
-        // Always pass all annotation properties, including color
-        const { annotations } = t;
-        const fullAnnotations = { ...annotations, color: t.annotations.color };
         return ReactDOMServer.renderToStaticMarkup(
-          <>{HandleBlockAnnotations(fullAnnotations, t)}</>
+          <>{HandleBlockAnnotations(t.annotations, t)}</>
         );
       }
 
