@@ -90,7 +90,7 @@
     "@types/node-fetch": "^2.6.4",
     "@types/nodemailer": "^7.0.2",
     "@types/react": "^19.0.6",
-    "@types/react-dom": "19.1.6",
+    "@types/react-dom": "19.2.2",
     "@types/showdown": "^2.0.6",
     "@types/swagger-jsdoc": "^6.0.4",
     "cross-env": "^7.0.3",
