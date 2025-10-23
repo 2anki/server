@@ -302,9 +302,10 @@ class BlockHandler {
     return decks;
   }
 
-  async findFlashcardsFromPage(locator: Finder): Promise<Deck[]> {
+  async findFlashcardsFromPage(locator: Finder, globalSeenIds?: Set<string>): Promise<Deck[]> {
     const { topLevelId, rules, parentName } = locator;
     let { decks } = locator;
+    if (!globalSeenIds) globalSeenIds = new Set<string>();
 
     const page = await this.api.getPage(topLevelId);
     const tags = await this.api.getTopLevelTags(topLevelId, rules);
@@ -322,9 +323,9 @@ class BlockHandler {
     if (!this.firstPageTitle) {
       this.firstPageTitle = title;
     }
-    
+
+    // Depth-first traversal: process current page, then children
     if (rules.permitsDeckAsPage() && page) {
-      // Locate the card blocks to be used from the parser rules
       const cBlocks = blocks.filter((b: GetBlockResponse) => {
         if (!isFullBlock(b)) {
           return false;
@@ -339,12 +340,20 @@ class BlockHandler {
             ? page?.url
             : undefined
           : undefined;
-      const cards = await this.getFlashcards(
+      let cards = await this.getFlashcards(
         rules,
         cBlocks,
         tags,
         notionBaseLink
       );
+      // Deduplicate by globalSeenIds
+      cards = cards.filter(card => {
+        if (typeof card.notionId === 'string' && globalSeenIds.has(card.notionId)) {
+          return false;
+        }
+        if (typeof card.notionId === 'string') globalSeenIds.add(card.notionId);
+        return true;
+      });
       const deck = new Deck(
         toText(getDeckName(parentName, title)),
         Deck.CleanCards(cards),
@@ -353,8 +362,23 @@ class BlockHandler {
         get16DigitRandomId(),
         this.settings
       );
-
       decks.push(deck);
+    }
+
+    // Traverse child_page blocks in strict order
+    for (const block of blocks) {
+      if (isFullBlock(block) && block.type === 'child_page') {
+        const subPage = await this.api.getPage(block.id);
+        if (subPage) {
+          decks = await this.findFlashcardsFromPage({
+            parentType: block.type,
+            topLevelId: block.id,
+            rules,
+            decks,
+            parentName: parentName,
+          }, globalSeenIds);
+        }
+      }
     }
 
     if (this.settings.isAll) {
@@ -387,12 +411,20 @@ class BlockHandler {
           );
 
           this.settings.parentBlockId = sd.id;
-          const cards = await this.getFlashcards(
+          let cards = await this.getFlashcards(
             rules,
             cBlocks,
             tags,
             undefined
           );
+          // Deduplicate by globalSeenIds
+          cards = cards.filter(card => {
+            if (typeof card.notionId === 'string' && globalSeenIds.has(card.notionId)) {
+              return false;
+            }
+            if (typeof card.notionId === 'string') globalSeenIds.add(card.notionId);
+            return true;
+          });
           let subDeckName = getSubDeckName(sd);
 
           decks.push(
@@ -418,11 +450,10 @@ class BlockHandler {
             rules,
             decks,
             parentName: parentName,
-          });
+          }, globalSeenIds);
         }
       }
     }
-    console.log('have ', decks.length, ' decks so far');
     return decks;
   }
 
