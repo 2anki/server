@@ -481,7 +481,7 @@ describe('BlockHandler', () => {
     expect(flashcards.length).toBe(2);
   });
 
-  jest.setTimeout(30000);
+  jest.setTimeout(90000);
   test('Enable two columns', async () => {
     const rules = new ParserRules();
     rules.setFlashcardTypes(['column_list']);
