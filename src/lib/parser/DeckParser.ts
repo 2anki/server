@@ -147,7 +147,7 @@ export class DeckParser {
       .replace(/<\/details><\/li><\/ul><\/details><\/li><\/ul>/g, '')
       .replace(/<\/details><\/li><\/ul>/g, '')
       .replace(/<p[^/>][^>]*><\/p>/g, '')
-      .replace('<summary class="toggle"></summary>', '');
+      .replaceAll('<summary class="toggle"></summary>', '');
   }
 
   removeNestedTogglesNewFormat(input: string): string {
@@ -178,9 +178,9 @@ export class DeckParser {
     if (isNewFormat) {
       result = result.replace(/<summary[^>]*class="toggle"[^>]*><\/summary>/g, '');
       result = result.replace(/<summary[^>]*><\/summary>/g, '');
-      result = result.replace('<summary class="toggle"></summary>', '');
+      result = result.replaceAll('<summary class="toggle"></summary>', '');
     } else {
-      result = result.replace('<summary class="toggle"></summary>', '');
+      result = result.replaceAll('<summary class="toggle"></summary>', '');
     }
     
     return result;
