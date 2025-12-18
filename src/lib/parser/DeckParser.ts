@@ -138,16 +138,52 @@ export class DeckParser {
     return dom(selector).toArray();
   }
 
-  removeNestedToggles(input: string) {
-    return input
-      .replace(/<details(.*?)>(.*?)<\/details>/g, '')
-      .replace(/<summary>(.*?)<\/summary>/g, '')
+  removeNestedToggles(input: string, isNewFormat: boolean = false): string {
+    if (isNewFormat) {
+      let result = this.cleanupEmptyElements(input, isNewFormat);
+      return result.trim();
+    } else {
+      return input
+        .replace(/<details(.*?)>(.*?)<\/details>/g, '')
+        .replace(/<summary>(.*?)<\/summary>/g, '')
+        .replace(/<li><\/li>/g, '')
+        .replace(/<ul[^/>][^>]*><\/ul>/g, '')
+        .replace(/<\/details><\/li><\/ul><\/details><\/li><\/ul>/g, '')
+        .replace(/<\/details><\/li><\/ul>/g, '')
+        .replace(/<p[^/>][^>]*><\/p>/g, '')
+        .replace('<summary class="toggle"></summary>', '');
+    }
+  }
+
+  private preserveSummaryContent(html: string): string {
+    // Always remove summary tags, but preserve their content
+    return html.replace(/<summary[^>]*>(.*?)<\/summary>/g, '$1');
+  }
+
+  private removeToggleStructureTags(html: string): string {
+    return html
+      .replace(/<details[^>]*>/g, '')
+      .replace(/<\/details>/g, '')
+      .replace(/<ul[^/>][^>]*>/g, '')
+      .replace(/<\/ul>/g, '')
+      .replace(/<\/li>/g, '')
+      .replace(/<li[^>]*>/g, '');
+  }
+
+  private cleanupEmptyElements(html: string, isNewFormat: boolean = false): string {
+    let result = html
       .replace(/<li><\/li>/g, '')
-      .replace(/<ul[^/>][^>]*><\/ul>/g, '')
-      .replace(/<\/details><\/li><\/ul><\/details><\/li><\/ul>/g, '')
-      .replace(/<\/details><\/li><\/ul>/g, '')
-      .replace(/<p[^/>][^>]*><\/p>/g, '')
-      .replace('<summary class="toggle"></summary>', '');
+      .replace(/<p[^/>][^>]*><\/p>/g, '');
+    
+    if (isNewFormat) {
+      result = result.replace(/<summary[^>]*class="toggle"[^>]*><\/summary>/g, '');
+      result = result.replace(/<summary[^>]*><\/summary>/g, '');
+      result = result.replace('<summary class="toggle"></summary>', '');
+    } else {
+      result = result.replace('<summary class="toggle"></summary>', '');
+    }
+    
+    return result;
   }
 
   getLink(pageId: string | undefined, note: Note): string | null {
@@ -199,7 +235,8 @@ export class DeckParser {
     deckName: string,
     decks: Deck[]
   ) {
-    let dom = this.loadDOM(contents);
+    const { dom, isNewFormat } = this.loadAndNormalizeDOM(contents);
+
     const style = withFontSize(extractStyles(dom), this.settings.fontSize);
     let image: string | undefined = this.extractCoverImage(dom);
 
@@ -220,7 +257,7 @@ export class DeckParser {
 
     const toggleList = this.extractToggleLists(dom);
     const paragraphs = this.extractCardsFromParagraph(dom);
-    let cards: Note[] = this.extractCards(dom, toggleList);
+    let cards: Note[] = this.extractCards(dom, toggleList, isNewFormat);
 
     const disableIndentedBullets = this.settings.disableIndentedBulletPoints;
     // Note: this is a fallback behaviour until we can provide people more flexibility on picking non-toggles
@@ -535,6 +572,95 @@ export class DeckParser {
     );
   }
 
+  private loadAndNormalizeDOM(contents: string): { dom: cheerio.Root; isNewFormat: boolean } {
+    const dom = this.loadDOM(contents);
+    const isNewFormat = this.hasNotionNewExportFormat(dom);
+    this.normalizeNotionNewExportFormat(dom);
+    return { dom, isNewFormat };
+  }
+
+  private normalizeNotionNewExportFormat(dom: cheerio.Root): void {
+    if (!this.hasNotionNewExportFormat(dom)) {
+      return;
+    }
+
+    this.preserveNestedTogglesBeforeFlattening(dom);
+    this.flattenDisplayContentsElements(dom);
+  }
+
+  private preserveNestedTogglesBeforeFlattening(dom: cheerio.Root): void {
+    dom('[style*="display:contents"] ul.toggle > li > details').each((_, details) => {
+      const $details = dom(details);
+      
+      $details.find('ul.toggle').each((_, nestedUl) => {
+        const $nestedUl = dom(nestedUl);
+        const nestedItems = $nestedUl.find('li > details');
+        
+        if (nestedItems.length > 0) {
+          let nestedHTML = '';
+          
+          nestedItems.each((_, nestedDetail) => {
+            const $nestedDetail = dom(nestedDetail);
+            const $summary = $nestedDetail.find('summary').first();
+            const summaryText = $summary.text().trim();
+            
+            if (summaryText) {
+              const $content = $nestedDetail.clone();
+              $content.find('summary').remove();
+              
+              $content.find('[style*="display:contents"]').each((_, el) => {
+                const $el = dom(el);
+                $el.replaceWith($el.contents());
+              });
+              
+              const contentHTML = $content.html() || '';
+              
+              nestedHTML += `<details style="margin-left: 20px; margin-bottom: 10px;">
+                <summary><strong>${summaryText}</strong></summary>
+                ${contentHTML}
+              </details>`;
+            } else {
+              const contentHTML = $nestedDetail.html() || '';
+              nestedHTML += `<div style="margin-left: 20px; margin-bottom: 10px;">
+                ${contentHTML}
+              </div>`;
+            }
+          });
+          
+          if (nestedHTML) {
+            $nestedUl.replaceWith(nestedHTML);
+          } else {
+            $nestedUl.remove();
+          }
+        } else {
+          $nestedUl.remove();
+        }
+      });
+    });
+  }
+
+  private hasNotionNewExportFormat(dom: cheerio.Root): boolean {
+    return dom('[style*="display:contents"]').length > 0;
+  }
+
+  private flattenDisplayContentsElements(dom: cheerio.Root): void {
+    dom('[style*="display:contents"]').each((_, el) => {
+      const $el = dom(el);
+      $el.replaceWith($el.contents());
+    });
+  }
+
+  private removeEmptyDisplayContentsElements(
+    $container: cheerio.Cheerio,
+    dom: cheerio.Root
+  ): void {
+    $container.find('div[style*="display:contents"]').each((_, divEl) => {
+      if (dom(divEl).is(':empty')) {
+        dom(divEl).remove();
+      }
+    });
+  }
+
   private extractCoverImage(dom: cheerio.Root) {
     const pageCoverImage = dom('.page-cover-image');
     if (pageCoverImage) {
@@ -557,22 +683,30 @@ export class DeckParser {
 
     const details = dom('details').toArray();
 
-    /**
-     * The document has toggles but they are not in the Notion format.
-     */
+    // Remove duplicate toggles caused by merged ul.toggle
+    const uniqueToggles = [];
+    const seen = new Set();
+    for (const t of foundToggleLists) {
+      const id = dom(t).attr('id') || dom(t).html();
+      if (!seen.has(id)) {
+        uniqueToggles.push(t);
+        seen.add(id);
+      }
+    }
+
     const convertedToggleLists =
-      foundToggleLists.length === 0 && details.length > 0
+      uniqueToggles.length === 0 && details.length > 0
         ? transformDetailsTagToNotionToggleList(dom, details)
         : [];
 
     return [
-      ...foundToggleLists,
+      ...uniqueToggles,
       ...convertedToggleLists,
       ...this.findIndentedToggleLists(dom),
     ];
   }
 
-  private extractCards(dom: cheerio.Root, toggleList: cheerio.Element[]) {
+  private extractCards(dom: cheerio.Root, toggleList: cheerio.Element[], isNewFormat: boolean = false) {
     let cards: Note[] = [];
     const pageId = dom('article').attr('id');
 
@@ -626,7 +760,7 @@ export class DeckParser {
               const backSide = (() => {
                 let mangleBackSide = b;
                 if (this.settings.maxOne) {
-                  mangleBackSide = this.removeNestedToggles(b);
+                  mangleBackSide = this.removeNestedToggles(b, isNewFormat);
                 }
                 if (this.settings.perserveNewLines) {
                   mangleBackSide = replaceAll(mangleBackSide, '\n', '<br />');
