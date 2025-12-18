@@ -86,7 +86,6 @@ test('Global Tags', async () => {
     'Global Tag Support.html',
     new CardOption({ tags: 'true', cherry: 'false' })
   );
-  // use toContain
   expect(deck.cards[0].tags.includes('global')).toBe(true);
 });
 
@@ -128,13 +127,49 @@ test('Markdown nested bullet points', async () => {
   expect(deck.cards[2].name).toBe(
     '<ul>\n<li>' + 'What is the capital of Sweden' + '</li>\n</ul>'
   );
-
-  console.log('Deck card 2 back:', deck.cards[2].back);
-
   expect(deck.cards[2].back).toBe('<p>Stockholm</p>');
   expect(deck.cards[3].name).toBe(
     '<ul>\n<li>' + 'What is the capital of Finland' + '</li>\n</ul>'
   );
   expect(deck.cards[3].back).toBe('<p>Helsinki</p>');
   expect(deck.cards.length).toBe(4);
+});
+
+test('Notion new export: display:contents and fragmented ul.toggle', async () => {
+  const deck = await getDeck(
+    'notion-new-export-nested.html',
+    new CardOption({ maxOne: 'true', cherry: 'false' })
+  );
+  
+  expect(deck.cards.length).toBe(1);
+  expect(deck.cards[0].name).toContain('Parent');
+  expect(deck.cards[0].back).toContain('Child');
+  expect(deck.cards[0].back).toContain('details');
+  expect(deck.cards[0].back).toContain('summary');
+});
+
+test('Notion new export: display:contents for toggles', async () => {
+  const deck = await getDeck(
+    'Toggles test 2cd7ab29a11e80bea100ed002a880884.html',
+    new CardOption({ maxOne: 'true', cherry: 'false', useInput: 'false' })
+  );
+  
+  // Should extract 2 cards from this structure
+  expect(deck.cards.length).toBe(2);
+  
+  // First card should be the simple Albania question
+  expect(deck.cards[0].name).toContain('Albania');
+  expect(deck.cards[0].back).toContain('Tirana');
+  
+  // Second card should be the Japan greetings with nested content
+  expect(deck.cards[1].name).toBeDefined();
+  expect(deck.cards[1].back).toBeDefined();
+  
+  // Check that nested Japanese greetings are preserved as functional toggles
+  expect(deck.cards[1].back).toContain('おはようございます');
+  expect(deck.cards[1].back).toContain('Ohayō gozaimasu');
+  expect(deck.cards[1].back).toContain('こんにちは');
+  expect(deck.cards[1].back).toContain('Konnichiwa');
+  expect(deck.cards[1].back).toContain('details');
+  expect(deck.cards[1].back).toContain('summary');
 });
