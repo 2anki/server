@@ -591,52 +591,63 @@ export class DeckParser {
   private preserveNestedTogglesBeforeFlattening(dom: cheerio.Root): void {
     dom('[style*="display:contents"] ul.toggle > li > details').each((_, details) => {
       const $details = dom(details);
+      this.processNestedToggles($details, dom);
+    });
+  }
+
+  private processNestedToggles($details: cheerio.Cheerio, dom: cheerio.Root): void {
+    $details.find('ul.toggle').each((_, nestedUl) => {
+      const $nestedUl = dom(nestedUl);
+      const nestedItems = $nestedUl.find('li > details');
       
-      $details.find('ul.toggle').each((_, nestedUl) => {
-        const $nestedUl = dom(nestedUl);
-        const nestedItems = $nestedUl.find('li > details');
-        
-        if (nestedItems.length > 0) {
-          let nestedHTML = '';
-          
-          nestedItems.each((_, nestedDetail) => {
-            const $nestedDetail = dom(nestedDetail);
-            const $summary = $nestedDetail.find('summary').first();
-            const summaryText = $summary.text().trim();
-            
-            if (summaryText) {
-              const $content = $nestedDetail.clone();
-              $content.find('summary').remove();
-              
-              $content.find('[style*="display:contents"]').each((_, el) => {
-                const $el = dom(el);
-                $el.replaceWith($el.contents());
-              });
-              
-              const contentHTML = $content.html() || '';
-              
-              nestedHTML += `<details style="margin-left: 20px; margin-bottom: 10px;">
-                <summary><strong>${summaryText}</strong></summary>
-                ${contentHTML}
-              </details>`;
-            } else {
-              const contentHTML = $nestedDetail.html() || '';
-              nestedHTML += `<div style="margin-left: 20px; margin-bottom: 10px;">
-                ${contentHTML}
-              </div>`;
-            }
-          });
-          
-          if (nestedHTML) {
-            $nestedUl.replaceWith(nestedHTML);
-          } else {
-            $nestedUl.remove();
-          }
+      if (nestedItems.length > 0) {
+        const nestedHTML = this.buildNestedToggleHTML(nestedItems, dom);
+        if (nestedHTML) {
+          $nestedUl.replaceWith(nestedHTML);
         } else {
           $nestedUl.remove();
         }
-      });
+      } else {
+        $nestedUl.remove();
+      }
     });
+  }
+
+  private buildNestedToggleHTML(nestedItems: cheerio.Cheerio, dom: cheerio.Root): string {
+    let nestedHTML = '';
+    
+    nestedItems.each((_, nestedDetail) => {
+      const $nestedDetail = dom(nestedDetail);
+      const $summary = $nestedDetail.find('summary').first();
+      const summaryText = $summary.text().trim();
+      
+      if (summaryText) {
+        const contentHTML = this.extractDetailContent($nestedDetail, dom);
+        nestedHTML += `<details style="margin-left: 20px; margin-bottom: 10px;">
+          <summary><strong>${summaryText}</strong></summary>
+          ${contentHTML}
+        </details>`;
+      } else {
+        const contentHTML = $nestedDetail.html() || '';
+        nestedHTML += `<div style="margin-left: 20px; margin-bottom: 10px;">
+          ${contentHTML}
+        </div>`;
+      }
+    });
+    
+    return nestedHTML;
+  }
+
+  private extractDetailContent($nestedDetail: cheerio.Cheerio, dom: cheerio.Root): string {
+    const $content = $nestedDetail.clone();
+    $content.find('summary').remove();
+    
+    $content.find('[style*="display:contents"]').each((_, el) => {
+      const $el = dom(el);
+      $el.replaceWith($el.contents());
+    });
+    
+    return $content.html() || '';
   }
 
   private hasNotionNewExportFormat(dom: cheerio.Root): boolean {
