@@ -138,21 +138,21 @@ export class DeckParser {
     return dom(selector).toArray();
   }
 
-  removeNestedToggles(input: string, isNewFormat: boolean = false): string {
-    if (isNewFormat) {
-      let result = this.cleanupEmptyElements(input, isNewFormat);
-      return result.trim();
-    } else {
-      return input
-        .replace(/<details(.*?)>(.*?)<\/details>/g, '')
-        .replace(/<summary>(.*?)<\/summary>/g, '')
-        .replace(/<li><\/li>/g, '')
-        .replace(/<ul[^/>][^>]*><\/ul>/g, '')
-        .replace(/<\/details><\/li><\/ul><\/details><\/li><\/ul>/g, '')
-        .replace(/<\/details><\/li><\/ul>/g, '')
-        .replace(/<p[^/>][^>]*><\/p>/g, '')
-        .replace('<summary class="toggle"></summary>', '');
-    }
+  removeNestedTogglesLegacy(input: string): string {
+    return input
+      .replace(/<details(.*?)>(.*?)<\/details>/g, '')
+      .replace(/<summary>(.*?)<\/summary>/g, '')
+      .replace(/<li><\/li>/g, '')
+      .replace(/<ul[^/>][^>]*><\/ul>/g, '')
+      .replace(/<\/details><\/li><\/ul><\/details><\/li><\/ul>/g, '')
+      .replace(/<\/details><\/li><\/ul>/g, '')
+      .replace(/<p[^/>][^>]*><\/p>/g, '')
+      .replace('<summary class="toggle"></summary>', '');
+  }
+
+  removeNestedTogglesNewFormat(input: string): string {
+    const result = this.cleanupEmptyElements(input, true);
+    return result.trim();
   }
 
   private preserveSummaryContent(html: string): string {
@@ -771,7 +771,9 @@ export class DeckParser {
               const backSide = (() => {
                 let mangleBackSide = b;
                 if (this.settings.maxOne) {
-                  mangleBackSide = this.removeNestedToggles(b, isNewFormat);
+                  mangleBackSide = isNewFormat 
+                    ? this.removeNestedTogglesNewFormat(b)
+                    : this.removeNestedTogglesLegacy(b);
                 }
                 if (this.settings.perserveNewLines) {
                   mangleBackSide = replaceAll(mangleBackSide, '\n', '<br />');
