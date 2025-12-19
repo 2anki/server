@@ -173,3 +173,19 @@ test('Notion new export: display:contents for toggles', async () => {
   expect(deck.cards[1].back).toContain('details');
   expect(deck.cards[1].back).toContain('summary');
 });
+
+test('Notion new export: deeply nested toggles (3 levels)', async () => {
+  const deck = await getDeck(
+    'Notion Page grandchildren 2ce7ab29a11e809998e3d22ed65fc5f2.html',
+    new CardOption({ maxOne: 'true', cherry: 'false', useInput: 'false' })
+  );
+  
+  expect(deck.cards.length).toBe(1);
+  
+  expect(deck.cards[0].name).toContain('Parent');
+  expect(deck.cards[0].back).toContain('Grand child');
+  
+  expect(deck.cards[0].back).toContain('Child');
+  expect(deck.cards[0].back).toContain('details');
+  expect(deck.cards[0].back).toContain('summary');
+});
