@@ -591,63 +591,53 @@ export class DeckParser {
   private preserveNestedTogglesBeforeFlattening(dom: cheerio.Root): void {
     dom('[style*="display:contents"] ul.toggle > li > details').each((_, details) => {
       const $details = dom(details);
-      this.processNestedToggles($details, dom);
+      this.processNestedTogglesDepthFirst($details, dom);
     });
   }
 
-  private processNestedToggles($details: cheerio.Cheerio, dom: cheerio.Root): void {
-    $details.find('ul.toggle').each((_, nestedUl) => {
-      const $nestedUl = dom(nestedUl);
-      const nestedItems = $nestedUl.find('li > details');
+  private processNestedTogglesDepthFirst($details: cheerio.Cheerio, dom: cheerio.Root): void {
+    $details.find('[style*="display:contents"]').each((_, displayContents) => {
+      const $displayContents = dom(displayContents);
+      const $nestedUl = $displayContents.children('ul.toggle').first();
       
-      if (nestedItems.length > 0) {
-        const nestedHTML = this.buildNestedToggleHTML(nestedItems, dom);
-        if (nestedHTML) {
-          $nestedUl.replaceWith(nestedHTML);
+      if ($nestedUl.length > 0) {
+        const $li = $nestedUl.children('li').first();
+        const $nestedDetails = $li.children('details').first();
+        
+        if ($nestedDetails.length > 0) {
+          this.processNestedTogglesDepthFirst($nestedDetails, dom);
+          
+          const $summary = $nestedDetails.children('summary').first();
+          const summaryText = $summary.text().trim();
+          
+          if (summaryText) {
+            const $contentAfterSummary = $nestedDetails.contents().not('summary');
+            let contentHTML = '';
+            
+            $contentAfterSummary.each((_, content) => {
+              if (dom(content).is('[style*="display:contents"]')) {
+                contentHTML += dom(content).html() || '';
+              } else {
+                contentHTML += dom(content).toString();
+              }
+            });
+            
+            const nestedDetailsHTML = `<details style="margin-left: 20px; margin-bottom: 10px;">
+              <summary><strong>${summaryText}</strong></summary>
+              ${contentHTML}
+            </details>`;
+            
+            $displayContents.replaceWith(nestedDetailsHTML);
+          } else {
+            $displayContents.replaceWith($displayContents.contents());
+          }
         } else {
-          $nestedUl.remove();
+          $displayContents.replaceWith($displayContents.contents());
         }
       } else {
-        $nestedUl.remove();
+        $displayContents.replaceWith($displayContents.contents());
       }
     });
-  }
-
-  private buildNestedToggleHTML(nestedItems: cheerio.Cheerio, dom: cheerio.Root): string {
-    let nestedHTML = '';
-    
-    nestedItems.each((_, nestedDetail) => {
-      const $nestedDetail = dom(nestedDetail);
-      const $summary = $nestedDetail.find('summary').first();
-      const summaryText = $summary.text().trim();
-      
-      if (summaryText) {
-        const contentHTML = this.extractDetailContent($nestedDetail, dom);
-        nestedHTML += `<details style="margin-left: 20px; margin-bottom: 10px;">
-          <summary><strong>${summaryText}</strong></summary>
-          ${contentHTML}
-        </details>`;
-      } else {
-        const contentHTML = $nestedDetail.html() || '';
-        nestedHTML += `<div style="margin-left: 20px; margin-bottom: 10px;">
-          ${contentHTML}
-        </div>`;
-      }
-    });
-    
-    return nestedHTML;
-  }
-
-  private extractDetailContent($nestedDetail: cheerio.Cheerio, dom: cheerio.Root): string {
-    const $content = $nestedDetail.clone();
-    $content.find('summary').remove();
-    
-    $content.find('[style*="display:contents"]').each((_, el) => {
-      const $el = dom(el);
-      $el.replaceWith($el.contents());
-    });
-    
-    return $content.html() || '';
   }
 
   private hasNotionNewExportFormat(dom: cheerio.Root): boolean {
