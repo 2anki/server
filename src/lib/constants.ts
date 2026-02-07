@@ -2,9 +2,7 @@ import path from 'path';
 
 export const TEMPLATE_DIR = path.join(__dirname, '../templates');
 
-export const ALLOWED_ORIGINS = [
-  'http://localhost:8080',
-  'http://localhost:2020',
+const PRODUCTION_ORIGINS = [
   'https://dev.notion2anki.alemayhu.com',
   'https://dev.2anki.net',
   'https://notion.2anki.com',
@@ -16,6 +14,17 @@ export const ALLOWED_ORIGINS = [
   'https://staging.2anki.net',
   'https://templates.2anki.net/',
   'https://app.2anki.net',
+];
+
+const LOCAL_DEV_ORIGINS = [
+  'http://localhost:3000',
+  'http://localhost:8080',
+  'http://localhost:2020',
+];
+
+export const ALLOWED_ORIGINS = [
+  ...PRODUCTION_ORIGINS,
+  ...(process.env.LOCAL_DEV ? LOCAL_DEV_ORIGINS : []),
 ];
 
 export function resolvePath(dir: string, x: string) {
