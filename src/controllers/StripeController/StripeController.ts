@@ -8,6 +8,7 @@ import TokenRepository from '../../data_layer/TokenRepository';
 import AuthenticationService from '../../services/AuthenticationService';
 import { getStripe } from '../../lib/integrations/stripe';
 import { extractTokenFromCookies } from './extractTokenFromCookies';
+import SubscriptionService from '../../services/SubscriptionService';
 
 export class StripeController {
   async getSuccessfulCheckout(req: express.Request, res: express.Response) {
@@ -73,21 +74,9 @@ export class StripeController {
         return res.status(401).json({ authenticated: false, hasActiveSubscription: false });
       }
 
-      // Check if user has active subscription
-      const subscription = await database('subscriptions')
-        .where({ email: user.email.toLowerCase() })
-        .andWhere({ active: true })
-        .first();
-
-      // Also check linked_email if no direct subscription found
-      let hasActiveSubscription = !!subscription;
-      if (!hasActiveSubscription) {
-        const linkedSubscription = await database('subscriptions')
-          .where({ linked_email: user.email.toLowerCase() })
-          .andWhere({ active: true })
-          .first();
-        hasActiveSubscription = !!linkedSubscription;
-      }
+      // Check if user has active subscription using SubscriptionService
+      const activeSubscriptions = await SubscriptionService.getUserActiveSubscriptions(user.email);
+      const hasActiveSubscription = activeSubscriptions.length > 0;
 
       return res.json({
         authenticated: true,
@@ -102,5 +91,9 @@ export class StripeController {
       console.error('Error checking subscription status:', error);
       return res.status(500).json({ authenticated: false, hasActiveSubscription: false, error: 'Internal server error' });
     }
+  }
+
+  async cancelUserSubscriptions(userEmail: string): Promise<void> {
+    return SubscriptionService.cancelUserSubscriptions(userEmail);
   }
 }
