@@ -60,9 +60,7 @@ export class StripeController {
       }
 
       const database = getDatabase();
-      const emailService = useDefaultEmailService();
       const userRepository = new UsersRepository(database);
-      const usersService = new UsersService(userRepository, emailService);
       const tokenRepository = new TokenRepository(database);
       const authService = new AuthenticationService(
         tokenRepository,
