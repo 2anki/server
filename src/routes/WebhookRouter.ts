@@ -187,6 +187,44 @@ const WebhooksRouter = () => {
   router.get('/successful-checkout', (req, res) =>
     controller.getSuccessfulCheckout(req, res)
   );
+
+  /**
+   * @swagger
+   * /api/stripe/subscription-status:
+   *   get:
+   *     summary: Check user subscription status
+   *     description: Check if the authenticated user has an active subscription
+   *     tags: [Payments]
+   *     responses:
+   *       200:
+   *         description: Subscription status information
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 authenticated:
+   *                   type: boolean
+   *                 hasActiveSubscription:
+   *                   type: boolean
+   *                 user:
+   *                   type: object
+   *                   properties:
+   *                     email:
+   *                       type: string
+   *                     name:
+   *                       type: string
+   *                     patreon:
+   *                       type: boolean
+   *       401:
+   *         description: Not authenticated
+   *       500:
+   *         description: Server error
+   */
+  router.get('/api/stripe/subscription-status', (req, res) =>
+    controller.checkSubscriptionStatus(req, res)
+  );
+
   return router;
 };
 

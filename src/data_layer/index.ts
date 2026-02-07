@@ -32,7 +32,7 @@ export const setupDatabase = async (database: Knex) => {
       process.chdir(path.join(process.env.MIGRATIONS_DIR, '..'));
     }
 
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env.NODE_ENV === 'production' && !process.env.LOCAL_DEV) {
       console.info('DB is ready');
 
       // Only run cleanup jobs on main instance to avoid conflicts with Singapore instance

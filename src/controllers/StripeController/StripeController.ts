@@ -48,4 +48,59 @@ export class StripeController {
 
     res.send(getIndexFileContents());
   }
+
+  async checkSubscriptionStatus(req: express.Request, res: express.Response) {
+    try {
+      const cookies = req.get('cookie');
+      const token = extractTokenFromCookies(cookies);
+
+      if (!token) {
+        return res.status(401).json({ authenticated: false, hasActiveSubscription: false });
+      }
+
+      const database = getDatabase();
+      const emailService = useDefaultEmailService();
+      const userRepository = new UsersRepository(database);
+      const usersService = new UsersService(userRepository, emailService);
+      const tokenRepository = new TokenRepository(database);
+      const authService = new AuthenticationService(
+        tokenRepository,
+        userRepository
+      );
+
+      const user = await authService.getUserFrom(token);
+      if (!user) {
+        return res.status(401).json({ authenticated: false, hasActiveSubscription: false });
+      }
+
+      // Check if user has active subscription
+      const subscription = await database('subscriptions')
+        .where({ email: user.email.toLowerCase() })
+        .andWhere({ active: true })
+        .first();
+
+      // Also check linked_email if no direct subscription found
+      let hasActiveSubscription = !!subscription;
+      if (!hasActiveSubscription) {
+        const linkedSubscription = await database('subscriptions')
+          .where({ linked_email: user.email.toLowerCase() })
+          .andWhere({ active: true })
+          .first();
+        hasActiveSubscription = !!linkedSubscription;
+      }
+
+      return res.json({
+        authenticated: true,
+        hasActiveSubscription,
+        user: {
+          email: user.email,
+          name: user.name,
+          patreon: user.patreon
+        }
+      });
+    } catch (error) {
+      console.error('Error checking subscription status:', error);
+      return res.status(500).json({ authenticated: false, hasActiveSubscription: false, error: 'Internal server error' });
+    }
+  }
 }
