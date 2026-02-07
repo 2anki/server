@@ -274,6 +274,30 @@ class UsersController {
     }
   }
 
+  async cancelSubscription(req: express.Request, res: express.Response) {
+    const { owner } = res.locals;
+    if (!owner) {
+      return res.status(401).json({ message: 'Authentication required' });
+    }
+
+    try {
+      // Get user details to access email for subscription cancellation
+      const user = await this.userService.getUserById(owner);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      // Cancel active Stripe subscriptions using SubscriptionService
+      await SubscriptionService.cancelUserSubscriptions(user.email);
+
+      res.status(200).json({ message: 'Subscription cancelled successfully' });
+    } catch (error) {
+      console.info('Cancel subscription failed');
+      console.error(error);
+      return res.status(500).json({ message: 'Failed to cancel subscription' });
+    }
+  }
+
   async checkUser(req: express.Request, res: express.Response) {
     const user = await this.authService.getUserFrom(req.cookies.token);
     if (!user) {

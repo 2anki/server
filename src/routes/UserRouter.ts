@@ -292,6 +292,40 @@ const UserRouter = () => {
 
   /**
    * @swagger
+   * /api/users/cancel-subscription:
+   *   post:
+   *     summary: Cancel user subscription
+   *     description: Cancel the authenticated user's active subscription without deleting the account
+   *     tags: [Users]
+   *     security:
+   *       - bearerAuth: []
+   *       - cookieAuth: []
+   *     responses:
+   *       200:
+   *         description: Subscription cancelled successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Success'
+   *       401:
+   *         description: Authentication required
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   *       404:
+   *         description: User or active subscription not found
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   */
+  router.post('/api/users/cancel-subscription', RequireAuthentication, (req, res) =>
+    controller.cancelSubscription(req, res)
+  );
+
+  /**
+   * @swagger
    * /api/users/debug/locals:
    *   get:
    *     summary: Get debug information
