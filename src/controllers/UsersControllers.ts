@@ -9,6 +9,7 @@ import { getRedirect } from './helpers/getRedirect';
 import { getIndexFileContents } from './IndexController/getIndexFileContents';
 import { getRandomUUID } from '../shared/helpers/getRandomUUID';
 import { getDefaultAvatarPicture } from '../lib/getDefaultAvatarPicture';
+import SubscriptionService from '../services/SubscriptionService';
 
 class UsersController {
   constructor(
@@ -254,6 +255,16 @@ class UsersController {
     }
 
     try {
+      // Get user details before deletion to access email for subscription cancellation
+      const user = await this.userService.getUserById(owner);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      // Cancel active Stripe subscriptions using SubscriptionService
+      await SubscriptionService.cancelUserSubscriptions(user.email);
+
+      // Delete the user account
       await this.userService.deleteUser(owner);
       res.status(200).json({});
     } catch (error) {
