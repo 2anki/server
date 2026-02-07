@@ -72,8 +72,6 @@ describe('getRedirect security tests', () => {
       'https://notion.2anki.net',
       'https://staging.2anki.net',
       'https://templates.2anki.net',
-      'http://localhost:8080',
-      'http://localhost:2020',
     ];
 
     legitimateUrls.forEach(url => {
