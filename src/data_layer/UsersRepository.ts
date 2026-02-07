@@ -103,6 +103,12 @@ class UsersRepository {
     return this.database(this.table).where({ id }).update({ picture });
   }
 
+  updateLastLoginAt(id: string) {
+    return this.database(this.table).where({ id }).update({ 
+      last_login_at: this.database.fn.now() 
+    });
+  }
+
   updatePatreonByEmail(email: string, patreon: boolean) {
     return this.database(this.table).where({ email }).update({ patreon });
   }

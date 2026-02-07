@@ -23,6 +23,8 @@ export default interface Users {
   patreon: boolean | null;
 
   picture: string | null;
+
+  last_login_at: Date | null;
 }
 
 /** Represents the initializer for the table public.users */
@@ -49,6 +51,8 @@ export interface UsersInitializer {
 
   /** Default value: NULL::character varying */
   picture?: string | null;
+
+  last_login_at?: Date | null;
 }
 
 /** Represents the mutator for the table public.users */
@@ -70,4 +74,6 @@ export interface UsersMutator {
   patreon?: boolean | null;
 
   picture?: string | null;
+
+  last_login_at?: Date | null;
 }

@@ -82,6 +82,10 @@ class UsersService {
   updatePicture(id: string, picture: string) {
     return this.repository.updatePicture(id, picture);
   }
+
+  updateLastLoginAt(id: string) {
+    return this.repository.updateLastLoginAt(id);
+  }
 }
 
 export default UsersService;
