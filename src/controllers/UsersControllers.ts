@@ -115,6 +115,7 @@ class UsersController {
       const token = await this.authService.newJWTToken(user);
       if (token) {
         await this.authService.persistToken(token, user.id.toString());
+        await this.userService.updateLastLoginAt(user.id.toString());
         res.cookie('token', token);
         res.status(200).json({ token, redirect: getRedirect(req) });
       }
@@ -358,6 +359,7 @@ class UsersController {
           .send('Unknown error. Please try again or register a new account.');
       }
       await this.authService.persistToken(token, user.id.toString());
+      await this.userService.updateLastLoginAt(user.id.toString());
       res.cookie('token', token);
       res.status(200).redirect(getRedirect(req));
     } else {
