@@ -10,6 +10,8 @@ export function findNotionToggleLists(
   >
 ): cheerio.Element[] {
   if (context.isCherry || context.isAll) {
+    // When isAll is true, find all .toggle elements including nested ones
+    // This ensures nested toggles are treated as separate cards
     return dom('.toggle').toArray();
   }
   if (!context.disableIndentedBulletPoints) {
