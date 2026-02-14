@@ -584,7 +584,11 @@ export class DeckParser {
       return;
     }
 
-    this.preserveNestedTogglesBeforeFlattening(dom);
+    // Only preserve nested toggles as HTML content if maxOne is true
+    // If maxOne is false, skip the preservation so nested toggles remain as separate elements
+    if (this.settings.maxOne) {
+      this.preserveNestedTogglesBeforeFlattening(dom);
+    }
     this.flattenDisplayContentsElements(dom);
   }
 
