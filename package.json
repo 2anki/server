@@ -32,6 +32,7 @@
   "license": "MIT",
   "dependencies": {
     "@2anki/csv-to-apkg": "^1.4.4",
+    "@anthropic-ai/sdk": "^0.40.1",
     "@google-cloud/vertexai": "^1.9.0",
     "@notionhq/client": "^2.2.13",
     "@sendgrid/mail": "^8.1.3",
