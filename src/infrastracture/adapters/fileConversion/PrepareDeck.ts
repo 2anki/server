@@ -8,12 +8,14 @@ import {
   isPDFFile,
   isPPTFile,
   isXLSXFile,
+  isDocxFile,
 } from '../../../lib/storage/checks';
 import { convertPDFToHTML } from './convertPDFToHTML';
 import { convertPPTToPDF } from './ConvertPPTToPDF';
 import { convertImageToHTML } from './convertImageToHTML';
 import { convertPDFToImages } from './convertPDFToImages';
 import { convertXLSXToHTML } from './convertXLSXToHTML';
+import { convertDocxToHTML } from './convertDocxToHTML';
 import { generateDeckInfo } from '../../../lib/claude/ClaudeService';
 import CustomExporter from '../../../lib/parser/exporters/CustomExporter';
 import fs from 'fs';
@@ -37,6 +39,15 @@ export async function PrepareDeck(
 
     if (isXLSXFile(file.name)) {
       const htmlContent = convertXLSXToHTML(file.contents as Buffer, file.name);
+      convertedFiles.push({
+        name: `${file.name}.html`,
+        contents: Buffer.from(htmlContent),
+      });
+      continue;
+    }
+
+    if (isDocxFile(file.name) && input.settings.claudeAIFlashcards && input.noLimits) {
+      const htmlContent = await convertDocxToHTML(file.contents as Buffer);
       convertedFiles.push({
         name: `${file.name}.html`,
         contents: Buffer.from(htmlContent),

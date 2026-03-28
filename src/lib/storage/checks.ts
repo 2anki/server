@@ -26,6 +26,8 @@ export const isImageFileEmbedable = (url: string) => {
 
 export const isCSVFile = (fileName: string) => /.csv$/i.exec(fileName);
 
+export const isDocxFile = (fileName: string) => /\.(docx|doc)$/i.exec(fileName);
+
 export const isPDFFile = (fileName: string) => /.pdf$/i.exec(fileName);
 
 export const isPPTFile = (fileName: string) => /\.(ppt|pptx)$/i.exec(fileName);

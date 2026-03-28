@@ -8,6 +8,7 @@ import {
   isImageFile,
   isCompressedFile,
   isPPTFile,
+  isDocxFile,
 } from '../../lib/storage/checks';
 import { getPackagesFromZip } from './getPackagesFromZip';
 import Workspace from '../../lib/parser/WorkSpace';
@@ -58,10 +59,13 @@ async function processFile(
   // Check if it's a valid single file
   const allowImageQuizHtmlToAnki =
     paying && settings.imageQuizHtmlToAnki && isImageFile(filename);
+  const allowDocxViaClaude =
+    paying && settings.claudeAIFlashcards && isDocxFile(filename);
   const isValidSingleFile =
     isZipContentFileSupported(filename) ||
     isPPTFile(filename) ||
-    allowImageQuizHtmlToAnki;
+    allowImageQuizHtmlToAnki ||
+    allowDocxViaClaude;
 
   if (isValidSingleFile) {
     const d = await PrepareDeck({
