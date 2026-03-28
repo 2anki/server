@@ -73,6 +73,8 @@ class CardOption {
 
   readonly processPDFs: boolean;
 
+  readonly claudeAIFlashcards: boolean;
+
   readonly userInstructions?: string;
 
   constructor(input: { [key: string]: string }) {
@@ -111,6 +113,7 @@ class CardOption {
       input['disable-indented-bullets'] === 'true';
     this.imageQuizHtmlToAnki = input['image-quiz-html-to-anki'] === 'true';
     this.processPDFs = input['process-pdfs'] !== 'false';
+    this.claudeAIFlashcards = input['claude-ai-flashcards'] === 'true';
     /* Is this really needed? */
     if (this.parentBlockId) {
       this.addNotionLink = true;
@@ -158,6 +161,7 @@ class CardOption {
       'page-emoji': 'first-emoji',
       'image-quiz-html-to-anki': 'false',
       'markdown-nested-bullet-points': 'true',
+      'claude-ai-flashcards': 'false',
     };
   }
 }

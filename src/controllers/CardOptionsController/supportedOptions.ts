@@ -122,6 +122,12 @@ const supportedOptions = (): CardOptionDetail[] => {
       'Use OCR to extract images and answers from HTML quizzes and convert them into Anki flashcards for review. This is a premium experimental feature.',
       false
     ),
+    new CardOptionDetail(
+      'claude-ai-flashcards',
+      'Generate Flashcards with Claude AI',
+      'Use Claude Anthropic to generate flashcards from your content. Produces more reliable results for complex documents. This is a premium feature available to subscribers.',
+      false
+    ),
   ];
 
   return v.filter(Boolean);
