@@ -11,7 +11,7 @@ import { toText } from './NotionService/BlockHandler/helpers/deckNameToText';
 import { isPaying } from '../lib/isPaying';
 import { isLimitError } from '../lib/misc/isLimitError';
 import { handleUploadLimitError } from '../controllers/Upload/helpers/handleUploadLimitError';
-import { NO_PACKAGE_ERROR } from '../lib/error/constants';
+import { getNoPackageError } from '../lib/error/constants';
 
 class UploadService {
   getUploadsByOwner(owner: number) {
@@ -69,7 +69,7 @@ class UploadService {
         res.status(300);
         return res.redirect(url);
       } else {
-        ErrorHandler(res, req, NO_PACKAGE_ERROR);
+        ErrorHandler(res, req, getNoPackageError(isPaying(res.locals)));
       }
     } catch (err) {
       if (isLimitError(err as Error)) {
