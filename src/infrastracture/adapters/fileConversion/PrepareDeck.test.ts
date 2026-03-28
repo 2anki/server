@@ -16,6 +16,7 @@ jest.mock('../../../lib/parser/exporters/CustomExporter', () => {
 });
 
 jest.mock('../../../lib/anki/getDeckFilename', () => ({
+  __esModule: true,
   default: jest.fn((name: string) => `${name}.apkg`),
 }));
 
