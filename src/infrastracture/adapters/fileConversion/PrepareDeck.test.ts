@@ -7,6 +7,7 @@ jest.mock('../../../lib/claude/ClaudeService', () => ({
 
 jest.mock('../../../lib/parser/exporters/CustomExporter', () => {
   return {
+    __esModule: true,
     default: jest.fn().mockImplementation(() => ({
       configure: jest.fn(),
       save: jest.fn().mockResolvedValue(Buffer.from('fake-apkg')),
