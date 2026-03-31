@@ -26,35 +26,49 @@ export const getPackagesFromZip = async (
   await zipHandler.build(fileContents as Uint8Array, paying, settings);
 
   const fileNames = zipHandler.getFileNames();
+  const supportedFileNames = fileNames.filter(isZipContentFileSupported);
 
-  let cardCount = 0;
-  for (const fileName of fileNames) {
-    if (isZipContentFileSupported(fileName)) {
-      const deck = await PrepareDeck({
-        name: fileName,
-        files: zipHandler.files,
-        settings,
-        noLimits: paying,
-        workspace,
-      });
+  if (settings.claudeAIFlashcards && paying && supportedFileNames.length > 0) {
+    const rootName = supportedFileNames[0];
+    const deck = await PrepareDeck({
+      name: rootName,
+      files: zipHandler.files,
+      settings,
+      noLimits: paying,
+      workspace,
+    });
 
-      if (deck) {
-        packages.push(new Package(deck.name));
-        cardCount += deck.deck.reduce(
-          (acc: number, d: { cards: any[] }) => acc + d.cards.length,
-          0
-        );
-
-        // Checking the limit in place while iterating through the decks
-        checkFlashcardsLimits({
-          cards: 0,
-          decks: deck.deck,
-          paying,
-        });
-      }
+    if (deck) {
+      packages.push(new Package(deck.name));
     }
 
-    // Checking the limit in place while iterating through the files
+    return { packages };
+  }
+
+  let cardCount = 0;
+  for (const fileName of supportedFileNames) {
+    const deck = await PrepareDeck({
+      name: fileName,
+      files: zipHandler.files,
+      settings,
+      noLimits: paying,
+      workspace,
+    });
+
+    if (deck) {
+      packages.push(new Package(deck.name));
+      cardCount += deck.deck.reduce(
+        (acc: number, d: { cards: any[] }) => acc + d.cards.length,
+        0
+      );
+
+      checkFlashcardsLimits({
+        cards: 0,
+        decks: deck.deck,
+        paying,
+      });
+    }
+
     checkFlashcardsLimits({
       cards: cardCount,
       paying: paying,

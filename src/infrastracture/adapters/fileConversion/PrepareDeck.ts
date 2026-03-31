@@ -117,6 +117,19 @@ async function convertFile(
   return null;
 }
 
+function mediaFilesForHtmlFile(htmlFileName: string, allMediaFiles: string[]): string[] {
+  const normalized = htmlFileName.replace(/\\/g, '/');
+  const lastSlash = normalized.lastIndexOf('/');
+  const dir = lastSlash >= 0 ? normalized.substring(0, lastSlash) : '';
+  const base = normalized
+    .substring(lastSlash + 1)
+    .replace(/\.html$/i, '')
+    .replace(/ [a-f0-9]{32}$/i, '')
+    .trim();
+  const prefix = dir ? `${dir}/${base}/` : `${base}/`;
+  return allMediaFiles.filter((m) => m.replace(/\\/g, '/').startsWith(prefix));
+}
+
 export async function PrepareDeck(
   input: DeckParserInput
 ): Promise<PrepareDeckResult> {
@@ -153,13 +166,14 @@ export async function PrepareDeck(
     const userInstructions = input.settings.userInstructions;
     console.log('[PrepareDeck] Claude branch: calling generateDeckInfo', {
       htmlFileCount: htmlFiles.length,
-      totalHtmlBytes: htmlFiles.reduce((sum, f) => sum + (f.contents?.length ?? 0), 0),
       mediaFilesCount: mediaFiles.length,
       hasUserInstructions: !!userInstructions?.trim(),
     });
     const tClaude = Date.now();
     const deckInfoArrays = await Promise.all(
-      htmlFiles.map((f) => generateDeckInfo(f.contents!.toString(), mediaFiles, userInstructions))
+      htmlFiles.map((f) =>
+        generateDeckInfo(f.contents!.toString(), mediaFilesForHtmlFile(f.name, mediaFiles), userInstructions)
+      )
     );
     const deckInfo = deckInfoArrays.flat().filter((d) => d.cards.length > 0);
     console.log('[PrepareDeck] Claude branch: generateDeckInfo done', {

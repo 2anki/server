@@ -61,7 +61,15 @@ export interface CardInfo {
   media: string[];
 }
 
-function expandCompactDeckInfo(compact: CompactDeck[]): DeckInfo[] {
+function resolveMediaPath(claudePath: string, availableMediaFiles: string[]): string {
+  const normalized = claudePath.replace(/\\/g, '/');
+  if (availableMediaFiles.includes(normalized)) return normalized;
+  const filename = normalized.split('/').pop() ?? normalized;
+  const match = availableMediaFiles.find((f) => f.replace(/\\/g, '/').endsWith('/' + filename));
+  return match ?? normalized;
+}
+
+function expandCompactDeckInfo(compact: CompactDeck[], availableMediaFiles: string[]): DeckInfo[] {
   return compact.map((d) => ({
     name: d.deck,
     image: '',
@@ -82,7 +90,7 @@ function expandCompactDeckInfo(compact: CompactDeck[]): DeckInfo[] {
       number: 0,
       enableInput: false,
       answer: '',
-      media: c.media ?? [],
+      media: (c.media ?? []).map((m) => resolveMediaPath(m, availableMediaFiles)),
     })),
   }));
 }
@@ -173,7 +181,7 @@ export async function generateDeckInfo(
   const tParse0 = Date.now();
   try {
     const compact = JSON.parse(cleaned) as CompactDeck[];
-    const deckInfo = expandCompactDeckInfo(compact);
+    const deckInfo = expandCompactDeckInfo(compact, availableMediaFiles);
     const totalCards = deckInfo.reduce((sum, deck) => sum + deck.cards.length, 0);
     console.log('[Claude] Successfully parsed deck_info', {
       decksCount: deckInfo.length,
