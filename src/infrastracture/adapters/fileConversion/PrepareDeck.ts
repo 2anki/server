@@ -33,25 +33,33 @@ async function convertFile(
 ) {
   if (!file.contents) return null;
 
+  const t0 = Date.now();
+
   if (isXLSXFile(file.name)) {
-    return {
+    const result = {
       name: `${file.name}.html`,
       contents: Buffer.from(convertXLSXToHTML(file.contents as Buffer, file.name)),
     };
+    console.log('[PrepareDeck] convertFile xlsx', { file: file.name, durationMs: Date.now() - t0 });
+    return result;
   }
 
   if (isDocxFile(file.name) && input.settings.claudeAIFlashcards && input.noLimits) {
-    return {
+    const result = {
       name: `${file.name}.html`,
       contents: Buffer.from(await convertDocxToHTML(file.contents as Buffer)),
     };
+    console.log('[PrepareDeck] convertFile docx', { file: file.name, durationMs: Date.now() - t0 });
+    return result;
   }
 
   if (isImageFile(file.name) && input.settings.imageQuizHtmlToAnki && input.noLimits) {
-    return {
+    const result = {
       name: `${file.name}.html`,
       contents: await convertImageToHTML(file.contents?.toString('base64')),
     };
+    console.log('[PrepareDeck] convertFile image', { file: file.name, durationMs: Date.now() - t0 });
+    return result;
   }
 
   if (!isPDFFile(file.name) && !isPPTFile(file.name)) return null;
@@ -62,7 +70,7 @@ async function convertFile(
     input.settings.vertexAIPDFQuestions &&
     input.settings.processPDFs !== false
   ) {
-    return {
+    const result = {
       name: `${file.name}.html`,
       contents: Buffer.from(
         await convertPDFToHTML(
@@ -71,11 +79,13 @@ async function convertFile(
         )
       ),
     };
+    console.log('[PrepareDeck] convertFile pdf→html (vertex)', { file: file.name, durationMs: Date.now() - t0 });
+    return result;
   }
 
   if (isPPTFile(file.name)) {
     const pdContents = await convertPPTToPDF(file.name, file.contents as Buffer, input.workspace);
-    return {
+    const result = {
       name: `${file.name}.html`,
       contents: await convertPDFToImages({
         name: file.name,
@@ -85,10 +95,12 @@ async function convertFile(
         settings: input.settings,
       }),
     };
+    console.log('[PrepareDeck] convertFile ppt→pdf→images', { file: file.name, durationMs: Date.now() - t0 });
+    return result;
   }
 
   if (isPDFFile(file.name) && input.settings.processPDFs !== false) {
-    return {
+    const result = {
       name: `${file.name}.html`,
       contents: await convertPDFToImages({
         name: file.name,
@@ -98,6 +110,8 @@ async function convertFile(
         settings: input.settings,
       }),
     };
+    console.log('[PrepareDeck] convertFile pdf→images', { file: file.name, durationMs: Date.now() - t0 });
+    return result;
   }
 
   return null;
@@ -106,13 +120,28 @@ async function convertFile(
 export async function PrepareDeck(
   input: DeckParserInput
 ): Promise<PrepareDeckResult> {
+  const tTotal = Date.now();
+
+  console.log('[PrepareDeck] start', {
+    name: input.name,
+    fileCount: input.files.length,
+    fileNames: input.files.map((f) => f.name),
+    claudeEnabled: input.settings.claudeAIFlashcards,
+    noLimits: input.noLimits,
+  });
+
+  const tConvert = Date.now();
   const results = await Promise.all(input.files.map((file) => convertFile(file, input)));
   const convertedFiles = results.flatMap((r) => (r ? [r] : []));
+  console.log('[PrepareDeck] file conversions done', {
+    convertedCount: convertedFiles.length,
+    durationMs: Date.now() - tConvert,
+  });
 
   input.files.push(...convertedFiles);
 
   if (input.settings.claudeAIFlashcards && input.noLimits) {
-    console.log('[Claude] claudeAIFlashcards enabled, bypassing DeckParser');
+    console.log('[PrepareDeck] Claude branch: collecting HTML content');
     const htmlContent = input.files
       .filter((f) => isHTMLFile(f.name) || isMarkdownFile(f.name))
       .map((f) => (f.contents ? f.contents.toString() : ''))
@@ -122,8 +151,17 @@ export async function PrepareDeck(
       .filter((f) => !isHTMLFile(f.name) && !isMarkdownFile(f.name))
       .map((f) => f.name);
 
-    const deckInfo = await generateDeckInfo(htmlContent, mediaFiles);
+    const userInstructions = input.settings.userInstructions;
+    console.log('[PrepareDeck] Claude branch: calling generateDeckInfo', {
+      htmlContentBytes: htmlContent.length,
+      mediaFilesCount: mediaFiles.length,
+      hasUserInstructions: !!userInstructions?.trim(),
+    });
+    const tClaude = Date.now();
+    const deckInfo = await generateDeckInfo(htmlContent, mediaFiles, userInstructions);
+    console.log('[PrepareDeck] Claude branch: generateDeckInfo done', { durationMs: Date.now() - tClaude });
 
+    const tMedia = Date.now();
     for (const file of input.files) {
       if (!isHTMLFile(file.name) && !isMarkdownFile(file.name) && file.contents) {
         const dest = path.join(input.workspace.location, file.name);
@@ -131,11 +169,15 @@ export async function PrepareDeck(
         fs.writeFileSync(dest, Buffer.isBuffer(file.contents) ? file.contents : Buffer.from(file.contents as string));
       }
     }
+    console.log('[PrepareDeck] Claude branch: media written', { durationMs: Date.now() - tMedia });
 
     const deckName = deckInfo[0]?.name ?? input.name;
     const exporter = new CustomExporter(deckName, input.workspace.location);
     exporter.configure(deckInfo as unknown as Deck[]);
+    const tExport = Date.now();
     const apkg = await exporter.save();
+    console.log('[PrepareDeck] Claude branch: exporter.save done', { durationMs: Date.now() - tExport });
+    console.log('[PrepareDeck] done (Claude path)', { totalMs: Date.now() - tTotal });
     return { name: getDeckFilename(deckName), apkg, deck: [] };
   }
 

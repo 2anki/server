@@ -35,7 +35,7 @@ jobs:
             git -C ${SERVER_DIR}      stash
             git -C ${WEB_DIR}         stash
 
-            
+
             git -C ${CREATE_DECK_DIR} pull origin
             git -C ${SERVER_DIR}      pull origin
             git -C ${WEB_DIR}         pull origin
