@@ -27,96 +27,87 @@ interface PrepareDeckResult {
   deck: Deck[];
 }
 
-export async function PrepareDeck(
+async function convertFile(
+  file: DeckParserInput['files'][number],
   input: DeckParserInput
-): Promise<PrepareDeckResult> {
-  const convertedFiles = [];
+) {
+  if (!file.contents) return null;
 
-  for (const file of input.files) {
-    if (!file.contents) {
-      continue;
-    }
+  if (isXLSXFile(file.name)) {
+    return {
+      name: `${file.name}.html`,
+      contents: Buffer.from(convertXLSXToHTML(file.contents as Buffer, file.name)),
+    };
+  }
 
-    if (isXLSXFile(file.name)) {
-      const htmlContent = convertXLSXToHTML(file.contents as Buffer, file.name);
-      convertedFiles.push({
-        name: `${file.name}.html`,
-        contents: Buffer.from(htmlContent),
-      });
-      continue;
-    }
+  if (isDocxFile(file.name) && input.settings.claudeAIFlashcards && input.noLimits) {
+    return {
+      name: `${file.name}.html`,
+      contents: Buffer.from(await convertDocxToHTML(file.contents as Buffer)),
+    };
+  }
 
-    if (isDocxFile(file.name) && input.settings.claudeAIFlashcards && input.noLimits) {
-      const htmlContent = await convertDocxToHTML(file.contents as Buffer);
-      convertedFiles.push({
-        name: `${file.name}.html`,
-        contents: Buffer.from(htmlContent),
-      });
-      continue;
-    }
+  if (isImageFile(file.name) && input.settings.imageQuizHtmlToAnki && input.noLimits) {
+    return {
+      name: `${file.name}.html`,
+      contents: await convertImageToHTML(file.contents?.toString('base64')),
+    };
+  }
 
-    if (
-      isImageFile(file.name) &&
-      input.settings.imageQuizHtmlToAnki &&
-      input.noLimits
-    ) {
-      const convertedImageContents = await convertImageToHTML(
-        file.contents?.toString('base64')
-      );
-      convertedFiles.push({
-        name: `${file.name}.html`,
-        contents: convertedImageContents,
-      });
-    }
+  if (!isPDFFile(file.name) && !isPPTFile(file.name)) return null;
 
-    if (!isPDFFile(file.name) && !isPPTFile(file.name)) continue;
+  if (
+    isPDFFile(file.name) &&
+    input.noLimits &&
+    input.settings.vertexAIPDFQuestions &&
+    input.settings.processPDFs !== false
+  ) {
+    return {
+      name: `${file.name}.html`,
+      contents: Buffer.from(
+        await convertPDFToHTML(
+          (file.contents as Buffer).toString('base64'),
+          input.settings.userInstructions
+        )
+      ),
+    };
+  }
 
-    if (
-      isPDFFile(file.name) &&
-      input.noLimits &&
-      input.settings.vertexAIPDFQuestions &&
-      input.settings.processPDFs !== false
-    ) {
-      const htmlContent = await convertPDFToHTML(
-        file.contents.toString('base64'),
-        input.settings.userInstructions
-      );
-      convertedFiles.push({
-        name: `${file.name}.html`,
-        contents: Buffer.from(htmlContent),
-      });
-    } else if (isPPTFile(file.name)) {
-      const pdContents = await convertPPTToPDF(
-        file.name,
-        file.contents,
-        input.workspace
-      );
-
-      const convertedContents = await convertPDFToImages({
+  if (isPPTFile(file.name)) {
+    const pdContents = await convertPPTToPDF(file.name, file.contents as Buffer, input.workspace);
+    return {
+      name: `${file.name}.html`,
+      contents: await convertPDFToImages({
         name: file.name,
         workspace: input.workspace,
         noLimits: input.noLimits,
         contents: pdContents,
         settings: input.settings,
-      });
-      convertedFiles.push({
-        name: `${file.name}.html`,
-        contents: convertedContents,
-      });
-    } else if (isPDFFile(file.name) && input.settings.processPDFs !== false) {
-      const convertedContents = await convertPDFToImages({
+      }),
+    };
+  }
+
+  if (isPDFFile(file.name) && input.settings.processPDFs !== false) {
+    return {
+      name: `${file.name}.html`,
+      contents: await convertPDFToImages({
         name: file.name,
         workspace: input.workspace,
         noLimits: input.noLimits,
-        contents: file.contents,
+        contents: file.contents as Buffer,
         settings: input.settings,
-      });
-      convertedFiles.push({
-        name: `${file.name}.html`,
-        contents: convertedContents,
-      });
-    }
+      }),
+    };
   }
+
+  return null;
+}
+
+export async function PrepareDeck(
+  input: DeckParserInput
+): Promise<PrepareDeckResult> {
+  const results = await Promise.all(input.files.map((file) => convertFile(file, input)));
+  const convertedFiles = results.flatMap((r) => (r ? [r] : []));
 
   input.files.push(...convertedFiles);
 

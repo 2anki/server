@@ -62,15 +62,25 @@ export interface CardInfo {
   media: string[];
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let _anthropicClient: any = null;
+
+function getAnthropicClient() {
+  if (!_anthropicClient) {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const Anthropic = require('@anthropic-ai/sdk').default;
+    _anthropicClient = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY,
+    });
+  }
+  return _anthropicClient;
+}
+
 export async function generateDeckInfo(
   htmlContent: string,
   availableMediaFiles: string[]
 ): Promise<DeckInfo[]> {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const Anthropic = require('@anthropic-ai/sdk').default;
-  const client = new Anthropic({
-    apiKey: process.env.ANTHROPIC_API_KEY,
-  });
+  const client = getAnthropicClient();
 
   const mediaFilesList =
     availableMediaFiles.length > 0
