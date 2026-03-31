@@ -142,10 +142,9 @@ export async function PrepareDeck(
 
   if (input.settings.claudeAIFlashcards && input.noLimits) {
     console.log('[PrepareDeck] Claude branch: collecting HTML content');
-    const htmlContent = input.files
-      .filter((f) => isHTMLFile(f.name) || isMarkdownFile(f.name))
-      .map((f) => (f.contents ? f.contents.toString() : ''))
-      .join('\n');
+    const htmlFiles = input.files.filter(
+      (f) => (isHTMLFile(f.name) || isMarkdownFile(f.name)) && f.contents
+    );
 
     const mediaFiles = input.files
       .filter((f) => !isHTMLFile(f.name) && !isMarkdownFile(f.name))
@@ -153,13 +152,22 @@ export async function PrepareDeck(
 
     const userInstructions = input.settings.userInstructions;
     console.log('[PrepareDeck] Claude branch: calling generateDeckInfo', {
-      htmlContentBytes: htmlContent.length,
+      htmlFileCount: htmlFiles.length,
+      totalHtmlBytes: htmlFiles.reduce((sum, f) => sum + (f.contents?.length ?? 0), 0),
       mediaFilesCount: mediaFiles.length,
       hasUserInstructions: !!userInstructions?.trim(),
     });
     const tClaude = Date.now();
-    const deckInfo = await generateDeckInfo(htmlContent, mediaFiles, userInstructions);
-    console.log('[PrepareDeck] Claude branch: generateDeckInfo done', { durationMs: Date.now() - tClaude });
+    const deckInfoArrays = await Promise.all(
+      htmlFiles.map((f) => generateDeckInfo(f.contents!.toString(), mediaFiles, userInstructions))
+    );
+    const deckInfo = deckInfoArrays.flat().filter((d) => d.cards.length > 0);
+    console.log('[PrepareDeck] Claude branch: generateDeckInfo done', {
+      durationMs: Date.now() - tClaude,
+      htmlFilesProcessed: htmlFiles.length,
+      totalDecks: deckInfo.length,
+      totalCards: deckInfo.reduce((sum, d) => sum + d.cards.length, 0),
+    });
 
     const tMedia = Date.now();
     for (const file of input.files) {
@@ -171,7 +179,7 @@ export async function PrepareDeck(
     }
     console.log('[PrepareDeck] Claude branch: media written', { durationMs: Date.now() - tMedia });
 
-    const deckName = deckInfo[0]?.name ?? input.name;
+    const deckName = deckInfo.length === 1 ? deckInfo[0].name : (input.name ?? deckInfo[0]?.name);
     const exporter = new CustomExporter(deckName, input.workspace.location);
     exporter.configure(deckInfo as unknown as Deck[]);
     const tExport = Date.now();
