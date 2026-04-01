@@ -28,8 +28,8 @@ export const getPackagesFromZip = async (
   const fileNames = zipHandler.getFileNames();
   const supportedFileNames = fileNames.filter(isZipContentFileSupported);
 
-  if (settings.claudeAIFlashcards && paying && supportedFileNames.length > 0) {
-    const rootName = supportedFileNames[0];
+  if (settings.claudeAIFlashcards && paying && fileNames.length > 0) {
+    const rootName = fileNames[0];
     const deck = await PrepareDeck({
       name: rootName,
       files: zipHandler.files,
@@ -57,10 +57,7 @@ export const getPackagesFromZip = async (
 
     if (deck) {
       packages.push(new Package(deck.name));
-      cardCount += deck.deck.reduce(
-        (acc: number, d: { cards: any[] }) => acc + d.cards.length,
-        0
-      );
+      cardCount += deck.deck.reduce((acc, d) => acc + d.cards.length, 0);
 
       checkFlashcardsLimits({
         cards: 0,

@@ -18,6 +18,7 @@ Extraction rules:
 - Never invent content — only use text present in the document
 `.trim();
 
+import type Anthropic from '@anthropic-ai/sdk';
 import * as cheerio from 'cheerio';
 import { createHash } from 'node:crypto';
 
@@ -132,19 +133,18 @@ function expandCompactDeckInfo(compact: CompactDeck[], availableMediaFiles: stri
   }));
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let _anthropicClient: any = null;
+let _anthropicClient: Anthropic | null = null;
 
-function getAnthropicClient() {
+function getAnthropicClient(): Anthropic {
   if (!_anthropicClient) {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const Anthropic = require('@anthropic-ai/sdk').default;
-    _anthropicClient = new Anthropic({
+    const AnthropicClass = require('@anthropic-ai/sdk').default;
+    _anthropicClient = new AnthropicClass({
       apiKey: process.env.ANTHROPIC_API_KEY,
       defaultHeaders: { 'anthropic-beta': 'prompt-caching-2024-07-31' },
-    });
+    }) as Anthropic;
   }
-  return _anthropicClient;
+  return _anthropicClient as Anthropic;
 }
 
 export async function generateDeckInfo(
@@ -162,7 +162,9 @@ export async function generateDeckInfo(
     originalBytes: htmlContent.length,
     strippedBytes: strippedContent.length,
     savedBytes: htmlContent.length - strippedContent.length,
-    savedPct: (((htmlContent.length - strippedContent.length) / htmlContent.length) * 100).toFixed(1) + '%',
+    savedPct: htmlContent.length > 0
+      ? (((htmlContent.length - strippedContent.length) / htmlContent.length) * 100).toFixed(1) + '%'
+      : 'N/A',
     durationMs: Date.now() - tStrip0,
   });
 
@@ -218,8 +220,12 @@ export async function generateDeckInfo(
 
   const tParse0 = Date.now();
   try {
-    const compact = JSON.parse(cleaned) as CompactDeck[];
-    const deckInfo = expandCompactDeckInfo(compact, availableMediaFiles, pageStyle || null);
+    const parsed = JSON.parse(cleaned);
+    if (!Array.isArray(parsed)) {
+      console.error('[Claude] Response is not an array', { raw, cleaned });
+      throw new Error('Claude returned unexpected JSON structure (not an array)');
+    }
+    const deckInfo = expandCompactDeckInfo(parsed as CompactDeck[], availableMediaFiles, pageStyle || null);
     const totalCards = deckInfo.reduce((sum, deck) => sum + deck.cards.length, 0);
     console.log('[Claude] Successfully parsed deck_info', {
       decksCount: deckInfo.length,
