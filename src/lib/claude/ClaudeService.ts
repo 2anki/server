@@ -19,11 +19,11 @@ Extraction rules:
 `.trim();
 
 import * as cheerio from 'cheerio';
-import { createHash } from 'crypto';
+import { createHash } from 'node:crypto';
 
 function deterministicId(input: string): number {
   const hex = createHash('sha1').update(input).digest('hex').slice(0, 13);
-  return parseInt(hex, 16) % 1e13;
+  return Number.parseInt(hex, 16) % 1e13;
 }
 
 function extractStyleFromHtml(html: string): string {
@@ -33,8 +33,8 @@ function extractStyleFromHtml(html: string): string {
     .get()
     .join('\n');
   return raw
-    .replace(/white-space: pre-wrap;/g, '')
-    .replace(/list-style-type: none;/g, '');
+    .replaceAll('white-space: pre-wrap;', '')
+    .replaceAll('list-style-type: none;', '');
 }
 
 function stripHtmlBoilerplate(html: string): string {
@@ -78,10 +78,10 @@ export interface CardInfo {
 }
 
 function resolveMediaPath(claudePath: string, availableMediaFiles: string[]): string {
-  const normalized = claudePath.replace(/\\/g, '/');
+  const normalized = claudePath.replaceAll('\\', '/');
   if (availableMediaFiles.includes(normalized)) return normalized;
   const filename = normalized.split('/').pop() ?? normalized;
-  const match = availableMediaFiles.find((f) => f.replace(/\\/g, '/').endsWith('/' + filename));
+  const match = availableMediaFiles.find((f) => f.replaceAll('\\', '/').endsWith('/' + filename));
   return match ?? normalized;
 }
 

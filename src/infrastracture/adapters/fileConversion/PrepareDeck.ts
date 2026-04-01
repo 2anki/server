@@ -118,7 +118,7 @@ async function convertFile(
 }
 
 function deckPrefixFromFilePath(htmlFileName: string): string {
-  const normalized = htmlFileName.replace(/\\/g, '/');
+  const normalized = htmlFileName.replaceAll('\\', '/');
   const lastSlash = normalized.lastIndexOf('/');
   if (lastSlash < 0) return '';
   const dirParts = normalized.substring(0, lastSlash).split('/');
@@ -129,7 +129,7 @@ function deckPrefixFromFilePath(htmlFileName: string): string {
 }
 
 function mediaFilesForHtmlFile(htmlFileName: string, allMediaFiles: string[]): string[] {
-  const normalized = htmlFileName.replace(/\\/g, '/');
+  const normalized = htmlFileName.replaceAll('\\', '/');
   const lastSlash = normalized.lastIndexOf('/');
   const dir = lastSlash >= 0 ? normalized.substring(0, lastSlash) : '';
   const base = normalized
@@ -138,7 +138,7 @@ function mediaFilesForHtmlFile(htmlFileName: string, allMediaFiles: string[]): s
     .replace(/ [a-f0-9]{32}$/i, '')
     .trim();
   const prefix = dir ? `${dir}/${base}/` : `${base}/`;
-  return allMediaFiles.filter((m) => m.replace(/\\/g, '/').startsWith(prefix));
+  return allMediaFiles.filter((m) => m.replaceAll('\\', '/').startsWith(prefix));
 }
 
 export async function PrepareDeck(

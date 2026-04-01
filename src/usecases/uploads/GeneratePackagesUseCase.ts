@@ -3,7 +3,7 @@ import CardOption from '../../lib/parser/Settings/CardOption';
 import { UploadedFile } from '../../lib/storage/types';
 import { Worker } from 'worker_threads';
 import path from 'path';
-import fs from 'fs';
+import fs from 'node:fs';
 import Workspace from '../../lib/parser/WorkSpace';
 
 export interface PackageResult {
