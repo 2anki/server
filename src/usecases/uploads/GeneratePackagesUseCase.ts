@@ -3,6 +3,7 @@ import CardOption from '../../lib/parser/Settings/CardOption';
 import { UploadedFile } from '../../lib/storage/types';
 import { Worker } from 'worker_threads';
 import path from 'path';
+import fs from 'fs';
 import Workspace from '../../lib/parser/WorkSpace';
 
 export interface PackageResult {
@@ -18,8 +19,11 @@ class GeneratePackagesUseCase {
   ): Promise<PackageResult> {
     return new Promise((resolve, reject) => {
       const data = { paying, files, settings, workspace };
-      const workerPath = path.resolve(__dirname, './worker.js');
-      const worker = new Worker(workerPath, { workerData: { data } });
+      const workerTs = path.resolve(__dirname, './worker.ts');
+      const workerJs = path.resolve(__dirname, './worker.js');
+      const workerPath = fs.existsSync(workerTs) ? workerTs : workerJs;
+      const execArgv = workerPath.endsWith('.ts') ? ['--require', 'tsx/cjs'] : [];
+      const worker = new Worker(workerPath, { workerData: { data }, execArgv });
 
       worker.on('message', (result: PackageResult) => resolve(result));
       worker.on('error', (error) => reject(error));
