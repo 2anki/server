@@ -117,6 +117,17 @@ async function convertFile(
   return null;
 }
 
+function deckPrefixFromFilePath(htmlFileName: string): string {
+  const normalized = htmlFileName.replace(/\\/g, '/');
+  const lastSlash = normalized.lastIndexOf('/');
+  if (lastSlash < 0) return '';
+  const dirParts = normalized.substring(0, lastSlash).split('/');
+  return dirParts
+    .map((p) => p.replace(/ [a-f0-9]{32}$/i, '').trim())
+    .filter(Boolean)
+    .join('::');
+}
+
 function mediaFilesForHtmlFile(htmlFileName: string, allMediaFiles: string[]): string[] {
   const normalized = htmlFileName.replace(/\\/g, '/');
   const lastSlash = normalized.lastIndexOf('/');
@@ -175,7 +186,15 @@ export async function PrepareDeck(
         generateDeckInfo(f.contents!.toString(), mediaFilesForHtmlFile(f.name, mediaFiles), userInstructions)
       )
     );
-    const deckInfo = deckInfoArrays.flat().filter((d) => d.cards.length > 0);
+    const deckInfo = deckInfoArrays.flatMap((decks, i) => {
+      const prefix = deckPrefixFromFilePath(htmlFiles[i].name);
+      return decks
+        .filter((d) => d.cards.length > 0)
+        .map((d) => ({
+          ...d,
+          name: prefix ? `${prefix}::${d.name}` : d.name,
+        }));
+    });
     console.log('[PrepareDeck] Claude branch: generateDeckInfo done', {
       durationMs: Date.now() - tClaude,
       htmlFilesProcessed: htmlFiles.length,

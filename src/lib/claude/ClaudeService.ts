@@ -69,6 +69,24 @@ function resolveMediaPath(claudePath: string, availableMediaFiles: string[]): st
   return match ?? normalized;
 }
 
+function stripPathsFromCardHtml(html: string): string {
+  const $ = cheerio.load(html);
+  $('img[src]').each((_, el) => {
+    const src = $(el).attr('src') ?? '';
+    const filename = decodeURIComponent(src).split('/').pop() ?? src;
+    $(el).attr('src', filename);
+  });
+  $('a[href]').each((_, el) => {
+    const href = $(el).attr('href') ?? '';
+    if (!href.startsWith('http://') && !href.startsWith('https://')) {
+      const filename = decodeURIComponent(href).split('/').pop() ?? href;
+      $(el).attr('href', filename);
+    }
+  });
+  const body = $('body');
+  return body.length ? body.html() ?? html : html;
+}
+
 function expandCompactDeckInfo(compact: CompactDeck[], availableMediaFiles: string[]): DeckInfo[] {
   return compact.map((d) => ({
     name: d.deck,
@@ -83,8 +101,8 @@ function expandCompactDeckInfo(compact: CompactDeck[], availableMediaFiles: stri
       useNotionId: true,
     },
     cards: d.cards.map((c) => ({
-      name: c.q,
-      back: c.a,
+      name: stripPathsFromCardHtml(c.q),
+      back: stripPathsFromCardHtml(c.a),
       tags: c.tags ?? [],
       cloze: c.cloze ?? false,
       number: 0,
