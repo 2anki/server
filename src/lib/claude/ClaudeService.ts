@@ -19,11 +19,27 @@ Extraction rules:
 `.trim();
 
 import * as cheerio from 'cheerio';
+import { createHash } from 'crypto';
+
+function deterministicId(input: string): number {
+  const hex = createHash('sha1').update(input).digest('hex').slice(0, 13);
+  return parseInt(hex, 16) % 1e13;
+}
+
+function extractStyleFromHtml(html: string): string {
+  const $ = cheerio.load(html);
+  const raw = $('style')
+    .map((_, el) => $(el).html() ?? '')
+    .get()
+    .join('\n');
+  return raw
+    .replace(/white-space: pre-wrap;/g, '')
+    .replace(/list-style-type: none;/g, '');
+}
 
 function stripHtmlBoilerplate(html: string): string {
   const $ = cheerio.load(html);
   $('style, script, head, link[rel="stylesheet"]').remove();
-  $('[style]').removeAttr('style');
   const body = $('body');
   return body.length ? body.html() ?? '' : $.html();
 }
@@ -73,8 +89,10 @@ function stripPathsFromCardHtml(html: string): string {
   const $ = cheerio.load(html);
   $('img[src]').each((_, el) => {
     const src = $(el).attr('src') ?? '';
-    const filename = decodeURIComponent(src).split('/').pop() ?? src;
-    $(el).attr('src', filename);
+    if (!src.startsWith('http://') && !src.startsWith('https://')) {
+      const filename = decodeURIComponent(src).split('/').pop() ?? src;
+      $(el).attr('src', filename);
+    }
   });
   $('a[href]').each((_, el) => {
     const href = $(el).attr('href') ?? '';
@@ -87,12 +105,12 @@ function stripPathsFromCardHtml(html: string): string {
   return body.length ? body.html() ?? html : html;
 }
 
-function expandCompactDeckInfo(compact: CompactDeck[], availableMediaFiles: string[]): DeckInfo[] {
+function expandCompactDeckInfo(compact: CompactDeck[], availableMediaFiles: string[], style: string | null): DeckInfo[] {
   return compact.map((d) => ({
     name: d.deck,
     image: '',
-    style: null,
-    id: Math.floor(Math.random() * 1e15),
+    style,
+    id: deterministicId(d.deck),
     settings: {
       template: 'specialstyle',
       clozeModelName: 'n2a-cloze',
@@ -108,6 +126,7 @@ function expandCompactDeckInfo(compact: CompactDeck[], availableMediaFiles: stri
       number: 0,
       enableInput: false,
       answer: '',
+      notionId: deterministicId(c.q),
       media: (c.media ?? []).map((m) => resolveMediaPath(m, availableMediaFiles)),
     })),
   }));
@@ -137,6 +156,7 @@ export async function generateDeckInfo(
   const client = getAnthropicClient();
 
   const tStrip0 = Date.now();
+  const pageStyle = extractStyleFromHtml(htmlContent);
   const strippedContent = stripHtmlBoilerplate(htmlContent);
   console.log('[Claude] stripHtmlBoilerplate', {
     originalBytes: htmlContent.length,
@@ -199,7 +219,7 @@ export async function generateDeckInfo(
   const tParse0 = Date.now();
   try {
     const compact = JSON.parse(cleaned) as CompactDeck[];
-    const deckInfo = expandCompactDeckInfo(compact, availableMediaFiles);
+    const deckInfo = expandCompactDeckInfo(compact, availableMediaFiles, pageStyle || null);
     const totalCards = deckInfo.reduce((sum, deck) => sum + deck.cards.length, 0);
     console.log('[Claude] Successfully parsed deck_info', {
       decksCount: deckInfo.length,
