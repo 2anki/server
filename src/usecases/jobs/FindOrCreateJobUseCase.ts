@@ -22,12 +22,16 @@ export class FindOrCreateJobUseCase {
     }
 
     const createJob = new CreateJobUseCase(this.jobRepository);
-    await createJob.execute({
-      id,
-      owner,
-      title,
-      type,
-    });
+    try {
+      await createJob.execute({
+        id,
+        owner,
+        title,
+        type,
+      });
+    } catch {
+      // ignore — conflict handled by ON CONFLICT DO NOTHING in repository
+    }
 
     const secondLookup = await this.jobRepository.findJobById(id, owner);
     if (!secondLookup) {
