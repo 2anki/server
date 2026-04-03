@@ -3,16 +3,18 @@ const MAX_FILE_NAME_LENGTH = 255;
 export const canAccess = (thePath: string, basePath?: string) => {
   console.log('canAccess', thePath, basePath);
 
-  if (thePath.includes('..')) {
+  const normalizedPath = thePath.replaceAll('\\', '/');
+
+  if (normalizedPath.includes('..')) {
     return false;
   }
 
-  if (thePath.includes('~')) {
+  if (normalizedPath.includes('~')) {
     return false;
   }
 
   if (basePath) {
-    return thePath.startsWith(basePath);
+    return normalizedPath.startsWith(basePath.replaceAll('\\', '/'));
   }
 
   if (thePath.length >= MAX_FILE_NAME_LENGTH) {

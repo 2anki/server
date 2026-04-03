@@ -71,7 +71,15 @@ test('returns false for newlines ', () => {
   expect(access).toBe(false);
 });
 
-test('returns false for long filename', () => {
+test('returns true for Windows path with mixed separators', () => {
+  const directoryPath =
+    'C:\\Users\\alexa\\src\\tmp\\genanki\\b549f4e8-6cdc-4d95-b35b-312f03837b8a';
+
+  const access = canAccess(directoryPath, 'C:/Users/alexa/src/tmp/genanki');
+
+  expect(access).toBe(true);
+});
+
   // Arrange
   const longString =
     'A musical instrument is a device created or adapted to make musical sounds. In principle, any object that produces sound can be considered a musical instrument—it is through purpose that the object becomes a musical instrument. A person who plays a musical instrument is known as an instrumentalist. The history of musical instruments dates to the beginnings of human culture. Early musical instruments may have been used for rituals, such as a horn to signal success on the hunt, or a drum in a religious ceremony. Cultures eventually developed composition and performance of melodies for entertainment. Musical instruments evolved in step with changing applications and technologies.';
