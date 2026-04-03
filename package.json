@@ -75,7 +75,7 @@
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "devDependencies": {
-    "@types/archiver": "^6.0.3",
+    "@types/archiver": "^7.0.0",
     "@types/base-64": "^1.0.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/cheerio": "^0.22.31",
