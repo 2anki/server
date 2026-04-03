@@ -22,7 +22,7 @@
     "test:watch": "jest --watch",
     "start": "npm run dev",
     "build": "tsc -p .",
-    "dev": "cross-env LOCAL_DEV=true nodemon --watch '**/*.ts' --exec \"ts-node\" src/server.ts",
+    "dev": "cross-env LOCAL_DEV=true tsx watch --env-file=.env src/server.ts",
     "lint": "echo 'Linting disabled - ESLint removed'",
     "lint:fix": "echo 'Linting disabled - ESLint removed'",
     "purge-js": "rm `find . -name '*.js'|grep -v node_modules`",
@@ -71,6 +71,7 @@
     "stripe": "^16.8.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
+    "tsx": "^4.21.0",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "devDependencies": {
