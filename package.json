@@ -55,7 +55,7 @@
     "jsonwebtoken": "^9.0.0",
     "knex": "^3.1.0",
     "mammoth": "^1.8.0",
-    "metascraper": "^5.34.7",
+    "metascraper": "^5.48.0",
     "metascraper-description": "^5.49.17",
     "metascraper-image": "^5.49.17",
     "metascraper-logo-favicon": "^5.49.17",
