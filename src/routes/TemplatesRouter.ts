@@ -4,7 +4,7 @@ import RequireAuthentication from './middleware/RequireAuthentication';
 import TemplatesController from '../controllers/TemplatesController';
 import TemplatesRepository from '../data_layer/TemplatesRepository';
 import { getDatabase } from '../data_layer';
-import { TemplateService } from '../services/TemplatesService';
+import { TemplateService } from '../services/TemplatesService/TemplateService';
 
 const TemplatesRouter = () => {
   const router = express.Router();

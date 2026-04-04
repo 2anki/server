@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 
 import { getOwner } from '../lib/User/getOwner';
-import { TemplateService } from '../services/TemplatesService';
+import { TemplateService } from '../services/TemplatesService/TemplateService';
 
 class TemplatesController {
   constructor(private readonly service: TemplateService) {}
