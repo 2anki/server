@@ -1,4 +1,4 @@
-import Deck from '../parser/Deck';
+import type Deck from '../parser/Deck';
 import { getLimitMessage } from '../misc/getLimitMessage';
 
 interface UserOptions {
