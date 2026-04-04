@@ -21,7 +21,7 @@
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch",
-    "start": "npm run dev",
+    "start": "pnpm run dev",
     "build": "tsc -p .",
     "dev": "cross-env LOCAL_DEV=true tsx watch --env-file=.env src/server.ts",
     "lint": "echo 'Linting disabled - ESLint removed'",
