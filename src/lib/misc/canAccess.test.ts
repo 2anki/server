@@ -71,6 +71,15 @@ test('returns false for newlines ', () => {
   expect(access).toBe(false);
 });
 
+test('returns true for Windows path with mixed separators', () => {
+  const directoryPath =
+    'C:\\Users\\alexa\\src\\tmp\\genanki\\b549f4e8-6cdc-4d95-b35b-312f03837b8a';
+
+  const access = canAccess(directoryPath, 'C:/Users/alexa/src/tmp/genanki');
+
+  expect(access).toBe(true);
+});
+
 test('returns false for long filename', () => {
   // Arrange
   const longString =

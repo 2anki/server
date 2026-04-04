@@ -135,4 +135,8 @@ src/server.js
 cache
 *.map
 
+# TypeScript compiled output (src/ only — migrations/ and scripts/ are legitimate JS)
+src/**/*.js
+src/**/*.js.map
+
 .idea

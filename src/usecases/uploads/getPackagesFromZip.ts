@@ -47,9 +47,13 @@ export const getPackagesFromZip = async (
 
   let cardCount = 0;
   for (const fileName of supportedFileNames) {
+    const baseName = fileName.replace(/\.[^.]+$/, '');
+    const relevantFiles = zipHandler.files.filter(
+      (f) => f.name === fileName || f.name.startsWith(baseName + '/')
+    );
     const deck = await PrepareDeck({
       name: fileName,
-      files: zipHandler.files,
+      files: relevantFiles,
       settings,
       noLimits: paying,
       workspace,

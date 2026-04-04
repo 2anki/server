@@ -18,14 +18,17 @@ class JobRepository {
   }
 
   create(id: string, owner: string, title?: string | null, type?: string) {
-    return this.database(this.tableName).insert({
-      type,
-      title,
-      object_id: id,
-      owner,
-      status: 'started',
-      last_edited_time: new Date(),
-    });
+    return this.database(this.tableName)
+      .insert({
+        type,
+        title,
+        object_id: id,
+        owner,
+        status: 'started',
+        last_edited_time: new Date(),
+      })
+      .onConflict('object_id')
+      .ignore();
   }
 
   findJobById(id: string, owner: string) {

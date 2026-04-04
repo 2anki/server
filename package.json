@@ -55,7 +55,7 @@
     "jsonwebtoken": "^9.0.0",
     "knex": "^3.1.0",
     "mammoth": "^1.8.0",
-    "metascraper": "^5.34.7",
+    "metascraper": "^5.48.0",
     "metascraper-description": "^5.49.17",
     "metascraper-image": "^5.49.17",
     "metascraper-logo-favicon": "^5.49.17",
@@ -66,7 +66,7 @@
     "nodemailer": "^8.0.1",
     "pg": "^8.11.3",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0",
+    "react-dom": "^19.2.4",
     "showdown": "^2.1.0",
     "stripe": "^16.8.0",
     "swagger-jsdoc": "^6.2.8",
@@ -75,7 +75,7 @@
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "devDependencies": {
-    "@types/archiver": "^6.0.3",
+    "@types/archiver": "^7.0.0",
     "@types/base-64": "^1.0.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/cheerio": "^0.22.31",

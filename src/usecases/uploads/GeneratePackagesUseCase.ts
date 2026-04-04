@@ -23,7 +23,11 @@ class GeneratePackagesUseCase {
       const workerJs = path.resolve(__dirname, './worker.js');
       const workerPath = fs.existsSync(workerTs) ? workerTs : workerJs;
       const execArgv = workerPath.endsWith('.ts') ? ['--require', 'tsx/cjs'] : [];
-      const worker = new Worker(workerPath, { workerData: { data }, execArgv });
+      const worker = new Worker(workerPath, {
+        workerData: { data },
+        execArgv,
+        resourceLimits: { maxOldGenerationSizeMb: 1024 },
+      });
 
       worker.on('message', (result: PackageResult) => resolve(result));
       worker.on('error', (error) => reject(error));
