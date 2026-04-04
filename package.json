@@ -17,6 +17,7 @@
     ]
   },
   "main": "main.js",
+  "packageManager": "pnpm@10.18.2",
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch",
