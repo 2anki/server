@@ -11,7 +11,7 @@ class PublicTemplatesController {
       const rows = await this.repository.findAll();
       const templates = rows.map((row) => ({
         id: String(row.id),
-        owner: row.owner,
+        ownerName: row.owner_name,
         name: row.name,
         description: row.description ?? '',
         noteType: typeof row.payload === 'string' ? JSON.parse(row.payload) : row.payload,
@@ -31,6 +31,7 @@ class PublicTemplatesController {
       }));
       res.json(templates);
     } catch (error) {
+      console.error('Failed to list public templates:', error);
       res.status(500).json({ error: 'Failed to list public templates' });
     }
   }

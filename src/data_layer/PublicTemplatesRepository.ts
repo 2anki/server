@@ -3,6 +3,7 @@ import { Knex } from 'knex';
 export interface PublicTemplateRow {
   id: number;
   owner: string;
+  owner_name: string;
   name: string;
   description: string | null;
   payload: string;
@@ -27,9 +28,12 @@ class PublicTemplatesRepository {
   constructor(private readonly database: Knex) {}
 
   findAll(): Promise<PublicTemplateRow[]> {
-    return this.database(this.table)
-      .select('*')
-      .orderBy('created_at', 'desc');
+    return this.database.raw(`
+      SELECT public_templates.*, users.name as owner_name
+      FROM public_templates
+      INNER JOIN users ON public_templates.owner::integer = users.id
+      ORDER BY public_templates.created_at DESC
+    `).then((result: { rows: PublicTemplateRow[] }) => result.rows);
   }
 
   create(input: CreatePublicTemplateInput): Promise<number[]> {
