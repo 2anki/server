@@ -127,6 +127,10 @@ const TemplatesRouter = () => {
     controller.deleteTemplate(req, res)
   );
 
+  router.post('/api/templates/export', (req, res) =>
+    controller.exportTemplate(req, res)
+  );
+
   return router;
 };
 
