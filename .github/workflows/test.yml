@@ -15,15 +15,16 @@ jobs:
         node-version: [22.20.0]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
       - name: test
         run: |
-          npm install
-          npm run test
+          pnpm install
+          pnpm run test
         env:
           CI: true
           NOTION_KEY: ${{ secrets.NOTION_KEY }}

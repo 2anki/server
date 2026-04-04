@@ -19,6 +19,7 @@ export const CHILD_PAGE_MOCK: BlockObjectResponse = {
   },
   has_children: true,
   archived: false,
+  in_trash: false,
   type: 'child_page',
   child_page: {
     title: 'Basic blocks',
@@ -44,6 +45,7 @@ export const HEADING_MOCK: BlockObjectResponse = {
   },
   has_children: false,
   archived: false,
+  in_trash: false,
   type: 'heading_2',
   heading_2: {
     is_toggleable: true,

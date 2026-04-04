@@ -48,12 +48,12 @@ jobs:
 
             git -C ${SERVER_DIR} clean -fd 
             pnpm --dir ${WEB_DIR} install --frozen-lockfile
-            npm --prefix ${SERVER_DIR} install
+            pnpm --dir ${SERVER_DIR} install --frozen-lockfile
 
             pip install -r ${CREATE_DECK_DIR}/requirements.txt
 
             rm -r ${TMP_BUILD_DIR}
-            npm --prefix ${SERVER_DIR} run build
+            pnpm --dir ${SERVER_DIR} run build
             BUILD_PATH=${TMP_BUILD_DIR} pnpm --dir ${WEB_DIR} build
             rsync -avh ${TMP_BUILD_DIR} ${WEB_DIR} --delete
 

@@ -1,6 +1,4 @@
-import { ParamsDictionary } from 'express-serve-static-core';
-
-export function getFilesOrEmpty<T>(body: ParamsDictionary): T[] {
+export function getFilesOrEmpty<T>(body: Record<string, string>): T[] {
   if (body === undefined || body === null) {
     return [];
   }
