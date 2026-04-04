@@ -3,6 +3,8 @@ import express from 'express';
 import RequireAuthentication from './middleware/RequireAuthentication';
 import TemplatesController from '../controllers/TemplatesController';
 import TemplatesRepository from '../data_layer/TemplatesRepository';
+import PublicTemplatesRepository from '../data_layer/PublicTemplatesRepository';
+import PublicTemplatesController from '../controllers/PublicTemplatesController';
 import { getDatabase } from '../data_layer';
 import { TemplateService } from '../services/TemplatesService/TemplateService';
 
@@ -12,6 +14,9 @@ const TemplatesRouter = () => {
   const database = getDatabase();
   const controller = new TemplatesController(
     new TemplateService(new TemplatesRepository(database))
+  );
+  const publicController = new PublicTemplatesController(
+    new PublicTemplatesRepository(database)
   );
 
   /**
@@ -129,6 +134,14 @@ const TemplatesRouter = () => {
 
   router.post('/api/templates/export', (req, res) =>
     controller.exportTemplate(req, res)
+  );
+
+  router.get('/api/templates/public', (req, res) =>
+    publicController.list(req, res)
+  );
+
+  router.post('/api/templates/publish', RequireAuthentication, (req, res) =>
+    publicController.publish(req, res)
   );
 
   return router;
