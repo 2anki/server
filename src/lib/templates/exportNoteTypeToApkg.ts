@@ -28,8 +28,8 @@ interface AnkiNoteType {
 }
 
 function locateSqlWasm(filename: string): string {
-  const packageJsonPath = require.resolve('sql.js/package.json');
-  return path.join(path.dirname(packageJsonPath), 'dist', filename);
+  const wasmJsPath = require.resolve('sql.js/dist/sql-wasm.js');
+  return path.join(path.dirname(wasmJsPath), filename);
 }
 
 export async function exportNoteTypeToApkg(noteType: AnkiNoteType): Promise<Buffer> {
