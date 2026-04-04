@@ -28,6 +28,7 @@ jobs:
             WEB_DIR=~/src/github.com/2anki/web
             CREATE_DECK_DIR=~/src/github.com/2anki/create_deck
             SERVER_DIR=~/src/github.com/2anki/2anki.net
+            TEMPLATES_DIR=~/src/github.com/2anki/templates
 
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
@@ -45,6 +46,7 @@ jobs:
             git -C ${CREATE_DECK_DIR} pull origin
             git -C ${SERVER_DIR}      pull origin
             git -C ${WEB_DIR}         pull origin
+            git -C ${TEMPLATES_DIR}   pull origin
 
             git -C ${SERVER_DIR} clean -fd 
             pnpm --dir ${WEB_DIR} install --frozen-lockfile
@@ -57,5 +59,6 @@ jobs:
             BUILD_PATH=${TMP_BUILD_DIR} pnpm --dir ${WEB_DIR} build
             rsync -avh ${TMP_BUILD_DIR} ${WEB_DIR} --delete
 
+            export TEMPLATE_DIR=${TEMPLATES_DIR}/public/templates
             cd ${SERVER_DIR}/..
             pm2 restart server --update-env
