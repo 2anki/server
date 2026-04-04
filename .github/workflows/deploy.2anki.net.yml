@@ -46,7 +46,11 @@ jobs:
             git -C ${CREATE_DECK_DIR} pull origin
             git -C ${SERVER_DIR}      pull origin
             git -C ${WEB_DIR}         pull origin
-            git -C ${TEMPLATES_DIR}   pull origin
+            if [ -d "${TEMPLATES_DIR}/.git" ]; then
+              git -C ${TEMPLATES_DIR} pull origin
+            else
+              git clone https://github.com/2anki/templates.git ${TEMPLATES_DIR}
+            fi
 
             git -C ${SERVER_DIR} clean -fd 
             pnpm --dir ${WEB_DIR} install --frozen-lockfile
