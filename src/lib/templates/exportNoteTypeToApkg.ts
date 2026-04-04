@@ -27,12 +27,14 @@ interface AnkiNoteType {
   css: string;
 }
 
+type PreviewData = Record<string, string>;
+
 function locateSqlWasm(filename: string): string {
   const wasmJsPath = require.resolve('sql.js/dist/sql-wasm.js');
   return path.join(path.dirname(wasmJsPath), filename);
 }
 
-export async function exportNoteTypeToApkg(noteType: AnkiNoteType): Promise<Buffer> {
+export async function exportNoteTypeToApkg(noteType: AnkiNoteType, previewData: PreviewData = {}): Promise<Buffer> {
   const SQL = await initSqlJs({ locateFile: locateSqlWasm });
   const db = new SQL.Database();
 
@@ -176,6 +178,55 @@ export async function exportNoteTypeToApkg(noteType: AnkiNoteType): Promise<Buff
     JSON.stringify(dconf),
     '{}',
   ]);
+
+  const hasPreviewData = Object.keys(previewData).length > 0;
+  if (hasPreviewData) {
+    const fieldValues = noteType.flds
+      .map((f) => previewData[f.name] ?? '')
+      .join('\x1f');
+
+    const sfld = previewData[noteType.flds[0]?.name] ?? '';
+    const noteId = now * 1000;
+    const guid = Math.random().toString(36).slice(2, 12);
+    const csum = sfld.split('').reduce((acc, c) => ((acc << 5) - acc + c.charCodeAt(0)) | 0, 0) >>> 0;
+
+    db.run('INSERT INTO notes VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [
+      noteId,
+      guid,
+      modelId,
+      now,
+      -1,
+      '',
+      fieldValues,
+      sfld,
+      csum,
+      0,
+      '',
+    ]);
+
+    noteType.tmpls.forEach((tmpl, ord) => {
+      db.run('INSERT INTO cards VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [
+        noteId + ord,
+        noteId,
+        deckId,
+        ord,
+        now,
+        -1,
+        0,
+        0,
+        ord,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        '',
+      ]);
+    });
+  }
 
   const dbData = db.export();
   db.close();

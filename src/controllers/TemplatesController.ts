@@ -31,7 +31,7 @@ class TemplatesController {
   }
 
   async exportTemplate(req: Request, res: Response) {
-    const { noteType } = req.body;
+    const { noteType, previewData } = req.body;
 
     if (!noteType || !noteType.tmpls || !noteType.tmpls[0]) {
       res.status(400).json({ error: 'Invalid note type' });
@@ -39,7 +39,7 @@ class TemplatesController {
     }
 
     try {
-      const apkgBuffer = await exportNoteTypeToApkg(noteType);
+      const apkgBuffer = await exportNoteTypeToApkg(noteType, previewData ?? {});
       const filename = `${(noteType.name || 'template').replace(/[^a-zA-Z0-9-_]/g, '_')}.apkg`;
       res.setHeader('Content-Type', 'application/octet-stream');
       res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
