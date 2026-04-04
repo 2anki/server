@@ -1,4 +1,5 @@
 import express from 'express';
+import fs from 'fs';
 import nodemailer from 'nodemailer';
 import { UploadedFile } from '../../lib/storage/types';
 import { isLimitError } from '../../lib/misc/isLimitError';
@@ -12,12 +13,36 @@ const transporter = nodemailer.createTransport({
   path: '/usr/sbin/sendmail',
 });
 
+function buildFileSnippets(uploadedFiles: UploadedFile[]): string {
+  if (!uploadedFiles || uploadedFiles.length === 0) return '';
+  const lines: string[] = ['\n--- Uploaded Files ---'];
+  for (const file of uploadedFiles) {
+    lines.push(`\nFile: ${file.originalname} (${file.mimetype}, ${file.size} bytes)`);
+    try {
+      const snippet = fs.readFileSync(file.path).slice(0, 500).toString('utf8');
+      lines.push(`Snippet:\n${snippet}`);
+    } catch {
+      lines.push('(could not read file)');
+    }
+  }
+  return lines.join('\n');
+}
+
+function buildAttachments(uploadedFiles: UploadedFile[]) {
+  if (!uploadedFiles || uploadedFiles.length === 0) return [];
+  return uploadedFiles.map((file) => ({
+    filename: file.originalname,
+    path: file.path,
+  }));
+}
+
 async function sendErrorEmail(error: Error, req: express.Request) {
   if (process.env.NODE_ENV !== 'production') return;
 
   const $ = cheerio.load(error.message);
   const plainTextMessage = $.root().text();
   const subject = `[ERROR] [2anki.net] - ${plainTextMessage}`;
+  const uploadedFiles = req.files as UploadedFile[];
 
   const message = {
     from: process.env.ERROR_SENDER_EMAIL ?? 'noreply@zoe.2anki.net',
@@ -30,7 +55,8 @@ Request path: ${req.path}
 Method: ${req.method}
 Query: ${JSON.stringify(req.query)}
 Body: ${JSON.stringify(req.body)}
-`,
+${buildFileSnippets(uploadedFiles)}`,
+    attachments: buildAttachments(uploadedFiles),
   };
 
   try {
