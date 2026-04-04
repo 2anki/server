@@ -38,6 +38,12 @@ class PublicTemplatesController {
 
   async publish(req: Request, res: Response) {
     const owner = getOwner(res);
+
+    if (!owner) {
+      res.status(401).json({ error: 'Authentication required' });
+      return;
+    }
+
     const { name, description, noteType, previewData, tags } = req.body;
 
     if (!name || !noteType) {
@@ -56,6 +62,7 @@ class PublicTemplatesController {
       });
       res.status(201).json({ message: 'Template published successfully' });
     } catch (error) {
+      console.error('Failed to publish template:', error);
       res.status(500).json({ error: 'Failed to publish template' });
     }
   }
