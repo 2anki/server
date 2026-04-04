@@ -24,16 +24,17 @@ jobs:
           script: |
             mkdir -pv /tmp/workspaces
 
-            export NVM_DIR="$HOME/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-            nvm use
-
-            node --version
-
             TMP_BUILD_DIR=`mktemp`
             WEB_DIR=~/src/github.com/2anki/web
             CREATE_DECK_DIR=~/src/github.com/2anki/create_deck
             SERVER_DIR=~/src/github.com/2anki/2anki.net
+
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm install $(cat ${SERVER_DIR}/.nvmrc)
+            nvm use $(cat ${SERVER_DIR}/.nvmrc)
+
+            node --version
 
             git -C ${SERVER_DIR}      clean -fd
             git -C ${WEB_DIR}         clean -fd
