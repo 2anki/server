@@ -1,13 +1,12 @@
 import { Request, Response } from 'express';
 
 import { getOwner } from '../lib/User/getOwner';
-import TemplatesService from '../services/TemplatesService';
+import { TemplateService } from '../services/TemplatesService';
 
 class TemplatesController {
-  constructor(private readonly service: TemplatesService) {}
+  constructor(private readonly service: TemplateService) {}
 
   async createTemplate(req: Request, res: Response) {
-    console.info(`/templates/create`);
     const { templates } = req.body;
     const owner = getOwner(res);
 
@@ -15,7 +14,6 @@ class TemplatesController {
       await this.service.create(owner, templates);
       res.status(200).send();
     } catch (error) {
-      console.error(error);
       res.status(400).send();
     }
   }
@@ -27,7 +25,6 @@ class TemplatesController {
       await this.service.delete(owner);
       res.status(200).send();
     } catch (error) {
-      console.error(error);
       res.status(400).send();
     }
   }
