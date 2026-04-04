@@ -1,4 +1,5 @@
 import express from 'express';
+import fs from 'fs';
 
 import { IUploadRepository } from '../data_layer/UploadRespository';
 import ErrorHandler from '../routes/middleware/ErrorHandler';
@@ -12,6 +13,23 @@ import { isPaying } from '../lib/isPaying';
 import { isLimitError } from '../lib/misc/isLimitError';
 import { handleUploadLimitError } from '../controllers/Upload/helpers/handleUploadLimitError';
 import { getNoPackageError } from '../lib/error/constants';
+
+function logNoPackageDiagnostics(uploadedFiles: UploadedFile[]) {
+  console.info('[no-package] Zero packages produced. File diagnostics:');
+  for (const file of uploadedFiles ?? []) {
+    console.info(`  name=${file.originalname} mimetype=${file.mimetype} size=${file.size}`);
+    try {
+      const head = fs.readFileSync(file.path).slice(0, 1000).toString('utf8');
+      const hasDisplayContents = head.includes('display:contents');
+      const hasToggleClass = head.includes('class="toggle"');
+      const hasDetails = head.includes('<details');
+      console.info(`  snippet=${JSON.stringify(head.slice(0, 300))}`);
+      console.info(`  display:contents=${hasDisplayContents} .toggle=${hasToggleClass} <details=${hasDetails}`);
+    } catch (readErr) {
+      console.error(`  could not read file: ${readErr}`);
+    }
+  }
+}
 
 class UploadService {
   getUploadsByOwner(owner: number) {
@@ -69,6 +87,7 @@ class UploadService {
         res.status(300);
         return res.redirect(url);
       } else {
+        logNoPackageDiagnostics(req.files as UploadedFile[]);
         ErrorHandler(res, req, getNoPackageError(isPaying(res.locals)));
       }
     } catch (err) {
