@@ -16,8 +16,10 @@ export const getNoPackageError = (paying: boolean) =>
             </>
           ) : (
             <>
-              Upgrade to a <a href="/pricing">subscriber account</a> to unlock
-              Claude AI flashcard generation for complex documents.
+              If your file is a Word document, PDF, or other non-Notion format,
+              upgrade to a{' '}
+              <a href="/pricing">subscriber account</a> to unlock Claude AI
+              flashcard generation.
             </>
           )}
         </div>
