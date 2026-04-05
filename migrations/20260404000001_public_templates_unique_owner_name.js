@@ -8,9 +8,15 @@ exports.up = async function (knex) {
     )
   `);
 
-  return knex.schema.table('public_templates', function (table) {
-    table.unique(['owner', 'name']);
-  });
+  const hasConstraint = await knex.raw(`
+    SELECT 1 FROM pg_constraint
+    WHERE conname = 'public_templates_owner_name_unique'
+  `);
+  if (hasConstraint.rows.length === 0) {
+    return knex.schema.table('public_templates', function (table) {
+      table.unique(['owner', 'name']);
+    });
+  }
 };
 
 exports.down = function (knex) {
