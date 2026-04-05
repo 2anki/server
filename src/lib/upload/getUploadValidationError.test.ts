@@ -43,6 +43,12 @@ describe('getUploadValidationError', () => {
     expect(error!.message).toContain('already an Anki deck');
   });
 
+  test('returns error when an uppercase .APKG file is uploaded', () => {
+    const error = getUploadValidationError([makeFile({ originalname: 'Deck.UPPER.APKG', size: 82138 })]);
+    expect(error).not.toBeNull();
+    expect(error!.message).toContain('already an Anki deck');
+  });
+
   test('returns null for a valid html file', () => {
     const error = getUploadValidationError([makeFile({ originalname: 'export.html', size: 5000 })]);
     expect(error).toBeNull();

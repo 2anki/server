@@ -8,7 +8,7 @@ function isEmptyFile(file: UploadedFile): boolean {
   return file.size === 0;
 }
 
-export function getUploadValidationError(files: UploadedFile[]): Error | null {
+export function getUploadValidationError(files: UploadedFile[] | undefined | null): Error | null {
   if (!files || files.length === 0) {
     return new Error('Please select a file to upload.');
   }
