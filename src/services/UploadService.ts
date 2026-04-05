@@ -13,6 +13,7 @@ import { isPaying } from '../lib/isPaying';
 import { isLimitError } from '../lib/misc/isLimitError';
 import { handleUploadLimitError } from '../controllers/Upload/helpers/handleUploadLimitError';
 import { getNoPackageError } from '../lib/error/constants';
+import { getUploadValidationError } from '../lib/upload/getUploadValidationError';
 
 function logNoPackageDiagnostics(uploadedFiles: UploadedFile[]) {
   console.info('[no-package] Zero packages produced. File diagnostics:');
@@ -46,6 +47,11 @@ class UploadService {
 
   async handleUpload(req: express.Request, res: express.Response) {
     try {
+      const validationError = getUploadValidationError(req.files as UploadedFile[]);
+      if (validationError) {
+        return ErrorHandler(res, req, validationError);
+      }
+
       let payload;
       let plen;
       const settings = new CardOption(req.body || {});
