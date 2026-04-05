@@ -132,14 +132,146 @@ const TemplatesRouter = () => {
     controller.deleteTemplate(req, res)
   );
 
+  /**
+   * @swagger
+   * /api/templates/export:
+   *   post:
+   *     summary: Export template as APKG
+   *     description: Generate and download an Anki package file from a note type definition
+   *     tags: [Templates]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required:
+   *               - noteType
+   *             properties:
+   *               noteType:
+   *                 type: object
+   *                 description: Anki note type definition
+   *               previewData:
+   *                 type: object
+   *                 description: Field values for the example card
+   *     responses:
+   *       200:
+   *         description: APKG file download
+   *         content:
+   *           application/octet-stream:
+   *             schema:
+   *               type: string
+   *               format: binary
+   *       400:
+   *         description: Invalid note type data
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   */
   router.post('/api/templates/export', (req, res) =>
     controller.exportTemplate(req, res)
   );
 
+  /**
+   * @swagger
+   * /api/templates/public:
+   *   get:
+   *     summary: List public templates
+   *     description: Returns all community-shared Anki note type templates
+   *     tags: [Templates]
+   *     responses:
+   *       200:
+   *         description: List of public templates
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: array
+   *               items:
+   *                 type: object
+   *                 properties:
+   *                   id:
+   *                     type: string
+   *                   ownerName:
+   *                     type: string
+   *                   name:
+   *                     type: string
+   *                   description:
+   *                     type: string
+   *                   noteType:
+   *                     type: object
+   *                   tags:
+   *                     type: array
+   *                     items:
+   *                       type: string
+   *       500:
+   *         description: Server error
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   */
   router.get('/api/templates/public', (req, res) =>
     publicController.list(req, res)
   );
 
+  /**
+   * @swagger
+   * /api/templates/publish:
+   *   post:
+   *     summary: Publish a template
+   *     description: Share a template publicly to the community marketplace
+   *     tags: [Templates]
+   *     security:
+   *       - bearerAuth: []
+   *       - cookieAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required:
+   *               - name
+   *               - noteType
+   *             properties:
+   *               name:
+   *                 type: string
+   *                 description: Template name
+   *               description:
+   *                 type: string
+   *                 description: Template description
+   *               noteType:
+   *                 type: object
+   *                 description: Anki note type definition
+   *               previewData:
+   *                 type: object
+   *                 description: Field values for the example card
+   *               tags:
+   *                 type: array
+   *                 items:
+   *                   type: string
+   *                 description: Searchable tags
+   *     responses:
+   *       201:
+   *         description: Template published successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Success'
+   *       400:
+   *         description: Missing required fields
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   *       401:
+   *         description: Authentication required
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   */
   router.post('/api/templates/publish', RequireAuthentication, (req, res) =>
     publicController.publish(req, res)
   );
