@@ -14,6 +14,7 @@ class PublicTemplatesController {
         ownerName: row.owner_name,
         name: row.name,
         description: row.description ?? '',
+        baseType: row.base_type ?? 'basic',
         noteType: typeof row.payload === 'string' ? JSON.parse(row.payload) : row.payload,
         previewData: row.preview_data
           ? typeof row.preview_data === 'string'
@@ -44,7 +45,7 @@ class PublicTemplatesController {
       return;
     }
 
-    const { name, description, noteType, previewData, tags } = req.body;
+    const { name, description, noteType, previewData, tags, baseType } = req.body;
 
     if (!name || !noteType) {
       res.status(400).json({ error: 'name and noteType are required' });
@@ -59,6 +60,7 @@ class PublicTemplatesController {
         payload: noteType,
         previewData,
         tags,
+        baseType,
       });
       res.status(201).json({ message: 'Template published successfully' });
     } catch (error) {

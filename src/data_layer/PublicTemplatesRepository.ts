@@ -9,6 +9,7 @@ export interface PublicTemplateRow {
   payload: string;
   preview_data: string | null;
   tags: string | null;
+  base_type: string;
   created_at: Date;
   updated_at: Date;
 }
@@ -20,6 +21,7 @@ export interface CreatePublicTemplateInput {
   payload: object;
   previewData?: object;
   tags?: string[];
+  baseType?: string;
 }
 
 class PublicTemplatesRepository {
@@ -44,6 +46,7 @@ class PublicTemplatesRepository {
       payload: JSON.stringify(input.payload),
       preview_data: input.previewData ? JSON.stringify(input.previewData) : null,
       tags: input.tags ? JSON.stringify(input.tags) : null,
+      base_type: input.baseType ?? 'basic',
     });
   }
 }

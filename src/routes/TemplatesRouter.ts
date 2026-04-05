@@ -244,6 +244,10 @@ const TemplatesRouter = () => {
    *               noteType:
    *                 type: object
    *                 description: Anki note type definition
+   *               baseType:
+   *                 type: string
+   *                 description: The standard Anki note type this template extends
+   *                 enum: [basic, basic-reversed, basic-optional-reversed, basic-type-answer, cloze, image-occlusion]
    *               previewData:
    *                 type: object
    *                 description: Field values for the example card
