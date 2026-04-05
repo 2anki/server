@@ -1,3 +1,1 @@
-import { TemplateService } from './TemplateService';
-
-export default TemplateService;
+export { TemplateService } from './TemplateService';

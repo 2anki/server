@@ -1,6 +1,7 @@
 import path from 'path';
 
-export const TEMPLATE_DIR = path.join(__dirname, '../templates');
+export const TEMPLATE_DIR =
+  process.env.TEMPLATE_DIR ?? path.join(__dirname, '../templates');
 
 const PRODUCTION_ORIGINS = [
   'https://dev.notion2anki.alemayhu.com',

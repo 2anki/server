@@ -12,7 +12,7 @@ if (existsSync(localEnvFile)) {
   dotenv.config({ path: localEnvFile });
 }
 
-import { BUILD_DIR } from './lib/constants';
+import { BUILD_DIR, TEMPLATE_DIR } from './lib/constants';
 import ErrorHandler from './routes/middleware/ErrorHandler';
 
 // Server Endpoints
@@ -51,7 +51,6 @@ function registerSignalHandlers(server: http.Server) {
 }
 
 const serve = async () => {
-  const templateDir = path.join(__dirname, 'templates');
   const app = express();
 
   app.use(webhookRouter());
@@ -60,7 +59,7 @@ const serve = async () => {
 
   app.use(morgan('combined') as RequestHandler);
 
-  app.use('/templates', express.static(templateDir));
+  app.use('/templates', express.static(TEMPLATE_DIR));
   app.use(express.static(BUILD_DIR));
 
   // API Documentation
