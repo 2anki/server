@@ -1,13 +1,17 @@
+import { existsSync } from 'fs';
 import { spawn } from 'child_process';
 import { homedir } from 'os';
 import path from 'path';
 
-import { CREATE_DECK_SCRIPT_PATH, resolvePath } from '../constants';
+import { CREATE_DECK_DIR, CREATE_DECK_SCRIPT_PATH, resolvePath } from '../constants';
 
 function PYTHON() {
-  const os = process.platform;
-  if (os === 'win32') {
+  if (process.platform === 'win32') {
     return `${homedir}\\AppData\\Local\\Programs\\Python\\Python38\\python.exe`;
+  }
+  const venvPython = path.join(CREATE_DECK_DIR, 'venv', 'bin', 'python3');
+  if (existsSync(venvPython)) {
+    return venvPython;
   }
   return '/usr/bin/python3';
 }
