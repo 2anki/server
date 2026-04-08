@@ -456,6 +456,9 @@ export class DeckParser {
                   if (newName) {
                     dom(elem).attr('src', newName);
                     card.media.push(newName);
+                  } else {
+                    const filename = decodeURIComponent(originalName).split('/').pop() ?? originalName;
+                    dom(elem).attr('src', filename);
                   }
                 }
               });

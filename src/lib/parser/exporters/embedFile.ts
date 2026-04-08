@@ -36,13 +36,34 @@ const getFile = (
    * Could not find file, try to find it by ending.
    * This happens in deeply nested directories.
    * Example: using a huge database
+   * Normalize backslashes (Windows ZIP entries use backslashes).
    */
   const normalized = filePath.replace(/\.\.\//g, '');
-  const usingSuffix = files.find(
-    (f) => f.name.endsWith(filePath) || f.name.endsWith(normalized)
-  );
+  const normalizedFilePath = filePath.replaceAll('\\', '/');
+  const usingSuffix = files.find((f) => {
+    const normalizedName = f.name.replaceAll('\\', '/');
+    return (
+      normalizedName.endsWith(normalizedFilePath) ||
+      normalizedName.endsWith(normalized)
+    );
+  });
   if (usingSuffix) {
     return usingSuffix;
+  }
+
+  /*
+   * Last resort: match by filename only.
+   * Mirrors ClaudeService's resolveMediaPath behaviour.
+   */
+  const filename = normalizedFilePath.split('/').pop();
+  if (filename) {
+    const byFilename = files.find((f) => {
+      const normalizedName = f.name.replaceAll('\\', '/');
+      return normalizedName === filename || normalizedName.endsWith('/' + filename);
+    });
+    if (byFilename) {
+      return byFilename;
+    }
   }
 
   return undefined;
