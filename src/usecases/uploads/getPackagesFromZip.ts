@@ -9,6 +9,7 @@ import Workspace from '../../lib/parser/WorkSpace';
 import { getMaxUploadCount } from '../../lib/misc/getMaxUploadCount';
 
 import { isZipContentFileSupported } from './isZipContentFileSupported';
+import { getRelevantFiles } from './getRelevantFiles';
 
 export const getPackagesFromZip = async (
   fileContents: Body | undefined,
@@ -47,10 +48,7 @@ export const getPackagesFromZip = async (
 
   let cardCount = 0;
   for (const fileName of supportedFileNames) {
-    const baseName = fileName.replace(/\.[^.]+$/, '');
-    const relevantFiles = zipHandler.files.filter(
-      (f) => f.name === fileName || f.name.startsWith(baseName + '/')
-    );
+    const relevantFiles = getRelevantFiles(fileName, zipHandler.files);
     const deck = await PrepareDeck({
       name: fileName,
       files: relevantFiles,

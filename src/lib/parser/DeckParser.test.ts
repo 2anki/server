@@ -1,6 +1,11 @@
+import path from 'path';
+import fs from 'fs';
+
 import { setupTests } from '../../test/configure-jest';
 import { getDeck } from '../../test/test-utils';
 import CardOption from './Settings/CardOption';
+import { DeckParser } from './DeckParser';
+import Workspace from './WorkSpace';
 
 beforeEach(() => setupTests());
 
@@ -172,6 +177,41 @@ test('Notion new export: display:contents for toggles', async () => {
   expect(deck.cards[1].back).toContain('Konnichiwa');
   expect(deck.cards[1].back).toContain('details');
   expect(deck.cards[1].back).toContain('summary');
+});
+
+test('Notion figure image: img src uses filename not full subfolder path', async () => {
+  const deck = await getDeck(
+    'notion-figure-image.html',
+    new CardOption({ cherry: 'false' })
+  );
+  expect(deck.cards.length).toBe(1);
+  expect(deck.cards[0].back).toContain('src="screenshot.png"');
+  expect(deck.cards[0].back).not.toContain('src="Test%20Deck/');
+  expect(deck.cards[0].back).not.toContain('src="Test Deck/');
+});
+
+test('Notion figure image: embeds image when file found via backslash path (Windows ZIP)', async () => {
+  const htmlPath = path.join(__dirname, '../../test/fixtures/notion-figure-image.html');
+  const htmlContents = fs.readFileSync(htmlPath).toString();
+  const fakeImageData = Buffer.from('fake-image-data');
+
+  const parser = new DeckParser({
+    name: 'notion-figure-image.html',
+    settings: new CardOption({ cherry: 'false' }),
+    files: [
+      { name: 'notion-figure-image.html', contents: htmlContents },
+      { name: 'Test Deck\\screenshot.png', contents: fakeImageData },
+    ],
+    noLimits: true,
+    workspace: new Workspace(true, 'fs'),
+  });
+  await parser.build(new Workspace(true, 'fs'));
+  const deck = parser.payload[0];
+
+  expect(deck.cards.length).toBe(1);
+  expect(deck.cards[0].media.length).toBe(1);
+  expect(deck.cards[0].back).not.toContain('src="Test%20Deck/');
+  expect(deck.cards[0].back).not.toContain('src="Test Deck/');
 });
 
 test('Notion new export: deeply nested toggles (3 levels)', async () => {
