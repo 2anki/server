@@ -35,6 +35,7 @@ jobs:
             nvm use $(cat ${SERVER_DIR}/.nvmrc)
 
             node --version
+            npm install -g pnpm
 
             git -C ${SERVER_DIR}      clean -fd
             git -C ${WEB_DIR}         clean -fd
