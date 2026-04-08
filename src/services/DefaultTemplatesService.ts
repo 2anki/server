@@ -646,7 +646,7 @@ function getQuoteNoteType(): AnkiNoteType {
 function getMathNoteType(): AnkiNoteType {
   return {
     id: 1000000000015,
-    name: 'Math Problem',
+    name: 'Math & Science',
     type: 0,
     mod: 0,
     usn: -1,
@@ -656,18 +656,25 @@ function getMathNoteType(): AnkiNoteType {
         name: 'Card 1',
         ord: 0,
         qfmt: `<div class="math-front">
-  <div class="label">Solve</div>
+  <div class="label">Problem</div>
   <div class="problem">{{Problem}}</div>
+  {{#Context}}
+  <div class="context">{{Context}}</div>
+  {{/Context}}
 </div>`,
         afmt: `<div class="math-back">
-  <div class="problem-small">{{Problem}}</div>
+  <div class="problem-echo">{{Problem}}</div>
+  <hr class="divider">
   <div class="solution">{{Solution}}</div>
   {{#Steps}}
   <div class="steps">
-    <div class="steps-label">How</div>
+    <div class="steps-label">Derivation</div>
     {{Steps}}
   </div>
   {{/Steps}}
+  {{#Context}}
+  <div class="context">{{Context}}</div>
+  {{/Context}}
 </div>`,
       },
     ],
@@ -675,10 +682,11 @@ function getMathNoteType(): AnkiNoteType {
       { name: 'Problem', ord: 0, sticky: false, rtl: false, font: 'Inter', size: 20 },
       { name: 'Solution', ord: 1, sticky: false, rtl: false, font: 'Inter', size: 20 },
       { name: 'Steps', ord: 2, sticky: false, rtl: false, font: 'Inter', size: 16 },
+      { name: 'Context', ord: 3, sticky: false, rtl: false, font: 'Inter', size: 14 },
     ],
     css: `.card {
   font-family: 'Inter', -apple-system, sans-serif;
-  background: #fefce8;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   min-height: 100%;
   margin: 0;
   padding: 32px 24px;
@@ -686,66 +694,86 @@ function getMathNoteType(): AnkiNoteType {
   display: flex;
   align-items: center;
   justify-content: center;
+  color: #e2e8f0;
 }
 
 .math-front, .math-back {
   width: 100%;
-  max-width: 480px;
+  max-width: 520px;
   text-align: center;
 }
 
 .label {
-  font-size: 0.7rem;
-  font-weight: 700;
+  font-size: 0.65rem;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: #ca8a04;
-  margin-bottom: 12px;
+  letter-spacing: 0.14em;
+  color: #7dd3fc;
+  margin-bottom: 14px;
 }
 
 .problem {
-  font-size: 1.4rem;
-  color: #1c1917;
-  line-height: 1.5;
-  font-weight: 500;
+  font-size: 1.3rem;
+  color: #f1f5f9;
+  line-height: 1.6;
+  font-weight: 400;
 }
 
-.problem-small {
-  font-size: 0.95rem;
-  color: #92400e;
-  margin-bottom: 20px;
-  line-height: 1.4;
+.problem-echo {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid #334155;
+  margin: 16px 0;
 }
 
 .solution {
-  font-size: 1.6rem;
-  font-weight: 700;
-  color: #15803d;
-  background: #f0fdf4;
-  border: 2px solid #86efac;
-  border-radius: 12px;
-  padding: 16px 24px;
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.08);
+  border: 1px solid rgba(74, 222, 128, 0.2);
+  border-radius: 10px;
+  padding: 16px 20px;
   margin-bottom: 16px;
+  line-height: 1.6;
 }
 
 .steps {
-  background: #fffbeb;
-  border: 1px solid #fde68a;
+  background: rgba(125, 211, 252, 0.06);
+  border: 1px solid rgba(125, 211, 252, 0.15);
   border-radius: 10px;
   padding: 14px 18px;
-  font-size: 0.9rem;
-  color: #78350f;
-  line-height: 1.7;
+  font-size: 0.88rem;
+  color: #cbd5e1;
+  line-height: 1.8;
   text-align: left;
+  margin-bottom: 12px;
 }
 
 .steps-label {
-  font-size: 0.68rem;
-  font-weight: 700;
+  font-size: 0.62rem;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: #d97706;
-  margin-bottom: 6px;
+  letter-spacing: 0.12em;
+  color: #7dd3fc;
+  margin-bottom: 8px;
+}
+
+.context {
+  font-size: 0.78rem;
+  color: #64748b;
+  margin-top: 10px;
+  font-style: italic;
+}
+
+mjx-container {
+  color: inherit !important;
 }`,
     tags: [],
   };
@@ -842,17 +870,18 @@ export function getDefaultTemplates(): DefaultTemplate[] {
       tags: ['quotes', 'inspiration'],
     },
     {
-      id: 'math-problem',
-      name: 'Math Problem',
-      description: 'Problem and worked solution with LaTeX rendering via KaTeX',
+      id: 'math-science',
+      name: 'Math & Science',
+      description: 'MathJax-ready template for equations, proofs, and scientific notation',
       baseType: 'basic',
       noteType: getMathNoteType(),
       previewData: {
-        Problem: 'Find the derivative of f(x) = x³ + 2x² − 5x + 1',
-        Solution: "f'(x) = 3x² + 4x − 5",
-        Steps: 'Apply the power rule: d/dx[xⁿ] = n·xⁿ⁻¹ to each term.',
+        Problem: 'Evaluate ∫₀^∞ e^(−x²) dx',
+        Solution: '√π / 2',
+        Steps: 'Square the integral and convert to polar coordinates:<br>I² = ∫∫ e^(−(x²+y²)) dx dy → polar → π/4<br>Therefore I = √π / 2',
+        Context: 'Gaussian integral — probability, thermodynamics, quantum mechanics',
       },
-      tags: ['math', 'calculus'],
+      tags: ['math', 'science', 'equations'],
     },
   ];
 }

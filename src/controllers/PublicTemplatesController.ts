@@ -2,14 +2,17 @@ import { Request, Response } from 'express';
 
 import { getOwner } from '../lib/User/getOwner';
 import PublicTemplatesRepository from '../data_layer/PublicTemplatesRepository';
+import { getDefaultTemplates } from '../services/DefaultTemplatesService';
 
 class PublicTemplatesController {
   constructor(private readonly repository: PublicTemplatesRepository) {}
 
   async list(_req: Request, res: Response) {
+    console.log('[PublicTemplatesController.list] called');
     try {
       const rows = await this.repository.findAll();
-      const templates = rows.map((row) => ({
+      console.log('[PublicTemplatesController.list] DB rows:', rows.length);
+      const communityTemplates = rows.map((row) => ({
         id: String(row.id),
         ownerName: row.owner_name,
         name: row.name,
@@ -30,7 +33,17 @@ class PublicTemplatesController {
         updatedAt: row.updated_at,
         isShared: true,
       }));
-      res.json(templates);
+
+      const defaults = getDefaultTemplates().map((t) => ({
+        ...t,
+        ownerName: '2anki',
+        isShared: true,
+      }));
+
+      console.log('[PublicTemplatesController.list] defaults:', defaults.length, 'community:', communityTemplates.length);
+      console.log('[PublicTemplatesController.list] total:', defaults.length + communityTemplates.length);
+
+      res.json([...defaults, ...communityTemplates]);
     } catch (error) {
       console.error('Failed to list public templates:', error);
       res.status(500).json({ error: 'Failed to list public templates' });

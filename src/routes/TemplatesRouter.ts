@@ -215,9 +215,10 @@ const TemplatesRouter = () => {
    *             schema:
    *               $ref: '#/components/schemas/Error'
    */
-  router.get('/api/templates/public', (req, res) =>
-    publicController.list(req, res)
-  );
+  router.get('/api/templates/public', (req, res) => {
+    console.log('[TemplatesRouter] GET /api/templates/public hit');
+    return publicController.list(req, res);
+  });
 
   /**
    * @swagger
@@ -282,15 +283,6 @@ const TemplatesRouter = () => {
    */
   router.post('/api/templates/publish', RequireAuthentication, (req, res) =>
     publicController.publish(req, res)
-  );
-
-
-  router.get('/api/templates/user', RequireAuthentication, (req, res) =>
-    controller.getUserData(req, res)
-  );
-
-  router.put('/api/templates/user', RequireAuthentication, (req, res) =>
-    controller.saveUserData(req, res)
   );
 
   router.get('/api/templates/defaults', (_req, res) => {
