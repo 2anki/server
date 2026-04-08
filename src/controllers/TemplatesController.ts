@@ -7,6 +7,27 @@ import { exportNoteTypeToApkg } from '../lib/templates/exportNoteTypeToApkg';
 class TemplatesController {
   constructor(private readonly service: TemplateService) {}
 
+  async getUserData(req: Request, res: Response) {
+    const owner = getOwner(res);
+    try {
+      const data = await this.service.findByOwner(owner);
+      res.json(data || { templates: [], hiddenIds: [] });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to load templates' });
+    }
+  }
+
+  async saveUserData(req: Request, res: Response) {
+    const owner = getOwner(res);
+    const { templates, hiddenIds } = req.body;
+    try {
+      await this.service.create(owner, { templates: templates || [], hiddenIds: hiddenIds || [] });
+      res.status(200).json({ ok: true });
+    } catch (error) {
+      res.status(400).json({ error: 'Failed to save templates' });
+    }
+  }
+
   async createTemplate(req: Request, res: Response) {
     const { templates } = req.body;
     const owner = getOwner(res);

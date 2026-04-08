@@ -17,6 +17,11 @@ class TemplatesRepository {
       .merge();
   }
 
+  async findByOwner(owner: string) {
+    const row = await this.database(this.table).where({ owner }).first();
+    return row ? row.payload : null;
+  }
+
   delete(owner: number | string) {
     return this.database(this.table).del().where({ owner });
   }

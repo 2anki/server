@@ -3,6 +3,10 @@ import TemplatesRepository from '../../data_layer/TemplatesRepository';
 export class TemplateService {
   constructor(private readonly repository: TemplatesRepository) {}
 
+  findByOwner(owner: string) {
+    return this.repository.findByOwner(owner);
+  }
+
   create(owner: string, templates: unknown) {
     return this.repository.create({
       owner: owner,

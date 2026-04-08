@@ -1,4 +1,5 @@
 import express from 'express';
+import rateLimit from 'express-rate-limit';
 
 import RequireAuthentication from './middleware/RequireAuthentication';
 import TemplatesController from '../controllers/TemplatesController';
@@ -7,6 +8,9 @@ import PublicTemplatesRepository from '../data_layer/PublicTemplatesRepository';
 import PublicTemplatesController from '../controllers/PublicTemplatesController';
 import { getDatabase } from '../data_layer';
 import { TemplateService } from '../services/TemplatesService/TemplateService';
+import { AITemplateController } from '../controllers/AITemplateController';
+import { AITemplateService } from '../services/AITemplateService';
+import { getDefaultTemplates } from '../services/DefaultTemplatesService';
 
 const TemplatesRouter = () => {
   const router = express.Router();
@@ -278,6 +282,33 @@ const TemplatesRouter = () => {
    */
   router.post('/api/templates/publish', RequireAuthentication, (req, res) =>
     publicController.publish(req, res)
+  );
+
+
+  router.get('/api/templates/user', RequireAuthentication, (req, res) =>
+    controller.getUserData(req, res)
+  );
+
+  router.put('/api/templates/user', RequireAuthentication, (req, res) =>
+    controller.saveUserData(req, res)
+  );
+
+  router.get('/api/templates/defaults', (_req, res) => {
+    res.json(getDefaultTemplates());
+  });
+
+  const generateLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000,
+    max: 10,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'Too many requests. Please try again later.' },
+  });
+
+  const aiController = new AITemplateController(new AITemplateService());
+
+  router.post('/api/templates/generate', generateLimiter, (req, res) =>
+    aiController.generate(req, res)
   );
 
   return router;
