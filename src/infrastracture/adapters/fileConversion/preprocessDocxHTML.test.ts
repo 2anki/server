@@ -50,12 +50,12 @@ describe('preprocessDocxHTML', () => {
     expect(result).toBe(input);
   });
 
-  it('handles list items without asterisk markers as plain cards', () => {
+  it('preserves list items without asterisk markers as normal lists', () => {
     const input = '<ol><li>Define osmosis.</li></ol>';
 
     const result = preprocessDocxHTML(input);
 
-    expect(result).toContain('<details>');
+    expect(result).not.toContain('<details>');
     expect(result).toContain('Define osmosis.');
   });
 

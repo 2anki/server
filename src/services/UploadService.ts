@@ -49,7 +49,7 @@ class UploadService {
     try {
       const validationError = getUploadValidationError(req.files as UploadedFile[]);
       if (validationError) {
-        res.status(400).send(validationError.message);
+        res.status(400).contentType('text/plain').send(validationError.message);
         return;
       }
 
