@@ -19,11 +19,17 @@ function buildToggle(question: string, options: string[], correctAnswers: string
   return `<details><summary>${question}<br /><ul>${optionsHTML}</ul></summary>${answerHTML}</details>`;
 }
 
-function processListItem(html: string): string {
+function looksLikeFlashcard(parts: string[]): boolean {
+  if (parts.length <= 1) return false;
+  const answerLines = parts.slice(1);
+  return answerLines.some((line) => isCorrectAnswer(line));
+}
+
+function processListItem(html: string): string | null {
   const parts = html.split(/<br\s*\/?>/i).map((p) => p.trim()).filter(Boolean);
 
-  if (parts.length <= 1) {
-    return `<details><summary>${html}</summary></details>`;
+  if (!looksLikeFlashcard(parts)) {
+    return null;
   }
 
   const question = parts[0];
@@ -32,7 +38,7 @@ function processListItem(html: string): string {
   const hasMarkedAnswers = answerLines.some((line) => isCorrectAnswer(line));
 
   if (!hasMarkedAnswers) {
-    return `<details><summary>${question}</summary>${answerLines.join('<br />')}</details>`;
+    return null;
   }
 
   const options: string[] = [];
@@ -60,13 +66,20 @@ export function preprocessDocxHTML(html: string): string {
   lists.each((_, list) => {
     const items = $(list).find('> li');
     const toggles: string[] = [];
+    let hasFlashcards = false;
 
     items.each((__, li) => {
       const itemHTML = $(li).html() ?? '';
-      toggles.push(processListItem(itemHTML));
+      const result = processListItem(itemHTML);
+      if (result !== null) {
+        toggles.push(result);
+        hasFlashcards = true;
+      }
     });
 
-    $(list).replaceWith(toggles.join('\n'));
+    if (hasFlashcards) {
+      $(list).replaceWith(toggles.join('\n'));
+    }
   });
 
   return $.html();
