@@ -7,7 +7,7 @@ import { CREATE_DECK_DIR, CREATE_DECK_SCRIPT_PATH, resolvePath } from '../consta
 
 function PYTHON() {
   if (process.platform === 'win32') {
-    return `${homedir}\\AppData\\Local\\Programs\\Python\\Python38\\python.exe`;
+    return path.join(homedir(), 'AppData', 'Local', 'Programs', 'Python', 'Python38', 'python.exe');
   }
   const venvPython = path.join(CREATE_DECK_DIR, 'venv', 'bin', 'python3');
   if (existsSync(venvPython)) {
