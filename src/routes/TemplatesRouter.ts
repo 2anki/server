@@ -289,6 +289,14 @@ const TemplatesRouter = () => {
     res.json(getDefaultTemplates());
   });
 
+  router.get('/api/templates/user', RequireAuthentication, (req, res) =>
+    controller.getUserData(req, res)
+  );
+
+  router.put('/api/templates/user', RequireAuthentication, (req, res) =>
+    controller.saveUserData(req, res)
+  );
+
   const generateLimiter = rateLimit({
     windowMs: 60 * 60 * 1000,
     max: 10,
