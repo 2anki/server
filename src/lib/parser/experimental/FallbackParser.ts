@@ -121,6 +121,28 @@ class FallbackParser {
     });
   }
 
+  isTabSeparated(contents: string): boolean {
+    const lines = contents.split('\n').filter((line) => line.trim().length > 0);
+    if (lines.length === 0) return false;
+    const tabLines = lines.filter((line) => line.includes('\t'));
+    return tabLines.length > lines.length / 2;
+  }
+
+  parseTabSeparated(contents: string): Note[] {
+    return contents
+      .split('\n')
+      .filter((line) => line.includes('\t'))
+      .map((line, index) => {
+        const [front, ...rest] = line.split('\t');
+        const back = rest.join('\t');
+        const note = new Note(front.trim(), '');
+        note.back = back.trim();
+        note.number = index;
+        return note;
+      })
+      .filter((note) => note.name.length > 0 && note.back.length > 0);
+  }
+
   run(settings: CardOption) {
     const decks = [];
     let clean = true;
@@ -140,14 +162,19 @@ class FallbackParser {
         cards = this.mapCardsToNotes(found);
         deckName = this.getTitleFromHTML(contents) ?? file.name;
       } else if (isMarkdownFile(file.name) || isPlainText(file.name)) {
-        const plainTextParser = new PlainTextParser();
-        const items = this.getMarkdownBulletLists(contents);
-        if (!items) {
-          continue;
+        if (this.isTabSeparated(contents)) {
+          cards = this.parseTabSeparated(contents);
+          deckName = file.name.replace(/\.[^/.]+$/, '');
+        } else {
+          const plainTextParser = new PlainTextParser();
+          const items = this.getMarkdownBulletLists(contents);
+          if (!items) {
+            continue;
+          }
+          const found = plainTextParser.parse(items.join('\n'));
+          cards = this.mapCardsToNotes(found);
+          deckName = this.getTitleMarkdown(contents);
         }
-        const found = plainTextParser.parse(items.join('\n'));
-        cards = this.mapCardsToNotes(found);
-        deckName = this.getTitleMarkdown(contents);
       } else if (isCSVFile(file.name)) {
         const csv = new TextDecoder().decode(file.contents as Uint8Array);
         deckName = file.name ?? 'Default';
