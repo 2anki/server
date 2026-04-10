@@ -14,6 +14,10 @@ export function getUploadValidationError(files: UploadedFile[] | undefined | nul
   }
 
   for (const file of files) {
+    if (!file.originalname) {
+      return new Error('The uploaded file appears to be invalid. Please try again.');
+    }
+
     if (isEmptyFile(file)) {
       return new Error(
         `"${file.originalname}" appears to be empty. Please re-export your file and try again.`
