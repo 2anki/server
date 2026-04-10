@@ -1,5 +1,5 @@
 import { existsSync } from 'fs';
-import { execSync, spawn } from 'child_process';
+import { execFileSync, spawn } from 'child_process';
 import { homedir } from 'os';
 import path from 'path';
 
@@ -7,7 +7,7 @@ import { CREATE_DECK_DIR, CREATE_DECK_SCRIPT_PATH, resolvePath } from '../consta
 
 function tryCommand(command: string): boolean {
   try {
-    execSync(`${command} --version`, { stdio: 'ignore' });
+    execFileSync(command, ['--version'], { stdio: 'ignore' });
     return true;
   } catch {
     return false;
@@ -30,7 +30,7 @@ function PYTHON(): string {
     if (existsSync(localPython)) {
       return localPython;
     }
-    const candidates = ['py -3', 'python', 'python3'];
+    const candidates = ['py', 'python', 'python3'];
     for (const candidate of candidates) {
       if (tryCommand(candidate)) {
         return candidate;
