@@ -63,7 +63,7 @@ function convertHeadingsToToggles($: any, originalHTML: string): string {
 
   let converted = false;
 
-  headings.each((_, heading) => {
+  headings.each((_: number, heading: any) => {
     const $heading = $(heading);
     const headingText = $heading.text().trim();
     if (!headingText) return;
