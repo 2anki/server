@@ -49,7 +49,8 @@ class UploadService {
     try {
       const validationError = getUploadValidationError(req.files as UploadedFile[]);
       if (validationError) {
-        return ErrorHandler(res, req, validationError);
+        res.status(400).send(validationError.message);
+        return;
       }
 
       let payload;
