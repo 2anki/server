@@ -46,10 +46,12 @@ function PYTHON(): string {
     return venvPython;
   }
 
-  const platformPython =
-    process.platform === 'win32' ? windowsPython() :
-    process.platform === 'darwin' ? macPython() :
-    undefined;
+  const platformPythonLookups: Record<string, () => string | undefined> = {
+    win32: windowsPython,
+    darwin: macPython,
+  };
+
+  const platformPython = platformPythonLookups[process.platform]?.();
 
   return platformPython ?? findExisting(['/usr/bin/python3']) ?? 'python3';
 }
