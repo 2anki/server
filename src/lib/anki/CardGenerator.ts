@@ -1,7 +1,7 @@
-import { existsSync } from 'fs';
-import { execFileSync, spawn } from 'child_process';
-import { homedir } from 'os';
-import path from 'path';
+import { existsSync } from 'node:fs';
+import { execFileSync, spawn } from 'node:child_process';
+import { homedir } from 'node:os';
+import path from 'node:path';
 
 import { CREATE_DECK_DIR, CREATE_DECK_SCRIPT_PATH, resolvePath } from '../constants';
 
@@ -12,6 +12,27 @@ function tryCommand(command: string): boolean {
   } catch {
     return false;
   }
+}
+
+function findExisting(paths: string[]): string | undefined {
+  return paths.find((p) => existsSync(p));
+}
+
+function findExecutable(commands: string[]): string | undefined {
+  return commands.find((c) => tryCommand(c));
+}
+
+function windowsPython(): string | undefined {
+  const localPython = path.join(homedir(), 'AppData', 'Local', 'Programs', 'Python', 'Python38', 'python.exe');
+  return findExisting([localPython]) ?? findExecutable(['py', 'python', 'python3']);
+}
+
+function macPython(): string | undefined {
+  return findExisting([
+    '/opt/homebrew/bin/python3',
+    '/usr/local/bin/python3',
+    '/usr/bin/python3',
+  ]);
 }
 
 function PYTHON(): string {
@@ -25,37 +46,12 @@ function PYTHON(): string {
     return venvPython;
   }
 
-  if (process.platform === 'win32') {
-    const localPython = path.join(homedir(), 'AppData', 'Local', 'Programs', 'Python', 'Python38', 'python.exe');
-    if (existsSync(localPython)) {
-      return localPython;
-    }
-    const candidates = ['py', 'python', 'python3'];
-    for (const candidate of candidates) {
-      if (tryCommand(candidate)) {
-        return candidate;
-      }
-    }
-  }
+  const platformPython =
+    process.platform === 'win32' ? windowsPython() :
+    process.platform === 'darwin' ? macPython() :
+    undefined;
 
-  if (process.platform === 'darwin') {
-    const macCandidates = [
-      '/opt/homebrew/bin/python3',
-      '/usr/local/bin/python3',
-      '/usr/bin/python3',
-    ];
-    for (const candidate of macCandidates) {
-      if (existsSync(candidate)) {
-        return candidate;
-      }
-    }
-  }
-
-  if (existsSync('/usr/bin/python3')) {
-    return '/usr/bin/python3';
-  }
-
-  return 'python3';
+  return platformPython ?? findExisting(['/usr/bin/python3']) ?? 'python3';
 }
 
 class CardGenerator {

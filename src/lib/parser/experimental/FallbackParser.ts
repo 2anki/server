@@ -143,6 +143,44 @@ class FallbackParser {
       .filter((note) => note.name.length > 0 && note.back.length > 0);
   }
 
+  private parseHTMLFile(contents: string, fileName: string): { cards: Note[]; deckName: string } {
+    const plainText = this.htmlToTextWithNewlines(contents).join('\n');
+    const plainTextParser = new PlainTextParser();
+    const found = plainTextParser.parse(plainText);
+    return {
+      cards: this.mapCardsToNotes(found),
+      deckName: this.getTitleFromHTML(contents) ?? fileName,
+    };
+  }
+
+  private parseTextFile(contents: string, fileName: string): { cards: Note[]; deckName: string } | null {
+    if (this.isTabSeparated(contents)) {
+      return {
+        cards: this.parseTabSeparated(contents),
+        deckName: fileName.replace(/\.[^/.]+$/, ''),
+      };
+    }
+    const items = this.getMarkdownBulletLists(contents);
+    if (!items) {
+      return null;
+    }
+    const plainTextParser = new PlainTextParser();
+    const found = plainTextParser.parse(items.join('\n'));
+    return {
+      cards: this.mapCardsToNotes(found),
+      deckName: this.getTitleMarkdown(contents),
+    };
+  }
+
+  private parseCSVFile(contents: Uint8Array, fileName: string): { cards: Note[]; deckName: string; clean: boolean } {
+    const csv = new TextDecoder().decode(contents);
+    return {
+      cards: getCardsFromCSV(csv) as Note[],
+      deckName: fileName ?? 'Default',
+      clean: false,
+    };
+  }
+
   run(settings: CardOption) {
     const decks = [];
     let clean = true;
@@ -153,47 +191,34 @@ class FallbackParser {
         continue;
       }
 
-      let cards: Note[] = [];
-      let deckName = 'Untitled';
+      let result: { cards: Note[]; deckName: string; clean?: boolean } | null = null;
+
       if (isHTMLFile(file.name)) {
-        const plainText = this.htmlToTextWithNewlines(contents).join('\n');
-        const plainTextParser = new PlainTextParser();
-        const found = plainTextParser.parse(plainText);
-        cards = this.mapCardsToNotes(found);
-        deckName = this.getTitleFromHTML(contents) ?? file.name;
+        result = this.parseHTMLFile(contents, file.name);
       } else if (isMarkdownFile(file.name) || isPlainText(file.name)) {
-        if (this.isTabSeparated(contents)) {
-          cards = this.parseTabSeparated(contents);
-          deckName = file.name.replace(/\.[^/.]+$/, '');
-        } else {
-          const plainTextParser = new PlainTextParser();
-          const items = this.getMarkdownBulletLists(contents);
-          if (!items) {
-            continue;
-          }
-          const found = plainTextParser.parse(items.join('\n'));
-          cards = this.mapCardsToNotes(found);
-          deckName = this.getTitleMarkdown(contents);
-        }
+        result = this.parseTextFile(contents, file.name);
       } else if (isCSVFile(file.name)) {
-        const csv = new TextDecoder().decode(file.contents as Uint8Array);
-        deckName = file.name ?? 'Default';
-        cards = getCardsFromCSV(csv) as Note[];
+        result = this.parseCSVFile(file.contents as Uint8Array, file.name);
+      }
+
+      if (!result || result.cards.length === 0) {
+        continue;
+      }
+
+      if (result.clean === false) {
         clean = false;
       }
 
-      if (cards.length > 0) {
-        decks.push(
-          new Deck(
-            deckName,
-            clean ? Deck.CleanCards(cards) : cards, // Do not clean csv files
-            '', // skip cover image
-            '', // skip style
-            get16DigitRandomId(),
-            settings
-          )
-        );
-      }
+      decks.push(
+        new Deck(
+          result.deckName,
+          clean ? Deck.CleanCards(result.cards) : result.cards,
+          '',
+          '',
+          get16DigitRandomId(),
+          settings
+        )
+      );
     }
     return decks;
   }
