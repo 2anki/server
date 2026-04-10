@@ -64,4 +64,11 @@ describe('getUploadValidationError', () => {
     expect(error).not.toBeNull();
     expect(error!.message).toContain('invalid');
   });
+
+  test('returns null for .docx file', () => {
+    const error = getUploadValidationError(
+      [makeFile({ originalname: 'exam questions.docx', size: 30264 })]
+    );
+    expect(error).toBeNull();
+  });
 });

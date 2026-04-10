@@ -59,13 +59,11 @@ async function processFile(
   // Check if it's a valid single file
   const allowImageQuizHtmlToAnki =
     paying && settings.imageQuizHtmlToAnki && isImageFile(filename);
-  const allowDocxViaClaude =
-    paying && settings.claudeAIFlashcards && isDocxFile(filename);
   const isValidSingleFile =
     isZipContentFileSupported(filename) ||
     isPPTFile(filename) ||
     allowImageQuizHtmlToAnki ||
-    allowDocxViaClaude;
+    isDocxFile(filename);
 
   if (isValidSingleFile) {
     const d = await PrepareDeck({

@@ -44,7 +44,7 @@ async function convertFile(
     return result;
   }
 
-  if (isDocxFile(file.name) && input.settings.claudeAIFlashcards && input.noLimits) {
+  if (isDocxFile(file.name)) {
     const result = {
       name: `${file.name}.html`,
       contents: Buffer.from(await convertDocxToHTML(file.contents as Buffer)),
