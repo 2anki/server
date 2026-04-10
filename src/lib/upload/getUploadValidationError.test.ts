@@ -58,4 +58,10 @@ describe('getUploadValidationError', () => {
     const error = getUploadValidationError([makeFile({ originalname: 'notion-export.zip', size: 20000 })]);
     expect(error).toBeNull();
   });
+
+  test('returns error when file has no originalname', () => {
+    const error = getUploadValidationError([makeFile({ originalname: undefined as any, size: undefined as any })]);
+    expect(error).not.toBeNull();
+    expect(error!.message).toContain('invalid');
+  });
 });
