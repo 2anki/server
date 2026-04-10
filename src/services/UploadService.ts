@@ -1,5 +1,5 @@
 import express from 'express';
-import fs from 'fs';
+import fs from 'node:fs';
 
 import { IUploadRepository } from '../data_layer/UploadRespository';
 import ErrorHandler from '../routes/middleware/ErrorHandler';
