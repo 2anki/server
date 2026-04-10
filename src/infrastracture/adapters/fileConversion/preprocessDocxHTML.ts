@@ -55,13 +55,51 @@ function processListItem(html: string): string | null {
   return buildToggle(question, options, correctAnswers);
 }
 
+function convertHeadingsToToggles($: any, originalHTML: string): string {
+  const headings = $('h1, h2, h3, h4, h5, h6');
+  if (headings.length === 0) {
+    return originalHTML;
+  }
+
+  let converted = false;
+
+  headings.each((_, heading) => {
+    const $heading = $(heading);
+    const headingText = $heading.text().trim();
+    if (!headingText) return;
+
+    const contentParts: string[] = [];
+    let sibling = $heading.next();
+
+    while (sibling.length > 0 && !sibling.is('h1, h2, h3, h4, h5, h6')) {
+      const html = $.html(sibling);
+      if (html) contentParts.push(html);
+      sibling = sibling.next();
+    }
+
+    if (contentParts.length === 0) return;
+
+    const toggle = `<details><summary>${headingText}</summary>${contentParts.join('')}</details>`;
+
+    contentParts.forEach(() => {
+      const next = $heading.next();
+      if (next.length > 0 && !next.is('h1, h2, h3, h4, h5, h6')) {
+        next.remove();
+      }
+    });
+
+    $heading.replaceWith(toggle);
+    converted = true;
+  });
+
+  return converted ? $.html() : originalHTML;
+}
+
 export function preprocessDocxHTML(html: string): string {
   const $ = cheerio.load(html, { xmlMode: false });
 
+  let mcConverted = false;
   const lists = $('ol, ul');
-  if (lists.length === 0) {
-    return html;
-  }
 
   lists.each((_, list) => {
     const items = $(list).find('> li');
@@ -79,8 +117,13 @@ export function preprocessDocxHTML(html: string): string {
 
     if (hasFlashcards) {
       $(list).replaceWith(toggles.join('\n'));
+      mcConverted = true;
     }
   });
 
-  return $.html();
+  if (mcConverted) {
+    return $.html();
+  }
+
+  return convertHeadingsToToggles($, html);
 }
