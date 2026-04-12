@@ -15,12 +15,6 @@ const supportedOptions = (): CardOptionDetail[] => {
       true
     ),
     new CardOptionDetail(
-      'all',
-      'Use All Toggle Lists',
-      'By default we only check for toggle lists in the first page. Use this option to retreive toggle lists from anywhere in the page.',
-      true
-    ),
-    new CardOptionDetail(
       'paragraph',
       'Use Plain Text for Back',
       'This option will remove formatting and get the text content only.',

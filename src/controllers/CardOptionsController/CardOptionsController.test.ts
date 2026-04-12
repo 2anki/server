@@ -35,7 +35,6 @@ describe('SettingsController', () => {
     testDefaultSettings('client', {
       'add-notion-link': 'false',
       'use-notion-id': 'true',
-      all: 'true',
       paragraph: 'false',
       cherry: 'false',
       avocado: 'false',
@@ -61,7 +60,6 @@ describe('SettingsController', () => {
     testDefaultSettings('server', {
       'add-notion-link': 'false',
       'use-notion-id': 'true',
-      all: 'true',
       paragraph: 'false',
       cherry: 'false',
       avocado: 'false',

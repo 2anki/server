@@ -16,8 +16,6 @@ class CardOption {
 
   readonly isAvocado: boolean;
 
-  readonly isAll: boolean;
-
   readonly fontSize: string;
 
   readonly isTextOnlyBack: boolean;
@@ -87,7 +85,6 @@ class CardOption {
     this.noUnderline = input['no-underline'] === 'true';
     this.isCherry = input.cherry === 'true';
     this.isAvocado = input.avocado === 'true';
-    this.isAll = input.all === 'true';
     this.fontSize = input['font-size'];
     this.isTextOnlyBack = input.paragraph === 'true';
     this.toggleMode = input['toggle-mode'] || 'close_toggle';
@@ -145,7 +142,6 @@ class CardOption {
     return {
       'add-notion-link': 'false',
       'use-notion-id': 'true',
-      all: 'true',
       paragraph: 'false',
       cherry: 'false',
       avocado: 'false',
