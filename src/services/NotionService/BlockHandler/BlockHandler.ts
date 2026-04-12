@@ -324,6 +324,8 @@ class BlockHandler {
       this.firstPageTitle = title;
     }
 
+    const currentDeckName = toText(getDeckName(parentName, title));
+
     // Depth-first traversal: process current page, then children
     if (rules.permitsDeckAsPage() && page) {
       const cBlocks = blocks.filter((b: GetBlockResponse) => {
@@ -354,7 +356,7 @@ class BlockHandler {
         return true;
       });
       const deck = new Deck(
-        toText(getDeckName(parentName, title)),
+        currentDeckName,
         Deck.CleanCards(cards),
         undefined,
         NOTION_STYLE,
@@ -374,7 +376,7 @@ class BlockHandler {
             topLevelId: block.id,
             rules,
             decks,
-            parentName: parentName,
+            parentName: currentDeckName,
           }, globalSeenIds);
         }
       }
@@ -447,7 +449,7 @@ class BlockHandler {
             topLevelId: sd.id,
             rules,
             decks,
-            parentName: parentName,
+            parentName: currentDeckName,
           }, globalSeenIds);
         }
       }
