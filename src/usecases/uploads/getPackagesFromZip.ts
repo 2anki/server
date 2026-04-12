@@ -29,14 +29,14 @@ export const getPackagesFromZip = async (
 
   const fileNames = zipHandler.getFileNames();
   const supportedFileNames = fileNames.filter(isZipContentFileSupported);
-  enableMarkdownForMarkdownUploads(fileNames, settings);
+  const effectiveSettings = enableMarkdownForMarkdownUploads(fileNames, settings);
 
-  if (settings.claudeAIFlashcards && paying && fileNames.length > 0) {
+  if (effectiveSettings.claudeAIFlashcards && paying && fileNames.length > 0) {
     const rootName = fileNames[0];
     const deck = await PrepareDeck({
       name: rootName,
       files: zipHandler.files,
-      settings,
+      settings: effectiveSettings,
       noLimits: paying,
       workspace,
     });
@@ -54,7 +54,7 @@ export const getPackagesFromZip = async (
     const deck = await PrepareDeck({
       name: fileName,
       files: relevantFiles,
-      settings,
+      settings: effectiveSettings,
       noLimits: paying,
       workspace,
     });

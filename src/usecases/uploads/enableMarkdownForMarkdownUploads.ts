@@ -9,9 +9,14 @@ export function enableMarkdownForMarkdownUploads(
     return settings;
   }
 
-  if (hasMarkdownFileName(fileNames)) {
-    (settings as { nestedBulletPoints: boolean }).nestedBulletPoints = true;
+  if (!hasMarkdownFileName(fileNames)) {
+    return settings;
   }
 
-  return settings;
+  const copy = Object.create(
+    Object.getPrototypeOf(settings),
+    Object.getOwnPropertyDescriptors(settings)
+  );
+  copy.nestedBulletPoints = true;
+  return copy;
 }
