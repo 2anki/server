@@ -313,7 +313,7 @@ class BlockHandler {
       createdAt: (page as PageObjectResponse).created_time,
       lastEditedAt: (page as PageObjectResponse).last_edited_time,
       id: topLevelId,
-      all: rules.UNLIMITED,
+      all: this.useAll,
       type: 'page',
     });
     const blocks = response.results;
@@ -346,7 +346,6 @@ class BlockHandler {
         tags,
         notionBaseLink
       );
-      // Deduplicate by globalSeenIds
       cards = cards.filter(card => {
         if (typeof card.notionId === 'string' && globalSeenIds.has(card.notionId)) {
           return false;
@@ -387,7 +386,6 @@ class BlockHandler {
           return rules.SUB_DECKS.includes(b.type);
         }
       });
-
       for (const sd of subDecks) {
         if (isFullBlock(sd)) {
           if (
@@ -403,7 +401,7 @@ class BlockHandler {
             createdAt: sd.created_time,
             lastEditedAt: sd.last_edited_time,
             id: sd.id,
-            all: rules.UNLIMITED,
+            all: this.useAll,
             type: sd.type,
           });
           let cBlocks = res.results.filter((b: GetBlockResponse) =>
