@@ -27,7 +27,7 @@ class JobRepository {
         status: 'started',
         last_edited_time: new Date(),
       })
-      .onConflict('object_id')
+      .onConflict(['object_id', 'owner'])
       .ignore();
   }
 
