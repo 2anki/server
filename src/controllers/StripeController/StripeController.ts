@@ -6,9 +6,10 @@ import UsersRepository from '../../data_layer/UsersRepository';
 import UsersService from '../../services/UsersService';
 import TokenRepository from '../../data_layer/TokenRepository';
 import AuthenticationService from '../../services/AuthenticationService';
-import { getStripe } from '../../lib/integrations/stripe';
+import { getStripe, updateStoreSubscription } from '../../lib/integrations/stripe';
 import { extractTokenFromCookies } from './extractTokenFromCookies';
 import SubscriptionService from '../../services/SubscriptionService';
+import Stripe from 'stripe';
 
 export class StripeController {
   async getSuccessfulCheckout(req: express.Request, res: express.Response) {
@@ -74,7 +75,34 @@ export class StripeController {
 
       // Check if user has active subscription using SubscriptionService
       const activeSubscriptions = await SubscriptionService.getUserActiveSubscriptions(user.email);
-      const hasActiveSubscription = activeSubscriptions.length > 0;
+      let hasActiveSubscription = activeSubscriptions.length > 0;
+
+      if (!hasActiveSubscription && user.patreon) {
+        hasActiveSubscription = true;
+      }
+
+      if (!hasActiveSubscription) {
+        const sessionId = req.query.session_id as string;
+        if (sessionId) {
+          const stripe = getStripe();
+          const session = await stripe.checkout.sessions.retrieve(sessionId);
+          if (session.payment_status === 'paid') {
+            if (session.subscription) {
+              const subscriptionId = typeof session.subscription === 'string'
+                ? session.subscription
+                : session.subscription.id;
+              const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+              const customerId = typeof subscription.customer === 'string'
+                ? subscription.customer
+                : subscription.customer.id;
+              const customer = await stripe.customers.retrieve(customerId) as Stripe.Customer;
+
+              await updateStoreSubscription(database, customer, subscription);
+            }
+            hasActiveSubscription = true;
+          }
+        }
+      }
 
       return res.json({
         authenticated: true,
