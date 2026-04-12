@@ -143,9 +143,9 @@ test('Markdown nested bullet points', async () => {
 test('Notion new export: display:contents and fragmented ul.toggle', async () => {
   const deck = await getDeck(
     'notion-new-export-nested.html',
-    new CardOption({ maxOne: 'true', cherry: 'false' })
+    new CardOption({ 'max-one-toggle-per-card': 'true', cherry: 'false' })
   );
-  
+
   expect(deck.cards.length).toBe(1);
   expect(deck.cards[0].name).toContain('Parent');
   expect(deck.cards[0].back).toContain('Child');
@@ -156,9 +156,9 @@ test('Notion new export: display:contents and fragmented ul.toggle', async () =>
 test('Notion new export: display:contents for toggles', async () => {
   const deck = await getDeck(
     'Toggles test 2cd7ab29a11e80bea100ed002a880884.html',
-    new CardOption({ maxOne: 'true', cherry: 'false', useInput: 'false' })
+    new CardOption({ 'max-one-toggle-per-card': 'true', cherry: 'false', 'enable-input': 'false' })
   );
-  
+
   // Should extract 2 cards from this structure
   expect(deck.cards.length).toBe(2);
   
@@ -217,9 +217,9 @@ test('Notion figure image: embeds image when file found via backslash path (Wind
 test('Notion new export: deeply nested toggles (3 levels)', async () => {
   const deck = await getDeck(
     'Notion Page grandchildren 2ce7ab29a11e809998e3d22ed65fc5f2.html',
-    new CardOption({ maxOne: 'true', cherry: 'false', useInput: 'false' })
+    new CardOption({ 'max-one-toggle-per-card': 'true', cherry: 'false', 'enable-input': 'false' })
   );
-  
+
   expect(deck.cards.length).toBe(1);
   
   expect(deck.cards[0].name).toContain('Parent');
