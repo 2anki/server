@@ -382,7 +382,7 @@ class BlockHandler {
       }
     }
 
-    if (this.settings.isAll) {
+    if (this.useAll) {
       const subDecks = blocks.filter((b) => {
         if ('type' in b) {
           return rules.SUB_DECKS.includes(b.type);
