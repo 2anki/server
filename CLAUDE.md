@@ -3,6 +3,7 @@
 ## Git
 
 Use conventional commit prefixes for all commits (e.g. fix:, feat:, chore:, refactor:, test:, docs:).
+Suggest a branch name before starting any code changes.
 
 ## General
 

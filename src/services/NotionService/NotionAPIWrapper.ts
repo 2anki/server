@@ -69,14 +69,12 @@ class NotionAPIWrapper {
       };
     }
 
-    const cachedPayload = all
-      ? await getBlockCache({
+    const cachedPayload = await getBlockCache({
           database: getDatabase(),
           id,
           owner: this.owner,
           lastEditedAt,
-        })
-      : null;
+        });
     if (cachedPayload) {
       console.log('using payload cache');
       console.timeEnd(`getBlocks:${id}${all}`);
@@ -88,7 +86,7 @@ class NotionAPIWrapper {
     });
     console.log('received', response.results.length, 'blocks');
 
-    if (all && response.has_more && response.next_cursor) {
+    if (response.has_more && response.next_cursor) {
       while (true) {
         const { results, next_cursor: nextCursor }: ListBlockChildrenResponse =
           await this.notion.blocks.children.list({
