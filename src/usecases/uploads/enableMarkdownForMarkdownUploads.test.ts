@@ -13,6 +13,17 @@ describe('enableMarkdownForMarkdownUploads', () => {
     expect(result.nestedBulletPoints).toBe(true);
   });
 
+  it('does not mutate the original settings', () => {
+    const settings = new CardOption({
+      'markdown-nested-bullet-points': 'false',
+    });
+    const fileNames = ['page.md'];
+
+    enableMarkdownForMarkdownUploads(fileNames, settings);
+
+    expect(settings.nestedBulletPoints).toBe(false);
+  });
+
   it('does not change settings when no markdown files', () => {
     const settings = new CardOption({
       'markdown-nested-bullet-points': 'false',
