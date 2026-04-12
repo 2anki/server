@@ -45,3 +45,16 @@ test('still works when HTML has no Notion ID', () => {
 
   expect(result.length).toBe(2);
 });
+
+test('includes sibling image files for markdown in flat zip structure', () => {
+  const mdName = 'Arealentwicklung 33f3ff2470bd80bb90f4e6cee34619a9.md';
+  const allFiles = [
+    { name: mdName, contents: '# Title' },
+    { name: 'image.png', contents: 'fake-image' },
+    { name: 'image 1.png', contents: 'fake-image' },
+  ];
+
+  const result = getRelevantFiles(mdName, allFiles);
+
+  expect(result.length).toBe(3);
+});

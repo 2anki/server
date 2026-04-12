@@ -63,7 +63,8 @@ export const handleNestedBulletPointsInMarkdown = (
     }
 
     if (BULLET_POINT_REGEX.exec(line) && isCreating) {
-      const dom = cheerio.load(currentBack, {
+      const convertedBack = markdownToHTML(currentBack, trimWhitespace);
+      const dom = cheerio.load(convertedBack, {
         xmlMode: true,
       });
       const images = dom('img');
@@ -72,10 +73,11 @@ export const handleNestedBulletPointsInMarkdown = (
       images.each((_i, elem) => {
         const src = dom(elem).attr('src');
         if (src && isImageFileEmbedable(src)) {
+          const decodedSrc = decodeURIComponent(src);
           const newName = embedFile({
             exporter: exporter,
             files: files,
-            filePath: src,
+            filePath: decodedSrc,
             workspace: workspace,
           });
           if (newName) {
@@ -85,10 +87,9 @@ export const handleNestedBulletPointsInMarkdown = (
         }
       });
 
-      currentBack = dom.html() || '';
       const note = new Note(
         currentFront,
-        markdownToHTML(currentBack, trimWhitespace)
+        dom.html() || ''
       );
       note.media = media;
       deck.cards.push(note);
@@ -108,7 +109,8 @@ export const handleNestedBulletPointsInMarkdown = (
 
   // Ensure the last card is processed
   if (currentBack !== '' || currentFront !== '') {
-    const dom = cheerio.load(currentBack, {
+    const convertedBack = markdownToHTML(currentBack, trimWhitespace);
+    const dom = cheerio.load(convertedBack, {
       xmlMode: true,
     });
     const images = dom('img');
@@ -117,10 +119,11 @@ export const handleNestedBulletPointsInMarkdown = (
     images.each((_i, elem) => {
       const src = dom(elem).attr('src');
       if (src && isImageFileEmbedable(src)) {
+        const decodedSrc = decodeURIComponent(src);
         const newName = embedFile({
           exporter,
           files: files,
-          filePath: src,
+          filePath: decodedSrc,
           workspace,
         });
         if (newName) {
@@ -130,10 +133,9 @@ export const handleNestedBulletPointsInMarkdown = (
       }
     });
 
-    currentBack = dom.html() || '';
     const note = new Note(
       currentFront,
-      markdownToHTML(currentBack, trimWhitespace)
+      dom.html() || ''
     );
     note.media = media;
     deck.cards.push(note);
