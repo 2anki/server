@@ -3,6 +3,8 @@ export type WithIcon = {
     | { emoji: string; type?: 'emoji' }
     | { external: { url: string }; type?: 'external' }
     | { file: { url: string }; type?: 'file' }
+    | { custom_emoji: { id: string; name: string; url: string }; type?: 'custom_emoji' }
+    | { icon: { name: string; color?: string }; type?: 'icon' }
     | null;
 };
 
@@ -18,6 +20,10 @@ export default function getBlockIcon(p?: WithIcon, emoji?: string): string {
       return p.icon.external.url;
     case 'file':
       return p.icon.file.url;
+    case 'custom_emoji':
+      return p.icon.custom_emoji.url;
+    case 'icon':
+      return '';
     default:
       return '';
   }
