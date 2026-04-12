@@ -10,6 +10,39 @@ import { getStripe, updateStoreSubscription } from '../../lib/integrations/strip
 import { extractTokenFromCookies } from './extractTokenFromCookies';
 import SubscriptionService from '../../services/SubscriptionService';
 import Stripe from 'stripe';
+import { Knex } from 'knex';
+
+async function persistStripeSession(database: Knex, sessionId: string): Promise<boolean> {
+  const stripe = getStripe();
+  const session = await stripe.checkout.sessions.retrieve(sessionId);
+  if (session.payment_status !== 'paid') {
+    return false;
+  }
+  if (session.subscription) {
+    const subscriptionId = typeof session.subscription === 'string'
+      ? session.subscription
+      : session.subscription.id;
+    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+    const customerId = typeof subscription.customer === 'string'
+      ? subscription.customer
+      : subscription.customer.id;
+    const customer = await stripe.customers.retrieve(customerId) as Stripe.Customer;
+    await updateStoreSubscription(database, customer, subscription);
+  }
+  return true;
+}
+
+async function getAuthenticatedUser(cookies: string | undefined) {
+  const token = extractTokenFromCookies(cookies);
+  if (!token) {
+    return null;
+  }
+  const database = getDatabase();
+  const userRepository = new UsersRepository(database);
+  const tokenRepository = new TokenRepository(database);
+  const authService = new AuthenticationService(tokenRepository, userRepository);
+  return authService.getUserFrom(token);
+}
 
 export class StripeController {
   async getSuccessfulCheckout(req: express.Request, res: express.Response) {
@@ -53,54 +86,18 @@ export class StripeController {
 
   async checkSubscriptionStatus(req: express.Request, res: express.Response) {
     try {
-      const cookies = req.get('cookie');
-      const token = extractTokenFromCookies(cookies);
-
-      if (!token) {
-        return res.status(401).json({ authenticated: false, hasActiveSubscription: false });
-      }
-
-      const database = getDatabase();
-      const userRepository = new UsersRepository(database);
-      const tokenRepository = new TokenRepository(database);
-      const authService = new AuthenticationService(
-        tokenRepository,
-        userRepository
-      );
-
-      const user = await authService.getUserFrom(token);
+      const user = await getAuthenticatedUser(req.get('cookie'));
       if (!user) {
         return res.status(401).json({ authenticated: false, hasActiveSubscription: false });
       }
 
-      // Check if user has active subscription using SubscriptionService
       const activeSubscriptions = await SubscriptionService.getUserActiveSubscriptions(user.email);
-      let hasActiveSubscription = activeSubscriptions.length > 0;
-
-      if (!hasActiveSubscription && user.patreon) {
-        hasActiveSubscription = true;
-      }
+      let hasActiveSubscription = activeSubscriptions.length > 0 || user.patreon;
 
       if (!hasActiveSubscription) {
         const sessionId = req.query.session_id as string;
         if (sessionId) {
-          const stripe = getStripe();
-          const session = await stripe.checkout.sessions.retrieve(sessionId);
-          if (session.payment_status === 'paid') {
-            if (session.subscription) {
-              const subscriptionId = typeof session.subscription === 'string'
-                ? session.subscription
-                : session.subscription.id;
-              const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-              const customerId = typeof subscription.customer === 'string'
-                ? subscription.customer
-                : subscription.customer.id;
-              const customer = await stripe.customers.retrieve(customerId) as Stripe.Customer;
-
-              await updateStoreSubscription(database, customer, subscription);
-            }
-            hasActiveSubscription = true;
-          }
+          hasActiveSubscription = await persistStripeSession(getDatabase(), sessionId);
         }
       }
 
