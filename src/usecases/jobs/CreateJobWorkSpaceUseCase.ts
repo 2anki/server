@@ -13,6 +13,7 @@ export interface CreateJobWorkSpaceUseCaseInput {
   owner: string;
   api: NotionAPIWrapper;
   jobRepository: JobRepository;
+  isPaying: boolean;
 }
 
 export interface CreateJobWorkSpaceUseCaseOutput {
@@ -53,7 +54,7 @@ export class CreateJobWorkSpaceUseCase {
     const bl = new BlockHandler(exporter, api, settings);
     // TODO: refactor ParserRules.load out
     const rules = await ParserRules.Load(owner, id);
-    bl.useAll = rules.UNLIMITED;
+    bl.useAll = input.isPaying;
 
     return { ws, exporter, settings, bl, rules };
   }

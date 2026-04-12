@@ -84,7 +84,7 @@ export default async function performConversion(
 
     const createWorkSpace = new CreateJobWorkSpaceUseCase(jobRepository);
     const { ws, exporter, settings, bl, rules } = await createWorkSpace.execute(
-      { api, id, owner, jobRepository }
+      { api, id, owner, jobRepository, isPaying: isPaying(res?.locals) }
     );
 
     const createFlashcards = new CreateFlashcardsForJobUseCase(jobRepository);
