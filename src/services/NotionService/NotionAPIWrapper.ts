@@ -220,13 +220,11 @@ class NotionAPIWrapper {
   }
 
   async getTopLevelTags(pageId: string, rules: ParserRules) {
-    console.time('[NO_CACHE] - getTopLevelTags');
     const useHeadings = rules.TAGS === 'heading';
     const response = await this.getBlocks({
       createdAt: '',
       lastEditedAt: '',
       id: pageId,
-      all: rules.UNLIMITED,
       type: 'page',
     });
     const globalTags = [];
@@ -262,7 +260,6 @@ class NotionAPIWrapper {
         }
       }
     }
-    console.timeEnd('[NO_CACHE] - getTopLevelTags');
     return sanitizeTags(globalTags);
   }
 

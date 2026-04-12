@@ -10,8 +10,6 @@ class ParserRules {
 
   TAGS = 'strikethrough';
 
-  UNLIMITED = false;
-
   EMAIL_NOTIFICATION = false;
 
   /**
