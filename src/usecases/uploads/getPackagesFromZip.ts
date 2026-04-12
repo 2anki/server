@@ -10,6 +10,7 @@ import { getMaxUploadCount } from '../../lib/misc/getMaxUploadCount';
 
 import { isZipContentFileSupported } from './isZipContentFileSupported';
 import { getRelevantFiles } from './getRelevantFiles';
+import { enableMarkdownForMarkdownUploads } from './enableMarkdownForMarkdownUploads';
 
 export const getPackagesFromZip = async (
   fileContents: Body | undefined,
@@ -28,6 +29,7 @@ export const getPackagesFromZip = async (
 
   const fileNames = zipHandler.getFileNames();
   const supportedFileNames = fileNames.filter(isZipContentFileSupported);
+  enableMarkdownForMarkdownUploads(fileNames, settings);
 
   if (settings.claudeAIFlashcards && paying && fileNames.length > 0) {
     const rootName = fileNames[0];
