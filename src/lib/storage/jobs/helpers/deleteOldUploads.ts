@@ -1,11 +1,11 @@
 import { Knex } from 'knex';
 
-import { TIME_21_MINUTES_AS_SECONDS } from '../../../constants';
+import { CLEANUP_AGE_SECONDS } from '../../../constants';
 import StorageHandler from '../../StorageHandler';
 import { deleteNonSubScriberUploadsInDatabase } from './deleteNonSubScriberUploadsInDatabase';
 import { deleteDanglingUploadsInBucket } from './deleteDanglingUploadsInBucket';
 
-export const MS_21 = TIME_21_MINUTES_AS_SECONDS * 1000;
+export const MS_21 = CLEANUP_AGE_SECONDS * 1000;
 export const MS_24_HOURS = 1000 * 60 * 60 * 24;
 
 const deleteResolvedFeedbackAttachments = async (

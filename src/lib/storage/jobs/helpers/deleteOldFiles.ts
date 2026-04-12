@@ -2,7 +2,7 @@ import os from 'os';
 import path from 'path';
 
 import findRemoveSync from 'find-remove';
-import { TIME_21_MINUTES_AS_SECONDS } from '../../../constants';
+import { CLEANUP_AGE_SECONDS } from '../../../constants';
 
 /**
  * Locally stored files are deleted after 21 minutes. This is to prevent the server from running out of space.
@@ -10,12 +10,12 @@ import { TIME_21_MINUTES_AS_SECONDS } from '../../../constants';
  * @param loc
  */
 function deleteFile(loc: string) {
-  console.time(`finding & removing ${loc} files older than 21 minutes`);
+  console.time(`finding & removing old ${loc} files`);
   findRemoveSync(path.join(os.tmpdir(), loc), {
     files: '*.*',
-    age: { seconds: TIME_21_MINUTES_AS_SECONDS },
+    age: { seconds: CLEANUP_AGE_SECONDS },
   });
-  console.timeEnd(`finding & removing ${loc} files older than 21 minutes`);
+  console.timeEnd(`finding & removing old ${loc} files`);
 }
 
 /**
