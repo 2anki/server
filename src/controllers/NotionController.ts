@@ -61,6 +61,8 @@ class NotionController {
           err.message += `You can renew it <a href='${renewalLink}'>here</a>.`;
         }
         sendErrorResponse(err, res);
+      } else {
+        sendErrorResponse(err, res);
       }
     }
   }
