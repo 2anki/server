@@ -27,7 +27,7 @@ const RequireAuthentication = async (
   if (shouldDebug)
     console.debug('RequireAuthentication: User local configured');
 
-  if (!res.locals.owner) {
+  if (res.locals.owner == null) {
     return res.status(401).send({ error: 'Unauthorized' });
   }
 
