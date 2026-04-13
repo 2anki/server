@@ -39,10 +39,13 @@ describe('RequireAuthentication', () => {
       .fn()
       .mockResolvedValue({ id: 1, owner: 1, email: 'test@test.com' });
 
+    const res = mockResponse();
     const next = jest.fn();
-    await RequireAuthentication(mockRequest(), mockResponse(), next);
+    await RequireAuthentication(mockRequest(), res, next);
 
     expect(next).toHaveBeenCalled();
+    expect(res.status).not.toHaveBeenCalled();
+    expect(res.send).not.toHaveBeenCalled();
   });
 
   it('returns 401 when the user is not authenticated', async () => {
