@@ -93,7 +93,7 @@
     "@types/multer-s3": "^3.0.3",
     "@types/node": "^25.3.5",
     "@types/node-fetch": "^2.6.4",
-    "@types/nodemailer": "^7.0.2",
+    "@types/nodemailer": "^8.0.0",
     "@types/react": "^19.0.6",
     "@types/react-dom": "19.1.6",
     "@types/showdown": "^2.0.6",
