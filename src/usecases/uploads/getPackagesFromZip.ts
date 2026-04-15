@@ -16,7 +16,8 @@ export const getPackagesFromZip = async (
   fileContents: Body | undefined,
   paying: boolean,
   settings: CardOption,
-  workspace: Workspace
+  workspace: Workspace,
+  onProgress?: (step: string) => void
 ): Promise<PackageResult> => {
   const zipHandler = new ZipHandler(getMaxUploadCount(paying));
   const packages = [];
@@ -39,6 +40,7 @@ export const getPackagesFromZip = async (
       settings: effectiveSettings,
       noLimits: paying,
       workspace,
+      onProgress,
     });
 
     if (deck) {

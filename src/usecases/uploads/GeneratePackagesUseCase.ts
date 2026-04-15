@@ -10,12 +10,18 @@ export interface PackageResult {
   packages: Package[];
 }
 
+type ProgressMessage = { type: 'progress'; step: string };
+type ResultMessage = { type: 'result'; packages: Package[] };
+type ErrorMessage = { type: 'error'; message: string };
+type WorkerMessage = ProgressMessage | ResultMessage | ErrorMessage;
+
 class GeneratePackagesUseCase {
   execute(
     paying: boolean,
     files: UploadedFile[],
     settings: CardOption,
-    workspace: Workspace
+    workspace: Workspace,
+    onProgress?: (step: string) => void
   ): Promise<PackageResult> {
     return new Promise((resolve, reject) => {
       const data = { paying, files, settings, workspace };
@@ -29,7 +35,15 @@ class GeneratePackagesUseCase {
         resourceLimits: { maxOldGenerationSizeMb: 1024 },
       });
 
-      worker.on('message', (result: PackageResult) => resolve(result));
+      worker.on('message', (msg: WorkerMessage) => {
+        if (msg.type === 'progress') {
+          onProgress?.(msg.step);
+        } else if (msg.type === 'error') {
+          reject(new Error(msg.message));
+        } else {
+          resolve({ packages: msg.packages });
+        }
+      });
       worker.on('error', (error) => reject(error));
     });
   }
