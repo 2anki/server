@@ -19,6 +19,8 @@ export default interface Uploads {
   size_mb: number | null;
 
   external_url: string | null;
+
+  created_at: Date | null;
 }
 
 /** Represents the initializer for the table public.uploads */
@@ -37,6 +39,9 @@ export interface UploadsInitializer {
   size_mb?: number | null;
 
   external_url?: string | null;
+
+  /** Default value: CURRENT_TIMESTAMP */
+  created_at?: Date | null;
 }
 
 /** Represents the mutator for the table public.uploads */
@@ -54,4 +59,6 @@ export interface UploadsMutator {
   size_mb?: number | null;
 
   external_url?: string | null;
+
+  created_at?: Date | null;
 }
