@@ -38,14 +38,27 @@ class JobRepository {
       .first();
   }
 
+  markInterruptedClaudeJobs() {
+    return this.database(this.tableName)
+      .whereNotIn('status', ['done', 'failed', 'cancelled', 'interrupted'])
+      .where({ type: 'claude' })
+      .update({ status: 'interrupted', last_edited_time: new Date() });
+  }
+
+  private static readonly TERMINAL_STATUSES = ['done', 'failed', 'cancelled', 'interrupted'];
+
   async updateJobStatus(
     id: string,
     owner: string,
     status: string,
     description?: string
   ): Promise<Jobs> {
-    const rows = await this.database(this.tableName)
-      .where({ object_id: id, owner })
+    const isTerminal = JobRepository.TERMINAL_STATUSES.includes(status);
+    const query = this.database(this.tableName).where({ object_id: id, owner });
+    if (!isTerminal) {
+      query.whereNotIn('status', JobRepository.TERMINAL_STATUSES);
+    }
+    const rows = await query
       .update({
         status,
         job_reason_failure: description,

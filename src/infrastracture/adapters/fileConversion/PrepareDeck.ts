@@ -174,6 +174,21 @@ export async function PrepareDeck(
       .filter((f) => !isHTMLFile(f.name) && !isMarkdownFile(f.name))
       .map((f) => f.name);
 
+    const tWrite = Date.now();
+    await Promise.all(
+      allFiles
+        .filter((file) => file.contents)
+        .map(async (file) => {
+          const dest = path.join(input.workspace.location, file.name);
+          await fs.promises.mkdir(path.dirname(dest), { recursive: true });
+          await fs.promises.writeFile(
+            dest,
+            Buffer.isBuffer(file.contents) ? file.contents : Buffer.from(file.contents as string)
+          );
+        })
+    );
+    console.log('[PrepareDeck] Claude branch: files written', { durationMs: Date.now() - tWrite });
+
     const userInstructions = input.settings.userInstructions;
     console.log('[PrepareDeck] Claude branch: calling generateDeckInfo', {
       htmlFileCount: htmlFiles.length,
@@ -186,7 +201,7 @@ export async function PrepareDeck(
       const batch = htmlFiles.slice(i, i + 3);
       const batchResults = await Promise.all(
         batch.map((f) =>
-          generateDeckInfo(f.contents!.toString(), mediaFilesForHtmlFile(f.name, mediaFiles), userInstructions)
+          generateDeckInfo(f.contents!.toString(), mediaFilesForHtmlFile(f.name, mediaFiles), userInstructions, input.onProgress)
         )
       );
       deckInfoArrays.push(...batchResults);
@@ -206,21 +221,6 @@ export async function PrepareDeck(
       totalDecks: deckInfo.length,
       totalCards: deckInfo.reduce((sum, d) => sum + d.cards.length, 0),
     });
-
-    const tMedia = Date.now();
-    await Promise.all(
-      allFiles
-        .filter((file) => !isHTMLFile(file.name) && !isMarkdownFile(file.name) && file.contents)
-        .map(async (file) => {
-          const dest = path.join(input.workspace.location, file.name);
-          await fs.promises.mkdir(path.dirname(dest), { recursive: true });
-          await fs.promises.writeFile(
-            dest,
-            Buffer.isBuffer(file.contents) ? file.contents : Buffer.from(file.contents as string)
-          );
-        })
-    );
-    console.log('[PrepareDeck] Claude branch: media written', { durationMs: Date.now() - tMedia });
 
     const deckName = deckInfo.length === 1 ? deckInfo[0].name : (input.name ?? deckInfo[0]?.name ?? 'Untitled Deck');
     const exporter = new CustomExporter(deckName, input.workspace.location);

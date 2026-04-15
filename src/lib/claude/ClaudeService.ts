@@ -206,8 +206,10 @@ async function generateDeckInfoFromChunk(
   availableMediaFiles: string[],
   userInstructions: string | undefined,
   chunkIndex: number,
-  totalChunks: number
+  totalChunks: number,
+  onProgress?: (step: string) => void
 ): Promise<DeckInfo[]> {
+  const tChunk0 = Date.now();
   const client = getAnthropicClient();
 
   const mediaFilesList =
@@ -223,6 +225,8 @@ async function generateDeckInfoFromChunk(
 
   const maxTokens = strippedContent.length > 20000 ? 16384 : 4096;
 
+  onProgress?.(`claude:chunk:${chunkIndex + 1}:${totalChunks}`);
+
   console.log('[Claude] Sending request to Claude API', {
     model: 'claude-sonnet-4-5',
     promptBytes: userMessage.length,
@@ -237,12 +241,23 @@ async function generateDeckInfoFromChunk(
   let response: Message;
   try {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    response = await client.messages.create({
+    const stream = (client.messages as any).stream({
       model: 'claude-sonnet-4-5',
       max_tokens: maxTokens,
       system: [{ type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } }],
       messages: [{ role: 'user', content: userMessage }],
-    } as any) as Message;
+    });
+
+    let lastPulseMs = Date.now();
+    stream.on('text', () => {
+      const now = Date.now();
+      if (now - lastPulseMs >= 5000) {
+        onProgress?.(`claude:chunk:${chunkIndex + 1}:${totalChunks}`);
+        lastPulseMs = now;
+      }
+    });
+
+    response = await stream.finalMessage() as Message;
   } catch (err) {
     const elapsedMs = Date.now() - tApi0;
     const error = err instanceof Error ? err : new Error(String(err));
@@ -283,6 +298,7 @@ async function generateDeckInfoFromChunk(
 
   const cleaned = raw.replace(/```json|```/g, '').trim();
 
+  const tParse0 = Date.now();
   try {
     const parsed = JSON.parse(cleaned);
     if (!Array.isArray(parsed)) {
@@ -290,11 +306,15 @@ async function generateDeckInfoFromChunk(
       throw new Error('Claude returned unexpected JSON structure (not an array)');
     }
     const deckInfo = expandCompactDeckInfo(parsed as CompactDeck[], availableMediaFiles, pageStyle || null);
-    console.log('[Claude] Successfully parsed deck_info', {
-      decksCount: deckInfo.length,
-      totalCards: deckInfo.reduce((sum, deck) => sum + deck.cards.length, 0),
+    const parseMs = Date.now() - tParse0;
+    console.log('[Claude] chunk done', {
       chunkIndex,
       totalChunks,
+      decksCount: deckInfo.length,
+      totalCards: deckInfo.reduce((sum, deck) => sum + deck.cards.length, 0),
+      apiMs,
+      parseMs,
+      chunkTotalMs: Date.now() - tChunk0,
     });
     return deckInfo;
   } catch {
@@ -306,7 +326,8 @@ async function generateDeckInfoFromChunk(
 export async function generateDeckInfo(
   htmlContent: string,
   availableMediaFiles: string[],
-  userInstructions?: string
+  userInstructions?: string,
+  onProgress?: (step: string) => void
 ): Promise<DeckInfo[]> {
   const t0 = Date.now();
 
@@ -326,11 +347,11 @@ export async function generateDeckInfo(
   const chunks = chunkHtmlByDetails(strippedContent);
   console.log('[Claude] Chunked HTML', { chunks: chunks.length, strippedBytes: strippedContent.length });
 
-  const chunkResults: DeckInfo[][] = [];
-  for (let i = 0; i < chunks.length; i++) {
-    const result = await generateDeckInfoFromChunk(chunks[i], pageStyle, availableMediaFiles, userInstructions, i, chunks.length);
-    chunkResults.push(result);
-  }
+  const chunkResults = await Promise.all(
+    chunks.map((chunk, i) =>
+      generateDeckInfoFromChunk(chunk, pageStyle, availableMediaFiles, userInstructions, i, chunks.length, onProgress)
+    )
+  );
 
   const deckInfo = mergeDeckInfoArrays(chunkResults.flat());
   console.log('[Claude] All chunks done', {

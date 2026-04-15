@@ -39,6 +39,7 @@ export interface DeckParserInput {
   files: File[];
   noLimits: boolean;
   workspace: Workspace;
+  onProgress?: (step: string) => void;
 }
 
 export class DeckParser {

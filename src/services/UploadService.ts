@@ -1,7 +1,9 @@
 import express from 'express';
 import fs from 'node:fs';
+import path from 'node:path';
 
 import { IUploadRepository } from '../data_layer/UploadRespository';
+import JobRepository from '../data_layer/JobRepository';
 import ErrorHandler from '../routes/middleware/ErrorHandler';
 import CardOption from '../lib/parser/Settings';
 import Workspace from '../lib/parser/WorkSpace';
@@ -14,6 +16,39 @@ import { isLimitError } from '../lib/misc/isLimitError';
 import { handleUploadLimitError } from '../controllers/Upload/helpers/handleUploadLimitError';
 import { getNoPackageError } from '../lib/error/constants';
 import { getUploadValidationError } from '../lib/upload/getUploadValidationError';
+import { getOwner } from '../lib/User/getOwner';
+import { generateDeckInfo, DeckInfo } from '../lib/claude/ClaudeService';
+import CustomExporter from '../lib/parser/exporters/CustomExporter';
+import Deck from '../lib/parser/Deck';
+import { isHTMLFile, isMarkdownFile } from '../lib/storage/checks';
+import getDeckFilename from '../lib/anki/getDeckFilename';
+import { FileSizeInMegaBytes } from '../lib/misc/file';
+
+function walkHtmlFiles(dir: string): string[] {
+  const results: string[] = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      results.push(...walkHtmlFiles(full));
+    } else if (isHTMLFile(entry.name) || isMarkdownFile(entry.name)) {
+      results.push(full);
+    }
+  }
+  return results;
+}
+
+function walkMediaFiles(dir: string): string[] {
+  const results: string[] = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      results.push(...walkMediaFiles(full));
+    } else if (!isHTMLFile(entry.name) && !isMarkdownFile(entry.name) && !entry.name.endsWith('.apkg')) {
+      results.push(entry.name);
+    }
+  }
+  return results;
+}
 
 function logNoPackageDiagnostics(uploadedFiles: UploadedFile[]) {
   console.info('[no-package] Zero packages produced. File diagnostics:');
@@ -37,7 +72,89 @@ class UploadService {
     return this.uploadRepository.getUploadsByOwner(owner);
   }
 
-  constructor(private readonly uploadRepository: IUploadRepository) {}
+  constructor(
+    private readonly uploadRepository: IUploadRepository,
+    private readonly jobRepository: JobRepository
+  ) {}
+
+  async restartClaudeJob(req: express.Request, res: express.Response) {
+    const owner = String(getOwner(res));
+    const { jobId } = req.params;
+    const job = await this.jobRepository.findJobById(jobId, owner);
+
+    if (!job) {
+      res.status(404).json({ error: 'Job not found' });
+      return;
+    }
+
+    const workspaceDir = path.join(process.env.WORKSPACE_BASE!, job.object_id);
+    if (!fs.existsSync(workspaceDir)) {
+      res.status(409).json({ error: 'Workspace files are no longer available' });
+      return;
+    }
+
+    await this.jobRepository.updateJobStatus(job.object_id, owner, 'started');
+
+    this.runClaudeRestart(job.object_id, owner, workspaceDir, async (step) => {
+      await this.jobRepository.updateJobStatus(job.object_id, owner, step);
+    }).catch(async (err: Error) => {
+      await this.jobRepository.updateJobStatus(job.object_id, owner, 'failed', err.message);
+    });
+
+    res.status(202).json({ jobId: job.object_id });
+  }
+
+  private async promoteClaudeJobToUpload(objectId: string, workspaceDir: string, owner: string): Promise<void> {
+    const files = fs.readdirSync(workspaceDir);
+    const apkgFilename = files.find((f) => f.endsWith('.apkg'));
+    if (!apkgFilename) {
+      throw new Error('No APKG file found in workspace');
+    }
+    const apkgPath = path.join(workspaceDir, apkgFilename);
+    const apkgBuffer = fs.readFileSync(apkgPath);
+    const storage = new StorageHandler();
+    const key = storage.uniqify(objectId, owner, 200, 'apkg');
+    await storage.uploadFile(key, apkgBuffer);
+    const sizeMb = FileSizeInMegaBytes(apkgPath);
+    await this.uploadRepository.update(Number(owner), apkgFilename, key, sizeMb);
+    const job = await this.jobRepository.findJobById(objectId, owner);
+    if (job) {
+      await this.jobRepository.deleteJob(String(job.id), owner);
+    }
+  }
+
+  private async runClaudeRestart(
+    objectId: string,
+    owner: string,
+    workspaceDir: string,
+    onProgress: (step: string) => Promise<void>
+  ) {
+    const htmlFiles = walkHtmlFiles(workspaceDir);
+    const mediaFiles = walkMediaFiles(workspaceDir);
+
+    if (htmlFiles.length === 0) {
+      throw new Error('No HTML files found in workspace');
+    }
+
+    const deckInfoArrays: DeckInfo[][] = [];
+    for (const htmlFile of htmlFiles) {
+      const content = fs.readFileSync(htmlFile, 'utf8');
+      const deckInfo = await generateDeckInfo(content, mediaFiles, undefined, onProgress);
+      deckInfoArrays.push(deckInfo);
+    }
+
+    const deckInfo = deckInfoArrays.flat().filter((d) => d.cards.length > 0);
+    if (deckInfo.length === 0) {
+      throw new Error('No packages produced');
+    }
+
+    const deckName = deckInfo.length === 1 ? deckInfo[0].name : deckInfo[0].name;
+    const exporter = new CustomExporter(deckName, workspaceDir);
+    exporter.configure(deckInfo as unknown as Deck[]);
+    await exporter.save();
+
+    await this.promoteClaudeJobToUpload(objectId, workspaceDir, owner);
+  }
 
   async deleteUpload(owner: number, key: string) {
     const s = new StorageHandler();
@@ -53,56 +170,99 @@ class UploadService {
         return;
       }
 
-      let payload;
-      let plen;
       const settings = new CardOption(req.body || {});
       const ws = new Workspace(true, 'fs');
+      const owner = getOwner(res);
+      const paying = isPaying(res.locals);
 
-      const useCase = new GeneratePackagesUseCase();
-      const { packages } = await useCase.execute(
-        isPaying(res.locals),
-        req.files as UploadedFile[],
-        settings,
-        ws
-      );
-
-      console.log('packages', packages);
-
-      const first = packages[0];
-      if (packages.length === 1) {
-        const apkg = await ws.getFirstAPKG();
-        if (!apkg) {
-          const name = first ? first.name : 'untitled';
-          throw new Error(`Could not produce APKG for ${name}`);
-        }
-        payload = apkg;
-        plen = Buffer.byteLength(apkg);
-        res.set('Content-Type', 'application/apkg');
-        res.set('Content-Length', plen.toString());
-        first.name = toText(first.name);
-        try {
-          res.set('File-Name', encodeURIComponent(first.name));
-        } catch (err) {
-          console.info(`failed to set name ${first.name}`);
-          console.error(err);
-        }
-
-        res.attachment(`/${first.name}`);
-        return res.status(200).send(payload);
-      } else if (packages.length > 1) {
-        const url = `/download/${ws.id}`;
-        res.status(300);
-        return res.redirect(url);
-      } else {
-        logNoPackageDiagnostics(req.files as UploadedFile[]);
-        ErrorHandler(res, req, getNoPackageError(isPaying(res.locals)));
+      if (owner && settings.claudeAIFlashcards) {
+        return await this.handleAsyncUpload(req, res, settings, ws, String(owner), paying);
       }
+
+      return await this.handleSyncUpload(req, res, settings, ws, paying);
     } catch (err) {
       if (isLimitError(err as Error)) {
         handleUploadLimitError(req, res);
       } else {
         return ErrorHandler(res, req, err as Error);
       }
+    }
+  }
+
+  private async handleAsyncUpload(
+    req: express.Request,
+    res: express.Response,
+    settings: CardOption,
+    ws: Workspace,
+    owner: string,
+    paying: boolean
+  ) {
+    const files = req.files as UploadedFile[];
+    const title = files.length === 1 ? files[0].originalname : `${files.length} files`;
+    await this.jobRepository.create(ws.id, owner, title, 'claude');
+
+    const useCase = new GeneratePackagesUseCase();
+    useCase
+      .execute(paying, req.files as UploadedFile[], settings, ws, async (step) => {
+        await this.jobRepository.updateJobStatus(ws.id, owner, step);
+      })
+      .then(async ({ packages }) => {
+        if (packages.length > 0) {
+          await this.promoteClaudeJobToUpload(ws.id, ws.location, owner);
+        } else {
+          await this.jobRepository.updateJobStatus(ws.id, owner, 'failed', 'No packages produced');
+        }
+      })
+      .catch(async (err: unknown) => {
+        const message = err instanceof Error ? err.message : String(err);
+        console.error('[UploadService] async job failed', { jobId: ws.id, message, err });
+        await this.jobRepository.updateJobStatus(ws.id, owner, 'failed', message);
+      });
+
+    return res.status(202).json({ jobId: ws.id });
+  }
+
+  private async handleSyncUpload(
+    req: express.Request,
+    res: express.Response,
+    settings: CardOption,
+    ws: Workspace,
+    paying: boolean
+  ) {
+    const useCase = new GeneratePackagesUseCase();
+    const { packages } = await useCase.execute(
+      paying,
+      req.files as UploadedFile[],
+      settings,
+      ws
+    );
+
+    const first = packages[0];
+    if (packages.length === 1) {
+      const apkg = await ws.getFirstAPKG();
+      if (!apkg) {
+        const name = first ? first.name : 'untitled';
+        throw new Error(`Could not produce APKG for ${name}`);
+      }
+      const plen = Buffer.byteLength(apkg);
+      res.set('Content-Type', 'application/apkg');
+      res.set('Content-Length', plen.toString());
+      first.name = toText(first.name);
+      try {
+        res.set('File-Name', encodeURIComponent(first.name));
+      } catch (err) {
+        console.info(`failed to set name ${first.name}`);
+        console.error(err);
+      }
+      res.attachment(`/${first.name}`);
+      return res.status(200).send(apkg);
+    } else if (packages.length > 1) {
+      const url = `/download/${ws.id}`;
+      res.status(300);
+      return res.redirect(url);
+    } else {
+      logNoPackageDiagnostics(req.files as UploadedFile[]);
+      ErrorHandler(res, req, getNoPackageError(isPaying(res.locals)));
     }
   }
 }
