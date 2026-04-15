@@ -85,23 +85,23 @@ importers:
         specifier: ^1.8.0
         version: 1.12.0
       metascraper:
-        specifier: ^5.48.0
-        version: 5.50.0
+        specifier: ^5.50.1
+        version: 5.50.1
       metascraper-description:
-        specifier: ^5.49.17
-        version: 5.50.0
+        specifier: ^5.50.1
+        version: 5.50.1
       metascraper-image:
-        specifier: ^5.49.17
-        version: 5.50.0
+        specifier: ^5.50.1
+        version: 5.50.1
       metascraper-logo-favicon:
-        specifier: ^5.49.17
-        version: 5.50.0
+        specifier: ^5.50.1
+        version: 5.50.1
       metascraper-title:
-        specifier: ^5.49.17
-        version: 5.50.0
+        specifier: ^5.50.1
+        version: 5.50.1
       metascraper-url:
-        specifier: ^5.49.17
-        version: 5.50.0
+        specifier: ^5.50.1
+        version: 5.50.1
       morgan:
         specifier: ^1.10.0
         version: 1.10.1
@@ -972,8 +972,8 @@ packages:
     resolution: {integrity: sha512-YeeiMfGaBKGoob/APJlRTZE1j8OL4cxKvjiOba49ED1IXlB+vj85q/aXMw/EZjEUMp5nBnfPmFoZEiwWLDNrYg==}
     engines: {node: '>= 18'}
 
-  '@metascraper/helpers@5.50.0':
-    resolution: {integrity: sha512-w5eJO9sblf5btT0qSenQf8IlrHzifY7F7yTBB6q0RH+6gXgb9KgLno8WwWDjNeWkr+3n0D+8v0Ty5YGKGLAmyw==}
+  '@metascraper/helpers@5.50.1':
+    resolution: {integrity: sha512-F2C23cjHAL2fE5LAj+SsHGLC/8GCiI9U8m4iu92CwQScTYuDA2s9wrkDqsvSlVhnTxdAEM7JikLbyRIr+laXig==}
     engines: {node: '>= 22'}
 
   '@napi-rs/wasm-runtime@0.2.12':
@@ -3172,28 +3172,28 @@ packages:
   merge-stream@2.0.0:
     resolution: {integrity: sha512-abv/qOcuPfk3URPfDzmZU1LKmuw8kT+0nIHvKrKgFrwifol/doWcdA4ZqsWQ8ENrFKkd67Mfpo/LovbIUsbt3w==}
 
-  metascraper-description@5.50.0:
-    resolution: {integrity: sha512-NuR+y5QkLbszW/X5s9Nf5UKob0Qy0NrbuGkccLiQRA1NM+qSpBCq+piPPnEvWU4LEBC3v0O1gRCrngVA09bX4w==}
+  metascraper-description@5.50.1:
+    resolution: {integrity: sha512-bDOTaDigGn7SI4NoOURPBId8RLAfQ4uCruLjiQPs+ccVo0Chnfmk1ghPKjcQifkX6D550j+jxk0eFO/QatZEDw==}
     engines: {node: '>= 22'}
 
-  metascraper-image@5.50.0:
-    resolution: {integrity: sha512-22k2Pg0/RvQ3jJ7yrU8DV2qTDQQTKtsOaHPzltWHMxl5j/fBugOVfOCJJYi4jDtMNmCnLneqgzxE7+SAE9K3Iw==}
+  metascraper-image@5.50.1:
+    resolution: {integrity: sha512-jU50Nb6KQwB3fb8LFdEfT0wd414DYyvfpEvgvQfibROf48oAHHPVWzd3gTNrywmLTMNQeKaUIXp1u45gX5rlmA==}
     engines: {node: '>= 22'}
 
-  metascraper-logo-favicon@5.50.0:
-    resolution: {integrity: sha512-eNEzqUAvJlRWGGfpHhv1+zrwQxjGYaz0NZzOat/UWGY2YaIWLRJ5LKwUiugtMHMsPXLwRjNvctxd8wVX+uVABQ==}
+  metascraper-logo-favicon@5.50.1:
+    resolution: {integrity: sha512-xve0KB5sfII7j8W7+6KLIFe6+qLnzYJrmuoXu/lWe7j/MKxK26lNCOQHhA1/1g2gz0amyN5k7sUEWM+Tw+jIOw==}
     engines: {node: '>= 22'}
 
-  metascraper-title@5.50.0:
-    resolution: {integrity: sha512-K4pTkskUGstWz/EtPrnIbTD88C2xMyfG8prd7uNU9BCUSLhleHpsu4xyJji8t8JAGwwSs3kvaxE6qAkwdqysug==}
+  metascraper-title@5.50.1:
+    resolution: {integrity: sha512-25mie58NY79BiMLvAe7PajA/CnDLI/emWXpbJHnPwJPizZRjNEqCBpVRXKMxnJjQOgwi2NCCrASgwPOC0SXONA==}
     engines: {node: '>= 22'}
 
-  metascraper-url@5.50.0:
-    resolution: {integrity: sha512-XtKAEyFXWeeVpE8B7kvp8LYAioqXa4RLWU1o4PM71nPnN06mC/mNtkEJDrz07rYGELFK36U1R2x0OsgKVZr1NA==}
+  metascraper-url@5.50.1:
+    resolution: {integrity: sha512-ZVx497+P7qyxJ2/9BV5mLtG3ziD8t9DYAQLue+SQ968zcrtt8u/lGASIo8IzGKdFvlCVYFKkOiK32tLKCMjPqg==}
     engines: {node: '>= 22'}
 
-  metascraper@5.50.0:
-    resolution: {integrity: sha512-YuE4Bg6uB5Eh2iiSWozgHmrBonDc/qlgk49v97OI5v4WBqwgOhfnXToyixmAoU3ryDLbHouSCyq8hyPEVqnPIw==}
+  metascraper@5.50.1:
+    resolution: {integrity: sha512-ldZIDB3Nh5H49Xq8cm4hv+N4MoUT6s3hvE7dB2Pvjr38BMdcuubBxPjECF17nSwWGBv9oBn4jwkND7/VI9thyQ==}
     engines: {node: '>= 22'}
 
   microsoft-capitalize@1.0.7:
@@ -5511,7 +5511,7 @@ snapshots:
 
   '@kikobeats/time-span@1.0.12': {}
 
-  '@metascraper/helpers@5.50.0':
+  '@metascraper/helpers@5.50.1':
     dependencies:
       audio-extensions: 0.0.0
       chrono-node: 2.9.0
@@ -5528,7 +5528,7 @@ snapshots:
       isostring: 0.0.1
       jsdom: 27.4.0
       jsonrepair: 3.13.3
-      lodash: 4.17.23
+      lodash: 4.18.1
       memoize-one: 6.0.0
       microsoft-capitalize: 1.0.7
       mime: 3.0.0
@@ -8179,9 +8179,9 @@ snapshots:
 
   merge-stream@2.0.0: {}
 
-  metascraper-description@5.50.0:
+  metascraper-description@5.50.1:
     dependencies:
-      '@metascraper/helpers': 5.50.0
+      '@metascraper/helpers': 5.50.1
     transitivePeerDependencies:
       - '@noble/hashes'
       - bufferutil
@@ -8189,9 +8189,9 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  metascraper-image@5.50.0:
+  metascraper-image@5.50.1:
     dependencies:
-      '@metascraper/helpers': 5.50.0
+      '@metascraper/helpers': 5.50.1
     transitivePeerDependencies:
       - '@noble/hashes'
       - bufferutil
@@ -8199,10 +8199,10 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  metascraper-logo-favicon@5.50.0:
+  metascraper-logo-favicon@5.50.1:
     dependencies:
       '@keyvhq/memoize': 2.1.16
-      '@metascraper/helpers': 5.50.0
+      '@metascraper/helpers': 5.50.1
       lodash: 4.17.23
       reachable-url: 1.8.3
     transitivePeerDependencies:
@@ -8212,9 +8212,9 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  metascraper-title@5.50.0:
+  metascraper-title@5.50.1:
     dependencies:
-      '@metascraper/helpers': 5.50.0
+      '@metascraper/helpers': 5.50.1
     transitivePeerDependencies:
       - '@noble/hashes'
       - bufferutil
@@ -8222,9 +8222,9 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  metascraper-url@5.50.0:
+  metascraper-url@5.50.1:
     dependencies:
-      '@metascraper/helpers': 5.50.0
+      '@metascraper/helpers': 5.50.1
     transitivePeerDependencies:
       - '@noble/hashes'
       - bufferutil
@@ -8232,9 +8232,9 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  metascraper@5.50.0:
+  metascraper@5.50.1:
     dependencies:
-      '@metascraper/helpers': 5.50.0
+      '@metascraper/helpers': 5.50.1
       cheerio: 1.1.2
       debug-logfmt: 1.4.10
       whoops: 5.0.7
