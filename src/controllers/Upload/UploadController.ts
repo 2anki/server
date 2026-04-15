@@ -65,6 +65,10 @@ class UploadController {
     }
   }
 
+  async restartJob(req: express.Request, res: express.Response) {
+    return this.service.restartClaudeJob(req, res);
+  }
+
   async dropbox(req: express.Request, res: express.Response): Promise<void> {
     await handleDropbox(req, res, this.service.handleUpload).then(() => {
       console.debug('dropbox upload success');

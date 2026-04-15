@@ -20,7 +20,7 @@ const UploadRouter = () => {
     new JobService(new JobRepository(database))
   );
   const uploadController = new UploadController(
-    new UploadService(new UploadRepository(database)),
+    new UploadService(new UploadRepository(database), new JobRepository(database)),
     new NotionService(new NotionRepository(database))
   );
 
@@ -279,6 +279,14 @@ const UploadRouter = () => {
    */
   router.delete('/api/upload/jobs/:id', RequireAuthentication, (req, res) =>
     jobController.deleteJobByOwner(req, res)
+  );
+
+  router.get('/api/upload/jobs/:jobId/download', RequireAuthentication, (req, res) =>
+    jobController.downloadJobResult(req, res)
+  );
+
+  router.post('/api/upload/jobs/:jobId/restart', RequireAuthentication, (req, res) =>
+    uploadController.restartJob(req, res)
   );
 
   /**

@@ -31,6 +31,7 @@ import webhookRouter from './routes/WebhookRouter';
 import swaggerRouter from './routes/SwaggerRouter';
 
 import { getDatabase, setupDatabase } from './data_layer';
+import JobRepository from './data_layer/JobRepository';
 
 function registerSignalHandlers(server: http.Server) {
   process.on('uncaughtException', (error) => {
@@ -104,7 +105,12 @@ const serve = async () => {
   });
   registerSignalHandlers(server);
 
-  await setupDatabase(getDatabase());
+  const database = getDatabase();
+  await setupDatabase(database);
+  const interruptedCount = await new JobRepository(database).markInterruptedClaudeJobs();
+  if (interruptedCount > 0) {
+    console.info(`[startup] Marked ${interruptedCount} Claude job(s) as interrupted`);
+  }
 };
 
 serve();
