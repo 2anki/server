@@ -50,7 +50,8 @@ async function processFile(
   fileContents: Buffer,
   paying: boolean,
   settings: CardOption,
-  workspace: Workspace
+  workspace: Workspace,
+  onProgress: (step: string) => void
 ): Promise<Package[]> {
   const packages: Package[] = [];
   const filename = file.originalname;
@@ -72,6 +73,7 @@ async function processFile(
       settings,
       noLimits: paying,
       workspace,
+      onProgress,
     });
 
     if (d) {
@@ -84,7 +86,8 @@ async function processFile(
       fileContents,
       paying,
       settings,
-      workspace
+      workspace,
+      onProgress
     );
     packages.push(...extraPackages);
   }
@@ -92,31 +95,30 @@ async function processFile(
   return packages;
 }
 
-function doGenerationWork(data: GenerationData) {
-  console.log('doGenerationWork');
-  return new Promise(async (resolve) => {
-    console.log('starting generation');
-    const { paying, files, settings, workspace } = data;
-    let packages: Package[] = [];
+async function doGenerationWork(data: GenerationData) {
+  const { paying, files, settings, workspace } = data;
+  let packages: Package[] = [];
 
-    for (const file of files) {
-      const fileContents = getFileContents(file);
-      const filePackages = await processFile(
-        file,
-        fileContents,
-        paying,
-        settings,
-        workspace
-      );
-      packages = packages.concat(filePackages);
-    }
+  const onProgress = (step: string) => {
+    parentPort?.postMessage({ type: 'progress', step });
+  };
 
-    resolve({ packages });
-  });
+  for (const file of files) {
+    const fileContents = getFileContents(file);
+    const filePackages = await processFile(
+      file,
+      fileContents,
+      paying,
+      settings,
+      workspace,
+      onProgress
+    );
+    packages = packages.concat(filePackages);
+  }
+
+  return { type: 'result', packages };
 }
 
 doGenerationWork(workerData.data)
-  .then((result) => {
-    parentPort?.postMessage(result);
-  })
-  .catch(parentPort?.postMessage);
+  .then((result) => parentPort?.postMessage(result))
+  .catch((err) => parentPort?.postMessage({ type: 'error', message: err instanceof Error ? err.message : String(err) }));
