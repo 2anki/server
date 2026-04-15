@@ -21,7 +21,6 @@ import { generateDeckInfo, DeckInfo } from '../lib/claude/ClaudeService';
 import CustomExporter from '../lib/parser/exporters/CustomExporter';
 import Deck from '../lib/parser/Deck';
 import { isHTMLFile, isMarkdownFile } from '../lib/storage/checks';
-import getDeckFilename from '../lib/anki/getDeckFilename';
 import { FileSizeInMegaBytes } from '../lib/misc/file';
 
 function walkHtmlFiles(dir: string): string[] {
@@ -87,7 +86,7 @@ class UploadService {
       return;
     }
 
-    const workspaceDir = path.join(process.env.WORKSPACE_BASE!, job.object_id);
+    const workspaceDir = path.join(process.env.WORKSPACE_BASE as string, job.object_id);
     if (!fs.existsSync(workspaceDir)) {
       res.status(409).json({ error: 'Workspace files are no longer available' });
       return;
@@ -148,7 +147,7 @@ class UploadService {
       throw new Error('No packages produced');
     }
 
-    const deckName = deckInfo.length === 1 ? deckInfo[0].name : deckInfo[0].name;
+    const deckName = deckInfo[0].name;
     const exporter = new CustomExporter(deckName, workspaceDir);
     exporter.configure(deckInfo as unknown as Deck[]);
     await exporter.save();
