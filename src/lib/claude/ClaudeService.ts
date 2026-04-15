@@ -19,8 +19,19 @@ Extraction rules:
 `.trim();
 
 import type Anthropic from '@anthropic-ai/sdk';
+import type { Message } from '@anthropic-ai/sdk/resources/messages';
 import * as cheerio from 'cheerio';
 import { createHash } from 'node:crypto';
+
+function causeMessage(err: unknown): string | undefined {
+  if (err instanceof Error) return err.message;
+  return undefined;
+}
+
+function causeCode(err: unknown): string | undefined {
+  if (err instanceof Error && 'code' in err) return String((err as NodeJS.ErrnoException).code);
+  return undefined;
+}
 
 function deterministicId(input: string): number {
   const hex = createHash('sha1').update(input).digest('hex').slice(0, 13);
@@ -143,30 +154,61 @@ function getAnthropicClient(): Anthropic {
       apiKey: process.env.ANTHROPIC_API_KEY,
       defaultHeaders: { 'anthropic-beta': 'prompt-caching-2024-07-31' },
     }) as Anthropic;
+    console.log('[Claude] Client initialised', { apiKeySet: !!process.env.ANTHROPIC_API_KEY });
   }
   return _anthropicClient as Anthropic;
 }
 
-export async function generateDeckInfo(
-  htmlContent: string,
-  availableMediaFiles: string[],
-  userInstructions?: string
-): Promise<DeckInfo[]> {
-  const t0 = Date.now();
-  const client = getAnthropicClient();
+const CHUNK_SIZE = 40_000;
 
-  const tStrip0 = Date.now();
-  const pageStyle = extractStyleFromHtml(htmlContent);
-  const strippedContent = stripHtmlBoilerplate(htmlContent);
-  console.log('[Claude] stripHtmlBoilerplate', {
-    originalBytes: htmlContent.length,
-    strippedBytes: strippedContent.length,
-    savedBytes: htmlContent.length - strippedContent.length,
-    savedPct: htmlContent.length > 0
-      ? (((htmlContent.length - strippedContent.length) / htmlContent.length) * 100).toFixed(1) + '%'
-      : 'N/A',
-    durationMs: Date.now() - tStrip0,
-  });
+function chunkHtmlByDetails(html: string): string[] {
+  if (html.length <= CHUNK_SIZE) return [html];
+
+  const chunks: string[] = [];
+  let offset = 0;
+
+  while (offset < html.length) {
+    if (offset + CHUNK_SIZE >= html.length) {
+      chunks.push(html.slice(offset));
+      break;
+    }
+
+    let splitAt = html.lastIndexOf('</details>', offset + CHUNK_SIZE);
+    if (splitAt <= offset) {
+      splitAt = offset + CHUNK_SIZE;
+    } else {
+      splitAt += '</details>'.length;
+    }
+
+    chunks.push(html.slice(offset, splitAt));
+    offset = splitAt;
+  }
+
+  return chunks;
+}
+
+function mergeDeckInfoArrays(decks: DeckInfo[]): DeckInfo[] {
+  const byName = new Map<string, DeckInfo>();
+  for (const deck of decks) {
+    const existing = byName.get(deck.name);
+    if (existing) {
+      existing.cards.push(...deck.cards);
+    } else {
+      byName.set(deck.name, { ...deck, cards: [...deck.cards] });
+    }
+  }
+  return Array.from(byName.values());
+}
+
+async function generateDeckInfoFromChunk(
+  strippedContent: string,
+  pageStyle: string,
+  availableMediaFiles: string[],
+  userInstructions: string | undefined,
+  chunkIndex: number,
+  totalChunks: number
+): Promise<DeckInfo[]> {
+  const client = getAnthropicClient();
 
   const mediaFilesList =
     availableMediaFiles.length > 0
@@ -187,16 +229,37 @@ export async function generateDeckInfo(
     maxTokens,
     mediaFilesCount: availableMediaFiles.length,
     hasUserInstructions: !!userInstructions?.trim(),
+    chunkIndex,
+    totalChunks,
   });
 
   const tApi0 = Date.now();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const response = await client.messages.create({
-    model: 'claude-sonnet-4-5',
-    max_tokens: maxTokens,
-    system: [{ type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } }],
-    messages: [{ role: 'user', content: userMessage }],
-  } as any);
+  let response: Message;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    response = await client.messages.create({
+      model: 'claude-sonnet-4-5',
+      max_tokens: maxTokens,
+      system: [{ type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } }],
+      messages: [{ role: 'user', content: userMessage }],
+    } as any) as Message;
+  } catch (err) {
+    const elapsedMs = Date.now() - tApi0;
+    const error = err instanceof Error ? err : new Error(String(err));
+    const cause = 'cause' in error ? error.cause : undefined;
+    const rootCause = cause instanceof Error && 'cause' in cause ? cause.cause : undefined;
+    console.error('[Claude] API request failed', {
+      elapsedMs,
+      chunkIndex,
+      totalChunks,
+      error: error.message,
+      cause: causeMessage(cause),
+      causeCode: causeCode(cause),
+      rootCause: causeMessage(rootCause),
+      rootCauseCode: causeCode(rootCause),
+    });
+    throw error;
+  }
   const apiMs = Date.now() - tApi0;
 
   console.log('[Claude] Received response', {
@@ -209,6 +272,8 @@ export async function generateDeckInfo(
     tokensPerSecond: response.usage?.output_tokens
       ? Math.round((response.usage.output_tokens / apiMs) * 1000)
       : null,
+    chunkIndex,
+    totalChunks,
   });
 
   const raw = (response.content as Array<{ type: string; text?: string }>)
@@ -218,26 +283,62 @@ export async function generateDeckInfo(
 
   const cleaned = raw.replace(/```json|```/g, '').trim();
 
-  const tParse0 = Date.now();
   try {
     const parsed = JSON.parse(cleaned);
     if (!Array.isArray(parsed)) {
-      console.error('[Claude] Response is not an array', { raw, cleaned });
+      console.error('[Claude] Response is not an array', { raw, cleaned, chunkIndex });
       throw new Error('Claude returned unexpected JSON structure (not an array)');
     }
     const deckInfo = expandCompactDeckInfo(parsed as CompactDeck[], availableMediaFiles, pageStyle || null);
-    const totalCards = deckInfo.reduce((sum, deck) => sum + deck.cards.length, 0);
     console.log('[Claude] Successfully parsed deck_info', {
       decksCount: deckInfo.length,
-      totalCards,
-      compactOutputBytes: cleaned.length,
-      parseMs: Date.now() - tParse0,
-      totalMs: Date.now() - t0,
+      totalCards: deckInfo.reduce((sum, deck) => sum + deck.cards.length, 0),
+      chunkIndex,
+      totalChunks,
     });
     return deckInfo;
   } catch {
-    console.error('[Claude] Failed to parse response as JSON', { raw });
+    console.error('[Claude] Failed to parse response as JSON', { raw, chunkIndex });
     throw new Error(`Claude returned invalid JSON:\n${raw}`);
   }
+}
+
+export async function generateDeckInfo(
+  htmlContent: string,
+  availableMediaFiles: string[],
+  userInstructions?: string
+): Promise<DeckInfo[]> {
+  const t0 = Date.now();
+
+  const tStrip0 = Date.now();
+  const pageStyle = extractStyleFromHtml(htmlContent);
+  const strippedContent = stripHtmlBoilerplate(htmlContent);
+  console.log('[Claude] stripHtmlBoilerplate', {
+    originalBytes: htmlContent.length,
+    strippedBytes: strippedContent.length,
+    savedBytes: htmlContent.length - strippedContent.length,
+    savedPct: htmlContent.length > 0
+      ? (((htmlContent.length - strippedContent.length) / htmlContent.length) * 100).toFixed(1) + '%'
+      : 'N/A',
+    durationMs: Date.now() - tStrip0,
+  });
+
+  const chunks = chunkHtmlByDetails(strippedContent);
+  console.log('[Claude] Chunked HTML', { chunks: chunks.length, strippedBytes: strippedContent.length });
+
+  const chunkResults: DeckInfo[][] = [];
+  for (let i = 0; i < chunks.length; i++) {
+    const result = await generateDeckInfoFromChunk(chunks[i], pageStyle, availableMediaFiles, userInstructions, i, chunks.length);
+    chunkResults.push(result);
+  }
+
+  const deckInfo = mergeDeckInfoArrays(chunkResults.flat());
+  console.log('[Claude] All chunks done', {
+    totalDecks: deckInfo.length,
+    totalCards: deckInfo.reduce((sum, d) => sum + d.cards.length, 0),
+    totalMs: Date.now() - t0,
+  });
+
+  return deckInfo;
 }
 
