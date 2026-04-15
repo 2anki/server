@@ -281,10 +281,79 @@ const UploadRouter = () => {
     jobController.deleteJobByOwner(req, res)
   );
 
+  /**
+   * @swagger
+   * /api/upload/jobs/{jobId}/download:
+   *   get:
+   *     summary: Download a completed job result
+   *     description: Download the APKG file produced by a completed Claude job
+   *     tags: [Upload]
+   *     security:
+   *       - sessionAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: jobId
+   *         required: true
+   *         schema:
+   *           type: string
+   *     responses:
+   *       200:
+   *         description: APKG file download
+   *       404:
+   *         description: Job or file not found
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   *       409:
+   *         description: Job not done yet
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   */
   router.get('/api/upload/jobs/:jobId/download', RequireAuthentication, (req, res) =>
     jobController.downloadJobResult(req, res)
   );
 
+  /**
+   * @swagger
+   * /api/upload/jobs/{jobId}/restart:
+   *   post:
+   *     summary: Restart an interrupted Claude job
+   *     description: Restart a Claude flashcard job that was previously interrupted
+   *     tags: [Upload]
+   *     security:
+   *       - sessionAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: jobId
+   *         required: true
+   *         schema:
+   *           type: string
+   *     responses:
+   *       202:
+   *         description: Job restart accepted
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 jobId:
+   *                   type: string
+   *       404:
+   *         description: Job not found
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   *       409:
+   *         description: Workspace files no longer available
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   */
   router.post('/api/upload/jobs/:jobId/restart', RequireAuthentication, (req, res) =>
     uploadController.restartJob(req, res)
   );

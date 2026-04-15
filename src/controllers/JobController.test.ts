@@ -26,16 +26,20 @@ describe('JobController', () => {
   });
 
   it('should get jobs by owner and send them', async () => {
-    (jobService.getJobsByOwner as jest.Mock).mockResolvedValue([
-      'job1',
-      'job2',
-    ]);
+    const mockJobs = [
+      { id: 1, title: 'job1' },
+      { id: 2, title: 'job2' },
+    ];
+    (jobService.getJobsByOwner as jest.Mock).mockResolvedValue(mockJobs);
     await jobController.getJobsByOwner(
       req as express.Request,
       res as express.Response
     );
     expect(jobService.getJobsByOwner).toHaveBeenCalled();
-    expect(res.send).toHaveBeenCalledWith(['job1', 'job2']);
+    expect(res.send).toHaveBeenCalledWith([
+      { id: 1, title: 'job1', restartable: true },
+      { id: 2, title: 'job2', restartable: true },
+    ]);
   });
 
   it('should delete job by owner and send 200', async () => {
