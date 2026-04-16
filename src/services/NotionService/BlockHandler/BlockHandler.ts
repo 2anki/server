@@ -27,6 +27,7 @@ import { NOTION_STYLE } from '../../../templates/helper';
 import NotionAPIWrapper from '../NotionAPIWrapper';
 import BlockColumn from '../blocks/lists/BlockColumn';
 import { blockToStaticMarkup } from '../helpers/blockToStaticMarkup';
+import { downloadMediaOrSkip } from '../helpers/downloadMediaOrSkip';
 import { getAudioUrl } from '../helpers/getAudioUrl';
 import getClozeDeletionCard from '../helpers/getClozeDeletionCard';
 import getColumn from '../helpers/getColumn';
@@ -82,10 +83,10 @@ class BlockHandler {
 
     const suffix = SuffixFrom(S3FileName(url));
     const newName = getUniqueFileName(url) + (suffix ?? '');
-    const imageRequest = await axios.get(url, {
-      responseType: 'arraybuffer',
-    });
-    const contents = imageRequest.data;
+    const contents = await downloadMediaOrSkip(url);
+    if (contents == null) {
+      return '';
+    }
     this.exporter.addMedia(newName, contents);
     return `<img src="${newName}" />`;
   }
