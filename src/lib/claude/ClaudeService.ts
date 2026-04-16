@@ -321,31 +321,37 @@ async function generateDeckInfoFromChunk(
   const cleaned = raw.replace(/```json|```/g, '').trim();
 
   const tParse0 = Date.now();
+  let parsed: unknown;
   try {
-    const parsed = JSON.parse(cleaned);
-    if (!Array.isArray(parsed)) {
-      console.error('[Claude] Response is not an array', { raw, cleaned, chunkIndex });
-      throw new Error('Claude returned unexpected JSON structure (not an array)');
-    }
-    const deckInfo = expandCompactDeckInfo(parsed as CompactDeck[], availableMediaFiles, pageStyle || null);
-    const parseMs = Date.now() - tParse0;
-    console.log('[Claude] chunk done', {
-      chunkIndex,
-      totalChunks,
-      decksCount: deckInfo.length,
-      totalCards: deckInfo.reduce((sum, deck) => sum + deck.cards.length, 0),
-      apiMs,
-      parseMs,
-      chunkTotalMs: Date.now() - tChunk0,
-    });
-    return deckInfo;
+    parsed = JSON.parse(cleaned);
   } catch {
     console.error('[Claude] Failed to parse response as JSON', { raw, chunkIndex });
-    if (looksLikeEmptyContentExplanation(cleaned)) {
+    if (
+      !cleaned.trim().startsWith('[') &&
+      looksLikeEmptyContentExplanation(cleaned)
+    ) {
       throw new Error(EMPTY_CONTENT_USER_MESSAGE);
     }
     throw new Error(`Claude returned invalid JSON:\n${raw}`);
   }
+
+  if (!Array.isArray(parsed)) {
+    console.error('[Claude] Response is not an array', { raw, cleaned, chunkIndex });
+    throw new Error('Claude returned unexpected JSON structure (not an array)');
+  }
+
+  const deckInfo = expandCompactDeckInfo(parsed as CompactDeck[], availableMediaFiles, pageStyle || null);
+  const parseMs = Date.now() - tParse0;
+  console.log('[Claude] chunk done', {
+    chunkIndex,
+    totalChunks,
+    decksCount: deckInfo.length,
+    totalCards: deckInfo.reduce((sum, deck) => sum + deck.cards.length, 0),
+    apiMs,
+    parseMs,
+    chunkTotalMs: Date.now() - tChunk0,
+  });
+  return deckInfo;
 }
 
 export async function generateDeckInfo(
