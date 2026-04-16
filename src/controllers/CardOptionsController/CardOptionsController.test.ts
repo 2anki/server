@@ -53,6 +53,7 @@ describe('SettingsController', () => {
       'vertex-ai-pdf-questions': 'false',
       'disable-indented-bullets': 'false',
       'image-quiz-html-to-anki': 'false',
+      'share-files-for-debugging': 'false',
     });
   });
 
@@ -76,6 +77,7 @@ describe('SettingsController', () => {
       'page-emoji': 'first-emoji',
       'image-quiz-html-to-anki': 'false',
       'markdown-nested-bullet-points': 'true',
+      'share-files-for-debugging': 'false',
     });
   });
 });
