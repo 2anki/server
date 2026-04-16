@@ -1,3 +1,8 @@
+import type Anthropic from '@anthropic-ai/sdk';
+import type { Message } from '@anthropic-ai/sdk/resources/messages';
+import * as cheerio from 'cheerio';
+import { createHash } from 'node:crypto';
+
 const SYSTEM_PROMPT = `
 You are an Anki flashcard generator. Output ONLY a compact JSON array.
 
@@ -18,10 +23,27 @@ Extraction rules:
 - Never invent content — only use text present in the document
 `.trim();
 
-import type Anthropic from '@anthropic-ai/sdk';
-import type { Message } from '@anthropic-ai/sdk/resources/messages';
-import * as cheerio from 'cheerio';
-import { createHash } from 'node:crypto';
+export const EMPTY_CONTENT_USER_MESSAGE =
+  "Claude couldn't find any content to turn into flashcards in this Notion page. The page looks empty or only contains layout elements like buttons or placeholders. Try adding headings with explanations, toggle lists, or question-and-answer text, then convert again.";
+
+const EMPTY_CONTENT_SIGNALS = [
+  'no actual',
+  'no extractable',
+  'no flashcard',
+  'no question',
+  'nothing to convert',
+  "couldn't find",
+  'cannot find',
+  'unable to find',
+  'no q&a',
+  'no q/a',
+  'consists only of',
+];
+
+export function looksLikeEmptyContentExplanation(cleaned: string): boolean {
+  const lower = cleaned.toLowerCase();
+  return EMPTY_CONTENT_SIGNALS.some((signal) => lower.includes(signal));
+}
 
 function causeMessage(err: unknown): string | undefined {
   if (err instanceof Error) return err.message;
@@ -319,6 +341,9 @@ async function generateDeckInfoFromChunk(
     return deckInfo;
   } catch {
     console.error('[Claude] Failed to parse response as JSON', { raw, chunkIndex });
+    if (looksLikeEmptyContentExplanation(cleaned)) {
+      throw new Error(EMPTY_CONTENT_USER_MESSAGE);
+    }
     throw new Error(`Claude returned invalid JSON:\n${raw}`);
   }
 }
