@@ -33,6 +33,12 @@ export function preserveFilesForDebugging(
     fs.writeFileSync(`${debugDirectory}/error.txt`, errorMessage);
 
     uploadedFiles.forEach((file, index) => {
+      if (file?.path == null || file?.originalname == null) {
+        console.info(
+          `Skipping file at index ${index} without path or originalname`
+        );
+        return;
+      }
       const destPath = path.join(
         debugDirectory,
         `${index}-${path.basename(file.originalname)}`
@@ -42,6 +48,6 @@ export function preserveFilesForDebugging(
       console.log(`Copied file ${file.path} to ${destPath}`);
     });
   } catch (error) {
-    console.error(`Error in perserveFilesForDebugging: ${error}`);
+    console.error(`Error in preserveFilesForDebugging: ${error}`);
   }
 }
