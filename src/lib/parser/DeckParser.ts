@@ -42,6 +42,11 @@ export interface DeckParserInput {
   onProgress?: (step: string) => void;
 }
 
+function hasNestedBullets(content: string | undefined): boolean {
+  if (!content) return false;
+  return /^\s+[-*+][ \t]/m.test(content);
+}
+
 export class DeckParser {
   globalTags: cheerio.Cheerio | null;
 
@@ -80,18 +85,23 @@ export class DeckParser {
   processFirstFile(name: string) {
     const firstFile = this.files.find((file) => isFileNameEqual(file, name));
 
-    if (this.settings.nestedBulletPoints && isMarkdownFile(name)) {
+    if (isMarkdownFile(name)) {
       const contents = getFileContents(firstFile, false);
-      this.payload = handleNestedBulletPointsInMarkdown({
-        name,
-        contents: contents?.toString(),
-        deckName: this.settings.deckName,
-        decks: [],
-        settings: this.settings,
-        exporter: this.customExporter,
-        workspace: this.workspace,
-        files: this.files,
-      });
+      const contentsStr = contents?.toString();
+      if (this.settings.nestedBulletPoints || hasNestedBullets(contentsStr)) {
+        this.payload = handleNestedBulletPointsInMarkdown({
+          name,
+          contents: contentsStr,
+          deckName: this.settings.deckName,
+          decks: [],
+          settings: this.settings,
+          exporter: this.customExporter,
+          workspace: this.workspace,
+          files: this.files,
+        });
+      } else {
+        this.payload = [];
+      }
     } else if (isHTMLFile(name)) {
       const contents = getFileContents(firstFile, true);
       this.payload = contents
