@@ -12,9 +12,14 @@ interface Annotations {
   color?: string;
 }
 
+interface HandleBlockAnnotationsOptions {
+  noUnderline?: boolean;
+}
+
 const HandleBlockAnnotations = (
   annotations: Annotations,
-  text: RichTextItemResponse
+  text: RichTextItemResponse,
+  options: HandleBlockAnnotationsOptions = {}
 ) => {
   if (!text) {
     return null;
@@ -36,7 +41,7 @@ const HandleBlockAnnotations = (
   if (annotations.bold) {
     styledContent = <strong>{styledContent}</strong>;
   }
-  if (annotations.underline) {
+  if (annotations.underline && !options.noUnderline) {
     styledContent = (
       <span style={{ borderBottom: '0.05em solid' }}>{styledContent}</span>
     );
