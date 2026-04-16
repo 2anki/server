@@ -222,6 +222,50 @@ function mergeDeckInfoArrays(decks: DeckInfo[]): DeckInfo[] {
   return Array.from(byName.values());
 }
 
+function buildUserMessage(
+  strippedContent: string,
+  availableMediaFiles: string[],
+  userInstructions: string | undefined
+): string {
+  const mediaFilesList =
+    availableMediaFiles.length > 0
+      ? `\n\nAvailable local media files:\n${availableMediaFiles.map((f) => `- ${f}`).join('\n')}`
+      : '';
+
+  const instructionsSection = userInstructions?.trim()
+    ? `\n\nAdditional instructions:\n${userInstructions.trim()}`
+    : '';
+
+  return `Convert this HTML content into the compact deck JSON:\n\n${strippedContent}${mediaFilesList}${instructionsSection}`;
+}
+
+function parseDeckResponse(
+  cleaned: string,
+  raw: string,
+  chunkIndex: number
+): CompactDeck[] {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(cleaned);
+  } catch {
+    console.error('[Claude] Failed to parse response as JSON', { raw, chunkIndex });
+    if (
+      !cleaned.trim().startsWith('[') &&
+      looksLikeEmptyContentExplanation(cleaned)
+    ) {
+      throw new Error(EMPTY_CONTENT_USER_MESSAGE);
+    }
+    throw new Error(`Claude returned invalid JSON:\n${raw}`);
+  }
+
+  if (!Array.isArray(parsed)) {
+    console.error('[Claude] Response is not an array', { raw, cleaned, chunkIndex });
+    throw new Error('Claude returned unexpected JSON structure (not an array)');
+  }
+
+  return parsed as CompactDeck[];
+}
+
 async function generateDeckInfoFromChunk(
   strippedContent: string,
   pageStyle: string,
@@ -234,17 +278,7 @@ async function generateDeckInfoFromChunk(
   const tChunk0 = Date.now();
   const client = getAnthropicClient();
 
-  const mediaFilesList =
-    availableMediaFiles.length > 0
-      ? `\n\nAvailable local media files:\n${availableMediaFiles.map((f) => `- ${f}`).join('\n')}`
-      : '';
-
-  const instructionsSection = userInstructions?.trim()
-    ? `\n\nAdditional instructions:\n${userInstructions.trim()}`
-    : '';
-
-  const userMessage = `Convert this HTML content into the compact deck JSON:\n\n${strippedContent}${mediaFilesList}${instructionsSection}`;
-
+  const userMessage = buildUserMessage(strippedContent, availableMediaFiles, userInstructions);
   const maxTokens = strippedContent.length > 20000 ? 16384 : 4096;
 
   onProgress?.(`claude:chunk:${chunkIndex + 1}:${totalChunks}`);
@@ -321,26 +355,8 @@ async function generateDeckInfoFromChunk(
   const cleaned = raw.replace(/```json|```/g, '').trim();
 
   const tParse0 = Date.now();
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(cleaned);
-  } catch {
-    console.error('[Claude] Failed to parse response as JSON', { raw, chunkIndex });
-    if (
-      !cleaned.trim().startsWith('[') &&
-      looksLikeEmptyContentExplanation(cleaned)
-    ) {
-      throw new Error(EMPTY_CONTENT_USER_MESSAGE);
-    }
-    throw new Error(`Claude returned invalid JSON:\n${raw}`);
-  }
-
-  if (!Array.isArray(parsed)) {
-    console.error('[Claude] Response is not an array', { raw, cleaned, chunkIndex });
-    throw new Error('Claude returned unexpected JSON structure (not an array)');
-  }
-
-  const deckInfo = expandCompactDeckInfo(parsed as CompactDeck[], availableMediaFiles, pageStyle || null);
+  const parsed = parseDeckResponse(cleaned, raw, chunkIndex);
+  const deckInfo = expandCompactDeckInfo(parsed, availableMediaFiles, pageStyle || null);
   const parseMs = Date.now() - tParse0;
   console.log('[Claude] chunk done', {
     chunkIndex,
