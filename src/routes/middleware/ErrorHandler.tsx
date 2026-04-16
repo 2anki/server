@@ -93,6 +93,11 @@ export default async function ErrorHandler(
     console.info('User no limit reached');
   }
 
+  if (res.headersSent) {
+    console.info('Skipping error response: headers already sent');
+    return;
+  }
+
   res.set('Content-Type', 'text/plain');
   res.status(400).send(err.message);
 }
