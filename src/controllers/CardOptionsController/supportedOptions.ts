@@ -122,6 +122,12 @@ const supportedOptions = (): CardOptionDetail[] => {
       'Use Claude Anthropic to generate flashcards from your content. Produces more reliable results for complex documents. This is a premium feature available to subscribers.',
       false
     ),
+    new CardOptionDetail(
+      'share-files-for-debugging',
+      'Share Files for Debugging When Conversion Fails',
+      'When a conversion fails, send the uploaded files and error details to the 2anki team so we can reproduce and fix the issue. Off by default to keep your notes private.',
+      false
+    ),
   ];
 
   return v.filter(Boolean);

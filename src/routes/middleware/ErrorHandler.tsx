@@ -5,6 +5,7 @@ import { UploadedFile } from '../../lib/storage/types';
 import { isLimitError } from '../../lib/misc/isLimitError';
 import { isEmptyPayload } from '../../lib/misc/isEmptyPayload';
 import { preserveFilesForDebugging } from '../../lib/debug/preserveFilesForDebugging';
+import { shouldShareFilesForDebugging } from './shouldShareFilesForDebugging';
 import * as cheerio from 'cheerio';
 
 const transporter = nodemailer.createTransport({
@@ -38,6 +39,7 @@ function buildAttachments(uploadedFiles: UploadedFile[]) {
 
 async function sendErrorEmail(error: Error, req: express.Request) {
   if (process.env.NODE_ENV !== 'production') return;
+  if (!shouldShareFilesForDebugging(req.body)) return;
 
   const $ = cheerio.load(error.message);
   const plainTextMessage = $.root().text();
@@ -77,7 +79,8 @@ export default async function ErrorHandler(
   if (!skipError) {
     console.info('Send error');
     console.error(err);
-    if (!isEmptyPayload(uploadedFiles)) {
+    const canShareFiles = shouldShareFilesForDebugging(req.body);
+    if (canShareFiles && !isEmptyPayload(uploadedFiles)) {
       preserveFilesForDebugging(req, uploadedFiles, err);
     }
 

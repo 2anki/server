@@ -73,6 +73,8 @@ class CardOption {
 
   readonly claudeAIFlashcards: boolean;
 
+  readonly shareFilesForDebugging: boolean;
+
   readonly userInstructions?: string;
 
   constructor(input: { [key: string]: string }) {
@@ -111,6 +113,7 @@ class CardOption {
     this.imageQuizHtmlToAnki = input['image-quiz-html-to-anki'] === 'true';
     this.processPDFs = input['process-pdfs'] !== 'false';
     this.claudeAIFlashcards = input['claude-ai-flashcards'] === 'true';
+    this.shareFilesForDebugging = input['share-files-for-debugging'] === 'true';
     /* Is this really needed? */
     if (this.parentBlockId) {
       this.addNotionLink = true;
@@ -158,6 +161,7 @@ class CardOption {
       'image-quiz-html-to-anki': 'false',
       'markdown-nested-bullet-points': 'true',
       'claude-ai-flashcards': 'false',
+      'share-files-for-debugging': 'false',
     };
   }
 }
