@@ -14,12 +14,8 @@ class RulesController {
     }
 
     try {
-      const result = await this.service.createRule(
-        id,
-        getOwner(res),
-        req.body.payload
-      );
-      res.status(200).send(result);
+      await this.service.createRule(id, getOwner(res), req.body.payload);
+      res.status(201).json({ message: 'Rule created' });
     } catch (error) {
       console.info('Create rule failed');
       console.error(error);
