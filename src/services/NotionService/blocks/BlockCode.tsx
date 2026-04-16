@@ -20,7 +20,9 @@ const BlockCode = (block: CodeBlockObjectResponse, handler: BlockHandler) => {
       <code>
         {richText.map((t: RichTextItemResponse) => {
           const { annotations } = t;
-          return HandleBlockAnnotations(annotations, t);
+          return HandleBlockAnnotations(annotations, t, {
+            noUnderline: handler.settings?.noUnderline,
+          });
         })}
       </code>
     </pre>

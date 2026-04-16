@@ -34,7 +34,9 @@ export const BlockCallout = (
       <div style={{ width: '100%' }}>
         {richText.map((t: RichTextItemResponse) => {
           const { annotations } = t;
-          return HandleBlockAnnotations(annotations, t);
+          return HandleBlockAnnotations(annotations, t, {
+            noUnderline: handler.settings?.noUnderline,
+          });
         })}
       </div>
     </figure>
