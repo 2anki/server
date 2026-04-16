@@ -44,7 +44,7 @@ export interface DeckParserInput {
 
 function hasNestedBullets(content: string | undefined): boolean {
   if (!content) return false;
-  return /^\s+[-*+][ \t]/m.test(content);
+  return /^[ \t]+[-*+][ \t]/m.test(content);
 }
 
 export class DeckParser {
