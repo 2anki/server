@@ -109,6 +109,7 @@ class UploadService {
     if (!apkgFilename) {
       throw new Error('No APKG file found in workspace');
     }
+    await this.jobRepository.updateJobStatus(objectId, owner, 'step3_building_deck', '');
     const apkgPath = path.join(workspaceDir, apkgFilename);
     const apkgBuffer = fs.readFileSync(apkgPath);
     const storage = new StorageHandler();
