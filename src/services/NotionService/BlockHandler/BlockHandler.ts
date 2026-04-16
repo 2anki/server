@@ -21,6 +21,7 @@ import ParserRules from '../../../lib/parser/ParserRules';
 import CardOption from '../../../lib/parser/Settings';
 import TagRegistry from '../../../lib/parser/TagRegistry';
 import CustomExporter from '../../../lib/parser/exporters/CustomExporter';
+import { withFontSize } from '../../../lib/parser/withFontSize';
 import get16DigitRandomId from '../../../shared/helpers/get16DigitRandomId';
 import { NOTION_STYLE } from '../../../templates/helper';
 import NotionAPIWrapper from '../NotionAPIWrapper';
@@ -359,7 +360,7 @@ class BlockHandler {
         currentDeckName,
         Deck.CleanCards(cards),
         undefined,
-        NOTION_STYLE,
+        withFontSize(NOTION_STYLE, this.settings.fontSize),
         get16DigitRandomId(),
         this.settings
       );
@@ -435,7 +436,7 @@ class BlockHandler {
               ),
               cards,
               undefined,
-              NOTION_STYLE,
+              withFontSize(NOTION_STYLE, this.settings.fontSize),
               get16DigitRandomId(),
               this.settings
             )
