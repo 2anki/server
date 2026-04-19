@@ -39,9 +39,7 @@ class FavoriteService {
      * What is happening here is that we fetch the Notion block so we can present the user
      * with a rich object (with title and emoji) instead of just the ID.
      */
-    const api = await notionService
-      .getNotionAPI(owner)
-      .catch(() => null);
+    const api = await notionService.tryGetNotionAPI(owner);
     if (!api) {
       return [];
     }
