@@ -7,6 +7,10 @@ import CustomExporter from '../lib/parser/exporters/CustomExporter';
 import { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 import Workspace from '../lib/parser/WorkSpace';
 import { blockToStaticMarkup } from '../services/NotionService/helpers/blockToStaticMarkup';
+import { renderBlockPreview } from '../services/NotionService/helpers/renderBlockPreview';
+import { isFullBlock, isFullPage } from '@notionhq/client';
+import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
+import { getNotionObjectTitle } from 'get-notion-object-title';
 import NotionService from '../services/NotionService';
 import { getDatabase } from '../data_layer';
 import { getNotionId } from '../services/NotionService/getNotionId';
@@ -14,6 +18,17 @@ import { getOwner } from '../lib/User/getOwner';
 import { APIErrorCode, APIResponseError } from '@notionhq/client';
 import sendErrorResponse from '../lib/sendErrorResponse';
 import { isPaying } from '../lib/isPaying';
+
+const DEFAULT_PREVIEW_PAGE_SIZE = 15;
+const MAX_PREVIEW_PAGE_SIZE = 50;
+
+function clampPageSize(input: unknown): number {
+  const parsed = Number.parseInt(String(input ?? ''), 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return DEFAULT_PREVIEW_PAGE_SIZE;
+  }
+  return Math.min(parsed, MAX_PREVIEW_PAGE_SIZE);
+}
 
 class NotionController {
   constructor(private readonly service: NotionService) {}
@@ -209,6 +224,67 @@ class NotionController {
       res.json(results);
     } catch (error) {
       console.info('Query database failed');
+      console.error(error);
+      sendErrorResponse(error, res);
+    }
+  }
+
+  async previewPage(req: Request, res: Response) {
+    const rawId = req.params.id;
+    if (!rawId) {
+      return res.status(400).json({ message: 'Missing page id.' });
+    }
+    const id = getNotionId(rawId) ?? rawId.replace(/-/g, '');
+
+    const pageSize = clampPageSize(req.query.page_size);
+    const startCursor =
+      typeof req.query.cursor === 'string' && req.query.cursor.length > 0
+        ? req.query.cursor
+        : undefined;
+
+    try {
+      const api = await this.service.getNotionAPI(res.locals.owner);
+      const response = await api.listBlocksPage(id, {
+        pageSize,
+        startCursor,
+      });
+
+      const blocks = response.results
+        .filter((block): block is BlockObjectResponse => isFullBlock(block))
+        .map((block) => ({
+          id: block.id,
+          type: block.type,
+          html: renderBlockPreview(block),
+        }));
+
+      const payload: Record<string, unknown> = {
+        blocks,
+        nextCursor: response.next_cursor,
+        hasMore: response.has_more,
+      };
+
+      if (!startCursor) {
+        const page = await api.getPage(id);
+        if (page && isFullPage(page as PageObjectResponse)) {
+          payload.pageTitle = getNotionObjectTitle(
+            page as PageObjectResponse,
+            { emoji: true }
+          );
+          payload.pageUrl = (page as PageObjectResponse).url ?? null;
+        }
+      }
+
+      res.json(payload);
+    } catch (error) {
+      if (
+        error instanceof APIResponseError &&
+        error.code === APIErrorCode.ObjectNotFound
+      ) {
+        return res.status(404).json({
+          message: "We couldn't find that Notion page. It may have been deleted or access was revoked.",
+        });
+      }
+      console.info('Preview page failed');
       console.error(error);
       sendErrorResponse(error, res);
     }

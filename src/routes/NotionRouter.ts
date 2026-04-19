@@ -233,6 +233,37 @@ const NotionRouter = () => {
 
   /**
    * @swagger
+   * /api/notion/preview/{id}:
+   *   get:
+   *     summary: Stream a preview of a Notion page
+   *     description: Cursor-paginated preview of a Notion page. Pre-rendered HTML per block for fast first-paint. Call with no cursor for the first batch (includes pageTitle); subsequent calls pass the returned nextCursor.
+   *     tags: [Notion]
+   *     security:
+   *       - bearerAuth: []
+   *       - cookieAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema: { type: string }
+   *       - in: query
+   *         name: cursor
+   *         schema: { type: string }
+   *       - in: query
+   *         name: page_size
+   *         schema: { type: integer, default: 15, maximum: 50 }
+   *     responses:
+   *       200:
+   *         description: Preview batch
+   *       404:
+   *         description: Page not found
+   */
+  router.get('/api/notion/preview/:id', RequireAuthentication, (req, res) =>
+    controller.previewPage(req, res)
+  );
+
+  /**
+   * @swagger
    * /api/notion/blocks/{id}:
    *   get:
    *     summary: Get page blocks
