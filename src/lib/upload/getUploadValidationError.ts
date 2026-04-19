@@ -1,7 +1,9 @@
 import { UploadedFile } from '../storage/types';
 
 function isAnkiDeck(file: UploadedFile): boolean {
-  return file.originalname.toLowerCase().endsWith('.apkg');
+  return typeof file.originalname === 'string'
+    ? file.originalname.toLowerCase().endsWith('.apkg')
+    : false;
 }
 
 function isEmptyFile(file: UploadedFile): boolean {
