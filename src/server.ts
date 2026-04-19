@@ -24,6 +24,7 @@ import usersRouter from './routes/UserRouter';
 import notionRouter from './routes/NotionRouter';
 import rulesRouter from './routes/ParserRulesRouter';
 import downloadRouter from './routes/DownloadRouter';
+import apkgRouter from './routes/ApkgRouter';
 import favoriteRouter from './routes/FavoriteRouter';
 import templatesRouter from './routes/TemplatesRouter';
 import defaultRouter from './routes/DefaultRouter';
@@ -76,6 +77,7 @@ const serve = async () => {
   app.use(rulesRouter());
   app.use(settingsRouter());
   app.use(downloadRouter());
+  app.use(apkgRouter());
   app.use(favoriteRouter());
   app.use(templatesRouter());
 
