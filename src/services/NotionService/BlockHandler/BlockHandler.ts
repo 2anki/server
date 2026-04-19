@@ -21,11 +21,13 @@ import ParserRules from '../../../lib/parser/ParserRules';
 import CardOption from '../../../lib/parser/Settings';
 import TagRegistry from '../../../lib/parser/TagRegistry';
 import CustomExporter from '../../../lib/parser/exporters/CustomExporter';
+import { withFontSize } from '../../../lib/parser/withFontSize';
 import get16DigitRandomId from '../../../shared/helpers/get16DigitRandomId';
 import { NOTION_STYLE } from '../../../templates/helper';
 import NotionAPIWrapper from '../NotionAPIWrapper';
 import BlockColumn from '../blocks/lists/BlockColumn';
 import { blockToStaticMarkup } from '../helpers/blockToStaticMarkup';
+import { downloadMediaOrSkip } from '../helpers/downloadMediaOrSkip';
 import { getAudioUrl } from '../helpers/getAudioUrl';
 import getClozeDeletionCard from '../helpers/getClozeDeletionCard';
 import getColumn from '../helpers/getColumn';
@@ -81,10 +83,10 @@ class BlockHandler {
 
     const suffix = SuffixFrom(S3FileName(url));
     const newName = getUniqueFileName(url) + (suffix ?? '');
-    const imageRequest = await axios.get(url, {
-      responseType: 'arraybuffer',
-    });
-    const contents = imageRequest.data;
+    const contents = await downloadMediaOrSkip(url);
+    if (contents == null) {
+      return '';
+    }
     this.exporter.addMedia(newName, contents);
     return `<img src="${newName}" />`;
   }
@@ -359,7 +361,7 @@ class BlockHandler {
         currentDeckName,
         Deck.CleanCards(cards),
         undefined,
-        NOTION_STYLE,
+        withFontSize(NOTION_STYLE, this.settings.fontSize),
         get16DigitRandomId(),
         this.settings
       );
@@ -435,7 +437,7 @@ class BlockHandler {
               ),
               cards,
               undefined,
-              NOTION_STYLE,
+              withFontSize(NOTION_STYLE, this.settings.fontSize),
               get16DigitRandomId(),
               this.settings
             )

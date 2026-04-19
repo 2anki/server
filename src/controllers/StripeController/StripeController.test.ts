@@ -6,7 +6,7 @@ jest.mock('../../data_layer', () => ({
 }));
 
 jest.mock('../../services/EmailService/EmailService', () => ({
-  useDefaultEmailService: jest.fn().mockReturnValue({}),
+  getDefaultEmailService: jest.fn().mockReturnValue({}),
 }));
 
 jest.mock('./extractTokenFromCookies', () => ({

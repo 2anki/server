@@ -140,6 +140,21 @@ test('Markdown nested bullet points', async () => {
   expect(deck.cards.length).toBe(4);
 });
 
+test('Markdown nested bullets auto-detected without explicit setting', () => {
+  const fixturePath = path.join(__dirname, '../../test/fixtures/notion-nested-bullets.md');
+  const contents = fs.readFileSync(fixturePath).toString();
+  const info = [{ name: 'notion-nested-bullets.md', contents }];
+  const parser = new DeckParser({
+    name: 'notion-nested-bullets.md',
+    settings: new CardOption({ reversed: 'false', 'basic-reversed': 'false' }),
+    files: info,
+    noLimits: true,
+    workspace: new Workspace(true, 'fs'),
+  });
+  expect(parser.payload.length).toBe(1);
+  expect(parser.payload[0].cards.length).toBe(2);
+});
+
 test('Notion new export: display:contents and fragmented ul.toggle', async () => {
   const deck = await getDeck(
     'notion-new-export-nested.html',

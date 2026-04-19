@@ -49,7 +49,8 @@ export const setupDatabase = async (database: Knex) => {
     await database.migrate.latest(KnexConfig as MigratorConfig);
 
     // Completed jobs become uploads. Any left during startup means they failed.
-    await database.raw("UPDATE jobs SET status = 'failed';");
+    // Claude jobs are handled separately by markInterruptedClaudeJobs to preserve restart capability.
+    await database.raw("UPDATE jobs SET status = 'failed' WHERE status NOT IN ('done', 'failed', 'cancelled', 'interrupted') AND type IS DISTINCT FROM 'claude';");
   } catch (error) {
     console.error(error);
     process.exit(1);

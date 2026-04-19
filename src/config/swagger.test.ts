@@ -52,7 +52,7 @@ describe('Swagger Documentation Coverage', () => {
 
           // Skip middleware-only routes and Swagger documentation routes
           if (
-            !routePath.includes('/docs') &&
+            !routePath.includes('/api/docs') &&
             !routePath.includes('swagger') &&
             !line.includes('swaggerUi.serve') &&
             !line.includes('swaggerUi.setup')

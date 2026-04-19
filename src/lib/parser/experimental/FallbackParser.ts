@@ -1,4 +1,5 @@
 import * as cheerio from 'cheerio';
+import type { AnyNode } from 'domhandler';
 
 import { File } from '../../zip/zip';
 import {
@@ -28,7 +29,7 @@ class FallbackParser {
     }
     const $ = cheerio.load(html);
 
-    function processListItems(items: cheerio.Cheerio) {
+    function processListItems(items: cheerio.Cheerio<AnyNode>) {
       let result = '';
       items.each((_, element) => {
         const itemText = $(element).text().trim();

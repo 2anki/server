@@ -402,7 +402,7 @@ export class UnimplementedEmailService implements IEmailService {
   }
 }
 
-export const useDefaultEmailService = () => {
+export const getDefaultEmailService = () => {
   if (process.env.SENDGRID_API_KEY !== undefined) {
     return new EmailService(process.env.SENDGRID_API_KEY!, DEFAULT_SENDER);
   }

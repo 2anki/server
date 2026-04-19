@@ -1,0 +1,285 @@
+jest.mock('../data_layer', () => ({
+  getDatabase: jest.fn(),
+}));
+
+jest.mock('../lib/integrations/stripe', () => ({
+  getStripe: jest.fn(),
+}));
+
+jest.mock('./EmailService/EmailService', () => ({
+  getDefaultEmailService: jest.fn(),
+}));
+
+import { getDatabase } from '../data_layer';
+import { getStripe } from '../lib/integrations/stripe';
+import { getDefaultEmailService } from './EmailService/EmailService';
+import SubscriptionService from './SubscriptionService';
+
+function buildDbMock(linkedRows: Array<{ email: string }> = []): jest.Mock & {
+  updateSpy: jest.Mock;
+} {
+  const updateSpy = jest.fn().mockResolvedValue(0);
+  const queryBuilder: Record<string, unknown> = {
+    select: jest.fn().mockReturnThis(),
+    where: jest.fn().mockReturnThis(),
+    andWhere: jest.fn().mockReturnThis(),
+    orWhere: jest.fn().mockReturnThis(),
+    update: updateSpy,
+    then: (resolve: (value: unknown) => void) => resolve(linkedRows),
+  };
+  const db = jest.fn().mockReturnValue(queryBuilder) as jest.Mock & {
+    updateSpy: jest.Mock;
+  };
+  db.updateSpy = updateSpy;
+  return db;
+}
+
+type StripeMock = {
+  customers: { list: jest.Mock };
+  subscriptions: {
+    list: jest.Mock;
+    update: jest.Mock;
+    cancel: jest.Mock;
+  };
+};
+
+function buildStripeMock(overrides: Partial<StripeMock> = {}): StripeMock {
+  return {
+    customers: {
+      list: jest.fn().mockResolvedValue({ data: [] }),
+    },
+    subscriptions: {
+      list: jest.fn().mockResolvedValue({ data: [] }),
+      update: jest.fn().mockResolvedValue({}),
+      cancel: jest.fn().mockResolvedValue({}),
+    },
+    ...overrides,
+  };
+}
+
+const email = 'user@example.com';
+const periodEndSeconds = 1800000000;
+
+const activeSub = {
+  id: 'sub_123',
+  status: 'active',
+  cancel_at_period_end: false,
+  current_period_end: periodEndSeconds,
+};
+
+describe('SubscriptionService.findActiveStripeSubscriptions', () => {
+  let stripe: StripeMock;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    stripe = buildStripeMock();
+    (getStripe as jest.Mock).mockReturnValue(stripe);
+    (getDatabase as jest.Mock).mockReturnValue(buildDbMock());
+    (getDefaultEmailService as jest.Mock).mockReturnValue({});
+  });
+
+  it('returns active subscriptions for the user email', async () => {
+    stripe.customers.list.mockResolvedValue({
+      data: [{ id: 'cus_1', email }],
+    });
+    stripe.subscriptions.list.mockResolvedValue({ data: [activeSub] });
+
+    const result = await SubscriptionService.findActiveStripeSubscriptions(email);
+
+    expect(stripe.customers.list).toHaveBeenCalledWith({
+      email,
+      limit: 10,
+    });
+    expect(stripe.subscriptions.list).toHaveBeenCalledWith({
+      customer: 'cus_1',
+      status: 'active',
+      limit: 10,
+    });
+    expect(result).toEqual([activeSub]);
+  });
+
+  it('returns an empty array when Stripe has no customer for the email', async () => {
+    stripe.customers.list.mockResolvedValue({ data: [] });
+
+    const result = await SubscriptionService.findActiveStripeSubscriptions(email);
+
+    expect(result).toEqual([]);
+    expect(stripe.subscriptions.list).not.toHaveBeenCalled();
+  });
+
+  it('also looks up subscriptions under linked Stripe emails', async () => {
+    (getDatabase as jest.Mock).mockReturnValue(
+      buildDbMock([{ email: 'stripe@example.com' }])
+    );
+    stripe.customers.list
+      .mockResolvedValueOnce({ data: [] })
+      .mockResolvedValueOnce({ data: [{ id: 'cus_2', email: 'stripe@example.com' }] });
+    stripe.subscriptions.list.mockResolvedValue({ data: [activeSub] });
+
+    const result = await SubscriptionService.findActiveStripeSubscriptions(email);
+
+    expect(stripe.customers.list).toHaveBeenCalledWith({
+      email: 'stripe@example.com',
+      limit: 10,
+    });
+    expect(result).toEqual([activeSub]);
+  });
+
+  it('dedupes subscriptions returned under multiple customers', async () => {
+    stripe.customers.list.mockResolvedValue({
+      data: [
+        { id: 'cus_1', email },
+        { id: 'cus_2', email },
+      ],
+    });
+    stripe.subscriptions.list.mockResolvedValue({ data: [activeSub] });
+
+    const result = await SubscriptionService.findActiveStripeSubscriptions(email);
+
+    expect(result).toHaveLength(1);
+  });
+});
+
+describe('SubscriptionService.findRecentStripeSubscriptions', () => {
+  let stripe: StripeMock;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    stripe = buildStripeMock();
+    (getStripe as jest.Mock).mockReturnValue(stripe);
+    (getDatabase as jest.Mock).mockReturnValue(buildDbMock());
+    (getDefaultEmailService as jest.Mock).mockReturnValue({});
+  });
+
+  it('returns subscriptions with any status from Stripe', async () => {
+    const canceled = {
+      id: 'sub_old',
+      status: 'canceled',
+      cancel_at_period_end: false,
+      current_period_end: periodEndSeconds,
+      canceled_at: periodEndSeconds - 100,
+    };
+    stripe.customers.list.mockResolvedValue({
+      data: [{ id: 'cus_1', email }],
+    });
+    stripe.subscriptions.list.mockResolvedValue({
+      data: [activeSub, canceled],
+    });
+
+    const result = await SubscriptionService.findRecentStripeSubscriptions(
+      email
+    );
+
+    expect(stripe.subscriptions.list).toHaveBeenCalledWith({
+      customer: 'cus_1',
+      status: 'all',
+      limit: 10,
+    });
+    expect(result).toEqual([activeSub, canceled]);
+  });
+
+  it('returns empty array when Stripe has no customer for email', async () => {
+    stripe.customers.list.mockResolvedValue({ data: [] });
+
+    const result = await SubscriptionService.findRecentStripeSubscriptions(
+      email
+    );
+
+    expect(result).toEqual([]);
+  });
+});
+
+describe('SubscriptionService.cancelUserSubscriptions', () => {
+  let stripe: StripeMock;
+  let sendScheduledEmail: jest.Mock;
+  let sendCancelledEmail: jest.Mock;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    stripe = buildStripeMock();
+    (getStripe as jest.Mock).mockReturnValue(stripe);
+    (getDatabase as jest.Mock).mockReturnValue(buildDbMock());
+
+    sendScheduledEmail = jest.fn().mockResolvedValue(undefined);
+    sendCancelledEmail = jest.fn().mockResolvedValue(undefined);
+    (getDefaultEmailService as jest.Mock).mockReturnValue({
+      sendSubscriptionScheduledCancellationEmail: sendScheduledEmail,
+      sendSubscriptionCancelledEmail: sendCancelledEmail,
+    });
+
+    stripe.customers.list.mockResolvedValue({
+      data: [{ id: 'cus_1', email }],
+    });
+    stripe.subscriptions.list.mockResolvedValue({ data: [activeSub] });
+    stripe.subscriptions.update.mockResolvedValue({
+      ...activeSub,
+      cancel_at_period_end: true,
+    });
+  });
+
+  it('schedules cancellation at period end by default', async () => {
+    await SubscriptionService.cancelUserSubscriptions(email);
+
+    expect(stripe.subscriptions.update).toHaveBeenCalledWith('sub_123', {
+      cancel_at_period_end: true,
+    });
+    expect(stripe.subscriptions.cancel).not.toHaveBeenCalled();
+    expect(sendScheduledEmail).toHaveBeenCalledTimes(1);
+    expect(sendCancelledEmail).not.toHaveBeenCalled();
+  });
+
+  it('cancels immediately when mode is "immediate"', async () => {
+    await SubscriptionService.cancelUserSubscriptions(email, 'immediate');
+
+    expect(stripe.subscriptions.cancel).toHaveBeenCalledWith('sub_123');
+    expect(stripe.subscriptions.update).not.toHaveBeenCalled();
+    expect(sendCancelledEmail).toHaveBeenCalledTimes(1);
+    expect(sendScheduledEmail).not.toHaveBeenCalled();
+  });
+
+  it('marks the local DB subscription inactive on immediate cancel', async () => {
+    const db = buildDbMock();
+    (getDatabase as jest.Mock).mockReturnValue(db);
+
+    await SubscriptionService.cancelUserSubscriptions(email, 'immediate');
+
+    expect(db.updateSpy).toHaveBeenCalledWith({ active: false });
+  });
+
+  it('does not flip the DB active flag for period_end cancel', async () => {
+    const db = buildDbMock();
+    (getDatabase as jest.Mock).mockReturnValue(db);
+
+    await SubscriptionService.cancelUserSubscriptions(email, 'period_end');
+
+    expect(db.updateSpy).not.toHaveBeenCalled();
+  });
+
+  it('returns the count of processed subscriptions', async () => {
+    stripe.subscriptions.list.mockResolvedValue({
+      data: [activeSub, { ...activeSub, id: 'sub_456' }],
+    });
+
+    const result = await SubscriptionService.cancelUserSubscriptions(email);
+
+    expect(result).toBe(2);
+    expect(stripe.subscriptions.update).toHaveBeenCalledTimes(2);
+  });
+
+  it('returns 0 when Stripe has no active subscriptions', async () => {
+    stripe.subscriptions.list.mockResolvedValue({ data: [] });
+
+    const result = await SubscriptionService.cancelUserSubscriptions(email);
+
+    expect(result).toBe(0);
+    expect(stripe.subscriptions.update).not.toHaveBeenCalled();
+  });
+
+  it('propagates Stripe API errors', async () => {
+    stripe.subscriptions.update.mockRejectedValue(new Error('stripe is down'));
+
+    await expect(
+      SubscriptionService.cancelUserSubscriptions(email)
+    ).rejects.toThrow('stripe is down');
+  });
+});

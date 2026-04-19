@@ -4,6 +4,7 @@ import { homedir } from 'node:os';
 import path from 'node:path';
 
 import { CREATE_DECK_DIR, CREATE_DECK_SCRIPT_PATH, resolvePath } from '../constants';
+import { buildPythonExitError } from './buildPythonExitError';
 
 function tryCommand(command: string): boolean {
   try {
@@ -96,9 +97,12 @@ class CardGenerator {
 
       process.on('close', (code) => {
         if (code !== 0) {
-          const errorOutput = stderrData.join('').trim();
           return reject(
-            new Error(`Python script exited with code ${code}: ${errorOutput}`)
+            buildPythonExitError({
+              code,
+              stdout: stdoutData.join(''),
+              stderr: stderrData.join(''),
+            })
           );
         }
         const lastLine = stdoutData.join('').trim().split('\n').pop();

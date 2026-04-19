@@ -1,0 +1,86 @@
+import axios, { AxiosError } from 'axios';
+
+import { downloadMediaOrSkip } from './downloadMediaOrSkip';
+
+jest.mock('axios', () => {
+  const actual = jest.requireActual('axios');
+  return {
+    __esModule: true,
+    default: {
+      get: jest.fn(),
+      isAxiosError: actual.isAxiosError,
+    },
+  };
+});
+
+const mockedAxios = axios as jest.Mocked<typeof axios>;
+
+const makeAxiosError = (status: number): AxiosError => {
+  const err = new Error(
+    `Request failed with status code ${status}`
+  ) as AxiosError;
+  err.isAxiosError = true;
+  err.response = {
+    status,
+    statusText: '',
+    headers: {},
+    config: {} as never,
+    data: null,
+  };
+  return err;
+};
+
+describe('downloadMediaOrSkip', () => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+  });
+
+  test('returns axios response data on success', async () => {
+    const data = Buffer.from('fake bytes');
+    mockedAxios.get.mockResolvedValueOnce({ data });
+
+    const result = await downloadMediaOrSkip('https://example.test/asset.png');
+
+    expect(result).toBe(data);
+    expect(mockedAxios.get).toHaveBeenCalledWith(
+      'https://example.test/asset.png',
+      { responseType: 'arraybuffer' }
+    );
+  });
+
+  test('returns null and does not throw on 403 Forbidden', async () => {
+    mockedAxios.get.mockRejectedValueOnce(makeAxiosError(403));
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+    const result = await downloadMediaOrSkip('https://example.test/expired.png');
+
+    expect(result).toBeNull();
+    warn.mockRestore();
+  });
+
+  test('returns null on 404 Not Found', async () => {
+    mockedAxios.get.mockRejectedValueOnce(makeAxiosError(404));
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+    const result = await downloadMediaOrSkip('https://example.test/missing.png');
+
+    expect(result).toBeNull();
+    warn.mockRestore();
+  });
+
+  test('rethrows non-4xx axios errors', async () => {
+    mockedAxios.get.mockRejectedValueOnce(makeAxiosError(500));
+
+    await expect(
+      downloadMediaOrSkip('https://example.test/broken.png')
+    ).rejects.toThrow('Request failed with status code 500');
+  });
+
+  test('rethrows non-axios errors', async () => {
+    mockedAxios.get.mockRejectedValueOnce(new Error('socket hang up'));
+
+    await expect(
+      downloadMediaOrSkip('https://example.test/broken.png')
+    ).rejects.toThrow('socket hang up');
+  });
+});

@@ -7,7 +7,7 @@ import TokenRepository from '../data_layer/TokenRepository';
 import AuthenticationService from '../services/AuthenticationService';
 import { getDatabase } from '../data_layer';
 import UsersService from '../services/UsersService';
-import { useDefaultEmailService } from '../services/EmailService/EmailService';
+import { getDefaultEmailService } from '../services/EmailService/EmailService';
 
 const UserRouter = () => {
   const router = express.Router();
@@ -17,7 +17,7 @@ const UserRouter = () => {
     new UsersRepository(database)
   );
 
-  const emailService = useDefaultEmailService();
+  const emailService = getDefaultEmailService();
   const controller = new UsersController(
     new UsersService(new UsersRepository(database), emailService),
     authService
@@ -322,6 +322,45 @@ const UserRouter = () => {
    */
   router.post('/api/users/cancel-subscription', RequireAuthentication, (req, res) =>
     controller.cancelSubscription(req, res)
+  );
+
+  /**
+   * @swagger
+   * /api/users/subscription-status:
+   *   get:
+   *     summary: Get live subscription status from Stripe
+   *     description: Returns active subscriptions for the authenticated user, fetched directly from Stripe
+   *     tags: [Users]
+   *     security:
+   *       - bearerAuth: []
+   *       - cookieAuth: []
+   *     responses:
+   *       200:
+   *         description: Subscription status retrieved
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 subscriptions:
+   *                   type: array
+   *                   items:
+   *                     type: object
+   *                     properties:
+   *                       id:
+   *                         type: string
+   *                       status:
+   *                         type: string
+   *                       cancel_at_period_end:
+   *                         type: boolean
+   *                       current_period_end:
+   *                         type: integer
+   *                         nullable: true
+   *       401:
+   *         description: Authentication required
+   */
+  router.get('/api/users/subscription-status', RequireAuthentication, (req, res) =>
+    controller.getSubscriptionStatus(req, res)
   );
 
   /**

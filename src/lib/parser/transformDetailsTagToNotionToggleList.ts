@@ -1,10 +1,13 @@
+import type { CheerioAPI } from 'cheerio';
+import type { Element } from 'domhandler';
+
 export function transformDetailsTagToNotionToggleList(
-  dom: cheerio.Root,
-  details: cheerio.Element[]
-) {
+  dom: CheerioAPI,
+  details: Element[]
+): Element[] {
   return details.map((detail) => {
     const wrapper = dom('<ul class="toggle"><li></li></ul>');
     wrapper.find('li').append(dom(detail));
-    return wrapper[0];
+    return wrapper[0] as Element;
   });
 }

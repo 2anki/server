@@ -40,7 +40,8 @@ export class BuildDeckForJobUseCase {
     input: BuildDeckForJobUseCaseInput
   ): Promise<BuildDeckForJobUseCaseOutput> {
     const { bl, exporter, decks, ws, settings, storage, id, owner } = input;
-    // Filter out decks with no cards
+    await this.jobRepository.updateJobStatus(id, owner, 'step3_building_deck', '');
+
     const filteredDecks = decks.filter(
       (deck) => deck.cards && deck.cards.length > 0
     );

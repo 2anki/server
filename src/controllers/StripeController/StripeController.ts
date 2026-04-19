@@ -1,7 +1,7 @@
 import express from 'express';
 import { getIndexFileContents } from '../IndexController/getIndexFileContents';
 import { getDatabase } from '../../data_layer';
-import { useDefaultEmailService } from '../../services/EmailService/EmailService';
+import { getDefaultEmailService } from '../../services/EmailService/EmailService';
 import UsersRepository from '../../data_layer/UsersRepository';
 import UsersService from '../../services/UsersService';
 import TokenRepository from '../../data_layer/TokenRepository';
@@ -54,7 +54,7 @@ export class StripeController {
     }
 
     const database = getDatabase();
-    const emailService = useDefaultEmailService();
+    const emailService = getDefaultEmailService();
     const userRepository = new UsersRepository(database);
     const usersService = new UsersService(userRepository, emailService);
     const tokenRepository = new TokenRepository(database);
@@ -117,6 +117,6 @@ export class StripeController {
   }
 
   async cancelUserSubscriptions(userEmail: string): Promise<void> {
-    return SubscriptionService.cancelUserSubscriptions(userEmail);
+    await SubscriptionService.cancelUserSubscriptions(userEmail);
   }
 }

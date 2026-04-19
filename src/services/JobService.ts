@@ -27,6 +27,10 @@ class JobService {
     return this.repository.deleteJob(id, owner);
   }
 
+  findJobByObjectId(objectId: string, owner: string) {
+    return this.repository.findJobById(objectId, owner);
+  }
+
   async getAllStartedJobs(owner: string) {
     const jobs = await this.repository.getJobsByOwner(owner);
     return jobs.filter((job) => job.status === 'started');

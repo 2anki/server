@@ -2,7 +2,7 @@ import JobRepository from '../../data_layer/JobRepository';
 import ParserRules from '../../lib/parser/ParserRules';
 import { Knex } from 'knex';
 import getEmailFromOwner from '../../lib/User/getEmailFromOwner';
-import { useDefaultEmailService } from '../../services/EmailService/EmailService';
+import { getDefaultEmailService } from '../../services/EmailService/EmailService';
 
 export interface NotifyUserUseCaseInput {
   owner: string;
@@ -23,7 +23,7 @@ export class NotifyUserUseCase {
     console.debug('rules.email', rules.EMAIL_NOTIFICATION);
     // TODO: use UserRepository to get user email
     const email = await getEmailFromOwner(db, owner);
-    const emailService = useDefaultEmailService();
+    const emailService = getDefaultEmailService();
 
     // Notify for files bigger than 24MB or if email notifications are not enabled
     if (size > 24) {

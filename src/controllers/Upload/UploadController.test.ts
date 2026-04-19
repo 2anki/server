@@ -6,6 +6,7 @@ import NotionTokens from '../../data_layer/public/NotionTokens';
 import Uploads from '../../data_layer/public/Uploads';
 import NotionService from '../../services/NotionService';
 import UploadService from '../../services/UploadService';
+import JobRepository from '../../data_layer/JobRepository';
 import UploadController from './UploadController';
 
 describe('Upload file', () => {
@@ -48,7 +49,7 @@ describe('Upload file', () => {
         return Promise.resolve(true);
       },
     };
-    const uploadService = new UploadService(repository);
+    const uploadService = new UploadService(repository, {} as JobRepository);
     const notionService = new NotionService(notionRepository);
     const uploadController = new UploadController(uploadService, notionService);
 

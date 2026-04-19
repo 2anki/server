@@ -26,7 +26,11 @@ export default function renderTextChildren(
 
       if (isText(t)) {
         return ReactDOMServer.renderToStaticMarkup(
-          <>{HandleBlockAnnotations(t.annotations, t)}</>
+          <>
+            {HandleBlockAnnotations(t.annotations, t, {
+              noUnderline: settings.noUnderline,
+            })}
+          </>
         );
       }
 

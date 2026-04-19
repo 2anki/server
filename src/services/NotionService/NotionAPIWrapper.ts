@@ -19,6 +19,7 @@ import getBlockIcon, { WithIcon } from './blocks/getBlockIcon';
 import { isHeading } from './helpers/isHeading';
 import { getHeadingText } from './helpers/getHeadingText';
 import { getBlockCache } from './helpers/getBlockCache';
+import { uniqueTimerLabel } from './helpers/uniqueTimerLabel';
 import { getDatabase } from '../../data_layer';
 import { ValidNotionType } from './types';
 
@@ -55,9 +56,6 @@ class NotionAPIWrapper {
     all,
     type,
   }: GetBlockParams): Promise<ListBlockChildrenResponse> {
-    console.time(`getBlocks:${id}${all}`);
-
-    // Skip unsupported types to prevent validation errors
     if (type === 'unsupported') {
       return {
         type: 'block',
@@ -69,6 +67,9 @@ class NotionAPIWrapper {
       };
     }
 
+    const getBlocksLabel = uniqueTimerLabel(`getBlocks:${id}${all}`);
+    console.time(getBlocksLabel);
+
     const cachedPayload = all
       ? await getBlockCache({
           database: getDatabase(),
@@ -79,7 +80,7 @@ class NotionAPIWrapper {
       : null;
     if (cachedPayload) {
       console.log('using payload cache');
-      console.timeEnd(`getBlocks:${id}${all}`);
+      console.timeEnd(getBlocksLabel);
       return cachedPayload;
     }
     const response = await this.notion.blocks.children.list({
@@ -121,7 +122,7 @@ class NotionAPIWrapper {
         .onConflict('object_id')
         .merge();
     }
-    console.timeEnd(`getBlocks:${id}${all}`);
+    console.timeEnd(getBlocksLabel);
     return response;
   }
 
@@ -155,7 +156,8 @@ class NotionAPIWrapper {
     id: string,
     all?: boolean
   ): Promise<QueryDataSourceResponse> {
-    console.time(`queryDatabase:${id}${all}`);
+    const queryLabel = uniqueTimerLabel(`queryDatabase:${id}${all}`);
+    console.time(queryLabel);
 
     const database = await this.notion.databases.retrieve({ database_id: id });
     const dataSources = isFullDatabase(database) ? database.data_sources : [];
@@ -182,12 +184,13 @@ class NotionAPIWrapper {
       } while (cursor);
     }
 
-    console.timeEnd(`queryDatabase:${id}${all}`);
+    console.timeEnd(queryLabel);
     return aggregated;
   }
 
   async search(query: string, all?: boolean) {
-    console.time(`search:${all}`);
+    const searchLabel = uniqueTimerLabel(`search:${all}`);
+    console.time(searchLabel);
     const response = await this.notion.search({
       page_size: DEFAULT_PAGE_SIZE_LIMIT,
       query,
@@ -217,7 +220,7 @@ class NotionAPIWrapper {
       }
     }
 
-    console.timeEnd(`search:${all}`);
+    console.timeEnd(searchLabel);
     return response;
   }
 
