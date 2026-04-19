@@ -4,7 +4,10 @@ import performConversion from '../lib/storage/jobs/helpers/performConversion';
 import CardOption from '../lib/parser/Settings';
 import BlockHandler from '../services/NotionService/BlockHandler/BlockHandler';
 import CustomExporter from '../lib/parser/exporters/CustomExporter';
-import { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';
+import {
+  BlockObjectResponse,
+  PageObjectResponse,
+} from '@notionhq/client/build/src/api-endpoints';
 import Workspace from '../lib/parser/WorkSpace';
 import { blockToStaticMarkup } from '../services/NotionService/helpers/blockToStaticMarkup';
 import {
@@ -12,14 +15,17 @@ import {
   renderBlockPreview,
   renderBlockSummary,
 } from '../services/NotionService/helpers/renderBlockPreview';
-import { isFullBlock, isFullPage } from '@notionhq/client';
-import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
+import {
+  APIErrorCode,
+  APIResponseError,
+  isFullBlock,
+  isFullPage,
+} from '@notionhq/client';
 import { getNotionObjectTitle } from 'get-notion-object-title';
 import NotionService from '../services/NotionService';
 import { getDatabase } from '../data_layer';
 import { getNotionId } from '../services/NotionService/getNotionId';
 import { getOwner } from '../lib/User/getOwner';
-import { APIErrorCode, APIResponseError } from '@notionhq/client';
 import sendErrorResponse from '../lib/sendErrorResponse';
 import { isPaying } from '../lib/isPaying';
 
@@ -27,11 +33,58 @@ const DEFAULT_PREVIEW_PAGE_SIZE = 15;
 const MAX_PREVIEW_PAGE_SIZE = 50;
 
 function clampPageSize(input: unknown): number {
-  const parsed = Number.parseInt(String(input ?? ''), 10);
+  const raw = typeof input === 'string' ? input : '';
+  const parsed = Number.parseInt(raw, 10);
   if (!Number.isFinite(parsed) || parsed <= 0) {
     return DEFAULT_PREVIEW_PAGE_SIZE;
   }
   return Math.min(parsed, MAX_PREVIEW_PAGE_SIZE);
+}
+
+interface PreviewBlockPayload {
+  id: string;
+  type: string;
+  hasChildren: boolean;
+  canExpand: boolean;
+  html: string;
+  summaryHtml?: string;
+}
+
+function toPreviewBlock(block: BlockObjectResponse): PreviewBlockPayload {
+  const canExpand = isExpandable(block);
+  return {
+    id: block.id,
+    type: block.type,
+    hasChildren: block.has_children === true,
+    canExpand,
+    html: canExpand ? '' : renderBlockPreview(block),
+    summaryHtml: canExpand ? renderBlockSummary(block) : undefined,
+  };
+}
+
+type NotionAPI = Awaited<ReturnType<NotionService['getNotionAPI']>>;
+
+async function lookupPageMeta(
+  api: NotionAPI,
+  id: string
+): Promise<{ pageTitle: string; pageUrl: string | null } | null> {
+  try {
+    const page = await api.getPage(id);
+    if (!page || !isFullPage(page as PageObjectResponse)) return null;
+    const full = page as PageObjectResponse;
+    return {
+      pageTitle: getNotionObjectTitle(full, { emoji: true }),
+      pageUrl: full.url ?? null,
+    };
+  } catch (err) {
+    if (
+      err instanceof APIResponseError &&
+      err.code === APIErrorCode.ValidationError
+    ) {
+      return null;
+    }
+    throw err;
+  }
 }
 
 class NotionController {
@@ -238,7 +291,7 @@ class NotionController {
     if (!rawId) {
       return res.status(400).json({ message: 'Missing page id.' });
     }
-    const id = getNotionId(rawId) ?? rawId.replace(/-/g, '');
+    const id = getNotionId(rawId) ?? rawId.replaceAll('-', '');
 
     const pageSize = clampPageSize(req.query.page_size);
     const startCursor =
@@ -256,17 +309,7 @@ class NotionController {
 
       const blocks = response.results
         .filter((block): block is BlockObjectResponse => isFullBlock(block))
-        .map((block) => {
-          const canExpand = isExpandable(block);
-          return {
-            id: block.id,
-            type: block.type,
-            hasChildren: block.has_children === true,
-            canExpand,
-            html: canExpand ? '' : renderBlockPreview(block),
-            summaryHtml: canExpand ? renderBlockSummary(block) : undefined,
-          };
-        });
+        .map(toPreviewBlock);
 
       const payload: Record<string, unknown> = {
         blocks,
@@ -275,23 +318,8 @@ class NotionController {
       };
 
       if (!startCursor && !parentIsBlock) {
-        try {
-          const page = await api.getPage(id);
-          if (page && isFullPage(page as PageObjectResponse)) {
-            payload.pageTitle = getNotionObjectTitle(
-              page as PageObjectResponse,
-              { emoji: true }
-            );
-            payload.pageUrl = (page as PageObjectResponse).url ?? null;
-          }
-        } catch (pageError) {
-          if (
-            !(pageError instanceof APIResponseError) ||
-            pageError.code !== APIErrorCode.ValidationError
-          ) {
-            throw pageError;
-          }
-        }
+        const meta = await lookupPageMeta(api, id);
+        if (meta) Object.assign(payload, meta);
       }
 
       res.json(payload);
