@@ -17,7 +17,7 @@ class CustomExporter {
     this.media = [];
   }
 
-  addMedia(newName: string, contents: string) {
+  addMedia(newName: string, contents: string | Buffer) {
     console.debug(`Adding media: ${newName}`);
     const abs = path.join(this.workspace, newName);
     this.media.push(abs);
