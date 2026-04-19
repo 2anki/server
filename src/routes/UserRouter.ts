@@ -326,6 +326,45 @@ const UserRouter = () => {
 
   /**
    * @swagger
+   * /api/users/subscription-status:
+   *   get:
+   *     summary: Get live subscription status from Stripe
+   *     description: Returns active subscriptions for the authenticated user, fetched directly from Stripe
+   *     tags: [Users]
+   *     security:
+   *       - bearerAuth: []
+   *       - cookieAuth: []
+   *     responses:
+   *       200:
+   *         description: Subscription status retrieved
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 subscriptions:
+   *                   type: array
+   *                   items:
+   *                     type: object
+   *                     properties:
+   *                       id:
+   *                         type: string
+   *                       status:
+   *                         type: string
+   *                       cancel_at_period_end:
+   *                         type: boolean
+   *                       current_period_end:
+   *                         type: integer
+   *                         nullable: true
+   *       401:
+   *         description: Authentication required
+   */
+  router.get('/api/users/subscription-status', RequireAuthentication, (req, res) =>
+    controller.getSubscriptionStatus(req, res)
+  );
+
+  /**
+   * @swagger
    * /api/users/debug/locals:
    *   get:
    *     summary: Get debug information

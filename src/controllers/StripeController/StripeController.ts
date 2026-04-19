@@ -117,6 +117,6 @@ export class StripeController {
   }
 
   async cancelUserSubscriptions(userEmail: string): Promise<void> {
-    return SubscriptionService.cancelUserSubscriptions(userEmail);
+    await SubscriptionService.cancelUserSubscriptions(userEmail);
   }
 }

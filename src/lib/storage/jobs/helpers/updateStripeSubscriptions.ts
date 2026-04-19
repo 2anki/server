@@ -2,6 +2,7 @@ import { getStripe } from '../../../integrations/stripe';
 import { getDatabase } from '../../../../data_layer';
 import { Knex } from 'knex';
 import Stripe from 'stripe';
+import { reconcileActiveSubscriptions } from './reconcileActiveSubscriptions';
 
 const stripe = getStripe();
 const database = getDatabase();
@@ -252,6 +253,9 @@ async function updateStripeSubscriptions(): Promise<void> {
       startingAfter = pagination.startingAfter;
     }
 
+    console.info('Forward sync from Stripe completed successfully');
+
+    await reconcileActiveSubscriptions(database, stripe);
     console.info('Subscription sync completed successfully');
   } catch (error) {
     console.error('Error in updateStripeSubscriptions:', error);
