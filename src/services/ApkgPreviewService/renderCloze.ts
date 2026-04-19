@@ -1,4 +1,7 @@
-const CLOZE_REGEX = /\{\{c(\d+)::([^}]*?)(?:::([^}]*?))?\}\}/g;
+// Operates on note field content stored in the .apkg SQLite — already
+// authenticated-user-scoped and bounded by Anki's export size. The
+// negated `[^}]` classes can't backtrack across the closing `}}`.
+const CLOZE_REGEX = /\{\{c(\d+)::([^}]*?)(?:::([^}]*?))?\}\}/g; // NOSONAR
 
 export type ClozeSide = 'front' | 'back';
 
