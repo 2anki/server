@@ -5,28 +5,33 @@ import AuthenticationService from '../../services/AuthenticationService';
 import { getDatabase } from '../../data_layer';
 import { configureUserLocal } from './configureUserLocal';
 
+async function attachUserLocals(req: express.Request, res: express.Response) {
+  const database = getDatabase();
+  const authService = new AuthenticationService(
+    new TokenRepository(database),
+    new UsersRepository(database)
+  );
+  await configureUserLocal(req, res, authService, database);
+}
+
+export const OptionalAuthentication = async (
+  req: express.Request,
+  res: express.Response,
+  next: NextFunction
+) => {
+  await attachUserLocals(req, res);
+  return next();
+};
+
 const RequireAuthentication = async (
   req: express.Request,
   res: express.Response,
   next: NextFunction
 ) => {
-  const shouldDebug = req.query.debug === 'true';
-  if (shouldDebug)
-    console.info('RequireAuthentication: Starting authentication check');
-
-  const database = getDatabase();
-  if (shouldDebug) console.debug('RequireAuthentication: Database initialized');
-
-  const authService = new AuthenticationService(
-    new TokenRepository(database),
-    new UsersRepository(database)
-  );
-  if (shouldDebug) console.debug('RequireAuthentication: Auth service created');
-
-  await configureUserLocal(req, res, authService, database);
-  if (shouldDebug)
-    console.debug('RequireAuthentication: User local configured');
-
+  await attachUserLocals(req, res);
+  if (!res.locals.owner) {
+    return res.status(401).json({ message: 'Authentication required' });
+  }
   return next();
 };
 
