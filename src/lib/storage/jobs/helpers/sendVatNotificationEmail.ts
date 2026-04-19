@@ -1,11 +1,11 @@
-import { useDefaultEmailService } from '../../../../services/EmailService/EmailService';
+import { getDefaultEmailService } from '../../../../services/EmailService/EmailService';
 import { getStripe } from '../../../integrations/stripe';
 import Stripe from 'stripe';
 
 const stripe = getStripe();
 
 const sendVatNotificationEmail = async () => {
-  const emailService = useDefaultEmailService();
+  const emailService = getDefaultEmailService();
   let hasMore = true;
   let startingAfter: string | undefined = undefined;
 

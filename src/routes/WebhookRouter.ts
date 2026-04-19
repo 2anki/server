@@ -9,7 +9,7 @@ import {
 import { getDatabase } from '../data_layer';
 import { StripeController } from '../controllers/StripeController/StripeController';
 import UsersRepository from '../data_layer/UsersRepository';
-import { useDefaultEmailService } from '../services/EmailService/EmailService';
+import { getDefaultEmailService } from '../services/EmailService/EmailService';
 
 const WebhooksRouter = () => {
   const router = express.Router();
@@ -97,7 +97,7 @@ const WebhooksRouter = () => {
             const cancelDate = new Date(
               customerSubscriptionUpdated.current_period_end * 1000
             );
-            const emailService = useDefaultEmailService();
+            const emailService = getDefaultEmailService();
             if ('email' in customer) {
               // Log the scheduled cancellation for debugging purposes
               console.info(
@@ -133,7 +133,7 @@ const WebhooksRouter = () => {
             );
 
             if ('email' in customerDeleted) {
-              const emailService = useDefaultEmailService();
+              const emailService = getDefaultEmailService();
               await emailService.sendSubscriptionCancelledEmail(
                 customerDeleted.email!,
                 customerDeleted.name || 'there',
