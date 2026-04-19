@@ -49,6 +49,9 @@ const ALLOWED_ATTRS: sanitizeHtml.IOptions['allowedAttributes'] = {
   '*': ['class', 'style', 'dir', 'lang'],
   a: ['href', 'target', 'rel'],
   img: ['src', 'alt', 'width', 'height', 'loading'],
+  audio: ['src', 'controls', 'preload'],
+  video: ['src', 'controls', 'preload', 'poster', 'width', 'height'],
+  source: ['src', 'type'],
   td: ['colspan', 'rowspan'],
   th: ['colspan', 'rowspan', 'scope'],
 };

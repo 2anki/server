@@ -22,6 +22,12 @@ const ApkgRouter = () => {
     controller.getCards(req, res)
   );
 
+  router.get(
+    '/api/apkg/:key/media/:name',
+    RequireAuthentication,
+    (req, res) => controller.getMedia(req, res)
+  );
+
   return router;
 };
 
