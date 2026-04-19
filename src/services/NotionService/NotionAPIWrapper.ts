@@ -5,7 +5,7 @@ import {
   GetDatabaseResponse,
   GetPageResponse,
   ListBlockChildrenResponse,
-  QueryDatabaseResponse,
+  QueryDataSourceResponse,
   SearchResponse,
 } from '@notionhq/client/build/src/api-endpoints';
 import { getNotionObjectTitle } from 'get-notion-object-title';
@@ -154,30 +154,36 @@ class NotionAPIWrapper {
   async queryDatabase(
     id: string,
     all?: boolean
-  ): Promise<QueryDatabaseResponse> {
+  ): Promise<QueryDataSourceResponse> {
     console.time(`queryDatabase:${id}${all}`);
-    const response = await this.notion.databases.query({
-      database_id: id,
-      page_size: DEFAULT_PAGE_SIZE_LIMIT,
-    });
 
-    if (all && response.has_more && response.next_cursor) {
-      while (true) {
-        const res2: QueryDatabaseResponse = await this.notion.databases.query({
-          database_id: id,
+    const database = await this.notion.databases.retrieve({ database_id: id });
+    const dataSources = isFullDatabase(database) ? database.data_sources : [];
+
+    const aggregated: QueryDataSourceResponse = {
+      object: 'list',
+      type: 'page_or_data_source',
+      page_or_data_source: {},
+      results: [],
+      next_cursor: null,
+      has_more: false,
+    };
+
+    for (const dataSource of dataSources) {
+      let cursor: string | null = null;
+      do {
+        const response = await this.notion.dataSources.query({
+          data_source_id: dataSource.id,
           page_size: DEFAULT_PAGE_SIZE_LIMIT,
-          start_cursor: response.next_cursor!,
+          ...(cursor ? { start_cursor: cursor } : {}),
         });
-        response.results.push(...res2.results);
-        if (res2.next_cursor) {
-          response.next_cursor = res2.next_cursor;
-        } else {
-          break;
-        }
-      }
+        aggregated.results.push(...response.results);
+        cursor = all && response.has_more ? response.next_cursor : null;
+      } while (cursor);
     }
+
     console.timeEnd(`queryDatabase:${id}${all}`);
-    return response;
+    return aggregated;
   }
 
   async search(query: string, all?: boolean) {

@@ -2,7 +2,7 @@ import {
   GetBlockResponse,
   GetPageResponse,
   ListBlockChildrenResponse,
-  QueryDatabaseResponse,
+  QueryDataSourceResponse,
 } from '@notionhq/client/build/src/api-endpoints';
 import NotionAPIWrapper, { GetBlockParams } from '../NotionAPIWrapper';
 import dataMockPath from './helpers/dataMockPath';
@@ -56,14 +56,14 @@ export default class MockNotionAPI extends NotionAPIWrapper {
   async queryDatabase(
     id: string,
     all?: boolean
-  ): Promise<QueryDatabaseResponse> {
-    if (mockDataExists('QueryDatabaseResponse', id)) {
+  ): Promise<QueryDataSourceResponse> {
+    if (mockDataExists('QueryDataSourceResponse', id)) {
       return getPayload(
-        dataMockPath('QueryDatabaseResponse', id)
-      ) as QueryDatabaseResponse;
+        dataMockPath('QueryDataSourceResponse', id)
+      ) as QueryDataSourceResponse;
     }
     const query = await super.queryDatabase(id, all);
-    savePayload(dataMockPath('QueryDatabaseResponse', id), query);
+    savePayload(dataMockPath('QueryDataSourceResponse', id), query);
     return query;
   }
   // do we need to mock search?
