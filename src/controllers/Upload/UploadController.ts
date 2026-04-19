@@ -20,7 +20,7 @@ class UploadController {
     const { key } = req.params;
 
     if (!key) {
-      return res.status(400).send();
+      return res.status(400).json({ message: 'Missing upload key.' });
     }
 
     try {
@@ -29,10 +29,12 @@ class UploadController {
     } catch (error) {
       console.info('Delete upload failed');
       console.error(error);
-      return res.status(500).send();
+      return res
+        .status(500)
+        .json({ message: 'Failed to delete upload. Please try again.' });
     }
 
-    return res.status(200).send();
+    return res.status(200).json({});
   }
 
   async getUploads(_req: express.Request, res: express.Response) {
@@ -43,7 +45,9 @@ class UploadController {
     } catch (error) {
       console.info('Get uploads failed');
       console.error(error);
-      res.status(400);
+      res
+        .status(500)
+        .json({ message: 'Failed to load uploads. Please try again.' });
     }
   }
 
@@ -61,7 +65,10 @@ class UploadController {
     } catch (error) {
       console.info('Upload file failed');
       console.error(error);
-      res.status(400);
+      res.status(400).json({
+        message:
+          'Failed to process the upload. Please try a different file or contact support.',
+      });
     }
   }
 

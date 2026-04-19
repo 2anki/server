@@ -54,14 +54,23 @@ describe('Upload file', () => {
     const uploadController = new UploadController(uploadService, notionService);
 
     // Act
-    const setHTTPStatusCode = (code: number) => expect(code).toBe(400);
+    const jsonSpy = jest.fn();
+    let capturedStatus = 0;
 
     // Assert
     uploadController.file(
       {} as express.Request,
       {
-        status: (code) => setHTTPStatusCode(code),
-      } as express.Response
+        status: (code: number) => {
+          capturedStatus = code;
+          return { json: jsonSpy } as unknown as express.Response;
+        },
+      } as unknown as express.Response
+    );
+
+    expect(capturedStatus).toBe(400);
+    expect(jsonSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ message: expect.any(String) })
     );
   });
 });
