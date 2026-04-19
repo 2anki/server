@@ -1,4 +1,4 @@
-import cheerio from 'cheerio';
+import type { CheerioAPI } from 'cheerio';
 
 /**
  * Extracts the styles from the page and removes formatting issues.
@@ -8,7 +8,7 @@ import cheerio from 'cheerio';
  *
  * @param page
  */
-export function extractStyles(page: cheerio.Root) {
+export function extractStyles(page: CheerioAPI) {
   let style = page('style').html();
   if (!style) {
     return null;

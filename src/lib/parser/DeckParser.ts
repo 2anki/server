@@ -1,4 +1,5 @@
 import * as cheerio from 'cheerio';
+import type { Element } from 'domhandler';
 
 import preserveNewlinesIfApplicable from '../../services/NotionService/helpers/preserveNewlinesIfApplicable';
 import sanitizeTags from '../anki/sanitizeTags';
@@ -48,7 +49,7 @@ function hasNestedBullets(content: string | undefined): boolean {
 }
 
 export class DeckParser {
-  globalTags: cheerio.Cheerio | null;
+  globalTags: cheerio.Cheerio<Element> | null;
 
   firstDeckName: string;
 
@@ -144,7 +145,7 @@ export class DeckParser {
     return note.name.includes(avocado) || note.name.includes('🥑');
   }
 
-  findIndentedToggleLists(dom: cheerio.Root): cheerio.Element[] {
+  findIndentedToggleLists(dom: cheerio.CheerioAPI): Element[] {
     const selector = '.page-body > details';
     return dom(selector).toArray();
   }
@@ -230,7 +231,7 @@ export class DeckParser {
     return dom.html();
   }
 
-  getFirstHeadingText(dom: cheerio.Root) {
+  getFirstHeadingText(dom: cheerio.CheerioAPI) {
     try {
       const firstHeading = dom('h1').first();
       return firstHeading.text();
@@ -311,7 +312,7 @@ export class DeckParser {
     return decks;
   }
 
-  private extractGlobalTags(dom: cheerio.Root) {
+  private extractGlobalTags(dom: cheerio.CheerioAPI) {
     return dom('.page-body > p > del');
   }
 
@@ -405,7 +406,7 @@ export class DeckParser {
         if (!deletions) {
           continue;
         }
-        deletions.each((_i: number, elem: cheerio.Element) => {
+        deletions.each((_i: number, elem: Element) => {
           const del = dom(elem);
           card.tags.push(...sanitizeTags(del.text().split(',')));
           card.back = replaceAll(card.back, `<del>${del.html()}</del>`, '');
@@ -586,14 +587,14 @@ export class DeckParser {
     );
   }
 
-  private loadAndNormalizeDOM(contents: string): { dom: cheerio.Root; isNewFormat: boolean } {
+  private loadAndNormalizeDOM(contents: string): { dom: cheerio.CheerioAPI; isNewFormat: boolean } {
     const dom = this.loadDOM(contents);
     const isNewFormat = this.hasNotionNewExportFormat(dom);
     this.normalizeNotionNewExportFormat(dom);
     return { dom, isNewFormat };
   }
 
-  private normalizeNotionNewExportFormat(dom: cheerio.Root): void {
+  private normalizeNotionNewExportFormat(dom: cheerio.CheerioAPI): void {
     if (!this.hasNotionNewExportFormat(dom)) {
       return;
     }
@@ -606,14 +607,14 @@ export class DeckParser {
     this.flattenDisplayContentsElements(dom);
   }
 
-  private preserveNestedTogglesBeforeFlattening(dom: cheerio.Root): void {
+  private preserveNestedTogglesBeforeFlattening(dom: cheerio.CheerioAPI): void {
     dom('[style*="display:contents"] ul.toggle > li > details').each((_, details) => {
       const $details = dom(details);
       this.processNestedTogglesDepthFirst($details, dom);
     });
   }
 
-  private processNestedTogglesDepthFirst($details: cheerio.Cheerio, dom: cheerio.Root): void {
+  private processNestedTogglesDepthFirst($details: cheerio.Cheerio<Element>, dom: cheerio.CheerioAPI): void {
     $details.find('[style*="display:contents"]').each((_, displayContents) => {
       const $displayContents = dom(displayContents);
       const $nestedUl = $displayContents.children('ul.toggle').first();
@@ -658,11 +659,11 @@ export class DeckParser {
     });
   }
 
-  private hasNotionNewExportFormat(dom: cheerio.Root): boolean {
+  private hasNotionNewExportFormat(dom: cheerio.CheerioAPI): boolean {
     return dom('[style*="display:contents"]').length > 0;
   }
 
-  private flattenDisplayContentsElements(dom: cheerio.Root): void {
+  private flattenDisplayContentsElements(dom: cheerio.CheerioAPI): void {
     dom('[style*="display:contents"]').each((_, el) => {
       const $el = dom(el);
       $el.replaceWith($el.contents());
@@ -670,8 +671,8 @@ export class DeckParser {
   }
 
   private removeEmptyDisplayContentsElements(
-    $container: cheerio.Cheerio,
-    dom: cheerio.Root
+    $container: cheerio.Cheerio<Element>,
+    dom: cheerio.CheerioAPI
   ): void {
     $container.find('div[style*="display:contents"]').each((_, divEl) => {
       if (dom(divEl).is(':empty')) {
@@ -680,7 +681,7 @@ export class DeckParser {
     });
   }
 
-  private extractCoverImage(dom: cheerio.Root) {
+  private extractCoverImage(dom: cheerio.CheerioAPI) {
     const pageCoverImage = dom('.page-cover-image');
     if (pageCoverImage) {
       return pageCoverImage.attr('src');
@@ -688,22 +689,22 @@ export class DeckParser {
     return undefined;
   }
 
-  private extractPageIcon(dom: cheerio.Root) {
+  private extractPageIcon(dom: cheerio.CheerioAPI) {
     const pageIcon = dom('.page-header-icon > .icon');
     return pageIcon.html();
   }
 
-  private extractToggleLists(dom: cheerio.Root) {
+  private extractToggleLists(dom: cheerio.CheerioAPI): Element[] {
     const foundToggleLists = findNotionToggleLists(dom, {
       isCherry: this.settings.isCherry,
       isAll: false,
       disableIndentedBulletPoints: this.settings.disableIndentedBulletPoints,
     });
 
-    const details = dom('details').toArray();
+    const details: Element[] = dom('details').toArray();
 
     // Remove duplicate toggles caused by merged ul.toggle
-    const uniqueToggles = [];
+    const uniqueToggles: Element[] = [];
     const seen = new Set();
     for (const t of foundToggleLists) {
       const id = dom(t).attr('id') || dom(t).html();
@@ -725,7 +726,7 @@ export class DeckParser {
     ];
   }
 
-  private extractCards(dom: cheerio.Root, toggleList: cheerio.Element[], isNewFormat: boolean = false) {
+  private extractCards(dom: cheerio.CheerioAPI, toggleList: Element[], isNewFormat: boolean = false) {
     let cards: Note[] = [];
     const pageId = dom('article').attr('id');
 
@@ -812,13 +813,13 @@ export class DeckParser {
     return cards;
   }
 
-  private extractCardsFromParagraph(dom: cheerio.Root) {
+  private extractCardsFromParagraph(dom: cheerio.CheerioAPI) {
     const paragraphs = dom('p').toArray();
     return paragraphs.map((p) => new Note(dom(p).html() ?? '', ''));
   }
 
   private extractCardsFromLists(
-    dom: cheerio.Root,
+    dom: cheerio.CheerioAPI,
     disableIndentedBullets: boolean
   ) {
     const cards: Note[] = [];
