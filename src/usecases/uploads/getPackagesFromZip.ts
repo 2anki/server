@@ -1,4 +1,3 @@
-import { Body } from 'aws-sdk/clients/s3';
 import CardOption from '../../lib/parser/Settings/CardOption';
 import { ZipHandler } from '../../lib/zip/zip';
 import { PrepareDeck } from '../../infrastracture/adapters/fileConversion/PrepareDeck';
@@ -13,7 +12,7 @@ import { getRelevantFiles } from './getRelevantFiles';
 import { enableMarkdownForMarkdownUploads } from './enableMarkdownForMarkdownUploads';
 
 export const getPackagesFromZip = async (
-  fileContents: Body | undefined,
+  fileContents: Buffer | Uint8Array | string | undefined,
   paying: boolean,
   settings: CardOption,
   workspace: Workspace,

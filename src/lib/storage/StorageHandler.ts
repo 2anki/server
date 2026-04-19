@@ -1,14 +1,20 @@
-import aws from 'aws-sdk';
-import { ObjectList } from 'aws-sdk/clients/s3';
+import {
+  S3Client,
+  DeleteObjectCommand,
+  GetObjectCommand,
+  ListObjectsCommand,
+  PutObjectCommand,
+  PutObjectCommandOutput,
+  _Object,
+} from '@aws-sdk/client-s3';
 
 class StorageHandler {
-  s3: aws.S3;
+  s3: S3Client;
 
   constructor() {
-    // Set S3 endpoint to DigitalOcean Spaces
-    const spacesEndpoint = new aws.Endpoint(process.env.SPACES_ENDPOINT!);
-    this.s3 = new aws.S3({
-      endpoint: spacesEndpoint,
+    this.s3 = new S3Client({
+      endpoint: process.env.SPACES_ENDPOINT,
+      region: process.env.SPACES_REGION ?? 'us-east-1',
     });
   }
 
@@ -34,11 +40,13 @@ class StorageHandler {
   }
 
   async delete(key: string): Promise<boolean> {
-    const { s3 } = this;
     try {
-      await s3
-        .deleteObject({ Bucket: StorageHandler.DefaultBucketName(), Key: key })
-        .promise();
+      await this.s3.send(
+        new DeleteObjectCommand({
+          Bucket: StorageHandler.DefaultBucketName(),
+          Key: key,
+        })
+      );
       return true;
     } catch (err) {
       console.info('Delete file failed');
@@ -47,77 +55,63 @@ class StorageHandler {
     }
   }
 
-  getContents(maxKeys: number = 1000): Promise<ObjectList | undefined> {
-    const { s3 } = this;
+  async getContents(maxKeys: number = 1000): Promise<_Object[] | undefined> {
     console.debug('getting max', maxKeys, 'keys');
-    return new Promise(async (resolve, reject) => {
-      const files = [];
-      try {
-        let hasMore = true;
-        while (hasMore) {
-          const objects = await s3
-            .listObjects({
-              Bucket: StorageHandler.DefaultBucketName(),
-              MaxKeys: maxKeys,
-            })
-            .promise();
-          if (objects.Contents) {
-            files.push(...objects.Contents);
-          }
-          hasMore = files.length < maxKeys && Boolean(objects.IsTruncated);
+    const files: _Object[] = [];
+    try {
+      let hasMore = true;
+      while (hasMore) {
+        const objects = await this.s3.send(
+          new ListObjectsCommand({
+            Bucket: StorageHandler.DefaultBucketName(),
+            MaxKeys: maxKeys,
+          })
+        );
+        if (objects.Contents) {
+          files.push(...objects.Contents);
         }
-      } catch (err) {
-        if (err) {
-          console.info('Get contents failed');
-          console.error(err);
-          return reject(err);
-        }
+        hasMore = files.length < maxKeys && Boolean(objects.IsTruncated);
       }
-      console.debug('recieved', files.length, 'keys');
-      resolve(files);
-    });
+    } catch (err) {
+      console.info('Get contents failed');
+      console.error(err);
+      throw err;
+    }
+    console.debug('recieved', files.length, 'keys');
+    return files;
   }
 
-  getFileContents(key: string): Promise<aws.S3.GetObjectOutput> {
-    const { s3 } = this;
-    return new Promise<aws.S3.GetObjectOutput>((resolve, reject) => {
-      s3.getObject(
-        { Bucket: StorageHandler.DefaultBucketName(), Key: key },
-        (err, data) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(data);
-          }
-        }
-      );
-    });
+  async getFileContents(key: string): Promise<{ Body: Buffer }> {
+    const response = await this.s3.send(
+      new GetObjectCommand({
+        Bucket: StorageHandler.DefaultBucketName(),
+        Key: key,
+      })
+    );
+    if (!response.Body) {
+      return { Body: Buffer.alloc(0) };
+    }
+    const bytes = await response.Body.transformToByteArray();
+    return { Body: Buffer.from(bytes) };
   }
 
-  uploadFile(
+  async uploadFile(
     name: string,
     data: Buffer | string
-  ): Promise<aws.S3.PutObjectOutput> {
-    const { s3 } = this;
-
-    return new Promise<aws.S3.PutObjectOutput>((resolve, reject) => {
-      s3.putObject(
-        {
+  ): Promise<PutObjectCommandOutput> {
+    try {
+      return await this.s3.send(
+        new PutObjectCommand({
           Bucket: StorageHandler.DefaultBucketName(),
           Key: name,
           Body: data,
-        },
-        (err, response) => {
-          if (err) {
-            console.info('Upload file failed');
-            console.error(err);
-            reject(err);
-          } else {
-            resolve(response);
-          }
-        }
+        })
       );
-    });
+    } catch (err) {
+      console.info('Upload file failed');
+      console.error(err);
+      throw err;
+    }
   }
 }
 
