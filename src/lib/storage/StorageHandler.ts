@@ -15,13 +15,39 @@ function resolveSpacesEndpoint(): string | undefined {
   return `https://${raw}`;
 }
 
+// Derive the region from a DigitalOcean Spaces hostname when the env
+// var is missing. DO Spaces endpoints are always <region>.digitalocean
+// spaces.com, so `fra1.digitaloceanspaces.com` → `fra1`.
+function regionFromEndpoint(endpoint: string | undefined): string | null {
+  if (!endpoint) return null;
+  try {
+    const { hostname } = new URL(endpoint);
+    const match = /^([a-z0-9-]+)\.digitaloceanspaces\.com$/i.exec(hostname);
+    return match?.[1] ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function resolveSpacesRegion(endpoint: string | undefined): string {
+  const fromEnv = process.env.SPACES_REGION?.trim();
+  if (fromEnv) return fromEnv;
+  const fromEndpoint = regionFromEndpoint(endpoint);
+  if (fromEndpoint) return fromEndpoint;
+  throw new Error(
+    'Storage region is not configured. Set SPACES_REGION or use a ' +
+      'DigitalOcean Spaces endpoint (e.g. fra1.digitaloceanspaces.com).'
+  );
+}
+
 class StorageHandler {
   s3: S3Client;
 
   constructor() {
+    const endpoint = resolveSpacesEndpoint();
     this.s3 = new S3Client({
-      endpoint: resolveSpacesEndpoint(),
-      region: process.env.SPACES_REGION ?? 'us-east-1',
+      endpoint,
+      region: resolveSpacesRegion(endpoint),
     });
   }
 
