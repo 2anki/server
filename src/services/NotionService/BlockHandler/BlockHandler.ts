@@ -7,7 +7,6 @@ import {
   ImageBlockObjectResponse,
   ListBlockChildrenResponse,
   PageObjectResponse,
-  ToggleBlockObjectResponse,
 } from '@notionhq/client/build/src/api-endpoints';
 import axios from 'axios';
 
@@ -170,19 +169,17 @@ class BlockHandler {
       
       // Handle toggle blocks (including toggle-headings) specially for
       // flashcard extraction: front = the summary rich_text, back = children
-      const fullBlock = isFullBlock(block)
-        ? (block as BlockObjectResponse)
-        : null;
+      const fullBlock = isFullBlock(block) ? block : null;
       const toggleSummary = fullBlock
         ? getToggleSummaryRichText(fullBlock)
         : null;
-      if (toggleSummary) {
+      if (fullBlock && toggleSummary) {
         // Always preserve newlines in toggle summaries by converting \n to <br />
         name = renderTextChildren(toggleSummary, this.settings).replaceAll(
           '\n',
           '<br />'
         );
-        back = await this.getBackSide(fullBlock!);
+        back = await this.getBackSide(fullBlock);
       } else {
         // For non-toggle blocks, use the existing logic
         name = await blockToStaticMarkup(
