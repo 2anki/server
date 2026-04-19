@@ -50,13 +50,21 @@ export interface RenderedCard {
   ord: number;
   templateName: string;
   deckName: string;
+  deckPath: string[];
   noteTypeName: string;
   css: string;
   front: string;
   back: string;
 }
 
+export interface DeckMeta {
+  id: number;
+  fullName: string;
+  path: string[];
+  cardCount: number;
+}
+
 export interface PreviewMeta {
   totalCards: number;
-  deckNames: string[];
+  decks: DeckMeta[];
 }
