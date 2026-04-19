@@ -51,7 +51,7 @@ export default async function performConversion(
     const hasInProgressJob = await checkInProgress.execute(id, owner);
     if (!hasInProgressJob) {
       console.log(`job ${id} was not started. Job is already active.`);
-      return res ? res.redirect('/uploads') : null;
+      return res ? res.redirect('/downloads') : null;
     }
 
     const checkLimit = new CheckJobLimitUseCase(jobRepository);
@@ -66,7 +66,7 @@ export default async function performConversion(
         owner,
         reason: 'You have reached the limit of free jobs. Max 1 at a time.',
       });
-      return res ? res.redirect('/uploads') : null;
+      return res ? res.redirect('/downloads') : null;
     }
 
     console.log(`job ${id} is not active, starting`);

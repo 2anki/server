@@ -30,7 +30,7 @@ class DownloadController {
       console.error(error);
       if (this.service.isMissingDownloadError(error)) {
         this.service.deleteMissingFile(owner, key);
-        res.redirect('/uploads');
+        res.redirect('/downloads');
       } else {
         console.info('Download failed');
         console.error(error);
