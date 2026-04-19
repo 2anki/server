@@ -2,18 +2,18 @@ import {
   GetBlockResponse,
   GetPageResponse,
   ListBlockChildrenResponse,
-  QueryDatabaseResponse,
+  QueryDataSourceResponse,
 } from '@notionhq/client/build/src/api-endpoints';
 
 export type Mock =
   | 'ListBlockChildrenResponse'
   | 'GetPageResponse'
   | 'GetDatabaseResponse'
-  | 'QueryDatabaseResponse'
+  | 'QueryDataSourceResponse'
   | 'GetBlockResponse';
 
 export type Payload =
   | ListBlockChildrenResponse
   | GetPageResponse
   | GetBlockResponse
-  | QueryDatabaseResponse;
+  | QueryDataSourceResponse;
