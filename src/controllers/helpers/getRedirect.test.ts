@@ -10,22 +10,23 @@ const createMockRequest = (redirectParam?: string): Request => {
 
 describe('getRedirect security tests', () => {
   describe('should return safe default for missing redirect', () => {
-    it('should return /search when no redirect param', () => {
+    it('should return /notion when no redirect param', () => {
       const req = createMockRequest();
-      expect(getRedirect(req)).toBe('/search');
+      expect(getRedirect(req)).toBe('/notion');
     });
 
-    it('should return /search when redirect param is undefined', () => {
+    it('should return /notion when redirect param is undefined', () => {
       const req = createMockRequest(undefined);
-      expect(getRedirect(req)).toBe('/search');
+      expect(getRedirect(req)).toBe('/notion');
     });
   });
 
   describe('should allow valid internal paths', () => {
     const validPaths = [
+      '/notion',
       '/search',
       '/upload',
-      '/downloads', 
+      '/downloads',
       '/favorites',
       '/templates',
       '/pricing',
@@ -60,7 +61,7 @@ describe('getRedirect security tests', () => {
     maliciousUrls.forEach(url => {
       it(`should block malicious URL: ${url}`, () => {
         const req = createMockRequest(url);
-        expect(getRedirect(req)).toBe('/search');
+        expect(getRedirect(req)).toBe('/notion');
       });
     });
   });
@@ -95,7 +96,7 @@ describe('getRedirect security tests', () => {
     invalidPaths.forEach(path => {
       it(`should block invalid internal path: ${path}`, () => {
         const req = createMockRequest(path);
-        expect(getRedirect(req)).toBe('/search');
+        expect(getRedirect(req)).toBe('/notion');
       });
     });
   });
@@ -103,17 +104,17 @@ describe('getRedirect security tests', () => {
   describe('should handle edge cases', () => {
     it('should block empty string', () => {
       const req = createMockRequest('');
-      expect(getRedirect(req)).toBe('/search');
+      expect(getRedirect(req)).toBe('/notion');
     });
 
     it('should block invalid URL formats', () => {
       const req = createMockRequest('not-a-url');
-      expect(getRedirect(req)).toBe('/search');
+      expect(getRedirect(req)).toBe('/notion');
     });
 
     it('should block non-HTTPS external URLs (except localhost)', () => {
       const req = createMockRequest('http://2anki.net');
-      expect(getRedirect(req)).toBe('/search');
+      expect(getRedirect(req)).toBe('/notion');
     });
   });
 });

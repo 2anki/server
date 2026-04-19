@@ -2,6 +2,7 @@ import { Request } from 'express';
 import { ALLOWED_ORIGINS } from '../../lib/constants';
 
 const ALLOWED_REDIRECT_PATHS = [
+  '/notion',
   '/search',
   '/upload',
   '/downloads',
@@ -53,7 +54,7 @@ export const getRedirect = (req: Request): string => {
   const redirectParam = req.query.redirect?.toString();
 
   if (!redirectParam) {
-    return '/search';
+    return '/notion';
   }
 
   if (isValidRedirectUrl(redirectParam)) {
@@ -61,5 +62,5 @@ export const getRedirect = (req: Request): string => {
   }
 
   // If redirect URL is not valid, return safe default
-  return '/search';
+  return '/notion';
 };
