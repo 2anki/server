@@ -20,6 +20,7 @@ import { isHeading } from './helpers/isHeading';
 import { getHeadingText } from './helpers/getHeadingText';
 import { getBlockCache } from './helpers/getBlockCache';
 import { uniqueTimerLabel } from './helpers/uniqueTimerLabel';
+import { withRetry } from './helpers/withRetry';
 import { getDatabase } from '../../data_layer';
 import { ValidNotionType } from './types';
 
@@ -46,7 +47,9 @@ class NotionAPIWrapper {
   }
 
   getPage(id: string): Promise<GetPageResponse | null> {
-    return this.notion.pages.retrieve({ page_id: id });
+    return withRetry(() => this.notion.pages.retrieve({ page_id: id }), {
+      label: 'pages.retrieve',
+    });
   }
 
   async getBlocks({
@@ -83,19 +86,27 @@ class NotionAPIWrapper {
       console.timeEnd(getBlocksLabel);
       return cachedPayload;
     }
-    const response = await this.notion.blocks.children.list({
-      block_id: id,
-      page_size: DEFAULT_PAGE_SIZE_LIMIT,
-    });
+    const response = await withRetry(
+      () =>
+        this.notion.blocks.children.list({
+          block_id: id,
+          page_size: DEFAULT_PAGE_SIZE_LIMIT,
+        }),
+      { label: 'blocks.children.list' }
+    );
     console.log('received', response.results.length, 'blocks');
 
     if (all && response.has_more && response.next_cursor) {
       while (true) {
         const { results, next_cursor: nextCursor }: ListBlockChildrenResponse =
-          await this.notion.blocks.children.list({
-            block_id: id,
-            start_cursor: response.next_cursor!,
-          });
+          await withRetry(
+            () =>
+              this.notion.blocks.children.list({
+                block_id: id,
+                start_cursor: response.next_cursor!,
+              }),
+            { label: 'blocks.children.list:page' }
+          );
         console.log('found more', results.length, 'blocks');
         response.results.push(...results);
         if (nextCursor) {
@@ -127,9 +138,10 @@ class NotionAPIWrapper {
   }
 
   getBlock(id: string): Promise<GetBlockResponse> {
-    return this.notion.blocks.retrieve({
-      block_id: id,
-    });
+    return withRetry(
+      () => this.notion.blocks.retrieve({ block_id: id }),
+      { label: 'blocks.retrieve' }
+    );
   }
 
   deleteBlock(id: string): Promise<GetBlockResponse> {
@@ -149,7 +161,10 @@ class NotionAPIWrapper {
   }
 
   getDatabase(id: string): Promise<GetDatabaseResponse> {
-    return this.notion.databases.retrieve({ database_id: id });
+    return withRetry(
+      () => this.notion.databases.retrieve({ database_id: id }),
+      { label: 'databases.retrieve' }
+    );
   }
 
   async queryDatabase(
@@ -159,7 +174,10 @@ class NotionAPIWrapper {
     const queryLabel = uniqueTimerLabel(`queryDatabase:${id}${all}`);
     console.time(queryLabel);
 
-    const database = await this.notion.databases.retrieve({ database_id: id });
+    const database = await withRetry(
+      () => this.notion.databases.retrieve({ database_id: id }),
+      { label: 'databases.retrieve:queryDatabase' }
+    );
     const dataSources = isFullDatabase(database) ? database.data_sources : [];
 
     const aggregated: QueryDataSourceResponse = {
@@ -174,11 +192,15 @@ class NotionAPIWrapper {
     for (const dataSource of dataSources) {
       let cursor: string | null = null;
       do {
-        const response = await this.notion.dataSources.query({
-          data_source_id: dataSource.id,
-          page_size: DEFAULT_PAGE_SIZE_LIMIT,
-          ...(cursor ? { start_cursor: cursor } : {}),
-        });
+        const response = await withRetry(
+          () =>
+            this.notion.dataSources.query({
+              data_source_id: dataSource.id,
+              page_size: DEFAULT_PAGE_SIZE_LIMIT,
+              ...(cursor ? { start_cursor: cursor } : {}),
+            }),
+          { label: 'dataSources.query' }
+        );
         aggregated.results.push(...response.results);
         cursor = all && response.has_more ? response.next_cursor : null;
       } while (cursor);
@@ -191,26 +213,34 @@ class NotionAPIWrapper {
   async search(query: string, all?: boolean) {
     const searchLabel = uniqueTimerLabel(`search:${all}`);
     console.time(searchLabel);
-    const response = await this.notion.search({
-      page_size: DEFAULT_PAGE_SIZE_LIMIT,
-      query,
-      sort: {
-        direction: 'descending',
-        timestamp: 'last_edited_time',
-      },
-    });
-
-    if (all && response.has_more && response.next_cursor) {
-      while (true) {
-        const res2: SearchResponse = await this.notion.search({
+    const response = await withRetry(
+      () =>
+        this.notion.search({
           page_size: DEFAULT_PAGE_SIZE_LIMIT,
           query,
-          start_cursor: response.next_cursor!,
           sort: {
             direction: 'descending',
             timestamp: 'last_edited_time',
           },
-        });
+        }),
+      { label: 'search' }
+    );
+
+    if (all && response.has_more && response.next_cursor) {
+      while (true) {
+        const res2: SearchResponse = await withRetry(
+          () =>
+            this.notion.search({
+              page_size: DEFAULT_PAGE_SIZE_LIMIT,
+              query,
+              start_cursor: response.next_cursor!,
+              sort: {
+                direction: 'descending',
+                timestamp: 'last_edited_time',
+              },
+            }),
+          { label: 'search:page' }
+        );
         response.results.push(...res2.results);
         if (res2.next_cursor) {
           response.next_cursor = res2.next_cursor;
