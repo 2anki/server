@@ -12,10 +12,12 @@ export interface TemplateSpecials {
 const TAG_REGEX =
   /\{\{([#^/])?([a-zA-Z][a-zA-Z0-9_-]*:)?([^{}]+?)\}\}/g;
 
+const FURIGANA_REGEX = /([^\s[\]]+)\[([^[\]]+)\]/g;
+
 function stripHtml(input: string): string {
   return input
-    .replace(/<br\s*\/?>/gi, ' ')
-    .replace(/<[^>]+>/g, '')
+    .replaceAll(/<br\b[^>]*>/gi, ' ')
+    .replaceAll(/<[^>]+>/g, '')
     .trim();
 }
 
@@ -39,11 +41,11 @@ function applyFieldModifier(
     case 'type':
       return `<span class="typed-answer">${stripHtml(value)}</span>`;
     case 'furigana':
-      return value.replace(/([^\s\[\]]+?)\[([^\[\]]+?)\]/g, '$1');
+      return value.replaceAll(FURIGANA_REGEX, '$1');
     case 'kanji':
-      return value.replace(/([^\s\[\]]+?)\[([^\[\]]+?)\]/g, '$1');
+      return value.replaceAll(FURIGANA_REGEX, '$1');
     case 'kana':
-      return value.replace(/([^\s\[\]]+?)\[([^\[\]]+?)\]/g, '$2');
+      return value.replaceAll(FURIGANA_REGEX, '$2');
     case 'cloze':
       return value;
     default:

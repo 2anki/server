@@ -1,4 +1,5 @@
 import Database from 'better-sqlite3';
+import crypto from 'crypto';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
@@ -29,7 +30,7 @@ interface LegacyDeckJson {
 function writeTempDb(buffer: Buffer): string {
   const tempPath = path.join(
     os.tmpdir(),
-    `apkg-${Date.now()}-${Math.random().toString(36).slice(2)}.sqlite`
+    `apkg-${Date.now()}-${crypto.randomUUID()}.sqlite`
   );
   fs.writeFileSync(tempPath, buffer);
   return tempPath;
