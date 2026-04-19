@@ -148,14 +148,40 @@ const WebhooksRouter = () => {
 
           const LIFE_TIME_PRICE = 9600;
           if (amount >= LIFE_TIME_PRICE) {
-            const lifeTimeCustomer = await stripe.customers.retrieve(
-              // @ts-ignore
-              getCustomerId(session.customer)
-            );
+            try {
+              const lifeTimeCustomer = await stripe.customers.retrieve(
+                // @ts-ignore
+                getCustomerId(session.customer)
+              );
+              const lifeTimeEmail =
+                'email' in lifeTimeCustomer ? lifeTimeCustomer.email : null;
 
-            const users = new UsersRepository(getDatabase());
-            // @ts-ignore
-            await users.updatePatreonByEmail(lifeTimeCustomer.email, true);
+              if (!lifeTimeEmail) {
+                console.error(
+                  `[webhook] checkout.session.completed: lifetime customer ${lifeTimeCustomer.id} has no email; quota not unlocked`
+                );
+              } else {
+                const users = new UsersRepository(getDatabase());
+                const rowsAffected = await users.updatePatreonByEmail(
+                  lifeTimeEmail,
+                  true
+                );
+                if (rowsAffected === 0) {
+                  console.error(
+                    `[webhook] checkout.session.completed: no user row matched email=${lifeTimeEmail} for lifetime purchase; quota NOT unlocked. Check for email casing or whitespace mismatch.`
+                  );
+                } else {
+                  console.info(
+                    `[webhook] checkout.session.completed: unlocked lifetime access for email=${lifeTimeEmail} (${rowsAffected} row(s) updated)`
+                  );
+                }
+              }
+            } catch (error) {
+              console.error(
+                '[webhook] checkout.session.completed: failed to unlock lifetime access',
+                error
+              );
+            }
           }
           console.log('checkout.session.completed');
           break;
