@@ -32,6 +32,7 @@ import swaggerRouter from './routes/SwaggerRouter';
 
 import { getDatabase, setupDatabase } from './data_layer';
 import JobRepository from './data_layer/JobRepository';
+import { updateStripeSubscriptions } from './lib/storage/jobs/helpers/updateStripeSubscriptions';
 
 function registerSignalHandlers(server: http.Server) {
   process.on('uncaughtException', (error) => {
@@ -110,6 +111,13 @@ const serve = async () => {
   const interruptedCount = await new JobRepository(database).markInterruptedClaudeJobs();
   if (interruptedCount > 0) {
     console.info(`[startup] Marked ${interruptedCount} Claude job(s) as interrupted`);
+  }
+
+  if (process.env.STRIPE_SYNC_ON_STARTUP === 'true') {
+    console.info('[startup] Running Stripe subscription sync in background');
+    updateStripeSubscriptions().catch((error) => {
+      console.error('[startup] Stripe subscription sync failed:', error);
+    });
   }
 };
 

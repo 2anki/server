@@ -256,16 +256,20 @@ class UsersController {
     }
 
     try {
-      // Get user details before deletion to access email for subscription cancellation
       const user = await this.userService.getUserById(owner);
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
       }
 
-      // Cancel active Stripe subscriptions using SubscriptionService
-      await SubscriptionService.cancelUserSubscriptions(user.email);
+      try {
+        await SubscriptionService.cancelUserSubscriptions(user.email);
+      } catch (cancelError) {
+        console.error(
+          'Subscription cancellation failed during account deletion:',
+          cancelError
+        );
+      }
 
-      // Delete the user account
       await this.userService.deleteUser(owner);
       res.status(200).json({});
     } catch (error) {
@@ -281,21 +285,81 @@ class UsersController {
       return res.status(401).json({ message: 'Authentication required' });
     }
 
+    const requestedMode = req.body?.mode === 'immediate' ? 'immediate' : 'period_end';
+
     try {
-      // Get user details to access email for subscription cancellation
       const user = await this.userService.getUserById(owner);
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
       }
 
-      // Cancel active Stripe subscriptions using SubscriptionService
-      await SubscriptionService.cancelUserSubscriptions(user.email);
+      const processedCount = await SubscriptionService.cancelUserSubscriptions(
+        user.email,
+        requestedMode
+      );
 
-      res.status(200).json({ message: 'Subscription cancelled successfully' });
+      if (processedCount === 0) {
+        return res.status(404).json({
+          message:
+            'No active subscription found for your account. If you subscribed with a different email, link it under Subscription Management first or email support@2anki.net.',
+        });
+      }
+
+      const message =
+        requestedMode === 'immediate'
+          ? 'Your subscription has been cancelled. A confirmation email is on its way.'
+          : 'Your subscription is scheduled to cancel at the end of the current billing period. A confirmation email is on its way.';
+
+      res.status(200).json({ message });
     } catch (error) {
       console.info('Cancel subscription failed');
       console.error(error);
       return res.status(500).json({ message: 'Failed to cancel subscription' });
+    }
+  }
+
+  async getSubscriptionStatus(req: express.Request, res: express.Response) {
+    const { owner } = res.locals;
+    if (!owner) {
+      return res.status(401).json({ message: 'Authentication required' });
+    }
+
+    try {
+      const user = await this.userService.getUserById(owner);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+
+      const subs = await SubscriptionService.findRecentStripeSubscriptions(
+        user.email
+      );
+
+      const subscriptions = subs.map((sub) => {
+        const firstItem = sub.items?.data?.[0];
+        const price = firstItem?.price;
+        return {
+          id: sub.id,
+          status: sub.status,
+          cancel_at_period_end: sub.cancel_at_period_end === true,
+          current_period_end: sub.current_period_end ?? null,
+          canceled_at: sub.canceled_at ?? null,
+          plan: price
+            ? {
+                amount: price.unit_amount ?? null,
+                currency: price.currency ?? null,
+                interval: price.recurring?.interval ?? null,
+              }
+            : null,
+        };
+      });
+
+      res.status(200).json({ subscriptions });
+    } catch (error) {
+      console.info('Get subscription status failed');
+      console.error(error);
+      return res
+        .status(500)
+        .json({ message: 'Failed to load subscription status' });
     }
   }
 
