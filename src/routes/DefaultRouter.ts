@@ -56,7 +56,7 @@ const DefaultRouter = () => {
    *             schema:
    *               $ref: '#/components/schemas/Error'
    */
-  router.get('/search', async (req, res) => {
+  router.get(['/notion', '/search'], async (req, res) => {
     const isLoggedIn = await ensureIsLoggedIn(req, res);
     if (!isLoggedIn) {
       return;

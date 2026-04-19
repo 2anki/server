@@ -93,17 +93,17 @@ class NotionController {
   async connect(req: Request, res: Response) {
     const { code } = req.query;
     if (!code) {
-      return res.redirect('/search');
+      return res.redirect('/notion');
     }
 
     try {
       const authorizationCode = code as string;
       await this.service.connectToNotion(authorizationCode, res.locals.owner);
-      return res.redirect('/search');
+      return res.redirect('/notion');
     } catch (err) {
       console.info('Connect to Notion failed');
       console.error(err);
-      return res.redirect('/search');
+      return res.redirect('/notion');
     }
   }
 
