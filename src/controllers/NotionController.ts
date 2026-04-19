@@ -245,6 +245,7 @@ class NotionController {
       typeof req.query.cursor === 'string' && req.query.cursor.length > 0
         ? req.query.cursor
         : undefined;
+    const parentIsBlock = req.query.parent === 'block';
 
     try {
       const api = await this.service.getNotionAPI(res.locals.owner);
@@ -273,14 +274,23 @@ class NotionController {
         hasMore: response.has_more,
       };
 
-      if (!startCursor) {
-        const page = await api.getPage(id);
-        if (page && isFullPage(page as PageObjectResponse)) {
-          payload.pageTitle = getNotionObjectTitle(
-            page as PageObjectResponse,
-            { emoji: true }
-          );
-          payload.pageUrl = (page as PageObjectResponse).url ?? null;
+      if (!startCursor && !parentIsBlock) {
+        try {
+          const page = await api.getPage(id);
+          if (page && isFullPage(page as PageObjectResponse)) {
+            payload.pageTitle = getNotionObjectTitle(
+              page as PageObjectResponse,
+              { emoji: true }
+            );
+            payload.pageUrl = (page as PageObjectResponse).url ?? null;
+          }
+        } catch (pageError) {
+          if (
+            !(pageError instanceof APIResponseError) ||
+            pageError.code !== APIErrorCode.ValidationError
+          ) {
+            throw pageError;
+          }
         }
       }
 
