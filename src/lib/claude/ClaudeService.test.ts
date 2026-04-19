@@ -1,6 +1,7 @@
 import {
   looksLikeEmptyContentExplanation,
   EMPTY_CONTENT_USER_MESSAGE,
+  rewriteAudioAnchors,
 } from './ClaudeService';
 
 describe('looksLikeEmptyContentExplanation', () => {
@@ -30,6 +31,66 @@ describe('looksLikeEmptyContentExplanation', () => {
 
   it('does not match an empty JSON array', () => {
     expect(looksLikeEmptyContentExplanation('[]')).toBe(false);
+  });
+});
+
+describe('rewriteAudioAnchors', () => {
+  it('replaces an mp3 anchor with a [sound:] token and lists the filename', () => {
+    const { back, audioFilenames } = rewriteAudioAnchors(
+      '<p>Listen: <a href="pronunciation.mp3">play</a></p>'
+    );
+    expect(audioFilenames).toEqual(['pronunciation.mp3']);
+    expect(back).toContain('[sound:pronunciation.mp3]');
+    expect(back).not.toContain('<a href');
+  });
+
+  it('strips the wrapping <figure> when present', () => {
+    const { back } = rewriteAudioAnchors(
+      '<figure><a href="word.ogg">🔊</a><figcaption>word</figcaption></figure>'
+    );
+    expect(back).not.toContain('<figure');
+    expect(back).not.toContain('<a');
+    expect(back).toContain('[sound:word.ogg]');
+  });
+
+  it('deduplicates if the same file is referenced twice on one card', () => {
+    const { audioFilenames, back } = rewriteAudioAnchors(
+      '<a href="a.mp3">x</a><a href="a.mp3">y</a>'
+    );
+    expect(audioFilenames).toEqual(['a.mp3']);
+    expect(back.match(/\[sound:a\.mp3\]/g)).toHaveLength(1);
+  });
+
+  it('leaves http(s) audio links alone', () => {
+    const input = '<a href="https://example.com/hello.mp3">play</a>';
+    const { back, audioFilenames } = rewriteAudioAnchors(input);
+    expect(audioFilenames).toEqual([]);
+    expect(back).toContain(input);
+  });
+
+  it('decodes URL-encoded filenames before emitting the sound token', () => {
+    const { back, audioFilenames } = rewriteAudioAnchors(
+      '<a href="my%20word.m4a">play</a>'
+    );
+    expect(audioFilenames).toEqual(['my word.m4a']);
+    expect(back).toContain('[sound:my word.m4a]');
+  });
+
+  it('supports ogg, wav, flac, m4a, aac, opus', () => {
+    const exts = ['ogg', 'wav', 'flac', 'm4a', 'aac', 'opus'];
+    for (const ext of exts) {
+      const { audioFilenames } = rewriteAudioAnchors(
+        `<a href="clip.${ext}">x</a>`
+      );
+      expect(audioFilenames).toEqual([`clip.${ext}`]);
+    }
+  });
+
+  it('does nothing when the card has no audio links', () => {
+    const input = '<p>No audio here</p><img src="x.png"/>';
+    const { back, audioFilenames } = rewriteAudioAnchors(input);
+    expect(audioFilenames).toEqual([]);
+    expect(back).toBe(input);
   });
 });
 
