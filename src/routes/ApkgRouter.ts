@@ -14,14 +14,119 @@ const ApkgRouter = () => {
   const controller = new ApkgController(downloadService, previewService);
   const router = express.Router();
 
+  /**
+   * @swagger
+   * /api/apkg/{key}/meta:
+   *   get:
+   *     summary: Get .apkg preview metadata
+   *     description: Returns the total card count and the list of decks (with card counts) for a user-owned .apkg upload.
+   *     tags: [Apkg Preview]
+   *     security:
+   *       - bearerAuth: []
+   *       - cookieAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: key
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: S3 object key of the upload
+   *     responses:
+   *       200:
+   *         description: Preview metadata
+   *       400:
+   *         description: Not an .apkg upload
+   *       401:
+   *         description: Authentication required
+   *       404:
+   *         description: Upload not found
+   */
   router.get('/api/apkg/:key/meta', RequireAuthentication, (req, res) =>
     controller.getMeta(req, res)
   );
 
+  /**
+   * @swagger
+   * /api/apkg/{key}/cards:
+   *   get:
+   *     summary: Get a page of rendered .apkg cards
+   *     description: Returns a paginated, server-rendered (sanitised HTML + note-type CSS) slice of the deck. Optionally filtered by deck id.
+   *     tags: [Apkg Preview]
+   *     security:
+   *       - bearerAuth: []
+   *       - cookieAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: key
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: S3 object key of the upload
+   *       - in: query
+   *         name: cursor
+   *         schema:
+   *           type: integer
+   *         description: Zero-based index to resume from; omit for the first page.
+   *       - in: query
+   *         name: page_size
+   *         schema:
+   *           type: integer
+   *         description: Number of cards per page (1–100, default 20).
+   *       - in: query
+   *         name: deck_id
+   *         schema:
+   *           type: integer
+   *         description: Restrict to cards belonging to this deck id.
+   *     responses:
+   *       200:
+   *         description: Rendered cards page
+   *       400:
+   *         description: Not an .apkg upload
+   *       401:
+   *         description: Authentication required
+   *       404:
+   *         description: Upload not found
+   */
   router.get('/api/apkg/:key/cards', RequireAuthentication, (req, res) =>
     controller.getCards(req, res)
   );
 
+  /**
+   * @swagger
+   * /api/apkg/{key}/media/{name}:
+   *   get:
+   *     summary: Serve a media file bundled inside an .apkg upload
+   *     description: Streams bytes for the named file (by its original filename from the media manifest) with a best-effort Content-Type.
+   *     tags: [Apkg Preview]
+   *     security:
+   *       - bearerAuth: []
+   *       - cookieAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: key
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: S3 object key of the upload
+   *       - in: path
+   *         name: name
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: Original filename as referenced by the card content
+   *     responses:
+   *       200:
+   *         description: File bytes
+   *         content:
+   *           application/octet-stream:
+   *             schema:
+   *               type: string
+   *               format: binary
+   *       401:
+   *         description: Authentication required
+   *       404:
+   *         description: Media not found in archive
+   */
   router.get(
     '/api/apkg/:key/media/:name',
     RequireAuthentication,
