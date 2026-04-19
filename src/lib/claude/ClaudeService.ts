@@ -139,6 +139,43 @@ function stripPathsFromCardHtml(html: string): string {
   return body.length ? body.html() ?? html : html;
 }
 
+const AUDIO_EXTENSIONS = /\.(mp3|ogg|oga|opus|wav|flac|m4a|aac)$/i;
+
+function isLocalAudioHref(href: string): boolean {
+  if (!href) return false;
+  if (href.startsWith('http://') || href.startsWith('https://')) return false;
+  return AUDIO_EXTENSIONS.test(href);
+}
+
+interface AudioRewriteResult {
+  back: string;
+  audioFilenames: string[];
+}
+
+export function rewriteAudioAnchors(back: string): AudioRewriteResult {
+  const $ = cheerio.load(back);
+  const audioFilenames: string[] = [];
+  let mutated = false;
+  $('a[href]').each((_, el) => {
+    const href = $(el).attr('href') ?? '';
+    if (!isLocalAudioHref(href)) return;
+    const filename = decodeURIComponent(href).split('/').pop() ?? href;
+    if (!audioFilenames.includes(filename)) audioFilenames.push(filename);
+    const figure = $(el).closest('figure');
+    if (figure.length) {
+      figure.remove();
+    } else {
+      $(el).remove();
+    }
+    mutated = true;
+  });
+  if (!mutated) return { back, audioFilenames };
+  const body = $('body');
+  const stripped = body.length ? body.html() ?? back : back;
+  const tokens = audioFilenames.map((name) => `[sound:${name}]`).join('');
+  return { back: stripped + tokens, audioFilenames };
+}
+
 function expandCompactDeckInfo(compact: CompactDeck[], availableMediaFiles: string[], style: string | null): DeckInfo[] {
   return compact.map((d) => ({
     name: d.deck,
@@ -152,17 +189,29 @@ function expandCompactDeckInfo(compact: CompactDeck[], availableMediaFiles: stri
       inputModelName: 'n2a-input',
       useNotionId: true,
     },
-    cards: d.cards.map((c) => ({
-      name: stripPathsFromCardHtml(c.q),
-      back: stripPathsFromCardHtml(c.a),
-      tags: c.tags ?? [],
-      cloze: c.cloze ?? false,
-      number: 0,
-      enableInput: false,
-      answer: '',
-      notionId: deterministicId(c.q),
-      media: (c.media ?? []).map((m) => resolveMediaPath(m, availableMediaFiles)),
-    })),
+    cards: d.cards.map((c) => {
+      const { back: rewrittenBack, audioFilenames } = rewriteAudioAnchors(
+        stripPathsFromCardHtml(c.a)
+      );
+      const declaredMedia = (c.media ?? []).map((m) =>
+        resolveMediaPath(m, availableMediaFiles)
+      );
+      const audioMedia = audioFilenames.map((name) =>
+        resolveMediaPath(name, availableMediaFiles)
+      );
+      const media = Array.from(new Set([...declaredMedia, ...audioMedia]));
+      return {
+        name: stripPathsFromCardHtml(c.q),
+        back: rewrittenBack,
+        tags: c.tags ?? [],
+        cloze: c.cloze ?? false,
+        number: 0,
+        enableInput: false,
+        answer: '',
+        notionId: deterministicId(c.q),
+        media,
+      };
+    }),
   }));
 }
 
