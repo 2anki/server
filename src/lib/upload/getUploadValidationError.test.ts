@@ -71,4 +71,10 @@ describe('getUploadValidationError', () => {
     );
     expect(error).toBeNull();
   });
+
+  test('does not throw if a file arrives with a non-string originalname', () => {
+    const suspect = makeFile({ size: 1024 });
+    (suspect as unknown as { originalname: unknown }).originalname = 42;
+    expect(() => getUploadValidationError([suspect])).not.toThrow();
+  });
 });
