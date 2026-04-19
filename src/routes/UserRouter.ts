@@ -1,6 +1,8 @@
 import express from 'express';
 
-import RequireAuthentication from './middleware/RequireAuthentication';
+import RequireAuthentication, {
+  OptionalAuthentication,
+} from './middleware/RequireAuthentication';
 import UsersController from '../controllers/UsersControllers';
 import UsersRepository from '../data_layer/UsersRepository';
 import TokenRepository from '../data_layer/TokenRepository';
@@ -388,7 +390,7 @@ const UserRouter = () => {
    *             schema:
    *               $ref: '#/components/schemas/Error'
    */
-  router.get('/api/users/debug/locals', RequireAuthentication, (req, res) =>
+  router.get('/api/users/debug/locals', OptionalAuthentication, (req, res) =>
     controller.getLocals(req, res)
   );
 
