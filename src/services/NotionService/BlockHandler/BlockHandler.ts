@@ -27,6 +27,8 @@ import { NOTION_STYLE } from '../../../templates/helper';
 import NotionAPIWrapper from '../NotionAPIWrapper';
 import BlockColumn from '../blocks/lists/BlockColumn';
 import { blockToStaticMarkup } from '../helpers/blockToStaticMarkup';
+import { getToggleSummaryRichText } from '../helpers/getToggleSummaryRichText';
+import { isToggleHeading } from '../helpers/isToggleHeading';
 import { downloadMediaOrSkip } from '../helpers/downloadMediaOrSkip';
 import { getAudioUrl } from '../helpers/getAudioUrl';
 import getClozeDeletionCard from '../helpers/getClozeDeletionCard';
@@ -166,18 +168,21 @@ class BlockHandler {
       let name: string;
       let back: null | string = '';
       
-      // Handle toggle blocks specially for flashcard extraction
-      if (isFullBlock(block) && (block as BlockObjectResponse).type === 'toggle') {
-        // For toggle blocks, extract only the summary (question) for the front
-        const toggleBlock = block as ToggleBlockObjectResponse;
-        const richText = toggleBlock.toggle.rich_text;
-        
-        // Render the toggle's rich_text (summary) as HTML for the front
+      // Handle toggle blocks (including toggle-headings) specially for
+      // flashcard extraction: front = the summary rich_text, back = children
+      const fullBlock = isFullBlock(block)
+        ? (block as BlockObjectResponse)
+        : null;
+      const toggleSummary = fullBlock
+        ? getToggleSummaryRichText(fullBlock)
+        : null;
+      if (toggleSummary) {
         // Always preserve newlines in toggle summaries by converting \n to <br />
-  name = renderTextChildren(richText, this.settings).replaceAll('\n', '<br />');
-        
-        // Get the children content for the back (answer)
-        back = await this.getBackSide(block as BlockObjectResponse);
+        name = renderTextChildren(toggleSummary, this.settings).replaceAll(
+          '\n',
+          '<br />'
+        );
+        back = await this.getBackSide(fullBlock!);
       } else {
         // For non-toggle blocks, use the existing logic
         name = await blockToStaticMarkup(
@@ -330,11 +335,13 @@ class BlockHandler {
 
     // Depth-first traversal: process current page, then children
     if (rules.permitsDeckAsPage() && page) {
+      const toggleHeadingsEnabled = flashCardTypes.includes('toggle');
       const cBlocks = blocks.filter((b: GetBlockResponse) => {
         if (!isFullBlock(b)) {
           return false;
         }
-        return flashCardTypes.includes(b.type);
+        if (flashCardTypes.includes(b.type)) return true;
+        return toggleHeadingsEnabled && isToggleHeading(b);
       });
       this.settings.parentBlockId = page.id;
 
@@ -408,9 +415,12 @@ class BlockHandler {
             all: this.useAll,
             type: sd.type,
           });
-          let cBlocks = res.results.filter((b: GetBlockResponse) =>
-            flashCardTypes.includes((b as BlockObjectResponse).type)
-          );
+          const toggleHeadingsEnabled = flashCardTypes.includes('toggle');
+          let cBlocks = res.results.filter((b: GetBlockResponse) => {
+            if (!isFullBlock(b)) return false;
+            if (flashCardTypes.includes(b.type)) return true;
+            return toggleHeadingsEnabled && isToggleHeading(b);
+          });
 
           this.settings.parentBlockId = sd.id;
           let cards = await this.getFlashcards(
