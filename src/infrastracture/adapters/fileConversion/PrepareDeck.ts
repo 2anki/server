@@ -25,6 +25,7 @@ interface PrepareDeckResult {
   name: string;
   apkg: Buffer;
   deck: Deck[];
+  cardCount: number;
 }
 
 async function convertFile(
@@ -227,9 +228,18 @@ export async function PrepareDeck(
     exporter.configure(deckInfo as unknown as Deck[]);
     const tExport = Date.now();
     const apkg = await exporter.save();
+    const claudeCardCount = deckInfo.reduce(
+      (sum, d) => sum + d.cards.length,
+      0
+    );
     console.log('[PrepareDeck] Claude branch: exporter.save done', { durationMs: Date.now() - tExport });
     console.log('[PrepareDeck] done (Claude path)', { totalMs: Date.now() - tTotal });
-    return { name: getDeckFilename(deckName), apkg, deck: [] };
+    return {
+      name: getDeckFilename(deckName),
+      apkg,
+      deck: [],
+      cardCount: claudeCardCount,
+    };
   }
 
   const parser = new DeckParser({ ...input, files: allFiles });
@@ -244,6 +254,7 @@ export async function PrepareDeck(
         name: getDeckFilename(parser.name ?? input.name),
         apkg,
         deck: parser.payload,
+        cardCount: parser.totalCardCount(),
       };
     }
   }
@@ -253,5 +264,6 @@ export async function PrepareDeck(
     name: getDeckFilename(parser.name),
     apkg,
     deck: parser.payload,
+    cardCount: parser.totalCardCount(),
   };
 }
