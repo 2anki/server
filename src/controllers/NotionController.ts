@@ -191,18 +191,27 @@ class NotionController {
     } catch (error) {
       console.info('Get database failed');
       console.error(error);
-      res.status(500).send();
+      res.status(500).json({
+        message:
+          'Failed to load the Notion database. It may have been deleted or access was revoked.',
+      });
     }
   }
 
   async queryDatabase(req: Request, res: Response) {
-    const api = await this.service.getNotionAPI(res.locals.owner);
     const { id } = req.params;
     if (!id) {
-      return res.status(400).send();
+      return res.status(400).json({ message: 'Missing database id.' });
     }
-    const results = await api.queryDatabase(id);
-    res.json(results);
+    try {
+      const api = await this.service.getNotionAPI(res.locals.owner);
+      const results = await api.queryDatabase(id);
+      res.json(results);
+    } catch (error) {
+      console.info('Query database failed');
+      console.error(error);
+      sendErrorResponse(error, res);
+    }
   }
 
   async disconnect(_req: Request, res: Response) {
