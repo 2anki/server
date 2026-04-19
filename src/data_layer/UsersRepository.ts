@@ -109,8 +109,10 @@ class UsersRepository {
     });
   }
 
-  updatePatreonByEmail(email: string, patreon: boolean) {
-    return this.database(this.table).where({ email }).update({ patreon });
+  updatePatreonByEmail(email: string, patreon: boolean): Promise<number> {
+    return this.database(this.table)
+      .whereRaw('TRIM(LOWER(email)) = ?', [email.toLowerCase().trim()])
+      .update({ patreon });
   }
 
   async checkSubscriptionEmailExists(email: string): Promise<boolean> {
