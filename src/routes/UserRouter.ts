@@ -7,7 +7,7 @@ import TokenRepository from '../data_layer/TokenRepository';
 import AuthenticationService from '../services/AuthenticationService';
 import { getDatabase } from '../data_layer';
 import UsersService from '../services/UsersService';
-import { useDefaultEmailService } from '../services/EmailService/EmailService';
+import { getDefaultEmailService } from '../services/EmailService/EmailService';
 
 const UserRouter = () => {
   const router = express.Router();
@@ -17,7 +17,7 @@ const UserRouter = () => {
     new UsersRepository(database)
   );
 
-  const emailService = useDefaultEmailService();
+  const emailService = getDefaultEmailService();
   const controller = new UsersController(
     new UsersService(new UsersRepository(database), emailService),
     authService

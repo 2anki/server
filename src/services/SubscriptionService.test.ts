@@ -7,12 +7,12 @@ jest.mock('../lib/integrations/stripe', () => ({
 }));
 
 jest.mock('./EmailService/EmailService', () => ({
-  useDefaultEmailService: jest.fn(),
+  getDefaultEmailService: jest.fn(),
 }));
 
 import { getDatabase } from '../data_layer';
 import { getStripe } from '../lib/integrations/stripe';
-import { useDefaultEmailService } from './EmailService/EmailService';
+import { getDefaultEmailService } from './EmailService/EmailService';
 import SubscriptionService from './SubscriptionService';
 
 function buildDbMock(linkedRows: Array<{ email: string }> = []): jest.Mock & {
@@ -75,7 +75,7 @@ describe('SubscriptionService.findActiveStripeSubscriptions', () => {
     stripe = buildStripeMock();
     (getStripe as jest.Mock).mockReturnValue(stripe);
     (getDatabase as jest.Mock).mockReturnValue(buildDbMock());
-    (useDefaultEmailService as jest.Mock).mockReturnValue({});
+    (getDefaultEmailService as jest.Mock).mockReturnValue({});
   });
 
   it('returns active subscriptions for the user email', async () => {
@@ -148,7 +148,7 @@ describe('SubscriptionService.findRecentStripeSubscriptions', () => {
     stripe = buildStripeMock();
     (getStripe as jest.Mock).mockReturnValue(stripe);
     (getDatabase as jest.Mock).mockReturnValue(buildDbMock());
-    (useDefaultEmailService as jest.Mock).mockReturnValue({});
+    (getDefaultEmailService as jest.Mock).mockReturnValue({});
   });
 
   it('returns subscriptions with any status from Stripe', async () => {
@@ -202,7 +202,7 @@ describe('SubscriptionService.cancelUserSubscriptions', () => {
 
     sendScheduledEmail = jest.fn().mockResolvedValue(undefined);
     sendCancelledEmail = jest.fn().mockResolvedValue(undefined);
-    (useDefaultEmailService as jest.Mock).mockReturnValue({
+    (getDefaultEmailService as jest.Mock).mockReturnValue({
       sendSubscriptionScheduledCancellationEmail: sendScheduledEmail,
       sendSubscriptionCancelledEmail: sendCancelledEmail,
     });

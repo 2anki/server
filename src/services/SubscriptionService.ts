@@ -1,7 +1,7 @@
 import Stripe from 'stripe';
 import { getDatabase } from '../data_layer';
 import { getStripe } from '../lib/integrations/stripe';
-import { useDefaultEmailService } from './EmailService/EmailService';
+import { getDefaultEmailService } from './EmailService/EmailService';
 import Subscriptions from '../data_layer/public/Subscriptions';
 
 export type CancelMode = 'immediate' | 'period_end';
@@ -70,7 +70,7 @@ export class SubscriptionService {
     mode: CancelMode = 'period_end'
   ): Promise<number> {
     const stripe = getStripe();
-    const emailService = useDefaultEmailService();
+    const emailService = getDefaultEmailService();
     const subs = await this.findActiveStripeSubscriptions(userEmail);
 
     console.log(
