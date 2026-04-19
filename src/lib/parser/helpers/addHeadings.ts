@@ -1,4 +1,4 @@
-const headings = ['heading_1', 'heading_2', 'heading_3'];
+const headings = ['heading_1', 'heading_2', 'heading_3', 'heading_4'];
 
 export default function addHeadings(input: string[]): string[] {
   const hasHeading = input.some((item) => item.startsWith('heading'));

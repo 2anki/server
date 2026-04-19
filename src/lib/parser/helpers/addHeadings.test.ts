@@ -6,6 +6,7 @@ describe('addHeadings', () => {
       'heading_1',
       'heading_2',
       'heading_3',
+      'heading_4',
     ]);
   });
   test('should not add headings', () => {
