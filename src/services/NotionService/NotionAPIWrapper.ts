@@ -144,6 +144,28 @@ class NotionAPIWrapper {
     );
   }
 
+  /**
+   * Cursor-paginated block fetch for streaming previews. Does NOT touch the
+   * block cache (preview is a view-only concern, and we want fresh cursor
+   * boundaries on each call) and does NOT auto-exhaust pagination.
+   */
+  listBlocksPage(
+    id: string,
+    options: { pageSize?: number; startCursor?: string } = {}
+  ): Promise<ListBlockChildrenResponse> {
+    return withRetry(
+      () =>
+        this.notion.blocks.children.list({
+          block_id: id,
+          page_size: options.pageSize ?? 15,
+          ...(options.startCursor
+            ? { start_cursor: options.startCursor }
+            : {}),
+        }),
+      { label: 'blocks.children.list:preview' }
+    );
+  }
+
   deleteBlock(id: string): Promise<GetBlockResponse> {
     return this.notion.blocks.delete({
       block_id: id,
