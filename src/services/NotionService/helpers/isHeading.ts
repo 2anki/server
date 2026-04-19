@@ -13,10 +13,9 @@ export const isHeading = (
 
   switch (block.type) {
     case 'heading_1':
-      return true;
     case 'heading_2':
-      return true;
     case 'heading_3':
+    case 'heading_4':
       return true;
     default:
       return false;
