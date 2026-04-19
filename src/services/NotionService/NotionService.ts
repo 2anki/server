@@ -47,6 +47,16 @@ export class NotionService {
     return new NotionAPIWrapper(token!, owner);
   };
 
+  tryGetNotionAPI = async (
+    owner: string
+  ): Promise<NotionAPIWrapper | null> => {
+    const token = await this.notionRepository.getNotionToken(owner);
+    if (!token) {
+      return null;
+    }
+    return new NotionAPIWrapper(token, owner);
+  };
+
   async getNotionDatabaseBlock(id: string, owner: string) {
     let cleanId = id.replace(/-/g, '');
 
