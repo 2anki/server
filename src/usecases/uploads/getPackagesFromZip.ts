@@ -43,7 +43,7 @@ export const getPackagesFromZip = async (
     });
 
     if (deck) {
-      packages.push(new Package(deck.name));
+      packages.push(new Package(deck.name, deck.cardCount ?? 0));
     }
 
     return { packages };
@@ -61,7 +61,7 @@ export const getPackagesFromZip = async (
     });
 
     if (deck) {
-      packages.push(new Package(deck.name));
+      packages.push(new Package(deck.name, deck.cardCount ?? 0));
       cardCount += deck.deck.reduce((acc, d) => acc + d.cards.length, 0);
 
       checkFlashcardsLimits({

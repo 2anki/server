@@ -246,8 +246,17 @@ class UploadService {
         throw new Error(`Could not produce APKG for ${name}`);
       }
       const plen = Buffer.byteLength(apkg);
+      const totalCards = packages.reduce(
+        (sum, p) => sum + (p.cardCount ?? 0),
+        0
+      );
       res.set('Content-Type', 'application/apkg');
       res.set('Content-Length', plen.toString());
+      res.set('X-Card-Count', totalCards.toString());
+      res.set(
+        'Access-Control-Expose-Headers',
+        'File-Name, X-Card-Count'
+      );
       first.name = toText(first.name);
       try {
         res.set('File-Name', encodeURIComponent(first.name));

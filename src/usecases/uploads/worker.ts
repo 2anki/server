@@ -77,7 +77,7 @@ async function processFile(
     });
 
     if (d) {
-      packages.push(new Package(d.name));
+      packages.push(new Package(d.name, d.cardCount ?? 0));
     }
   }
   // Check if it's a compressed file
