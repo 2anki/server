@@ -210,6 +210,7 @@ class UploadService {
         if (packages.length > 0) {
           await this.promoteClaudeJobToUpload(ws.id, ws.location, owner);
         } else {
+          logNoPackageDiagnostics(req.files as UploadedFile[]);
           await this.jobRepository.updateJobStatus(ws.id, owner, 'failed', 'No packages produced');
         }
       })
