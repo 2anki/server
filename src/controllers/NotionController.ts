@@ -7,7 +7,11 @@ import CustomExporter from '../lib/parser/exporters/CustomExporter';
 import { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 import Workspace from '../lib/parser/WorkSpace';
 import { blockToStaticMarkup } from '../services/NotionService/helpers/blockToStaticMarkup';
-import { renderBlockPreview } from '../services/NotionService/helpers/renderBlockPreview';
+import {
+  isExpandable,
+  renderBlockPreview,
+  renderBlockSummary,
+} from '../services/NotionService/helpers/renderBlockPreview';
 import { isFullBlock, isFullPage } from '@notionhq/client';
 import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints';
 import { getNotionObjectTitle } from 'get-notion-object-title';
@@ -251,11 +255,17 @@ class NotionController {
 
       const blocks = response.results
         .filter((block): block is BlockObjectResponse => isFullBlock(block))
-        .map((block) => ({
-          id: block.id,
-          type: block.type,
-          html: renderBlockPreview(block),
-        }));
+        .map((block) => {
+          const canExpand = isExpandable(block);
+          return {
+            id: block.id,
+            type: block.type,
+            hasChildren: block.has_children === true,
+            canExpand,
+            html: canExpand ? '' : renderBlockPreview(block),
+            summaryHtml: canExpand ? renderBlockSummary(block) : undefined,
+          };
+        });
 
       const payload: Record<string, unknown> = {
         blocks,

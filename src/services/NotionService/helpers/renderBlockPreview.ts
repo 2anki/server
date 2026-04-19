@@ -44,19 +44,70 @@ function imageUrl(block: Extract<BlockObjectResponse, { type: 'image' }>):
   return null;
 }
 
+function isToggleableHeading(block: BlockObjectResponse): boolean {
+  switch (block.type) {
+    case 'heading_1':
+      return block.heading_1.is_toggleable === true;
+    case 'heading_2':
+      return block.heading_2.is_toggleable === true;
+    case 'heading_3':
+      return block.heading_3.is_toggleable === true;
+    case 'heading_4':
+      return block.heading_4.is_toggleable === true;
+    default:
+      return false;
+  }
+}
+
+/**
+ * A block the preview UI lets the user expand to fetch its children lazily.
+ * For v1 only toggle + toggleable headings — the common cases where users
+ * expect Notion-style click-to-reveal behaviour.
+ */
+export function isExpandable(block: BlockObjectResponse): boolean {
+  if (block.type === 'toggle') return true;
+  return isToggleableHeading(block);
+}
+
+/**
+ * Render the "summary" HTML for an expandable block — i.e. the content
+ * the client will put inside a <summary> element. Intentionally does NOT
+ * include the <details> wrapper; the client owns the open/close state.
+ */
+export function renderBlockSummary(block: BlockObjectResponse): string {
+  switch (block.type) {
+    case 'toggle':
+      return richText(block.toggle.rich_text);
+    case 'heading_1':
+      return `<h1>${richText(block.heading_1.rich_text)}</h1>`;
+    case 'heading_2':
+      return `<h2>${richText(block.heading_2.rich_text)}</h2>`;
+    case 'heading_3':
+      return `<h3>${richText(block.heading_3.rich_text)}</h3>`;
+    case 'heading_4':
+      return `<h4>${richText(block.heading_4.rich_text)}</h4>`;
+    default:
+      return '';
+  }
+}
+
 /**
  * Render a single Notion block as lightweight HTML for the preview page.
  * Intentionally does NOT:
- *  - recurse into children (toggle/sub-page content is a client-side concern)
+ *  - recurse into children (toggle/sub-page content is fetched lazily
+ *    by the client on expand — see isExpandable above)
  *  - download media (images point at Notion's signed URLs directly — fine
  *    for a short preview session)
  *  - apply any CardOption-aware formatting (preview is raw)
  *
+ * For expandable blocks this returns an empty string; the client wraps
+ * the summary HTML (from renderBlockSummary) in its own <details>.
+ *
  * Unsupported block types render as an empty string so the stream still
- * returns the block id but nothing visible. The caller can still show a
- * placeholder if it wants to.
+ * returns the block id but nothing visible.
  */
 export function renderBlockPreview(block: BlockObjectResponse): string {
+  if (isExpandable(block)) return '';
   switch (block.type) {
     case 'paragraph':
       return `<p>${richText(block.paragraph.rich_text)}</p>`;
@@ -76,8 +127,6 @@ export function renderBlockPreview(block: BlockObjectResponse): string {
       const checked = block.to_do.checked ? ' checked' : '';
       return `<label><input type="checkbox" disabled${checked} /> ${richText(block.to_do.rich_text)}</label>`;
     }
-    case 'toggle':
-      return `<details><summary>${richText(block.toggle.rich_text)}</summary><em>Children render during conversion.</em></details>`;
     case 'quote':
       return `<blockquote>${richText(block.quote.rich_text)}</blockquote>`;
     case 'code': {
