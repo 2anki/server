@@ -8,12 +8,19 @@ import {
   _Object,
 } from '@aws-sdk/client-s3';
 
+function resolveSpacesEndpoint(): string | undefined {
+  const raw = process.env.SPACES_ENDPOINT?.trim();
+  if (!raw) return undefined;
+  if (/^https?:\/\//i.test(raw)) return raw;
+  return `https://${raw}`;
+}
+
 class StorageHandler {
   s3: S3Client;
 
   constructor() {
     this.s3 = new S3Client({
-      endpoint: process.env.SPACES_ENDPOINT,
+      endpoint: resolveSpacesEndpoint(),
       region: process.env.SPACES_REGION ?? 'us-east-1',
     });
   }
