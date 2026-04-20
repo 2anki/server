@@ -1,6 +1,7 @@
 import { writeFile } from 'fs/promises';
 import path from 'path';
 import Workspace from '../../../lib/parser/WorkSpace';
+import { S3 } from 'aws-sdk';
 import { getPageCount } from '../../../lib/pdf/getPageCount';
 import { convertPage } from '../../../lib/pdf/convertPage';
 import { combineIntoHTML } from '../../../lib/pdf/combineIntoHTML';
@@ -10,7 +11,7 @@ import CardOption from '../../../lib/parser/Settings/CardOption';
 interface ConvertPDFToImagesInput {
   workspace: Workspace;
   noLimits: boolean;
-  contents?: Buffer | Uint8Array | string;
+  contents?: S3.Body;
   name?: string;
   settings?: CardOption;
 }
