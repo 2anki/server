@@ -69,6 +69,10 @@ class NotionRepository implements INotionRepository {
    * @returns unhashed token
    */
   async getNotionToken(owner: string): Promise<string | null> {
+    if (owner == null) {
+      console.warn('[NotionRepository] getNotionToken called with no owner');
+      return null;
+    }
     const row = await this.database('notion_tokens')
       .where({ owner })
       .returning('token')
