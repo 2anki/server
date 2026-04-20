@@ -16,7 +16,7 @@ jobs:
       cancel-in-progress: false
     steps:
       - name: SSH and run script
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.2.5
         with:
           host: 2anki.net
           username: ${{ secrets.SSH_USERNAME }}
