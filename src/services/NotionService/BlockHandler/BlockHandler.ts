@@ -8,7 +8,6 @@ import {
   ListBlockChildrenResponse,
   PageObjectResponse,
 } from '@notionhq/client/build/src/api-endpoints';
-import axios from 'axios';
 
 import getDeckName from '../../../lib/anki/getDeckname';
 import sanitizeTags from '../../../lib/anki/sanitizeTags';
@@ -99,8 +98,10 @@ class BlockHandler {
     }
     const newName = getUniqueFileName(url);
 
-    const audioRequest = await axios.get(url, { responseType: 'arraybuffer' });
-    const contents = audioRequest.data;
+    const contents = await downloadMediaOrSkip(url);
+    if (contents == null) {
+      return '';
+    }
     this.exporter.addMedia(newName, contents);
     return `[sound:${newName}]`;
   }
@@ -111,8 +112,10 @@ class BlockHandler {
       return '';
     }
     const newName = getUniqueFileName(url);
-    const fileRequest = await axios.get(url, { responseType: 'arraybuffer' });
-    const contents = fileRequest.data;
+    const contents = await downloadMediaOrSkip(url);
+    if (contents == null) {
+      return '';
+    }
     this.exporter.addMedia(newName, contents);
     return `<embed src="${newName}" />`;
   }
