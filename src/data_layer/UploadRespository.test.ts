@@ -1,0 +1,44 @@
+import UploadRepository from './UploadRespository';
+
+describe('UploadRepository owner guards', () => {
+  const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+  afterEach(() => warn.mockClear());
+
+  function makeRepo() {
+    const called: string[] = [];
+    const db = () => {
+      called.push('db(table)');
+      return {
+        where: () => {
+          called.push('where');
+          return {
+            orderBy: () => ({ returning: () => Promise.resolve([]) }),
+          };
+        },
+        del: () => ({ where: () => Promise.resolve(0) }),
+      };
+    };
+    return { repo: new UploadRepository(db as unknown as never), called };
+  }
+
+  it('returns empty list and skips query when owner is undefined', async () => {
+    const { repo, called } = makeRepo();
+    const result = await repo.getUploadsByOwner(
+      undefined as unknown as number
+    );
+    expect(result).toEqual([]);
+    expect(called).toEqual([]);
+    expect(warn).toHaveBeenCalled();
+  });
+
+  it('returns 0 and skips delete when owner is null', async () => {
+    const { repo, called } = makeRepo();
+    const result = await repo.deleteUpload(
+      null as unknown as number,
+      'some-key'
+    );
+    expect(result).toBe(0);
+    expect(called).toEqual([]);
+    expect(warn).toHaveBeenCalled();
+  });
+});

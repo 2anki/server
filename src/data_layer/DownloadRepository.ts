@@ -8,11 +8,21 @@ class DownloadRepository {
   }
 
   getFile(owner: string, key: string) {
+    if (owner == null) {
+      console.warn('[DownloadRepository] getFile called with no owner');
+      return Promise.resolve(undefined);
+    }
     const query = { key, owner };
     return this.database(this.table).where(query).returning(['key']).first();
   }
 
   deleteMissingFile(owner: string, key: string) {
+    if (owner == null) {
+      console.warn(
+        '[DownloadRepository] deleteMissingFile called with no owner'
+      );
+      return Promise.resolve(0);
+    }
     console.warn(`Deleting missing file ${key} for ${owner}`);
     return this.database.table('uploads').where({ owner, key }).delete();
   }

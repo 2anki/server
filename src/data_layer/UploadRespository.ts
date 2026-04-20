@@ -17,10 +17,20 @@ class UploadRepository implements IUploadRepository {
   constructor(private readonly database: Knex) {}
 
   deleteUpload(owner: number, key: string): Promise<number> {
+    if (owner == null) {
+      console.warn('[UploadRepository] deleteUpload called with no owner');
+      return Promise.resolve(0);
+    }
     return this.database(this.table).del().where({ owner, key });
   }
 
   getUploadsByOwner(owner: number): Promise<Uploads[]> {
+    if (owner == null) {
+      console.warn(
+        '[UploadRepository] getUploadsByOwner called with no owner'
+      );
+      return Promise.resolve([]);
+    }
     return this.database(this.table)
       .where({ owner: owner })
       .orderBy('id', 'desc')
