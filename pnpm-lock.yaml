@@ -29,7 +29,7 @@ importers:
         version: 8.1.6
       '@types/express-session':
         specifier: ^1.18.1
-        version: 1.18.2
+        version: 1.19.0
       '@types/swagger-ui-express':
         specifier: ^4.1.8
         version: 4.1.8
@@ -1368,8 +1368,8 @@ packages:
   '@types/express-serve-static-core@4.19.8':
     resolution: {integrity: sha512-02S5fmqeoKzVZCHPZid4b8JH2eM5HzQLZWN2FohQEy/0eXTq8VXZfSN6Pcr3F6N9R/vNrj7cpgbhjie6m/1tCA==}
 
-  '@types/express-session@1.18.2':
-    resolution: {integrity: sha512-k+I0BxwVXsnEU2hV77cCobC08kIsn4y44C3gC0b46uxZVMaXA04lSPgRLR/bSL2w0t0ShJiG8o4jPzRG/nscFg==}
+  '@types/express-session@1.19.0':
+    resolution: {integrity: sha512-GbypG0bog68UbOq2tSAp7SclvCUm3ha1uDi58OPRGK1NfRvCIu7Gz0M7fTGtpNG1T9a29GpuurQj9zEcT/lMXQ==}
 
   '@types/express@4.17.25':
     resolution: {integrity: sha512-dVd04UKsfpINUnK0yBoYHDF3xu7xVH4BuDotC/xGuycx4CgbP48X/KF/586bcObxT0HENHXEU8Nqtu6NR+eKhw==}
@@ -1591,6 +1591,7 @@ packages:
   '@xmldom/xmldom@0.8.12':
     resolution: {integrity: sha512-9k/gHF6n/pAi/9tqr3m3aqkuiNosYTurLLUtc7xQ9sxB/wm7WPygCv8GYa6mS0fLJEHhqMC1ATYhz++U/lRHqg==}
     engines: {node: '>=10.0.0'}
+    deprecated: this version has critical issues, please update to the latest version
 
   abbrev@4.0.0:
     resolution: {integrity: sha512-a1wflyaL0tHtJSmLSOVybYhy22vRih4eduhhrkcjgrWGnRfrZtovJ2FRjxuTtkkj47O/baf0R86QU5OuYpz8fA==}
@@ -6195,7 +6196,7 @@ snapshots:
       '@types/range-parser': 1.2.7
       '@types/send': 1.2.1
 
-  '@types/express-session@1.18.2':
+  '@types/express-session@1.19.0':
     dependencies:
       '@types/express': 4.17.25
 
