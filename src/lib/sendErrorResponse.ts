@@ -1,6 +1,14 @@
 import { Response } from 'express';
 
-import { APIResponseError } from '@notionhq/client/build/src';
+import { APIErrorCode, APIResponseError } from '@notionhq/client';
+
+function isExpectedUserError(error: unknown): boolean {
+  if (!(error instanceof APIResponseError)) return false;
+  // Notion returning Unauthorized means the user revoked access or
+  // the stored token expired — it's an expected outcome that triggers
+  // a reconnect flow, not a server bug.
+  return error.code === APIErrorCode.Unauthorized;
+}
 
 export default function sendErrorResponse(
   error: Error | APIResponseError | unknown,
@@ -14,7 +22,14 @@ export default function sendErrorResponse(
     body = { message: error.message };
   }
 
-  console.error(error);
+  if (isExpectedUserError(error)) {
+    console.info(
+      '[notion] expected user error',
+      (error as APIResponseError).code
+    );
+  } else {
+    console.error(error);
+  }
 
   return response.status(status).json(body).send();
 }
