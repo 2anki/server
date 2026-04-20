@@ -70,7 +70,7 @@ class ApkgController {
       return null;
     }
     const cacheKey = `${owner}:${key}`;
-    return this.previewService.parse(cacheKey, body);
+    return this.previewService.parse(cacheKey, body as Buffer);
   }
 
   async getMeta(req: Request, res: Response) {
