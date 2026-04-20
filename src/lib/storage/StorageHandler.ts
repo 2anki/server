@@ -6,7 +6,7 @@ class StorageHandler {
 
   constructor() {
     // Set S3 endpoint to DigitalOcean Spaces
-    const spacesEndpoint = new aws.Endpoint(process.env.SPACES_ENDPOINT!);
+    const spacesEndpoint = new aws.Endpoint(process.env.SPACES_ENDPOINT);
     this.s3 = new aws.S3({
       endpoint: spacesEndpoint,
     });
@@ -47,35 +47,31 @@ class StorageHandler {
     }
   }
 
-  getContents(maxKeys: number = 1000): Promise<ObjectList | undefined> {
+  async getContents(maxKeys: number = 1000): Promise<ObjectList | undefined> {
     const { s3 } = this;
     console.debug('getting max', maxKeys, 'keys');
-    return new Promise(async (resolve, reject) => {
-      const files = [];
-      try {
-        let hasMore = true;
-        while (hasMore) {
-          const objects = await s3
-            .listObjects({
-              Bucket: StorageHandler.DefaultBucketName(),
-              MaxKeys: maxKeys,
-            })
-            .promise();
-          if (objects.Contents) {
-            files.push(...objects.Contents);
-          }
-          hasMore = files.length < maxKeys && Boolean(objects.IsTruncated);
+    const files = [];
+    try {
+      let hasMore = true;
+      while (hasMore) {
+        const objects = await s3
+          .listObjects({
+            Bucket: StorageHandler.DefaultBucketName(),
+            MaxKeys: maxKeys,
+          })
+          .promise();
+        if (objects.Contents) {
+          files.push(...objects.Contents);
         }
-      } catch (err) {
-        if (err) {
-          console.info('Get contents failed');
-          console.error(err);
-          return reject(err);
-        }
+        hasMore = files.length < maxKeys && Boolean(objects.IsTruncated);
       }
-      console.debug('recieved', files.length, 'keys');
-      resolve(files);
-    });
+    } catch (err) {
+      console.info('Get contents failed');
+      console.error(err);
+      throw err instanceof Error ? err : new Error(String(err));
+    }
+    console.debug('recieved', files.length, 'keys');
+    return files;
   }
 
   getFileContents(key: string): Promise<aws.S3.GetObjectOutput> {
