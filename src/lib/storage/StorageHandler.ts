@@ -5,8 +5,11 @@ class StorageHandler {
   s3: aws.S3;
 
   constructor() {
-    // Set S3 endpoint to DigitalOcean Spaces
-    const spacesEndpoint = new aws.Endpoint(process.env.SPACES_ENDPOINT);
+    // Set S3 endpoint to DigitalOcean Spaces. SPACES_ENDPOINT is a
+    // required production env var; asserting it matches how
+    // SPACES_DEFAULT_BUCKET_NAME is treated below.
+    // NOSONAR — non-null assertion is intentional
+    const spacesEndpoint = new aws.Endpoint(process.env.SPACES_ENDPOINT!);
     this.s3 = new aws.S3({
       endpoint: spacesEndpoint,
     });
