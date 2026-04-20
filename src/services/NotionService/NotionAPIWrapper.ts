@@ -22,6 +22,7 @@ import { getBlockCache } from './helpers/getBlockCache';
 import { uniqueTimerLabel } from './helpers/uniqueTimerLabel';
 import { withRetry } from './helpers/withRetry';
 import { getDatabase } from '../../data_layer';
+import { isValidNotionId } from './isValidNotionId';
 import { ValidNotionType } from './types';
 
 const DEFAULT_PAGE_SIZE_LIMIT = 100 * 2;
@@ -47,6 +48,13 @@ class NotionAPIWrapper {
   }
 
   getPage(id: string): Promise<GetPageResponse | null> {
+    if (!isValidNotionId(id)) {
+      console.info(
+        '[notion] skipping pages.retrieve for non-UUID id:',
+        JSON.stringify(id).slice(0, 80)
+      );
+      return Promise.resolve(null);
+    }
     return withRetry(() => this.notion.pages.retrieve({ page_id: id }), {
       label: 'pages.retrieve',
     });
