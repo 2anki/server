@@ -43,7 +43,7 @@
     "archiver": "^7.0.1",
     "aws-sdk": "^2.1502.0",
     "axios": "^1.13.5",
-    "bcryptjs": "^2.4.3",
+    "bcryptjs": "^3.0.3",
     "better-sqlite3": "^12.9.0",
     "cheerio": "^1.0.0",
     "cookie-parser": "^1.4.6",
@@ -83,7 +83,7 @@
   "devDependencies": {
     "@types/archiver": "^7.0.0",
     "@types/base-64": "^1.0.0",
-    "@types/bcryptjs": "^2.4.6",
+    "@types/bcryptjs": "^3.0.0",
     "@types/better-sqlite3": "^7.6.13",
     "@types/cheerio": "^1.0.0",
     "@types/cookie-parser": "^1.4.6",
