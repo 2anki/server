@@ -11,6 +11,6 @@ export const getImageUrl = (block: ImageBlockObjectResponse): string | null => {
     case 'file':
       return block.image.file.url;
     default:
-      return 'unsupported image: ' + JSON.stringify(block);
+      return null;
   }
 };
