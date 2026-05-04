@@ -9,7 +9,7 @@ import AuthenticationService from '../../services/AuthenticationService';
 import { getStripe, updateStoreSubscription } from '../../lib/integrations/stripe';
 import { extractTokenFromCookies } from './extractTokenFromCookies';
 import SubscriptionService from '../../services/SubscriptionService';
-import Stripe from 'stripe';
+import type { Stripe as StripeTypes } from 'stripe/cjs/stripe.core';
 import { Knex } from 'knex';
 
 async function persistStripeSession(database: Knex, sessionId: string): Promise<boolean> {
@@ -26,7 +26,7 @@ async function persistStripeSession(database: Knex, sessionId: string): Promise<
     const customerId = typeof subscription.customer === 'string'
       ? subscription.customer
       : subscription.customer.id;
-    const customer = await stripe.customers.retrieve(customerId) as Stripe.Customer;
+    const customer = await stripe.customers.retrieve(customerId) as StripeTypes.Customer;
     await updateStoreSubscription(database, customer, subscription);
   }
   return true;

@@ -1,7 +1,5 @@
 import { getDefaultEmailService } from '../../../../services/EmailService/EmailService';
 import { getStripe } from '../../../integrations/stripe';
-import Stripe from 'stripe';
-
 const stripe = getStripe();
 
 const sendVatNotificationEmail = async () => {
@@ -10,8 +8,7 @@ const sendVatNotificationEmail = async () => {
   let startingAfter: string | undefined = undefined;
 
   while (hasMore) {
-    const subscriptions: Stripe.ApiList<Stripe.Subscription> =
-      await stripe.subscriptions.list({
+    const subscriptions = await stripe.subscriptions.list({
         limit: 100,
         status: 'active',
         starting_after: startingAfter,

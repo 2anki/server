@@ -1,5 +1,5 @@
 import express from 'express';
-import Stripe from 'stripe';
+import type { Stripe as StripeTypes } from 'stripe/cjs/stripe.core';
 
 import {
   getCustomerId,
@@ -86,7 +86,7 @@ const WebhooksRouter = () => {
 
           await updateStoreSubscription(
             getDatabase(),
-            customer as Stripe.Customer,
+            customer as StripeTypes.Customer,
             customerSubscriptionUpdated
           );
 
@@ -95,7 +95,7 @@ const WebhooksRouter = () => {
             event.data.previous_attributes?.cancel_at_period_end === false
           ) {
             const cancelDate = new Date(
-              customerSubscriptionUpdated.current_period_end * 1000
+              (customerSubscriptionUpdated.cancel_at ?? 0) * 1000
             );
             const emailService = getDefaultEmailService();
             if ('email' in customer) {
@@ -136,7 +136,7 @@ const WebhooksRouter = () => {
 
             await updateStoreSubscription(
               getDatabase(),
-              customerDeleted as Stripe.Customer,
+              customerDeleted as StripeTypes.Customer,
               customerSubscriptionDeleted
             );
 
@@ -151,7 +151,7 @@ const WebhooksRouter = () => {
           }
           break;
         case 'checkout.session.completed':
-          const session: Stripe.Checkout.Session = event.data.object;
+          const session: StripeTypes.Checkout.Session = event.data.object;
           const amount = session.amount_total ?? 0;
 
           const LIFE_TIME_PRICE = 9600;

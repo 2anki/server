@@ -1,7 +1,7 @@
 import { getStripe } from '../../../integrations/stripe';
 import { getDatabase } from '../../../../data_layer';
 import { Knex } from 'knex';
-import Stripe from 'stripe';
+import type { Stripe as StripeTypes } from 'stripe/cjs/stripe.core';
 import { reconcileActiveSubscriptions } from './reconcileActiveSubscriptions';
 
 const stripe = getStripe();
@@ -10,9 +10,7 @@ const database = getDatabase();
 /**
  * Fetches a batch of active subscriptions from Stripe
  */
-function fetchSubscriptionBatch(
-  startingAfter?: string
-): Promise<Stripe.ApiList<Stripe.Subscription>> {
+function fetchSubscriptionBatch(startingAfter?: string) {
   return stripe.subscriptions.list({
     limit: 100,
     status: 'active',
@@ -25,11 +23,11 @@ function fetchSubscriptionBatch(
  */
 async function getCustomer(
   customerId: string
-): Promise<Stripe.Customer | null> {
+): Promise<StripeTypes.Customer | null> {
   try {
     const customer = await stripe.customers.retrieve(customerId);
     if ('email' in customer && customer.email) {
-      return customer as Stripe.Customer;
+      return customer as StripeTypes.Customer;
     }
     console.warn('Customer does not have an email', customerId);
     return null;
@@ -46,7 +44,7 @@ async function getCustomer(
  * Determines if a subscription should be considered active based on its status and cancellation schedule
  */
 function determineSubscriptionActiveStatus(
-  subscription: Stripe.Subscription,
+  subscription: StripeTypes.Subscription,
   email: string
 ): boolean {
   const isActive = subscription.status === 'active';
@@ -58,7 +56,7 @@ function determineSubscriptionActiveStatus(
   }
 
   // For subscriptions scheduled for cancellation, check if we're still in the paid period
-  const periodEndDate = new Date(subscription.current_period_end * 1000);
+  const periodEndDate = new Date((subscription.cancel_at ?? 0) * 1000);
   const currentDate = new Date();
   const shouldRemainActive = currentDate < periodEndDate;
 
@@ -77,7 +75,7 @@ function determineSubscriptionActiveStatus(
 async function updateExistingSubscription(
   db: Knex,
   email: string,
-  subscription: Stripe.Subscription,
+  subscription: StripeTypes.Subscription,
   shouldRemainActive: boolean,
   existingActive: boolean
 ): Promise<void> {
@@ -107,7 +105,7 @@ async function createNewSubscription(
   db: Knex,
   email: string,
   customerId: string,
-  subscription: Stripe.Subscription,
+  subscription: StripeTypes.Subscription,
   shouldRemainActive: boolean
 ): Promise<void> {
   console.info(
@@ -125,8 +123,8 @@ async function createNewSubscription(
  */
 async function updateSubscriptionRecord(
   db: Knex,
-  customer: Stripe.Customer,
-  subscription: Stripe.Subscription
+  customer: StripeTypes.Customer,
+  subscription: StripeTypes.Subscription
 ): Promise<void> {
   const email = customer.email!.toLowerCase();
 
@@ -173,7 +171,7 @@ async function updateSubscriptionRecord(
  */
 async function processSubscription(
   db: Knex,
-  subscription: Stripe.Subscription
+  subscription: StripeTypes.Subscription
 ): Promise<void> {
   try {
     if (typeof subscription.customer !== 'string') {
@@ -195,7 +193,7 @@ async function processSubscription(
  * Updates the pagination parameters based on the subscription batch
  */
 function updatePaginationParams(
-  subscriptions: Stripe.ApiList<Stripe.Subscription>
+  subscriptions: StripeTypes.ApiList<StripeTypes.Subscription>
 ): {
   hasMore: boolean;
   startingAfter?: string;

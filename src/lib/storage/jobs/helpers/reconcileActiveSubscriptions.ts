@@ -1,5 +1,5 @@
 import { Knex } from 'knex';
-import Stripe from 'stripe';
+import type { Stripe as StripeTypes } from 'stripe/cjs/stripe.core';
 
 interface ActiveSubscriptionRow {
   id: number;
@@ -24,11 +24,11 @@ function parseSubscriptionId(payload: unknown): string | null {
   return null;
 }
 
-function stripeReportsInactive(subscription: Stripe.Subscription): boolean {
+function stripeReportsInactive(subscription: StripeTypes.Subscription): boolean {
   if (subscription.status !== 'active') return true;
 
-  if (subscription.cancel_at_period_end && subscription.current_period_end) {
-    const periodEndMs = subscription.current_period_end * 1000;
+  if (subscription.cancel_at_period_end && subscription.cancel_at) {
+    const periodEndMs = subscription.cancel_at * 1000;
     return Date.now() >= periodEndMs;
   }
   return false;
@@ -37,7 +37,7 @@ function stripeReportsInactive(subscription: Stripe.Subscription): boolean {
 async function deactivateRow(
   db: Knex,
   row: ActiveSubscriptionRow,
-  subscription?: Stripe.Subscription
+  subscription?: StripeTypes.Subscription
 ): Promise<void> {
   const update: { active: boolean; payload?: string } = { active: false };
   if (subscription) {
@@ -51,7 +51,7 @@ async function deactivateRow(
 
 export async function reconcileActiveSubscriptions(
   db: Knex,
-  stripe: Pick<Stripe, 'subscriptions'>
+  stripe: Pick<StripeTypes, 'subscriptions'>
 ): Promise<void> {
   const rows: ActiveSubscriptionRow[] = await db('subscriptions')
     .select('id', 'email', 'payload')
