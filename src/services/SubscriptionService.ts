@@ -67,11 +67,17 @@ export class SubscriptionService {
 
   static async cancelUserSubscriptions(
     userEmail: string,
-    mode: CancelMode = 'period_end'
+    mode: CancelMode = 'period_end',
+    allStatuses = false
   ): Promise<number> {
     const stripe = getStripe();
     const emailService = getDefaultEmailService();
-    const subs = await this.findActiveStripeSubscriptions(userEmail);
+    const allSubs = allStatuses
+      ? await this.findRecentStripeSubscriptions(userEmail)
+      : await this.findActiveStripeSubscriptions(userEmail);
+    const subs = allStatuses
+      ? allSubs.filter((s) => s.status !== 'canceled')
+      : allSubs;
 
     console.log(
       `Found ${subs.length} active Stripe subscriptions for ${userEmail}`
