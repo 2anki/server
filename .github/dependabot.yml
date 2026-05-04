@@ -1,26 +1,16 @@
 version: 2
 updates:
-  # npm — grouped so a single PR covers all weekly minor/patch bumps.
-  # Major bumps stay un-grouped (one PR each) so breaking changes get
-  # individual review.
   - package-ecosystem: 'npm'
     directory: '/'
     schedule:
       interval: 'weekly'
     open-pull-requests-limit: 10
     groups:
-      production-dependencies:
-        dependency-type: 'production'
-        update-types:
-          - 'minor'
-          - 'patch'
-      development-dependencies:
-        dependency-type: 'development'
+      npm-dependencies:
         update-types:
           - 'minor'
           - 'patch'
 
-  # GitHub Actions — one PR per week for all workflow updates.
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
