@@ -251,7 +251,7 @@ class UsersController {
 
   async deleteAccount(req: express.Request, res: express.Response) {
     const { owner } = res.locals;
-    if (!owner && req.body.confirmed === true) {
+    if (!owner) {
       return res.status(400).json({});
     }
 
@@ -262,7 +262,7 @@ class UsersController {
       }
 
       try {
-        await SubscriptionService.cancelUserSubscriptions(user.email);
+        await SubscriptionService.cancelUserSubscriptions(user.email, 'immediate');
       } catch (cancelError) {
         console.error(
           'Subscription cancellation failed during account deletion:',
