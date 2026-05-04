@@ -107,7 +107,7 @@ class CardGenerator {
         }
         const output = stdoutData.join('').trim();
         const lastLine = output.split('\n').pop();
-        if (!lastLine || !lastLine.endsWith('.apkg')) {
+        if (!lastLine?.endsWith('.apkg')) {
           return reject(new Error(`Python script did not return a valid .apkg path. stdout: ${output || '(empty)'}`));
         }
         resolve(lastLine);
