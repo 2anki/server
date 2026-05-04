@@ -22,7 +22,8 @@ const UserRouter = () => {
   const emailService = getDefaultEmailService();
   const controller = new UsersController(
     new UsersService(new UsersRepository(database), emailService),
-    authService
+    authService,
+    database
   );
 
   // No authentication required for new password since user has reset token

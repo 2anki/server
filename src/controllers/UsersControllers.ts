@@ -14,7 +14,8 @@ import SubscriptionService from '../services/SubscriptionService';
 class UsersController {
   constructor(
     private readonly userService: UsersService,
-    private readonly authService: AuthenticationService
+    private readonly authService: AuthenticationService,
+    private readonly db: ReturnType<typeof import('../data_layer').getDatabase>
   ) {}
 
   async newPassword(
@@ -286,11 +287,21 @@ class UsersController {
     }
 
     const requestedMode = req.body?.mode === 'immediate' ? 'immediate' : 'period_end';
+    const reason: string | undefined = req.body?.reason;
+    const comment: string | undefined = req.body?.comment;
 
     try {
       const user = await this.userService.getUserById(owner);
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
+      }
+
+      if (reason) {
+        await this.db('cancellation_feedback').insert({
+          owner,
+          reason: reason.slice(0, 100),
+          comment: comment ? comment.slice(0, 1000) : null,
+        });
       }
 
       const processedCount = await SubscriptionService.cancelUserSubscriptions(
