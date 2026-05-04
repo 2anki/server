@@ -240,10 +240,10 @@ importers:
         version: 3.1.14
       prettier:
         specifier: ^3.2.5
-        version: 3.8.1
+        version: 3.8.3
       pretty-quick:
         specifier: ^4.0.0
-        version: 4.2.2(prettier@3.8.1)
+        version: 4.2.2(prettier@3.8.3)
       ts-jest:
         specifier: ^29.1.1
         version: 29.4.9(@babel/core@7.29.0)(@jest/transform@30.3.0)(@jest/types@30.3.0)(babel-jest@30.3.0(@babel/core@7.29.0))(jest-util@30.3.0)(jest@30.3.0(@types/node@25.6.0)(ts-node@10.9.2(@types/node@25.6.0)(typescript@5.7.3)))(typescript@5.7.3)
@@ -3721,8 +3721,8 @@ packages:
     deprecated: No longer maintained. Please contact the author of the relevant native addon; alternatives are available.
     hasBin: true
 
-  prettier@3.8.1:
-    resolution: {integrity: sha512-UOnG6LftzbdaHZcKoPFtOcCKztrQ57WkHDeRD9t/PTQtmT0NHSeWWepj6pS0z/N7+08BHFDQVUrfmfMRcZwbMg==}
+  prettier@3.8.3:
+    resolution: {integrity: sha512-7igPTM53cGHMW8xWuVTydi2KO233VFiTNyF5hLJqpilHfmn8C8gPf+PS7dUT64YcXFbiMGZxS9pCSxL/Dxm/Jw==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -8840,7 +8840,7 @@ snapshots:
       tar-fs: 2.1.4
       tunnel-agent: 0.6.0
 
-  prettier@3.8.1: {}
+  prettier@3.8.3: {}
 
   pretty-format@30.3.0:
     dependencies:
@@ -8852,14 +8852,14 @@ snapshots:
     dependencies:
       parse-ms: 2.1.0
 
-  pretty-quick@4.2.2(prettier@3.8.1):
+  pretty-quick@4.2.2(prettier@3.8.3):
     dependencies:
       '@pkgr/core': 0.2.9
       ignore: 7.0.5
       mri: 1.2.0
       picocolors: 1.1.1
       picomatch: 4.0.4
-      prettier: 3.8.1
+      prettier: 3.8.3
       tinyexec: 0.3.2
       tslib: 2.8.1
 
