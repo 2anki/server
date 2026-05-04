@@ -126,6 +126,14 @@ const WebhooksRouter = () => {
             const customerDeleted =
               await stripe.customers.retrieve(deletedCustomerId);
 
+            if ('email' in customerDeleted && customerDeleted.email) {
+              const usersRepo = new UsersRepository(getDatabase());
+              const user = await usersRepo.getByEmail(customerDeleted.email);
+              if (!user) {
+                break;
+              }
+            }
+
             await updateStoreSubscription(
               getDatabase(),
               customerDeleted as Stripe.Customer,

@@ -116,7 +116,7 @@ export class SubscriptionService {
             linked_email: normalized,
           });
         })
-        .update({ active: false });
+        .delete();
     }
 
     return subs.length;
