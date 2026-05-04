@@ -68,7 +68,7 @@ describe('reconcileActiveSubscriptions', () => {
       id: 'sub_1',
       status: 'active',
       cancel_at_period_end: true,
-      current_period_end: pastSeconds,
+      cancel_at: pastSeconds,
     }));
 
     await reconcileActiveSubscriptions(db as any, stripe);
