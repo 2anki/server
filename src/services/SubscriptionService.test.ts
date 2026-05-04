@@ -282,4 +282,38 @@ describe('SubscriptionService.cancelUserSubscriptions', () => {
       SubscriptionService.cancelUserSubscriptions(email)
     ).rejects.toThrow('stripe is down');
   });
+
+  it('cancels non-active subscriptions when allStatuses is true', async () => {
+    const pastDueSub = { ...activeSub, id: 'sub_past', status: 'past_due' };
+    stripe.subscriptions.list.mockResolvedValue({ data: [pastDueSub] });
+
+    const result = await SubscriptionService.cancelUserSubscriptions(
+      email,
+      'immediate',
+      true
+    );
+
+    expect(stripe.subscriptions.list).toHaveBeenCalledWith(
+      expect.objectContaining({ status: 'all' })
+    );
+    expect(stripe.subscriptions.cancel).toHaveBeenCalledWith('sub_past');
+    expect(result).toBe(1);
+  });
+
+  it('skips already-canceled subscriptions when allStatuses is true', async () => {
+    const canceledSub = { ...activeSub, id: 'sub_old', status: 'canceled' };
+    stripe.subscriptions.list.mockResolvedValue({
+      data: [activeSub, canceledSub],
+    });
+
+    const result = await SubscriptionService.cancelUserSubscriptions(
+      email,
+      'immediate',
+      true
+    );
+
+    expect(stripe.subscriptions.cancel).toHaveBeenCalledWith('sub_123');
+    expect(stripe.subscriptions.cancel).not.toHaveBeenCalledWith('sub_old');
+    expect(result).toBe(1);
+  });
 });

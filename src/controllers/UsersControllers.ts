@@ -262,7 +262,7 @@ class UsersController {
       }
 
       try {
-        await SubscriptionService.cancelUserSubscriptions(user.email, 'immediate');
+        await SubscriptionService.cancelUserSubscriptions(user.email, 'immediate', true);
       } catch (cancelError) {
         console.error(
           'Subscription cancellation failed during account deletion:',
