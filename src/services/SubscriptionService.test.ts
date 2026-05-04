@@ -17,20 +17,25 @@ import SubscriptionService from './SubscriptionService';
 
 function buildDbMock(linkedRows: Array<{ email: string }> = []): jest.Mock & {
   updateSpy: jest.Mock;
+  deleteSpy: jest.Mock;
 } {
   const updateSpy = jest.fn().mockResolvedValue(0);
+  const deleteSpy = jest.fn().mockResolvedValue(0);
   const queryBuilder: Record<string, unknown> = {
     select: jest.fn().mockReturnThis(),
     where: jest.fn().mockReturnThis(),
     andWhere: jest.fn().mockReturnThis(),
     orWhere: jest.fn().mockReturnThis(),
     update: updateSpy,
+    delete: deleteSpy,
     then: (resolve: (value: unknown) => void) => resolve(linkedRows),
   };
   const db = jest.fn().mockReturnValue(queryBuilder) as jest.Mock & {
     updateSpy: jest.Mock;
+    deleteSpy: jest.Mock;
   };
   db.updateSpy = updateSpy;
+  db.deleteSpy = deleteSpy;
   return db;
 }
 
@@ -237,22 +242,24 @@ describe('SubscriptionService.cancelUserSubscriptions', () => {
     expect(sendScheduledEmail).not.toHaveBeenCalled();
   });
 
-  it('marks the local DB subscription inactive on immediate cancel', async () => {
+  it('deletes the local DB subscription rows on immediate cancel', async () => {
     const db = buildDbMock();
     (getDatabase as jest.Mock).mockReturnValue(db);
 
     await SubscriptionService.cancelUserSubscriptions(email, 'immediate');
 
-    expect(db.updateSpy).toHaveBeenCalledWith({ active: false });
+    expect(db.deleteSpy).toHaveBeenCalled();
+    expect(db.updateSpy).not.toHaveBeenCalled();
   });
 
-  it('does not flip the DB active flag for period_end cancel', async () => {
+  it('does not touch the DB for period_end cancel', async () => {
     const db = buildDbMock();
     (getDatabase as jest.Mock).mockReturnValue(db);
 
     await SubscriptionService.cancelUserSubscriptions(email, 'period_end');
 
     expect(db.updateSpy).not.toHaveBeenCalled();
+    expect(db.deleteSpy).not.toHaveBeenCalled();
   });
 
   it('returns the count of processed subscriptions', async () => {
