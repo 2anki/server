@@ -1,4 +1,4 @@
-import Stripe from 'stripe';
+import type { Stripe as StripeTypes } from 'stripe/cjs/stripe.core';
 import { getDatabase } from '../data_layer';
 import { getStripe } from '../lib/integrations/stripe';
 import { getDefaultEmailService } from './EmailService/EmailService';
@@ -24,13 +24,13 @@ async function collectCandidateEmails(userEmail: string): Promise<string[]> {
 
 async function listStripeSubscriptionsFor(
   userEmail: string,
-  status: Stripe.SubscriptionListParams['status']
-): Promise<Stripe.Subscription[]> {
+  status: StripeTypes.SubscriptionListParams['status']
+): Promise<StripeTypes.Subscription[]> {
   const stripe = getStripe();
   const candidateEmails = await collectCandidateEmails(userEmail);
 
   const seen = new Set<string>();
-  const subs: Stripe.Subscription[] = [];
+  const subs: StripeTypes.Subscription[] = [];
 
   for (const email of candidateEmails) {
     const customers = await stripe.customers.list({ email, limit: 10 });
@@ -55,13 +55,13 @@ async function listStripeSubscriptionsFor(
 export class SubscriptionService {
   static findActiveStripeSubscriptions(
     userEmail: string
-  ): Promise<Stripe.Subscription[]> {
+  ): Promise<StripeTypes.Subscription[]> {
     return listStripeSubscriptionsFor(userEmail, 'active');
   }
 
   static findRecentStripeSubscriptions(
     userEmail: string
-  ): Promise<Stripe.Subscription[]> {
+  ): Promise<StripeTypes.Subscription[]> {
     return listStripeSubscriptionsFor(userEmail, 'all');
   }
 
@@ -95,13 +95,12 @@ export class SubscriptionService {
         const updated = await stripe.subscriptions.update(sub.id, {
           cancel_at_period_end: true,
         });
-        const periodEndSeconds =
-          updated.current_period_end ?? sub.current_period_end;
-        if (periodEndSeconds) {
+        const cancelAt = updated.cancel_at ?? sub.cancel_at;
+        if (cancelAt) {
           await emailService.sendSubscriptionScheduledCancellationEmail(
             userEmail,
             '',
-            new Date(periodEndSeconds * 1000)
+            new Date(cancelAt * 1000)
           );
         }
       }

@@ -69,7 +69,7 @@ const activeSub = {
   id: 'sub_123',
   status: 'active',
   cancel_at_period_end: false,
-  current_period_end: periodEndSeconds,
+  cancel_at: null,
 };
 
 describe('SubscriptionService.findActiveStripeSubscriptions', () => {
@@ -161,7 +161,7 @@ describe('SubscriptionService.findRecentStripeSubscriptions', () => {
       id: 'sub_old',
       status: 'canceled',
       cancel_at_period_end: false,
-      current_period_end: periodEndSeconds,
+      cancel_at: null,
       canceled_at: periodEndSeconds - 100,
     };
     stripe.customers.list.mockResolvedValue({
@@ -219,6 +219,7 @@ describe('SubscriptionService.cancelUserSubscriptions', () => {
     stripe.subscriptions.update.mockResolvedValue({
       ...activeSub,
       cancel_at_period_end: true,
+      cancel_at: periodEndSeconds,
     });
   });
 
