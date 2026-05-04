@@ -697,7 +697,7 @@ export class DeckParser {
   private extractToggleLists(dom: cheerio.CheerioAPI): Element[] {
     const foundToggleLists = findNotionToggleLists(dom, {
       isCherry: this.settings.isCherry,
-      isAll: false,
+      isAll: this.settings.isAll,
       disableIndentedBulletPoints: this.settings.disableIndentedBulletPoints,
     });
 
