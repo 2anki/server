@@ -3,6 +3,9 @@ import { getDefaultEmailService } from '../../../services/EmailService/EmailServ
 import UsersService from '../../../services/UsersService';
 import UsersRepository from '../../../data_layer/UsersRepository';
 import { getDatabase } from '../../../data_layer';
+import SubscriptionService from '../../../services/SubscriptionService';
+import { getStripe, updateStoreSubscription } from '../../../lib/integrations/stripe';
+import type { Stripe as StripeTypes } from 'stripe/cjs/stripe.core';
 
 export const handleUploadLimitError = async (
   req: express.Request,
@@ -10,7 +13,6 @@ export const handleUploadLimitError = async (
 ) => {
   const owner = response.locals.owner;
 
-  // If the user is already logged in, redirect to the pricing page
   if (owner) {
     const database = getDatabase();
     const emailService = getDefaultEmailService();
@@ -21,6 +23,21 @@ export const handleUploadLimitError = async (
 
     const user = await usersService.getUserById(response.locals.owner);
     if (user) {
+      try {
+        const activeSubs = await SubscriptionService.findActiveStripeSubscriptions(user.email);
+        if (activeSubs.length > 0) {
+          const stripe = getStripe();
+          for (const sub of activeSubs) {
+            const customer = await stripe.customers.retrieve(
+              sub.customer as string
+            ) as StripeTypes.Customer;
+            await updateStoreSubscription(database, customer, sub);
+          }
+          return response.redirect('/upload');
+        }
+      } catch (err) {
+        console.error('[handleUploadLimitError] Stripe sync failed:', err);
+      }
       return response.redirect('/pricing?error=upload_limit_exceeded');
     }
   }

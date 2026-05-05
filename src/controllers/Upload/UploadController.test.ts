@@ -1,5 +1,17 @@
 import express from 'express';
 
+jest.mock('../../lib/integrations/stripe', () => ({
+  getStripe: jest.fn().mockReturnValue({
+    customers: { retrieve: jest.fn() },
+  }),
+  updateStoreSubscription: jest.fn().mockResolvedValue(undefined),
+}));
+
+jest.mock('../../services/SubscriptionService', () => ({
+  __esModule: true,
+  default: { findActiveStripeSubscriptions: jest.fn().mockResolvedValue([]) },
+}));
+
 import { INotionRepository } from '../../data_layer/NotionRespository';
 import { IUploadRepository } from '../../data_layer/UploadRespository';
 import NotionTokens from '../../data_layer/public/NotionTokens';

@@ -66,14 +66,16 @@ export class StripeController {
     const loggedInUser = await authService.getUserFrom(token);
     const sessionId = req.query.session_id as string;
 
-    console.log('sessionId', sessionId);
     if (loggedInUser && sessionId) {
+      // Persist subscription before linking — without this, the link write is a
+      // no-op when the webhook hasn't fired yet and the subscriptions row doesn't exist.
+      await persistStripeSession(database, sessionId);
+
       const stripe = getStripe();
       const session = await stripe.checkout.sessions.retrieve(sessionId);
       const email = session.customer_details?.email;
 
       if (loggedInUser.email !== email && email) {
-        console.log('updated email for customer');
         await usersService.updateSubScriptionEmailUsingPrimaryEmail(
           email.toLowerCase(),
           loggedInUser.email.toLowerCase()
