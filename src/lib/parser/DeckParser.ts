@@ -110,29 +110,11 @@ export class DeckParser {
         const heuristic = guessMarkdownCards(contentsStr ?? '');
         if (heuristic) {
           for (const note of heuristic.notes) {
-            const media: string[] = [];
-            const embedImagesInHtml = (html: string): string => {
-              const dom = cheerio.load(html, { xmlMode: true });
-              dom('img').each((_i, elem) => {
-                const src = dom(elem).attr('src');
-                if (src && isImageFileEmbedable(src)) {
-                  const newName = embedFile({
-                    exporter: this.customExporter,
-                    files: this.files,
-                    filePath: decodeURIComponent(src),
-                    workspace: this.workspace,
-                  });
-                  if (newName) {
-                    dom(elem).attr('src', newName);
-                    media.push(newName);
-                  }
-                }
-              });
-              return dom.html() ?? html;
-            };
-            note.name = embedImagesInHtml(note.name);
-            note.back = embedImagesInHtml(note.back);
-            note.media = media;
+            const { html: newName, media: namMedia } = this.embedImagesInHtml(note.name);
+            const { html: newBack, media: backMedia } = this.embedImagesInHtml(note.back);
+            note.name = newName;
+            note.back = newBack;
+            note.media = [...namMedia, ...backMedia];
           }
           const deck = new Deck(
             this.settings.deckName ?? getTitleFromMarkdown(contentsStr) ?? name,
@@ -208,6 +190,27 @@ export class DeckParser {
   removeNestedTogglesNewFormat(input: string): string {
     const result = this.cleanupEmptyElements(input, true);
     return result.trim();
+  }
+
+  private embedImagesInHtml(html: string): { html: string; media: string[] } {
+    const dom = cheerio.load(html, { xmlMode: true });
+    const media: string[] = [];
+    dom('img').each((_i, elem) => {
+      const src = dom(elem).attr('src');
+      if (src && isImageFileEmbedable(src)) {
+        const newName = embedFile({
+          exporter: this.customExporter,
+          files: this.files,
+          filePath: decodeURIComponent(src),
+          workspace: this.workspace,
+        });
+        if (newName) {
+          dom(elem).attr('src', newName);
+          media.push(newName);
+        }
+      }
+    });
+    return { html: dom.html() ?? html, media };
   }
 
   private preserveSummaryContent(html: string): string {
