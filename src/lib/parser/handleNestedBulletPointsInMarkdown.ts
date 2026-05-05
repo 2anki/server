@@ -13,6 +13,15 @@ import Workspace from './WorkSpace';
 
 import { File } from '../zip/zip';
 
+function dedent(text: string): string {
+  const lines = text.split('\n');
+  const nonEmptyLines = lines.filter((l) => l.trim().length > 0);
+  if (nonEmptyLines.length === 0) return text;
+  const minIndent = Math.min(...nonEmptyLines.map((l) => l.match(/^[ \t]*/)?.[0].length ?? 0));
+  if (minIndent === 0) return text;
+  return lines.map((l) => l.slice(minIndent)).join('\n');
+}
+
 const BULLET_POINT_REGEX = /^-/;
 
 interface HandleNestedBulletPointsInMarkdownInput {
@@ -63,7 +72,7 @@ export const handleNestedBulletPointsInMarkdown = (
     }
 
     if (BULLET_POINT_REGEX.exec(line) && isCreating) {
-      const convertedBack = markdownToHTML(currentBack, trimWhitespace);
+      const convertedBack = markdownToHTML(dedent(currentBack), trimWhitespace);
       const dom = cheerio.load(convertedBack, {
         xmlMode: true,
       });
@@ -109,7 +118,7 @@ export const handleNestedBulletPointsInMarkdown = (
 
   // Ensure the last card is processed
   if (currentBack !== '' || currentFront !== '') {
-    const convertedBack = markdownToHTML(currentBack, trimWhitespace);
+    const convertedBack = markdownToHTML(dedent(currentBack), trimWhitespace);
     const dom = cheerio.load(convertedBack, {
       xmlMode: true,
     });
