@@ -68,7 +68,8 @@ export class SubscriptionService {
   static async cancelUserSubscriptions(
     userEmail: string,
     mode: CancelMode = 'period_end',
-    allStatuses = false
+    allStatuses = false,
+    sendEmail = true
   ): Promise<number> {
     const stripe = getStripe();
     const emailService = getDefaultEmailService();
@@ -87,7 +88,9 @@ export class SubscriptionService {
       if (mode === 'immediate') {
         console.log(`Cancelling Stripe subscription ${sub.id} immediately`);
         await stripe.subscriptions.cancel(sub.id);
-        await emailService.sendSubscriptionCancelledEmail(userEmail, '', sub.id);
+        if (sendEmail) {
+          await emailService.sendSubscriptionCancelledEmail(userEmail, '', sub.id);
+        }
       } else {
         console.log(
           `Scheduling cancellation at period end for Stripe subscription ${sub.id}`
@@ -96,7 +99,7 @@ export class SubscriptionService {
           cancel_at_period_end: true,
         });
         const cancelAt = updated.cancel_at ?? sub.cancel_at;
-        if (cancelAt) {
+        if (sendEmail && cancelAt) {
           await emailService.sendSubscriptionScheduledCancellationEmail(
             userEmail,
             '',
