@@ -109,6 +109,27 @@ export class DeckParser {
       if (this.payload.every((d) => d.cards.length === 0)) {
         const heuristic = guessMarkdownCards(contentsStr ?? '');
         if (heuristic) {
+          for (const note of heuristic.notes) {
+            const dom = cheerio.load(note.back, { xmlMode: true });
+            const media: string[] = [];
+            dom('img').each((_i, elem) => {
+              const src = dom(elem).attr('src');
+              if (src && isImageFileEmbedable(src)) {
+                const newName = embedFile({
+                  exporter: this.customExporter,
+                  files: this.files,
+                  filePath: decodeURIComponent(src),
+                  workspace: this.workspace,
+                });
+                if (newName) {
+                  dom(elem).attr('src', newName);
+                  media.push(newName);
+                }
+              }
+            });
+            note.back = dom.html() ?? note.back;
+            note.media = media;
+          }
           const deck = new Deck(
             this.settings.deckName ?? getTitleFromMarkdown(contentsStr) ?? name,
             heuristic.notes,
