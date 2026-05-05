@@ -5,26 +5,34 @@ on:
     paths-ignore:
       - '**/*.md'
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     if: ${{ github.actor != 'dependabot[bot]'}}
+    name: build (22.20.0)
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [22.20.0]
-
     steps:
       - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v6
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v6
+      - uses: actions/setup-node@v6
         with:
-          node-version: ${{ matrix.node-version }}
-      - name: test
-        run: |
-          pnpm install
-          pnpm run test
+          node-version: 22.20.0
+          cache: pnpm
+      - name: Cache node_modules
+        id: modules-cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+      - name: Install
+        if: steps.modules-cache.outputs.cache-hit != 'true'
+        run: pnpm install --frozen-lockfile
+        env:
+          CI: true
+      - name: Test
+        run: pnpm run test
         env:
           CI: true
           NOTION_KEY: ${{ secrets.NOTION_KEY }}
