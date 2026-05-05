@@ -21,17 +21,6 @@ export const CONVERT_LINK_TEMPLATE = fs.readFileSync(
 
 export const DEFAULT_SENDER = '2anki.net <info@2anki.net>';
 
-export const VAT_NOTIFICATION_TEMPLATE = fs.readFileSync(
-  path.join(EMAIL_TEMPLATES_DIRECTORY, 'vat-notification.html'),
-  'utf8'
-);
-
-export const VAT_NOTIFICATIONS_LOG_PATH = path.join(
-  os.homedir(),
-  '.2anki',
-  'vat-notifications-sent.json'
-);
-
 export const SUBSCRIPTION_CANCELLED_TEMPLATE = fs.readFileSync(
   path.join(EMAIL_TEMPLATES_DIRECTORY, 'subscription-cancelled.html'),
   'utf8'
