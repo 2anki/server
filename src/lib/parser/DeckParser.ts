@@ -26,7 +26,7 @@ import {
 } from '../storage/checks';
 import { getFileContents } from './getFileContents';
 import { handleNestedBulletPointsInMarkdown } from './handleNestedBulletPointsInMarkdown';
-import { guessMarkdownCards } from './guessMarkdownCards';
+import { guessMarkdownCards, MarkdownHeuristicResult } from './guessMarkdownCards';
 import { getTitleFromMarkdown } from './getTitleFromMarkdown';
 import { checkFlashcardsLimits } from '../User/checkFlashcardsLimits';
 import { extractStyles } from './extractStyles';
@@ -109,23 +109,7 @@ export class DeckParser {
       if (this.payload.every((d) => d.cards.length === 0)) {
         const heuristic = guessMarkdownCards(contentsStr ?? '');
         if (heuristic) {
-          for (const note of heuristic.notes) {
-            const { html: newName, media: namMedia } = this.embedImagesInHtml(note.name);
-            const { html: newBack, media: backMedia } = this.embedImagesInHtml(note.back);
-            note.name = newName;
-            note.back = newBack;
-            note.media = [...namMedia, ...backMedia];
-          }
-          const deck = new Deck(
-            this.settings.deckName ?? getTitleFromMarkdown(contentsStr) ?? name,
-            heuristic.notes,
-            '',
-            '',
-            get16DigitRandomId(),
-            this.settings
-          );
-          this.payload = [deck];
-          this.usedHeuristic = true;
+          this.applyHeuristic(heuristic, contentsStr, name);
         }
       }
     } else if (isHTMLFile(name)) {
@@ -190,6 +174,26 @@ export class DeckParser {
   removeNestedTogglesNewFormat(input: string): string {
     const result = this.cleanupEmptyElements(input, true);
     return result.trim();
+  }
+
+  private applyHeuristic(heuristic: MarkdownHeuristicResult, contentsStr: string | undefined, name: string) {
+    for (const note of heuristic.notes) {
+      const { html: newName, media: namMedia } = this.embedImagesInHtml(note.name);
+      const { html: newBack, media: backMedia } = this.embedImagesInHtml(note.back);
+      note.name = newName;
+      note.back = newBack;
+      note.media = [...namMedia, ...backMedia];
+    }
+    const deck = new Deck(
+      this.settings.deckName ?? getTitleFromMarkdown(contentsStr) ?? name,
+      heuristic.notes,
+      '',
+      '',
+      get16DigitRandomId(),
+      this.settings
+    );
+    this.payload = [deck];
+    this.usedHeuristic = true;
   }
 
   private embedImagesInHtml(html: string): { html: string; media: string[] } {
