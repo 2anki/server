@@ -20,7 +20,12 @@ If you'd prefer a refund instead, just let us know and we'll process it right aw
 We've gone ahead and cancelled your subscription so you won't be charged again while this is unresolved.
 
 Sorry for the inconvenience,
-The 2anki.net team`;
+
+---
+Happy learning,
+The 2anki Team
+
+https://2anki.net/`;
 
 async function findUnlinkedSubscriptions(): Promise<{ email: string; linked_email: string | null }[]> {
   return database('subscriptions')
