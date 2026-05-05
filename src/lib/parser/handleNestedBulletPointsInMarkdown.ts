@@ -22,6 +22,38 @@ function dedent(text: string): string {
   return lines.map((l) => l.slice(minIndent)).join('\n');
 }
 
+function buildNoteFromBack(
+  front: string,
+  rawBack: string,
+  exporter: CustomExporter,
+  files: File[],
+  workspace: Workspace
+): Note {
+  const convertedBack = markdownToHTML(dedent(rawBack), true);
+  const dom = cheerio.load(convertedBack, { xmlMode: true });
+  const media: string[] = [];
+
+  dom('img').each((_i, elem) => {
+    const src = dom(elem).attr('src');
+    if (src && isImageFileEmbedable(src)) {
+      const newName = embedFile({
+        exporter,
+        files,
+        filePath: decodeURIComponent(src),
+        workspace,
+      });
+      if (newName) {
+        dom(elem).attr('src', newName);
+        media.push(newName);
+      }
+    }
+  });
+
+  const note = new Note(front, dom.html() || '');
+  note.media = media;
+  return note;
+}
+
 const BULLET_POINT_REGEX = /^-/;
 
 interface HandleNestedBulletPointsInMarkdownInput {
@@ -59,12 +91,10 @@ export const handleNestedBulletPointsInMarkdown = (
 
   decks.push(deck);
 
-  // Parse the markdown content
   const lines = contents?.split('\n') ?? [];
   let isCreating = false;
   let currentFront = '';
   let currentBack = '';
-  const trimWhitespace = true;
 
   for (const line of lines) {
     if (line.trim().length === 0) {
@@ -72,36 +102,7 @@ export const handleNestedBulletPointsInMarkdown = (
     }
 
     if (BULLET_POINT_REGEX.exec(line) && isCreating) {
-      const convertedBack = markdownToHTML(dedent(currentBack), trimWhitespace);
-      const dom = cheerio.load(convertedBack, {
-        xmlMode: true,
-      });
-      const images = dom('img');
-      const media: string[] = [];
-
-      images.each((_i, elem) => {
-        const src = dom(elem).attr('src');
-        if (src && isImageFileEmbedable(src)) {
-          const decodedSrc = decodeURIComponent(src);
-          const newName = embedFile({
-            exporter: exporter,
-            files: files,
-            filePath: decodedSrc,
-            workspace: workspace,
-          });
-          if (newName) {
-            dom(elem).attr('src', newName);
-            media.push(newName);
-          }
-        }
-      });
-
-      const note = new Note(
-        currentFront,
-        dom.html() || ''
-      );
-      note.media = media;
-      deck.cards.push(note);
+      deck.cards.push(buildNoteFromBack(currentFront, currentBack, exporter, files, workspace));
       isCreating = false;
       currentFront = '';
       currentBack = '';
@@ -109,45 +110,15 @@ export const handleNestedBulletPointsInMarkdown = (
 
     if (BULLET_POINT_REGEX.exec(line) && !isCreating) {
       isCreating = true;
-      currentFront = markdownToHTML(line, trimWhitespace);
+      currentFront = markdownToHTML(line, true);
       currentBack = '';
     } else if (isCreating) {
       currentBack += line + '\n';
     }
   }
 
-  // Ensure the last card is processed
   if (currentBack !== '' || currentFront !== '') {
-    const convertedBack = markdownToHTML(dedent(currentBack), trimWhitespace);
-    const dom = cheerio.load(convertedBack, {
-      xmlMode: true,
-    });
-    const images = dom('img');
-    const media: string[] = [];
-
-    images.each((_i, elem) => {
-      const src = dom(elem).attr('src');
-      if (src && isImageFileEmbedable(src)) {
-        const decodedSrc = decodeURIComponent(src);
-        const newName = embedFile({
-          exporter,
-          files: files,
-          filePath: decodedSrc,
-          workspace,
-        });
-        if (newName) {
-          dom(elem).attr('src', newName);
-          media.push(newName);
-        }
-      }
-    });
-
-    const note = new Note(
-      currentFront,
-      dom.html() || ''
-    );
-    note.media = media;
-    deck.cards.push(note);
+    deck.cards.push(buildNoteFromBack(currentFront, currentBack, exporter, files, workspace));
   }
 
   return decks;
