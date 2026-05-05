@@ -10,7 +10,7 @@ function tryDetailsPattern(content: string): Note[] {
     const front = match[1].trim();
     const back = match[2].trim();
     if (front && back) {
-      notes.push(new Note(front, markdownToHTML(back)));
+      notes.push(new Note(markdownToHTML(front), markdownToHTML(back)));
     }
   }
   return notes;

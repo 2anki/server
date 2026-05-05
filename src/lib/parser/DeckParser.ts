@@ -110,24 +110,28 @@ export class DeckParser {
         const heuristic = guessMarkdownCards(contentsStr ?? '');
         if (heuristic) {
           for (const note of heuristic.notes) {
-            const dom = cheerio.load(note.back, { xmlMode: true });
             const media: string[] = [];
-            dom('img').each((_i, elem) => {
-              const src = dom(elem).attr('src');
-              if (src && isImageFileEmbedable(src)) {
-                const newName = embedFile({
-                  exporter: this.customExporter,
-                  files: this.files,
-                  filePath: decodeURIComponent(src),
-                  workspace: this.workspace,
-                });
-                if (newName) {
-                  dom(elem).attr('src', newName);
-                  media.push(newName);
+            const embedImagesInHtml = (html: string): string => {
+              const dom = cheerio.load(html, { xmlMode: true });
+              dom('img').each((_i, elem) => {
+                const src = dom(elem).attr('src');
+                if (src && isImageFileEmbedable(src)) {
+                  const newName = embedFile({
+                    exporter: this.customExporter,
+                    files: this.files,
+                    filePath: decodeURIComponent(src),
+                    workspace: this.workspace,
+                  });
+                  if (newName) {
+                    dom(elem).attr('src', newName);
+                    media.push(newName);
+                  }
                 }
-              }
-            });
-            note.back = dom.html() ?? note.back;
+              });
+              return dom.html() ?? html;
+            };
+            note.name = embedImagesInHtml(note.name);
+            note.back = embedImagesInHtml(note.back);
             note.media = media;
           }
           const deck = new Deck(

@@ -16,7 +16,7 @@ describe('guessMarkdownCards', () => {
       expect(result).not.toBeNull();
       expect(result!.formatDetected).toBe('details-summary');
       expect(result!.notes).toHaveLength(1);
-      expect(result!.notes[0].name).toBe('What is the capital of France?');
+      expect(result!.notes[0].name).toContain('What is the capital of France?');
       expect(result!.notes[0].back).toContain('Paris');
     });
 
