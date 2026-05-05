@@ -354,7 +354,7 @@ class UsersController {
           cancel_at_period_end: sub.cancel_at_period_end === true,
           cancel_at: sub.cancel_at ?? null,
           canceled_at: sub.canceled_at ?? null,
-          current_period_end: sub.current_period_end ?? null,
+          current_period_end: firstItem?.current_period_end ?? null,
           plan: price
             ? {
                 amount: price.unit_amount ?? null,
