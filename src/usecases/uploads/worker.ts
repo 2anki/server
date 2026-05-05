@@ -45,6 +45,11 @@ function getFileContents(file: UploadedFile): Buffer {
 /**
  * Process a single file and return packages
  */
+interface FileResult {
+  packages: Package[];
+  warnings: string[];
+}
+
 async function processFile(
   file: UploadedFile,
   fileContents: Buffer,
@@ -52,12 +57,12 @@ async function processFile(
   settings: CardOption,
   workspace: Workspace,
   onProgress: (step: string) => void
-): Promise<Package[]> {
+): Promise<FileResult> {
   const packages: Package[] = [];
+  const warnings: string[] = [];
   const filename = file.originalname;
   const key = file.key;
 
-  // Check if it's a valid single file
   const allowImageQuizHtmlToAnki =
     paying && settings.imageQuizHtmlToAnki && isImageFile(filename);
   const isValidSingleFile =
@@ -78,26 +83,27 @@ async function processFile(
 
     if (d) {
       packages.push(new Package(d.name, d.cardCount ?? 0));
+      if (d.warning) warnings.push(d.warning);
     }
-  }
-  // Check if it's a compressed file
-  else if (isCompressedFile(filename) || isCompressedFile(key)) {
-    const { packages: extraPackages } = await getPackagesFromZip(
+  } else if (isCompressedFile(filename) || isCompressedFile(key)) {
+    const result = await getPackagesFromZip(
       fileContents,
       paying,
       settings,
       workspace,
       onProgress
     );
-    packages.push(...extraPackages);
+    packages.push(...result.packages);
+    if (result.warnings) warnings.push(...result.warnings);
   }
 
-  return packages;
+  return { packages, warnings };
 }
 
 async function doGenerationWork(data: GenerationData) {
   const { paying, files, settings, workspace } = data;
   let packages: Package[] = [];
+  const warnings: string[] = [];
 
   const onProgress = (step: string) => {
     parentPort?.postMessage({ type: 'progress', step });
@@ -105,7 +111,7 @@ async function doGenerationWork(data: GenerationData) {
 
   for (const file of files) {
     const fileContents = getFileContents(file);
-    const filePackages = await processFile(
+    const result = await processFile(
       file,
       fileContents,
       paying,
@@ -113,10 +119,11 @@ async function doGenerationWork(data: GenerationData) {
       workspace,
       onProgress
     );
-    packages = packages.concat(filePackages);
+    packages = packages.concat(result.packages);
+    warnings.push(...result.warnings);
   }
 
-  return { type: 'result', packages };
+  return { type: 'result', packages, warnings };
 }
 
 doGenerationWork(workerData.data)

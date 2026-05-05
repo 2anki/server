@@ -231,7 +231,7 @@ class UploadService {
     paying: boolean
   ) {
     const useCase = new GeneratePackagesUseCase();
-    const { packages } = await useCase.execute(
+    const { packages, warnings } = await useCase.execute(
       paying,
       req.files as UploadedFile[],
       settings,
@@ -253,10 +253,15 @@ class UploadService {
       res.set('Content-Type', 'application/apkg');
       res.set('Content-Length', plen.toString());
       res.set('X-Card-Count', totalCards.toString());
-      res.set(
-        'Access-Control-Expose-Headers',
-        'File-Name, X-Card-Count'
-      );
+      const exposedHeaders = ['File-Name', 'X-Card-Count'];
+      if (warnings?.includes('markdown-heuristic')) {
+        res.set(
+          'X-Warning',
+          'Your Markdown file was processed using heuristic detection. For reliable results, use the nested bullet format or enable Claude AI in settings.'
+        );
+        exposedHeaders.push('X-Warning');
+      }
+      res.set('Access-Control-Expose-Headers', exposedHeaders.join(', '));
       first.name = toText(first.name);
       try {
         res.set('File-Name', encodeURIComponent(first.name));

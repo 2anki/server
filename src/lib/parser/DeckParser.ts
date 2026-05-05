@@ -26,6 +26,8 @@ import {
 } from '../storage/checks';
 import { getFileContents } from './getFileContents';
 import { handleNestedBulletPointsInMarkdown } from './handleNestedBulletPointsInMarkdown';
+import { guessMarkdownCards } from './guessMarkdownCards';
+import { getTitleFromMarkdown } from './getTitleFromMarkdown';
 import { checkFlashcardsLimits } from '../User/checkFlashcardsLimits';
 import { extractStyles } from './extractStyles';
 import { withFontSize } from './withFontSize';
@@ -61,6 +63,8 @@ export class DeckParser {
 
   noLimits: boolean;
 
+  usedHeuristic: boolean;
+
   workspace: Workspace;
   customExporter: CustomExporter;
 
@@ -73,6 +77,7 @@ export class DeckParser {
     this.files = input.files || [];
     this.firstDeckName = input.name;
     this.noLimits = input.noLimits;
+    this.usedHeuristic = false;
     this.globalTags = null;
     this.payload = [];
     this.workspace = input.workspace ?? new Workspace(true, 'fs');
@@ -100,8 +105,21 @@ export class DeckParser {
           workspace: this.workspace,
           files: this.files,
         });
-      } else {
-        this.payload = [];
+      }
+      if (this.payload.every((d) => d.cards.length === 0)) {
+        const heuristic = guessMarkdownCards(contentsStr ?? '');
+        if (heuristic) {
+          const deck = new Deck(
+            this.settings.deckName ?? getTitleFromMarkdown(contentsStr) ?? name,
+            heuristic.notes,
+            '',
+            '',
+            get16DigitRandomId(),
+            this.settings
+          );
+          this.payload = [deck];
+          this.usedHeuristic = true;
+        }
       }
     } else if (isHTMLFile(name)) {
       const contents = getFileContents(firstFile, true);

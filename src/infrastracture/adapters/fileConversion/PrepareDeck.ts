@@ -26,6 +26,7 @@ interface PrepareDeckResult {
   apkg: Buffer;
   deck: Deck[];
   cardCount: number;
+  warning?: string;
 }
 
 async function convertFile(
@@ -255,6 +256,7 @@ export async function PrepareDeck(
         apkg,
         deck: parser.payload,
         cardCount: parser.totalCardCount(),
+        warning: parser.usedHeuristic ? 'markdown-heuristic' : undefined,
       };
     }
   }
@@ -265,5 +267,6 @@ export async function PrepareDeck(
     apkg,
     deck: parser.payload,
     cardCount: parser.totalCardCount(),
+    warning: parser.usedHeuristic ? 'markdown-heuristic' : undefined,
   };
 }
