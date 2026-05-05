@@ -32,6 +32,8 @@ export const getPackagesFromZip = async (
   const supportedFileNames = fileNames.filter(isZipContentFileSupported);
   const effectiveSettings = enableMarkdownForMarkdownUploads(fileNames, settings);
 
+  const warnings: string[] = [];
+
   if (effectiveSettings.claudeAIFlashcards && paying && fileNames.length > 0) {
     const rootName = fileNames[0];
     const deck = await PrepareDeck({
@@ -45,9 +47,10 @@ export const getPackagesFromZip = async (
 
     if (deck) {
       packages.push(new Package(deck.name, deck.cardCount ?? 0));
+      if (deck.warning) warnings.push(deck.warning);
     }
 
-    return { packages };
+    return { packages, warnings };
   }
 
   let cardCount = 0;
@@ -63,6 +66,7 @@ export const getPackagesFromZip = async (
 
     if (deck) {
       packages.push(new Package(deck.name, deck.cardCount ?? 0));
+      if (deck.warning) warnings.push(deck.warning);
       cardCount += deck.deck.reduce((acc, d) => acc + d.cards.length, 0);
 
       checkFlashcardsLimits({
@@ -78,5 +82,5 @@ export const getPackagesFromZip = async (
     });
   }
 
-  return { packages };
+  return { packages, warnings };
 };
