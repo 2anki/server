@@ -3,6 +3,7 @@ import { getDatabase } from '../../../../data_layer';
 import { Knex } from 'knex';
 import type { Stripe as StripeTypes } from 'stripe/cjs/stripe.core';
 import { reconcileActiveSubscriptions } from './reconcileActiveSubscriptions';
+import { withStripeRetry } from './withStripeRetry';
 
 const stripe = getStripe();
 const database = getDatabase();
@@ -11,11 +12,10 @@ const database = getDatabase();
  * Fetches a batch of active subscriptions from Stripe
  */
 function fetchSubscriptionBatch(startingAfter?: string) {
-  return stripe.subscriptions.list({
-    limit: 100,
-    status: 'active',
-    starting_after: startingAfter,
-  });
+  return withStripeRetry(
+    () => stripe.subscriptions.list({ limit: 100, status: 'active', starting_after: startingAfter }),
+    'fetchSubscriptionBatch'
+  );
 }
 
 /**
@@ -25,7 +25,10 @@ async function getCustomer(
   customerId: string
 ): Promise<StripeTypes.Customer | null> {
   try {
-    const customer = await stripe.customers.retrieve(customerId);
+    const customer = await withStripeRetry(
+      () => stripe.customers.retrieve(customerId),
+      'getCustomer'
+    );
     if ('email' in customer && customer.email) {
       return customer as StripeTypes.Customer;
     }
