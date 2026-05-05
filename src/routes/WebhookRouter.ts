@@ -9,7 +9,6 @@ import {
 import { getDatabase } from '../data_layer';
 import { StripeController } from '../controllers/StripeController/StripeController';
 import UsersRepository from '../data_layer/UsersRepository';
-import { getDefaultEmailService } from '../services/EmailService/EmailService';
 
 const WebhooksRouter = () => {
   const router = express.Router();
@@ -92,25 +91,13 @@ const WebhooksRouter = () => {
 
           if (
             customerSubscriptionUpdated.cancel_at_period_end === true &&
-            event.data.previous_attributes?.cancel_at_period_end === false
+            event.data.previous_attributes?.cancel_at_period_end === false &&
+            'email' in customer
           ) {
-            const cancelDate = new Date(
-              (customerSubscriptionUpdated.cancel_at ?? 0) * 1000
+            console.info(
+              `Subscription cancellation scheduled for user ${customer.email}, ` +
+                `access remains until ${new Date((customerSubscriptionUpdated.cancel_at ?? 0) * 1000).toISOString()}`
             );
-            const emailService = getDefaultEmailService();
-            if ('email' in customer) {
-              // Log the scheduled cancellation for debugging purposes
-              console.info(
-                `Subscription cancellation scheduled for user ${customer.email}, ` +
-                  `access remains until ${cancelDate.toISOString()}`
-              );
-
-              await emailService.sendSubscriptionScheduledCancellationEmail(
-                customer.email!,
-                customer.name || 'there',
-                cancelDate
-              );
-            }
           }
           break;
         case 'customer.subscription.deleted':
@@ -140,14 +127,6 @@ const WebhooksRouter = () => {
               customerSubscriptionDeleted
             );
 
-            if ('email' in customerDeleted) {
-              const emailService = getDefaultEmailService();
-              await emailService.sendSubscriptionCancelledEmail(
-                customerDeleted.email!,
-                customerDeleted.name || 'there',
-                customerSubscriptionDeleted.id
-              );
-            }
           }
           break;
         case 'checkout.session.completed':
