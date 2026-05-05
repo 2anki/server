@@ -70,23 +70,26 @@ function tryQALabelPattern(content: string): Note[] {
   return notes;
 }
 
+function parseAnkdownCards(body: string): Note[] {
+  const notes: Note[] = [];
+  for (const card of body.split(/\n---\n/)) {
+    const parts = card.split(/\n%\n/);
+    if (parts.length >= 2) {
+      const front = parts[0].trim();
+      const back = parts[1].trim();
+      if (front && back) {
+        notes.push(new Note(markdownToHTML(front), markdownToHTML(back)));
+      }
+    }
+  }
+  return notes;
+}
+
 function trySeparatorPattern(content: string): Note[] {
   const body = content.replace(/^---\n[\s\S]+?\n---\n/, '');
 
   if (body.includes('\n%\n')) {
-    const cards = body.split(/\n---\n/);
-    const notes: Note[] = [];
-    for (const card of cards) {
-      const parts = card.split(/\n%\n/);
-      if (parts.length >= 2) {
-        const front = parts[0].trim();
-        const back = parts[1].trim();
-        if (front && back) {
-          notes.push(new Note(markdownToHTML(front), markdownToHTML(back)));
-        }
-      }
-    }
-    return notes;
+    return parseAnkdownCards(body);
   }
 
   const pairs = body.split(/\n\n---\n\n/);
