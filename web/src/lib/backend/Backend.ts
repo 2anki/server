@@ -7,6 +7,7 @@ import {
 } from '../../generated/data-contracts';
 import NotionObject from '../interfaces/NotionObject';
 import UserUpload from '../interfaces/UserUpload';
+import AnkifyClient from '../interfaces/AnkifyClient';
 
 import { JobsId } from '../../schemas/public/Jobs';
 import JobResponse from '../../schemas/public/JobResponse';
@@ -268,5 +269,28 @@ export class Backend {
 
   async deleteAccount(confirmed: boolean): Promise<Response> {
     return post(`${this.baseURL}users/delete-account`, { confirmed });
+  }
+
+  async listAnkifyClients(): Promise<AnkifyClient[]> {
+    const result = await get(`${this.baseURL}ankify/clients`);
+    return result ?? [];
+  }
+
+  async provisionAnkifyClient(): Promise<AnkifyClient> {
+    const response = await post(`${this.baseURL}ankify/clients`, {});
+    if (!response.ok) {
+      const error = await response
+        .json()
+        .catch(() => ({ message: response.statusText }));
+      throw new Error(error.message ?? 'Failed to provision client');
+    }
+    return response.json();
+  }
+
+  async stopAnkifyClient(id: number): Promise<void> {
+    const response = await del(`${this.baseURL}ankify/clients/${id}`);
+    if (response == null || !response.ok) {
+      throw new Error('Failed to stop client');
+    }
   }
 }
