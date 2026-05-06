@@ -21,6 +21,7 @@
   "scripts": {
     "test": "jest",
     "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
     "start": "pnpm run dev",
     "build": "tsc -p .",
     "dev": "concurrently --names server,web --prefix-colors magenta,cyan \"pnpm:dev:server\" \"pnpm:dev:web\"",
