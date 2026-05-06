@@ -70,7 +70,7 @@
     "jsdom": "^29.1.1",
     "playwright": "^1.59.1",
     "postcss-selector-parser": "^7.1.1",
-    "swagger-typescript-api": "^13.7.2",
+    "swagger-typescript-api": "^13.8.0",
     "swagger-ui-express": "^5.0.1",
     "terser": "^5.46.2",
     "typescript": "^6.0.3",
