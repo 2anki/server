@@ -21,6 +21,15 @@ Express/TypeScript server that converts Notion pages and file uploads into Anki 
 - If test output is truncated, rerun without coverage for full output
 - When tests fail, provide the specific error message
 
+## Working speed
+
+- For research that spans 3+ queries (where is X defined, what touches Y, what changed in Z), spawn a subagent via the Agent tool with `subagent_type=Explore`. If the result isn't immediately needed, run it with `run_in_background: true` and keep editing in parallel.
+- For risky changes (auth flow, payments, migrations, deploy pipeline, anything that scares you), use `EnterWorktree` to isolate. Reverting a worktree is free.
+- For "wait until X" — long builds, CI runs, deploys baking on prod — use `ScheduleWakeup` (270s if cache-warm matters, 1200s+ for genuine waits). Never busy-poll with sleep.
+- Before running `gh pr merge` on a PR that touches auth, payments, or external-API integration code, run `/security-review` first.
+- After deploys to 2anki.net, run `/deploy-status` to confirm the box is healthy before declaring success.
+- If you notice yourself approving the same read-only Bash commands more than 2-3 times in a session, suggest the user run `/fewer-permission-prompts` to top up the allowlist.
+
 ## Process
 
 - Use TDD by default: write a failing test, verify it fails for the right reason, pass it in the simplest way, then refactor. If asked to implement without a test, confirm whether to skip it.
