@@ -12,6 +12,7 @@ export interface AnkifyClientsRepositoryInterface {
   create(input: NewAnkifyClient): Promise<AnkifyClient>;
   listByOwner(owner: number): Promise<AnkifyClient[]>;
   findActiveById(id: number, owner: number): Promise<AnkifyClient | null>;
+  findActiveByOwner(owner: number): Promise<AnkifyClient | null>;
   setStatus(id: number, status: AnkifyClientStatus): Promise<void>;
   touchLastActiveAt(id: number): Promise<void>;
   reservedPorts(): Promise<number[]>;
@@ -50,6 +51,14 @@ export class AnkifyClientsRepository
     const row = await this.database<AnkifyClient>(TABLE)
       .select('*')
       .where({ id, owner, status: 'active' })
+      .first();
+    return row ?? null;
+  }
+
+  async findActiveByOwner(owner: number): Promise<AnkifyClient | null> {
+    const row = await this.database<AnkifyClient>(TABLE)
+      .select('*')
+      .where({ owner, status: 'active' })
       .first();
     return row ?? null;
   }

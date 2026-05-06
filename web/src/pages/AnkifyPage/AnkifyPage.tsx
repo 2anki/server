@@ -31,6 +31,7 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
   });
 
   const clients = data ?? [];
+  const hasActiveClient = clients.some((client) => client.status === 'active');
 
   return (
     <main className={sharedStyles.page}>
@@ -47,10 +48,19 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
           type="button"
           className={sharedStyles.btnPrimary}
           onClick={() => provision.mutate()}
-          disabled={provision.isPending}
+          disabled={provision.isPending || hasActiveClient}
         >
-          {provision.isPending ? 'Provisioning…' : 'Provision new client'}
+          {provision.isPending
+            ? 'Provisioning…'
+            : hasActiveClient
+              ? 'Already provisioned'
+              : 'Provision new client'}
         </button>
+        {hasActiveClient && (
+          <p style={{ marginTop: '0.5rem', color: '#666' }}>
+            One Anki client per account. Stop the active one to provision a fresh container.
+          </p>
+        )}
         {provision.error && (
           <p role="alert" style={{ color: '#c0392b', marginTop: '0.75rem' }}>
             {(provision.error as Error).message}

@@ -83,6 +83,19 @@ describe('AnkifyPage', () => {
     await waitFor(() => expect(provision).toHaveBeenCalledTimes(1));
   });
 
+  test('disables the Provision button when an active client already exists', async () => {
+    const backend = makeBackend({
+      listAnkifyClients: vi.fn(async () => [sampleClient()]),
+    });
+
+    renderWithClient(backend);
+
+    const button = await screen.findByRole('button', {
+      name: /already provisioned/i,
+    });
+    expect(button).toBeDisabled();
+  });
+
   test('hides the Stop button for inactive clients', async () => {
     const backend = makeBackend({
       listAnkifyClients: vi.fn(async () => [
