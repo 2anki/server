@@ -1,6 +1,7 @@
 # 2anki/server
 
-> **Note:** This repository is being archived. The deck creation logic has moved to [create_deck](https://github.com/2anki/server/tree/main/create_deck).
+> [!IMPORTANT]
+> This repository is being archived. The deck creation logic has moved to [create_deck](https://github.com/2anki/server/tree/main/create_deck).
 
 The goal of the 2anki.net project is to provide a good way to make [Anki](https://apps.ankiweb.net/) flashcards easier, better and faster. The dream is to have powerful and easy ways to produce high quality flashcards. This project is a complement to Anki and Notion.
 
