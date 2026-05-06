@@ -1,0 +1,150 @@
+.backLink {
+  background: transparent;
+  border: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-size: var(--text-sm);
+  padding: 0;
+  margin-bottom: 0.5rem;
+}
+
+.backLink:hover {
+  color: var(--color-text-primary);
+  text-decoration: underline;
+}
+
+.pageLink {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.pageLink a {
+  color: inherit;
+}
+
+.actionsRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.preview {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1.5rem 2rem;
+  margin-top: 1.5rem;
+  line-height: 1.6;
+}
+
+.preview > :global(*):not(:last-child) {
+  margin-bottom: 0.75rem;
+}
+
+.preview :global(img) {
+  max-width: 100%;
+  border-radius: var(--radius-sm);
+}
+
+.preview :global(pre) {
+  background: var(--color-bg-secondary);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  overflow-x: auto;
+  font-size: var(--text-sm);
+}
+
+.preview :global(blockquote) {
+  border-left: 3px solid var(--color-border);
+  margin: 0;
+  padding-left: 1rem;
+  color: var(--color-text-secondary);
+}
+
+.preview :global(aside) {
+  background: var(--color-bg-secondary);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  display: flex;
+  gap: 0.5rem;
+}
+
+.preview :global(details) {
+  background: var(--color-bg-secondary);
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-sm);
+}
+
+.toggleBlock {
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.75rem;
+}
+
+.toggleSummary {
+  cursor: pointer;
+  font-weight: var(--font-medium);
+}
+
+.toggleSummary :global(h1),
+.toggleSummary :global(h2),
+.toggleSummary :global(h3),
+.toggleSummary :global(h4) {
+  display: inline;
+  margin: 0;
+}
+
+.toggleChildren {
+  margin-top: 0.5rem;
+  padding-left: 1rem;
+  border-left: 2px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.muted {
+  color: var(--color-text-secondary);
+  font-size: var(--text-xs);
+  margin: 0;
+}
+
+.retryButton {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--color-primary);
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: inherit;
+}
+
+.preview :global(figure) {
+  margin: 0;
+}
+
+.preview :global(figcaption) {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  margin-top: 0.25rem;
+}
+
+.sentinel {
+  height: 1px;
+}
+
+.loadingRow {
+  display: flex;
+  justify-content: center;
+  padding: 1.5rem 0;
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+}
+
+.empty {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--color-text-secondary);
+}

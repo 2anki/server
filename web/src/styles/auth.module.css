@@ -1,0 +1,111 @@
+.formPage {
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem;
+  min-height: 70vh;
+}
+
+.formCard {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+}
+
+.formTitle {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-primary);
+  margin: 0 0 1.5rem;
+}
+
+.field {
+  margin-bottom: 1.25rem;
+}
+
+.googleButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.625rem 1.25rem;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--color-text-primary);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+}
+
+.googleButton:hover {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+}
+
+.submitButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0.625rem 1.25rem;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: #fff;
+  background: var(--color-primary);
+  border: none;
+  border-radius: var(--radius-full);
+  transition: background var(--transition-fast);
+  cursor: pointer;
+}
+
+.submitButton:hover {
+  background: var(--color-primary-hover);
+}
+
+.submitButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.helpDanger {
+  font-size: var(--text-xs);
+  color: var(--color-danger);
+  margin-top: 0.375rem;
+}
+
+.footerText {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin-top: 1.5rem;
+}
+
+.footerText a {
+  font-weight: var(--font-medium);
+}
+
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 0 0 1.5rem;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.checkbox input[type='checkbox'] {
+  width: auto;
+  margin-top: 0.125rem;
+}

@@ -1,0 +1,201 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #e5e5e5;
+  padding: 0 1rem;
+  border-bottom: 1px solid lightgrey;
+  flex-wrap: wrap;
+}
+
+@media (min-width: 1024px) {
+  .navbar {
+    padding-right: 3rem;
+    flex-wrap: nowrap;
+  }
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .brand {
+    width: auto;
+  }
+}
+
+.logoLink {
+  display: flex;
+  align-items: center;
+  font-weight: var(--font-bold);
+  text-decoration: none;
+  padding: 0.5rem 0;
+}
+
+.logoLink img {
+  height: 28px;
+}
+
+.burger {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+.burger span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: var(--color-text-primary);
+}
+
+@media (min-width: 1024px) {
+  .burger {
+    display: none;
+  }
+}
+
+.menu {
+  display: none;
+  width: 100%;
+}
+
+.menuActive {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .menu,
+  .menuActive {
+    display: flex;
+    flex-direction: row;
+    width: auto;
+    align-items: center;
+  }
+}
+
+.navEnd {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.25rem;
+  padding: 0.5rem 0;
+}
+
+@media (min-width: 1024px) {
+  .navEnd {
+    flex-direction: row;
+    align-items: center;
+    padding: 0;
+    gap: 0;
+  }
+}
+
+.navLink {
+  display: block;
+  padding: 0.5rem 0.75rem;
+  color: var(--color-primary);
+  text-decoration: none;
+  font-size: var(--text-base);
+}
+
+.navLink:hover {
+  font-weight: var(--font-bold);
+}
+
+.navLinkActive {
+  font-weight: var(--font-bold);
+}
+
+.loginButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1.25rem;
+  margin: 0.25rem;
+  color: #fff;
+  background: var(--color-primary);
+  border: none;
+  border-radius: var(--radius-full);
+  text-decoration: none;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  transition: background var(--transition-fast);
+}
+
+.loginButton:hover {
+  background: var(--color-primary-hover);
+  color: #fff;
+}
+
+.dropdown {
+  position: relative;
+}
+
+.dropdownToggle {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.75rem;
+  background: none;
+  border: none;
+  color: var(--color-primary);
+  font-size: var(--text-base);
+  cursor: pointer;
+}
+
+.dropdownToggle:hover {
+  font-weight: var(--font-bold);
+}
+
+.dropdownToggleText {
+  font-size: var(--text-2xl);
+  letter-spacing: var(--tracking-wider);
+}
+
+.dropdownMenu {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  min-width: 180px;
+  z-index: 30;
+  padding: 0.25rem 0;
+}
+
+.dropdownMenuActive {
+  display: block;
+}
+
+.dropdownItem {
+  display: block;
+  padding: 0.5rem 1rem;
+  color: var(--color-text-primary);
+  text-decoration: none;
+  font-size: var(--text-sm);
+}
+
+.dropdownItem:hover {
+  background: var(--color-bg-secondary);
+}
+
+.dropdownDivider {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 0.25rem 0;
+}

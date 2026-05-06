@@ -1,0 +1,99 @@
+{
+  "name": "2anki-web",
+  "version": "0.1.1",
+  "type": "module",
+  "private": true,
+  "packageManager": "pnpm@10.18.2",
+  "scripts": {
+    "start": "cross-env REACT_SKIP_SENTRY=true vite",
+    "dev": "cross-env NODE_OPTIONS=--max_old_space_size=4096 vite",
+    "local": "cross-env REACT_APP_LOCALHOST=true vite",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:watch": "vitest --watch",
+    "test:run": "vitest run",
+    "lint": "biome lint .",
+    "lint:fix": "biome format . --write",
+    "schema:generate-types": "npx kanel -c .kanelrc.js",
+    "generate:api-types": "swagger-typescript-api generate -p http://localhost:2020/docs/swagger.json -o ./src/generated --modular",
+    "mock-server": "node mock-server/server.js",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:with-mock": "cross-env PLAYWRIGHT_WITH_MOCK=true playwright test",
+    "test:e2e:with-servers": "concurrently \"pnpm mock-server\" \"pnpm start\" --names \"mock,app\" --prefix-colors \"blue,green\""
+  },
+  "dependencies": {
+    "@bugsnag/js": "^8.9.0",
+    "@bugsnag/plugin-react": "^8.9.0",
+    "@tanstack/react-query": "^5.100.8",
+    "date-fns": "^4.1.0",
+    "get-notion-object-title": "^0.2.8",
+    "gray-matter": "^4.0.3",
+    "react": "^19.2.5",
+    "react-confetti": "^6.4.0",
+    "react-cookie": "^8.1.2",
+    "react-dom": "^19.2.5",
+    "react-markdown": "^10.1.0",
+    "react-router-dom": "^7.14.2",
+    "rehype-raw": "^7.0.0",
+    "rehype-slug": "^6.0.0",
+    "remark-gfm": "^4.0.1",
+    "universal-cookie": "^8.1.2"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.14",
+    "@playwright/test": "^1.59.1",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.6.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@types/swagger-ui-express": "^4.1.8",
+    "@vitejs/plugin-legacy": "^8.0.1",
+    "@vitejs/plugin-react": "^6.0.1",
+    "@vitest/ui": "^4.1.5",
+    "autoprefixer": "^10.5.0",
+    "concurrently": "^9.2.1",
+    "cors": "^2.8.6",
+    "cross-env": "^10.1.0",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsdom": "^29.1.1",
+    "playwright": "^1.59.1",
+    "postcss-selector-parser": "^7.1.1",
+    "swagger-typescript-api": "^13.7.2",
+    "swagger-ui-express": "^5.0.1",
+    "terser": "^5.46.2",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.10",
+    "vite-plugin-svgr": "^5.2.0",
+    "vitest": "^4.1.5"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "pnpm": {
+    "overrides": {
+      "rollup": ">=4.59.0",
+      "picomatch": ">=4.0.4",
+      "path-to-regexp": ">=8.4.0",
+      "yaml": ">=2.8.3"
+    }
+  }
+}

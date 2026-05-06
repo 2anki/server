@@ -1,0 +1,23 @@
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0;
+  margin-bottom: 0.75rem;
+  background: transparent;
+  border: none;
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
+.backLink:hover {
+  color: var(--color-text-primary);
+}
+
+.card {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+}

@@ -1,0 +1,18 @@
+.ctaButton {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.625rem 1.5rem;
+  margin-top: 0.5rem;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: #fff;
+  background: var(--color-primary);
+  border-radius: var(--radius-full);
+  text-decoration: none;
+  transition: background var(--transition-fast);
+}
+
+.ctaButton:hover {
+  background: var(--color-primary-hover);
+  color: #fff;
+}

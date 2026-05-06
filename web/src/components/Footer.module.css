@@ -1,0 +1,30 @@
+.footer {
+  padding: 1.5rem 1rem;
+  width: 100%;
+}
+
+.links {
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.links li {
+  white-space: nowrap;
+}
+
+.links li:not(:last-child)::after {
+  content: '|';
+  margin-left: 1rem;
+  color: #dbdbdb;
+}
+
+@media (max-width: 768px) {
+  .links {
+    margin-top: 1rem;
+  }
+}

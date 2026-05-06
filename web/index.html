@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <link rel="canonical" href="https://2anki.net" />
+  <link rel="icon" href="/favicon.ico" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#000000" />
+  <meta http-equiv="Content-Security-Policy"
+    content="script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://static.hotjar.com https://script.hotjar.com; object-src 'none'; base-uri 'self';">
+  <link rel="apple-touch-icon" href="/logo192.png" />
+  <!--
+      Notice the use of  in the tags above.
+      It will be replaced with the URL of the `public` folder during the build.
+      Only files inside the `public` folder can be referenced from the HTML.
+
+      Unlike "/favicon.ico" or "favicon.ico", "/favicon.ico" will
+      work correctly both with client-side routing and a non-root public URL.
+      Learn how to configure a non-root public URL by running `npm run build`.
+    -->
+  <meta name="keywords" content="notion anki, anki notion, notion to anki, 2anki" />
+  <!-- HTML Meta Tags -->
+  <title>Create Anki Flashcards - 2anki.net</title>
+  <meta name="description"
+    content="Free Website for Notion to Anki Conversion. 2anki.net is a free website for converting Notion toggle lists to Anki flashcards. It's simple, fast and easy to use. Create better Anki flashcards today!">
+
+  <!-- Google / Search Engine Tags -->
+  <meta itemprop="name" content="2anki.net">
+  <meta itemprop="description"
+    content="Free Website for Notion to Anki Conversion. 2anki.net is a free website for converting Notion toggle lists to Anki flashcards. It's simple, fast and easy to use. Create better Anki flashcards today!">
+  <meta itemprop="image" content="https://2anki.net/notion2anki.png">
+
+  <!-- Facebook Meta Tags -->
+  <meta property="og:url" content="https://2anki.net:443">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="2anki.net">
+  <meta property="og:description"
+    content="Free Website for Notion to Anki Conversion. 2anki.net is a free website for converting Notion toggle lists to Anki flashcards. It's simple, fast and easy to use. Create better Anki flashcards today!">
+  <meta property="og:image" content="https://2anki.net/notion2anki.png">
+
+  <!-- Twitter Meta Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="2anki.net">
+  <meta name="twitter:description"
+    content="Free Website for Notion to Anki Conversion. 2anki.net is a free website for converting Notion toggle lists to Anki flashcards. It's simple, fast and easy to use. Create better Anki flashcards today!">
+  <meta name="twitter:image" content="https://2anki.net/notion2anki.png">
+
+  <!-- Meta Tags Generated via https://heymeta.com -->
+  <!-- Hotjar Tracking Code for https://2anki.net -->
+  <script>
+    (function(h,o,t,j,a,r) {
+      h.hj=h.hj||function() {
+        const hjQueue=h.hj.q=h.hj.q||[];
+        hjQueue.push(arguments);
+      };
+      h._hjSettings={hjid: 2603407,hjsv: 6};
+      var headElement=o.getElementsByTagName('head')[0];
+      var scriptElement=o.createElement('script');
+      scriptElement.async=1;
+      scriptElement.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+      headElement.appendChild(scriptElement);
+    })(globalThis,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+  </script>
+
+  <!-- Legacy redirect (early + preserve URL) -->
+  <script>
+    (function() {
+      const legacyHosts=new Set([
+        'notion2anki.alemayhu.com',
+        'notion.2anki.net',
+        '2anki.com',
+      ]);
+      const {hostname,pathname,search,hash}=globalThis.location;
+      if(legacyHosts.has(hostname)) {
+        globalThis.location.replace('https://2anki.net'+pathname+search+hash);
+      }
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/bulma-switch.css">
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <!-- Note: SRI not used for gtag.js as Google frequently updates this script, 
+       which would break the integrity hash. Using secure loading with error handling instead. -->
+  <script>
+    (function() {
+      const script=document.createElement('script');
+      script.async=true;
+      script.src='https://www.googletagmanager.com/gtag/js?id=G-X6K69TY3EX';
+      script.onerror=function() {
+        console.warn('Failed to load Google Analytics');
+      };
+      script.onload=function() {
+        // Initialize gtag only after successful load
+        globalThis.dataLayer=globalThis.dataLayer||[];
+        function gtag() {
+          dataLayer.push(arguments);
+        }
+        gtag('js',new Date());
+        gtag('config','G-X6K69TY3EX',{anonymize_ip: true});
+      };
+      document.head.appendChild(script);
+    })();
+  </script>
+</head>
+
+<body>
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <div id="root"></div>
+  <!--
+    This HTML file is a template.
+    If you open it directly in the browser, you will see an empty page.
+
+    You can add webfonts, meta tags, or analytics to this file.
+    The build step will place the bundled scripts into the <body> tag.
+
+    To begin the development, run `npm start` or `yarn start`.
+    To create a production bundle, use `npm run build` or `yarn build`.
+  -->
+  <script type="module" src="/src/index.tsx"></script>
+</body>
+
+</html>
