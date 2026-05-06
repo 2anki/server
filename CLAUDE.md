@@ -4,6 +4,7 @@
 
 - Use conventional commit prefixes (e.g. fix:, feat:, chore:, refactor:, test:, docs:)
 - Suggest a branch name before starting any code changes
+- Always rebase on origin/main before creating a new branch or opening a PR
 
 ## General
 
