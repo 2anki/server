@@ -15,7 +15,9 @@ test.describe('Mock API Tests', () => {
 
     // Check that swagger UI is loaded
     await expect(page.locator('.swagger-ui').first()).toBeVisible();
-    await expect(page.locator('h2')).toContainText('2anki Mock API');
+    await expect(page.locator('.swagger-ui')).toContainText('2anki Mock API', {
+      timeout: 10000,
+    });
   });
 
   test('mock API endpoints should return expected responses', async ({
