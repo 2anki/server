@@ -112,7 +112,7 @@
     "concurrently": "^9.2.1",
     "cross-env": "^10.1.0",
     "jest": "^30.2.0",
-    "lint-staged": "^16.1.2",
+    "lint-staged": "^17.0.2",
     "nodemon": "^3.0.1",
     "prettier": "^3.2.5",
     "pretty-quick": "^4.0.0",
