@@ -49,9 +49,11 @@ export const post = async (url: string, body: unknown) =>
     body: JSON.stringify(body),
   });
 
+const DEFAULT_GET_OPTIONS: ClientSideOptions = { redirect: true };
+
 export const get = async (
   url: string,
-  options: ClientSideOptions = { redirect: true }
+  options: ClientSideOptions = DEFAULT_GET_OPTIONS
 ) => {
   const response = await fetch(url, {
     credentials: 'include',

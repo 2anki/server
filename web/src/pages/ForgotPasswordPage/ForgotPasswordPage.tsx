@@ -5,6 +5,6 @@ interface Props {
   setErrorMessage: ErrorHandlerType;
 }
 
-export function ForgotPasswordPage({ setErrorMessage }: Props) {
+export function ForgotPasswordPage({ setErrorMessage }: Readonly<Props>) {
   return <ForgotPasswordForm setError={setErrorMessage} />;
 }

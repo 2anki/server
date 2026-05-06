@@ -36,7 +36,7 @@ export const useHandleLoginSubmit = (onError: ErrorHandlerType): LoginState => {
       if (res.status === 200) {
         const { token, redirect } = await res.json();
         setCookie('token', token);
-        window.location.href = redirect ?? getSearchPath('anki');
+        globalThis.location.href = redirect ?? getSearchPath('anki');
       } else {
         onError(
           new Error(

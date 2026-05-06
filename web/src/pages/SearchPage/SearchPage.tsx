@@ -13,7 +13,7 @@ interface SearchPageProps {
   setError: ErrorHandlerType;
 }
 
-export function SearchPage({ setError }: SearchPageProps) {
+export function SearchPage({ setError }: Readonly<SearchPageProps>) {
   const notionData = useNotionData(get2ankiApi());
 
   const headerTitle = notionData.connected

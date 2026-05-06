@@ -17,7 +17,7 @@ interface SearchPresenterProps {
   workSpace: string | null;
 }
 
-export default function SearchPresenter(props: SearchPresenterProps) {
+export default function SearchPresenter(props: Readonly<SearchPresenterProps>) {
   const navigate = useNavigate();
   const {
     inProgress,

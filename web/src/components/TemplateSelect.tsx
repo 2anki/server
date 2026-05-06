@@ -19,7 +19,7 @@ function TemplateSelect({
   pickedTemplate,
   values,
   className,
-}: TemplateSelectPicker) {
+}: Readonly<TemplateSelectPicker>) {
   return (
     <div className={className ?? ''}>
       <select

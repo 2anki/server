@@ -5,7 +5,7 @@ interface BlockIconProp {
 export const isIconFileUrl = (icon: string) => icon.includes('http');
 export const isIconDataUrl = (icon: string) => icon.includes('data:image');
 
-export function BlockIcon({ icon }: BlockIconProp) {
+export function BlockIcon({ icon }: Readonly<BlockIconProp>) {
   if (!icon) {
     return null;
   }

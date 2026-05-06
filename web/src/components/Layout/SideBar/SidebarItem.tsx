@@ -14,7 +14,7 @@ export default function SidebarItem({
                                       href,
                                       children,
                                       onClick
-                                    }: SidebarItemProps) {
+                                    }: Readonly<SidebarItemProps>) {
   return (
     <li>
       <a

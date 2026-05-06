@@ -6,7 +6,7 @@ interface ForgotPasswordProp {
   loading: boolean;
 }
 
-export function ForgotPassword({ didReset, loading }: ForgotPasswordProp) {
+export function ForgotPassword({ didReset, loading }: Readonly<ForgotPasswordProp>) {
   if (didReset) {
     return (
       <p className={sharedStyles.smallDescription}>

@@ -43,7 +43,7 @@ export function PageLayout({
               checked={claudeEnabled}
               onChange={toggleClaude}
             />
-            ✨ Generate flashcards with Claude AI
+            {' ✨ Generate flashcards with Claude AI'}
           </label>
         </div>
       )}

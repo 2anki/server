@@ -9,7 +9,7 @@ interface FavoritesProps {
   setFavorites: Dispatch<SetStateAction<NotionObject[]>>;
 }
 
-export default function Favorites(props: FavoritesProps) {
+export default function Favorites(props: Readonly<FavoritesProps>) {
   const { favorites, setFavorites, setError } = props;
   if (favorites.length < 1) return null;
 

@@ -191,7 +191,7 @@ function AppWithCookies() {
     setCookie('token', '?');
   }
 
-  const [apiError, setError] = useState<unknown>(null);
+  const [apiError, setApiError] = useState<unknown>(null);
   /**
    * This error handling is for network errors and errors happening in the background.
    * This code should be deleted and error handling should be unified for network requests.
@@ -199,7 +199,7 @@ function AppWithCookies() {
   const handledError = (error: unknown) => {
     const errorMessage = getErrorMessage(error);
     sendError(error);
-    setError(errorMessage);
+    setApiError(errorMessage);
   };
 
   return (
