@@ -1,0 +1,125 @@
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0;
+  margin-bottom: 0.75rem;
+  background: transparent;
+  border: none;
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
+.backLink:hover {
+  color: var(--color-text-primary);
+}
+
+.headerRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.headerText {
+  flex: 1 1 280px;
+  min-width: 0;
+}
+
+.favoriteButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 1rem;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+  margin-top: 0.25rem;
+}
+
+.favoriteButton:hover {
+  border-color: var(--color-warning);
+  color: var(--color-warning);
+}
+
+.favoriteButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.favoriteActive {
+  border-color: var(--color-warning);
+  background: var(--color-warning-light);
+  color: var(--color-warning);
+}
+
+.card {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.loadingCard {
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+}
+
+.sectionHeader {
+  margin-bottom: 1.5rem;
+}
+
+.miscSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding-top: 1.25rem;
+  margin-top: 0.5rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.miscLabel {
+  display: block;
+  font-weight: var(--font-semibold);
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.stickyActions {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem;
+  margin: 0 -1rem;
+  background: var(--color-bg-primary);
+  border-top: 1px solid var(--color-border);
+  backdrop-filter: blur(4px);
+  z-index: 5;
+}
+
+.actionButton {
+  width: auto;
+  min-width: 8rem;
+}
+
+@media (max-width: 480px) {
+  .actionButton {
+    flex: 1;
+  }
+}

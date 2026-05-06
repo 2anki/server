@@ -1,0 +1,30 @@
+import { post } from './api';
+
+const UNAUTHORIZED = 401;
+const OK = 200;
+
+export type CancelMode = 'immediate' | 'period_end';
+
+export const cancelSubscription = async (
+  mode: CancelMode = 'period_end',
+  reason?: string,
+  comment?: string
+): Promise<{ message: string }> => {
+  const response = await post('/api/users/cancel-subscription', { mode, reason, comment });
+
+  if (response?.status === UNAUTHORIZED) {
+    globalThis.location.href = '/login';
+    throw new Error('Authentication required');
+  }
+
+  if (response?.status !== OK) {
+    const fallback = response?.statusText || 'Unknown error';
+    const message = await response
+      ?.json()
+      .then((body: { message?: string }) => body?.message ?? fallback)
+      .catch(() => fallback);
+    throw new Error(message);
+  }
+
+  return response.json();
+};

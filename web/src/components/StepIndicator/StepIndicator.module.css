@@ -1,0 +1,86 @@
+.indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  padding: 4px 10px;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.pillDone {
+  color: #047857;
+  background-color: #ecfdf5;
+  border-color: #a7f3d0;
+}
+
+.pillDone .dot {
+  background-color: #10b981;
+}
+
+.pillActive {
+  color: #1d4ed8;
+  background-color: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.pillActive .dot {
+  background-color: #3b82f6;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.pillPending {
+  color: #4b5563;
+  background-color: #f9fafb;
+  border-color: #e5e7eb;
+}
+
+.pillPending .dot {
+  background-color: #9ca3af;
+}
+
+.substep {
+  color: inherit;
+  opacity: 0.8;
+  font-variant-numeric: tabular-nums;
+}
+
+.separator {
+  width: 12px;
+  height: 1px;
+  background-color: #e5e7eb;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pillActive .dot {
+    animation: none;
+  }
+}

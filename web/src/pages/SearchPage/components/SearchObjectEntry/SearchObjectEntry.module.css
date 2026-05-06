@@ -1,0 +1,61 @@
+.entry {
+  display: flex;
+  align-items: center;
+  grid-gap: 1.2rem;
+  padding: 1rem 0;
+  font-size: 2.4vw;
+  justify-content: space-between;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.objectMeta {
+  align-items: center;
+  display: flex;
+  grid-gap: 1.2rem;
+}
+
+.objectIconAction {
+  min-width: 32px;
+  min-height: 32px;
+}
+
+.objectActions {
+  display: flex;
+  grid-gap: 1rem;
+}
+
+.rulesButton {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: inherit;
+  display: inline-flex;
+  align-items: center;
+}
+
+.rulesButton:hover {
+  color: var(--color-primary);
+}
+
+.rulesButton:disabled {
+  cursor: progress;
+  opacity: 0.5;
+}
+
+.actionDisabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.convertingBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  padding: 0.25rem 0.625rem;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-secondary);
+}

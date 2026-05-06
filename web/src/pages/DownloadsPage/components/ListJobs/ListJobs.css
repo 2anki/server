@@ -1,0 +1,140 @@
+/* Stripe-inspired styles for ListJobs component */
+
+/* Card-like container */
+.stripe-container {
+  background-color: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: none;
+  overflow: hidden;
+}
+
+/* Table styles */
+.stripe-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-family: var(--font-sans);
+}
+
+.stripe-table th {
+  text-align: left;
+  padding: 16px;
+  font-weight: var(--font-medium);
+  font-size: var(--text-sm);
+  color: #6b7280;
+  border-bottom: 1px solid #f3f4f6;
+  background-color: #f9fafb;
+}
+
+.stripe-table td {
+  padding: 16px;
+  font-size: var(--text-sm);
+  color: #1f2937;
+  border-bottom: 1px solid #f3f4f6;
+  vertical-align: middle;
+}
+
+.stripe-table tr:last-child td {
+  border-bottom: none;
+}
+
+.stripe-table tr:hover {
+  background-color: #f9fafb;
+}
+
+/* Status indicators */
+.stripe-status {
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+}
+
+.stripe-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+.stripe-status-info {
+  color: #3b82f6;
+  background-color: #eff6ff;
+}
+
+.stripe-status-info .stripe-status-dot {
+  background-color: #3b82f6;
+}
+
+.stripe-status-warning {
+  color: #f59e0b;
+  background-color: #fffbeb;
+}
+
+.stripe-status-warning .stripe-status-dot {
+  background-color: #f59e0b;
+}
+
+.stripe-status-danger {
+  color: #ef4444;
+  background-color: #fee2e2;
+}
+
+.stripe-status-danger .stripe-status-dot {
+  background-color: #ef4444;
+}
+
+/* Action buttons */
+.stripe-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.stripe-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: none;
+  background-color: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.stripe-button:hover {
+  background-color: #f3f4f6;
+  color: #1f2937;
+}
+
+.stripe-button-warning:hover {
+  color: #d97706;
+}
+
+.stripe-button-danger:hover {
+  color: #dc2626;
+}
+
+/* Error message */
+.stripe-error {
+  color: #dc2626;
+  font-size: var(--text-xs);
+  margin-top: 4px;
+}
+
+/* Job title */
+.stripe-job-title {
+  font-weight: var(--font-medium);
+  color: #1f2937;
+}
+
+/* Time ago */
+.stripe-time-ago {
+  color: #6b7280;
+  font-size: var(--text-xs);
+}

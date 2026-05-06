@@ -1,0 +1,41 @@
+name: Test Web
+
+on:
+  push:
+    paths:
+      - 'web/**'
+      - '.github/workflows/web-test.yml'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  test:
+    name: test (22.20.0)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22.20.0
+          cache: pnpm
+      - name: Cache node_modules
+        id: modules-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            web/node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+      - name: Install
+        if: steps.modules-cache.outputs.cache-hit != 'true'
+        run: pnpm install --frozen-lockfile
+        env:
+          CI: true
+      - name: Test
+        run: pnpm --filter 2anki-web test
+        env:
+          CI: true
