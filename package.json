@@ -58,7 +58,7 @@
     "fflate": "^0.8.0",
     "find-remove": "^5.0.0",
     "get-notion-object-title": "^0.2.0",
-    "html-to-text": "^9.0.4",
+    "html-to-text": "^10.0.0",
     "jsonwebtoken": "^9.0.0",
     "knex": "^3.1.0",
     "mammoth": "^1.8.0",
