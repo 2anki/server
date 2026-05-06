@@ -1,0 +1,55 @@
+import express, { NextFunction } from 'express';
+
+import AuthenticationService from '../../services/AuthenticationService';
+import TokenRepository from '../../data_layer/TokenRepository';
+import UsersRepository from '../../data_layer/UsersRepository';
+import { getDatabase } from '../../data_layer';
+import { ANKIFY_ALLOWLIST_EMAILS } from '../../lib/constants';
+
+const isAllowlisted = (email: string | null | undefined) => {
+  if (email == null) {
+    return false;
+  }
+  const normalized = email.toLowerCase();
+  return ANKIFY_ALLOWLIST_EMAILS.some(
+    (allowed) => allowed.toLowerCase() === normalized
+  );
+};
+
+export const makeRequireAnkifyAccess = (authService: AuthenticationService) => {
+  return async (
+    req: express.Request,
+    res: express.Response,
+    next: NextFunction
+  ) => {
+    const token = req.cookies?.token;
+    const user = await authService.getUserFrom(token);
+
+    if (user == null) {
+      return res.status(401).json({ message: 'Authentication required' });
+    }
+
+    if (!isAllowlisted(user.email)) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
+
+    res.locals.owner = user.owner;
+    res.locals.email = user.email;
+    return next();
+  };
+};
+
+const RequireAnkifyAccess = (
+  req: express.Request,
+  res: express.Response,
+  next: NextFunction
+) => {
+  const database = getDatabase();
+  const authService = new AuthenticationService(
+    new TokenRepository(database),
+    new UsersRepository(database)
+  );
+  return makeRequireAnkifyAccess(authService)(req, res, next);
+};
+
+export default RequireAnkifyAccess;
