@@ -1,5 +1,7 @@
 # CLAUDE.md
 
+This package lives inside the `2anki/server` monorepo as a pnpm workspace. The package name is `2anki-web` and it sits at `web/` relative to the repo root. Commands below assume cwd is `web/`; from the repo root, prefix with `pnpm --filter 2anki-web` (e.g. `pnpm --filter 2anki-web test`).
+
 ## Git
 
 - Use conventional commit prefixes (feat:, fix:, chore:, refactor:, test:, docs:, style:)
@@ -8,7 +10,8 @@
 
 ## General
 
-- Never start the dev server yourself — ask the user to run `pnpm dev` and report back
+- Never start the dev server yourself — ask the user to run `pnpm dev` (from repo root: starts server + web together; from `web/`: web only) and report back
+- A `web/.env` is required for vite — `REACT_APP_*` vars used in source must be declared (empty value is fine if unused). Missing vars surface as `ReferenceError: process is not defined` at runtime
 - Prefer simple and obvious — do not deduplicate until a pattern has appeared at least three times
 - Do not add comments — use meaningful names instead
 - Before considering a task done, remove any scaffolding, debug logs, or temporary code added during implementation
