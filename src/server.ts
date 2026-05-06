@@ -26,6 +26,7 @@ import rulesRouter from './routes/ParserRulesRouter';
 import downloadRouter from './routes/DownloadRouter';
 import apkgRouter from './routes/ApkgRouter';
 import favoriteRouter from './routes/FavoriteRouter';
+import ankifyRouter from './routes/AnkifyRouter';
 import templatesRouter from './routes/TemplatesRouter';
 import defaultRouter from './routes/DefaultRouter';
 import webhookRouter from './routes/WebhookRouter';
@@ -79,6 +80,7 @@ const serve = async () => {
   app.use(downloadRouter());
   app.use(apkgRouter());
   app.use(favoriteRouter());
+  app.use(ankifyRouter());
   app.use(templatesRouter());
 
   // Note: this has to be the last router
