@@ -10,7 +10,7 @@ def get_template_path():
     helper to find path to the server's template directory
     :return:
     """
-    return os.path.dirname(__file__) + "/../../server/src/templates/"
+    return os.path.dirname(__file__) + "/../../src/templates/"
 
 
 def get_template(path):
