@@ -1,0 +1,74 @@
+name: Server
+
+on:
+  push:
+    paths-ignore:
+      - '**.md'
+      - 'web/**'
+  pull_request:
+    paths-ignore:
+      - '**.md'
+      - 'web/**'
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  build:
+    name: build (22.20.0)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22.20.0
+          cache: pnpm
+      - name: Cache node_modules
+        id: modules-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            web/node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+      - name: Install
+        if: steps.modules-cache.outputs.cache-hit != 'true'
+        run: pnpm install --frozen-lockfile
+        env:
+          CI: true
+      - name: Build
+        run: pnpm --filter notion2anki-server build
+        env:
+          CI: true
+
+  test:
+    name: test (22.20.0)
+    if: ${{ github.actor != 'dependabot[bot]' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22.20.0
+          cache: pnpm
+      - name: Cache node_modules
+        id: modules-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            web/node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+      - name: Install
+        if: steps.modules-cache.outputs.cache-hit != 'true'
+        run: pnpm install --frozen-lockfile
+        env:
+          CI: true
+      - name: Test
+        run: pnpm --filter notion2anki-server test
+        env:
+          CI: true
+          NOTION_KEY: ${{ secrets.NOTION_KEY }}
+          SKIP_CREATE_DECK: true
