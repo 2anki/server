@@ -1,0 +1,50 @@
+name: Open dependabot-updates → main PR
+
+on:
+  push:
+    branches:
+      - dependabot-updates
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  open-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Skip when no diff vs main
+        id: diff
+        run: |
+          git fetch origin main
+          if git diff --quiet origin/main..HEAD; then
+            echo "no_diff=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Ensure PR exists
+        if: steps.diff.outputs.no_diff != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          existing=$(gh pr list \
+            --base main \
+            --head dependabot-updates \
+            --state open \
+            --json number \
+            --jq '.[0].number')
+
+          if [ -n "$existing" ]; then
+            echo "PR #$existing already open."
+            exit 0
+          fi
+
+          gh pr create \
+            --base main \
+            --head dependabot-updates \
+            --title "chore(deps): consolidated dependency updates" \
+            --body "Auto-opened by .github/workflows/dependabot-open-merge-pr.yml. Merging this triggers one production deploy covering every dependabot bump merged into \`dependabot-updates\` since the last release."
