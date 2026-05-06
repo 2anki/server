@@ -1,0 +1,431 @@
+[
+  {
+    "settings": {
+      "useInput": false,
+      "maxOne": true,
+      "noUnderline": false,
+      "isCherry": false,
+      "isAvocado": false,
+      "isAll": true,
+      "isTextOnlyBack": false,
+      "toggleMode": "close_toggle",
+      "isCloze": true,
+      "useTags": false,
+      "basicReversed": false,
+      "reversed": false,
+      "removeMP3Links": true,
+      "perserveNewLines": true,
+      "clozeModelName": "n2a-cloze",
+      "basicModelName": "n2a-basic",
+      "inputModelName": "n2a-input",
+      "useNotionId": true,
+      "pageEmoji": "first_emoji"
+    },
+    "name": "Tasks",
+    "cards": [],
+    "image": "",
+    "style": "",
+    "id": 985717778173372
+  },
+  {
+    "settings": {
+      "useInput": false,
+      "maxOne": true,
+      "noUnderline": false,
+      "isCherry": false,
+      "isAvocado": false,
+      "isAll": true,
+      "isTextOnlyBack": false,
+      "toggleMode": "close_toggle",
+      "isCloze": true,
+      "useTags": false,
+      "basicReversed": false,
+      "reversed": false,
+      "removeMP3Links": true,
+      "perserveNewLines": true,
+      "clozeModelName": "n2a-cloze",
+      "basicModelName": "n2a-basic",
+      "inputModelName": "n2a-input",
+      "useNotionId": true,
+      "pageEmoji": "first_emoji"
+    },
+    "name": "Default",
+    "cards": [
+      {
+        "name": "Done",
+        "back": "Write project proposal Alexander Alemayhu \"November 27  2023\" \"This project proposal aims to achieve cross-functional alignment on investing in mobile performance in Q3. Goals include adding user stories and specific problem statements  while non-goals include getting leadership sign-off and synthesizing user research learnings. Next steps include gathering feedback from the mobile team and creating awareness in appropriate Slack channels with internal comms.\"\r",
+        "tags": [],
+        "cloze": false,
+        "number": 0,
+        "enableInput": false,
+        "answer": "",
+        "media": []
+      },
+      {
+        "name": "In progress",
+        "back": "Schedule kick-off meeting Alexander Alemayhu \"November 25  2023\" \"This task is in progress and involves scheduling a kick-off meeting for the performance project  preparing meeting materials in advance  and inviting all stakeholders to the meeting. Non-goals include brainstorming additional performance projects. The due date is April 26  2023  and the priority is medium. The task is tagged as \"\"Mobile\"\".\"\r",
+        "tags": [],
+        "cloze": false,
+        "number": 0,
+        "enableInput": false,
+        "answer": "",
+        "media": []
+      },
+      {
+        "name": "Not started",
+        "back": "Review research results Alexander Alemayhu \"December 9  2023\" \"This document outlines the goals and non-goals for a research task  which include understanding which product areas need more education and deprioritizing areas with high engagement. The next steps involve watching 10 interviews and sharing insights in Slack.\"",
+        "tags": [],
+        "cloze": false,
+        "number": 0,
+        "enableInput": false,
+        "answer": "",
+        "media": []
+      }
+    ],
+    "image": "",
+    "style": "",
+    "id": 6491246539023512
+  },
+  {
+    "settings": {
+      "useInput": false,
+      "maxOne": true,
+      "noUnderline": false,
+      "isCherry": false,
+      "isAvocado": false,
+      "isAll": true,
+      "isTextOnlyBack": false,
+      "toggleMode": "close_toggle",
+      "isCloze": true,
+      "useTags": false,
+      "basicReversed": false,
+      "reversed": false,
+      "removeMP3Links": true,
+      "perserveNewLines": true,
+      "clozeModelName": "n2a-cloze",
+      "basicModelName": "n2a-basic",
+      "inputModelName": "n2a-input",
+      "useNotionId": true,
+      "pageEmoji": "first_emoji"
+    },
+    "name": "Schedule kick-off meeting",
+    "cards": [
+      {
+        "cloze": false,
+        "number": 0,
+        "enableInput": false,
+        "answer": "",
+        "media": [],
+        "name": "• Goals:Schedule kick-off meeting for the performance projectPrep meeting materials in advanceMeeting goal is to review the project proposal",
+        "back": "• Schedule kick-off meeting for the performance project\n• Prep meeting materials in advance\n• Meeting goal is to review the project proposal",
+        "tags": []
+      },
+      {
+        "cloze": false,
+        "number": 1,
+        "enableInput": false,
+        "answer": "",
+        "media": [],
+        "name": "• Schedule kick-off meeting for the performance project",
+        "tags": []
+      },
+      {
+        "cloze": false,
+        "number": 2,
+        "enableInput": false,
+        "answer": "",
+        "media": [],
+        "name": "• Prep meeting materials in advance",
+        "tags": []
+      },
+      {
+        "cloze": false,
+        "number": 3,
+        "enableInput": false,
+        "answer": "",
+        "media": [],
+        "name": "• Meeting goal is to review the project proposal",
+        "tags": []
+      },
+      {
+        "cloze": false,
+        "number": 4,
+        "enableInput": false,
+        "answer": "",
+        "media": [],
+        "name": "• Non-goals:Brainstorm additional performance projects",
+        "back": "• Brainstorm additional performance projects",
+        "tags": []
+      },
+      {
+        "cloze": false,
+        "number": 5,
+        "enableInput": false,
+        "answer": "",
+        "media": [],
+        "name": "• Brainstorm additional performance projects",
+        "tags": []
+      },
+      {
+        "cloze": false,
+        "number": 6,
+        "enableInput": false,
+        "answer": "",
+        "media": [],
+        "name": "• Next steps:Invite all stakeholders to the meetingPrepare meeting agenda",
+        "back": "• Invite all stakeholders to the meeting\n• Prepare meeting agenda",
+        "tags": []
+      },
+      {
+        "cloze": false,
+        "number": 7,
+        "enableInput": false,
+        "answer": "",
+        "media": [],
+        "name": "• Invite all stakeholders to the meeting",
+        "tags": []
+      },
+      {
+        "cloze": false,
+        "number": 8,
+        "enableInput": false,
+        "answer": "",
+        "media": [],
+        "name": "• Prepare meeting agenda",
+        "back": "",
+        "tags": []
+      }
+    ],
+    "image": "",
+    "style": "",
+    "id": 6755464455735693
+  },
+  {
+    "settings": {
+      "useInput": false,
+      "maxOne": true,
+      "noUnderline": false,
+      "isCherry": false,
+      "isAvocado": false,
+      "isAll": true,
+      "isTextOnlyBack": false,
+      "toggleMode": "close_toggle",
+      "isCloze": true,
+      "useTags": false,
+      "basicReversed": false,
+      "reversed": false,
+      "removeMP3Links": true,
+      "perserveNewLines": true,
+      "clozeModelName": "n2a-cloze",
+      "basicModelName": "n2a-basic",
+      "inputModelName": "n2a-input",
+      "useNotionId": true,
+      "pageEmoji": "first_emoji"
+    },
+    "name": "Write project proposal",
+    "cards": [
+      {
+        "cloze": false,
+        "number": 0,
+        "enableInput": false,
+        "answer": "",
+        "media": [],
+        "name": "• Goals:Achieve cross-functional alignment on why and how we’re investing in mobile performance in Q3Include more user stories, specific problem statements, and be crisp about what’s not in scope for now",
+        "back": "• Achieve cross-functional alignment on why and how we’re investing in mobile performance in Q3\n• Include more user stories, specific problem statements, and be crisp about what’s not in scope for now",
+        "tags": []
+      },
+      {
+        "cloze": false,
+        "number": 1,
+        "enableInput": false,
+        "answer": "",
+        "media": [],
+        "name": "• Achieve cross-functional alignment on why and how we’re investing in mobile performance in Q3",
+        "tags": []
+      },
+      {
+        "cloze": false,
+        "number": 2,
+        "enableInput": false,
+        "answer": "",
+        "media": [],
+        "name": "• Include more user stories, specific problem statements, and be crisp about what’s not in scope for now",
+        "tags": []
+      },
+      {
+        "cloze": false,
+        "number": 3,
+        "enableInput": false,
+        "answer": "",
+        "media": [],
+        "name": "• Non-goals:Get explicit leadership sign-offSynthesize user research learnings (already captured in research team’s performance doc)",
+        "back": "• Get explicit leadership sign-off\n• Synthesize user research learnings (already captured in research team’s performance doc)",
+        "tags": []
+      },
+      {
+        "cloze": false,
+        "number": 4,
+        "enableInput": false,
+        "answer": "",
+        "media": [],
+        "name": "• Get explicit leadership sign-off",
+        "tags": []
+      },
+      {
+        "cloze": false,
+        "number": 5,
+        "enableInput": false,
+        "answer": "",
+        "media": [],
+        "name": "• Synthesize user research learnings (already captured in research team’s performance doc)",
+        "tags": []
+      },
+      {
+        "cloze": false,
+        "number": 6,
+        "enableInput": false,
+        "answer": "",
+        "media": [],
+        "name": "• Next steps:Gather feedback from mobile teamWork with internal comms to create awareness in the appropriate Slack channels",
+        "back": "• Gather feedback from mobile team\n• Work with internal comms to create awareness in the appropriate Slack channels",
+        "tags": []
+      },
+      {
+        "cloze": false,
+        "number": 7,
+        "enableInput": false,
+        "answer": "",
+        "media": [],
+        "name": "• Gather feedback from mobile team",
+        "tags": []
+      },
+      {
+        "cloze": false,
+        "number": 8,
+        "enableInput": false,
+        "answer": "",
+        "media": [],
+        "name": "• Work with internal comms to create awareness in the appropriate Slack channels",
+        "back": "",
+        "tags": []
+      }
+    ],
+    "image": "",
+    "style": "",
+    "id": 1727045048880724
+  },
+  {
+    "settings": {
+      "useInput": false,
+      "maxOne": true,
+      "noUnderline": false,
+      "isCherry": false,
+      "isAvocado": false,
+      "isAll": true,
+      "isTextOnlyBack": false,
+      "toggleMode": "close_toggle",
+      "isCloze": true,
+      "useTags": false,
+      "basicReversed": false,
+      "reversed": false,
+      "removeMP3Links": true,
+      "perserveNewLines": true,
+      "clozeModelName": "n2a-cloze",
+      "basicModelName": "n2a-basic",
+      "inputModelName": "n2a-input",
+      "useNotionId": true,
+      "pageEmoji": "first_emoji"
+    },
+    "name": "Review research results",
+    "cards": [
+      {
+        "cloze": false,
+        "number": 0,
+        "enableInput": false,
+        "answer": "",
+        "media": [],
+        "name": "• Goals:Understand which product areas need most educationDeprioritize product areas that already see high engagement",
+        "back": "• Understand which product areas need most education\n• Deprioritize product areas that already see high engagement",
+        "tags": []
+      },
+      {
+        "cloze": false,
+        "number": 1,
+        "enableInput": false,
+        "answer": "",
+        "media": [],
+        "name": "• Understand which product areas need most education",
+        "tags": []
+      },
+      {
+        "cloze": false,
+        "number": 2,
+        "enableInput": false,
+        "answer": "",
+        "media": [],
+        "name": "• Deprioritize product areas that already see high engagement",
+        "tags": []
+      },
+      {
+        "cloze": false,
+        "number": 3,
+        "enableInput": false,
+        "answer": "",
+        "media": [],
+        "name": "• Non-goals:Recommend UI changes for core productRecommend changes to product roadmap",
+        "back": "• Recommend UI changes for core product\n• Recommend changes to product roadmap",
+        "tags": []
+      },
+      {
+        "cloze": false,
+        "number": 4,
+        "enableInput": false,
+        "answer": "",
+        "media": [],
+        "name": "• Recommend UI changes for core product",
+        "tags": []
+      },
+      {
+        "cloze": false,
+        "number": 5,
+        "enableInput": false,
+        "answer": "",
+        "media": [],
+        "name": "• Recommend changes to product roadmap",
+        "tags": []
+      },
+      {
+        "cloze": false,
+        "number": 6,
+        "enableInput": false,
+        "answer": "",
+        "media": [],
+        "name": "• Next steps:Watch all 10 interviews from research teamWrite up insights and share in Slack",
+        "back": "• Watch all 10 interviews from research team\n• Write up insights and share in Slack",
+        "tags": []
+      },
+      {
+        "cloze": false,
+        "number": 7,
+        "enableInput": false,
+        "answer": "",
+        "media": [],
+        "name": "• Watch all 10 interviews from research team",
+        "tags": []
+      },
+      {
+        "cloze": false,
+        "number": 8,
+        "enableInput": false,
+        "answer": "",
+        "media": [],
+        "name": "• Write up insights and share in Slack",
+        "back": "",
+        "tags": []
+      }
+    ],
+    "image": "",
+    "style": "",
+    "id": 2889819554538593
+  }
+]

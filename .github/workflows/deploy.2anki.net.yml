@@ -22,7 +22,6 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            CREATE_DECK_DIR=~/src/github.com/2anki/create_deck
             SERVER_DIR=~/src/github.com/2anki/2anki.net
 
             export NVM_DIR="$HOME/.nvm"
@@ -35,14 +34,11 @@ jobs:
 
             git -C ${SERVER_DIR} clean -fd
             git -C ${SERVER_DIR} stash
-
-            git -C ${CREATE_DECK_DIR} pull origin
-            git -C ${SERVER_DIR}      pull origin
-
+            git -C ${SERVER_DIR} pull origin
             git -C ${SERVER_DIR} clean -fd
 
             pnpm --dir ${SERVER_DIR} install --frozen-lockfile
-            pip install -r ${CREATE_DECK_DIR}/requirements.txt
+            pip install -r ${SERVER_DIR}/create_deck/requirements.txt
 
             pnpm --dir ${SERVER_DIR} run build
             pnpm --filter 2anki-web -C ${SERVER_DIR} build

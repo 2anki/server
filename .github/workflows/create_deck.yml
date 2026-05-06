@@ -1,0 +1,53 @@
+name: Create Deck
+
+on:
+  push:
+    paths:
+      - 'create_deck/**'
+      - '.github/workflows/create_deck.yml'
+
+jobs:
+  lint:
+    name: lint (3.11)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: create_deck
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: create_deck/requirements.txt
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pylint
+      - name: Pylint
+        run: pylint *.py helpers
+
+  test:
+    name: test (${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: create_deck
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12', '3.14']
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: create_deck/requirements.txt
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest
+          pip install -r requirements.txt
+      - name: Pytest
+        run: pytest

@@ -1,0 +1,232 @@
+[MASTER]
+# Python version to analyze
+py-version=3.9
+
+# Number of processes to use
+jobs=1
+
+# Files and directories to ignore
+ignore=CVS
+ignore-patterns=^\.#
+
+# Enable persistent caching
+persistent=yes
+
+# Set the minimum score threshold
+fail-under=10
+
+# Load plugins (if any)
+load-plugins=
+
+# Allow loading of C extensions (set to 'yes' if needed)
+unsafe-load-any-extension=no
+
+[MESSAGES CONTROL]
+# Disable specific messages
+disable=
+    raw-checker-failed,
+    bad-inline-option,
+    locally-disabled,
+    file-ignored,
+    suppressed-message,
+    useless-suppression,
+    deprecated-pragma,
+    use-symbolic-message-instead,
+    import-error
+
+# Enable specific messages
+enable=c-extension-no-member
+
+[REPORTS]
+# Disable the full report
+reports=no
+
+# Activate the evaluation score
+score=yes
+
+# Evaluation formula
+evaluation=max(0, 0 if fatal else 10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10))
+
+[FORMAT]
+# Maximum number of characters on a single line
+max-line-length=150
+
+# Indentation settings
+indent-string='    '
+indent-after-paren=4
+
+# Allow long lines for URLs
+ignore-long-lines=^\s*(# )?<?https?://\S+>?$
+
+# Maximum number of lines in a module
+max-module-lines=1000
+
+# Single-line statements
+single-line-class-stmt=no
+single-line-if-stmt=no
+
+[DESIGN]
+# Maximum number of arguments for function/method
+max-args=5
+
+# Maximum number of attributes for a class
+max-attributes=7
+
+# Maximum number of boolean expressions in an if statement
+max-bool-expr=5
+
+# Maximum number of branches for function/method
+max-branches=12
+
+# Maximum number of locals for function/method
+max-locals=15
+
+# Maximum number of parents for a class
+max-parents=7
+
+# Maximum number of public methods for a class
+max-public-methods=20
+
+# Maximum number of return/yield statements in function/method
+max-returns=6
+
+# Maximum number of statements in function/method
+max-statements=50
+
+# Minimum number of public methods for a class
+min-public-methods=2
+
+[TYPECHECK]
+# List of members set dynamically and missed by pylint
+generated-members=
+
+# Ignore missing members when the owner is inferred to be None
+ignore-none=yes
+
+# Ignore on opaque inference
+ignore-on-opaque-inference=yes
+
+# List of class names for which member attributes should not be checked
+ignored-classes=optparse.Values,thread._local,_thread._local,argparse.Namespace
+
+# Show hints for missing members
+missing-member-hint=yes
+missing-member-hint-distance=1
+missing-member-max-choices=1
+
+# Regex pattern for mixin class names
+mixin-class-rgx=.*[Mm]ixin
+
+[VARIABLES]
+# Allow unused global variables
+allow-global-unused-variables=yes
+
+# Dummy variable regex
+dummy-variables-rgx=_+$|(_[a-zA-Z0-9_]*[a-zA-Z0-9]+?$)|dummy|^ignored_|^unused_
+
+# Ignored argument names regex
+ignored-argument-names=_.*|^ignored_|^unused_
+
+# List of names allowed to shadow builtins
+allowed-redefined-builtins=
+
+# List of additional builtins
+additional-builtins=
+
+[BASIC]
+# Naming styles
+variable-naming-style=snake_case
+function-naming-style=snake_case
+method-naming-style=snake_case
+class-naming-style=PascalCase
+const-naming-style=UPPER_CASE
+attr-naming-style=snake_case
+class-attribute-naming-style=any
+class-const-naming-style=UPPER_CASE
+module-naming-style=snake_case
+inlinevar-naming-style=any
+
+# Good and bad variable names
+good-names=i,j,k,ex,Run,_
+bad-names=foo,bar,baz,toto,tutu,tata
+
+# Include naming hint
+include-naming-hint=no
+
+# Minimum line length for functions/classes that require docstrings
+docstring-min-length=-1
+
+# Regular expression for functions/classes that do not require a docstring
+no-docstring-rgx=^_
+
+[IMPORTS]
+# Known third-party modules
+known-third-party=enchant
+
+# Allow wildcard imports from modules that define __all__
+allow-wildcard-with-all=no
+
+# Allow explicit reexports by alias from a package __init__
+allow-reexport-from-package=no
+
+[EXCEPTIONS]
+# Exceptions that will emit a warning when caught
+overgeneral-exceptions=builtins.BaseException,builtins.Exception
+
+[LOGGING]
+# Logging format style
+logging-format-style=old
+
+# Logging modules to check
+logging-modules=logging
+
+[REFACTORING]
+# Maximum number of nested blocks for function/method
+max-nested-blocks=5
+
+# Functions that never return
+never-returning-functions=sys.exit,argparse.parse_error
+
+[SIMILARITIES]
+# Ignore comments, docstrings, imports, and signatures in similarity computation
+ignore-comments=yes
+ignore-docstrings=yes
+ignore-imports=yes
+ignore-signatures=yes
+
+# Minimum lines number of a similarity
+min-similarity-lines=4
+
+[SPELLING]
+# Maximum number of spelling suggestions
+max-spelling-suggestions=4
+
+# Spelling dictionary name
+spelling-dict=
+
+# Spelling ignore words
+spelling-ignore-words=
+
+# Spelling ignore comment directives
+spelling-ignore-comment-directives=fmt: on,fmt: off,noqa:,noqa,nosec,isort:skip,mypy:
+
+# Spelling private dictionary file
+spelling-private-dict-file=
+
+# Store unknown words to the private dictionary
+spelling-store-unknown-words=no
+
+[STRING]
+# Check for inconsistent quotes
+check-quote-consistency=no
+
+# Check for implicit string concatenation over line jumps
+check-str-concat-over-line-jumps=no
+
+[METHOD_ARGS]
+# Methods that require a timeout parameter
+timeout-methods=requests.api.delete,requests.api.get,requests.api.head,requests.api.options,requests.api.patch,requests.api.post,requests.api.put,requests.api.request
+
+[MISCELLANEOUS]
+# Note tags to consider
+notes=FIXME,XXX,TODO
