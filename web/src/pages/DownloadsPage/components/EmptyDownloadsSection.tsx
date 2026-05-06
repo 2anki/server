@@ -7,7 +7,7 @@ interface Prop {
   uploads: UserUpload[] | undefined;
 }
 
-export function EmptyDownloadsSection({ hasActiveJobs, uploads }: Prop) {
+export function EmptyDownloadsSection({ hasActiveJobs, uploads }: Readonly<Prop>) {
   if (hasActiveJobs || (uploads ?? []).length > 0) {
     return null;
   }

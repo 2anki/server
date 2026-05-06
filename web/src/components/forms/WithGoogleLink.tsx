@@ -5,7 +5,7 @@ interface WithGoogleLinkProps {
   text: string;
 }
 
-export function WithGoogleLink({ text }: WithGoogleLinkProps) {
+export function WithGoogleLink({ text }: Readonly<WithGoogleLinkProps>) {
   return (
     <a href={getGoogleSignInUrl()} className={styles.googleButton}>
       <svg

@@ -39,7 +39,7 @@ function ForgotPasswordForm({ setError }: Readonly<ForgotPasswordProps>) {
         <form onSubmit={handleSubmit}>
           <div className={styles.field}>
             <label htmlFor="email">
-              Email
+              {'Email '}
               <input
                 name="email"
                 min="3"

@@ -5,7 +5,7 @@ interface FontPickerDelegate {
   pickedFontSize: (fs: string) => void;
 }
 
-function FontSizePicker(delegate: FontPickerDelegate) {
+function FontSizePicker(delegate: Readonly<FontPickerDelegate>) {
   const { fontSize, pickedFontSize } = delegate;
 
   return (

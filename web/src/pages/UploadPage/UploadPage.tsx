@@ -16,7 +16,7 @@ interface Props {
 }
 
 export function UploadPage({ setErrorMessage }: Readonly<Props>) {
-  const isDevelopment = !globalThis.location.host.match(/2anki.(com|net|de)/);
+  const isDevelopment = !/2anki\.(com|net|de)/.exec(globalThis.location.host);
   const query = useQuery();
   const view = query.get('view');
 

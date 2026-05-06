@@ -22,7 +22,7 @@ function NewPasswordForm({ setErrorMessage }: Readonly<Props>) {
 
     try {
       const paths = globalThis.location.pathname.split('/');
-      const resetToken = paths[paths.length - 1];
+      const resetToken = paths.at(-1) ?? '';
       const res = await get2ankiApi().newPassword(password, resetToken);
       if (res.status === 200) {
         globalThis.location.href = '/login#login';

@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { JobsId } from '../../../../schemas/public/Jobs';
 import JobResponse from '../../../../schemas/public/JobResponse';
 import { JobStatus, StatusTag } from './StatusTag';
@@ -22,9 +21,7 @@ export default function Index({
   deleteJob,
   restartJob,
   refreshJobs,
-}: Props) {
-  const [, setHover] = useState<JobsId | null>(null);
-
+}: Readonly<Props>) {
   const isFailedJob = (status: string) => ['failed', 'cancelled', 'interrupted'].includes(status);
   const isDoneJob = (status: JobStatus) => status === 'done';
 
@@ -71,11 +68,7 @@ export default function Index({
         </thead>
         <tbody>
           {jobs.map((j) => (
-            <tr
-              key={j.id}
-              onMouseEnter={() => setHover(j.id)}
-              onMouseLeave={() => setHover(null)}
-            >
+            <tr key={j.id}>
               <td>
                 <div className="stripe-actions">
                   {isFailedJob(j.status) && j.restartable && (

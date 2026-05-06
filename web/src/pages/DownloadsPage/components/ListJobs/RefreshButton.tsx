@@ -4,7 +4,7 @@ interface Prop {
   onRefresh: () => void;
 }
 
-export function RefreshButton({ onRefresh }: Prop) {
+export function RefreshButton({ onRefresh }: Readonly<Prop>) {
   return (
     <button
       onClick={() => onRefresh()}

@@ -30,19 +30,19 @@ export function SearchPage({ setError }: Readonly<SearchPageProps>) {
     content = (
       <ErrorPresenter error={notionData.error} onRetry={notionData.refetch} />
     );
-  } else if (!notionData.connected) {
-    content = (
-      <ConnectNotion
-        ready={!notionData.connected}
-        connectionLink={notionData.connectionLink}
-      />
-    );
-  } else {
+  } else if (notionData.connected) {
     content = (
       <SearchContainer
         backend={get2ankiApi()}
         setError={setError}
         workSpace={notionData.workSpace}
+      />
+    );
+  } else {
+    content = (
+      <ConnectNotion
+        ready
+        connectionLink={notionData.connectionLink}
       />
     );
   }

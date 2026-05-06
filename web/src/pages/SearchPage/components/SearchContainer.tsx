@@ -14,7 +14,7 @@ export default function SearchContainer({
   backend,
   setError,
   workSpace,
-}: SearchContainerProps) {
+}: Readonly<SearchContainerProps>) {
   const {
     myPages,
     inProgress,
