@@ -24,7 +24,7 @@ jobs:
           cache: pnpm
       - name: Cache node_modules
         id: modules-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             node_modules
@@ -52,7 +52,7 @@ jobs:
           cache: pnpm
       - name: Cache node_modules
         id: modules-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             node_modules
@@ -69,7 +69,7 @@ jobs:
           CI: true
       - name: Cache dist
         id: dist-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: web/build
           key: dist-${{ runner.os }}-${{ hashFiles('web/src/**', 'web/public/**', 'web/index.html', 'web/vite.config.*', 'web/tsconfig*', 'pnpm-lock.yaml') }}
@@ -91,7 +91,7 @@ jobs:
           cache: pnpm
       - name: Cache node_modules
         id: modules-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             node_modules
@@ -120,7 +120,7 @@ jobs:
           cache: pnpm
       - name: Cache node_modules
         id: modules-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             node_modules
@@ -131,7 +131,7 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Cache Playwright browsers
         id: playwright-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
@@ -140,7 +140,7 @@ jobs:
         run: pnpm --filter 2anki-web exec playwright install --with-deps chromium
       - name: Cache dist
         id: dist-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: web/build
           key: dist-${{ runner.os }}-${{ hashFiles('web/src/**', 'web/public/**', 'web/index.html', 'web/vite.config.*', 'web/tsconfig*', 'pnpm-lock.yaml') }}
