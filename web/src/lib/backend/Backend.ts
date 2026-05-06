@@ -31,7 +31,7 @@ export class Backend {
     }
     const cookies = new Cookies();
     cookies.remove('token');
-    window.location.href = '/';
+    globalThis.location.href = '/';
   }
 
   async getNotionConnectionInfo(): Promise<ConnectionInfo> {
@@ -93,7 +93,7 @@ export class Backend {
   async search(query: string): Promise<NotionObject[]> {
     const favorites = await this.getFavorites();
 
-    const isObjectId = query.replace(/-/g, '').length === 32;
+    const isObjectId = query.replaceAll('-', '').length === 32;
     let data;
     if (isObjectId) {
       const res = await this.getPage(query);
@@ -116,7 +116,6 @@ export class Backend {
 
     if ('message' in data) {
       throw new Error(data.message);
-      return [];
     }
 
     if (data?.results) {
@@ -240,7 +239,7 @@ export class Backend {
   }
 
   async login(email: string, password: string): Promise<Response> {
-    return post(`${getLoginURL(this.baseURL)}${window.location.search}`, {
+    return post(`${getLoginURL(this.baseURL)}${globalThis.location.search}`, {
       email,
       password,
     });

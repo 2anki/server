@@ -21,8 +21,7 @@ export function WipBanner() {
           rel="noopener noreferrer"
         >
           contribute on GitHub
-        </a>
-        .
+        </a>.
       </span>
     </div>
   );

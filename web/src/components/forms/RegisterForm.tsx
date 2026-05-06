@@ -157,8 +157,7 @@ function RegisterForm({ setErrorMessage, redirect }: Props) {
                 href="https://alemayhu.notion.site/Privacy-38c6e8238ac04ea9b2485bf488909fd0"
               >
                 privacy policy
-              </a>
-              .
+              </a>.
             </label>
           </div>
           <div className={styles.field}>
