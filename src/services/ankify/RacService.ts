@@ -59,6 +59,11 @@ export class NoAvailablePortError extends Error {
   }
 }
 
+export interface ProvisionResult {
+  client: AnkifyClient;
+  created: boolean;
+}
+
 export class RacService {
   constructor(
     private readonly repo: AnkifyClientsRepositoryInterface,
@@ -66,7 +71,12 @@ export class RacService {
     private readonly baseImage: string = ANKIFY_RAC_BASE_IMAGE
   ) {}
 
-  async provision(owner: number): Promise<AnkifyClient> {
+  async provision(owner: number): Promise<ProvisionResult> {
+    const existing = await this.repo.findActiveByOwner(owner);
+    if (existing != null) {
+      return { client: existing, created: false };
+    }
+
     const usedPorts = await this.collectUsedPorts();
 
     const ankiPort = pickPort(ANKI_PORT_RANGE, usedPorts);
@@ -81,7 +91,7 @@ export class RacService {
     const inspect = await container.inspect().catch(() => ({}));
     const containerName = stripLeadingSlash((inspect as { Name?: string }).Name);
 
-    return this.repo.create({
+    const client = await this.repo.create({
       owner,
       container_id: container.id,
       container_name: containerName,
@@ -89,6 +99,7 @@ export class RacService {
       vnc_port: vncPort,
       novnc_port: novncPort,
     });
+    return { client, created: true };
   }
 
   list(owner: number): Promise<AnkifyClient[]> {

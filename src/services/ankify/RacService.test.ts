@@ -23,6 +23,7 @@ const makeRepo = (
     ),
     listByOwner: jest.fn(async () => []),
     findActiveById: jest.fn(async () => null),
+    findActiveByOwner: jest.fn(async () => null),
     setStatus: jest.fn(async () => undefined),
     touchLastActiveAt: jest.fn(async () => undefined),
     reservedPorts: jest.fn(async () => []),
@@ -55,7 +56,7 @@ describe('RacService.provision', () => {
     const docker = makeDocker();
     const service = new RacService(repo, docker);
 
-    const result = await service.provision(42);
+    const { client, created } = await service.provision(42);
 
     expect(docker.listContainers).toHaveBeenCalledWith({ all: false });
     expect(docker.createContainer).toHaveBeenCalledTimes(1);
@@ -67,7 +68,36 @@ describe('RacService.provision', () => {
       vnc_port: 21000,
       novnc_port: 22000,
     });
-    expect(result.owner).toBe(42);
+    expect(created).toBe(true);
+    expect(client.owner).toBe(42);
+  });
+
+  test('returns the existing active client without creating a new container', async () => {
+    const existing: AnkifyClient = {
+      id: 9,
+      owner: 42,
+      container_id: 'container-existing',
+      container_name: null,
+      anki_port: 20000,
+      vnc_port: 21000,
+      novnc_port: 22000,
+      status: 'active',
+      created_at: new Date(),
+      last_active_at: new Date(),
+    };
+    const repo = makeRepo({
+      findActiveByOwner: jest.fn(async () => existing),
+    });
+    const docker = makeDocker();
+    const service = new RacService(repo, docker);
+
+    const { client, created } = await service.provision(42);
+
+    expect(created).toBe(false);
+    expect(client).toEqual(existing);
+    expect(docker.listContainers).not.toHaveBeenCalled();
+    expect(docker.createContainer).not.toHaveBeenCalled();
+    expect(repo.create).not.toHaveBeenCalled();
   });
 
   test('skips ports already exposed by other containers', async () => {

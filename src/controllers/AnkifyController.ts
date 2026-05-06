@@ -24,8 +24,8 @@ class AnkifyController {
   async provision(_req: Request, res: Response) {
     const owner = res.locals.owner as number;
     try {
-      const client = await this.provisionUseCase.execute(owner);
-      res.status(201).json(client);
+      const { client, created } = await this.provisionUseCase.execute(owner);
+      res.status(created ? 201 : 200).json(client);
     } catch (error) {
       if (error instanceof DockerUnavailableError) {
         res

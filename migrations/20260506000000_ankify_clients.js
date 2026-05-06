@@ -1,5 +1,5 @@
-exports.up = function (knex) {
-  return knex.schema.createTable('ankify_clients', function (table) {
+exports.up = async function (knex) {
+  await knex.schema.createTable('ankify_clients', function (table) {
     table.increments('id').primary();
     table.integer('owner').notNullable();
     table.string('container_id').notNullable();
@@ -13,8 +13,13 @@ exports.up = function (knex) {
     table.index('owner');
     table.unique('container_id');
   });
+
+  await knex.raw(
+    "CREATE UNIQUE INDEX ankify_clients_one_active_per_owner ON ankify_clients(owner) WHERE status = 'active'"
+  );
 };
 
-exports.down = function (knex) {
-  return knex.schema.dropTable('ankify_clients');
+exports.down = async function (knex) {
+  await knex.raw('DROP INDEX IF EXISTS ankify_clients_one_active_per_owner');
+  await knex.schema.dropTable('ankify_clients');
 };
