@@ -10,7 +10,7 @@ interface ForgotPasswordProps {
   setError: ErrorHandlerType;
 }
 
-function ForgotPasswordForm({ setError }: ForgotPasswordProps) {
+function ForgotPasswordForm({ setError }: Readonly<ForgotPasswordProps>) {
   const [email, setEmail] = useState(localStorage.getItem('email') || '');
   const [didReset, setDidReset] = useState(false);
   const [loading, setLoading] = useState(false);

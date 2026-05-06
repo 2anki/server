@@ -1,3 +1,1 @@
-import { SearchPage } from './SearchPage';
-
-export default SearchPage;
+export { SearchPage as default } from './SearchPage';

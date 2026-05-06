@@ -56,7 +56,7 @@ function SearchObjectEntry(props: Readonly<Props>) {
       .convert(id, getType(type), title)
       .then((response) => {
         if (response.status === OK) {
-          window.location.href = '/downloads';
+          globalThis.location.href = '/downloads';
         } else {
           setConverting(false);
           response.text().then(setError);

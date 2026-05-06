@@ -12,7 +12,7 @@ function LocalCheckbox({
   defaultValue,
   description = null,
   onChecked,
-}: Props) {
+}: Readonly<Props>) {
   return (
     <label htmlFor={label} className={styles.checkbox}>
       <input

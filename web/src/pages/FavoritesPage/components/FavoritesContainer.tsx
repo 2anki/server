@@ -15,7 +15,7 @@ interface FavoritesContentProps {
 export default function FavoritesContainer({
   setError,
   backend,
-}: FavoritesContentProps) {
+}: Readonly<FavoritesContentProps>) {
   const { loading, favorites, setFavorites, error } = useFavorites(backend);
 
   if (error) {

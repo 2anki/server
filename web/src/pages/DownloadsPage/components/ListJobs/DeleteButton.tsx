@@ -4,7 +4,7 @@ interface Prop {
   onDelete: () => void;
 }
 
-export function DeleteButton({ onDelete }: Prop) {
+export function DeleteButton({ onDelete }: Readonly<Prop>) {
   return (
     <button
       aria-label="delete"

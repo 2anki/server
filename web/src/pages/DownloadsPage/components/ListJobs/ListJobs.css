@@ -70,7 +70,7 @@
 }
 
 .stripe-status-warning {
-  color: #f59e0b;
+  color: #92400e;
   background-color: #fffbeb;
 }
 
@@ -79,7 +79,7 @@
 }
 
 .stripe-status-danger {
-  color: #ef4444;
+  color: #991b1b;
   background-color: #fee2e2;
 }
 

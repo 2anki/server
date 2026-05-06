@@ -16,7 +16,7 @@ interface DownloadsPageProps {
   setError: ErrorHandlerType;
 }
 
-export function DownloadsPage({ setError }: DownloadsPageProps) {
+export function DownloadsPage({ setError }: Readonly<DownloadsPageProps>) {
   const { deleteUpload, loading, uploads, error, refreshUploads } = useUploads(
     get2ankiApi()
   );

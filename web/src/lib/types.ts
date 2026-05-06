@@ -1,5 +1,3 @@
-// TODO: generate this file from the database
-
 export interface Settings {
   object_id: string;
   payload: { [key: string]: string };

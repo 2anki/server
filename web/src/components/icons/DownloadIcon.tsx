@@ -6,7 +6,7 @@ interface IconProps {
 export default function DownloadIcon({
   width = 20,
   height = 20,
-}: IconProps) {
+}: Readonly<IconProps>) {
   return (
     <svg
       width={width}

@@ -12,7 +12,7 @@ interface NavigationBarProps {
 
 function NavigationBar({ isLoggedIn }: Readonly<NavigationBarProps>) {
   const [active, setActive] = useState(false);
-  const path = window.location.pathname;
+  const path = globalThis.location.pathname;
   const loggedInNavbar = useNavbarEnd(path, get2ankiApi());
 
   const isResolved = isLoggedIn !== undefined;

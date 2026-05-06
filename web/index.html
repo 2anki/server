@@ -87,6 +87,10 @@
        which would break the integrity hash. Using secure loading with error handling instead. -->
   <script>
     (function() {
+      globalThis.dataLayer=globalThis.dataLayer||[];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
       const script=document.createElement('script');
       script.async=true;
       script.src='https://www.googletagmanager.com/gtag/js?id=G-X6K69TY3EX';
@@ -94,11 +98,6 @@
         console.warn('Failed to load Google Analytics');
       };
       script.onload=function() {
-        // Initialize gtag only after successful load
-        globalThis.dataLayer=globalThis.dataLayer||[];
-        function gtag() {
-          dataLayer.push(arguments);
-        }
         gtag('js',new Date());
         gtag('config','G-X6K69TY3EX',{anonymize_ip: true});
       };

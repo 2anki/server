@@ -8,7 +8,7 @@ import {
 import NotionObject from '../interfaces/NotionObject';
 import UserUpload from '../interfaces/UserUpload';
 
-import Jobs, { JobsId } from '../../schemas/public/Jobs';
+import { JobsId } from '../../schemas/public/Jobs';
 import JobResponse from '../../schemas/public/JobResponse';
 import { ConnectionInfo } from '../interfaces/ConnectionInfo';
 import isOfflineMode from '../isOfflineMode';
@@ -19,11 +19,7 @@ import { getResourceUrl } from './getResourceUrl';
 import { CONFLICT, OK } from './http';
 
 export class Backend {
-  public baseURL: string;
-
-  constructor() {
-    this.baseURL = '/api/';
-  }
+  public baseURL = '/api/';
 
   async logout() {
     const isOffline = isOfflineMode();
@@ -83,7 +79,7 @@ export class Backend {
       }
       return result;
     } catch (error) {
-      // Fallback to empty rule
+      console.error('getRules failed, falling back to empty rule', error);
       return null;
     }
   }
@@ -238,6 +234,7 @@ export class Backend {
         isFavorite: true,
       }));
     } catch (error) {
+      console.error('getFavorites failed', error);
       return [];
     }
   }

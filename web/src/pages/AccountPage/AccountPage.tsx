@@ -31,7 +31,7 @@ export default function AccountPage() {
   if (isLoading) return <SkeletonPage rows={4} />;
 
   if (!data?.user?.email) {
-    window.location.href = '/login';
+    globalThis.location.href = '/login';
     return null;
   }
 

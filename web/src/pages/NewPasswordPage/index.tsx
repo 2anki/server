@@ -1,3 +1,1 @@
-import { NewPasswordPage } from './NewsPasswordPage';
-
-export default NewPasswordPage;
+export { NewPasswordPage as default } from './NewsPasswordPage';
