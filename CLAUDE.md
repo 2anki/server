@@ -17,6 +17,7 @@
 - Run tests with `pnpm test` scoped to the current test file
 - If test output is truncated, rerun without coverage for full output
 - When tests fail, provide the specific error message
+- When suggesting to run a TypeScript script manually, always use `npx tsx <script>` — never `ts-node`
 
 ## Database schema types
 
