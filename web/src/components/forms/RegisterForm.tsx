@@ -47,6 +47,7 @@ function RegisterForm({ setErrorMessage, redirect }: Props) {
         );
       }
     } catch (error) {
+      console.error('Register submit failed', error);
       setErrorMessage(
         'Request failed. If you already have a user try login instead'
       );

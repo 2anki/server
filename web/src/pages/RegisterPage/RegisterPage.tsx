@@ -6,7 +6,7 @@ interface Props {
   setErrorMessage: ErrorHandlerType;
 }
 
-export function RegisterPage({ setErrorMessage }: Props) {
+export function RegisterPage({ setErrorMessage }: Readonly<Props>) {
   const [searchParams] = useSearchParams();
   const redirect = searchParams.get('redirect');
 

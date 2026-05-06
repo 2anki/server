@@ -3,7 +3,7 @@ interface IconProps {
   height: number;
 }
 
-export default function DotsHorizontal(props: IconProps) {
+export default function DotsHorizontal(props: Readonly<IconProps>) {
   const { width, height } = props;
   return (
     <svg

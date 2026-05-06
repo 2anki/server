@@ -109,7 +109,7 @@ export function DebugPage() {
 
   const resetLocalStorage = () => {
     localStorage.clear();
-    window.location.reload();
+    globalThis.location.reload();
   };
 
   const toggleShareFiles = () => {

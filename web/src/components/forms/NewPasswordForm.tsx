@@ -21,11 +21,11 @@ function NewPasswordForm({ setErrorMessage }: Props) {
     setLoading(true);
 
     try {
-      const paths = window.location.pathname.split('/');
+      const paths = globalThis.location.pathname.split('/');
       const resetToken = paths[paths.length - 1];
       const res = await get2ankiApi().newPassword(password, resetToken);
       if (res.status === 200) {
-        window.location.href = '/login#login';
+        globalThis.location.href = '/login#login';
       }
       setLoading(false);
     } catch (error) {

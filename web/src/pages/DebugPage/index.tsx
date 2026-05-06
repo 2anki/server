@@ -1,3 +1,1 @@
-import { DebugPage } from './DebugPage';
-
-export default DebugPage;
+export { DebugPage as default } from './DebugPage';

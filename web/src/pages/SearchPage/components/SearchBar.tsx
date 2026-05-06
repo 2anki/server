@@ -12,7 +12,7 @@ function SearchBar({
   onSearchQueryChanged,
   onSearchClicked,
   inProgress,
-}: SearchBarProps) {
+}: Readonly<SearchBarProps>) {
   return (
     <div>
       <label className={searchStyles.searchLabel} htmlFor="notion-search-input">

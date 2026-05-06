@@ -65,9 +65,8 @@ export default function ListSearchResults(
             rel="noreferrer"
             href="https://www.notion.so/help/guides/understanding-notions-sharing-settings"
           >
-            Notion's sharing settings
-          </a>
-          .
+            Notion&apos;s sharing settings
+          </a>.
         </p>
       </div>
     );

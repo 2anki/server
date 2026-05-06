@@ -83,9 +83,11 @@ export const get = async (
   return response.json();
 };
 
+const DEFAULT_DELETE_OPTIONS: ClientSideOptions = { redirect: true };
+
 export const del = async (
   url: string,
-  options: ClientSideOptions = { redirect: true }
+  options: ClientSideOptions = DEFAULT_DELETE_OPTIONS
 ) => {
   const response = await fetch(url, {
     method: 'DELETE',

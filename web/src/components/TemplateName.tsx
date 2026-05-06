@@ -12,7 +12,7 @@ function TemplateName({
   name,
   value,
   pickedName,
-}: TemplateNameDelegate) {
+}: Readonly<TemplateNameDelegate>) {
   return (
     <div>
       <label htmlFor={name}>

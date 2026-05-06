@@ -39,7 +39,7 @@ const formatDate = (seconds: number | null): string => {
 
 const formatPlan = (sub: StripeSubscriptionSummary): string | null => {
   const plan = sub.plan;
-  if (!plan || plan.amount == null || !plan.currency) return null;
+  if (plan?.amount == null || !plan?.currency) return null;
   const price = (plan.amount / 100).toLocaleString(undefined, {
     style: 'currency',
     currency: plan.currency.toUpperCase(),

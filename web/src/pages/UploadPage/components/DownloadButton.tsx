@@ -16,7 +16,7 @@ function getButtonLabel(uploading: boolean, isEmptyDeck: boolean): string {
   return 'Download';
 }
 
-function DownloadButton(props: Props) {
+function DownloadButton(props: Readonly<Props>) {
   const { downloadLink, deckName, uploading, cardCount } = props;
   const isDownloadable = downloadLink && deckName;
   const downloadRef = useRef<HTMLAnchorElement>(null);

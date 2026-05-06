@@ -7,19 +7,9 @@ interface SwitchProps {
   onSwitched: () => void;
 }
 
-function Switch({ title, id, checked, onSwitched }: SwitchProps) {
+function Switch({ title, id, checked, onSwitched }: Readonly<SwitchProps>) {
   return (
-    <div
-      tabIndex={-12}
-      role="button"
-      className={styles.switchField}
-      onClick={() => onSwitched()}
-      onKeyDown={(event) => {
-        if (event.altKey && event.key === id) {
-          onSwitched();
-        }
-      }}
-    >
+    <label htmlFor={id} className={styles.switchField}>
       <input
         id={id}
         type="checkbox"
@@ -28,8 +18,8 @@ function Switch({ title, id, checked, onSwitched }: SwitchProps) {
         checked={checked}
         onChange={() => onSwitched()}
       />
-      <label htmlFor="switchRoundedInfo">{title}</label>
-    </div>
+      {title}
+    </label>
   );
 }
 

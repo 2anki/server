@@ -11,7 +11,7 @@ interface Prop {
   setError: ErrorHandlerType;
 }
 
-export function DeleteAccountPage({ setError }: Prop) {
+export function DeleteAccountPage({ setError }: Readonly<Prop>) {
   const [count, setCount] = React.useState(0);
   const [isDeleting, setIsDeleting] = React.useState(false);
   const deleteButtonText = count === 0 ? 'Delete' : 'I am sure!';
