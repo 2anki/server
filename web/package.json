@@ -87,13 +87,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "pnpm": {
-    "overrides": {
-      "rollup": ">=4.59.0",
-      "picomatch": ">=4.0.4",
-      "path-to-regexp": ">=8.4.0",
-      "yaml": ">=2.8.3"
-    }
   }
 }
