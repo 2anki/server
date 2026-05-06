@@ -40,8 +40,7 @@ export const ONE_HOUR = 60 * 60 * 1000;
 
 export const BUILD_DIR = path.join(__dirname, '../../web/build');
 
-export const CREATE_DECK_DIR =
-  process.env.CREATE_DECK_DIR || path.join(__dirname, '../../../create_deck/');
+export const CREATE_DECK_DIR = path.join(__dirname, '../../create_deck/');
 
 export const CREATE_DECK_SCRIPT_PATH = path.join(
   CREATE_DECK_DIR,

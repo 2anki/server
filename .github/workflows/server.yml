@@ -5,6 +5,7 @@ on:
     paths-ignore:
       - '**.md'
       - 'web/**'
+      - 'create_deck/**'
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
