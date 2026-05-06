@@ -5,6 +5,17 @@ module.exports = {
   testMatch: ['**/*.test.ts', '**/*.test.tsx'],
   testPathIgnorePatterns: ['/node_modules/', '<rootDir>/web/'],
   modulePathIgnorePatterns: ['<rootDir>/test/'],
+  collectCoverageFrom: [
+    'src/**/*.{ts,tsx}',
+    '!src/**/*.test.{ts,tsx}',
+    '!src/**/*.d.ts',
+    '!src/templates/**',
+    '!src/migrations/**',
+    '!src/test/fixtures/**',
+    '!src/config/swagger.ts',
+  ],
+  coverageDirectory: 'coverage',
+  coverageReporters: ['text-summary', 'lcov'],
   transform: {
     '^.+\\.tsx?$': [
       'ts-jest',

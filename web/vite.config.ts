@@ -29,6 +29,19 @@ export default defineConfig(({ command, mode }) => {
       css: true,
       include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
       exclude: ['tests/**/*', 'e2e/**/*'],
+      coverage: {
+        provider: 'v8',
+        reporter: ['text', 'lcov'],
+        reportsDirectory: 'coverage',
+        include: ['src/**/*.{ts,tsx}'],
+        exclude: [
+          'src/**/*.{test,spec}.{ts,tsx}',
+          'src/setupTests.ts',
+          'src/generated/**',
+          'src/schemas/**',
+          'src/react-app-env.d.ts',
+        ],
+      },
     },
 
     // Define aliases
