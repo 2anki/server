@@ -1,3 +1,3 @@
 export const redirectToFrontPage = () => {
-  window.location.href = '/';
+  globalThis.location.href = '/';
 };

@@ -13,7 +13,7 @@ export default function NavbarItem({
   href,
   onClick,
   children,
-}: NavbarItemProps) {
+}: Readonly<NavbarItemProps>) {
   return (
     <a
       onClick={onClick}

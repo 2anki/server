@@ -1,4 +1,4 @@
 export function getGoogleRedirectUri() {
-  const redirectUri = new URL('/api/users/auth/google', window.location.href).toString();
+  const redirectUri = new URL('/api/users/auth/google', globalThis.location.href).toString();
   return redirectUri;
 }

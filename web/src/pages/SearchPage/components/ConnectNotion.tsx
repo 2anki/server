@@ -5,7 +5,7 @@ interface Props {
   connectionLink: string;
 }
 
-export default function ConnectNotion({ ready, connectionLink }: Props) {
+export default function ConnectNotion({ ready, connectionLink }: Readonly<Props>) {
   if (!ready) return null;
 
   return (

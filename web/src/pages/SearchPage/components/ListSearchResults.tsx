@@ -24,7 +24,7 @@ function relevanceRank(title: string, query: string): number {
 }
 
 export default function ListSearchResults(
-  props: ListSearchResultsProps
+  props: Readonly<ListSearchResultsProps>
 ): React.ReactNode {
   const {
     results,

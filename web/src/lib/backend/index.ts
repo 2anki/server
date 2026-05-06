@@ -1,3 +1,1 @@
-import { Backend } from './Backend';
-
-export default Backend;
+export { Backend as default } from './Backend';

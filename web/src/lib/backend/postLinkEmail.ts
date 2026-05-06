@@ -6,7 +6,7 @@ export const postLinkEmail = async (email: string) => {
   try {
     const response = await post('/api/users/link_email', { email });
     if (response?.status === UNAUTHORIZED) {
-      window.location.href = '/login';
+      globalThis.location.href = '/login';
       return undefined;
     }
     if (response?.status !== 200) {

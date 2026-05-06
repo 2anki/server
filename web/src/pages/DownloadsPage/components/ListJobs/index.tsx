@@ -23,7 +23,7 @@ export default function Index({
   restartJob,
   refreshJobs,
 }: Props) {
-  const [hover, setHover] = useState<JobsId | null>(null);
+  const [, setHover] = useState<JobsId | null>(null);
 
   const isFailedJob = (status: string) => ['failed', 'cancelled', 'interrupted'].includes(status);
   const isDoneJob = (status: JobStatus) => status === 'done';

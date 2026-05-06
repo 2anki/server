@@ -1,3 +1,1 @@
-import { DownloadsPage } from './DownloadsPage';
-
-export default DownloadsPage;
+export { DownloadsPage as default } from './DownloadsPage';

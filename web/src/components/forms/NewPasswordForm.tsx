@@ -8,7 +8,7 @@ interface Props {
   setErrorMessage: ErrorHandlerType;
 }
 
-function NewPasswordForm({ setErrorMessage }: Props) {
+function NewPasswordForm({ setErrorMessage }: Readonly<Props>) {
   const [password, setPassword] = useState('');
   const [passwd, setPasswd] = useState('');
   const [loading, setLoading] = useState(false);

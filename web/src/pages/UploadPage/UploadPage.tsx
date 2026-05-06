@@ -15,8 +15,8 @@ interface Props {
   setErrorMessage: ErrorHandlerType;
 }
 
-export function UploadPage({ setErrorMessage }: Props) {
-  const isDevelopment = !window.location.host.match(/2anki.(com|net|de)/);
+export function UploadPage({ setErrorMessage }: Readonly<Props>) {
+  const isDevelopment = !globalThis.location.host.match(/2anki.(com|net|de)/);
   const query = useQuery();
   const view = query.get('view');
 
@@ -64,7 +64,7 @@ export function UploadPage({ setErrorMessage }: Props) {
         pageId={null}
         isActive={showCardOptionsModal}
         onClickClose={() => {
-          window.history.pushState({}, '', 'upload');
+          globalThis.history.pushState({}, '', 'upload');
           setShowCardOptionsModal(false);
         }}
       />

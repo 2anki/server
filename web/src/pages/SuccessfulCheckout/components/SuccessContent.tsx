@@ -34,7 +34,7 @@ export const SuccessContent = ({ timeoutReached }: SuccessContentProps) => {
       <p>
         In case you use different email addresses (e.g., Gmail for daily use and
         web.de for payments), you can still link them after logging in. Head
-        over to your Settings page for more information:
+        over to your Settings page for more information:{' '}
         <a href={settingsLink}>{settingsLink}</a>
       </p>
 

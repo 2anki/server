@@ -7,7 +7,7 @@ interface ErrorPresenterProps {
   onRetry?: () => void;
 }
 
-export function ErrorPresenter({ error, onRetry }: ErrorPresenterProps) {
+export function ErrorPresenter({ error, onRetry }: Readonly<ErrorPresenterProps>) {
   const { dismissed, setDismissed } = useDismissed(error);
 
   if (!error || dismissed) {

@@ -6,6 +6,6 @@ interface FavoritesPageProps {
   setError: ErrorHandlerType;
 }
 
-export function FavoritesPage({ setError }: FavoritesPageProps) {
+export function FavoritesPage({ setError }: Readonly<FavoritesPageProps>) {
   return <FavoritesContainer backend={get2ankiApi()} setError={setError} />;
 }

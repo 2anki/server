@@ -16,7 +16,7 @@ export default function FavoritesPresenter({
   setError,
   setFavorites,
   favorites,
-}: Props) {
+}: Readonly<Props>) {
   if (favorites.length === 0) {
     return (
       <div className={styles.emptyState}>
