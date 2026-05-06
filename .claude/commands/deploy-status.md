@@ -1,0 +1,19 @@
+---
+description: SSH to 2anki.net, show pm2 status and recent server log tail
+allowed-tools: Bash
+---
+
+Run a single SSH call:
+
+```bash
+ssh -o ConnectTimeout=10 alemayhu@2anki.net "pm2 list && echo '---LOGS---' && pm2 logs server --lines 80 --nostream 2>&1 | tail -100"
+```
+
+Then report concisely:
+
+- **Process**: online / errored / restarted recently? Note recent uptime, not the lifetime ↺ counter.
+- **Recent activity**: are real requests being served (200/304 in access logs)?
+- **Errors**: distinguish user-facing thrown errors (e.g. `getNoPackageError`) from actual crashes (`uncaught exception`, native binding failures, EADDRINUSE).
+- **Verdict**: one paragraph — "deploy healthy" / "watching X" / "broken, escalate".
+
+Don't dump the full log. Surface specifics only when something is wrong.
