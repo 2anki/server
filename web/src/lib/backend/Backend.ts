@@ -305,6 +305,49 @@ export class Backend {
     return response.json();
   }
 
+  async getAnkifyExportSchedule(): Promise<{
+    id: number;
+    owner: number;
+    database_id: string;
+    time_of_day: string;
+    timezone: string;
+    date_range_days: number | null;
+    enabled: boolean;
+    last_run_at: string | null;
+  } | null> {
+    const result = await get(`${this.baseURL}ankify/exports/schedule`);
+    return result ?? null;
+  }
+
+  async configureAnkifyExportSchedule(input: {
+    databaseId: string;
+    timeOfDay: string;
+    timezone: string;
+    dateRangeDays?: number | null;
+    enabled: boolean;
+  }): Promise<void> {
+    const response = await post(`${this.baseURL}ankify/exports/schedule`, {
+      database_id: input.databaseId,
+      time_of_day: input.timeOfDay,
+      timezone: input.timezone,
+      date_range_days: input.dateRangeDays ?? null,
+      enabled: input.enabled,
+    });
+    if (!response.ok) {
+      const error = await response
+        .json()
+        .catch(() => ({ message: response.statusText }));
+      throw new Error(error.message ?? 'Failed to configure schedule');
+    }
+  }
+
+  async deleteAnkifyExportSchedule(): Promise<void> {
+    const response = await del(`${this.baseURL}ankify/exports/schedule`);
+    if (response == null || !response.ok) {
+      throw new Error('Failed to delete schedule');
+    }
+  }
+
   async exportAnkifyReviewData(input: {
     databaseId: string;
     dateRangeDays?: number;

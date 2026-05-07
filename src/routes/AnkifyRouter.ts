@@ -17,6 +17,12 @@ import StopAnkifyClientUseCase from '../usecases/ankify/StopAnkifyClientUseCase'
 import RespinAnkifyClientUseCase from '../usecases/ankify/RespinAnkifyClientUseCase';
 import { SendUploadToRacUseCase } from '../usecases/ankify/SendUploadToRacUseCase';
 import { ExportReviewDataToNotionUseCase } from '../usecases/ankify/ExportReviewDataToNotionUseCase';
+import { ConfigureExportScheduleUseCase } from '../usecases/ankify/ConfigureExportScheduleUseCase';
+import { GetExportScheduleUseCase } from '../usecases/ankify/GetExportScheduleUseCase';
+import { DeleteExportScheduleUseCase } from '../usecases/ankify/DeleteExportScheduleUseCase';
+import { AnkifyExportScheduler } from '../services/ankify/AnkifyExportScheduler';
+import { AnkifyExportSchedulesRepository } from '../data_layer/ankify/AnkifyExportSchedulesRepository';
+import { getAnkifyExportScheduler } from '../lib/ankify/scheduler/instance';
 import { Client as NotionClient } from '@notionhq/client';
 import NotionRepository from '../data_layer/NotionRespository';
 import StorageHandler from '../lib/storage/StorageHandler';
@@ -29,6 +35,7 @@ const AnkifyRouter = () => {
   const repo = new AnkifyClientsRepository(db);
   const mappings = new AnkifySyncMappingsRepository(db);
   const uploads = new UploadRepository(db);
+  const schedulesRepo = new AnkifyExportSchedulesRepository(db);
   const docker = new Docker();
   const rac = new RacService(repo, docker);
   const storage = new StorageHandler();
@@ -93,7 +100,10 @@ const AnkifyRouter = () => {
           },
         };
       }
-    )
+    ),
+    new ConfigureExportScheduleUseCase(schedulesRepo, getAnkifyExportScheduler),
+    new GetExportScheduleUseCase(schedulesRepo),
+    new DeleteExportScheduleUseCase(schedulesRepo, getAnkifyExportScheduler)
   );
 
   /**
@@ -245,6 +255,56 @@ const AnkifyRouter = () => {
     '/api/ankify/exports/review-data',
     RequireAnkifyAccess,
     (req, res) => controller.exportReviewData(req, res)
+  );
+
+  /**
+   * @swagger
+   * /api/ankify/exports/schedule:
+   *   get:
+   *     summary: Read the user's daily review-export schedule
+   *     tags: [Ankify]
+   *   post:
+   *     summary: Create or update the user's daily review-export schedule
+   *     description: Allowlisted endpoint. Schedules a daily run at the supplied IANA timezone-local time.
+   *     tags: [Ankify]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required: [database_id, time_of_day, timezone]
+   *             properties:
+   *               database_id:
+   *                 type: string
+   *               time_of_day:
+   *                 type: string
+   *                 example: "09:00"
+   *               timezone:
+   *                 type: string
+   *                 example: "Europe/Oslo"
+   *               date_range_days:
+   *                 type: integer
+   *               enabled:
+   *                 type: boolean
+   *   delete:
+   *     summary: Cancel and remove the user's daily review-export schedule
+   *     tags: [Ankify]
+   */
+  router.get(
+    '/api/ankify/exports/schedule',
+    RequireAnkifyAccess,
+    (req, res) => controller.getSchedule(req, res)
+  );
+  router.post(
+    '/api/ankify/exports/schedule',
+    RequireAnkifyAccess,
+    (req, res) => controller.configureSchedule(req, res)
+  );
+  router.delete(
+    '/api/ankify/exports/schedule',
+    RequireAnkifyAccess,
+    (req, res) => controller.deleteSchedule(req, res)
   );
 
   return router;
