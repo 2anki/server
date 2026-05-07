@@ -211,7 +211,7 @@ export class RacService {
     } catch {
       // Container might already be gone; proceed to create the new one.
     }
-    await this.repo.setStatus(existing.id, 'inactive');
+    await this.repo.deleteById(existing.id);
 
     const usedPorts = await this.collectUsedPorts();
     const ankiPort = pickPort(ANKI_PORT_RANGE, usedPorts);
@@ -247,7 +247,7 @@ export class RacService {
         const container = this.docker.getContainer(client.container_id);
         await container.stop().catch(() => undefined);
         await container.remove({ force: true }).catch(() => undefined);
-        await this.repo.setStatus(client.id, 'inactive');
+        await this.repo.deleteById(client.id);
         stopped.push(client.id);
       } catch (error) {
         if (error instanceof DockerUnavailableError) {
@@ -273,8 +273,7 @@ export class RacService {
       } catch (error) {
         const statusCode = (error as { statusCode?: number }).statusCode;
         if (statusCode === 404) {
-          await this.repo.setStatus(client.id, 'inactive');
-          reconciled.push({ ...client, status: 'inactive' });
+          await this.repo.deleteById(client.id);
         } else {
           console.warn(
             `[ankify] reconcile skipped for container ${client.container_id}:`,
@@ -297,7 +296,7 @@ export class RacService {
     try {
       await container.stop();
     } catch {
-      // Container already stopped, removed, or unreachable — proceed to mark inactive.
+      // Container already stopped, removed, or unreachable — proceed to delete.
     }
     try {
       await container.remove({ force: true });
@@ -305,7 +304,7 @@ export class RacService {
       // Same as above; AutoRemove may have already cleaned up.
     }
 
-    await this.repo.setStatus(id, 'inactive');
+    await this.repo.deleteById(id);
   }
 
   private async collectUsedPorts(): Promise<Set<number>> {

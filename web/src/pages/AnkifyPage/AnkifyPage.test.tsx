@@ -51,11 +51,11 @@ describe('AnkifyPage', () => {
     );
   });
 
-  test('renders a row per client returned by the backend', async () => {
+  test('renders the active client and ignores inactive ones', async () => {
     const backend = makeBackend({
       listAnkifyClients: vi.fn(async () => [
         sampleClient(),
-        sampleClient({ id: 2, container_name: 'sleepy_swan' }),
+        sampleClient({ id: 2, container_name: 'sleepy_swan', status: 'inactive' }),
       ]),
     });
 
@@ -64,7 +64,7 @@ describe('AnkifyPage', () => {
     await waitFor(() =>
       expect(screen.getByText('happy_hopper')).toBeInTheDocument()
     );
-    expect(screen.getByText('sleepy_swan')).toBeInTheDocument();
+    expect(screen.queryByText('sleepy_swan')).not.toBeInTheDocument();
   });
 
   test('shows the provision button and triggers the backend on click', async () => {
@@ -96,7 +96,7 @@ describe('AnkifyPage', () => {
     expect(button).toBeDisabled();
   });
 
-  test('hides the Stop button for inactive clients', async () => {
+  test('does not render inactive clients at all', async () => {
     const backend = makeBackend({
       listAnkifyClients: vi.fn(async () => [
         sampleClient({ status: 'inactive' }),
@@ -106,8 +106,11 @@ describe('AnkifyPage', () => {
     renderWithClient(backend);
 
     await waitFor(() =>
-      expect(screen.getByText('happy_hopper')).toBeInTheDocument()
+      expect(
+        screen.getByRole('button', { name: /provision new client/i })
+      ).toBeInTheDocument()
     );
+    expect(screen.queryByText('happy_hopper')).not.toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: /stop/i })
     ).not.toBeInTheDocument();

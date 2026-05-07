@@ -14,6 +14,7 @@ export interface AnkifyClientsRepositoryInterface {
   findActiveById(id: number, owner: number): Promise<AnkifyClient | null>;
   findActiveByOwner(owner: number): Promise<AnkifyClient | null>;
   setStatus(id: number, status: AnkifyClientStatus): Promise<void>;
+  deleteById(id: number): Promise<void>;
   touchLastActiveAt(id: number): Promise<void>;
   reservedPorts(): Promise<number[]>;
   listIdleSince(cutoff: Date): Promise<AnkifyClient[]>;
@@ -66,6 +67,10 @@ export class AnkifyClientsRepository
 
   async setStatus(id: number, status: AnkifyClientStatus): Promise<void> {
     await this.database(TABLE).update({ status }).where({ id });
+  }
+
+  async deleteById(id: number): Promise<void> {
+    await this.database(TABLE).delete().where({ id });
   }
 
   async touchLastActiveAt(id: number): Promise<void> {
