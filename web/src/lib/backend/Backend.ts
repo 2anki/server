@@ -305,6 +305,28 @@ export class Backend {
     return response.json();
   }
 
+  async exportAnkifyReviewData(input: {
+    databaseId: string;
+    dateRangeDays?: number;
+  }): Promise<{
+    exported: number;
+    skipped: number;
+    errors: string[];
+    totalDays: number;
+  }> {
+    const response = await post(`${this.baseURL}ankify/exports/review-data`, {
+      database_id: input.databaseId,
+      date_range_days: input.dateRangeDays,
+    });
+    if (!response.ok) {
+      const error = await response
+        .json()
+        .catch(() => ({ message: response.statusText }));
+      throw new Error(error.message ?? 'Failed to export review data');
+    }
+    return response.json();
+  }
+
   async dispatchUploadToAnkify(uploadId: number): Promise<{
     deck_names: string[];
     created: number;

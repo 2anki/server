@@ -4,6 +4,7 @@ import sharedStyles from '../../styles/shared.module.css';
 import { get2ankiApi } from '../../lib/backend/get2ankiApi';
 import AnkifyClient from '../../lib/interfaces/AnkifyClient';
 import { Backend } from '../../lib/backend/Backend';
+import ReviewDataExport from './components/ReviewDataExport';
 
 const QUERY_KEY = ['ankify-clients'];
 
@@ -146,6 +147,8 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
           </tbody>
         </table>
       )}
+
+      {hasActiveClient && <ReviewDataExport backend={backend} />}
     </main>
   );
 }

@@ -16,6 +16,9 @@ import ListAnkifyClientsUseCase from '../usecases/ankify/ListAnkifyClientsUseCas
 import StopAnkifyClientUseCase from '../usecases/ankify/StopAnkifyClientUseCase';
 import RespinAnkifyClientUseCase from '../usecases/ankify/RespinAnkifyClientUseCase';
 import { SendUploadToRacUseCase } from '../usecases/ankify/SendUploadToRacUseCase';
+import { ExportReviewDataToNotionUseCase } from '../usecases/ankify/ExportReviewDataToNotionUseCase';
+import { Client as NotionClient } from '@notionhq/client';
+import NotionRepository from '../data_layer/NotionRespository';
 import StorageHandler from '../lib/storage/StorageHandler';
 import { parseCollection } from '../services/ApkgPreviewService/parseCollection';
 import RequireAnkifyAccess from './middleware/RequireAnkifyAccess';
@@ -54,7 +57,43 @@ const AnkifyRouter = () => {
       parseCollection,
       ankiConnectFactory
     ),
-    new RespinAnkifyClientUseCase(rac)
+    new RespinAnkifyClientUseCase(rac),
+    new ExportReviewDataToNotionUseCase(
+      repo,
+      new NotionRepository(db),
+      ankiConnectFactory,
+      (token) => {
+        const notion = new NotionClient({ auth: token });
+        return {
+          databases: {
+            query: async (params) => {
+              const database = await notion.databases.retrieve({
+                database_id: params.database_id,
+              });
+              const dataSources =
+                'data_sources' in database
+                  ? (database as { data_sources: { id: string }[] }).data_sources
+                  : [];
+              const aggregated: { results: unknown[] } = { results: [] };
+              for (const ds of dataSources) {
+                const res = await notion.dataSources.query({
+                  data_source_id: ds.id,
+                  filter: params.filter as never,
+                });
+                aggregated.results.push(...res.results);
+              }
+              return aggregated;
+            },
+          },
+          pages: {
+            create: (params) =>
+              notion.pages.create(
+                params as Parameters<typeof notion.pages.create>[0]
+              ),
+          },
+        };
+      }
+    )
   );
 
   /**
@@ -172,6 +211,40 @@ const AnkifyRouter = () => {
    */
   router.post('/api/ankify/clients/respin', RequireAnkifyAccess, (req, res) =>
     controller.respin(req, res)
+  );
+
+  /**
+   * @swagger
+   * /api/ankify/exports/review-data:
+   *   post:
+   *     summary: Export Anki review counts into a Notion database
+   *     description: Allowlisted endpoint. Pulls the per-day review history from the active hosted Anki via AnkiConnect and writes one row per day into the user-supplied Notion database (skipping dates already present).
+   *     tags: [Ankify]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required: [database_id]
+   *             properties:
+   *               database_id:
+   *                 type: string
+   *               date_range_days:
+   *                 type: integer
+   *                 description: Restrict to the trailing N days of history.
+   *     responses:
+   *       200:
+   *         description: Export summary
+   *       409:
+   *         description: No active Ankify client or Notion not connected
+   *       503:
+   *         description: AnkiConnect unreachable
+   */
+  router.post(
+    '/api/ankify/exports/review-data',
+    RequireAnkifyAccess,
+    (req, res) => controller.exportReviewData(req, res)
   );
 
   return router;
