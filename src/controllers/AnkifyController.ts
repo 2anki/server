@@ -24,6 +24,7 @@ import { DeleteExportScheduleUseCase } from '../usecases/ankify/DeleteExportSche
 import { ListSyncLogsUseCase } from '../usecases/ankify/ListSyncLogsUseCase';
 import { ListNotionDatabasesUseCase } from '../usecases/ankify/ListNotionDatabasesUseCase';
 import { CreateReviewTrackerDatabaseUseCase } from '../usecases/ankify/CreateReviewTrackerDatabaseUseCase';
+import { CheckActiveClientReadinessUseCase } from '../usecases/ankify/CheckActiveClientReadinessUseCase';
 import { SyncNotionPageToRacUseCase } from '../usecases/ankify/SyncNotionPageToRacUseCase';
 import { ListNotionSubscriptionsUseCase } from '../usecases/ankify/ListNotionSubscriptionsUseCase';
 import { DeleteNotionSubscriptionUseCase } from '../usecases/ankify/DeleteNotionSubscriptionUseCase';
@@ -57,7 +58,8 @@ class AnkifyController {
     private readonly listConflictsUseCase: ListConflictsUseCase,
     private readonly resolveConflictUseCase: ResolveConflictUseCase,
     private readonly listNotionDatabasesUseCase: ListNotionDatabasesUseCase,
-    private readonly createReviewTrackerUseCase: CreateReviewTrackerDatabaseUseCase
+    private readonly createReviewTrackerUseCase: CreateReviewTrackerDatabaseUseCase,
+    private readonly checkReadinessUseCase: CheckActiveClientReadinessUseCase
   ) {}
 
   async list(_req: Request, res: Response) {
@@ -350,6 +352,12 @@ class AnkifyController {
       }
       throw error;
     }
+  }
+
+  async checkActiveClientReady(_req: Request, res: Response) {
+    const owner = res.locals.owner as number;
+    const result = await this.checkReadinessUseCase.execute(owner);
+    res.status(200).json(result);
   }
 
   async listNotionDatabases(_req: Request, res: Response) {

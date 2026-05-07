@@ -31,6 +31,7 @@ import { ListConflictsUseCase } from '../usecases/ankify/ListConflictsUseCase';
 import { ResolveConflictUseCase } from '../usecases/ankify/ResolveConflictUseCase';
 import { ListNotionDatabasesUseCase } from '../usecases/ankify/ListNotionDatabasesUseCase';
 import { CreateReviewTrackerDatabaseUseCase } from '../usecases/ankify/CreateReviewTrackerDatabaseUseCase';
+import { CheckActiveClientReadinessUseCase } from '../usecases/ankify/CheckActiveClientReadinessUseCase';
 import { AnkifyExportScheduler } from '../services/ankify/AnkifyExportScheduler';
 import { AnkifyExportSchedulesRepository } from '../data_layer/ankify/AnkifyExportSchedulesRepository';
 import { getAnkifyExportScheduler } from '../lib/ankify/scheduler/instance';
@@ -313,7 +314,8 @@ const AnkifyRouter = () => {
           title: input.title,
         };
       },
-    })
+    }),
+    new CheckActiveClientReadinessUseCase(repo, ankiConnectFactory)
   );
 
   /**
@@ -625,6 +627,20 @@ const AnkifyRouter = () => {
     '/api/ankify/notion/databases',
     RequireAnkifyAccess,
     (req, res) => controller.createReviewTracker(req, res)
+  );
+
+  /**
+   * @swagger
+   * /api/ankify/clients/active/ready:
+   *   get:
+   *     summary: Probe whether the active hosted Anki container is reachable
+   *     description: Allowlisted endpoint. Returns { ready, reason? } where ready is true if AnkiConnect responds inside the container. Used by the UI to show a skeleton while a freshly-provisioned container is still booting.
+   *     tags: [Ankify]
+   */
+  router.get(
+    '/api/ankify/clients/active/ready',
+    RequireAnkifyAccess,
+    (req, res) => controller.checkActiveClientReady(req, res)
   );
 
   return router;
