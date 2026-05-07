@@ -113,6 +113,15 @@ const AnkifyRouter = () => {
                 params as Parameters<typeof notion.pages.create>[0]
               ),
           },
+          getSchema: async (databaseId) => {
+            const database = await notion.databases.retrieve({
+              database_id: databaseId,
+            } as never);
+            const properties =
+              (database as { properties?: Record<string, { type: string }> })
+                .properties ?? {};
+            return { properties };
+          },
         };
       }
     ),
@@ -192,31 +201,72 @@ const AnkifyRouter = () => {
       listDatabases: async (token) => {
         const notion = new NotionClient({ auth: token });
         const response = await notion.search({ page_size: 100 });
-        return response.results
-          .filter((entry) => {
-            const obj = (entry as { object?: string }).object;
-            return obj === 'database' || obj === 'data_source';
-          })
-          .map((entry) => {
-            const titleArr = (entry as { title?: { plain_text?: string }[] })
-              .title;
-            const title =
-              titleArr != null && titleArr.length > 0
-                ? titleArr.map((t) => t.plain_text ?? '').join('')
-                : 'Untitled database';
-            const properties =
-              (entry as { properties?: Record<string, { type: string }> })
-                .properties ?? {};
-            const hasReviewShape =
-              properties.Date?.type === 'date' &&
-              properties.Reviews?.type === 'number';
-            return {
-              id: (entry as { id: string }).id,
-              title,
-              url: (entry as { url?: string }).url ?? null,
-              has_review_shape: hasReviewShape,
-            };
+
+        type RawEntry = {
+          id: string;
+          title: string;
+          url: string | null;
+          has_review_shape: boolean;
+          object: 'database' | 'data_source';
+        };
+
+        const raw: RawEntry[] = [];
+        for (const entry of response.results) {
+          const obj = (entry as { object?: string }).object;
+          if (obj !== 'database' && obj !== 'data_source') {
+            continue;
+          }
+          const titleArr = (entry as { title?: { plain_text?: string }[] })
+            .title;
+          const title =
+            titleArr != null && titleArr.length > 0
+              ? titleArr.map((t) => t.plain_text ?? '').join('')
+              : '';
+          const normalized = title.trim().toLowerCase();
+          if (
+            normalized.length === 0 ||
+            normalized === 'untitled' ||
+            normalized === 'untitled database'
+          ) {
+            continue;
+          }
+          const properties =
+            (entry as { properties?: Record<string, { type: string }> })
+              .properties ?? {};
+          const hasReviewShape =
+            properties.Date?.type === 'date' &&
+            properties.Reviews?.type === 'number';
+          raw.push({
+            id: (entry as { id: string }).id,
+            title,
+            url: (entry as { url?: string }).url ?? null,
+            has_review_shape: hasReviewShape,
+            object: obj,
           });
+        }
+
+        const byNormalizedTitle = new Map<string, RawEntry>();
+        for (const entry of raw) {
+          const key = entry.title.trim().toLowerCase();
+          const existing = byNormalizedTitle.get(key);
+          if (existing == null) {
+            byNormalizedTitle.set(key, entry);
+            continue;
+          }
+          if (
+            existing.object === 'data_source' &&
+            entry.object === 'database'
+          ) {
+            byNormalizedTitle.set(key, entry);
+          }
+        }
+
+        return Array.from(byNormalizedTitle.values()).map((entry) => ({
+          id: entry.id,
+          title: entry.title,
+          url: entry.url,
+          has_review_shape: entry.has_review_shape,
+        }));
       },
     }),
     new CreateReviewTrackerDatabaseUseCase(new NotionRepository(db), {

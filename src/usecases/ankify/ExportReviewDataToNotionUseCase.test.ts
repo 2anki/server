@@ -1,7 +1,9 @@
 import {
   ExportReviewDataToNotionUseCase,
+  MissingTrackerSchemaError,
   NotionExportClient,
   NotionNotConnectedError,
+  TrackerSchema,
 } from './ExportReviewDataToNotionUseCase';
 import { NoActiveAnkifyClientError } from './SendUploadToRacUseCase';
 import { AnkifyClient } from '../../entities/ankify';
@@ -52,19 +54,35 @@ const makeAnkiConnect = (rows: Array<[string, number]>) =>
     getNumCardsReviewedByDay: jest.fn(async () => rows),
   } as unknown as AnkiConnectClient);
 
+const defaultSchema = (): TrackerSchema => ({
+  properties: {
+    Date: { type: 'date' },
+    Reviews: { type: 'number' },
+  },
+});
+
 const makeNotionClient = (
-  existingDates: string[] = []
-): { client: NotionExportClient; create: jest.Mock; query: jest.Mock } => {
+  existingDates: string[] = [],
+  schema: TrackerSchema = defaultSchema()
+): {
+  client: NotionExportClient;
+  create: jest.Mock;
+  query: jest.Mock;
+  getSchema: jest.Mock;
+} => {
   const create = jest.fn(async () => ({}));
   const query = jest.fn(async (params: any) => ({
     results: existingDates.includes(params.filter.date.equals) ? [{}] : [],
   }));
+  const getSchema = jest.fn(async () => schema);
   return {
     create,
     query,
+    getSchema,
     client: {
       databases: { query },
       pages: { create },
+      getSchema,
     } as NotionExportClient,
   };
 };

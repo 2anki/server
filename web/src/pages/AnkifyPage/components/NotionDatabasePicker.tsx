@@ -1,70 +1,94 @@
 import { useState } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 
 import sharedStyles from '../../../styles/shared.module.css';
 import styles from '../AnkifyPage.module.css';
 import { Backend } from '../../../lib/backend/Backend';
-import NotionPagePicker from './NotionPagePicker';
+
+export interface NotionDatabaseOption {
+  id: string;
+  title: string;
+  url: string | null;
+  has_review_shape: boolean;
+}
 
 interface Props {
   readonly backend: Backend;
   readonly value: string;
-  readonly onChange: (databaseId: string) => void;
+  readonly onChange: (databaseId: string, picked?: NotionDatabaseOption) => void;
+  readonly onWantToCreate: () => void;
 }
 
 const DATABASES_KEY = ['ankify-notion-databases'];
+
+const dedupeDatabases = (
+  raw: ReadonlyArray<NotionDatabaseOption & { object?: string }>
+): NotionDatabaseOption[] => {
+  const byTitle = new Map<string, NotionDatabaseOption & { object?: string }>();
+  for (const entry of raw) {
+    const title = entry.title.trim();
+    if (title.length === 0) continue;
+    if (title.toLowerCase() === 'untitled database') continue;
+    const key = title.toLowerCase();
+    const existing = byTitle.get(key);
+    if (existing == null) {
+      byTitle.set(key, entry);
+      continue;
+    }
+    const existingIsDataSource = existing.object === 'data_source';
+    const incomingIsDataSource = entry.object === 'data_source';
+    if (existingIsDataSource && !incomingIsDataSource) {
+      byTitle.set(key, entry);
+    }
+  }
+  return Array.from(byTitle.values()).map((entry) => ({
+    id: entry.id,
+    title: entry.title,
+    url: entry.url,
+    has_review_shape: entry.has_review_shape,
+  }));
+};
 
 export default function NotionDatabasePicker({
   backend,
   value,
   onChange,
+  onWantToCreate,
 }: Props) {
-  const queryClient = useQueryClient();
-  const [showCreate, setShowCreate] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [advancedInput, setAdvancedInput] = useState('');
 
   const databases = useQuery({
     queryKey: DATABASES_KEY,
-    queryFn: () => backend.listAnkifyNotionDatabases(),
-  });
-
-  const create = useMutation({
-    mutationFn: (parentPageId: string) =>
-      backend.createAnkifyReviewTracker({ parentPageId }),
-    onSuccess: (created) => {
-      queryClient.invalidateQueries({ queryKey: DATABASES_KEY });
-      onChange(created.id);
-      setShowCreate(false);
+    queryFn: async () => {
+      const raw = await backend.listAnkifyNotionDatabases();
+      return raw as Array<NotionDatabaseOption & { object?: string }>;
     },
   });
 
   const handleAdvanced = (event: React.FormEvent) => {
     event.preventDefault();
-    if (advancedInput.trim().length === 0) return;
-    onChange(advancedInput.trim());
+    const id = advancedInput.trim();
+    if (id.length === 0) return;
+    const picked = (databases.data ?? []).find((d) => d.id === id);
+    onChange(id, picked);
     setShowAdvanced(false);
     setAdvancedInput('');
   };
 
-  const databasesList = databases.data ?? [];
+  const databasesList = dedupeDatabases(databases.data ?? []);
   const selected = databasesList.find((d) => d.id === value);
-  const noDatabases =
-    databases.isFetched && !databases.isError && databasesList.length === 0;
 
   return (
     <div>
-      <label htmlFor="ankify-notion-database">Notion database</label>
+      <label htmlFor="ankify-notion-database">Pick a different tracker</label>
       <select
         id="ankify-notion-database"
         value={value}
         onChange={(event) => {
           const next = event.target.value;
-          if (next === '__create__') {
-            setShowCreate(true);
-            return;
-          }
-          onChange(next);
+          const picked = databasesList.find((d) => d.id === next);
+          onChange(next, picked);
         }}
         disabled={databases.isLoading}
       >
@@ -73,7 +97,6 @@ export default function NotionDatabasePicker({
             ? 'Loading your Notion databases…'
             : 'Pick a database…'}
         </option>
-        <option value="__create__">+ Create a new tracker for me</option>
         {databasesList.length > 0 && (
           <optgroup label="Your Notion databases">
             {databasesList.map((db) => (
@@ -87,24 +110,27 @@ export default function NotionDatabasePicker({
       </select>
 
       {selected != null && !selected.has_review_shape && (
-        <p className={sharedStyles.helpDanger} style={{ marginTop: '0.4rem' }}>
-          This database doesn't have <code>Date</code> and{' '}
-          <code>Reviews</code> properties yet — sending will fail until you
-          add them, or pick "Create a new tracker for me".
-        </p>
-      )}
-
-      {noDatabases && (
-        <p className={styles.muted} style={{ marginTop: '0.4rem' }}>
-          No Notion databases shared with 2anki yet. In Notion, open a
-          database and choose <strong>… → Add connections → 2anki</strong>,
-          or pick <strong>+ Create a new tracker for me</strong> above and
-          we'll make one in a page you choose.
-        </p>
+        <div className={styles.shapeWarning} role="alert">
+          <p className={styles.shapeWarningText}>
+            This database is missing the Date or Reviews column 2anki needs.
+            Sending will fail until those columns exist.
+          </p>
+          <button
+            type="button"
+            className={`${sharedStyles.btnPrimary} ${styles.inlineButton}`}
+            onClick={onWantToCreate}
+          >
+            Make a fresh tracker for me
+          </button>
+        </div>
       )}
 
       {databases.isError && (
-        <p role="alert" className={sharedStyles.helpDanger} style={{ marginTop: '0.4rem' }}>
+        <p
+          role="alert"
+          className={sharedStyles.helpDanger}
+          style={{ marginTop: '0.4rem' }}
+        >
           Couldn't load your Notion databases:{' '}
           {(databases.error as Error).message}
         </p>
@@ -112,41 +138,9 @@ export default function NotionDatabasePicker({
 
       {value.length > 0 && selected == null && databases.isFetched && (
         <p className={styles.muted} style={{ marginTop: '0.4rem' }}>
-          Saved database isn't in your current Notion list. It still works,
-          but you may want to re-share it with 2anki.
+          Saved tracker isn't in your current Notion list. It still works — if
+          it doesn't, re-share the database with 2anki in Notion.
         </p>
-      )}
-
-      {showCreate && (
-        <div className={styles.scheduleCard} style={{ marginTop: '0.6rem' }}>
-          <p className={styles.sectionDescription} style={{ marginTop: 0 }}>
-            Pick a Notion page to put the new tracker under. We'll create a
-            database called "Anki review tracker" with Date and Reviews
-            already set up.
-          </p>
-          <NotionPagePicker
-            backend={backend}
-            onSelect={(pageId) => create.mutate(pageId)}
-            busyId={create.isPending ? null : null}
-            disabledIds={new Set()}
-            selectLabel="Create tracker here"
-            busyLabel="Creating…"
-            subscribedLabel=""
-          />
-          {create.isError && (
-            <p role="alert" className={sharedStyles.helpDanger}>
-              {(create.error as Error).message}
-            </p>
-          )}
-          <button
-            type="button"
-            className={`${sharedStyles.btnSmall} ${styles.inlineButton}`}
-            onClick={() => setShowCreate(false)}
-            style={{ marginTop: '0.4rem' }}
-          >
-            Cancel
-          </button>
-        </div>
       )}
 
       <details
@@ -155,7 +149,7 @@ export default function NotionDatabasePicker({
         onToggle={(event) =>
           setShowAdvanced((event.target as HTMLDetailsElement).open)
         }
-        style={{ marginTop: '0.4rem' }}
+        style={{ marginTop: '0.6rem' }}
       >
         <summary className={styles.advancedSummary}>
           Don't see your database? Paste an ID instead.

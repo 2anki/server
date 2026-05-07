@@ -19,6 +19,16 @@ import { del, get, getLoginURL, post } from './api';
 import { getResourceUrl } from './getResourceUrl';
 import { CONFLICT, OK } from './http';
 
+export class TrackerSchemaError extends Error {
+  readonly missing: string[];
+
+  constructor(message: string, missing: string[]) {
+    super(message);
+    this.name = 'TrackerSchemaError';
+    this.missing = missing;
+  }
+}
+
 export class Backend {
   public baseURL = '/api/';
 
@@ -471,6 +481,12 @@ export class Backend {
       const error = await response
         .json()
         .catch(() => ({ message: response.statusText }));
+      if (response.status === 422 && Array.isArray(error.missing)) {
+        throw new TrackerSchemaError(
+          error.message ?? 'Tracker is missing required columns',
+          error.missing as string[]
+        );
+      }
       throw new Error(error.message ?? 'Failed to export review data');
     }
     return response.json();
