@@ -68,21 +68,41 @@ class AnkifyController {
 
   async provision(_req: Request, res: Response) {
     const owner = res.locals.owner as number;
+    console.info(
+      '[ankify-controller] POST /api/ankify/clients owner=%d',
+      owner
+    );
     try {
       const { client, created } = await this.provisionUseCase.execute(owner);
+      console.info(
+        '[ankify-controller] provision returned id=%d created=%s',
+        client.id,
+        created
+      );
       res.status(created ? 201 : 200).json(client);
     } catch (error) {
       if (error instanceof DockerUnavailableError) {
+        console.warn(
+          '[ankify-controller] DockerUnavailableError:',
+          (error as Error).message
+        );
         res
           .status(503)
           .json({ message: 'Docker daemon is unavailable on this host' });
         return;
       }
       if (error instanceof NoAvailablePortError) {
+        console.warn('[ankify-controller] NoAvailablePortError');
         res.status(503).json({ message: 'No available host ports' });
         return;
       }
-      throw error;
+      console.error(
+        '[ankify-controller] unhandled provision error:',
+        error
+      );
+      res.status(500).json({
+        message: `Provision failed: ${(error as Error).message ?? 'unknown'}`,
+      });
     }
   }
 
