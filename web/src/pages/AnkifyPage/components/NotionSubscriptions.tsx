@@ -59,29 +59,31 @@ export default function NotionSubscriptions({ backend }: Props) {
             subscribe.mutate();
           }
         }}
-        style={{ display: 'flex', gap: '0.4rem', maxWidth: 520 }}
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.6rem',
+          maxWidth: 520,
+        }}
       >
-        <input
-          type="text"
-          value={pageInput}
-          onChange={(e) => setPageInput(e.target.value)}
-          placeholder="Notion page URL or ID"
-          style={{
-            flex: 1,
-            padding: '0.4rem 0.6rem',
-            border: '1px solid #ccc',
-            borderRadius: '0.3rem',
-          }}
-        />
-        <button
-          type="submit"
-          className={sharedStyles.btnPrimary}
-          disabled={
-            subscribe.isPending || pageInput.trim().length === 0
-          }
-        >
-          {subscribe.isPending ? 'Syncing…' : 'Subscribe & sync'}
-        </button>
+        <label>
+          <div>Notion page URL or ID</div>
+          <input
+            type="text"
+            value={pageInput}
+            onChange={(e) => setPageInput(e.target.value)}
+            placeholder="https://www.notion.so/... or 8a3f…"
+          />
+        </label>
+        <div>
+          <button
+            type="submit"
+            className={sharedStyles.btnPrimary}
+            disabled={subscribe.isPending || pageInput.trim().length === 0}
+          >
+            {subscribe.isPending ? 'Syncing…' : 'Subscribe & sync'}
+          </button>
+        </div>
       </form>
       {subscribe.isError && (
         <p role="alert" style={{ color: '#c0392b', marginTop: '0.4rem' }}>
