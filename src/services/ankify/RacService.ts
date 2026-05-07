@@ -72,34 +72,129 @@ export class RacService {
   ) {}
 
   async provision(owner: number): Promise<ProvisionResult> {
-    const existing = await this.repo.findActiveByOwner(owner);
+    console.info('[ankify-provision] start owner=%d', owner);
+    let existing: AnkifyClient | null;
+    try {
+      existing = await this.repo.findActiveByOwner(owner);
+    } catch (error) {
+      console.error('[ankify-provision] findActiveByOwner failed:', error);
+      throw error;
+    }
     if (existing != null) {
+      console.info(
+        '[ankify-provision] returning existing client id=%d container=%s',
+        existing.id,
+        existing.container_id
+      );
       return { client: existing, created: false };
     }
 
-    const usedPorts = await this.collectUsedPorts();
+    let usedPorts: Set<number>;
+    try {
+      usedPorts = await this.collectUsedPorts();
+      console.info(
+        '[ankify-provision] used ports collected count=%d',
+        usedPorts.size
+      );
+    } catch (error) {
+      console.error('[ankify-provision] collectUsedPorts failed:', error);
+      throw error;
+    }
 
-    const ankiPort = pickPort(ANKI_PORT_RANGE, usedPorts);
-    const vncPort = pickPort(VNC_PORT_RANGE, usedPorts);
-    const novncPort = pickPort(NOVNC_PORT_RANGE, usedPorts);
+    let ankiPort: number;
+    let vncPort: number;
+    let novncPort: number;
+    try {
+      ankiPort = pickPort(ANKI_PORT_RANGE, usedPorts);
+      vncPort = pickPort(VNC_PORT_RANGE, usedPorts);
+      novncPort = pickPort(NOVNC_PORT_RANGE, usedPorts);
+      console.info(
+        '[ankify-provision] picked ports anki=%d vnc=%d novnc=%d',
+        ankiPort,
+        vncPort,
+        novncPort
+      );
+    } catch (error) {
+      console.error('[ankify-provision] pickPort failed:', error);
+      throw error;
+    }
 
-    const container = await this.createAndStartContainer(
-      ankiPort,
-      vncPort,
-      novncPort,
-      ankifyVolumeNameForOwner(owner)
-    );
-    const inspect = await container.inspect().catch(() => ({}));
-    const containerName = stripLeadingSlash((inspect as { Name?: string }).Name);
+    const volumeName = ankifyVolumeNameForOwner(owner);
+    let container: DockerContainerLike;
+    try {
+      console.info(
+        '[ankify-provision] creating container image=%s volume=%s',
+        this.baseImage,
+        volumeName
+      );
+      container = await this.createAndStartContainer(
+        ankiPort,
+        vncPort,
+        novncPort,
+        volumeName
+      );
+      console.info(
+        '[ankify-provision] container started id=%s',
+        container.id
+      );
+    } catch (error) {
+      console.error(
+        '[ankify-provision] createAndStartContainer failed:',
+        error
+      );
+      throw error;
+    }
 
-    const client = await this.repo.create({
-      owner,
-      container_id: container.id,
-      container_name: containerName,
-      anki_port: ankiPort,
-      vnc_port: vncPort,
-      novnc_port: novncPort,
-    });
+    let containerName: string | null;
+    try {
+      const inspect = await container.inspect();
+      containerName = stripLeadingSlash(
+        (inspect as { Name?: string }).Name
+      );
+      console.info(
+        '[ankify-provision] inspect ok name=%s',
+        containerName ?? 'null'
+      );
+    } catch (error) {
+      console.warn(
+        '[ankify-provision] inspect failed (non-fatal):',
+        error
+      );
+      containerName = null;
+    }
+
+    let client: AnkifyClient;
+    try {
+      client = await this.repo.create({
+        owner,
+        container_id: container.id,
+        container_name: containerName,
+        anki_port: ankiPort,
+        vnc_port: vncPort,
+        novnc_port: novncPort,
+      });
+      console.info(
+        '[ankify-provision] persisted row id=%d for owner=%d',
+        client.id,
+        owner
+      );
+    } catch (error) {
+      console.error(
+        '[ankify-provision] repo.create failed — attempting to stop the orphan container:',
+        error
+      );
+      try {
+        await container.stop();
+        await container.remove({ force: true });
+      } catch (cleanupError) {
+        console.error(
+          '[ankify-provision] orphan cleanup failed:',
+          cleanupError
+        );
+      }
+      throw error;
+    }
+
     return { client, created: true };
   }
 
@@ -218,7 +313,12 @@ export class RacService {
     let containers: DockerContainerSummary[];
     try {
       containers = await this.docker.listContainers({ all: false });
+      console.info(
+        '[ankify-provision] docker.listContainers ok count=%d',
+        containers.length
+      );
     } catch (error) {
+      console.error('[ankify-provision] docker.listContainers threw:', error);
       throw new DockerUnavailableError(error);
     }
 
@@ -233,9 +333,18 @@ export class RacService {
       }
     }
 
-    const reserved = await this.repo.reservedPorts();
-    for (const port of reserved) {
-      used.add(port);
+    try {
+      const reserved = await this.repo.reservedPorts();
+      console.info(
+        '[ankify-provision] db reserved ports count=%d',
+        reserved.length
+      );
+      for (const port of reserved) {
+        used.add(port);
+      }
+    } catch (error) {
+      console.error('[ankify-provision] repo.reservedPorts threw:', error);
+      throw error;
     }
     return used;
   }
@@ -246,7 +355,7 @@ export class RacService {
     novncPort: number,
     volumeName: string
   ): Promise<DockerContainerLike> {
-    const container = await this.docker.createContainer({
+    const createOpts = {
       Image: this.baseImage,
       ExposedPorts: {
         [`${CONTAINER_INTERNAL_ANKI_PORT}/tcp`]: {},
@@ -277,8 +386,32 @@ export class RacService {
           ],
         },
       },
-    });
-    await container.start();
+    };
+    console.info(
+      '[ankify-provision] docker.createContainer args:',
+      JSON.stringify(createOpts)
+    );
+    let container: DockerContainerLike;
+    try {
+      container = await this.docker.createContainer(createOpts);
+      console.info(
+        '[ankify-provision] docker.createContainer ok id=%s',
+        container.id
+      );
+    } catch (error) {
+      console.error(
+        '[ankify-provision] docker.createContainer threw:',
+        error
+      );
+      throw error;
+    }
+    try {
+      await container.start();
+      console.info('[ankify-provision] container.start ok');
+    } catch (error) {
+      console.error('[ankify-provision] container.start threw:', error);
+      throw error;
+    }
     return container;
   }
 }
