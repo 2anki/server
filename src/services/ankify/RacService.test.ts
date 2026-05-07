@@ -25,6 +25,7 @@ const makeRepo = (
     findActiveById: jest.fn(async () => null),
     findActiveByOwner: jest.fn(async () => null),
     setStatus: jest.fn(async () => undefined),
+    deleteById: jest.fn(async () => undefined),
     touchLastActiveAt: jest.fn(async () => undefined),
     reservedPorts: jest.fn(async () => []),
     listIdleSince: jest.fn(async () => []),
@@ -217,7 +218,7 @@ describe('RacService.respin', () => {
 
     expect(created).toBe(true);
     expect(oldContainer.stop).toHaveBeenCalled();
-    expect(repo.setStatus).toHaveBeenCalledWith(5, 'inactive');
+    expect(repo.deleteById).toHaveBeenCalledWith(5);
     const createArgs = (docker.createContainer as jest.Mock).mock.calls[0][0];
     expect(createArgs.HostConfig.Mounts).toEqual([
       {
@@ -273,8 +274,8 @@ describe('RacService.reapIdle', () => {
     expect(stopped).toEqual([1, 2]);
     expect(a.stop).toHaveBeenCalled();
     expect(b.stop).toHaveBeenCalled();
-    expect(repo.setStatus).toHaveBeenCalledWith(1, 'inactive');
-    expect(repo.setStatus).toHaveBeenCalledWith(2, 'inactive');
+    expect(repo.deleteById).toHaveBeenCalledWith(1);
+    expect(repo.deleteById).toHaveBeenCalledWith(2);
   });
 });
 
@@ -326,8 +327,8 @@ describe('RacService.list', () => {
 
     const result = await service.list(7);
 
-    expect(repo.setStatus).toHaveBeenCalledWith(9, 'inactive');
-    expect(result[0].status).toBe('inactive');
+    expect(repo.deleteById).toHaveBeenCalledWith(9);
+    expect(result).toHaveLength(0);
   });
 
   test('non-404 inspect errors leave the row active (avoid false reconcile)', async () => {
@@ -396,7 +397,7 @@ describe('RacService.stop', () => {
     expect(docker.getContainer).toHaveBeenCalledWith('container-xyz');
     expect(container.stop).toHaveBeenCalled();
     expect(container.remove).toHaveBeenCalledWith({ force: true });
-    expect(repo.setStatus).toHaveBeenCalledWith(5, 'inactive');
+    expect(repo.deleteById).toHaveBeenCalledWith(5);
   });
 
   test('still marks the row inactive when docker stop throws', async () => {
@@ -422,6 +423,6 @@ describe('RacService.stop', () => {
 
     await service.stop(5, 42);
 
-    expect(repo.setStatus).toHaveBeenCalledWith(5, 'inactive');
+    expect(repo.deleteById).toHaveBeenCalledWith(5);
   });
 });

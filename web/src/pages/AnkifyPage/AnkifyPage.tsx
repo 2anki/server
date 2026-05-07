@@ -41,7 +41,6 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
 
   const clients = data ?? [];
   const activeClient = clients.find((client) => client.status === 'active');
-  const inactiveClients = clients.filter((client) => client !== activeClient);
   const hasActiveClient = activeClient != null;
 
   const ankiUrlFor = (client: AnkifyClient) =>
@@ -189,21 +188,6 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
           </div>
         )}
 
-        {inactiveClients.length > 0 &&
-          inactiveClients.map((client) => {
-            const label = client.status === 'active' ? 'Running' : 'Shut down';
-            return (
-              <div key={client.id} className={styles.inactiveSummary}>
-                <span>
-                  <span className={styles.statusDotIdle} aria-hidden="true" />{' '}
-                  {label} ·{' '}
-                  <span className={styles.inactiveName}>
-                    {client.container_name ?? client.container_id.slice(0, 12)}
-                  </span>
-                </span>
-              </div>
-            );
-          })}
       </section>
 
       {hasActiveClient ? (
