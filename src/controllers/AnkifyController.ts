@@ -26,6 +26,8 @@ import { ListNotionDatabasesUseCase } from '../usecases/ankify/ListNotionDatabas
 import { CreateReviewTrackerDatabaseUseCase } from '../usecases/ankify/CreateReviewTrackerDatabaseUseCase';
 import { CheckActiveClientReadinessUseCase } from '../usecases/ankify/CheckActiveClientReadinessUseCase';
 import { CheckAnkiWebStatusUseCase } from '../usecases/ankify/CheckAnkiWebStatusUseCase';
+import ReissueAnkifySessionUrlUseCase from '../usecases/ankify/ReissueAnkifySessionUrlUseCase';
+import { ValidateAnkifySessionTokenUseCase } from '../usecases/ankify/ValidateAnkifySessionTokenUseCase';
 import { SyncNotionPageToRacUseCase } from '../usecases/ankify/SyncNotionPageToRacUseCase';
 import { ListNotionSubscriptionsUseCase } from '../usecases/ankify/ListNotionSubscriptionsUseCase';
 import { DeleteNotionSubscriptionUseCase } from '../usecases/ankify/DeleteNotionSubscriptionUseCase';
@@ -61,7 +63,9 @@ class AnkifyController {
     private readonly listNotionDatabasesUseCase: ListNotionDatabasesUseCase,
     private readonly createReviewTrackerUseCase: CreateReviewTrackerDatabaseUseCase,
     private readonly checkReadinessUseCase: CheckActiveClientReadinessUseCase,
-    private readonly checkAnkiWebStatusUseCase: CheckAnkiWebStatusUseCase
+    private readonly checkAnkiWebStatusUseCase: CheckAnkiWebStatusUseCase,
+    private readonly reissueSessionUrlUseCase: ReissueAnkifySessionUrlUseCase,
+    private readonly validateSessionTokenUseCase: ValidateAnkifySessionTokenUseCase
   ) {}
 
   async list(_req: Request, res: Response) {
@@ -139,6 +143,48 @@ class AnkifyController {
       }
       throw error;
     }
+  }
+
+  async reissueSessionUrl(req: Request, res: Response) {
+    const owner = res.locals.owner as number;
+    const id = Number.parseInt(req.params.id, 10);
+    if (!Number.isFinite(id)) {
+      res.status(400).json({ message: 'Invalid client id' });
+      return;
+    }
+    const client = await this.reissueSessionUrlUseCase.execute(id, owner);
+    if (client == null) {
+      res.status(404).json({ message: 'Active client not found' });
+      return;
+    }
+    res.status(200).json(client);
+  }
+
+  async validateSession(req: Request, res: Response) {
+    const expectedProxyAuth = process.env.ANKIFY_PROXY_AUTH_TOKEN;
+    if (expectedProxyAuth != null && expectedProxyAuth.length > 0) {
+      const provided = req.header('x-proxy-auth');
+      if (provided !== expectedProxyAuth) {
+        res.status(401).json({ message: 'Invalid proxy auth' });
+        return;
+      }
+    }
+
+    const sessionToken = String(req.header('x-session-token') ?? '').trim();
+    const cookieToken =
+      typeof req.cookies?.token === 'string' ? req.cookies.token : undefined;
+
+    const result = await this.validateSessionTokenUseCase.execute({
+      sessionToken,
+      cookieToken,
+    });
+
+    if (!result.ok) {
+      res.status(result.status).json({ message: result.reason });
+      return;
+    }
+    res.setHeader('X-Backend-Port', String(result.novnc_port));
+    res.status(200).end();
   }
 
   async exportReviewData(req: Request, res: Response) {

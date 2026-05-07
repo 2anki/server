@@ -1,19 +1,24 @@
+import crypto from 'crypto';
+
 import { AnkifyClient } from '../../entities/ankify';
 import { AnkifyClientsRepositoryInterface } from '../../data_layer/ankify/AnkifyClientsRepository';
+import { AnkifySessionTokensRepositoryInterface } from '../../data_layer/ankify/AnkifySessionTokensRepository';
 
 export const ANKIFY_RAC_BASE_IMAGE = 'remote-anki-client:latest';
 
 const ANKI_PORT_RANGE: PortRange = { start: 20000, end: 21000 };
-const VNC_PORT_RANGE: PortRange = { start: 21000, end: 22000 };
 const NOVNC_PORT_RANGE: PortRange = { start: 22000, end: 23000 };
 
 const CONTAINER_INTERNAL_ANKI_PORT = 8765;
-const CONTAINER_INTERNAL_VNC_PORT = 5900;
 const CONTAINER_INTERNAL_NOVNC_PORT = 6081;
 
 const CONTAINER_MEMORY_BYTES = 768 * 1024 * 1024;
 const CONTAINER_CPU_QUOTA = 50_000;
 const CONTAINER_CPU_PERIOD = 100_000;
+
+const SESSION_TOKEN_BYTES = 32;
+const SESSION_TOKEN_TTL_HOURS = 8;
+const HOST_LOOPBACK = '127.0.0.1';
 
 interface PortRange {
   start: number;
@@ -59,8 +64,12 @@ export class NoAvailablePortError extends Error {
   }
 }
 
+export interface AnkifyClientView extends AnkifyClient {
+  session_url: string | null;
+}
+
 export interface ProvisionResult {
-  client: AnkifyClient;
+  client: AnkifyClientView;
   created: boolean;
 }
 
@@ -68,7 +77,9 @@ export class RacService {
   constructor(
     private readonly repo: AnkifyClientsRepositoryInterface,
     private readonly docker: DockerLike,
-    private readonly baseImage: string = ANKIFY_RAC_BASE_IMAGE
+    private readonly tokens: AnkifySessionTokensRepositoryInterface,
+    private readonly baseImage: string = ANKIFY_RAC_BASE_IMAGE,
+    private readonly clock: () => Date = () => new Date()
   ) {}
 
   async provision(owner: number): Promise<ProvisionResult> {
@@ -86,7 +97,10 @@ export class RacService {
         existing.id,
         existing.container_id
       );
-      return { client: existing, created: false };
+      return {
+        client: { ...existing, session_url: null },
+        created: false,
+      };
     }
 
     let usedPorts: Set<number>;
@@ -102,16 +116,13 @@ export class RacService {
     }
 
     let ankiPort: number;
-    let vncPort: number;
     let novncPort: number;
     try {
       ankiPort = pickPort(ANKI_PORT_RANGE, usedPorts);
-      vncPort = pickPort(VNC_PORT_RANGE, usedPorts);
       novncPort = pickPort(NOVNC_PORT_RANGE, usedPorts);
       console.info(
-        '[ankify-provision] picked ports anki=%d vnc=%d novnc=%d',
+        '[ankify-provision] picked ports anki=%d novnc=%d',
         ankiPort,
-        vncPort,
         novncPort
       );
     } catch (error) {
@@ -119,19 +130,16 @@ export class RacService {
       throw error;
     }
 
-    const volumeName = ankifyVolumeNameForOwner(owner);
     let container: DockerContainerLike;
     try {
       console.info(
-        '[ankify-provision] creating container image=%s volume=%s',
-        this.baseImage,
-        volumeName
+        '[ankify-provision] creating container image=%s',
+        this.baseImage
       );
       container = await this.createAndStartContainer(
         ankiPort,
-        vncPort,
         novncPort,
-        volumeName
+        ankifyVolumeNameForOwner(owner)
       );
       console.info(
         '[ankify-provision] container started id=%s',
@@ -170,7 +178,7 @@ export class RacService {
         container_id: container.id,
         container_name: containerName,
         anki_port: ankiPort,
-        vnc_port: vncPort,
+        vnc_port: 0,
         novnc_port: novncPort,
       });
       console.info(
@@ -195,7 +203,12 @@ export class RacService {
       throw error;
     }
 
-    return { client, created: true };
+    const sessionUrl = await this.mintSessionUrl(client);
+
+    return {
+      client: { ...client, session_url: sessionUrl },
+      created: true,
+    };
   }
 
   async respin(owner: number): Promise<ProvisionResult> {
@@ -215,12 +228,10 @@ export class RacService {
 
     const usedPorts = await this.collectUsedPorts();
     const ankiPort = pickPort(ANKI_PORT_RANGE, usedPorts);
-    const vncPort = pickPort(VNC_PORT_RANGE, usedPorts);
     const novncPort = pickPort(NOVNC_PORT_RANGE, usedPorts);
 
     const container = await this.createAndStartContainer(
       ankiPort,
-      vncPort,
       novncPort,
       ankifyVolumeNameForOwner(owner)
     );
@@ -232,14 +243,20 @@ export class RacService {
       container_id: container.id,
       container_name: containerName,
       anki_port: ankiPort,
-      vnc_port: vncPort,
+      vnc_port: 0,
       novnc_port: novncPort,
     });
-    return { client, created: true };
+
+    const sessionUrl = await this.mintSessionUrl(client);
+
+    return {
+      client: { ...client, session_url: sessionUrl },
+      created: true,
+    };
   }
 
   async reapIdle(thresholdMs: number): Promise<{ stopped: number[] }> {
-    const cutoff = new Date(Date.now() - thresholdMs);
+    const cutoff = new Date(this.clock().getTime() - thresholdMs);
     const idleClients = await this.repo.listIdleSince(cutoff);
     const stopped: number[] = [];
     for (const client of idleClients) {
@@ -258,18 +275,18 @@ export class RacService {
     return { stopped };
   }
 
-  async list(owner: number): Promise<AnkifyClient[]> {
+  async list(owner: number): Promise<AnkifyClientView[]> {
     const clients = await this.repo.listByOwner(owner);
-    const reconciled: AnkifyClient[] = [];
+    const reconciled: AnkifyClientView[] = [];
     for (const client of clients) {
       if (client.status !== 'active') {
-        reconciled.push(client);
+        reconciled.push({ ...client, session_url: null });
         continue;
       }
       try {
         const container = this.docker.getContainer(client.container_id);
         await container.inspect();
-        reconciled.push(client);
+        reconciled.push({ ...client, session_url: null });
       } catch (error) {
         const statusCode = (error as { statusCode?: number }).statusCode;
         if (statusCode === 404) {
@@ -279,11 +296,23 @@ export class RacService {
             `[ankify] reconcile skipped for container ${client.container_id}:`,
             (error as Error).message ?? error
           );
-          reconciled.push(client);
+          reconciled.push({ ...client, session_url: null });
         }
       }
     }
     return reconciled;
+  }
+
+  async reissueSessionUrl(
+    id: number,
+    owner: number
+  ): Promise<AnkifyClientView | null> {
+    const client = await this.repo.findActiveById(id, owner);
+    if (client == null) {
+      return null;
+    }
+    const sessionUrl = await this.mintSessionUrl(client);
+    return { ...client, session_url: sessionUrl };
   }
 
   async stop(id: number, owner: number): Promise<void> {
@@ -304,7 +333,54 @@ export class RacService {
       // Same as above; AutoRemove may have already cleaned up.
     }
 
+    await this.tokens.revokeByClientId(client.id);
     await this.repo.deleteById(id);
+  }
+
+  async resolveTokenForProxy(plaintext: string): Promise<{
+    ankify_client_id: number;
+    owner: number;
+    novnc_port: number;
+    token_id: number;
+  } | null> {
+    const tokenHash = hashToken(plaintext);
+    const token = await this.tokens.findActiveByHash(tokenHash);
+    if (token == null) {
+      return null;
+    }
+    const client = await this.repo.findActiveById(
+      token.ankify_client_id,
+      token.owner
+    );
+    if (client == null) {
+      return null;
+    }
+    return {
+      ankify_client_id: token.ankify_client_id,
+      owner: token.owner,
+      novnc_port: client.novnc_port,
+      token_id: token.id,
+    };
+  }
+
+  async touchTokenLastUsed(tokenId: number): Promise<void> {
+    await this.tokens.touchLastUsed(tokenId);
+  }
+
+  private async mintSessionUrl(client: AnkifyClient): Promise<string> {
+    await this.tokens.revokeByClientId(client.id);
+    const plaintext = generateTokenPlaintext();
+    const tokenHash = hashToken(plaintext);
+    const expiresAt = new Date(
+      this.clock().getTime() + SESSION_TOKEN_TTL_HOURS * 60 * 60 * 1000
+    );
+    await this.tokens.insert({
+      ankify_client_id: client.id,
+      owner: client.owner,
+      token_hash: tokenHash,
+      expires_at: expiresAt,
+    });
+    return buildSessionUrl(plaintext, client.novnc_port);
   }
 
   private async collectUsedPorts(): Promise<Set<number>> {
@@ -350,7 +426,6 @@ export class RacService {
 
   private async createAndStartContainer(
     ankiPort: number,
-    vncPort: number,
     novncPort: number,
     volumeName: string
   ): Promise<DockerContainerLike> {
@@ -358,7 +433,6 @@ export class RacService {
       Image: this.baseImage,
       ExposedPorts: {
         [`${CONTAINER_INTERNAL_ANKI_PORT}/tcp`]: {},
-        [`${CONTAINER_INTERNAL_VNC_PORT}/tcp`]: {},
         [`${CONTAINER_INTERNAL_NOVNC_PORT}/tcp`]: {},
       },
       HostConfig: {
@@ -375,13 +449,10 @@ export class RacService {
         ],
         PortBindings: {
           [`${CONTAINER_INTERNAL_ANKI_PORT}/tcp`]: [
-            { HostPort: ankiPort.toString() },
-          ],
-          [`${CONTAINER_INTERNAL_VNC_PORT}/tcp`]: [
-            { HostPort: vncPort.toString() },
+            { HostIp: HOST_LOOPBACK, HostPort: ankiPort.toString() },
           ],
           [`${CONTAINER_INTERNAL_NOVNC_PORT}/tcp`]: [
-            { HostPort: novncPort.toString() },
+            { HostIp: HOST_LOOPBACK, HostPort: novncPort.toString() },
           ],
         },
       },
@@ -417,6 +488,21 @@ export class RacService {
 
 export const ankifyVolumeNameForOwner = (owner: number): string =>
   `ankify-rac-owner-${owner}-data`;
+
+export const hashToken = (plaintext: string): string =>
+  crypto.createHash('sha256').update(plaintext).digest('hex');
+
+const generateTokenPlaintext = (): string =>
+  crypto.randomBytes(SESSION_TOKEN_BYTES).toString('base64url');
+
+const buildSessionUrl = (plaintext: string, novncPort: number): string => {
+  const base = process.env.ANKIFY_SESSION_URL_BASE;
+  if (base != null && base.length > 0) {
+    const trimmed = base.replace(/\/$/, '');
+    return `${trimmed}/v/${plaintext}/vnc.html`;
+  }
+  return `http://localhost:${novncPort}/vnc.html?token=${plaintext}`;
+};
 
 const pickPort = (range: PortRange, used: Set<number>): number => {
   for (let port = range.start; port <= range.end; port++) {

@@ -9,6 +9,7 @@ import { scheduleAnkifyReaper } from '../lib/ankify/jobs/scheduleAnkifyReaper';
 import { scheduleAnkifyPolling } from '../lib/ankify/jobs/scheduleAnkifyPolling';
 import { RacService } from '../services/ankify/RacService';
 import { AnkifyClientsRepository } from './ankify/AnkifyClientsRepository';
+import { AnkifySessionTokensRepository } from './ankify/AnkifySessionTokensRepository';
 import { AnkifyExportSchedulesRepository } from './ankify/AnkifyExportSchedulesRepository';
 import { AnkifyExportScheduler } from '../services/ankify/AnkifyExportScheduler';
 import { ExportReviewDataToNotionUseCase } from '../usecases/ankify/ExportReviewDataToNotionUseCase';
@@ -70,7 +71,14 @@ export const setupDatabase = async (database: Knex) => {
 
     if (process.env.INSTANCE_ID !== 'singapore') {
       const ankifyRepo = new AnkifyClientsRepository(database);
-      const ankifyRac = new RacService(ankifyRepo, new Docker());
+      const ankifySessionTokensRepo = new AnkifySessionTokensRepository(
+        database
+      );
+      const ankifyRac = new RacService(
+        ankifyRepo,
+        new Docker(),
+        ankifySessionTokensRepo
+      );
       scheduleAnkifyReaper(ankifyRac);
 
       const schedulesRepo = new AnkifyExportSchedulesRepository(database);

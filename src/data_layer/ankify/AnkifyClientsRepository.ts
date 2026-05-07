@@ -81,11 +81,11 @@ export class AnkifyClientsRepository
 
   async reservedPorts(): Promise<number[]> {
     const rows = await this.database<AnkifyClient>(TABLE)
-      .select('anki_port', 'vnc_port', 'novnc_port')
+      .select('anki_port', 'novnc_port')
       .where({ status: 'active' });
     const ports: number[] = [];
     for (const row of rows) {
-      ports.push(row.anki_port, row.vnc_port, row.novnc_port);
+      ports.push(row.anki_port, row.novnc_port);
     }
     return ports;
   }

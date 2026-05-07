@@ -1,5 +1,23 @@
 export type AnkifyClientStatus = 'active' | 'inactive';
 
+export interface AnkifySessionToken {
+  id: number;
+  ankify_client_id: number;
+  owner: number;
+  token_hash: string;
+  expires_at: Date;
+  last_used_at: Date | null;
+  revoked_at: Date | null;
+  created_at: Date;
+}
+
+export interface NewAnkifySessionToken {
+  ankify_client_id: number;
+  owner: number;
+  token_hash: string;
+  expires_at: Date;
+}
+
 export interface AnkifyClient {
   id: number;
   owner: number;

@@ -33,9 +33,15 @@ import { ListNotionDatabasesUseCase } from '../usecases/ankify/ListNotionDatabas
 import { CreateReviewTrackerDatabaseUseCase } from '../usecases/ankify/CreateReviewTrackerDatabaseUseCase';
 import { CheckActiveClientReadinessUseCase } from '../usecases/ankify/CheckActiveClientReadinessUseCase';
 import { CheckAnkiWebStatusUseCase } from '../usecases/ankify/CheckAnkiWebStatusUseCase';
+import ReissueAnkifySessionUrlUseCase from '../usecases/ankify/ReissueAnkifySessionUrlUseCase';
+import { ValidateAnkifySessionTokenUseCase } from '../usecases/ankify/ValidateAnkifySessionTokenUseCase';
 import { AnkifyExportScheduler } from '../services/ankify/AnkifyExportScheduler';
 import { AnkifyExportSchedulesRepository } from '../data_layer/ankify/AnkifyExportSchedulesRepository';
 import { getAnkifyExportScheduler } from '../lib/ankify/scheduler/instance';
+import { AnkifySessionTokensRepository } from '../data_layer/ankify/AnkifySessionTokensRepository';
+import AuthenticationService from '../services/AuthenticationService';
+import TokenRepository from '../data_layer/TokenRepository';
+import UsersRepository from '../data_layer/UsersRepository';
 import { Client as NotionClient } from '@notionhq/client';
 import NotionRepository from '../data_layer/NotionRespository';
 import StorageHandler from '../lib/storage/StorageHandler';
@@ -52,8 +58,13 @@ const AnkifyRouter = () => {
   const logsRepo = new AnkifySyncLogsRepository(db);
   const subscriptionsRepo = new AnkifyNotionSubscriptionsRepository(db);
   const conflictsRepo = new AnkifySyncConflictsRepository(db);
+  const sessionTokensRepo = new AnkifySessionTokensRepository(db);
   const docker = new Docker();
-  const rac = new RacService(repo, docker);
+  const rac = new RacService(repo, docker, sessionTokensRepo);
+  const authService = new AuthenticationService(
+    new TokenRepository(db),
+    new UsersRepository(db)
+  );
   const storage = new StorageHandler();
 
   const fetchApkgBytes = async (key: string): Promise<Buffer> => {
@@ -342,7 +353,9 @@ const AnkifyRouter = () => {
       },
     }),
     new CheckActiveClientReadinessUseCase(repo, ankiConnectFactory),
-    new CheckAnkiWebStatusUseCase(repo, ankiConnectFactory)
+    new CheckAnkiWebStatusUseCase(repo, ankiConnectFactory),
+    new ReissueAnkifySessionUrlUseCase(rac),
+    new ValidateAnkifySessionTokenUseCase(rac, authService)
   );
 
   /**
@@ -460,6 +473,32 @@ const AnkifyRouter = () => {
    */
   router.post('/api/ankify/clients/respin', RequireAnkifyAccess, (req, res) =>
     controller.respin(req, res)
+  );
+
+  /**
+   * @swagger
+   * /api/ankify/clients/{id}/reissue-session:
+   *   post:
+   *     summary: Mint a fresh session URL, invalidating the prior one
+   *     description: Allowlisted endpoint. Returns the active client with a fresh session_url containing a new 256-bit token. Any prior session URL is revoked immediately.
+   *     tags: [Ankify]
+   */
+  router.post(
+    '/api/ankify/clients/:id/reissue-session',
+    RequireAnkifyAccess,
+    (req, res) => controller.reissueSessionUrl(req, res)
+  );
+
+  /**
+   * @swagger
+   * /api/ankify/sessions/validate:
+   *   post:
+   *     summary: Token+cookie session validation called by the reverse proxy
+   *     description: Internal endpoint called by Caddy/Traefik forward_auth on each request to /v/<token>/. Validates the URL token, the 2anki session cookie, and the allowlist. On success, sets X-Backend-Port and responds 200.
+   *     tags: [Ankify]
+   */
+  router.post('/api/ankify/sessions/validate', (req, res) =>
+    controller.validateSession(req, res)
   );
 
   /**
