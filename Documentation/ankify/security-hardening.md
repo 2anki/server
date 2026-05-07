@@ -1,8 +1,12 @@
 # Ankify security hardening — spec
 
-Status: proposed (2026-05-08). Not started. Targeted at the work that needs to land before onboarding user #2 to `/ankify`.
+Status: proposed (2026-05-08, revised 2026-05-08). Not started. Targeted at the work that needs to land before onboarding user #2 to `/ankify`.
 
 This spec turns the conversation-level assessment into a buildable plan. It's grouped by the area of risk it closes, in the order I'd ship.
+
+## Revision log
+
+- **2026-05-08 v2** — incorporated a second review pass against the running container's actual config (Dockerfile / Makefile / `config/anki-connect.json`). Three real adds: cookie-binding to the session URL (a leaked URL alone shouldn't grant access), AnkiConnect API key templated per-container (defense in depth even with loopback binding), and dropping raw VNC (5900) host exposure entirely (Qt VNC has no password mechanism, noVNC-over-TLS is the only sanctioned path). Small adds: strip `find /` debug from `startup.sh`, actively verify non-root before claiming it, flag that `prefs21.db` holds the user's AnkiWeb session token, host-level LUKS as a cheap pre-stage. Sequencing unchanged; surface area within slice 1 and slice 2 grew slightly.
 
 ## Threat model in one paragraph
 
@@ -18,41 +22,54 @@ We can fully close (1). We can fully close (2) with reasonable engineering. We b
 
 ---
 
-## Slice 1 — Token-gated reverse proxy + private container ports
+## Slice 1 — Token-gated reverse proxy + private container ports + cookie binding
 
 This is the single most important change. It closes the URL-guessability and VNC-exposure risks together, and makes every later slice easier because it abstracts container port allocation behind a name.
 
 ### Architecture target
 
 ```
-Browser
-  │  https://app.2anki.net/v/<token>/  (TLS, WebSocket upgrade for noVNC)
-  ▼
-Caddy (or Traefik) on the host's public IP
-  │  forward_auth → POST /api/ankify/sessions/validate {token}
-  │  on 200, reads X-Backend-Port and proxies to:
-  ▼
-127.0.0.1:<novnc_port>  (the container's host-bound noVNC port — only loopback)
+Browser  ── 2anki session cookie (httpOnly, Secure, SameSite=Lax) ─┐
+  │  https://2anki.net/v/<token>/  (TLS, WebSocket upgrade)    │
+  ▼                                                                 │
+Caddy (or Traefik) on the host's public IP                         │
+  │  forward_auth → POST /api/ankify/sessions/validate              │
+  │      headers: { X-Session-Token, Cookie }                       │
+  │  on 200, reads X-Backend-Port and proxies to:                   │
+  ▼                                                                 │
+127.0.0.1:<novnc_port>  (only the noVNC port; raw VNC 5900 is NOT  │
+                         host-bound at all)                         │
 ```
+
+Two factors gate access: the URL-borne token (proves you have the right link) and the 2anki session cookie (proves you're the authenticated user the link was issued for). Either alone is insufficient. A leaked URL in a screenshot is useless to anyone not already signed in to your 2anki account.
 
 Same proxy serves the existing `/api/ankify/*` and `/api/notion/webhook/*` paths under TLS, so the public surface is one hostname, one cert.
 
 ### Server changes
 
-1. **`src/services/ankify/RacService.ts` — change port binding**
+1. **`src/services/ankify/RacService.ts` — change port binding, drop raw VNC**
 
-   In `createAndStartContainer()`, switch each `HostPort` binding to bind on the loopback address only by setting `HostIp: '127.0.0.1'`:
+   In `createAndStartContainer()`:
+   - Bind noVNC and AnkiConnect on `127.0.0.1` only.
+   - **Stop publishing port 5900 to the host entirely.** Qt VNC has no password mechanism, so loopback-binding is still wrong — even server-internal access via 5900 is unnecessary because we drive Anki via AnkiConnect, not via VNC. Remove it from `ExposedPorts` and `PortBindings`.
 
    ```ts
+   ExposedPorts: {
+     [`${CONTAINER_INTERNAL_ANKI_PORT}/tcp`]: {},
+     [`${CONTAINER_INTERNAL_NOVNC_PORT}/tcp`]: {},
+     // 5900 is intentionally not host-published
+   },
    PortBindings: {
+     [`${CONTAINER_INTERNAL_ANKI_PORT}/tcp`]: [
+       { HostIp: '127.0.0.1', HostPort: ankiPort.toString() },
+     ],
      [`${CONTAINER_INTERNAL_NOVNC_PORT}/tcp`]: [
        { HostIp: '127.0.0.1', HostPort: novncPort.toString() },
      ],
-     // same for VNC and AnkiConnect
    }
    ```
 
-   AnkiConnect at `127.0.0.1:<anki_port>` is still reachable from the server process (which already calls it as `localhost`). noVNC is no longer reachable from the public internet.
+   Drop the `vnc_port` column from `ankify_clients` (or keep it as a vestigial column populated with `0`; leaving it makes the migration smaller). Drop the port allocation logic for the VNC range. AnkiConnect at `127.0.0.1:<anki_port>` is still reachable from the server process (which already calls it as `localhost`). noVNC is no longer reachable from the public internet.
 
 2. **New table: `ankify_session_tokens`**
 
@@ -94,20 +111,22 @@ Same proxy serves the existing `/api/ankify/*` and `/api/notion/webhook/*` paths
    interface ProvisionResult {
      client: AnkifyClient;
      created: boolean;
-     session_url: string;   // https://app.2anki.net/v/<plaintext>/
+     session_url: string;   // https://2anki.net/v/<plaintext>/
    }
    ```
 
    On `stop`, call `tokens.revokeByClientId(client.id)` so the URL stops working immediately.
 
-5. **New endpoint: `POST /api/ankify/sessions/validate`** (no auth — called only by the proxy from localhost)
+5. **New endpoint: `POST /api/ankify/sessions/validate`** (called by the proxy from localhost only)
 
-   - Accept `{ token: string }` in body.
-   - Hash, look up `ankify_session_tokens` by hash.
-   - Reject (401) if: not found, revoked, expired, or the linked client is not active.
+   - Accept `X-Session-Token` header (the URL-borne token) and the original request's `Cookie` header (for the 2anki session cookie).
+   - Hash the token, look up `ankify_session_tokens` by hash.
+   - Reject (401) if: token not found / revoked / expired / linked client not active.
+   - **Resolve the user from the cookie** using the existing auth middleware (`getUserFrom(cookies.token)` per `src/services/AuthenticationService.ts`). Reject (401) if no user OR if `user.id !== token.owner` — this is the cookie-binding check.
+   - Reject (403) if `user.email` is not on `ANKIFY_ALLOWLIST_EMAILS` (matches existing route guard).
    - Else: `touchLastUsed`, respond 200 with header `X-Backend-Port: <novnc_port>` and an empty body.
 
-   Lock this endpoint to listen on `127.0.0.1` only at the express level — or guard with a static shared secret in a header that the proxy sends. The shared-secret check is belt-and-suspenders; loopback binding is the actual control.
+   Lock this endpoint to listen on `127.0.0.1` only at the express level. Belt-and-suspenders: the proxy sends a static shared secret in `X-Proxy-Auth` that the validate endpoint checks. Set on both via the same env var.
 
 6. **Reaper integration**
 
@@ -124,7 +143,7 @@ Same proxy serves the existing `/api/ankify/*` and `/api/notion/webhook/*` paths
 ### Proxy config (Caddy)
 
 ```caddyfile
-app.2anki.net {
+2anki.net {
   # API + webhook + web app — existing
   reverse_proxy /api/* localhost:2020
   reverse_proxy /api/ankify/webhook/* localhost:2020
@@ -151,6 +170,23 @@ app.2anki.net {
 ```
 
 Traefik or nginx versions are equivalent; the structure is "extract token from path → forward_auth resolves to backend port → reverse-proxy with WebSocket upgrade."
+
+### Why Caddy over Traefik for this setup
+
+Single host, single cert, three or four logical routes. Caddy: one binary, one Caddyfile, automatic Let's Encrypt, native `forward_auth` and WebSocket upgrade. Traefik: more flexible (label-driven discovery, dynamic config), heavier config burden, real value only if the service mesh grows. Pick Traefik if you're going to docker-compose or a swarm; otherwise Caddy is the clean answer.
+
+### Local development
+
+You should not need to run Caddy locally. Mirror the architecture in code, skip the proxy:
+
+- **Vite** already proxies `/api/*` to `localhost:2020`. Add `/v/*` to the same proxy block.
+- **Express** in dev mode mounts a `/v/:token/*` handler that runs the same validate logic (hash → lookup → cookie+allowlist check) and then `http-proxy-middleware`'s the request to `127.0.0.1:<novnc_port>`. Reuses `RacService` token validation; just a different transport layer (Express vs Caddy).
+- **Cookie binding still works** because dev cookies on `localhost:3000` flow through Vite's proxy to `localhost:2020`. Same hostname.
+- **TLS** is the only thing absent in dev. WebSocket upgrade for noVNC works fine over `ws://localhost:3000/v/<token>/...`.
+
+Behind a `LOCAL_DEV` env-var gate, the same code path validates in dev and prod. The Caddy-only dance is TLS termination + edge auth — neither of which we strictly need on the dev box.
+
+If you ever want to test the full stack locally with TLS (e.g., to debug a cookie SameSite quirk that only repros over HTTPS), `caddy run --config dev/Caddyfile.local` with a self-signed cert can stand in for the prod proxy. Optional, not required.
 
 ### Tests
 
@@ -213,12 +249,26 @@ The dynamic per-session network name is created with `docker.createNetwork({ Nam
 
 `icc: false` disables inter-container communication on the default bridge (a fallback if the per-session network mode is bypassed somehow).
 
-### Anki image tweaks
+### AnkiConnect API key
 
-Two small edits to `2anki/remote-anki-client/Dockerfile`:
+Even with loopback-only host binding, anything on the docker network can reach AnkiConnect on the container's `:8765` and POST commands without auth. Today `config/anki-connect.json` ships with no `apiKey`, and `webBindAddress: 0.0.0.0`. Fix:
 
-1. Drop `--privileged`-equivalent runtime expectations. Anki currently writes Qt cache to `/run/user/1000` — confirm with `strace` that the tmpfs above covers this.
-2. Add `chmod g+rwx /data` so the user-namespace-remapped UID can write to mounted volumes.
+1. **Server side** — when provisioning, generate a per-container API key (`crypto.randomBytes(32).toString('base64url')`), persist on `ankify_clients.anki_connect_api_key` (new column, encrypted at rest if the host disk gets the LUKS treatment in slice 7), and pass to the container via env var `ANKICONNECT_API_KEY`.
+
+2. **Image side** — `2anki/remote-anki-client`'s `startup.sh` reads `ANKICONNECT_API_KEY` and templates it into `config/anki-connect.json` (`apiKey: "${ANKICONNECT_API_KEY}"`) before launching Anki. Same change makes it possible to also set `webBindAddress: 127.0.0.1` so AnkiConnect binds only to the container's loopback.
+
+3. **AnkiConnectClient** — every outgoing request from the server now includes the key as a `key` field in the action params (per AnkiConnect's wire format). One-line change in `runAction` / `invoke`.
+
+After this, even an attacker who reaches `:8765` on a co-located container's network — or, in a multi-tenant future, on the host's docker bridge — cannot issue commands without the key. Defense in depth on top of the loopback binding.
+
+### Image hygiene
+
+Two small edits to `2anki/remote-anki-client`:
+
+1. **Drop the leftover `find /` debug call from `startup.sh`.** It runs once at container start and produces noise in logs. Has no functional purpose; reads as either a forgotten debug statement or a backdoor in a security review. Remove.
+2. **Verify non-root before claiming it.** CLAUDE.md says `USER anki`. Confirm by `docker exec <container> id` returning a non-zero UID before promising "containers run as a non-root user" anywhere user-facing. Land this as a one-line assertion in the deploy runbook so future image changes don't regress it silently.
+3. **Read-only-rootfs adjustments.** Anki currently writes Qt cache to `/run/user/1000` — covered by the `Tmpfs` `/run/user/1000` entry above. Confirm with `strace` once before the read-only flag goes prod.
+4. **Volume permissions for userns-remap.** Add `chmod g+rwx /data` so the user-namespace-remapped UID can write. (Stays even after slice 3 — `/data` becomes tmpfs but the same chmod still applies inside the container.)
 
 ### Tests
 
@@ -232,6 +282,8 @@ Two small edits to `2anki/remote-anki-client/Dockerfile`:
 ## Slice 3 — Ephemeral by default
 
 Persistent named volumes give the operator readable disk artifacts even when no session is running. Switching to tmpfs eliminates that, and AnkiWeb already serves as the source of truth for the user's collection.
+
+**Sharper reason than I had originally.** The volume contains `prefs21.db`, which holds the user's **AnkiWeb session token** in plaintext. With persistent volumes, that token sits on the operator's disk between sessions — meaning the operator can mount the volume offline and effectively own the user's AnkiWeb account, not just the Anki collection. Ephemeral mode means the token only exists in container memory while the session is running, and is gone when the tmpfs is wiped on container destroy. This is the actual reason the persistent-volume default is not safe to ship.
 
 ### Server changes
 
@@ -261,17 +313,39 @@ Persistent named volumes give the operator readable disk artifacts even when no 
 
 There is one user (Alexander). Drop the existing `ankify-rac-owner-N-data` volumes manually as part of the deploy: `docker volume rm $(docker volume ls -q | grep ankify-rac)` after stopping the active session. No migration code needed.
 
-### Optional v3 — encrypted persistent mode
+### Optional v3 — encryption tiers (three of them)
 
-For a future user who wants offline cards, add an opt-in:
+Three increasingly-strong options, sequenced cheapest-first. Pick the highest one a customer's threat model justifies.
 
+**Tier 3a — Host-level disk encryption (LUKS or cloud provider volume encryption).**
+- The host disk that holds tmpfs-spillover, ephemeral container layers, and any docker volumes is itself encrypted at rest.
+- Protects against a stolen disk or a subpoenaed cold backup. **Does not** protect against the running operator — host root has the key.
+- Implementation: enable on the prod box. Cloud providers do this by default; on a self-managed Linux box, set up `cryptsetup luksFormat` on the data partition and unlock at boot via a TPM-stored key or a manual passphrase.
+- **Complexity: low.** ~half a day on a fresh box; bigger on an existing box (data move).
+- **Ship this regardless of which higher tier you choose** — it's a cheap floor under everything.
+
+**Tier 3b — Per-tenant volume encryption with operator-managed keys (KMS).**
+- Each tenant volume is encrypted with a key stored in a KMS (HashiCorp Vault, AWS KMS, GCP KMS).
+- Reduces blast radius — disk theft yields ciphertext only.
+- Adds **crypto-shredding on deletion**: destroy the key, the bytes become unrecoverable garbage even if a backup leaked.
+- Logs every key access — auditable.
+- **Still does not** answer "even from you" — on-call ops with KMS access can read.
+- **Complexity: medium.** ~1 week to wire a KMS client + key-per-tenant lifecycle + destroy-on-delete. Recommended for the default plan once paying users exist.
+
+**Tier 3c — User-supplied passphrase, key never on host disk.**
 - User sets a passphrase at session bootstrap.
-- Server derives a key with Argon2id (parameters: m=64MB, t=3, p=4) and uses it to open a LUKS-formatted file (a sparse file on the host disk, attached to the container as a block device via `--device`).
-- Key lives in process memory only — never written to disk, never logged.
-- On container stop / idle, key is purged (`Buffer.fill(0)`) before garbage collection.
-- Forgot passphrase = data is gone (we say so in the UI).
+- Server derives a key with Argon2id (parameters: m=64MB, t=3, p=4), uses it to open a LUKS-formatted sparse file mounted into the container as a block device.
+- Key lives in process memory only — never written to disk, never logged. On container stop / idle, key is purged (`Buffer.fill(0)`) before garbage collection.
+- This is the **only** configuration that earns the "I cannot read your data" sentence.
 
-**Spec but don't build until a user asks.** It's three weeks of careful work and meaningful UX friction. Ephemeral default covers most users.
+**Honest disclosures that go with Tier 3c:**
+
+- *While a session is live, the key is in the container's memory.* A malicious operator who compromises the host **during** an active session can extract it. After the session ends and tmpfs is wiped, the key is gone for good.
+- *AnkiWeb sync still leaves user data on Anki's servers.* The Tier 3c guarantee is about **our hosting**, not Anki's. If the user wants end-to-end privacy from Anki itself too, they should not enable AnkiWeb sync.
+- *Lost passphrase = lost data, by design.* No recovery. Documented in the UI before passphrase entry.
+- **UX cost.** Passphrase entry per session via a small splash page before noVNC loads. Breaks the zero-friction flow. Reasonable middle path: keep Tier 3a + 3b as the default; offer Tier 3c as an opt-in "private vault" tier (paid, or for users who specifically ask).
+
+**Complexity: high.** ~2–3 weeks of careful work + a separate passphrase UX path. Spec but don't build until a user asks.
 
 ### Tests
 
@@ -328,15 +402,17 @@ The exact text matters: every claim is something we can defend if challenged.
 
 | # | Slice | Days | Gate before un-gating allowlist? |
 |---|---|---|---|
-| 1 | Token-gated reverse proxy + private container ports | 3 | **yes** |
-| 2 | Container hardening baseline (caps, no-new-privs, read-only, per-session network, userns-remap) | 1.5 | **yes** |
-| 3 | Ephemeral default | 1 | **yes** |
+| 1 | Token-gated reverse proxy + private container ports + cookie binding (drops 5900 entirely) | 3 | **yes** |
+| 2 | Container hardening baseline (caps, no-new-privs, read-only, per-session network, userns-remap) **+ AnkiConnect API key** | 2 | **yes** |
+| 3 | Ephemeral default (closes the `prefs21.db` AnkiWeb-token-on-disk gap) | 1 | **yes** |
 | 4 | Operator audit log + public weekly publish | 0.5 | yes (cheap, do alongside 1–3) |
 | 5 | Privacy page | 0.1 | yes (after 1–4 land) |
 | 6 | gVisor runtime | 2 | no (defense in depth, ship after onboarding) |
-| 7 | Encrypted persistent mode (opt-in) | 15+ | no (only when a user specifically asks) |
+| 7a | Host-level disk encryption (LUKS) | 0.5 | yes (cheap floor, ship with 1–4) |
+| 7b | KMS-keyed per-tenant volumes (default plan) | 5 | no (after first paying user) |
+| 7c | User-passphrase "private vault" mode (opt-in) | 15+ | no (only when a user specifically asks) |
 
-**Total before un-gating: roughly one focused week.**
+**Total before un-gating: roughly one focused week** (slices 1–5 + 7a).
 
 ## Open questions for Alexander
 
