@@ -175,9 +175,18 @@ export class RacService {
         const container = this.docker.getContainer(client.container_id);
         await container.inspect();
         reconciled.push(client);
-      } catch {
-        await this.repo.setStatus(client.id, 'inactive');
-        reconciled.push({ ...client, status: 'inactive' });
+      } catch (error) {
+        const statusCode = (error as { statusCode?: number }).statusCode;
+        if (statusCode === 404) {
+          await this.repo.setStatus(client.id, 'inactive');
+          reconciled.push({ ...client, status: 'inactive' });
+        } else {
+          console.warn(
+            `[ankify] reconcile skipped for container ${client.container_id}:`,
+            (error as Error).message ?? error
+          );
+          reconciled.push(client);
+        }
       }
     }
     return reconciled;

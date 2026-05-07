@@ -316,7 +316,7 @@ describe('RacService.list', () => {
     };
     const ghostContainer = makeContainer('container-ghost');
     (ghostContainer.inspect as jest.Mock).mockRejectedValueOnce(
-      new Error('No such container')
+      Object.assign(new Error('No such container'), { statusCode: 404 })
     );
     const repo = makeRepo({ listByOwner: jest.fn(async () => [ghost]) });
     const docker = makeDocker({
@@ -328,6 +328,35 @@ describe('RacService.list', () => {
 
     expect(repo.setStatus).toHaveBeenCalledWith(9, 'inactive');
     expect(result[0].status).toBe('inactive');
+  });
+
+  test('non-404 inspect errors leave the row active (avoid false reconcile)', async () => {
+    const live: AnkifyClient = {
+      id: 11,
+      owner: 7,
+      container_id: 'container-live',
+      container_name: 'happy_clarke',
+      anki_port: 20000,
+      vnc_port: 21000,
+      novnc_port: 22000,
+      status: 'active' as const,
+      created_at: new Date(),
+      last_active_at: new Date(),
+    };
+    const flakyContainer = makeContainer('container-live');
+    (flakyContainer.inspect as jest.Mock).mockRejectedValueOnce(
+      Object.assign(new Error('connect ECONNREFUSED'), { code: 'ECONNREFUSED' })
+    );
+    const repo = makeRepo({ listByOwner: jest.fn(async () => [live]) });
+    const docker = makeDocker({
+      getContainer: jest.fn(() => flakyContainer),
+    });
+    const service = new RacService(repo, docker);
+
+    const result = await service.list(7);
+
+    expect(repo.setStatus).not.toHaveBeenCalled();
+    expect(result[0].status).toBe('active');
   });
 });
 
