@@ -12,7 +12,7 @@ const NOVNC_PORT_RANGE: PortRange = { start: 22000, end: 23000 };
 const CONTAINER_INTERNAL_ANKI_PORT = 8765;
 const CONTAINER_INTERNAL_NOVNC_PORT = 6081;
 
-const CONTAINER_MEMORY_BYTES = 768 * 1024 * 1024;
+const CONTAINER_MEMORY_BYTES = 1536 * 1024 * 1024;
 const CONTAINER_CPU_QUOTA = 50_000;
 const CONTAINER_CPU_PERIOD = 100_000;
 
@@ -27,6 +27,7 @@ const HARDENED_TMPFS = {
   '/tmp': 'rw,nosuid,nodev,size=128m',
   '/var/run': 'rw,nosuid,nodev,size=8m',
   '/run/user/1000': 'rw,nosuid,nodev,size=32m',
+  '/data': 'rw,nosuid,nodev,size=512m',
 } as const;
 
 interface PortRange {
@@ -150,7 +151,6 @@ export class RacService {
       container = await this.createAndStartContainer(
         ankiPort,
         novncPort,
-        ankifyVolumeNameForOwner(owner),
         ankiConnectApiKey
       );
       console.info(
@@ -247,7 +247,6 @@ export class RacService {
     const container = await this.createAndStartContainer(
       ankiPort,
       novncPort,
-      ankifyVolumeNameForOwner(owner),
       ankiConnectApiKey
     );
     const inspect = await container.inspect().catch(() => ({}));
@@ -443,7 +442,6 @@ export class RacService {
   private async createAndStartContainer(
     ankiPort: number,
     novncPort: number,
-    volumeName: string,
     ankiConnectApiKey: string
   ): Promise<DockerContainerLike> {
     const createOpts = {
@@ -462,13 +460,6 @@ export class RacService {
         SecurityOpt: [...HARDENED_SECURITY_OPT],
         ReadonlyRootfs: true,
         Tmpfs: { ...HARDENED_TMPFS },
-        Mounts: [
-          {
-            Type: 'volume',
-            Source: volumeName,
-            Target: '/data',
-          },
-        ],
         PortBindings: {
           [`${CONTAINER_INTERNAL_ANKI_PORT}/tcp`]: [
             { HostIp: HOST_LOOPBACK, HostPort: ankiPort.toString() },
@@ -507,9 +498,6 @@ export class RacService {
     return container;
   }
 }
-
-export const ankifyVolumeNameForOwner = (owner: number): string =>
-  `ankify-rac-owner-${owner}-data`;
 
 export const hashToken = (plaintext: string): string =>
   crypto.createHash('sha256').update(plaintext).digest('hex');
