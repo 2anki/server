@@ -60,26 +60,28 @@ export default function NotionPagePicker({
 
   return (
     <div className={styles.pickerWrapper}>
-      <label htmlFor="ankify-page-picker">Choose a Notion page</label>
+      <label htmlFor="ankify-page-picker">Pick a Notion page</label>
       <input
         id="ankify-page-picker"
         type="search"
         className={styles.pickerSearchInput}
         value={query}
         onChange={(event) => setQuery(event.target.value)}
-        placeholder="Search your Notion pages and databases…"
+        placeholder="Search your Notion pages…"
       />
 
-      {loading && <p className={styles.pickerStatus}>Loading pages…</p>}
+      {loading && <p className={styles.pickerStatus}>Looking up your pages…</p>}
       {error != null && (
-        <p className={sharedStyles.helpDanger}>Failed to load pages: {error}</p>
+        <p className={sharedStyles.helpDanger}>
+          We couldn't load your Notion pages. {error}
+        </p>
       )}
 
       {!loading && error == null && results.length === 0 && (
         <p className={styles.pickerStatus}>
           {query.trim().length > 0
-            ? `No pages match “${query}”. Make sure the page is shared with the 2anki integration.`
-            : 'No Notion pages found yet. Connect more pages from the Search page.'}
+            ? `No pages match “${query}”. Make sure the page is shared with 2anki in Notion.`
+            : 'No Notion pages here yet. Share a page with 2anki from your Notion connections settings.'}
         </p>
       )}
 

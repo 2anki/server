@@ -35,42 +35,33 @@ export default function SyncConflicts({ backend }: Props) {
   const items = conflicts.data ?? [];
 
   if (items.length === 0) {
-    return (
-      <section className={styles.section}>
-        <header className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>Sync conflicts</h2>
-        </header>
-        <p className={styles.emptyLine}>
-          No conflicts. Notion and Anki are in agreement.
-        </p>
-      </section>
-    );
+    return null;
   }
 
   return (
     <section className={styles.section}>
       <div className={styles.conflictBanner}>
-        <header className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitleUrgent}>
-            Sync conflicts ({items.length})
-          </h2>
-        </header>
-        <p className={styles.sectionDescription}>
-          Both Notion and Anki edited these cards since the last sync. Pick
-          which side to keep, or dismiss to leave both alone (the conflict will
-          reappear if either side changes again).
+        <div className={styles.conflictHeading}>
+          <h2 className={styles.conflictTitle}>Decide which version to keep</h2>
+          <span className={styles.conflictPill}>
+            {items.length} {items.length === 1 ? 'card' : 'cards'}
+          </span>
+        </div>
+        <p className={styles.conflictDescription}>
+          You changed these in both Notion and Anki since the last sync. Pick a
+          side, or dismiss to leave both alone for now.
         </p>
 
         <div className={styles.conflictList}>
           {items.map((conflict) => (
             <article key={conflict.id} className={styles.conflictCard}>
               <p className={styles.conflictRef}>
-                Notion block <code>{conflict.source_id.slice(0, 8)}</code> ↔
-                Anki note {conflict.anki_note_id}
+                Card from Notion block{' '}
+                <code>{conflict.source_id.slice(0, 8)}</code>
               </p>
               <div className={styles.conflictGrid}>
                 <div className={styles.conflictPanel}>
-                  <p className={styles.conflictSide}>Notion</p>
+                  <p className={styles.conflictSide}>From Notion</p>
                   <p className={styles.conflictFront}>
                     {conflict.notion_snapshot?.front ?? ''}
                   </p>
@@ -79,7 +70,7 @@ export default function SyncConflicts({ backend }: Props) {
                   </p>
                 </div>
                 <div className={styles.conflictPanel}>
-                  <p className={styles.conflictSide}>Anki</p>
+                  <p className={styles.conflictSide}>From Anki</p>
                   <p className={styles.conflictFront}>
                     {conflict.anki_snapshot?.front ?? ''}
                   </p>
@@ -100,7 +91,7 @@ export default function SyncConflicts({ backend }: Props) {
                   }
                   disabled={resolve.isPending}
                 >
-                  Keep Notion
+                  Keep Notion version
                 </button>
                 <button
                   type="button"
@@ -113,7 +104,7 @@ export default function SyncConflicts({ backend }: Props) {
                   }
                   disabled={resolve.isPending}
                 >
-                  Keep Anki
+                  Keep Anki version
                 </button>
                 <button
                   type="button"
@@ -126,7 +117,7 @@ export default function SyncConflicts({ backend }: Props) {
                   }
                   disabled={resolve.isPending}
                 >
-                  Dismiss
+                  Decide later
                 </button>
               </div>
             </article>
