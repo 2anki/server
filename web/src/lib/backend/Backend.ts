@@ -435,6 +435,15 @@ export class Backend {
     }
   }
 
+  async checkAnkifyActiveClientReady(): Promise<{
+    ready: boolean;
+    reason?: 'no_active_client' | 'unreachable' | 'error';
+    detail?: string;
+  }> {
+    const result = await get(`${this.baseURL}ankify/clients/active/ready`);
+    return result ?? { ready: false, reason: 'unreachable' };
+  }
+
   async listAnkifyNotionDatabases(): Promise<
     Array<{
       id: string;

@@ -9,6 +9,7 @@ import { Backend } from '../../lib/backend/Backend';
 import ReviewDataExport from './components/ReviewDataExport';
 import NotionSubscriptions from './components/NotionSubscriptions';
 import SyncConflicts from './components/SyncConflicts';
+import { Skeleton } from '../../components/Skeleton/Skeleton';
 import PlayIcon from '../../components/icons/PlayIcon';
 import UserIcon from '../../components/icons/UserIcon';
 import RefreshIcon from '../../components/icons/RefreshIcon';
@@ -36,6 +37,16 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
   const { data, isLoading, error } = useQuery<AnkifyClient[]>({
     queryKey: QUERY_KEY,
     queryFn: () => api.listAnkifyClients(),
+  });
+
+  const readiness = useQuery({
+    queryKey: ['ankify-active-ready'],
+    queryFn: () => api.checkAnkifyActiveClientReady(),
+    enabled: data != null && data.some((c) => c.status === 'active'),
+    refetchInterval: (query) =>
+      (query.state.data as { ready?: boolean } | undefined)?.ready === true
+        ? false
+        : 2000,
   });
 
   const provision = useMutation({
@@ -206,23 +217,37 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
                     links your hosted Anki to your AnkiWeb account.
                   </p>
                   {step2State === 'current' && activeClient && (
-                    <div className={styles.setupStepActions}>
-                      <a
-                        href={ankiUrlFor(activeClient)}
-                        target="_blank"
-                        rel="noreferrer"
-                        className={`${styles.openButton} ${styles.inlineButton}`}
+                    readiness.data?.ready ? (
+                      <div className={styles.setupStepActions}>
+                        <a
+                          href={ankiUrlFor(activeClient)}
+                          target="_blank"
+                          rel="noreferrer"
+                          className={`${styles.openButton} ${styles.inlineButton}`}
+                        >
+                          Open Anki to sign in
+                        </a>
+                        <button
+                          type="button"
+                          className={`${sharedStyles.btnSecondary} ${styles.inlineButton}`}
+                          onClick={acknowledgeAnkiWebSignIn}
+                        >
+                          I've signed in
+                        </button>
+                      </div>
+                    ) : (
+                      <div
+                        className={styles.setupStepActions}
+                        role="status"
+                        aria-live="polite"
                       >
-                        Open Anki to sign in
-                      </a>
-                      <button
-                        type="button"
-                        className={`${sharedStyles.btnSecondary} ${styles.inlineButton}`}
-                        onClick={acknowledgeAnkiWebSignIn}
-                      >
-                        I've signed in
-                      </button>
-                    </div>
+                        <Skeleton width="11rem" height="2.25rem" radius="0.4rem" />
+                        <Skeleton width="7rem" height="2.25rem" radius="0.4rem" />
+                        <p className={styles.setupStepHint}>
+                          Anki is starting up — usually 5–15 seconds.
+                        </p>
+                      </div>
+                    )
                   )}
                 </div>
               </li>
