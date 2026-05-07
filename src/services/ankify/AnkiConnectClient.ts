@@ -90,6 +90,32 @@ export class AnkiConnectClient {
     return this.invoke('getNumCardsReviewedByDay');
   }
 
+  async cardReviews(deck: string, startID: number): Promise<number[][]> {
+    return this.invoke('cardReviews', { deck, startID });
+  }
+
+  async getReviewMinutesByDay(): Promise<Map<string, number>> {
+    const decks = await this.deckNames();
+    const minutesByDay = new Map<string, number>();
+    for (const deck of decks) {
+      const reviews = await this.cardReviews(deck, 0);
+      for (const review of reviews) {
+        const reviewTimeMs = review[0];
+        const reviewDurationMs = review[7];
+        if (
+          typeof reviewTimeMs !== 'number' ||
+          typeof reviewDurationMs !== 'number'
+        ) {
+          continue;
+        }
+        const isoDate = new Date(reviewTimeMs).toISOString().slice(0, 10);
+        const prev = minutesByDay.get(isoDate) ?? 0;
+        minutesByDay.set(isoDate, prev + reviewDurationMs / 60000);
+      }
+    }
+    return minutesByDay;
+  }
+
   async sync(): Promise<null> {
     return this.invoke('sync');
   }

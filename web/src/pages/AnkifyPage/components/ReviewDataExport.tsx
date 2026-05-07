@@ -175,18 +175,19 @@ export default function ReviewDataExport({ backend }: Props) {
         </div>
       </header>
       <p className={styles.sectionLead}>
-        Each day's review count becomes one row in a small Notion database
-        you control. Send on demand, or let us send yesterday's count every
-        morning at the time you pick. Days already in Notion stay put —
-        we only add new ones.
+        Each day's review count <em>and</em> time spent become one row in a
+        small Notion database you control. Send on demand, or let us send
+        yesterday's row every morning at the time you pick. Days already in
+        Notion stay put — we only add new ones.
       </p>
 
       <div className={styles.exportCard}>
         {!hasTracker && wizard === 'idle' && (
           <div className={styles.firstRunBlock}>
             <p className={styles.firstRunLead}>
-              We'll set up a Notion database called "Anki review tracker" for
-              you, with the right columns already in place. Two short steps.
+              We'll set up a Notion database called "Anki review tracker"
+              with three columns ready to go: Date, Reviews, and Time spent
+              (minutes). Two short steps.
             </p>
             <button
               type="button"
