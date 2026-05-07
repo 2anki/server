@@ -29,10 +29,10 @@ const getOsloDateParts = (now: Date): OsloDateParts => {
   const get = (type: string) => parts.find((p) => p.type === type)!.value;
   return {
     weekday: get('weekday'),
-    hour: parseInt(get('hour'), 10),
-    year: parseInt(get('year'), 10),
-    month: parseInt(get('month'), 10),
-    day: parseInt(get('day'), 10),
+    hour: Number.parseInt(get('hour'), 10),
+    year: Number.parseInt(get('year'), 10),
+    month: Number.parseInt(get('month'), 10),
+    day: Number.parseInt(get('day'), 10),
   };
 };
 
