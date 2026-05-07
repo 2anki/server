@@ -17,3 +17,4 @@ The full integration shipped on `feat/ankify-rac` (PR #2042) across seven slices
 ## Status notes
 
 - [Notion webhooks: deferred](./notion-webhooks-deferred.md) — receiver code exists but is inert by design while the multi-user secret model and auto-registration flow are still pending. Polling at 5 min carries the near-realtime story today.
+- [Security hardening: proposed](./security-hardening.md) — current setup is a working PoC, not safe for a second user. Spec covers token-gated proxy + private container ports, container hardening baseline, ephemeral-by-default sessions, operator audit log, and privacy page. Roughly one focused week of work; ship before un-gating the allowlist.
