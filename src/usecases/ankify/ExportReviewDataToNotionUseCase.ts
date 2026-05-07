@@ -82,7 +82,8 @@ export type NotionClientFactory = (token: string) => NotionExportClient;
 
 export type AnkiConnectFactoryForExport = (
   host: string,
-  port: number
+  port: number,
+  apiKey: string | null
 ) => AnkiConnectClient;
 
 export class ExportReviewDataToNotionUseCase {
@@ -110,7 +111,7 @@ export class ExportReviewDataToNotionUseCase {
     }
 
     const host = input.ankiConnectHost ?? 'localhost';
-    const ac = this.ankiConnect(host, client.anki_port);
+    const ac = this.ankiConnect(host, client.anki_port, client.anki_connect_api_key);
 
     let raw: Array<[string, number]>;
     try {

@@ -35,7 +35,13 @@ const AnkifyWebhookRouter = () => {
     subscriptions,
     logs,
     notionRepo,
-    (host, port) => new AnkiConnectClient(buildAnkiConnectUrl(host, port)),
+    (host, port, apiKey) =>
+      new AnkiConnectClient(
+        buildAnkiConnectUrl(host, port),
+        undefined,
+        undefined,
+        apiKey
+      ),
     (token) => {
       const notion = new NotionClient({ auth: token });
       return async (blockId) => {

@@ -26,6 +26,7 @@ export interface AnkifyClient {
   anki_port: number;
   vnc_port: number;
   novnc_port: number;
+  anki_connect_api_key: string | null;
   status: AnkifyClientStatus;
   created_at: Date;
   last_active_at: Date;
@@ -38,6 +39,7 @@ export interface NewAnkifyClient {
   anki_port: number;
   vnc_port: number;
   novnc_port: number;
+  anki_connect_api_key: string | null;
 }
 
 export type AnkifySyncMappingSourceType = 'apkg_guid' | 'notion_block';

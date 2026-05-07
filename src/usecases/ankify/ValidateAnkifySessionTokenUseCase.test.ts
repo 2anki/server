@@ -100,11 +100,14 @@ describe('ValidateAnkifySessionTokenUseCase', () => {
       })),
     });
     const auth = makeAuth({
-      getUserFrom: jest.fn(async () => ({
-        id: 999,
-        owner: 999,
-        email: 'alexander@alemayhu.com',
-      })),
+      getUserFrom: jest.fn(
+        async () =>
+          ({
+            id: 999,
+            owner: 999,
+            email: 'alexander@alemayhu.com',
+          } as never)
+      ),
     });
     const useCase = new ValidateAnkifySessionTokenUseCase(rac, auth);
     const result = await useCase.execute({
@@ -128,11 +131,14 @@ describe('ValidateAnkifySessionTokenUseCase', () => {
       })),
     });
     const auth = makeAuth({
-      getUserFrom: jest.fn(async () => ({
-        id: 42,
-        owner: 42,
-        email: 'someone-else@example.com',
-      })),
+      getUserFrom: jest.fn(
+        async () =>
+          ({
+            id: 42,
+            owner: 42,
+            email: 'someone-else@example.com',
+          } as never)
+      ),
     });
     const useCase = new ValidateAnkifySessionTokenUseCase(rac, auth);
     const result = await useCase.execute({
@@ -158,11 +164,14 @@ describe('ValidateAnkifySessionTokenUseCase', () => {
       touchTokenLastUsed,
     });
     const auth = makeAuth({
-      getUserFrom: jest.fn(async () => ({
-        id: 42,
-        owner: 42,
-        email: 'alexander@alemayhu.com',
-      })),
+      getUserFrom: jest.fn(
+        async () =>
+          ({
+            id: 42,
+            owner: 42,
+            email: 'alexander@alemayhu.com',
+          } as never)
+      ),
     });
     const useCase = new ValidateAnkifySessionTokenUseCase(rac, auth);
 

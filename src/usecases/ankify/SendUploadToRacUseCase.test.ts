@@ -21,6 +21,7 @@ const sampleClient = (): AnkifyClient => ({
   anki_port: 20000,
   vnc_port: 21000,
   novnc_port: 22000,
+        anki_connect_api_key: null,
   status: 'active',
   created_at: new Date(),
   last_active_at: new Date(),

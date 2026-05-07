@@ -34,6 +34,7 @@ export class AnkifyClientsRepository
         anki_port: input.anki_port,
         vnc_port: input.vnc_port,
         novnc_port: input.novnc_port,
+        anki_connect_api_key: input.anki_connect_api_key,
       })
       .returning<AnkifyClient[]>('*');
     return row;

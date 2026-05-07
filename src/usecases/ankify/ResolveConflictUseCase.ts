@@ -59,7 +59,8 @@ export class ResolveConflictUseCase {
     }
     const ac = this.ankiConnect(
       input.ankiConnectHost ?? 'localhost',
-      client.anki_port
+      client.anki_port,
+      client.anki_connect_api_key
     );
 
     const notionSnapshot = conflict.notion_snapshot as

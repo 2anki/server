@@ -13,7 +13,8 @@ export interface ReadinessResult {
 
 export type AnkiConnectFactory = (
   host: string,
-  port: number
+  port: number,
+  apiKey: string | null
 ) => AnkiConnectClient;
 
 export class CheckActiveClientReadinessUseCase {
@@ -33,7 +34,8 @@ export class CheckActiveClientReadinessUseCase {
 
     const ac = this.ankiConnect(
       options.ankiConnectHost ?? 'localhost',
-      client.anki_port
+      client.anki_port,
+      client.anki_connect_api_key
     );
     try {
       await ac.ping();

@@ -76,6 +76,42 @@ describe('AnkiConnectClient', () => {
     await expect(client.deckNames()).rejects.toBeInstanceOf(AnkiConnectError);
   });
 
+  test('includes the apiKey field in every action body when configured', async () => {
+    const fetchImpl = makeFetch({ result: 6, error: null });
+    const client = new AnkiConnectClient(
+      'http://localhost:8765',
+      fetchImpl,
+      undefined,
+      'secret-key-abc'
+    );
+
+    await client.ping();
+    await client.deckNames();
+
+    const body0 = JSON.parse((fetchImpl as jest.Mock).mock.calls[0][1].body);
+    const body1 = JSON.parse((fetchImpl as jest.Mock).mock.calls[1][1].body);
+    expect(body0).toEqual({
+      action: 'version',
+      version: 6,
+      key: 'secret-key-abc',
+    });
+    expect(body1).toEqual({
+      action: 'deckNames',
+      version: 6,
+      key: 'secret-key-abc',
+    });
+  });
+
+  test('omits the key field when apiKey is null (legacy/local containers)', async () => {
+    const fetchImpl = makeFetch({ result: 6, error: null });
+    const client = new AnkiConnectClient('http://x', fetchImpl);
+
+    await client.ping();
+
+    const body = JSON.parse((fetchImpl as jest.Mock).mock.calls[0][1].body);
+    expect(body).not.toHaveProperty('key');
+  });
+
   test('throws AnkiConnectUnreachableError when fetch rejects', async () => {
     const fetchImpl = jest.fn(async () => {
       throw new Error('connect ECONNREFUSED');

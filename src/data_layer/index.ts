@@ -86,8 +86,13 @@ export const setupDatabase = async (database: Knex) => {
       const exportUseCase = new ExportReviewDataToNotionUseCase(
         ankifyRepo,
         notionRepo,
-        (host, port) =>
-          new AnkiConnectClient(buildAnkiConnectUrl(host, port)),
+        (host, port, apiKey) =>
+          new AnkiConnectClient(
+            buildAnkiConnectUrl(host, port),
+            undefined,
+            undefined,
+            apiKey
+          ),
         (token) => {
           const notion = new NotionClient({ auth: token });
           const findFirstDataSourceId = async (
@@ -178,8 +183,13 @@ export const setupDatabase = async (database: Knex) => {
         subscriptionsRepo,
         logsRepo,
         notionRepo,
-        (host, port) =>
-          new AnkiConnectClient(buildAnkiConnectUrl(host, port)),
+        (host, port, apiKey) =>
+          new AnkiConnectClient(
+            buildAnkiConnectUrl(host, port),
+            undefined,
+            undefined,
+            apiKey
+          ),
         (token) => {
           const notion = new NotionClient({ auth: token });
           return async (blockId) => {

@@ -76,8 +76,17 @@ const AnkifyRouter = () => {
     return Buffer.isBuffer(body) ? body : Buffer.from(body as Uint8Array);
   };
 
-  const ankiConnectFactory = (host: string, port: number) =>
-    new AnkiConnectClient(buildAnkiConnectUrl(host, port));
+  const ankiConnectFactory = (
+    host: string,
+    port: number,
+    apiKey: string | null
+  ) =>
+    new AnkiConnectClient(
+      buildAnkiConnectUrl(host, port),
+      undefined,
+      undefined,
+      apiKey
+    );
 
   const controller = new AnkifyController(
     new ProvisionAnkifyClientUseCase(rac),
