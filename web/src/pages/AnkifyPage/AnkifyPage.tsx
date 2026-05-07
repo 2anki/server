@@ -109,8 +109,7 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
   if (signedInAcknowledged) step2State = 'done';
   else if (hasActiveClient) step2State = 'current';
 
-  let step3State: StepState = 'todo';
-  if (setupComplete) step3State = 'current';
+  const step3State: StepState = 'todo';
 
   return (
     <main className={sharedStyles.page}>
@@ -188,9 +187,18 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
                     </div>
                   )}
                   {provision.error && step1State === 'current' && (
-                    <p role="alert" className={styles.alertInline}>
-                      {(provision.error as Error).message}
-                    </p>
+                    <div className={styles.provisionErrorBlock} role="alert">
+                      <p className={styles.provisionErrorTitle}>
+                        We couldn't start your Anki.
+                      </p>
+                      <p className={styles.provisionErrorBody}>
+                        {(provision.error as Error).message}
+                      </p>
+                      <p className={styles.provisionErrorHint}>
+                        Try again — most boots succeed on a second attempt. If
+                        it keeps failing, email us at hello@2anki.net.
+                      </p>
+                    </div>
                   )}
                 </div>
               </li>
@@ -223,13 +231,13 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
                           href={ankiUrlFor(activeClient)}
                           target="_blank"
                           rel="noreferrer"
-                          className={`${styles.openButton} ${styles.inlineButton}`}
+                          className={`${sharedStyles.btnSecondary} ${styles.inlineButton}`}
                         >
-                          Open Anki to sign in
+                          Open Anki
                         </a>
                         <button
                           type="button"
-                          className={`${sharedStyles.btnSecondary} ${styles.inlineButton}`}
+                          className={`${sharedStyles.btnPrimary} ${styles.inlineButton}`}
                           onClick={acknowledgeAnkiWebSignIn}
                         >
                           I've signed in
@@ -273,27 +281,6 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
                     <strong>Sync</strong> once. After that, we keep AnkiWeb in
                     step every time a Notion page changes.
                   </p>
-                  {step3State === 'current' && activeClient && (
-                    <div className={styles.setupStepActions}>
-                      <a
-                        href={ankiUrlFor(activeClient)}
-                        target="_blank"
-                        rel="noreferrer"
-                        className={`${sharedStyles.btnSecondary} ${styles.inlineButton}`}
-                      >
-                        Open Anki
-                      </a>
-                      <button
-                        type="button"
-                        className={`${sharedStyles.btnPrimary} ${styles.inlineButton}`}
-                        onClick={() =>
-                          queryClient.invalidateQueries({ queryKey: QUERY_KEY })
-                        }
-                      >
-                        I've synced
-                      </button>
-                    </div>
-                  )}
                 </div>
               </li>
             </ol>
