@@ -6,11 +6,17 @@ import MigratorConfig = Knex.MigratorConfig;
 
 import { ScheduleCleanup } from '../lib/storage/jobs/ScheduleCleanup';
 import { scheduleAnkifyReaper } from '../lib/ankify/jobs/scheduleAnkifyReaper';
+import { scheduleAnkifyPolling } from '../lib/ankify/jobs/scheduleAnkifyPolling';
 import { RacService } from '../services/ankify/RacService';
 import { AnkifyClientsRepository } from './ankify/AnkifyClientsRepository';
 import { AnkifyExportSchedulesRepository } from './ankify/AnkifyExportSchedulesRepository';
 import { AnkifyExportScheduler } from '../services/ankify/AnkifyExportScheduler';
 import { ExportReviewDataToNotionUseCase } from '../usecases/ankify/ExportReviewDataToNotionUseCase';
+import { SyncNotionPageToRacUseCase } from '../usecases/ankify/SyncNotionPageToRacUseCase';
+import { AnkifyNotionSubscriptionsRepository } from './ankify/AnkifyNotionSubscriptionsRepository';
+import { AnkifySyncMappingsRepository } from './ankify/AnkifySyncMappingsRepository';
+import { AnkifySyncConflictsRepository } from './ankify/AnkifySyncConflictsRepository';
+import { AnkifySyncLogsRepository } from './ankify/AnkifySyncLogsRepository';
 import {
   AnkiConnectClient,
   buildAnkiConnectUrl,
@@ -115,6 +121,40 @@ export const setupDatabase = async (database: Knex) => {
       console.info(
         `Ankify scheduler recovered ${recovered} schedule(s)`
       );
+
+      const subscriptionsRepo = new AnkifyNotionSubscriptionsRepository(database);
+      const mappingsRepo = new AnkifySyncMappingsRepository(database);
+      const conflictsRepo = new AnkifySyncConflictsRepository(database);
+      const logsRepo = new AnkifySyncLogsRepository(database);
+      const syncUseCase = new SyncNotionPageToRacUseCase(
+        ankifyRepo,
+        mappingsRepo,
+        conflictsRepo,
+        subscriptionsRepo,
+        logsRepo,
+        notionRepo,
+        (host, port) =>
+          new AnkiConnectClient(buildAnkiConnectUrl(host, port)),
+        (token) => {
+          const notion = new NotionClient({ auth: token });
+          return async (blockId) => {
+            const aggregated: unknown[] = [];
+            let cursor: string | undefined;
+            do {
+              const response = await notion.blocks.children.list({
+                block_id: blockId,
+                page_size: 100,
+                ...(cursor != null ? { start_cursor: cursor } : {}),
+              });
+              aggregated.push(...response.results);
+              cursor = response.next_cursor ?? undefined;
+            } while (cursor != null);
+            return aggregated as never;
+          };
+        }
+      );
+      scheduleAnkifyPolling(subscriptionsRepo, syncUseCase);
+      console.info('Ankify polling worker scheduled');
     }
 
     // Completed jobs become uploads. Any left during startup means they failed.

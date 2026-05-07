@@ -21,6 +21,15 @@ import {
 import { GetExportScheduleUseCase } from '../usecases/ankify/GetExportScheduleUseCase';
 import { DeleteExportScheduleUseCase } from '../usecases/ankify/DeleteExportScheduleUseCase';
 import { ListSyncLogsUseCase } from '../usecases/ankify/ListSyncLogsUseCase';
+import { SyncNotionPageToRacUseCase } from '../usecases/ankify/SyncNotionPageToRacUseCase';
+import { ListNotionSubscriptionsUseCase } from '../usecases/ankify/ListNotionSubscriptionsUseCase';
+import { DeleteNotionSubscriptionUseCase } from '../usecases/ankify/DeleteNotionSubscriptionUseCase';
+import { ListConflictsUseCase } from '../usecases/ankify/ListConflictsUseCase';
+import {
+  ConflictNotFoundError,
+  ResolveConflictUseCase,
+} from '../usecases/ankify/ResolveConflictUseCase';
+import { AnkifyConflictResolution } from '../entities/ankify';
 import {
   DockerUnavailableError,
   NoAvailablePortError,
@@ -38,7 +47,12 @@ class AnkifyController {
     private readonly configureScheduleUseCase: ConfigureExportScheduleUseCase,
     private readonly getScheduleUseCase: GetExportScheduleUseCase,
     private readonly deleteScheduleUseCase: DeleteExportScheduleUseCase,
-    private readonly listSyncLogsUseCase: ListSyncLogsUseCase
+    private readonly listSyncLogsUseCase: ListSyncLogsUseCase,
+    private readonly syncNotionPageUseCase: SyncNotionPageToRacUseCase,
+    private readonly listSubscriptionsUseCase: ListNotionSubscriptionsUseCase,
+    private readonly deleteSubscriptionUseCase: DeleteNotionSubscriptionUseCase,
+    private readonly listConflictsUseCase: ListConflictsUseCase,
+    private readonly resolveConflictUseCase: ResolveConflictUseCase
   ) {}
 
   async list(_req: Request, res: Response) {
@@ -196,6 +210,112 @@ class AnkifyController {
     const owner = res.locals.owner as number;
     await this.deleteScheduleUseCase.execute(owner);
     res.status(204).send();
+  }
+
+  async listSubscriptions(_req: Request, res: Response) {
+    const owner = res.locals.owner as number;
+    const subs = await this.listSubscriptionsUseCase.execute(owner);
+    res.status(200).json(subs);
+  }
+
+  async subscribeNotionPage(req: Request, res: Response) {
+    const owner = res.locals.owner as number;
+    const notionPageId = String(req.body?.notion_page_id ?? '').trim();
+    if (notionPageId.length === 0) {
+      res.status(400).json({ message: 'notion_page_id is required' });
+      return;
+    }
+    try {
+      const result = await this.syncNotionPageUseCase.execute({
+        owner,
+        notionPageId,
+        trigger: 'manual',
+      });
+      res.status(200).json({
+        subscription: result.subscription,
+        created: result.created,
+        updated: result.updated,
+        conflicts: result.conflicts,
+        unchanged: result.unchanged,
+        errors: result.errors,
+      });
+    } catch (error) {
+      if (error instanceof NoActiveAnkifyClientError) {
+        res.status(409).json({
+          message:
+            'No active Ankify client. Provision one before subscribing.',
+        });
+        return;
+      }
+      if (error instanceof NotionNotConnectedError) {
+        res.status(409).json({ message: 'Notion is not connected' });
+        return;
+      }
+      if (error instanceof AnkiConnectUnreachableError) {
+        res.status(503).json({
+          message: 'AnkiConnect is unreachable.',
+        });
+        return;
+      }
+      throw error;
+    }
+  }
+
+  async deleteSubscription(req: Request, res: Response) {
+    const owner = res.locals.owner as number;
+    const id = Number.parseInt(req.params.id, 10);
+    if (!Number.isFinite(id)) {
+      res.status(400).json({ message: 'Invalid subscription id' });
+      return;
+    }
+    await this.deleteSubscriptionUseCase.execute(id, owner);
+    res.status(204).send();
+  }
+
+  async listConflicts(req: Request, res: Response) {
+    const owner = res.locals.owner as number;
+    const status =
+      req.query.status != null ? String(req.query.status) : undefined;
+    const conflicts = await this.listConflictsUseCase.execute(owner, {
+      status,
+    });
+    res.status(200).json(conflicts);
+  }
+
+  async resolveConflict(req: Request, res: Response) {
+    const owner = res.locals.owner as number;
+    const id = Number.parseInt(req.params.id, 10);
+    if (!Number.isFinite(id)) {
+      res.status(400).json({ message: 'Invalid conflict id' });
+      return;
+    }
+    const resolution = String(
+      req.body?.resolution ?? 'dismissed'
+    ) as AnkifyConflictResolution;
+    if (
+      resolution !== 'keep_notion' &&
+      resolution !== 'keep_anki' &&
+      resolution !== 'dismissed'
+    ) {
+      res.status(400).json({
+        message: 'resolution must be keep_notion, keep_anki, or dismissed',
+      });
+      return;
+    }
+    try {
+      await this.resolveConflictUseCase.execute({
+        id,
+        owner,
+        resolution,
+      });
+      res.status(204).send();
+    } catch (error) {
+      if (error instanceof ConflictNotFoundError) {
+        res.status(404).json({ message: 'Conflict not found' });
+        return;
+      }
+      throw error;
+    }
   }
 
   async listSyncLogs(req: Request, res: Response) {
