@@ -146,14 +146,17 @@ describe('RacService.provision', () => {
 
     expect(docker.listContainers).toHaveBeenCalledWith({ all: false });
     expect(docker.createContainer).toHaveBeenCalledTimes(1);
-    expect(repo.create).toHaveBeenCalledWith({
-      owner: 42,
-      container_id: 'container-abc',
-      container_name: 'test-container',
-      anki_port: 20000,
-      vnc_port: 0,
-      novnc_port: 22000,
-    });
+    expect(repo.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        owner: 42,
+        container_id: 'container-abc',
+        container_name: 'test-container',
+        anki_port: 20000,
+        vnc_port: 0,
+        novnc_port: 22000,
+        anki_connect_api_key: expect.stringMatching(/^[A-Za-z0-9_-]{43}$/),
+      })
+    );
     expect(created).toBe(true);
     expect(client.owner).toBe(42);
   });
@@ -211,6 +214,7 @@ describe('RacService.provision', () => {
       anki_port: 20000,
       vnc_port: 0,
       novnc_port: 22000,
+        anki_connect_api_key: null,
       status: 'active',
       created_at: new Date(),
       last_active_at: new Date(),
@@ -319,6 +323,7 @@ describe('RacService.respin', () => {
         anki_port: 20000,
         vnc_port: 0,
         novnc_port: 22000,
+        anki_connect_api_key: null,
         status: 'active' as const,
         created_at: new Date(),
         last_active_at: new Date(),
@@ -344,6 +349,7 @@ describe('RacService.list', () => {
         anki_port: 20000,
         vnc_port: 0,
         novnc_port: 22000,
+        anki_connect_api_key: null,
         status: 'active' as const,
         created_at: new Date(),
         last_active_at: new Date(),
@@ -368,6 +374,7 @@ describe('RacService.list', () => {
       anki_port: 20000,
       vnc_port: 0,
       novnc_port: 22000,
+        anki_connect_api_key: null,
       status: 'active' as const,
       created_at: new Date(),
       last_active_at: new Date(),
@@ -395,6 +402,7 @@ describe('RacService.list', () => {
       anki_port: 20000,
       vnc_port: 0,
       novnc_port: 22000,
+        anki_connect_api_key: null,
       status: 'active' as const,
       created_at: new Date(),
       last_active_at: new Date(),
@@ -435,6 +443,7 @@ describe('RacService.stop', () => {
         anki_port: 20000,
         vnc_port: 0,
         novnc_port: 22000,
+        anki_connect_api_key: null,
         status: 'active' as const,
         created_at: new Date(),
         last_active_at: new Date(),
@@ -464,6 +473,7 @@ describe('RacService.stop', () => {
         anki_port: 20000,
         vnc_port: 0,
         novnc_port: 22000,
+        anki_connect_api_key: null,
         status: 'active' as const,
         created_at: new Date(),
         last_active_at: new Date(),
@@ -495,6 +505,7 @@ describe('RacService.resolveTokenForProxy', () => {
       anki_port: client.anki_port,
       vnc_port: 0,
       novnc_port: client.novnc_port,
+      anki_connect_api_key: null,
       status: 'active' as const,
       created_at: new Date(),
       last_active_at: new Date(),
@@ -547,6 +558,7 @@ describe('RacService.reissueSessionUrl', () => {
       anki_port: provisioned.anki_port,
       vnc_port: 0,
       novnc_port: provisioned.novnc_port,
+      anki_connect_api_key: null,
       status: 'active' as const,
       created_at: new Date(),
       last_active_at: new Date(),
@@ -600,6 +612,7 @@ describe('RacService.reapIdle', () => {
           anki_port: 20000,
           vnc_port: 0,
           novnc_port: 22000,
+        anki_connect_api_key: null,
           status: 'active' as const,
           created_at: new Date(),
           last_active_at: new Date(0),
@@ -612,6 +625,7 @@ describe('RacService.reapIdle', () => {
           anki_port: 20001,
           vnc_port: 0,
           novnc_port: 22001,
+        anki_connect_api_key: null,
           status: 'active' as const,
           created_at: new Date(),
           last_active_at: new Date(0),
@@ -666,6 +680,85 @@ describe('RacService session_url construction', () => {
   });
 });
 
+describe('RacService container hardening (slice 2)', () => {
+  test('drops all caps, sets no-new-privileges, mounts a read-only rootfs with tmpfs', async () => {
+    const { service, docker } = makeService();
+
+    await service.provision(42);
+
+    const args = (docker.createContainer as jest.Mock).mock
+      .calls[0][0] as {
+      HostConfig: {
+        CapDrop: string[];
+        SecurityOpt: string[];
+        ReadonlyRootfs: boolean;
+        Tmpfs: Record<string, string>;
+      };
+    };
+    expect(args.HostConfig.CapDrop).toEqual(['ALL']);
+    expect(args.HostConfig.SecurityOpt).toEqual(['no-new-privileges:true']);
+    expect(args.HostConfig.ReadonlyRootfs).toBe(true);
+    expect(args.HostConfig.Tmpfs).toMatchObject({
+      '/tmp': expect.stringContaining('nosuid'),
+      '/var/run': expect.stringContaining('nosuid'),
+      '/run/user/1000': expect.stringContaining('nosuid'),
+    });
+  });
+
+  test('generates a per-container AnkiConnect API key, env-injects, persists', async () => {
+    const { service, repo, docker } = makeService();
+
+    const { client } = await service.provision(42);
+
+    const createArgs = (docker.createContainer as jest.Mock).mock
+      .calls[0][0] as { Env: string[] };
+    const envEntry = createArgs.Env.find((e) =>
+      e.startsWith('ANKICONNECT_API_KEY=')
+    );
+    expect(envEntry).toBeDefined();
+    const envKey = envEntry!.split('=', 2)[1];
+    expect(envKey).toMatch(/^[A-Za-z0-9_-]{43}$/);
+
+    const persistedKey = (repo.create as jest.Mock).mock.calls[0][0]
+      .anki_connect_api_key as string;
+    expect(persistedKey).toBe(envKey);
+    expect(client.id).toBe(1);
+  });
+
+  test('respin mints a fresh API key (different from any prior container)', async () => {
+    const { service, repo, docker } = makeService(
+      makeRepo({
+        findActiveByOwner: jest.fn(async () => ({
+          id: 5,
+          owner: 42,
+          container_id: 'container-old',
+          container_name: 'old',
+          anki_port: 20000,
+          vnc_port: 0,
+          novnc_port: 22000,
+          anki_connect_api_key: 'old-key',
+          status: 'active' as const,
+          created_at: new Date(),
+          last_active_at: new Date(),
+        })),
+      })
+    );
+
+    await service.respin(42);
+
+    const createArgs = (docker.createContainer as jest.Mock).mock
+      .calls[0][0] as { Env: string[] };
+    const envKey = createArgs.Env.find((e) =>
+      e.startsWith('ANKICONNECT_API_KEY=')
+    )!.split('=', 2)[1];
+    expect(envKey).not.toBe('old-key');
+    expect(envKey).toMatch(/^[A-Za-z0-9_-]{43}$/);
+    const persistedKey = (repo.create as jest.Mock).mock.calls[0][0]
+      .anki_connect_api_key as string;
+    expect(persistedKey).toBe(envKey);
+  });
+});
+
 describe('RacService — view shape passthrough', () => {
   test('AnkifyClientView is a structural extension of AnkifyClient', () => {
     const sample: AnkifyClientView = {
@@ -676,6 +769,7 @@ describe('RacService — view shape passthrough', () => {
       anki_port: 20000,
       vnc_port: 0,
       novnc_port: 22000,
+        anki_connect_api_key: null,
       status: 'active',
       created_at: new Date(),
       last_active_at: new Date(),

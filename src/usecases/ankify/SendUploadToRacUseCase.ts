@@ -46,7 +46,8 @@ export interface SendUploadToRacResult {
 
 export type AnkiConnectFactory = (
   host: string,
-  port: number
+  port: number,
+  apiKey: string | null
 ) => AnkiConnectClient;
 
 export type ApkgFetcher = (key: string) => Promise<Buffer>;
@@ -140,7 +141,7 @@ export class SendUploadToRacUseCase {
     const collection = this.parseApkg(buffer);
 
     const host = input.ankiConnectHost ?? 'localhost';
-    const ac = this.ankiConnect(host, client.anki_port);
+    const ac = this.ankiConnect(host, client.anki_port, client.anki_connect_api_key);
     const fallbackDeckName =
       (upload.filename ?? '').replace(/\.apkg$/i, '') || 'Imported';
 

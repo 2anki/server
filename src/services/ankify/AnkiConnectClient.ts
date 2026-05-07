@@ -44,7 +44,8 @@ export class AnkiConnectClient {
   constructor(
     private readonly baseUrl: string,
     private readonly fetchImpl: FetchLike = fetch,
-    private readonly timeoutMs: number = ANKI_CONNECT_DEFAULT_TIMEOUT_MS
+    private readonly timeoutMs: number = ANKI_CONNECT_DEFAULT_TIMEOUT_MS,
+    private readonly apiKey: string | null = null
   ) {}
 
   async createDeck(deck: string): Promise<number> {
@@ -139,6 +140,9 @@ export class AnkiConnectClient {
         body: JSON.stringify({
           action,
           version: ANKI_CONNECT_VERSION,
+          ...(this.apiKey != null && this.apiKey.length > 0
+            ? { key: this.apiKey }
+            : {}),
           ...(params == null ? {} : { params }),
         }),
         signal: controller.signal,

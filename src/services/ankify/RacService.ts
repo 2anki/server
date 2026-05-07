@@ -20,6 +20,15 @@ const SESSION_TOKEN_BYTES = 32;
 const SESSION_TOKEN_TTL_HOURS = 8;
 const HOST_LOOPBACK = '127.0.0.1';
 
+const ANKICONNECT_API_KEY_BYTES = 32;
+const HARDENED_CAPS_DROP = ['ALL'] as const;
+const HARDENED_SECURITY_OPT = ['no-new-privileges:true'] as const;
+const HARDENED_TMPFS = {
+  '/tmp': 'rw,nosuid,nodev,size=128m',
+  '/var/run': 'rw,nosuid,nodev,size=8m',
+  '/run/user/1000': 'rw,nosuid,nodev,size=32m',
+} as const;
+
 interface PortRange {
   start: number;
   end: number;
@@ -130,6 +139,8 @@ export class RacService {
       throw error;
     }
 
+    const ankiConnectApiKey = generateAnkiConnectApiKey();
+
     let container: DockerContainerLike;
     try {
       console.info(
@@ -139,7 +150,8 @@ export class RacService {
       container = await this.createAndStartContainer(
         ankiPort,
         novncPort,
-        ankifyVolumeNameForOwner(owner)
+        ankifyVolumeNameForOwner(owner),
+        ankiConnectApiKey
       );
       console.info(
         '[ankify-provision] container started id=%s',
@@ -180,6 +192,7 @@ export class RacService {
         anki_port: ankiPort,
         vnc_port: 0,
         novnc_port: novncPort,
+        anki_connect_api_key: ankiConnectApiKey,
       });
       console.info(
         '[ankify-provision] persisted row id=%d for owner=%d',
@@ -229,11 +242,13 @@ export class RacService {
     const usedPorts = await this.collectUsedPorts();
     const ankiPort = pickPort(ANKI_PORT_RANGE, usedPorts);
     const novncPort = pickPort(NOVNC_PORT_RANGE, usedPorts);
+    const ankiConnectApiKey = generateAnkiConnectApiKey();
 
     const container = await this.createAndStartContainer(
       ankiPort,
       novncPort,
-      ankifyVolumeNameForOwner(owner)
+      ankifyVolumeNameForOwner(owner),
+      ankiConnectApiKey
     );
     const inspect = await container.inspect().catch(() => ({}));
     const containerName = stripLeadingSlash((inspect as { Name?: string }).Name);
@@ -245,6 +260,7 @@ export class RacService {
       anki_port: ankiPort,
       vnc_port: 0,
       novnc_port: novncPort,
+      anki_connect_api_key: ankiConnectApiKey,
     });
 
     const sessionUrl = await this.mintSessionUrl(client);
@@ -427,10 +443,12 @@ export class RacService {
   private async createAndStartContainer(
     ankiPort: number,
     novncPort: number,
-    volumeName: string
+    volumeName: string,
+    ankiConnectApiKey: string
   ): Promise<DockerContainerLike> {
     const createOpts = {
       Image: this.baseImage,
+      Env: [`ANKICONNECT_API_KEY=${ankiConnectApiKey}`],
       ExposedPorts: {
         [`${CONTAINER_INTERNAL_ANKI_PORT}/tcp`]: {},
         [`${CONTAINER_INTERNAL_NOVNC_PORT}/tcp`]: {},
@@ -440,6 +458,10 @@ export class RacService {
         Memory: CONTAINER_MEMORY_BYTES,
         CpuQuota: CONTAINER_CPU_QUOTA,
         CpuPeriod: CONTAINER_CPU_PERIOD,
+        CapDrop: [...HARDENED_CAPS_DROP],
+        SecurityOpt: [...HARDENED_SECURITY_OPT],
+        ReadonlyRootfs: true,
+        Tmpfs: { ...HARDENED_TMPFS },
         Mounts: [
           {
             Type: 'volume',
@@ -494,6 +516,9 @@ export const hashToken = (plaintext: string): string =>
 
 const generateTokenPlaintext = (): string =>
   crypto.randomBytes(SESSION_TOKEN_BYTES).toString('base64url');
+
+const generateAnkiConnectApiKey = (): string =>
+  crypto.randomBytes(ANKICONNECT_API_KEY_BYTES).toString('base64url');
 
 const buildSessionUrl = (plaintext: string, novncPort: number): string => {
   const base = process.env.ANKIFY_SESSION_URL_BASE;

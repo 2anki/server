@@ -49,7 +49,8 @@ export interface SyncNotionPageResult {
 
 export type AnkiConnectFactory = (
   host: string,
-  port: number
+  port: number,
+  apiKey: string | null
 ) => AnkiConnectClient;
 
 export type NotionFetcherFactory = (token: string) => NotionBlockChildrenFetcher;
@@ -125,7 +126,8 @@ export class SyncNotionPageToRacUseCase {
 
       const ac = this.ankiConnect(
         input.ankiConnectHost ?? 'localhost',
-        client.anki_port
+        client.anki_port,
+        client.anki_connect_api_key
       );
       await ac.createDeck(DECK_NAME_FALLBACK);
 
