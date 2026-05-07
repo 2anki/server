@@ -348,6 +348,81 @@ export class Backend {
     }
   }
 
+  async listAnkifySubscriptions(): Promise<
+    Array<{
+      id: number;
+      notion_page_id: string;
+      enabled: boolean;
+      last_polled_at: string | null;
+      last_synced_at: string | null;
+      last_error: string | null;
+    }>
+  > {
+    const result = await get(`${this.baseURL}ankify/subscriptions`);
+    return result ?? [];
+  }
+
+  async subscribeAnkifyNotionPage(notionPageId: string): Promise<{
+    created: number;
+    updated: number;
+    conflicts: number;
+    unchanged: number;
+    errors: string[];
+  }> {
+    const response = await post(`${this.baseURL}ankify/subscriptions`, {
+      notion_page_id: notionPageId,
+    });
+    if (!response.ok) {
+      const error = await response
+        .json()
+        .catch(() => ({ message: response.statusText }));
+      throw new Error(error.message ?? 'Failed to subscribe page');
+    }
+    return response.json();
+  }
+
+  async deleteAnkifySubscription(id: number): Promise<void> {
+    const response = await del(
+      `${this.baseURL}ankify/subscriptions/${id}`
+    );
+    if (response == null || !response.ok) {
+      throw new Error('Failed to delete subscription');
+    }
+  }
+
+  async listAnkifyConflicts(): Promise<
+    Array<{
+      id: number;
+      source_id: string;
+      anki_note_id: number;
+      kind: string;
+      notion_snapshot: { front?: string; back?: string } | null;
+      anki_snapshot: { front?: string; back?: string } | null;
+      created_at: string;
+    }>
+  > {
+    const result = await get(
+      `${this.baseURL}ankify/conflicts?status=pending`
+    );
+    return result ?? [];
+  }
+
+  async resolveAnkifyConflict(
+    id: number,
+    resolution: 'keep_notion' | 'keep_anki' | 'dismissed'
+  ): Promise<void> {
+    const response = await post(
+      `${this.baseURL}ankify/conflicts/${id}/resolve`,
+      { resolution }
+    );
+    if (!response.ok) {
+      const error = await response
+        .json()
+        .catch(() => ({ message: response.statusText }));
+      throw new Error(error.message ?? 'Failed to resolve conflict');
+    }
+  }
+
   async exportAnkifyReviewData(input: {
     databaseId: string;
     dateRangeDays?: number;
