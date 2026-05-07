@@ -17,6 +17,27 @@ import SparkleIcon from '../../components/icons/SparkleIcon';
 
 const QUERY_KEY = ['ankify-clients'];
 const ANKI_WEB_ACK_KEY = 'ankify_anki_web_acknowledged';
+const SESSION_URL_PREFIX = 'ankify_session_url:';
+
+const sessionUrlKey = (clientId: number) => `${SESSION_URL_PREFIX}${clientId}`;
+
+const readCachedSessionUrl = (clientId: number): string | null => {
+  try {
+    return globalThis.localStorage?.getItem(sessionUrlKey(clientId)) ?? null;
+  } catch {
+    return null;
+  }
+};
+
+const writeCachedSessionUrl = (clientId: number, url: string | null) => {
+  try {
+    if (url == null) {
+      globalThis.localStorage?.removeItem(sessionUrlKey(clientId));
+    } else {
+      globalThis.localStorage?.setItem(sessionUrlKey(clientId), url);
+    }
+  } catch {}
+};
 
 interface AnkifyPageProps {
   backend?: Backend;
@@ -65,12 +86,18 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
 
   const provision = useMutation({
     mutationFn: () => api.provisionAnkifyClient(),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEY }),
+    onSuccess: (client) => {
+      if (client.session_url != null) {
+        writeCachedSessionUrl(client.id, client.session_url);
+      }
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+    },
   });
 
   const stop = useMutation({
     mutationFn: (id: number) => api.stopAnkifyClient(id),
-    onSuccess: () => {
+    onSuccess: (_response, id) => {
+      writeCachedSessionUrl(id, null);
       try {
         globalThis.localStorage?.removeItem(ANKI_WEB_ACK_KEY);
       } catch {}
@@ -80,7 +107,22 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
 
   const respin = useMutation({
     mutationFn: () => api.respinAnkifyClient(),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEY }),
+    onSuccess: (client) => {
+      if (client.session_url != null) {
+        writeCachedSessionUrl(client.id, client.session_url);
+      }
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+    },
+  });
+
+  const reissueSession = useMutation({
+    mutationFn: (id: number) => api.reissueAnkifySessionUrl(id),
+    onSuccess: (client) => {
+      if (client.session_url != null) {
+        writeCachedSessionUrl(client.id, client.session_url);
+      }
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+    },
   });
 
   const clients = data ?? [];
@@ -123,8 +165,8 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
     }
   }, [ankiWebStatus.data?.status, hasActiveClient, signedInAcknowledged]);
 
-  const ankiUrlFor = (client: AnkifyClient) =>
-    `http://${globalThis.location.hostname}:${client.novnc_port}/vnc.html`;
+  const ankiUrlFor = (client: AnkifyClient): string | null =>
+    client.session_url ?? readCachedSessionUrl(client.id);
 
   const setupComplete = hasActiveClient && signedInAcknowledged;
 
@@ -252,14 +294,29 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
                     readiness.data?.ready ? (
                       <>
                         <div className={styles.setupStepActions}>
-                          <a
-                            href={ankiUrlFor(activeClient)}
-                            target="_blank"
-                            rel="noreferrer"
-                            className={`${sharedStyles.btnSecondary} ${styles.inlineButton}`}
-                          >
-                            Open Anki
-                          </a>
+                          {ankiUrlFor(activeClient) != null ? (
+                            <a
+                              href={ankiUrlFor(activeClient)!}
+                              target="_blank"
+                              rel="noreferrer"
+                              className={`${sharedStyles.btnSecondary} ${styles.inlineButton}`}
+                            >
+                              Open Anki
+                            </a>
+                          ) : (
+                            <button
+                              type="button"
+                              className={`${sharedStyles.btnSecondary} ${styles.inlineButton}`}
+                              onClick={() =>
+                                reissueSession.mutate(activeClient.id)
+                              }
+                              disabled={reissueSession.isPending}
+                            >
+                              {reissueSession.isPending
+                                ? 'Reissuing…'
+                                : 'Reissue session link'}
+                            </button>
+                          )}
                           <button
                             type="button"
                             className={`${sharedStyles.btnPrimary} ${styles.inlineButton}`}
@@ -335,14 +392,6 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
                           activeClient!.container_id.slice(0, 12)}
                       </dd>
                     </div>
-                    <div className={styles.metaItem}>
-                      <dt>Anki desktop port</dt>
-                      <dd>{activeClient!.novnc_port}</dd>
-                    </div>
-                    <div className={styles.metaItem}>
-                      <dt>Tools port</dt>
-                      <dd>{activeClient!.anki_port}</dd>
-                    </div>
                   </dl>
                   <div className={styles.provisionRow}>
                     <button
@@ -402,14 +451,27 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
                 </span>
               </div>
               <div className={styles.clientActions}>
-                <a
-                  href={ankiUrlFor(activeClient)}
-                  target="_blank"
-                  rel="noreferrer"
-                  className={styles.openButton}
-                >
-                  Open Anki
-                </a>
+                {ankiUrlFor(activeClient) != null ? (
+                  <a
+                    href={ankiUrlFor(activeClient)!}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={styles.openButton}
+                  >
+                    Open Anki
+                  </a>
+                ) : (
+                  <button
+                    type="button"
+                    className={styles.openButton}
+                    onClick={() => reissueSession.mutate(activeClient.id)}
+                    disabled={reissueSession.isPending}
+                  >
+                    {reissueSession.isPending
+                      ? 'Reissuing…'
+                      : 'Reissue session link'}
+                  </button>
+                )}
                 <button
                   type="button"
                   className={`${sharedStyles.btnSecondary} ${styles.inlineButton}`}
@@ -441,14 +503,6 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
                     <dd title={activeClient.container_id}>
                       {activeClient.container_id.slice(0, 12)}
                     </dd>
-                  </div>
-                  <div className={styles.metaItem}>
-                    <dt>Anki desktop port</dt>
-                    <dd>{activeClient.novnc_port}</dd>
-                  </div>
-                  <div className={styles.metaItem}>
-                    <dt>Tools port</dt>
-                    <dd>{activeClient.anki_port}</dd>
                   </div>
                 </dl>
                 <div className={styles.provisionRow}>

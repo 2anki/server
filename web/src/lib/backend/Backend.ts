@@ -315,6 +315,20 @@ export class Backend {
     return response.json();
   }
 
+  async reissueAnkifySessionUrl(id: number): Promise<AnkifyClient> {
+    const response = await post(
+      `${this.baseURL}ankify/clients/${id}/reissue-session`,
+      {}
+    );
+    if (!response.ok) {
+      const error = await response
+        .json()
+        .catch(() => ({ message: response.statusText }));
+      throw new Error(error.message ?? 'Failed to reissue session URL');
+    }
+    return response.json();
+  }
+
   async getAnkifyExportSchedule(): Promise<{
     id: number;
     owner: number;
