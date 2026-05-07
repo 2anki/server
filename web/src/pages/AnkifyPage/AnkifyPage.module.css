@@ -1,0 +1,411 @@
+.section {
+  margin-top: 2rem;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.sectionTitle {
+  font-size: var(--text-xl);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.sectionTitleUrgent {
+  composes: sectionTitle;
+  color: var(--color-danger);
+}
+
+.sectionDescription {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin: 0 0 1rem;
+  line-height: var(--leading-normal);
+}
+
+.clientCard {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.5rem;
+  background: var(--color-bg-primary);
+}
+
+.clientCardActive {
+  composes: clientCard;
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+.clientCardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.clientStatusBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.clientStatusLabel {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-widest);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-semibold);
+}
+
+.clientName {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.clientActions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.clientMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+}
+
+.clientMeta dt {
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  font-weight: var(--font-semibold);
+  margin-right: 0.4rem;
+  display: inline;
+}
+
+.clientMeta dd {
+  margin: 0;
+  display: inline;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--color-text-primary);
+}
+
+.clientMetaItem {
+  display: flex;
+  gap: 0.4rem;
+  align-items: baseline;
+}
+
+.helpLine {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  margin: 0.5rem 0 0;
+}
+
+.provisionRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.provisionHelp {
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.alertInline {
+  font-size: var(--text-sm);
+  color: var(--color-danger);
+  margin: 0.6rem 0 0;
+}
+
+.successInline {
+  font-size: var(--text-sm);
+  color: var(--color-success);
+  margin: 0.6rem 0 0;
+}
+
+.pickerWrapper {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  background: var(--color-bg-primary);
+}
+
+.pickerSearchInput {
+  width: 100%;
+}
+
+.pickerStatus {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin: 0.5rem 0 0;
+}
+
+.pickerList {
+  list-style: none;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  max-height: 320px;
+  overflow-y: auto;
+  border-top: 1px solid var(--color-border-light);
+}
+
+.pickerItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.pickerItem:last-child {
+  border-bottom: none;
+}
+
+.pickerEntry {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.pickerTitle {
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pickerType {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+}
+
+.advancedDetails {
+  margin-top: 1rem;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+}
+
+.advancedSummary {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  user-select: none;
+}
+
+.advancedBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+}
+
+.advancedRow {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+.advancedRow input {
+  flex: 1;
+  width: auto;
+}
+
+.subscriptionTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1.25rem;
+}
+
+.subscriptionTable th {
+  text-align: left;
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-semibold);
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.subscriptionTable td {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--color-border-light);
+  font-size: var(--text-sm);
+  vertical-align: middle;
+}
+
+.subscriptionTable tr:last-child td {
+  border-bottom: none;
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: var(--text-xs);
+}
+
+.errorCell {
+  color: var(--color-danger);
+}
+
+.muted {
+  color: var(--color-text-tertiary);
+}
+
+.conflictBanner {
+  background: var(--color-danger-light);
+  border: 1px solid var(--color-danger-border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.5rem;
+}
+
+.conflictList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.conflictCard {
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-danger-border);
+  border-radius: var(--radius-md);
+  padding: 0.875rem 1rem;
+}
+
+.conflictRef {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+}
+
+.conflictGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-top: 0.6rem;
+}
+
+@media (max-width: 600px) {
+  .conflictGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.conflictPanel {
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.75rem;
+}
+
+.conflictSide {
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-secondary);
+  margin: 0 0 0.25rem;
+}
+
+.conflictFront {
+  font-weight: var(--font-semibold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.conflictBack {
+  color: var(--color-text-secondary);
+  margin: 0.2rem 0 0;
+  font-size: var(--text-sm);
+}
+
+.conflictActions {
+  display: flex;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.formGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 520px;
+}
+
+.scheduleFieldset {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+  margin: 0;
+}
+
+.scheduleFieldset legend {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  padding: 0 0.4rem;
+  color: var(--color-text-primary);
+}
+
+.scheduleRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.scheduleField {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 160px;
+}
+
+.actionRow {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.emptyLine {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin: 0.5rem 0 0;
+}
+
+.gatedNotice {
+  margin-top: 1rem;
+  padding: 1rem 1.25rem;
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.inlineButton {
+  width: auto;
+}

@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import sharedStyles from '../../styles/shared.module.css';
+import styles from './AnkifyPage.module.css';
 import { get2ankiApi } from '../../lib/backend/get2ankiApi';
 import AnkifyClient from '../../lib/interfaces/AnkifyClient';
 import { Backend } from '../../lib/backend/Backend';
@@ -39,123 +40,192 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
   });
 
   const clients = data ?? [];
-  const hasActiveClient = clients.some((client) => client.status === 'active');
+  const activeClient = clients.find((client) => client.status === 'active');
+  const otherClients = clients.filter((client) => client !== activeClient);
+  const hasActiveClient = activeClient != null;
+
+  const novncUrlFor = (client: AnkifyClient) =>
+    `http://${globalThis.location.hostname}:${client.novnc_port}/vnc.html`;
 
   return (
     <main className={sharedStyles.page}>
-      <header style={{ marginBottom: '1.5rem' }}>
+      <header className={sharedStyles.pageHeader}>
         <h1 className={sharedStyles.title}>Ankify (beta)</h1>
         <p className={sharedStyles.subtitle}>
-          Provision a hosted Anki client and access it through your browser. This
-          surface is allowlisted — only specific accounts can use it.
+          Run a hosted Anki desktop in your browser, sync Notion pages into it,
+          and export your review data back. This surface is allowlisted.
         </p>
       </header>
 
-      <section style={{ marginBottom: '2rem' }}>
-        <button
-          type="button"
-          className={sharedStyles.btnPrimary}
-          onClick={() => provision.mutate()}
-          disabled={provision.isPending || hasActiveClient}
-        >
-          {provision.isPending
-            ? 'Provisioning…'
-            : hasActiveClient
-              ? 'Already provisioned'
-              : 'Provision new client'}
-        </button>
-        {hasActiveClient && (
-          <p style={{ marginTop: '0.5rem', color: '#666' }}>
-            One Anki client per account. Stop the active one to provision a fresh container.
+      <section className={styles.section}>
+        <header className={styles.sectionHeader}>
+          <h2 className={styles.sectionTitle}>Your Anki client</h2>
+        </header>
+
+        {isLoading && <p className={styles.emptyLine}>Loading clients…</p>}
+
+        {error && (
+          <p role="alert" className={sharedStyles.helpDanger}>
+            Failed to load clients: {(error as Error).message}
           </p>
         )}
-        {provision.error && (
-          <p role="alert" style={{ color: '#c0392b', marginTop: '0.75rem' }}>
-            {(provision.error as Error).message}
-          </p>
+
+        {!isLoading && !error && !hasActiveClient && (
+          <div className={styles.clientCard}>
+            <div className={styles.clientCardHead}>
+              <div className={styles.clientStatusBlock}>
+                <span className={styles.clientStatusLabel}>Not provisioned</span>
+                <span className={styles.clientName}>
+                  No clients yet. Provision one to get started.
+                </span>
+              </div>
+              <button
+                type="button"
+                className={`${sharedStyles.btnPrimary} ${styles.inlineButton}`}
+                onClick={() => provision.mutate()}
+                disabled={provision.isPending}
+              >
+                {provision.isPending ? 'Provisioning…' : 'Provision new client'}
+              </button>
+            </div>
+            {provision.error && (
+              <p role="alert" className={styles.alertInline}>
+                {(provision.error as Error).message}
+              </p>
+            )}
+          </div>
         )}
-      </section>
 
-      {isLoading && <p>Loading clients…</p>}
+        {activeClient && (
+          <div className={styles.clientCardActive}>
+            <div className={styles.clientCardHead}>
+              <div className={styles.clientStatusBlock}>
+                <span className={styles.clientStatusLabel}>Active</span>
+                <span className={styles.clientName}>
+                  {activeClient.container_name ??
+                    activeClient.container_id.slice(0, 12)}
+                </span>
+              </div>
+              <div className={styles.clientActions}>
+                <a
+                  href={novncUrlFor(activeClient)}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={`${sharedStyles.btnPrimary} ${styles.inlineButton}`}
+                >
+                  Open Anki in browser
+                </a>
+                <button
+                  type="button"
+                  className={`${sharedStyles.btnSecondary} ${styles.inlineButton}`}
+                  onClick={() => respin.mutate()}
+                  disabled={respin.isPending}
+                  title="Stop the container and start a fresh one with the same Anki collection"
+                >
+                  {respin.isPending ? 'Respinning…' : 'Respin'}
+                </button>
+                <button
+                  type="button"
+                  className={`${sharedStyles.btnDanger} ${styles.inlineButton}`}
+                  onClick={() => stop.mutate(activeClient.id)}
+                  disabled={stop.isPending}
+                >
+                  Stop
+                </button>
+              </div>
+            </div>
+            <dl className={styles.clientMeta}>
+              <div className={styles.clientMetaItem}>
+                <dt>noVNC</dt>
+                <dd>:{activeClient.novnc_port}</dd>
+              </div>
+              <div className={styles.clientMetaItem}>
+                <dt>AnkiConnect</dt>
+                <dd>:{activeClient.anki_port}</dd>
+              </div>
+              <div
+                className={styles.clientMetaItem}
+                title={activeClient.container_id}
+              >
+                <dt>Container</dt>
+                <dd>{activeClient.container_id.slice(0, 12)}</dd>
+              </div>
+            </dl>
+            {provision.error && (
+              <p role="alert" className={styles.alertInline}>
+                {(provision.error as Error).message}
+              </p>
+            )}
+            <div className={styles.provisionRow}>
+              <button
+                type="button"
+                className={`${sharedStyles.btnSmall} ${styles.inlineButton}`}
+                disabled
+                aria-describedby="ankify-provision-help"
+              >
+                Already provisioned
+              </button>
+              <p id="ankify-provision-help" className={styles.provisionHelp}>
+                One Anki client per account — stop the active one to provision
+                a fresh container.
+              </p>
+            </div>
+          </div>
+        )}
 
-      {error && (
-        <p role="alert" style={{ color: '#c0392b' }}>
-          Failed to load clients: {(error as Error).message}
-        </p>
-      )}
-
-      {!isLoading && !error && clients.length === 0 && (
-        <p>No clients yet. Provision one to get started.</p>
-      )}
-
-      {clients.length > 0 && (
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr>
-              <th align="left">ID</th>
-              <th align="left">Status</th>
-              <th align="left">noVNC</th>
-              <th align="left">AnkiConnect</th>
-              <th align="left">Container</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            {clients.map((client) => {
-              const novncUrl = `http://${globalThis.location.hostname}:${client.novnc_port}/vnc.html`;
-              return (
+        {otherClients.length > 0 && (
+          <table className={styles.subscriptionTable}>
+            <thead>
+              <tr>
+                <th>Container</th>
+                <th>Status</th>
+                <th>noVNC</th>
+                <th>AnkiConnect</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {otherClients.map((client) => (
                 <tr key={client.id}>
-                  <td>{client.id}</td>
-                  <td>{client.status}</td>
-                  <td>
-                    {client.status === 'active' ? (
-                      <a href={novncUrl} target="_blank" rel="noreferrer">
-                        Open :{client.novnc_port}
-                      </a>
-                    ) : (
-                      <span>:{client.novnc_port}</span>
-                    )}
-                  </td>
-                  <td>:{client.anki_port}</td>
-                  <td title={client.container_id} style={{ fontFamily: 'monospace' }}>
+                  <td className={styles.mono}>
                     {client.container_name ?? client.container_id.slice(0, 12)}
                   </td>
+                  <td>{client.status}</td>
+                  <td>:{client.novnc_port}</td>
+                  <td>:{client.anki_port}</td>
                   <td>
                     {client.status === 'active' && (
-                      <div style={{ display: 'flex', gap: '0.4rem' }}>
-                        <button
-                          type="button"
-                          className={sharedStyles.btnSecondary}
-                          onClick={() => respin.mutate()}
-                          disabled={respin.isPending}
-                          title="Stop the container and start a fresh one with the same Anki collection"
-                        >
-                          {respin.isPending ? 'Respinning…' : 'Respin'}
-                        </button>
-                        <button
-                          type="button"
-                          className={sharedStyles.btnDanger}
-                          onClick={() => stop.mutate(client.id)}
-                          disabled={stop.isPending}
-                        >
-                          Stop
-                        </button>
-                      </div>
+                      <button
+                        type="button"
+                        className={`${sharedStyles.btnDanger} ${styles.inlineButton}`}
+                        onClick={() => stop.mutate(client.id)}
+                        disabled={stop.isPending}
+                      >
+                        Stop
+                      </button>
                     )}
                   </td>
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      )}
+              ))}
+            </tbody>
+          </table>
+        )}
+      </section>
 
-      {hasActiveClient && (
+      {hasActiveClient ? (
         <>
           <SyncConflicts backend={backend} />
           <NotionSubscriptions backend={backend} />
           <ReviewDataExport backend={backend} />
         </>
+      ) : (
+        !isLoading &&
+        !error && (
+          <p className={styles.gatedNotice}>
+            Sync, subscriptions, and the review-data export unlock once an Anki
+            client is active.
+          </p>
+        )
       )}
     </main>
   );

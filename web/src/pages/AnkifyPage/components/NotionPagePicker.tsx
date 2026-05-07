@@ -1,0 +1,119 @@
+import { useEffect, useState } from 'react';
+
+import sharedStyles from '../../../styles/shared.module.css';
+import styles from '../AnkifyPage.module.css';
+import { Backend } from '../../../lib/backend/Backend';
+import NotionObject from '../../../lib/interfaces/NotionObject';
+import { BlockIcon } from '../../SearchPage/components/BlockIcon';
+
+interface Props {
+  readonly backend: Backend;
+  readonly onSelect: (id: string) => void;
+  readonly busyId: string | null;
+  readonly disabledIds?: ReadonlySet<string>;
+  readonly selectLabel: string;
+  readonly busyLabel: string;
+  readonly subscribedLabel: string;
+}
+
+const DEBOUNCE_MS = 350;
+
+export default function NotionPagePicker({
+  backend,
+  onSelect,
+  busyId,
+  disabledIds,
+  selectLabel,
+  busyLabel,
+  subscribedLabel,
+}: Props) {
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState<NotionObject[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+
+    const timer = setTimeout(() => {
+      backend
+        .search(query)
+        .then((data) => {
+          if (cancelled) return;
+          setResults(data);
+          setLoading(false);
+        })
+        .catch((err: Error) => {
+          if (cancelled) return;
+          setError(err.message);
+          setLoading(false);
+        });
+    }, DEBOUNCE_MS);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [backend, query]);
+
+  return (
+    <div className={styles.pickerWrapper}>
+      <label htmlFor="ankify-page-picker">Choose a Notion page</label>
+      <input
+        id="ankify-page-picker"
+        type="search"
+        className={styles.pickerSearchInput}
+        value={query}
+        onChange={(event) => setQuery(event.target.value)}
+        placeholder="Search your Notion pages and databases…"
+      />
+
+      {loading && <p className={styles.pickerStatus}>Loading pages…</p>}
+      {error != null && (
+        <p className={sharedStyles.helpDanger}>Failed to load pages: {error}</p>
+      )}
+
+      {!loading && error == null && results.length === 0 && (
+        <p className={styles.pickerStatus}>
+          {query.trim().length > 0
+            ? `No pages match “${query}”. Make sure the page is shared with the 2anki integration.`
+            : 'No Notion pages found yet. Connect more pages from the Search page.'}
+        </p>
+      )}
+
+      {results.length > 0 && (
+        <ul className={styles.pickerList}>
+          {results.map((page) => {
+            const isBusy = busyId === page.id;
+            const alreadySubscribed = disabledIds?.has(page.id) ?? false;
+            return (
+              <li key={page.id} className={styles.pickerItem}>
+                <div className={styles.pickerEntry}>
+                  <BlockIcon icon={page.icon} />
+                  <span className={styles.pickerTitle} title={page.title}>
+                    {page.title}
+                  </span>
+                  <span className={styles.pickerType}>{page.object}</span>
+                </div>
+                <button
+                  type="button"
+                  className={`${sharedStyles.btnSmall} ${styles.inlineButton}`}
+                  onClick={() => onSelect(page.id)}
+                  disabled={isBusy || alreadySubscribed}
+                >
+                  {alreadySubscribed
+                    ? subscribedLabel
+                    : isBusy
+                      ? busyLabel
+                      : selectLabel}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+}
