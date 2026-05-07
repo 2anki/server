@@ -465,8 +465,8 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
         !error && (
           <p className={styles.gatedNotice}>
             Once AnkiWeb is linked, you'll choose which Notion pages flow into
-            Anki, settle any conflicts, and decide when to send your reviews
-            back. Finish the steps above to unlock them.
+            Anki and decide when to send your reviews back. Finish the steps
+            above to unlock them.
           </p>
         )
       )}
