@@ -49,6 +49,8 @@ export default function NotionDatabasePicker({
 
   const databasesList = databases.data ?? [];
   const selected = databasesList.find((d) => d.id === value);
+  const noDatabases =
+    databases.isFetched && !databases.isError && databasesList.length === 0;
 
   return (
     <div>
@@ -89,6 +91,22 @@ export default function NotionDatabasePicker({
           This database doesn't have <code>Date</code> and{' '}
           <code>Reviews</code> properties yet — sending will fail until you
           add them, or pick "Create a new tracker for me".
+        </p>
+      )}
+
+      {noDatabases && (
+        <p className={styles.muted} style={{ marginTop: '0.4rem' }}>
+          No Notion databases shared with 2anki yet. In Notion, open a
+          database and choose <strong>… → Add connections → 2anki</strong>,
+          or pick <strong>+ Create a new tracker for me</strong> above and
+          we'll make one in a page you choose.
+        </p>
+      )}
+
+      {databases.isError && (
+        <p role="alert" className={sharedStyles.helpDanger} style={{ marginTop: '0.4rem' }}>
+          Couldn't load your Notion databases:{' '}
+          {(databases.error as Error).message}
         </p>
       )}
 
