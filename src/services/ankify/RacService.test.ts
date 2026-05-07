@@ -27,6 +27,7 @@ const makeRepo = (
     setStatus: jest.fn(async () => undefined),
     touchLastActiveAt: jest.fn(async () => undefined),
     reservedPorts: jest.fn(async () => []),
+    listIdleSince: jest.fn(async () => []),
     ...overrides,
   } as jest.Mocked<AnkifyClientsRepositoryInterface>);
 
@@ -168,6 +169,112 @@ describe('RacService.provision', () => {
     await expect(service.provision(42)).rejects.toBeInstanceOf(
       NoAvailablePortError
     );
+  });
+});
+
+describe('RacService.respin', () => {
+  test('falls through to provision when no active client exists', async () => {
+    const repo = makeRepo();
+    const docker = makeDocker();
+    const service = new RacService(repo, docker);
+
+    const { created } = await service.respin(42);
+
+    expect(created).toBe(true);
+    expect(docker.createContainer).toHaveBeenCalledTimes(1);
+    expect(repo.create).toHaveBeenCalledWith(
+      expect.objectContaining({ owner: 42 })
+    );
+  });
+
+  test('stops the existing container, marks inactive, then creates a new one with the same volume name', async () => {
+    const oldContainer = makeContainer('container-old');
+    const newContainer = makeContainer('container-new');
+    const docker = makeDocker(
+      {
+        getContainer: jest.fn(() => oldContainer),
+        createContainer: jest.fn(async () => newContainer),
+      },
+      newContainer
+    );
+    const repo = makeRepo({
+      findActiveByOwner: jest.fn(async () => ({
+        id: 5,
+        owner: 42,
+        container_id: 'container-old',
+        container_name: 'old',
+        anki_port: 20000,
+        vnc_port: 21000,
+        novnc_port: 22000,
+        status: 'active' as const,
+        created_at: new Date(),
+        last_active_at: new Date(),
+      })),
+    });
+    const service = new RacService(repo, docker);
+
+    const { client, created } = await service.respin(42);
+
+    expect(created).toBe(true);
+    expect(oldContainer.stop).toHaveBeenCalled();
+    expect(repo.setStatus).toHaveBeenCalledWith(5, 'inactive');
+    const createArgs = (docker.createContainer as jest.Mock).mock.calls[0][0];
+    expect(createArgs.HostConfig.Mounts).toEqual([
+      {
+        Type: 'volume',
+        Source: 'ankify-rac-owner-42-data',
+        Target: '/data',
+      },
+    ]);
+    expect(client.container_id).toBe('container-new');
+  });
+});
+
+describe('RacService.reapIdle', () => {
+  test('stops every idle client returned by the repo and marks them inactive', async () => {
+    const a = makeContainer('container-a');
+    const b = makeContainer('container-b');
+    const containerLookup = jest.fn((id: string) =>
+      id === 'container-a' ? a : b
+    );
+    const docker = makeDocker({ getContainer: containerLookup });
+    const repo = makeRepo({
+      listIdleSince: jest.fn(async () => [
+        {
+          id: 1,
+          owner: 1,
+          container_id: 'container-a',
+          container_name: null,
+          anki_port: 20000,
+          vnc_port: 21000,
+          novnc_port: 22000,
+          status: 'active' as const,
+          created_at: new Date(),
+          last_active_at: new Date(0),
+        },
+        {
+          id: 2,
+          owner: 2,
+          container_id: 'container-b',
+          container_name: null,
+          anki_port: 20001,
+          vnc_port: 21001,
+          novnc_port: 22001,
+          status: 'active' as const,
+          created_at: new Date(),
+          last_active_at: new Date(0),
+        },
+      ]),
+    });
+    const service = new RacService(repo, docker);
+
+    const { stopped } = await service.reapIdle(60_000);
+
+    expect(stopped).toEqual([1, 2]);
+    expect(a.stop).toHaveBeenCalled();
+    expect(b.stop).toHaveBeenCalled();
+    expect(repo.setStatus).toHaveBeenCalledWith(1, 'inactive');
+    expect(repo.setStatus).toHaveBeenCalledWith(2, 'inactive');
   });
 });
 

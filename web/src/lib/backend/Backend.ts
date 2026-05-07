@@ -294,6 +294,17 @@ export class Backend {
     }
   }
 
+  async respinAnkifyClient(): Promise<AnkifyClient> {
+    const response = await post(`${this.baseURL}ankify/clients/respin`, {});
+    if (!response.ok) {
+      const error = await response
+        .json()
+        .catch(() => ({ message: response.statusText }));
+      throw new Error(error.message ?? 'Failed to respin client');
+    }
+    return response.json();
+  }
+
   async dispatchUploadToAnkify(uploadId: number): Promise<{
     deck_names: string[];
     created: number;

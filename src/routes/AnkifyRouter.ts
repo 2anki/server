@@ -14,6 +14,7 @@ import {
 import ProvisionAnkifyClientUseCase from '../usecases/ankify/ProvisionAnkifyClientUseCase';
 import ListAnkifyClientsUseCase from '../usecases/ankify/ListAnkifyClientsUseCase';
 import StopAnkifyClientUseCase from '../usecases/ankify/StopAnkifyClientUseCase';
+import RespinAnkifyClientUseCase from '../usecases/ankify/RespinAnkifyClientUseCase';
 import { SendUploadToRacUseCase } from '../usecases/ankify/SendUploadToRacUseCase';
 import StorageHandler from '../lib/storage/StorageHandler';
 import { parseCollection } from '../services/ApkgPreviewService/parseCollection';
@@ -52,7 +53,8 @@ const AnkifyRouter = () => {
       fetchApkgBytes,
       parseCollection,
       ankiConnectFactory
-    )
+    ),
+    new RespinAnkifyClientUseCase(rac)
   );
 
   /**
@@ -153,6 +155,23 @@ const AnkifyRouter = () => {
    */
   router.post('/api/ankify/dispatch', RequireAnkifyAccess, (req, res) =>
     controller.sendUpload(req, res)
+  );
+
+  /**
+   * @swagger
+   * /api/ankify/clients/respin:
+   *   post:
+   *     summary: Stop the active hosted Anki container and start a fresh one
+   *     description: Allowlisted endpoint. The named volume backing the user's collection is preserved, so the new container has the same data.
+   *     tags: [Ankify]
+   *     responses:
+   *       200:
+   *         description: Respun
+   *       503:
+   *         description: Docker daemon unavailable or no available host ports
+   */
+  router.post('/api/ankify/clients/respin', RequireAnkifyAccess, (req, res) =>
+    controller.respin(req, res)
   );
 
   return router;

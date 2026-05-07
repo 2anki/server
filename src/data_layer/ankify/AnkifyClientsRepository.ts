@@ -16,6 +16,7 @@ export interface AnkifyClientsRepositoryInterface {
   setStatus(id: number, status: AnkifyClientStatus): Promise<void>;
   touchLastActiveAt(id: number): Promise<void>;
   reservedPorts(): Promise<number[]>;
+  listIdleSince(cutoff: Date): Promise<AnkifyClient[]>;
 }
 
 export class AnkifyClientsRepository
@@ -82,5 +83,12 @@ export class AnkifyClientsRepository
       ports.push(row.anki_port, row.vnc_port, row.novnc_port);
     }
     return ports;
+  }
+
+  listIdleSince(cutoff: Date): Promise<AnkifyClient[]> {
+    return this.database<AnkifyClient>(TABLE)
+      .select('*')
+      .where({ status: 'active' })
+      .andWhere('last_active_at', '<', cutoff);
   }
 }
