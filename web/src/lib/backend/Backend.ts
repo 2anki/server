@@ -425,6 +425,35 @@ export class Backend {
     }
   }
 
+  async listAnkifyNotionDatabases(): Promise<
+    Array<{
+      id: string;
+      title: string;
+      url: string | null;
+      has_review_shape: boolean;
+    }>
+  > {
+    const result = await get(`${this.baseURL}ankify/notion/databases`);
+    return result ?? [];
+  }
+
+  async createAnkifyReviewTracker(input: {
+    parentPageId: string;
+    title?: string;
+  }): Promise<{ id: string; url: string | null; title: string }> {
+    const response = await post(`${this.baseURL}ankify/notion/databases`, {
+      parent_page_id: input.parentPageId,
+      title: input.title,
+    });
+    if (!response.ok) {
+      const error = await response
+        .json()
+        .catch(() => ({ message: response.statusText }));
+      throw new Error(error.message ?? 'Failed to create tracker database');
+    }
+    return response.json();
+  }
+
   async exportAnkifyReviewData(input: {
     databaseId: string;
     dateRangeDays?: number;

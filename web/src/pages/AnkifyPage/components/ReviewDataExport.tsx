@@ -5,6 +5,7 @@ import sharedStyles from '../../../styles/shared.module.css';
 import styles from '../AnkifyPage.module.css';
 import { get2ankiApi } from '../../../lib/backend/get2ankiApi';
 import { Backend } from '../../../lib/backend/Backend';
+import NotionDatabasePicker from './NotionDatabasePicker';
 
 interface Props {
   readonly backend?: Backend;
@@ -92,16 +93,11 @@ export default function ReviewDataExport({ backend }: Props) {
             }
           }}
         >
-          <div>
-            <label htmlFor="ankify-database-id">Notion database ID</label>
-            <input
-              id="ankify-database-id"
-              type="text"
-              value={databaseId}
-              onChange={(event) => setDatabaseId(event.target.value)}
-              placeholder="Paste from your Notion database URL"
-            />
-          </div>
+          <NotionDatabasePicker
+            backend={api}
+            value={databaseId}
+            onChange={setDatabaseId}
+          />
 
           <div>
             <label htmlFor="ankify-date-range">

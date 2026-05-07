@@ -29,6 +29,8 @@ import { ListNotionSubscriptionsUseCase } from '../usecases/ankify/ListNotionSub
 import { DeleteNotionSubscriptionUseCase } from '../usecases/ankify/DeleteNotionSubscriptionUseCase';
 import { ListConflictsUseCase } from '../usecases/ankify/ListConflictsUseCase';
 import { ResolveConflictUseCase } from '../usecases/ankify/ResolveConflictUseCase';
+import { ListNotionDatabasesUseCase } from '../usecases/ankify/ListNotionDatabasesUseCase';
+import { CreateReviewTrackerDatabaseUseCase } from '../usecases/ankify/CreateReviewTrackerDatabaseUseCase';
 import { AnkifyExportScheduler } from '../services/ankify/AnkifyExportScheduler';
 import { AnkifyExportSchedulesRepository } from '../data_layer/ankify/AnkifyExportSchedulesRepository';
 import { getAnkifyExportScheduler } from '../lib/ankify/scheduler/instance';
@@ -185,7 +187,59 @@ const AnkifyRouter = () => {
           },
         };
       }
-    )
+    ),
+    new ListNotionDatabasesUseCase(new NotionRepository(db), {
+      listDatabases: async (token) => {
+        const notion = new NotionClient({ auth: token });
+        const response = await notion.search({
+          page_size: 100,
+        });
+        return response.results
+          .filter(
+            (entry) =>
+              (entry as { object?: string }).object === 'database'
+          )
+          .map((entry) => {
+            const titleArr = (entry as { title?: { plain_text?: string }[] })
+              .title;
+            const title =
+              titleArr != null && titleArr.length > 0
+                ? titleArr.map((t) => t.plain_text ?? '').join('')
+                : 'Untitled database';
+            const properties =
+              (entry as { properties?: Record<string, { type: string }> })
+                .properties ?? {};
+            const hasReviewShape =
+              properties.Date?.type === 'date' &&
+              properties.Reviews?.type === 'number';
+            return {
+              id: (entry as { id: string }).id,
+              title,
+              url: (entry as { url?: string }).url ?? null,
+              has_review_shape: hasReviewShape,
+            };
+          });
+      },
+    }),
+    new CreateReviewTrackerDatabaseUseCase(new NotionRepository(db), {
+      createReviewTracker: async (token, input) => {
+        const notion = new NotionClient({ auth: token });
+        const response = await notion.databases.create({
+          parent: { type: 'page_id', page_id: input.parentPageId },
+          title: [{ type: 'text', text: { content: input.title } }],
+          properties: {
+            Name: { title: {} },
+            Date: { date: {} },
+            Reviews: { number: { format: 'number' } },
+          },
+        } as never);
+        return {
+          id: (response as { id: string }).id,
+          url: (response as { url?: string }).url ?? null,
+          title: input.title,
+        };
+      },
+    })
   );
 
   /**
@@ -462,6 +516,41 @@ const AnkifyRouter = () => {
     '/api/ankify/conflicts/:id/resolve',
     RequireAnkifyAccess,
     (req, res) => controller.resolveConflict(req, res)
+  );
+
+  /**
+   * @swagger
+   * /api/ankify/notion/databases:
+   *   get:
+   *     summary: List the user's Notion databases
+   *     description: Allowlisted endpoint. Returns each database with a `has_review_shape` flag (true when it already has Date + Reviews properties suitable for the review export).
+   *     tags: [Ankify]
+   *   post:
+   *     summary: Create a new "Anki review tracker" Notion database under a parent page
+   *     description: Allowlisted endpoint. Creates a database with Date (date) and Reviews (number) properties, ready to use as the review-export target.
+   *     tags: [Ankify]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required: [parent_page_id]
+   *             properties:
+   *               parent_page_id:
+   *                 type: string
+   *               title:
+   *                 type: string
+   */
+  router.get(
+    '/api/ankify/notion/databases',
+    RequireAnkifyAccess,
+    (req, res) => controller.listNotionDatabases(req, res)
+  );
+  router.post(
+    '/api/ankify/notion/databases',
+    RequireAnkifyAccess,
+    (req, res) => controller.createReviewTracker(req, res)
   );
 
   return router;

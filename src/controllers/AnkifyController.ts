@@ -21,6 +21,8 @@ import {
 import { GetExportScheduleUseCase } from '../usecases/ankify/GetExportScheduleUseCase';
 import { DeleteExportScheduleUseCase } from '../usecases/ankify/DeleteExportScheduleUseCase';
 import { ListSyncLogsUseCase } from '../usecases/ankify/ListSyncLogsUseCase';
+import { ListNotionDatabasesUseCase } from '../usecases/ankify/ListNotionDatabasesUseCase';
+import { CreateReviewTrackerDatabaseUseCase } from '../usecases/ankify/CreateReviewTrackerDatabaseUseCase';
 import { SyncNotionPageToRacUseCase } from '../usecases/ankify/SyncNotionPageToRacUseCase';
 import { ListNotionSubscriptionsUseCase } from '../usecases/ankify/ListNotionSubscriptionsUseCase';
 import { DeleteNotionSubscriptionUseCase } from '../usecases/ankify/DeleteNotionSubscriptionUseCase';
@@ -52,7 +54,9 @@ class AnkifyController {
     private readonly listSubscriptionsUseCase: ListNotionSubscriptionsUseCase,
     private readonly deleteSubscriptionUseCase: DeleteNotionSubscriptionUseCase,
     private readonly listConflictsUseCase: ListConflictsUseCase,
-    private readonly resolveConflictUseCase: ResolveConflictUseCase
+    private readonly resolveConflictUseCase: ResolveConflictUseCase,
+    private readonly listNotionDatabasesUseCase: ListNotionDatabasesUseCase,
+    private readonly createReviewTrackerUseCase: CreateReviewTrackerDatabaseUseCase
   ) {}
 
   async list(_req: Request, res: Response) {
@@ -314,6 +318,45 @@ class AnkifyController {
     } catch (error) {
       if (error instanceof ConflictNotFoundError) {
         res.status(404).json({ message: 'Conflict not found' });
+        return;
+      }
+      throw error;
+    }
+  }
+
+  async listNotionDatabases(_req: Request, res: Response) {
+    const owner = res.locals.owner as number;
+    try {
+      const databases = await this.listNotionDatabasesUseCase.execute(owner);
+      res.status(200).json(databases);
+    } catch (error) {
+      if (error instanceof NotionNotConnectedError) {
+        res.status(409).json({ message: 'Notion is not connected' });
+        return;
+      }
+      throw error;
+    }
+  }
+
+  async createReviewTracker(req: Request, res: Response) {
+    const owner = res.locals.owner as number;
+    const parentPageId = String(req.body?.parent_page_id ?? '').trim();
+    const title =
+      req.body?.title != null ? String(req.body.title).trim() : undefined;
+    if (parentPageId.length === 0) {
+      res.status(400).json({ message: 'parent_page_id is required' });
+      return;
+    }
+    try {
+      const created = await this.createReviewTrackerUseCase.execute({
+        owner,
+        parentPageId,
+        title,
+      });
+      res.status(201).json(created);
+    } catch (error) {
+      if (error instanceof NotionNotConnectedError) {
+        res.status(409).json({ message: 'Notion is not connected' });
         return;
       }
       throw error;
