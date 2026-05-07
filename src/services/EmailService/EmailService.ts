@@ -38,44 +38,7 @@ export interface IEmailService {
     name: string,
     cancelDate: Date
   ): Promise<void>;
-  sendWeeklyRetroReminder(): Promise<void>;
-  sendTriageFeedbackReminder(): Promise<void>;
-  sendChangelogReminder(): Promise<void>;
 }
-
-export const TRIO_REMINDER_RECIPIENT = 'alexander@alemayhu.com';
-
-const buildTrioReminderMessage = (
-  defaultSender: string,
-  subject: string,
-  intro: string,
-  command: string,
-  costOfSkipping: string
-) => {
-  const text = [
-    intro,
-    '',
-    `How: open the server repo in Claude Code and run ${command}.`,
-    '',
-    `Skipping costs: ${costOfSkipping}`,
-    '',
-    '— Trio reminder',
-  ].join('\n');
-  const html = `
-    <p>${intro}</p>
-    <p><strong>How:</strong> open the server repo in Claude Code and run <code>${command}</code>.</p>
-    <p><strong>Skipping costs:</strong> ${costOfSkipping}</p>
-    <p style="color:#888;margin-top:24px">— Trio reminder</p>
-  `;
-  return {
-    to: TRIO_REMINDER_RECIPIENT,
-    from: defaultSender,
-    subject,
-    text,
-    html,
-    replyTo: 'support@2anki.net',
-  };
-};
 
 class EmailService implements IEmailService {
   constructor(
@@ -251,39 +214,6 @@ class EmailService implements IEmailService {
     }
   }
 
-  async sendWeeklyRetroReminder(): Promise<void> {
-    const msg = buildTrioReminderMessage(
-      this.defaultSender,
-      'Sunday reminder: run /weekly-retro and pick this week’s priority',
-      'It’s time for the weekly retro. Pull this week’s numbers, identify the single biggest gap, and pick one priority shift for the coming week.',
-      '/weekly-retro',
-      'a week without a forced decision usually means five priorities that don’t ship.'
-    );
-    await sgMail.send(msg);
-  }
-
-  async sendTriageFeedbackReminder(): Promise<void> {
-    const msg = buildTrioReminderMessage(
-      this.defaultSender,
-      'Friday reminder: run /triage-feedback on the last 2 weeks of input',
-      'Time to triage accumulated user feedback. Cluster into themes, tie each to the goal, and draft GitHub issues for the high-urgency ones.',
-      '/triage-feedback',
-      'feedback piles up past ~20 items and the themes get noisy.'
-    );
-    await sgMail.send(msg);
-  }
-
-  async sendChangelogReminder(): Promise<void> {
-    const msg = buildTrioReminderMessage(
-      this.defaultSender,
-      'Friday reminder: run /changelog on the last 2 weeks of merged PRs',
-      'Time to turn merged PRs into a user-facing changelog. Both an in-app modal entry and a blog post seed.',
-      '/changelog',
-      'skipping breaks the SEO/distribution loop and users miss the improvements.'
-    );
-    await sgMail.send(msg);
-  }
-
   async sendSubscriptionScheduledCancellationEmail(
     email: string,
     name: string,
@@ -381,21 +311,6 @@ export class UnimplementedEmailService implements IEmailService {
       name,
       cancelDate
     );
-    return Promise.resolve();
-  }
-
-  sendWeeklyRetroReminder(): Promise<void> {
-    console.info('sendWeeklyRetroReminder not handled');
-    return Promise.resolve();
-  }
-
-  sendTriageFeedbackReminder(): Promise<void> {
-    console.info('sendTriageFeedbackReminder not handled');
-    return Promise.resolve();
-  }
-
-  sendChangelogReminder(): Promise<void> {
-    console.info('sendChangelogReminder not handled');
     return Promise.resolve();
   }
 }
