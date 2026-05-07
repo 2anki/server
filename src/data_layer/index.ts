@@ -109,6 +109,15 @@ export const setupDatabase = async (database: Knex) => {
                   params as Parameters<typeof notion.pages.create>[0]
                 ),
             },
+            getSchema: async (databaseId) => {
+              const database = await notion.databases.retrieve({
+                database_id: databaseId,
+              } as never);
+              const properties =
+                (database as { properties?: Record<string, { type: string }> })
+                  .properties ?? {};
+              return { properties };
+            },
           };
         }
       );

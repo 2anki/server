@@ -13,6 +13,22 @@ export class NotionNotConnectedError extends Error {
   }
 }
 
+export interface TrackerSchema {
+  properties: Record<string, { type: string }>;
+}
+
+export class MissingTrackerSchemaError extends Error {
+  readonly missing: string[];
+
+  constructor(missing: string[]) {
+    super(
+      `Tracker is missing required columns: ${missing.join(', ')}`
+    );
+    this.name = 'MissingTrackerSchemaError';
+    this.missing = missing;
+  }
+}
+
 export interface ExportReviewDataInput {
   owner: number;
   databaseId: string;
@@ -44,6 +60,7 @@ export interface NotionDatabasesClient {
 export interface NotionExportClient {
   databases: NotionDatabasesClient;
   pages: NotionPagesClient;
+  getSchema(databaseId: string): Promise<TrackerSchema>;
 }
 
 export type NotionClientFactory = (token: string) => NotionExportClient;
@@ -96,6 +113,18 @@ export class ExportReviewDataToNotionUseCase {
         : raw;
 
     const notion = this.notionClient(token);
+
+    const schema = await notion.getSchema(input.databaseId);
+    const missing: string[] = [];
+    if (schema.properties.Date?.type !== 'date') {
+      missing.push('Date');
+    }
+    if (schema.properties.Reviews?.type !== 'number') {
+      missing.push('Reviews');
+    }
+    if (missing.length > 0) {
+      throw new MissingTrackerSchemaError(missing);
+    }
 
     const result: ExportReviewDataResult = {
       exported: 0,

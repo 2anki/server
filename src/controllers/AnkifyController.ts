@@ -11,6 +11,7 @@ import {
 } from '../usecases/ankify/SendUploadToRacUseCase';
 import {
   ExportReviewDataToNotionUseCase,
+  MissingTrackerSchemaError,
   NotionNotConnectedError,
 } from '../usecases/ankify/ExportReviewDataToNotionUseCase';
 import {
@@ -145,6 +146,13 @@ class AnkifyController {
       }
       if (error instanceof NotionNotConnectedError) {
         res.status(409).json({ message: 'Notion is not connected' });
+        return;
+      }
+      if (error instanceof MissingTrackerSchemaError) {
+        res.status(422).json({
+          message: 'Tracker is missing required columns',
+          missing: error.missing,
+        });
         return;
       }
       if (error instanceof AnkiConnectUnreachableError) {
