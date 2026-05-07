@@ -238,6 +238,8 @@ class AnkifyController {
         conflicts: result.conflicts,
         unchanged: result.unchanged,
         errors: result.errors,
+        anki_web_sync: result.ankiWebSync,
+        anki_web_sync_error: result.ankiWebSyncError,
       });
     } catch (error) {
       if (error instanceof NoActiveAnkifyClientError) {
@@ -348,6 +350,8 @@ class AnkifyController {
         created: result.created,
         updated: result.updated,
         errors: result.errors,
+        anki_web_sync: result.ankiWebSync,
+        anki_web_sync_error: result.ankiWebSyncError,
       });
     } catch (error) {
       if (error instanceof UploadNotFoundError) {

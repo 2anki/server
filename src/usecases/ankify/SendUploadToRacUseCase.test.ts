@@ -68,6 +68,7 @@ const makeAnkiConnectStub = () => {
     createDeck: jest.fn(async (_d: string) => 1),
     addNote: jest.fn(async (_n: unknown) => 9_876_543_210),
     updateNoteFields: jest.fn(async (_id: number, _f: unknown) => null),
+    sync: jest.fn(async () => null),
   };
   return stub as unknown as AnkiConnectClient & typeof stub;
 };
@@ -154,6 +155,53 @@ describe('SendUploadToRacUseCase', () => {
     expect(result.created).toBe(1);
     expect(result.updated).toBe(0);
     expect(result.errors).toEqual([]);
+    expect(ac.sync).toHaveBeenCalledTimes(1);
+    expect(result.ankiWebSync).toBe('synced');
+    expect(result.ankiWebSyncError).toBeNull();
+  });
+
+  test('AnkiWeb sync failure is captured but does not fail the dispatch', async () => {
+    const { clients, mappings, uploads } = makeRepos();
+    const ac = makeAnkiConnectStub();
+    (ac.sync as jest.Mock).mockRejectedValueOnce(
+      new Error('AnkiWeb account not configured')
+    );
+    const useCase = new SendUploadToRacUseCase(
+      clients,
+      mappings,
+      uploads,
+      async () => Buffer.from('fake'),
+      () => buildCollection({}),
+      () => ac
+    );
+
+    const result = await useCase.execute({ uploadId: 7, owner: 42 });
+
+    expect(result.created).toBe(1);
+    expect(result.ankiWebSync).toBe('failed');
+    expect(result.ankiWebSyncError).toContain('AnkiWeb account not configured');
+  });
+
+  test('does not call sync when nothing was created or updated', async () => {
+    const { clients, mappings, uploads } = makeRepos();
+    const ac = makeAnkiConnectStub();
+    const useCase = new SendUploadToRacUseCase(
+      clients,
+      mappings,
+      uploads,
+      async () => Buffer.from('fake'),
+      () =>
+        buildCollection({
+          notes: new Map(),
+          cards: [],
+        }),
+      () => ac
+    );
+
+    const result = await useCase.execute({ uploadId: 7, owner: 42 });
+
+    expect(ac.sync).not.toHaveBeenCalled();
+    expect(result.ankiWebSync).toBe('skipped');
   });
 
   test('updateNoteFields path: when mapping exists, updates instead of creating', async () => {

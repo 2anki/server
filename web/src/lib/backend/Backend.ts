@@ -368,6 +368,8 @@ export class Backend {
     conflicts: number;
     unchanged: number;
     errors: string[];
+    anki_web_sync: 'synced' | 'failed' | 'skipped';
+    anki_web_sync_error: string | null;
   }> {
     const response = await post(`${this.baseURL}ankify/subscriptions`, {
       notion_page_id: notionPageId,
@@ -450,6 +452,8 @@ export class Backend {
     created: number;
     updated: number;
     errors: string[];
+    anki_web_sync: 'synced' | 'failed' | 'skipped';
+    anki_web_sync_error: string | null;
   }> {
     const response = await post(`${this.baseURL}ankify/dispatch`, {
       upload_id: uploadId,
