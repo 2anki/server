@@ -36,14 +36,48 @@ export default function NotionSubscriptions({ backend }: Props) {
     queryFn: () => api.listAnkifySubscriptions(),
   });
 
+  type SubscriptionRow = Awaited<
+    ReturnType<typeof api.listAnkifySubscriptions>
+  >[number];
+
   const subscribe = useMutation({
     mutationFn: (notionPageId: string) =>
       api.subscribeAnkifyNotionPage(notionPageId),
+    onMutate: async (notionPageId: string) => {
+      await queryClient.cancelQueries({ queryKey: SUBSCRIPTIONS_KEY });
+      const previous = queryClient.getQueryData<SubscriptionRow[]>(
+        SUBSCRIPTIONS_KEY
+      );
+      const optimisticRow: SubscriptionRow = {
+        id: -Date.now(),
+        notion_page_id: notionPageId,
+        enabled: true,
+        last_polled_at: null,
+        last_synced_at: null,
+        last_error: null,
+      };
+      const alreadyPresent = (previous ?? []).some(
+        (sub) =>
+          normalizeId(sub.notion_page_id) === normalizeId(notionPageId)
+      );
+      if (!alreadyPresent) {
+        queryClient.setQueryData<SubscriptionRow[]>(SUBSCRIPTIONS_KEY, [
+          ...(previous ?? []),
+          optimisticRow,
+        ]);
+      }
+      return { previous };
+    },
+    onError: (_err, _notionPageId, context) => {
+      if (context?.previous != null) {
+        queryClient.setQueryData(SUBSCRIPTIONS_KEY, context.previous);
+      }
+    },
     onSettled: () => {
       setPendingId(null);
+      queryClient.invalidateQueries({ queryKey: SUBSCRIPTIONS_KEY });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: SUBSCRIPTIONS_KEY });
       setAdvancedInput('');
     },
   });
@@ -185,8 +219,15 @@ export default function NotionSubscriptions({ backend }: Props) {
                   </span>
                 </td>
                 <td className={styles.relativeTime}>
-                  {sub.last_synced_at ?? (
-                    <span className={styles.muted}>Not yet</span>
+                  {subscribe.isPending &&
+                  pendingId != null &&
+                  normalizeId(pendingId) ===
+                    normalizeId(sub.notion_page_id) ? (
+                    <span aria-live="polite">Syncing now…</span>
+                  ) : (
+                    sub.last_synced_at ?? (
+                      <span className={styles.muted}>Not yet</span>
+                    )
                   )}
                 </td>
                 <td className={sub.last_error ? styles.errorCell : styles.muted}>
