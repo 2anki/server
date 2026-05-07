@@ -5,6 +5,8 @@ import knex, { Knex } from 'knex';
 import MigratorConfig = Knex.MigratorConfig;
 
 import { ScheduleCleanup } from '../lib/storage/jobs/ScheduleCleanup';
+import { ScheduleTrioReminders } from '../lib/storage/jobs/TrioReminders';
+import { getDefaultEmailService } from '../services/EmailService/EmailService';
 import KnexConfig from '../KnexConfig';
 
 /**
@@ -43,6 +45,7 @@ export const setupDatabase = async (database: Knex) => {
       } else {
         console.info('Main instance: Starting cleanup jobs');
         ScheduleCleanup(database);
+        ScheduleTrioReminders(getDefaultEmailService());
       }
     }
 
