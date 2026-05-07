@@ -1,5 +1,6 @@
 import {
   ExportReviewDataToNotionUseCase,
+  findTrackerPropertyKey,
   MissingTrackerSchemaError,
   NotionExportClient,
   NotionNotConnectedError,
@@ -181,5 +182,47 @@ describe('ExportReviewDataToNotionUseCase', () => {
     await expect(
       useCase.execute({ owner: 42, databaseId: 'db' })
     ).rejects.toBeInstanceOf(NotionNotConnectedError);
+  });
+
+  test('throws MissingTrackerSchemaError when the schema has no Date or Reviews', async () => {
+    const useCase = new ExportReviewDataToNotionUseCase(
+      makeClientsRepo(),
+      makeNotionRepo('t'),
+      () => makeAnkiConnect([['2026-05-07', 5]]),
+      () =>
+        makeNotionClient([], { properties: { Title: { type: 'title' } } })
+          .client
+    );
+    const promise = useCase.execute({ owner: 42, databaseId: 'db' });
+    await expect(promise).rejects.toBeInstanceOf(MissingTrackerSchemaError);
+    await expect(promise).rejects.toMatchObject({
+      missing: ['Date', 'Reviews'],
+    });
+  });
+});
+
+describe('findTrackerPropertyKey', () => {
+  test('matches case-insensitively against the property key', () => {
+    const schema: TrackerSchema = {
+      properties: { date: { type: 'date' }, Reviews: { type: 'number' } },
+    };
+    expect(findTrackerPropertyKey(schema, 'Date', 'date')).toBe('date');
+    expect(findTrackerPropertyKey(schema, 'reviews', 'number')).toBe(
+      'Reviews'
+    );
+  });
+
+  test('falls back to the inner name field when keys differ from names', () => {
+    const schema: TrackerSchema = {
+      properties: { abc123: { type: 'date', name: 'Date' } },
+    };
+    expect(findTrackerPropertyKey(schema, 'Date', 'date')).toBe('abc123');
+  });
+
+  test('returns null when no property with the right type matches', () => {
+    const schema: TrackerSchema = {
+      properties: { Date: { type: 'rich_text' } },
+    };
+    expect(findTrackerPropertyKey(schema, 'Date', 'date')).toBeNull();
   });
 });

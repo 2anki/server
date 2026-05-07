@@ -141,8 +141,9 @@ const AnkifyRouter = () => {
               data_source_id: dataSourceId,
             });
             const properties =
-              (dataSource as { properties?: Record<string, { type: string }> })
-                .properties ?? {};
+              (dataSource as {
+                properties?: Record<string, { type: string; name?: string }>;
+              }).properties ?? {};
             return { properties };
           },
         };
