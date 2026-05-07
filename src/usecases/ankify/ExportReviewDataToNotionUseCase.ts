@@ -14,8 +14,23 @@ export class NotionNotConnectedError extends Error {
 }
 
 export interface TrackerSchema {
-  properties: Record<string, { type: string }>;
+  properties: Record<string, { type: string; name?: string }>;
 }
+
+export const findTrackerPropertyKey = (
+  schema: TrackerSchema,
+  desiredName: string,
+  desiredType: string
+): string | null => {
+  const target = desiredName.trim().toLowerCase();
+  for (const [key, prop] of Object.entries(schema.properties)) {
+    if (prop.type !== desiredType) continue;
+    if (key.trim().toLowerCase() === target) return key;
+    const innerName = (prop.name ?? '').trim().toLowerCase();
+    if (innerName === target) return key;
+  }
+  return null;
+};
 
 export class MissingTrackerSchemaError extends Error {
   readonly missing: string[];
@@ -115,13 +130,11 @@ export class ExportReviewDataToNotionUseCase {
     const notion = this.notionClient(token);
 
     const schema = await notion.getSchema(input.databaseId);
+    const dateKey = findTrackerPropertyKey(schema, 'Date', 'date');
+    const reviewsKey = findTrackerPropertyKey(schema, 'Reviews', 'number');
     const missing: string[] = [];
-    if (schema.properties.Date?.type !== 'date') {
-      missing.push('Date');
-    }
-    if (schema.properties.Reviews?.type !== 'number') {
-      missing.push('Reviews');
-    }
+    if (dateKey == null) missing.push('Date');
+    if (reviewsKey == null) missing.push('Reviews');
     if (missing.length > 0) {
       throw new MissingTrackerSchemaError(missing);
     }
@@ -137,7 +150,7 @@ export class ExportReviewDataToNotionUseCase {
       try {
         const existing = await notion.databases.query({
           database_id: input.databaseId,
-          filter: { property: 'Date', date: { equals: date } },
+          filter: { property: dateKey!, date: { equals: date } },
         });
         if (existing.results.length > 0) {
           result.skipped += 1;
@@ -146,8 +159,8 @@ export class ExportReviewDataToNotionUseCase {
         await notion.pages.create({
           parent: { database_id: input.databaseId },
           properties: {
-            Date: { date: { start: date } },
-            Reviews: { number: reviewCount },
+            [dateKey!]: { date: { start: date } },
+            [reviewsKey!]: { number: reviewCount },
           },
         });
         result.exported += 1;

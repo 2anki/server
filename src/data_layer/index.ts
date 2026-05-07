@@ -139,7 +139,10 @@ export const setupDatabase = async (database: Knex) => {
               });
               const properties =
                 (dataSource as {
-                  properties?: Record<string, { type: string }>;
+                  properties?: Record<
+                    string,
+                    { type: string; name?: string }
+                  >;
                 }).properties ?? {};
               return { properties };
             },
