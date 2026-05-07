@@ -49,3 +49,38 @@ Each layer has a CLAUDE.md with its own rules.
 - Validate and sanitize all user input at the handler level
 - Never log sensitive data (passwords, tokens, personal information)
 - Use `res.locals` for passing authenticated user data through middleware
+
+## Goal
+
+**Mission**: give people the simplest, fastest way to turn what they're studying into beautiful Anki flashcards. Every interaction should feel obvious and quick — drop something in, get a clean deck back.
+
+**Scale**: grow 2anki.net to over 300K users.
+
+Every PR and roadmap decision should be checked against both: does it make the experience simpler / faster / more beautiful for the user, and does it move us toward that scale?
+
+## The trio
+
+Three sub-agents live in `.claude/agents/`:
+
+- **engineer** — implements specs, reviews PRs, writes tests, ships
+- **designer** — UI/UX decisions, copy, visual consistency
+- **pm** — feedback synthesis, prioritization, spec writing, metrics
+
+Default workflow: `pm` produces a spec → `designer` validates UX (only if user-facing) → `engineer` implements → `engineer` opens and reviews the PR. For tiny fixes, skip directly to engineer.
+
+Conventions for the trio:
+
+- Be opinionated. Don't list five options — recommend one with reasoning.
+- Specs are short. If a spec runs longer than one page, split it.
+- Say what *not* to build. Scope discipline beats feature creep.
+- Reply to support email *as a draft for Alexander to send*, not as Claude.
+
+## Trio slash commands (`.claude/commands/`)
+
+- `/triage-feedback` — paste raw email/Discord/survey → themed summary + drafted GitHub issues
+- `/spec <issue-url>` — turn a GitHub issue into a one-page implementation spec
+- `/implement <spec>` — spec → branch + commits + PR
+- `/review-pr <pr-url>` — review a contributor PR against conventions and goal alignment
+- `/changelog [date range]` — recent merged PRs → user-facing changelog entry
+- `/weekly-retro` — Stripe + Plausible numbers → priority adjustments
+- `/support-reply` — paste a user email → a draft reply in Alexander's voice
