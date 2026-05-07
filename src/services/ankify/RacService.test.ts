@@ -300,6 +300,35 @@ describe('RacService.list', () => {
     await expect(service.list(7)).resolves.toEqual(expected);
     expect(repo.listByOwner).toHaveBeenCalledWith(7);
   });
+
+  test('reconciles active rows whose container is gone in Docker', async () => {
+    const ghost: AnkifyClient = {
+      id: 9,
+      owner: 7,
+      container_id: 'container-ghost',
+      container_name: 'naughty_keller',
+      anki_port: 20000,
+      vnc_port: 21000,
+      novnc_port: 22000,
+      status: 'active' as const,
+      created_at: new Date(),
+      last_active_at: new Date(),
+    };
+    const ghostContainer = makeContainer('container-ghost');
+    (ghostContainer.inspect as jest.Mock).mockRejectedValueOnce(
+      new Error('No such container')
+    );
+    const repo = makeRepo({ listByOwner: jest.fn(async () => [ghost]) });
+    const docker = makeDocker({
+      getContainer: jest.fn(() => ghostContainer),
+    });
+    const service = new RacService(repo, docker);
+
+    const result = await service.list(7);
+
+    expect(repo.setStatus).toHaveBeenCalledWith(9, 'inactive');
+    expect(result[0].status).toBe('inactive');
+  });
 });
 
 describe('RacService.stop', () => {
