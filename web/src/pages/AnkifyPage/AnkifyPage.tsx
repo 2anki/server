@@ -30,6 +30,11 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEY }),
   });
 
+  const respin = useMutation({
+    mutationFn: () => api.respinAnkifyClient(),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEY }),
+  });
+
   const clients = data ?? [];
   const hasActiveClient = clients.some((client) => client.status === 'active');
 
@@ -114,14 +119,25 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
                   </td>
                   <td>
                     {client.status === 'active' && (
-                      <button
-                        type="button"
-                        className={sharedStyles.btnDanger}
-                        onClick={() => stop.mutate(client.id)}
-                        disabled={stop.isPending}
-                      >
-                        Stop
-                      </button>
+                      <div style={{ display: 'flex', gap: '0.4rem' }}>
+                        <button
+                          type="button"
+                          className={sharedStyles.btnSecondary}
+                          onClick={() => respin.mutate()}
+                          disabled={respin.isPending}
+                          title="Stop the container and start a fresh one with the same Anki collection"
+                        >
+                          {respin.isPending ? 'Respinning…' : 'Respin'}
+                        </button>
+                        <button
+                          type="button"
+                          className={sharedStyles.btnDanger}
+                          onClick={() => stop.mutate(client.id)}
+                          disabled={stop.isPending}
+                        >
+                          Stop
+                        </button>
+                      </div>
                     )}
                   </td>
                 </tr>

@@ -125,6 +125,7 @@ export class SendUploadToRacUseCase {
     if (client == null) {
       throw new NoActiveAnkifyClientError();
     }
+    await this.clients.touchLastActiveAt(client.id);
 
     const buffer = await this.fetchApkgBytes(upload.key);
     const collection = this.parseApkg(buffer);

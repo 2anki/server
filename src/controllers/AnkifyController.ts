@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import ProvisionAnkifyClientUseCase from '../usecases/ankify/ProvisionAnkifyClientUseCase';
 import ListAnkifyClientsUseCase from '../usecases/ankify/ListAnkifyClientsUseCase';
 import StopAnkifyClientUseCase from '../usecases/ankify/StopAnkifyClientUseCase';
+import RespinAnkifyClientUseCase from '../usecases/ankify/RespinAnkifyClientUseCase';
 import {
   NoActiveAnkifyClientError,
   SendUploadToRacUseCase,
@@ -19,7 +20,8 @@ class AnkifyController {
     private readonly provisionUseCase: ProvisionAnkifyClientUseCase,
     private readonly listUseCase: ListAnkifyClientsUseCase,
     private readonly stopUseCase: StopAnkifyClientUseCase,
-    private readonly sendUploadUseCase: SendUploadToRacUseCase
+    private readonly sendUploadUseCase: SendUploadToRacUseCase,
+    private readonly respinUseCase: RespinAnkifyClientUseCase
   ) {}
 
   async list(_req: Request, res: Response) {
@@ -57,6 +59,26 @@ class AnkifyController {
     }
     await this.stopUseCase.execute(id, owner);
     res.status(204).send();
+  }
+
+  async respin(_req: Request, res: Response) {
+    const owner = res.locals.owner as number;
+    try {
+      const { client } = await this.respinUseCase.execute(owner);
+      res.status(200).json(client);
+    } catch (error) {
+      if (error instanceof DockerUnavailableError) {
+        res
+          .status(503)
+          .json({ message: 'Docker daemon is unavailable on this host' });
+        return;
+      }
+      if (error instanceof NoAvailablePortError) {
+        res.status(503).json({ message: 'No available host ports' });
+        return;
+      }
+      throw error;
+    }
   }
 
   async sendUpload(req: Request, res: Response) {

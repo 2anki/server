@@ -5,6 +5,10 @@ import knex, { Knex } from 'knex';
 import MigratorConfig = Knex.MigratorConfig;
 
 import { ScheduleCleanup } from '../lib/storage/jobs/ScheduleCleanup';
+import { scheduleAnkifyReaper } from '../lib/ankify/jobs/scheduleAnkifyReaper';
+import { RacService } from '../services/ankify/RacService';
+import { AnkifyClientsRepository } from './ankify/AnkifyClientsRepository';
+import Docker from 'dockerode';
 import KnexConfig from '../KnexConfig';
 
 /**
@@ -43,6 +47,10 @@ export const setupDatabase = async (database: Knex) => {
       } else {
         console.info('Main instance: Starting cleanup jobs');
         ScheduleCleanup(database);
+        const ankifyRepo = new AnkifyClientsRepository(database);
+        const ankifyRac = new RacService(ankifyRepo, new Docker());
+        scheduleAnkifyReaper(ankifyRac);
+        console.info('Main instance: Ankify reaper scheduled');
       }
     }
 
