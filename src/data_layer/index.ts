@@ -82,40 +82,65 @@ export const setupDatabase = async (database: Knex) => {
           new AnkiConnectClient(buildAnkiConnectUrl(host, port)),
         (token) => {
           const notion = new NotionClient({ auth: token });
+          const findFirstDataSourceId = async (
+            databaseId: string
+          ): Promise<string | null> => {
+            const dbResp = await notion.databases.retrieve({
+              database_id: databaseId,
+            });
+            const dataSources =
+              'data_sources' in dbResp
+                ? (dbResp as { data_sources: { id: string }[] }).data_sources
+                : [];
+            return dataSources[0]?.id ?? null;
+          };
           return {
             databases: {
               query: async (params) => {
-                const db = await notion.databases.retrieve({
-                  database_id: params.database_id,
-                });
-                const dataSources =
-                  'data_sources' in db
-                    ? (db as { data_sources: { id: string }[] }).data_sources
-                    : [];
-                const aggregated: { results: unknown[] } = { results: [] };
-                for (const ds of dataSources) {
-                  const res = await notion.dataSources.query({
-                    data_source_id: ds.id,
-                    filter: params.filter as never,
-                  });
-                  aggregated.results.push(...res.results);
+                const dataSourceId = await findFirstDataSourceId(
+                  params.database_id
+                );
+                if (dataSourceId == null) {
+                  return { results: [] };
                 }
-                return aggregated;
+                const res = await notion.dataSources.query({
+                  data_source_id: dataSourceId,
+                  filter: params.filter as never,
+                });
+                return { results: res.results };
               },
             },
             pages: {
-              create: (params) =>
-                notion.pages.create(
-                  params as Parameters<typeof notion.pages.create>[0]
-                ),
+              create: async (params) => {
+                const dataSourceId = await findFirstDataSourceId(
+                  params.parent.database_id
+                );
+                if (dataSourceId == null) {
+                  throw new Error(
+                    'No data source found for the selected Notion database'
+                  );
+                }
+                return notion.pages.create({
+                  parent: {
+                    type: 'data_source_id',
+                    data_source_id: dataSourceId,
+                  },
+                  properties: params.properties,
+                } as never);
+              },
             },
             getSchema: async (databaseId) => {
-              const database = await notion.databases.retrieve({
-                database_id: databaseId,
-              } as never);
+              const dataSourceId = await findFirstDataSourceId(databaseId);
+              if (dataSourceId == null) {
+                return { properties: {} };
+              }
+              const dataSource = await notion.dataSources.retrieve({
+                data_source_id: dataSourceId,
+              });
               const properties =
-                (database as { properties?: Record<string, { type: string }> })
-                  .properties ?? {};
+                (dataSource as {
+                  properties?: Record<string, { type: string }>;
+                }).properties ?? {};
               return { properties };
             },
           };
