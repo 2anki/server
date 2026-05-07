@@ -14,6 +14,13 @@ import {
   NotionNotConnectedError,
 } from '../usecases/ankify/ExportReviewDataToNotionUseCase';
 import {
+  ConfigureExportScheduleUseCase,
+  InvalidScheduleTimeError,
+  InvalidTimezoneError,
+} from '../usecases/ankify/ConfigureExportScheduleUseCase';
+import { GetExportScheduleUseCase } from '../usecases/ankify/GetExportScheduleUseCase';
+import { DeleteExportScheduleUseCase } from '../usecases/ankify/DeleteExportScheduleUseCase';
+import {
   DockerUnavailableError,
   NoAvailablePortError,
 } from '../services/ankify/RacService';
@@ -26,7 +33,10 @@ class AnkifyController {
     private readonly stopUseCase: StopAnkifyClientUseCase,
     private readonly sendUploadUseCase: SendUploadToRacUseCase,
     private readonly respinUseCase: RespinAnkifyClientUseCase,
-    private readonly exportReviewDataUseCase: ExportReviewDataToNotionUseCase
+    private readonly exportReviewDataUseCase: ExportReviewDataToNotionUseCase,
+    private readonly configureScheduleUseCase: ConfigureExportScheduleUseCase,
+    private readonly getScheduleUseCase: GetExportScheduleUseCase,
+    private readonly deleteScheduleUseCase: DeleteExportScheduleUseCase
   ) {}
 
   async list(_req: Request, res: Response) {
@@ -126,6 +136,64 @@ class AnkifyController {
       }
       throw error;
     }
+  }
+
+  async getSchedule(_req: Request, res: Response) {
+    const owner = res.locals.owner as number;
+    const schedule = await this.getScheduleUseCase.execute(owner);
+    res.status(200).json(schedule);
+  }
+
+  async configureSchedule(req: Request, res: Response) {
+    const owner = res.locals.owner as number;
+    const databaseId = String(req.body?.database_id ?? '').trim();
+    const timeOfDay = String(req.body?.time_of_day ?? '').trim();
+    const timezone = String(req.body?.timezone ?? '').trim();
+    const enabled = req.body?.enabled !== false;
+    const dateRangeDays =
+      req.body?.date_range_days != null
+        ? Number(req.body.date_range_days)
+        : null;
+
+    if (databaseId.length === 0) {
+      res.status(400).json({ message: 'database_id is required' });
+      return;
+    }
+    if (timeOfDay.length === 0) {
+      res.status(400).json({ message: 'time_of_day is required (HH:MM)' });
+      return;
+    }
+    if (timezone.length === 0) {
+      res.status(400).json({ message: 'timezone is required (IANA name)' });
+      return;
+    }
+
+    try {
+      const schedule = await this.configureScheduleUseCase.execute({
+        owner,
+        databaseId,
+        timeOfDay,
+        timezone,
+        dateRangeDays,
+        enabled,
+      });
+      res.status(200).json(schedule);
+    } catch (error) {
+      if (
+        error instanceof InvalidScheduleTimeError ||
+        error instanceof InvalidTimezoneError
+      ) {
+        res.status(400).json({ message: error.message });
+        return;
+      }
+      throw error;
+    }
+  }
+
+  async deleteSchedule(_req: Request, res: Response) {
+    const owner = res.locals.owner as number;
+    await this.deleteScheduleUseCase.execute(owner);
+    res.status(204).send();
   }
 
   async sendUpload(req: Request, res: Response) {

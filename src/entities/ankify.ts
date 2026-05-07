@@ -41,3 +41,25 @@ export interface NewAnkifySyncMapping {
   anki_note_id: number;
   deck_name: string;
 }
+
+export interface AnkifyExportSchedule {
+  id: number;
+  owner: number;
+  database_id: string;
+  time_of_day: string;
+  timezone: string;
+  date_range_days: number | null;
+  enabled: boolean;
+  last_run_at: Date | null;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface UpsertAnkifyExportSchedule {
+  owner: number;
+  database_id: string;
+  time_of_day: string;
+  timezone: string;
+  date_range_days: number | null;
+  enabled: boolean;
+}

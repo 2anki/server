@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import sharedStyles from '../../../styles/shared.module.css';
 import { get2ankiApi } from '../../../lib/backend/get2ankiApi';
@@ -9,10 +9,36 @@ interface Props {
   readonly backend?: Backend;
 }
 
+const SCHEDULE_KEY = ['ankify-export-schedule'];
+
 export default function ReviewDataExport({ backend }: Props) {
   const api = backend ?? get2ankiApi();
+  const queryClient = useQueryClient();
   const [databaseId, setDatabaseId] = useState('');
   const [dateRangeDays, setDateRangeDays] = useState('');
+  const [scheduleTime, setScheduleTime] = useState('09:00');
+  const [scheduleTz, setScheduleTz] = useState(
+    Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
+  );
+
+  const scheduleQuery = useQuery({
+    queryKey: SCHEDULE_KEY,
+    queryFn: () => api.getAnkifyExportSchedule(),
+  });
+
+  useEffect(() => {
+    if (scheduleQuery.data == null) {
+      return;
+    }
+    setDatabaseId((current) =>
+      current.length === 0 ? scheduleQuery.data!.database_id : current
+    );
+    setScheduleTime(scheduleQuery.data.time_of_day);
+    setScheduleTz(scheduleQuery.data.timezone);
+    if (scheduleQuery.data.date_range_days != null) {
+      setDateRangeDays(String(scheduleQuery.data.date_range_days));
+    }
+  }, [scheduleQuery.data]);
 
   const exportMutation = useMutation({
     mutationFn: () =>
@@ -21,6 +47,26 @@ export default function ReviewDataExport({ backend }: Props) {
         dateRangeDays:
           dateRangeDays.trim().length > 0 ? Number(dateRangeDays) : undefined,
       }),
+  });
+
+  const saveSchedule = useMutation({
+    mutationFn: (enabled: boolean) =>
+      api.configureAnkifyExportSchedule({
+        databaseId: databaseId.trim(),
+        timeOfDay: scheduleTime,
+        timezone: scheduleTz,
+        dateRangeDays:
+          dateRangeDays.trim().length > 0 ? Number(dateRangeDays) : null,
+        enabled,
+      }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: SCHEDULE_KEY }),
+  });
+
+  const deleteSchedule = useMutation({
+    mutationFn: () => api.deleteAnkifyExportSchedule(),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: SCHEDULE_KEY }),
   });
 
   return (
@@ -102,6 +148,84 @@ export default function ReviewDataExport({ backend }: Props) {
           </p>
         )}
       </form>
+
+      <fieldset
+        style={{
+          marginTop: '1.5rem',
+          padding: '0.75rem 1rem',
+          border: '1px solid #ddd',
+          borderRadius: '0.4rem',
+          maxWidth: 520,
+        }}
+      >
+        <legend>Daily schedule</legend>
+        <p style={{ marginTop: 0, color: '#555' }}>
+          Run the export once a day at the chosen time. Survives server
+          restarts.
+          {scheduleQuery.data?.last_run_at && (
+            <>
+              {' '}Last run: {scheduleQuery.data.last_run_at}.
+            </>
+          )}
+        </p>
+        <div
+          style={{
+            display: 'flex',
+            gap: '0.6rem',
+            flexWrap: 'wrap',
+            marginBottom: '0.6rem',
+          }}
+        >
+          <label>
+            <div>Time (HH:MM)</div>
+            <input
+              type="time"
+              value={scheduleTime}
+              onChange={(e) => setScheduleTime(e.target.value)}
+            />
+          </label>
+          <label>
+            <div>Timezone (IANA)</div>
+            <input
+              type="text"
+              value={scheduleTz}
+              onChange={(e) => setScheduleTz(e.target.value)}
+              placeholder="Europe/Oslo"
+            />
+          </label>
+        </div>
+        <div style={{ display: 'flex', gap: '0.4rem' }}>
+          <button
+            type="button"
+            className={sharedStyles.btnPrimary}
+            onClick={() => saveSchedule.mutate(true)}
+            disabled={
+              saveSchedule.isPending || databaseId.trim().length === 0
+            }
+          >
+            {saveSchedule.isPending
+              ? 'Saving…'
+              : scheduleQuery.data?.enabled
+                ? 'Update schedule'
+                : 'Enable daily schedule'}
+          </button>
+          {scheduleQuery.data != null && (
+            <button
+              type="button"
+              className={sharedStyles.btnSecondary}
+              onClick={() => deleteSchedule.mutate()}
+              disabled={deleteSchedule.isPending}
+            >
+              {deleteSchedule.isPending ? 'Removing…' : 'Disable'}
+            </button>
+          )}
+        </div>
+        {saveSchedule.isError && (
+          <p role="alert" style={{ color: '#c0392b' }}>
+            {(saveSchedule.error as Error).message}
+          </p>
+        )}
+      </fieldset>
     </section>
   );
 }
