@@ -10,6 +10,10 @@ import {
   UploadNotFoundError,
 } from '../usecases/ankify/SendUploadToRacUseCase';
 import {
+  ExportReviewDataToNotionUseCase,
+  NotionNotConnectedError,
+} from '../usecases/ankify/ExportReviewDataToNotionUseCase';
+import {
   DockerUnavailableError,
   NoAvailablePortError,
 } from '../services/ankify/RacService';
@@ -21,7 +25,8 @@ class AnkifyController {
     private readonly listUseCase: ListAnkifyClientsUseCase,
     private readonly stopUseCase: StopAnkifyClientUseCase,
     private readonly sendUploadUseCase: SendUploadToRacUseCase,
-    private readonly respinUseCase: RespinAnkifyClientUseCase
+    private readonly respinUseCase: RespinAnkifyClientUseCase,
+    private readonly exportReviewDataUseCase: ExportReviewDataToNotionUseCase
   ) {}
 
   async list(_req: Request, res: Response) {
@@ -75,6 +80,48 @@ class AnkifyController {
       }
       if (error instanceof NoAvailablePortError) {
         res.status(503).json({ message: 'No available host ports' });
+        return;
+      }
+      throw error;
+    }
+  }
+
+  async exportReviewData(req: Request, res: Response) {
+    const owner = res.locals.owner as number;
+    const databaseId = String(req.body?.database_id ?? '').trim();
+    if (databaseId.length === 0) {
+      res.status(400).json({ message: 'database_id is required' });
+      return;
+    }
+    const dateRangeDays =
+      req.body?.date_range_days != null
+        ? Number(req.body.date_range_days)
+        : undefined;
+
+    try {
+      const result = await this.exportReviewDataUseCase.execute({
+        owner,
+        databaseId,
+        dateRangeDays,
+      });
+      res.status(200).json(result);
+    } catch (error) {
+      if (error instanceof NoActiveAnkifyClientError) {
+        res.status(409).json({
+          message:
+            'No active Ankify client. Provision one before exporting review data.',
+        });
+        return;
+      }
+      if (error instanceof NotionNotConnectedError) {
+        res.status(409).json({ message: 'Notion is not connected' });
+        return;
+      }
+      if (error instanceof AnkiConnectUnreachableError) {
+        res.status(503).json({
+          message:
+            'AnkiConnect is unreachable. Make sure the hosted Anki container is healthy.',
+        });
         return;
       }
       throw error;
