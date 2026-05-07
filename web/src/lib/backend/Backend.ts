@@ -444,6 +444,21 @@ export class Backend {
     return result ?? { ready: false, reason: 'unreachable' };
   }
 
+  async checkAnkifyAnkiWebStatus(): Promise<{
+    status:
+      | 'linked'
+      | 'unlinked'
+      | 'unreachable'
+      | 'no_active_client'
+      | 'error';
+    message?: string;
+  }> {
+    const result = await get(
+      `${this.baseURL}ankify/clients/active/anki-web-status`
+    );
+    return result ?? { status: 'unreachable' };
+  }
+
   async listAnkifyNotionDatabases(): Promise<
     Array<{
       id: string;
