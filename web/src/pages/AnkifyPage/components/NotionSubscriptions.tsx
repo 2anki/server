@@ -6,6 +6,7 @@ import styles from '../AnkifyPage.module.css';
 import { get2ankiApi } from '../../../lib/backend/get2ankiApi';
 import { Backend } from '../../../lib/backend/Backend';
 import NotionPagePicker from './NotionPagePicker';
+import LayersIcon from '../../../components/icons/LayersIcon';
 
 interface Props {
   readonly backend?: Backend;
@@ -72,15 +73,25 @@ export default function NotionSubscriptions({ backend }: Props) {
   );
 
   return (
-    <section className={styles.section}>
-      <header className={styles.sectionHeader}>
-        <h2 className={styles.sectionTitle}>Notion pages syncing into Anki</h2>
+    <section className={styles.sectionFlow}>
+      <header className={styles.sectionHead}>
+        <div className={styles.sectionHeadMain}>
+          <span className={styles.sectionIcon} aria-hidden="true">
+            <LayersIcon width={20} height={20} />
+          </span>
+          <div className={styles.sectionHeadText}>
+            <p className={styles.sectionEyebrowAccent}>You pick what syncs</p>
+            <h2 className={styles.sectionTitleLg}>
+              Choose what flows into Anki
+            </h2>
+          </div>
+        </div>
       </header>
-      <p className={styles.sectionDescription}>
-        Pick a Notion page and we'll keep its toggle blocks in sync. Each
-        sync reads the page, updates your hosted Anki, then pushes the
-        change to your AnkiWeb account so it shows up on your other
-        devices. Updates are checked every few minutes.
+      <p className={styles.sectionLead}>
+        You decide which Notion pages turn into Anki cards. Pick a page below
+        and we'll keep its toggle blocks in step with your Anki — and push
+        every change to your AnkiWeb account so your other devices stay up to
+        date. Nothing syncs until you choose it.
       </p>
 
       <NotionPagePicker
@@ -151,9 +162,12 @@ export default function NotionSubscriptions({ backend }: Props) {
 
       {subscriptions.length > 0 ? (
         <table className={styles.subscriptionTable}>
+          <caption className={styles.tableCaption}>
+            Pages you've picked to sync
+          </caption>
           <thead>
             <tr>
-              <th>Notion page</th>
+              <th>Your Notion page</th>
               <th>Last synced</th>
               <th>Last issue</th>
               <th aria-label="Actions" />
@@ -194,7 +208,8 @@ export default function NotionSubscriptions({ backend }: Props) {
         </table>
       ) : (
         <p className={styles.emptyLine}>
-          No pages syncing yet. Pick one above to get started.
+          You haven't picked any pages yet. Choose one above and we'll start
+          syncing it into your Anki.
         </p>
       )}
     </section>

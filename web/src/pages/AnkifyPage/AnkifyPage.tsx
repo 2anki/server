@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import sharedStyles from '../../styles/shared.module.css';
@@ -8,12 +9,25 @@ import { Backend } from '../../lib/backend/Backend';
 import ReviewDataExport from './components/ReviewDataExport';
 import NotionSubscriptions from './components/NotionSubscriptions';
 import SyncConflicts from './components/SyncConflicts';
+import PlayIcon from '../../components/icons/PlayIcon';
+import UserIcon from '../../components/icons/UserIcon';
+import RefreshIcon from '../../components/icons/RefreshIcon';
+import SparkleIcon from '../../components/icons/SparkleIcon';
 
 const QUERY_KEY = ['ankify-clients'];
+const ANKI_WEB_ACK_KEY = 'ankify_anki_web_acknowledged';
 
 interface AnkifyPageProps {
   backend?: Backend;
 }
+
+type StepState = 'todo' | 'current' | 'done';
+
+const stepClass = (state: StepState) => {
+  if (state === 'done') return styles.setupStepDone;
+  if (state === 'current') return styles.setupStepCurrent;
+  return styles.setupStepTodo;
+};
 
 export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
   const api = backend ?? get2ankiApi();
@@ -31,7 +45,12 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
 
   const stop = useMutation({
     mutationFn: (id: number) => api.stopAnkifyClient(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEY }),
+    onSuccess: () => {
+      try {
+        globalThis.localStorage?.removeItem(ANKI_WEB_ACK_KEY);
+      } catch {}
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+    },
   });
 
   const respin = useMutation({
@@ -43,8 +62,44 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
   const activeClient = clients.find((client) => client.status === 'active');
   const hasActiveClient = activeClient != null;
 
+  const [signedInAcknowledged, setSignedInAcknowledged] = useState<boolean>(
+    () => {
+      try {
+        return globalThis.localStorage?.getItem(ANKI_WEB_ACK_KEY) === 'true';
+      } catch {
+        return false;
+      }
+    }
+  );
+
+  useEffect(() => {
+    if (!hasActiveClient && signedInAcknowledged) {
+      setSignedInAcknowledged(false);
+      try {
+        globalThis.localStorage?.removeItem(ANKI_WEB_ACK_KEY);
+      } catch {}
+    }
+  }, [hasActiveClient, signedInAcknowledged]);
+
+  const acknowledgeAnkiWebSignIn = () => {
+    setSignedInAcknowledged(true);
+    try {
+      globalThis.localStorage?.setItem(ANKI_WEB_ACK_KEY, 'true');
+    } catch {}
+  };
+
   const ankiUrlFor = (client: AnkifyClient) =>
     `http://${globalThis.location.hostname}:${client.novnc_port}/vnc.html`;
+
+  const setupComplete = hasActiveClient && signedInAcknowledged;
+
+  const step1State: StepState = hasActiveClient ? 'done' : 'current';
+  let step2State: StepState = 'todo';
+  if (signedInAcknowledged) step2State = 'done';
+  else if (hasActiveClient) step2State = 'current';
+
+  let step3State: StepState = 'todo';
+  if (setupComplete) step3State = 'current';
 
   return (
     <main className={sharedStyles.page}>
@@ -61,10 +116,20 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
 
       <section className={styles.section}>
         <header className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>Your Anki workspace</h2>
+          <h2 className={styles.sectionTitle}>
+            {setupComplete ? 'Your Anki workspace' : 'Set up your Anki'}
+          </h2>
+          {setupComplete && (
+            <span className={styles.setupCompleteBadge}>
+              <span className={styles.statusDot} aria-hidden="true" />
+              Running, AnkiWeb linked
+            </span>
+          )}
         </header>
 
-        {isLoading && <p className={styles.emptyLine}>Loading your workspace…</p>}
+        {isLoading && (
+          <p className={styles.emptyLine}>Loading your workspace…</p>
+        )}
 
         {error && (
           <p role="alert" className={sharedStyles.helpDanger}>
@@ -72,41 +137,219 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
           </p>
         )}
 
-        {!isLoading && !error && !hasActiveClient && (
-          <div className={styles.emptyClientCard}>
-            <p className={styles.emptyClientTitle}>
-              Set up your hosted Anki
+        {!isLoading && !error && !setupComplete && (
+          <div className={styles.setupCard}>
+            <p className={styles.setupLead}>
+              {hasActiveClient
+                ? "Anki is running. Two more steps and you're set."
+                : "No clients yet. Three quick steps and you're set."}
             </p>
-            <p className={styles.emptyClientCopy}>
-              No clients yet. We'll start a private Anki desktop you can open
-              from your browser. Takes a few seconds.
-            </p>
-            <button
-              type="button"
-              className={`${sharedStyles.btnPrimary} ${styles.inlineButton}`}
-              onClick={() => provision.mutate()}
-              disabled={provision.isPending}
-            >
-              {provision.isPending ? 'Setting up…' : 'Provision new client'}
-            </button>
-            {provision.error && (
-              <p role="alert" className={styles.alertInline}>
-                {(provision.error as Error).message}
-              </p>
+
+            <ol className={styles.setupSteps}>
+              <li className={stepClass(step1State)}>
+                <span
+                  className={styles.setupStepBadge}
+                  aria-hidden="true"
+                >
+                  1
+                </span>
+                <div className={styles.setupStepBody}>
+                  <div className={styles.setupStepHead}>
+                    <span className={styles.setupStepIcon} aria-hidden="true">
+                      <PlayIcon width={16} height={16} />
+                    </span>
+                    <p className={styles.setupStepTitle}>Start Anki</p>
+                  </div>
+                  <p className={styles.setupStepHint}>
+                    We boot a private Anki desktop you can open in your browser.
+                    Takes a few seconds.
+                  </p>
+                  {step1State === 'current' && (
+                    <div className={styles.setupStepActions}>
+                      <button
+                        type="button"
+                        className={`${sharedStyles.btnPrimary} ${styles.inlineButton}`}
+                        onClick={() => provision.mutate()}
+                        disabled={provision.isPending}
+                      >
+                        {provision.isPending ? 'Setting up…' : 'Start Anki'}
+                      </button>
+                    </div>
+                  )}
+                  {provision.error && step1State === 'current' && (
+                    <p role="alert" className={styles.alertInline}>
+                      {(provision.error as Error).message}
+                    </p>
+                  )}
+                </div>
+              </li>
+
+              <li className={stepClass(step2State)}>
+                <span
+                  className={styles.setupStepBadge}
+                  aria-hidden="true"
+                >
+                  2
+                </span>
+                <div className={styles.setupStepBody}>
+                  <div className={styles.setupStepHead}>
+                    <span className={styles.setupStepIcon} aria-hidden="true">
+                      <UserIcon width={16} height={16} />
+                    </span>
+                    <p className={styles.setupStepTitle}>
+                      Sign in to AnkiWeb inside the Anki window
+                    </p>
+                  </div>
+                  <p className={styles.setupStepHint}>
+                    Open Anki, then click <strong>Sync</strong> in the toolbar
+                    and enter your AnkiWeb email and password. This is what
+                    links your hosted Anki to your AnkiWeb account.
+                  </p>
+                  {step2State === 'current' && activeClient && (
+                    <div className={styles.setupStepActions}>
+                      <a
+                        href={ankiUrlFor(activeClient)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className={`${styles.openButton} ${styles.inlineButton}`}
+                      >
+                        Open Anki to sign in
+                      </a>
+                      <button
+                        type="button"
+                        className={`${sharedStyles.btnSecondary} ${styles.inlineButton}`}
+                        onClick={acknowledgeAnkiWebSignIn}
+                      >
+                        I've signed in
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </li>
+
+              <li className={stepClass(step3State)}>
+                <span
+                  className={styles.setupStepBadge}
+                  aria-hidden="true"
+                >
+                  3
+                </span>
+                <div className={styles.setupStepBody}>
+                  <div className={styles.setupStepHead}>
+                    <span className={styles.setupStepIcon} aria-hidden="true">
+                      <RefreshIcon width={16} height={16} />
+                    </span>
+                    <p className={styles.setupStepTitle}>
+                      Run your first sync
+                    </p>
+                  </div>
+                  <p className={styles.setupStepHint}>
+                    Back in Anki, press <strong>Y</strong> or click{' '}
+                    <strong>Sync</strong> once. After that, we keep AnkiWeb in
+                    step every time a Notion page changes.
+                  </p>
+                  {step3State === 'current' && activeClient && (
+                    <div className={styles.setupStepActions}>
+                      <a
+                        href={ankiUrlFor(activeClient)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className={`${sharedStyles.btnSecondary} ${styles.inlineButton}`}
+                      >
+                        Open Anki
+                      </a>
+                      <button
+                        type="button"
+                        className={`${sharedStyles.btnPrimary} ${styles.inlineButton}`}
+                        onClick={() =>
+                          queryClient.invalidateQueries({ queryKey: QUERY_KEY })
+                        }
+                      >
+                        I've synced
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </li>
+            </ol>
+
+            {hasActiveClient && (
+              <details className={styles.detailsBlock}>
+                <summary className={styles.detailsSummary}>
+                  Workspace details
+                </summary>
+                <div className={styles.detailsBody}>
+                  <dl className={styles.clientMeta}>
+                    <div className={styles.metaItem}>
+                      <dt>Workspace</dt>
+                      <dd
+                        title={activeClient!.container_id}
+                        className={styles.clientName}
+                      >
+                        {activeClient!.container_name ??
+                          activeClient!.container_id.slice(0, 12)}
+                      </dd>
+                    </div>
+                    <div className={styles.metaItem}>
+                      <dt>Anki desktop port</dt>
+                      <dd>{activeClient!.novnc_port}</dd>
+                    </div>
+                    <div className={styles.metaItem}>
+                      <dt>Tools port</dt>
+                      <dd>{activeClient!.anki_port}</dd>
+                    </div>
+                  </dl>
+                  <div className={styles.provisionRow}>
+                    <button
+                      type="button"
+                      className={`${sharedStyles.btnSmall} ${styles.inlineButton}`}
+                      disabled
+                      aria-describedby="ankify-provision-help"
+                    >
+                      Already provisioned
+                    </button>
+                    <p
+                      id="ankify-provision-help"
+                      className={styles.provisionHelp}
+                    >
+                      One workspace at a time. Shut this one down to start a
+                      new one.
+                    </p>
+                  </div>
+                  <div className={styles.setupManageRow}>
+                    <button
+                      type="button"
+                      className={`${sharedStyles.btnSecondary} ${styles.inlineButton}`}
+                      onClick={() => respin.mutate()}
+                      disabled={respin.isPending}
+                      title="Restart with the same collection — useful if Anki is unresponsive"
+                    >
+                      {respin.isPending ? 'Restarting…' : 'Restart'}
+                    </button>
+                    <button
+                      type="button"
+                      className={`${sharedStyles.btnDanger} ${styles.inlineButton}`}
+                      onClick={() => stop.mutate(activeClient!.id)}
+                      disabled={stop.isPending}
+                    >
+                      {stop.isPending ? 'Shutting down…' : 'Shut down'}
+                    </button>
+                  </div>
+                </div>
+              </details>
             )}
           </div>
         )}
 
-        {activeClient && (
+        {!isLoading && !error && setupComplete && activeClient && (
           <div className={styles.clientCardActive}>
             <div className={styles.clientCardHead}>
               <div className={styles.clientStatusBlock}>
-                <span className={styles.statusRow}>
-                  <span className={styles.statusDot} aria-hidden="true" />
-                  <span className={styles.statusLabel}>Running</span>
-                </span>
                 <p className={styles.clientHeadline}>
-                  Your Anki is ready
+                  <span className={styles.clientHeadlineIcon} aria-hidden="true">
+                    <SparkleIcon width={18} height={18} />
+                  </span>
+                  Your Anki is ready and AnkiWeb is linked.
                 </p>
                 <span className={styles.clientName}>
                   {activeClient.container_name ??
@@ -142,12 +385,6 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
               </div>
             </div>
 
-            {provision.error && (
-              <p role="alert" className={styles.alertInline}>
-                {(provision.error as Error).message}
-              </p>
-            )}
-
             <details className={styles.detailsBlock}>
               <summary className={styles.detailsSummary}>
                 Connection details
@@ -174,11 +411,14 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
                     type="button"
                     className={`${sharedStyles.btnSmall} ${styles.inlineButton}`}
                     disabled
-                    aria-describedby="ankify-provision-help"
+                    aria-describedby="ankify-provision-help-active"
                   >
                     Already provisioned
                   </button>
-                  <p id="ankify-provision-help" className={styles.provisionHelp}>
+                  <p
+                    id="ankify-provision-help-active"
+                    className={styles.provisionHelp}
+                  >
                     One workspace at a time. Shut this one down to start a new
                     one.
                   </p>
@@ -187,10 +427,9 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
             </details>
           </div>
         )}
-
       </section>
 
-      {hasActiveClient ? (
+      {setupComplete ? (
         <>
           <SyncConflicts backend={backend} />
           <NotionSubscriptions backend={backend} />
@@ -200,8 +439,9 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
         !isLoading &&
         !error && (
           <p className={styles.gatedNotice}>
-            Set up Anki first. Notion sync, conflicts, and the daily review
-            export unlock once it's running.
+            Once AnkiWeb is linked, you'll choose which Notion pages flow into
+            Anki, settle any conflicts, and decide when to send your reviews
+            back. Finish the steps above to unlock them.
           </p>
         )
       )}

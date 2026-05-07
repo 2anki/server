@@ -34,7 +34,7 @@ export default function SendToAnkifyButton({ uploadId, filename }: Props) {
   const disabled = dispatch.isPending || !hasActive;
 
   const label = (() => {
-    if (dispatch.isPending) return 'Sending to Anki…';
+    if (dispatch.isPending) return 'Sending to your Anki…';
     if (dispatch.isSuccess) {
       const data = dispatch.data;
       const parts = [];
@@ -49,17 +49,17 @@ export default function SendToAnkifyButton({ uploadId, filename }: Props) {
             : '';
       return `${counts}${sync}`;
     }
-    if (dispatch.isError) return 'Retry';
-    return 'Send to Ankify';
+    if (dispatch.isError) return 'Try again';
+    return 'Send this to my Anki';
   })();
 
   const title = (() => {
-    if (!hasActive) return 'Provision an Ankify client first';
+    if (!hasActive) return 'Set up your Anki on the Ankify page first';
     if (dispatch.isError) return (dispatch.error as Error).message;
     if (dispatch.isSuccess && dispatch.data.anki_web_sync === 'failed') {
       return `AnkiWeb didn't accept the sync — open Anki in your browser and sign in to AnkiWeb. ${dispatch.data.anki_web_sync_error ?? ''}`;
     }
-    return `Send ${filename ?? 'this deck'} to your hosted Anki and sync to AnkiWeb (takes a moment)`;
+    return `You're sending ${filename ?? 'this deck'} to your hosted Anki and AnkiWeb. Takes a moment.`;
   })();
 
   return (

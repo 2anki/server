@@ -4,6 +4,7 @@ import sharedStyles from '../../../styles/shared.module.css';
 import styles from '../AnkifyPage.module.css';
 import { get2ankiApi } from '../../../lib/backend/get2ankiApi';
 import { Backend } from '../../../lib/backend/Backend';
+import AlertIcon from '../../../components/icons/AlertIcon';
 
 interface Props {
   readonly backend?: Backend;
@@ -39,17 +40,25 @@ export default function SyncConflicts({ backend }: Props) {
   }
 
   return (
-    <section className={styles.section}>
+    <section className={styles.sectionFlow}>
       <div className={styles.conflictBanner}>
         <div className={styles.conflictHeading}>
-          <h2 className={styles.conflictTitle}>Decide which version to keep</h2>
+          <span className={styles.sectionIconWarning} aria-hidden="true">
+            <AlertIcon width={20} height={20} />
+          </span>
+          <div className={styles.sectionHeadText}>
+            <p className={styles.sectionEyebrowWarning}>Your call</p>
+            <h2 className={styles.conflictTitle}>
+              Pick which version to keep
+            </h2>
+          </div>
           <span className={styles.conflictPill}>
             {items.length} {items.length === 1 ? 'card' : 'cards'}
           </span>
         </div>
         <p className={styles.conflictDescription}>
-          You changed these in both Notion and Anki since the last sync. Pick a
-          side, or dismiss to leave both alone for now.
+          You changed these in both Notion and Anki since the last sync. You
+          decide which side wins — or set them aside for later.
         </p>
 
         <div className={styles.conflictList}>
