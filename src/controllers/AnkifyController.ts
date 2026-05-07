@@ -20,6 +20,7 @@ import {
 } from '../usecases/ankify/ConfigureExportScheduleUseCase';
 import { GetExportScheduleUseCase } from '../usecases/ankify/GetExportScheduleUseCase';
 import { DeleteExportScheduleUseCase } from '../usecases/ankify/DeleteExportScheduleUseCase';
+import { ListSyncLogsUseCase } from '../usecases/ankify/ListSyncLogsUseCase';
 import {
   DockerUnavailableError,
   NoAvailablePortError,
@@ -36,7 +37,8 @@ class AnkifyController {
     private readonly exportReviewDataUseCase: ExportReviewDataToNotionUseCase,
     private readonly configureScheduleUseCase: ConfigureExportScheduleUseCase,
     private readonly getScheduleUseCase: GetExportScheduleUseCase,
-    private readonly deleteScheduleUseCase: DeleteExportScheduleUseCase
+    private readonly deleteScheduleUseCase: DeleteExportScheduleUseCase,
+    private readonly listSyncLogsUseCase: ListSyncLogsUseCase
   ) {}
 
   async list(_req: Request, res: Response) {
@@ -194,6 +196,18 @@ class AnkifyController {
     const owner = res.locals.owner as number;
     await this.deleteScheduleUseCase.execute(owner);
     res.status(204).send();
+  }
+
+  async listSyncLogs(req: Request, res: Response) {
+    const owner = res.locals.owner as number;
+    const limit = req.query.limit != null ? Number(req.query.limit) : undefined;
+    const status =
+      req.query.status != null ? String(req.query.status) : undefined;
+    const logs = await this.listSyncLogsUseCase.execute(owner, {
+      limit,
+      status,
+    });
+    res.status(200).json(logs);
   }
 
   async sendUpload(req: Request, res: Response) {
