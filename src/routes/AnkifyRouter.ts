@@ -191,14 +191,12 @@ const AnkifyRouter = () => {
     new ListNotionDatabasesUseCase(new NotionRepository(db), {
       listDatabases: async (token) => {
         const notion = new NotionClient({ auth: token });
-        const response = await notion.search({
-          page_size: 100,
-        });
+        const response = await notion.search({ page_size: 100 });
         return response.results
-          .filter(
-            (entry) =>
-              (entry as { object?: string }).object === 'database'
-          )
+          .filter((entry) => {
+            const obj = (entry as { object?: string }).object;
+            return obj === 'database' || obj === 'data_source';
+          })
           .map((entry) => {
             const titleArr = (entry as { title?: { plain_text?: string }[] })
               .title;
