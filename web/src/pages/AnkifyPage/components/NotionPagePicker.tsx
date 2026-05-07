@@ -77,45 +77,56 @@ export default function NotionPagePicker({
         </p>
       )}
 
-      {!loading && error == null && results.length === 0 && (
-        <p className={styles.pickerStatus}>
-          {query.trim().length > 0
-            ? `No pages match “${query}”. Make sure the page is shared with 2anki in Notion.`
-            : 'No Notion pages here yet. Share a page with 2anki from your Notion connections settings.'}
-        </p>
-      )}
+      {(() => {
+        const visible = results.filter(
+          (entry) =>
+            entry.object === 'page' && entry.title.trim().length > 0
+        );
 
-      {results.length > 0 && (
-        <ul className={styles.pickerList}>
-          {results.map((page) => {
-            const isBusy = busyId === page.id;
-            const alreadySubscribed = disabledIds?.has(page.id) ?? false;
-            return (
-              <li key={page.id} className={styles.pickerItem}>
-                <div className={styles.pickerEntry}>
-                  <BlockIcon icon={page.icon} />
-                  <span className={styles.pickerTitle} title={page.title}>
-                    {page.title}
-                  </span>
-                  <span className={styles.pickerType}>{page.object}</span>
-                </div>
-                <button
-                  type="button"
-                  className={`${sharedStyles.btnSmall} ${styles.inlineButton}`}
-                  onClick={() => onSelect(page.id)}
-                  disabled={isBusy || alreadySubscribed}
-                >
-                  {alreadySubscribed
-                    ? subscribedLabel
-                    : isBusy
-                      ? busyLabel
-                      : selectLabel}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      )}
+        if (!loading && error == null && visible.length === 0) {
+          return (
+            <p className={styles.pickerStatus}>
+              {query.trim().length > 0
+                ? `No pages match “${query}”. Make sure the page is shared with 2anki in Notion.`
+                : 'No Notion pages here yet. Share a page with 2anki from your Notion connections settings.'}
+            </p>
+          );
+        }
+
+        if (visible.length === 0) return null;
+
+        return (
+          <ul className={styles.pickerList}>
+            {visible.map((page) => {
+              const isBusy = busyId === page.id;
+              const alreadySubscribed = disabledIds?.has(page.id) ?? false;
+              return (
+                <li key={page.id} className={styles.pickerItem}>
+                  <div className={styles.pickerEntry}>
+                    <BlockIcon icon={page.icon} />
+                    <span className={styles.pickerTitle} title={page.title}>
+                      {page.title}
+                    </span>
+                    <span className={styles.pickerType}>{page.object}</span>
+                  </div>
+                  <button
+                    type="button"
+                    className={`${sharedStyles.btnSmall} ${styles.inlineButton}`}
+                    onClick={() => onSelect(page.id)}
+                    disabled={isBusy || alreadySubscribed}
+                  >
+                    {alreadySubscribed
+                      ? subscribedLabel
+                      : isBusy
+                        ? busyLabel
+                        : selectLabel}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        );
+      })()}
     </div>
   );
 }
