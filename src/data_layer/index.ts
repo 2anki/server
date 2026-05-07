@@ -188,6 +188,34 @@ export const setupDatabase = async (database: Knex) => {
             } while (cursor != null);
             return aggregated as never;
           };
+        },
+        (token) => {
+          const notion = new NotionClient({ auth: token });
+          return async (notionPageId) => {
+            const page = await notion.pages.retrieve({
+              page_id: notionPageId,
+            });
+            const props =
+              (page as { properties?: Record<string, unknown> }).properties ??
+              {};
+            let title: string | null = null;
+            for (const value of Object.values(props)) {
+              const entry = value as {
+                type?: string;
+                title?: { plain_text?: string }[];
+              };
+              if (entry.type === 'title' && Array.isArray(entry.title)) {
+                title = entry.title
+                  .map((t) => t.plain_text ?? '')
+                  .join('')
+                  .trim();
+                if (title.length === 0) title = null;
+                break;
+              }
+            }
+            const url = (page as { url?: string }).url ?? null;
+            return { title, url };
+          };
         }
       );
       scheduleAnkifyPolling(subscriptionsRepo, syncUseCase);

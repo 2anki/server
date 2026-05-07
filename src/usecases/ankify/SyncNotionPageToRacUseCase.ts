@@ -18,9 +18,20 @@ export { NotionNotConnectedError } from './ExportReviewDataToNotionUseCase';
 export interface SyncNotionPageInput {
   owner: number;
   notionPageId: string;
+  notionPageTitle?: string | null;
+  notionPageUrl?: string | null;
   trigger: 'manual' | 'polling' | 'webhook';
   ankiConnectHost?: string;
 }
+
+export interface NotionPageMeta {
+  title: string | null;
+  url: string | null;
+}
+
+export type NotionPageMetaFetcher = (
+  token: string
+) => (notionPageId: string) => Promise<NotionPageMeta>;
 
 export type AnkiWebSyncStatus = 'synced' | 'failed' | 'skipped';
 
@@ -56,7 +67,8 @@ export class SyncNotionPageToRacUseCase {
     private readonly logs: AnkifySyncLogsRepositoryInterface,
     private readonly notionRepo: INotionRepository,
     private readonly ankiConnect: AnkiConnectFactory,
-    private readonly notionFetcher: NotionFetcherFactory
+    private readonly notionFetcher: NotionFetcherFactory,
+    private readonly notionPageMeta?: NotionPageMetaFetcher
   ) {}
 
   async execute(input: SyncNotionPageInput): Promise<SyncNotionPageResult> {
@@ -71,10 +83,24 @@ export class SyncNotionPageToRacUseCase {
       throw new NotionNotConnectedError();
     }
 
+    let pageTitle: string | null | undefined = input.notionPageTitle;
+    let pageUrl: string | null | undefined = input.notionPageUrl;
+    if (this.notionPageMeta != null) {
+      try {
+        const meta = await this.notionPageMeta(token)(input.notionPageId);
+        pageTitle = meta.title;
+        pageUrl = meta.url;
+      } catch {
+        // Notion API hiccup — keep whatever the input or DB already has.
+      }
+    }
+
     const subscription = await this.subscriptions.upsert({
       owner: input.owner,
       ankify_client_id: client.id,
       notion_page_id: input.notionPageId,
+      notion_page_title: pageTitle,
+      notion_page_url: pageUrl,
       enabled: true,
     });
 

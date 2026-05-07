@@ -36,20 +36,30 @@ export class AnkifyNotionSubscriptionsRepository
   async upsert(
     input: UpsertAnkifyNotionSubscription
   ): Promise<AnkifyNotionSubscription> {
+    const insertPayload: Record<string, unknown> = {
+      owner: input.owner,
+      ankify_client_id: input.ankify_client_id,
+      notion_page_id: input.notion_page_id,
+      enabled: input.enabled,
+      updated_at: this.database.fn.now(),
+    };
+    const mergePayload: Record<string, unknown> = {
+      ankify_client_id: input.ankify_client_id,
+      enabled: input.enabled,
+      updated_at: this.database.fn.now(),
+    };
+    if (input.notion_page_title !== undefined) {
+      insertPayload.notion_page_title = input.notion_page_title;
+      mergePayload.notion_page_title = input.notion_page_title;
+    }
+    if (input.notion_page_url !== undefined) {
+      insertPayload.notion_page_url = input.notion_page_url;
+      mergePayload.notion_page_url = input.notion_page_url;
+    }
     const [row] = await this.database<AnkifyNotionSubscription>(TABLE)
-      .insert({
-        owner: input.owner,
-        ankify_client_id: input.ankify_client_id,
-        notion_page_id: input.notion_page_id,
-        enabled: input.enabled,
-        updated_at: this.database.fn.now() as unknown as Date,
-      })
+      .insert(insertPayload)
       .onConflict(['owner', 'notion_page_id'])
-      .merge({
-        ankify_client_id: input.ankify_client_id,
-        enabled: input.enabled,
-        updated_at: this.database.fn.now() as unknown as Date,
-      })
+      .merge(mergePayload)
       .returning('*');
     return row;
   }
