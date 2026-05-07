@@ -34,23 +34,33 @@ export default function SendToAnkifyButton({ uploadId, filename }: Props) {
   const disabled = dispatch.isPending || !hasActive;
 
   const label = (() => {
-    if (dispatch.isPending) return 'Sending…';
+    if (dispatch.isPending) return 'Sending to Anki…';
     if (dispatch.isSuccess) {
       const data = dispatch.data;
       const parts = [];
       if (data.created > 0) parts.push(`${data.created} new`);
       if (data.updated > 0) parts.push(`${data.updated} updated`);
-      return parts.length > 0 ? parts.join(', ') : 'Sent';
+      const counts = parts.length > 0 ? parts.join(', ') : 'Sent';
+      const sync =
+        data.anki_web_sync === 'synced'
+          ? ' · synced to AnkiWeb'
+          : data.anki_web_sync === 'failed'
+            ? ' · AnkiWeb sync skipped'
+            : '';
+      return `${counts}${sync}`;
     }
     if (dispatch.isError) return 'Retry';
     return 'Send to Ankify';
   })();
 
-  const title = !hasActive
-    ? 'Provision an Ankify client first'
-    : dispatch.isError
-      ? (dispatch.error as Error).message
-      : `Send ${filename ?? 'this deck'} to your hosted Anki`;
+  const title = (() => {
+    if (!hasActive) return 'Provision an Ankify client first';
+    if (dispatch.isError) return (dispatch.error as Error).message;
+    if (dispatch.isSuccess && dispatch.data.anki_web_sync === 'failed') {
+      return `AnkiWeb didn't accept the sync — open Anki in your browser and sign in to AnkiWeb. ${dispatch.data.anki_web_sync_error ?? ''}`;
+    }
+    return `Send ${filename ?? 'this deck'} to your hosted Anki and sync to AnkiWeb (takes a moment)`;
+  })();
 
   return (
     <button

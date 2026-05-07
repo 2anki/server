@@ -29,12 +29,19 @@ export class UploadNotFoundError extends Error {
   }
 }
 
+export type AnkiWebSyncStatus =
+  | 'synced'
+  | 'failed'
+  | 'skipped';
+
 export interface SendUploadToRacResult {
   client: AnkifyClient;
   deckNames: string[];
   created: number;
   updated: number;
   errors: string[];
+  ankiWebSync: AnkiWebSyncStatus;
+  ankiWebSyncError: string | null;
 }
 
 export type AnkiConnectFactory = (
@@ -144,6 +151,8 @@ export class SendUploadToRacUseCase {
       created: 0,
       updated: 0,
       errors: [],
+      ankiWebSync: 'skipped',
+      ankiWebSyncError: null,
     };
 
     for (const [noteId, note] of collection.notes) {
@@ -201,6 +210,16 @@ export class SendUploadToRacUseCase {
     }
 
     result.deckNames = Array.from(seenDeckNames);
+
+    if (result.created + result.updated > 0) {
+      try {
+        await ac.sync();
+        result.ankiWebSync = 'synced';
+      } catch (error) {
+        result.ankiWebSync = 'failed';
+        result.ankiWebSyncError = (error as Error).message;
+      }
+    }
 
     if (this.logs != null) {
       await this.logs

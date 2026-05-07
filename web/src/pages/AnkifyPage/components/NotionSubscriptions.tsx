@@ -77,8 +77,10 @@ export default function NotionSubscriptions({ backend }: Props) {
         <h2 className={styles.sectionTitle}>Notion pages syncing into Anki</h2>
       </header>
       <p className={styles.sectionDescription}>
-        Pick a Notion page and we'll keep its toggle blocks in sync with your
-        hosted Anki. Updates are checked every few minutes.
+        Pick a Notion page and we'll keep its toggle blocks in sync. Each
+        sync reads the page, updates your hosted Anki, then pushes the
+        change to your AnkiWeb account so it shows up on your other
+        devices. Updates are checked every few minutes.
       </p>
 
       <NotionPagePicker
@@ -97,15 +99,27 @@ export default function NotionSubscriptions({ backend }: Props) {
         </p>
       )}
       {subscribe.isSuccess && (
-        <p className={sharedStyles.helpSuccess}>
-          Synced. {subscribe.data.created} new card
-          {subscribe.data.created === 1 ? '' : 's'}, {subscribe.data.updated}{' '}
-          updated
-          {subscribe.data.conflicts > 0
-            ? `, ${subscribe.data.conflicts} need a decision`
-            : ''}
-          .
-        </p>
+        <>
+          <p className={sharedStyles.helpSuccess}>
+            Read your Notion page. {subscribe.data.created} new card
+            {subscribe.data.created === 1 ? '' : 's'},{' '}
+            {subscribe.data.updated} updated in your hosted Anki
+            {subscribe.data.conflicts > 0
+              ? `, ${subscribe.data.conflicts} need a decision`
+              : ''}
+            .
+            {subscribe.data.anki_web_sync === 'synced' &&
+              ' Pushed to AnkiWeb.'}
+            {subscribe.data.anki_web_sync === 'skipped' &&
+              ' Nothing to push to AnkiWeb.'}
+          </p>
+          {subscribe.data.anki_web_sync === 'failed' && (
+            <p className={sharedStyles.helpDanger}>
+              Couldn't reach AnkiWeb. Open Anki in your browser and sign in
+              to your AnkiWeb account, then try again.
+            </p>
+          )}
+        </>
       )}
 
       <details className={styles.advancedDetails}>

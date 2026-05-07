@@ -22,6 +22,8 @@ export interface SyncNotionPageInput {
   ankiConnectHost?: string;
 }
 
+export type AnkiWebSyncStatus = 'synced' | 'failed' | 'skipped';
+
 export interface SyncNotionPageResult {
   client: AnkifyClient;
   subscription: AnkifyNotionSubscription;
@@ -30,6 +32,8 @@ export interface SyncNotionPageResult {
   conflicts: number;
   unchanged: number;
   errors: string[];
+  ankiWebSync: AnkiWebSyncStatus;
+  ankiWebSyncError: string | null;
 }
 
 export type AnkiConnectFactory = (
@@ -82,6 +86,8 @@ export class SyncNotionPageToRacUseCase {
       conflicts: 0,
       unchanged: 0,
       errors: [],
+      ankiWebSync: 'skipped',
+      ankiWebSyncError: null,
     };
 
     try {
@@ -187,6 +193,16 @@ export class SyncNotionPageToRacUseCase {
           result.errors.push(
             `Block ${card.notion_block_id}: ${(error as Error).message}`
           );
+        }
+      }
+
+      if (result.created + result.updated > 0) {
+        try {
+          await ac.sync();
+          result.ankiWebSync = 'synced';
+        } catch (syncError) {
+          result.ankiWebSync = 'failed';
+          result.ankiWebSyncError = (syncError as Error).message;
         }
       }
 

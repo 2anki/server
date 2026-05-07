@@ -74,6 +74,7 @@ export class ResolveConflictUseCase {
         Front: notionSnapshot?.front ?? '',
         Back: notionSnapshot?.back ?? '',
       });
+      await ac.sync().catch(() => undefined);
     } else if (input.resolution === 'keep_anki') {
       const token = await this.notionRepo.getNotionToken(String(input.owner));
       if (token == null) {
