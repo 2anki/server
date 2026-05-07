@@ -74,12 +74,11 @@ export default function NotionSubscriptions({ backend }: Props) {
   return (
     <section className={styles.section}>
       <header className={styles.sectionHeader}>
-        <h2 className={styles.sectionTitle}>Live Notion to Anki sync</h2>
+        <h2 className={styles.sectionTitle}>Notion pages syncing into Anki</h2>
       </header>
       <p className={styles.sectionDescription}>
-        Subscribe a Notion page and its toggle blocks will be auto-synced into
-        your hosted Anki. Polling runs every 5 minutes; webhooks fire near
-        real-time once configured in Notion.
+        Pick a Notion page and we'll keep its toggle blocks in sync with your
+        hosted Anki. Updates are checked every few minutes.
       </p>
 
       <NotionPagePicker
@@ -87,9 +86,9 @@ export default function NotionSubscriptions({ backend }: Props) {
         onSelect={handlePick}
         busyId={subscribe.isPending ? pendingId : null}
         disabledIds={subscribedIds}
-        selectLabel="Subscribe & sync"
+        selectLabel="Sync this page"
         busyLabel="Syncing…"
-        subscribedLabel="Subscribed"
+        subscribedLabel="Already syncing"
       />
 
       {subscribe.isError && (
@@ -99,27 +98,29 @@ export default function NotionSubscriptions({ backend }: Props) {
       )}
       {subscribe.isSuccess && (
         <p className={sharedStyles.helpSuccess}>
-          Synced ({subscribe.data.created} new, {subscribe.data.updated} updated
+          Synced. {subscribe.data.created} new card
+          {subscribe.data.created === 1 ? '' : 's'}, {subscribe.data.updated}{' '}
+          updated
           {subscribe.data.conflicts > 0
-            ? `, ${subscribe.data.conflicts} conflicts`
+            ? `, ${subscribe.data.conflicts} need a decision`
             : ''}
-          ).
+          .
         </p>
       )}
 
       <details className={styles.advancedDetails}>
         <summary className={styles.advancedSummary}>
-          Advanced: paste a Notion URL or page ID
+          Don't see your page? Paste a Notion link instead.
         </summary>
         <form onSubmit={handleAdvancedSubmit} className={styles.advancedBody}>
-          <label htmlFor="ankify-advanced-input">Notion page URL or ID</label>
+          <label htmlFor="ankify-advanced-input">Notion page link</label>
           <div className={styles.advancedRow}>
             <input
               id="ankify-advanced-input"
               type="text"
               value={advancedInput}
               onChange={(event) => setAdvancedInput(event.target.value)}
-              placeholder="https://www.notion.so/... or 8a3f…"
+              placeholder="https://www.notion.so/..."
             />
             <button
               type="submit"
@@ -128,7 +129,7 @@ export default function NotionSubscriptions({ backend }: Props) {
                 subscribe.isPending || advancedInput.trim().length === 0
               }
             >
-              Subscribe
+              Sync this page
             </button>
           </div>
         </form>
@@ -140,17 +141,24 @@ export default function NotionSubscriptions({ backend }: Props) {
             <tr>
               <th>Notion page</th>
               <th>Last synced</th>
-              <th>Last error</th>
-              <th />
+              <th>Last issue</th>
+              <th aria-label="Actions" />
             </tr>
           </thead>
           <tbody>
             {subscriptions.map((sub) => (
               <tr key={sub.id}>
-                <td className={styles.mono}>{sub.notion_page_id}</td>
                 <td>
+                  <span
+                    className={styles.mono}
+                    title={sub.notion_page_id}
+                  >
+                    {sub.notion_page_id.slice(0, 8)}…
+                  </span>
+                </td>
+                <td className={styles.relativeTime}>
                   {sub.last_synced_at ?? (
-                    <span className={styles.muted}>Never</span>
+                    <span className={styles.muted}>Not yet</span>
                   )}
                 </td>
                 <td className={sub.last_error ? styles.errorCell : styles.muted}>
@@ -163,7 +171,7 @@ export default function NotionSubscriptions({ backend }: Props) {
                     onClick={() => unsubscribe.mutate(sub.id)}
                     disabled={unsubscribe.isPending}
                   >
-                    Unsubscribe
+                    Stop syncing
                   </button>
                 </td>
               </tr>
@@ -171,7 +179,9 @@ export default function NotionSubscriptions({ backend }: Props) {
           </tbody>
         </table>
       ) : (
-        <p className={styles.emptyLine}>No subscriptions yet.</p>
+        <p className={styles.emptyLine}>
+          No pages syncing yet. Pick one above to get started.
+        </p>
       )}
     </section>
   );

@@ -69,96 +69,113 @@ export default function ReviewDataExport({ backend }: Props) {
   });
 
   const hasSchedule = scheduleQuery.data != null;
+  const scheduleEnabled = scheduleQuery.data?.enabled === true;
 
   return (
     <section className={styles.section}>
       <header className={styles.sectionHeader}>
-        <h2 className={styles.sectionTitle}>Export review data to Notion</h2>
+        <h2 className={styles.sectionTitle}>Send your reviews to Notion</h2>
       </header>
       <p className={styles.sectionDescription}>
-        Pulls per-day card review counts from your hosted Anki and writes one
-        row per day into a Notion database. Database needs <code>Date</code>{' '}
-        and <code>Reviews</code> properties. Existing dates are skipped.
+        Each day's review count gets written as a row in a Notion database.
+        Existing days are kept — only new ones are added. Your database needs a{' '}
+        <code>Date</code> property and a <code>Reviews</code> property.
       </p>
 
-      <form
-        className={styles.formGrid}
-        onSubmit={(event) => {
-          event.preventDefault();
-          if (databaseId.trim().length > 0) {
-            exportMutation.mutate();
-          }
-        }}
-      >
-        <div>
-          <label htmlFor="ankify-database-id">Notion database ID</label>
-          <input
-            id="ankify-database-id"
-            type="text"
-            value={databaseId}
-            onChange={(event) => setDatabaseId(event.target.value)}
-            placeholder="e.g. 8a3f…"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="ankify-date-range">
-            Date range (last N days, optional)
-          </label>
-          <input
-            id="ankify-date-range"
-            type="number"
-            min={1}
-            value={dateRangeDays}
-            onChange={(event) => setDateRangeDays(event.target.value)}
-            placeholder="all"
-          />
-        </div>
-
-        <div className={styles.actionRow}>
-          <button
-            type="submit"
-            className={`${sharedStyles.btnPrimary} ${styles.inlineButton}`}
-            disabled={
-              exportMutation.isPending || databaseId.trim().length === 0
+      <div className={styles.exportCard}>
+        <form
+          className={styles.formGrid}
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (databaseId.trim().length > 0) {
+              exportMutation.mutate();
             }
-          >
-            {exportMutation.isPending ? 'Exporting…' : 'Export now'}
-          </button>
+          }}
+        >
+          <div>
+            <label htmlFor="ankify-database-id">Notion database ID</label>
+            <input
+              id="ankify-database-id"
+              type="text"
+              value={databaseId}
+              onChange={(event) => setDatabaseId(event.target.value)}
+              placeholder="Paste from your Notion database URL"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="ankify-date-range">
+              How many days back? (optional)
+            </label>
+            <input
+              id="ankify-date-range"
+              type="number"
+              min={1}
+              value={dateRangeDays}
+              onChange={(event) => setDateRangeDays(event.target.value)}
+              placeholder="All time"
+            />
+          </div>
+
+          <div className={styles.actionRow}>
+            <button
+              type="submit"
+              className={`${sharedStyles.btnPrimary} ${styles.inlineButton}`}
+              disabled={
+                exportMutation.isPending || databaseId.trim().length === 0
+              }
+            >
+              {exportMutation.isPending ? 'Sending…' : 'Send now'}
+            </button>
+          </div>
+
+          {exportMutation.isSuccess && (
+            <p className={sharedStyles.helpSuccess}>
+              Sent {exportMutation.data.exported} new{' '}
+              {exportMutation.data.exported === 1 ? 'day' : 'days'}
+              {exportMutation.data.skipped > 0
+                ? `, skipped ${exportMutation.data.skipped} already in Notion`
+                : ''}
+              {exportMutation.data.errors.length > 0
+                ? `, ${exportMutation.data.errors.length} couldn't be sent`
+                : ''}
+              .
+            </p>
+          )}
+          {exportMutation.isError && (
+            <p role="alert" className={sharedStyles.helpDanger}>
+              {(exportMutation.error as Error).message}
+            </p>
+          )}
+        </form>
+      </div>
+
+      <div className={styles.scheduleCard}>
+        <div className={styles.scheduleHeading}>
+          <h3 className={styles.scheduleTitle}>Send every day, automatically</h3>
+          {hasSchedule && (
+            <span
+              className={
+                scheduleEnabled
+                  ? styles.scheduleStatusOn
+                  : styles.scheduleStatus
+              }
+            >
+              {scheduleEnabled ? 'On' : 'Off'}
+            </span>
+          )}
         </div>
-
-        {exportMutation.isSuccess && (
-          <p className={sharedStyles.helpSuccess}>
-            Exported {exportMutation.data.exported} new entries
-            {exportMutation.data.skipped > 0
-              ? `, skipped ${exportMutation.data.skipped} already-present`
-              : ''}
-            {exportMutation.data.errors.length > 0
-              ? `, ${exportMutation.data.errors.length} errors`
-              : ''}
-            .
-          </p>
-        )}
-        {exportMutation.isError && (
-          <p role="alert" className={sharedStyles.helpDanger}>
-            {(exportMutation.error as Error).message}
-          </p>
-        )}
-      </form>
-
-      <fieldset className={styles.scheduleFieldset} style={{ marginTop: '1.5rem' }}>
-        <legend>Daily schedule</legend>
         <p className={styles.sectionDescription}>
           {hasSchedule
-            ? 'Runs every day at the chosen time. Survives server restarts.'
-            : 'No schedule configured yet. Set a time below to run the export every day.'}
+            ? 'Runs at the time you choose, every day.'
+            : "Set a time and we'll send the previous day's reviews to Notion automatically."}
           {scheduleQuery.data?.last_run_at && (
             <> Last run: {scheduleQuery.data.last_run_at}.</>
           )}
         </p>
         <div className={styles.scheduleRow}>
           <div className={styles.scheduleField}>
-            <label htmlFor="ankify-schedule-time">Time (HH:MM)</label>
+            <label htmlFor="ankify-schedule-time">Time of day</label>
             <input
               id="ankify-schedule-time"
               type="time"
@@ -167,7 +184,7 @@ export default function ReviewDataExport({ backend }: Props) {
             />
           </div>
           <div className={styles.scheduleField}>
-            <label htmlFor="ankify-schedule-tz">Timezone (IANA)</label>
+            <label htmlFor="ankify-schedule-tz">Timezone</label>
             <input
               id="ankify-schedule-tz"
               type="text"
@@ -186,9 +203,9 @@ export default function ReviewDataExport({ backend }: Props) {
           >
             {saveSchedule.isPending
               ? 'Saving…'
-              : scheduleQuery.data?.enabled
+              : scheduleEnabled
                 ? 'Update schedule'
-                : 'Enable daily schedule'}
+                : 'Turn on daily sending'}
           </button>
           {hasSchedule && (
             <button
@@ -197,7 +214,7 @@ export default function ReviewDataExport({ backend }: Props) {
               onClick={() => deleteSchedule.mutate()}
               disabled={deleteSchedule.isPending}
             >
-              {deleteSchedule.isPending ? 'Removing…' : 'Disable'}
+              {deleteSchedule.isPending ? 'Turning off…' : 'Turn off'}
             </button>
           )}
         </div>
@@ -206,7 +223,7 @@ export default function ReviewDataExport({ backend }: Props) {
             {(saveSchedule.error as Error).message}
           </p>
         )}
-      </fieldset>
+      </div>
     </section>
   );
 }
