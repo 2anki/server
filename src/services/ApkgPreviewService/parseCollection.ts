@@ -174,9 +174,19 @@ function loadModernDecks(db: Database.Database): Map<number, Deck> {
 }
 
 function loadNotes(db: Database.Database): Map<number, Note> {
-  const rows = db
-    .prepare('SELECT id, mid, tags, flds FROM notes')
-    .all() as Array<{ id: number; mid: number; tags: string; flds: string }>;
+  const hasGuidColumn = db
+    .prepare(
+      "SELECT 1 FROM pragma_table_info('notes') WHERE name = 'guid' LIMIT 1"
+    )
+    .get();
+  const columns = hasGuidColumn ? 'id, mid, tags, flds, guid' : 'id, mid, tags, flds';
+  const rows = db.prepare(`SELECT ${columns} FROM notes`).all() as Array<{
+    id: number;
+    mid: number;
+    tags: string;
+    flds: string;
+    guid?: string;
+  }>;
   const map = new Map<number, Note>();
   for (const row of rows) {
     map.set(row.id, {
@@ -184,6 +194,7 @@ function loadNotes(db: Database.Database): Map<number, Note> {
       mid: row.mid,
       tags: row.tags,
       fields: row.flds.split('\x1f'),
+      guid: row.guid,
     });
   }
   return map;

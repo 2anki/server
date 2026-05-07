@@ -4,6 +4,7 @@ import Uploads from './public/Uploads';
 export interface IUploadRepository {
   deleteUpload(owner: number, key: string): Promise<number>;
   getUploadsByOwner(owner: number): Promise<Uploads[]>;
+  findByIdAndOwner(id: number, owner: number): Promise<Uploads | null>;
   update(
     owner: number,
     filename: string,
@@ -35,6 +36,17 @@ class UploadRepository implements IUploadRepository {
       .where({ owner: owner })
       .orderBy('id', 'desc')
       .returning('*');
+  }
+
+  async findByIdAndOwner(id: number, owner: number): Promise<Uploads | null> {
+    if (owner == null || id == null) {
+      return null;
+    }
+    const row = await this.database<Uploads>(this.table)
+      .select('*')
+      .where({ id, owner })
+      .first();
+    return row ?? null;
   }
 
   update(
