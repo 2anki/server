@@ -5,6 +5,8 @@ import { get2ankiApi } from '../../lib/backend/get2ankiApi';
 import AnkifyClient from '../../lib/interfaces/AnkifyClient';
 import { Backend } from '../../lib/backend/Backend';
 import ReviewDataExport from './components/ReviewDataExport';
+import NotionSubscriptions from './components/NotionSubscriptions';
+import SyncConflicts from './components/SyncConflicts';
 
 const QUERY_KEY = ['ankify-clients'];
 
@@ -148,7 +150,13 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
         </table>
       )}
 
-      {hasActiveClient && <ReviewDataExport backend={backend} />}
+      {hasActiveClient && (
+        <>
+          <SyncConflicts backend={backend} />
+          <NotionSubscriptions backend={backend} />
+          <ReviewDataExport backend={backend} />
+        </>
+      )}
     </main>
   );
 }
