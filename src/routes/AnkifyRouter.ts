@@ -306,6 +306,7 @@ const AnkifyRouter = () => {
               Name: { title: {} },
               Date: { date: {} },
               Reviews: { number: { format: 'number' } },
+              'Time spent': { number: { format: 'number' } },
             },
           },
         } as never);

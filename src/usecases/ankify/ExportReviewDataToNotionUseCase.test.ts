@@ -50,9 +50,13 @@ const makeNotionRepo = (token: string | null): jest.Mocked<INotionRepository> =>
     deleteNotionData: jest.fn(),
   } as unknown as jest.Mocked<INotionRepository>);
 
-const makeAnkiConnect = (rows: Array<[string, number]>) =>
+const makeAnkiConnect = (
+  rows: Array<[string, number]>,
+  minutesByDay: Map<string, number> = new Map()
+) =>
   ({
     getNumCardsReviewedByDay: jest.fn(async () => rows),
+    getReviewMinutesByDay: jest.fn(async () => minutesByDay),
   } as unknown as AnkiConnectClient);
 
 const defaultSchema = (): TrackerSchema => ({
@@ -198,6 +202,75 @@ describe('ExportReviewDataToNotionUseCase', () => {
     await expect(promise).rejects.toMatchObject({
       missing: ['Date', 'Reviews'],
     });
+  });
+
+  test('writes Time spent (minutes) when the tracker has the column', async () => {
+    const clients = makeClientsRepo();
+    const notionRepo = makeNotionRepo('notion-token');
+    const ac = makeAnkiConnect(
+      [
+        ['2026-05-06', 12],
+        ['2026-05-07', 7],
+      ],
+      new Map([
+        ['2026-05-06', 24.4],
+        ['2026-05-07', 8.7],
+      ])
+    );
+    const schemaWithTimeSpent: TrackerSchema = {
+      properties: {
+        Date: { type: 'date' },
+        Reviews: { type: 'number' },
+        'Time spent': { type: 'number' },
+      },
+    };
+    const { client: notion, create } = makeNotionClient([], schemaWithTimeSpent);
+
+    const useCase = new ExportReviewDataToNotionUseCase(
+      clients,
+      notionRepo,
+      () => ac,
+      () => notion
+    );
+
+    const result = await useCase.execute({ owner: 42, databaseId: 'db' });
+
+    expect(result.exported).toBe(2);
+    const calls = (create as jest.Mock).mock.calls;
+    expect(calls[0][0].properties).toMatchObject({
+      Date: { date: { start: '2026-05-06' } },
+      Reviews: { number: 12 },
+      'Time spent': { number: 24 },
+    });
+    expect(calls[1][0].properties).toMatchObject({
+      Date: { date: { start: '2026-05-07' } },
+      Reviews: { number: 7 },
+      'Time spent': { number: 9 },
+    });
+  });
+
+  test('omits Time spent when the column is absent (legacy trackers stay supported)', async () => {
+    const clients = makeClientsRepo();
+    const notionRepo = makeNotionRepo('notion-token');
+    const ac = makeAnkiConnect(
+      [['2026-05-07', 3]],
+      new Map([['2026-05-07', 12]])
+    );
+    const { client: notion, create } = makeNotionClient();
+
+    const useCase = new ExportReviewDataToNotionUseCase(
+      clients,
+      notionRepo,
+      () => ac,
+      () => notion
+    );
+
+    await useCase.execute({ owner: 42, databaseId: 'db' });
+
+    const properties = (create as jest.Mock).mock.calls[0][0].properties;
+    expect(properties).toHaveProperty('Date');
+    expect(properties).toHaveProperty('Reviews');
+    expect(properties).not.toHaveProperty('Time spent');
   });
 });
 

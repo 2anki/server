@@ -122,6 +122,13 @@ export class ExportReviewDataToNotionUseCase {
       throw error;
     }
 
+    let minutesByDay: Map<string, number>;
+    try {
+      minutesByDay = await ac.getReviewMinutesByDay();
+    } catch {
+      minutesByDay = new Map();
+    }
+
     const filtered =
       input.dateRangeDays != null && input.dateRangeDays > 0
         ? raw.slice(-input.dateRangeDays)
@@ -132,6 +139,10 @@ export class ExportReviewDataToNotionUseCase {
     const schema = await notion.getSchema(input.databaseId);
     const dateKey = findTrackerPropertyKey(schema, 'Date', 'date');
     const reviewsKey = findTrackerPropertyKey(schema, 'Reviews', 'number');
+    const timeSpentKey =
+      findTrackerPropertyKey(schema, 'Time spent', 'number') ??
+      findTrackerPropertyKey(schema, 'Time spent (min)', 'number') ??
+      findTrackerPropertyKey(schema, 'Minutes', 'number');
     const missing: string[] = [];
     if (dateKey == null) missing.push('Date');
     if (reviewsKey == null) missing.push('Reviews');
@@ -156,12 +167,17 @@ export class ExportReviewDataToNotionUseCase {
           result.skipped += 1;
           continue;
         }
+        const properties: Record<string, unknown> = {
+          [dateKey!]: { date: { start: date } },
+          [reviewsKey!]: { number: reviewCount },
+        };
+        if (timeSpentKey != null) {
+          const minutes = Math.round(minutesByDay.get(date) ?? 0);
+          properties[timeSpentKey] = { number: minutes };
+        }
         await notion.pages.create({
           parent: { database_id: input.databaseId },
-          properties: {
-            [dateKey!]: { date: { start: date } },
-            [reviewsKey!]: { number: reviewCount },
-          },
+          properties,
         });
         result.exported += 1;
       } catch (error) {
