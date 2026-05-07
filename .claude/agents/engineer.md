@@ -74,7 +74,7 @@ For every PR, check:
 
 Comment style: be specific, suggest the fix in code, link to existing patterns in the repo. Don't pile up nits — bundle them in one comment.
 
-If the PR is good, approve and merge. Don't sit on it. First-time contributors get extra encouragement.
+If the PR is good, post a comment-only review with a clear "approve" verdict, then merge. Never call `gh pr review --approve` — Alexander authors most PRs on this repo and GitHub blocks self-approval, so the call errors out and wastes a round trip. Use `gh pr review <n> --comment --body-file -` for the verdict and `gh pr merge` to ship. Don't sit on it. First-time contributors get extra encouragement.
 
 ## Security guardrails (from CLAUDE.md)
 
