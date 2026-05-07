@@ -63,3 +63,32 @@ export interface UpsertAnkifyExportSchedule {
   date_range_days: number | null;
   enabled: boolean;
 }
+
+export type AnkifySyncLogKind =
+  | 'dispatch'
+  | 'export_review_data'
+  | 'scheduled_export'
+  | 'webhook'
+  | 'reaper'
+  | 'provision'
+  | 'respin';
+
+export type AnkifySyncLogStatus = 'success' | 'error' | 'info';
+
+export interface AnkifySyncLog {
+  id: number;
+  owner: number;
+  kind: AnkifySyncLogKind;
+  status: AnkifySyncLogStatus;
+  message: string;
+  payload: unknown | null;
+  created_at: Date;
+}
+
+export interface NewAnkifySyncLog {
+  owner: number;
+  kind: AnkifySyncLogKind;
+  status: AnkifySyncLogStatus;
+  message: string;
+  payload?: unknown;
+}

@@ -20,6 +20,8 @@ import { ExportReviewDataToNotionUseCase } from '../usecases/ankify/ExportReview
 import { ConfigureExportScheduleUseCase } from '../usecases/ankify/ConfigureExportScheduleUseCase';
 import { GetExportScheduleUseCase } from '../usecases/ankify/GetExportScheduleUseCase';
 import { DeleteExportScheduleUseCase } from '../usecases/ankify/DeleteExportScheduleUseCase';
+import { ListSyncLogsUseCase } from '../usecases/ankify/ListSyncLogsUseCase';
+import { AnkifySyncLogsRepository } from '../data_layer/ankify/AnkifySyncLogsRepository';
 import { AnkifyExportScheduler } from '../services/ankify/AnkifyExportScheduler';
 import { AnkifyExportSchedulesRepository } from '../data_layer/ankify/AnkifyExportSchedulesRepository';
 import { getAnkifyExportScheduler } from '../lib/ankify/scheduler/instance';
@@ -36,6 +38,7 @@ const AnkifyRouter = () => {
   const mappings = new AnkifySyncMappingsRepository(db);
   const uploads = new UploadRepository(db);
   const schedulesRepo = new AnkifyExportSchedulesRepository(db);
+  const logsRepo = new AnkifySyncLogsRepository(db);
   const docker = new Docker();
   const rac = new RacService(repo, docker);
   const storage = new StorageHandler();
@@ -62,7 +65,8 @@ const AnkifyRouter = () => {
       uploads,
       fetchApkgBytes,
       parseCollection,
-      ankiConnectFactory
+      ankiConnectFactory,
+      logsRepo
     ),
     new RespinAnkifyClientUseCase(rac),
     new ExportReviewDataToNotionUseCase(
@@ -103,7 +107,8 @@ const AnkifyRouter = () => {
     ),
     new ConfigureExportScheduleUseCase(schedulesRepo, getAnkifyExportScheduler),
     new GetExportScheduleUseCase(schedulesRepo),
-    new DeleteExportScheduleUseCase(schedulesRepo, getAnkifyExportScheduler)
+    new DeleteExportScheduleUseCase(schedulesRepo, getAnkifyExportScheduler),
+    new ListSyncLogsUseCase(logsRepo)
   );
 
   /**
@@ -305,6 +310,18 @@ const AnkifyRouter = () => {
     '/api/ankify/exports/schedule',
     RequireAnkifyAccess,
     (req, res) => controller.deleteSchedule(req, res)
+  );
+
+  /**
+   * @swagger
+   * /api/ankify/sync-logs:
+   *   get:
+   *     summary: Recent ankify sync events for the user (newest first)
+   *     description: Allowlisted endpoint. Optional query params `limit` (default 100) and `status` (success|error|info).
+   *     tags: [Ankify]
+   */
+  router.get('/api/ankify/sync-logs', RequireAnkifyAccess, (req, res) =>
+    controller.listSyncLogs(req, res)
   );
 
   return router;

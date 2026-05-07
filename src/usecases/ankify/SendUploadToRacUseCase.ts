@@ -5,6 +5,7 @@ import {
 } from '../../entities/ankify';
 import { AnkifyClientsRepositoryInterface } from '../../data_layer/ankify/AnkifyClientsRepository';
 import { AnkifySyncMappingsRepositoryInterface } from '../../data_layer/ankify/AnkifySyncMappingsRepository';
+import { AnkifySyncLogsRepositoryInterface } from '../../data_layer/ankify/AnkifySyncLogsRepository';
 import { IUploadRepository } from '../../data_layer/UploadRespository';
 import {
   AnkiConnectClient,
@@ -109,7 +110,8 @@ export class SendUploadToRacUseCase {
     private readonly uploads: IUploadRepository,
     private readonly fetchApkgBytes: ApkgFetcher,
     private readonly parseApkg: ApkgParser,
-    private readonly ankiConnect: AnkiConnectFactory
+    private readonly ankiConnect: AnkiConnectFactory,
+    private readonly logs?: AnkifySyncLogsRepositoryInterface
   ) {}
 
   async execute(input: SendUploadToRacInput): Promise<SendUploadToRacResult> {
@@ -199,6 +201,28 @@ export class SendUploadToRacUseCase {
     }
 
     result.deckNames = Array.from(seenDeckNames);
+
+    if (this.logs != null) {
+      await this.logs
+        .log({
+          owner: input.owner,
+          kind: 'dispatch',
+          status: result.errors.length > 0 ? 'error' : 'success',
+          message: `dispatched upload ${input.uploadId} (${result.created} new, ${result.updated} updated, ${result.errors.length} errors)`,
+          payload: {
+            upload_id: input.uploadId,
+            ankify_client_id: client.id,
+            deck_names: result.deckNames,
+            created: result.created,
+            updated: result.updated,
+            errors: result.errors,
+          },
+        })
+        .catch((logError) => {
+          console.error('[ankify-sync-log] failed to record dispatch', logError);
+        });
+    }
+
     return result;
   }
 
