@@ -92,3 +92,67 @@ export interface NewAnkifySyncLog {
   message: string;
   payload?: unknown;
 }
+
+export interface AnkifyNotionSubscription {
+  id: number;
+  owner: number;
+  ankify_client_id: number;
+  notion_page_id: string;
+  enabled: boolean;
+  last_polled_at: Date | null;
+  last_synced_at: Date | null;
+  last_error: string | null;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface UpsertAnkifyNotionSubscription {
+  owner: number;
+  ankify_client_id: number;
+  notion_page_id: string;
+  enabled: boolean;
+}
+
+export type AnkifyConflictKind =
+  | 'both_edited'
+  | 'anki_deleted'
+  | 'notion_deleted';
+
+export type AnkifyConflictStatus = 'pending' | 'resolved' | 'dismissed';
+
+export type AnkifyConflictResolution =
+  | 'keep_notion'
+  | 'keep_anki'
+  | 'dismissed'
+  | null;
+
+export interface AnkifySyncConflict {
+  id: number;
+  owner: number;
+  ankify_client_id: number;
+  subscription_id: number | null;
+  source_id: string;
+  anki_note_id: number;
+  kind: AnkifyConflictKind;
+  notion_last_edited_at: Date | null;
+  anki_modified_at: number | null;
+  notion_snapshot: unknown | null;
+  anki_snapshot: unknown | null;
+  status: AnkifyConflictStatus;
+  resolution: AnkifyConflictResolution;
+  created_at: Date;
+  resolved_at: Date | null;
+}
+
+export interface NewAnkifySyncConflict {
+  owner: number;
+  ankify_client_id: number;
+  subscription_id: number | null;
+  source_id: string;
+  anki_note_id: number;
+  kind: AnkifyConflictKind;
+  notion_last_edited_at: Date | null;
+  anki_modified_at: number | null;
+  notion_snapshot: unknown;
+  anki_snapshot: unknown;
+}

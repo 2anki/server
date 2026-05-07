@@ -22,6 +22,13 @@ import { GetExportScheduleUseCase } from '../usecases/ankify/GetExportScheduleUs
 import { DeleteExportScheduleUseCase } from '../usecases/ankify/DeleteExportScheduleUseCase';
 import { ListSyncLogsUseCase } from '../usecases/ankify/ListSyncLogsUseCase';
 import { AnkifySyncLogsRepository } from '../data_layer/ankify/AnkifySyncLogsRepository';
+import { AnkifyNotionSubscriptionsRepository } from '../data_layer/ankify/AnkifyNotionSubscriptionsRepository';
+import { AnkifySyncConflictsRepository } from '../data_layer/ankify/AnkifySyncConflictsRepository';
+import { SyncNotionPageToRacUseCase } from '../usecases/ankify/SyncNotionPageToRacUseCase';
+import { ListNotionSubscriptionsUseCase } from '../usecases/ankify/ListNotionSubscriptionsUseCase';
+import { DeleteNotionSubscriptionUseCase } from '../usecases/ankify/DeleteNotionSubscriptionUseCase';
+import { ListConflictsUseCase } from '../usecases/ankify/ListConflictsUseCase';
+import { ResolveConflictUseCase } from '../usecases/ankify/ResolveConflictUseCase';
 import { AnkifyExportScheduler } from '../services/ankify/AnkifyExportScheduler';
 import { AnkifyExportSchedulesRepository } from '../data_layer/ankify/AnkifyExportSchedulesRepository';
 import { getAnkifyExportScheduler } from '../lib/ankify/scheduler/instance';
@@ -39,6 +46,8 @@ const AnkifyRouter = () => {
   const uploads = new UploadRepository(db);
   const schedulesRepo = new AnkifyExportSchedulesRepository(db);
   const logsRepo = new AnkifySyncLogsRepository(db);
+  const subscriptionsRepo = new AnkifyNotionSubscriptionsRepository(db);
+  const conflictsRepo = new AnkifySyncConflictsRepository(db);
   const docker = new Docker();
   const rac = new RacService(repo, docker);
   const storage = new StorageHandler();
@@ -108,7 +117,75 @@ const AnkifyRouter = () => {
     new ConfigureExportScheduleUseCase(schedulesRepo, getAnkifyExportScheduler),
     new GetExportScheduleUseCase(schedulesRepo),
     new DeleteExportScheduleUseCase(schedulesRepo, getAnkifyExportScheduler),
-    new ListSyncLogsUseCase(logsRepo)
+    new ListSyncLogsUseCase(logsRepo),
+    new SyncNotionPageToRacUseCase(
+      repo,
+      mappings,
+      conflictsRepo,
+      subscriptionsRepo,
+      logsRepo,
+      new NotionRepository(db),
+      ankiConnectFactory,
+      (token) => {
+        const notion = new NotionClient({ auth: token });
+        return async (blockId) => {
+          const aggregated: unknown[] = [];
+          let cursor: string | undefined;
+          do {
+            const response = await notion.blocks.children.list({
+              block_id: blockId,
+              page_size: 100,
+              ...(cursor != null ? { start_cursor: cursor } : {}),
+            });
+            aggregated.push(...response.results);
+            cursor = response.next_cursor ?? undefined;
+          } while (cursor != null);
+          return aggregated as never;
+        };
+      }
+    ),
+    new ListNotionSubscriptionsUseCase(subscriptionsRepo),
+    new DeleteNotionSubscriptionUseCase(subscriptionsRepo),
+    new ListConflictsUseCase(conflictsRepo),
+    new ResolveConflictUseCase(
+      repo,
+      mappings,
+      conflictsRepo,
+      logsRepo,
+      new NotionRepository(db),
+      ankiConnectFactory,
+      (token) => {
+        const notion = new NotionClient({ auth: token });
+        return {
+          updateBlockContent: async (blockId, payload) => {
+            await notion.blocks.update({
+              block_id: blockId,
+              toggle: {
+                rich_text: [
+                  { type: 'text', text: { content: payload.front } },
+                ],
+              },
+            } as never);
+            const children = await notion.blocks.children.list({
+              block_id: blockId,
+            });
+            const firstParagraph = children.results.find(
+              (b) => (b as { type: string }).type === 'paragraph'
+            );
+            if (firstParagraph != null) {
+              await notion.blocks.update({
+                block_id: (firstParagraph as { id: string }).id,
+                paragraph: {
+                  rich_text: [
+                    { type: 'text', text: { content: payload.back } },
+                  ],
+                },
+              } as never);
+            }
+          },
+        };
+      }
+    )
   );
 
   /**
@@ -322,6 +399,69 @@ const AnkifyRouter = () => {
    */
   router.get('/api/ankify/sync-logs', RequireAnkifyAccess, (req, res) =>
     controller.listSyncLogs(req, res)
+  );
+
+  /**
+   * @swagger
+   * /api/ankify/subscriptions:
+   *   get:
+   *     summary: List Notion pages auto-synced into the user's hosted Anki
+   *     tags: [Ankify]
+   *   post:
+   *     summary: Subscribe a Notion page (kicks off an immediate sync)
+   *     tags: [Ankify]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required: [notion_page_id]
+   *             properties:
+   *               notion_page_id:
+   *                 type: string
+   */
+  router.get('/api/ankify/subscriptions', RequireAnkifyAccess, (req, res) =>
+    controller.listSubscriptions(req, res)
+  );
+  router.post('/api/ankify/subscriptions', RequireAnkifyAccess, (req, res) =>
+    controller.subscribeNotionPage(req, res)
+  );
+  router.delete(
+    '/api/ankify/subscriptions/:id',
+    RequireAnkifyAccess,
+    (req, res) => controller.deleteSubscription(req, res)
+  );
+
+  /**
+   * @swagger
+   * /api/ankify/conflicts:
+   *   get:
+   *     summary: List sync conflicts (pending by default)
+   *     tags: [Ankify]
+   * /api/ankify/conflicts/{id}/resolve:
+   *   post:
+   *     summary: Resolve a conflict
+   *     tags: [Ankify]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required: [resolution]
+   *             properties:
+   *               resolution:
+   *                 type: string
+   *                 enum: [keep_notion, keep_anki, dismissed]
+   */
+  router.get('/api/ankify/conflicts', RequireAnkifyAccess, (req, res) =>
+    controller.listConflicts(req, res)
+  );
+  router.post(
+    '/api/ankify/conflicts/:id/resolve',
+    RequireAnkifyAccess,
+    (req, res) => controller.resolveConflict(req, res)
   );
 
   return router;
