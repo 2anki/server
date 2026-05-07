@@ -163,8 +163,24 @@ export class RacService {
     return { stopped };
   }
 
-  list(owner: number): Promise<AnkifyClient[]> {
-    return this.repo.listByOwner(owner);
+  async list(owner: number): Promise<AnkifyClient[]> {
+    const clients = await this.repo.listByOwner(owner);
+    const reconciled: AnkifyClient[] = [];
+    for (const client of clients) {
+      if (client.status !== 'active') {
+        reconciled.push(client);
+        continue;
+      }
+      try {
+        const container = this.docker.getContainer(client.container_id);
+        await container.inspect();
+        reconciled.push(client);
+      } catch {
+        await this.repo.setStatus(client.id, 'inactive');
+        reconciled.push({ ...client, status: 'inactive' });
+      }
+    }
+    return reconciled;
   }
 
   async stop(id: number, owner: number): Promise<void> {
