@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import sharedStyles from '../../../styles/shared.module.css';
+import styles from '../AnkifyPage.module.css';
 import { get2ankiApi } from '../../../lib/backend/get2ankiApi';
 import { Backend } from '../../../lib/backend/Backend';
 
@@ -59,79 +60,75 @@ export default function ReviewDataExport({ backend }: Props) {
           dateRangeDays.trim().length > 0 ? Number(dateRangeDays) : null,
         enabled,
       }),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: SCHEDULE_KEY }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: SCHEDULE_KEY }),
   });
 
   const deleteSchedule = useMutation({
     mutationFn: () => api.deleteAnkifyExportSchedule(),
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: SCHEDULE_KEY }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: SCHEDULE_KEY }),
   });
 
+  const hasSchedule = scheduleQuery.data != null;
+
   return (
-    <section style={{ marginTop: '2.5rem' }}>
-      <h2 style={{ marginBottom: '0.4rem' }}>Export review data to Notion</h2>
-      <p style={{ marginTop: 0, color: '#555' }}>
+    <section className={styles.section}>
+      <header className={styles.sectionHeader}>
+        <h2 className={styles.sectionTitle}>Export review data to Notion</h2>
+      </header>
+      <p className={styles.sectionDescription}>
         Pulls per-day card review counts from your hosted Anki and writes one
         row per day into a Notion database. Database needs <code>Date</code>{' '}
         and <code>Reviews</code> properties. Existing dates are skipped.
       </p>
 
       <form
+        className={styles.formGrid}
         onSubmit={(event) => {
           event.preventDefault();
           if (databaseId.trim().length > 0) {
             exportMutation.mutate();
           }
         }}
-        style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', maxWidth: 520 }}
       >
-        <label>
-          <div>Notion database ID</div>
+        <div>
+          <label htmlFor="ankify-database-id">Notion database ID</label>
           <input
+            id="ankify-database-id"
             type="text"
             value={databaseId}
             onChange={(event) => setDatabaseId(event.target.value)}
             placeholder="e.g. 8a3f…"
-            style={{
-              width: '100%',
-              padding: '0.4rem 0.6rem',
-              border: '1px solid #ccc',
-              borderRadius: '0.3rem',
-            }}
           />
-        </label>
+        </div>
 
-        <label>
-          <div>Date range (last N days, optional)</div>
+        <div>
+          <label htmlFor="ankify-date-range">
+            Date range (last N days, optional)
+          </label>
           <input
+            id="ankify-date-range"
             type="number"
             min={1}
             value={dateRangeDays}
             onChange={(event) => setDateRangeDays(event.target.value)}
             placeholder="all"
-            style={{
-              width: '100%',
-              padding: '0.4rem 0.6rem',
-              border: '1px solid #ccc',
-              borderRadius: '0.3rem',
-            }}
           />
-        </label>
+        </div>
 
-        <div>
+        <div className={styles.actionRow}>
           <button
             type="submit"
-            className={sharedStyles.btnPrimary}
-            disabled={exportMutation.isPending || databaseId.trim().length === 0}
+            className={`${sharedStyles.btnPrimary} ${styles.inlineButton}`}
+            disabled={
+              exportMutation.isPending || databaseId.trim().length === 0
+            }
           >
             {exportMutation.isPending ? 'Exporting…' : 'Export now'}
           </button>
         </div>
 
         {exportMutation.isSuccess && (
-          <p style={{ color: '#15803d' }}>
+          <p className={sharedStyles.helpSuccess}>
             Exported {exportMutation.data.exported} new entries
             {exportMutation.data.skipped > 0
               ? `, skipped ${exportMutation.data.skipped} already-present`
@@ -143,65 +140,49 @@ export default function ReviewDataExport({ backend }: Props) {
           </p>
         )}
         {exportMutation.isError && (
-          <p role="alert" style={{ color: '#c0392b' }}>
+          <p role="alert" className={sharedStyles.helpDanger}>
             {(exportMutation.error as Error).message}
           </p>
         )}
       </form>
 
-      <fieldset
-        style={{
-          marginTop: '1.5rem',
-          padding: '0.75rem 1rem',
-          border: '1px solid #ddd',
-          borderRadius: '0.4rem',
-          maxWidth: 520,
-        }}
-      >
+      <fieldset className={styles.scheduleFieldset} style={{ marginTop: '1.5rem' }}>
         <legend>Daily schedule</legend>
-        <p style={{ marginTop: 0, color: '#555' }}>
-          Run the export once a day at the chosen time. Survives server
-          restarts.
+        <p className={styles.sectionDescription}>
+          {hasSchedule
+            ? 'Runs every day at the chosen time. Survives server restarts.'
+            : 'No schedule configured yet. Set a time below to run the export every day.'}
           {scheduleQuery.data?.last_run_at && (
-            <>
-              {' '}Last run: {scheduleQuery.data.last_run_at}.
-            </>
+            <> Last run: {scheduleQuery.data.last_run_at}.</>
           )}
         </p>
-        <div
-          style={{
-            display: 'flex',
-            gap: '0.6rem',
-            flexWrap: 'wrap',
-            marginBottom: '0.6rem',
-          }}
-        >
-          <label>
-            <div>Time (HH:MM)</div>
+        <div className={styles.scheduleRow}>
+          <div className={styles.scheduleField}>
+            <label htmlFor="ankify-schedule-time">Time (HH:MM)</label>
             <input
+              id="ankify-schedule-time"
               type="time"
               value={scheduleTime}
-              onChange={(e) => setScheduleTime(e.target.value)}
+              onChange={(event) => setScheduleTime(event.target.value)}
             />
-          </label>
-          <label>
-            <div>Timezone (IANA)</div>
+          </div>
+          <div className={styles.scheduleField}>
+            <label htmlFor="ankify-schedule-tz">Timezone (IANA)</label>
             <input
+              id="ankify-schedule-tz"
               type="text"
               value={scheduleTz}
-              onChange={(e) => setScheduleTz(e.target.value)}
+              onChange={(event) => setScheduleTz(event.target.value)}
               placeholder="Europe/Oslo"
             />
-          </label>
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: '0.4rem' }}>
+        <div className={styles.actionRow}>
           <button
             type="button"
-            className={sharedStyles.btnPrimary}
+            className={`${sharedStyles.btnPrimary} ${styles.inlineButton}`}
             onClick={() => saveSchedule.mutate(true)}
-            disabled={
-              saveSchedule.isPending || databaseId.trim().length === 0
-            }
+            disabled={saveSchedule.isPending || databaseId.trim().length === 0}
           >
             {saveSchedule.isPending
               ? 'Saving…'
@@ -209,10 +190,10 @@ export default function ReviewDataExport({ backend }: Props) {
                 ? 'Update schedule'
                 : 'Enable daily schedule'}
           </button>
-          {scheduleQuery.data != null && (
+          {hasSchedule && (
             <button
               type="button"
-              className={sharedStyles.btnSecondary}
+              className={`${sharedStyles.btnSecondary} ${styles.inlineButton}`}
               onClick={() => deleteSchedule.mutate()}
               disabled={deleteSchedule.isPending}
             >
@@ -221,7 +202,7 @@ export default function ReviewDataExport({ backend }: Props) {
           )}
         </div>
         {saveSchedule.isError && (
-          <p role="alert" style={{ color: '#c0392b' }}>
+          <p role="alert" className={sharedStyles.helpDanger}>
             {(saveSchedule.error as Error).message}
           </p>
         )}
