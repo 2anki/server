@@ -31,6 +31,12 @@ describe('Upload file', () => {
       getUploadsByOwner: function (owner: number): Promise<Uploads[]> {
         return Promise.resolve([]);
       },
+      findByIdAndOwner: function (
+        _id: number,
+        _owner: number
+      ): Promise<Uploads | null> {
+        return Promise.resolve(null);
+      },
       update: function (
         owner: number,
         filename: string,

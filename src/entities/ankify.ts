@@ -21,3 +21,23 @@ export interface NewAnkifyClient {
   vnc_port: number;
   novnc_port: number;
 }
+
+export type AnkifySyncMappingSourceType = 'apkg_guid' | 'notion_block';
+
+export interface AnkifySyncMapping {
+  id: number;
+  ankify_client_id: number;
+  source_id: string;
+  source_type: AnkifySyncMappingSourceType;
+  anki_note_id: number;
+  deck_name: string;
+  last_synced_at: Date;
+}
+
+export interface NewAnkifySyncMapping {
+  ankify_client_id: number;
+  source_id: string;
+  source_type: AnkifySyncMappingSourceType;
+  anki_note_id: number;
+  deck_name: string;
+}

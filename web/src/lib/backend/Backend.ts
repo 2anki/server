@@ -293,4 +293,22 @@ export class Backend {
       throw new Error('Failed to stop client');
     }
   }
+
+  async dispatchUploadToAnkify(uploadId: number): Promise<{
+    deck_names: string[];
+    created: number;
+    updated: number;
+    errors: string[];
+  }> {
+    const response = await post(`${this.baseURL}ankify/dispatch`, {
+      upload_id: uploadId,
+    });
+    if (!response.ok) {
+      const error = await response
+        .json()
+        .catch(() => ({ message: response.statusText }));
+      throw new Error(error.message ?? 'Failed to dispatch upload');
+    }
+    return response.json();
+  }
 }
