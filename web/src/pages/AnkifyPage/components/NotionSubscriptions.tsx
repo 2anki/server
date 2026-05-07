@@ -40,17 +40,29 @@ export default function NotionSubscriptions({ backend }: Props) {
     ReturnType<typeof api.listAnkifySubscriptions>
   >[number];
 
+  interface SubscribeArgs {
+    notionPageId: string;
+    notionPageTitle?: string | null;
+    notionPageUrl?: string | null;
+  }
+
   const subscribe = useMutation({
-    mutationFn: (notionPageId: string) =>
-      api.subscribeAnkifyNotionPage(notionPageId),
-    onMutate: async (notionPageId: string) => {
+    mutationFn: (args: SubscribeArgs) =>
+      api.subscribeAnkifyNotionPage({
+        notionPageId: args.notionPageId,
+        notionPageTitle: args.notionPageTitle,
+        notionPageUrl: args.notionPageUrl,
+      }),
+    onMutate: async (args: SubscribeArgs) => {
       await queryClient.cancelQueries({ queryKey: SUBSCRIPTIONS_KEY });
       const previous = queryClient.getQueryData<SubscriptionRow[]>(
         SUBSCRIPTIONS_KEY
       );
       const optimisticRow: SubscriptionRow = {
         id: -Date.now(),
-        notion_page_id: notionPageId,
+        notion_page_id: args.notionPageId,
+        notion_page_title: args.notionPageTitle ?? null,
+        notion_page_url: args.notionPageUrl ?? null,
         enabled: true,
         last_polled_at: null,
         last_synced_at: null,
@@ -58,7 +70,8 @@ export default function NotionSubscriptions({ backend }: Props) {
       };
       const alreadyPresent = (previous ?? []).some(
         (sub) =>
-          normalizeId(sub.notion_page_id) === normalizeId(notionPageId)
+          normalizeId(sub.notion_page_id) ===
+          normalizeId(args.notionPageId)
       );
       if (!alreadyPresent) {
         queryClient.setQueryData<SubscriptionRow[]>(SUBSCRIPTIONS_KEY, [
@@ -68,7 +81,7 @@ export default function NotionSubscriptions({ backend }: Props) {
       }
       return { previous };
     },
-    onError: (_err, _notionPageId, context) => {
+    onError: (_err, _args, context) => {
       if (context?.previous != null) {
         queryClient.setQueryData(SUBSCRIPTIONS_KEY, context.previous);
       }
@@ -88,9 +101,13 @@ export default function NotionSubscriptions({ backend }: Props) {
       queryClient.invalidateQueries({ queryKey: SUBSCRIPTIONS_KEY }),
   });
 
-  const handlePick = (id: string) => {
+  const handlePick = (id: string, page?: { title?: string; url?: string }) => {
     setPendingId(id);
-    subscribe.mutate(id);
+    subscribe.mutate({
+      notionPageId: id,
+      notionPageTitle: page?.title ?? undefined,
+      notionPageUrl: page?.url ?? undefined,
+    });
   };
 
   const handleAdvancedSubmit = (event: React.FormEvent) => {
@@ -98,7 +115,7 @@ export default function NotionSubscriptions({ backend }: Props) {
     if (advancedInput.trim().length === 0) return;
     const id = extractNotionId(advancedInput);
     setPendingId(id);
-    subscribe.mutate(id);
+    subscribe.mutate({ notionPageId: id });
   };
 
   const subscriptions = subs.data ?? [];
@@ -208,15 +225,27 @@ export default function NotionSubscriptions({ backend }: Props) {
             </tr>
           </thead>
           <tbody>
-            {subscriptions.map((sub) => (
+            {subscriptions.map((sub) => {
+              const displayTitle =
+                sub.notion_page_title?.trim().length
+                  ? sub.notion_page_title
+                  : 'Untitled Notion page';
+              return (
               <tr key={sub.id}>
                 <td>
-                  <span
-                    className={styles.mono}
-                    title={sub.notion_page_id}
-                  >
-                    {sub.notion_page_id.slice(0, 8)}…
-                  </span>
+                  {sub.notion_page_url != null &&
+                  sub.notion_page_url.length > 0 ? (
+                    <a
+                      href={sub.notion_page_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      title={`Open ${displayTitle} in Notion`}
+                    >
+                      {displayTitle}
+                    </a>
+                  ) : (
+                    <span title={sub.notion_page_id}>{displayTitle}</span>
+                  )}
                 </td>
                 <td className={styles.relativeTime}>
                   {subscribe.isPending &&
@@ -244,7 +273,8 @@ export default function NotionSubscriptions({ backend }: Props) {
                   </button>
                 </td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       ) : (

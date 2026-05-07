@@ -261,10 +261,22 @@ class AnkifyController {
       res.status(400).json({ message: 'notion_page_id is required' });
       return;
     }
+    const rawTitle = req.body?.notion_page_title;
+    const rawUrl = req.body?.notion_page_url;
+    const notionPageTitle =
+      typeof rawTitle === 'string' && rawTitle.trim().length > 0
+        ? rawTitle.trim()
+        : undefined;
+    const notionPageUrl =
+      typeof rawUrl === 'string' && rawUrl.trim().length > 0
+        ? rawUrl.trim()
+        : undefined;
     try {
       const result = await this.syncNotionPageUseCase.execute({
         owner,
         notionPageId,
+        notionPageTitle,
+        notionPageUrl,
         trigger: 'manual',
       });
       res.status(200).json({

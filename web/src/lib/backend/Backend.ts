@@ -362,6 +362,8 @@ export class Backend {
     Array<{
       id: number;
       notion_page_id: string;
+      notion_page_title: string | null;
+      notion_page_url: string | null;
       enabled: boolean;
       last_polled_at: string | null;
       last_synced_at: string | null;
@@ -372,7 +374,11 @@ export class Backend {
     return result ?? [];
   }
 
-  async subscribeAnkifyNotionPage(notionPageId: string): Promise<{
+  async subscribeAnkifyNotionPage(input: {
+    notionPageId: string;
+    notionPageTitle?: string | null;
+    notionPageUrl?: string | null;
+  }): Promise<{
     created: number;
     updated: number;
     conflicts: number;
@@ -382,7 +388,9 @@ export class Backend {
     anki_web_sync_error: string | null;
   }> {
     const response = await post(`${this.baseURL}ankify/subscriptions`, {
-      notion_page_id: notionPageId,
+      notion_page_id: input.notionPageId,
+      notion_page_title: input.notionPageTitle,
+      notion_page_url: input.notionPageUrl,
     });
     if (!response.ok) {
       const error = await response

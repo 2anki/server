@@ -8,7 +8,7 @@ import { BlockIcon } from '../../SearchPage/components/BlockIcon';
 
 interface Props {
   readonly backend: Backend;
-  readonly onSelect: (id: string) => void;
+  readonly onSelect: (id: string, page?: NotionObject) => void;
   readonly busyId: string | null;
   readonly disabledIds?: ReadonlySet<string>;
   readonly selectLabel: string;
@@ -112,7 +112,7 @@ export default function NotionPagePicker({
                   <button
                     type="button"
                     className={`${sharedStyles.btnSmall} ${styles.inlineButton}`}
-                    onClick={() => onSelect(page.id)}
+                    onClick={() => onSelect(page.id, page)}
                     disabled={isBusy || alreadySubscribed}
                   >
                     {alreadySubscribed
