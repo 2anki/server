@@ -76,7 +76,7 @@ describe('AnkifyPage', () => {
     renderWithClient(backend);
 
     const button = await screen.findByRole('button', {
-      name: /provision new client/i,
+      name: /start anki/i,
     });
     button.click();
 
@@ -107,7 +107,7 @@ describe('AnkifyPage', () => {
 
     await waitFor(() =>
       expect(
-        screen.getByRole('button', { name: /provision new client/i })
+        screen.getByRole('button', { name: /start anki/i })
       ).toBeInTheDocument()
     );
     expect(screen.queryByText('happy_hopper')).not.toBeInTheDocument();

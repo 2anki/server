@@ -8,6 +8,7 @@ import { Backend, TrackerSchemaError } from '../../../lib/backend/Backend';
 import NotionDatabasePicker from './NotionDatabasePicker';
 import TrackerParentPicker from './TrackerParentPicker';
 import NotionObject from '../../../lib/interfaces/NotionObject';
+import SendIcon from '../../../components/icons/SendIcon';
 
 interface Props {
   readonly backend?: Backend;
@@ -159,13 +160,25 @@ export default function ReviewDataExport({ backend }: Props) {
   );
 
   return (
-    <section className={styles.section}>
-      <header className={styles.sectionHeader}>
-        <h2 className={styles.sectionTitle}>Send your reviews to Notion</h2>
+    <section className={styles.sectionFlow}>
+      <header className={styles.sectionHead}>
+        <div className={styles.sectionHeadMain}>
+          <span className={styles.sectionIcon} aria-hidden="true">
+            <SendIcon width={20} height={20} />
+          </span>
+          <div className={styles.sectionHeadText}>
+            <p className={styles.sectionEyebrowAccent}>You set the schedule</p>
+            <h2 className={styles.sectionTitleLg}>
+              Send your reviews back to Notion
+            </h2>
+          </div>
+        </div>
       </header>
-      <p className={styles.sectionDescription}>
-        Each day's review count becomes one row in a small Notion database.
-        Days already there are kept — only new ones are added.
+      <p className={styles.sectionLead}>
+        Each day's review count becomes one row in a small Notion database
+        you control. Send on demand, or let us send yesterday's count every
+        morning at the time you pick. Days already in Notion stay put —
+        we only add new ones.
       </p>
 
       <div className={styles.exportCard}>
