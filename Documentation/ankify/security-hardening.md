@@ -20,6 +20,18 @@ We can fully close (1). We can fully close (2) with reasonable engineering. We b
 - Auditing the AnkiConnect plugin itself for vulnerabilities. We treat it as a third-party dependency and confine it.
 - Server-side persistence of Anki collection data. We're moving to a model where AnkiWeb is the source of truth and we hold a session-scoped working copy only.
 
+## Deployment context — bare-metal Hetzner
+
+The prod box is a bare-metal Hetzner dedicated server. A few things this changes versus a cloud-provider deployment:
+
+- **No managed disk encryption.** Hetzner ships unencrypted disks by default. Tier 7a (host-level LUKS) is a real operation, not a config toggle. For a fresh box: install with LUKS on the data partition during setup. For an existing box: schedule downtime, back up, repartition, restore. **Plan downtime.**
+- **No managed firewall in front of the box.** The public IP hits the host directly. `ufw` (or raw iptables / nftables) IS the perimeter. Default deny inbound, then explicitly allow 22, 80, 443. Drop everything else, including the 20000–23000 port range that today is publicly bindable. After slice 1's loopback binding, the firewall is belt-and-suspenders, but ship it anyway.
+- **No managed KMS.** Tier 7b's clean answer (AWS KMS / GCP KMS / Vault Cluster) requires either self-hosting Vault on a second small Hetzner box, or accepting a remote-managed KMS (HashiCorp Cloud Platform free tier, Doppler, etc.) with the latency / vendor-trust cost that implies. Pragmatic interim: a key file on a *separate* small Hetzner Cloud VPS that the prod box authenticates to over WireGuard, with key fetched on boot and held in memory only. Less turnkey than a real KMS but possible.
+- **Boot-time disk decryption needs remote unlock.** No KVM-over-IP convenience like a cloud console. `dropbear-initramfs` is the right answer: a tiny SSH server in initramfs accepts the LUKS passphrase over the network at boot, unlocks the data partition, exits, and the normal boot continues. Set up once, paste the passphrase whenever the box reboots.
+- **Single-host blast radius.** Everything runs on one box: server, Caddy, Anki containers, Postgres, Notion adapter. A successful compromise of the box is total. This shifts the "should the proxy be on a separate box?" question — on bare-metal Hetzner, "separate box" means ordering another machine, not a 5-second cloud spin-up. **Same-host for now is fine; revisit after the second non-Alex user.**
+- **DDoS.** Hetzner has volumetric DDoS protection by default (decent). Application-layer DDoS (e.g., L7 floods at `/v/<token>/`) needs Caddy's rate-limiting or a separate WAF. Out of scope for the gating set; flag for later.
+- **Backups.** Tier 7's encryption story is moot if backups land somewhere unencrypted. Whatever backup target you use (Hetzner Storage Box, Backblaze, restic to S3-compatible), encrypt the backup separately with a key that lives on the prod box only. `restic` does this natively. **Confirm before promising "we don't keep readable copies anywhere."**
+
 ---
 
 ## Slice 1 — Token-gated reverse proxy + private container ports + cookie binding
