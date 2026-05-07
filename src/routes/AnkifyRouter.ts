@@ -32,6 +32,7 @@ import { ResolveConflictUseCase } from '../usecases/ankify/ResolveConflictUseCas
 import { ListNotionDatabasesUseCase } from '../usecases/ankify/ListNotionDatabasesUseCase';
 import { CreateReviewTrackerDatabaseUseCase } from '../usecases/ankify/CreateReviewTrackerDatabaseUseCase';
 import { CheckActiveClientReadinessUseCase } from '../usecases/ankify/CheckActiveClientReadinessUseCase';
+import { CheckAnkiWebStatusUseCase } from '../usecases/ankify/CheckAnkiWebStatusUseCase';
 import { AnkifyExportScheduler } from '../services/ankify/AnkifyExportScheduler';
 import { AnkifyExportSchedulesRepository } from '../data_layer/ankify/AnkifyExportSchedulesRepository';
 import { getAnkifyExportScheduler } from '../lib/ankify/scheduler/instance';
@@ -315,7 +316,8 @@ const AnkifyRouter = () => {
         };
       },
     }),
-    new CheckActiveClientReadinessUseCase(repo, ankiConnectFactory)
+    new CheckActiveClientReadinessUseCase(repo, ankiConnectFactory),
+    new CheckAnkiWebStatusUseCase(repo, ankiConnectFactory)
   );
 
   /**
@@ -641,6 +643,20 @@ const AnkifyRouter = () => {
     '/api/ankify/clients/active/ready',
     RequireAnkifyAccess,
     (req, res) => controller.checkActiveClientReady(req, res)
+  );
+
+  /**
+   * @swagger
+   * /api/ankify/clients/active/anki-web-status:
+   *   get:
+   *     summary: Probe whether the active hosted Anki is signed in to AnkiWeb
+   *     description: Allowlisted endpoint. Triggers ac.sync() and reports status as 'linked' (signed in and sync succeeded), 'unlinked' (sign-in needed), 'unreachable' (AnkiConnect down), 'error' (other), or 'no_active_client'.
+   *     tags: [Ankify]
+   */
+  router.get(
+    '/api/ankify/clients/active/anki-web-status',
+    RequireAnkifyAccess,
+    (req, res) => controller.checkAnkiWebStatus(req, res)
   );
 
   return router;

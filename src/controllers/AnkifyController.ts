@@ -25,6 +25,7 @@ import { ListSyncLogsUseCase } from '../usecases/ankify/ListSyncLogsUseCase';
 import { ListNotionDatabasesUseCase } from '../usecases/ankify/ListNotionDatabasesUseCase';
 import { CreateReviewTrackerDatabaseUseCase } from '../usecases/ankify/CreateReviewTrackerDatabaseUseCase';
 import { CheckActiveClientReadinessUseCase } from '../usecases/ankify/CheckActiveClientReadinessUseCase';
+import { CheckAnkiWebStatusUseCase } from '../usecases/ankify/CheckAnkiWebStatusUseCase';
 import { SyncNotionPageToRacUseCase } from '../usecases/ankify/SyncNotionPageToRacUseCase';
 import { ListNotionSubscriptionsUseCase } from '../usecases/ankify/ListNotionSubscriptionsUseCase';
 import { DeleteNotionSubscriptionUseCase } from '../usecases/ankify/DeleteNotionSubscriptionUseCase';
@@ -59,7 +60,8 @@ class AnkifyController {
     private readonly resolveConflictUseCase: ResolveConflictUseCase,
     private readonly listNotionDatabasesUseCase: ListNotionDatabasesUseCase,
     private readonly createReviewTrackerUseCase: CreateReviewTrackerDatabaseUseCase,
-    private readonly checkReadinessUseCase: CheckActiveClientReadinessUseCase
+    private readonly checkReadinessUseCase: CheckActiveClientReadinessUseCase,
+    private readonly checkAnkiWebStatusUseCase: CheckAnkiWebStatusUseCase
   ) {}
 
   async list(_req: Request, res: Response) {
@@ -357,6 +359,12 @@ class AnkifyController {
   async checkActiveClientReady(_req: Request, res: Response) {
     const owner = res.locals.owner as number;
     const result = await this.checkReadinessUseCase.execute(owner);
+    res.status(200).json(result);
+  }
+
+  async checkAnkiWebStatus(_req: Request, res: Response) {
+    const owner = res.locals.owner as number;
+    const result = await this.checkAnkiWebStatusUseCase.execute(owner);
     res.status(200).json(result);
   }
 

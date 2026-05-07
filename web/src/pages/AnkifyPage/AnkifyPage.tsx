@@ -49,6 +49,20 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
         : 2000,
   });
 
+  const hasActiveClientNow =
+    data != null && data.some((c) => c.status === 'active');
+  const containerReady = readiness.data?.ready === true;
+
+  const ankiWebStatus = useQuery({
+    queryKey: ['ankify-anki-web-status'],
+    queryFn: () => api.checkAnkifyAnkiWebStatus(),
+    enabled: hasActiveClientNow && containerReady,
+    refetchInterval: (query) =>
+      (query.state.data as { status?: string } | undefined)?.status === 'linked'
+        ? false
+        : 15_000,
+  });
+
   const provision = useMutation({
     mutationFn: () => api.provisionAnkifyClient(),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: QUERY_KEY }),
@@ -98,6 +112,16 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
       globalThis.localStorage?.setItem(ANKI_WEB_ACK_KEY, 'true');
     } catch {}
   };
+
+  useEffect(() => {
+    if (
+      ankiWebStatus.data?.status === 'linked' &&
+      hasActiveClient &&
+      !signedInAcknowledged
+    ) {
+      acknowledgeAnkiWebSignIn();
+    }
+  }, [ankiWebStatus.data?.status, hasActiveClient, signedInAcknowledged]);
 
   const ankiUrlFor = (client: AnkifyClient) =>
     `http://${globalThis.location.hostname}:${client.novnc_port}/vnc.html`;
@@ -226,23 +250,32 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
                   </p>
                   {step2State === 'current' && activeClient && (
                     readiness.data?.ready ? (
-                      <div className={styles.setupStepActions}>
-                        <a
-                          href={ankiUrlFor(activeClient)}
-                          target="_blank"
-                          rel="noreferrer"
-                          className={`${sharedStyles.btnSecondary} ${styles.inlineButton}`}
+                      <>
+                        <div className={styles.setupStepActions}>
+                          <a
+                            href={ankiUrlFor(activeClient)}
+                            target="_blank"
+                            rel="noreferrer"
+                            className={`${sharedStyles.btnSecondary} ${styles.inlineButton}`}
+                          >
+                            Open Anki
+                          </a>
+                          <button
+                            type="button"
+                            className={`${sharedStyles.btnPrimary} ${styles.inlineButton}`}
+                            onClick={acknowledgeAnkiWebSignIn}
+                          >
+                            I've signed in
+                          </button>
+                        </div>
+                        <p
+                          className={styles.setupStepHint}
+                          aria-live="polite"
                         >
-                          Open Anki
-                        </a>
-                        <button
-                          type="button"
-                          className={`${sharedStyles.btnPrimary} ${styles.inlineButton}`}
-                          onClick={acknowledgeAnkiWebSignIn}
-                        >
-                          I've signed in
-                        </button>
-                      </div>
+                          Watching for AnkiWeb sign-in — this will advance on
+                          its own once you're linked.
+                        </p>
+                      </>
                     ) : (
                       <div
                         className={styles.setupStepActions}
