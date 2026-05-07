@@ -693,6 +693,7 @@ describe('RacService container hardening (slice 2)', () => {
         SecurityOpt: string[];
         ReadonlyRootfs: boolean;
         Tmpfs: Record<string, string>;
+        Mounts?: unknown[];
       };
     };
     expect(args.HostConfig.CapDrop).toEqual(['ALL']);
@@ -702,7 +703,10 @@ describe('RacService container hardening (slice 2)', () => {
       '/tmp': expect.stringContaining('nosuid'),
       '/var/run': expect.stringContaining('nosuid'),
       '/run/user/1000': expect.stringContaining('nosuid'),
+      '/data': expect.stringContaining('nosuid'),
     });
+    // Slice 3: no persistent named volume — /data is tmpfs.
+    expect(args.HostConfig.Mounts).toBeUndefined();
   });
 
   test('generates a per-container AnkiConnect API key, env-injects, persists', async () => {
