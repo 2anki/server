@@ -189,16 +189,32 @@ Single host, single cert, three or four logical routes. Caddy: one binary, one C
 
 ### Local development
 
-You should not need to run Caddy locally. Mirror the architecture in code, skip the proxy:
+You should not need to run Caddy locally. As shipped, the simpler dev path: when `ANKIFY_SESSION_URL_BASE` is unset, the server returns a direct loopback URL (`http://localhost:<novnc_port>/vnc.html?token=<plaintext>`) instead of the proxy form (`https://2anki.net/v/<token>/vnc.html`). The dev box IS the host running the container, so the loopback noVNC port is reachable directly — Caddy is only there in prod to terminate TLS and gate via cookie-binding.
 
-- **Vite** already proxies `/api/*` to `localhost:2020`. Add `/v/*` to the same proxy block.
-- **Express** in dev mode mounts a `/v/:token/*` handler that runs the same validate logic (hash → lookup → cookie+allowlist check) and then `http-proxy-middleware`'s the request to `127.0.0.1:<novnc_port>`. Reuses `RacService` token validation; just a different transport layer (Express vs Caddy).
-- **Cookie binding still works** because dev cookies on `localhost:3000` flow through Vite's proxy to `localhost:2020`. Same hostname.
-- **TLS** is the only thing absent in dev. WebSocket upgrade for noVNC works fine over `ws://localhost:3000/v/<token>/...`.
+**Required env in dev: none.** Both env vars are unset and behaviours fall back to dev-friendly defaults:
 
-Behind a `LOCAL_DEV` env-var gate, the same code path validates in dev and prod. The Caddy-only dance is TLS termination + edge auth — neither of which we strictly need on the dev box.
+| Env var | Set in prod | Set in dev | When unset |
+|---|---|---|---|
+| `ANKIFY_SESSION_URL_BASE` | `https://2anki.net` | leave unset | URL becomes `http://localhost:<port>/vnc.html?token=...` and goes direct to the loopback-bound noVNC. |
+| `ANKIFY_PROXY_AUTH_TOKEN` | random 32+ bytes, also configured in the Caddyfile | leave unset | The `/api/ankify/sessions/validate` endpoint skips the proxy-auth header check. Token + cookie + allowlist gates still run. |
 
-If you ever want to test the full stack locally with TLS (e.g., to debug a cookie SameSite quirk that only repros over HTTPS), `caddy run --config dev/Caddyfile.local` with a self-signed cert can stand in for the prod proxy. Optional, not required.
+**What this means for what's actually exercised in dev:**
+
+- The token gets minted, hashed, and stored in `ankify_session_tokens` exactly like prod — that part is identical.
+- The browser hits noVNC directly on `localhost:<port>`, so Caddy `forward_auth` is **not on the path**, and the cookie-binding check never runs.
+- `POST /api/ankify/sessions/validate` is reachable but unused in the normal dev flow.
+
+This is fine as a daily-driver workflow because the prod gating is still enforced in code (and unit-tested) — it's the *transport* that's bypassed in dev, not the logic.
+
+**Testing the full prod gating locally** (only when debugging the gate itself, e.g. a cookie `SameSite` quirk that only repros over HTTPS):
+
+```bash
+export ANKIFY_SESSION_URL_BASE=https://localhost
+export ANKIFY_PROXY_AUTH_TOKEN=$(openssl rand -base64 32)
+caddy run --config dev/Caddyfile.local  # not committed; copy from prod and swap the upstream
+```
+
+The Caddyfile must send the same `ANKIFY_PROXY_AUTH_TOKEN` value as `X-Proxy-Auth` on every `forward_auth` request to `/api/ankify/sessions/validate`. Optional, not required for normal dev.
 
 ### Tests
 
