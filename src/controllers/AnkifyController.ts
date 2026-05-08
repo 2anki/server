@@ -92,7 +92,7 @@ class AnkifyController {
       if (error instanceof DockerUnavailableError) {
         console.warn(
           '[ankify-controller] DockerUnavailableError:',
-          (error as Error).message
+          error.message
         );
         res
           .status(503)

@@ -9,8 +9,6 @@ import {
   NormalizedCollection,
   Note,
   NoteType,
-  NoteTypeField,
-  NoteTypeTemplate,
 } from './types';
 
 interface LegacyModelJson {
@@ -77,18 +75,16 @@ function loadLegacyNoteTypes(db: Database.Database): Map<number, NoteType> {
       name: value.name,
       type: value.type === 1 ? 1 : 0,
       css: value.css ?? '',
-      fields: value.flds.map(
-        (field) => ({ name: field.name, ord: field.ord }) as NoteTypeField
-      ),
-      templates: value.tmpls.map(
-        (tmpl) =>
-          ({
-            name: tmpl.name,
-            ord: tmpl.ord,
-            qfmt: tmpl.qfmt,
-            afmt: tmpl.afmt,
-          }) as NoteTypeTemplate
-      ),
+      fields: value.flds.map((field) => ({
+        name: field.name,
+        ord: field.ord,
+      })),
+      templates: value.tmpls.map((tmpl) => ({
+        name: tmpl.name,
+        ord: tmpl.ord,
+        qfmt: tmpl.qfmt,
+        afmt: tmpl.afmt,
+      })),
     });
   }
   return map;

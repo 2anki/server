@@ -35,7 +35,6 @@ import { CheckActiveClientReadinessUseCase } from '../usecases/ankify/CheckActiv
 import { CheckAnkiWebStatusUseCase } from '../usecases/ankify/CheckAnkiWebStatusUseCase';
 import ReissueAnkifySessionUrlUseCase from '../usecases/ankify/ReissueAnkifySessionUrlUseCase';
 import { ValidateAnkifySessionTokenUseCase } from '../usecases/ankify/ValidateAnkifySessionTokenUseCase';
-import { AnkifyExportScheduler } from '../services/ankify/AnkifyExportScheduler';
 import { AnkifyExportSchedulesRepository } from '../data_layer/ankify/AnkifyExportSchedulesRepository';
 import { getAnkifyExportScheduler } from '../lib/ankify/scheduler/instance';
 import { AnkifySessionTokensRepository } from '../data_layer/ankify/AnkifySessionTokensRepository';

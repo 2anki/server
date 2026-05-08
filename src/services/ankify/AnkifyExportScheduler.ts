@@ -4,7 +4,7 @@ import { ExportReviewDataToNotionUseCase } from '../../usecases/ankify/ExportRev
 import { nextDailyRunAt } from '../../lib/ankify/nextDailyRunAt';
 
 export class AnkifyExportScheduler {
-  private timers = new Map<number, NodeJS.Timeout>();
+  private readonly timers = new Map<number, NodeJS.Timeout>();
 
   constructor(
     private readonly repo: AnkifyExportSchedulesRepositoryInterface,
@@ -69,7 +69,7 @@ export class AnkifyExportScheduler {
         );
       } finally {
         const refreshed = await this.repo.findByOwner(schedule.owner);
-        if (refreshed != null && refreshed.enabled) {
+        if (refreshed?.enabled) {
           this.armSchedule(refreshed);
         } else {
           this.timers.delete(schedule.owner);

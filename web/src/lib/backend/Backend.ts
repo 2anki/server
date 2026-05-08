@@ -299,7 +299,7 @@ export class Backend {
 
   async stopAnkifyClient(id: number): Promise<void> {
     const response = await del(`${this.baseURL}ankify/clients/${id}`);
-    if (response == null || !response.ok) {
+    if (!response?.ok) {
       throw new Error('Failed to stop client');
     }
   }
@@ -367,7 +367,7 @@ export class Backend {
 
   async deleteAnkifyExportSchedule(): Promise<void> {
     const response = await del(`${this.baseURL}ankify/exports/schedule`);
-    if (response == null || !response.ok) {
+    if (!response?.ok) {
       throw new Error('Failed to delete schedule');
     }
   }
@@ -419,7 +419,7 @@ export class Backend {
     const response = await del(
       `${this.baseURL}ankify/subscriptions/${id}`
     );
-    if (response == null || !response.ok) {
+    if (!response?.ok) {
       throw new Error('Failed to delete subscription');
     }
   }
