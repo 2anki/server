@@ -45,6 +45,235 @@ import StorageHandler from '../lib/storage/StorageHandler';
 import { parseCollection } from '../services/ApkgPreviewService/parseCollection';
 import RequireAnkifyAccess from './middleware/RequireAnkifyAccess';
 
+const buildNotionExportClient = (token: string) => {
+  const notion = new NotionClient({ auth: token });
+  const findFirstDataSourceId = async (
+    databaseId: string
+  ): Promise<string | null> => {
+    const database = await notion.databases.retrieve({
+      database_id: databaseId,
+    });
+    const dataSources =
+      'data_sources' in database
+        ? (database as { data_sources: { id: string }[] }).data_sources
+        : [];
+    return dataSources[0]?.id ?? null;
+  };
+  return {
+    databases: {
+      query: async (params: {
+        database_id: string;
+        filter: { property: string; date: { equals: string } };
+      }) => {
+        const dataSourceId = await findFirstDataSourceId(params.database_id);
+        if (dataSourceId == null) {
+          return { results: [] };
+        }
+        const res = await notion.dataSources.query({
+          data_source_id: dataSourceId,
+          filter: params.filter as never,
+        });
+        return { results: res.results };
+      },
+    },
+    pages: {
+      create: async (params: {
+        parent: { database_id: string };
+        properties: Record<string, unknown>;
+      }) => {
+        const databaseId = params.parent.database_id;
+        const dataSourceId = await findFirstDataSourceId(databaseId);
+        if (dataSourceId == null) {
+          throw new Error(
+            'No data source found for the selected Notion database'
+          );
+        }
+        return notion.pages.create({
+          parent: {
+            type: 'data_source_id',
+            data_source_id: dataSourceId,
+          },
+          properties: params.properties,
+        } as never);
+      },
+    },
+    getSchema: async (databaseId: string) => {
+      const dataSourceId = await findFirstDataSourceId(databaseId);
+      if (dataSourceId == null) {
+        return { properties: {} };
+      }
+      const dataSource = await notion.dataSources.retrieve({
+        data_source_id: dataSourceId,
+      });
+      const properties =
+        (dataSource as {
+          properties?: Record<string, { type: string; name?: string }>;
+        }).properties ?? {};
+      return { properties };
+    },
+  };
+};
+
+const extractNotionPageTitle = (
+  props: Record<string, unknown>
+): string | null => {
+  for (const value of Object.values(props)) {
+    const entry = value as {
+      type?: string;
+      title?: { plain_text?: string }[];
+    };
+    if (entry.type === 'title' && Array.isArray(entry.title)) {
+      const title = entry.title.map((t) => t.plain_text ?? '').join('').trim();
+      return title.length === 0 ? null : title;
+    }
+  }
+  return null;
+};
+
+const buildNotionPageMetaFetcher =
+  (token: string) =>
+  async (notionPageId: string) => {
+    const notion = new NotionClient({ auth: token });
+    const page = await notion.pages.retrieve({ page_id: notionPageId });
+    const props = (page as { properties?: Record<string, unknown> })
+      .properties ?? {};
+    const title = extractNotionPageTitle(props);
+    const url = (page as { url?: string }).url ?? null;
+    return { title, url };
+  };
+
+const buildNotionConflictResolver = (token: string) => {
+  const notion = new NotionClient({ auth: token });
+  return {
+    updateBlockContent: async (
+      blockId: string,
+      payload: { front: string; back: string }
+    ) => {
+      await notion.blocks.update({
+        block_id: blockId,
+        toggle: {
+          rich_text: [{ type: 'text', text: { content: payload.front } }],
+        },
+      } as never);
+      const children = await notion.blocks.children.list({
+        block_id: blockId,
+      });
+      const firstParagraph = children.results.find(
+        (b) => (b as { type: string }).type === 'paragraph'
+      );
+      if (firstParagraph != null) {
+        await notion.blocks.update({
+          block_id: (firstParagraph as { id: string }).id,
+          paragraph: {
+            rich_text: [{ type: 'text', text: { content: payload.back } }],
+          },
+        } as never);
+      }
+    },
+  };
+};
+
+type NotionDatabaseEntry = {
+  id: string;
+  title: string;
+  url: string | null;
+  has_review_shape: boolean;
+  object: 'database' | 'data_source';
+};
+
+const collectNotionDatabaseEntries = (
+  results: unknown[]
+): NotionDatabaseEntry[] => {
+  const entries: NotionDatabaseEntry[] = [];
+  for (const entry of results) {
+    const obj = (entry as { object?: string }).object;
+    if (obj !== 'database' && obj !== 'data_source') {
+      continue;
+    }
+    const titleArr = (entry as { title?: { plain_text?: string }[] }).title;
+    const title =
+      titleArr != null && titleArr.length > 0
+        ? titleArr.map((t) => t.plain_text ?? '').join('')
+        : '';
+    const normalized = title.trim().toLowerCase();
+    if (
+      normalized.length === 0 ||
+      normalized === 'untitled' ||
+      normalized === 'untitled database'
+    ) {
+      continue;
+    }
+    const properties =
+      (entry as { properties?: Record<string, { type: string }> }).properties ??
+      {};
+    const hasReviewShape =
+      properties.Date?.type === 'date' &&
+      properties.Reviews?.type === 'number';
+    entries.push({
+      id: (entry as { id: string }).id,
+      title,
+      url: (entry as { url?: string }).url ?? null,
+      has_review_shape: hasReviewShape,
+      object: obj,
+    });
+  }
+  return entries;
+};
+
+const dedupeNotionDatabaseEntries = (
+  raw: NotionDatabaseEntry[]
+): NotionDatabaseEntry[] => {
+  const byNormalizedTitle = new Map<string, NotionDatabaseEntry>();
+  for (const entry of raw) {
+    const key = entry.title.trim().toLowerCase();
+    const existing = byNormalizedTitle.get(key);
+    if (existing == null) {
+      byNormalizedTitle.set(key, entry);
+      continue;
+    }
+    if (existing.object === 'data_source' && entry.object === 'database') {
+      byNormalizedTitle.set(key, entry);
+    }
+  }
+  return Array.from(byNormalizedTitle.values());
+};
+
+const listNotionDatabasesViaSearch = async (token: string) => {
+  const notion = new NotionClient({ auth: token });
+  const response = await notion.search({ page_size: 100 });
+  const raw = collectNotionDatabaseEntries(response.results);
+  return dedupeNotionDatabaseEntries(raw).map((entry) => ({
+    id: entry.id,
+    title: entry.title,
+    url: entry.url,
+    has_review_shape: entry.has_review_shape,
+  }));
+};
+
+const createReviewTrackerInNotion = async (
+  token: string,
+  input: { parentPageId: string; title: string }
+) => {
+  const notion = new NotionClient({ auth: token });
+  const response = await notion.databases.create({
+    parent: { type: 'page_id', page_id: input.parentPageId },
+    title: [{ type: 'text', text: { content: input.title } }],
+    initial_data_source: {
+      properties: {
+        Name: { title: {} },
+        Date: { date: {} },
+        Reviews: { number: { format: 'number' } },
+        'Time spent': { number: { format: 'number' } },
+      },
+    },
+  } as never);
+  return {
+    id: (response as { id: string }).id,
+    url: (response as { url?: string }).url ?? null,
+    title: input.title,
+  };
+};
+
 const AnkifyRouter = () => {
   const router = express.Router();
   const db = getDatabase();
@@ -91,70 +320,7 @@ const AnkifyRouter = () => {
       repo,
       new NotionRepository(db),
       ankiConnectFactory,
-      (token) => {
-        const notion = new NotionClient({ auth: token });
-        const findFirstDataSourceId = async (
-          databaseId: string
-        ): Promise<string | null> => {
-          const database = await notion.databases.retrieve({
-            database_id: databaseId,
-          });
-          const dataSources =
-            'data_sources' in database
-              ? (database as { data_sources: { id: string }[] }).data_sources
-              : [];
-          return dataSources[0]?.id ?? null;
-        };
-        return {
-          databases: {
-            query: async (params) => {
-              const dataSourceId = await findFirstDataSourceId(
-                params.database_id
-              );
-              if (dataSourceId == null) {
-                return { results: [] };
-              }
-              const res = await notion.dataSources.query({
-                data_source_id: dataSourceId,
-                filter: params.filter as never,
-              });
-              return { results: res.results };
-            },
-          },
-          pages: {
-            create: async (params) => {
-              const databaseId = params.parent.database_id;
-              const dataSourceId = await findFirstDataSourceId(databaseId);
-              if (dataSourceId == null) {
-                throw new Error(
-                  'No data source found for the selected Notion database'
-                );
-              }
-              return notion.pages.create({
-                parent: {
-                  type: 'data_source_id',
-                  data_source_id: dataSourceId,
-                },
-                properties: params.properties,
-              } as never);
-            },
-          },
-          getSchema: async (databaseId) => {
-            const dataSourceId = await findFirstDataSourceId(databaseId);
-            if (dataSourceId == null) {
-              return { properties: {} };
-            }
-            const dataSource = await notion.dataSources.retrieve({
-              data_source_id: dataSourceId,
-            });
-            const properties =
-              (dataSource as {
-                properties?: Record<string, { type: string; name?: string }>;
-              }).properties ?? {};
-            return { properties };
-          },
-        };
-      }
+      buildNotionExportClient
     ),
     new ConfigureExportScheduleUseCase(schedulesRepo, getAnkifyExportScheduler),
     new GetExportScheduleUseCase(schedulesRepo),
@@ -169,30 +335,7 @@ const AnkifyRouter = () => {
       new NotionRepository(db),
       ankiConnectFactory,
       notionBlockChildrenFetcherFactory,
-      (token) => {
-        const notion = new NotionClient({ auth: token });
-        return async (notionPageId) => {
-          const page = await notion.pages.retrieve({
-            page_id: notionPageId,
-          });
-          const props = (page as { properties?: Record<string, unknown> })
-            .properties ?? {};
-          let title: string | null = null;
-          for (const value of Object.values(props)) {
-            const entry = value as {
-              type?: string;
-              title?: { plain_text?: string }[];
-            };
-            if (entry.type === 'title' && Array.isArray(entry.title)) {
-              title = entry.title.map((t) => t.plain_text ?? '').join('').trim();
-              if (title.length === 0) title = null;
-              break;
-            }
-          }
-          const url = (page as { url?: string }).url ?? null;
-          return { title, url };
-        };
-      }
+      buildNotionPageMetaFetcher
     ),
     new ListNotionSubscriptionsUseCase(subscriptionsRepo),
     new DeleteNotionSubscriptionUseCase(subscriptionsRepo),
@@ -204,131 +347,13 @@ const AnkifyRouter = () => {
       logsRepo,
       new NotionRepository(db),
       ankiConnectFactory,
-      (token) => {
-        const notion = new NotionClient({ auth: token });
-        return {
-          updateBlockContent: async (blockId, payload) => {
-            await notion.blocks.update({
-              block_id: blockId,
-              toggle: {
-                rich_text: [
-                  { type: 'text', text: { content: payload.front } },
-                ],
-              },
-            } as never);
-            const children = await notion.blocks.children.list({
-              block_id: blockId,
-            });
-            const firstParagraph = children.results.find(
-              (b) => (b as { type: string }).type === 'paragraph'
-            );
-            if (firstParagraph != null) {
-              await notion.blocks.update({
-                block_id: (firstParagraph as { id: string }).id,
-                paragraph: {
-                  rich_text: [
-                    { type: 'text', text: { content: payload.back } },
-                  ],
-                },
-              } as never);
-            }
-          },
-        };
-      }
+      buildNotionConflictResolver
     ),
     new ListNotionDatabasesUseCase(new NotionRepository(db), {
-      listDatabases: async (token) => {
-        const notion = new NotionClient({ auth: token });
-        const response = await notion.search({ page_size: 100 });
-
-        type RawEntry = {
-          id: string;
-          title: string;
-          url: string | null;
-          has_review_shape: boolean;
-          object: 'database' | 'data_source';
-        };
-
-        const raw: RawEntry[] = [];
-        for (const entry of response.results) {
-          const obj = (entry as { object?: string }).object;
-          if (obj !== 'database' && obj !== 'data_source') {
-            continue;
-          }
-          const titleArr = (entry as { title?: { plain_text?: string }[] })
-            .title;
-          const title =
-            titleArr != null && titleArr.length > 0
-              ? titleArr.map((t) => t.plain_text ?? '').join('')
-              : '';
-          const normalized = title.trim().toLowerCase();
-          if (
-            normalized.length === 0 ||
-            normalized === 'untitled' ||
-            normalized === 'untitled database'
-          ) {
-            continue;
-          }
-          const properties =
-            (entry as { properties?: Record<string, { type: string }> })
-              .properties ?? {};
-          const hasReviewShape =
-            properties.Date?.type === 'date' &&
-            properties.Reviews?.type === 'number';
-          raw.push({
-            id: (entry as { id: string }).id,
-            title,
-            url: (entry as { url?: string }).url ?? null,
-            has_review_shape: hasReviewShape,
-            object: obj,
-          });
-        }
-
-        const byNormalizedTitle = new Map<string, RawEntry>();
-        for (const entry of raw) {
-          const key = entry.title.trim().toLowerCase();
-          const existing = byNormalizedTitle.get(key);
-          if (existing == null) {
-            byNormalizedTitle.set(key, entry);
-            continue;
-          }
-          if (
-            existing.object === 'data_source' &&
-            entry.object === 'database'
-          ) {
-            byNormalizedTitle.set(key, entry);
-          }
-        }
-
-        return Array.from(byNormalizedTitle.values()).map((entry) => ({
-          id: entry.id,
-          title: entry.title,
-          url: entry.url,
-          has_review_shape: entry.has_review_shape,
-        }));
-      },
+      listDatabases: listNotionDatabasesViaSearch,
     }),
     new CreateReviewTrackerDatabaseUseCase(new NotionRepository(db), {
-      createReviewTracker: async (token, input) => {
-        const notion = new NotionClient({ auth: token });
-        const response = await notion.databases.create({
-          parent: { type: 'page_id', page_id: input.parentPageId },
-          title: [{ type: 'text', text: { content: input.title } }],
-          initial_data_source: {
-            properties: {
-              Name: { title: {} },
-              Date: { date: {} },
-              Reviews: { number: { format: 'number' } },
-              'Time spent': { number: { format: 'number' } },
-            },
-          },
-        } as never);
-        return {
-          id: (response as { id: string }).id,
-          url: (response as { url?: string }).url ?? null,
-          title: input.title,
-        };
-      },
+      createReviewTracker: createReviewTrackerInNotion,
     }),
     new CheckActiveClientReadinessUseCase(repo, ankiConnectFactory),
     new CheckAnkiWebStatusUseCase(repo, ankiConnectFactory),
