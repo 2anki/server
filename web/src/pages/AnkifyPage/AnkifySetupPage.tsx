@@ -231,7 +231,7 @@ export default function AnkifySetupPage({ backend }: Props) {
           </p>
           <p className={styles.provisionErrorHint}>
             Try again — most starts work on the second go. If it keeps failing,
-            email hello@2anki.net.
+            email support@2anki.net.
           </p>
         </div>
       )}
@@ -250,7 +250,7 @@ export default function AnkifySetupPage({ backend }: Props) {
             </p>
             <p className={styles.provisionErrorBody}>
               Most retries succeed. If it keeps failing, email
-              hello@2anki.net.
+              support@2anki.net.
             </p>
           </div>
           <div className={styles.setupActiveStepActions}>
