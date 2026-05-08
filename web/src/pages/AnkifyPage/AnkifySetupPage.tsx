@@ -157,63 +157,14 @@ export default function AnkifySetupPage({ backend }: Props) {
   const ankiUrlFor = (client: AnkifyClient): string | null =>
     client.session_url ?? readCachedSessionUrl(client.id);
 
-  let activeStep: ReactNode;
-  let nextPreview: ReactNode | null = null;
-
-  if (!hasActiveClient) {
-    const provisioning = provision.isPending;
-    activeStep = (
-      <section className={styles.setupActiveStep}>
-        <p className={styles.setupActiveStepLabel}>Step 1 of 2</p>
-        <h2 className={styles.setupActiveStepTitle}>Start Anki</h2>
-        <p className={styles.setupActiveStepHint}>
-          We'll start a private Anki for you. Takes a few seconds.
-        </p>
-        {provisioning ? (
-          <div
-            className={styles.setupActiveStepActions}
-            role="status"
-            aria-live="polite"
-          >
-            <Skeleton width="11rem" height="2.25rem" radius="0.4rem" />
-            <p className={styles.setupActiveStepHint}>
-              Starting Anki — usually 5 to 15 seconds.
-            </p>
-          </div>
-        ) : (
-          <div className={styles.setupActiveStepActions}>
-            <button
-              type="button"
-              className={`${sharedStyles.btnPrimary} ${styles.inlineButton}`}
-              onClick={() => provision.mutate()}
-              disabled={provision.isPending}
-            >
-              Start Anki
-            </button>
-          </div>
-        )}
-        {provision.error && (
-          <div className={styles.provisionErrorBlock} role="alert">
-            <p className={styles.provisionErrorTitle}>
-              We couldn't start your Anki.
-            </p>
-            <p className={styles.provisionErrorBody}>
-              {(provision.error as Error).message}
-            </p>
-            <p className={styles.provisionErrorHint}>
-              Try again — most starts work on the second go. If it keeps
-              failing, email hello@2anki.net.
-            </p>
-          </div>
-        )}
-      </section>
-    );
-    nextPreview = <p>Sign in to AnkiWeb (next)</p>;
-  } else if (!containerReady) {
-    activeStep = (
-      <section className={styles.setupActiveStep}>
-        <p className={styles.setupActiveStepLabel}>Step 1 of 2</p>
-        <h2 className={styles.setupActiveStepTitle}>Start Anki</h2>
+  const renderStartAnkiStep = () => (
+    <section className={styles.setupActiveStep}>
+      <p className={styles.setupActiveStepLabel}>Step 1 of 2</p>
+      <h2 className={styles.setupActiveStepTitle}>Start Anki</h2>
+      <p className={styles.setupActiveStepHint}>
+        We'll start a private Anki for you. Takes a few seconds.
+      </p>
+      {provision.isPending ? (
         <div
           className={styles.setupActiveStepActions}
           role="status"
@@ -224,12 +175,56 @@ export default function AnkifySetupPage({ backend }: Props) {
             Starting Anki — usually 5 to 15 seconds.
           </p>
         </div>
-      </section>
-    );
-    nextPreview = <p>Sign in to AnkiWeb (next)</p>;
-  } else {
+      ) : (
+        <div className={styles.setupActiveStepActions}>
+          <button
+            type="button"
+            className={`${sharedStyles.btnPrimary} ${styles.inlineButton}`}
+            onClick={() => provision.mutate()}
+            disabled={provision.isPending}
+          >
+            Start Anki
+          </button>
+        </div>
+      )}
+      {provision.error && (
+        <div className={styles.provisionErrorBlock} role="alert">
+          <p className={styles.provisionErrorTitle}>
+            We couldn't start your Anki.
+          </p>
+          <p className={styles.provisionErrorBody}>
+            {(provision.error as Error).message}
+          </p>
+          <p className={styles.provisionErrorHint}>
+            Try again — most starts work on the second go. If it keeps failing,
+            email hello@2anki.net.
+          </p>
+        </div>
+      )}
+    </section>
+  );
+
+  const renderStartingStep = () => (
+    <section className={styles.setupActiveStep}>
+      <p className={styles.setupActiveStepLabel}>Step 1 of 2</p>
+      <h2 className={styles.setupActiveStepTitle}>Start Anki</h2>
+      <div
+        className={styles.setupActiveStepActions}
+        role="status"
+        aria-live="polite"
+      >
+        <Skeleton width="11rem" height="2.25rem" radius="0.4rem" />
+        <p className={styles.setupActiveStepHint}>
+          Starting Anki — usually 5 to 15 seconds.
+        </p>
+      </div>
+    </section>
+  );
+
+  const renderSignInStep = (client: AnkifyClient) => {
     const verifyStatus = verifySignIn.data?.status;
-    activeStep = (
+    const sessionUrl = ankiUrlFor(client);
+    return (
       <section className={styles.setupActiveStep}>
         <p className={styles.setupActiveStepLabel}>Step 2 of 2</p>
         <h2 className={styles.setupActiveStepTitle}>Sign in to AnkiWeb</h2>
@@ -239,9 +234,9 @@ export default function AnkifySetupPage({ backend }: Props) {
           date whenever a Notion page changes.
         </p>
         <div className={styles.setupActiveStepActions}>
-          {ankiUrlFor(activeClient) != null ? (
+          {sessionUrl != null ? (
             <a
-              href={ankiUrlFor(activeClient)!}
+              href={sessionUrl}
               target="_blank"
               rel="noreferrer"
               className={`${sharedStyles.btnSecondary} ${styles.inlineButton}`}
@@ -252,7 +247,7 @@ export default function AnkifySetupPage({ backend }: Props) {
             <button
               type="button"
               className={`${sharedStyles.btnSecondary} ${styles.inlineButton}`}
-              onClick={() => reissueSession.mutate(activeClient.id)}
+              onClick={() => reissueSession.mutate(client.id)}
               disabled={reissueSession.isPending}
             >
               {reissueSession.isPending ? 'Working…' : 'Get a new link'}
@@ -299,6 +294,19 @@ export default function AnkifySetupPage({ backend }: Props) {
         )}
       </section>
     );
+  };
+
+  let activeStep: ReactNode;
+  let nextPreview: ReactNode | null = null;
+
+  if (!hasActiveClient) {
+    activeStep = renderStartAnkiStep();
+    nextPreview = <p>Sign in to AnkiWeb (next)</p>;
+  } else if (!containerReady) {
+    activeStep = renderStartingStep();
+    nextPreview = <p>Sign in to AnkiWeb (next)</p>;
+  } else {
+    activeStep = renderSignInStep(activeClient);
   }
 
   return (
