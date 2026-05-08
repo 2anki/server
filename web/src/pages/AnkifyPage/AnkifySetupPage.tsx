@@ -10,8 +10,10 @@ import AnkifyClient from '../../lib/interfaces/AnkifyClient';
 import { Skeleton } from '../../components/Skeleton/Skeleton';
 
 const QUERY_KEY = ['ankify-clients'];
+const READINESS_QUERY_KEY = ['ankify-active-ready'];
 const ANKI_WEB_ACK_KEY = 'ankify_anki_web_acknowledged';
 const SESSION_URL_PREFIX = 'ankify_session_url:';
+const STARTING_TIMEOUT_MS = 45_000;
 
 const sessionUrlKey = (clientId: number) => `${SESSION_URL_PREFIX}${clientId}`;
 
@@ -62,10 +64,12 @@ export default function AnkifySetupPage({ backend }: Props) {
   const activeClient = (data ?? []).find((c) => c.status === 'active');
   const hasActiveClient = activeClient != null;
 
+  const [startingTimedOut, setStartingTimedOut] = useState(false);
+
   const readiness = useQuery({
-    queryKey: ['ankify-active-ready'],
+    queryKey: READINESS_QUERY_KEY,
     queryFn: () => api.checkAnkifyActiveClientReady(),
-    enabled: hasActiveClient,
+    enabled: hasActiveClient && !startingTimedOut,
     refetchInterval: (query) =>
       (query.state.data as { ready?: boolean } | undefined)?.ready === true
         ? false
@@ -73,6 +77,36 @@ export default function AnkifySetupPage({ backend }: Props) {
   });
 
   const containerReady = readiness.data?.ready === true;
+
+  useEffect(() => {
+    if (!hasActiveClient || containerReady) {
+      setStartingTimedOut(false);
+      return;
+    }
+    const startedAt =
+      activeClient?.created_at != null
+        ? new Date(activeClient.created_at).getTime()
+        : Date.now();
+    const remaining = startedAt + STARTING_TIMEOUT_MS - Date.now();
+    if (remaining <= 0) {
+      setStartingTimedOut(true);
+      return;
+    }
+    const timer = setTimeout(() => setStartingTimedOut(true), remaining);
+    return () => clearTimeout(timer);
+  }, [hasActiveClient, containerReady, activeClient?.created_at]);
+
+  const respin = useMutation({
+    mutationFn: () => api.respinAnkifyClient(),
+    onSuccess: (client) => {
+      if (client.session_url != null) {
+        writeCachedSessionUrl(client.id, client.session_url);
+      }
+      setStartingTimedOut(false);
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: READINESS_QUERY_KEY });
+    },
+  });
 
   const ankiWebStatus = useQuery({
     queryKey: ['ankify-anki-web-status'],
@@ -208,16 +242,49 @@ export default function AnkifySetupPage({ backend }: Props) {
     <section className={styles.setupActiveStep}>
       <p className={styles.setupActiveStepLabel}>Step 1 of 2</p>
       <h2 className={styles.setupActiveStepTitle}>Start Anki</h2>
-      <div
-        className={styles.setupActiveStepActions}
-        role="status"
-        aria-live="polite"
-      >
-        <Skeleton width="11rem" height="2.25rem" radius="0.4rem" />
-        <p className={styles.setupActiveStepHint}>
-          Starting Anki — usually 5 to 15 seconds.
-        </p>
-      </div>
+      {startingTimedOut ? (
+        <>
+          <div className={styles.provisionErrorBlock} role="alert">
+            <p className={styles.provisionErrorTitle}>
+              Anki is taking longer than expected.
+            </p>
+            <p className={styles.provisionErrorBody}>
+              Most retries succeed. If it keeps failing, email
+              hello@2anki.net.
+            </p>
+          </div>
+          <div className={styles.setupActiveStepActions}>
+            <button
+              type="button"
+              className={`${sharedStyles.btnPrimary} ${styles.inlineButton}`}
+              onClick={() => respin.mutate()}
+              disabled={respin.isPending}
+            >
+              {respin.isPending ? 'Restarting…' : 'Try again'}
+            </button>
+          </div>
+          {respin.error && (
+            <p
+              className={styles.provisionErrorBody}
+              role="alert"
+              aria-live="polite"
+            >
+              {(respin.error as Error).message}
+            </p>
+          )}
+        </>
+      ) : (
+        <div
+          className={styles.setupActiveStepActions}
+          role="status"
+          aria-live="polite"
+        >
+          <Skeleton width="11rem" height="2.25rem" radius="0.4rem" />
+          <p className={styles.setupActiveStepHint}>
+            Starting Anki — usually 5 to 15 seconds.
+          </p>
+        </div>
+      )}
     </section>
   );
 

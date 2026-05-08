@@ -96,6 +96,31 @@ describe('AnkifySetupPage', () => {
     );
     expect(screen.queryByText(/beta/i)).not.toBeInTheDocument();
   });
+
+  test('shows a timeout fallback once Anki has been starting too long', async () => {
+    const stale = sampleClient({
+      created_at: new Date(Date.now() - 60_000).toISOString(),
+    });
+    const respin = vi.fn(async () => sampleClient({ id: 2 }));
+    const backend = makeBackend({
+      listAnkifyClients: vi.fn(async () => [stale]),
+      checkAnkifyActiveClientReady: vi.fn(async () => ({
+        ready: false,
+        reason: 'unreachable' as const,
+      })),
+      respinAnkifyClient: respin,
+    });
+
+    renderAt('/ankify/setup', backend);
+
+    const tryAgain = await screen.findByRole('button', { name: /try again/i });
+    expect(
+      screen.getByText(/anki is taking longer than expected/i)
+    ).toBeInTheDocument();
+
+    tryAgain.click();
+    await waitFor(() => expect(respin).toHaveBeenCalledTimes(1));
+  });
 });
 
 describe('AnkifyPage workspace home', () => {
