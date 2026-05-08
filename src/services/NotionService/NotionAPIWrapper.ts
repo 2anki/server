@@ -240,6 +240,83 @@ class NotionAPIWrapper {
     return aggregated;
   }
 
+  async searchTopLevelPages(
+    query: string,
+    opts: { maxResults?: number; maxPages?: number } = {}
+  ): Promise<{
+    results: Array<{
+      id: string;
+      object: 'page';
+      url: string | null;
+      icon: unknown;
+      title: string;
+      parent: { type: string };
+    }>;
+  }> {
+    const maxResults = opts.maxResults ?? 50;
+    const maxPages = opts.maxPages ?? 5;
+    const collected: Array<{
+      id: string;
+      object: 'page';
+      url: string | null;
+      icon: unknown;
+      title: string;
+      parent: { type: string };
+    }> = [];
+    let cursor: string | undefined;
+    for (let page = 0; page < maxPages; page++) {
+      const response: SearchResponse = await withRetry(
+        () =>
+          this.notion.search({
+            page_size: DEFAULT_PAGE_SIZE_LIMIT,
+            query,
+            filter: { value: 'page', property: 'object' },
+            sort: {
+              direction: 'descending',
+              timestamp: 'last_edited_time',
+            },
+            ...(cursor ? { start_cursor: cursor } : {}),
+          }),
+        { label: 'searchTopLevelPages' }
+      );
+      for (const entry of response.results) {
+        const e = entry as {
+          id: string;
+          object: string;
+          url?: string;
+          icon?: unknown;
+          parent?: { type?: string };
+        };
+        const parentType = e.parent?.type;
+        if (parentType === 'database_id' || parentType === 'data_source_id') {
+          continue;
+        }
+        const title = (
+          getNotionObjectTitle(entry as never, { emoji: false }) ?? ''
+        ).trim();
+        if (title.length === 0) {
+          continue;
+        }
+        collected.push({
+          id: e.id,
+          object: 'page',
+          url: e.url ?? null,
+          icon: e.icon,
+          title,
+          parent: { type: parentType ?? 'workspace' },
+        });
+        if (collected.length >= maxResults) {
+          return { results: collected };
+        }
+      }
+      if (!response.has_more || response.next_cursor == null) {
+        break;
+      }
+      cursor = response.next_cursor;
+    }
+    return { results: collected };
+  }
+
   async search(query: string, all?: boolean) {
     const searchLabel = uniqueTimerLabel(`search:${all}`);
     console.time(searchLabel);

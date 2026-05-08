@@ -74,6 +74,15 @@ export class NotionService {
     return client.search(query);
   }
 
+  async searchTopLevelPages(
+    query: string,
+    owner: string,
+    opts: { maxResults?: number; maxPages?: number } = {}
+  ) {
+    const client = await this.getNotionAPI(owner);
+    return client.searchTopLevelPages(query, opts);
+  }
+
   async connectToNotion(authorizationCode: string, owner: number) {
     const accessData = await this.getAccessData(authorizationCode.toString());
     await this.notionRepository.saveNotionToken(owner, accessData, hashToken);
