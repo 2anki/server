@@ -54,10 +54,14 @@ export default function TrackerParentPicker({
 
     const handleSearchResults = (data: NotionObject[]) => {
       if (cancelled) return;
-      const pagesOnly = data.filter((entry) => entry.object === 'page');
-      setResults(pagesOnly);
+      const containerPages = data.filter((entry) => {
+        if (entry.object !== 'page') return false;
+        const parentType = entry.parent?.type;
+        return parentType !== 'database_id' && parentType !== 'data_source_id';
+      });
+      setResults(containerPages);
       setLoading(false);
-      setSelectedId((current) => pickNextSelectedId(current, pagesOnly));
+      setSelectedId((current) => pickNextSelectedId(current, containerPages));
     };
 
     const handleSearchError = (err: Error) => {
