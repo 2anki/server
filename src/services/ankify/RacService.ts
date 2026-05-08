@@ -460,7 +460,6 @@ export class RacService {
         CpuPeriod: CONTAINER_CPU_PERIOD,
         CapDrop: [...HARDENED_CAPS_DROP],
         SecurityOpt: [...HARDENED_SECURITY_OPT],
-        ReadonlyRootfs: true,
         Tmpfs: { ...HARDENED_TMPFS },
         Mounts: [
           {

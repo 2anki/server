@@ -698,7 +698,7 @@ describe('RacService container hardening (slice 2)', () => {
     };
     expect(args.HostConfig.CapDrop).toEqual(['ALL']);
     expect(args.HostConfig.SecurityOpt).toEqual(['no-new-privileges:true']);
-    expect(args.HostConfig.ReadonlyRootfs).toBe(true);
+    expect(args.HostConfig.ReadonlyRootfs).toBeUndefined();
     expect(args.HostConfig.Tmpfs).toMatchObject({
       '/tmp': expect.stringContaining('nosuid'),
       '/var/run': expect.stringContaining('nosuid'),
