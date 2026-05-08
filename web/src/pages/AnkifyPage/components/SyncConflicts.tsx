@@ -7,11 +7,13 @@ import { Backend } from '../../../lib/backend/Backend';
 
 interface Props {
   readonly backend?: Backend;
+  readonly embedded?: boolean;
 }
 
 const CONFLICTS_KEY = ['ankify-conflicts'];
+const SUBSCRIPTIONS_KEY = ['ankify-subscriptions'];
 
-export default function SyncConflicts({ backend }: Props) {
+export default function SyncConflicts({ backend, embedded = false }: Props) {
   const api = backend ?? get2ankiApi();
   const queryClient = useQueryClient();
 
@@ -19,6 +21,11 @@ export default function SyncConflicts({ backend }: Props) {
     queryKey: CONFLICTS_KEY,
     queryFn: () => api.listAnkifyConflicts(),
     refetchInterval: 30_000,
+  });
+
+  const subscriptions = useQuery({
+    queryKey: SUBSCRIPTIONS_KEY,
+    queryFn: () => api.listAnkifySubscriptions(),
   });
 
   const resolve = useMutation({
@@ -36,6 +43,93 @@ export default function SyncConflicts({ backend }: Props) {
 
   if (items.length === 0) {
     return null;
+  }
+
+  const subscriptionTitleByPageId = new Map<string, string>();
+  for (const sub of subscriptions.data ?? []) {
+    if (sub.notion_page_title != null && sub.notion_page_title.length > 0) {
+      subscriptionTitleByPageId.set(sub.notion_page_id, sub.notion_page_title);
+    }
+  }
+
+  const list = (
+    <div className={styles.conflictList}>
+      {items.map((conflict) => {
+        const matchingTitle = subscriptionTitleByPageId.get(conflict.source_id);
+        return (
+          <article key={conflict.id} className={styles.conflictCard}>
+            {matchingTitle != null && (
+              <p className={styles.trackerSummaryName}>{matchingTitle}</p>
+            )}
+            <div className={styles.conflictGrid}>
+              <div className={styles.conflictPanel}>
+                <p className={styles.conflictSide}>Notion version</p>
+                <p className={styles.conflictFront}>
+                  {conflict.notion_snapshot?.front ?? ''}
+                </p>
+                <p className={styles.conflictBack}>
+                  {conflict.notion_snapshot?.back ?? ''}
+                </p>
+              </div>
+              <div className={styles.conflictPanel}>
+                <p className={styles.conflictSide}>Anki version</p>
+                <p className={styles.conflictFront}>
+                  {conflict.anki_snapshot?.front ?? ''}
+                </p>
+                <p className={styles.conflictBack}>
+                  {conflict.anki_snapshot?.back ?? ''}
+                </p>
+              </div>
+            </div>
+            <div className={styles.conflictActions}>
+              <button
+                type="button"
+                className={`${sharedStyles.btnPrimary} ${styles.inlineButton}`}
+                onClick={() =>
+                  resolve.mutate({
+                    id: conflict.id,
+                    resolution: 'keep_notion',
+                  })
+                }
+                disabled={resolve.isPending}
+              >
+                Keep the Notion one
+              </button>
+              <button
+                type="button"
+                className={`${sharedStyles.btnSecondary} ${styles.inlineButton}`}
+                onClick={() =>
+                  resolve.mutate({
+                    id: conflict.id,
+                    resolution: 'keep_anki',
+                  })
+                }
+                disabled={resolve.isPending}
+              >
+                Keep the Anki one
+              </button>
+              <button
+                type="button"
+                className={`${sharedStyles.btnSmall} ${styles.inlineButton}`}
+                onClick={() =>
+                  resolve.mutate({
+                    id: conflict.id,
+                    resolution: 'dismissed',
+                  })
+                }
+                disabled={resolve.isPending}
+              >
+                Decide later
+              </button>
+            </div>
+          </article>
+        );
+      })}
+    </div>
+  );
+
+  if (embedded) {
+    return list;
   }
 
   return (
@@ -57,78 +151,7 @@ export default function SyncConflicts({ backend }: Props) {
             </span>
           </div>
         </header>
-
-        <div className={styles.conflictList}>
-          {items.map((conflict) => (
-            <article key={conflict.id} className={styles.conflictCard}>
-              <p className={styles.conflictRef}>
-                From Notion block{' '}
-                <code>{conflict.source_id.slice(0, 8)}</code>
-              </p>
-              <div className={styles.conflictGrid}>
-                <div className={styles.conflictPanel}>
-                  <p className={styles.conflictSide}>Notion version</p>
-                  <p className={styles.conflictFront}>
-                    {conflict.notion_snapshot?.front ?? ''}
-                  </p>
-                  <p className={styles.conflictBack}>
-                    {conflict.notion_snapshot?.back ?? ''}
-                  </p>
-                </div>
-                <div className={styles.conflictPanel}>
-                  <p className={styles.conflictSide}>Anki version</p>
-                  <p className={styles.conflictFront}>
-                    {conflict.anki_snapshot?.front ?? ''}
-                  </p>
-                  <p className={styles.conflictBack}>
-                    {conflict.anki_snapshot?.back ?? ''}
-                  </p>
-                </div>
-              </div>
-              <div className={styles.conflictActions}>
-                <button
-                  type="button"
-                  className={`${sharedStyles.btnPrimary} ${styles.inlineButton}`}
-                  onClick={() =>
-                    resolve.mutate({
-                      id: conflict.id,
-                      resolution: 'keep_notion',
-                    })
-                  }
-                  disabled={resolve.isPending}
-                >
-                  Keep the Notion one
-                </button>
-                <button
-                  type="button"
-                  className={`${sharedStyles.btnSecondary} ${styles.inlineButton}`}
-                  onClick={() =>
-                    resolve.mutate({
-                      id: conflict.id,
-                      resolution: 'keep_anki',
-                    })
-                  }
-                  disabled={resolve.isPending}
-                >
-                  Keep the Anki one
-                </button>
-                <button
-                  type="button"
-                  className={`${sharedStyles.btnSmall} ${styles.inlineButton}`}
-                  onClick={() =>
-                    resolve.mutate({
-                      id: conflict.id,
-                      resolution: 'dismissed',
-                    })
-                  }
-                  disabled={resolve.isPending}
-                >
-                  Decide later
-                </button>
-              </div>
-            </article>
-          ))}
-        </div>
+        {list}
       </div>
     </section>
   );
