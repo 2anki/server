@@ -138,9 +138,11 @@ export default function NotionSubscriptions({ backend }: Props) {
 
   useEffect(() => {
     const onClick = (event: MouseEvent) => {
+      const target = event.target;
       if (
+        target instanceof Node &&
         menuContainerRef.current &&
-        !menuContainerRef.current.contains(event.target as Node)
+        !menuContainerRef.current.contains(target)
       ) {
         setOpenMenuId(null);
       }

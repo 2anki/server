@@ -130,8 +130,10 @@ export const setupDatabase = async (database: Knex) => {
                     type: 'data_source_id',
                     data_source_id: dataSourceId,
                   },
-                  properties: params.properties,
-                } as never);
+                  properties: params.properties as Parameters<
+                    typeof notion.pages.create
+                  >[0]['properties'],
+                });
               },
             },
             getSchema: async (databaseId) => {

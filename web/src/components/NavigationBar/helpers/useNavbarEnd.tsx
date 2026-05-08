@@ -31,9 +31,11 @@ export default function useNavbarEnd(path: string, backend: Backend) {
   useEffect(() => {
     if (!isActive) return;
     const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target;
       if (
+        target instanceof Node &&
         dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
+        !dropdownRef.current.contains(target)
       ) {
         setIsActive(false);
       }

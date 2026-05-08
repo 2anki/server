@@ -122,7 +122,12 @@ export default function WorkspaceBar({
 
   useEffect(() => {
     const onClick = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+      const target = event.target;
+      if (
+        target instanceof Node &&
+        menuRef.current &&
+        !menuRef.current.contains(target)
+      ) {
         setMenuOpen(false);
       }
     };

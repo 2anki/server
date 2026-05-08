@@ -198,8 +198,8 @@ export default function ReviewDataExport({ backend }: Props) {
           <div className={styles.errorListBlock}>
             <p className={styles.errorListHeading}>What went wrong:</p>
             <ul className={styles.errorList}>
-              {visibleErrors.map((line, index) => (
-                <li key={index} className={styles.errorListItem}>
+              {visibleErrors.map((line) => (
+                <li key={line} className={styles.errorListItem}>
                   {line}
                 </li>
               ))}
