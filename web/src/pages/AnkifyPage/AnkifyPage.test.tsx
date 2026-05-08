@@ -62,8 +62,11 @@ describe('AnkifyPage', () => {
     renderWithClient(backend);
 
     await waitFor(() =>
-      expect(screen.getByText('happy_hopper')).toBeInTheDocument()
+      expect(
+        screen.queryByText(/two quick steps and you're set/i)
+      ).not.toBeInTheDocument()
     );
+    expect(screen.queryByText('happy_hopper')).not.toBeInTheDocument();
     expect(screen.queryByText('sleepy_swan')).not.toBeInTheDocument();
   });
 

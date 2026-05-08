@@ -448,15 +448,6 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
           </ol>
         )}
 
-        {activeClient != null && (
-          <div className={sharedStyles.surfaceFooter}>
-            <span>Workspace ID</span>
-            <span title={activeClient.container_id}>
-              {activeClient.container_name ??
-                activeClient.container_id.slice(0, 12)}
-            </span>
-          </div>
-        )}
       </section>
 
       {setupComplete ? (
