@@ -139,6 +139,40 @@ class NotionController {
     }
   }
 
+  async searchTopLevelPages(req: Request, res: Response) {
+    try {
+      const linkInfo = await this.service.getNotionLinkInfo(res.locals.owner);
+      if (!linkInfo.isConnected) {
+        const renewalLink = this.service.getNotionAuthorizationLink(
+          this.service.getClientId()
+        );
+        return res.status(401).json({
+          message: `Notion is not connected. Please connect your account <a href='${renewalLink}'>here</a>.`,
+        });
+      }
+
+      const query =
+        typeof req.body?.query === 'string' ? req.body.query : '';
+      const result = await this.service.searchTopLevelPages(
+        query,
+        getOwner(res)
+      );
+      res.json(result);
+    } catch (err) {
+      if (err instanceof APIResponseError) {
+        if (err.code === APIErrorCode.Unauthorized) {
+          const renewalLink = this.service.getNotionAuthorizationLink(
+            this.service.getClientId()
+          );
+          err.message += `You can renew it <a href='${renewalLink}'>here</a>.`;
+        }
+        sendErrorResponse(err, res);
+      } else {
+        sendErrorResponse(err, res);
+      }
+    }
+  }
+
   async getNotionLink(_req: Request, res: Response) {
     console.debug('/get-notion-link');
     const clientId = this.service.getClientId();
