@@ -39,7 +39,7 @@ export default function NotionSubscriptions({ backend }: Props) {
   const queryClient = useQueryClient();
   const [advancedInput, setAdvancedInput] = useState('');
   const [pendingId, setPendingId] = useState<string | null>(null);
-  const [pickerOpen, setPickerOpen] = useState<boolean | null>(null);
+  const [activeTab, setActiveTab] = useState<'decks' | 'find' | null>(null);
   const [search, setSearch] = useState('');
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
   const menuContainerRef = useRef<HTMLUListElement | null>(null);
@@ -152,8 +152,8 @@ export default function NotionSubscriptions({ backend }: Props) {
     return undefined;
   }, [openMenuId]);
 
-  const effectivePickerOpen =
-    pickerOpen ?? subscriptions.length === 0;
+  const effectiveTab: 'decks' | 'find' =
+    activeTab ?? (subscriptions.length === 0 ? 'find' : 'decks');
   const showSearch = subscriptions.length >= SEARCH_THRESHOLD;
   const filteredSubscriptions =
     search.trim().length === 0
@@ -166,20 +166,49 @@ export default function NotionSubscriptions({ backend }: Props) {
 
   return (
     <section>
-      <div className={styles.decksHeader}>
-        <h2 className={styles.decksHeading}>Decks from Notion</h2>
+      <div role="tablist" aria-label="Decks" className={styles.tabBar}>
         <button
           type="button"
-          className={`${sharedStyles.btnPrimary} ${styles.inlineButton}`}
-          onClick={() => setPickerOpen((open) => !(open ?? subscriptions.length === 0))}
-          aria-expanded={effectivePickerOpen}
+          role="tab"
+          id="ankify-tab-decks"
+          aria-selected={effectiveTab === 'decks'}
+          aria-controls="ankify-tabpanel-decks"
+          className={
+            effectiveTab === 'decks'
+              ? `${styles.tab} ${styles.tabActive}`
+              : styles.tab
+          }
+          onClick={() => setActiveTab('decks')}
         >
-          + Add a deck
+          Decks{' '}
+          {subscriptions.length > 0 && (
+            <span className={styles.tabCount}>{subscriptions.length}</span>
+          )}
+        </button>
+        <button
+          type="button"
+          role="tab"
+          id="ankify-tab-find"
+          aria-selected={effectiveTab === 'find'}
+          aria-controls="ankify-tabpanel-find"
+          className={
+            effectiveTab === 'find'
+              ? `${styles.tab} ${styles.tabActive}`
+              : styles.tab
+          }
+          onClick={() => setActiveTab('find')}
+        >
+          Find pages
         </button>
       </div>
 
-      {effectivePickerOpen && (
-        <div className={styles.addDeckDisclosure}>
+      {effectiveTab === 'find' && (
+        <div
+          role="tabpanel"
+          id="ankify-tabpanel-find"
+          aria-labelledby="ankify-tab-find"
+          className={styles.tabPanel}
+        >
           <NotionPagePicker
             backend={api}
             onSelect={handlePick}
@@ -246,12 +275,33 @@ export default function NotionSubscriptions({ backend }: Props) {
         </div>
       )}
 
-      {subscriptions.length === 0 ? (
-        <p className={styles.emptyLine}>
-          No decks yet. Pick a page above to make one.
-        </p>
-      ) : (
-        <>
+      {effectiveTab === 'decks' && (
+        subscriptions.length === 0 ? (
+          <div
+            role="tabpanel"
+            id="ankify-tabpanel-decks"
+            aria-labelledby="ankify-tab-decks"
+            className={styles.tabPanel}
+          >
+            <p className={styles.emptyLine}>
+              No decks yet. Switch to{' '}
+              <button
+                type="button"
+                className={styles.inlineLinkButton}
+                onClick={() => setActiveTab('find')}
+              >
+                Find pages
+              </button>{' '}
+              to add your first one.
+            </p>
+          </div>
+        ) : (
+        <div
+          role="tabpanel"
+          id="ankify-tabpanel-decks"
+          aria-labelledby="ankify-tab-decks"
+          className={styles.tabPanel}
+        >
           {showSearch && (
             <div className={styles.searchAbove}>
               <input
@@ -341,8 +391,8 @@ export default function NotionSubscriptions({ backend }: Props) {
               );
             })}
           </ul>
-        </>
-      )}
+        </div>
+      ))}
     </section>
   );
 }

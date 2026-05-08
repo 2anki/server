@@ -124,7 +124,10 @@ describe('AnkifyPage workspace home', () => {
       ).toBeInTheDocument()
     );
     expect(
-      screen.getByRole('heading', { name: /decks from notion/i })
+      screen.getByRole('tab', { name: /decks/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('tab', { name: /find pages/i })
     ).toBeInTheDocument();
   });
 
