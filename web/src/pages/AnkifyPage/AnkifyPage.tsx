@@ -12,7 +12,7 @@ import SyncConflicts from './components/SyncConflicts';
 import { Skeleton } from '../../components/Skeleton/Skeleton';
 import PlayIcon from '../../components/icons/PlayIcon';
 import UserIcon from '../../components/icons/UserIcon';
-import RefreshIcon from '../../components/icons/RefreshIcon';
+import CheckIcon from '../../components/icons/CheckIcon';
 
 const QUERY_KEY = ['ankify-clients'];
 const ANKI_WEB_ACK_KEY = 'ankify_anki_web_acknowledged';
@@ -174,11 +174,20 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
   if (signedInAcknowledged) step2State = 'done';
   else if (hasActiveClient) step2State = 'current';
 
-  const step3State: StepState = 'todo';
-
   const heading = setupComplete ? 'Anki is ready.' : 'Ready to start studying?';
   const showLead = !hasActiveClient;
-  const leadCopy = "Three quick steps and you're set.";
+  const leadCopy = "Two quick steps and you're set.";
+
+  const renderStepBadge = (state: StepState, n: number) =>
+    state === 'done' ? (
+      <span className={styles.setupStepBadge} aria-hidden="true">
+        <CheckIcon width={14} height={14} />
+      </span>
+    ) : (
+      <span className={styles.setupStepBadge} aria-hidden="true">
+        {n}
+      </span>
+    );
 
   let statusBadge: ReactNode = null;
   if (setupComplete) {
@@ -274,9 +283,7 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
         {!isLoading && !error && (
           <ol className={styles.setupSteps}>
             <li className={stepClass(step1State)}>
-              <span className={styles.setupStepBadge} aria-hidden="true">
-                1
-              </span>
+              {renderStepBadge(step1State, 1)}
               <div className={styles.setupStepBody}>
                 <div className={styles.setupStepHead}>
                   <span className={styles.setupStepIcon} aria-hidden="true">
@@ -317,9 +324,7 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
             </li>
 
             <li className={stepClass(step2State)}>
-              <span className={styles.setupStepBadge} aria-hidden="true">
-                2
-              </span>
+              {renderStepBadge(step2State, 2)}
               <div className={styles.setupStepBody}>
                 <div className={styles.setupStepHead}>
                   <span className={styles.setupStepIcon} aria-hidden="true">
@@ -329,8 +334,8 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
                 </div>
                 <p className={styles.setupStepHint}>
                   Open Anki, click <strong>Sync</strong> in the toolbar, then
-                  enter your AnkiWeb email and password. This connects your
-                  Anki here to your AnkiWeb account.
+                  enter your AnkiWeb email and password. After that, we keep
+                  AnkiWeb up to date whenever a Notion page changes.
                 </p>
                 {step2State === 'current' && activeClient && (
                   readiness.data?.ready ? (
@@ -391,26 +396,6 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
               </div>
             </li>
 
-            <li className={stepClass(step3State)}>
-              <span className={styles.setupStepBadge} aria-hidden="true">
-                3
-              </span>
-              <div className={styles.setupStepBody}>
-                <div className={styles.setupStepHead}>
-                  <span className={styles.setupStepIcon} aria-hidden="true">
-                    <RefreshIcon width={16} height={16} />
-                  </span>
-                  <p className={styles.setupStepTitle}>
-                    Run your first sync
-                  </p>
-                </div>
-                <p className={styles.setupStepHint}>
-                  In Anki, press <strong>Y</strong> or click{' '}
-                  <strong>Sync</strong> once. After that, we keep AnkiWeb up to
-                  date whenever a Notion page changes.
-                </p>
-              </div>
-            </li>
           </ol>
         )}
 
