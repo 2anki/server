@@ -41,12 +41,12 @@ const makeBackend = (overrides: Partial<Backend> = {}): Backend =>
   } as unknown as Backend);
 
 describe('AnkifyPage', () => {
-  test('renders the empty state when no clients exist', async () => {
+  test('renders the lead copy when no clients exist', async () => {
     renderWithClient(makeBackend());
 
     await waitFor(() =>
       expect(
-        screen.getByText(/no clients yet/i, { exact: false })
+        screen.getByText(/three quick steps and you're set/i)
       ).toBeInTheDocument()
     );
   });
@@ -83,19 +83,6 @@ describe('AnkifyPage', () => {
     await waitFor(() => expect(provision).toHaveBeenCalledTimes(1));
   });
 
-  test('disables the Provision button when an active client already exists', async () => {
-    const backend = makeBackend({
-      listAnkifyClients: vi.fn(async () => [sampleClient()]),
-    });
-
-    renderWithClient(backend);
-
-    const button = await screen.findByRole('button', {
-      name: /already provisioned/i,
-    });
-    expect(button).toBeDisabled();
-  });
-
   test('does not render inactive clients at all', async () => {
     const backend = makeBackend({
       listAnkifyClients: vi.fn(async () => [
@@ -112,7 +99,7 @@ describe('AnkifyPage', () => {
     );
     expect(screen.queryByText('happy_hopper')).not.toBeInTheDocument();
     expect(
-      screen.queryByRole('button', { name: /stop/i })
+      screen.queryByRole('button', { name: /shut down/i })
     ).not.toBeInTheDocument();
   });
 });

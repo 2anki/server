@@ -6,7 +6,6 @@ import styles from '../AnkifyPage.module.css';
 import { get2ankiApi } from '../../../lib/backend/get2ankiApi';
 import { Backend } from '../../../lib/backend/Backend';
 import NotionPagePicker from './NotionPagePicker';
-import LayersIcon from '../../../components/icons/LayersIcon';
 
 interface Props {
   readonly backend?: Backend;
@@ -125,164 +124,152 @@ export default function NotionSubscriptions({ backend }: Props) {
 
   return (
     <section className={styles.sectionFlow}>
-      <header className={styles.sectionHead}>
-        <div className={styles.sectionHeadMain}>
-          <span className={styles.sectionIcon} aria-hidden="true">
-            <LayersIcon width={20} height={20} />
-          </span>
-          <div className={styles.sectionHeadText}>
-            <p className={styles.sectionEyebrowAccent}>You pick what syncs</p>
-            <h2 className={styles.sectionTitleLg}>
-              Choose what flows into Anki
+      <div className={sharedStyles.surface}>
+        <header className={sharedStyles.surfaceHeader}>
+          <div className={sharedStyles.surfaceHeaderText}>
+            <h2 className={sharedStyles.surfaceTitle}>
+              Which pages become decks?
             </h2>
-          </div>
-        </div>
-      </header>
-      <p className={styles.sectionLead}>
-        You decide which Notion pages turn into Anki cards. Pick a page below
-        and we'll keep its toggle blocks in step with your Anki — and push
-        every change to your AnkiWeb account so your other devices stay up to
-        date. Nothing syncs until you choose it.
-      </p>
-
-      <NotionPagePicker
-        backend={api}
-        onSelect={handlePick}
-        busyId={subscribe.isPending ? pendingId : null}
-        disabledIds={subscribedIds}
-        selectLabel="Sync this page"
-        busyLabel="Syncing…"
-        subscribedLabel="Already syncing"
-      />
-
-      {subscribe.isError && (
-        <p role="alert" className={sharedStyles.helpDanger}>
-          {(subscribe.error as Error).message}
-        </p>
-      )}
-      {subscribe.isSuccess && (
-        <>
-          <p className={sharedStyles.helpSuccess}>
-            Read your Notion page. {subscribe.data.created} new card
-            {subscribe.data.created === 1 ? '' : 's'},{' '}
-            {subscribe.data.updated} updated in your hosted Anki
-            {subscribe.data.conflicts > 0
-              ? `, ${subscribe.data.conflicts} need a decision`
-              : ''}
-            .
-            {subscribe.data.anki_web_sync === 'synced' &&
-              ' Pushed to AnkiWeb.'}
-            {subscribe.data.anki_web_sync === 'skipped' &&
-              ' Nothing to push to AnkiWeb.'}
-          </p>
-          {subscribe.data.anki_web_sync === 'failed' && (
-            <p className={sharedStyles.helpDanger}>
-              Couldn't reach AnkiWeb. Open Anki in your browser and sign in
-              to your AnkiWeb account, then try again.
+            <p className={sharedStyles.surfaceLead}>
+              Pick a Notion page. It becomes a deck. Each toggle inside becomes
+              a flashcard. When you edit a toggle, the flashcard updates too.
             </p>
-          )}
-        </>
-      )}
-
-      <details className={styles.advancedDetails}>
-        <summary className={styles.advancedSummary}>
-          Don't see your page? Paste a Notion link instead.
-        </summary>
-        <form onSubmit={handleAdvancedSubmit} className={styles.advancedBody}>
-          <label htmlFor="ankify-advanced-input">Notion page link</label>
-          <div className={styles.advancedRow}>
-            <input
-              id="ankify-advanced-input"
-              type="text"
-              value={advancedInput}
-              onChange={(event) => setAdvancedInput(event.target.value)}
-              placeholder="https://www.notion.so/..."
-            />
-            <button
-              type="submit"
-              className={`${sharedStyles.btnSecondary} ${styles.inlineButton}`}
-              disabled={
-                subscribe.isPending || advancedInput.trim().length === 0
-              }
-            >
-              Sync this page
-            </button>
           </div>
-        </form>
-      </details>
+        </header>
 
-      {subscriptions.length > 0 ? (
-        <table className={styles.subscriptionTable}>
-          <caption className={styles.tableCaption}>
-            Pages you've picked to sync
-          </caption>
-          <thead>
-            <tr>
-              <th>Your Notion page</th>
-              <th>Last synced</th>
-              <th>Last issue</th>
-              <th aria-label="Actions" />
-            </tr>
-          </thead>
-          <tbody>
-            {subscriptions.map((sub) => {
-              const displayTitle =
-                sub.notion_page_title?.trim().length
-                  ? sub.notion_page_title
-                  : 'Untitled Notion page';
-              return (
-              <tr key={sub.id}>
-                <td>
-                  {sub.notion_page_url != null &&
-                  sub.notion_page_url.length > 0 ? (
-                    <a
-                      href={sub.notion_page_url}
-                      target="_blank"
-                      rel="noreferrer"
-                      title={`Open ${displayTitle} in Notion`}
-                    >
-                      {displayTitle}
-                    </a>
-                  ) : (
-                    <span title={sub.notion_page_id}>{displayTitle}</span>
-                  )}
-                </td>
-                <td className={styles.relativeTime}>
-                  {subscribe.isPending &&
-                  pendingId != null &&
-                  normalizeId(pendingId) ===
-                    normalizeId(sub.notion_page_id) ? (
-                    <span aria-live="polite">Syncing now…</span>
-                  ) : (
-                    sub.last_synced_at ?? (
-                      <span className={styles.muted}>Not yet</span>
-                    )
-                  )}
-                </td>
-                <td className={sub.last_error ? styles.errorCell : styles.muted}>
-                  {sub.last_error ?? '—'}
-                </td>
-                <td>
-                  <button
-                    type="button"
-                    className={`${sharedStyles.btnDanger} ${styles.inlineButton}`}
-                    onClick={() => unsubscribe.mutate(sub.id)}
-                    disabled={unsubscribe.isPending}
-                  >
-                    Stop syncing
-                  </button>
-                </td>
+        <NotionPagePicker
+          backend={api}
+          onSelect={handlePick}
+          busyId={subscribe.isPending ? pendingId : null}
+          disabledIds={subscribedIds}
+          selectLabel="Make this a deck"
+          busyLabel="Working…"
+          subscribedLabel="Already a deck"
+        />
+
+        {subscribe.isError && (
+          <p role="alert" className={sharedStyles.helpDanger}>
+            {(subscribe.error as Error).message}
+          </p>
+        )}
+        {subscribe.isSuccess && (
+          <>
+            <p className={sharedStyles.helpSuccess}>
+              Done. {subscribe.data.created} new flashcard
+              {subscribe.data.created === 1 ? '' : 's'},{' '}
+              {subscribe.data.updated} updated
+              {subscribe.data.conflicts > 0
+                ? `, ${subscribe.data.conflicts} need a decision`
+                : ''}
+              .
+            </p>
+            {subscribe.data.anki_web_sync === 'failed' && (
+              <p className={sharedStyles.helpDanger}>
+                Couldn't reach AnkiWeb. Open Anki, sign in, then try again.
+              </p>
+            )}
+          </>
+        )}
+
+        <hr className={sharedStyles.surfaceDivider} />
+
+        <details>
+          <summary className={styles.advancedSummary}>
+            Don't see it? Paste a Notion link.
+          </summary>
+          <form onSubmit={handleAdvancedSubmit} className={styles.advancedBody}>
+            <label htmlFor="ankify-advanced-input">Notion page link</label>
+            <div className={styles.advancedRow}>
+              <input
+                id="ankify-advanced-input"
+                type="text"
+                value={advancedInput}
+                onChange={(event) => setAdvancedInput(event.target.value)}
+                placeholder="https://www.notion.so/..."
+              />
+              <button
+                type="submit"
+                className={`${sharedStyles.btnSecondary} ${styles.inlineButton}`}
+                disabled={
+                  subscribe.isPending || advancedInput.trim().length === 0
+                }
+              >
+                Make this a deck
+              </button>
+            </div>
+          </form>
+        </details>
+
+        {subscriptions.length > 0 ? (
+          <table className={styles.subscriptionTable}>
+            <caption className={styles.tableCaption}>Decks from Notion</caption>
+            <thead>
+              <tr>
+                <th>Page</th>
+                <th>Last updated</th>
+                <th>Issue</th>
+                <th aria-label="Actions" />
               </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      ) : (
-        <p className={styles.emptyLine}>
-          You haven't picked any pages yet. Choose one above and we'll start
-          syncing it into your Anki.
-        </p>
-      )}
+            </thead>
+            <tbody>
+              {subscriptions.map((sub) => {
+                const displayTitle =
+                  sub.notion_page_title?.trim().length
+                    ? sub.notion_page_title
+                    : 'Untitled page';
+                return (
+                  <tr key={sub.id}>
+                    <td>
+                      {sub.notion_page_url != null &&
+                      sub.notion_page_url.length > 0 ? (
+                        <a
+                          href={sub.notion_page_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          title={`Open ${displayTitle} in Notion`}
+                        >
+                          {displayTitle}
+                        </a>
+                      ) : (
+                        <span title={sub.notion_page_id}>{displayTitle}</span>
+                      )}
+                    </td>
+                    <td className={styles.relativeTime}>
+                      {subscribe.isPending &&
+                      pendingId != null &&
+                      normalizeId(pendingId) ===
+                        normalizeId(sub.notion_page_id) ? (
+                        <span aria-live="polite">Updating now…</span>
+                      ) : (
+                        sub.last_synced_at ?? (
+                          <span className={styles.muted}>Not yet</span>
+                        )
+                      )}
+                    </td>
+                    <td className={sub.last_error ? styles.errorCell : styles.muted}>
+                      {sub.last_error ?? '—'}
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        className={`${sharedStyles.btnDanger} ${styles.inlineButton}`}
+                        onClick={() => unsubscribe.mutate(sub.id)}
+                        disabled={unsubscribe.isPending}
+                      >
+                        Stop
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        ) : (
+          <p className={styles.emptyLine}>
+            No decks yet. Pick a page above to make one.
+          </p>
+        )}
+      </div>
     </section>
   );
 }

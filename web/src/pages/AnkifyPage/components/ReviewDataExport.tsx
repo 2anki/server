@@ -8,7 +8,6 @@ import { Backend, TrackerSchemaError } from '../../../lib/backend/Backend';
 import NotionDatabasePicker from './NotionDatabasePicker';
 import TrackerParentPicker from './TrackerParentPicker';
 import NotionObject from '../../../lib/interfaces/NotionObject';
-import SendIcon from '../../../components/icons/SendIcon';
 
 interface Props {
   readonly backend?: Backend;
@@ -159,46 +158,37 @@ export default function ReviewDataExport({ backend }: Props) {
     /property|date|reviews|schema/i.test(line)
   );
 
+  const firstRunLead =
+    'We\'ll create a Notion database called "Anki review tracker" with three columns: Date, Reviews, Time spent (min). Two short steps.';
+  const heading = 'Where does your study history go?';
+  const lead =
+    "Each day's review count and time spent show up as a row in a Notion database you control. We only add new days — never overwrite.";
+
   return (
     <section className={styles.sectionFlow}>
-      <header className={styles.sectionHead}>
-        <div className={styles.sectionHeadMain}>
-          <span className={styles.sectionIcon} aria-hidden="true">
-            <SendIcon width={20} height={20} />
-          </span>
-          <div className={styles.sectionHeadText}>
-            <p className={styles.sectionEyebrowAccent}>You set the schedule</p>
-            <h2 className={styles.sectionTitleLg}>
-              Send your reviews back to Notion
-            </h2>
+      <div className={sharedStyles.surface}>
+        <header className={sharedStyles.surfaceHeader}>
+          <div className={sharedStyles.surfaceHeaderText}>
+            <h2 className={sharedStyles.surfaceTitle}>{heading}</h2>
+            <p className={sharedStyles.surfaceLead}>
+              {!hasTracker && wizard === 'idle' ? firstRunLead : lead}
+            </p>
           </div>
-        </div>
-      </header>
-      <p className={styles.sectionLead}>
-        Each day's review count <em>and</em> time spent become one row in a
-        small Notion database you control. Send on demand, or let us send
-        yesterday's row every morning at the time you pick. Days already in
-        Notion stay put — we only add new ones.
-      </p>
+        </header>
 
-      <div className={styles.exportCard}>
         {!hasTracker && wizard === 'idle' && (
           <div className={styles.firstRunBlock}>
-            <p className={styles.firstRunLead}>
-              We'll set up a Notion database called "Anki review tracker"
-              with three columns ready to go: Date, Reviews, and Time spent
-              (minutes). Two short steps.
-            </p>
             <button
               type="button"
               className={`${sharedStyles.btnPrimary} ${styles.inlineButton}`}
               onClick={startWizard}
             >
-              Set up my review tracker
+              Create my review tracker
             </button>
-            <details className={styles.advancedDetails}>
+            <hr className={sharedStyles.surfaceDivider} />
+            <details>
               <summary className={styles.advancedSummary}>
-                I already have a tracker — pick from a list
+                I already have one — pick from a list
               </summary>
               <div className={styles.advancedBody}>
                 <NotionDatabasePicker
@@ -224,9 +214,7 @@ export default function ReviewDataExport({ backend }: Props) {
           <div className={styles.trackerSummary}>
             <div className={styles.trackerSummaryHead}>
               <div>
-                <p className={styles.trackerSummaryLabel}>
-                  Sending to your Anki review tracker
-                </p>
+                <p className={styles.trackerSummaryLabel}>Sending to</p>
                 <p className={styles.trackerSummaryName}>
                   {trackerTitle.length > 0
                     ? trackerTitle
@@ -251,7 +239,7 @@ export default function ReviewDataExport({ backend }: Props) {
                 className={`${sharedStyles.btnSmall} ${styles.inlineButton}`}
                 onClick={() => setShowChange((current) => !current)}
               >
-                {showChange ? 'Done' : 'Change tracker'}
+                {showChange ? 'Done' : 'Change'}
               </button>
             </div>
 
@@ -295,7 +283,7 @@ export default function ReviewDataExport({ backend }: Props) {
             >
               <div className={styles.dateRangeField}>
                 <label htmlFor="ankify-date-range">
-                  How many days back? (optional)
+                  Days back (optional)
                 </label>
                 <input
                   id="ankify-date-range"
@@ -311,7 +299,7 @@ export default function ReviewDataExport({ backend }: Props) {
                 className={`${sharedStyles.btnPrimary} ${styles.inlineButton}`}
                 disabled={exportMutation.isPending}
               >
-                {exportMutation.isPending ? 'Sending…' : 'Send now'}
+                {exportMutation.isPending ? 'Updating…' : 'Update Notion'}
               </button>
             </form>
 
@@ -325,13 +313,13 @@ export default function ReviewDataExport({ backend }: Props) {
                   }
                 >
                   {allFailed
-                    ? `None of your ${result.totalDays} days could be sent.`
-                    : `Sent ${result.exported} new ${result.exported === 1 ? 'day' : 'days'}`}
+                    ? `None of your ${result.totalDays} days could be updated.`
+                    : `Updated Notion. ${result.exported} new ${result.exported === 1 ? 'day' : 'days'}`}
                   {!allFailed && result.skipped > 0
-                    ? `, skipped ${result.skipped} already in Notion`
+                    ? `, skipped ${result.skipped}`
                     : ''}
                   {!allFailed && errorList.length > 0
-                    ? `, ${errorList.length} couldn't be sent`
+                    ? `, ${errorList.length} couldn't update`
                     : ''}
                   .
                 </p>
@@ -339,16 +327,15 @@ export default function ReviewDataExport({ backend }: Props) {
                 {allFailed && looksLikeMissingProperty && (
                   <div className={styles.shapeWarning}>
                     <p className={styles.shapeWarningText}>
-                      This tracker is missing the Date or Reviews column we
-                      need. The fastest fix is a fresh tracker we make for
-                      you.
+                      This tracker is missing the Date or Reviews column. The
+                      fastest fix is a fresh tracker — we'll make it.
                     </p>
                     <button
                       type="button"
                       className={`${sharedStyles.btnPrimary} ${styles.inlineButton}`}
                       onClick={startWizard}
                     >
-                      Make a fresh tracker for me
+                      Make a fresh tracker
                     </button>
                   </div>
                 )}
@@ -356,7 +343,7 @@ export default function ReviewDataExport({ backend }: Props) {
                 {errorList.length > 0 && (
                   <div className={styles.errorListBlock}>
                     <p className={styles.errorListHeading}>
-                      What went wrong{errorList.length > 1 ? ', day by day' : ''}:
+                      What went wrong:
                     </p>
                     <ul className={styles.errorList}>
                       {visibleErrors.map((line, index) => (
@@ -383,19 +370,15 @@ export default function ReviewDataExport({ backend }: Props) {
               exportMutation.error instanceof TrackerSchemaError && (
                 <div className={styles.shapeWarning} role="alert">
                   <p className={styles.shapeWarningText}>
-                    This tracker is missing{' '}
-                    {(exportMutation.error as TrackerSchemaError).missing
-                      .map((m) => `"${m}"`)
-                      .join(' and ')}{' '}
-                    — the columns we need to write your reviews. The fastest
-                    fix is a fresh tracker we make for you.
+                    This tracker is missing the Date or Reviews column. The
+                    fastest fix is a fresh tracker — we'll make it.
                   </p>
                   <button
                     type="button"
                     className={`${sharedStyles.btnPrimary} ${styles.inlineButton}`}
                     onClick={startWizard}
                   >
-                    Make a fresh tracker for me
+                    Make a fresh tracker
                   </button>
                 </div>
               )}
@@ -403,7 +386,7 @@ export default function ReviewDataExport({ backend }: Props) {
             {exportMutation.isError &&
               !(exportMutation.error instanceof TrackerSchemaError) && (
                 <p role="alert" className={sharedStyles.helpDanger}>
-                  We couldn't send your reviews:{' '}
+                  We couldn't update Notion.{' '}
                   {(exportMutation.error as Error).message}
                 </p>
               )}
@@ -430,16 +413,16 @@ export default function ReviewDataExport({ backend }: Props) {
           <div className={styles.trackerStep}>
             <p className={styles.trackerStepLabel}>Step 2 of 2</p>
             <h4 className={styles.trackerStepTitle}>
-              Make the tracker under "{pendingParent.title}"?
+              Create the tracker under "{pendingParent.title}"?
             </h4>
             <p className={styles.trackerStepHint}>
               We'll add a Notion database called "Anki review tracker" with
-              two columns — Date and Reviews. Each day's count becomes one row.
-              Nothing else on your Notion page will change.
+              three columns: Date, Reviews, Time spent (min). Each day's count
+              becomes one row. Nothing else on your Notion page changes.
             </p>
             {createTracker.isError && (
               <p role="alert" className={sharedStyles.helpDanger}>
-                Couldn't create the tracker:{' '}
+                Couldn't create the tracker.{' '}
                 {(createTracker.error as Error).message}
               </p>
             )}
