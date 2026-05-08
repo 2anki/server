@@ -36,32 +36,38 @@ export default function TrackerParentPicker({
     setLoading(true);
     setError(null);
 
+    const pickNextSelectedId = (
+      current: string | null,
+      pages: NotionObject[]
+    ): string | null => {
+      if (current != null && pages.some((p) => p.id === current)) {
+        return current;
+      }
+      if (
+        suggestedPageId != null &&
+        pages.some((p) => p.id === suggestedPageId)
+      ) {
+        return suggestedPageId;
+      }
+      return pages[0]?.id ?? null;
+    };
+
+    const handleSearchResults = (data: NotionObject[]) => {
+      if (cancelled) return;
+      const pagesOnly = data.filter((entry) => entry.object === 'page');
+      setResults(pagesOnly);
+      setLoading(false);
+      setSelectedId((current) => pickNextSelectedId(current, pagesOnly));
+    };
+
+    const handleSearchError = (err: Error) => {
+      if (cancelled) return;
+      setError(err.message);
+      setLoading(false);
+    };
+
     const timer = setTimeout(() => {
-      backend
-        .search(query)
-        .then((data) => {
-          if (cancelled) return;
-          const pagesOnly = data.filter((entry) => entry.object === 'page');
-          setResults(pagesOnly);
-          setLoading(false);
-          setSelectedId((current) => {
-            if (current != null && pagesOnly.some((p) => p.id === current)) {
-              return current;
-            }
-            if (
-              suggestedPageId != null &&
-              pagesOnly.some((p) => p.id === suggestedPageId)
-            ) {
-              return suggestedPageId;
-            }
-            return pagesOnly[0]?.id ?? null;
-          });
-        })
-        .catch((err: Error) => {
-          if (cancelled) return;
-          setError(err.message);
-          setLoading(false);
-        });
+      backend.search(query).then(handleSearchResults).catch(handleSearchError);
     }, DEBOUNCE_MS);
 
     return () => {
