@@ -359,6 +359,25 @@ export default function AnkifySetupPage({ backend }: Props) {
             We'll move on automatically once AnkiWeb is linked.
           </p>
         )}
+        <p className={styles.setupActiveStepHint}>
+          Stuck?{' '}
+          <button
+            type="button"
+            className={styles.btnLink}
+            onClick={() => respin.mutate()}
+            disabled={respin.isPending}
+          >
+            {respin.isPending ? 'Restarting…' : 'Restart Anki'}
+          </button>
+        </p>
+        {respin.error && (
+          <div
+            role="alert"
+            className={`${sharedStyles.alertDanger} ${styles.signInAlert}`}
+          >
+            We couldn't restart Anki. {(respin.error as Error).message}
+          </div>
+        )}
       </section>
     );
   };

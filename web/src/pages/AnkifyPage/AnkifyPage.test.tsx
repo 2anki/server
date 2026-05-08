@@ -97,6 +97,26 @@ describe('AnkifySetupPage', () => {
     expect(screen.queryByText(/beta/i)).not.toBeInTheDocument();
   });
 
+  test('Step 2 offers a Restart Anki action that respins the client', async () => {
+    const respin = vi.fn(async () => sampleClient({ id: 99 }));
+    const backend = makeBackend({
+      listAnkifyClients: vi.fn(async () => [sampleClient()]),
+      checkAnkifyActiveClientReady: vi.fn(async () => ({ ready: true })),
+      checkAnkifyAnkiWebStatus: vi.fn(async () => ({
+        status: 'unlinked' as const,
+      })),
+      respinAnkifyClient: respin,
+    });
+
+    renderAt('/ankify/setup', backend);
+
+    const restart = await screen.findByRole('button', {
+      name: /restart anki/i,
+    });
+    restart.click();
+    await waitFor(() => expect(respin).toHaveBeenCalledTimes(1));
+  });
+
   test('shows a timeout fallback once Anki has been starting too long', async () => {
     const stale = sampleClient({
       created_at: new Date(Date.now() - 60_000).toISOString(),
