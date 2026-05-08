@@ -1,6 +1,24 @@
 # Ankify security hardening — spec
 
-Status: proposed (2026-05-08, revised 2026-05-08). Not started. Targeted at the work that needs to land before onboarding user #2 to `/ankify`.
+Status: **partially shipped** as of 2026-05-08 via PR #2042. Tracks the work that needs to land before onboarding user #2 to `/ankify`.
+
+## Per-slice status (read this first)
+
+| Slice | What | Status | Blocking onboarding user #2? |
+|---|---|---|---|
+| 1 | Token-gated session URLs + private host ports + cookie binding | ✅ **shipped** | — |
+| 2 | Container hardening (CapDrop, no-new-privs, Tmpfs, AnkiConnect API key) | ⚠ **partially shipped** — `ReadonlyRootfs` reverted because `startup.sh` templates the API key into a config file that resolves to a path on the rootfs. Re-enable when the image moves the addon out of the rootfs. | ⚠ partial gap |
+| 3 | Ephemeral `/data` (tmpfs replaces the named volume) | ⏸ **deferred — needs companion image change.** First attempt broke Anki because mounting tmpfs over `/data` shadowed the image-baked profile + AnkiConnect addon. Reverted. See README "Image fix needed" for the canonical fix. | **yes** — `prefs21.db` holds the AnkiWeb session token in plaintext today. |
+| 4 | Operator audit log + weekly publish | ⏸ planned, ~0.5d | recommended before un-gating |
+| 5 | `/privacy/ankify` page | ⏸ planned, ~1h (copy already drafted in this doc) | recommended before un-gating |
+| 6 | gVisor runtime | ⏸ planned, ~2d, defense in depth | no |
+| 7a | Host-level LUKS on Hetzner + dropbear-initramfs | ⏸ planned, ~4h + downtime window | **yes** — disk is unencrypted today |
+| 7b | KMS-keyed per-tenant volumes | ⏸ planned, ~1w; on-demand once paying users exist | no |
+| 7c | User-passphrase "private vault" | ⏸ planned, ~2–3w; only when a user asks | no |
+
+**Gating set before un-gating the allowlist:** finish 3 + 4 + 5 + 7a (the rest are post-gate). Roughly one focused day of code + one downtime window.
+
+## Spec body (unchanged)
 
 This spec turns the conversation-level assessment into a buildable plan. It's grouped by the area of risk it closes, in the order I'd ship.
 
