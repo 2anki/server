@@ -7,10 +7,8 @@ import { AnkifySyncMappingsRepository } from '../data_layer/ankify/AnkifySyncMap
 import UploadRepository from '../data_layer/UploadRespository';
 import { getDatabase } from '../data_layer';
 import { RacService } from '../services/ankify/RacService';
-import {
-  AnkiConnectClient,
-  buildAnkiConnectUrl,
-} from '../services/ankify/AnkiConnectClient';
+import { ankiConnectFactory } from '../services/ankify/buildAnkiConnectClient';
+import { notionBlockChildrenFetcherFactory } from '../services/ankify/notionBlockChildrenFetcher';
 import ProvisionAnkifyClientUseCase from '../usecases/ankify/ProvisionAnkifyClientUseCase';
 import ListAnkifyClientsUseCase from '../usecases/ankify/ListAnkifyClientsUseCase';
 import StopAnkifyClientUseCase from '../usecases/ankify/StopAnkifyClientUseCase';
@@ -74,18 +72,6 @@ const AnkifyRouter = () => {
     }
     return Buffer.isBuffer(body) ? body : Buffer.from(body as Uint8Array);
   };
-
-  const ankiConnectFactory = (
-    host: string,
-    port: number,
-    apiKey: string | null
-  ) =>
-    new AnkiConnectClient(
-      buildAnkiConnectUrl(host, port),
-      undefined,
-      undefined,
-      apiKey
-    );
 
   const controller = new AnkifyController(
     new ProvisionAnkifyClientUseCase(rac),
@@ -182,23 +168,7 @@ const AnkifyRouter = () => {
       logsRepo,
       new NotionRepository(db),
       ankiConnectFactory,
-      (token) => {
-        const notion = new NotionClient({ auth: token });
-        return async (blockId) => {
-          const aggregated: unknown[] = [];
-          let cursor: string | undefined;
-          do {
-            const response = await notion.blocks.children.list({
-              block_id: blockId,
-              page_size: 100,
-              ...(cursor != null ? { start_cursor: cursor } : {}),
-            });
-            aggregated.push(...response.results);
-            cursor = response.next_cursor ?? undefined;
-          } while (cursor != null);
-          return aggregated as never;
-        };
-      },
+      notionBlockChildrenFetcherFactory,
       (token) => {
         const notion = new NotionClient({ auth: token });
         return async (notionPageId) => {
