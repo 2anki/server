@@ -43,7 +43,7 @@ export class ResolveConflictUseCase {
 
   async execute(input: ResolveConflictInput): Promise<void> {
     const conflict = await this.conflicts.findById(input.id, input.owner);
-    if (conflict == null || conflict.status !== 'pending') {
+    if (conflict?.status !== 'pending') {
       throw new ConflictNotFoundError();
     }
 

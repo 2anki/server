@@ -53,8 +53,7 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
     refetchInterval: 30_000,
   });
 
-  const hasActiveClient =
-    data != null && data.some((c) => c.status === 'active');
+  const hasActiveClient = data?.some((c) => c.status === 'active') ?? false;
   const signedInAcknowledged = readSignedInAcknowledged();
 
   useEffect(() => {
@@ -83,7 +82,7 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
       <h1 className={styles.workspaceTitle}>Ankify</h1>
 
       {conflictCount > 0 && (
-        <div className={styles.conflictsBanner} role="status">
+        <output className={styles.conflictsBanner}>
           <span>
             {conflictCount} to resolve.
           </span>
@@ -94,7 +93,7 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
           >
             Review →
           </button>
-        </div>
+        </output>
       )}
 
       <ConflictsModal

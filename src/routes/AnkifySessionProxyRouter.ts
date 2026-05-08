@@ -1,6 +1,6 @@
 import express from 'express';
-import type { IncomingMessage, Server as HttpServer } from 'http';
-import type { Socket } from 'net';
+import type { IncomingMessage, Server as HttpServer } from 'node:http';
+import type { Socket } from 'node:net';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 
 import AuthenticationService from '../services/AuthenticationService';

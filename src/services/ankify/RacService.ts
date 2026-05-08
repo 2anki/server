@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 
 import { AnkifyClient } from '../../entities/ankify';
 import { AnkifyClientsRepositoryInterface } from '../../data_layer/ankify/AnkifyClientsRepository';
@@ -168,9 +168,7 @@ export class RacService {
     let containerName: string | null;
     try {
       const inspect = await container.inspect();
-      containerName = stripLeadingSlash(
-        (inspect as { Name?: string }).Name
-      );
+      containerName = stripLeadingSlash(inspect.Name);
       console.info(
         '[ankify-provision] inspect ok name=%s',
         containerName ?? 'null'

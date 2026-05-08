@@ -33,9 +33,9 @@ export interface WalkedNotionFlashcard {
   back: string;
 }
 
-export interface NotionBlockChildrenFetcher {
-  (blockId: string): Promise<NotionChildBlock[]>;
-}
+export type NotionBlockChildrenFetcher = (
+  blockId: string
+) => Promise<NotionChildBlock[]>;
 
 const renderRichText = (items: RichTextItem[] | undefined): string => {
   if (items == null) {

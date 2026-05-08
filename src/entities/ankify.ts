@@ -101,7 +101,7 @@ export interface AnkifySyncLog {
   kind: AnkifySyncLogKind;
   status: AnkifySyncLogStatus;
   message: string;
-  payload: unknown | null;
+  payload: unknown;
   created_at: Date;
 }
 
@@ -160,8 +160,8 @@ export interface AnkifySyncConflict {
   kind: AnkifyConflictKind;
   notion_last_edited_at: Date | null;
   anki_modified_at: number | null;
-  notion_snapshot: unknown | null;
-  anki_snapshot: unknown | null;
+  notion_snapshot: unknown;
+  anki_snapshot: unknown;
   status: AnkifyConflictStatus;
   resolution: AnkifyConflictResolution;
   created_at: Date;
