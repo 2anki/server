@@ -154,6 +154,15 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
     } catch {}
   };
 
+  const verifySignIn = useMutation({
+    mutationFn: () => api.checkAnkifyAnkiWebStatus(),
+    onSuccess: (result) => {
+      if (result.status === 'linked') {
+        acknowledgeAnkiWebSignIn();
+      }
+    },
+  });
+
   useEffect(() => {
     if (
       ankiWebStatus.data?.status === 'linked' &&
@@ -375,17 +384,44 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
                         <button
                           type="button"
                           className={`${sharedStyles.btnPrimary} ${styles.inlineButton}`}
-                          onClick={acknowledgeAnkiWebSignIn}
+                          onClick={() => verifySignIn.mutate()}
+                          disabled={verifySignIn.isPending}
                         >
-                          I've signed in
+                          {verifySignIn.isPending
+                            ? 'Checking…'
+                            : "I've signed in"}
                         </button>
                       </div>
-                      <p
-                        className={styles.setupStepHint}
-                        aria-live="polite"
-                      >
-                        We'll move on automatically once AnkiWeb is linked.
-                      </p>
+                      {verifySignIn.isSuccess &&
+                        verifySignIn.data.status !== 'linked' && (
+                          <p
+                            role="alert"
+                            className={sharedStyles.helpDanger}
+                          >
+                            {verifySignIn.data.status === 'unreachable'
+                              ? "We can't reach Anki right now. Try again in a few seconds."
+                              : "We don't see you signed in to AnkiWeb yet. Click "}
+                            {verifySignIn.data.status !== 'unreachable' && (
+                              <strong>Sync</strong>
+                            )}
+                            {verifySignIn.data.status !== 'unreachable' &&
+                              ' inside Anki, enter your AnkiWeb email and password, then try again.'}
+                          </p>
+                        )}
+                      {verifySignIn.isError && (
+                        <p role="alert" className={sharedStyles.helpDanger}>
+                          We couldn't check your sign-in.{' '}
+                          {(verifySignIn.error as Error).message}
+                        </p>
+                      )}
+                      {!verifySignIn.isSuccess && !verifySignIn.isError && (
+                        <p
+                          className={styles.setupStepHint}
+                          aria-live="polite"
+                        >
+                          We'll move on automatically once AnkiWeb is linked.
+                        </p>
+                      )}
                     </>
                   ) : (
                     <div
