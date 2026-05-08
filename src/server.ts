@@ -62,6 +62,7 @@ function registerSignalHandlers(server: http.Server) {
 const serve = async () => {
   const templateDir = path.join(__dirname, 'templates');
   const app = express();
+  const server = http.createServer(app);
 
   app.use(webhookRouter());
   app.use(ankifyWebhookRouter());
@@ -71,6 +72,10 @@ const serve = async () => {
   app.use(morgan('combined') as RequestHandler);
 
   const ankifySessionValidate = buildAnkifySessionProxyDeps();
+  // Must run before defaultRouter()'s catch-all (which serves index.html
+  // for anything not under /api), otherwise /v/<token>/* gets shadowed
+  // by the SPA and users see a 404 instead of their Ankify session.
+  attachAnkifySessionProxy(app, server, ankifySessionValidate);
 
   app.use('/templates', express.static(templateDir));
   app.use(express.static(BUILD_DIR));
@@ -113,10 +118,9 @@ const serve = async () => {
   process.chdir(cwd);
   process.env.SECRET ||= 'victory';
   const port = process.env.PORT || 2020;
-  const server = app.listen(port, () => {
+  server.listen(port, () => {
     console.info(`🟢 Running on http://localhost:${port}`);
   });
-  attachAnkifySessionProxy(app, server, ankifySessionValidate);
   registerSignalHandlers(server);
 
   const database = getDatabase();
