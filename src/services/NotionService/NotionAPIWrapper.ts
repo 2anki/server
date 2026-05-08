@@ -254,7 +254,7 @@ class NotionAPIWrapper {
     }>;
   }> {
     const maxResults = opts.maxResults ?? 50;
-    const maxPages = opts.maxPages ?? 5;
+    const maxPages = opts.maxPages ?? 20;
     const collected: Array<{
       id: string;
       object: 'page';
