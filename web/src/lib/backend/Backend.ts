@@ -7,6 +7,7 @@ import {
 } from '../../generated/data-contracts';
 import NotionObject from '../interfaces/NotionObject';
 import UserUpload from '../interfaces/UserUpload';
+import AnkifyClient from '../interfaces/AnkifyClient';
 
 import { JobsId } from '../../schemas/public/Jobs';
 import JobResponse from '../../schemas/public/JobResponse';
@@ -17,6 +18,16 @@ import { Rules, Settings } from '../types';
 import { del, get, getLoginURL, post } from './api';
 import { getResourceUrl } from './getResourceUrl';
 import { CONFLICT, OK } from './http';
+
+export class TrackerSchemaError extends Error {
+  readonly missing: string[];
+
+  constructor(message: string, missing: string[]) {
+    super(message);
+    this.name = 'TrackerSchemaError';
+    this.missing = missing;
+  }
+}
 
 export class Backend {
   public baseURL = '/api/';
@@ -268,5 +279,282 @@ export class Backend {
 
   async deleteAccount(confirmed: boolean): Promise<Response> {
     return post(`${this.baseURL}users/delete-account`, { confirmed });
+  }
+
+  async listAnkifyClients(): Promise<AnkifyClient[]> {
+    const result = await get(`${this.baseURL}ankify/clients`);
+    return result ?? [];
+  }
+
+  async provisionAnkifyClient(): Promise<AnkifyClient> {
+    const response = await post(`${this.baseURL}ankify/clients`, {});
+    if (!response.ok) {
+      const error = await response
+        .json()
+        .catch(() => ({ message: response.statusText }));
+      throw new Error(error.message ?? 'Failed to provision client');
+    }
+    return response.json();
+  }
+
+  async stopAnkifyClient(id: number): Promise<void> {
+    const response = await del(`${this.baseURL}ankify/clients/${id}`);
+    if (!response?.ok) {
+      throw new Error('Failed to stop client');
+    }
+  }
+
+  async respinAnkifyClient(): Promise<AnkifyClient> {
+    const response = await post(`${this.baseURL}ankify/clients/respin`, {});
+    if (!response.ok) {
+      const error = await response
+        .json()
+        .catch(() => ({ message: response.statusText }));
+      throw new Error(error.message ?? 'Failed to respin client');
+    }
+    return response.json();
+  }
+
+  async reissueAnkifySessionUrl(id: number): Promise<AnkifyClient> {
+    const response = await post(
+      `${this.baseURL}ankify/clients/${id}/reissue-session`,
+      {}
+    );
+    if (!response.ok) {
+      const error = await response
+        .json()
+        .catch(() => ({ message: response.statusText }));
+      throw new Error(error.message ?? 'Failed to reissue session URL');
+    }
+    return response.json();
+  }
+
+  async getAnkifyExportSchedule(): Promise<{
+    id: number;
+    owner: number;
+    database_id: string;
+    time_of_day: string;
+    timezone: string;
+    date_range_days: number | null;
+    enabled: boolean;
+    last_run_at: string | null;
+  } | null> {
+    const result = await get(`${this.baseURL}ankify/exports/schedule`);
+    return result ?? null;
+  }
+
+  async configureAnkifyExportSchedule(input: {
+    databaseId: string;
+    timeOfDay: string;
+    timezone: string;
+    dateRangeDays?: number | null;
+    enabled: boolean;
+  }): Promise<void> {
+    const response = await post(`${this.baseURL}ankify/exports/schedule`, {
+      database_id: input.databaseId,
+      time_of_day: input.timeOfDay,
+      timezone: input.timezone,
+      date_range_days: input.dateRangeDays ?? null,
+      enabled: input.enabled,
+    });
+    if (!response.ok) {
+      const error = await response
+        .json()
+        .catch(() => ({ message: response.statusText }));
+      throw new Error(error.message ?? 'Failed to configure schedule');
+    }
+  }
+
+  async deleteAnkifyExportSchedule(): Promise<void> {
+    const response = await del(`${this.baseURL}ankify/exports/schedule`);
+    if (!response?.ok) {
+      throw new Error('Failed to delete schedule');
+    }
+  }
+
+  async listAnkifySubscriptions(): Promise<
+    Array<{
+      id: number;
+      notion_page_id: string;
+      notion_page_title: string | null;
+      notion_page_url: string | null;
+      enabled: boolean;
+      last_polled_at: string | null;
+      last_synced_at: string | null;
+      last_error: string | null;
+    }>
+  > {
+    const result = await get(`${this.baseURL}ankify/subscriptions`);
+    return result ?? [];
+  }
+
+  async subscribeAnkifyNotionPage(input: {
+    notionPageId: string;
+    notionPageTitle?: string | null;
+    notionPageUrl?: string | null;
+  }): Promise<{
+    created: number;
+    updated: number;
+    conflicts: number;
+    unchanged: number;
+    errors: string[];
+    anki_web_sync: 'synced' | 'failed' | 'skipped';
+    anki_web_sync_error: string | null;
+  }> {
+    const response = await post(`${this.baseURL}ankify/subscriptions`, {
+      notion_page_id: input.notionPageId,
+      notion_page_title: input.notionPageTitle,
+      notion_page_url: input.notionPageUrl,
+    });
+    if (!response.ok) {
+      const error = await response
+        .json()
+        .catch(() => ({ message: response.statusText }));
+      throw new Error(error.message ?? 'Failed to subscribe page');
+    }
+    return response.json();
+  }
+
+  async deleteAnkifySubscription(id: number): Promise<void> {
+    const response = await del(
+      `${this.baseURL}ankify/subscriptions/${id}`
+    );
+    if (!response?.ok) {
+      throw new Error('Failed to delete subscription');
+    }
+  }
+
+  async listAnkifyConflicts(): Promise<
+    Array<{
+      id: number;
+      source_id: string;
+      anki_note_id: number;
+      kind: string;
+      notion_snapshot: { front?: string; back?: string } | null;
+      anki_snapshot: { front?: string; back?: string } | null;
+      created_at: string;
+    }>
+  > {
+    const result = await get(
+      `${this.baseURL}ankify/conflicts?status=pending`
+    );
+    return result ?? [];
+  }
+
+  async resolveAnkifyConflict(
+    id: number,
+    resolution: 'keep_notion' | 'keep_anki' | 'dismissed'
+  ): Promise<void> {
+    const response = await post(
+      `${this.baseURL}ankify/conflicts/${id}/resolve`,
+      { resolution }
+    );
+    if (!response.ok) {
+      const error = await response
+        .json()
+        .catch(() => ({ message: response.statusText }));
+      throw new Error(error.message ?? 'Failed to resolve conflict');
+    }
+  }
+
+  async checkAnkifyActiveClientReady(): Promise<{
+    ready: boolean;
+    reason?: 'no_active_client' | 'unreachable' | 'error';
+    detail?: string;
+  }> {
+    const result = await get(`${this.baseURL}ankify/clients/active/ready`);
+    return result ?? { ready: false, reason: 'unreachable' };
+  }
+
+  async checkAnkifyAnkiWebStatus(): Promise<{
+    status:
+      | 'linked'
+      | 'unlinked'
+      | 'unreachable'
+      | 'no_active_client'
+      | 'error';
+    message?: string;
+  }> {
+    const result = await get(
+      `${this.baseURL}ankify/clients/active/anki-web-status`
+    );
+    return result ?? { status: 'unreachable' };
+  }
+
+  async listAnkifyNotionDatabases(): Promise<
+    Array<{
+      id: string;
+      title: string;
+      url: string | null;
+      has_review_shape: boolean;
+    }>
+  > {
+    const result = await get(`${this.baseURL}ankify/notion/databases`);
+    return result ?? [];
+  }
+
+  async createAnkifyReviewTracker(input: {
+    parentPageId: string;
+    title?: string;
+  }): Promise<{ id: string; url: string | null; title: string }> {
+    const response = await post(`${this.baseURL}ankify/notion/databases`, {
+      parent_page_id: input.parentPageId,
+      title: input.title,
+    });
+    if (!response.ok) {
+      const error = await response
+        .json()
+        .catch(() => ({ message: response.statusText }));
+      throw new Error(error.message ?? 'Failed to create tracker database');
+    }
+    return response.json();
+  }
+
+  async exportAnkifyReviewData(input: {
+    databaseId: string;
+    dateRangeDays?: number;
+  }): Promise<{
+    exported: number;
+    skipped: number;
+    errors: string[];
+    totalDays: number;
+  }> {
+    const response = await post(`${this.baseURL}ankify/exports/review-data`, {
+      database_id: input.databaseId,
+      date_range_days: input.dateRangeDays,
+    });
+    if (!response.ok) {
+      const error = await response
+        .json()
+        .catch(() => ({ message: response.statusText }));
+      if (response.status === 422 && Array.isArray(error.missing)) {
+        throw new TrackerSchemaError(
+          error.message ?? 'Tracker is missing required columns',
+          error.missing as string[]
+        );
+      }
+      throw new Error(error.message ?? 'Failed to export review data');
+    }
+    return response.json();
+  }
+
+  async dispatchUploadToAnkify(uploadId: number): Promise<{
+    deck_names: string[];
+    created: number;
+    updated: number;
+    errors: string[];
+    anki_web_sync: 'synced' | 'failed' | 'skipped';
+    anki_web_sync_error: string | null;
+  }> {
+    const response = await post(`${this.baseURL}ankify/dispatch`, {
+      upload_id: uploadId,
+    });
+    if (!response.ok) {
+      const error = await response
+        .json()
+        .catch(() => ({ message: response.statusText }));
+      throw new Error(error.message ?? 'Failed to dispatch upload');
+    }
+    return response.json();
   }
 }

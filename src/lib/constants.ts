@@ -38,6 +38,8 @@ export const CLEANUP_AGE_SECONDS = 7200;
 
 export const ONE_HOUR = 60 * 60 * 1000;
 
+export const ANKIFY_ALLOWLIST_EMAILS = ['alexander@alemayhu.com'];
+
 export const BUILD_DIR = path.join(__dirname, '../../web/build');
 
 export const CREATE_DECK_DIR = path.join(__dirname, '../../create_deck/');

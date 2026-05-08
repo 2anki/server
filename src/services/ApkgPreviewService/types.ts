@@ -24,6 +24,7 @@ export interface Note {
   mid: number;
   tags: string;
   fields: string[];
+  guid?: string;
 }
 
 export interface Card {

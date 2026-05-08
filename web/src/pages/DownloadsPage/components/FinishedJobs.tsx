@@ -8,6 +8,7 @@ import { getDistance } from '../../../lib/getDistance';
 import DownloadIcon from '../../../components/icons/DownloadIcon';
 import EyeIcon from '../../../components/icons/EyeIcon';
 import TrashIcon from '../../../components/icons/TrashIcon';
+import SendToAnkifyButton from './SendToAnkifyButton';
 import styles from '../DownloadsPage.module.css';
 import sharedStyles from '../../../styles/shared.module.css';
 
@@ -142,6 +143,12 @@ export function FinishedJobs({ uploads, deleteUpload, doneJobs = [], deleteJob }
                     >
                       <DownloadIcon width={18} height={18} />
                     </a>
+                    {APKG_PATTERN.test(u.key) && (
+                      <SendToAnkifyButton
+                        uploadId={u.id}
+                        filename={u.filename}
+                      />
+                    )}
                   </div>
                 </td>
               </tr>

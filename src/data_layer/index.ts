@@ -5,6 +5,25 @@ import knex, { Knex } from 'knex';
 import MigratorConfig = Knex.MigratorConfig;
 
 import { ScheduleCleanup } from '../lib/storage/jobs/ScheduleCleanup';
+import { scheduleAnkifyReaper } from '../lib/ankify/jobs/scheduleAnkifyReaper';
+import { scheduleAnkifyPolling } from '../lib/ankify/jobs/scheduleAnkifyPolling';
+import { RacService } from '../services/ankify/RacService';
+import { AnkifyClientsRepository } from './ankify/AnkifyClientsRepository';
+import { AnkifySessionTokensRepository } from './ankify/AnkifySessionTokensRepository';
+import { AnkifyExportSchedulesRepository } from './ankify/AnkifyExportSchedulesRepository';
+import { AnkifyExportScheduler } from '../services/ankify/AnkifyExportScheduler';
+import { ExportReviewDataToNotionUseCase } from '../usecases/ankify/ExportReviewDataToNotionUseCase';
+import { SyncNotionPageToRacUseCase } from '../usecases/ankify/SyncNotionPageToRacUseCase';
+import { AnkifyNotionSubscriptionsRepository } from './ankify/AnkifyNotionSubscriptionsRepository';
+import { AnkifySyncMappingsRepository } from './ankify/AnkifySyncMappingsRepository';
+import { AnkifySyncConflictsRepository } from './ankify/AnkifySyncConflictsRepository';
+import { AnkifySyncLogsRepository } from './ankify/AnkifySyncLogsRepository';
+import { ankiConnectFactory } from '../services/ankify/buildAnkiConnectClient';
+import { notionBlockChildrenFetcherFactory } from '../services/ankify/notionBlockChildrenFetcher';
+import NotionRepository from './NotionRespository';
+import { Client as NotionClient } from '@notionhq/client';
+import { setAnkifyExportScheduler } from '../lib/ankify/scheduler/instance';
+import Docker from 'dockerode';
 import KnexConfig from '../KnexConfig';
 
 /**
@@ -47,6 +66,151 @@ export const setupDatabase = async (database: Knex) => {
     }
 
     await database.migrate.latest(KnexConfig as MigratorConfig);
+
+    if (process.env.INSTANCE_ID !== 'singapore') {
+      const ankifyRepo = new AnkifyClientsRepository(database);
+      const ankifySessionTokensRepo = new AnkifySessionTokensRepository(
+        database
+      );
+      const ankifyRac = new RacService(
+        ankifyRepo,
+        new Docker(),
+        ankifySessionTokensRepo
+      );
+      scheduleAnkifyReaper(ankifyRac);
+
+      const schedulesRepo = new AnkifyExportSchedulesRepository(database);
+      const notionRepo = new NotionRepository(database);
+      const exportUseCase = new ExportReviewDataToNotionUseCase(
+        ankifyRepo,
+        notionRepo,
+        ankiConnectFactory,
+        (token) => {
+          const notion = new NotionClient({ auth: token });
+          const findFirstDataSourceId = async (
+            databaseId: string
+          ): Promise<string | null> => {
+            const dbResp = await notion.databases.retrieve({
+              database_id: databaseId,
+            });
+            const dataSources =
+              'data_sources' in dbResp
+                ? (dbResp as { data_sources: { id: string }[] }).data_sources
+                : [];
+            return dataSources[0]?.id ?? null;
+          };
+          return {
+            databases: {
+              query: async (params) => {
+                const dataSourceId = await findFirstDataSourceId(
+                  params.database_id
+                );
+                if (dataSourceId == null) {
+                  return { results: [] };
+                }
+                const res = await notion.dataSources.query({
+                  data_source_id: dataSourceId,
+                  filter: params.filter as never,
+                });
+                return { results: res.results };
+              },
+            },
+            pages: {
+              create: async (params) => {
+                const dataSourceId = await findFirstDataSourceId(
+                  params.parent.database_id
+                );
+                if (dataSourceId == null) {
+                  throw new Error(
+                    'No data source found for the selected Notion database'
+                  );
+                }
+                return notion.pages.create({
+                  parent: {
+                    type: 'data_source_id',
+                    data_source_id: dataSourceId,
+                  },
+                  properties: params.properties as Parameters<
+                    typeof notion.pages.create
+                  >[0]['properties'],
+                });
+              },
+            },
+            getSchema: async (databaseId) => {
+              const dataSourceId = await findFirstDataSourceId(databaseId);
+              if (dataSourceId == null) {
+                return { properties: {} };
+              }
+              const dataSource = await notion.dataSources.retrieve({
+                data_source_id: dataSourceId,
+              });
+              const properties =
+                (dataSource as {
+                  properties?: Record<
+                    string,
+                    { type: string; name?: string }
+                  >;
+                }).properties ?? {};
+              return { properties };
+            },
+          };
+        }
+      );
+      const scheduler = new AnkifyExportScheduler(
+        schedulesRepo,
+        exportUseCase
+      );
+      setAnkifyExportScheduler(scheduler);
+      const recovered = await scheduler.recoverAll();
+      console.info(
+        `Ankify scheduler recovered ${recovered} schedule(s)`
+      );
+
+      const subscriptionsRepo = new AnkifyNotionSubscriptionsRepository(database);
+      const mappingsRepo = new AnkifySyncMappingsRepository(database);
+      const conflictsRepo = new AnkifySyncConflictsRepository(database);
+      const logsRepo = new AnkifySyncLogsRepository(database);
+      const syncUseCase = new SyncNotionPageToRacUseCase(
+        ankifyRepo,
+        mappingsRepo,
+        conflictsRepo,
+        subscriptionsRepo,
+        logsRepo,
+        notionRepo,
+        ankiConnectFactory,
+        notionBlockChildrenFetcherFactory,
+        (token) => {
+          const notion = new NotionClient({ auth: token });
+          return async (notionPageId) => {
+            const page = await notion.pages.retrieve({
+              page_id: notionPageId,
+            });
+            const props =
+              (page as { properties?: Record<string, unknown> }).properties ??
+              {};
+            let title: string | null = null;
+            for (const value of Object.values(props)) {
+              const entry = value as {
+                type?: string;
+                title?: { plain_text?: string }[];
+              };
+              if (entry.type === 'title' && Array.isArray(entry.title)) {
+                title = entry.title
+                  .map((t) => t.plain_text ?? '')
+                  .join('')
+                  .trim();
+                if (title.length === 0) title = null;
+                break;
+              }
+            }
+            const url = (page as { url?: string }).url ?? null;
+            return { title, url };
+          };
+        }
+      );
+      scheduleAnkifyPolling(subscriptionsRepo, syncUseCase);
+      console.info('Ankify polling worker scheduled');
+    }
 
     // Completed jobs become uploads. Any left during startup means they failed.
     // Claude jobs are handled separately by markInterruptedClaudeJobs to preserve restart capability.

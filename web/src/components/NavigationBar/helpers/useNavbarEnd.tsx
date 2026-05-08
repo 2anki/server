@@ -21,6 +21,8 @@ export default function useNavbarEnd(path: string, backend: Backend) {
   const isPaying = data?.locals?.patreon || data?.locals?.subscriber;
   const isLoggedIn = !!data?.user;
   const showKiLink = data?.features?.kiUI;
+  const showAnkifyLink =
+    data?.user?.email?.toLowerCase() === 'alexander@alemayhu.com';
   const favoritesCount = useFavoritesCount(isLoggedIn);
 
   const toggleDropdown = () => setIsActive((prev) => !prev);
@@ -29,9 +31,11 @@ export default function useNavbarEnd(path: string, backend: Backend) {
   useEffect(() => {
     if (!isActive) return;
     const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target;
       if (
+        target instanceof Node &&
         dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
+        !dropdownRef.current.contains(target)
       ) {
         setIsActive(false);
       }
@@ -52,6 +56,11 @@ export default function useNavbarEnd(path: string, backend: Backend) {
       {showKiLink && (
         <NavbarItem href="/ki" path={path}>
           KI 🧪
+        </NavbarItem>
+      )}
+      {showAnkifyLink && (
+        <NavbarItem href="/ankify" path={path}>
+          Ankify
         </NavbarItem>
       )}
       <NavbarItem href="/upload" path={path}>
