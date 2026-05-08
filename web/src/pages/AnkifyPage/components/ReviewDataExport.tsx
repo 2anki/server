@@ -121,16 +121,15 @@ export default function ReviewDataExport({ backend }: Props) {
     "Each day's review count and time spent show up as a row in a Notion database you control.";
 
   return (
-    <section className={styles.sectionFlow}>
-      <div className={sharedStyles.surface}>
-        <header className={sharedStyles.surfaceHeader}>
-          <div className={sharedStyles.surfaceHeaderText}>
-            <h2 className={sharedStyles.surfaceTitle}>{heading}</h2>
-            <p className={sharedStyles.surfaceLead}>
-              {!hasTracker && wizard === 'idle' ? firstRunLead : lead}
-            </p>
-          </div>
-        </header>
+    <div>
+      <header className={sharedStyles.surfaceHeader}>
+        <div className={sharedStyles.surfaceHeaderText}>
+          <h2 className={sharedStyles.surfaceTitle}>{heading}</h2>
+          <p className={sharedStyles.surfaceLead}>
+            {!hasTracker && wizard === 'idle' ? firstRunLead : lead}
+          </p>
+        </div>
+      </header>
 
         {!hasTracker && wizard === 'idle' && (
           <div className={styles.firstRunBlock}>
@@ -172,27 +171,27 @@ export default function ReviewDataExport({ backend }: Props) {
               <div>
                 <p className={styles.trackerSummaryLabel}>Sending to</p>
                 <p className={styles.trackerSummaryName}>
-                  {trackerTitle.length > 0
-                    ? trackerTitle
-                    : 'Your saved Notion tracker'}
-                  {trackerUrl.length > 0 && (
-                    <>
-                      {' · '}
-                      <a
-                        href={trackerUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className={styles.trackerSummaryLink}
-                      >
-                        Open in Notion
-                      </a>
-                    </>
+                  {trackerUrl.length > 0 ? (
+                    <a
+                      href={trackerUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={styles.trackerSummaryLink}
+                    >
+                      {trackerTitle.length > 0
+                        ? trackerTitle
+                        : 'Your saved Notion tracker'}
+                    </a>
+                  ) : trackerTitle.length > 0 ? (
+                    trackerTitle
+                  ) : (
+                    'Your saved Notion tracker'
                   )}
                 </p>
               </div>
               <button
                 type="button"
-                className={`${sharedStyles.btnSmall} ${styles.inlineButton}`}
+                className={styles.btnLink}
                 onClick={() => setShowChange((current) => !current)}
               >
                 {showChange ? 'Done' : 'Change'}
@@ -369,47 +368,43 @@ export default function ReviewDataExport({ backend }: Props) {
           />
         )}
 
-        {wizard === 'confirm' && pendingParent != null && (
-          <div className={styles.trackerStep}>
-            <p className={styles.trackerStepLabel}>Step 2 of 2</p>
-            <h4 className={styles.trackerStepTitle}>
-              Create the tracker under "{pendingParent.title}"?
-            </h4>
-            <p className={styles.trackerStepHint}>
-              We'll add a Notion database called "Anki review tracker" with
-              three columns: Date, Reviews, Time spent (min). Each day's count
-              becomes one row. Nothing else on your Notion page changes.
+      {wizard === 'confirm' && pendingParent != null && (
+        <div className={styles.trackerStep}>
+          <p className={styles.trackerStepLabel}>Step 2 of 2</p>
+          <h4 className={styles.trackerStepTitle}>
+            Create the tracker under "{pendingParent.title}"?
+          </h4>
+          <p className={styles.trackerStepHint}>
+            We'll add a Notion database called "Anki review tracker" with
+            three columns: Date, Reviews, Time spent (min). Each day's count
+            becomes one row. Nothing else on your Notion page changes.
+          </p>
+          {createTracker.isError && (
+            <p role="alert" className={sharedStyles.helpDanger}>
+              Couldn't create the tracker.{' '}
+              {(createTracker.error as Error).message}
             </p>
-            {createTracker.isError && (
-              <p role="alert" className={sharedStyles.helpDanger}>
-                Couldn't create the tracker.{' '}
-                {(createTracker.error as Error).message}
-              </p>
-            )}
-            <div className={styles.trackerStepActions}>
-              <button
-                type="button"
-                className={`${sharedStyles.btnSecondary} ${styles.inlineButton}`}
-                onClick={() => setWizard('pickParent')}
-                disabled={createTracker.isPending}
-              >
-                Back
-              </button>
-              <button
-                type="button"
-                className={`${sharedStyles.btnPrimary} ${styles.inlineButton}`}
-                onClick={() => createTracker.mutate(pendingParent.id)}
-                disabled={createTracker.isPending}
-              >
-                {createTracker.isPending
-                  ? 'Creating…'
-                  : 'Create my tracker'}
-              </button>
-            </div>
+          )}
+          <div className={styles.trackerStepActions}>
+            <button
+              type="button"
+              className={`${sharedStyles.btnSecondary} ${styles.inlineButton}`}
+              onClick={() => setWizard('pickParent')}
+              disabled={createTracker.isPending}
+            >
+              Back
+            </button>
+            <button
+              type="button"
+              className={`${sharedStyles.btnPrimary} ${styles.inlineButton}`}
+              onClick={() => createTracker.mutate(pendingParent.id)}
+              disabled={createTracker.isPending}
+            >
+              {createTracker.isPending ? 'Creating…' : 'Create my tracker'}
+            </button>
           </div>
-        )}
-      </div>
-
-    </section>
+        </div>
+      )}
+    </div>
   );
 }

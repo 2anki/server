@@ -36,6 +36,12 @@ const RulesPage = lazy(() => import('./pages/RulesPage'));
 const PreviewPage = lazy(() => import('./pages/PreviewPage'));
 const PreviewApkgPage = lazy(() => import('./pages/PreviewApkgPage'));
 const AnkifyPage = lazy(() => import('./pages/AnkifyPage'));
+const AnkifySetupPage = lazy(
+  () => import('./pages/AnkifyPage/AnkifySetupPage')
+);
+const AnkifyHistoryPage = lazy(
+  () => import('./pages/AnkifyPage/AnkifyHistoryPage')
+);
 
 const queryClient = new QueryClient();
 
@@ -151,6 +157,14 @@ function AppContent({
           />
           <Route path="/account" element={requireAuth(<AccountPage />)} />
           <Route path="/ankify" element={requireAuth(<AnkifyPage />)} />
+          <Route
+            path="/ankify/setup"
+            element={requireAuth(<AnkifySetupPage />)}
+          />
+          <Route
+            path="/ankify/history"
+            element={requireAuth(<AnkifyHistoryPage />)}
+          />
           <Route path="/settings" element={requireAuth(<AccountPage />)} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/documentation" element={<DocsPage />} />
