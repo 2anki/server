@@ -41,12 +41,12 @@ export default function SendToAnkifyButton({ uploadId, filename }: Props) {
       if (data.created > 0) parts.push(`${data.created} new`);
       if (data.updated > 0) parts.push(`${data.updated} updated`);
       const counts = parts.length > 0 ? parts.join(', ') : 'Sent';
-      const sync =
-        data.anki_web_sync === 'synced'
-          ? ' · synced to AnkiWeb'
-          : data.anki_web_sync === 'failed'
-            ? ' · AnkiWeb sync skipped'
-            : '';
+      let sync = '';
+      if (data.anki_web_sync === 'synced') {
+        sync = ' · synced to AnkiWeb';
+      } else if (data.anki_web_sync === 'failed') {
+        sync = ' · AnkiWeb sync skipped';
+      }
       return `${counts}${sync}`;
     }
     if (dispatch.isError) return 'Try again';

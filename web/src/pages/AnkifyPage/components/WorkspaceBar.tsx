@@ -148,18 +148,18 @@ export default function WorkspaceBar({
         <span>Starting…</span>
       </>
     );
-  } else if (!ankiWebLinked) {
+  } else if (ankiWebLinked) {
     statusContent = (
       <>
-        <span className={styles.workspaceBarDotWarning} aria-hidden="true" />
-        <span>Almost there</span>
+        <span className={styles.workspaceBarDotRunning} aria-hidden="true" />
+        <span>Anki running</span>
       </>
     );
   } else {
     statusContent = (
       <>
-        <span className={styles.workspaceBarDotRunning} aria-hidden="true" />
-        <span>Anki running</span>
+        <span className={styles.workspaceBarDotWarning} aria-hidden="true" />
+        <span>Almost there</span>
       </>
     );
   }
@@ -181,16 +181,7 @@ export default function WorkspaceBar({
         </span>
       )}
       <div className={styles.workspaceBarActions}>
-        {sessionUrl != null ? (
-          <a
-            href={sessionUrl}
-            target="_blank"
-            rel="noreferrer"
-            className={`${sharedStyles.btnPrimary} ${styles.inlineButton}`}
-          >
-            Open Anki
-          </a>
-        ) : (
+        {sessionUrl == null ? (
           <button
             type="button"
             className={`${sharedStyles.btnPrimary} ${styles.inlineButton}`}
@@ -199,6 +190,15 @@ export default function WorkspaceBar({
           >
             {reissueSession.isPending ? 'Working…' : 'Get a new link'}
           </button>
+        ) : (
+          <a
+            href={sessionUrl}
+            target="_blank"
+            rel="noreferrer"
+            className={`${sharedStyles.btnPrimary} ${styles.inlineButton}`}
+          >
+            Open Anki
+          </a>
         )}
         <div className={styles.workspaceBarMenuWrapper} ref={menuRef}>
           <button

@@ -158,6 +158,7 @@ export default function ReviewDataExport({ backend }: Props) {
     if (!exportMutation.isSuccess || result == null) {
       return null;
     }
+    const dayWord = result.exported === 1 ? 'day' : 'days';
     return (
       <div className={styles.resultBlock}>
         <p
@@ -167,7 +168,7 @@ export default function ReviewDataExport({ backend }: Props) {
         >
           {allFailed
             ? `None of your ${result.totalDays} days could be updated.`
-            : `Updated Notion. ${result.exported} new ${result.exported === 1 ? 'day' : 'days'}`}
+            : `Updated Notion. ${result.exported} new ${dayWord}`}
           {!allFailed && result.skipped > 0
             ? `, skipped ${result.skipped}`
             : ''}

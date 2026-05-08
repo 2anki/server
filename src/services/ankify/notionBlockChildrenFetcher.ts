@@ -9,7 +9,7 @@ export const notionBlockChildrenFetcherFactory = (token: string) => {
       const response = await notion.blocks.children.list({
         block_id: blockId,
         page_size: 100,
-        ...(cursor != null ? { start_cursor: cursor } : {}),
+        ...(cursor == null ? {} : { start_cursor: cursor }),
       });
       aggregated.push(...response.results);
       cursor = response.next_cursor ?? undefined;

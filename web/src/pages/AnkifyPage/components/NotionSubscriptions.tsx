@@ -29,7 +29,7 @@ const extractNotionId = (input: string): string => {
     /([0-9a-f]{32}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i.exec(
       trimmed
     );
-  return urlMatch != null ? urlMatch[1] : trimmed;
+  return urlMatch == null ? trimmed : urlMatch[1];
 };
 
 const normalizeId = (id: string): string => id.replaceAll('-', '').toLowerCase();
@@ -323,6 +323,14 @@ export default function NotionSubscriptions({ backend }: Props) {
                 pendingId != null &&
                 normalizeId(pendingId) === normalizeId(sub.notion_page_id);
               const relative = formatRelativeTime(sub.last_synced_at);
+              const lastSyncedDisplay =
+                relative == null ? (
+                  <span className={styles.muted}>Not yet</span>
+                ) : (
+                  <span title={sub.last_synced_at ?? undefined}>
+                    updated {relative}
+                  </span>
+                );
               return (
                 <li key={sub.id} className={styles.decksItem}>
                   <span className={styles.decksItemTitle} title={displayTitle}>
@@ -347,12 +355,8 @@ export default function NotionSubscriptions({ backend }: Props) {
                   <span className={styles.decksItemTime}>
                     {isUpdatingThisRow ? (
                       <span aria-live="polite">Updating now…</span>
-                    ) : relative != null ? (
-                      <span title={sub.last_synced_at ?? undefined}>
-                        updated {relative}
-                      </span>
                     ) : (
-                      <span className={styles.muted}>Not yet</span>
+                      lastSyncedDisplay
                     )}
                   </span>
                   <div className={styles.decksItemRowMenu}>

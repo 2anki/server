@@ -106,6 +106,12 @@ export default function NotionPagePicker({
             {visible.map((page) => {
               const isBusy = busyId === page.id;
               const alreadySubscribed = disabledIds?.has(page.id) ?? false;
+              let buttonLabel = selectLabel;
+              if (alreadySubscribed) {
+                buttonLabel = subscribedLabel;
+              } else if (isBusy) {
+                buttonLabel = busyLabel;
+              }
               return (
                 <li key={page.id} className={styles.pickerItem}>
                   <div className={styles.pickerEntry}>
@@ -121,11 +127,7 @@ export default function NotionPagePicker({
                     onClick={() => onSelect(page.id, page)}
                     disabled={isBusy || alreadySubscribed}
                   >
-                    {alreadySubscribed
-                      ? subscribedLabel
-                      : isBusy
-                        ? busyLabel
-                        : selectLabel}
+                    {buttonLabel}
                   </button>
                 </li>
               );
