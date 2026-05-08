@@ -14,6 +14,7 @@ Express/TypeScript server that converts Notion pages and file uploads into Anki 
 - Prefer simple and obvious — do not deduplicate until a pattern has appeared at least three times
 - Do not add comments — use meaningful names instead
 - Before considering a task done, remove any scaffolding, debug logs, or temporary code added during implementation
+- Lead with the positive condition when an `if` has an `else`: write `if (ready) { … } else { … }`, not `if (!ready) { … } else { … }`. Negation + else forces the reader to mentally invert the first branch (Sonar S7735)
 
 ## Commands
 
