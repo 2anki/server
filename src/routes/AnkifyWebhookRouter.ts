@@ -7,12 +7,9 @@ import { AnkifySyncConflictsRepository } from '../data_layer/ankify/AnkifySyncCo
 import { AnkifySyncLogsRepository } from '../data_layer/ankify/AnkifySyncLogsRepository';
 import NotionRepository from '../data_layer/NotionRespository';
 import { getDatabase } from '../data_layer';
-import {
-  AnkiConnectClient,
-  buildAnkiConnectUrl,
-} from '../services/ankify/AnkiConnectClient';
+import { ankiConnectFactory } from '../services/ankify/buildAnkiConnectClient';
+import { notionBlockChildrenFetcherFactory } from '../services/ankify/notionBlockChildrenFetcher';
 import { SyncNotionPageToRacUseCase } from '../usecases/ankify/SyncNotionPageToRacUseCase';
-import { Client as NotionClient } from '@notionhq/client';
 import { verifyNotionWebhookSignature } from '../lib/ankify/notionWebhookSignature';
 import { ANKIFY_ALLOWLIST_EMAILS } from '../lib/constants';
 import UsersRepository from '../data_layer/UsersRepository';
@@ -35,30 +32,8 @@ const AnkifyWebhookRouter = () => {
     subscriptions,
     logs,
     notionRepo,
-    (host, port, apiKey) =>
-      new AnkiConnectClient(
-        buildAnkiConnectUrl(host, port),
-        undefined,
-        undefined,
-        apiKey
-      ),
-    (token) => {
-      const notion = new NotionClient({ auth: token });
-      return async (blockId) => {
-        const aggregated: unknown[] = [];
-        let cursor: string | undefined;
-        do {
-          const response = await notion.blocks.children.list({
-            block_id: blockId,
-            page_size: 100,
-            ...(cursor != null ? { start_cursor: cursor } : {}),
-          });
-          aggregated.push(...response.results);
-          cursor = response.next_cursor ?? undefined;
-        } while (cursor != null);
-        return aggregated as never;
-      };
-    }
+    ankiConnectFactory,
+    notionBlockChildrenFetcherFactory
   );
 
   router.post(

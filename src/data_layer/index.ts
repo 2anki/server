@@ -18,10 +18,8 @@ import { AnkifyNotionSubscriptionsRepository } from './ankify/AnkifyNotionSubscr
 import { AnkifySyncMappingsRepository } from './ankify/AnkifySyncMappingsRepository';
 import { AnkifySyncConflictsRepository } from './ankify/AnkifySyncConflictsRepository';
 import { AnkifySyncLogsRepository } from './ankify/AnkifySyncLogsRepository';
-import {
-  AnkiConnectClient,
-  buildAnkiConnectUrl,
-} from '../services/ankify/AnkiConnectClient';
+import { ankiConnectFactory } from '../services/ankify/buildAnkiConnectClient';
+import { notionBlockChildrenFetcherFactory } from '../services/ankify/notionBlockChildrenFetcher';
 import NotionRepository from './NotionRespository';
 import { Client as NotionClient } from '@notionhq/client';
 import { setAnkifyExportScheduler } from '../lib/ankify/scheduler/instance';
@@ -86,13 +84,7 @@ export const setupDatabase = async (database: Knex) => {
       const exportUseCase = new ExportReviewDataToNotionUseCase(
         ankifyRepo,
         notionRepo,
-        (host, port, apiKey) =>
-          new AnkiConnectClient(
-            buildAnkiConnectUrl(host, port),
-            undefined,
-            undefined,
-            apiKey
-          ),
+        ankiConnectFactory,
         (token) => {
           const notion = new NotionClient({ auth: token });
           const findFirstDataSourceId = async (
@@ -183,30 +175,8 @@ export const setupDatabase = async (database: Knex) => {
         subscriptionsRepo,
         logsRepo,
         notionRepo,
-        (host, port, apiKey) =>
-          new AnkiConnectClient(
-            buildAnkiConnectUrl(host, port),
-            undefined,
-            undefined,
-            apiKey
-          ),
-        (token) => {
-          const notion = new NotionClient({ auth: token });
-          return async (blockId) => {
-            const aggregated: unknown[] = [];
-            let cursor: string | undefined;
-            do {
-              const response = await notion.blocks.children.list({
-                block_id: blockId,
-                page_size: 100,
-                ...(cursor != null ? { start_cursor: cursor } : {}),
-              });
-              aggregated.push(...response.results);
-              cursor = response.next_cursor ?? undefined;
-            } while (cursor != null);
-            return aggregated as never;
-          };
-        },
+        ankiConnectFactory,
+        notionBlockChildrenFetcherFactory,
         (token) => {
           const notion = new NotionClient({ auth: token });
           return async (notionPageId) => {
