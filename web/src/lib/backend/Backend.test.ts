@@ -96,6 +96,64 @@ describe('Backend', () => {
     });
   });
 
+  describe('search', () => {
+    beforeEach(() => {
+      vi.mocked(api.get).mockResolvedValue(
+        createMockResponse(200, true, '', { results: [] })
+      );
+    });
+
+    it('drops entries with empty titles and exposes parent on the rest', async () => {
+      vi.mocked(api.post).mockResolvedValue(
+        createMockResponse(200, true, '', {
+          results: [
+            {
+              id: 'page-named',
+              object: 'page',
+              url: 'https://www.notion.so/page-named',
+              parent: { type: 'page_id', page_id: 'parent-1' },
+              properties: {
+                title: {
+                  id: 'title',
+                  type: 'title',
+                  title: [{ plain_text: 'Real page' }],
+                },
+              },
+            },
+            {
+              id: 'page-untitled',
+              object: 'page',
+              url: 'https://www.notion.so/page-untitled',
+              parent: { type: 'page_id', page_id: 'parent-1' },
+              properties: {
+                title: { id: 'title', type: 'title', title: [] },
+              },
+            },
+            {
+              id: 'db-row',
+              object: 'page',
+              url: 'https://www.notion.so/db-row',
+              parent: { type: 'database_id', database_id: 'db-1' },
+              properties: {
+                Name: {
+                  id: 'name',
+                  type: 'title',
+                  title: [{ plain_text: 'Card 1' }],
+                },
+              },
+            },
+          ],
+        })
+      );
+
+      const results = await backend.search('anything');
+
+      expect(results.map((r) => r.id)).toEqual(['page-named', 'db-row']);
+      expect(results[0].parent).toEqual({ type: 'page_id' });
+      expect(results[1].parent).toEqual({ type: 'database_id' });
+    });
+  });
+
   describe('restartClaudeJob', () => {
     it('should call post with the correct URL and empty payload', async () => {
       const mockResponse = createMockResponse(202, true);

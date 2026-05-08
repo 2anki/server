@@ -130,14 +130,20 @@ export class Backend {
     }
 
     if (data?.results) {
-      return data.results.map((p: NotionDatabase | NotionPage) => ({
-        object: p.object,
-        title: getNotionObjectTitle(p, { emoji: false }),
-        icon: getObjectIcon(p as ObjectIcon),
-        url: getResourceUrl(p),
-        id: p.id,
-        isFavorite: favorites.some((f) => f.id === p.id),
-      }));
+      return data.results
+        .map((p: NotionDatabase | NotionPage) => {
+          const parentType = (p as { parent?: { type?: string } }).parent?.type;
+          return {
+            object: p.object,
+            title: getNotionObjectTitle(p, { emoji: false }) ?? '',
+            icon: getObjectIcon(p as ObjectIcon),
+            url: getResourceUrl(p),
+            id: p.id,
+            isFavorite: favorites.some((f) => f.id === p.id),
+            parent: parentType != null ? { type: parentType } : undefined,
+          };
+        })
+        .filter((entry: NotionObject) => entry.title.trim().length > 0);
     }
     return [];
   }
