@@ -703,10 +703,16 @@ describe('RacService container hardening (slice 2)', () => {
       '/tmp': expect.stringContaining('nosuid'),
       '/var/run': expect.stringContaining('nosuid'),
       '/run/user/1000': expect.stringContaining('nosuid'),
-      '/data': expect.stringContaining('nosuid'),
     });
-    // Slice 3: no persistent named volume — /data is tmpfs.
-    expect(args.HostConfig.Mounts).toBeUndefined();
+    // /data is on a named volume (revert of slice 3 — image needs companion
+    // changes before /data can move to tmpfs).
+    expect(args.HostConfig.Mounts).toEqual([
+      {
+        Type: 'volume',
+        Source: 'ankify-rac-owner-42-data',
+        Target: '/data',
+      },
+    ]);
   });
 
   test('generates a per-container AnkiConnect API key, env-injects, persists', async () => {
