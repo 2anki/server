@@ -1,11 +1,19 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { formatDistanceToNow } from 'date-fns';
 
 import sharedStyles from '../../../styles/shared.module.css';
 import styles from '../AnkifyPage.module.css';
 import { get2ankiApi } from '../../../lib/backend/get2ankiApi';
 import { Backend } from '../../../lib/backend/Backend';
 import NotionPagePicker from './NotionPagePicker';
+
+const formatRelativeTime = (iso: string | null | undefined): string | null => {
+  if (iso == null || iso.length === 0) return null;
+  const parsed = new Date(iso);
+  if (Number.isNaN(parsed.getTime())) return null;
+  return formatDistanceToNow(parsed, { addSuffix: true });
+};
 
 interface Props {
   readonly backend?: Backend;
@@ -235,16 +243,25 @@ export default function NotionSubscriptions({ backend }: Props) {
                       )}
                     </td>
                     <td className={styles.relativeTime}>
-                      {subscribe.isPending &&
-                      pendingId != null &&
-                      normalizeId(pendingId) ===
-                        normalizeId(sub.notion_page_id) ? (
-                        <span aria-live="polite">Updating now…</span>
-                      ) : (
-                        sub.last_synced_at ?? (
-                          <span className={styles.muted}>Not yet</span>
-                        )
-                      )}
+                      {(() => {
+                        const isUpdatingThisRow =
+                          subscribe.isPending &&
+                          pendingId != null &&
+                          normalizeId(pendingId) ===
+                            normalizeId(sub.notion_page_id);
+                        if (isUpdatingThisRow) {
+                          return <span aria-live="polite">Updating now…</span>;
+                        }
+                        const relative = formatRelativeTime(sub.last_synced_at);
+                        if (relative == null) {
+                          return <span className={styles.muted}>Not yet</span>;
+                        }
+                        return (
+                          <span title={sub.last_synced_at ?? undefined}>
+                            {relative}
+                          </span>
+                        );
+                      })()}
                     </td>
                     <td className={sub.last_error ? styles.errorCell : styles.muted}>
                       {sub.last_error ?? '—'}
@@ -252,9 +269,10 @@ export default function NotionSubscriptions({ backend }: Props) {
                     <td>
                       <button
                         type="button"
-                        className={`${sharedStyles.btnDanger} ${styles.inlineButton}`}
+                        className={`${sharedStyles.btnSmall} ${styles.inlineButton}`}
                         onClick={() => unsubscribe.mutate(sub.id)}
                         disabled={unsubscribe.isPending}
+                        title="Stop turning this Notion page into a deck"
                       >
                         Stop
                       </button>

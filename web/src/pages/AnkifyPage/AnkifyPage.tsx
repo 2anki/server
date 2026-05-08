@@ -220,7 +220,15 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
       <section className={sharedStyles.surface}>
         <header className={sharedStyles.surfaceHeader}>
           <div className={sharedStyles.surfaceHeaderText}>
-            <h2 className={sharedStyles.surfaceTitle}>{heading}</h2>
+            <h2
+              className={
+                setupComplete
+                  ? sharedStyles.surfaceTitle
+                  : `${sharedStyles.surfaceTitle} ${styles.setupHeading}`
+              }
+            >
+              {heading}
+            </h2>
             {showLead && (
               <p className={sharedStyles.surfaceLead}>{leadCopy}</p>
             )}

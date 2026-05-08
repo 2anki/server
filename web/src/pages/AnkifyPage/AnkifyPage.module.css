@@ -163,20 +163,46 @@
   flex-direction: column;
 }
 
+.setupHeading {
+  font-size: var(--text-2xl);
+  letter-spacing: var(--tracking-tight);
+}
+
+.trustNote {
+  margin: 0.5rem 0 0;
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+}
+
 .setupSteps > li {
   display: flex;
   gap: 1rem;
   padding: 1rem 0;
-  border-top: 1px solid var(--color-border-light);
+  position: relative;
 }
 
 .setupSteps > li:first-child {
-  border-top: none;
   padding-top: 0;
 }
 
 .setupSteps > li:last-child {
   padding-bottom: 0;
+}
+
+.setupSteps > li:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: calc(0.875rem - 0.5px);
+  top: 2.25rem;
+  bottom: -0.5rem;
+  width: 1px;
+  background: var(--color-border-light);
+  z-index: 0;
+}
+
+.setupStepDone + li::before,
+.setupSteps > li.setupStepDone::before {
+  background: var(--color-success);
 }
 
 .setupStepBadge {

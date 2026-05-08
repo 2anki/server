@@ -162,7 +162,7 @@ export default function ReviewDataExport({ backend }: Props) {
     'We\'ll create a Notion database called "Anki review tracker" with three columns: Date, Reviews, Time spent (min). Two short steps.';
   const heading = 'Where does your study history go?';
   const lead =
-    "Each day's review count and time spent show up as a row in a Notion database you control. We only add new days — never overwrite.";
+    "Each day's review count and time spent show up as a row in a Notion database you control.";
 
   return (
     <section className={styles.sectionFlow}>
@@ -302,6 +302,10 @@ export default function ReviewDataExport({ backend }: Props) {
                 {exportMutation.isPending ? 'Updating…' : 'Update Notion'}
               </button>
             </form>
+
+            <p className={styles.trustNote}>
+              We only add new days. Existing rows are never overwritten.
+            </p>
 
             {exportMutation.isSuccess && result != null && (
               <div className={styles.resultBlock}>
