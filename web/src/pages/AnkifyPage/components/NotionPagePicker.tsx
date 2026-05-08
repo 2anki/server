@@ -77,10 +77,12 @@ export default function NotionPagePicker({
       )}
 
       {(() => {
-        const visible = results.filter(
-          (entry) =>
-            entry.object === 'page' && entry.title.trim().length > 0
-        );
+        const visible = results.filter((entry) => {
+          if (entry.object !== 'page') return false;
+          if (entry.title.trim().length === 0) return false;
+          const parentType = entry.parent?.type;
+          return parentType !== 'database_id' && parentType !== 'data_source_id';
+        });
 
         if (!loading && error == null && visible.length === 0) {
           if (query.trim().length > 0) {

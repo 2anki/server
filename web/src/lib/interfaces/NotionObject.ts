@@ -6,6 +6,7 @@ interface NotionObject {
   id: string;
   data?: Response;
   isFavorite?: boolean;
+  parent?: { type: string };
 }
 
 export default NotionObject;
