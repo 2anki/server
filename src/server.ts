@@ -27,6 +27,10 @@ import downloadRouter from './routes/DownloadRouter';
 import apkgRouter from './routes/ApkgRouter';
 import favoriteRouter from './routes/FavoriteRouter';
 import ankifyRouter from './routes/AnkifyRouter';
+import {
+  attachAnkifySessionProxy,
+  buildAnkifySessionProxyDeps,
+} from './routes/AnkifySessionProxyRouter';
 import templatesRouter from './routes/TemplatesRouter';
 import defaultRouter from './routes/DefaultRouter';
 import webhookRouter from './routes/WebhookRouter';
@@ -65,6 +69,8 @@ const serve = async () => {
   app.use(cookieParser());
 
   app.use(morgan('combined') as RequestHandler);
+
+  const ankifySessionValidate = buildAnkifySessionProxyDeps();
 
   app.use('/templates', express.static(templateDir));
   app.use(express.static(BUILD_DIR));
@@ -110,6 +116,7 @@ const serve = async () => {
   const server = app.listen(port, () => {
     console.info(`🟢 Running on http://localhost:${port}`);
   });
+  attachAnkifySessionProxy(app, server, ankifySessionValidate);
   registerSignalHandlers(server);
 
   const database = getDatabase();
