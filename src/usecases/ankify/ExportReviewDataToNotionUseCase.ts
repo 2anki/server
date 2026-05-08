@@ -113,6 +113,43 @@ export class ExportReviewDataToNotionUseCase {
     const host = input.ankiConnectHost ?? 'localhost';
     const ac = this.ankiConnect(host, client.anki_port, client.anki_connect_api_key);
 
+    const { filtered, minutesByDay } = await this.loadHistory(
+      ac,
+      input.dateRangeDays
+    );
+
+    const notion = this.notionClient(token);
+    const keys = await this.resolveSchemaKeys(notion, input.databaseId);
+
+    const result: ExportReviewDataResult = {
+      exported: 0,
+      skipped: 0,
+      errors: [],
+      totalDays: filtered.length,
+    };
+
+    for (const [date, reviewCount] of filtered) {
+      await this.exportDay({
+        notion,
+        databaseId: input.databaseId,
+        date,
+        reviewCount,
+        keys,
+        minutesByDay,
+        result,
+      });
+    }
+
+    return result;
+  }
+
+  private async loadHistory(
+    ac: AnkiConnectClient,
+    dateRangeDays: number | undefined
+  ): Promise<{
+    filtered: Array<[string, number]>;
+    minutesByDay: Map<string, number>;
+  }> {
     let raw: Array<[string, number]>;
     try {
       raw = await ac.getNumCardsReviewedByDay();
@@ -131,19 +168,25 @@ export class ExportReviewDataToNotionUseCase {
     }
 
     const filtered =
-      input.dateRangeDays != null && input.dateRangeDays > 0
-        ? raw.slice(-input.dateRangeDays)
+      dateRangeDays != null && dateRangeDays > 0
+        ? raw.slice(-dateRangeDays)
         : raw;
 
-    const notion = this.notionClient(token);
+    return { filtered, minutesByDay };
+  }
 
-    const schema = await notion.getSchema(input.databaseId);
+  private async resolveSchemaKeys(
+    notion: NotionExportClient,
+    databaseId: string
+  ): Promise<{ dateKey: string; reviewsKey: string; timeSpentKey: string | null }> {
+    const schema = await notion.getSchema(databaseId);
     const dateKey = findTrackerPropertyKey(schema, 'Date', 'date');
     const reviewsKey = findTrackerPropertyKey(schema, 'Reviews', 'number');
     const timeSpentKey =
       findTrackerPropertyKey(schema, 'Time spent', 'number') ??
       findTrackerPropertyKey(schema, 'Time spent (min)', 'number') ??
       findTrackerPropertyKey(schema, 'Minutes', 'number');
+
     const missing: string[] = [];
     if (dateKey == null) missing.push('Date');
     if (reviewsKey == null) missing.push('Reviews');
@@ -151,41 +194,44 @@ export class ExportReviewDataToNotionUseCase {
       throw new MissingTrackerSchemaError(missing);
     }
 
-    const result: ExportReviewDataResult = {
-      exported: 0,
-      skipped: 0,
-      errors: [],
-      totalDays: filtered.length,
-    };
+    return { dateKey: dateKey!, reviewsKey: reviewsKey!, timeSpentKey };
+  }
 
-    for (const [date, reviewCount] of filtered) {
-      try {
-        const existing = await notion.databases.query({
-          database_id: input.databaseId,
-          filter: { property: dateKey!, date: { equals: date } },
-        });
-        if (existing.results.length > 0) {
-          result.skipped += 1;
-          continue;
-        }
-        const properties: Record<string, unknown> = {
-          [dateKey!]: { date: { start: date } },
-          [reviewsKey!]: { number: reviewCount },
-        };
-        if (timeSpentKey != null) {
-          const minutes = Math.round(minutesByDay.get(date) ?? 0);
-          properties[timeSpentKey] = { number: minutes };
-        }
-        await notion.pages.create({
-          parent: { database_id: input.databaseId },
-          properties,
-        });
-        result.exported += 1;
-      } catch (error) {
-        result.errors.push(`${date}: ${(error as Error).message}`);
+  private async exportDay(args: {
+    notion: NotionExportClient;
+    databaseId: string;
+    date: string;
+    reviewCount: number;
+    keys: { dateKey: string; reviewsKey: string; timeSpentKey: string | null };
+    minutesByDay: Map<string, number>;
+    result: ExportReviewDataResult;
+  }): Promise<void> {
+    const { notion, databaseId, date, reviewCount, keys, minutesByDay, result } =
+      args;
+    try {
+      const existing = await notion.databases.query({
+        database_id: databaseId,
+        filter: { property: keys.dateKey, date: { equals: date } },
+      });
+      if (existing.results.length > 0) {
+        result.skipped += 1;
+        return;
       }
+      const properties: Record<string, unknown> = {
+        [keys.dateKey]: { date: { start: date } },
+        [keys.reviewsKey]: { number: reviewCount },
+      };
+      if (keys.timeSpentKey != null) {
+        const minutes = Math.round(minutesByDay.get(date) ?? 0);
+        properties[keys.timeSpentKey] = { number: minutes };
+      }
+      await notion.pages.create({
+        parent: { database_id: databaseId },
+        properties,
+      });
+      result.exported += 1;
+    } catch (error) {
+      result.errors.push(`${date}: ${(error as Error).message}`);
     }
-
-    return result;
   }
 }

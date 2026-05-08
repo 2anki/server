@@ -13,7 +13,7 @@ import {
   AnkiConnectNote,
   AnkiConnectUnreachableError,
 } from '../../services/ankify/AnkiConnectClient';
-import { NormalizedCollection } from '../../services/ApkgPreviewService/types';
+import { NormalizedCollection, Note } from '../../services/ApkgPreviewService/types';
 
 export class NoActiveAnkifyClientError extends Error {
   constructor() {
@@ -157,93 +157,142 @@ export class SendUploadToRacUseCase {
     };
 
     for (const [noteId, note] of collection.notes) {
-      try {
-        const deckName = resolveDeckNameForNote(
-          noteId,
-          collection,
-          fallbackDeckName
-        );
-
-        if (!seenDeckNames.has(deckName)) {
-          await ac.createDeck(deckName);
-          seenDeckNames.add(deckName);
-        }
-
-        const sourceId = note.guid ?? `apkg-${note.id}`;
-        const ankiNote = buildAnkiConnectNoteFromApkgNote({
-          fields: note.fields,
-          tags: note.tags,
-          deckName,
-        });
-
-        const existing = await this.mappings.findBySourceId(client.id, sourceId);
-        if (existing == null) {
-          const ankiNoteId = await ac.addNote(ankiNote);
-          await this.upsertMapping({
-            ankify_client_id: client.id,
-            source_id: sourceId,
-            source_type: 'apkg_guid',
-            anki_note_id: ankiNoteId,
-            deck_name: deckName,
-          });
-          result.created += 1;
-        } else {
-          await ac.updateNoteFields(existing.anki_note_id, ankiNote.fields);
-          await this.upsertMapping({
-            ankify_client_id: client.id,
-            source_id: sourceId,
-            source_type: existing.source_type,
-            anki_note_id: existing.anki_note_id,
-            deck_name: deckName,
-          });
-          result.updated += 1;
-        }
-      } catch (error) {
-        if (
-          error instanceof AnkiConnectUnreachableError ||
-          error instanceof AnkiConnectError
-        ) {
-          result.errors.push(`Note ${noteId}: ${error.message}`);
-        } else {
-          result.errors.push(`Note ${noteId}: ${(error as Error).message}`);
-        }
-      }
+      await this.processNote({
+        noteId,
+        note,
+        collection,
+        client,
+        ac,
+        fallbackDeckName,
+        seenDeckNames,
+        result,
+      });
     }
 
     result.deckNames = Array.from(seenDeckNames);
 
-    if (result.created + result.updated > 0) {
-      try {
-        await ac.sync();
-        result.ankiWebSync = 'synced';
-      } catch (error) {
-        result.ankiWebSync = 'failed';
-        result.ankiWebSyncError = (error as Error).message;
-      }
-    }
-
-    if (this.logs != null) {
-      await this.logs
-        .log({
-          owner: input.owner,
-          kind: 'dispatch',
-          status: result.errors.length > 0 ? 'error' : 'success',
-          message: `dispatched upload ${input.uploadId} (${result.created} new, ${result.updated} updated, ${result.errors.length} errors)`,
-          payload: {
-            upload_id: input.uploadId,
-            ankify_client_id: client.id,
-            deck_names: result.deckNames,
-            created: result.created,
-            updated: result.updated,
-            errors: result.errors,
-          },
-        })
-        .catch((logError) => {
-          console.error('[ankify-sync-log] failed to record dispatch', logError);
-        });
-    }
+    await this.runFinalAnkiWebSync(ac, result);
+    await this.persistDispatchLog(input, client, result);
 
     return result;
+  }
+
+  private async processNote(args: {
+    noteId: number;
+    note: Note;
+    collection: NormalizedCollection;
+    client: AnkifyClient;
+    ac: AnkiConnectClient;
+    fallbackDeckName: string;
+    seenDeckNames: Set<string>;
+    result: SendUploadToRacResult;
+  }): Promise<void> {
+    const {
+      noteId,
+      note,
+      collection,
+      client,
+      ac,
+      fallbackDeckName,
+      seenDeckNames,
+      result,
+    } = args;
+    try {
+      const deckName = resolveDeckNameForNote(
+        noteId,
+        collection,
+        fallbackDeckName
+      );
+
+      if (!seenDeckNames.has(deckName)) {
+        await ac.createDeck(deckName);
+        seenDeckNames.add(deckName);
+      }
+
+      const sourceId = note.guid ?? `apkg-${note.id}`;
+      const ankiNote = buildAnkiConnectNoteFromApkgNote({
+        fields: note.fields,
+        tags: note.tags,
+        deckName,
+      });
+
+      const existing = await this.mappings.findBySourceId(client.id, sourceId);
+      if (existing == null) {
+        const ankiNoteId = await ac.addNote(ankiNote);
+        await this.upsertMapping({
+          ankify_client_id: client.id,
+          source_id: sourceId,
+          source_type: 'apkg_guid',
+          anki_note_id: ankiNoteId,
+          deck_name: deckName,
+        });
+        result.created += 1;
+        return;
+      }
+
+      await ac.updateNoteFields(existing.anki_note_id, ankiNote.fields);
+      await this.upsertMapping({
+        ankify_client_id: client.id,
+        source_id: sourceId,
+        source_type: existing.source_type,
+        anki_note_id: existing.anki_note_id,
+        deck_name: deckName,
+      });
+      result.updated += 1;
+    } catch (error) {
+      if (
+        error instanceof AnkiConnectUnreachableError ||
+        error instanceof AnkiConnectError
+      ) {
+        result.errors.push(`Note ${noteId}: ${error.message}`);
+      } else {
+        result.errors.push(`Note ${noteId}: ${(error as Error).message}`);
+      }
+    }
+  }
+
+  private async runFinalAnkiWebSync(
+    ac: AnkiConnectClient,
+    result: SendUploadToRacResult
+  ): Promise<void> {
+    if (result.created + result.updated === 0) {
+      return;
+    }
+    try {
+      await ac.sync();
+      result.ankiWebSync = 'synced';
+    } catch (error) {
+      result.ankiWebSync = 'failed';
+      result.ankiWebSyncError = (error as Error).message;
+    }
+  }
+
+  private async persistDispatchLog(
+    input: SendUploadToRacInput,
+    client: AnkifyClient,
+    result: SendUploadToRacResult
+  ): Promise<void> {
+    if (this.logs == null) {
+      return;
+    }
+    await this.logs
+      .log({
+        owner: input.owner,
+        kind: 'dispatch',
+        status: result.errors.length > 0 ? 'error' : 'success',
+        message: `dispatched upload ${input.uploadId} (${result.created} new, ${result.updated} updated, ${result.errors.length} errors)`,
+        payload: {
+          upload_id: input.uploadId,
+          ankify_client_id: client.id,
+          deck_names: result.deckNames,
+          created: result.created,
+          updated: result.updated,
+          errors: result.errors,
+        },
+      })
+      .catch((logError) => {
+        console.error('[ankify-sync-log] failed to record dispatch', logError);
+      });
   }
 
   private async upsertMapping(input: NewAnkifySyncMapping): Promise<AnkifySyncMapping> {
