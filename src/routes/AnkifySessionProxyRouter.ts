@@ -47,7 +47,6 @@ export const attachAnkifySessionProxy = (
       return `http://127.0.0.1:${port}`;
     },
     changeOrigin: true,
-    ws: true,
     logger: console,
   });
 
