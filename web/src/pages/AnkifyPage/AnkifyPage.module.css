@@ -160,6 +160,73 @@
   margin-top: 0.75rem;
 }
 
+.tabBar {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 1.5rem;
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 0.25rem;
+  margin-bottom: -1px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  letter-spacing: var(--tracking-tight);
+}
+
+.tab:hover {
+  color: var(--color-text-primary);
+}
+
+.tabActive {
+  color: var(--color-text-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+.tabCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.375rem;
+  border-radius: 999px;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+}
+
+.tabActive .tabCount {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.tabPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.inlineLinkButton {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: var(--color-primary);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
 .pickerWrapper {
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
