@@ -4,7 +4,6 @@ import sharedStyles from '../../../styles/shared.module.css';
 import styles from '../AnkifyPage.module.css';
 import { get2ankiApi } from '../../../lib/backend/get2ankiApi';
 import { Backend } from '../../../lib/backend/Backend';
-import AlertIcon from '../../../components/icons/AlertIcon';
 
 interface Props {
   readonly backend?: Backend;
@@ -41,36 +40,34 @@ export default function SyncConflicts({ backend }: Props) {
 
   return (
     <section className={styles.sectionFlow}>
-      <div className={styles.conflictBanner}>
-        <div className={styles.conflictHeading}>
-          <span className={styles.sectionIconWarning} aria-hidden="true">
-            <AlertIcon width={20} height={20} />
-          </span>
-          <div className={styles.sectionHeadText}>
-            <p className={styles.sectionEyebrowWarning}>Your call</p>
-            <h2 className={styles.conflictTitle}>
-              Pick which version to keep
+      <div className={sharedStyles.surfaceWarning}>
+        <header className={sharedStyles.surfaceHeader}>
+          <div className={sharedStyles.surfaceHeaderText}>
+            <h2 className={sharedStyles.surfaceTitle}>
+              Which one do you want to keep?
             </h2>
+            <p className={sharedStyles.surfaceLead}>
+              You changed this flashcard in Notion, and also in Anki. We can
+              only keep one.
+            </p>
           </div>
-          <span className={styles.conflictPill}>
-            {items.length} {items.length === 1 ? 'card' : 'cards'}
-          </span>
-        </div>
-        <p className={styles.conflictDescription}>
-          You changed these in both Notion and Anki since the last sync. You
-          decide which side wins — or set them aside for later.
-        </p>
+          <div className={sharedStyles.surfaceActions}>
+            <span className={sharedStyles.badgeWarning}>
+              {items.length} to resolve
+            </span>
+          </div>
+        </header>
 
         <div className={styles.conflictList}>
           {items.map((conflict) => (
             <article key={conflict.id} className={styles.conflictCard}>
               <p className={styles.conflictRef}>
-                Card from Notion block{' '}
+                From Notion block{' '}
                 <code>{conflict.source_id.slice(0, 8)}</code>
               </p>
               <div className={styles.conflictGrid}>
                 <div className={styles.conflictPanel}>
-                  <p className={styles.conflictSide}>From Notion</p>
+                  <p className={styles.conflictSide}>Notion version</p>
                   <p className={styles.conflictFront}>
                     {conflict.notion_snapshot?.front ?? ''}
                   </p>
@@ -79,7 +76,7 @@ export default function SyncConflicts({ backend }: Props) {
                   </p>
                 </div>
                 <div className={styles.conflictPanel}>
-                  <p className={styles.conflictSide}>From Anki</p>
+                  <p className={styles.conflictSide}>Anki version</p>
                   <p className={styles.conflictFront}>
                     {conflict.anki_snapshot?.front ?? ''}
                   </p>
@@ -100,7 +97,7 @@ export default function SyncConflicts({ backend }: Props) {
                   }
                   disabled={resolve.isPending}
                 >
-                  Keep Notion version
+                  Keep the Notion one
                 </button>
                 <button
                   type="button"
@@ -113,7 +110,7 @@ export default function SyncConflicts({ backend }: Props) {
                   }
                   disabled={resolve.isPending}
                 >
-                  Keep Anki version
+                  Keep the Anki one
                 </button>
                 <button
                   type="button"
