@@ -84,6 +84,25 @@ const NotionRouter = () => {
 
   /**
    * @swagger
+   * /api/notion/top-level-pages:
+   *   post:
+   *     summary: Search Notion for top-level titled pages only
+   *     description: Excludes databases, database rows, and untitled pages. Paginates Notion's search until up to 50 useful entries are collected. Used by the Ankify "Find pages" and "Where should we put it?" pickers so users see real container pages instead of a wall of database rows.
+   *     tags: [Notion]
+   *     responses:
+   *       200:
+   *         description: Top-level pages
+   *       401:
+   *         description: Authentication required or Notion not connected
+   */
+  router.post(
+    '/api/notion/top-level-pages',
+    RequireAuthentication,
+    (req, res) => controller.searchTopLevelPages(req, res)
+  );
+
+  /**
+   * @swagger
    * /api/notion/get-notion-link:
    *   get:
    *     summary: Get Notion connection link

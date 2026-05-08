@@ -54,14 +54,9 @@ export default function TrackerParentPicker({
 
     const handleSearchResults = (data: NotionObject[]) => {
       if (cancelled) return;
-      const containerPages = data.filter((entry) => {
-        if (entry.object !== 'page') return false;
-        const parentType = entry.parent?.type;
-        return parentType !== 'database_id' && parentType !== 'data_source_id';
-      });
-      setResults(containerPages);
+      setResults(data);
       setLoading(false);
-      setSelectedId((current) => pickNextSelectedId(current, containerPages));
+      setSelectedId((current) => pickNextSelectedId(current, data));
     };
 
     const handleSearchError = (err: Error) => {
@@ -71,7 +66,10 @@ export default function TrackerParentPicker({
     };
 
     const timer = setTimeout(() => {
-      backend.search(query).then(handleSearchResults).catch(handleSearchError);
+      backend
+        .searchTopLevelPages(query)
+        .then(handleSearchResults)
+        .catch(handleSearchError);
     }, DEBOUNCE_MS);
 
     return () => {

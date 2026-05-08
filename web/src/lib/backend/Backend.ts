@@ -101,6 +101,38 @@ export class Backend {
     });
   }
 
+  async searchTopLevelPages(query: string): Promise<NotionObject[]> {
+    const favorites = await this.getFavorites();
+    const response = await post(`${this.baseURL}notion/top-level-pages`, {
+      query,
+    });
+    const data = await response.json();
+    if ('message' in data) {
+      throw new Error(data.message);
+    }
+    if (!data?.results) {
+      return [];
+    }
+    return data.results.map(
+      (p: {
+        id: string;
+        object: string;
+        title: string;
+        url: string | null;
+        icon?: unknown;
+        parent: { type: string };
+      }) => ({
+        object: p.object,
+        title: p.title,
+        icon: getObjectIcon(p as unknown as ObjectIcon),
+        url: p.url ?? '',
+        id: p.id,
+        isFavorite: favorites.some((f) => f.id === p.id),
+        parent: p.parent,
+      })
+    );
+  }
+
   async search(query: string): Promise<NotionObject[]> {
     const favorites = await this.getFavorites();
 
