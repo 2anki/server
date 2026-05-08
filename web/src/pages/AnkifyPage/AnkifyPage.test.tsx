@@ -46,7 +46,7 @@ describe('AnkifyPage', () => {
 
     await waitFor(() =>
       expect(
-        screen.getByText(/three quick steps and you're set/i)
+        screen.getByText(/two quick steps and you're set/i)
       ).toBeInTheDocument()
     );
   });
