@@ -234,16 +234,7 @@ export default function AnkifySetupPage({ backend }: Props) {
           date whenever a Notion page changes.
         </p>
         <div className={styles.setupActiveStepActions}>
-          {sessionUrl != null ? (
-            <a
-              href={sessionUrl}
-              target="_blank"
-              rel="noreferrer"
-              className={`${sharedStyles.btnSecondary} ${styles.inlineButton}`}
-            >
-              Open Anki
-            </a>
-          ) : (
+          {sessionUrl == null ? (
             <button
               type="button"
               className={`${sharedStyles.btnSecondary} ${styles.inlineButton}`}
@@ -252,6 +243,15 @@ export default function AnkifySetupPage({ backend }: Props) {
             >
               {reissueSession.isPending ? 'Working…' : 'Get a new link'}
             </button>
+          ) : (
+            <a
+              href={sessionUrl}
+              target="_blank"
+              rel="noreferrer"
+              className={`${sharedStyles.btnSecondary} ${styles.inlineButton}`}
+            >
+              Open Anki
+            </a>
           )}
           <button
             type="button"
@@ -302,11 +302,11 @@ export default function AnkifySetupPage({ backend }: Props) {
   if (!hasActiveClient) {
     activeStep = renderStartAnkiStep();
     nextPreview = <p>Sign in to AnkiWeb (next)</p>;
-  } else if (!containerReady) {
+  } else if (containerReady) {
+    activeStep = renderSignInStep(activeClient);
+  } else {
     activeStep = renderStartingStep();
     nextPreview = <p>Sign in to AnkiWeb (next)</p>;
-  } else {
-    activeStep = renderSignInStep(activeClient);
   }
 
   return (

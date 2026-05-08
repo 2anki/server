@@ -195,9 +195,9 @@ class AnkifyController {
       return;
     }
     const dateRangeDays =
-      req.body?.date_range_days != null
-        ? Number(req.body.date_range_days)
-        : undefined;
+      req.body?.date_range_days == null
+        ? undefined
+        : Number(req.body.date_range_days);
 
     try {
       const result = await this.exportReviewDataUseCase.execute({
@@ -249,9 +249,9 @@ class AnkifyController {
     const timezone = String(req.body?.timezone ?? '').trim();
     const enabled = req.body?.enabled !== false;
     const dateRangeDays =
-      req.body?.date_range_days != null
-        ? Number(req.body.date_range_days)
-        : null;
+      req.body?.date_range_days == null
+        ? null
+        : Number(req.body.date_range_days);
 
     if (databaseId.length === 0) {
       res.status(400).json({ message: 'database_id is required' });
@@ -371,7 +371,7 @@ class AnkifyController {
   async listConflicts(req: Request, res: Response) {
     const owner = res.locals.owner as number;
     const status =
-      req.query.status != null ? String(req.query.status) : undefined;
+      req.query.status == null ? undefined : String(req.query.status);
     const conflicts = await this.listConflictsUseCase.execute(owner, {
       status,
     });
@@ -444,7 +444,7 @@ class AnkifyController {
     const owner = res.locals.owner as number;
     const parentPageId = String(req.body?.parent_page_id ?? '').trim();
     const title =
-      req.body?.title != null ? String(req.body.title).trim() : undefined;
+      req.body?.title == null ? undefined : String(req.body.title).trim();
     if (parentPageId.length === 0) {
       res.status(400).json({ message: 'parent_page_id is required' });
       return;
@@ -467,9 +467,9 @@ class AnkifyController {
 
   async listSyncLogs(req: Request, res: Response) {
     const owner = res.locals.owner as number;
-    const limit = req.query.limit != null ? Number(req.query.limit) : undefined;
+    const limit = req.query.limit == null ? undefined : Number(req.query.limit);
     const status =
-      req.query.status != null ? String(req.query.status) : undefined;
+      req.query.status == null ? undefined : String(req.query.status);
     const logs = await this.listSyncLogsUseCase.execute(owner, {
       limit,
       status,

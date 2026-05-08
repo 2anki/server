@@ -71,7 +71,7 @@ const buildNotionExportClient = (token: string) => {
         }
         const res = await notion.dataSources.query({
           data_source_id: dataSourceId,
-          filter: params.filter as never,
+          filter: params.filter,
         });
         return { results: res.results };
       },
@@ -154,7 +154,7 @@ const buildNotionConflictResolver = (token: string) => {
         toggle: {
           rich_text: [{ type: 'text', text: { content: payload.front } }],
         },
-      } as never);
+      });
       const children = await notion.blocks.children.list({
         block_id: blockId,
       });
@@ -167,7 +167,7 @@ const buildNotionConflictResolver = (token: string) => {
           paragraph: {
             rich_text: [{ type: 'text', text: { content: payload.back } }],
           },
-        } as never);
+        });
       }
     },
   };
@@ -266,7 +266,7 @@ const createReviewTrackerInNotion = async (
         'Time spent': { number: { format: 'number' } },
       },
     },
-  } as never);
+  });
   return {
     id: (response as { id: string }).id,
     url: (response as { url?: string }).url ?? null,
