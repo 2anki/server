@@ -394,25 +394,30 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
                       </div>
                       {verifySignIn.isSuccess &&
                         verifySignIn.data.status !== 'linked' && (
-                          <p
+                          <div
                             role="alert"
-                            className={sharedStyles.helpDanger}
+                            className={`${sharedStyles.alertDanger} ${styles.signInAlert}`}
                           >
-                            {verifySignIn.data.status === 'unreachable'
-                              ? "We can't reach Anki right now. Try again in a few seconds."
-                              : "We don't see you signed in to AnkiWeb yet. Click "}
-                            {verifySignIn.data.status !== 'unreachable' && (
-                              <strong>Sync</strong>
+                            {verifySignIn.data.status === 'unreachable' ? (
+                              "We can't reach Anki right now. Try again in a few seconds."
+                            ) : (
+                              <>
+                                We don't see you signed in to AnkiWeb yet.
+                                Open Anki, click <strong>Sync</strong> in the
+                                toolbar, enter your AnkiWeb email and password,
+                                then come back and try again.
+                              </>
                             )}
-                            {verifySignIn.data.status !== 'unreachable' &&
-                              ' inside Anki, enter your AnkiWeb email and password, then try again.'}
-                          </p>
+                          </div>
                         )}
                       {verifySignIn.isError && (
-                        <p role="alert" className={sharedStyles.helpDanger}>
+                        <div
+                          role="alert"
+                          className={`${sharedStyles.alertDanger} ${styles.signInAlert}`}
+                        >
                           We couldn't check your sign-in.{' '}
                           {(verifySignIn.error as Error).message}
-                        </p>
+                        </div>
                       )}
                       {!verifySignIn.isSuccess && !verifySignIn.isError && (
                         <p
