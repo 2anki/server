@@ -45,4 +45,4 @@ Enable **Treat Bold Text as Input** in the upload settings. Any `<strong>` / `<b
 
 ## Media
 
-Images, audio, and other assets referenced from your HTML are embedded in the deck. If you're uploading a Notion export, submit the original `.zip` so the HTML and its `assets/` folder stay together — see [ZIP uploads](/documentation/features/zip).
+Images, audio, and other assets referenced from your HTML are embedded in the deck. If you're uploading a Notion export, submit the original `.zip` so the HTML and its `assets/` folder stay together — see [File formats](/documentation/reference/file-formats).

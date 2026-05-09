@@ -1,6 +1,6 @@
 ---
-title: Notion Support
-description: Notion block types supported by 2anki.net
+title: Notion blocks we support
+description: What works, what's ignored, what's coming.
 ---
 
 2anki.net supports a large subset of the [Notion block API](https://developers.notion.com/reference/block).
@@ -44,4 +44,4 @@ These blocks are skipped or rendered as a fallback.
 - [ ] [Template](https://developers.notion.com/reference/block#template-blocks)
 - [ ] [Synced block](https://developers.notion.com/reference/block#synced-block-blocks)
 
-Missing a block you need? [Open an issue](https://github.com/2anki/2anki.net/issues).
+Missing a block you need? [Open an issue](https://github.com/2anki/server/issues).

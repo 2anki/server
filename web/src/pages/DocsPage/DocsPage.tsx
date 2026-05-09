@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { DocsSidebar } from './DocsSidebar';
 import { DocContent } from './DocContent';
 import { DocsHome } from './DocsHome';
+import { DocsDrawer } from './DocsDrawer';
 import { WipBanner } from './WipBanner';
 import styles from './DocsPage.module.css';
 
@@ -24,21 +25,21 @@ export default function DocsPage() {
       <button
         type="button"
         className={styles.menuButton}
-        onClick={() => setMenuOpen((v) => !v)}
+        onClick={() => setMenuOpen(true)}
         aria-expanded={menuOpen}
         aria-controls="docs-sidebar"
       >
-        {menuOpen ? 'Close menu' : 'Menu'}
+        Menu
       </button>
 
       <aside
         id="docs-sidebar"
-        className={`${styles.sidebarWrapper} ${
-          menuOpen ? styles.sidebarOpen : ''
-        }`}
+        className={styles.sidebarWrapper}
       >
-        <DocsSidebar onNavigate={closeMenu} />
+        <DocsSidebar onNavigate={closeMenu} activeSlug={slug} />
       </aside>
+
+      <DocsDrawer isOpen={menuOpen} onClose={closeMenu} activeSlug={slug} />
 
       <main className={styles.main}>
         <WipBanner />
