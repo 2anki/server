@@ -73,7 +73,7 @@ Every PR is checked against both — does it make the experience simpler/faster/
 - **Never edit `src/data_layer/public/`** — Kanel-generated; rerun `pnpm kanel` instead.
 - Lead with the positive in `if/else` (`if (ready)` not `if (!ready)`) — Sonar S7735.
 - Use `value == null` to test "is the ID present?" — `!value` rejects falsy IDs like `0`.
-- The Ankify feature is allowlisted to `alexander@alemayhu.com` in beta. Don't widen without an explicit decision.
+- The Ankify feature is gated to users with `users.patreon = true` (lifetime). Use `hasAnkifyAccess` from `src/lib/ankify/access.ts`; don't reintroduce hard-coded emails.
 - Notion webhook receiver in `routes/AnkifyWebhookRouter.ts` is intentionally inactive; polling at 5 min carries the story today.
 - The prod box checks out this repo at `/home/alemayhu/src/github.com/2anki/2anki.net` (legacy name).
 

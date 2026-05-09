@@ -3,8 +3,6 @@ import express from 'express';
 import { makeRequireAnkifyAccess } from './RequireAnkifyAccess';
 import AuthenticationService from '../../services/AuthenticationService';
 
-const allowedEmail = 'alexander@alemayhu.com';
-
 const makeRequest = (token: string | undefined): express.Request =>
   ({
     cookies: token == null ? {} : { token },
@@ -39,7 +37,7 @@ const makeResponse = (): FakeResponse => {
 };
 
 const makeAuthService = (
-  user: { id: number; email: string } | null
+  user: { id: number; email: string; patreon: boolean | null } | null
 ): AuthenticationService =>
   ({
     getUserFrom: jest.fn(async () =>
@@ -63,9 +61,13 @@ describe('RequireAnkifyAccess', () => {
     expect(next).not.toHaveBeenCalled();
   });
 
-  test('403s when authenticated user is not on the allowlist', async () => {
+  test('403s when authenticated user does not have patreon access', async () => {
     const middleware = makeRequireAnkifyAccess(
-      makeAuthService({ id: 7, email: 'someone-else@example.com' })
+      makeAuthService({
+        id: 7,
+        email: 'someone-else@example.com',
+        patreon: false,
+      })
     );
     const res = makeResponse();
     const next = jest.fn();
@@ -80,9 +82,34 @@ describe('RequireAnkifyAccess', () => {
     expect(next).not.toHaveBeenCalled();
   });
 
-  test('calls next and sets owner local when user is allowlisted', async () => {
+  test('403s when patreon is null', async () => {
     const middleware = makeRequireAnkifyAccess(
-      makeAuthService({ id: 42, email: allowedEmail })
+      makeAuthService({
+        id: 7,
+        email: 'someone-else@example.com',
+        patreon: null,
+      })
+    );
+    const res = makeResponse();
+    const next = jest.fn();
+
+    await middleware(
+      makeRequest('cookie-token'),
+      res as unknown as express.Response,
+      next
+    );
+
+    expect(res.statusCode).toBe(403);
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  test('calls next and sets owner local when user has patreon access', async () => {
+    const middleware = makeRequireAnkifyAccess(
+      makeAuthService({
+        id: 42,
+        email: 'patron@example.com',
+        patreon: true,
+      })
     );
     const res = makeResponse();
     const next = jest.fn();
@@ -95,21 +122,5 @@ describe('RequireAnkifyAccess', () => {
 
     expect(next).toHaveBeenCalledTimes(1);
     expect(res.locals.owner).toBe(42);
-  });
-
-  test('matches allowlist case-insensitively', async () => {
-    const middleware = makeRequireAnkifyAccess(
-      makeAuthService({ id: 42, email: allowedEmail.toUpperCase() })
-    );
-    const res = makeResponse();
-    const next = jest.fn();
-
-    await middleware(
-      makeRequest('cookie-token'),
-      res as unknown as express.Response,
-      next
-    );
-
-    expect(next).toHaveBeenCalledTimes(1);
   });
 });

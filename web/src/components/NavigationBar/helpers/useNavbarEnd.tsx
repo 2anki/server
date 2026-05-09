@@ -22,8 +22,7 @@ export default function useNavbarEnd(path: string, backend: Backend) {
   const isLoggedIn = !!data?.user;
   const showKiLink = data?.features?.kiUI;
   const showOpsLink = data?.features?.ops === true;
-  const showAnkifyLink =
-    data?.user?.email?.toLowerCase() === 'alexander@alemayhu.com';
+  const showAnkifyLink = data?.locals?.patreon === true;
   const favoritesCount = useFavoritesCount(isLoggedIn);
 
   const toggleDropdown = () => setIsActive((prev) => !prev);
