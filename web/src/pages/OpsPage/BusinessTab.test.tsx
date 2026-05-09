@@ -1,8 +1,8 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 
 import BusinessTab from './BusinessTab';
 import { BusinessMetricsResponse } from './businessTypes';
@@ -46,6 +46,18 @@ const buildSampleMetrics = (
     week: `2026-02-${String((i % 28) + 1).padStart(2, '0')}`,
     count: i % 4,
   })),
+  cancellation_reasons_top: [
+    { reason: 'Too expensive', count: 7 },
+    { reason: "I don't use it enough", count: 4 },
+    { reason: 'Other', count: 1 },
+  ],
+  cancellation_comments_recent: [
+    {
+      reason: 'Other',
+      comment: 'I missed Anki shared decks',
+      created_at: '2026-05-08T11:00:00.000Z',
+    },
+  ],
   as_of: '2026-05-09T14:32:07.000Z',
   cache_age_seconds: 412,
   ...overrides,
@@ -73,9 +85,7 @@ describe('BusinessTab', () => {
 
     renderTab();
 
-    await waitFor(() =>
-      expect(screen.getByText('$4,820')).toBeInTheDocument()
-    );
+    await waitFor(() => expect(screen.getByText('$4,820')).toBeInTheDocument());
     expect(screen.getByText('MRR')).toBeInTheDocument();
     expect(screen.getByText('$312')).toBeInTheDocument();
     expect(screen.getByText('Net new MRR (MTD)')).toBeInTheDocument();
@@ -94,7 +104,7 @@ describe('BusinessTab', () => {
     );
   });
 
-  test('renders all four chart panel titles', async () => {
+  test('renders all chart panel titles', async () => {
     (globalThis.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: true,
       status: 200,
@@ -110,9 +120,17 @@ describe('BusinessTab', () => {
     expect(
       screen.getByText('Active paying subs, last 90 days')
     ).toBeInTheDocument();
-    expect(screen.getByText('New vs churned, last 12 weeks')).toBeInTheDocument();
+    expect(
+      screen.getByText('New vs churned, last 12 weeks')
+    ).toBeInTheDocument();
     expect(
       screen.getByText('Failed payments, last 12 weeks')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('Why users cancel, last 90 days')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('Recent cancellation comments')
     ).toBeInTheDocument();
   });
 
@@ -127,6 +145,8 @@ describe('BusinessTab', () => {
           active_subs_timeseries: [],
           conversions_vs_churn_weekly: [],
           failed_payments_weekly: [],
+          cancellation_reasons_top: [],
+          cancellation_comments_recent: [],
         }),
     });
 
@@ -136,10 +156,31 @@ describe('BusinessTab', () => {
       expect(screen.getByText('No MRR history yet.')).toBeInTheDocument()
     );
     expect(screen.getByText('No active-subs history yet.')).toBeInTheDocument();
-    expect(screen.getByText('No subscription movements yet.')).toBeInTheDocument();
+    expect(
+      screen.getByText('No subscription movements yet.')
+    ).toBeInTheDocument();
     expect(
       screen.getByText('No failed payments in this window.')
     ).toBeInTheDocument();
+    expect(
+      screen.getByText('No cancellations recorded yet.')
+    ).toBeInTheDocument();
+    expect(screen.getByText('No free-text comments yet.')).toBeInTheDocument();
+  });
+
+  test('renders cancellation comment text from the response', async () => {
+    (globalThis.fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
+      ok: true,
+      status: 200,
+      statusText: 'OK',
+      json: async () => buildSampleMetrics(),
+    });
+
+    renderTab();
+
+    await waitFor(() =>
+      expect(screen.getByText('I missed Anki shared decks')).toBeInTheDocument()
+    );
   });
 
   test('shows the alert banner when the request fails', async () => {
@@ -170,9 +211,7 @@ describe('BusinessTab', () => {
 
     const { container } = renderTab();
 
-    await waitFor(() =>
-      expect(screen.getByText('$4,820')).toBeInTheDocument()
-    );
+    await waitFor(() => expect(screen.getByText('$4,820')).toBeInTheDocument());
     expect(container.querySelector('pre')).toBeNull();
   });
 });

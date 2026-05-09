@@ -8,7 +8,9 @@ export type BusinessMetricKey =
   | 'mrr_timeseries'
   | 'active_subs_timeseries'
   | 'conversions_vs_churn_weekly'
-  | 'failed_payments_weekly';
+  | 'failed_payments_weekly'
+  | 'cancellation_reasons_top'
+  | 'cancellation_comments_recent';
 
 export interface BusinessMetricError {
   metric: BusinessMetricKey;
@@ -36,6 +38,17 @@ export interface FailedPaymentsWeekPoint {
   count: number;
 }
 
+export interface CancellationReasonPoint {
+  reason: string;
+  count: number;
+}
+
+export interface CancellationCommentPoint {
+  reason: string;
+  comment: string;
+  created_at: string;
+}
+
 export interface BusinessMetricsResponse {
   mrr_usd: number | null;
   net_new_mrr_mtd_usd: number | null;
@@ -47,6 +60,8 @@ export interface BusinessMetricsResponse {
   active_subs_timeseries: ActiveSubsTimeseriesPoint[] | null;
   conversions_vs_churn_weekly: ConversionsChurnWeekPoint[] | null;
   failed_payments_weekly: FailedPaymentsWeekPoint[] | null;
+  cancellation_reasons_top: CancellationReasonPoint[] | null;
+  cancellation_comments_recent: CancellationCommentPoint[] | null;
   as_of: string;
   cache_age_seconds: number;
   errors?: BusinessMetricError[];

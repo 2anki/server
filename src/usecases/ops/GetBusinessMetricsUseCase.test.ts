@@ -17,6 +17,8 @@ describe('GetBusinessMetricsUseCase', () => {
       active_subs_timeseries: [],
       conversions_vs_churn_weekly: [],
       failed_payments_weekly: [],
+      cancellation_reasons_top: [],
+      cancellation_comments_recent: [],
       as_of: '2026-05-09T14:32:07.000Z',
       cache_age_seconds: 412,
     };
