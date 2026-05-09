@@ -9,9 +9,19 @@ import {
   YAxis,
 } from 'recharts';
 
-import styles from '../OpsPage.module.css';
 import { ActiveSubsTimeseriesPoint } from '../businessTypes';
 import { formatDailyLabel } from '../businessHelpers';
+import {
+  AXIS_STROKE,
+  AXIS_TICK_STYLE,
+  GRID_STROKE,
+  SERIES_BLUE,
+  TIME_SERIES_CHART_MARGIN,
+  TOOLTIP_CURSOR_FILL,
+} from './timeSeriesChartHelpers';
+import TimeSeriesTooltipShell, {
+  TimeSeriesTooltipRow,
+} from './TimeSeriesTooltipShell';
 
 interface ActiveSubsTimeseriesChartProps {
   points: ActiveSubsTimeseriesPoint[];
@@ -34,15 +44,12 @@ function ActiveSubsTooltip({ active, payload }: TooltipContentProps) {
   if (!active || payload == null || payload.length === 0) return null;
   const row = payload[0].payload as ActiveSubsRow;
   return (
-    <div className={styles.tooltip}>
-      <div className={styles.tooltipTitle}>{row.label}</div>
-      <div className={styles.tooltipRow}>
-        <span>active</span>
-        <span className={styles.tooltipNumber}>
-          {row.active_paying_subs.toLocaleString()}
-        </span>
-      </div>
-    </div>
+    <TimeSeriesTooltipShell title={row.label}>
+      <TimeSeriesTooltipRow
+        label="active"
+        value={row.active_paying_subs.toLocaleString()}
+      />
+    </TimeSeriesTooltipShell>
   );
 }
 
@@ -53,27 +60,20 @@ export default function ActiveSubsTimeseriesChart({
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <LineChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
-        <CartesianGrid stroke="#f3f4f6" vertical={false} />
+      <LineChart data={data} margin={TIME_SERIES_CHART_MARGIN}>
+        <CartesianGrid stroke={GRID_STROKE} vertical={false} />
         <XAxis
           dataKey="label"
-          tick={{ fontSize: 11, fill: '#6b7280' }}
-          stroke="#e5e7eb"
+          tick={AXIS_TICK_STYLE}
+          stroke={AXIS_STROKE}
           minTickGap={32}
         />
-        <YAxis
-          tick={{ fontSize: 11, fill: '#6b7280' }}
-          stroke="#e5e7eb"
-          allowDecimals={false}
-        />
-        <Tooltip
-          content={(props) => <ActiveSubsTooltip {...props} />}
-          cursor={{ fill: '#f9fafb' }}
-        />
+        <YAxis tick={AXIS_TICK_STYLE} stroke={AXIS_STROKE} allowDecimals={false} />
+        <Tooltip content={ActiveSubsTooltip} cursor={TOOLTIP_CURSOR_FILL} />
         <Line
           type="monotone"
           dataKey="active_paying_subs"
-          stroke="#3b82f6"
+          stroke={SERIES_BLUE}
           strokeWidth={2}
           dot={false}
         />
