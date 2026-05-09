@@ -59,15 +59,22 @@ Stored only for the empty-query case (the slow path). Typed queries continue to 
 
 **Read path** (empty query):
 1. Tier 1 hit → return.
-2. Tier 2 rows for owner exist → return them immediately. If the newest `cached_at` is older than 5 min, fire-and-forget a background refresh (don't await).
+2. Tier 2 rows for owner exist → return them immediately. If the newest `cached_at` is older than 5 min, schedule a background refresh via the dedup gate below (don't await).
 3. Tier 2 empty (first time ever) → live fetch, populate both tiers, return.
 
 **Read path** (typed query): Tier 1 → live Notion (unchanged). No Tier 2 involvement.
 
 **Write path** (background refresh):
-- Triggered by the existing **5-min Ankify poll job** that already runs per owner (`scheduleAnkifyPolling.ts` and friends — confirm exact entry point during implementation).
-- Calls `client.searchTopLevelPages('')`, replaces all rows for that owner in a single transaction (`delete where owner = ? ; insert ...`).
-- Also triggered once on Notion connect, off the request path, so the user's first picker open is already warm.
+- Triggered by the existing **5-min Ankify poll job** that already runs per owner (`scheduleAnkifyPolling.ts` and friends — confirm exact entry point during implementation), and by stale-while-revalidate reads.
+- Calls `client.searchTopLevelPages('')` and replaces all rows for that owner. The replace + token check happens in **one** SQL transaction (see disconnect-race mitigation below) — the prior `delete; insert` framing was misleading because those two statements alone don't close the race.
+- Also triggered once on Notion connect, off the request path. **This is best-effort**: the warm runs in the background and is not awaited, so a user who opens the picker faster than the warm completes will still hit the cold path. The acceptance criteria treat that case as "cold first open" by design — do not make the warm synchronous to "fix" it.
+
+**Concurrent refresh dedup**:
+- Module-scoped `Set<owner>` of in-flight refreshes. Before scheduling a refresh, `if (inFlight.has(owner)) return`. On completion (success or failure, in `finally`), `inFlight.delete(owner)`.
+- This matters because with a 5-min staleness threshold and a 5-min poll cadence, *most* picker opens between polls will see stale data and try to schedule a refresh. Without dedup, N concurrent picker opens by the same user fan out to N concurrent Notion sweeps (each up to 20 calls). With dedup, the second through Nth opens see "refresh already running" and no-op.
+- Process-local is sufficient for the same reason Tier 1 is: cross-process duplication of refreshes is bounded by pm2 worker count and harmless.
+
+**Expected behaviour** (not a bug): with the schedule above, almost every picker open between two poll cycles will trigger one background refresh per owner per process. Responses stay instant because they read from the existing rows; the dedup gate keeps the Notion fan-out bounded. If telemetry later shows this overshoots Notion rate limits, the cheapest knob is bumping the staleness threshold above the poll cadence (e.g. 10 min stale window vs 5 min poll).
 
 **Invalidation**:
 - `NotionService.disconnect(owner)` deletes Tier 2 rows and calls `Tier 1 invalidateOwner`. (FK `on delete cascade` from `users` covers account deletion.)
@@ -76,7 +83,8 @@ Stored only for the empty-query case (the slow path). Typed queries continue to 
 
 - `src/services/NotionService/topLevelPagesCache.ts` *(new, ~40 LOC)* — Tier 1 module: `get`, `set`, `invalidateOwner`, `__resetForTests`.
 - `migrations/<timestamp>_create_notion_top_level_pages.ts` *(new)* — Tier 2 table per schema above.
-- `src/data_layer/NotionTopLevelPagesRepository.ts` *(new, ~80 LOC)* — `getByOwner(owner)`, `replaceForOwner(owner, rows)`, `deleteByOwner(owner)`, `newestCachedAt(owner)`.
+- `src/data_layer/NotionTopLevelPagesRepository.ts` *(new, ~80 LOC)* — `getByOwner(owner)`, `replaceForOwnerIfTokenStillValid(owner, rows)` (single transaction: re-reads the Notion token, no-ops if absent, otherwise deletes + bulk-inserts atomically), `deleteByOwner(owner)`, `newestCachedAt(owner)`.
+  - **Icon shape**: Notion's `icon` field has multiple shapes (`{type:'emoji', emoji}`, `{type:'external', external:{url}}`, `{type:'file', file:{url}}`, or `null`). `NotionAPIWrapper.searchTopLevelPages` returns the raw object straight from the SDK. The repository persists the raw shape as `jsonb`; the existing `getObjectIcon` helper on the FE already handles all variants, so no normalisation is needed. Implementer just needs to know the column accepts `null` and any of the three shapes.
 - `src/services/NotionService/NotionService.ts:77` — wrap `searchTopLevelPages` with the two-tier read path described above. Empty-query branch reads Tier 2; non-empty branch only uses Tier 1.
 - `src/services/NotionService/NotionService.ts:155` (`disconnect`) — delete Tier 2 rows; call Tier 1 `invalidateOwner`.
 - Notion connect handler (`NotionController.connect` at `src/controllers/NotionController.ts:93` or its downstream `connectToNotion` use case) — fire-and-forget initial Tier 2 warm.
@@ -99,14 +107,15 @@ No frontend changes. No new endpoints.
 - [ ] **Cold first open**: a user with no Tier 2 rows sees results within the live-fetch latency (unavoidable). Subsequent opens within 5 min read from Tier 2 in <50ms server time.
 - [ ] **Warm open** (after Notion connect-time pre-warm or at least one prior fetch): `POST /api/notion/top-level-pages` with empty query returns in <200ms end-to-end on a heavy-DB account.
 - [ ] **Stale-while-revalidate**: when Tier 2's newest `cached_at` is >5 min old, the response returns immediately with cached rows AND a background refresh runs (verified via mocked clock + spy on `client.searchTopLevelPages`).
+- [ ] **Concurrent-refresh dedup**: 5 simultaneous stale reads for the same owner trigger exactly **one** background refresh — verified by spying on `client.searchTopLevelPages` while five `searchTopLevelPages('', owner)` calls run concurrently.
 - [ ] **Typed queries skip Tier 2** — verified by asserting Tier 2 read is not invoked for `query !== ''`.
 - [ ] **Disconnect drops Tier 2** — `NotionService.disconnect(owner)` removes all rows for that owner and clears Tier 1.
 - [ ] **Cross-tenant isolation** — two users hitting the endpoint cannot see each other's cached pages.
 - [ ] **No FE change** — `NotionPagePicker.tsx` is untouched; JSON response shape is identical.
 - [ ] **Existing `NotionAPIWrapper.searchTopLevelPages` tests pass unchanged.**
 - [ ] **New tests** cover Tier 1 (`topLevelPagesCache.test.ts`), repository round-trip (`NotionTopLevelPagesRepository.test.ts`), and read-path priority + stale-while-revalidate behaviour (`NotionService.searchTopLevelPages.test.ts`).
-- [ ] **Connect pre-warm** is fire-and-forget — the connect flow does not await it, and a failed warm does not break connect.
-- [ ] **Poll-job refresh** runs per owner on the existing 5-min cadence and uses `replaceForOwner` so the table never has duplicates or partial state.
+- [ ] **Connect pre-warm** is fire-and-forget — the connect flow does not await it, and a failed warm does not break connect. (A user who opens the picker before the warm finishes correctly falls through to the cold path; the warm is best-effort, not a guarantee.)
+- [ ] **Poll-job refresh** runs per owner on the existing 5-min cadence and uses `replaceForOwnerIfTokenStillValid` so the table never has duplicates or partial state.
 
 ## Out of scope (next iteration)
 
@@ -127,7 +136,7 @@ No frontend changes. No new endpoints.
 - **Poll-job amplification**: adding a Notion call per owner per 5 min is non-trivial at scale. Mitigation: only refresh owners with an active Notion connection (already a precondition for the poll job) and skip if `newestCachedAt` is fresher than 5 min (e.g., a recent live fetch already populated it).
 - **Memory growth (Tier 1)**: bounded by active users × distinct queries in last 60s. Tiny at our scale; swap to LRU only if it ever matters.
 - **Test isolation (Tier 1)**: cache lives at module scope. Export a `__resetForTests` helper or use `vi.resetModules` between cases.
-- **Disconnect race**: a refresh in flight when the user disconnects could re-populate rows after the delete. Mitigation: refresh writer checks the user still has a Notion token before writing, or wraps the write in a transaction that re-reads the token first. Cheap and correct.
+- **Disconnect race**: a refresh in flight when the user disconnects could re-populate rows after the delete. Mitigation: the refresh writer's `replaceForOwnerIfTokenStillValid` runs as a single transaction — re-reads the Notion token row inside the transaction, no-ops if the token is absent, otherwise performs the delete + bulk-insert. A pre-write token check outside a transaction is TOCTOU and does not close the race; do not use that variant.
 
 ## Commit message guidance
 
