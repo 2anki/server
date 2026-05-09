@@ -13,6 +13,7 @@ import ConflictsModal from './components/ConflictsModal';
 
 const QUERY_KEY = ['ankify-clients'];
 const ANKI_WEB_ACK_KEY = 'ankify_anki_web_acknowledged';
+const ANKIFY_WELCOME_SEEN_KEY = 'ankify_welcome_seen';
 const TRACKER_LOCAL_KEY = 'ankify-export-database-id';
 const TRACKER_TITLE_LOCAL_KEY = 'ankify-export-database-title';
 const TRACKER_URL_LOCAL_KEY = 'ankify-export-database-url';
@@ -33,6 +34,14 @@ const readSignedInAcknowledged = (): boolean => {
   }
 };
 
+const readWelcomeSeen = (): boolean => {
+  try {
+    return globalThis.localStorage?.getItem(ANKIFY_WELCOME_SEEN_KEY) === 'true';
+  } catch {
+    return false;
+  }
+};
+
 interface AnkifyPageProps {
   backend?: Backend;
 }
@@ -41,6 +50,14 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
   const api = backend ?? get2ankiApi();
   const navigate = useNavigate();
   const [conflictsOpen, setConflictsOpen] = useState(false);
+  const [welcomeOpen, setWelcomeOpen] = useState<boolean>(() => !readWelcomeSeen());
+
+  const dismissWelcome = () => {
+    setWelcomeOpen(false);
+    try {
+      globalThis.localStorage?.setItem(ANKIFY_WELCOME_SEEN_KEY, 'true');
+    } catch {}
+  };
 
   const { data, isLoading } = useQuery<AnkifyClient[]>({
     queryKey: QUERY_KEY,
@@ -85,6 +102,27 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
     <main className={sharedStyles.page}>
       <WorkspaceBar backend={backend} />
       <h1 className={styles.workspaceTitle}>Ankify</h1>
+
+      {welcomeOpen && (
+        <div
+          role="status"
+          aria-live="polite"
+          className={`${sharedStyles.alertSuccess} ${styles.welcomeBanner}`}
+        >
+          <span>
+            Your Anki is ready. We added two note types — Ankify Basic and
+            Ankify Cloze — so your synced cards always look right. You can
+            edit them anytime in Anki.
+          </span>
+          <button
+            type="button"
+            className={sharedStyles.btnSecondary}
+            onClick={dismissWelcome}
+          >
+            Got it
+          </button>
+        </div>
+      )}
 
       {conflictCount > 0 && (
         <output className={styles.conflictsBanner}>
