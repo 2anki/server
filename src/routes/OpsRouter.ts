@@ -5,7 +5,6 @@ import { GetOpsMetricsUseCase } from '../usecases/ops/GetOpsMetricsUseCase';
 import { GetBusinessMetricsUseCase } from '../usecases/ops/GetBusinessMetricsUseCase';
 import { ObservabilityRepository } from '../data_layer/ObservabilityRepository';
 import { ObservabilityQueryService } from '../services/observability/ObservabilityQueryService';
-import { SubscriptionsAnalyticsRepository } from '../data_layer/SubscriptionsAnalyticsRepository';
 import { BusinessMetricsService } from '../services/ops/BusinessMetricsService';
 import { getDatabase } from '../data_layer';
 import RequireOpsAccess from './middleware/RequireOpsAccess';
@@ -16,12 +15,7 @@ const OpsRouter = () => {
   const repo = new ObservabilityRepository(database);
   const queryService = new ObservabilityQueryService(repo);
 
-  const subscriptionsAnalyticsRepo = new SubscriptionsAnalyticsRepository(
-    database
-  );
-  const businessMetricsService = new BusinessMetricsService({
-    repository: subscriptionsAnalyticsRepo,
-  });
+  const businessMetricsService = new BusinessMetricsService();
 
   const controller = new OpsController(
     new GetOpsMetricsUseCase(queryService),
