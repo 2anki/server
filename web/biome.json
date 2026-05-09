@@ -17,6 +17,14 @@
                         "correctness": {
                                 "noUnusedLabels": "error",
                                 "useValidForDirection": "error"
+                        },
+                        "complexity": {
+                                "useOptionalChain": "error",
+                                "noUselessTernary": "error"
+                        },
+                        "style": {
+                                "noNestedTernary": "error",
+                                "noNegationElse": "error"
                         }
                 }
         },
