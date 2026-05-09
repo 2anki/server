@@ -3,7 +3,8 @@ import express from 'express';
 import { ObservabilitySink } from '../../services/observability/ObservabilitySink';
 import { getObservabilitySink } from '../../services/observability/observabilitySinkInstance';
 
-const OPS_PREFIX = '/ops';
+const OPS_PAGE_PREFIX = '/ops';
+const OPS_API_PREFIX = '/api/ops';
 
 const resolveRoute = (req: express.Request): string => {
   const baseUrl = (req as { baseUrl?: string }).baseUrl ?? '';
@@ -14,6 +15,12 @@ const resolveRoute = (req: express.Request): string => {
   return 'unmatched';
 };
 
+const isOpsPath = (path: string): boolean =>
+  path === OPS_PAGE_PREFIX ||
+  path.startsWith(`${OPS_PAGE_PREFIX}/`) ||
+  path === OPS_API_PREFIX ||
+  path.startsWith(`${OPS_API_PREFIX}/`);
+
 export const makeRequestLoggingMiddleware = (sink: ObservabilitySink) => {
   return (
     req: express.Request,
@@ -21,7 +28,7 @@ export const makeRequestLoggingMiddleware = (sink: ObservabilitySink) => {
     next: express.NextFunction
   ) => {
     const path = req.path ?? '';
-    if (path === OPS_PREFIX || path.startsWith(`${OPS_PREFIX}/`)) {
+    if (isOpsPath(path)) {
       return next();
     }
     const start = Date.now();

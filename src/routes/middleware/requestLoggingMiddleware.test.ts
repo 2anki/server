@@ -94,7 +94,22 @@ describe('requestLoggingMiddleware', () => {
     const sink = new ObservabilitySink(repo);
     const middleware = makeRequestLoggingMiddleware(sink);
 
-    const req = makeReq({ path: '/ops/api/metrics' });
+    const req = makeReq({ path: '/ops' });
+    const res = makeRes(200);
+
+    middleware(req as never, res as never, jest.fn());
+    res.emit('finish');
+    await sink.flush();
+
+    expect(repo.inbound).toHaveLength(0);
+  });
+
+  it('skips /api/ops/* so the dashboard does not log its own polling', async () => {
+    const repo = new FakeRepo();
+    const sink = new ObservabilitySink(repo);
+    const middleware = makeRequestLoggingMiddleware(sink);
+
+    const req = makeReq({ path: '/api/ops/metrics' });
     const res = makeRes(200);
 
     middleware(req as never, res as never, jest.fn());
