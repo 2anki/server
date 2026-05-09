@@ -59,6 +59,11 @@ export const attachAnkifySessionProxy = (
       cookieToken,
     });
     if (!result.ok) {
+      const accept = req.headers.accept ?? '';
+      if (req.method === 'GET' && accept.includes('text/html')) {
+        res.redirect(302, `/ankify?session_expired=1&reason=${result.reason}`);
+        return;
+      }
       res.status(result.status).json({ message: result.reason });
       return;
     }

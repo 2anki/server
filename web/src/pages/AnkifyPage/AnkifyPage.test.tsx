@@ -260,3 +260,115 @@ describe('AnkifyPage workspace home', () => {
     expect(screen.queryByText(/your anki is ready/i)).not.toBeInTheDocument();
   });
 });
+
+const SESSION_URL_PREFIX = 'ankify_session_url:';
+
+describe('Ankify session URL — transparent recovery', () => {
+  beforeEach(() => {
+    globalThis.localStorage?.setItem(ANKI_WEB_ACK_KEY, 'true');
+    globalThis.localStorage?.removeItem(`${SESSION_URL_PREFIX}1`);
+  });
+
+  afterEach(() => {
+    globalThis.localStorage?.removeItem(ANKI_WEB_ACK_KEY);
+    globalThis.localStorage?.removeItem(`${SESSION_URL_PREFIX}1`);
+  });
+
+  const makeStatefulBackend = (initialHasActive: boolean) => {
+    const state = { hasActive: initialHasActive };
+    const reissue = vi.fn(async (id: number) => {
+      state.hasActive = true;
+      return {
+        ...sampleClient({ id }),
+        session_url: `https://2anki.net/v/FRESH/vnc.html`,
+        has_active_session: true,
+      };
+    });
+    const list = vi.fn(async () => [
+      sampleClient({ has_active_session: state.hasActive }),
+    ]);
+    const backend = makeBackend({
+      listAnkifyClients: list,
+      checkAnkifyActiveClientReady: vi.fn(async () => ({ ready: true })),
+      checkAnkifyAnkiWebStatus: vi.fn(async () => ({
+        status: 'linked' as const,
+      })),
+      reissueAnkifySessionUrl: reissue,
+    });
+    return { backend, reissue, list };
+  };
+
+  test('auto-mints a session URL on mount when none is cached and the container is ready', async () => {
+    const { backend, reissue } = makeStatefulBackend(false);
+
+    renderAt('/ankify', backend);
+
+    await waitFor(() => expect(reissue).toHaveBeenCalledWith(1));
+    await waitFor(() =>
+      expect(
+        globalThis.localStorage?.getItem(`${SESSION_URL_PREFIX}1`)
+      ).toBe('https://2anki.net/v/FRESH/vnc.html')
+    );
+  });
+
+  test('clears a stale cached URL when the server reports has_active_session=false', async () => {
+    globalThis.localStorage?.setItem(
+      `${SESSION_URL_PREFIX}1`,
+      'https://2anki.net/v/STALE/vnc.html'
+    );
+    const { backend, reissue } = makeStatefulBackend(false);
+
+    renderAt('/ankify', backend);
+
+    await waitFor(() => expect(reissue).toHaveBeenCalled());
+    await waitFor(() =>
+      expect(
+        globalThis.localStorage?.getItem(`${SESSION_URL_PREFIX}1`)
+      ).toBe('https://2anki.net/v/FRESH/vnc.html')
+    );
+  });
+
+  test('honours ?session_expired=1 by clearing the cache and re-minting', async () => {
+    globalThis.localStorage?.setItem(
+      `${SESSION_URL_PREFIX}1`,
+      'https://2anki.net/v/STALE/vnc.html'
+    );
+    const { backend, reissue } = makeStatefulBackend(true);
+
+    renderAt('/ankify?session_expired=1&reason=invalid_session_token', backend);
+
+    await waitFor(() => expect(reissue).toHaveBeenCalledWith(1));
+    await waitFor(() =>
+      expect(
+        globalThis.localStorage?.getItem(`${SESSION_URL_PREFIX}1`)
+      ).toBe('https://2anki.net/v/FRESH/vnc.html')
+    );
+  });
+
+  test('does not show "Get a new link" anywhere in the workspace bar', async () => {
+    const backend = makeBackend({
+      listAnkifyClients: vi.fn(async () => [
+        sampleClient({ has_active_session: true }),
+      ]),
+      checkAnkifyActiveClientReady: vi.fn(async () => ({ ready: true })),
+      checkAnkifyAnkiWebStatus: vi.fn(async () => ({
+        status: 'linked' as const,
+      })),
+    });
+    globalThis.localStorage?.setItem(
+      `${SESSION_URL_PREFIX}1`,
+      'https://2anki.net/v/CACHED/vnc.html'
+    );
+
+    renderAt('/ankify', backend);
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole('link', { name: /open anki/i })
+      ).toBeInTheDocument()
+    );
+    expect(
+      screen.queryByRole('button', { name: /get a new link/i })
+    ).not.toBeInTheDocument();
+  });
+});

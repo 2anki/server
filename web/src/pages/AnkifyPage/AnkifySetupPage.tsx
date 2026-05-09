@@ -138,6 +138,39 @@ export default function AnkifySetupPage({ backend }: Props) {
     },
   });
 
+  useEffect(() => {
+    if (activeClient == null) return;
+    if (
+      activeClient.has_active_session === false &&
+      readCachedSessionUrl(activeClient.id) != null
+    ) {
+      writeCachedSessionUrl(activeClient.id, null);
+    }
+  }, [activeClient?.id, activeClient?.has_active_session]);
+
+  const reissueMutate = reissueSession.mutate;
+  const reissueIsPending = reissueSession.isPending;
+  useEffect(() => {
+    if (activeClient == null) return;
+    if (!containerReady) return;
+    if (reissueIsPending) return;
+    if (activeClient.session_url != null) return;
+    if (
+      activeClient.has_active_session !== false &&
+      readCachedSessionUrl(activeClient.id) != null
+    ) {
+      return;
+    }
+    reissueMutate(activeClient.id);
+  }, [
+    activeClient?.id,
+    activeClient?.has_active_session,
+    activeClient?.session_url,
+    containerReady,
+    reissueIsPending,
+    reissueMutate,
+  ]);
+
   const acknowledgeAnkiWebSignIn = () => {
     setSignedInAcknowledged(true);
     try {
@@ -188,8 +221,11 @@ export default function AnkifySetupPage({ backend }: Props) {
     );
   }
 
-  const ankiUrlFor = (client: AnkifyClient): string | null =>
-    client.session_url ?? readCachedSessionUrl(client.id);
+  const ankiUrlFor = (client: AnkifyClient): string | null => {
+    if (client.session_url != null) return client.session_url;
+    if (client.has_active_session === false) return null;
+    return readCachedSessionUrl(client.id);
+  };
 
   const renderStartAnkiStep = () => (
     <section className={styles.setupActiveStep}>
@@ -305,10 +341,9 @@ export default function AnkifySetupPage({ backend }: Props) {
             <button
               type="button"
               className={`${sharedStyles.btnSecondary} ${styles.inlineButton}`}
-              onClick={() => reissueSession.mutate(client.id)}
-              disabled={reissueSession.isPending}
+              disabled
             >
-              {reissueSession.isPending ? 'Working…' : 'Get a new link'}
+              Opening…
             </button>
           ) : (
             <a
