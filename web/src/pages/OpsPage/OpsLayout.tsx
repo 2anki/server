@@ -1,0 +1,45 @@
+import { useEffect } from 'react';
+import { Link, Outlet, useLocation } from 'react-router-dom';
+
+import sharedStyles from '../../styles/shared.module.css';
+import styles from './OpsPage.module.css';
+
+const PAGE_TITLE = 'Ops · 2anki';
+
+const TABS = [
+  { to: '/ops', label: 'Engineering', match: (path: string) => path === '/ops' || path.startsWith('/ops?') },
+  { to: '/ops/business', label: 'Business', match: (path: string) => path.startsWith('/ops/business') },
+];
+
+export default function OpsLayout() {
+  const location = useLocation();
+  useEffect(() => {
+    document.title = PAGE_TITLE;
+  }, []);
+
+  const fullPath = `${location.pathname}${location.search}`;
+
+  return (
+    <main className={sharedStyles.pageWide}>
+      <h1 className={sharedStyles.title}>Ops</h1>
+      <nav aria-label="Ops sections" className={styles.tabs}>
+        {TABS.map((tab) => {
+          const isActive = tab.match(fullPath);
+          return (
+            <Link
+              key={tab.to}
+              to={tab.to}
+              className={
+                isActive ? `${styles.tab} ${styles.tabActive}` : styles.tab
+              }
+              aria-current={isActive ? 'page' : undefined}
+            >
+              {tab.label}
+            </Link>
+          );
+        })}
+      </nav>
+      <Outlet />
+    </main>
+  );
+}

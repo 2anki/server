@@ -24,8 +24,6 @@ const WINDOW_CHART_SUFFIX: Record<OpsMetricsWindow, string> = {
   '7d': 'last 7d',
 };
 
-const PAGE_TITLE = 'Ops · 2anki';
-
 const isMetricsWindow = (value: string | null): value is OpsMetricsWindow =>
   value != null && (OPS_METRICS_WINDOWS as readonly string[]).includes(value);
 
@@ -40,7 +38,7 @@ const hasAnyData = (response: OpsMetricsResponse | undefined): boolean => {
   );
 };
 
-export default function OpsPage() {
+export default function EngineeringTab() {
   const [searchParams, setSearchParams] = useSearchParams();
   const queryWindow = searchParams.get('window');
   const window: OpsMetricsWindow = isMetricsWindow(queryWindow)
@@ -53,10 +51,6 @@ export default function OpsPage() {
   );
 
   const { data, error, isLoading, isFetching, refetch } = useOpsMetrics(window);
-
-  useEffect(() => {
-    document.title = PAGE_TITLE;
-  }, []);
 
   useEffect(() => {
     if (data != null) {
@@ -83,9 +77,8 @@ export default function OpsPage() {
   }, [lastSuccessAt]);
 
   return (
-    <main className={sharedStyles.pageWide}>
-      <div className={styles.header}>
-        <h1 className={sharedStyles.title}>Ops</h1>
+    <>
+      <div className={styles.tabHeader}>
         <div className={styles.controls}>
           <label className={styles.controlsLabel} htmlFor="ops-window">
             Window
@@ -182,6 +175,6 @@ export default function OpsPage() {
           />
         </ChartPanel>
       </div>
-    </main>
+    </>
   );
 }
