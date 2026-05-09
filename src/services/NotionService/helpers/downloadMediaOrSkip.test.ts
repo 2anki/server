@@ -1,4 +1,5 @@
 import axios, { AxiosError } from 'axios';
+import dns from 'dns';
 
 import { downloadMediaOrSkip } from './downloadMediaOrSkip';
 
@@ -13,7 +14,14 @@ jest.mock('axios', () => {
   };
 });
 
+jest.mock('dns', () => ({
+  __esModule: true,
+  default: { promises: { lookup: jest.fn() } },
+  promises: { lookup: jest.fn() },
+}));
+
 const mockedAxios = axios as jest.Mocked<typeof axios>;
+const mockedLookup = dns.promises.lookup as jest.Mock;
 
 const makeAxiosError = (status: number): AxiosError => {
   const err = new Error(
@@ -33,6 +41,9 @@ const makeAxiosError = (status: number): AxiosError => {
 describe('downloadMediaOrSkip', () => {
   beforeEach(() => {
     jest.resetAllMocks();
+    mockedLookup.mockImplementation(async () => [
+      { address: '13.224.0.1', family: 4 },
+    ]);
   });
 
   test('returns axios response data on success', async () => {
@@ -44,7 +55,10 @@ describe('downloadMediaOrSkip', () => {
     expect(result).toBe(data);
     expect(mockedAxios.get).toHaveBeenCalledWith(
       'https://example.test/asset.png',
-      { responseType: 'arraybuffer' }
+      expect.objectContaining({
+        responseType: 'arraybuffer',
+        lookup: expect.any(Function),
+      })
     );
   });
 
