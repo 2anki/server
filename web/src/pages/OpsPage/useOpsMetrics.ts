@@ -7,7 +7,7 @@ const REFRESH_MS = 30_000;
 const fetchOpsMetrics = async (
   window: OpsMetricsWindow
 ): Promise<OpsMetricsResponse> => {
-  const response = await fetch(`/ops/api/metrics?window=${window}`, {
+  const response = await fetch(`/api/ops/metrics?window=${window}`, {
     credentials: 'include',
   });
   if (!response.ok) {

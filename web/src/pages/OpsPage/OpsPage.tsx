@@ -122,7 +122,7 @@ export default function OpsPage() {
 
       {error != null && (
         <div className={`${sharedStyles.alertDanger} ${styles.banner}`}>
-          /ops/api/metrics failed: {error.message}. Last good data shown below.
+          /api/ops/metrics failed: {error.message}. Last good data shown below.
         </div>
       )}
 

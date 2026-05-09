@@ -15,7 +15,7 @@ const OpsRouter = () => {
 
   /**
    * @swagger
-   * /ops/api/metrics:
+   * /api/ops/metrics:
    *   get:
    *     summary: Aggregated request/outbound observability metrics
    *     description: Internal endpoint locked to the ops owner. Returns 404 for everyone else (we don't reveal that the dashboard exists).
@@ -33,7 +33,7 @@ const OpsRouter = () => {
    *       404:
    *         description: Not the ops owner
    */
-  router.get('/ops/api/metrics', RequireOpsAccess, (req, res) =>
+  router.get('/api/ops/metrics', RequireOpsAccess, (req, res) =>
     controller.getMetrics(req, res)
   );
 
