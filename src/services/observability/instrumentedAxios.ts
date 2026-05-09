@@ -32,7 +32,7 @@ const isHostOnFixedAllowlist = (
   const allowlist = FIXED_HOST_ALLOWLIST[service];
   if (allowlist == null) return true;
   const lowered = host.toLowerCase();
-  return allowlist.some((allowed) => lowered === allowed);
+  return allowlist.includes(lowered);
 };
 
 const PRIVATE_IPV4_PATTERNS: RegExp[] = [
@@ -40,7 +40,7 @@ const PRIVATE_IPV4_PATTERNS: RegExp[] = [
   /^10\./,
   /^127\./,
   /^169\.254\./,
-  /^172\.(1[6-9]|2[0-9]|3[0-1])\./,
+  /^172\.(1[6-9]|2\d|3[0-1])\./,
   /^192\.168\./,
   /^100\.(6[4-9]|[7-9]\d|1[01]\d|12[0-7])\./,
   /^(22[4-9]|23\d)\./,
