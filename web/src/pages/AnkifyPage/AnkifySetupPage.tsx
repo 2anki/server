@@ -84,9 +84,9 @@ export default function AnkifySetupPage({ backend }: Props) {
       return;
     }
     const startedAt =
-      activeClient?.created_at != null
-        ? new Date(activeClient.created_at).getTime()
-        : Date.now();
+      activeClient?.created_at == null
+        ? Date.now()
+        : new Date(activeClient.created_at).getTime();
     const remaining = startedAt + STARTING_TIMEOUT_MS - Date.now();
     if (remaining <= 0) {
       setStartingTimedOut(true);

@@ -172,7 +172,7 @@ export class Backend {
             url: getResourceUrl(p),
             id: p.id,
             isFavorite: favorites.some((f) => f.id === p.id),
-            parent: parentType != null ? { type: parentType } : undefined,
+            parent: parentType == null ? undefined : { type: parentType },
           };
         })
         .filter((entry: NotionObject) => entry.title.trim().length > 0);
