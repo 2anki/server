@@ -1,20 +1,10 @@
 import AuthenticationService from '../../services/AuthenticationService';
 import { RacService } from '../../services/ankify/RacService';
-import { ANKIFY_ALLOWLIST_EMAILS } from '../../lib/constants';
+import { hasAnkifyAccess } from '../../lib/ankify/access';
 
 export type ValidateSessionTokenResult =
   | { ok: true; novnc_port: number }
   | { ok: false; status: 401 | 403; reason: string };
-
-const isAllowlisted = (email: string | null | undefined): boolean => {
-  if (email == null) {
-    return false;
-  }
-  const normalized = email.toLowerCase();
-  return ANKIFY_ALLOWLIST_EMAILS.some(
-    (allowed) => allowed.toLowerCase() === normalized
-  );
-};
 
 export class ValidateAnkifySessionTokenUseCase {
   constructor(
@@ -45,7 +35,7 @@ export class ValidateAnkifySessionTokenUseCase {
     if (user.owner !== resolved.owner) {
       return { ok: false, status: 401, reason: 'cookie_owner_mismatch' };
     }
-    if (!isAllowlisted(user.email)) {
+    if (!hasAnkifyAccess(user)) {
       return { ok: false, status: 403, reason: 'not_allowlisted' };
     }
 

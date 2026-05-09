@@ -44,6 +44,7 @@ import { Client as NotionClient } from '@notionhq/client';
 import NotionRepository from '../data_layer/NotionRespository';
 import StorageHandler from '../lib/storage/StorageHandler';
 import { parseCollection } from '../services/ApkgPreviewService/parseCollection';
+import { extractApkg } from '../services/ApkgPreviewService/extractApkg';
 import RequireAnkifyAccess from './middleware/RequireAnkifyAccess';
 
 const buildNotionExportClient = (token: string) => {
@@ -350,7 +351,10 @@ const AnkifyRouter = () => {
       mappings,
       uploads,
       fetchApkgBytes,
-      parseCollection,
+      async (bytes) => {
+        const archive = await extractApkg(bytes);
+        return parseCollection(archive.collectionBuffer);
+      },
       ankiConnectFactory,
       logsRepo
     ),
