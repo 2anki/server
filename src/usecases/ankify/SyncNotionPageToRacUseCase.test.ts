@@ -58,7 +58,7 @@ const sampleCard = (
   front: 'Front text',
   back: 'Back text',
   notion_last_edited_at: new Date(),
-  images: [],
+  media: [],
   ...overrides,
 });
 
@@ -453,9 +453,10 @@ describe('SyncNotionPageToRacUseCase', () => {
     (walkNotionPageForFlashcards as jest.Mock).mockResolvedValue([
       sampleCard({
         back: 'See <img src="ankify-img-77.png">',
-        images: [
+        media: [
           {
             block_id: 'img-77',
+            kind: 'image',
             source: 'file',
             url: 'https://prod-files.notion.so/img.png?signed=1',
             filename: 'ankify-img-77.png',
@@ -510,9 +511,10 @@ describe('SyncNotionPageToRacUseCase', () => {
     (walkNotionPageForFlashcards as jest.Mock).mockResolvedValue([
       sampleCard({
         back: '<img src="https://cdn.example.com/x.png">',
-        images: [
+        media: [
           {
             block_id: 'img-ext',
+            kind: 'image',
             source: 'external',
             url: 'https://cdn.example.com/x.png',
           },
@@ -549,9 +551,10 @@ describe('SyncNotionPageToRacUseCase', () => {
 
     (walkNotionPageForFlashcards as jest.Mock).mockResolvedValue([
       sampleCard({
-        images: [
+        media: [
           {
             block_id: 'img-bad',
+            kind: 'image',
             source: 'file',
             url: 'https://prod-files.notion.so/bad.png?signed=1',
             filename: 'ankify-img-bad.png',
