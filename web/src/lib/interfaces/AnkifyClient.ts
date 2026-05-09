@@ -12,6 +12,7 @@ interface AnkifyClient {
   created_at: string | null;
   last_active_at: string | null;
   session_url?: string | null;
+  has_active_session?: boolean;
 }
 
 export default AnkifyClient;

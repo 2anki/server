@@ -75,6 +75,7 @@ export class NoAvailablePortError extends Error {
 
 export interface AnkifyClientView extends AnkifyClient {
   session_url: string | null;
+  has_active_session: boolean;
 }
 
 export interface ProvisionResult {
@@ -106,8 +107,9 @@ export class RacService {
         existing.id,
         existing.container_id
       );
+      const hasActive = await this.hasActiveSession(existing.id);
       return {
-        client: { ...existing, session_url: null },
+        client: { ...existing, session_url: null, has_active_session: hasActive },
         created: false,
       };
     }
@@ -217,7 +219,7 @@ export class RacService {
     const sessionUrl = await this.mintSessionUrl(client);
 
     return {
-      client: { ...client, session_url: sessionUrl },
+      client: { ...client, session_url: sessionUrl, has_active_session: true },
       created: true,
     };
   }
@@ -264,7 +266,7 @@ export class RacService {
     const sessionUrl = await this.mintSessionUrl(client);
 
     return {
-      client: { ...client, session_url: sessionUrl },
+      client: { ...client, session_url: sessionUrl, has_active_session: true },
       created: true,
     };
   }
@@ -294,13 +296,22 @@ export class RacService {
     const reconciled: AnkifyClientView[] = [];
     for (const client of clients) {
       if (client.status !== 'active') {
-        reconciled.push({ ...client, session_url: null });
+        reconciled.push({
+          ...client,
+          session_url: null,
+          has_active_session: false,
+        });
         continue;
       }
       try {
         const container = this.docker.getContainer(client.container_id);
         await container.inspect();
-        reconciled.push({ ...client, session_url: null });
+        const hasActive = await this.hasActiveSession(client.id);
+        reconciled.push({
+          ...client,
+          session_url: null,
+          has_active_session: hasActive,
+        });
       } catch (error) {
         const statusCode = (error as { statusCode?: number }).statusCode;
         if (statusCode === 404) {
@@ -310,7 +321,12 @@ export class RacService {
             `[ankify] reconcile skipped for container ${client.container_id}:`,
             (error as Error).message ?? error
           );
-          reconciled.push({ ...client, session_url: null });
+          const hasActive = await this.hasActiveSession(client.id);
+          reconciled.push({
+            ...client,
+            session_url: null,
+            has_active_session: hasActive,
+          });
         }
       }
     }
@@ -326,7 +342,12 @@ export class RacService {
       return null;
     }
     const sessionUrl = await this.mintSessionUrl(client);
-    return { ...client, session_url: sessionUrl };
+    return { ...client, session_url: sessionUrl, has_active_session: true };
+  }
+
+  private async hasActiveSession(clientId: number): Promise<boolean> {
+    const row = await this.tokens.findActiveByClientId(clientId);
+    return row != null;
   }
 
   async stop(id: number, owner: number): Promise<void> {
@@ -382,7 +403,6 @@ export class RacService {
   }
 
   private async mintSessionUrl(client: AnkifyClient): Promise<string> {
-    await this.tokens.revokeByClientId(client.id);
     const plaintext = generateTokenPlaintext();
     const tokenHash = hashToken(plaintext);
     const expiresAt = new Date(

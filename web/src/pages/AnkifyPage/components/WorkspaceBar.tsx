@@ -1,5 +1,5 @@
 import { ReactNode, useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import sharedStyles from '../../../styles/shared.module.css';
@@ -54,6 +54,8 @@ export default function WorkspaceBar({
 }: Props) {
   const api = backend ?? get2ankiApi();
   const queryClient = useQueryClient();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [confirmShutdown, setConfirmShutdown] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
@@ -138,12 +140,52 @@ export default function WorkspaceBar({
     return undefined;
   }, [menuOpen]);
 
+  const cachedSessionUrl =
+    activeClient == null ? null : readCachedSessionUrl(activeClient.id);
+  const serverHasActive = activeClient?.has_active_session !== false;
+  const sessionUrl =
+    activeClient?.session_url ?? (serverHasActive ? cachedSessionUrl : null);
+
+  useEffect(() => {
+    if (activeClient == null) return;
+    if (activeClient.has_active_session === false && cachedSessionUrl != null) {
+      writeCachedSessionUrl(activeClient.id, null);
+    }
+  }, [activeClient?.id, activeClient?.has_active_session, cachedSessionUrl]);
+
+  useEffect(() => {
+    if (activeClient == null) return;
+    const params = new URLSearchParams(location.search);
+    if (params.get('session_expired') !== '1') return;
+    writeCachedSessionUrl(activeClient.id, null);
+    params.delete('session_expired');
+    params.delete('reason');
+    const next = params.toString();
+    navigate(
+      { pathname: location.pathname, search: next.length > 0 ? `?${next}` : '' },
+      { replace: true }
+    );
+  }, [activeClient?.id, location.search, location.pathname, navigate]);
+
+  const reissueMutate = reissueSession.mutate;
+  const reissueIsPending = reissueSession.isPending;
+  useEffect(() => {
+    if (activeClient == null) return;
+    if (!containerReady) return;
+    if (sessionUrl != null) return;
+    if (reissueIsPending) return;
+    reissueMutate(activeClient.id);
+  }, [
+    activeClient?.id,
+    containerReady,
+    sessionUrl,
+    reissueIsPending,
+    reissueMutate,
+  ]);
+
   if (activeClient == null) {
     return null;
   }
-
-  const sessionUrl =
-    activeClient.session_url ?? readCachedSessionUrl(activeClient.id);
 
   let statusContent: ReactNode;
   if (!containerReady) {
@@ -190,10 +232,9 @@ export default function WorkspaceBar({
           <button
             type="button"
             className={`${sharedStyles.btnPrimary} ${styles.inlineButton}`}
-            onClick={() => reissueSession.mutate(activeClient.id)}
-            disabled={reissueSession.isPending}
+            disabled
           >
-            {reissueSession.isPending ? 'Working…' : 'Get a new link'}
+            Opening…
           </button>
         ) : (
           <a

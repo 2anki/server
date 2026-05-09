@@ -227,7 +227,11 @@ describe('RacService.provision', () => {
     const { client, created } = await service.provision(42);
 
     expect(created).toBe(false);
-    expect(client).toEqual({ ...existing, session_url: null });
+    expect(client).toEqual({
+      ...existing,
+      session_url: null,
+      has_active_session: false,
+    });
     expect(docker.listContainers).not.toHaveBeenCalled();
     expect(docker.createContainer).not.toHaveBeenCalled();
     expect(repo.create).not.toHaveBeenCalled();
@@ -393,6 +397,59 @@ describe('RacService.list', () => {
     expect(result).toHaveLength(0);
   });
 
+  test('has_active_session reflects whether a non-expired token exists for the client', async () => {
+    const live: AnkifyClient = {
+      id: 13,
+      owner: 7,
+      container_id: 'container-live-13',
+      container_name: 'sleepy_curie',
+      anki_port: 20000,
+      vnc_port: 0,
+      novnc_port: 22000,
+      anki_connect_api_key: null,
+      status: 'active' as const,
+      created_at: new Date(),
+      last_active_at: new Date(),
+    };
+    const repo = makeRepo({ listByOwner: jest.fn(async () => [live]) });
+    const tokens = makeTokens();
+    tokens.store.rows.push({
+      id: 100,
+      ankify_client_id: 13,
+      owner: 7,
+      token_hash: 'abc',
+      expires_at: new Date(Date.now() + 60 * 60 * 1000),
+      last_used_at: null,
+      revoked_at: null,
+      created_at: new Date(),
+    });
+    const { service } = makeService(repo, makeDocker(), tokens);
+
+    const [withToken] = await service.list(7);
+    expect(withToken.has_active_session).toBe(true);
+  });
+
+  test('has_active_session is false when no active token exists', async () => {
+    const live: AnkifyClient = {
+      id: 14,
+      owner: 7,
+      container_id: 'container-live-14',
+      container_name: null,
+      anki_port: 20000,
+      vnc_port: 0,
+      novnc_port: 22000,
+      anki_connect_api_key: null,
+      status: 'active' as const,
+      created_at: new Date(),
+      last_active_at: new Date(),
+    };
+    const repo = makeRepo({ listByOwner: jest.fn(async () => [live]) });
+    const { service } = makeService(repo);
+
+    const [noToken] = await service.list(7);
+    expect(noToken.has_active_session).toBe(false);
+  });
+
   test('non-404 inspect errors leave the row active (avoid false reconcile)', async () => {
     const live: AnkifyClient = {
       id: 11,
@@ -541,7 +598,7 @@ describe('RacService.resolveTokenForProxy', () => {
 });
 
 describe('RacService.reissueSessionUrl', () => {
-  test('revokes the prior token and mints a new one', async () => {
+  test('mints a new token without revoking the prior one (open noVNC tabs survive)', async () => {
     const repo = makeRepo();
     const { service, tokens } = makeService(repo);
 
@@ -568,20 +625,21 @@ describe('RacService.reissueSessionUrl', () => {
 
     expect(reissued).not.toBeNull();
     expect(reissued!.session_url).not.toBeNull();
+    expect(reissued!.has_active_session).toBe(true);
     const secondPlaintext = reissued!.session_url!.match(
       /[A-Za-z0-9_-]{43}/
     )![0];
     expect(secondPlaintext).not.toBe(firstPlaintext);
 
-    // Prior token row is now revoked; only the new one is active.
     const firstRow = tokens.store.rows.find(
       (r) => r.token_hash === hashToken(firstPlaintext)
     );
-    expect(firstRow!.revoked_at).not.toBeNull();
+    expect(firstRow!.revoked_at).toBeNull();
     const secondRow = tokens.store.rows.find(
       (r) => r.token_hash === hashToken(secondPlaintext)
     );
     expect(secondRow!.revoked_at).toBeNull();
+    expect(tokens.revokeByClientId).not.toHaveBeenCalled();
   });
 
   test('returns null when the client is not active', async () => {
@@ -784,6 +842,7 @@ describe('RacService — view shape passthrough', () => {
       created_at: new Date(),
       last_active_at: new Date(),
       session_url: null,
+      has_active_session: false,
     };
     expect(sample).toBeDefined();
   });
