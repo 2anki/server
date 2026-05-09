@@ -7,6 +7,12 @@ import {
   IBusinessMetricsCacheRepository,
   InMemoryBusinessMetricsCacheRepository,
 } from '../../data_layer/BusinessMetricsCacheRepository';
+import {
+  CancellationCommentEntry,
+  CancellationReasonCount,
+  ICancellationFeedbackRepository,
+  InMemoryCancellationFeedbackRepository,
+} from '../../data_layer/CancellationFeedbackRepository';
 
 export type BusinessMetricKey =
   | 'mrr_usd'
@@ -18,7 +24,9 @@ export type BusinessMetricKey =
   | 'mrr_timeseries'
   | 'active_subs_timeseries'
   | 'conversions_vs_churn_weekly'
-  | 'failed_payments_weekly';
+  | 'failed_payments_weekly'
+  | 'cancellation_reasons_top'
+  | 'cancellation_comments_recent';
 
 export interface BusinessMetricError {
   metric: BusinessMetricKey;
@@ -57,17 +65,22 @@ export interface BusinessMetricsResponse {
   active_subs_timeseries: ActiveSubsTimeseriesPoint[] | null;
   conversions_vs_churn_weekly: ConversionsChurnWeekPoint[] | null;
   failed_payments_weekly: FailedPaymentsWeekPoint[] | null;
+  cancellation_reasons_top: CancellationReasonCount[] | null;
+  cancellation_comments_recent: CancellationCommentEntry[] | null;
   as_of: string;
   cache_age_seconds: number;
   errors?: BusinessMetricError[];
 }
 
 export const BUSINESS_METRICS_CACHE_TTL_MS = 15 * 60 * 1000;
+export const CANCELLATION_REASONS_LOOKBACK_DAYS = 90;
+export const CANCELLATION_COMMENTS_LIMIT = 20;
 
 interface BusinessMetricsServiceDeps {
   stripeFactory?: () => Stripe;
   cacheTtlMs?: number;
   cacheRepository?: IBusinessMetricsCacheRepository;
+  cancellationRepository?: ICancellationFeedbackRepository;
 }
 
 const SECONDS_PER_DAY = 24 * 60 * 60;
@@ -105,6 +118,8 @@ export class BusinessMetricsService {
 
   private readonly cacheRepository: IBusinessMetricsCacheRepository;
 
+  private readonly cancellationRepository: ICancellationFeedbackRepository;
+
   private allSubsPromise: Promise<NormalizedSubscription[]> | null = null;
 
   private invoicesPromise: Promise<NormalizedInvoice[]> | null = null;
@@ -114,6 +129,9 @@ export class BusinessMetricsService {
     this.cacheTtlMs = deps.cacheTtlMs ?? BUSINESS_METRICS_CACHE_TTL_MS;
     this.cacheRepository =
       deps.cacheRepository ?? new InMemoryBusinessMetricsCacheRepository();
+    this.cancellationRepository =
+      deps.cancellationRepository ??
+      new InMemoryCancellationFeedbackRepository();
   }
 
   async getMetrics(): Promise<BusinessMetricsResponse> {
@@ -169,6 +187,23 @@ export class BusinessMetricsService {
         key: 'failed_payments_weekly',
         fetch: invoiceDerived((i) => computeFailedPaymentsWeekly(i, now)),
       },
+      {
+        key: 'cancellation_reasons_top',
+        fetch: () =>
+          this.cancellationRepository.countByReason(
+            new Date(
+              now.getTime() -
+                CANCELLATION_REASONS_LOOKBACK_DAYS * SECONDS_PER_DAY * 1000
+            )
+          ),
+      },
+      {
+        key: 'cancellation_comments_recent',
+        fetch: () =>
+          this.cancellationRepository.recentComments(
+            CANCELLATION_COMMENTS_LIMIT
+          ),
+      },
     ];
 
     const usedEntries: BusinessMetricsCacheEntry[] = [];
@@ -223,6 +258,12 @@ export class BusinessMetricsService {
       failed_payments_weekly: valueByKey.get('failed_payments_weekly') as
         | FailedPaymentsWeekPoint[]
         | null,
+      cancellation_reasons_top: valueByKey.get('cancellation_reasons_top') as
+        | CancellationReasonCount[]
+        | null,
+      cancellation_comments_recent: valueByKey.get(
+        'cancellation_comments_recent'
+      ) as CancellationCommentEntry[] | null,
       as_of: now.toISOString(),
       cache_age_seconds: cacheAgeSeconds,
     };

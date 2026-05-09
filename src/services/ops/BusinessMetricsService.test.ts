@@ -7,6 +7,7 @@ import {
   BusinessMetricsResponse,
 } from './BusinessMetricsService';
 import { InMemoryBusinessMetricsCacheRepository } from '../../data_layer/BusinessMetricsCacheRepository';
+import { InMemoryCancellationFeedbackRepository } from '../../data_layer/CancellationFeedbackRepository';
 
 interface FakeSubscriptionItem {
   price: {
@@ -486,6 +487,101 @@ describe('BusinessMetricsService', () => {
       expect(stripe.invoices.list).toHaveBeenCalledTimes(1);
       expect(second.mrr_timeseries).toEqual(first.mrr_timeseries);
       expect(second.failed_payments_weekly).toEqual(first.failed_payments_weekly);
+    });
+  });
+
+  describe('cancellation feedback', () => {
+    it('returns top reasons (last 90 days) and recent comments from the repo', async () => {
+      const stripe = buildFakeStripe({});
+      const cancellationRepo = new InMemoryCancellationFeedbackRepository();
+      const inWindow = new Date(NOW_MS - 5 * SECONDS_PER_DAY * 1000);
+      const tooOld = new Date(NOW_MS - 100 * SECONDS_PER_DAY * 1000);
+
+      cancellationRepo.insert({ reason: 'Too expensive', created_at: inWindow });
+      cancellationRepo.insert({ reason: 'Too expensive', created_at: inWindow });
+      cancellationRepo.insert({
+        reason: "I don't use it enough",
+        created_at: inWindow,
+      });
+      cancellationRepo.insert({
+        reason: 'Other',
+        comment: 'missed Anki shared decks',
+        created_at: inWindow,
+      });
+      cancellationRepo.insert({
+        reason: 'Too expensive',
+        created_at: tooOld,
+      });
+
+      const service = new BusinessMetricsService({
+        stripeFactory: () => stripe as never,
+        cancellationRepository: cancellationRepo,
+      });
+
+      const result = await service.getMetrics();
+
+      expect(result.cancellation_reasons_top).toEqual([
+        { reason: 'Too expensive', count: 2 },
+        { reason: "I don't use it enough", count: 1 },
+        { reason: 'Other', count: 1 },
+      ]);
+      expect(result.cancellation_comments_recent).toEqual([
+        {
+          reason: 'Other',
+          comment: 'missed Anki shared decks',
+          created_at: inWindow.toISOString(),
+        },
+      ]);
+    });
+
+    it('caches cancellation metrics within the TTL', async () => {
+      const stripe = buildFakeStripe({});
+      const cancellationRepo = new InMemoryCancellationFeedbackRepository();
+      cancellationRepo.insert({
+        reason: 'Too expensive',
+        created_at: new Date(NOW_MS - 1000),
+      });
+      const countSpy = jest.spyOn(cancellationRepo, 'countByReason');
+      const commentsSpy = jest.spyOn(cancellationRepo, 'recentComments');
+
+      const service = new BusinessMetricsService({
+        stripeFactory: () => stripe as never,
+        cancellationRepository: cancellationRepo,
+      });
+
+      await service.getMetrics();
+      jest.advanceTimersByTime(10 * 60 * 1000);
+      await service.getMetrics();
+
+      expect(countSpy).toHaveBeenCalledTimes(1);
+      expect(commentsSpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('reports a per-metric error and returns null when the repo throws', async () => {
+      const stripe = buildFakeStripe({});
+      const cancellationRepo: InMemoryCancellationFeedbackRepository =
+        new InMemoryCancellationFeedbackRepository();
+      jest
+        .spyOn(cancellationRepo, 'countByReason')
+        .mockRejectedValueOnce(new Error('db down'));
+
+      const service = new BusinessMetricsService({
+        stripeFactory: () => stripe as never,
+        cancellationRepository: cancellationRepo,
+      });
+
+      const result = await service.getMetrics();
+
+      expect(result.cancellation_reasons_top).toBeNull();
+      expect(result.cancellation_comments_recent).toEqual([]);
+      expect(result.errors).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            metric: 'cancellation_reasons_top',
+            message: 'db down',
+          }),
+        ])
+      );
     });
   });
 });

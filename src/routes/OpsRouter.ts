@@ -7,6 +7,7 @@ import { ObservabilityRepository } from '../data_layer/ObservabilityRepository';
 import { ObservabilityQueryService } from '../services/observability/ObservabilityQueryService';
 import { BusinessMetricsService } from '../services/ops/BusinessMetricsService';
 import { BusinessMetricsCacheRepository } from '../data_layer/BusinessMetricsCacheRepository';
+import { CancellationFeedbackRepository } from '../data_layer/CancellationFeedbackRepository';
 import { getDatabase } from '../data_layer';
 import RequireOpsAccess from './middleware/RequireOpsAccess';
 
@@ -18,6 +19,7 @@ const OpsRouter = () => {
 
   const businessMetricsService = new BusinessMetricsService({
     cacheRepository: new BusinessMetricsCacheRepository(database),
+    cancellationRepository: new CancellationFeedbackRepository(database),
   });
 
   const controller = new OpsController(
