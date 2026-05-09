@@ -132,6 +132,27 @@ const extractNotionPageTitle = (
   return null;
 };
 
+type NotionPageIconBlock =
+  | { type: 'emoji'; emoji: string }
+  | { type: 'external'; external: { url: string } }
+  | { type: 'file'; file: { url: string } }
+  | null
+  | undefined;
+
+const extractNotionPageIcon = (icon: NotionPageIconBlock): string | null => {
+  if (icon == null) return null;
+  switch (icon.type) {
+    case 'emoji':
+      return icon.emoji;
+    case 'external':
+      return icon.external.url;
+    case 'file':
+      return icon.file.url;
+    default:
+      return null;
+  }
+};
+
 const buildNotionPageMetaFetcher =
   (token: string) =>
   async (notionPageId: string) => {
@@ -141,7 +162,10 @@ const buildNotionPageMetaFetcher =
       .properties ?? {};
     const title = extractNotionPageTitle(props);
     const url = (page as { url?: string }).url ?? null;
-    return { title, url };
+    const icon = extractNotionPageIcon(
+      (page as { icon?: NotionPageIconBlock }).icon
+    );
+    return { title, url, icon };
   };
 
 const buildNotionConflictResolver = (token: string) => {

@@ -14,6 +14,7 @@ const sampleSubscription = (overrides: Partial<Subscription> = {}): Subscription
   notion_page_id: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
   notion_page_title: 'My deck',
   notion_page_url: 'https://notion.so/My-deck',
+  notion_page_icon: null,
   enabled: true,
   last_polled_at: null,
   last_synced_at: new Date().toISOString(),
@@ -200,6 +201,46 @@ describe('NotionSubscriptions sync copy', () => {
       expect(screen.getByText('My deck')).toBeInTheDocument()
     );
     expect(screen.queryByText(/next export at/i)).not.toBeInTheDocument();
+  });
+
+  test('renders the page icon next to the title when present', async () => {
+    const backend = makeBackend({
+      listAnkifySubscriptions: vi.fn(async () => [
+        sampleSubscription({
+          id: 1,
+          notion_page_id: 'a'.repeat(32),
+          notion_page_icon: '📘',
+        }),
+      ]),
+    });
+
+    renderSubs(backend);
+
+    await waitFor(() =>
+      expect(screen.getByText('My deck')).toBeInTheDocument()
+    );
+    expect(screen.getByText('📘')).toBeInTheDocument();
+  });
+
+  test('renders an image icon when notion_page_icon is a URL', async () => {
+    const backend = makeBackend({
+      listAnkifySubscriptions: vi.fn(async () => [
+        sampleSubscription({
+          id: 1,
+          notion_page_id: 'a'.repeat(32),
+          notion_page_icon: 'https://example.com/icon.png',
+        }),
+      ]),
+    });
+
+    renderSubs(backend);
+
+    await waitFor(() =>
+      expect(screen.getByText('My deck')).toBeInTheDocument()
+    );
+    const img = screen.getByAltText('icon') as HTMLImageElement;
+    expect(img).toBeInTheDocument();
+    expect(img.src).toBe('https://example.com/icon.png');
   });
 
   test('error line takes precedence over next-export line', async () => {

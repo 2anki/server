@@ -309,6 +309,7 @@ class AnkifyController {
     }
     const rawTitle = req.body?.notion_page_title;
     const rawUrl = req.body?.notion_page_url;
+    const rawIcon = req.body?.notion_page_icon;
     const notionPageTitle =
       typeof rawTitle === 'string' && rawTitle.trim().length > 0
         ? rawTitle.trim()
@@ -317,12 +318,17 @@ class AnkifyController {
       typeof rawUrl === 'string' && rawUrl.trim().length > 0
         ? rawUrl.trim()
         : undefined;
+    const notionPageIcon =
+      typeof rawIcon === 'string' && rawIcon.trim().length > 0
+        ? rawIcon.trim()
+        : undefined;
     try {
       const result = await this.syncNotionPageUseCase.execute({
         owner,
         notionPageId,
         notionPageTitle,
         notionPageUrl,
+        notionPageIcon,
         trigger: 'manual',
       });
       res.status(200).json({
