@@ -2,6 +2,11 @@ import type { Stripe } from 'stripe';
 import type { Stripe as StripeTypes } from 'stripe/cjs/stripe.core';
 
 import { getStripe } from '../../lib/integrations/stripe';
+import {
+  BusinessMetricsCacheEntry,
+  IBusinessMetricsCacheRepository,
+  InMemoryBusinessMetricsCacheRepository,
+} from '../../data_layer/BusinessMetricsCacheRepository';
 
 export type BusinessMetricKey =
   | 'mrr_usd'
@@ -57,17 +62,12 @@ export interface BusinessMetricsResponse {
   errors?: BusinessMetricError[];
 }
 
-interface CacheEntry<T> {
-  value: T;
-  expiresAt: number;
-  cachedAt: number;
-}
-
 export const BUSINESS_METRICS_CACHE_TTL_MS = 15 * 60 * 1000;
 
 interface BusinessMetricsServiceDeps {
   stripeFactory?: () => Stripe;
   cacheTtlMs?: number;
+  cacheRepository?: IBusinessMetricsCacheRepository;
 }
 
 const SECONDS_PER_DAY = 24 * 60 * 60;
@@ -103,7 +103,7 @@ export class BusinessMetricsService {
 
   private readonly cacheTtlMs: number;
 
-  private readonly cache = new Map<BusinessMetricKey, CacheEntry<unknown>>();
+  private readonly cacheRepository: IBusinessMetricsCacheRepository;
 
   private allSubsPromise: Promise<NormalizedSubscription[]> | null = null;
 
@@ -112,6 +112,8 @@ export class BusinessMetricsService {
   constructor(deps: BusinessMetricsServiceDeps = {}) {
     this.stripeFactory = deps.stripeFactory ?? (() => getStripe());
     this.cacheTtlMs = deps.cacheTtlMs ?? BUSINESS_METRICS_CACHE_TTL_MS;
+    this.cacheRepository =
+      deps.cacheRepository ?? new InMemoryBusinessMetricsCacheRepository();
   }
 
   async getMetrics(): Promise<BusinessMetricsResponse> {
@@ -120,6 +122,8 @@ export class BusinessMetricsService {
 
     this.allSubsPromise = null;
     this.invoicesPromise = null;
+
+    const cachedByKey = await this.loadCacheMap();
 
     const subDerived = (computer: (subs: NormalizedSubscription[]) => unknown) =>
       async () => computer(await this.loadAllSubs());
@@ -167,23 +171,36 @@ export class BusinessMetricsService {
       },
     ];
 
+    const usedEntries: BusinessMetricsCacheEntry[] = [];
+    const freshEntries: BusinessMetricsCacheEntry[] = [];
+
     const settled = await Promise.all(
       tasks.map(({ key, fetch }) =>
-        this.resolveMetric(key, fetch, now).catch((error: unknown) => {
-          const message =
-            error instanceof Error ? error.message : String(error);
-          errors.push({ metric: key, message });
-          return null;
-        })
+        this.resolveMetric(key, fetch, now, cachedByKey, usedEntries, freshEntries).catch(
+          (error: unknown) => {
+            const message =
+              error instanceof Error ? error.message : String(error);
+            errors.push({ metric: key, message });
+            return null;
+          }
+        )
       )
     );
+
+    if (freshEntries.length > 0) {
+      try {
+        await this.cacheRepository.upsertMany(freshEntries);
+      } catch (error) {
+        console.error('[ops] business metrics cache upsert failed', error);
+      }
+    }
 
     const valueByKey = new Map<BusinessMetricKey, unknown>();
     tasks.forEach(({ key }, idx) => {
       valueByKey.set(key, settled[idx]);
     });
 
-    const cacheAgeSeconds = this.cacheAgeSeconds(now);
+    const cacheAgeSeconds = computeCacheAgeSeconds(usedEntries, now);
 
     const response: BusinessMetricsResponse = {
       mrr_usd: valueByKey.get('mrr_usd') as number | null,
@@ -217,32 +234,44 @@ export class BusinessMetricsService {
     return response;
   }
 
+  private async loadCacheMap(): Promise<
+    Map<BusinessMetricKey, BusinessMetricsCacheEntry>
+  > {
+    const map = new Map<BusinessMetricKey, BusinessMetricsCacheEntry>();
+    try {
+      const rows = await this.cacheRepository.loadAll();
+      for (const row of rows) {
+        map.set(row.key, row);
+      }
+    } catch (error) {
+      console.error('[ops] business metrics cache load failed', error);
+    }
+    return map;
+  }
+
   private async resolveMetric(
     key: BusinessMetricKey,
     fetcher: () => Promise<unknown>,
-    now: Date
+    now: Date,
+    cachedByKey: Map<BusinessMetricKey, BusinessMetricsCacheEntry>,
+    usedEntries: BusinessMetricsCacheEntry[],
+    freshEntries: BusinessMetricsCacheEntry[]
   ): Promise<unknown> {
-    const existing = this.cache.get(key);
-    if (existing != null && existing.expiresAt > now.getTime()) {
+    const existing = cachedByKey.get(key);
+    if (existing != null && existing.expiresAt.getTime() > now.getTime()) {
+      usedEntries.push(existing);
       return existing.value;
     }
     const value = await fetcher();
-    this.cache.set(key, {
+    const entry: BusinessMetricsCacheEntry = {
+      key,
       value,
-      cachedAt: now.getTime(),
-      expiresAt: now.getTime() + this.cacheTtlMs,
-    });
+      cachedAt: now,
+      expiresAt: new Date(now.getTime() + this.cacheTtlMs),
+    };
+    usedEntries.push(entry);
+    freshEntries.push(entry);
     return value;
-  }
-
-  private cacheAgeSeconds(now: Date): number {
-    let oldest = now.getTime();
-    for (const entry of this.cache.values()) {
-      if (entry.cachedAt < oldest) {
-        oldest = entry.cachedAt;
-      }
-    }
-    return Math.max(0, Math.floor((now.getTime() - oldest) / 1000));
   }
 
   private loadAllSubs(): Promise<NormalizedSubscription[]> {
@@ -303,6 +332,19 @@ export class BusinessMetricsService {
     return result;
   }
 }
+
+const computeCacheAgeSeconds = (
+  entries: BusinessMetricsCacheEntry[],
+  now: Date
+): number => {
+  if (entries.length === 0) return 0;
+  let oldest = now.getTime();
+  for (const entry of entries) {
+    const t = entry.cachedAt.getTime();
+    if (t < oldest) oldest = t;
+  }
+  return Math.max(0, Math.floor((now.getTime() - oldest) / 1000));
+};
 
 const normalizeSubscription = (
   sub: StripeTypes.Subscription
