@@ -199,3 +199,11 @@
   border-top: 1px solid var(--color-border);
   margin: 0.25rem 0;
 }
+
+.adminTag {
+  margin-left: 0.375rem;
+  font-size: 0.625rem;
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+}

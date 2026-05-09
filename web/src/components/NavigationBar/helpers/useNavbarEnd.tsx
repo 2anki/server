@@ -21,6 +21,7 @@ export default function useNavbarEnd(path: string, backend: Backend) {
   const isPaying = data?.locals?.patreon || data?.locals?.subscriber;
   const isLoggedIn = !!data?.user;
   const showKiLink = data?.features?.kiUI;
+  const showOpsLink = data?.features?.ops === true;
   const showAnkifyLink =
     data?.user?.email?.toLowerCase() === 'alexander@alemayhu.com';
   const favoritesCount = useFavoritesCount(isLoggedIn);
@@ -61,6 +62,11 @@ export default function useNavbarEnd(path: string, backend: Backend) {
       {showAnkifyLink && (
         <NavbarItem href="/ankify" path={path}>
           Ankify
+        </NavbarItem>
+      )}
+      {showOpsLink && (
+        <NavbarItem href="/ops" path={path}>
+          Ops <span className={styles.adminTag}>admin</span>
         </NavbarItem>
       )}
       <NavbarItem href="/upload" path={path}>
