@@ -4,17 +4,7 @@ import AuthenticationService from '../../services/AuthenticationService';
 import TokenRepository from '../../data_layer/TokenRepository';
 import UsersRepository from '../../data_layer/UsersRepository';
 import { getDatabase } from '../../data_layer';
-import { ANKIFY_ALLOWLIST_EMAILS } from '../../lib/constants';
-
-const isAllowlisted = (email: string | null | undefined) => {
-  if (email == null) {
-    return false;
-  }
-  const normalized = email.toLowerCase();
-  return ANKIFY_ALLOWLIST_EMAILS.some(
-    (allowed) => allowed.toLowerCase() === normalized
-  );
-};
+import { hasAnkifyAccess } from '../../lib/ankify/access';
 
 export const makeRequireAnkifyAccess = (authService: AuthenticationService) => {
   return async (
@@ -29,7 +19,7 @@ export const makeRequireAnkifyAccess = (authService: AuthenticationService) => {
       return res.status(401).json({ message: 'Authentication required' });
     }
 
-    if (!isAllowlisted(user.email)) {
+    if (!hasAnkifyAccess(user)) {
       return res.status(403).json({ message: 'Forbidden' });
     }
 

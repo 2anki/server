@@ -90,6 +90,14 @@ const sanitizeDeckTitle = (title: string | null | undefined): string => {
 const buildDeckName = (title: string | null | undefined): string =>
   `${DECK_PARENT}::${sanitizeDeckTitle(title)}`;
 
+const summarizeCardErrors = (errors: string[]): string | null => {
+  if (errors.length === 0) {
+    return null;
+  }
+  const noun = errors.length === 1 ? 'card' : 'cards';
+  return `${errors.length} ${noun} failed: ${errors[0]}`;
+};
+
 const arrayBufferToBase64 = (buffer: ArrayBuffer): string =>
   Buffer.from(buffer).toString('base64');
 
@@ -161,7 +169,7 @@ export class SyncNotionPageToRacUseCase {
       await this.runSync({ input, token, client, subscription, result });
       await this.subscriptions.recordPoll(subscription.id, {
         synced: true,
-        error: null,
+        error: summarizeCardErrors(result.errors),
       });
     } catch (error) {
       const message = (error as Error).message;
@@ -353,6 +361,7 @@ export class SyncNotionPageToRacUseCase {
         ac,
         input,
         result,
+        deckName,
       });
     } catch (error) {
       result.errors.push(
@@ -369,15 +378,44 @@ export class SyncNotionPageToRacUseCase {
     ac: AnkiConnectClient;
     input: SyncNotionPageInput;
     result: SyncNotionPageResult;
+    deckName: string;
   }): Promise<void> {
-    const { card, existing, client, subscription, ac, input, result } = args;
+    const { card, existing, client, ac, result, deckName } = args;
     const lastSyncedAt = existing.last_synced_at;
     const ankiInfo = await ac.notesInfo([existing.anki_note_id]);
     const ankiNote = ankiInfo[0];
-    const ankiMod = ankiNote?.mod ?? null;
-    const ankiFront = ankiNote?.fields?.[FRONT_FIELD_BASIC]?.value ?? '';
-    const ankiBack = ankiNote?.fields?.[BACK_FIELD_BASIC]?.value ?? '';
+
+    if (ankiNote?.noteId == null) {
+      await this.mappings.deleteByAnkiNoteId(
+        client.id,
+        existing.anki_note_id
+      );
+      const ankiNoteId = await ac.addNote({
+        deckName,
+        modelName: ANKIFY_BASIC_MODEL,
+        fields: {
+          [FRONT_FIELD_BASIC]: card.front,
+          [BACK_FIELD_BASIC]: card.back,
+        },
+        tags: ['ankify-notion-sync'],
+        options: { allowDuplicate: true },
+      });
+      await this.mappings.upsert({
+        ankify_client_id: client.id,
+        source_id: card.notion_block_id,
+        source_type: existing.source_type,
+        anki_note_id: ankiNoteId,
+        deck_name: deckName,
+      });
+      result.created += 1;
+      return;
+    }
+
+    const ankiMod = ankiNote.mod ?? null;
+    const ankiFront = ankiNote.fields?.[FRONT_FIELD_BASIC]?.value ?? '';
+    const ankiBack = ankiNote.fields?.[BACK_FIELD_BASIC]?.value ?? '';
     const lastSyncedSeconds = Math.floor(lastSyncedAt.getTime() / 1000);
+    const { subscription, input } = args;
 
     const notionChanged =
       card.notion_last_edited_at.getTime() > lastSyncedAt.getTime();

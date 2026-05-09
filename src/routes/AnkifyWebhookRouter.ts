@@ -11,7 +11,7 @@ import { ankiConnectFactory } from '../services/ankify/buildAnkiConnectClient';
 import { notionBlockChildrenFetcherFactory } from '../services/ankify/notionBlockChildrenFetcher';
 import { SyncNotionPageToRacUseCase } from '../usecases/ankify/SyncNotionPageToRacUseCase';
 import { verifyNotionWebhookSignature } from '../lib/ankify/notionWebhookSignature';
-import { ANKIFY_ALLOWLIST_EMAILS } from '../lib/constants';
+import { hasAnkifyAccess } from '../lib/ankify/access';
 import UsersRepository from '../data_layer/UsersRepository';
 
 const AnkifyWebhookRouter = () => {
@@ -73,13 +73,7 @@ const AnkifyWebhookRouter = () => {
         const matching = await subscriptions.findByPageId(pageId);
         for (const sub of matching) {
           const user = await usersRepo.getById(sub.owner.toString());
-          const email = user?.email?.toLowerCase();
-          if (
-            email == null ||
-            !ANKIFY_ALLOWLIST_EMAILS.some(
-              (allowed) => allowed.toLowerCase() === email
-            )
-          ) {
+          if (!hasAnkifyAccess(user)) {
             continue;
           }
           useCase

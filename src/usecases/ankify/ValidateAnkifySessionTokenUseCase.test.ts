@@ -105,7 +105,8 @@ describe('ValidateAnkifySessionTokenUseCase', () => {
           ({
             id: 999,
             owner: 999,
-            email: 'alexander@alemayhu.com',
+            email: 'patron@example.com',
+            patreon: true,
           } as never)
       ),
     });
@@ -121,7 +122,7 @@ describe('ValidateAnkifySessionTokenUseCase', () => {
     });
   });
 
-  test('rejects when user is not on the allowlist (403)', async () => {
+  test('rejects when user does not have patreon access (403)', async () => {
     const rac = makeRac({
       resolveTokenForProxy: jest.fn(async () => ({
         ankify_client_id: 1,
@@ -137,6 +138,7 @@ describe('ValidateAnkifySessionTokenUseCase', () => {
             id: 42,
             owner: 42,
             email: 'someone-else@example.com',
+            patreon: false,
           } as never)
       ),
     });
@@ -169,7 +171,8 @@ describe('ValidateAnkifySessionTokenUseCase', () => {
           ({
             id: 42,
             owner: 42,
-            email: 'alexander@alemayhu.com',
+            email: 'patron@example.com',
+            patreon: true,
           } as never)
       ),
     });

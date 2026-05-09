@@ -8,12 +8,9 @@ interface Props {
   readonly filename: string | null;
 }
 
-const ANKIFY_ENABLED_EMAIL = 'alexander@alemayhu.com';
-
 export default function SendToAnkifyButton({ uploadId, filename }: Props) {
   const { data } = useUserLocals();
-  const isEnabled =
-    data?.user?.email?.toLowerCase() === ANKIFY_ENABLED_EMAIL.toLowerCase();
+  const isEnabled = data?.locals?.patreon === true;
   const api = get2ankiApi();
 
   const { data: clients } = useQuery({

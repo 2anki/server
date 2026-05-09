@@ -589,6 +589,56 @@ describe('SyncNotionPageToRacUseCase', () => {
     expect(result.errors[0]).toMatch(/img-bad/);
   });
 
+  test('orphan recovery: when a mapped Anki note no longer exists, drops the mapping and recreates the note', async () => {
+    (walkNotionPageForFlashcards as jest.Mock).mockResolvedValue([sampleCard()]);
+    const repos = makeRepos();
+    const existingMapping = {
+      id: 1,
+      ankify_client_id: 1,
+      source_id: 'block-1',
+      source_type: 'notion_block' as const,
+      anki_note_id: 9999,
+      deck_name: 'Notion Sync::Untitled',
+      last_synced_at: new Date(Date.now() - 60_000),
+    };
+    repos.mappings.findBySourceId = jest.fn(
+      async (_clientId: number, _sourceId: string) => existingMapping
+    );
+    repos.mappings.upsert = jest.fn(async (input) => ({
+      ...existingMapping,
+      anki_note_id: input.anki_note_id,
+    }));
+    const ac = makeAnkiConnectStub();
+    (ac.notesInfo as jest.Mock).mockResolvedValueOnce([{}]);
+    (ac.addNote as jest.Mock).mockResolvedValueOnce(424242);
+
+    const useCase = new SyncNotionPageToRacUseCase(
+      repos.clients,
+      repos.mappings,
+      repos.conflicts,
+      repos.subscriptions,
+      repos.logs,
+      repos.notionRepo,
+      () => ac,
+      () => async () => []
+    );
+
+    const result = await useCase.execute({
+      owner: 42,
+      notionPageId: 'page-id',
+      trigger: 'polling',
+    });
+
+    expect(repos.mappings.deleteByAnkiNoteId).toHaveBeenCalledWith(1, 9999);
+    expect(ac.addNote).toHaveBeenCalled();
+    expect(repos.mappings.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({ anki_note_id: 424242, source_id: 'block-1' })
+    );
+    expect(ac.updateNoteFields).not.toHaveBeenCalled();
+    expect(result.created).toBe(1);
+    expect(result.errors).toEqual([]);
+  });
+
   test('a second sync for the same client reuses the cache and skips modelNames', async () => {
     (walkNotionPageForFlashcards as jest.Mock).mockResolvedValue([sampleCard()]);
     const repos = makeRepos();
