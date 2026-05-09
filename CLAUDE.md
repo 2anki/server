@@ -7,6 +7,7 @@ Express/TypeScript server that converts Notion pages and file uploads into Anki 
 - Use conventional commit prefixes (e.g. fix:, feat:, chore:, refactor:, test:, docs:)
 - Suggest a branch name before starting any code changes
 - Always rebase on origin/main before creating a new branch or opening a PR
+- When a unit of work is done, ship it without asking: commit, push the branch (always `git push -u origin <branch>` — never bare `git push`, never to main), then open a draft PR with `gh pr create --draft`. The safety hook in `.claude/hooks/safety.py` blocks pushes to main and bare `git push` as a backstop.
 
 ## General
 
