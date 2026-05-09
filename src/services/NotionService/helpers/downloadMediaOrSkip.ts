@@ -1,11 +1,15 @@
 import axios from 'axios';
 
+import instrumentedAxios from '../../observability/instrumentedAxios';
+
 const isExpiredOrMissing = (status: number | undefined): boolean =>
   status === 403 || status === 404;
 
 export async function downloadMediaOrSkip(url: string): Promise<Buffer | null> {
   try {
-    const response = await axios.get(url, { responseType: 'arraybuffer' });
+    const response = await instrumentedAxios.get<Buffer>('notion', url, {
+      responseType: 'arraybuffer',
+    });
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && isExpiredOrMissing(error.response?.status)) {

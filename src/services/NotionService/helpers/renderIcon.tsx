@@ -1,5 +1,6 @@
 import { renderToStaticMarkup } from 'react-dom/server';
-import axios from 'axios';
+
+import instrumentedAxios from '../../observability/instrumentedAxios';
 
 export default async function renderIcon(icon?: string) {
   if (!icon) {
@@ -8,7 +9,7 @@ export default async function renderIcon(icon?: string) {
   if (icon.startsWith('http') || icon.startsWith('data:image')) {
     if (icon.startsWith('http')) {
       let validIcon = true;
-      await axios.get(icon).catch(function (error) {
+      await instrumentedAxios.get('notion', icon).catch(function (error) {
         if (error.response && error.response.status === 404) {
           validIcon = false;
         }

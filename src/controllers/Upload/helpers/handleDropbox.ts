@@ -1,10 +1,10 @@
-import axios from 'axios';
 import express from 'express';
 
 import {
   DropboxFile,
   DropboxRepository,
 } from '../../../data_layer/DropboxRepository';
+import instrumentedAxios from '../../../services/observability/instrumentedAxios';
 import { isPaying } from '../../../lib/isPaying';
 import { getUploadLimits } from '../../../lib/misc/getUploadLimits';
 import { handleUploadLimitError } from './handleUploadLimitError';
@@ -45,7 +45,7 @@ export async function handleDropbox(
     // @ts-ignore
     req.files = await Promise.all(
       files.map(async (file) => {
-        const contents = await axios.get(file.link, {
+        const contents = await instrumentedAxios.get('dropbox', file.link, {
           responseType: 'arraybuffer',
         });
         return {

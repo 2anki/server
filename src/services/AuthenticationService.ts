@@ -8,7 +8,7 @@ import TokenRepository from '../data_layer/TokenRepository';
 import UsersRepository from '../data_layer/UsersRepository';
 import Users from '../data_layer/public/Users';
 import { Knex } from 'knex';
-import axios from 'axios';
+import instrumentedAxios from './observability/instrumentedAxios';
 
 export interface UserWithOwner extends Users {
   owner: number;
@@ -169,11 +169,16 @@ class AuthenticationService {
       grant_type: 'authorization_code',
     };
     try {
-      const result = await axios.post(url, qs.stringify(values), {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-      });
+      const result = await instrumentedAxios.post<{ id_token: string }>(
+        'google_drive',
+        url,
+        qs.stringify(values),
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        }
+      );
       const idToken = result.data.id_token;
       const decoded = jwt.decode(idToken)!;
       console.log('decoded', decoded);
