@@ -10,6 +10,8 @@ import {
   AnkifySyncMapping,
 } from '../../entities/ankify';
 import { AnkiConnectClient } from '../../services/ankify/AnkiConnectClient';
+import { ANKIFY_BASIC_MODEL } from '../../services/ankify/ankifyModels';
+import { ensureAnkifyModels } from '../../services/ankify/ensureAnkifyModels';
 import {
   walkNotionPageForFlashcards,
   NotionBlockChildrenFetcher,
@@ -67,6 +69,8 @@ const BACK_FIELD_BASIC = 'Back';
 const DECK_NAME_FALLBACK = 'Notion Sync';
 
 export class SyncNotionPageToRacUseCase {
+  private readonly modelCacheByClient = new Map<number, Set<string>>();
+
   constructor(
     private readonly clients: AnkifyClientsRepositoryInterface,
     private readonly mappings: AnkifySyncMappingsRepositoryInterface,
@@ -78,6 +82,15 @@ export class SyncNotionPageToRacUseCase {
     private readonly notionFetcher: NotionFetcherFactory,
     private readonly notionPageMeta?: NotionPageMetaFetcher
   ) {}
+
+  private modelCache(clientId: number): Set<string> {
+    let cache = this.modelCacheByClient.get(clientId);
+    if (cache == null) {
+      cache = new Set<string>();
+      this.modelCacheByClient.set(clientId, cache);
+    }
+    return cache;
+  }
 
   async execute(input: SyncNotionPageInput): Promise<SyncNotionPageResult> {
     const client = await this.clients.findActiveByOwner(input.owner);
@@ -183,6 +196,7 @@ export class SyncNotionPageToRacUseCase {
       client.anki_connect_api_key
     );
     await ac.createDeck(DECK_NAME_FALLBACK);
+    await ensureAnkifyModels(ac, this.modelCache(client.id));
 
     for (const card of cards) {
       await this.processCard({ card, client, subscription, ac, input, result });
@@ -208,7 +222,7 @@ export class SyncNotionPageToRacUseCase {
       if (existing == null) {
         const ankiNoteId = await ac.addNote({
           deckName: DECK_NAME_FALLBACK,
-          modelName: 'Basic',
+          modelName: ANKIFY_BASIC_MODEL,
           fields: {
             [FRONT_FIELD_BASIC]: card.front,
             [BACK_FIELD_BASIC]: card.back,

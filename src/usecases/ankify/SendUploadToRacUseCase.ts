@@ -13,6 +13,11 @@ import {
   AnkiConnectNote,
   AnkiConnectUnreachableError,
 } from '../../services/ankify/AnkiConnectClient';
+import {
+  ANKIFY_BASIC_MODEL,
+  ANKIFY_CLOZE_MODEL,
+} from '../../services/ankify/ankifyModels';
+import { ensureAnkifyModels } from '../../services/ankify/ensureAnkifyModels';
 import { NormalizedCollection, Note } from '../../services/ApkgPreviewService/types';
 
 export class NoActiveAnkifyClientError extends Error {
@@ -71,7 +76,7 @@ const buildAnkiConnectNoteFromApkgNote = (input: {
   if (isClozeField(input.fields[0])) {
     return {
       deckName: input.deckName,
-      modelName: 'Cloze',
+      modelName: ANKIFY_CLOZE_MODEL,
       fields: {
         Text: input.fields[0] ?? '',
         'Back Extra': input.fields[1] ?? '',
@@ -82,7 +87,7 @@ const buildAnkiConnectNoteFromApkgNote = (input: {
   }
   return {
     deckName: input.deckName,
-    modelName: 'Basic',
+    modelName: ANKIFY_BASIC_MODEL,
     fields: {
       Front: input.fields[0] ?? '',
       Back: input.fields[1] ?? '',
@@ -112,6 +117,8 @@ interface SendUploadToRacInput {
 }
 
 export class SendUploadToRacUseCase {
+  private readonly modelCacheByClient = new Map<number, Set<string>>();
+
   constructor(
     private readonly clients: AnkifyClientsRepositoryInterface,
     private readonly mappings: AnkifySyncMappingsRepositoryInterface,
@@ -121,6 +128,15 @@ export class SendUploadToRacUseCase {
     private readonly ankiConnect: AnkiConnectFactory,
     private readonly logs?: AnkifySyncLogsRepositoryInterface
   ) {}
+
+  private modelCache(clientId: number): Set<string> {
+    let cache = this.modelCacheByClient.get(clientId);
+    if (cache == null) {
+      cache = new Set<string>();
+      this.modelCacheByClient.set(clientId, cache);
+    }
+    return cache;
+  }
 
   async execute(input: SendUploadToRacInput): Promise<SendUploadToRacResult> {
     const upload = await this.uploads.findByIdAndOwner(
@@ -155,6 +171,8 @@ export class SendUploadToRacUseCase {
       ankiWebSync: 'skipped',
       ankiWebSyncError: null,
     };
+
+    await ensureAnkifyModels(ac, this.modelCache(client.id));
 
     for (const [noteId, note] of collection.notes) {
       await this.processNote({
