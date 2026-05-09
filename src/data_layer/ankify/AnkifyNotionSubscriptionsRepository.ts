@@ -56,6 +56,10 @@ export class AnkifyNotionSubscriptionsRepository
       insertPayload.notion_page_url = input.notion_page_url;
       mergePayload.notion_page_url = input.notion_page_url;
     }
+    if (input.notion_page_icon !== undefined) {
+      insertPayload.notion_page_icon = input.notion_page_icon;
+      mergePayload.notion_page_icon = input.notion_page_icon;
+    }
     const [row] = await this.database<AnkifyNotionSubscription>(TABLE)
       .insert(insertPayload)
       .onConflict(['owner', 'notion_page_id'])

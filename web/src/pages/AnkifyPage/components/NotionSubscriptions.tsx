@@ -8,6 +8,7 @@ import { get2ankiApi } from '../../../lib/backend/get2ankiApi';
 import { Backend } from '../../../lib/backend/Backend';
 import NotionPagePicker from './NotionPagePicker';
 import DotsHorizontal from '../../../components/icons/DotsHorizontal';
+import { BlockIcon } from '../../SearchPage/components/BlockIcon';
 
 const formatRelativeTime = (iso: string | null | undefined): string | null => {
   if (iso == null || iso.length === 0) return null;
@@ -116,6 +117,7 @@ export default function NotionSubscriptions({ backend, schedule }: Props) {
     notionPageId: string;
     notionPageTitle?: string | null;
     notionPageUrl?: string | null;
+    notionPageIcon?: string | null;
   }
 
   const subscribe = useMutation({
@@ -124,6 +126,7 @@ export default function NotionSubscriptions({ backend, schedule }: Props) {
         notionPageId: args.notionPageId,
         notionPageTitle: args.notionPageTitle,
         notionPageUrl: args.notionPageUrl,
+        notionPageIcon: args.notionPageIcon,
       }),
     onMutate: async (args: SubscribeArgs) => {
       await queryClient.cancelQueries({ queryKey: SUBSCRIPTIONS_KEY });
@@ -135,6 +138,7 @@ export default function NotionSubscriptions({ backend, schedule }: Props) {
         notion_page_id: args.notionPageId,
         notion_page_title: args.notionPageTitle ?? null,
         notion_page_url: args.notionPageUrl ?? null,
+        notion_page_icon: args.notionPageIcon ?? null,
         enabled: true,
         last_polled_at: null,
         last_synced_at: null,
@@ -173,12 +177,18 @@ export default function NotionSubscriptions({ backend, schedule }: Props) {
       queryClient.invalidateQueries({ queryKey: SUBSCRIPTIONS_KEY }),
   });
 
-  const handlePick = (id: string, page?: { title?: string; url?: string }) => {
+  const handlePick = (
+    id: string,
+    page?: { title?: string; url?: string; icon?: string }
+  ) => {
     setPendingId(id);
+    const trimmedIcon =
+      page?.icon != null && page.icon.length > 0 ? page.icon : undefined;
     subscribe.mutate({
       notionPageId: id,
       notionPageTitle: page?.title ?? undefined,
       notionPageUrl: page?.url ?? undefined,
+      notionPageIcon: trimmedIcon,
     });
   };
 
@@ -405,8 +415,14 @@ export default function NotionSubscriptions({ backend, schedule }: Props) {
                     updated {relative}
                   </span>
                 );
+              const iconValue = sub.notion_page_icon ?? '';
               return (
                 <li key={sub.id} className={styles.decksItem}>
+                  {iconValue.length > 0 && (
+                    <span className={styles.decksItemIcon} aria-hidden="true">
+                      <BlockIcon icon={iconValue} />
+                    </span>
+                  )}
                   <span className={styles.decksItemTitle} title={displayTitle}>
                     {sub.notion_page_url != null &&
                     sub.notion_page_url.length > 0 ? (

@@ -416,6 +416,7 @@ export class Backend {
       notion_page_id: string;
       notion_page_title: string | null;
       notion_page_url: string | null;
+      notion_page_icon: string | null;
       enabled: boolean;
       last_polled_at: string | null;
       last_synced_at: string | null;
@@ -430,6 +431,7 @@ export class Backend {
     notionPageId: string;
     notionPageTitle?: string | null;
     notionPageUrl?: string | null;
+    notionPageIcon?: string | null;
   }): Promise<{
     created: number;
     updated: number;
@@ -443,6 +445,7 @@ export class Backend {
       notion_page_id: input.notionPageId,
       notion_page_title: input.notionPageTitle,
       notion_page_url: input.notionPageUrl,
+      notion_page_icon: input.notionPageIcon,
     });
     if (!response.ok) {
       const error = await response

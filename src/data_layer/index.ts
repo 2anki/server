@@ -204,7 +204,24 @@ export const setupDatabase = async (database: Knex) => {
               }
             }
             const url = (page as { url?: string }).url ?? null;
-            return { title, url };
+            const rawIcon = (page as {
+              icon?:
+                | { type: 'emoji'; emoji: string }
+                | { type: 'external'; external: { url: string } }
+                | { type: 'file'; file: { url: string } }
+                | null;
+            }).icon;
+            let icon: string | null = null;
+            if (rawIcon != null) {
+              if (rawIcon.type === 'emoji') {
+                icon = rawIcon.emoji;
+              } else if (rawIcon.type === 'external') {
+                icon = rawIcon.external.url;
+              } else if (rawIcon.type === 'file') {
+                icon = rawIcon.file.url;
+              }
+            }
+            return { title, url, icon };
           };
         }
       );
