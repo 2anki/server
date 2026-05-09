@@ -1,0 +1,41 @@
+---
+title: Card options
+description: Every checkbox on the upload screen, what it does, and when to turn it on.
+---
+
+Card options change how 2anki turns your source into flashcards. Most are off-or-on toggles. Defaults are tuned so a fresh upload "just works" — touch them when you want a different shape of deck.
+
+## How to set options
+
+- **On the upload screen** — click the settings icon next to the upload area to see every option for that conversion.
+- **In account settings** — `Settings → Card options` saves defaults that apply to every new upload. You can still override per upload.
+- **Per Notion page** — when you convert through the Notion integration, options are saved against the page so the next sync uses the same shape.
+
+## Reference
+
+| Option | Default | What it does |
+|---|---|---|
+| Add Notion Link | Off | Adds a link to the Notion page where the toggle was created. Use this with **Use Notion ID** to avoid duplicates. |
+| Use Notion ID | On | Uses Notion's ID to match cards across re-uploads instead of regenerating IDs from the field text. Reduces duplicates. |
+| Use All Toggle Lists | On | Picks up toggle lists nested anywhere in the page. Off means only top-level toggles are used. |
+| Use Plain Text for Back | Off | Strips formatting from the back of cards so only the text content remains. |
+| Enable Cherry Picking Using 🍒 Emoji | Off | Only creates cards from toggles that contain a 🍒 emoji. Useful for picking out a few cards from a long page. |
+| Only Create Flashcards From Toggles That Don't Have The 🥑 Emoji | Off | Skips toggles that contain a 🥑 emoji. Useful for marking parts of a page as not-yet-ready. |
+| Treat Strikethrough as Tags | Off | Treats strikethrough text as Anki tags. Strikethrough inside a toggle becomes a tag local to that card; outside, it's a global tag. |
+| Cloze Deletion | On | Creates cloze cards from inline `code` snippets. |
+| Treat Bold Text as Input | Off | Bold text is removed and turned into a typed-answer field. Good for fact recall. |
+| Basic and Reversed | Off | Creates the front/back card and a reversed copy. |
+| Just the Reversed Flashcards | Off | Only creates the reversed card. Useful when the back is more useful as a prompt (e.g. an image). |
+| Remove Underlines | Off | Drops underline formatting. Helps when Notion underlines clash with Anki's link styling. |
+| Maximum One Toggle Per Card | On | Splits nested toggles into separate cards instead of stacking them in one. |
+| Remove the MP3 Links Created From Audio Files | On | Strips the auto-generated `.mp3` links left behind by some Notion exports. |
+| Preserve Newlines in the Toggle Header and Body | On | Keeps SHIFT-Enter line breaks inside toggles instead of collapsing them. |
+| Process PDF Files | On | Converts PDFs found in ZIP uploads. Turn off to skip PDFs and speed up large archives. |
+| Markdown Nested Bullet Points | On | Reads Markdown bullet hierarchies (Obsidian-style) as front/back pairs. |
+| Generate Questions from Single PDF File Uploads | Off | Sends the PDF to Google Vertex AI to generate questions. Paid; sends content to Google Cloud. |
+| Disable Indented Bullets | Off | Stops indented bullets from each becoming their own card. |
+| Convert Image Quiz HTML to Anki Cards | Off | Uses OCR to pull image-and-answer pairs from HTML quizzes. Premium experimental. |
+| Generate Flashcards with Claude AI | Off | Sends content to Anthropic Claude and uses its output as the deck. Paid. |
+| Share Files for Debugging When Conversion Fails | Off | If a conversion fails, sends the file and error details to the 2anki team. Off by default to keep your notes private. |
+
+The option keys 2anki uses internally (handy if you're filing a bug report): `add-notion-link`, `use-notion-id`, `all`, `paragraph`, `cherry`, `avocado`, `tags`, `cloze`, `enable-input`, `basic-reversed`, `reversed`, `no-underline`, `max-one-toggle-per-card`, `remove-mp3-links`, `perserve-newlines`, `process-pdfs`, `markdown-nested-bullet-points`, `vertex-ai-pdf-questions`, `disable-indented-bullets`, `image-quiz-html-to-anki`, `claude-ai-flashcards`, `share-files-for-debugging`.

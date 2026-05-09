@@ -1,6 +1,6 @@
 ---
-title: Markdown
-description: Markdonw support in 2anki.net
+title: Markdown and Obsidian
+description: Use a Markdown file or Obsidian vault as the source.
 ---
 
 Markdown support is enabled by the card option `Markdown Nested Bullet Points`.

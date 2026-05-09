@@ -11,72 +11,98 @@ export interface SidebarGroup {
 
 export const sidebar: SidebarGroup[] = [
   {
-    label: 'Guides',
+    label: 'Start here',
     items: [
-      { label: 'Introduction', slug: 'guides/introduction' },
-      { label: 'Getting started', slug: 'guides/getting-started' },
+      { label: 'What is 2anki?', slug: 'start-here/what-is-2anki' },
+      {
+        label: 'Connect Notion in 5 minutes',
+        slug: 'start-here/connect-notion',
+      },
+      { label: 'Upload a file instead', slug: 'start-here/upload-a-file' },
+      { label: 'Open your deck in Anki', slug: 'start-here/open-in-anki' },
     ],
   },
   {
-    label: 'Features',
+    label: 'Make better cards',
     items: [
-      { label: 'Notion Support', slug: 'features/notion-support' },
-      { label: 'Markdown', slug: 'features/markdown' },
-      { label: 'HTML', slug: 'features/html' },
-      { label: 'zip', slug: 'features/zip' },
-      { label: 'csv', slug: 'features/csv' },
-      { label: 'xlsx', slug: 'features/xlsx' },
-      { label: 'tsv', slug: 'features/tsv' },
-      { label: 'pdf', slug: 'features/pdf' },
-      { label: 'ppt', slug: 'features/ppt' },
+      { label: 'Card options', slug: 'cards/card-options' },
+      { label: 'Card types', slug: 'cards/card-types' },
+      { label: 'Notion blocks we support', slug: 'cards/notion-blocks' },
+      { label: 'Markdown and Obsidian', slug: 'cards/markdown' },
+      { label: 'HTML', slug: 'cards/html' },
     ],
   },
   {
-    label: 'Advanced usage',
+    label: 'Sync with Notion',
     items: [
-      { label: 'Self-hosting', slug: 'advanced/self-hosting' },
-      { label: 'Terminology', slug: 'advanced/terminology' },
-      { label: 'API access', slug: 'advanced/napi' },
-      { label: 'Domain', slug: 'advanced/domain' },
-      { label: 'Strategy', slug: 'advanced/strategy' },
+      { label: 'How sync works', slug: 'sync/how-it-works' },
+      {
+        label: 'Send your reviews back to Notion',
+        slug: 'sync/review-export',
+      },
+      { label: 'When sync gets stuck', slug: 'sync/troubleshooting' },
     ],
   },
   {
-    label: 'Troubleshooting',
+    label: 'When something breaks',
+    items: [
+      { label: 'Common problems', slug: 'help/common-problems' },
+      { label: 'Limits and quotas', slug: 'help/limits' },
+      { label: 'Report a bug', slug: 'help/bug-report' },
+      { label: 'Contact us', slug: 'help/contact' },
+    ],
+  },
+  {
+    label: 'Reference',
+    items: [
+      { label: 'Glossary', slug: 'reference/glossary' },
+      { label: 'File formats', slug: 'reference/file-formats' },
+      { label: 'Self-hosting', slug: 'reference/self-hosting' },
+      { label: 'API access', slug: 'reference/api' },
+      { label: 'Privacy policy', slug: 'reference/privacy' },
+      { label: 'Terms of service', slug: 'reference/terms' },
+    ],
+  },
+  {
+    label: 'Links',
     items: [
       {
-        label: 'Common problems and solutions',
-        slug: 'troubleshooting/common-problems',
+        label: 'Official Anki',
+        slug: 'links/anki',
+        href: 'https://apps.ankiweb.net/',
       },
-      {
-        label: 'How to contact developer',
-        slug: 'troubleshooting/contact',
-      },
-      {
-        label: 'Frequently asked questions',
-        slug: 'troubleshooting/faq',
-      },
-      { label: 'Bug report', slug: 'troubleshooting/bug-report' },
-      { label: 'Limits', slug: 'troubleshooting/limits' },
-    ],
-  },
-  {
-    label: 'Useful links',
-    items: [
-      { label: 'Anki', slug: 'links/anki' },
       { label: 'Community', slug: 'links/community' },
-      { label: 'YouTube', slug: 'links/youtube' },
-      { label: 'Support', slug: 'links/support' },
-    ],
-  },
-  {
-    label: 'Misc',
-    items: [
-      { label: 'Terms of Service', slug: 'misc/terms-of-service' },
-      { label: 'Privacy Policy', slug: 'misc/privacy-policy' },
     ],
   },
 ];
+
+export const redirects: Record<string, string> = {
+  'guides/introduction': 'start-here/what-is-2anki',
+  'guides/getting-started': 'start-here/connect-notion',
+  'features/notion-support': 'cards/notion-blocks',
+  'features/markdown': 'cards/markdown',
+  'features/html': 'cards/html',
+  'features/csv': 'reference/file-formats',
+  'features/xlsx': 'reference/file-formats',
+  'features/zip': 'reference/file-formats',
+  'features/tsv': 'reference/file-formats',
+  'features/pdf': 'reference/file-formats',
+  'features/ppt': 'reference/file-formats',
+  'troubleshooting/common-problems': 'help/common-problems',
+  'troubleshooting/limits': 'help/limits',
+  'troubleshooting/bug-report': 'help/bug-report',
+  'troubleshooting/contact': 'help/contact',
+  'troubleshooting/faq': 'help/common-problems',
+  'advanced/self-hosting': 'reference/self-hosting',
+  'advanced/napi': 'reference/api',
+  'advanced/domain': 'reference/glossary',
+  'advanced/terminology': 'reference/glossary',
+  'advanced/strategy': 'start-here/what-is-2anki',
+  'links/youtube': 'links/community',
+  'links/support': 'help/contact',
+  'misc/privacy-policy': 'reference/privacy',
+  'misc/terms-of-service': 'reference/terms',
+};
 
 export function findAdjacent(slug: string) {
   const flat: SidebarItem[] = sidebar
@@ -87,4 +113,12 @@ export function findAdjacent(slug: string) {
     prev: index > 0 ? flat[index - 1] : null,
     next: index >= 0 && index < flat.length - 1 ? flat[index + 1] : null,
   };
+}
+
+export function findGroupForSlug(slug: string): SidebarGroup | null {
+  return (
+    sidebar.find((group) =>
+      group.items.some((item) => item.slug === slug),
+    ) ?? null
+  );
 }
