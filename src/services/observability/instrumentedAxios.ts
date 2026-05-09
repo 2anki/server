@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
-import dns from 'dns';
+import dns from 'node:dns';
 
 import { ObservabilitySink } from './ObservabilitySink';
 import { getObservabilitySink } from './observabilitySinkInstance';
@@ -243,7 +243,10 @@ const extractStatusFromError = (error: unknown): number | null => {
 const mergeLookupOption = (
   config: AxiosRequestConfig | undefined,
   lookup: AxiosLookup
-): AxiosRequestConfig => ({ ...(config ?? {}), lookup });
+): AxiosRequestConfig => {
+  if (config == null) return { lookup };
+  return { ...config, lookup };
+};
 
 export interface InstrumentedAxios {
   get<T = unknown>(
