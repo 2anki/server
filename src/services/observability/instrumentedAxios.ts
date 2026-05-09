@@ -16,13 +16,83 @@ export type ObservabilityService = (typeof OBSERVABILITY_SERVICES)[number];
 const isAllowedService = (service: string): service is ObservabilityService =>
   (OBSERVABILITY_SERVICES as readonly string[]).includes(service);
 
-const stripQueryFromUrl = (url: string): string => {
+const FIXED_HOST_ALLOWLIST: Record<ObservabilityService, readonly string[] | null> = {
+  notion: null,
+  claude: ['api.anthropic.com'],
+  dropbox: null,
+  google_drive: ['www.googleapis.com', 'oauth2.googleapis.com'],
+  patreon: ['www.patreon.com', 'api.patreon.com'],
+};
+
+const isHostOnFixedAllowlist = (
+  host: string,
+  service: ObservabilityService
+): boolean => {
+  const allowlist = FIXED_HOST_ALLOWLIST[service];
+  if (allowlist == null) return true;
+  const lowered = host.toLowerCase();
+  return allowlist.some((allowed) => lowered === allowed);
+};
+
+const PRIVATE_IPV4_PATTERNS: RegExp[] = [
+  /^10\./,
+  /^127\./,
+  /^192\.168\./,
+  /^169\.254\./,
+  /^172\.(1[6-9]|2[0-9]|3[0-1])\./,
+  /^0\./,
+  /^100\.(6[4-9]|[7-9]\d|1[01]\d|12[0-7])\./,
+];
+
+const isPrivateOrLoopbackHost = (host: string): boolean => {
+  const lowered = host.toLowerCase();
+  if (lowered === 'localhost' || lowered.endsWith('.localhost')) return true;
+  if (lowered === '::1' || lowered === '[::1]') return true;
+  if (lowered.startsWith('fc') || lowered.startsWith('fd')) return true;
+  if (lowered.startsWith('fe80:')) return true;
+  return PRIVATE_IPV4_PATTERNS.some((pattern) => pattern.test(lowered));
+};
+
+interface ParsedRequestUrl {
+  endpoint: string;
+  hostname: string;
+  protocol: string;
+  hostWithPort: string;
+}
+
+const parseRequestUrl = (url: string): ParsedRequestUrl => {
+  let parsed: URL;
   try {
-    const parsed = new URL(url);
-    return `${parsed.host}${parsed.pathname}`;
+    parsed = new URL(url);
   } catch {
-    const queryIndex = url.indexOf('?');
-    return queryIndex >= 0 ? url.slice(0, queryIndex) : url;
+    throw new Error(`[observability] invalid URL: ${url}`);
+  }
+  return {
+    endpoint: `${parsed.host}${parsed.pathname}`,
+    hostname: parsed.hostname,
+    hostWithPort: parsed.host,
+    protocol: parsed.protocol,
+  };
+};
+
+const assertSafeUrlForService = (
+  parsed: ParsedRequestUrl,
+  service: ObservabilityService
+): void => {
+  if (parsed.protocol !== 'https:') {
+    throw new Error(
+      `[observability] only https URLs are allowed for ${service} (got ${parsed.protocol})`
+    );
+  }
+  if (isPrivateOrLoopbackHost(parsed.hostname)) {
+    throw new Error(
+      `[observability] host "${parsed.hostname}" is not allowed for service "${service}" (private/loopback address)`
+    );
+  }
+  if (!isHostOnFixedAllowlist(parsed.hostname, service)) {
+    throw new Error(
+      `[observability] host "${parsed.hostname}" is not allowed for service "${service}"`
+    );
   }
 };
 
@@ -104,7 +174,9 @@ const measure = async <T>(
       `[observability] unknown service "${service}". Allowed: ${OBSERVABILITY_SERVICES.join(', ')}`
     );
   }
-  const endpoint = stripQueryFromUrl(url);
+  const parsed = parseRequestUrl(url);
+  assertSafeUrlForService(parsed, service);
+  const endpoint = parsed.endpoint;
   const start = Date.now();
   try {
     const response = await exec();

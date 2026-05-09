@@ -153,6 +153,117 @@ describe('instrumentedAxios', () => {
     );
   });
 
+  it('rejects URLs whose host is not on a fixed-host service allowlist (SSRF guard)', async () => {
+    const repo = new FakeRepo();
+    const sink = new ObservabilitySink(repo);
+    const client = makeInstrumentedAxios(sink);
+
+    await expect(
+      client.get('claude', 'https://attacker.example.com/exfil')
+    ).rejects.toThrow(/host.*not allowed.*claude/i);
+    expect(mockedAxios.get).not.toHaveBeenCalled();
+
+    await expect(
+      client.get('google_drive', 'https://evil.com/file')
+    ).rejects.toThrow(/host.*not allowed.*google_drive/i);
+
+    await expect(
+      client.get('patreon', 'https://api.notion.com/v1/pages/abc')
+    ).rejects.toThrow(/host.*not allowed.*patreon/i);
+  });
+
+  it('rejects private/loopback hosts on every service (SSRF deny-list)', async () => {
+    const repo = new FakeRepo();
+    const sink = new ObservabilitySink(repo);
+    const client = makeInstrumentedAxios(sink);
+
+    const privateHosts = [
+      'https://localhost/internal',
+      'https://127.0.0.1/internal',
+      'https://10.0.0.1/internal',
+      'https://192.168.1.1/internal',
+      'https://172.16.0.1/internal',
+      'https://169.254.169.254/latest/meta-data',
+      'https://[::1]/internal',
+    ];
+
+    for (const url of privateHosts) {
+      await expect(client.get('notion', url)).rejects.toThrow(
+        /private\/loopback address/i
+      );
+      await expect(client.get('dropbox', url)).rejects.toThrow(
+        /private\/loopback address/i
+      );
+    }
+    expect(mockedAxios.get).not.toHaveBeenCalled();
+  });
+
+  it('allows arbitrary public hosts for variable-host services (notion media, dropbox files)', async () => {
+    const repo = new FakeRepo();
+    const sink = new ObservabilitySink(repo);
+    const client = makeInstrumentedAxios(sink);
+
+    mockedAxios.get.mockResolvedValue({ status: 200, data: 'ok' });
+
+    await expect(
+      client.get(
+        'notion',
+        'https://prod-files-secure.s3.us-west-2.amazonaws.com/abc/def?X-Amz-Signature=xyz'
+      )
+    ).resolves.toEqual({ status: 200, data: 'ok' });
+
+    await expect(
+      client.get(
+        'dropbox',
+        'https://uc8a13c9bd5f6e64ad7f78a14e0c.dl.dropboxusercontent.com/cd/0/get/abc'
+      )
+    ).resolves.toEqual({ status: 200, data: 'ok' });
+  });
+
+  it('rejects non-https URLs even when the host would otherwise be allowed', async () => {
+    const repo = new FakeRepo();
+    const sink = new ObservabilitySink(repo);
+    const client = makeInstrumentedAxios(sink);
+
+    await expect(
+      client.get('notion', 'http://api.notion.com/v1/pages/abc')
+    ).rejects.toThrow(/https/i);
+    expect(mockedAxios.get).not.toHaveBeenCalled();
+  });
+
+  it('rejects malformed URLs with a clear error before reaching axios', async () => {
+    const repo = new FakeRepo();
+    const sink = new ObservabilitySink(repo);
+    const client = makeInstrumentedAxios(sink);
+
+    await expect(client.get('notion', 'not a url')).rejects.toThrow(/invalid url/i);
+    expect(mockedAxios.get).not.toHaveBeenCalled();
+  });
+
+  it('accepts every documented production host', async () => {
+    const repo = new FakeRepo();
+    const sink = new ObservabilitySink(repo);
+    const client = makeInstrumentedAxios(sink);
+
+    mockedAxios.get.mockResolvedValue({ status: 200, data: 'ok' });
+
+    const cases: Array<[Parameters<typeof client.get>[0], string]> = [
+      ['notion', 'https://api.notion.com/v1/pages/abc'],
+      ['claude', 'https://api.anthropic.com/v1/messages'],
+      ['dropbox', 'https://content.dropboxapi.com/2/files/upload'],
+      ['google_drive', 'https://www.googleapis.com/drive/v3/files/abc'],
+      ['google_drive', 'https://oauth2.googleapis.com/token'],
+      ['patreon', 'https://www.patreon.com/api/oauth2/v2/identity'],
+    ];
+
+    for (const [service, url] of cases) {
+      await expect(client.get(service, url)).resolves.toEqual({
+        status: 200,
+        data: 'ok',
+      });
+    }
+  });
+
   it('does not throw when sink itself rejects (instrumentation must never break the caller)', async () => {
     const sink = {
       recordOutboundCall: () => {
