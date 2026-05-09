@@ -25,6 +25,7 @@ export interface SyncNotionPageInput {
   notionPageId: string;
   notionPageTitle?: string | null;
   notionPageUrl?: string | null;
+  notionPageIcon?: string | null;
   trigger: 'manual' | 'polling' | 'webhook';
   ankiConnectHost?: string;
 }
@@ -32,6 +33,7 @@ export interface SyncNotionPageInput {
 export interface NotionPageMeta {
   title: string | null;
   url: string | null;
+  icon: string | null;
 }
 
 export type NotionPageMetaFetcher = (
@@ -89,7 +91,10 @@ export class SyncNotionPageToRacUseCase {
       throw new NotionNotConnectedError();
     }
 
-    const { pageTitle, pageUrl } = await this.resolvePageMeta(token, input);
+    const { pageTitle, pageUrl, pageIcon } = await this.resolvePageMeta(
+      token,
+      input
+    );
 
     const subscription = await this.subscriptions.upsert({
       owner: input.owner,
@@ -97,6 +102,7 @@ export class SyncNotionPageToRacUseCase {
       notion_page_id: input.notionPageId,
       notion_page_title: pageTitle,
       notion_page_url: pageUrl,
+      notion_page_icon: pageIcon,
       enabled: true,
     });
 
@@ -138,20 +144,23 @@ export class SyncNotionPageToRacUseCase {
   ): Promise<{
     pageTitle: string | null | undefined;
     pageUrl: string | null | undefined;
+    pageIcon: string | null | undefined;
   }> {
     let pageTitle: string | null | undefined = input.notionPageTitle;
     let pageUrl: string | null | undefined = input.notionPageUrl;
+    let pageIcon: string | null | undefined = input.notionPageIcon;
     if (this.notionPageMeta == null) {
-      return { pageTitle, pageUrl };
+      return { pageTitle, pageUrl, pageIcon };
     }
     try {
       const meta = await this.notionPageMeta(token)(input.notionPageId);
       pageTitle = meta.title;
       pageUrl = meta.url;
+      pageIcon = meta.icon;
     } catch {
       // Notion API hiccup — keep whatever the input or DB already has.
     }
-    return { pageTitle, pageUrl };
+    return { pageTitle, pageUrl, pageIcon };
   }
 
   private async runSync(args: {

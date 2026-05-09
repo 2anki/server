@@ -120,6 +120,7 @@ export interface AnkifyNotionSubscription {
   notion_page_id: string;
   notion_page_title: string | null;
   notion_page_url: string | null;
+  notion_page_icon: string | null;
   enabled: boolean;
   last_polled_at: Date | null;
   last_synced_at: Date | null;
@@ -134,6 +135,7 @@ export interface UpsertAnkifyNotionSubscription {
   notion_page_id: string;
   notion_page_title?: string | null;
   notion_page_url?: string | null;
+  notion_page_icon?: string | null;
   enabled: boolean;
 }
 
