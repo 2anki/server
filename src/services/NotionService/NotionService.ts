@@ -46,8 +46,8 @@ export class NotionService {
   redirectURI: string;
 
   constructor(
-    private notionRepository: INotionRepository,
-    private topLevelPagesRepository?: INotionTopLevelPagesRepository
+    private readonly notionRepository: INotionRepository,
+    private readonly topLevelPagesRepository?: INotionTopLevelPagesRepository
   ) {
     this.clientId = process.env.NOTION_CLIENT_ID!;
     this.clientSecret = process.env.NOTION_CLIENT_SECRET!;
@@ -151,9 +151,9 @@ export class NotionService {
     const rows = await this.topLevelPagesRepository.getByOwner(owner);
     if (rows.length === 0) return null;
 
-    const newest = rows
-      .map((r) => new Date(r.cached_at).getTime())
-      .reduce((a, b) => (a > b ? a : b));
+    const newest = Math.max(
+      ...rows.map((r) => new Date(r.cached_at).getTime())
+    );
     const isStale = Date.now() - newest > TOP_LEVEL_PAGES_STALE_AFTER_MS;
 
     if (isStale) {
