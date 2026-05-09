@@ -1,0 +1,128 @@
+import {
+  ObservabilityQueryService,
+  OpsMetricsWindow,
+  OPS_METRICS_BUCKET_SECONDS_BY_WINDOW,
+} from './ObservabilityQueryService';
+import {
+  IObservabilityRepository,
+  RequestLogRow,
+  OutboundCallLogRow,
+  AggregatedRequestRow,
+  RouteLatencyRow,
+  OutboundCallBucketRow,
+  RouteErrorRateRow,
+  ServiceErrorRateRow,
+} from '../../data_layer/ObservabilityRepository';
+
+class StubRepo implements IObservabilityRepository {
+  inboundBuckets: AggregatedRequestRow[] = [];
+  routeLatency: RouteLatencyRow[] = [];
+  outboundBuckets: OutboundCallBucketRow[] = [];
+  routeErrors: RouteErrorRateRow[] = [];
+  serviceErrors: ServiceErrorRateRow[] = [];
+  capturedFromTime: Date | null = null;
+  capturedBucketSeconds: number | null = null;
+
+  insertRequestLogs = async (_rows: RequestLogRow[]) => {};
+  insertOutboundCallLogs = async (_rows: OutboundCallLogRow[]) => {};
+
+  aggregateInboundByStatusClass = async (fromTime: Date, bucketSeconds: number) => {
+    this.capturedFromTime = fromTime;
+    this.capturedBucketSeconds = bucketSeconds;
+    return this.inboundBuckets;
+  };
+  topRoutesByLatency = async (_fromTime: Date, _limit: number) => this.routeLatency;
+  aggregateOutboundByService = async (_fromTime: Date, _bucketSeconds: number) =>
+    this.outboundBuckets;
+  errorRateByRoute = async (_fromTime: Date, _limit: number) => this.routeErrors;
+  errorRateByService = async (_fromTime: Date, _limit: number) => this.serviceErrors;
+}
+
+describe('ObservabilityQueryService', () => {
+  it('rejects an unsupported window', async () => {
+    const repo = new StubRepo();
+    const service = new ObservabilityQueryService(repo);
+    await expect(service.getMetrics('bogus' as never)).rejects.toThrow(
+      /unsupported window/i
+    );
+  });
+
+  it.each<[OpsMetricsWindow, number]>([
+    ['1h', 60 * 60 * 1000],
+    ['24h', 24 * 60 * 60 * 1000],
+    ['7d', 7 * 24 * 60 * 60 * 1000],
+  ])('passes a fromTime that matches the %s window', async (window, expectedMs) => {
+    const repo = new StubRepo();
+    const service = new ObservabilityQueryService(repo);
+    const before = Date.now();
+    await service.getMetrics(window);
+    const after = Date.now();
+
+    const captured = repo.capturedFromTime!.getTime();
+    expect(captured).toBeGreaterThanOrEqual(before - expectedMs);
+    expect(captured).toBeLessThanOrEqual(after - expectedMs);
+    expect(repo.capturedBucketSeconds).toBe(
+      OPS_METRICS_BUCKET_SECONDS_BY_WINDOW[window]
+    );
+  });
+
+  it('shapes the result into the expected payload', async () => {
+    const repo = new StubRepo();
+    repo.inboundBuckets = [
+      { bucket: new Date('2026-05-09T10:00:00Z'), status_class: '2xx', count: 9 },
+      { bucket: new Date('2026-05-09T10:00:00Z'), status_class: '5xx', count: 1 },
+    ];
+    repo.routeLatency = [
+      { method: 'GET', route: '/api/upload', avg_ms: 50, p95_ms: 200, count: 10 },
+    ];
+    repo.outboundBuckets = [
+      { bucket: new Date('2026-05-09T10:00:00Z'), service: 'notion', count: 4 },
+    ];
+    repo.routeErrors = [
+      { method: 'GET', route: '/api/upload', total: 100, errors: 3 },
+    ];
+    repo.serviceErrors = [{ service: 'notion', total: 50, errors: 2 }];
+
+    const service = new ObservabilityQueryService(repo);
+    const result = await service.getMetrics('24h');
+
+    expect(result.window).toBe('24h');
+    expect(result.bucket_seconds).toBe(
+      OPS_METRICS_BUCKET_SECONDS_BY_WINDOW['24h']
+    );
+    expect(result.inbound_volume).toEqual([
+      {
+        bucket: '2026-05-09T10:00:00.000Z',
+        status_class: '2xx',
+        count: 9,
+      },
+      {
+        bucket: '2026-05-09T10:00:00.000Z',
+        status_class: '5xx',
+        count: 1,
+      },
+    ]);
+    expect(result.route_latency[0]).toEqual({
+      method: 'GET',
+      route: '/api/upload',
+      avg_ms: 50,
+      p95_ms: 200,
+      count: 10,
+    });
+    expect(result.outbound_volume[0]).toMatchObject({
+      service: 'notion',
+      count: 4,
+    });
+    expect(result.error_rate_by_route[0]).toEqual({
+      method: 'GET',
+      route: '/api/upload',
+      total: 100,
+      errors: 3,
+    });
+    expect(result.error_rate_by_service[0]).toEqual({
+      service: 'notion',
+      total: 50,
+      errors: 2,
+    });
+  });
+});
