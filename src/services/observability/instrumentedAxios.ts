@@ -19,9 +19,7 @@ const isAllowedService = (service: string): service is ObservabilityService =>
 const stripQueryFromUrl = (url: string): string => {
   try {
     const parsed = new URL(url);
-    return `${parsed.host}${parsed.pathname}`.replace(/\/+$/, (m) =>
-      m.length > 1 ? '/' : m
-    );
+    return `${parsed.host}${parsed.pathname}`;
   } catch {
     const queryIndex = url.indexOf('?');
     return queryIndex >= 0 ? url.slice(0, queryIndex) : url;
