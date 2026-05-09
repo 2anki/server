@@ -12,22 +12,26 @@
 
 **Out:** per-customer drill-down, refund tracking, cohort analysis, LTV, ARPU, Stripe webhooks, charts/sparklines/trend arrows in v2, historical Postgres snapshots, alerting, currency conversion (USD only — same as our Stripe account).
 
-## Decision: read from local `subscriptions` table, hit Stripe only for failed payments
+## Decision: compute on demand from Stripe API, do NOT persist snapshots
 
-We already maintain a `subscriptions` table populated by `updateStripeSubscriptions` (in `src/lib/storage/jobs/helpers/`). Every active row's full Stripe `Subscription` object lives in the `payload` JSON column — `items[].price.unit_amount`, `quantity`, `canceled_at`, `cancel_at_period_end` are all there. **Five of the six metrics are pure SQL.** Only failed payments needs a live Stripe call (no mirror table for invoices yet).
+One reader (Al), 15-min cache, six aggregates. We considered reading from the local `subscriptions` table (already populated by `updateStripeSubscriptions`), but that job is **manual-only by design** (see follow-up below) — relying on it for freshness would couple the dashboard to deploy cadence. Calling Stripe directly with a server-side cache decouples them.
 
 | Metric | Source |
 |---|---|
-| `mrr_usd` | `subscriptions` rows where `active = true`, sum `payload->items[].price.unit_amount × quantity`, normalize to monthly |
-| `active_paying_subs` | `count(*) where active = true` |
-| `net_new_mrr_mtd_usd` | sum payload amounts for rows where `created_at >= date_trunc('month', now())` |
-| `new_paid_conversions_7d` | `count(*) where created_at >= now() - interval '7 days'` |
-| `churn_30d_pct` | denominator: count active 30d ago (rows with `created_at < now()-30d` and `(payload->>'canceled_at')::int IS NULL OR > extract(epoch from now()-30d)`); numerator: rows whose `payload->>'canceled_at'` falls in the last 30d |
-| `failed_payments_7d` | Stripe API: `invoices.list({collection_method: 'charge_automatically', created: {gte: ts_7d}})` filtered to `status='open'` with `attempt_count > 0`. 15-min in-memory cache. |
+| `mrr_usd` | Stripe `subscriptions.list({status: 'active'})` paginated, sum `items[].price.unit_amount × quantity`, normalize per-item by `recurring.interval` (yearly→/12, weekly→×4.33, daily→×30) |
+| `active_paying_subs` | Same paginated list, count active rows |
+| `net_new_mrr_mtd_usd` | Stripe `subscriptions.list({created: {gte: ts_mtd}})` and sum the same way |
+| `new_paid_conversions_7d` | Stripe `subscriptions.list({created: {gte: ts_7d}})`, count |
+| `churn_30d_pct` | Stripe `subscriptions.search('canceled_at>:ts_30d')`. Denominator: from the active list. Numerator: count of canceled rows in window |
+| `failed_payments_7d` | Stripe `invoices.list({collection_method: 'charge_automatically', created: {gte: ts_7d}})` filtered to `status='open'` with `attempt_count > 0` |
 
-**Critical caveat: the existing `updateStripeSubscriptions` only runs on startup** (gated on `STRIPE_SYNC_ON_STARTUP=true` in `server.ts:137`). For local-first to be accurate, we add a recurring schedule. PR A includes a `setInterval(updateStripeSubscriptions, 60 * 60 * 1000)` in `src/lib/storage/jobs/ScheduleCleanup.ts` so the table refreshes hourly. The startup-only path stays as-is.
+`mrr_usd` and `active_paying_subs` share one paginated walk (don't refetch). Total: ~5 Stripe call series per refresh, ~480/day with 15-min cache. Well under rate limits, well under Sigma's price tag.
 
 No new tables. No persisted snapshots. When we want trend lines (v3), add nightly snapshots then — the table shape will be obvious from a month of real usage.
+
+## Follow-up (out of scope for this iteration)
+
+**Automate `updateStripeSubscriptions`** later. The job currently only runs at startup when `STRIPE_SYNC_ON_STARTUP=true`. Putting it on a recurring schedule was rejected for this iteration — Al's call. Revisit when we have a clearer picture of: how stale the local `subscriptions` table actually gets in practice, whether dashboards or other features want a continuously fresh local mirror, and how much Stripe API budget we want to spend on background sync vs. on-demand reads. Likely path: a single configurable interval (env var) with explicit error budgets, not a hardcoded `setInterval`.
 
 ## Backend
 
@@ -41,9 +45,8 @@ Layered path (matches existing convention):
 
 - `controllers/OpsController.ts` — new `getBusinessMetrics` method.
 - `usecases/ops/GetBusinessMetricsUseCase.ts` — orchestrates the six metric calls, returns the JSON shape below.
-- `services/ops/BusinessMetricsService.ts` — owns the in-memory `Map<string, { value, expiresAt }>` cache (15-min TTL). Five methods read via a new `data_layer/SubscriptionsAnalyticsRepository.ts`; the sixth (`failed_payments_7d`) calls the Stripe SDK.
-- `data_layer/SubscriptionsAnalyticsRepository.ts` — read-only repo, raw Knex queries with parameterized bindings. JSON-path operators on the `payload` column (`payload->'items'`, `(payload->>'canceled_at')::int`).
-- `lib/storage/jobs/ScheduleCleanup.ts` — add hourly `setInterval(updateStripeSubscriptions, 60*60*1000)`. Wrap with the existing error handling pattern (the startup invocation already does `.catch(console.error)`).
+- `services/ops/BusinessMetricsService.ts` — owns the Stripe SDK client, all Stripe queries, and the in-memory `Map<string, { value, expiresAt }>` cache (15-min TTL). One method per metric. Reads `STRIPE_SECRET_KEY` from env via the existing `getStripe()` helper.
+- No `data_layer` change. Stripe is the data layer here.
 
 Response shape (flat, no nesting — matches the card grid):
 
@@ -101,7 +104,6 @@ Splitting catches Stripe-shape surprises (especially MRR computation, which has 
 
 ## Open questions
 
-1. **MRR definition** — sum `payload->items[].price.unit_amount × quantity` for `active=true` rows, normalize per-item by `recurring.interval` (yearly → /12, weekly → ×4.33, etc.). Reconcile against Stripe's dashboard MRR in PR A. If >2% drift, revisit before PR B.
-2. **Trial subs** — Stripe sets `status='trialing'` for trials, so they're already excluded from our `active=true` rows (the existing job only flips `active` when `status === 'active'`). No extra filtering needed.
+1. **MRR definition** — sum `items[].price.unit_amount × quantity` across `status='active'` subs, normalize per-item by `recurring.interval` (yearly→/12, weekly→×4.33, daily→×30). Reconcile against Stripe's dashboard MRR in PR A. If >2% drift, revisit before PR B.
+2. **Trial subs** — `status='trialing'` is excluded by querying `status='active'` only. "Paying" means a charge has cleared.
 3. **Currency** — Stripe account is USD-only today. If we ever add a second currency, this design breaks; flag now so we don't ship multi-currency support reactively.
-4. **Local table staleness window** — with a 1h cron, the worst-case staleness is ~60 min. For a 15-min-cached "as of" timestamp on the response, that's fine. If reconciliation in PR A shows we want fresher data, we tighten the cron to 15 min (still well within Stripe rate limits).

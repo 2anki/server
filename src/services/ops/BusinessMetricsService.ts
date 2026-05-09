@@ -1,6 +1,6 @@
 import type { Stripe } from 'stripe';
+import type { Stripe as StripeTypes } from 'stripe/cjs/stripe.core';
 
-import { ISubscriptionsAnalyticsRepository } from '../../data_layer/SubscriptionsAnalyticsRepository';
 import { getStripe } from '../../lib/integrations/stripe';
 
 export type BusinessMetricKey =
@@ -37,24 +37,35 @@ interface CacheEntry {
 export const BUSINESS_METRICS_CACHE_TTL_MS = 15 * 60 * 1000;
 
 interface BusinessMetricsServiceDeps {
-  repository: ISubscriptionsAnalyticsRepository;
   stripeFactory?: () => Stripe;
   cacheTtlMs?: number;
 }
 
 const SECONDS_PER_DAY = 24 * 60 * 60;
+const STRIPE_PAGE_LIMIT = 100;
+
+const INTERVAL_TO_MONTHLY_FACTOR: Record<string, number> = {
+  month: 1,
+  year: 1 / 12,
+  week: 4.33,
+  day: 30,
+};
+
+interface ActiveSubsAggregate {
+  mrrUsd: number;
+  count: number;
+}
 
 export class BusinessMetricsService {
-  private readonly repository: ISubscriptionsAnalyticsRepository;
-
   private readonly stripeFactory: () => Stripe;
 
   private readonly cacheTtlMs: number;
 
   private readonly cache = new Map<BusinessMetricKey, CacheEntry>();
 
-  constructor(deps: BusinessMetricsServiceDeps) {
-    this.repository = deps.repository;
+  private activeAggregatePromise: Promise<ActiveSubsAggregate> | null = null;
+
+  constructor(deps: BusinessMetricsServiceDeps = {}) {
     this.stripeFactory = deps.stripeFactory ?? (() => getStripe());
     this.cacheTtlMs = deps.cacheTtlMs ?? BUSINESS_METRICS_CACHE_TTL_MS;
   }
@@ -63,26 +74,31 @@ export class BusinessMetricsService {
     const now = new Date();
     const errors: BusinessMetricError[] = [];
 
+    this.activeAggregatePromise = null;
+
     const tasks: Array<{
       key: BusinessMetricKey;
       fetch: () => Promise<number>;
     }> = [
-      { key: 'mrr_usd', fetch: () => this.repository.mrrUsd(now) },
       {
-        key: 'net_new_mrr_mtd_usd',
-        fetch: () => this.repository.netNewMrrMtdUsd(now),
+        key: 'mrr_usd',
+        fetch: async () => (await this.loadActiveAggregate()).mrrUsd,
       },
       {
         key: 'active_paying_subs',
-        fetch: () => this.repository.activePayingSubs(),
+        fetch: async () => (await this.loadActiveAggregate()).count,
       },
       {
-        key: 'churn_30d_pct',
-        fetch: () => this.repository.churn30dPct(now),
+        key: 'net_new_mrr_mtd_usd',
+        fetch: () => this.fetchNetNewMrrMtdUsd(now),
       },
       {
         key: 'new_paid_conversions_7d',
-        fetch: () => this.repository.newPaidConversions7d(now),
+        fetch: () => this.fetchNewPaidConversions7d(now),
+      },
+      {
+        key: 'churn_30d_pct',
+        fetch: () => this.fetchChurn30dPct(now),
       },
       {
         key: 'failed_payments_7d',
@@ -161,19 +177,185 @@ export class BusinessMetricsService {
     return Math.max(0, Math.floor((now.getTime() - oldest) / 1000));
   }
 
+  private loadActiveAggregate(): Promise<ActiveSubsAggregate> {
+    const cachedMrr = this.cache.get('mrr_usd');
+    const cachedCount = this.cache.get('active_paying_subs');
+    const nowMs = Date.now();
+    const mrrFresh = cachedMrr != null && cachedMrr.expiresAt > nowMs;
+    const countFresh = cachedCount != null && cachedCount.expiresAt > nowMs;
+    if (mrrFresh && countFresh) {
+      return Promise.resolve({
+        mrrUsd: cachedMrr!.value,
+        count: cachedCount!.value,
+      });
+    }
+    if (this.activeAggregatePromise == null) {
+      this.activeAggregatePromise = this.fetchActiveAggregate();
+    }
+    return this.activeAggregatePromise;
+  }
+
+  private async fetchActiveAggregate(): Promise<ActiveSubsAggregate> {
+    const stripe = this.stripeFactory();
+    let mrrCents = 0;
+    let count = 0;
+    let startingAfter: string | undefined;
+    let hasMore = true;
+    while (hasMore) {
+      const page: StripeTypes.ApiList<StripeTypes.Subscription> =
+        await stripe.subscriptions.list({
+          status: 'active',
+          limit: STRIPE_PAGE_LIMIT,
+          starting_after: startingAfter,
+        });
+      for (const sub of page.data) {
+        if (sub.status !== 'active') {
+          continue;
+        }
+        count += 1;
+        mrrCents += monthlyCentsForSubscription(sub);
+      }
+      hasMore = page.has_more === true && page.data.length > 0;
+      startingAfter = hasMore ? page.data[page.data.length - 1].id : undefined;
+    }
+    return { mrrUsd: mrrCents / 100, count };
+  }
+
+  private async fetchNetNewMrrMtdUsd(now: Date): Promise<number> {
+    const stripe = this.stripeFactory();
+    const since = startOfMonthEpochSeconds(now);
+    let mrrCents = 0;
+    let startingAfter: string | undefined;
+    let hasMore = true;
+    while (hasMore) {
+      const page: StripeTypes.ApiList<StripeTypes.Subscription> =
+        await stripe.subscriptions.list({
+          created: { gte: since },
+          limit: STRIPE_PAGE_LIMIT,
+          starting_after: startingAfter,
+        });
+      for (const sub of page.data) {
+        mrrCents += monthlyCentsForSubscription(sub);
+      }
+      hasMore = page.has_more === true && page.data.length > 0;
+      startingAfter = hasMore ? page.data[page.data.length - 1].id : undefined;
+    }
+    return mrrCents / 100;
+  }
+
+  private async fetchNewPaidConversions7d(now: Date): Promise<number> {
+    const stripe = this.stripeFactory();
+    const since = epochSecondsDaysAgo(now, 7);
+    let count = 0;
+    let startingAfter: string | undefined;
+    let hasMore = true;
+    while (hasMore) {
+      const page: StripeTypes.ApiList<StripeTypes.Subscription> =
+        await stripe.subscriptions.list({
+          created: { gte: since },
+          limit: STRIPE_PAGE_LIMIT,
+          starting_after: startingAfter,
+        });
+      count += page.data.length;
+      hasMore = page.has_more === true && page.data.length > 0;
+      startingAfter = hasMore ? page.data[page.data.length - 1].id : undefined;
+    }
+    return count;
+  }
+
+  private async fetchChurn30dPct(now: Date): Promise<number> {
+    const since = epochSecondsDaysAgo(now, 30);
+    const [canceledCount, activeAggregate] = await Promise.all([
+      this.fetchCanceledSince(since),
+      this.loadActiveAggregate(),
+    ]);
+    if (activeAggregate.count === 0) {
+      return 0;
+    }
+    return (canceledCount / activeAggregate.count) * 100;
+  }
+
+  private async fetchCanceledSince(sinceEpoch: number): Promise<number> {
+    const stripe = this.stripeFactory();
+    let count = 0;
+    let page: StripeTypes.ApiSearchResult<StripeTypes.Subscription> =
+      await stripe.subscriptions.search({
+        query: `canceled_at>:${sinceEpoch}`,
+        limit: STRIPE_PAGE_LIMIT,
+      });
+    count += page.data.length;
+    while (page.has_more === true && page.next_page != null) {
+      page = await stripe.subscriptions.search({
+        query: `canceled_at>:${sinceEpoch}`,
+        limit: STRIPE_PAGE_LIMIT,
+        page: page.next_page,
+      });
+      count += page.data.length;
+    }
+    return count;
+  }
+
   private async fetchFailedPayments7d(now: Date): Promise<number> {
     const stripe = this.stripeFactory();
-    const since = Math.floor(now.getTime() / 1000) - 7 * SECONDS_PER_DAY;
-    const list = await stripe.invoices.list({
-      collection_method: 'charge_automatically',
-      created: { gte: since },
-      limit: 100,
-    });
-    return list.data.filter(
-      (invoice) =>
-        invoice.status === 'open' && (invoice.attempt_count ?? 0) > 0
-    ).length;
+    const since = epochSecondsDaysAgo(now, 7);
+    let count = 0;
+    let startingAfter: string | undefined;
+    let hasMore = true;
+    while (hasMore) {
+      const page: StripeTypes.ApiList<StripeTypes.Invoice> =
+        await stripe.invoices.list({
+          collection_method: 'charge_automatically',
+          created: { gte: since },
+          limit: STRIPE_PAGE_LIMIT,
+          starting_after: startingAfter,
+        });
+      for (const invoice of page.data) {
+        if (invoice.status === 'open' && (invoice.attempt_count ?? 0) > 0) {
+          count += 1;
+        }
+      }
+      hasMore = page.has_more === true && page.data.length > 0;
+      startingAfter = hasMore ? page.data[page.data.length - 1].id : undefined;
+    }
+    return count;
   }
 }
+
+const monthlyCentsForSubscription = (
+  subscription: StripeTypes.Subscription
+): number => {
+  const items = subscription.items?.data ?? [];
+  let total = 0;
+  for (const item of items) {
+    const price = item.price;
+    const recurring = price?.recurring;
+    if (recurring == null) {
+      continue;
+    }
+    const unitAmount = price?.unit_amount;
+    if (unitAmount == null) {
+      continue;
+    }
+    const quantity = item.quantity ?? 1;
+    const intervalCount = recurring.interval_count ?? 1;
+    const factor = INTERVAL_TO_MONTHLY_FACTOR[recurring.interval];
+    if (factor == null) {
+      continue;
+    }
+    total += (unitAmount * quantity * factor) / intervalCount;
+  }
+  return total;
+};
+
+const startOfMonthEpochSeconds = (now: Date): number => {
+  const monthStart = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0)
+  );
+  return Math.floor(monthStart.getTime() / 1000);
+};
+
+const epochSecondsDaysAgo = (now: Date, days: number): number => {
+  return Math.floor(now.getTime() / 1000) - days * SECONDS_PER_DAY;
+};
 
 export default BusinessMetricsService;
