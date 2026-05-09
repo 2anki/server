@@ -519,8 +519,8 @@ const AnkifyRouter = () => {
    * @swagger
    * /api/ankify/clients/{id}/reissue-session:
    *   post:
-   *     summary: Mint a fresh session URL, invalidating the prior one
-   *     description: Allowlisted endpoint. Returns the active client with a fresh session_url containing a new 256-bit token. Any prior session URL is revoked immediately.
+   *     summary: Mint a fresh session URL
+   *     description: Allowlisted endpoint. Returns the active client with a fresh session_url containing a new 256-bit token. Prior tokens for the same client remain valid until their natural 8h TTL — open noVNC tabs survive a reissue. Tokens are revoked when the client is stopped or respun.
    *     tags: [Ankify]
    */
   router.post(
