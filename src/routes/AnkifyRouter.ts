@@ -23,6 +23,7 @@ import { AnkifySyncLogsRepository } from '../data_layer/ankify/AnkifySyncLogsRep
 import { AnkifyNotionSubscriptionsRepository } from '../data_layer/ankify/AnkifyNotionSubscriptionsRepository';
 import { AnkifySyncConflictsRepository } from '../data_layer/ankify/AnkifySyncConflictsRepository';
 import { SyncNotionPageToRacUseCase } from '../usecases/ankify/SyncNotionPageToRacUseCase';
+import { RefreshAnkifySubscriptionUseCase } from '../usecases/ankify/RefreshAnkifySubscriptionUseCase';
 import { ListNotionSubscriptionsUseCase } from '../usecases/ankify/ListNotionSubscriptionsUseCase';
 import { DeleteNotionSubscriptionUseCase } from '../usecases/ankify/DeleteNotionSubscriptionUseCase';
 import { ListConflictsUseCase } from '../usecases/ankify/ListConflictsUseCase';
@@ -328,6 +329,18 @@ const AnkifyRouter = () => {
     return Buffer.isBuffer(body) ? body : Buffer.from(body as Uint8Array);
   };
 
+  const syncNotionPageUseCase = new SyncNotionPageToRacUseCase(
+    repo,
+    mappings,
+    conflictsRepo,
+    subscriptionsRepo,
+    logsRepo,
+    new NotionRepository(db),
+    ankiConnectFactory,
+    notionBlockChildrenFetcherFactory,
+    buildNotionPageMetaFetcher
+  );
+
   const controller = new AnkifyController(
     new ProvisionAnkifyClientUseCase(rac),
     new ListAnkifyClientsUseCase(rac),
@@ -352,19 +365,13 @@ const AnkifyRouter = () => {
     new GetExportScheduleUseCase(schedulesRepo),
     new DeleteExportScheduleUseCase(schedulesRepo, getAnkifyExportScheduler),
     new ListSyncLogsUseCase(logsRepo),
-    new SyncNotionPageToRacUseCase(
-      repo,
-      mappings,
-      conflictsRepo,
-      subscriptionsRepo,
-      logsRepo,
-      new NotionRepository(db),
-      ankiConnectFactory,
-      notionBlockChildrenFetcherFactory,
-      buildNotionPageMetaFetcher
-    ),
+    syncNotionPageUseCase,
     new ListNotionSubscriptionsUseCase(subscriptionsRepo),
     new DeleteNotionSubscriptionUseCase(subscriptionsRepo),
+    new RefreshAnkifySubscriptionUseCase(
+      subscriptionsRepo,
+      syncNotionPageUseCase
+    ),
     new ListConflictsUseCase(conflictsRepo),
     new ResolveConflictUseCase(
       repo,
@@ -656,6 +663,39 @@ const AnkifyRouter = () => {
     '/api/ankify/subscriptions/:id',
     RequireAnkifyAccess,
     (req, res) => controller.deleteSubscription(req, res)
+  );
+
+  /**
+   * @swagger
+   * /api/ankify/subscriptions/{id}/refresh:
+   *   post:
+   *     summary: Manually pull a subscribed Notion page right now
+   *     description: Allowlisted endpoint. Re-runs the Notion → hosted Anki pull for the given subscription, bypassing the 5-minute polling cycle. Per-subscription 30-second cooldown enforced server-side; returns 429 with Retry-After when on cooldown.
+   *     tags: [Ankify]
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: integer
+   *     responses:
+   *       200:
+   *         description: Refresh result (created/updated/conflicts/unchanged)
+   *       400:
+   *         description: Invalid subscription id
+   *       404:
+   *         description: Subscription not found for this user
+   *       409:
+   *         description: No active Ankify client or Notion not connected
+   *       429:
+   *         description: Cooldown — wait Retry-After seconds and try again
+   *       503:
+   *         description: AnkiConnect unreachable
+   */
+  router.post(
+    '/api/ankify/subscriptions/:id/refresh',
+    RequireAnkifyAccess,
+    (req, res) => controller.refreshSubscription(req, res)
   );
 
   /**

@@ -29,6 +29,8 @@ export class TrackerSchemaError extends Error {
   }
 }
 
+export type AnkiWebSyncStatus = 'synced' | 'failed' | 'skipped';
+
 export class Backend {
   public baseURL = '/api/';
 
@@ -438,7 +440,7 @@ export class Backend {
     conflicts: number;
     unchanged: number;
     errors: string[];
-    anki_web_sync: 'synced' | 'failed' | 'skipped';
+    anki_web_sync: AnkiWebSyncStatus;
     anki_web_sync_error: string | null;
   }> {
     const response = await post(`${this.baseURL}ankify/subscriptions`, {
@@ -463,6 +465,36 @@ export class Backend {
     if (!response?.ok) {
       throw new Error('Failed to delete subscription');
     }
+  }
+
+  async refreshAnkifySubscription(id: number): Promise<{
+    created: number;
+    updated: number;
+    conflicts: number;
+    unchanged: number;
+    errors: string[];
+    anki_web_sync: AnkiWebSyncStatus;
+    anki_web_sync_error: string | null;
+  }> {
+    const response = await post(
+      `${this.baseURL}ankify/subscriptions/${id}/refresh`,
+      {}
+    );
+    if (!response.ok) {
+      const body = await response
+        .json()
+        .catch(() => ({ message: response.statusText }));
+      const error = new Error(body.message ?? 'Failed to update deck') as Error & {
+        status?: number;
+        retryAfterSeconds?: number;
+      };
+      error.status = response.status;
+      if (typeof body.retry_after_seconds === 'number') {
+        error.retryAfterSeconds = body.retry_after_seconds;
+      }
+      throw error;
+    }
+    return response.json();
   }
 
   async listAnkifyConflicts(): Promise<
@@ -584,7 +616,7 @@ export class Backend {
     created: number;
     updated: number;
     errors: string[];
-    anki_web_sync: 'synced' | 'failed' | 'skipped';
+    anki_web_sync: AnkiWebSyncStatus;
     anki_web_sync_error: string | null;
   }> {
     const response = await post(`${this.baseURL}ankify/dispatch`, {
