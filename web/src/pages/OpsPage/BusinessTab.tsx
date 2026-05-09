@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
 import sharedStyles from '../../styles/shared.module.css';
-import styles from './OpsPage.module.css';
-import { BusinessMetricsResponse } from './businessTypes';
 import {
   formatCacheAge,
   formatClockShort,
@@ -10,11 +8,15 @@ import {
   formatPercentOneDecimal,
   formatUsd,
 } from './businessHelpers';
-import ChartPanel from './charts/ChartPanel';
-import MrrTimeseriesChart from './charts/MrrTimeseriesChart';
+import { BusinessMetricsResponse } from './businessTypes';
 import ActiveSubsTimeseriesChart from './charts/ActiveSubsTimeseriesChart';
+import CancellationCommentsList from './charts/CancellationCommentsList';
+import CancellationReasonsChart from './charts/CancellationReasonsChart';
+import ChartPanel from './charts/ChartPanel';
 import ConversionsChurnChart from './charts/ConversionsChurnChart';
 import FailedPaymentsWeeklyChart from './charts/FailedPaymentsWeeklyChart';
+import MrrTimeseriesChart from './charts/MrrTimeseriesChart';
+import styles from './OpsPage.module.css';
 import { useBusinessMetrics } from './useBusinessMetrics';
 
 interface MetricCardProps {
@@ -52,9 +54,8 @@ const buildMrrFootnote = (
 
 export default function BusinessTab() {
   const { data, error, isLoading } = useBusinessMetrics();
-  const [lastSnapshot, setLastSnapshot] = useState<BusinessMetricsResponse | null>(
-    null
-  );
+  const [lastSnapshot, setLastSnapshot] =
+    useState<BusinessMetricsResponse | null>(null);
 
   useEffect(() => {
     if (data != null) {
@@ -78,8 +79,8 @@ export default function BusinessTab() {
     <>
       {error != null && (
         <div className={`${sharedStyles.alertDanger} ${styles.banner}`}>
-          /api/ops/business/metrics failed: {error.message}. Last good data shown
-          below.
+          /api/ops/business/metrics failed: {error.message}. Last good data
+          shown below.
         </div>
       )}
 
@@ -166,6 +167,29 @@ export default function BusinessTab() {
         >
           <FailedPaymentsWeeklyChart
             points={visible?.failed_payments_weekly ?? []}
+          />
+        </ChartPanel>
+
+        <ChartPanel
+          title="Why users cancel, last 90 days"
+          isLoading={showInitialSkeleton}
+          isEmpty={(visible?.cancellation_reasons_top?.length ?? 0) === 0}
+          emptyText="No cancellations recorded yet."
+        >
+          <CancellationReasonsChart
+            points={visible?.cancellation_reasons_top ?? []}
+          />
+        </ChartPanel>
+
+        <ChartPanel
+          title="Recent cancellation comments"
+          subtitle="Latest free-text feedback from the cancel survey"
+          isLoading={showInitialSkeleton}
+          isEmpty={(visible?.cancellation_comments_recent?.length ?? 0) === 0}
+          emptyText="No free-text comments yet."
+        >
+          <CancellationCommentsList
+            points={visible?.cancellation_comments_recent ?? []}
           />
         </ChartPanel>
       </div>
