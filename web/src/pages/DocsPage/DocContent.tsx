@@ -65,19 +65,53 @@ function DocsAnchor({ href, children, ...rest }: AnchorProps) {
   );
 }
 
-const CALLOUT_PATTERN = /^:::(note|tip|warning)\s*\n([\s\S]*?)\n:::/gm;
 const CALLOUT_VARIANT_CLASS: Record<CalloutVariant, string> = {
   note: 'callout-note',
   tip: 'callout-tip',
   warning: 'callout-warning',
 };
 
+function parseCalloutOpen(line: string): CalloutVariant | null {
+  if (!line.startsWith(':::')) return null;
+  const rest = line.slice(3).trim();
+  return Object.hasOwn(CALLOUT_VARIANT_CLASS, rest)
+    ? (rest as CalloutVariant)
+    : null;
+}
+
+function isCalloutClose(line: string): boolean {
+  return line.trim() === ':::';
+}
+
 function transformCallouts(body: string): string {
-  return body.replace(
-    CALLOUT_PATTERN,
-    (_match, variant: string, inner: string) =>
-      `<aside class="callout ${CALLOUT_VARIANT_CLASS[variant as CalloutVariant]}">\n\n${inner.trim()}\n\n</aside>`,
-  );
+  const lines = body.split('\n');
+  const out: string[] = [];
+  let i = 0;
+  while (i < lines.length) {
+    const variant = parseCalloutOpen(lines[i]);
+    if (variant == null) {
+      out.push(lines[i]);
+      i++;
+      continue;
+    }
+    let close = i + 1;
+    while (close < lines.length && !isCalloutClose(lines[close])) close++;
+    if (close >= lines.length) {
+      out.push(lines[i]);
+      i++;
+      continue;
+    }
+    const inner = lines.slice(i + 1, close).join('\n').trim();
+    out.push(
+      `<aside class="callout ${CALLOUT_VARIANT_CLASS[variant]}">`,
+      '',
+      inner,
+      '',
+      '</aside>',
+    );
+    i = close + 1;
+  }
+  return out.join('\n');
 }
 
 const markdownComponents: Components = {
