@@ -1,43 +1,68 @@
 import { NavLink } from 'react-router-dom';
-import { sidebar } from './sidebar';
+import { findGroupForSlug, sidebar } from './sidebar';
 import styles from './DocsPage.module.css';
 
 interface DocsSidebarProps {
   onNavigate?: () => void;
+  isDrawer?: boolean;
+  activeSlug?: string;
 }
 
-export function DocsSidebar({ onNavigate }: Readonly<DocsSidebarProps>) {
+export function DocsSidebar({
+  onNavigate,
+  isDrawer,
+  activeSlug,
+}: Readonly<DocsSidebarProps>) {
+  const activeGroupLabel = activeSlug
+    ? findGroupForSlug(activeSlug)?.label
+    : undefined;
+
   return (
-    <nav className={styles.sidebar} aria-label="Documentation">
-      {sidebar.map((group) => (
-        <div key={group.label} className={styles.sidebarGroup}>
-          <div className={styles.sidebarGroupLabel}>{group.label}</div>
-          <ul className={styles.sidebarList}>
-            {group.items.map((item) => (
-              <li key={item.slug}>
-                {item.href ? (
-                  <a href={item.href} className={styles.sidebarLink}>
-                    {item.label}
-                  </a>
-                ) : (
-                  <NavLink
-                    to={`/documentation/${item.slug}`}
-                    className={({ isActive }) =>
-                      `${styles.sidebarLink} ${
-                        isActive ? styles.sidebarLinkActive : ''
-                      }`
-                    }
-                    onClick={onNavigate}
-                    end
-                  >
-                    {item.label}
-                  </NavLink>
-                )}
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
+    <nav
+      className={`${styles.sidebar} ${isDrawer ? styles.sidebarDrawer : ''}`}
+      aria-label="Documentation"
+    >
+      {sidebar.map((group) => {
+        const isActiveGroup = group.label === activeGroupLabel;
+        return (
+          <div key={group.label} className={styles.sidebarGroup}>
+            <div className={styles.sidebarGroupLabel}>{group.label}</div>
+            <ul
+              className={`${styles.sidebarList} ${
+                isActiveGroup ? styles.sidebarListActive : ''
+              }`}
+            >
+              {group.items.map((item) => (
+                <li key={item.slug}>
+                  {item.href ? (
+                    <a
+                      href={item.href}
+                      className={styles.sidebarLink}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {item.label}
+                    </a>
+                  ) : (
+                    <NavLink
+                      to={`/documentation/${item.slug}`}
+                      className={({ isActive }) =>
+                        `${styles.sidebarLink} ${
+                          isActive ? styles.sidebarLinkActive : ''
+                        }`
+                      }
+                      onClick={onNavigate}
+                      end
+                    >
+                      {item.label}
+                    </NavLink>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        );
+      })}
     </nav>
   );
 }

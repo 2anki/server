@@ -1,3 +1,5 @@
+import { redirects } from './sidebar';
+
 const modules = import.meta.glob('./content/**/*.{md,mdx}', {
   query: '?raw',
   import: 'default',
@@ -131,10 +133,16 @@ for (const [path, raw] of Object.entries(modules)) {
   };
 }
 
+export function resolveSlug(slug: string): string {
+  return Object.hasOwn(redirects, slug) ? redirects[slug] : slug;
+}
+
 export function loadDoc(slug: string): LoadedDoc | null {
-  return docs[slug] ?? null;
+  const resolved = resolveSlug(slug);
+  return docs[resolved] ?? null;
 }
 
 export function hasDoc(slug: string): boolean {
-  return Object.hasOwn(docs, slug);
+  const resolved = resolveSlug(slug);
+  return Object.hasOwn(docs, resolved);
 }

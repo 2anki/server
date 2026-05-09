@@ -1,11 +1,18 @@
 import { AnchorHTMLAttributes, useEffect, useMemo } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import {
+  Link,
+  Navigate,
+  useLocation,
+  useNavigate,
+} from 'react-router-dom';
 import ReactMarkdown, { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import rehypeSlug from 'rehype-slug';
-import { loadDoc } from './loader';
-import { findAdjacent } from './sidebar';
+import { loadDoc, resolveSlug } from './loader';
+import { findAdjacent, redirects } from './sidebar';
+import { CalloutVariant } from './Callout';
+import { CodeBlock } from './CodeBlock';
 import styles from './DocsPage.module.css';
 
 interface DocContentProps {
@@ -58,15 +65,34 @@ function DocsAnchor({ href, children, ...rest }: AnchorProps) {
   );
 }
 
-const markdownComponents: Components = { a: DocsAnchor };
+const CALLOUT_PATTERN = /^:::(note|tip|warning)\s*\n([\s\S]*?)\n:::/gm;
+const CALLOUT_VARIANT_CLASS: Record<CalloutVariant, string> = {
+  note: 'callout-note',
+  tip: 'callout-tip',
+  warning: 'callout-warning',
+};
+
+function transformCallouts(body: string): string {
+  return body.replace(
+    CALLOUT_PATTERN,
+    (_match, variant: string, inner: string) =>
+      `<aside class="callout ${CALLOUT_VARIANT_CLASS[variant as CalloutVariant]}">\n\n${inner.trim()}\n\n</aside>`,
+  );
+}
+
+const markdownComponents: Components = {
+  a: DocsAnchor,
+  pre: CodeBlock as Components['pre'],
+};
 const remarkPlugins = [remarkGfm];
 const rehypePlugins = [rehypeRaw, rehypeSlug];
 
-const EDIT_BASE = 'https://github.com/2anki/web/edit/main/';
+const EDIT_BASE = 'https://github.com/2anki/server/edit/main/';
 
 export function DocContent({ slug }: Readonly<DocContentProps>) {
   const doc = loadDoc(slug);
   const { hash } = useLocation();
+  const resolvedSlug = resolveSlug(slug);
 
   useEffect(() => {
     if (!hash) {
@@ -78,7 +104,14 @@ export function DocContent({ slug }: Readonly<DocContentProps>) {
     if (el) el.scrollIntoView();
   }, [slug, hash]);
 
-  const { prev, next } = useMemo(() => findAdjacent(slug), [slug]);
+  const { prev, next } = useMemo(
+    () => findAdjacent(resolvedSlug),
+    [resolvedSlug],
+  );
+
+  if (slug !== resolvedSlug && Object.hasOwn(redirects, slug)) {
+    return <Navigate to={`/documentation/${resolvedSlug}`} replace />;
+  }
 
   if (!doc) {
     return (
@@ -94,6 +127,7 @@ export function DocContent({ slug }: Readonly<DocContentProps>) {
 
   const { frontmatter, body, sourcePath } = doc;
   const editUrl = `${EDIT_BASE}${sourcePath}`;
+  const transformedBody = transformCallouts(body);
 
   return (
     <article className={styles.article}>
@@ -112,7 +146,7 @@ export function DocContent({ slug }: Readonly<DocContentProps>) {
           rehypePlugins={rehypePlugins}
           components={markdownComponents}
         >
-          {body}
+          {transformedBody}
         </ReactMarkdown>
       </div>
 
