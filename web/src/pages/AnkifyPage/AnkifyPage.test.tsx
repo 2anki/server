@@ -53,6 +53,7 @@ const makeBackend = (overrides: Partial<Backend> = {}): Backend =>
     reissueAnkifySessionUrl: vi.fn(),
     listAnkifySubscriptions: vi.fn(async () => []),
     listAnkifyConflicts: vi.fn(async () => []),
+    getAnkifyExportSchedule: vi.fn(async () => null),
     checkAnkifyActiveClientReady: vi.fn(async () => ({ ready: false })),
     checkAnkifyAnkiWebStatus: vi.fn(async () => ({
       status: 'unlinked' as const,
