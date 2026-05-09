@@ -90,6 +90,14 @@ const sanitizeDeckTitle = (title: string | null | undefined): string => {
 const buildDeckName = (title: string | null | undefined): string =>
   `${DECK_PARENT}::${sanitizeDeckTitle(title)}`;
 
+const summarizeCardErrors = (errors: string[]): string | null => {
+  if (errors.length === 0) {
+    return null;
+  }
+  const noun = errors.length === 1 ? 'card' : 'cards';
+  return `${errors.length} ${noun} failed: ${errors[0]}`;
+};
+
 const arrayBufferToBase64 = (buffer: ArrayBuffer): string =>
   Buffer.from(buffer).toString('base64');
 
@@ -159,15 +167,9 @@ export class SyncNotionPageToRacUseCase {
 
     try {
       await this.runSync({ input, token, client, subscription, result });
-      const lastError =
-        result.errors.length === 0
-          ? null
-          : `${result.errors.length} card${
-              result.errors.length === 1 ? '' : 's'
-            } failed: ${result.errors[0]}`;
       await this.subscriptions.recordPoll(subscription.id, {
         synced: true,
-        error: lastError,
+        error: summarizeCardErrors(result.errors),
       });
     } catch (error) {
       const message = (error as Error).message;
