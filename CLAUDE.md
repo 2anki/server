@@ -1,89 +1,96 @@
 # CLAUDE.md
 
-Express/TypeScript server that converts Notion pages and file uploads into Anki flashcard decks (.apkg).
-
-## Git
-
-- Use conventional commit prefixes (e.g. fix:, feat:, chore:, refactor:, test:, docs:)
-- Suggest a branch name before starting any code changes
-- Always rebase on origin/main before creating a new branch or opening a PR
-- When a unit of work is done, ship it without asking: commit, push the branch (always `git push -u origin <branch>` — never bare `git push`, never to main), then open a draft PR with `gh pr create --draft`. The safety hook in `.claude/hooks/safety.py` blocks pushes to main and bare `git push` as a backstop.
-
-## General
-
-- Ask before starting the server
-- Prefer simple and obvious — do not deduplicate until a pattern has appeared at least three times
-- Do not add comments — use meaningful names instead
-- Before considering a task done, remove any scaffolding, debug logs, or temporary code added during implementation
-- Lead with the positive condition when an `if` has an `else`: write `if (ready) { … } else { … }`, not `if (!ready) { … } else { … }`. Negation + else forces the reader to mentally invert the first branch (Sonar S7735)
-
-## Commands
-
-- Run tests with `pnpm test` scoped to the current test file
-- If test output is truncated, rerun without coverage for full output
-- When tests fail, provide the specific error message
-
-## Working speed
-
-- For research that spans 3+ queries (where is X defined, what touches Y, what changed in Z), spawn a subagent via the Agent tool with `subagent_type=Explore`. If the result isn't immediately needed, run it with `run_in_background: true` and keep editing in parallel.
-- For risky changes (auth flow, payments, migrations, deploy pipeline, anything that scares you), use `EnterWorktree` to isolate. Reverting a worktree is free.
-- For "wait until X" — long builds, CI runs, deploys baking on prod — use `ScheduleWakeup` (270s if cache-warm matters, 1200s+ for genuine waits). Never busy-poll with sleep.
-- Before running `gh pr merge` on a PR that touches auth, payments, or external-API integration code, run `/security-review` first.
-- Before `gh pr merge`, ALL `statusCheckRollup` entries must be non-FAILURE — not just the named-required checks. GitHub branch protection only blocks on required checks, so non-required jobs (e.g. SonarCloud quality-gate) can fail silently and slip through. The `.claude/hooks/check-merge-status.py` hook enforces this; treat the rule as engineer-side too.
-- After deploys to 2anki.net, run `/deploy-status` to confirm the box is healthy before declaring success.
-- If you notice yourself approving the same read-only Bash commands more than 2-3 times in a session, suggest the user run `/fewer-permission-prompts` to top up the allowlist.
-
-## Process
-
-- Use TDD by default: write a failing test, verify it fails for the right reason, pass it in the simplest way, then refactor. If asked to implement without a test, confirm whether to skip it.
-- Prefer outside-in testing
-- Only mock external dependencies (HTTP calls, third-party APIs, email) — not internal services
-- A passing test suite is not proof of correctness — before committing, review affected user flows in the codebase to check for regressions
-
-## Architecture
-
-Request path: `routes/` → `controllers/` → `usecases/` → `services/` → `data_layer/` (DB).
-Each layer has a CLAUDE.md with its own rules.
-
-## Security
-
-- IMPORTANT: Use `== null` to check for absent values — not `!value`, which incorrectly rejects falsy IDs like `0`
-- Never use `knex.raw()` with string concatenation — always use parameterized queries
-- Validate and sanitize all user input at the handler level
-- Never log sensitive data (passwords, tokens, personal information)
-- Use `res.locals` for passing authenticated user data through middleware
+Express/TypeScript server that converts Notion pages and uploaded files (HTML, markdown, xlsx, zip) into Anki `.apkg` decks. Frontend is the sibling workspace under `web/`.
 
 ## Goal
 
-**Mission**: give people the simplest, fastest way to turn what they're studying into beautiful Anki flashcards. Every interaction should feel obvious and quick — drop something in, get a clean deck back.
+Mission: give people the simplest, fastest way to turn what they're studying into beautiful Anki flashcards. Drop something in, get a clean deck back.
+Scale: grow 2anki.net past 300K users.
+Every PR is checked against both — does it make the experience simpler/faster/more beautiful, and does it move us toward scale?
 
-**Scale**: grow 2anki.net to over 300K users.
+## Tech stack
 
-Every PR and roadmap decision should be checked against both: does it make the experience simpler / faster / more beautiful for the user, and does it move us toward that scale?
+- Node 22.20.0 (`.nvmrc`), pnpm workspace, TypeScript ~6.0
+- Express 5, Knex + Postgres (with `better-sqlite3` for local), multer for upload
+- Jest + ts-jest, `*.test.ts` colocated next to source
+- Notion (`@notionhq/client`), Anthropic, Stripe, SendGrid, AWS S3
+- SonarCloud quality gate; Biome lint runs in the `web/` workspace
+
+## Entry points
+
+- `src/server.ts` — boots Express, wires routers, runs migrations on startup, marks interrupted Claude jobs.
+- `src/routes/` → `src/controllers/` → `src/usecases/` → `src/services/` → `src/data_layer/` (DB).
+  Each layer has its own CLAUDE.md — read it before editing.
+- Hot path docs: @src/lib/parser/FEATURE.md, @src/services/NotionService/FEATURE.md, @src/services/observability/FEATURE.md, @src/lib/ankify/FEATURE.md
+- Deeper context: `Documentation/`, `ROADMAP.md`, `RULES.md`.
+
+## Run it
+
+- Install: `pnpm install` (never `npm`/`yarn`).
+- **Ask before starting the server.** Dev: `pnpm dev` (server + web). Server only: `pnpm dev:server`.
+- Tests: `pnpm test <path>` to scope to one file. If output is truncated, rerun without coverage.
+- All-green gate: `/check` (parallel server tsc + web typecheck + web vitest + web lint).
+- Migrations: regenerate types after a new migration with `pnpm kanel`.
+- Production deploys via the `deploy.2anki.net.yml` workflow; verify with `/deploy-status` after.
+
+## Rules (loaded from .claude/rules/)
+
+@.claude/rules/security.md
+@.claude/rules/testing.md
+@.claude/rules/code-quality.md
+@.claude/rules/dependencies.md
+
+## Git
+
+- Conventional commit prefixes: `feat:`, `fix:`, `chore:`, `refactor:`, `test:`, `docs:`, `perf:`, `ci:`, `build:`, `style:`, `revert:`.
+- Suggest a branch name before starting code changes; format `<type>/<short-slug>`.
+- Always rebase on `origin/main` before opening a PR.
+- One PR per feature. Never stack PRs — the deploy pipeline pulls a single branch.
+- Push pattern: `git push -u origin <branch>` — never bare `git push`, never to `main`. The `safety.py` hook blocks both.
+- When a unit of work is done, ship it: commit, push, open a draft PR with `gh pr create --draft`.
+- Before `gh pr merge`: every `statusCheckRollup` entry must be non-FAILURE (not just required ones). The `check-merge-status.py` hook enforces this.
+- Touching auth, payments, or external-API integration? Run `/security-review` before merge.
+- Document scope/follow-ups in commit bodies, not new GitHub issues.
+
+## Working speed
+
+- For research spanning 3+ queries (where is X defined, what touches Y), spawn `Agent(subagent_type=Explore)`. If the result isn't immediately needed, run it with `run_in_background: true` and keep editing.
+- For risky changes (auth, payments, migrations, deploy pipeline), use `EnterWorktree` — reverting a worktree is free.
+- For "wait until X" (long builds, CI, deploys baking on prod), use `ScheduleWakeup` (270s if cache-warm matters, 1200s+ for genuine waits). Never busy-poll with sleep.
+- After deploys to 2anki.net, run `/deploy-status` to confirm the box is healthy.
+- If you keep approving the same read-only Bash commands, suggest `/fewer-permission-prompts`.
+
+## Process
+
+- TDD by default: failing test → verify it fails for the right reason → simplest pass → refactor. If asked to skip tests, confirm first.
+- Outside-in testing. Mock only external dependencies (HTTP, third-party APIs, email) — never internal services.
+- A passing suite is not proof of correctness — review affected user flows for regressions before committing.
+- Before declaring a task done, strip scaffolding, debug logs, and temporary code added during implementation.
+
+## Gotchas
+
+- **Stripe sync is manual only** — never put `updateStripeSubscriptions` on a cron or `setInterval`.
+- **Never edit `src/data_layer/public/`** — Kanel-generated; rerun `pnpm kanel` instead.
+- Lead with the positive in `if/else` (`if (ready)` not `if (!ready)`) — Sonar S7735.
+- Use `value == null` to test "is the ID present?" — `!value` rejects falsy IDs like `0`.
+- The Ankify feature is allowlisted to `alexander@alemayhu.com` in beta. Don't widen without an explicit decision.
+- Notion webhook receiver in `routes/AnkifyWebhookRouter.ts` is intentionally inactive; polling at 5 min carries the story today.
+- The prod box checks out this repo at `/home/alemayhu/src/github.com/2anki/2anki.net` (legacy name).
 
 ## The trio
 
-Three sub-agents live in `.claude/agents/`:
+Three sub-agents in `.claude/agents/`:
 
-- **engineer** — implements specs, reviews PRs, writes tests, ships
-- **designer** — UI/UX decisions, copy, visual consistency
-- **pm** — feedback synthesis, prioritization, spec writing, metrics
+- **engineer** — implements specs, reviews PRs, writes tests, ships.
+- **designer** — UI/UX decisions, copy, visual consistency.
+- **pm** — feedback synthesis, prioritization, spec writing, metrics.
 
-Default workflow: `pm` produces a spec → `designer` validates UX (only if user-facing) → `engineer` implements → `engineer` opens and reviews the PR. For tiny fixes, skip directly to engineer.
+Default: `pm` produces a spec → `designer` validates UX (only if user-facing) → `engineer` implements and ships. For tiny fixes, skip to engineer. Read-only audits go through `dead-code-auditor` (haiku); isolated feature work through `test-writer` (sonnet, worktree).
 
-Conventions for the trio:
+Trio conventions: be opinionated (one recommendation, not five options); specs fit on one page; say what *not* to build; reply to support email *as a draft for Alexander to send*.
 
-- Be opinionated. Don't list five options — recommend one with reasoning.
-- Specs are short. If a spec runs longer than one page, split it.
-- Say what *not* to build. Scope discipline beats feature creep.
-- Reply to support email *as a draft for Alexander to send*, not as Claude.
+## Slash commands (`.claude/commands/` and `.claude/skills/`)
 
-## Trio slash commands (`.claude/commands/`)
-
-- `/triage-feedback` — paste raw email/Discord/survey → themed summary + drafted GitHub issues
-- `/spec <issue-url>` — turn a GitHub issue into a one-page implementation spec
-- `/implement <spec>` — spec → branch + commits + PR
-- `/review-pr <pr-url>` — review a contributor PR against conventions and goal alignment
-- `/changelog [date range]` — recent merged PRs → user-facing changelog entry
-- `/weekly-retro` — Stripe + Plausible numbers → priority adjustments
-- `/support-reply` — paste a user email → a draft reply in Alexander's voice
+- `/triage-feedback`, `/spec`, `/implement`, `/review-pr`, `/changelog`, `/weekly-retro`, `/support-reply` — trio workflow.
+- `/check`, `/pr-checks`, `/deploy-status` — local + remote status.
+- `/tdd`, `/add-tests`, `/security-audit`, `/verify-completion`, `/simplify`, `/systematic-debugging`, `/revise-claude-md` — engineering aids.
