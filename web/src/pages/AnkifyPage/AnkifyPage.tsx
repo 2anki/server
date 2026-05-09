@@ -53,6 +53,11 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
     refetchInterval: 30_000,
   });
 
+  const exportSchedule = useQuery({
+    queryKey: ['ankify-export-schedule'],
+    queryFn: () => api.getAnkifyExportSchedule(),
+  });
+
   const hasActiveClient = data?.some((c) => c.status === 'active') ?? false;
   const signedInAcknowledged = readSignedInAcknowledged();
 
@@ -102,7 +107,10 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
         backend={backend}
       />
 
-      <NotionSubscriptions backend={backend} />
+      <NotionSubscriptions
+        backend={backend}
+        schedule={exportSchedule.data ?? null}
+      />
 
       <div className={styles.historyFooter}>
         {hasTracker ? (
