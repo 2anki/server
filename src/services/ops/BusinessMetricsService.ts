@@ -280,13 +280,13 @@ export class BusinessMetricsService {
     let count = 0;
     let page: StripeTypes.ApiSearchResult<StripeTypes.Subscription> =
       await stripe.subscriptions.search({
-        query: `canceled_at>:${sinceEpoch}`,
+        query: `canceled_at>${sinceEpoch}`,
         limit: STRIPE_PAGE_LIMIT,
       });
     count += page.data.length;
     while (page.has_more === true && page.next_page != null) {
       page = await stripe.subscriptions.search({
-        query: `canceled_at>:${sinceEpoch}`,
+        query: `canceled_at>${sinceEpoch}`,
         limit: STRIPE_PAGE_LIMIT,
         page: page.next_page,
       });

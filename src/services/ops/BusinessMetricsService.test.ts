@@ -154,6 +154,8 @@ describe('BusinessMetricsService', () => {
     expect(result.as_of).toBe('2026-05-09T14:32:07.000Z');
     expect(result.cache_age_seconds).toBe(0);
     expect(result.errors).toBeUndefined();
+    const searchCall = (stripe.subscriptions.search as jest.Mock).mock.calls[0][0];
+    expect(searchCall.query).toMatch(/^canceled_at>\d+$/);
   });
 
   it('serves cached values within 15 minutes', async () => {
