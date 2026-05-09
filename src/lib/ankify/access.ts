@@ -4,4 +4,4 @@ export interface AnkifyAccessUser {
 
 export const hasAnkifyAccess = (
   user: AnkifyAccessUser | null | undefined
-): boolean => user != null && user.patreon === true;
+): boolean => user?.patreon === true;
