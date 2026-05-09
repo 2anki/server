@@ -144,13 +144,17 @@ describe('AnkifySetupPage', () => {
   });
 });
 
+const ANKIFY_WELCOME_KEY = 'ankify_welcome_seen';
+
 describe('AnkifyPage workspace home', () => {
   beforeEach(() => {
     globalThis.localStorage?.setItem(ANKI_WEB_ACK_KEY, 'true');
+    globalThis.localStorage?.removeItem(ANKIFY_WELCOME_KEY);
   });
 
   afterEach(() => {
     globalThis.localStorage?.removeItem(ANKI_WEB_ACK_KEY);
+    globalThis.localStorage?.removeItem(ANKIFY_WELCOME_KEY);
   });
 
   test('renders the Ankify title and Decks heading when setup is complete', async () => {
@@ -194,5 +198,65 @@ describe('AnkifyPage workspace home', () => {
       ).toBeInTheDocument()
     );
     expect(screen.queryByText(/^beta$/i)).not.toBeInTheDocument();
+  });
+
+  test('shows the welcome banner once on first arrival and remembers dismissal', async () => {
+    const backend = makeBackend({
+      listAnkifyClients: vi.fn(async () => [sampleClient()]),
+      checkAnkifyActiveClientReady: vi.fn(async () => ({ ready: true })),
+      checkAnkifyAnkiWebStatus: vi.fn(async () => ({
+        status: 'linked' as const,
+      })),
+    });
+
+    const { unmount } = renderAt('/ankify', backend);
+
+    await waitFor(() =>
+      expect(
+        screen.getByText(/your anki is ready/i)
+      ).toBeInTheDocument()
+    );
+    expect(
+      screen.getByText(/ankify basic and ankify cloze/i)
+    ).toBeInTheDocument();
+
+    const dismiss = screen.getByRole('button', { name: /got it/i });
+    dismiss.click();
+
+    await waitFor(() =>
+      expect(
+        screen.queryByText(/your anki is ready/i)
+      ).not.toBeInTheDocument()
+    );
+
+    unmount();
+    renderAt('/ankify', backend);
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole('heading', { name: /^ankify$/i, level: 1 })
+      ).toBeInTheDocument()
+    );
+    expect(screen.queryByText(/your anki is ready/i)).not.toBeInTheDocument();
+  });
+
+  test('does not show the welcome banner once it has been seen', async () => {
+    globalThis.localStorage?.setItem(ANKIFY_WELCOME_KEY, 'true');
+    const backend = makeBackend({
+      listAnkifyClients: vi.fn(async () => [sampleClient()]),
+      checkAnkifyActiveClientReady: vi.fn(async () => ({ ready: true })),
+      checkAnkifyAnkiWebStatus: vi.fn(async () => ({
+        status: 'linked' as const,
+      })),
+    });
+
+    renderAt('/ankify', backend);
+
+    await waitFor(() =>
+      expect(
+        screen.getByRole('heading', { name: /^ankify$/i, level: 1 })
+      ).toBeInTheDocument()
+    );
+    expect(screen.queryByText(/your anki is ready/i)).not.toBeInTheDocument();
   });
 });

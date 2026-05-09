@@ -70,6 +70,8 @@ const makeAnkiConnectStub = () => {
     addNote: jest.fn(async (_n: unknown) => 9_876_543_210),
     updateNoteFields: jest.fn(async (_id: number, _f: unknown) => null),
     sync: jest.fn(async () => null),
+    modelNames: jest.fn(async () => [] as string[]),
+    createModel: jest.fn(async (_p: unknown) => ({ id: 1 })),
   };
   return stub as unknown as AnkiConnectClient & typeof stub;
 };
@@ -141,7 +143,7 @@ describe('SendUploadToRacUseCase', () => {
     expect(ac.addNote).toHaveBeenCalledWith(
       expect.objectContaining({
         deckName: 'Imported::Subdeck',
-        modelName: 'Basic',
+        modelName: 'Ankify Basic',
         fields: { Front: 'front text', Back: 'back text' },
       })
     );
@@ -269,13 +271,69 @@ describe('SendUploadToRacUseCase', () => {
 
     expect(ac.addNote).toHaveBeenCalledWith(
       expect.objectContaining({
-        modelName: 'Cloze',
+        modelName: 'Ankify Cloze',
         fields: expect.objectContaining({
           Text: 'Capital of {{c1::France}} is Paris.',
           'Back Extra': 'extra',
         }),
       })
     );
+  });
+
+  test('seeds Ankify note types once even with multiple notes across decks', async () => {
+    const { clients, mappings, uploads } = makeRepos();
+    const ac = makeAnkiConnectStub();
+    const useCase = new SendUploadToRacUseCase(
+      clients,
+      mappings,
+      uploads,
+      async () => Buffer.from('fake'),
+      () =>
+        buildCollection({
+          notes: new Map([
+            [
+              100,
+              {
+                id: 100,
+                mid: 1,
+                tags: '',
+                fields: ['front-a', 'back-a'],
+                guid: 'guid-a',
+              },
+            ],
+            [
+              101,
+              {
+                id: 101,
+                mid: 1,
+                tags: '',
+                fields: ['Capital of {{c1::France}}', 'extra'],
+                guid: 'guid-c',
+              },
+            ],
+          ]),
+          decks: new Map([
+            [10, { id: 10, name: 'DeckOne' }],
+            [11, { id: 11, name: 'DeckTwo' }],
+          ]),
+          cards: [
+            { id: 1, nid: 100, did: 10, ord: 0 },
+            { id: 2, nid: 101, did: 11, ord: 0 },
+          ],
+        }),
+      () => ac
+    );
+
+    await useCase.execute({ uploadId: 7, owner: 42 });
+
+    expect(ac.modelNames).toHaveBeenCalledTimes(1);
+    const created = (ac.createModel as jest.Mock).mock.calls.map(
+      (args) => (args[0] as { modelName: string }).modelName
+    );
+    expect(created).toEqual(
+      expect.arrayContaining(['Ankify Basic', 'Ankify Cloze'])
+    );
+    expect(created).toHaveLength(2);
   });
 
   test('NoActiveAnkifyClientError when the user has no provisioned client', async () => {

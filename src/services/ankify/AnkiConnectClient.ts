@@ -87,6 +87,10 @@ export class AnkiConnectClient {
     return this.invoke('modelFieldNames', { modelName });
   }
 
+  async createModel(params: AnkiConnectCreateModelParams): Promise<unknown> {
+    return this.invoke('createModel', params as unknown as Record<string, unknown>);
+  }
+
   async getNumCardsReviewedByDay(): Promise<Array<[string, number]>> {
     return this.invoke('getNumCardsReviewedByDay');
   }
@@ -165,6 +169,20 @@ export class AnkiConnectClient {
     }
     return body.result;
   }
+}
+
+export interface AnkiConnectCardTemplate {
+  Name: string;
+  Front: string;
+  Back: string;
+}
+
+export interface AnkiConnectCreateModelParams {
+  modelName: string;
+  inOrderFields: string[];
+  css: string;
+  isCloze?: boolean;
+  cardTemplates: AnkiConnectCardTemplate[];
 }
 
 export interface AnkiNoteInfo {
