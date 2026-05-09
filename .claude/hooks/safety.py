@@ -3,7 +3,8 @@
 PreToolUse safety hook: blocks foot-gun shell commands.
 
 Currently blocks:
-  * git push --force / -f / +ref to main or master
+  * git push to main or master (force or not)
+  * bare `git push` with no remote+branch — forces explicit branch name
   * git reset --hard when there are uncommitted changes
   * rm -rf against /, ~, $HOME, or parent directories
 
@@ -33,18 +34,30 @@ def deny(reason):
 
 
 PROTECTED_BRANCH = re.compile(r"\b(main|master)\b")
-FORCE_FLAG = re.compile(r"(?:--force(?:-with-lease)?|(?:^|\s)-f(?:\s|$))")
-PLUS_REF = re.compile(r"\s\+(?:main|master)\b")
+GIT_PUSH = re.compile(r"\bgit\s+push\b")
 
 
-def is_force_push_to_protected(cmd):
-    if "git push" not in cmd:
+def push_args(cmd):
+    if not GIT_PUSH.search(cmd):
+        return None
+    after = GIT_PUSH.split(cmd, 1)[1]
+    after = re.split(r"[;&|]", after, 1)[0]
+    return after
+
+
+def is_push_to_protected(cmd):
+    after = push_args(cmd)
+    if after is None:
         return False
-    has_force = bool(FORCE_FLAG.search(cmd))
-    has_plus = bool(PLUS_REF.search(cmd))
-    if not (has_force or has_plus):
+    return bool(PROTECTED_BRANCH.search(after))
+
+
+def is_bare_push(cmd):
+    after = push_args(cmd)
+    if after is None:
         return False
-    return bool(PROTECTED_BRANCH.search(cmd))
+    non_flags = [t for t in after.split() if not t.startswith("-")]
+    return len(non_flags) < 2
 
 
 def has_uncommitted_changes():
@@ -93,10 +106,17 @@ def main():
 
     cmd = data.get("tool_input", {}).get("command", "")
 
-    if is_force_push_to_protected(cmd):
+    if is_push_to_protected(cmd):
         deny(
-            "Refusing force-push to main/master — rewrites shared history.\n"
+            "Refusing to push to main/master — push to a feature branch and open a PR.\n"
             "If you genuinely need this, prefix with CLAUDE_SKIP_SAFETY=1."
+        )
+
+    if is_bare_push(cmd):
+        deny(
+            "Refusing bare `git push` — always specify the remote and branch explicitly\n"
+            "(e.g. `git push origin <branch-name>`) so we never push to main by accident.\n"
+            "Bypass with CLAUDE_SKIP_SAFETY=1 if intentional."
         )
 
     if is_reset_hard_with_uncommitted(cmd):
