@@ -118,7 +118,7 @@ function slugFromPath(path: string): string {
   return path.slice(start, end);
 }
 
-const SOURCE_ROOT = 'src/pages/DocsPage/';
+const SOURCE_ROOT = 'web/src/pages/DocsPage/';
 
 const docs: Record<string, LoadedDoc> = {};
 for (const [path, raw] of Object.entries(modules)) {
