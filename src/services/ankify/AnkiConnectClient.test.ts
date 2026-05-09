@@ -155,6 +155,69 @@ describe('AnkiConnectClient', () => {
     });
   });
 
+  test('updateModelStyling posts the updateModelStyling action with model.css payload', async () => {
+    const fetchImpl = makeFetch({ result: null, error: null });
+    const client = new AnkiConnectClient('http://localhost:8765', fetchImpl);
+
+    await client.updateModelStyling({
+      name: 'Ankify Basic',
+      css: '.card { color: red; }',
+    });
+
+    const body = JSON.parse((fetchImpl as jest.Mock).mock.calls[0][1].body);
+    expect(body).toEqual({
+      action: 'updateModelStyling',
+      version: 6,
+      params: {
+        model: { name: 'Ankify Basic', css: '.card { color: red; }' },
+      },
+    });
+  });
+
+  test('updateModelTemplates posts the updateModelTemplates action with templates payload', async () => {
+    const fetchImpl = makeFetch({ result: null, error: null });
+    const client = new AnkiConnectClient('http://localhost:8765', fetchImpl);
+
+    await client.updateModelTemplates({
+      name: 'Ankify Basic',
+      templates: {
+        'Card 1': { Front: '{{Front}}', Back: '{{Back}}' },
+      },
+    });
+
+    const body = JSON.parse((fetchImpl as jest.Mock).mock.calls[0][1].body);
+    expect(body).toEqual({
+      action: 'updateModelTemplates',
+      version: 6,
+      params: {
+        model: {
+          name: 'Ankify Basic',
+          templates: {
+            'Card 1': { Front: '{{Front}}', Back: '{{Back}}' },
+          },
+        },
+      },
+    });
+  });
+
+  test('storeMediaFile posts the storeMediaFile action with filename + base64 data', async () => {
+    const fetchImpl = makeFetch({ result: 'ankify-x.png', error: null });
+    const client = new AnkiConnectClient('http://localhost:8765', fetchImpl);
+
+    const stored = await client.storeMediaFile({
+      filename: 'ankify-x.png',
+      data: 'UEFTREFUQQ==',
+    });
+
+    expect(stored).toBe('ankify-x.png');
+    const body = JSON.parse((fetchImpl as jest.Mock).mock.calls[0][1].body);
+    expect(body).toEqual({
+      action: 'storeMediaFile',
+      version: 6,
+      params: { filename: 'ankify-x.png', data: 'UEFTREFUQQ==' },
+    });
+  });
+
   test('throws AnkiConnectUnreachableError when fetch rejects', async () => {
     const fetchImpl = jest.fn(async () => {
       throw new Error('connect ECONNREFUSED');
