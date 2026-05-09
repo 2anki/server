@@ -51,11 +51,15 @@ const sampleSubscription = (
   ...overrides,
 });
 
-const sampleCard = (): WalkedNotionFlashcard => ({
+const sampleCard = (
+  overrides: Partial<WalkedNotionFlashcard> = {}
+): WalkedNotionFlashcard => ({
   notion_block_id: 'block-1',
   front: 'Front text',
   back: 'Back text',
   notion_last_edited_at: new Date(),
+  images: [],
+  ...overrides,
 });
 
 const makeClients = (): jest.Mocked<AnkifyClientsRepositoryInterface> =>
@@ -125,6 +129,9 @@ const makeAnkiConnectStub = () =>
     sync: jest.fn(async () => null),
     modelNames: jest.fn(async () => [] as string[]),
     createModel: jest.fn(async (_p: unknown) => ({ id: 1 })),
+    updateModelStyling: jest.fn(async () => null),
+    updateModelTemplates: jest.fn(async () => null),
+    storeMediaFile: jest.fn(async () => 'stored.png'),
   } as unknown as AnkiConnectClient & { [k: string]: jest.Mock });
 
 const makeRepos = () => ({
@@ -293,6 +300,290 @@ describe('SyncNotionPageToRacUseCase', () => {
     expect(callOrder.indexOf('createModel')).toBeLessThan(
       callOrder.indexOf('addNote')
     );
+  });
+
+  test('addNote uses a per-page deck name nested under "Notion Sync"', async () => {
+    (walkNotionPageForFlashcards as jest.Mock).mockResolvedValue([sampleCard()]);
+    const repos = makeRepos();
+    repos.subscriptions = makeSubscriptionsRepo(
+      sampleSubscription({ notion_page_title: 'Algebra Basics' })
+    );
+    const ac = makeAnkiConnectStub();
+    const useCase = new SyncNotionPageToRacUseCase(
+      repos.clients,
+      repos.mappings,
+      repos.conflicts,
+      repos.subscriptions,
+      repos.logs,
+      repos.notionRepo,
+      () => ac,
+      () => async () => [],
+      () => async () => ({
+        title: 'Algebra Basics',
+        url: null,
+        icon: null,
+      })
+    );
+
+    await useCase.execute({
+      owner: 42,
+      notionPageId: 'page-id',
+      trigger: 'manual',
+    });
+
+    expect(ac.createDeck).toHaveBeenCalledWith('Notion Sync::Algebra Basics');
+    expect(ac.addNote).toHaveBeenCalledWith(
+      expect.objectContaining({
+        deckName: 'Notion Sync::Algebra Basics',
+      })
+    );
+    expect(repos.mappings.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        deck_name: 'Notion Sync::Algebra Basics',
+      })
+    );
+  });
+
+  test('falls back to "Notion Sync::Untitled" when the page title is null', async () => {
+    (walkNotionPageForFlashcards as jest.Mock).mockResolvedValue([sampleCard()]);
+    const repos = makeRepos();
+    repos.subscriptions = makeSubscriptionsRepo(
+      sampleSubscription({ notion_page_title: null })
+    );
+    const ac = makeAnkiConnectStub();
+    const useCase = new SyncNotionPageToRacUseCase(
+      repos.clients,
+      repos.mappings,
+      repos.conflicts,
+      repos.subscriptions,
+      repos.logs,
+      repos.notionRepo,
+      () => ac,
+      () => async () => []
+    );
+
+    await useCase.execute({
+      owner: 42,
+      notionPageId: 'page-id',
+      trigger: 'manual',
+    });
+
+    expect(ac.createDeck).toHaveBeenCalledWith('Notion Sync::Untitled');
+    expect(ac.addNote).toHaveBeenCalledWith(
+      expect.objectContaining({ deckName: 'Notion Sync::Untitled' })
+    );
+  });
+
+  test('strips "::" from titles so users cannot accidentally nest deeper', async () => {
+    (walkNotionPageForFlashcards as jest.Mock).mockResolvedValue([sampleCard()]);
+    const repos = makeRepos();
+    repos.subscriptions = makeSubscriptionsRepo(
+      sampleSubscription({ notion_page_title: '  Quick::Tricks  ' })
+    );
+    const ac = makeAnkiConnectStub();
+    const useCase = new SyncNotionPageToRacUseCase(
+      repos.clients,
+      repos.mappings,
+      repos.conflicts,
+      repos.subscriptions,
+      repos.logs,
+      repos.notionRepo,
+      () => ac,
+      () => async () => []
+    );
+
+    await useCase.execute({
+      owner: 42,
+      notionPageId: 'page-id',
+      trigger: 'manual',
+    });
+
+    expect(ac.createDeck).toHaveBeenCalledWith('Notion Sync::QuickTricks');
+  });
+
+  test('refreshes model styling and templates after ensuring models exist', async () => {
+    (walkNotionPageForFlashcards as jest.Mock).mockResolvedValue([sampleCard()]);
+    const repos = makeRepos();
+    const ac = makeAnkiConnectStub();
+    const useCase = new SyncNotionPageToRacUseCase(
+      repos.clients,
+      repos.mappings,
+      repos.conflicts,
+      repos.subscriptions,
+      repos.logs,
+      repos.notionRepo,
+      () => ac,
+      () => async () => []
+    );
+
+    await useCase.execute({
+      owner: 42,
+      notionPageId: 'page-id',
+      trigger: 'manual',
+    });
+
+    expect(ac.updateModelStyling).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: 'Ankify Basic',
+        css: expect.stringContaining('.card'),
+      })
+    );
+    expect(ac.updateModelTemplates).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: 'Ankify Basic',
+        templates: expect.objectContaining({
+          'Card 1': expect.objectContaining({
+            Front: expect.stringContaining('{{Front}}'),
+            Back: expect.stringContaining('{{Back}}'),
+          }),
+        }),
+      })
+    );
+  });
+
+  test('downloads Notion file images and pushes them to media before addNote', async () => {
+    const sampleFetcher = jest.fn(async (url: string) => ({
+      ok: true,
+      arrayBuffer: async () => {
+        expect(url).toBe('https://prod-files.notion.so/img.png?signed=1');
+        return new TextEncoder().encode('PNGDATA').buffer as ArrayBuffer;
+      },
+    })) as unknown as typeof fetch;
+
+    (walkNotionPageForFlashcards as jest.Mock).mockResolvedValue([
+      sampleCard({
+        back: 'See <img src="ankify-img-77.png">',
+        images: [
+          {
+            block_id: 'img-77',
+            source: 'file',
+            url: 'https://prod-files.notion.so/img.png?signed=1',
+            filename: 'ankify-img-77.png',
+          },
+        ],
+      }),
+    ]);
+
+    const repos = makeRepos();
+    const ac = makeAnkiConnectStub();
+    const callOrder: string[] = [];
+    (ac.storeMediaFile as jest.Mock).mockImplementation(async () => {
+      callOrder.push('storeMediaFile');
+      return 'ankify-img-77.png';
+    });
+    (ac.addNote as jest.Mock).mockImplementation(async () => {
+      callOrder.push('addNote');
+      return 12345;
+    });
+
+    const useCase = new SyncNotionPageToRacUseCase(
+      repos.clients,
+      repos.mappings,
+      repos.conflicts,
+      repos.subscriptions,
+      repos.logs,
+      repos.notionRepo,
+      () => ac,
+      () => async () => [],
+      undefined,
+      sampleFetcher
+    );
+
+    await useCase.execute({
+      owner: 42,
+      notionPageId: 'page-id',
+      trigger: 'manual',
+    });
+
+    expect(ac.storeMediaFile).toHaveBeenCalledWith(
+      expect.objectContaining({
+        filename: 'ankify-img-77.png',
+        data: expect.any(String),
+      })
+    );
+    expect(callOrder.indexOf('storeMediaFile')).toBeLessThan(
+      callOrder.indexOf('addNote')
+    );
+  });
+
+  test('skips storeMediaFile for external-hosted images and still proceeds', async () => {
+    (walkNotionPageForFlashcards as jest.Mock).mockResolvedValue([
+      sampleCard({
+        back: '<img src="https://cdn.example.com/x.png">',
+        images: [
+          {
+            block_id: 'img-ext',
+            source: 'external',
+            url: 'https://cdn.example.com/x.png',
+          },
+        ],
+      }),
+    ]);
+    const repos = makeRepos();
+    const ac = makeAnkiConnectStub();
+    const useCase = new SyncNotionPageToRacUseCase(
+      repos.clients,
+      repos.mappings,
+      repos.conflicts,
+      repos.subscriptions,
+      repos.logs,
+      repos.notionRepo,
+      () => ac,
+      () => async () => []
+    );
+
+    await useCase.execute({
+      owner: 42,
+      notionPageId: 'page-id',
+      trigger: 'manual',
+    });
+
+    expect(ac.storeMediaFile).not.toHaveBeenCalled();
+    expect(ac.addNote).toHaveBeenCalled();
+  });
+
+  test('records sync_logs error but does not fail when image download fails', async () => {
+    const failingFetch = jest.fn(async () => {
+      throw new Error('network down');
+    }) as unknown as typeof fetch;
+
+    (walkNotionPageForFlashcards as jest.Mock).mockResolvedValue([
+      sampleCard({
+        images: [
+          {
+            block_id: 'img-bad',
+            source: 'file',
+            url: 'https://prod-files.notion.so/bad.png?signed=1',
+            filename: 'ankify-img-bad.png',
+          },
+        ],
+      }),
+    ]);
+    const repos = makeRepos();
+    const ac = makeAnkiConnectStub();
+    const useCase = new SyncNotionPageToRacUseCase(
+      repos.clients,
+      repos.mappings,
+      repos.conflicts,
+      repos.subscriptions,
+      repos.logs,
+      repos.notionRepo,
+      () => ac,
+      () => async () => [],
+      undefined,
+      failingFetch
+    );
+
+    const result = await useCase.execute({
+      owner: 42,
+      notionPageId: 'page-id',
+      trigger: 'manual',
+    });
+
+    expect(ac.storeMediaFile).not.toHaveBeenCalled();
+    expect(ac.addNote).toHaveBeenCalled();
+    expect(result.errors.length).toBeGreaterThan(0);
+    expect(result.errors[0]).toMatch(/img-bad/);
   });
 
   test('a second sync for the same client reuses the cache and skips modelNames', async () => {
