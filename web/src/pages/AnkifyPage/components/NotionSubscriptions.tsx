@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -71,6 +71,27 @@ const extractNotionId = (input: string): string => {
 };
 
 const normalizeId = (id: string): string => id.replaceAll('-', '').toLowerCase();
+
+const renderSecondLine = (
+  lastError: string | null | undefined,
+  nextExportLabel: string | null
+): ReactNode => {
+  if (lastError != null) {
+    return (
+      <p className={styles.decksItemError}>
+        Last check failed — we'll try again soon
+      </p>
+    );
+  }
+  if (nextExportLabel != null) {
+    return (
+      <p className={styles.decksItemError}>
+        Next export at {nextExportLabel}
+      </p>
+    );
+  }
+  return null;
+};
 
 export default function NotionSubscriptions({ backend, schedule }: Props) {
   const api = backend ?? get2ankiApi();
@@ -365,15 +386,16 @@ export default function NotionSubscriptions({ backend, schedule }: Props) {
                 subscribe.isPending &&
                 pendingId != null &&
                 normalizeId(pendingId) === normalizeId(sub.notion_page_id);
-              const matchesSchedule =
-                schedule != null &&
-                schedule.enabled === true &&
-                normalizeId(schedule.database_id) ===
-                  normalizeId(sub.notion_page_id);
               const nextExportLabel =
-                matchesSchedule && schedule != null
+                schedule?.enabled === true &&
+                normalizeId(schedule.database_id) ===
+                  normalizeId(sub.notion_page_id)
                   ? formatScheduleTime(schedule.time_of_day, schedule.timezone)
                   : null;
+              const secondLine = renderSecondLine(
+                sub.last_error,
+                nextExportLabel
+              );
               const relative = formatRelativeTime(sub.last_synced_at);
               const lastSyncedDisplay =
                 relative == null ? (
@@ -398,15 +420,7 @@ export default function NotionSubscriptions({ backend, schedule }: Props) {
                     ) : (
                       displayTitle
                     )}
-                    {sub.last_error != null ? (
-                      <p className={styles.decksItemError}>
-                        Last check failed — we'll try again soon
-                      </p>
-                    ) : nextExportLabel != null ? (
-                      <p className={styles.decksItemError}>
-                        Next export at {nextExportLabel}
-                      </p>
-                    ) : null}
+                    {secondLine}
                   </span>
                   <span className={styles.decksItemTime}>
                     {isUpdatingThisRow ? (
