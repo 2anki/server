@@ -29,6 +29,11 @@ import { CheckAnkiWebStatusUseCase } from '../usecases/ankify/CheckAnkiWebStatus
 import ReissueAnkifySessionUrlUseCase from '../usecases/ankify/ReissueAnkifySessionUrlUseCase';
 import { ValidateAnkifySessionTokenUseCase } from '../usecases/ankify/ValidateAnkifySessionTokenUseCase';
 import { SyncNotionPageToRacUseCase } from '../usecases/ankify/SyncNotionPageToRacUseCase';
+import {
+  RefreshAnkifySubscriptionUseCase,
+  RefreshCooldownError,
+  SubscriptionNotFoundError,
+} from '../usecases/ankify/RefreshAnkifySubscriptionUseCase';
 import { ListNotionSubscriptionsUseCase } from '../usecases/ankify/ListNotionSubscriptionsUseCase';
 import { DeleteNotionSubscriptionUseCase } from '../usecases/ankify/DeleteNotionSubscriptionUseCase';
 import { ListConflictsUseCase } from '../usecases/ankify/ListConflictsUseCase';
@@ -58,6 +63,7 @@ class AnkifyController {
     private readonly syncNotionPageUseCase: SyncNotionPageToRacUseCase,
     private readonly listSubscriptionsUseCase: ListNotionSubscriptionsUseCase,
     private readonly deleteSubscriptionUseCase: DeleteNotionSubscriptionUseCase,
+    private readonly refreshSubscriptionUseCase: RefreshAnkifySubscriptionUseCase,
     private readonly listConflictsUseCase: ListConflictsUseCase,
     private readonly resolveConflictUseCase: ResolveConflictUseCase,
     private readonly listNotionDatabasesUseCase: ListNotionDatabasesUseCase,
@@ -372,6 +378,62 @@ class AnkifyController {
     }
     await this.deleteSubscriptionUseCase.execute(id, owner);
     res.status(204).send();
+  }
+
+  async refreshSubscription(req: Request, res: Response) {
+    const owner = res.locals.owner as number;
+    const id = Number.parseInt(req.params.id, 10);
+    if (!Number.isFinite(id)) {
+      res.status(400).json({ message: 'Invalid subscription id' });
+      return;
+    }
+    try {
+      const result = await this.refreshSubscriptionUseCase.execute({
+        id,
+        owner,
+      });
+      res.status(200).json({
+        subscription: result.subscription,
+        created: result.created,
+        updated: result.updated,
+        conflicts: result.conflicts,
+        unchanged: result.unchanged,
+        errors: result.errors,
+        anki_web_sync: result.ankiWebSync,
+        anki_web_sync_error: result.ankiWebSyncError,
+      });
+    } catch (error) {
+      if (error instanceof SubscriptionNotFoundError) {
+        res.status(404).json({ message: 'Subscription not found' });
+        return;
+      }
+      if (error instanceof RefreshCooldownError) {
+        res
+          .status(429)
+          .set('Retry-After', String(error.retryAfterSeconds))
+          .json({
+            message: error.message,
+            retry_after_seconds: error.retryAfterSeconds,
+          });
+        return;
+      }
+      if (error instanceof NoActiveAnkifyClientError) {
+        res.status(409).json({
+          message:
+            'No active Ankify client. Provision one before refreshing.',
+        });
+        return;
+      }
+      if (error instanceof NotionNotConnectedError) {
+        res.status(409).json({ message: 'Notion is not connected' });
+        return;
+      }
+      if (error instanceof AnkiConnectUnreachableError) {
+        res.status(503).json({ message: 'AnkiConnect is unreachable.' });
+        return;
+      }
+      throw error;
+    }
   }
 
   async listConflicts(req: Request, res: Response) {

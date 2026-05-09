@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -262,6 +262,211 @@ describe('NotionSubscriptions sync copy', () => {
       expect(
         screen.getByText(/preparing your first sync/i)
       ).toBeInTheDocument()
+    );
+  });
+
+  test('kebab menu shows "Update now" with a per-deck aria-label, above "Stop"', async () => {
+    const backend = makeBackend({
+      listAnkifySubscriptions: vi.fn(async () => [
+        sampleSubscription({ id: 11, notion_page_id: 'a'.repeat(32) }),
+      ]),
+    });
+
+    renderSubs(backend);
+
+    const kebab = await screen.findByRole('button', {
+      name: /options for my deck/i,
+    });
+    fireEvent.click(kebab);
+
+    const updateItem = await screen.findByRole('menuitem', {
+      name: /update my deck now/i,
+    });
+    const stopItem = screen.getByRole('menuitem', { name: /^stop$/i });
+    expect(updateItem).toBeInTheDocument();
+    expect(stopItem).toBeInTheDocument();
+    expect(updateItem.compareDocumentPosition(stopItem)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING
+    );
+  });
+
+  test('clicking "Update now" calls refreshAnkifySubscription with the row id and shows a success flash', async () => {
+    const refresh = vi.fn(async (_id: number) => ({
+      created: 3,
+      updated: 1,
+      conflicts: 0,
+      unchanged: 5,
+      errors: [],
+      anki_web_sync: 'synced' as const,
+      anki_web_sync_error: null,
+    }));
+    const backend = makeBackend({
+      listAnkifySubscriptions: vi.fn(async () => [
+        sampleSubscription({ id: 11, notion_page_id: 'a'.repeat(32) }),
+      ]),
+      refreshAnkifySubscription: refresh,
+    });
+
+    renderSubs(backend);
+
+    const kebab = await screen.findByRole('button', {
+      name: /options for my deck/i,
+    });
+    fireEvent.click(kebab);
+    fireEvent.click(
+      await screen.findByRole('menuitem', { name: /update my deck now/i })
+    );
+
+    await waitFor(() => expect(refresh).toHaveBeenCalledWith(11));
+    expect(
+      await screen.findByText(/updated · 3 new, 1 changed/i)
+    ).toBeInTheDocument();
+  });
+
+  test('a refresh that returns no changes shows "Already up to date"', async () => {
+    const backend = makeBackend({
+      listAnkifySubscriptions: vi.fn(async () => [
+        sampleSubscription({ id: 12, notion_page_id: 'b'.repeat(32) }),
+      ]),
+      refreshAnkifySubscription: vi.fn(async () => ({
+        created: 0,
+        updated: 0,
+        conflicts: 0,
+        unchanged: 9,
+        errors: [],
+        anki_web_sync: 'skipped' as const,
+        anki_web_sync_error: null,
+      })),
+    });
+
+    renderSubs(backend);
+
+    fireEvent.click(
+      await screen.findByRole('button', { name: /options for my deck/i })
+    );
+    fireEvent.click(
+      await screen.findByRole('menuitem', { name: /update my deck now/i })
+    );
+
+    expect(
+      await screen.findByText(/already up to date/i)
+    ).toBeInTheDocument();
+  });
+
+  test('a 429 cooldown error renders inline retry guidance', async () => {
+    const cooldownError = Object.assign(new Error('cooldown'), {
+      status: 429,
+      retryAfterSeconds: 22,
+    });
+    const backend = makeBackend({
+      listAnkifySubscriptions: vi.fn(async () => [
+        sampleSubscription({ id: 13, notion_page_id: 'c'.repeat(32) }),
+      ]),
+      refreshAnkifySubscription: vi.fn(async () => {
+        throw cooldownError;
+      }),
+    });
+
+    renderSubs(backend);
+
+    fireEvent.click(
+      await screen.findByRole('button', { name: /options for my deck/i })
+    );
+    fireEvent.click(
+      await screen.findByRole('menuitem', { name: /update my deck now/i })
+    );
+
+    expect(
+      await screen.findByText(/try again in 22s/i)
+    ).toBeInTheDocument();
+  });
+
+  test('a refresh that produced conflicts points the user at the banner above', async () => {
+    const backend = makeBackend({
+      listAnkifySubscriptions: vi.fn(async () => [
+        sampleSubscription({ id: 14, notion_page_id: 'd'.repeat(32) }),
+      ]),
+      refreshAnkifySubscription: vi.fn(async () => ({
+        created: 0,
+        updated: 0,
+        conflicts: 2,
+        unchanged: 1,
+        errors: [],
+        anki_web_sync: 'skipped' as const,
+        anki_web_sync_error: null,
+      })),
+    });
+
+    renderSubs(backend);
+
+    fireEvent.click(
+      await screen.findByRole('button', { name: /options for my deck/i })
+    );
+    fireEvent.click(
+      await screen.findByRole('menuitem', { name: /update my deck now/i })
+    );
+
+    expect(
+      await screen.findByText(/needs a decision — see banner above/i)
+    ).toBeInTheDocument();
+  });
+
+  test('the row shows "Updating now…" while the refresh is in flight', async () => {
+    let resolveRefresh: (value: {
+      created: number;
+      updated: number;
+      conflicts: number;
+      unchanged: number;
+      errors: string[];
+      anki_web_sync: 'synced' | 'failed' | 'skipped';
+      anki_web_sync_error: string | null;
+    }) => void = () => undefined;
+    const refresh = vi.fn(
+      () =>
+        new Promise<{
+          created: number;
+          updated: number;
+          conflicts: number;
+          unchanged: number;
+          errors: string[];
+          anki_web_sync: 'synced' | 'failed' | 'skipped';
+          anki_web_sync_error: string | null;
+        }>((resolve) => {
+          resolveRefresh = resolve;
+        })
+    );
+    const backend = makeBackend({
+      listAnkifySubscriptions: vi.fn(async () => [
+        sampleSubscription({ id: 15, notion_page_id: 'e'.repeat(32) }),
+      ]),
+      refreshAnkifySubscription: refresh,
+    });
+
+    renderSubs(backend);
+
+    fireEvent.click(
+      await screen.findByRole('button', { name: /options for my deck/i })
+    );
+    fireEvent.click(
+      await screen.findByRole('menuitem', { name: /update my deck now/i })
+    );
+
+    expect(await screen.findByText(/updating now…/i)).toBeInTheDocument();
+
+    await act(async () => {
+      resolveRefresh({
+        created: 1,
+        updated: 0,
+        conflicts: 0,
+        unchanged: 0,
+        errors: [],
+        anki_web_sync: 'synced',
+        anki_web_sync_error: null,
+      });
+    });
+
+    await waitFor(() =>
+      expect(screen.queryByText(/updating now…/i)).not.toBeInTheDocument()
     );
   });
 

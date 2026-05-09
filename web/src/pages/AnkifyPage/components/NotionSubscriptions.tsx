@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useRef, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -60,7 +60,60 @@ const formatScheduleTime = (
 };
 
 const SUBSCRIPTIONS_KEY = ['ankify-subscriptions'];
+const CONFLICTS_KEY = ['ankify-conflicts'];
 const SEARCH_THRESHOLD = 10;
+const FLASH_DURATION_MS = 4_000;
+
+interface RowFlash {
+  kind: 'success' | 'error' | 'conflict';
+  text: string;
+}
+
+const buildSuccessFlash = (result: {
+  created: number;
+  updated: number;
+  conflicts: number;
+}): RowFlash => {
+  if (result.conflicts > 0) {
+    return {
+      kind: 'conflict',
+      text: 'Needs a decision — see banner above',
+    };
+  }
+  if (result.created + result.updated === 0) {
+    return { kind: 'success', text: 'Already up to date' };
+  }
+  const cardWord = result.created === 1 ? 'card' : 'cards';
+  if (result.updated === 0) {
+    return {
+      kind: 'success',
+      text: `Updated · ${result.created} new ${cardWord}`,
+    };
+  }
+  if (result.created === 0) {
+    return {
+      kind: 'success',
+      text: `Updated · ${result.updated} changed`,
+    };
+  }
+  return {
+    kind: 'success',
+    text: `Updated · ${result.created} new, ${result.updated} changed`,
+  };
+};
+
+const errorFlashFor = (error: Error & {
+  status?: number;
+  retryAfterSeconds?: number;
+}): RowFlash => {
+  if (error.status === 429 && error.retryAfterSeconds != null) {
+    return {
+      kind: 'error',
+      text: `Try again in ${error.retryAfterSeconds}s`,
+    };
+  }
+  return { kind: 'error', text: "Couldn't update. Try again in a moment." };
+};
 
 const extractNotionId = (input: string): string => {
   const trimmed = input.trim();
@@ -103,6 +156,72 @@ export default function NotionSubscriptions({ backend, schedule }: Props) {
   const [search, setSearch] = useState('');
   const [openMenuId, setOpenMenuId] = useState<number | null>(null);
   const menuContainerRef = useRef<HTMLUListElement | null>(null);
+  const [refreshingIds, setRefreshingIds] = useState<Set<number>>(
+    () => new Set()
+  );
+  const [flashByRow, setFlashByRow] = useState<Record<number, RowFlash>>({});
+  const flashTimers = useRef<Map<number, ReturnType<typeof setTimeout>>>(
+    new Map()
+  );
+
+  useEffect(
+    () => () => {
+      flashTimers.current.forEach((handle) => clearTimeout(handle));
+      flashTimers.current.clear();
+    },
+    []
+  );
+
+  const showFlash = useCallback((id: number, flash: RowFlash) => {
+    setFlashByRow((prev) => ({ ...prev, [id]: flash }));
+    const previousTimer = flashTimers.current.get(id);
+    if (previousTimer != null) clearTimeout(previousTimer);
+    const handle = setTimeout(() => {
+      flashTimers.current.delete(id);
+      setFlashByRow((prev) => {
+        const { [id]: _omit, ...rest } = prev;
+        return rest;
+      });
+    }, FLASH_DURATION_MS);
+    flashTimers.current.set(id, handle);
+  }, []);
+
+  const handleRefresh = useCallback(
+    async (id: number) => {
+      setOpenMenuId(null);
+      setRefreshingIds((prev) => {
+        const next = new Set(prev);
+        next.add(id);
+        return next;
+      });
+      setFlashByRow((prev) => {
+        const { [id]: _omit, ...rest } = prev;
+        return rest;
+      });
+      const previousTimer = flashTimers.current.get(id);
+      if (previousTimer != null) {
+        clearTimeout(previousTimer);
+        flashTimers.current.delete(id);
+      }
+      try {
+        const result = await api.refreshAnkifySubscription(id);
+        showFlash(id, buildSuccessFlash(result));
+        queryClient.invalidateQueries({ queryKey: SUBSCRIPTIONS_KEY });
+        if (result.conflicts > 0) {
+          queryClient.invalidateQueries({ queryKey: CONFLICTS_KEY });
+        }
+      } catch (error) {
+        showFlash(id, errorFlashFor(error as Error));
+      } finally {
+        setRefreshingIds((prev) => {
+          const next = new Set(prev);
+          next.delete(id);
+          return next;
+        });
+      }
+    },
+    [api, queryClient, showFlash]
+  );
 
   const subs = useQuery({
     queryKey: SUBSCRIPTIONS_KEY,
@@ -392,10 +511,14 @@ export default function NotionSubscriptions({ backend, schedule }: Props) {
                 sub.notion_page_title?.trim().length
                   ? sub.notion_page_title
                   : 'Untitled page';
-              const isUpdatingThisRow =
+              const isSubscribingThisRow =
                 subscribe.isPending &&
                 pendingId != null &&
                 normalizeId(pendingId) === normalizeId(sub.notion_page_id);
+              const isRefreshingThisRow = refreshingIds.has(sub.id);
+              const isUpdatingThisRow =
+                isSubscribingThisRow || isRefreshingThisRow;
+              const flash = flashByRow[sub.id] ?? null;
               const nextExportLabel =
                 schedule?.enabled === true &&
                 normalizeId(schedule.database_id) ===
@@ -452,12 +575,24 @@ export default function NotionSubscriptions({ backend, schedule }: Props) {
                     )}
                     {secondLine}
                   </span>
-                  <span className={styles.decksItemTime}>
-                    {isUpdatingThisRow ? (
-                      <span aria-live="polite">Updating now…</span>
-                    ) : (
-                      lastSyncedDisplay
-                    )}
+                  <span className={styles.decksItemTime} aria-live="polite">
+                    {(() => {
+                      if (isUpdatingThisRow) return <span>Updating now…</span>;
+                      if (flash != null) {
+                        return (
+                          <span
+                            className={
+                              flash.kind === 'success'
+                                ? styles.muted
+                                : styles.decksItemError
+                            }
+                          >
+                            {flash.text}
+                          </span>
+                        );
+                      }
+                      return lastSyncedDisplay;
+                    })()}
                   </span>
                   <div className={styles.decksItemRowMenu}>
                     <button
@@ -476,6 +611,16 @@ export default function NotionSubscriptions({ backend, schedule }: Props) {
                     </button>
                     {openMenuId === sub.id && (
                       <div role="menu" className={styles.decksItemMenu}>
+                        <button
+                          type="button"
+                          role="menuitem"
+                          className={styles.decksItemMenuItem}
+                          aria-label={`Update ${displayTitle} now`}
+                          onClick={() => handleRefresh(sub.id)}
+                          disabled={isUpdatingThisRow}
+                        >
+                          Update now
+                        </button>
                         <button
                           type="button"
                           role="menuitem"
