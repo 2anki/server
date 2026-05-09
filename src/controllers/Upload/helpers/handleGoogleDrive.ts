@@ -1,4 +1,3 @@
-import axios from 'axios';
 import express from 'express';
 
 import { isPaying } from '../../../lib/isPaying';
@@ -13,6 +12,7 @@ import {
 import { isEmptyUpload } from './isEmptyUpload';
 import { getFilesOrEmpty } from './getFilesOrEmpty';
 import { createGoogleDriveDownloadLink } from './createGoogleDriveDownloadLink';
+import instrumentedAxios from '../../../services/observability/instrumentedAxios';
 
 export async function handleGoogleDrive(
   req: express.Request,
@@ -57,12 +57,16 @@ export async function handleGoogleDrive(
     // @ts-ignore
     req.files = await Promise.all(
       files.map(async (file) => {
-        const contents = await axios.get(createGoogleDriveDownloadLink(file), {
-          headers: {
-            Authorization: `Bearer ${googleDriveAuth}`,
-          },
-          responseType: 'blob',
-        });
+        const contents = await instrumentedAxios.get(
+          'google_drive',
+          createGoogleDriveDownloadLink(file),
+          {
+            headers: {
+              Authorization: `Bearer ${googleDriveAuth}`,
+            },
+            responseType: 'blob',
+          }
+        );
         return {
           originalname: file.name,
           size: file.sizeBytes,

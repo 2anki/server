@@ -1,0 +1,64 @@
+export type OpsMetricsWindow = '1h' | '24h' | '7d';
+
+export type StatusClass = '2xx' | '3xx' | '4xx' | '5xx';
+
+export interface OpsMetricsBucketPoint {
+  bucket: string;
+  status_class: StatusClass;
+  count: number;
+}
+
+export interface OpsMetricsRouteLatencyPoint {
+  method: string;
+  route: string;
+  avg_ms: number;
+  p95_ms: number;
+  count: number;
+}
+
+export interface OpsMetricsOutboundPoint {
+  bucket: string;
+  service: string;
+  count: number;
+}
+
+export interface OpsMetricsRouteErrorPoint {
+  method: string;
+  route: string;
+  total: number;
+  errors: number;
+}
+
+export interface OpsMetricsServiceErrorPoint {
+  service: string;
+  total: number;
+  errors: number;
+}
+
+export interface OpsMetricsResponse {
+  window: OpsMetricsWindow;
+  bucket_seconds: number;
+  generated_at: string;
+  inbound_volume: OpsMetricsBucketPoint[];
+  route_latency: OpsMetricsRouteLatencyPoint[];
+  outbound_volume: OpsMetricsOutboundPoint[];
+  error_rate_by_route: OpsMetricsRouteErrorPoint[];
+  error_rate_by_service: OpsMetricsServiceErrorPoint[];
+}
+
+export const OPS_METRICS_WINDOWS: readonly OpsMetricsWindow[] = ['1h', '24h', '7d'];
+
+export const SERVICE_COLORS: Record<string, string> = {
+  notion: '#000000',
+  claude: '#d97706',
+  dropbox: '#0061ff',
+  google_drive: '#0f9d58',
+  patreon: '#f1465a',
+};
+
+export const STATUS_CLASS_COLORS: Record<StatusClass, string> = {
+  '2xx': '#10b981',
+  '3xx': '#9ca3af',
+  '4xx': '#f59e0b',
+  '5xx': '#dc2626',
+};

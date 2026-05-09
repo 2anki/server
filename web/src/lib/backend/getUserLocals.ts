@@ -17,6 +17,7 @@ interface GetUserLocalsResponse {
   user?: Users;
   features?: {
     kiUI: boolean;
+    ops?: boolean;
   };
 }
 

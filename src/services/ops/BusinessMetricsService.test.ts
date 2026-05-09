@@ -1,0 +1,466 @@
+jest.mock('../../lib/integrations/stripe', () => ({
+  getStripe: jest.fn(),
+}));
+
+import {
+  BusinessMetricsService,
+  BusinessMetricsResponse,
+} from './BusinessMetricsService';
+
+interface FakeSubscriptionItem {
+  price: {
+    unit_amount: number | null;
+    recurring: {
+      interval: 'day' | 'week' | 'month' | 'year';
+      interval_count?: number;
+    } | null;
+  };
+  quantity?: number;
+}
+
+interface FakeSubscription {
+  id: string;
+  status?: 'active' | 'canceled' | 'trialing' | 'past_due';
+  created?: number;
+  canceled_at?: number | null;
+  ended_at?: number | null;
+  items: { data: FakeSubscriptionItem[] };
+}
+
+const monthly = (
+  cents: number,
+  quantity: number = 1,
+  intervalCount: number = 1
+): FakeSubscriptionItem => ({
+  price: {
+    unit_amount: cents,
+    recurring: { interval: 'month', interval_count: intervalCount },
+  },
+  quantity,
+});
+
+const yearly = (cents: number, quantity: number = 1): FakeSubscriptionItem => ({
+  price: {
+    unit_amount: cents,
+    recurring: { interval: 'year', interval_count: 1 },
+  },
+  quantity,
+});
+
+const weekly = (cents: number): FakeSubscriptionItem => ({
+  price: {
+    unit_amount: cents,
+    recurring: { interval: 'week', interval_count: 1 },
+  },
+  quantity: 1,
+});
+
+const NOW_ISO = '2026-05-09T14:32:07Z';
+const NOW_MS = new Date(NOW_ISO).getTime();
+const SECONDS_PER_DAY = 24 * 60 * 60;
+const daysAgoEpoch = (days: number): number =>
+  Math.floor(NOW_MS / 1000) - days * SECONDS_PER_DAY;
+
+const sub = (
+  id: string,
+  items: FakeSubscriptionItem[],
+  overrides: Partial<FakeSubscription> = {}
+): FakeSubscription => ({
+  id,
+  status: overrides.status ?? 'active',
+  created: overrides.created ?? daysAgoEpoch(120),
+  canceled_at: overrides.canceled_at ?? null,
+  ended_at: overrides.ended_at ?? null,
+  items: { data: items },
+});
+
+interface FakeStripeOptions {
+  allSubs?: FakeSubscription[];
+  invoices?: Array<{
+    id: string;
+    status: string;
+    attempt_count: number;
+    created?: number;
+  }>;
+}
+
+const buildFakeStripe = (options: FakeStripeOptions = {}) => {
+  const subscriptionsList = jest.fn(async () => ({
+    data: options.allSubs ?? [],
+    has_more: false,
+  }));
+  const invoicesList = jest.fn(async () => ({
+    data: options.invoices ?? [],
+    has_more: false,
+  }));
+  return {
+    subscriptions: { list: subscriptionsList },
+    invoices: { list: invoicesList },
+  };
+};
+
+describe('BusinessMetricsService', () => {
+  beforeEach(() => {
+    jest.useFakeTimers({
+      now: NOW_MS,
+    });
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  it('returns the full response shape on first call', async () => {
+    const stripe = buildFakeStripe({
+      allSubs: [
+        sub('sub_1', [monthly(2000)], { created: daysAgoEpoch(60) }),
+        sub('sub_2', [monthly(2820)], { created: daysAgoEpoch(45) }),
+        sub('sub_new1', [monthly(312_00)], { created: daysAgoEpoch(2) }),
+        ...Array.from({ length: 10 }).map((_, i) =>
+          sub(`sub_n_${i}`, [monthly(1000)], { created: daysAgoEpoch(3) })
+        ),
+        ...Array.from({ length: 4 }).map((_, i) =>
+          sub(`sub_c_${i}`, [monthly(500)], {
+            created: daysAgoEpoch(60),
+            canceled_at: daysAgoEpoch(5),
+            ended_at: daysAgoEpoch(5),
+            status: 'canceled',
+          })
+        ),
+      ],
+      invoices: [
+        { id: 'inv_1', status: 'open', attempt_count: 1, created: daysAgoEpoch(1) },
+        { id: 'inv_2', status: 'open', attempt_count: 1, created: daysAgoEpoch(2) },
+        { id: 'inv_3', status: 'open', attempt_count: 1, created: daysAgoEpoch(3) },
+        { id: 'inv_4', status: 'open', attempt_count: 1, created: daysAgoEpoch(6) },
+        { id: 'inv_paid', status: 'paid', attempt_count: 0, created: daysAgoEpoch(1) },
+      ],
+    });
+
+    const service = new BusinessMetricsService({
+      stripeFactory: () => stripe as never,
+    });
+
+    const result: BusinessMetricsResponse = await service.getMetrics();
+
+    expect(result.mrr_usd).toBeCloseTo(20 + 28.2 + 312 + 10 * 10, 5);
+    expect(result.active_paying_subs).toBe(13);
+    expect(result.net_new_mrr_mtd_usd).toBeGreaterThan(0);
+    expect(result.new_paid_conversions_7d).toBe(11);
+    expect(result.churn_30d_pct).toBeCloseTo((4 / 13) * 100, 5);
+    expect(result.failed_payments_7d).toBe(4);
+    expect(result.as_of).toBe('2026-05-09T14:32:07.000Z');
+    expect(result.cache_age_seconds).toBe(0);
+    expect(result.errors).toBeUndefined();
+    expect(result.mrr_timeseries).toHaveLength(90);
+    expect(result.active_subs_timeseries).toHaveLength(90);
+    expect(result.conversions_vs_churn_weekly).toHaveLength(12);
+    expect(result.failed_payments_weekly).toHaveLength(12);
+  });
+
+  it('serves cached values within 15 minutes', async () => {
+    const stripe = buildFakeStripe({
+      allSubs: [sub('sub_1', [monthly(1000)], { created: daysAgoEpoch(60) })],
+    });
+    const service = new BusinessMetricsService({
+      stripeFactory: () => stripe as never,
+    });
+
+    await service.getMetrics();
+    jest.advanceTimersByTime(10 * 60 * 1000);
+    const second = await service.getMetrics();
+
+    expect(stripe.subscriptions.list).toHaveBeenCalledTimes(1);
+    expect(stripe.invoices.list).toHaveBeenCalledTimes(1);
+    expect(second.cache_age_seconds).toBe(10 * 60);
+  });
+
+  it('refetches metrics after cache expires', async () => {
+    const stripe = buildFakeStripe({
+      allSubs: [sub('sub_1', [monthly(1000)], { created: daysAgoEpoch(60) })],
+    });
+    const service = new BusinessMetricsService({
+      stripeFactory: () => stripe as never,
+    });
+
+    await service.getMetrics();
+    jest.advanceTimersByTime(16 * 60 * 1000);
+    await service.getMetrics();
+
+    expect(stripe.subscriptions.list).toHaveBeenCalledTimes(2);
+    expect(stripe.invoices.list).toHaveBeenCalledTimes(2);
+  });
+
+  it('normalizes yearly and weekly subs into monthly MRR', async () => {
+    const stripe = buildFakeStripe({
+      allSubs: [
+        sub('sub_year', [yearly(120_00)], { created: daysAgoEpoch(60) }),
+        sub('sub_week', [weekly(1000)], { created: daysAgoEpoch(60) }),
+      ],
+    });
+    const service = new BusinessMetricsService({
+      stripeFactory: () => stripe as never,
+    });
+
+    const result = await service.getMetrics();
+    const expectedYearly = 12000 / 12;
+    const expectedWeekly = 1000 * 4.33;
+    const expectedUsd = (expectedYearly + expectedWeekly) / 100;
+    expect(result.mrr_usd).toBeCloseTo(expectedUsd, 5);
+    expect(result.active_paying_subs).toBe(2);
+  });
+
+  it('excludes trialing subscriptions from MRR and active count', async () => {
+    const stripe = buildFakeStripe({
+      allSubs: [
+        sub('sub_active', [monthly(1500)], { created: daysAgoEpoch(60) }),
+        sub('sub_trialing', [monthly(99_99)], {
+          created: daysAgoEpoch(60),
+          status: 'trialing',
+        }),
+      ],
+    });
+    const service = new BusinessMetricsService({
+      stripeFactory: () => stripe as never,
+    });
+
+    const result = await service.getMetrics();
+    expect(result.active_paying_subs).toBe(1);
+    expect(result.mrr_usd).toBeCloseTo(15, 5);
+  });
+
+  it('sums MRR across multiple items in one subscription', async () => {
+    const stripe = buildFakeStripe({
+      allSubs: [
+        sub('sub_multi', [monthly(1000, 2), monthly(500)], {
+          created: daysAgoEpoch(60),
+        }),
+      ],
+    });
+    const service = new BusinessMetricsService({
+      stripeFactory: () => stripe as never,
+    });
+
+    const result = await service.getMetrics();
+    expect(result.mrr_usd).toBeCloseTo(25, 5);
+    expect(result.active_paying_subs).toBe(1);
+  });
+
+  it('shares one paginated walk between all sub-derived metrics', async () => {
+    const stripe = buildFakeStripe({
+      allSubs: [sub('sub_1', [monthly(1000)], { created: daysAgoEpoch(60) })],
+    });
+    const service = new BusinessMetricsService({
+      stripeFactory: () => stripe as never,
+    });
+
+    await service.getMetrics();
+
+    const listCalls = (stripe.subscriptions.list as jest.Mock).mock.calls;
+    expect(listCalls).toHaveLength(1);
+    const onlyArg = listCalls[0][0];
+    expect(onlyArg.status).toBe('all');
+  });
+
+  it('returns null and reports the metric in errors on partial failure', async () => {
+    const stripe = buildFakeStripe({
+      allSubs: [sub('sub_1', [monthly(1000)], { created: daysAgoEpoch(60) })],
+    });
+    (stripe.invoices.list as jest.Mock).mockRejectedValueOnce(
+      new Error('stripe boom')
+    );
+    const service = new BusinessMetricsService({
+      stripeFactory: () => stripe as never,
+    });
+
+    const result = await service.getMetrics();
+
+    expect(result.failed_payments_7d).toBeNull();
+    expect(result.failed_payments_weekly).toBeNull();
+    expect(result.mrr_usd).toBeCloseTo(10, 5);
+    expect(result.errors).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          metric: 'failed_payments_7d',
+          message: 'stripe boom',
+        }),
+      ])
+    );
+  });
+
+  it('counts only open invoices with attempts as failed payments', async () => {
+    const stripe = buildFakeStripe({
+      invoices: [
+        { id: 'inv_open_attempts', status: 'open', attempt_count: 2, created: daysAgoEpoch(1) },
+        { id: 'inv_open_no_attempt', status: 'open', attempt_count: 0, created: daysAgoEpoch(1) },
+        { id: 'inv_paid', status: 'paid', attempt_count: 3, created: daysAgoEpoch(1) },
+        { id: 'inv_void', status: 'void', attempt_count: 1, created: daysAgoEpoch(1) },
+      ],
+    });
+    const service = new BusinessMetricsService({
+      stripeFactory: () => stripe as never,
+    });
+
+    const result = await service.getMetrics();
+    expect(result.failed_payments_7d).toBe(1);
+  });
+
+  describe('time-series', () => {
+    it('mrr_timeseries reflects the active-on-day rule', async () => {
+      const createdLongAgo = daysAgoEpoch(80);
+      const canceledRecently = daysAgoEpoch(10);
+      const stripe = buildFakeStripe({
+        allSubs: [
+          sub('sub_long', [monthly(1000)], {
+            created: createdLongAgo,
+            canceled_at: canceledRecently,
+            ended_at: canceledRecently,
+            status: 'canceled',
+          }),
+          sub('sub_active', [monthly(2000)], {
+            created: daysAgoEpoch(20),
+          }),
+        ],
+      });
+      const service = new BusinessMetricsService({
+        stripeFactory: () => stripe as never,
+      });
+
+      const result = await service.getMetrics();
+      const series = result.mrr_timeseries!;
+      expect(series).toHaveLength(90);
+
+      const findDay = (daysBack: number) => {
+        const target = new Date(NOW_MS);
+        target.setUTCHours(0, 0, 0, 0);
+        target.setUTCDate(target.getUTCDate() - daysBack);
+        const iso = target.toISOString().slice(0, 10);
+        return series.find((p) => p.t === iso);
+      };
+
+      expect(findDay(70)?.mrr_usd).toBeCloseTo(10, 5);
+      expect(findDay(15)?.mrr_usd).toBeCloseTo(30, 5);
+      expect(findDay(5)?.mrr_usd).toBeCloseTo(20, 5);
+      expect(findDay(89)?.mrr_usd).toBe(0);
+    });
+
+    it('active_subs_timeseries trajectory matches creates/cancels', async () => {
+      const stripe = buildFakeStripe({
+        allSubs: [
+          sub('sub_a', [monthly(1000)], {
+            created: daysAgoEpoch(40),
+            canceled_at: daysAgoEpoch(10),
+            ended_at: daysAgoEpoch(10),
+            status: 'canceled',
+          }),
+          sub('sub_b', [monthly(1000)], {
+            created: daysAgoEpoch(20),
+          }),
+        ],
+      });
+      const service = new BusinessMetricsService({
+        stripeFactory: () => stripe as never,
+      });
+
+      const result = await service.getMetrics();
+      const series = result.active_subs_timeseries!;
+      const findDay = (daysBack: number) => {
+        const target = new Date(NOW_MS);
+        target.setUTCHours(0, 0, 0, 0);
+        target.setUTCDate(target.getUTCDate() - daysBack);
+        const iso = target.toISOString().slice(0, 10);
+        return series.find((p) => p.t === iso);
+      };
+
+      expect(findDay(50)?.active_paying_subs).toBe(0);
+      expect(findDay(30)?.active_paying_subs).toBe(1);
+      expect(findDay(15)?.active_paying_subs).toBe(2);
+      expect(findDay(5)?.active_paying_subs).toBe(1);
+    });
+
+    it('conversions_vs_churn_weekly bins by ISO week', async () => {
+      const oneWeek = 7 * SECONDS_PER_DAY;
+      const stripe = buildFakeStripe({
+        allSubs: [
+          sub('sub_w0_a', [monthly(500)], {
+            created: daysAgoEpoch(2),
+          }),
+          sub('sub_w0_b', [monthly(500)], {
+            created: daysAgoEpoch(3),
+          }),
+          sub('sub_w1', [monthly(500)], {
+            created: daysAgoEpoch(2) - oneWeek,
+          }),
+          sub('sub_churn_w0', [monthly(500)], {
+            created: daysAgoEpoch(120),
+            canceled_at: daysAgoEpoch(2),
+            ended_at: daysAgoEpoch(2),
+            status: 'canceled',
+          }),
+          sub('sub_trialing_w0', [monthly(500)], {
+            created: daysAgoEpoch(2),
+            status: 'trialing',
+          }),
+        ],
+      });
+      const service = new BusinessMetricsService({
+        stripeFactory: () => stripe as never,
+      });
+
+      const result = await service.getMetrics();
+      const weekly = result.conversions_vs_churn_weekly!;
+      expect(weekly).toHaveLength(12);
+
+      const totalNew = weekly.reduce((acc, w) => acc + w.new_paying, 0);
+      const totalChurned = weekly.reduce((acc, w) => acc + w.churned, 0);
+      expect(totalNew).toBe(3);
+      expect(totalChurned).toBe(1);
+
+      const last = weekly[weekly.length - 1];
+      const prev = weekly[weekly.length - 2];
+      expect(last.new_paying + prev.new_paying).toBe(3);
+      expect(last.churned + prev.churned).toBe(1);
+    });
+
+    it('failed_payments_weekly bins invoices by ISO week of created', async () => {
+      const stripe = buildFakeStripe({
+        invoices: [
+          { id: 'i1', status: 'open', attempt_count: 1, created: daysAgoEpoch(1) },
+          { id: 'i2', status: 'open', attempt_count: 2, created: daysAgoEpoch(2) },
+          { id: 'i3', status: 'open', attempt_count: 1, created: daysAgoEpoch(10) },
+          { id: 'i_paid', status: 'paid', attempt_count: 1, created: daysAgoEpoch(2) },
+        ],
+      });
+      const service = new BusinessMetricsService({
+        stripeFactory: () => stripe as never,
+      });
+
+      const result = await service.getMetrics();
+      const weekly = result.failed_payments_weekly!;
+      expect(weekly).toHaveLength(12);
+      const total = weekly.reduce((acc, w) => acc + w.count, 0);
+      expect(total).toBe(3);
+    });
+
+    it('caches time-series — second call within 15 min does not refetch', async () => {
+      const stripe = buildFakeStripe({
+        allSubs: [sub('sub_1', [monthly(1000)], { created: daysAgoEpoch(60) })],
+        invoices: [
+          { id: 'i1', status: 'open', attempt_count: 1, created: daysAgoEpoch(1) },
+        ],
+      });
+      const service = new BusinessMetricsService({
+        stripeFactory: () => stripe as never,
+      });
+
+      const first = await service.getMetrics();
+      jest.advanceTimersByTime(10 * 60 * 1000);
+      const second = await service.getMetrics();
+
+      expect(stripe.subscriptions.list).toHaveBeenCalledTimes(1);
+      expect(stripe.invoices.list).toHaveBeenCalledTimes(1);
+      expect(second.mrr_timeseries).toEqual(first.mrr_timeseries);
+      expect(second.failed_payments_weekly).toEqual(first.failed_payments_weekly);
+    });
+  });
+});

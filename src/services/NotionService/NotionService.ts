@@ -1,7 +1,7 @@
 import { APIErrorCode } from '@notionhq/client';
-import axios from 'axios';
 
 import { INotionRepository } from '../../data_layer/NotionRespository';
+import instrumentedAxios from '../observability/instrumentedAxios';
 import {
   INotionTopLevelPagesRepository,
   NotionTopLevelPageRow,
@@ -263,9 +263,14 @@ export class NotionService {
       };
 
       try {
-        const res = await axios.post(url, data, options);
+        const res = await instrumentedAxios.post<{ access_token?: string }>(
+          'notion',
+          url,
+          data,
+          options
+        );
         if (res.data.access_token) {
-          resolve(res.data);
+          resolve(res.data as { [key: string]: string });
         }
       } catch (err) {
         console.info('Get access data failed');

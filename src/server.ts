@@ -36,6 +36,8 @@ import defaultRouter from './routes/DefaultRouter';
 import webhookRouter from './routes/WebhookRouter';
 import ankifyWebhookRouter from './routes/AnkifyWebhookRouter';
 import swaggerRouter from './routes/SwaggerRouter';
+import opsRouter from './routes/OpsRouter';
+import requestLoggingMiddleware from './routes/middleware/requestLoggingMiddleware';
 
 import { getDatabase, setupDatabase } from './data_layer';
 import JobRepository from './data_layer/JobRepository';
@@ -70,6 +72,7 @@ const serve = async () => {
   app.use(cookieParser());
 
   app.use(morgan('combined') as RequestHandler);
+  app.use(requestLoggingMiddleware);
 
   const ankifySessionValidate = buildAnkifySessionProxyDeps();
   // Must run before defaultRouter()'s catch-all (which serves index.html
@@ -95,6 +98,7 @@ const serve = async () => {
   app.use(favoriteRouter());
   app.use(ankifyRouter());
   app.use(templatesRouter());
+  app.use(opsRouter());
 
   // Note: this has to be the last router
   app.use(defaultRouter());

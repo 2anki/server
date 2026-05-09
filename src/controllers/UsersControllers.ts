@@ -10,6 +10,7 @@ import { getIndexFileContents } from './IndexController/getIndexFileContents';
 import { getRandomUUID } from '../shared/helpers/getRandomUUID';
 import { getDefaultAvatarPicture } from '../lib/getDefaultAvatarPicture';
 import SubscriptionService from '../services/SubscriptionService';
+import { OPS_OWNER_EMAIL } from '../routes/middleware/RequireOpsAccess';
 
 class UsersController {
   constructor(
@@ -200,6 +201,7 @@ class UsersController {
 
     const featureFlags = {
       kiUI: false,
+      ops: user?.email?.toLowerCase() === OPS_OWNER_EMAIL,
     };
 
     // featureFlags.kiUI = user?.patreon || res.locals.subscriber;
