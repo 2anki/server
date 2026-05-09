@@ -8,6 +8,14 @@ import {
 
 const TABLE = 'ankify_sync_conflicts';
 
+const fromRow = (row: AnkifySyncConflict): AnkifySyncConflict => ({
+  ...row,
+  anki_note_id: Number(row.anki_note_id),
+  anki_modified_at: row.anki_modified_at == null
+    ? null
+    : Number(row.anki_modified_at),
+});
+
 export interface AnkifySyncConflictsRepositoryInterface {
   recordOrFindPending(
     input: NewAnkifySyncConflict
@@ -45,7 +53,7 @@ export class AnkifySyncConflictsRepository
       })
       .first();
     if (existing != null) {
-      return existing;
+      return fromRow(existing);
     }
     const [row] = await this.database<AnkifySyncConflict>(TABLE)
       .insert({
@@ -66,10 +74,10 @@ export class AnkifySyncConflictsRepository
         status: 'pending',
       })
       .returning('*');
-    return row;
+    return fromRow(row);
   }
 
-  listByOwner(
+  async listByOwner(
     owner: number,
     options: { status?: string } = {}
   ): Promise<AnkifySyncConflict[]> {
@@ -80,7 +88,8 @@ export class AnkifySyncConflictsRepository
     if (options.status != null) {
       query.andWhere({ status: options.status });
     }
-    return query;
+    const rows = await query;
+    return rows.map(fromRow);
   }
 
   async findById(
@@ -91,7 +100,7 @@ export class AnkifySyncConflictsRepository
       .select('*')
       .where({ id, owner })
       .first();
-    return row ?? null;
+    return row == null ? null : fromRow(row);
   }
 
   async resolve(

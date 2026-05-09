@@ -7,6 +7,11 @@ import {
 
 const TABLE = 'ankify_sync_mappings';
 
+const fromRow = (row: AnkifySyncMapping): AnkifySyncMapping => ({
+  ...row,
+  anki_note_id: Number(row.anki_note_id),
+});
+
 export interface AnkifySyncMappingsRepositoryInterface {
   findBySourceId(
     ankifyClientId: number,
@@ -37,7 +42,7 @@ export class AnkifySyncMappingsRepository
       .select('*')
       .where({ ankify_client_id: ankifyClientId, source_id: sourceId })
       .first();
-    return row ?? null;
+    return row == null ? null : fromRow(row);
   }
 
   async upsert(input: NewAnkifySyncMapping): Promise<AnkifySyncMapping> {
@@ -57,14 +62,15 @@ export class AnkifySyncMappingsRepository
         last_synced_at: this.database.fn.now() as unknown as Date,
       })
       .returning('*');
-    return row;
+    return fromRow(row);
   }
 
-  listByClient(ankifyClientId: number): Promise<AnkifySyncMapping[]> {
-    return this.database<AnkifySyncMapping>(TABLE)
+  async listByClient(ankifyClientId: number): Promise<AnkifySyncMapping[]> {
+    const rows = await this.database<AnkifySyncMapping>(TABLE)
       .select('*')
       .where({ ankify_client_id: ankifyClientId })
       .orderBy('last_synced_at', 'desc');
+    return rows.map(fromRow);
   }
 
   async findByAnkiNoteId(
@@ -75,7 +81,7 @@ export class AnkifySyncMappingsRepository
       .select('*')
       .where({ ankify_client_id: ankifyClientId, anki_note_id: ankiNoteId })
       .first();
-    return row ?? null;
+    return row == null ? null : fromRow(row);
   }
 
   async deleteByAnkiNoteId(
