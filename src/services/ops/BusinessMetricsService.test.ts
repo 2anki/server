@@ -6,6 +6,7 @@ import {
   BusinessMetricsService,
   BusinessMetricsResponse,
 } from './BusinessMetricsService';
+import { InMemoryBusinessMetricsCacheRepository } from '../../data_layer/BusinessMetricsCacheRepository';
 
 interface FakeSubscriptionItem {
   price: {
@@ -173,6 +174,30 @@ describe('BusinessMetricsService', () => {
     expect(stripe.subscriptions.list).toHaveBeenCalledTimes(1);
     expect(stripe.invoices.list).toHaveBeenCalledTimes(1);
     expect(second.cache_age_seconds).toBe(10 * 60);
+  });
+
+  it('reuses a shared cache repository across service instances (survives restart)', async () => {
+    const stripe = buildFakeStripe({
+      allSubs: [sub('sub_1', [monthly(1000)], { created: daysAgoEpoch(60) })],
+    });
+    const sharedCache = new InMemoryBusinessMetricsCacheRepository();
+
+    const first = new BusinessMetricsService({
+      stripeFactory: () => stripe as never,
+      cacheRepository: sharedCache,
+    });
+    await first.getMetrics();
+
+    const second = new BusinessMetricsService({
+      stripeFactory: () => stripe as never,
+      cacheRepository: sharedCache,
+    });
+    const result = await second.getMetrics();
+
+    expect(stripe.subscriptions.list).toHaveBeenCalledTimes(1);
+    expect(stripe.invoices.list).toHaveBeenCalledTimes(1);
+    expect(result.mrr_usd).toBeCloseTo(10, 5);
+    expect(result.cache_age_seconds).toBe(0);
   });
 
   it('refetches metrics after cache expires', async () => {
