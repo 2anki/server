@@ -10,9 +10,20 @@ import {
   YAxis,
 } from 'recharts';
 
-import styles from '../OpsPage.module.css';
 import { ConversionsChurnWeekPoint } from '../businessTypes';
 import { formatWeekLabel } from '../businessHelpers';
+import {
+  AXIS_STROKE,
+  AXIS_TICK_STYLE,
+  GRID_STROKE,
+  SERIES_GREEN,
+  SERIES_RED,
+  TIME_SERIES_CHART_MARGIN,
+  TOOLTIP_CURSOR_FILL,
+} from './timeSeriesChartHelpers';
+import TimeSeriesTooltipShell, {
+  TimeSeriesTooltipRow,
+} from './TimeSeriesTooltipShell';
 
 interface ConversionsChurnChartProps {
   points: ConversionsChurnWeekPoint[];
@@ -37,21 +48,10 @@ function ConversionsChurnTooltip({ active, payload }: TooltipContentProps) {
   if (!active || payload == null || payload.length === 0) return null;
   const row = payload[0].payload as WeekRow;
   return (
-    <div className={styles.tooltip}>
-      <div className={styles.tooltipTitle}>{row.label}</div>
-      <div className={styles.tooltipRow}>
-        <span>new</span>
-        <span className={styles.tooltipNumber}>
-          {row.new_paying.toLocaleString()}
-        </span>
-      </div>
-      <div className={styles.tooltipRow}>
-        <span>churned</span>
-        <span className={styles.tooltipNumber}>
-          {row.churned.toLocaleString()}
-        </span>
-      </div>
-    </div>
+    <TimeSeriesTooltipShell title={row.label}>
+      <TimeSeriesTooltipRow label="new" value={row.new_paying.toLocaleString()} />
+      <TimeSeriesTooltipRow label="churned" value={row.churned.toLocaleString()} />
+    </TimeSeriesTooltipShell>
   );
 }
 
@@ -62,25 +62,14 @@ export default function ConversionsChurnChart({
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <BarChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
-        <CartesianGrid stroke="#f3f4f6" vertical={false} />
-        <XAxis
-          dataKey="label"
-          tick={{ fontSize: 11, fill: '#6b7280' }}
-          stroke="#e5e7eb"
-        />
-        <YAxis
-          tick={{ fontSize: 11, fill: '#6b7280' }}
-          stroke="#e5e7eb"
-          allowDecimals={false}
-        />
-        <Tooltip
-          content={(props) => <ConversionsChurnTooltip {...props} />}
-          cursor={{ fill: '#f9fafb' }}
-        />
+      <BarChart data={data} margin={TIME_SERIES_CHART_MARGIN}>
+        <CartesianGrid stroke={GRID_STROKE} vertical={false} />
+        <XAxis dataKey="label" tick={AXIS_TICK_STYLE} stroke={AXIS_STROKE} />
+        <YAxis tick={AXIS_TICK_STYLE} stroke={AXIS_STROKE} allowDecimals={false} />
+        <Tooltip content={ConversionsChurnTooltip} cursor={TOOLTIP_CURSOR_FILL} />
         <Legend wrapperStyle={{ fontSize: 11 }} />
-        <Bar dataKey="new_paying" fill="#10b981" name="new" />
-        <Bar dataKey="churned" fill="#dc2626" name="churned" />
+        <Bar dataKey="new_paying" fill={SERIES_GREEN} name="new" />
+        <Bar dataKey="churned" fill={SERIES_RED} name="churned" />
       </BarChart>
     </ResponsiveContainer>
   );

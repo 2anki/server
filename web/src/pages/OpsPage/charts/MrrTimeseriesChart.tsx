@@ -9,9 +9,19 @@ import {
   YAxis,
 } from 'recharts';
 
-import styles from '../OpsPage.module.css';
 import { MrrTimeseriesPoint } from '../businessTypes';
 import { formatDailyLabel, formatUsd } from '../businessHelpers';
+import {
+  AXIS_STROKE,
+  AXIS_TICK_STYLE,
+  GRID_STROKE,
+  SERIES_GREEN,
+  TIME_SERIES_CHART_MARGIN,
+  TOOLTIP_CURSOR_FILL,
+} from './timeSeriesChartHelpers';
+import TimeSeriesTooltipShell, {
+  TimeSeriesTooltipRow,
+} from './TimeSeriesTooltipShell';
 
 interface MrrTimeseriesChartProps {
   points: MrrTimeseriesPoint[];
@@ -34,13 +44,9 @@ function MrrTooltip({ active, payload }: TooltipContentProps) {
   if (!active || payload == null || payload.length === 0) return null;
   const row = payload[0].payload as MrrRow;
   return (
-    <div className={styles.tooltip}>
-      <div className={styles.tooltipTitle}>{row.label}</div>
-      <div className={styles.tooltipRow}>
-        <span>MRR</span>
-        <span className={styles.tooltipNumber}>{formatUsd(row.mrr_usd)}</span>
-      </div>
-    </div>
+    <TimeSeriesTooltipShell title={row.label}>
+      <TimeSeriesTooltipRow label="MRR" value={formatUsd(row.mrr_usd)} />
+    </TimeSeriesTooltipShell>
   );
 }
 
@@ -51,28 +57,25 @@ export default function MrrTimeseriesChart({
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <AreaChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
-        <CartesianGrid stroke="#f3f4f6" vertical={false} />
+      <AreaChart data={data} margin={TIME_SERIES_CHART_MARGIN}>
+        <CartesianGrid stroke={GRID_STROKE} vertical={false} />
         <XAxis
           dataKey="label"
-          tick={{ fontSize: 11, fill: '#6b7280' }}
-          stroke="#e5e7eb"
+          tick={AXIS_TICK_STYLE}
+          stroke={AXIS_STROKE}
           minTickGap={32}
         />
         <YAxis
-          tick={{ fontSize: 11, fill: '#6b7280' }}
-          stroke="#e5e7eb"
+          tick={AXIS_TICK_STYLE}
+          stroke={AXIS_STROKE}
           tickFormatter={(value: number) => formatUsd(value)}
         />
-        <Tooltip
-          content={(props) => <MrrTooltip {...props} />}
-          cursor={{ fill: '#f9fafb' }}
-        />
+        <Tooltip content={MrrTooltip} cursor={TOOLTIP_CURSOR_FILL} />
         <Area
           type="monotone"
           dataKey="mrr_usd"
-          stroke="#10b981"
-          fill="#10b981"
+          stroke={SERIES_GREEN}
+          fill={SERIES_GREEN}
           fillOpacity={0.2}
         />
       </AreaChart>

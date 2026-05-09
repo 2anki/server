@@ -1,4 +1,5 @@
 import axios, { AxiosError } from 'axios';
+import dns from 'dns';
 
 import { makeInstrumentedAxios, OBSERVABILITY_SERVICES } from './instrumentedAxios';
 import { ObservabilitySink } from './ObservabilitySink';
@@ -22,7 +23,20 @@ jest.mock('axios', () => {
   };
 });
 
+jest.mock('dns', () => ({
+  __esModule: true,
+  default: { promises: { lookup: jest.fn() } },
+  promises: { lookup: jest.fn() },
+}));
+
 const mockedAxios = axios as jest.Mocked<typeof axios>;
+const mockedLookup = dns.promises.lookup as jest.Mock;
+
+const mockPublicLookup = () => {
+  mockedLookup.mockImplementation(async () => [
+    { address: '13.224.0.1', family: 4 },
+  ]);
+};
 
 class FakeRepo implements IObservabilityRepository {
   inbound: RequestLogRow[] = [];
@@ -57,6 +71,7 @@ const makeAxiosError = (status: number): AxiosError => {
 describe('instrumentedAxios', () => {
   beforeEach(() => {
     jest.resetAllMocks();
+    mockPublicLookup();
   });
 
   it('proxies a successful GET to axios.get and records host+pathname (query stripped)', async () => {
@@ -70,7 +85,10 @@ describe('instrumentedAxios', () => {
     const result = await client.get('notion', url);
 
     expect(result).toEqual({ status: 200, data: 'ok' });
-    expect(mockedAxios.get).toHaveBeenCalledWith(url, undefined);
+    expect(mockedAxios.get).toHaveBeenCalledWith(
+      url,
+      expect.objectContaining({ lookup: expect.any(Function) })
+    );
 
     await sink.flush();
     expect(repo.outbound).toHaveLength(1);
@@ -151,6 +169,261 @@ describe('instrumentedAxios', () => {
     expect(OBSERVABILITY_SERVICES).toEqual(
       expect.arrayContaining(['notion', 'claude', 'dropbox', 'google_drive', 'patreon'])
     );
+  });
+
+  it('rejects URLs whose host is not on a fixed-host service allowlist (SSRF guard)', async () => {
+    const repo = new FakeRepo();
+    const sink = new ObservabilitySink(repo);
+    const client = makeInstrumentedAxios(sink);
+
+    await expect(
+      client.get('claude', 'https://attacker.example.com/exfil')
+    ).rejects.toThrow(/host.*not allowed.*claude/i);
+    expect(mockedAxios.get).not.toHaveBeenCalled();
+
+    await expect(
+      client.get('google_drive', 'https://evil.com/file')
+    ).rejects.toThrow(/host.*not allowed.*google_drive/i);
+
+    await expect(
+      client.get('patreon', 'https://api.notion.com/v1/pages/abc')
+    ).rejects.toThrow(/host.*not allowed.*patreon/i);
+  });
+
+  it('rejects private/loopback hosts on every service (SSRF deny-list)', async () => {
+    const repo = new FakeRepo();
+    const sink = new ObservabilitySink(repo);
+    const client = makeInstrumentedAxios(sink);
+
+    const privateHosts = [
+      'https://localhost/internal',
+      'https://127.0.0.1/internal',
+      'https://10.0.0.1/internal',
+      'https://192.168.1.1/internal',
+      'https://172.16.0.1/internal',
+      'https://169.254.169.254/latest/meta-data',
+      'https://[::1]/internal',
+    ];
+
+    for (const url of privateHosts) {
+      await expect(client.get('notion', url)).rejects.toThrow(
+        /private\/loopback address/i
+      );
+      await expect(client.get('dropbox', url)).rejects.toThrow(
+        /private\/loopback address/i
+      );
+    }
+    expect(mockedAxios.get).not.toHaveBeenCalled();
+  });
+
+  it('allows arbitrary public hosts for variable-host services (notion media, dropbox files)', async () => {
+    const repo = new FakeRepo();
+    const sink = new ObservabilitySink(repo);
+    const client = makeInstrumentedAxios(sink);
+
+    mockedAxios.get.mockResolvedValue({ status: 200, data: 'ok' });
+
+    await expect(
+      client.get(
+        'notion',
+        'https://prod-files-secure.s3.us-west-2.amazonaws.com/abc/def?X-Amz-Signature=xyz'
+      )
+    ).resolves.toEqual({ status: 200, data: 'ok' });
+
+    await expect(
+      client.get(
+        'dropbox',
+        'https://uc8a13c9bd5f6e64ad7f78a14e0c.dl.dropboxusercontent.com/cd/0/get/abc'
+      )
+    ).resolves.toEqual({ status: 200, data: 'ok' });
+  });
+
+  it('rejects non-https URLs even when the host would otherwise be allowed', async () => {
+    const repo = new FakeRepo();
+    const sink = new ObservabilitySink(repo);
+    const client = makeInstrumentedAxios(sink);
+
+    await expect(
+      client.get('notion', 'http://api.notion.com/v1/pages/abc')
+    ).rejects.toThrow(/https/i);
+    expect(mockedAxios.get).not.toHaveBeenCalled();
+  });
+
+  it('rejects malformed URLs with a clear error before reaching axios', async () => {
+    const repo = new FakeRepo();
+    const sink = new ObservabilitySink(repo);
+    const client = makeInstrumentedAxios(sink);
+
+    await expect(client.get('notion', 'not a url')).rejects.toThrow(/invalid url/i);
+    expect(mockedAxios.get).not.toHaveBeenCalled();
+  });
+
+  it('accepts every documented production host', async () => {
+    const repo = new FakeRepo();
+    const sink = new ObservabilitySink(repo);
+    const client = makeInstrumentedAxios(sink);
+
+    mockedAxios.get.mockResolvedValue({ status: 200, data: 'ok' });
+
+    const cases: Array<[Parameters<typeof client.get>[0], string]> = [
+      ['notion', 'https://api.notion.com/v1/pages/abc'],
+      ['claude', 'https://api.anthropic.com/v1/messages'],
+      ['dropbox', 'https://content.dropboxapi.com/2/files/upload'],
+      ['google_drive', 'https://www.googleapis.com/drive/v3/files/abc'],
+      ['google_drive', 'https://oauth2.googleapis.com/token'],
+      ['patreon', 'https://www.patreon.com/api/oauth2/v2/identity'],
+    ];
+
+    for (const [service, url] of cases) {
+      await expect(client.get(service, url)).resolves.toEqual({
+        status: 200,
+        data: 'ok',
+      });
+    }
+  });
+
+  it('rejects IPv4-mapped IPv6 addresses in bracketed form (SSRF bypass)', async () => {
+    const repo = new FakeRepo();
+    const sink = new ObservabilitySink(repo);
+    const client = makeInstrumentedAxios(sink);
+
+    const mappedHosts = [
+      'https://[::ffff:127.0.0.1]/internal',
+      'https://[::ffff:169.254.169.254]/latest/meta-data',
+      'https://[::ffff:10.0.0.1]/internal',
+    ];
+
+    for (const url of mappedHosts) {
+      await expect(client.get('notion', url)).rejects.toThrow(
+        /private\/loopback address/i
+      );
+      await expect(client.get('dropbox', url)).rejects.toThrow(
+        /private\/loopback address/i
+      );
+    }
+    expect(mockedAxios.get).not.toHaveBeenCalled();
+  });
+
+  it('rejects ULA and link-local IPv6 in bracketed form (SSRF bypass)', async () => {
+    const repo = new FakeRepo();
+    const sink = new ObservabilitySink(repo);
+    const client = makeInstrumentedAxios(sink);
+
+    const hosts = [
+      'https://[fc00::1]/internal',
+      'https://[fd00::1]/internal',
+      'https://[fe80::1]/internal',
+    ];
+
+    for (const url of hosts) {
+      await expect(client.get('notion', url)).rejects.toThrow(
+        /private\/loopback address/i
+      );
+      await expect(client.get('dropbox', url)).rejects.toThrow(
+        /private\/loopback address/i
+      );
+    }
+    expect(mockedAxios.get).not.toHaveBeenCalled();
+  });
+
+  it('rejects DNS rebinding: public-looking host that resolves to a private IP', async () => {
+    const repo = new FakeRepo();
+    const sink = new ObservabilitySink(repo);
+    const client = makeInstrumentedAxios(sink);
+
+    mockedLookup.mockImplementation(async () => [
+      { address: '169.254.169.254', family: 4 },
+    ]);
+
+    await expect(
+      client.get('notion', 'https://imds.attacker.example/latest/meta-data')
+    ).rejects.toThrow(/resolved IP .* is private\/loopback\/link-local/i);
+
+    await expect(
+      client.get('dropbox', 'https://imds.attacker.example/file')
+    ).rejects.toThrow(/resolved IP .* is private\/loopback\/link-local/i);
+
+    expect(mockedAxios.get).not.toHaveBeenCalled();
+  });
+
+  it('rejects DNS rebinding to IPv4-mapped IPv6 address', async () => {
+    const repo = new FakeRepo();
+    const sink = new ObservabilitySink(repo);
+    const client = makeInstrumentedAxios(sink);
+
+    mockedLookup.mockImplementation(async () => [
+      { address: '::ffff:169.254.169.254', family: 6 },
+    ]);
+
+    await expect(
+      client.get('notion', 'https://imds.attacker.example/meta')
+    ).rejects.toThrow(/resolved IP .* is private\/loopback\/link-local/i);
+    expect(mockedAxios.get).not.toHaveBeenCalled();
+  });
+
+  it('rejects when DNS lookup fails (NXDOMAIN/ENOTFOUND)', async () => {
+    const repo = new FakeRepo();
+    const sink = new ObservabilitySink(repo);
+    const client = makeInstrumentedAxios(sink);
+
+    const dnsErr = Object.assign(new Error('getaddrinfo ENOTFOUND'), {
+      code: 'ENOTFOUND',
+    });
+    mockedLookup.mockImplementation(async () => {
+      throw dnsErr;
+    });
+
+    await expect(
+      client.get('notion', 'https://does-not-exist.invalid/x')
+    ).rejects.toThrow(/dns lookup failed|ENOTFOUND/i);
+    expect(mockedAxios.get).not.toHaveBeenCalled();
+  });
+
+  it('allows public-resolving hostnames and pins the resolved IP via axios lookup option', async () => {
+    const repo = new FakeRepo();
+    const sink = new ObservabilitySink(repo);
+    const client = makeInstrumentedAxios(sink);
+
+    mockedLookup.mockImplementation(async () => [
+      { address: '13.224.0.1', family: 4 },
+    ]);
+    mockedAxios.get.mockResolvedValueOnce({ status: 200, data: 'ok' });
+
+    await expect(
+      client.get('dropbox', 'https://uc8.dl.dropboxusercontent.com/cd/0/get/abc')
+    ).resolves.toEqual({ status: 200, data: 'ok' });
+
+    expect(mockedAxios.get).toHaveBeenCalledTimes(1);
+    const callArgs = mockedAxios.get.mock.calls[0];
+    expect(callArgs[1]).toBeDefined();
+    const opts = callArgs[1] as { lookup: Function };
+    expect(typeof opts.lookup).toBe('function');
+
+    const cb = jest.fn();
+    opts.lookup('uc8.dl.dropboxusercontent.com', {}, cb as never);
+    expect(cb).toHaveBeenCalledWith(null, '13.224.0.1', 4);
+  });
+
+  it('rejects 6to4, documentation, and multicast IPv6 ranges', async () => {
+    const repo = new FakeRepo();
+    const sink = new ObservabilitySink(repo);
+    const client = makeInstrumentedAxios(sink);
+
+    const cases: Array<{ address: string; family: 6 }> = [
+      { address: '2002:a9fe:a9fe::1', family: 6 },
+      { address: '2001:db8::1', family: 6 },
+      { address: 'ff00::1', family: 6 },
+      { address: 'fec0::1', family: 6 },
+      { address: '::', family: 6 },
+    ];
+
+    for (const resolved of cases) {
+      mockedLookup.mockImplementationOnce(async () => [resolved]);
+      await expect(
+        client.get('notion', 'https://anything.example/x')
+      ).rejects.toThrow(/private\/loopback\/link-local/i);
+    }
+    expect(mockedAxios.get).not.toHaveBeenCalled();
   });
 
   it('does not throw when sink itself rejects (instrumentation must never break the caller)', async () => {

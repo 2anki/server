@@ -9,9 +9,19 @@ import {
   YAxis,
 } from 'recharts';
 
-import styles from '../OpsPage.module.css';
 import { FailedPaymentsWeekPoint } from '../businessTypes';
 import { formatWeekLabel } from '../businessHelpers';
+import {
+  AXIS_STROKE,
+  AXIS_TICK_STYLE,
+  GRID_STROKE,
+  SERIES_RED,
+  TIME_SERIES_CHART_MARGIN,
+  TOOLTIP_CURSOR_FILL,
+} from './timeSeriesChartHelpers';
+import TimeSeriesTooltipShell, {
+  TimeSeriesTooltipRow,
+} from './TimeSeriesTooltipShell';
 
 interface FailedPaymentsWeeklyChartProps {
   points: FailedPaymentsWeekPoint[];
@@ -34,13 +44,9 @@ function FailedPaymentsTooltip({ active, payload }: TooltipContentProps) {
   if (!active || payload == null || payload.length === 0) return null;
   const row = payload[0].payload as WeekRow;
   return (
-    <div className={styles.tooltip}>
-      <div className={styles.tooltipTitle}>{row.label}</div>
-      <div className={styles.tooltipRow}>
-        <span>failed</span>
-        <span className={styles.tooltipNumber}>{row.count.toLocaleString()}</span>
-      </div>
-    </div>
+    <TimeSeriesTooltipShell title={row.label}>
+      <TimeSeriesTooltipRow label="failed" value={row.count.toLocaleString()} />
+    </TimeSeriesTooltipShell>
   );
 }
 
@@ -51,23 +57,12 @@ export default function FailedPaymentsWeeklyChart({
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <BarChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
-        <CartesianGrid stroke="#f3f4f6" vertical={false} />
-        <XAxis
-          dataKey="label"
-          tick={{ fontSize: 11, fill: '#6b7280' }}
-          stroke="#e5e7eb"
-        />
-        <YAxis
-          tick={{ fontSize: 11, fill: '#6b7280' }}
-          stroke="#e5e7eb"
-          allowDecimals={false}
-        />
-        <Tooltip
-          content={(props) => <FailedPaymentsTooltip {...props} />}
-          cursor={{ fill: '#f9fafb' }}
-        />
-        <Bar dataKey="count" fill="#dc2626" />
+      <BarChart data={data} margin={TIME_SERIES_CHART_MARGIN}>
+        <CartesianGrid stroke={GRID_STROKE} vertical={false} />
+        <XAxis dataKey="label" tick={AXIS_TICK_STYLE} stroke={AXIS_STROKE} />
+        <YAxis tick={AXIS_TICK_STYLE} stroke={AXIS_STROKE} allowDecimals={false} />
+        <Tooltip content={FailedPaymentsTooltip} cursor={TOOLTIP_CURSOR_FILL} />
+        <Bar dataKey="count" fill={SERIES_RED} />
       </BarChart>
     </ResponsiveContainer>
   );

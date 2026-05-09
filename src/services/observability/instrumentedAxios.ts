@@ -1,4 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import dns from 'node:dns';
 
 import { ObservabilitySink } from './ObservabilitySink';
 import { getObservabilitySink } from './observabilitySinkInstance';
@@ -16,14 +17,200 @@ export type ObservabilityService = (typeof OBSERVABILITY_SERVICES)[number];
 const isAllowedService = (service: string): service is ObservabilityService =>
   (OBSERVABILITY_SERVICES as readonly string[]).includes(service);
 
-const stripQueryFromUrl = (url: string): string => {
-  try {
-    const parsed = new URL(url);
-    return `${parsed.host}${parsed.pathname}`;
-  } catch {
-    const queryIndex = url.indexOf('?');
-    return queryIndex >= 0 ? url.slice(0, queryIndex) : url;
+const FIXED_HOST_ALLOWLIST: Record<ObservabilityService, readonly string[] | null> = {
+  notion: null,
+  claude: ['api.anthropic.com'],
+  dropbox: null,
+  google_drive: ['www.googleapis.com', 'oauth2.googleapis.com'],
+  patreon: ['www.patreon.com', 'api.patreon.com'],
+};
+
+const isHostOnFixedAllowlist = (
+  host: string,
+  service: ObservabilityService
+): boolean => {
+  const allowlist = FIXED_HOST_ALLOWLIST[service];
+  if (allowlist == null) return true;
+  const lowered = host.toLowerCase();
+  return allowlist.includes(lowered);
+};
+
+const PRIVATE_IPV4_PATTERNS: RegExp[] = [
+  /^0\./,
+  /^10\./,
+  /^127\./,
+  /^169\.254\./,
+  /^172\.(1[6-9]|2\d|3[0-1])\./,
+  /^192\.168\./,
+  /^100\.(6[4-9]|[7-9]\d|1[01]\d|12[0-7])\./,
+  /^(22[4-9]|23\d)\./,
+  /^(24\d|25[0-5])\./,
+];
+
+const stripIpv6Brackets = (value: string): string => {
+  if (value.startsWith('[') && value.endsWith(']')) {
+    return value.slice(1, -1);
   }
+  return value;
+};
+
+const isIpv4Mapped = (lowered: string): boolean =>
+  lowered.includes('::ffff:') || lowered.startsWith('::ffff:');
+
+const extractMappedIpv4 = (lowered: string): string | null => {
+  const idx = lowered.lastIndexOf(':');
+  if (idx < 0) return null;
+  const candidate = lowered.slice(idx + 1);
+  if (/^\d{1,3}(\.\d{1,3}){3}$/.test(candidate)) {
+    return candidate;
+  }
+  return null;
+};
+
+const isPrivateIpv4 = (address: string): boolean =>
+  PRIVATE_IPV4_PATTERNS.some((pattern) => pattern.test(address));
+
+const PRIVATE_IPV6_PREFIXES: string[] = [
+  'fc',
+  'fd',
+  'fe8',
+  'fe9',
+  'fea',
+  'feb',
+  'fec',
+  'fed',
+  'fee',
+  'fef',
+  '2001:db8',
+  '2002:',
+  'ff',
+];
+
+const isPrivateIpv6Address = (address: string): boolean => {
+  const lowered = address.toLowerCase();
+  if (lowered === '::1' || lowered === '::') return true;
+  if (isIpv4Mapped(lowered)) {
+    const embedded = extractMappedIpv4(lowered);
+    if (embedded != null) {
+      return isPrivateIpv4(embedded);
+    }
+    return true;
+  }
+  return PRIVATE_IPV6_PREFIXES.some((prefix) => lowered.startsWith(prefix));
+};
+
+const isPrivateOrLoopbackHost = (host: string): boolean => {
+  const lowered = stripIpv6Brackets(host.toLowerCase());
+  if (lowered === 'localhost' || lowered.endsWith('.localhost')) return true;
+  if (lowered === '::1' || lowered === '::') return true;
+  if (isIpv4Mapped(lowered)) return true;
+  if (PRIVATE_IPV6_PREFIXES.some((prefix) => lowered.startsWith(prefix))) {
+    return true;
+  }
+  return isPrivateIpv4(lowered);
+};
+
+const isPrivateResolvedAddress = (address: string, family: number): boolean => {
+  if (family === 4) return isPrivateIpv4(address);
+  if (family === 6) return isPrivateIpv6Address(address);
+  return true;
+};
+
+interface ParsedRequestUrl {
+  endpoint: string;
+  hostname: string;
+  protocol: string;
+  hostWithPort: string;
+}
+
+const parseRequestUrl = (url: string): ParsedRequestUrl => {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    throw new Error(`[observability] invalid URL: ${url}`);
+  }
+  return {
+    endpoint: `${parsed.host}${parsed.pathname}`,
+    hostname: parsed.hostname,
+    hostWithPort: parsed.host,
+    protocol: parsed.protocol,
+  };
+};
+
+interface ResolvedAddress {
+  address: string;
+  family: 4 | 6;
+}
+
+const resolveHostnameSafely = async (
+  hostname: string
+): Promise<ResolvedAddress> => {
+  const cleaned = stripIpv6Brackets(hostname);
+  let entries: ResolvedAddress[];
+  try {
+    const lookup = await dns.promises.lookup(cleaned, {
+      all: true,
+      verbatim: true,
+    });
+    entries = lookup.map((entry) => ({
+      address: entry.address,
+      family: entry.family as 4 | 6,
+    }));
+  } catch (error) {
+    const code = (error as NodeJS.ErrnoException).code ?? 'EUNKNOWN';
+    throw new Error(
+      `[observability] dns lookup failed for "${hostname}" (${code})`
+    );
+  }
+  if (entries.length === 0) {
+    throw new Error(`[observability] dns lookup returned no addresses for "${hostname}"`);
+  }
+  for (const entry of entries) {
+    if (isPrivateResolvedAddress(entry.address, entry.family)) {
+      throw new Error(
+        `[observability] resolved IP ${entry.address} for "${hostname}" is private/loopback/link-local`
+      );
+    }
+  }
+  return entries[0];
+};
+
+type AxiosLookup = NonNullable<AxiosRequestConfig['lookup']>;
+
+const buildPinnedLookup = (resolved: ResolvedAddress): AxiosLookup =>
+  ((_hostname, _options, callback) => {
+    (callback as (err: NodeJS.ErrnoException | null, address: string, family: number) => void)(
+      null,
+      resolved.address,
+      resolved.family
+    );
+  }) as AxiosLookup;
+
+const validateAndResolveUrl = async (
+  parsed: ParsedRequestUrl,
+  service: ObservabilityService
+): Promise<{ endpoint: string; lookup: AxiosLookup }> => {
+  if (parsed.protocol !== 'https:') {
+    throw new Error(
+      `[observability] only https URLs are allowed for ${service} (got ${parsed.protocol})`
+    );
+  }
+  if (isPrivateOrLoopbackHost(parsed.hostname)) {
+    throw new Error(
+      `[observability] host "${parsed.hostname}" is not allowed for service "${service}" (private/loopback address)`
+    );
+  }
+  if (!isHostOnFixedAllowlist(parsed.hostname, service)) {
+    throw new Error(
+      `[observability] host "${parsed.hostname}" is not allowed for service "${service}"`
+    );
+  }
+  const resolved = await resolveHostnameSafely(parsed.hostname);
+  return {
+    endpoint: parsed.endpoint,
+    lookup: buildPinnedLookup(resolved),
+  };
 };
 
 const recordSafely = (
@@ -53,20 +240,13 @@ const extractStatusFromError = (error: unknown): number | null => {
   return null;
 };
 
-type Verb = 'get' | 'post' | 'put' | 'delete';
-
-const runWithBody = async <T>(
-  verb: 'post' | 'put',
-  url: string,
-  data: unknown,
-  config: AxiosRequestConfig | undefined
-): Promise<AxiosResponse<T>> => axios[verb]<T>(url, data, config);
-
-const runNoBody = async <T>(
-  verb: 'get' | 'delete',
-  url: string,
-  config: AxiosRequestConfig | undefined
-): Promise<AxiosResponse<T>> => axios[verb]<T>(url, config);
+const mergeLookupOption = (
+  config: AxiosRequestConfig | undefined,
+  lookup: AxiosLookup
+): AxiosRequestConfig => {
+  if (config == null) return { lookup };
+  return { ...config, lookup };
+};
 
 export interface InstrumentedAxios {
   get<T = unknown>(
@@ -97,17 +277,18 @@ const measure = async <T>(
   sink: ObservabilitySink,
   service: string,
   url: string,
-  exec: () => Promise<AxiosResponse<T>>
+  exec: (lookup: AxiosLookup) => Promise<AxiosResponse<T>>
 ): Promise<AxiosResponse<T>> => {
   if (!isAllowedService(service)) {
     throw new Error(
       `[observability] unknown service "${service}". Allowed: ${OBSERVABILITY_SERVICES.join(', ')}`
     );
   }
-  const endpoint = stripQueryFromUrl(url);
+  const parsed = parseRequestUrl(url);
+  const { endpoint, lookup } = await validateAndResolveUrl(parsed, service);
   const start = Date.now();
   try {
-    const response = await exec();
+    const response = await exec(lookup);
     recordSafely(sink, service, endpoint, response.status, Date.now() - start);
     return response;
   } catch (error) {
@@ -118,13 +299,21 @@ const measure = async <T>(
 
 export const makeInstrumentedAxios = (sink: ObservabilitySink): InstrumentedAxios => ({
   get: (service, url, config) =>
-    measure(sink, service, url, () => runNoBody('get', url, config)),
+    measure(sink, service, url, (lookup) =>
+      axios.get(url, mergeLookupOption(config, lookup))
+    ),
   post: (service, url, data, config) =>
-    measure(sink, service, url, () => runWithBody('post', url, data, config)),
+    measure(sink, service, url, (lookup) =>
+      axios.post(url, data, mergeLookupOption(config, lookup))
+    ),
   put: (service, url, data, config) =>
-    measure(sink, service, url, () => runWithBody('put', url, data, config)),
+    measure(sink, service, url, (lookup) =>
+      axios.put(url, data, mergeLookupOption(config, lookup))
+    ),
   delete: (service, url, config) =>
-    measure(sink, service, url, () => runNoBody('delete', url, config)),
+    measure(sink, service, url, (lookup) =>
+      axios.delete(url, mergeLookupOption(config, lookup))
+    ),
 });
 
 let cached: InstrumentedAxios | null = null;
