@@ -132,7 +132,7 @@ describe('SendUploadToRacUseCase', () => {
       mappings,
       uploads,
       async () => Buffer.from('fake'),
-      () => buildCollection({}),
+      async () => buildCollection({}),
       () => ac
     );
 
@@ -174,7 +174,7 @@ describe('SendUploadToRacUseCase', () => {
       mappings,
       uploads,
       async () => Buffer.from('fake'),
-      () => buildCollection({}),
+      async () => buildCollection({}),
       () => ac
     );
 
@@ -193,7 +193,7 @@ describe('SendUploadToRacUseCase', () => {
       mappings,
       uploads,
       async () => Buffer.from('fake'),
-      () =>
+      async () =>
         buildCollection({
           notes: new Map(),
           cards: [],
@@ -226,7 +226,7 @@ describe('SendUploadToRacUseCase', () => {
       mappings,
       uploads,
       async () => Buffer.from('fake'),
-      () => buildCollection({}),
+      async () => buildCollection({}),
       () => ac
     );
 
@@ -241,6 +241,46 @@ describe('SendUploadToRacUseCase', () => {
     expect(result.updated).toBe(1);
   });
 
+  test('orphan recovery: when an existing mapping points to a deleted Anki note, drops the mapping and recreates the note instead of erroring', async () => {
+    const existingMapping = {
+      id: 1,
+      ankify_client_id: 1,
+      source_id: 'guid-aaa',
+      source_type: 'apkg_guid' as const,
+      anki_note_id: 555,
+      deck_name: 'Imported::Subdeck',
+      last_synced_at: new Date(),
+    };
+    const { clients, mappings, uploads } = makeRepos({
+      findMapping: Promise.resolve(existingMapping),
+    });
+    const ac = makeAnkiConnectStub();
+    (ac.updateNoteFields as jest.Mock).mockRejectedValueOnce(
+      new AnkiConnectError('Note was not found: 555')
+    );
+    (ac.addNote as jest.Mock).mockResolvedValueOnce(7777);
+
+    const useCase = new SendUploadToRacUseCase(
+      clients,
+      mappings,
+      uploads,
+      async () => Buffer.from('fake'),
+      async () => buildCollection({}),
+      () => ac
+    );
+
+    const result = await useCase.execute({ uploadId: 7, owner: 42 });
+
+    expect(mappings.deleteByAnkiNoteId).toHaveBeenCalledWith(1, 555);
+    expect(ac.addNote).toHaveBeenCalled();
+    expect(mappings.upsert).toHaveBeenLastCalledWith(
+      expect.objectContaining({ anki_note_id: 7777, source_id: 'guid-aaa' })
+    );
+    expect(result.created).toBe(1);
+    expect(result.updated).toBe(0);
+    expect(result.errors).toEqual([]);
+  });
+
   test('cloze detection: a {{c1::}} field uses the Cloze model', async () => {
     const { clients, mappings, uploads } = makeRepos();
     const ac = makeAnkiConnectStub();
@@ -249,7 +289,7 @@ describe('SendUploadToRacUseCase', () => {
       mappings,
       uploads,
       async () => Buffer.from('fake'),
-      () =>
+      async () =>
         buildCollection({
           notes: new Map([
             [
@@ -288,7 +328,7 @@ describe('SendUploadToRacUseCase', () => {
       mappings,
       uploads,
       async () => Buffer.from('fake'),
-      () =>
+      async () =>
         buildCollection({
           notes: new Map([
             [
@@ -344,7 +384,7 @@ describe('SendUploadToRacUseCase', () => {
       mappings,
       uploads,
       async () => Buffer.from(''),
-      () => buildCollection({}),
+      async () => buildCollection({}),
       () => ac
     );
 
@@ -361,7 +401,7 @@ describe('SendUploadToRacUseCase', () => {
       mappings,
       uploads,
       async () => Buffer.from(''),
-      () => buildCollection({}),
+      async () => buildCollection({}),
       () => ac
     );
 
@@ -381,7 +421,7 @@ describe('SendUploadToRacUseCase', () => {
       mappings,
       uploads,
       async () => Buffer.from('fake'),
-      () =>
+      async () =>
         buildCollection({
           notes: new Map([
             [

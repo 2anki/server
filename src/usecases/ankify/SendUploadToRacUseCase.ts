@@ -57,7 +57,7 @@ export type AnkiConnectFactory = (
 
 export type ApkgFetcher = (key: string) => Promise<Buffer>;
 
-export type ApkgParser = (buffer: Buffer) => NormalizedCollection;
+export type ApkgParser = (buffer: Buffer) => Promise<NormalizedCollection>;
 
 const CLOZE_PATTERN = /\{\{c\d+::/;
 
@@ -154,7 +154,7 @@ export class SendUploadToRacUseCase {
     await this.clients.touchLastActiveAt(client.id);
 
     const buffer = await this.fetchApkgBytes(upload.key);
-    const collection = this.parseApkg(buffer);
+    const collection = await this.parseApkg(buffer);
 
     const host = input.ankiConnectHost ?? 'localhost';
     const ac = this.ankiConnect(host, client.anki_port, client.anki_connect_api_key);
@@ -248,15 +248,38 @@ export class SendUploadToRacUseCase {
         return;
       }
 
-      await ac.updateNoteFields(existing.anki_note_id, ankiNote.fields);
-      await this.upsertMapping({
-        ankify_client_id: client.id,
-        source_id: sourceId,
-        source_type: existing.source_type,
-        anki_note_id: existing.anki_note_id,
-        deck_name: deckName,
-      });
-      result.updated += 1;
+      try {
+        await ac.updateNoteFields(existing.anki_note_id, ankiNote.fields);
+        await this.upsertMapping({
+          ankify_client_id: client.id,
+          source_id: sourceId,
+          source_type: existing.source_type,
+          anki_note_id: existing.anki_note_id,
+          deck_name: deckName,
+        });
+        result.updated += 1;
+      } catch (updateError) {
+        if (
+          updateError instanceof AnkiConnectError &&
+          /not\s*found/i.test(updateError.message)
+        ) {
+          await this.mappings.deleteByAnkiNoteId(
+            client.id,
+            existing.anki_note_id
+          );
+          const ankiNoteId = await ac.addNote(ankiNote);
+          await this.upsertMapping({
+            ankify_client_id: client.id,
+            source_id: sourceId,
+            source_type: existing.source_type,
+            anki_note_id: ankiNoteId,
+            deck_name: deckName,
+          });
+          result.created += 1;
+        } else {
+          throw updateError;
+        }
+      }
     } catch (error) {
       if (
         error instanceof AnkiConnectUnreachableError ||
