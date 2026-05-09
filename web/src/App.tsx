@@ -42,6 +42,7 @@ const AnkifySetupPage = lazy(
 const AnkifyHistoryPage = lazy(
   () => import('./pages/AnkifyPage/AnkifyHistoryPage')
 );
+const OpsPage = lazy(() => import('./pages/OpsPage/OpsPage'));
 
 const queryClient = new QueryClient();
 
@@ -165,6 +166,7 @@ function AppContent({
             path="/ankify/history"
             element={requireAuth(<AnkifyHistoryPage />)}
           />
+          <Route path="/ops" element={requireAuth(<OpsPage />)} />
           <Route path="/settings" element={requireAuth(<AccountPage />)} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/documentation" element={<DocsPage />} />

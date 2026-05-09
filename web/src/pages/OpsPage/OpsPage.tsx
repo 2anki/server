@@ -1,0 +1,187 @@
+import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+
+import sharedStyles from '../../styles/shared.module.css';
+import styles from './OpsPage.module.css';
+import { OPS_METRICS_WINDOWS, OpsMetricsResponse, OpsMetricsWindow } from './opsTypes';
+import { formatClock } from './opsHelpers';
+import { useOpsMetrics } from './useOpsMetrics';
+import ChartPanel from './charts/ChartPanel';
+import InboundVolumeChart from './charts/InboundVolumeChart';
+import LatencyByRouteChart from './charts/LatencyByRouteChart';
+import OutboundByServiceChart from './charts/OutboundByServiceChart';
+import ErrorRateChart from './charts/ErrorRateChart';
+
+const WINDOW_LABEL: Record<OpsMetricsWindow, string> = {
+  '1h': 'Last 1 hour',
+  '24h': 'Last 24 hours',
+  '7d': 'Last 7 days',
+};
+
+const WINDOW_CHART_SUFFIX: Record<OpsMetricsWindow, string> = {
+  '1h': 'last 1h',
+  '24h': 'last 24h',
+  '7d': 'last 7d',
+};
+
+const PAGE_TITLE = 'Ops · 2anki';
+
+const isMetricsWindow = (value: string | null): value is OpsMetricsWindow =>
+  value != null && (OPS_METRICS_WINDOWS as readonly string[]).includes(value);
+
+const hasAnyData = (response: OpsMetricsResponse | undefined): boolean => {
+  if (response == null) return false;
+  return (
+    response.inbound_volume.length > 0 ||
+    response.route_latency.length > 0 ||
+    response.outbound_volume.length > 0 ||
+    response.error_rate_by_route.length > 0 ||
+    response.error_rate_by_service.length > 0
+  );
+};
+
+export default function OpsPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const queryWindow = searchParams.get('window');
+  const window: OpsMetricsWindow = isMetricsWindow(queryWindow)
+    ? queryWindow
+    : '24h';
+
+  const [lastSuccessAt, setLastSuccessAt] = useState<Date | null>(null);
+  const [lastSnapshot, setLastSnapshot] = useState<OpsMetricsResponse | null>(
+    null
+  );
+
+  const { data, error, isLoading, isFetching, refetch } = useOpsMetrics(window);
+
+  useEffect(() => {
+    document.title = PAGE_TITLE;
+  }, []);
+
+  useEffect(() => {
+    if (data != null) {
+      setLastSnapshot(data);
+      setLastSuccessAt(new Date());
+    }
+  }, [data]);
+
+  const onWindowChange = (next: OpsMetricsWindow) => {
+    const params = new URLSearchParams(searchParams);
+    params.set('window', next);
+    setSearchParams(params, { replace: true });
+  };
+
+  const visible = data ?? lastSnapshot;
+  const showInitialSkeleton = isLoading && visible == null;
+  const refreshing = isFetching && !isLoading;
+  const isEmpty = visible != null && !hasAnyData(visible);
+  const suffix = WINDOW_CHART_SUFFIX[window];
+
+  const subtitleClock = useMemo(() => {
+    if (lastSuccessAt == null) return '—';
+    return formatClock(lastSuccessAt);
+  }, [lastSuccessAt]);
+
+  return (
+    <main className={sharedStyles.pageWide}>
+      <div className={styles.header}>
+        <h1 className={sharedStyles.title}>Ops</h1>
+        <div className={styles.controls}>
+          <label className={styles.controlsLabel} htmlFor="ops-window">
+            Window
+          </label>
+          <select
+            id="ops-window"
+            className={`${sharedStyles.select} ${styles.windowSelect}`}
+            value={window}
+            onChange={(event) =>
+              onWindowChange(event.target.value as OpsMetricsWindow)
+            }
+          >
+            {OPS_METRICS_WINDOWS.map((value) => (
+              <option key={value} value={value}>
+                {WINDOW_LABEL[value]}
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            className={`${sharedStyles.btnSmall} ${styles.refreshButton}`}
+            onClick={() => refetch()}
+          >
+            {refreshing ? 'Refreshing…' : 'Refresh'}
+          </button>
+        </div>
+      </div>
+
+      <p className={styles.subtitle}>
+        <span>Updated {subtitleClock}</span>
+        <span className={styles.subtitleSeparator}>·</span>
+        <span>auto-refresh every 30s</span>
+      </p>
+
+      {error != null && (
+        <div className={`${sharedStyles.alertDanger} ${styles.banner}`}>
+          /ops/api/metrics failed: {error.message}. Last good data shown below.
+        </div>
+      )}
+
+      {isEmpty && !showInitialSkeleton && (
+        <div className={`${sharedStyles.notificationInfo} ${styles.banner}`}>
+          No data yet. Make a request — it&rsquo;ll show up within 5 seconds.
+        </div>
+      )}
+
+      <div className={styles.grid}>
+        <ChartPanel
+          title={`Inbound requests, ${suffix}`}
+          isLoading={showInitialSkeleton}
+          isEmpty={(visible?.inbound_volume.length ?? 0) === 0}
+          emptyText="No requests in this window."
+        >
+          <InboundVolumeChart
+            points={visible?.inbound_volume ?? []}
+            window={window}
+          />
+        </ChartPanel>
+
+        <ChartPanel
+          title={`Latency by route, ${suffix}`}
+          isLoading={showInitialSkeleton}
+          isEmpty={(visible?.route_latency.length ?? 0) === 0}
+          emptyText="No requests in this window."
+        >
+          <LatencyByRouteChart points={visible?.route_latency ?? []} />
+        </ChartPanel>
+
+        <ChartPanel
+          title={`Outbound calls by service, ${suffix}`}
+          isLoading={showInitialSkeleton}
+          isEmpty={(visible?.outbound_volume.length ?? 0) === 0}
+          emptyText="No outbound calls in this window."
+        >
+          <OutboundByServiceChart
+            points={visible?.outbound_volume ?? []}
+            window={window}
+          />
+        </ChartPanel>
+
+        <ChartPanel
+          title={`Error rate, ${suffix}`}
+          subtitle="% non-2xx · top 10 routes / top 5 services"
+          isLoading={showInitialSkeleton}
+          isEmpty={
+            (visible?.error_rate_by_route.length ?? 0) === 0 &&
+            (visible?.error_rate_by_service.length ?? 0) === 0
+          }
+          emptyText="No errors in this window."
+        >
+          <ErrorRateChart
+            routes={visible?.error_rate_by_route ?? []}
+            services={visible?.error_rate_by_service ?? []}
+          />
+        </ChartPanel>
+      </div>
+    </main>
+  );
+}
