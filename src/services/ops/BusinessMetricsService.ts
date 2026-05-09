@@ -9,11 +9,36 @@ export type BusinessMetricKey =
   | 'active_paying_subs'
   | 'churn_30d_pct'
   | 'failed_payments_7d'
-  | 'new_paid_conversions_7d';
+  | 'new_paid_conversions_7d'
+  | 'mrr_timeseries'
+  | 'active_subs_timeseries'
+  | 'conversions_vs_churn_weekly'
+  | 'failed_payments_weekly';
 
 export interface BusinessMetricError {
   metric: BusinessMetricKey;
   message: string;
+}
+
+export interface MrrTimeseriesPoint {
+  t: string;
+  mrr_usd: number;
+}
+
+export interface ActiveSubsTimeseriesPoint {
+  t: string;
+  active_paying_subs: number;
+}
+
+export interface ConversionsChurnWeekPoint {
+  week: string;
+  new_paying: number;
+  churned: number;
+}
+
+export interface FailedPaymentsWeekPoint {
+  week: string;
+  count: number;
 }
 
 export interface BusinessMetricsResponse {
@@ -23,13 +48,17 @@ export interface BusinessMetricsResponse {
   churn_30d_pct: number | null;
   failed_payments_7d: number | null;
   new_paid_conversions_7d: number | null;
+  mrr_timeseries: MrrTimeseriesPoint[] | null;
+  active_subs_timeseries: ActiveSubsTimeseriesPoint[] | null;
+  conversions_vs_churn_weekly: ConversionsChurnWeekPoint[] | null;
+  failed_payments_weekly: FailedPaymentsWeekPoint[] | null;
   as_of: string;
   cache_age_seconds: number;
   errors?: BusinessMetricError[];
 }
 
-interface CacheEntry {
-  value: number;
+interface CacheEntry<T> {
+  value: T;
   expiresAt: number;
   cachedAt: number;
 }
@@ -43,6 +72,9 @@ interface BusinessMetricsServiceDeps {
 
 const SECONDS_PER_DAY = 24 * 60 * 60;
 const STRIPE_PAGE_LIMIT = 100;
+const MRR_HISTORY_DAYS = 90;
+const WEEKLY_HISTORY_WEEKS = 12;
+const FAILED_INVOICES_LOOKBACK_DAYS = WEEKLY_HISTORY_WEEKS * 7;
 
 const INTERVAL_TO_MONTHLY_FACTOR: Record<string, number> = {
   month: 1,
@@ -51,9 +83,19 @@ const INTERVAL_TO_MONTHLY_FACTOR: Record<string, number> = {
   day: 30,
 };
 
-interface ActiveSubsAggregate {
-  mrrUsd: number;
-  count: number;
+interface NormalizedSubscription {
+  id: string;
+  status: string;
+  createdMs: number;
+  endedAtMs: number | null;
+  monthlyCents: number;
+}
+
+interface NormalizedInvoice {
+  id: string;
+  status: string;
+  attemptCount: number;
+  createdMs: number;
 }
 
 export class BusinessMetricsService {
@@ -61,9 +103,11 @@ export class BusinessMetricsService {
 
   private readonly cacheTtlMs: number;
 
-  private readonly cache = new Map<BusinessMetricKey, CacheEntry>();
+  private readonly cache = new Map<BusinessMetricKey, CacheEntry<unknown>>();
 
-  private activeAggregatePromise: Promise<ActiveSubsAggregate> | null = null;
+  private allSubsPromise: Promise<NormalizedSubscription[]> | null = null;
+
+  private invoicesPromise: Promise<NormalizedInvoice[]> | null = null;
 
   constructor(deps: BusinessMetricsServiceDeps = {}) {
     this.stripeFactory = deps.stripeFactory ?? (() => getStripe());
@@ -74,35 +118,52 @@ export class BusinessMetricsService {
     const now = new Date();
     const errors: BusinessMetricError[] = [];
 
-    this.activeAggregatePromise = null;
+    this.allSubsPromise = null;
+    this.invoicesPromise = null;
+
+    const subDerived = (computer: (subs: NormalizedSubscription[]) => unknown) =>
+      async () => computer(await this.loadAllSubs());
+    const invoiceDerived = (
+      computer: (invoices: NormalizedInvoice[]) => unknown
+    ) => async () => computer(await this.loadInvoices(now));
 
     const tasks: Array<{
       key: BusinessMetricKey;
-      fetch: () => Promise<number>;
+      fetch: () => Promise<unknown>;
     }> = [
-      {
-        key: 'mrr_usd',
-        fetch: async () => (await this.loadActiveAggregate()).mrrUsd,
-      },
+      { key: 'mrr_usd', fetch: subDerived((s) => computeMrrUsd(s, now)) },
       {
         key: 'active_paying_subs',
-        fetch: async () => (await this.loadActiveAggregate()).count,
+        fetch: subDerived((s) => computeActiveCount(s, now)),
       },
       {
         key: 'net_new_mrr_mtd_usd',
-        fetch: () => this.fetchNetNewMrrMtdUsd(now),
+        fetch: subDerived((s) => computeNetNewMrrMtdUsd(s, now)),
       },
       {
         key: 'new_paid_conversions_7d',
-        fetch: () => this.fetchNewPaidConversions7d(now),
+        fetch: subDerived((s) => computeNewPaidConversions7d(s, now)),
       },
-      {
-        key: 'churn_30d_pct',
-        fetch: () => this.fetchChurn30dPct(now),
-      },
+      { key: 'churn_30d_pct', fetch: subDerived((s) => computeChurn30dPct(s, now)) },
       {
         key: 'failed_payments_7d',
-        fetch: () => this.fetchFailedPayments7d(now),
+        fetch: invoiceDerived((i) => computeFailedPayments7d(i, now)),
+      },
+      {
+        key: 'mrr_timeseries',
+        fetch: subDerived((s) => computeMrrTimeseries(s, now)),
+      },
+      {
+        key: 'active_subs_timeseries',
+        fetch: subDerived((s) => computeActiveSubsTimeseries(s, now)),
+      },
+      {
+        key: 'conversions_vs_churn_weekly',
+        fetch: subDerived((s) => computeConversionsChurnWeekly(s, now)),
+      },
+      {
+        key: 'failed_payments_weekly',
+        fetch: invoiceDerived((i) => computeFailedPaymentsWeekly(i, now)),
       },
     ];
 
@@ -117,27 +178,34 @@ export class BusinessMetricsService {
       )
     );
 
-    const valueByKey: Record<BusinessMetricKey, number | null> = {
-      mrr_usd: null,
-      net_new_mrr_mtd_usd: null,
-      active_paying_subs: null,
-      churn_30d_pct: null,
-      failed_payments_7d: null,
-      new_paid_conversions_7d: null,
-    };
+    const valueByKey = new Map<BusinessMetricKey, unknown>();
     tasks.forEach(({ key }, idx) => {
-      valueByKey[key] = settled[idx];
+      valueByKey.set(key, settled[idx]);
     });
 
     const cacheAgeSeconds = this.cacheAgeSeconds(now);
 
     const response: BusinessMetricsResponse = {
-      mrr_usd: valueByKey.mrr_usd,
-      net_new_mrr_mtd_usd: valueByKey.net_new_mrr_mtd_usd,
-      active_paying_subs: valueByKey.active_paying_subs,
-      churn_30d_pct: valueByKey.churn_30d_pct,
-      failed_payments_7d: valueByKey.failed_payments_7d,
-      new_paid_conversions_7d: valueByKey.new_paid_conversions_7d,
+      mrr_usd: valueByKey.get('mrr_usd') as number | null,
+      net_new_mrr_mtd_usd: valueByKey.get('net_new_mrr_mtd_usd') as number | null,
+      active_paying_subs: valueByKey.get('active_paying_subs') as number | null,
+      churn_30d_pct: valueByKey.get('churn_30d_pct') as number | null,
+      failed_payments_7d: valueByKey.get('failed_payments_7d') as number | null,
+      new_paid_conversions_7d: valueByKey.get('new_paid_conversions_7d') as
+        | number
+        | null,
+      mrr_timeseries: valueByKey.get('mrr_timeseries') as
+        | MrrTimeseriesPoint[]
+        | null,
+      active_subs_timeseries: valueByKey.get('active_subs_timeseries') as
+        | ActiveSubsTimeseriesPoint[]
+        | null,
+      conversions_vs_churn_weekly: valueByKey.get('conversions_vs_churn_weekly') as
+        | ConversionsChurnWeekPoint[]
+        | null,
+      failed_payments_weekly: valueByKey.get('failed_payments_weekly') as
+        | FailedPaymentsWeekPoint[]
+        | null,
       as_of: now.toISOString(),
       cache_age_seconds: cacheAgeSeconds,
     };
@@ -151,9 +219,9 @@ export class BusinessMetricsService {
 
   private async resolveMetric(
     key: BusinessMetricKey,
-    fetcher: () => Promise<number>,
+    fetcher: () => Promise<unknown>,
     now: Date
-  ): Promise<number> {
+  ): Promise<unknown> {
     const existing = this.cache.get(key);
     if (existing != null && existing.expiresAt > now.getTime()) {
       return existing.value;
@@ -177,128 +245,45 @@ export class BusinessMetricsService {
     return Math.max(0, Math.floor((now.getTime() - oldest) / 1000));
   }
 
-  private loadActiveAggregate(): Promise<ActiveSubsAggregate> {
-    const cachedMrr = this.cache.get('mrr_usd');
-    const cachedCount = this.cache.get('active_paying_subs');
-    const nowMs = Date.now();
-    const mrrFresh = cachedMrr != null && cachedMrr.expiresAt > nowMs;
-    const countFresh = cachedCount != null && cachedCount.expiresAt > nowMs;
-    if (mrrFresh && countFresh) {
-      return Promise.resolve({
-        mrrUsd: cachedMrr!.value,
-        count: cachedCount!.value,
-      });
+  private loadAllSubs(): Promise<NormalizedSubscription[]> {
+    if (this.allSubsPromise == null) {
+      this.allSubsPromise = this.fetchAllSubs();
     }
-    if (this.activeAggregatePromise == null) {
-      this.activeAggregatePromise = this.fetchActiveAggregate();
-    }
-    return this.activeAggregatePromise;
+    return this.allSubsPromise;
   }
 
-  private async fetchActiveAggregate(): Promise<ActiveSubsAggregate> {
+  private async fetchAllSubs(): Promise<NormalizedSubscription[]> {
     const stripe = this.stripeFactory();
-    let mrrCents = 0;
-    let count = 0;
+    const result: NormalizedSubscription[] = [];
     let startingAfter: string | undefined;
     let hasMore = true;
     while (hasMore) {
       const page: StripeTypes.ApiList<StripeTypes.Subscription> =
         await stripe.subscriptions.list({
-          status: 'active',
+          status: 'all',
           limit: STRIPE_PAGE_LIMIT,
           starting_after: startingAfter,
         });
       for (const sub of page.data) {
-        if (sub.status !== 'active') {
-          continue;
-        }
-        count += 1;
-        mrrCents += monthlyCentsForSubscription(sub);
+        result.push(normalizeSubscription(sub));
       }
       hasMore = page.has_more === true && page.data.length > 0;
       startingAfter = hasMore ? page.data[page.data.length - 1].id : undefined;
     }
-    return { mrrUsd: mrrCents / 100, count };
+    return result;
   }
 
-  private async fetchNetNewMrrMtdUsd(now: Date): Promise<number> {
-    const stripe = this.stripeFactory();
-    const since = startOfMonthEpochSeconds(now);
-    let mrrCents = 0;
-    let startingAfter: string | undefined;
-    let hasMore = true;
-    while (hasMore) {
-      const page: StripeTypes.ApiList<StripeTypes.Subscription> =
-        await stripe.subscriptions.list({
-          created: { gte: since },
-          limit: STRIPE_PAGE_LIMIT,
-          starting_after: startingAfter,
-        });
-      for (const sub of page.data) {
-        mrrCents += monthlyCentsForSubscription(sub);
-      }
-      hasMore = page.has_more === true && page.data.length > 0;
-      startingAfter = hasMore ? page.data[page.data.length - 1].id : undefined;
+  private loadInvoices(now: Date): Promise<NormalizedInvoice[]> {
+    if (this.invoicesPromise == null) {
+      this.invoicesPromise = this.fetchInvoices(now);
     }
-    return mrrCents / 100;
+    return this.invoicesPromise;
   }
 
-  private async fetchNewPaidConversions7d(now: Date): Promise<number> {
+  private async fetchInvoices(now: Date): Promise<NormalizedInvoice[]> {
     const stripe = this.stripeFactory();
-    const since = epochSecondsDaysAgo(now, 7);
-    let count = 0;
-    let startingAfter: string | undefined;
-    let hasMore = true;
-    while (hasMore) {
-      const page: StripeTypes.ApiList<StripeTypes.Subscription> =
-        await stripe.subscriptions.list({
-          created: { gte: since },
-          limit: STRIPE_PAGE_LIMIT,
-          starting_after: startingAfter,
-        });
-      count += page.data.length;
-      hasMore = page.has_more === true && page.data.length > 0;
-      startingAfter = hasMore ? page.data[page.data.length - 1].id : undefined;
-    }
-    return count;
-  }
-
-  private async fetchChurn30dPct(now: Date): Promise<number> {
-    const since = epochSecondsDaysAgo(now, 30);
-    const [canceledCount, activeAggregate] = await Promise.all([
-      this.fetchCanceledSince(since),
-      this.loadActiveAggregate(),
-    ]);
-    if (activeAggregate.count === 0) {
-      return 0;
-    }
-    return (canceledCount / activeAggregate.count) * 100;
-  }
-
-  private async fetchCanceledSince(sinceEpoch: number): Promise<number> {
-    const stripe = this.stripeFactory();
-    let count = 0;
-    let page: StripeTypes.ApiSearchResult<StripeTypes.Subscription> =
-      await stripe.subscriptions.search({
-        query: `canceled_at>${sinceEpoch}`,
-        limit: STRIPE_PAGE_LIMIT,
-      });
-    count += page.data.length;
-    while (page.has_more === true && page.next_page != null) {
-      page = await stripe.subscriptions.search({
-        query: `canceled_at>${sinceEpoch}`,
-        limit: STRIPE_PAGE_LIMIT,
-        page: page.next_page,
-      });
-      count += page.data.length;
-    }
-    return count;
-  }
-
-  private async fetchFailedPayments7d(now: Date): Promise<number> {
-    const stripe = this.stripeFactory();
-    const since = epochSecondsDaysAgo(now, 7);
-    let count = 0;
+    const since = epochSecondsDaysAgo(now, FAILED_INVOICES_LOOKBACK_DAYS);
+    const result: NormalizedInvoice[] = [];
     let startingAfter: string | undefined;
     let hasMore = true;
     while (hasMore) {
@@ -310,16 +295,248 @@ export class BusinessMetricsService {
           starting_after: startingAfter,
         });
       for (const invoice of page.data) {
-        if (invoice.status === 'open' && (invoice.attempt_count ?? 0) > 0) {
-          count += 1;
-        }
+        result.push(normalizeInvoice(invoice));
       }
       hasMore = page.has_more === true && page.data.length > 0;
       startingAfter = hasMore ? page.data[page.data.length - 1].id : undefined;
     }
-    return count;
+    return result;
   }
 }
+
+const normalizeSubscription = (
+  sub: StripeTypes.Subscription
+): NormalizedSubscription => {
+  const canceledAt = sub.canceled_at ?? null;
+  const endedAt = sub.ended_at ?? null;
+  const effectiveEnd = endedAt ?? canceledAt;
+  return {
+    id: sub.id,
+    status: sub.status,
+    createdMs: sub.created * 1000,
+    endedAtMs: effectiveEnd != null ? effectiveEnd * 1000 : null,
+    monthlyCents: monthlyCentsForSubscription(sub),
+  };
+};
+
+const normalizeInvoice = (
+  invoice: StripeTypes.Invoice
+): NormalizedInvoice => ({
+  id: invoice.id ?? '',
+  status: invoice.status ?? '',
+  attemptCount: invoice.attempt_count ?? 0,
+  createdMs: invoice.created != null ? invoice.created * 1000 : 0,
+});
+
+const isPayingHistorical = (status: string): boolean => status !== 'trialing';
+
+const isActiveNow = (status: string): boolean =>
+  status === 'active' || status === 'past_due' || status === 'unpaid';
+
+const isActiveToday = (sub: NormalizedSubscription, nowMs: number): boolean => {
+  if (sub.createdMs > nowMs) return false;
+  if (sub.endedAtMs != null && sub.endedAtMs <= nowMs) return false;
+  return isActiveNow(sub.status);
+};
+
+const wasActiveOn = (
+  sub: NormalizedSubscription,
+  atMs: number
+): boolean => {
+  if (sub.createdMs > atMs) return false;
+  if (sub.endedAtMs != null && sub.endedAtMs <= atMs) return false;
+  return isPayingHistorical(sub.status);
+};
+
+const computeMrrUsd = (subs: NormalizedSubscription[], now: Date): number => {
+  let cents = 0;
+  for (const sub of subs) {
+    if (isActiveToday(sub, now.getTime())) {
+      cents += sub.monthlyCents;
+    }
+  }
+  return cents / 100;
+};
+
+const computeActiveCount = (
+  subs: NormalizedSubscription[],
+  now: Date
+): number => {
+  let count = 0;
+  for (const sub of subs) {
+    if (isActiveToday(sub, now.getTime())) {
+      count += 1;
+    }
+  }
+  return count;
+};
+
+const computeNetNewMrrMtdUsd = (
+  subs: NormalizedSubscription[],
+  now: Date
+): number => {
+  const startMs = startOfMonthUtcMs(now);
+  let cents = 0;
+  for (const sub of subs) {
+    if (sub.createdMs >= startMs && isPayingHistorical(sub.status)) {
+      cents += sub.monthlyCents;
+    }
+  }
+  return cents / 100;
+};
+
+const computeNewPaidConversions7d = (
+  subs: NormalizedSubscription[],
+  now: Date
+): number => {
+  const sinceMs = now.getTime() - 7 * SECONDS_PER_DAY * 1000;
+  let count = 0;
+  for (const sub of subs) {
+    if (sub.createdMs >= sinceMs && isPayingHistorical(sub.status)) {
+      count += 1;
+    }
+  }
+  return count;
+};
+
+const computeChurn30dPct = (
+  subs: NormalizedSubscription[],
+  now: Date
+): number => {
+  const sinceMs = now.getTime() - 30 * SECONDS_PER_DAY * 1000;
+  let canceled = 0;
+  let active = 0;
+  for (const sub of subs) {
+    if (sub.endedAtMs != null && sub.endedAtMs >= sinceMs) {
+      canceled += 1;
+    }
+    if (isActiveToday(sub, now.getTime())) {
+      active += 1;
+    }
+  }
+  if (active === 0) return 0;
+  return (canceled / active) * 100;
+};
+
+const computeFailedPayments7d = (
+  invoices: NormalizedInvoice[],
+  now: Date
+): number => {
+  const sinceMs = now.getTime() - 7 * SECONDS_PER_DAY * 1000;
+  let count = 0;
+  for (const invoice of invoices) {
+    if (
+      invoice.createdMs >= sinceMs &&
+      invoice.status === 'open' &&
+      invoice.attemptCount > 0
+    ) {
+      count += 1;
+    }
+  }
+  return count;
+};
+
+const computeMrrTimeseries = (
+  subs: NormalizedSubscription[],
+  now: Date
+): MrrTimeseriesPoint[] => {
+  const days = lastNDayBucketsUtc(now, MRR_HISTORY_DAYS);
+  return days.map((dayMs) => {
+    let cents = 0;
+    for (const sub of subs) {
+      if (wasActiveOn(sub, dayMs)) {
+        cents += sub.monthlyCents;
+      }
+    }
+    return { t: isoDate(dayMs), mrr_usd: cents / 100 };
+  });
+};
+
+const computeActiveSubsTimeseries = (
+  subs: NormalizedSubscription[],
+  now: Date
+): ActiveSubsTimeseriesPoint[] => {
+  const days = lastNDayBucketsUtc(now, MRR_HISTORY_DAYS);
+  return days.map((dayMs) => {
+    let count = 0;
+    for (const sub of subs) {
+      if (wasActiveOn(sub, dayMs)) {
+        count += 1;
+      }
+    }
+    return { t: isoDate(dayMs), active_paying_subs: count };
+  });
+};
+
+const computeConversionsChurnWeekly = (
+  subs: NormalizedSubscription[],
+  now: Date
+): ConversionsChurnWeekPoint[] => {
+  const weekStarts = lastNIsoWeekStartsUtc(now, WEEKLY_HISTORY_WEEKS);
+  const weekIndex = new Map<number, ConversionsChurnWeekPoint>();
+  for (const startMs of weekStarts) {
+    weekIndex.set(startMs, {
+      week: isoDate(startMs),
+      new_paying: 0,
+      churned: 0,
+    });
+  }
+  const earliestStart = weekStarts[0];
+  const lastStart = weekStarts[weekStarts.length - 1];
+  const weekEnd = lastStart + 7 * SECONDS_PER_DAY * 1000;
+
+  for (const sub of subs) {
+    if (
+      sub.createdMs >= earliestStart &&
+      sub.createdMs < weekEnd &&
+      isPayingHistorical(sub.status)
+    ) {
+      const bucket = isoWeekStartUtcMs(sub.createdMs);
+      const row = weekIndex.get(bucket);
+      if (row != null) row.new_paying += 1;
+    }
+    if (
+      sub.endedAtMs != null &&
+      sub.endedAtMs >= earliestStart &&
+      sub.endedAtMs < weekEnd
+    ) {
+      const bucket = isoWeekStartUtcMs(sub.endedAtMs);
+      const row = weekIndex.get(bucket);
+      if (row != null) row.churned += 1;
+    }
+  }
+
+  return weekStarts.map((startMs) => weekIndex.get(startMs) as ConversionsChurnWeekPoint);
+};
+
+const computeFailedPaymentsWeekly = (
+  invoices: NormalizedInvoice[],
+  now: Date
+): FailedPaymentsWeekPoint[] => {
+  const weekStarts = lastNIsoWeekStartsUtc(now, WEEKLY_HISTORY_WEEKS);
+  const weekIndex = new Map<number, FailedPaymentsWeekPoint>();
+  for (const startMs of weekStarts) {
+    weekIndex.set(startMs, { week: isoDate(startMs), count: 0 });
+  }
+  const earliestStart = weekStarts[0];
+  const lastStart = weekStarts[weekStarts.length - 1];
+  const weekEnd = lastStart + 7 * SECONDS_PER_DAY * 1000;
+
+  for (const invoice of invoices) {
+    if (
+      invoice.status === 'open' &&
+      invoice.attemptCount > 0 &&
+      invoice.createdMs >= earliestStart &&
+      invoice.createdMs < weekEnd
+    ) {
+      const bucket = isoWeekStartUtcMs(invoice.createdMs);
+      const row = weekIndex.get(bucket);
+      if (row != null) row.count += 1;
+    }
+  }
+
+  return weekStarts.map((startMs) => weekIndex.get(startMs) as FailedPaymentsWeekPoint);
+};
 
 const monthlyCentsForSubscription = (
   subscription: StripeTypes.Subscription
@@ -347,15 +564,42 @@ const monthlyCentsForSubscription = (
   return total;
 };
 
-const startOfMonthEpochSeconds = (now: Date): number => {
-  const monthStart = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0)
-  );
-  return Math.floor(monthStart.getTime() / 1000);
+const startOfMonthUtcMs = (now: Date): number =>
+  Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1, 0, 0, 0, 0);
+
+const epochSecondsDaysAgo = (now: Date, days: number): number =>
+  Math.floor(now.getTime() / 1000) - days * SECONDS_PER_DAY;
+
+const startOfDayUtcMs = (atMs: number): number => {
+  const d = new Date(atMs);
+  return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 0, 0, 0, 0);
 };
 
-const epochSecondsDaysAgo = (now: Date, days: number): number => {
-  return Math.floor(now.getTime() / 1000) - days * SECONDS_PER_DAY;
+const lastNDayBucketsUtc = (now: Date, n: number): number[] => {
+  const todayStart = startOfDayUtcMs(now.getTime());
+  const result: number[] = [];
+  for (let offset = n - 1; offset >= 0; offset -= 1) {
+    result.push(todayStart - offset * SECONDS_PER_DAY * 1000);
+  }
+  return result;
+};
+
+const isoDate = (ms: number): string => new Date(ms).toISOString().slice(0, 10);
+
+const isoWeekStartUtcMs = (atMs: number): number => {
+  const dayStart = startOfDayUtcMs(atMs);
+  const dow = new Date(dayStart).getUTCDay();
+  const daysSinceMonday = (dow + 6) % 7;
+  return dayStart - daysSinceMonday * SECONDS_PER_DAY * 1000;
+};
+
+const lastNIsoWeekStartsUtc = (now: Date, n: number): number[] => {
+  const currentWeekStart = isoWeekStartUtcMs(now.getTime());
+  const result: number[] = [];
+  for (let offset = n - 1; offset >= 0; offset -= 1) {
+    result.push(currentWeekStart - offset * 7 * SECONDS_PER_DAY * 1000);
+  }
+  return result;
 };
 
 export default BusinessMetricsService;
