@@ -16,9 +16,47 @@ const formatRelativeTime = (iso: string | null | undefined): string | null => {
   return formatDistanceToNow(parsed, { addSuffix: true });
 };
 
+type Schedule = Awaited<ReturnType<Backend['getAnkifyExportSchedule']>>;
+
 interface Props {
   readonly backend?: Backend;
+  readonly schedule?: Schedule;
 }
+
+const formatScheduleTime = (
+  timeOfDay: string,
+  timezone: string
+): string | null => {
+  const match = /^(\d{2}):(\d{2})$/.exec(timeOfDay);
+  if (match == null) return null;
+  const targetHours = Number(match[1]);
+  const targetMinutes = Number(match[2]);
+  const sample = new Date();
+  sample.setUTCHours(targetHours, targetMinutes, 0, 0);
+  const probe = new Intl.DateTimeFormat('en-US', {
+    timeZone: timezone,
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  });
+  const parts = Object.fromEntries(
+    probe
+      .formatToParts(sample)
+      .filter((part) => part.type !== 'literal')
+      .map((part) => [part.type, part.value])
+  );
+  const seenHours = Number(parts.hour);
+  const seenMinutes = Number(parts.minute);
+  if (Number.isNaN(seenHours) || Number.isNaN(seenMinutes)) return null;
+  const diffMinutes =
+    targetHours * 60 + targetMinutes - (seenHours * 60 + seenMinutes);
+  const adjusted = new Date(sample.getTime() + diffMinutes * 60_000);
+  return new Intl.DateTimeFormat(undefined, {
+    timeZone: timezone,
+    hour: 'numeric',
+    minute: '2-digit',
+  }).format(adjusted);
+};
 
 const SUBSCRIPTIONS_KEY = ['ankify-subscriptions'];
 const SEARCH_THRESHOLD = 10;
@@ -34,7 +72,7 @@ const extractNotionId = (input: string): string => {
 
 const normalizeId = (id: string): string => id.replaceAll('-', '').toLowerCase();
 
-export default function NotionSubscriptions({ backend }: Props) {
+export default function NotionSubscriptions({ backend, schedule }: Props) {
   const api = backend ?? get2ankiApi();
   const queryClient = useQueryClient();
   const [advancedInput, setAdvancedInput] = useState('');
@@ -314,6 +352,9 @@ export default function NotionSubscriptions({ backend }: Props) {
               />
             </div>
           )}
+          <p className={styles.decksHelper}>
+            Checks Notion for changes every 5 minutes.
+          </p>
           <ul className={styles.decksList} ref={menuContainerRef}>
             {filteredSubscriptions.map((sub) => {
               const displayTitle =
@@ -324,6 +365,15 @@ export default function NotionSubscriptions({ backend }: Props) {
                 subscribe.isPending &&
                 pendingId != null &&
                 normalizeId(pendingId) === normalizeId(sub.notion_page_id);
+              const matchesSchedule =
+                schedule != null &&
+                schedule.enabled === true &&
+                normalizeId(schedule.database_id) ===
+                  normalizeId(sub.notion_page_id);
+              const nextExportLabel =
+                matchesSchedule && schedule != null
+                  ? formatScheduleTime(schedule.time_of_day, schedule.timezone)
+                  : null;
               const relative = formatRelativeTime(sub.last_synced_at);
               const lastSyncedDisplay =
                 relative == null ? (
@@ -348,11 +398,15 @@ export default function NotionSubscriptions({ backend }: Props) {
                     ) : (
                       displayTitle
                     )}
-                    {sub.last_error != null && (
+                    {sub.last_error != null ? (
                       <p className={styles.decksItemError}>
-                        Notion couldn't reach this page
+                        Last check failed — we'll try again soon
                       </p>
-                    )}
+                    ) : nextExportLabel != null ? (
+                      <p className={styles.decksItemError}>
+                        Next export at {nextExportLabel}
+                      </p>
+                    ) : null}
                   </span>
                   <span className={styles.decksItemTime}>
                     {isUpdatingThisRow ? (
