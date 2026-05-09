@@ -20,7 +20,7 @@ import {
   walkNotionPageForFlashcards,
   NotionBlockChildrenFetcher,
   WalkedNotionFlashcard,
-  WalkedNotionImageRef,
+  WalkedNotionMediaRef,
 } from '../../services/ankify/notionPageWalker';
 import { NoActiveAnkifyClientError } from './SendUploadToRacUseCase';
 import { NotionNotConnectedError } from './ExportReviewDataToNotionUseCase';
@@ -74,7 +74,7 @@ const BACK_FIELD_BASIC = 'Back';
 const DECK_PARENT = 'Notion Sync';
 const DECK_TITLE_FALLBACK = 'Untitled';
 
-export type AnkifyImageFetcher = typeof fetch;
+export type AnkifyMediaFetcher = typeof fetch;
 
 const sanitizeDeckTitle = (title: string | null | undefined): string => {
   if (title == null) {
@@ -106,7 +106,7 @@ export class SyncNotionPageToRacUseCase {
     private readonly ankiConnect: AnkiConnectFactory,
     private readonly notionFetcher: NotionFetcherFactory,
     private readonly notionPageMeta?: NotionPageMetaFetcher,
-    private readonly imageFetcher: AnkifyImageFetcher = fetch
+    private readonly mediaFetcher: AnkifyMediaFetcher = fetch
   ) {}
 
   private modelCache(clientId: number): Set<string> {
@@ -241,40 +241,40 @@ export class SyncNotionPageToRacUseCase {
     await this.runFinalAnkiWebSync(ac, result);
   }
 
-  private async uploadCardImages(
+  private async uploadCardMedia(
     ac: AnkiConnectClient,
     card: WalkedNotionFlashcard,
     result: SyncNotionPageResult
   ): Promise<void> {
-    for (const image of card.images) {
-      if (image.source !== 'file' || image.filename == null) {
+    for (const ref of card.media) {
+      if (ref.source !== 'file' || ref.filename == null) {
         continue;
       }
-      await this.uploadSingleImage(ac, image, result);
+      await this.uploadSingleMediaRef(ac, ref, result);
     }
   }
 
-  private async uploadSingleImage(
+  private async uploadSingleMediaRef(
     ac: AnkiConnectClient,
-    image: WalkedNotionImageRef,
+    ref: WalkedNotionMediaRef,
     result: SyncNotionPageResult
   ): Promise<void> {
-    if (image.filename == null) {
+    if (ref.filename == null) {
       return;
     }
     try {
-      const response = await this.imageFetcher(image.url);
+      const response = await this.mediaFetcher(ref.url);
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
       }
       const buffer = await response.arrayBuffer();
       await ac.storeMediaFile({
-        filename: image.filename,
+        filename: ref.filename,
         data: arrayBufferToBase64(buffer),
       });
     } catch (error) {
       result.errors.push(
-        `Image ${image.block_id}: ${(error as Error).message}`
+        `${ref.kind} ${ref.block_id}: ${(error as Error).message}`
       );
     }
   }
@@ -309,7 +309,7 @@ export class SyncNotionPageToRacUseCase {
   }): Promise<void> {
     const { card, client, subscription, ac, input, result, deckName } = args;
     try {
-      await this.uploadCardImages(ac, card, result);
+      await this.uploadCardMedia(ac, card, result);
       const existing = await this.mappings.findBySourceId(
         client.id,
         card.notion_block_id
