@@ -21,6 +21,11 @@ import { AnkifySyncLogsRepository } from './ankify/AnkifySyncLogsRepository';
 import { ankiConnectFactory } from '../services/ankify/buildAnkiConnectClient';
 import { notionBlockChildrenFetcherFactory } from '../services/ankify/notionBlockChildrenFetcher';
 import NotionRepository from './NotionRespository';
+import NotionTopLevelPagesRepository from './NotionTopLevelPagesRepository';
+import {
+  NotionService,
+  TOP_LEVEL_PAGES_STALE_AFTER_MS,
+} from '../services/NotionService/NotionService';
 import { Client as NotionClient } from '@notionhq/client';
 import { setAnkifyExportScheduler } from '../lib/ankify/scheduler/instance';
 import Docker from 'dockerode';
@@ -225,7 +230,23 @@ export const setupDatabase = async (database: Knex) => {
           };
         }
       );
-      scheduleAnkifyPolling(subscriptionsRepo, syncUseCase);
+      const topLevelPagesRepo = new NotionTopLevelPagesRepository(database);
+      const notionServiceForRefresh = new NotionService(
+        notionRepo,
+        topLevelPagesRepo
+      );
+      scheduleAnkifyPolling(subscriptionsRepo, syncUseCase, {
+        refreshTopLevelPagesForOwner: async (owner) => {
+          const newest = await topLevelPagesRepo.newestCachedAt(owner);
+          if (
+            newest &&
+            Date.now() - newest.getTime() < TOP_LEVEL_PAGES_STALE_AFTER_MS
+          ) {
+            return;
+          }
+          await notionServiceForRefresh.refreshTopLevelPagesCache(owner);
+        },
+      });
       console.info('Ankify polling worker scheduled');
     }
 
