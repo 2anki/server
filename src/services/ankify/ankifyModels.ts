@@ -1,3 +1,4 @@
+import { NOTION_STYLE } from '../../templates/helper';
 import { AnkiConnectCreateModelParams } from './AnkiConnectClient';
 
 export const ANKIFY_BASIC_MODEL = 'Ankify Basic';
@@ -6,39 +7,76 @@ export const ANKIFY_CLOZE_MODEL = 'Ankify Cloze';
 export const ANKIFY_BASIC_FIELDS = ['Front', 'Back'] as const;
 export const ANKIFY_CLOZE_FIELDS = ['Text', 'Back Extra'] as const;
 
-const ANKIFY_CARD_STYLING = `
-html, body { text-align: center; }
-
+const ANKIFY_CARD_OVERRIDES = `
 .card {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica,
-    "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
-  color: black;
-  background-color: white;
-  border: lightgray 1px solid;
-  padding: 16px;
-  border-radius: 8px;
-  margin: 16px;
-  width: 80%;
-  display: inline-block;
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  font-size: 18px;
+  line-height: 1.5;
+  color: rgb(55, 53, 47);
+  background-color: rgb(255, 255, 255);
+  text-align: left;
+  padding: 32px 24px;
+  max-width: 720px;
+  margin: 0 auto;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-.card:hover {
-  box-shadow: 0 0 8px #ccc;
-  border: 1px solid #fff;
+.nightMode.card,
+.night_mode .card {
+  color: rgba(255, 255, 255, 0.9);
+  background-color: rgb(25, 25, 25);
 }
 
-.front-text-pre { font-size: 1.5rem; }
-.front-text-post { color: gray; font-size: 1rem; }
-.back-text { font-size: 1.5rem; text-align: left; }
-.extra { color: gray; }
+.front-text-pre {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  text-align: center;
+  margin-bottom: 0.25em;
+}
 
-hr { border: none; border-bottom: 1px solid rgba(55, 53, 47, 0.18); }
+.front-text-post {
+  display: block;
+  font-size: 1rem;
+  font-weight: 500;
+  color: rgba(55, 53, 47, 0.65);
+  text-align: center;
+  letter-spacing: -0.005em;
+}
+
+.back-text { display: block; }
+
+.extra {
+  display: block;
+  margin-top: 1em;
+  color: rgba(55, 53, 47, 0.6);
+  font-size: 0.9em;
+}
+
+hr#answer {
+  border: none;
+  border-top: 1px solid rgba(55, 53, 47, 0.16);
+  margin: 1.5em 0;
+}
+
+mark { background: rgba(255, 212, 0, 0.25); color: inherit; padding: 0 2px; border-radius: 2px; }
 
 .cloze {
-  font-weight: bold;
-  color: #2563eb;
+  font-weight: 600;
+  color: rgb(11, 110, 153);
+}
+.nightMode .cloze, .night_mode .cloze { color: rgb(82, 156, 202); }
+
+@media (max-width: 480px) {
+  .card { padding: 20px 16px; font-size: 17px; }
+  .front-text-pre { font-size: 1.3rem; }
 }
 `.trim();
+
+const ANKIFY_CARD_STYLING = `${NOTION_STYLE}\n\n${ANKIFY_CARD_OVERRIDES}`;
 
 export const ankifyBasicCreateModelParams = (): AnkiConnectCreateModelParams => ({
   modelName: ANKIFY_BASIC_MODEL,
@@ -63,7 +101,7 @@ export const ankifyClozeCreateModelParams = (): AnkiConnectCreateModelParams => 
     {
       Name: 'Cloze',
       Front: '{{cloze:Text}}',
-      Back: '{{cloze:Text}}<br><span class="extra">{{Back Extra}}</span>',
+      Back: '{{cloze:Text}}<hr id="answer"><span class="extra">{{Back Extra}}</span>',
     },
   ],
 });

@@ -91,6 +91,18 @@ export class AnkiConnectClient {
     return this.invoke('createModel', params as unknown as Record<string, unknown>);
   }
 
+  async updateModelStyling(params: AnkiConnectUpdateStylingParams): Promise<null> {
+    return this.invoke('updateModelStyling', { model: params });
+  }
+
+  async updateModelTemplates(params: AnkiConnectUpdateTemplatesParams): Promise<null> {
+    return this.invoke('updateModelTemplates', { model: params });
+  }
+
+  async storeMediaFile(params: AnkiConnectStoreMediaFileParams): Promise<string> {
+    return this.invoke('storeMediaFile', params as unknown as Record<string, unknown>);
+  }
+
   async getNumCardsReviewedByDay(): Promise<Array<[string, number]>> {
     return this.invoke('getNumCardsReviewedByDay');
   }
@@ -183,6 +195,26 @@ export interface AnkiConnectCreateModelParams {
   css: string;
   isCloze?: boolean;
   cardTemplates: AnkiConnectCardTemplate[];
+}
+
+export interface AnkiConnectUpdateStylingParams {
+  name: string;
+  css: string;
+}
+
+export interface AnkiConnectTemplateBody {
+  Front: string;
+  Back: string;
+}
+
+export interface AnkiConnectUpdateTemplatesParams {
+  name: string;
+  templates: Record<string, AnkiConnectTemplateBody>;
+}
+
+export interface AnkiConnectStoreMediaFileParams {
+  filename: string;
+  data: string;
 }
 
 export interface AnkiNoteInfo {

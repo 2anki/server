@@ -10,12 +10,17 @@ import {
   AnkifySyncMapping,
 } from '../../entities/ankify';
 import { AnkiConnectClient } from '../../services/ankify/AnkiConnectClient';
-import { ANKIFY_BASIC_MODEL } from '../../services/ankify/ankifyModels';
+import {
+  ANKIFY_BASIC_MODEL,
+  ankifyBasicCreateModelParams,
+  ankifyClozeCreateModelParams,
+} from '../../services/ankify/ankifyModels';
 import { ensureAnkifyModels } from '../../services/ankify/ensureAnkifyModels';
 import {
   walkNotionPageForFlashcards,
   NotionBlockChildrenFetcher,
   WalkedNotionFlashcard,
+  WalkedNotionImageRef,
 } from '../../services/ankify/notionPageWalker';
 import { NoActiveAnkifyClientError } from './SendUploadToRacUseCase';
 import { NotionNotConnectedError } from './ExportReviewDataToNotionUseCase';
@@ -66,7 +71,27 @@ export type NotionFetcherFactory = (token: string) => NotionBlockChildrenFetcher
 
 const FRONT_FIELD_BASIC = 'Front';
 const BACK_FIELD_BASIC = 'Back';
-const DECK_NAME_FALLBACK = 'Notion Sync';
+const DECK_PARENT = 'Notion Sync';
+const DECK_TITLE_FALLBACK = 'Untitled';
+
+export type AnkifyImageFetcher = typeof fetch;
+
+const sanitizeDeckTitle = (title: string | null | undefined): string => {
+  if (title == null) {
+    return DECK_TITLE_FALLBACK;
+  }
+  const cleaned = title.split('::').join('').trim();
+  if (cleaned.length === 0) {
+    return DECK_TITLE_FALLBACK;
+  }
+  return cleaned;
+};
+
+const buildDeckName = (title: string | null | undefined): string =>
+  `${DECK_PARENT}::${sanitizeDeckTitle(title)}`;
+
+const arrayBufferToBase64 = (buffer: ArrayBuffer): string =>
+  Buffer.from(buffer).toString('base64');
 
 export class SyncNotionPageToRacUseCase {
   private readonly modelCacheByClient = new Map<number, Set<string>>();
@@ -80,7 +105,8 @@ export class SyncNotionPageToRacUseCase {
     private readonly notionRepo: INotionRepository,
     private readonly ankiConnect: AnkiConnectFactory,
     private readonly notionFetcher: NotionFetcherFactory,
-    private readonly notionPageMeta?: NotionPageMetaFetcher
+    private readonly notionPageMeta?: NotionPageMetaFetcher,
+    private readonly imageFetcher: AnkifyImageFetcher = fetch
   ) {}
 
   private modelCache(clientId: number): Set<string> {
@@ -195,14 +221,81 @@ export class SyncNotionPageToRacUseCase {
       client.anki_port,
       client.anki_connect_api_key
     );
-    await ac.createDeck(DECK_NAME_FALLBACK);
+    const deckName = buildDeckName(subscription.notion_page_title);
+    await ac.createDeck(deckName);
     await ensureAnkifyModels(ac, this.modelCache(client.id));
+    await this.refreshAnkifyModelStyling(ac);
 
     for (const card of cards) {
-      await this.processCard({ card, client, subscription, ac, input, result });
+      await this.processCard({
+        card,
+        client,
+        subscription,
+        ac,
+        input,
+        result,
+        deckName,
+      });
     }
 
     await this.runFinalAnkiWebSync(ac, result);
+  }
+
+  private async uploadCardImages(
+    ac: AnkiConnectClient,
+    card: WalkedNotionFlashcard,
+    result: SyncNotionPageResult
+  ): Promise<void> {
+    for (const image of card.images) {
+      if (image.source !== 'file' || image.filename == null) {
+        continue;
+      }
+      await this.uploadSingleImage(ac, image, result);
+    }
+  }
+
+  private async uploadSingleImage(
+    ac: AnkiConnectClient,
+    image: WalkedNotionImageRef,
+    result: SyncNotionPageResult
+  ): Promise<void> {
+    if (image.filename == null) {
+      return;
+    }
+    try {
+      const response = await this.imageFetcher(image.url);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      const buffer = await response.arrayBuffer();
+      await ac.storeMediaFile({
+        filename: image.filename,
+        data: arrayBufferToBase64(buffer),
+      });
+    } catch (error) {
+      result.errors.push(
+        `Image ${image.block_id}: ${(error as Error).message}`
+      );
+    }
+  }
+
+  private async refreshAnkifyModelStyling(ac: AnkiConnectClient): Promise<void> {
+    const basic = ankifyBasicCreateModelParams();
+    const cloze = ankifyClozeCreateModelParams();
+    await ac.updateModelStyling({ name: basic.modelName, css: basic.css });
+    await ac.updateModelStyling({ name: cloze.modelName, css: cloze.css });
+    await ac.updateModelTemplates({
+      name: basic.modelName,
+      templates: Object.fromEntries(
+        basic.cardTemplates.map((t) => [t.Name, { Front: t.Front, Back: t.Back }])
+      ),
+    });
+    await ac.updateModelTemplates({
+      name: cloze.modelName,
+      templates: Object.fromEntries(
+        cloze.cardTemplates.map((t) => [t.Name, { Front: t.Front, Back: t.Back }])
+      ),
+    });
   }
 
   private async processCard(args: {
@@ -212,16 +305,18 @@ export class SyncNotionPageToRacUseCase {
     ac: AnkiConnectClient;
     input: SyncNotionPageInput;
     result: SyncNotionPageResult;
+    deckName: string;
   }): Promise<void> {
-    const { card, client, subscription, ac, input, result } = args;
+    const { card, client, subscription, ac, input, result, deckName } = args;
     try {
+      await this.uploadCardImages(ac, card, result);
       const existing = await this.mappings.findBySourceId(
         client.id,
         card.notion_block_id
       );
       if (existing == null) {
         const ankiNoteId = await ac.addNote({
-          deckName: DECK_NAME_FALLBACK,
+          deckName,
           modelName: ANKIFY_BASIC_MODEL,
           fields: {
             [FRONT_FIELD_BASIC]: card.front,
@@ -235,7 +330,7 @@ export class SyncNotionPageToRacUseCase {
           source_id: card.notion_block_id,
           source_type: 'notion_block',
           anki_note_id: ankiNoteId,
-          deck_name: DECK_NAME_FALLBACK,
+          deck_name: deckName,
         });
         result.created += 1;
         return;
