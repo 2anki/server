@@ -29,6 +29,7 @@ Express/TypeScript server that converts Notion pages and file uploads into Anki 
 - For risky changes (auth flow, payments, migrations, deploy pipeline, anything that scares you), use `EnterWorktree` to isolate. Reverting a worktree is free.
 - For "wait until X" — long builds, CI runs, deploys baking on prod — use `ScheduleWakeup` (270s if cache-warm matters, 1200s+ for genuine waits). Never busy-poll with sleep.
 - Before running `gh pr merge` on a PR that touches auth, payments, or external-API integration code, run `/security-review` first.
+- Before `gh pr merge`, ALL `statusCheckRollup` entries must be non-FAILURE — not just the named-required checks. GitHub branch protection only blocks on required checks, so non-required jobs (e.g. SonarCloud quality-gate) can fail silently and slip through. The `.claude/hooks/check-merge-status.py` hook enforces this; treat the rule as engineer-side too.
 - After deploys to 2anki.net, run `/deploy-status` to confirm the box is healthy before declaring success.
 - If you notice yourself approving the same read-only Bash commands more than 2-3 times in a session, suggest the user run `/fewer-permission-prompts` to top up the allowlist.
 
