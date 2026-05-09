@@ -4,14 +4,19 @@ import RequireAuthentication from './middleware/RequireAuthentication';
 import RequirePaying from './middleware/RequirePaying';
 import NotionController from '../controllers/NotionController';
 import NotionRepository from '../data_layer/NotionRespository';
+import NotionTopLevelPagesRepository from '../data_layer/NotionTopLevelPagesRepository';
 import NotionService from '../services/NotionService';
 import { getDatabase } from '../data_layer';
 
 const NotionRouter = () => {
   const router = express.Router();
 
-  const repository = new NotionRepository(getDatabase());
-  const controller = new NotionController(new NotionService(repository));
+  const database = getDatabase();
+  const repository = new NotionRepository(database);
+  const topLevelPagesRepository = new NotionTopLevelPagesRepository(database);
+  const controller = new NotionController(
+    new NotionService(repository, topLevelPagesRepository)
+  );
 
   /**
    * Endpoint for establishing a connection to Notion. We need a token for this.
