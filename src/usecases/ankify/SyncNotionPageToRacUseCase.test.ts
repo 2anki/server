@@ -10,6 +10,13 @@ import { AnkifyNotionSubscriptionsRepositoryInterface } from '../../data_layer/a
 import { AnkifySyncLogsRepositoryInterface } from '../../data_layer/ankify/AnkifySyncLogsRepository';
 import { INotionRepository } from '../../data_layer/NotionRespository';
 import { AnkiConnectClient } from '../../services/ankify/AnkiConnectClient';
+import { WalkedNotionFlashcard } from '../../services/ankify/notionPageWalker';
+
+jest.mock('../../services/ankify/notionPageWalker', () => ({
+  walkNotionPageForFlashcards: jest.fn(),
+}));
+
+import { walkNotionPageForFlashcards } from '../../services/ankify/notionPageWalker';
 
 const sampleClient = (): AnkifyClient => ({
   id: 1,
@@ -42,6 +49,13 @@ const sampleSubscription = (
   created_at: new Date(),
   updated_at: new Date(),
   ...overrides,
+});
+
+const sampleCard = (): WalkedNotionFlashcard => ({
+  notion_block_id: 'block-1',
+  front: 'Front text',
+  back: 'Back text',
+  notion_last_edited_at: new Date(),
 });
 
 const makeClients = (): jest.Mocked<AnkifyClientsRepositoryInterface> =>
@@ -109,9 +123,25 @@ const makeAnkiConnectStub = () =>
     notesInfo: jest.fn(async () => []),
     updateNoteFields: jest.fn(async () => null),
     sync: jest.fn(async () => null),
+    modelNames: jest.fn(async () => [] as string[]),
+    createModel: jest.fn(async (_p: unknown) => ({ id: 1 })),
   } as unknown as AnkiConnectClient & { [k: string]: jest.Mock });
 
+const makeRepos = () => ({
+  clients: makeClients(),
+  mappings: makeMappings(),
+  conflicts: makeConflicts(),
+  subscriptions: makeSubscriptionsRepo(),
+  logs: makeLogs(),
+  notionRepo: makeNotionRepo(),
+});
+
 describe('SyncNotionPageToRacUseCase', () => {
+  beforeEach(() => {
+    (walkNotionPageForFlashcards as jest.Mock).mockReset();
+    (walkNotionPageForFlashcards as jest.Mock).mockResolvedValue([]);
+  });
+
   test('persists icon returned by the page-meta fetcher on upsert', async () => {
     const clients = makeClients();
     const mappings = makeMappings();
@@ -191,5 +221,110 @@ describe('SyncNotionPageToRacUseCase', () => {
         notion_page_icon: 'https://example.com/icon.png',
       })
     );
+  });
+
+  test('addNote uses the Ankify Basic model name', async () => {
+    (walkNotionPageForFlashcards as jest.Mock).mockResolvedValue([sampleCard()]);
+    const repos = makeRepos();
+    const ac = makeAnkiConnectStub();
+    const useCase = new SyncNotionPageToRacUseCase(
+      repos.clients,
+      repos.mappings,
+      repos.conflicts,
+      repos.subscriptions,
+      repos.logs,
+      repos.notionRepo,
+      () => ac,
+      () => async () => []
+    );
+
+    await useCase.execute({
+      owner: 42,
+      notionPageId: 'page-id',
+      trigger: 'manual',
+    });
+
+    expect(ac.addNote).toHaveBeenCalledWith(
+      expect.objectContaining({
+        modelName: 'Ankify Basic',
+        fields: { Front: 'Front text', Back: 'Back text' },
+      })
+    );
+  });
+
+  test('seeds Ankify note types before the first addNote call', async () => {
+    (walkNotionPageForFlashcards as jest.Mock).mockResolvedValue([sampleCard()]);
+    const repos = makeRepos();
+    const ac = makeAnkiConnectStub();
+    const callOrder: string[] = [];
+    (ac.createModel as jest.Mock).mockImplementation(async () => {
+      callOrder.push('createModel');
+      return { id: 1 };
+    });
+    (ac.addNote as jest.Mock).mockImplementation(async () => {
+      callOrder.push('addNote');
+      return 7_777_777;
+    });
+
+    const useCase = new SyncNotionPageToRacUseCase(
+      repos.clients,
+      repos.mappings,
+      repos.conflicts,
+      repos.subscriptions,
+      repos.logs,
+      repos.notionRepo,
+      () => ac,
+      () => async () => []
+    );
+
+    await useCase.execute({
+      owner: 42,
+      notionPageId: 'page-id',
+      trigger: 'manual',
+    });
+
+    expect(ac.modelNames).toHaveBeenCalled();
+    const createdNames = (ac.createModel as jest.Mock).mock.calls.map(
+      (args) => (args[0] as { modelName: string }).modelName
+    );
+    expect(createdNames).toEqual(
+      expect.arrayContaining(['Ankify Basic', 'Ankify Cloze'])
+    );
+    expect(callOrder.indexOf('createModel')).toBeLessThan(
+      callOrder.indexOf('addNote')
+    );
+  });
+
+  test('a second sync for the same client reuses the cache and skips modelNames', async () => {
+    (walkNotionPageForFlashcards as jest.Mock).mockResolvedValue([sampleCard()]);
+    const repos = makeRepos();
+    const ac = makeAnkiConnectStub();
+    const useCase = new SyncNotionPageToRacUseCase(
+      repos.clients,
+      repos.mappings,
+      repos.conflicts,
+      repos.subscriptions,
+      repos.logs,
+      repos.notionRepo,
+      () => ac,
+      () => async () => []
+    );
+
+    await useCase.execute({
+      owner: 42,
+      notionPageId: 'page-id',
+      trigger: 'manual',
+    });
+    (ac.modelNames as jest.Mock).mockClear();
+    (ac.createModel as jest.Mock).mockClear();
+
+    await useCase.execute({
+      owner: 42,
+      notionPageId: 'page-id',
+      trigger: 'polling',
+    });
+
+    expect(ac.modelNames).not.toHaveBeenCalled();
+    expect(ac.createModel).not.toHaveBeenCalled();
   });
 });

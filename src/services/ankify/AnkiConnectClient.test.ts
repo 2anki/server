@@ -26,7 +26,7 @@ describe('AnkiConnectClient', () => {
 
     const id = await client.addNote({
       deckName: 'My Deck',
-      modelName: 'Basic',
+      modelName: 'TestModel',
       fields: { Front: 'q', Back: 'a' },
       tags: ['notion-sync'],
     });
@@ -41,7 +41,7 @@ describe('AnkiConnectClient', () => {
       params: {
         note: {
           deckName: 'My Deck',
-          modelName: 'Basic',
+          modelName: 'TestModel',
           fields: { Front: 'q', Back: 'a' },
           tags: ['notion-sync'],
         },
@@ -110,6 +110,49 @@ describe('AnkiConnectClient', () => {
 
     const body = JSON.parse((fetchImpl as jest.Mock).mock.calls[0][1].body);
     expect(body).not.toHaveProperty('key');
+  });
+
+  test('createModel posts the createModel action with css/cardTemplates payload', async () => {
+    const fetchImpl = makeFetch({
+      result: { id: 1700000000000 },
+      error: null,
+    });
+    const client = new AnkiConnectClient('http://localhost:8765', fetchImpl);
+
+    await client.createModel({
+      modelName: 'Ankify Basic',
+      inOrderFields: ['Front', 'Back'],
+      css: '.card { color: black; }',
+      isCloze: false,
+      cardTemplates: [
+        {
+          Name: 'Card 1',
+          Front: '{{Front}}',
+          Back: '{{FrontSide}}<hr id="answer">{{Back}}',
+        },
+      ],
+    });
+
+    const body = JSON.parse(
+      (fetchImpl as jest.Mock).mock.calls[0][1].body
+    );
+    expect(body).toEqual({
+      action: 'createModel',
+      version: 6,
+      params: {
+        modelName: 'Ankify Basic',
+        inOrderFields: ['Front', 'Back'],
+        css: '.card { color: black; }',
+        isCloze: false,
+        cardTemplates: [
+          {
+            Name: 'Card 1',
+            Front: '{{Front}}',
+            Back: '{{FrontSide}}<hr id="answer">{{Back}}',
+          },
+        ],
+      },
+    });
   });
 
   test('throws AnkiConnectUnreachableError when fetch rejects', async () => {

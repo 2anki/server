@@ -407,14 +407,28 @@ export default function NotionSubscriptions({ backend, schedule }: Props) {
                 nextExportLabel
               );
               const relative = formatRelativeTime(sub.last_synced_at);
-              const lastSyncedDisplay =
-                relative == null ? (
-                  <span className={styles.muted}>Not yet</span>
-                ) : (
-                  <span title={sub.last_synced_at ?? undefined}>
-                    updated {relative}
+              const isPreparingFirstSync =
+                sub.last_synced_at == null &&
+                sub.last_polled_at == null &&
+                sub.last_error == null;
+              let lastSyncedDisplay: ReactNode;
+              if (isPreparingFirstSync) {
+                lastSyncedDisplay = (
+                  <span className={styles.muted}>
+                    Preparing your first sync — usually under a minute.
                   </span>
                 );
+              } else if (relative == null) {
+                lastSyncedDisplay = (
+                  <span className={styles.muted}>Not yet</span>
+                );
+              } else {
+                lastSyncedDisplay = (
+                  <span title={sub.last_synced_at ?? undefined}>
+                    Last sync: {relative}
+                  </span>
+                );
+              }
               const iconValue = sub.notion_page_icon ?? '';
               return (
                 <li key={sub.id} className={styles.decksItem}>

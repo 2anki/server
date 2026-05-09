@@ -243,6 +243,28 @@ describe('NotionSubscriptions sync copy', () => {
     expect(img.src).toBe('https://example.com/icon.png');
   });
 
+  test('shows "Preparing your first sync" for a brand new subscription with no last_synced_at', async () => {
+    const backend = makeBackend({
+      listAnkifySubscriptions: vi.fn(async () => [
+        sampleSubscription({
+          id: 1,
+          notion_page_id: 'a'.repeat(32),
+          last_synced_at: null,
+          last_polled_at: null,
+          last_error: null,
+        }),
+      ]),
+    });
+
+    renderSubs(backend);
+
+    await waitFor(() =>
+      expect(
+        screen.getByText(/preparing your first sync/i)
+      ).toBeInTheDocument()
+    );
+  });
+
   test('error line takes precedence over next-export line', async () => {
     const matchingId = 'a'.repeat(32);
     const backend = makeBackend({
