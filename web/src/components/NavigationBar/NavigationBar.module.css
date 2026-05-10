@@ -20,11 +20,37 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
+  gap: 0.25rem;
+  flex-wrap: nowrap;
 }
 
 @media (min-width: 1024px) {
   .brand {
     width: auto;
+  }
+}
+
+.brandTriggers {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+@media (min-width: 1024px) {
+  .brandTriggers {
+    display: none;
+  }
+}
+
+.navAvatarDesktop {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .navAvatarDesktop {
+    display: flex;
+    align-items: center;
+    margin-left: 0.5rem;
   }
 }
 
@@ -143,25 +169,63 @@
   position: relative;
 }
 
-.dropdownToggle {
-  display: flex;
+.avatarToggle {
+  display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  padding: 0.5rem 0.75rem;
+  padding: 0.25rem 0.5rem;
   background: none;
   border: none;
-  color: var(--color-primary);
-  font-size: var(--text-base);
   cursor: pointer;
+  color: var(--color-text-primary);
+  font-size: var(--text-sm);
 }
 
-.dropdownToggle:hover {
+.avatarCircle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
   font-weight: var(--font-bold);
+  font-size: var(--text-sm);
+  line-height: 1;
 }
 
-.dropdownToggleText {
-  font-size: var(--text-2xl);
+.avatarCaret {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+}
+
+.dropdownHeader {
+  padding: 0.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.dropdownEmail {
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+  word-break: break-all;
+}
+
+.dropdownPlan {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
   letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+}
+
+.dropdownSubhead {
+  padding: 0.375rem 1rem 0.125rem;
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
 }
 
 .dropdownMenu {
@@ -173,9 +237,15 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  min-width: 180px;
+  min-width: 220px;
   z-index: 30;
   padding: 0.25rem 0;
+}
+
+@media (max-width: 1023px) {
+  .dropdownMenu {
+    right: 0.5rem;
+  }
 }
 
 .dropdownMenuActive {
@@ -200,10 +270,3 @@
   margin: 0.25rem 0;
 }
 
-.adminTag {
-  margin-left: 0.375rem;
-  font-size: 0.625rem;
-  letter-spacing: var(--tracking-wider);
-  text-transform: uppercase;
-  color: var(--color-text-tertiary);
-}

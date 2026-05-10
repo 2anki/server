@@ -1,9 +1,7 @@
 {
   "navigation.pricing": "Pricing",
   "navigation.login": "Login",
-  "navigation.uploads": "Downloads",
   "navigation.upload": "Upload",
-  "navigation.favorites": "Favorites",
   "navigation.search": "Search",
   "navigation.help": "FAQ",
   "navigation.help.url": "https://docs.2anki.net/troubleshooting/faq/",
@@ -24,5 +22,14 @@
   "navigation.register.google": "Register with Google",
   "navigation.contact": "Contact",
   "navigation.documentation": "Documentation",
+  "navigation.docs": "Docs",
+  "navigation.library": "Library",
+  "navigation.account": "Account",
+  "navigation.billing": "Billing",
+  "navigation.experiments": "Experiments",
+  "navigation.admin": "Admin",
+  "navigation.plan.free": "Free",
+  "navigation.plan.subscriber": "Hosted Anki",
+  "navigation.plan.patreon": "Patreon",
   "navigation.login.title": "Welcome!"
 }
