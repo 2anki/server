@@ -1,4 +1,4 @@
-# 2anki/server
+# 2anki.net
 
 The goal of the 2anki.net project is to provide a good way to make [Anki](https://apps.ankiweb.net/) flashcards easier, better and faster. The dream is to have powerful and easy ways to produce high quality flashcards. This project is a complement to Anki and Notion.
 
