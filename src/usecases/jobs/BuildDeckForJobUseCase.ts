@@ -15,6 +15,7 @@ import {
 } from '../../lib/anki/format';
 import { FileSizeInMegaBytes } from '../../lib/misc/file';
 import { getDatabase } from '../../data_layer';
+import { EmptyDeckError } from './EmptyDeckError';
 
 interface BuildDeckForJobUseCaseOutput {
   size: number;
@@ -31,6 +32,7 @@ interface BuildDeckForJobUseCaseInput {
   storage: StorageHandler;
   id: string;
   owner: string;
+  type?: string;
 }
 
 export class BuildDeckForJobUseCase {
@@ -39,12 +41,18 @@ export class BuildDeckForJobUseCase {
   async execute(
     input: BuildDeckForJobUseCaseInput
   ): Promise<BuildDeckForJobUseCaseOutput> {
-    const { bl, exporter, decks, ws, settings, storage, id, owner } = input;
+    const { bl, exporter, decks, ws, settings, storage, id, owner, type } =
+      input;
     await this.jobRepository.updateJobStatus(id, owner, 'step3_building_deck', '');
 
     const filteredDecks = decks.filter(
       (deck) => deck.cards && deck.cards.length > 0
     );
+
+    if (filteredDecks.length === 0) {
+      console.log('conversion.zero_cards', { id, owner, type });
+      throw new EmptyDeckError();
+    }
 
     exporter.configure(filteredDecks);
     const gen = new CardGenerator(ws.location);

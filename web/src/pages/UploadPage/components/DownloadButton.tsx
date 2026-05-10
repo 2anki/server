@@ -39,13 +39,15 @@ function DownloadButton(props: Readonly<Props>) {
       {isReady && isEmptyDeck && (
         <div className={sharedStyles.alertDanger}>
           <p>
-            <strong>Your deck was created but contains no cards.</strong>{' '}
-            Check that your Notion page uses toggle blocks, or adjust your
-            conversion rules and try again.
-          </p>
-          <p className={sharedStyles.smallDescription}>
-            You can still download the empty deck below if you want to inspect
-            it.
+            No cards in this deck yet. 2anki turns Notion toggle blocks (the
+            little triangles you click to expand) into flashcards — the toggle
+            title becomes the question, what&apos;s inside becomes the answer.
+            We didn&apos;t find any in this page. Open the page in Notion, wrap
+            your key terms in toggles, then convert again.{' '}
+            <a href="/documentation/help/common-problems#could-not-create-a-deck-using-your-file-and-rules">
+              See examples
+            </a>
+            .
           </p>
         </div>
       )}
