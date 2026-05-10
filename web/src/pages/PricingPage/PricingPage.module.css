@@ -16,9 +16,21 @@
   margin: 0 0 1rem;
 }
 
+.intro {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  max-width: 600px;
+  margin: 0 auto 0.5rem;
+  line-height: 1.6;
+}
+
+.intro:last-of-type {
+  margin-bottom: 0;
+}
+
 .grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
   margin-bottom: 2rem;
 }
@@ -99,8 +111,22 @@
   color: #fff;
 }
 
-.footer {
-  text-align: center;
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
+.cardButton:disabled,
+.cardButton[disabled] {
+  background: var(--color-border);
+  cursor: default;
+  opacity: 0.8;
 }
+
+.cardButton:disabled:hover,
+.cardButton[disabled]:hover {
+  background: var(--color-border);
+}
+
+.cardComingSoon {
+  composes: card;
+  background: var(--color-bg-secondary, var(--color-bg-primary));
+  border-style: dashed;
+  opacity: 0.85;
+}
+

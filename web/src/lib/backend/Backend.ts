@@ -321,6 +321,18 @@ export class Backend {
     return post(`${this.baseURL}users/delete-account`, { confirmed });
   }
 
+  async requestHostedAnkiAccess(): Promise<{ alreadyRequested: boolean }> {
+    const response = await post(
+      `${this.baseURL}users/request-hosted-anki-access`,
+      {}
+    );
+    if (!response?.ok) {
+      throw new Error('Could not send request');
+    }
+    const body = await response.json().catch(() => ({}));
+    return { alreadyRequested: body?.alreadyRequested === true };
+  }
+
   async listAnkifyClients(): Promise<AnkifyClient[]> {
     const result = await get(`${this.baseURL}ankify/clients`);
     return result ?? [];
