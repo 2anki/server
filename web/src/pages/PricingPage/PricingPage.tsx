@@ -37,7 +37,7 @@ export default function PricingPage({
 
   const handleHostedAnkiRequest = async () => {
     if (!isLoggedIn) {
-      window.location.href = '/login?redirect=/pricing';
+      globalThis.location.href = '/login?redirect=/pricing';
       return;
     }
     setHostedAnkiState('pending');
@@ -54,7 +54,7 @@ export default function PricingPage({
       <div className={styles.header}>
         <p className={styles.kicker}>
           <span className={styles.kickerDot} aria-hidden="true" />
-          Plans
+          <span>Plans</span>
         </p>
         <h1 className={styles.title}>{getVisibleText('pricing.page.title')}</h1>
         <TopMessage />
