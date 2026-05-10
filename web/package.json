@@ -38,6 +38,7 @@
     "react-confetti": "^6.4.0",
     "react-cookie": "^8.1.2",
     "react-dom": "^19.2.5",
+    "react-helmet-async": "^3.0.0",
     "react-markdown": "^10.1.0",
     "react-router-dom": "^7.14.2",
     "recharts": "^3.8.1",

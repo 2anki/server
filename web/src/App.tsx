@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { lazy, ReactElement, useState } from 'react';
+import { HelmetProvider } from 'react-helmet-async';
 
 import { useCookies, CookiesProvider } from 'react-cookie';
 import UploadPage from './pages/UploadPage';
@@ -45,6 +46,12 @@ const AnkifyHistoryPage = lazy(
 const OpsLayout = lazy(() => import('./pages/OpsPage/OpsLayout'));
 const EngineeringTab = lazy(() => import('./pages/OpsPage/EngineeringTab'));
 const BusinessTab = lazy(() => import('./pages/OpsPage/BusinessTab'));
+const NotionToAnki = lazy(() => import('./pages/LandingPage/NotionToAnki'));
+const QuizletToAnki = lazy(() => import('./pages/LandingPage/QuizletToAnki'));
+const MarkdownToAnki = lazy(
+  () => import('./pages/LandingPage/MarkdownToAnki')
+);
+const PdfToAnki = lazy(() => import('./pages/LandingPage/PdfToAnki'));
 
 const queryClient = new QueryClient();
 
@@ -210,6 +217,22 @@ function AppContent({
               <PreviewApkgPage setError={setErrorMessage} />
             )}
           />
+          <Route
+            path="/notion-to-anki"
+            element={<NotionToAnki setErrorMessage={setErrorMessage} />}
+          />
+          <Route
+            path="/quizlet-to-anki"
+            element={<QuizletToAnki setErrorMessage={setErrorMessage} />}
+          />
+          <Route
+            path="/markdown-to-anki"
+            element={<MarkdownToAnki setErrorMessage={setErrorMessage} />}
+          />
+          <Route
+            path="/pdf-to-anki"
+            element={<PdfToAnki setErrorMessage={setErrorMessage} />}
+          />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </AppShell>
@@ -247,9 +270,11 @@ function AppWithCookies() {
 
 function App() {
   return (
-    <CookiesProvider defaultSetOptions={{ path: '/' }}>
-      <AppWithCookies />
-    </CookiesProvider>
+    <HelmetProvider>
+      <CookiesProvider defaultSetOptions={{ path: '/' }}>
+        <AppWithCookies />
+      </CookiesProvider>
+    </HelmetProvider>
   );
 }
 

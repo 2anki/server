@@ -311,10 +311,15 @@ export class Backend {
   async register(
     name: string,
     email: string,
-    password: string
+    password: string,
+    source?: string | null
   ): Promise<Response> {
     const endpoint = `${this.baseURL}users/register`;
-    return post(endpoint, { name, email, password });
+    const payload: Record<string, string> = { name, email, password };
+    if (source != null && source.length > 0) {
+      payload.source = source;
+    }
+    return post(endpoint, payload);
   }
 
   async deleteAccount(confirmed: boolean): Promise<Response> {

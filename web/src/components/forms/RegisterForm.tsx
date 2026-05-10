@@ -1,9 +1,10 @@
-import { SyntheticEvent, useState } from 'react';
+import { SyntheticEvent, useMemo, useState } from 'react';
 import TopMessage from '../TopMessage/TopMessage';
 import { ErrorHandlerType } from '../errors/helpers/getErrorMessage';
 import { get2ankiApi } from '../../lib/backend/get2ankiApi';
 import { WithGoogleLink } from './WithGoogleLink';
 import { getVisibleText } from '../../lib/text/getVisibleText';
+import { readSignupOrigin } from '../../lib/signupOrigin';
 import styles from '../../styles/auth.module.css';
 
 interface Props {
@@ -18,6 +19,14 @@ function RegisterForm({ setErrorMessage, redirect }: Props) {
   const [tos, setTos] = useState(localStorage.getItem('tos') === 'true');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const signupOrigin = useMemo(
+    () =>
+      readSignupOrigin(
+        globalThis.location?.search ?? '',
+        globalThis.sessionStorage ?? null
+      ),
+    []
+  );
 
   const passwordTouched = password.length > 0;
   const passwordMeetsMinimum = password.length >= MIN_PASSWORD_LENGTH;
@@ -34,7 +43,7 @@ function RegisterForm({ setErrorMessage, redirect }: Props) {
     setLoading(true);
 
     try {
-      const res = await get2ankiApi().register('', email, password);
+      const res = await get2ankiApi().register('', email, password, signupOrigin);
       if (res.status === 200) {
         const loginUrl = redirect
           ? `/login?redirect=${encodeURIComponent(redirect)}`

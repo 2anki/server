@@ -50,7 +50,8 @@ describe('UsersService.register', () => {
       'Alex',
       'hashed',
       'alex@example.com',
-      'pic.png'
+      'pic.png',
+      null
     );
   });
 
@@ -64,7 +65,8 @@ describe('UsersService.register', () => {
       'jane.doe',
       'hashed',
       'jane.doe@example.com',
-      'pic.png'
+      'pic.png',
+      null
     );
   });
 
@@ -78,7 +80,29 @@ describe('UsersService.register', () => {
       'student',
       'hashed',
       'student@uni.edu',
-      'pic.png'
+      'pic.png',
+      null
+    );
+  });
+
+  it('forwards a validated signup_origin to the repository', async () => {
+    const repository = buildRegisterRepository();
+    const service = new UsersService(repository, noopEmailService);
+
+    await service.register(
+      'Alex',
+      'hashed',
+      'al@example.com',
+      'pic.png',
+      '/notion-to-anki'
+    );
+
+    expect(repository.createUser).toHaveBeenCalledWith(
+      'Alex',
+      'hashed',
+      'al@example.com',
+      'pic.png',
+      '/notion-to-anki'
     );
   });
 });
