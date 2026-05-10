@@ -38,15 +38,16 @@ function DocsAnchor({ href, children, ...rest }: AnchorProps) {
     );
   }
 
-  const to = href.startsWith('/')
-    ? `/documentation${href.replace(/\/$/, '')}`
-    : href;
+  const to = href.length > 1 && href.endsWith('/') ? href.slice(0, -1) : href;
+  const isAppRoute = to.startsWith('/documentation') || to === '/documentation';
+  const handlesClientSide = isAppRoute || to.startsWith('/pricing');
 
   return (
     <a
       href={to}
       onClick={(e) => {
         if (
+          !handlesClientSide ||
           e.defaultPrevented ||
           e.button !== 0 ||
           e.metaKey ||

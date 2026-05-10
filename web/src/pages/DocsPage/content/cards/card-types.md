@@ -3,8 +3,87 @@ title: Card types
 description: The three card shapes 2anki makes, and when each fires.
 ---
 
-This page is being written. It will cover the three card types 2anki produces — Basic (toggle → front/back), Cloze (`{{c1::...}}` and code-as-cloze), and Input (typed answer) — and how to switch between them.
+2anki produces three card shapes. Which one you get depends on what's in your source — bold text becomes a typed answer, code becomes a cloze, everything else stays as a basic front/back card.
 
-If you'd like this page sooner, comment on the [tracking issue](https://github.com/2anki/server/issues/2069) — we read every one.
+**Plan:** Free (all three card types work on every plan)
 
-In the meantime: see [HTML](/documentation/cards/html) and [Markdown and Obsidian](/documentation/cards/markdown) for example syntax for each type.
+## Basic
+
+The default. The toggle's heading becomes the front; the toggle's contents become the back.
+
+In Notion:
+
+- A toggle with the heading "What is the capital of Albania?" and "Tirana!" inside.
+
+In Markdown (with **Markdown Nested Bullet Points** on):
+
+```
+- What is the capital of France?
+  - Paris
+```
+
+In HTML:
+
+```html
+<details>
+  <summary>What is the capital of Albania?</summary>
+  <p>Tirana</p>
+</details>
+```
+
+You also get **Basic and Reversed** as a card option — that creates the front/back card and a second card with front and back swapped. Useful for vocabulary. See [Card options](/documentation/cards/card-options).
+
+## Cloze
+
+Cloze hides part of a sentence. You see "The capital of France is [...]" and type or recall "Paris".
+
+2anki turns inline code into clozes. Wrap the hidden text in backticks (Markdown) or `<code>` tags (HTML):
+
+```
+- The capital of `France` is `Paris`
+```
+
+```html
+<details>
+  <summary>The capital of <code>Albania</code> is <code>Tirana</code></summary>
+</details>
+```
+
+You can also use Anki's native cloze syntax directly when you want explicit numbering or hints:
+
+```
+{{c1::Canberra::city}} was founded in {{c2::1913::year}}
+```
+
+The **Cloze Deletion** card option controls whether code-as-cloze fires — it's on by default. See [HTML](/documentation/cards/html) and [Markdown and Obsidian](/documentation/cards/markdown) for more examples.
+
+## Input
+
+Input cards make you type the answer. You see the question, type, and Anki marks it right or wrong by exact match.
+
+Turn on **Treat Bold Text as Input** in card options. Then bold text on the back becomes the typed-answer field:
+
+```
+- What is 21 + 21 = **42**
+```
+
+```html
+<details>
+  <summary>What is 21 + 21?</summary>
+  <p><strong>42</strong></p>
+</details>
+```
+
+Best for facts where exact spelling matters — dates, names, equation results. Skip it for definitions or anything where wording can vary.
+
+## How to switch between them
+
+You don't pick a card type per card. You pick a card option, and 2anki applies it across the whole upload:
+
+- **Basic** is the default whenever a toggle has nothing else going on.
+- **Cloze** fires automatically when **Cloze Deletion** is on (default) and your toggle contains code.
+- **Input** fires when **Treat Bold Text as Input** is on and your toggle has bold text on the back.
+
+If a single toggle has both code and bold text, cloze wins. If you want a different mix, split the toggle in your source.
+
+The full card option list with defaults is on [Card options](/documentation/cards/card-options). The card templates Anki uses (`n2a-basic`, `n2a-cloze`, `n2a-input`) are listed in the [glossary](/documentation/reference/glossary).
