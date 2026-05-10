@@ -3,8 +3,51 @@ title: Upload a file instead
 description: For PDFs, slides, spreadsheets, or a Notion HTML export.
 ---
 
-This page is being written. It will cover when to upload a file instead of [Connect Notion](/documentation/start-here/connect-notion), how to drop in a file, the supported types, and what happens to the file after conversion.
+Upload works without an account. You drop in a file, 2anki builds the deck, and you download an `.apkg`. Good for one-off conversions or sources that don't live in Notion.
 
-If you'd like this page sooner, comment on the [tracking issue](https://github.com/2anki/server/issues/2067) — we read every one.
+**Plan:** Free (anonymous, no sign-in needed)
 
-In the meantime: the supported types are listed in [File formats](/documentation/reference/file-formats), and what we keep is described in the [privacy policy](/documentation/reference/privacy).
+## When to use upload instead of Connect Notion
+
+Upload when:
+
+- The source is a PDF, slide deck, spreadsheet, CSV, or Markdown file.
+- You don't have a Notion workspace, or the page isn't in Notion.
+- You want a fast one-shot conversion and don't need future edits to flow into the deck.
+
+Use [Connect Notion](/documentation/start-here/connect-notion) when the source is a Notion page and you want the deck to update as you edit.
+
+## Drop in a file
+
+1. Go to [2anki.net/upload](https://2anki.net/upload).
+2. Drag your file onto the drop area, or click to pick one.
+3. Open the settings panel if you want to change card options. Defaults are tuned for first-time use — see [Card options](/documentation/cards/card-options) for what each one does.
+4. Click **Convert**. When it finishes, click **Download** to grab the `.apkg`.
+5. Open the file in Anki — see [Open your deck in Anki](/documentation/start-here/open-in-anki).
+
+:::tip
+Toggle lists make the cleanest cards. If your source is plain prose, the conversion will still work, but you'll get better results from a structure where each card is one toggle, one bullet pair, or one row.
+:::
+
+## Supported types
+
+The full table of formats and limits is on [File formats](/documentation/reference/file-formats). Short version:
+
+- **Notion HTML export** (`.zip`) — the `.zip` Notion gives you when you export with "HTML" + "Include subpages".
+- **HTML** — a single `.html` file or a folder of them.
+- **Markdown** — `.md`, including Obsidian vaults.
+- **CSV / XLSX** — one row per card.
+- **PDF** — front/back per page pair, or AI-generated questions on paid.
+- **PPT / PPTX** — converted via slides to PDF to images.
+
+Drop the wrong format and 2anki tells you. The error message names the supported types so you don't have to guess.
+
+## What happens to your file
+
+We need the file long enough to convert it. After that:
+
+- **Anonymous and Free account file uploads** — the temporary working files are wiped within two hours. The `.apkg` is sent straight back as the response, so we don't keep a copy.
+- **Claude AI uploads and Notion conversions** are stored in your account so you can re-download from **My uploads**. Free accounts: removed within 24 hours. Subscription: kept while your sub is active. Lifetime: kept indefinitely.
+- We don't read your content for any reason other than building your deck. We don't train models on it.
+
+The full story is on the [privacy policy](/documentation/reference/privacy). The hard numbers are on [Limits and quotas](/documentation/help/limits).
