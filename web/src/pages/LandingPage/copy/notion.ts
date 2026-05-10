@@ -9,12 +9,12 @@ const notionCopy: LandingCopy = {
   subhead: 'Paste a Notion link and get a deck you can open in Anki.',
   faqs: [
     {
-      q: 'Does this work with toggles, callouts, and synced blocks?',
-      a: "Yes. Toggles become front/back cards, headings become tags, and synced blocks are read from the source page. If a block type is missing, send the page to support@2anki.net and we'll add it.",
+      q: 'Does this work with toggles and callouts?',
+      a: "Yes. Toggles become front/back cards. Strikethrough text in the page body becomes a tag on every card in that deck. If a block type isn't handled the way you'd like, send the page to support@2anki.net and we'll take a look.",
     },
     {
       q: 'Do I need a Notion integration token?',
-      a: "For one-off pages, no — paste a public share link and we'll read it. For private workspaces, connect Notion once on the upload page; we use the token only to read the pages you pick.",
+      a: "Yes — connect Notion once on the upload page. We use the token only to read the pages you pick, and you can revoke it from your Notion settings any time.",
     },
     {
       q: 'What happens to images and code blocks?',
