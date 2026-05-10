@@ -1,5 +1,5 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { getVisibleText } from '../../lib/text/getVisibleText';
 import { getPlanLabel, isPayingUser } from '../NavigationBar/helpers/getPlanLabel';
 import styles from './AppShell.module.css';
@@ -47,8 +47,8 @@ function SidebarRow({
 }: Readonly<SidebarRowProps>) {
   const active = isActiveRoute(pathname, href, matchPrefix);
   return (
-    <a
-      href={href}
+    <Link
+      to={href}
       onClick={onClick}
       aria-current={active ? 'page' : undefined}
       className={`${styles.sidebarRow} ${
@@ -56,7 +56,7 @@ function SidebarRow({
       }`}
     >
       {children}
-    </a>
+    </Link>
   );
 }
 
@@ -95,9 +95,9 @@ export function Sidebar({
       aria-label="primary"
       data-testid="app-sidebar"
     >
-      <a className={styles.sidebarLogo} href="/" onClick={handleNavClick()}>
+      <Link className={styles.sidebarLogo} to="/" onClick={handleNavClick()}>
         <img src="/mascot/navbar-logo.png" alt="2anki Logo" />
-      </a>
+      </Link>
       <hr className={styles.sidebarDivider} />
       <div className={styles.sidebarGroup}>
         <SidebarRow
@@ -189,9 +189,9 @@ export function Sidebar({
       )}
       <div className={styles.sidebarSpacer} />
       <hr className={styles.sidebarDivider} />
-      <a
+      <Link
         className={styles.identity}
-        href="/account"
+        to="/account"
         onClick={handleNavClick()}
       >
         <div className={styles.identityRow}>
@@ -200,7 +200,7 @@ export function Sidebar({
           </span>
           <span className={styles.identityPlan}>{planLabel}</span>
         </div>
-      </a>
+      </Link>
       <div className={styles.sidebarGroup}>
         <SidebarRow
           href="/account"
