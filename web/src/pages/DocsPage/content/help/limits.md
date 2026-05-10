@@ -60,7 +60,7 @@ Free covers the conversion paths most people need: drag in a file, get a deck ba
 | AI-generated flashcards (Claude) | — | ✓ | ✓ |
 | Notion sync | — | ✓ | ✓ |
 | Long-term deck storage | 24 h | active sub | indefinite |
-| Ankify (hosted bidirectional sync) | — | — | ✓ |
+| Hosted Anki | — | — | ✓ |
 
 See the [pricing page](/pricing) for the current plan list. Privacy details — what we read, what we don't — are on the [privacy policy](/documentation/reference/privacy).
 
