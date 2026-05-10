@@ -118,6 +118,23 @@ export default function NotionPagePicker({
                     </span>
                     <span className={styles.pickerType}>{page.object}</span>
                   </div>
+                  {page.url && (
+                    <a
+                      href={page.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={styles.pickerNotionLink}
+                      aria-label={`Open ${page.title} in Notion (new tab)`}
+                      title={`Open ${page.title} in Notion (new tab)`}
+                    >
+                      <img
+                        src="/icons/Notion_app_logo.png"
+                        alt=""
+                        width="24"
+                        height="24"
+                      />
+                    </a>
+                  )}
                   <button
                     type="button"
                     className={`${sharedStyles.btnSmall} ${styles.inlineButton}`}
