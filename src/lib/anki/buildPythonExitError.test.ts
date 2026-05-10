@@ -1,43 +1,146 @@
-import { buildPythonExitError } from './buildPythonExitError';
+import { buildPythonExitError, PythonExitError } from './buildPythonExitError';
 
 describe('buildPythonExitError', () => {
-  test('uses stderr when present', () => {
+  it("classifies invalid HTML tag warnings as invalid-markup and tells the user to simplify the offending block", () => {
     const error = buildPythonExitError({
       code: 1,
-      stdout: 'progress output\n',
-      stderr: 'Traceback (most recent call last):\n  ...\nValueError: bad deck\n',
-    });
-    expect(error.message).toContain('Python script exited with code 1');
-    expect(error.message).toContain('ValueError: bad deck');
-  });
-
-  test('falls back to stdout when stderr is empty', () => {
-    const error = buildPythonExitError({
-      code: 1,
-      stdout: 'fatal: missing template\n',
-      stderr: '',
-    });
-    expect(error.message).toContain('Python script exited with code 1');
-    expect(error.message).toContain('fatal: missing template');
-  });
-
-  test('uses a placeholder when both streams are empty', () => {
-    const error = buildPythonExitError({
-      code: 2,
       stdout: '',
-      stderr: '   \n',
+      stderr:
+        "UserWarning: Field contained the following invalid HTML tags and was cleaned. Please check the field for errors.\n  warnings.warn(",
+      jobId: 'job-123',
     });
-    expect(error.message).toContain('Python script exited with code 2');
-    expect(error.message).toContain('(no output)');
+    expect(error).toBeInstanceOf(PythonExitError);
+    expect(error.kind).toBe('invalid-markup');
+    expect(error.message).toBe(
+      "Something on this page — usually a pasted embed or copied-in web content — has formatting we can't read. Open the page in Notion, remove or simplify that block, and convert again."
+    );
   });
 
-  test('handles null exit code', () => {
+  it("classifies Unsupported 'data_source'! as unsupported-data-source", () => {
     const error = buildPythonExitError({
+      code: 1,
+      stdout: '',
+      stderr: "RuntimeError: Unsupported 'data_source'!",
+      jobId: 'job-123',
+    });
+    expect(error.kind).toBe('unsupported-data-source');
+    expect(error.message).toBe(
+      "This Notion database uses a view we don't support yet. Convert the parent page, or switch the database to a different view and try again."
+    );
+  });
+
+  it('also matches the double-quoted variant of Unsupported "data_source"', () => {
+    const error = buildPythonExitError({
+      code: 1,
+      stdout: '',
+      stderr: 'RuntimeError: Unsupported "data_source"!',
+      jobId: 'job-123',
+    });
+    expect(error.kind).toBe('unsupported-data-source');
+  });
+
+  it('classifies MemoryError / Killed / exit code 137 as too-large', () => {
+    const memoryErrorCase = buildPythonExitError({
+      code: 1,
+      stdout: '',
+      stderr: 'MemoryError',
+      jobId: 'job-1',
+    });
+    expect(memoryErrorCase.kind).toBe('too-large');
+    expect(memoryErrorCase.message).toBe(
+      'This page is too large for us to convert in one go. Split it into smaller pages — or convert it section by section — and try again.'
+    );
+
+    const killedLineCase = buildPythonExitError({
       code: null,
       stdout: '',
-      stderr: 'killed by signal',
+      stderr: 'some prefix\nKilled\n',
+      jobId: 'job-2',
     });
-    expect(error.message).toContain('Python script exited with code null');
-    expect(error.message).toContain('killed by signal');
+    expect(killedLineCase.kind).toBe('too-large');
+
+    const exit137Case = buildPythonExitError({
+      code: 137,
+      stdout: '',
+      stderr: 'no helpful message',
+      jobId: 'job-3',
+    });
+    expect(exit137Case.kind).toBe('too-large');
+  });
+
+  it('falls back to unknown kind with job ID and support email when output is empty', () => {
+    const error = buildPythonExitError({
+      code: 1,
+      stdout: '',
+      stderr: '   \n',
+      jobId: 'job-abc',
+    });
+    expect(error.kind).toBe('unknown');
+    expect(error.message).toBe(
+      "Something went wrong on our end converting this page. Email support@2anki.net with job ID job-abc and we'll take a look."
+    );
+  });
+
+  it('falls back to unknown kind when stderr does not match any classifier', () => {
+    const error = buildPythonExitError({
+      code: 1,
+      stdout: 'progress output',
+      stderr: 'Traceback (most recent call last):\n  ValueError: weird thing',
+      jobId: 'job-xyz',
+    });
+    expect(error.kind).toBe('unknown');
+    expect(error.message).toContain('support@2anki.net');
+    expect(error.message).toContain('job-xyz');
+  });
+
+  it('never includes the words "Python", "script", or "exited" in the user-facing message', () => {
+    const samples = [
+      buildPythonExitError({
+        code: 1,
+        stdout: '',
+        stderr:
+          'UserWarning: Field contained the following invalid HTML tags',
+        jobId: 'j1',
+      }),
+      buildPythonExitError({
+        code: 1,
+        stdout: '',
+        stderr: "Unsupported 'data_source'!",
+        jobId: 'j2',
+      }),
+      buildPythonExitError({
+        code: 137,
+        stdout: '',
+        stderr: '',
+        jobId: 'j3',
+      }),
+      buildPythonExitError({
+        code: 1,
+        stdout: '',
+        stderr: '',
+        jobId: 'j4',
+      }),
+      buildPythonExitError({
+        code: 1,
+        stdout: '',
+        stderr: 'random traceback',
+        jobId: 'j5',
+      }),
+    ];
+    const forbidden = /python|script|exited/i;
+    for (const sample of samples) {
+      expect(sample.message).not.toMatch(forbidden);
+    }
+  });
+
+  it('retains the raw output on the error for server-side logging', () => {
+    const error = buildPythonExitError({
+      code: 1,
+      stdout: 'progress',
+      stderr: "Unsupported 'data_source'!",
+      jobId: 'job-keep-raw',
+    });
+    expect(error.rawOutput).toBe("Unsupported 'data_source'!");
+    expect(error.code).toBe(1);
   });
 });

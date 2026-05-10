@@ -55,7 +55,7 @@ export class BuildDeckForJobUseCase {
     }
 
     exporter.configure(filteredDecks);
-    const gen = new CardGenerator(ws.location);
+    const gen = new CardGenerator(ws.location, id);
     const payload = (await gen.run()) as string;
     const apkg = fs.readFileSync(payload);
     const filename = toText(
