@@ -16,6 +16,7 @@ import { SetJobFailedUseCase } from '../../../../usecases/jobs/SetJobFailedUseCa
 import { BuildDeckForJobUseCase } from '../../../../usecases/jobs/BuildDeckForJobUseCase';
 import { CompleteJobUseCase } from '../../../../usecases/jobs/CompleteJobUseCase';
 import { NotifyUserUseCase } from '../../../../usecases/jobs/NotifyUserUseCase';
+import { jobFailureReasonFromError } from '../../../../usecases/jobs/jobFailureReason';
 
 interface ConversionRequest {
   title: string;
@@ -119,6 +120,7 @@ export default async function performConversion(
       storage,
       id,
       owner,
+      type,
     });
 
     const notifyUser = new NotifyUserUseCase(jobRepository);
@@ -136,9 +138,8 @@ export default async function performConversion(
     await completeJob.execute(id, owner);
   } catch (error) {
     const failedJob = new SetJobFailedUseCase(jobRepository);
-    await failedJob.execute(id, owner, 'Technical error ' + error);
+    await failedJob.execute(id, owner, jobFailureReasonFromError(error));
 
-    // The User is still waiting and has not received a response yet
     if (waitingResponse) {
       res?.status(400).send('conversion failed.');
     }
