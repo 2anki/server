@@ -4,7 +4,20 @@
   },
   "permissions": {
     "allow": [
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+
+      "Write(src/**/*.test.ts)",
+      "Write(web/src/**/*.test.ts)",
+      "Write(web/src/**/*.test.tsx)",
+
+      "Edit(src/**)",
+      "Edit(web/src/**)",
+      "Edit(web/public/**)",
+
+      "Write(Documentation/specs/*.md)",
+      "Edit(Documentation/specs/*.md)",
+      "Write(Documentation/ankify/*.md)",
+      "Edit(Documentation/ankify/*.md)"
     ]
   },
   "hooks": {
