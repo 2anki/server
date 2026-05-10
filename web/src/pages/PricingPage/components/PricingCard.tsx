@@ -6,6 +6,10 @@ interface PricingCardProp {
   benefits: string[];
   link?: string;
   linkText?: string;
+  onAction?: () => void;
+  actionLabel?: string;
+  actionDisabled?: boolean;
+  comingSoon?: boolean;
 }
 
 export function PricingCard({
@@ -14,9 +18,17 @@ export function PricingCard({
   benefits,
   linkText,
   link,
+  onAction,
+  actionLabel,
+  actionDisabled,
+  comingSoon,
 }: Readonly<PricingCardProp>) {
+  const cardClass = comingSoon ? styles.cardComingSoon : styles.card;
+  const showButton = onAction != null && actionLabel != null;
+  const showLink = !showButton && link != null && linkText != null;
+
   return (
-    <div className={styles.card}>
+    <div className={cardClass}>
       <div className={styles.cardHeader}>
         <p className={styles.cardPrice}>{price}</p>
         <p className={styles.cardTitle}>{title}</p>
@@ -28,11 +40,23 @@ export function PricingCard({
           </p>
         ))}
       </div>
-      {link && linkText && (
+      {(showButton || showLink) && (
         <div className={styles.cardFooter}>
-          <a href={link} className={styles.cardButton}>
-            {linkText}
-          </a>
+          {showButton && (
+            <button
+              type="button"
+              className={styles.cardButton}
+              onClick={onAction}
+              disabled={actionDisabled}
+            >
+              {actionLabel}
+            </button>
+          )}
+          {showLink && (
+            <a href={link} className={styles.cardButton}>
+              {linkText}
+            </a>
+          )}
         </div>
       )}
     </div>

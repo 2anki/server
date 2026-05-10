@@ -104,8 +104,14 @@ class UsersRepository {
   }
 
   updateLastLoginAt(id: string) {
-    return this.database(this.table).where({ id }).update({ 
-      last_login_at: this.database.fn.now() 
+    return this.database(this.table).where({ id }).update({
+      last_login_at: this.database.fn.now()
+    });
+  }
+
+  markHostedAnkiRequested(id: string) {
+    return this.database(this.table).where({ id }).update({
+      hosted_anki_requested_at: this.database.fn.now(),
     });
   }
 

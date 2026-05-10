@@ -38,6 +38,10 @@ export interface IEmailService {
     name: string,
     cancelDate: Date
   ): Promise<void>;
+  sendHostedAnkiAccessRequestEmail(
+    userId: string,
+    userEmail: string
+  ): Promise<EmailResponse>;
 }
 
 class EmailService implements IEmailService {
@@ -133,6 +137,26 @@ class EmailService implements IEmailService {
       return { didSend: true };
     } catch (e) {
       console.error('Error sending email', e);
+      return { didSend: false, error: e as Error };
+    }
+  }
+
+  async sendHostedAnkiAccessRequestEmail(
+    userId: string,
+    userEmail: string
+  ): Promise<EmailResponse> {
+    const msg = {
+      to: SUPPORT_EMAIL_ADDRESS,
+      from: DEFAULT_SENDER,
+      subject: 'Hosted Anki access request',
+      text: `User ${userId} <${userEmail}> requested access to Hosted Anki.`,
+      replyTo: userEmail,
+    };
+    try {
+      await sgMail.send(msg);
+      return { didSend: true };
+    } catch (e) {
+      console.error('Error sending Hosted Anki access request email', e);
       return { didSend: false, error: e as Error };
     }
   }
@@ -312,6 +336,18 @@ export class UnimplementedEmailService implements IEmailService {
       cancelDate
     );
     return Promise.resolve();
+  }
+
+  sendHostedAnkiAccessRequestEmail(
+    userId: string,
+    userEmail: string
+  ): Promise<EmailResponse> {
+    console.info(
+      'sendHostedAnkiAccessRequestEmail not handled',
+      userId,
+      userEmail
+    );
+    return Promise.resolve({ didSend: false });
   }
 }
 
