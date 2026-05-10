@@ -2,7 +2,7 @@
   "navigation.pricing": "Pricing",
   "navigation.login": "Login",
   "navigation.upload": "Upload",
-  "navigation.search": "Search",
+  "navigation.searchNotion": "Search Notion",
   "navigation.help": "FAQ",
   "navigation.help.url": "https://docs.2anki.net/troubleshooting/faq/",
   "navigation.logout": "Log Out",

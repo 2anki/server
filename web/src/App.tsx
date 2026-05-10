@@ -11,7 +11,7 @@ import isOfflineMode from './lib/isOfflineMode';
 import DebugPage from './pages/DebugPage';
 import { ContactPage } from './pages/ContactPage/ContactPage';
 import FavoritesPage from './pages/FavoritesPage';
-import { PageLayout } from './components/Layout/PageLayout';
+import { AppShell } from './components/AppShell/AppShell';
 import DeleteAccountPage from './pages/DeleteAccountPage';
 import { getErrorMessage } from './components/errors/helpers/getErrorMessage';
 import { sendError } from './lib/SendError';
@@ -88,7 +88,14 @@ function AppContent({
 
   return (
     <BrowserRouter>
-      <PageLayout error={error} isLoggedIn={isLoggedIn} isPaying={isPaying}>
+      <AppShell
+        error={error}
+        isLoggedIn={isLoggedIn}
+        isPaying={isPaying}
+        email={data?.user?.email}
+        locals={data?.locals}
+        features={data?.features}
+      >
         <Routes>
           <Route
             path="/favorites"
@@ -208,7 +215,7 @@ function AppContent({
           />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
-      </PageLayout>
+      </AppShell>
     </BrowserRouter>
   );
 }
