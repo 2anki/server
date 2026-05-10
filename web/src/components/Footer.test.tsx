@@ -13,10 +13,11 @@ describe('Footer', () => {
     vi.useRealTimers();
   });
 
-  it('renders the copyright with the current year and no founder name', () => {
+  it('renders the copyright with the current year and the founder name', () => {
     render(<Footer />);
-    expect(screen.getByText(/© 2024–2026 2anki\.net/)).toBeInTheDocument();
-    expect(screen.queryByText(/Alexander Alemayhu/i)).not.toBeInTheDocument();
+    expect(
+      screen.getByText(/© 2024–2026 Alexander Alemayhu/)
+    ).toBeInTheDocument();
   });
 
   it('links About, Docs, Contact, Terms, Privacy', () => {

@@ -91,16 +91,8 @@ describe('Sidebar reference group', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('shows Billing only for paying users', () => {
+  it('does not render a Billing row for paying users', () => {
     renderSidebar({ patreon: true });
-    expect(screen.getByRole('link', { name: 'Billing' })).toHaveAttribute(
-      'href',
-      '/account'
-    );
-  });
-
-  it('hides Billing for free users', () => {
-    renderSidebar();
     expect(
       screen.queryByRole('link', { name: 'Billing' })
     ).not.toBeInTheDocument();
@@ -230,6 +222,6 @@ describe('Sidebar More block', () => {
       'href',
       '/documentation/misc/privacy-policy'
     );
-    expect(screen.getByText(/2anki\.net/)).toBeInTheDocument();
+    expect(screen.getByText(/Alexander Alemayhu/)).toBeInTheDocument();
   });
 });

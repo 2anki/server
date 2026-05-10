@@ -73,7 +73,6 @@ export function Sidebar({
   const showAnkify = locals?.patreon === true;
   const paying = isPayingUser(locals);
   const showPricing = !paying;
-  const showBilling = paying;
   const showKi = features?.kiUI === true;
   const showOps = features?.ops === true;
   const showAdminGroup = showKi || showOps;
@@ -153,16 +152,6 @@ export function Sidebar({
             onClick={handleNavClick()}
           >
             {getVisibleText('navigation.pricing')}
-          </SidebarRow>
-        )}
-        {showBilling && (
-          <SidebarRow
-            href="/account"
-            pathname={pathname}
-            matchPrefix={false}
-            onClick={handleNavClick()}
-          >
-            {getVisibleText('navigation.billing')}
           </SidebarRow>
         )}
       </div>
@@ -253,7 +242,7 @@ export function Sidebar({
           </Link>
         </div>
         <div className={styles.sidebarCopyright}>
-          © 2024–{new Date().getFullYear()} 2anki.net
+          © 2024–{new Date().getFullYear()} Alexander Alemayhu
         </div>
       </div>
     </aside>

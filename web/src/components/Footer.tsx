@@ -24,7 +24,7 @@ function Footer() {
               <a href="/documentation/misc/privacy-policy">Privacy</a>
             </li>
           </ul>
-          <div>{`© 2024–${currentYear} 2anki.net`}</div>
+          <div>{`© 2024–${currentYear} Alexander Alemayhu`}</div>
         </div>
       </div>
     </footer>
