@@ -266,19 +266,15 @@ export class DeckParser {
     }
   }
 
+  // Avoids a full cheerio.load on the whole document. Paired with loadDOM,
+  // a DOM-based normalisation here meant the entire HTML was materialised as a
+  // cheerio tree twice in a row, which OOM'd 30–40 MB Notion exports.
   removeNewlinesInSVGPathAttributeD(html: string): string {
-    const dom = cheerio.load(html);
-    const pathElements = dom('path');
-
-    for (const pathElement of pathElements) {
-      if ('attribs' in pathElement && 'd' in pathElement.attribs) {
-        const dAttribute = pathElement.attribs.d;
-        const newDAttribute = dAttribute.replace(/\n/g, '').trim();
-        dom(pathElement).attr('d', newDAttribute);
-      }
-    }
-
-    return dom.html();
+    return html.replace(
+      /<path\b([^>]*?)\sd=(["'])([\s\S]*?)\2/gi,
+      (_match, prefix, quote, value) =>
+        `<path${prefix} d=${quote}${value.replace(/\n/g, '').trim()}${quote}`
+    );
   }
 
   getFirstHeadingText(dom: cheerio.CheerioAPI) {

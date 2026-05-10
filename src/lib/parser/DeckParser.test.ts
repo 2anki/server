@@ -236,11 +236,69 @@ test('Notion new export: deeply nested toggles (3 levels)', async () => {
   );
 
   expect(deck.cards.length).toBe(1);
-  
+
   expect(deck.cards[0].name).toContain('Parent');
   expect(deck.cards[0].back).toContain('Grand child');
-  
+
   expect(deck.cards[0].back).toContain('Child');
   expect(deck.cards[0].back).toContain('details');
   expect(deck.cards[0].back).toContain('summary');
+});
+
+describe('removeNewlinesInSVGPathAttributeD', () => {
+  const newParser = () =>
+    new DeckParser({
+      name: 'svg-test',
+      settings: new CardOption({}),
+      files: [],
+      noLimits: false,
+      workspace: new Workspace(true, 'fs'),
+    });
+
+  it('strips newlines from a path d attribute', () => {
+    const input = '<svg><path d="M0,0\nL10,10\nL20,0"/></svg>';
+    expect(newParser().removeNewlinesInSVGPathAttributeD(input)).toBe(
+      '<svg><path d="M0,0L10,10L20,0"/></svg>'
+    );
+  });
+
+  it('trims leading and trailing whitespace inside d', () => {
+    const input = '<path d="\n  M0,0 L10,10  \n"/>';
+    expect(newParser().removeNewlinesInSVGPathAttributeD(input)).toBe(
+      '<path d="M0,0 L10,10"/>'
+    );
+  });
+
+  it('leaves d attributes on non-path elements untouched', () => {
+    const input = '<text d="\nignore me\n">hi</text>';
+    expect(newParser().removeNewlinesInSVGPathAttributeD(input)).toBe(input);
+  });
+
+  it('leaves sibling attributes on path untouched', () => {
+    const input =
+      '<path fill="red" d="M0,0\nL1,1" stroke="blue" stroke-width="2"/>';
+    expect(newParser().removeNewlinesInSVGPathAttributeD(input)).toBe(
+      '<path fill="red" d="M0,0L1,1" stroke="blue" stroke-width="2"/>'
+    );
+  });
+
+  it('handles single-quoted d attributes', () => {
+    const input = "<path d='M0,0\nL5,5'/>";
+    expect(newParser().removeNewlinesInSVGPathAttributeD(input)).toBe(
+      "<path d='M0,0L5,5'/>"
+    );
+  });
+
+  it('processes multiple path elements in one document', () => {
+    const input =
+      '<svg><path d="M0,0\nL1,1"/><path d="\nM2,2\nL3,3\n"/></svg>';
+    expect(newParser().removeNewlinesInSVGPathAttributeD(input)).toBe(
+      '<svg><path d="M0,0L1,1"/><path d="M2,2L3,3"/></svg>'
+    );
+  });
+
+  it('returns input unchanged when there are no path elements', () => {
+    const input = '<div><p>no svg here</p></div>';
+    expect(newParser().removeNewlinesInSVGPathAttributeD(input)).toBe(input);
+  });
 });
