@@ -51,7 +51,17 @@ export default function PricingPage({
 
   return (
     <div className={styles.page}>
+      <div className={styles.atmosphere} aria-hidden="true">
+        <div className={styles.atmosphereGrid} />
+        <div className={styles.atmosphereGlow} />
+        <div className={styles.atmosphereGlowSecondary} />
+      </div>
+
       <div className={styles.header}>
+        <p className={styles.kicker}>
+          <span className={styles.kickerDot} aria-hidden="true" />
+          Plans
+        </p>
         <h1 className={styles.title}>{getVisibleText('pricing.page.title')}</h1>
         <TopMessage />
         <p className={styles.intro}>
@@ -61,7 +71,10 @@ export default function PricingPage({
             <>
               {' '}
               <a href="/register" className={styles.introLink}>
-                Start free →
+                Start free{' '}
+                <span className={styles.introArrow} aria-hidden="true">
+                  →
+                </span>
               </a>
             </>
           )}
@@ -71,7 +84,9 @@ export default function PricingPage({
       <div className={styles.grid}>
         <PricingCard
           className={styles.cardPro}
-          price="$6 / mo"
+          badge="Most popular"
+          price="$6"
+          priceSuffix="/ mo"
           title="Pro"
           benefits={[
             'Unlimited flashcards',
@@ -99,7 +114,9 @@ export default function PricingPage({
         />
         <PricingCard
           className={styles.cardLifetime}
-          price="$345–$500"
+          price="$345"
+          priceSuffix="– $500"
+          priceRange
           title="Lifetime"
           benefits={[
             'Everything in Pro, paid once',
