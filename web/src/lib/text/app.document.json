@@ -10,6 +10,8 @@
   "navigation.logout": "Log Out",
   "navigation.register": "Register",
   "navigation.register.question": "Don't have an account?",
+  "navigation.register.title": "Create your account",
+  "navigation.login.question": "Already have an account?",
   "navigation.deleteAccount": "Delete account",
   "navigation.page.settings": "Settings",
   "downloads.empty": "You have no downloads!",

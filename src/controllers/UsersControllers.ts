@@ -137,10 +137,10 @@ class UsersController {
   ) {
     if (
       !req.body ||
-      !this.isValidUser(req.body.password, req.body.name, req.body.email)
+      !this.isValidUser(req.body.password, req.body.email)
     ) {
       res.status(400).json({
-        message: 'Invalid user data. Required name, email and password!',
+        message: 'Invalid user data. Required email and password!',
       });
       return;
     }
@@ -155,7 +155,7 @@ class UsersController {
     const { name, email } = req.body;
     try {
       await this.userService.register(
-        name,
+        name ?? '',
         password,
         email,
         getDefaultAvatarPicture()
@@ -390,8 +390,8 @@ class UsersController {
     return res.redirect('https://www.patreon.com/alemayhu');
   }
 
-  public isValidUser(password: string, name: string, email: string) {
-    if (!password || !name || !email) {
+  public isValidUser(password: string, email: string) {
+    if (!password || !email) {
       return false;
     }
     return true;

@@ -42,10 +42,14 @@ class UsersService {
   }
 
   register(name: string, password: string, email: string, picture: string) {
+    const normalizedEmail = email.toLowerCase();
+    const trimmedName = name?.trim() ?? '';
+    const resolvedName =
+      trimmedName.length > 0 ? trimmedName : normalizedEmail.split('@')[0];
     return this.repository.createUser(
-      name,
+      resolvedName,
       password,
-      email.toLowerCase(),
+      normalizedEmail,
       picture
     );
   }
