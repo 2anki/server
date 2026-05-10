@@ -39,20 +39,21 @@ export default function PricingPage({
         />
         <PricingCard
           price="$6"
-          title="Pro"
+          title="Student"
           benefits={[
             'Unlimited flashcards',
             'PDFs and large Notion exports',
             'Cancel anytime',
           ]}
           link={subcribeLink}
-          linkText="Get Pro"
+          linkText="Subscribe"
         />
         <PricingCard
           price="$105"
           title="Lifetime"
           benefits={[
-            'All Pro features, paid once',
+            'Everything in Student, paid once',
+            'Ankify (hosted Notion ↔ Anki sync)',
             'No future price changes',
             'One-time payment',
           ]}
