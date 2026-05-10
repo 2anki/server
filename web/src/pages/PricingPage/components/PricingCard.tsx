@@ -4,8 +4,11 @@ import styles from '../PricingPage.module.css';
 
 interface PricingCardProp {
   price?: string;
+  priceSuffix?: string;
+  priceRange?: boolean;
   priceChip?: string;
   title: string;
+  badge?: string;
   benefits: string[];
   link?: string;
   linkText?: string;
@@ -39,8 +42,11 @@ function CheckIcon() {
 
 export function PricingCard({
   price,
+  priceSuffix,
+  priceRange,
   priceChip,
   title,
+  badge,
   benefits,
   linkText,
   link,
@@ -62,13 +68,24 @@ export function PricingCard({
 
   let priceNode: ReactNode = null;
   if (price != null) {
-    priceNode = <p className={styles.cardPrice}>{price}</p>;
+    const priceLineClass = priceRange
+      ? `${styles.cardPriceLine} ${styles.cardPriceLineRange}`
+      : styles.cardPriceLine;
+    priceNode = (
+      <span className={priceLineClass}>
+        <span className={styles.cardPrice}>{price}</span>
+        {priceSuffix != null && (
+          <span className={styles.cardPriceSuffix}>{priceSuffix}</span>
+        )}
+      </span>
+    );
   } else if (priceChip != null) {
     priceNode = <span className={styles.cardPriceChip}>{priceChip}</span>;
   }
 
   return (
     <div className={cardClass}>
+      {badge != null && <span className={styles.cardBadge}>{badge}</span>}
       <div className={styles.cardHeader}>
         <p className={styles.cardTitle}>{title}</p>
         {priceNode}
