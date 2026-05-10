@@ -1,32 +1,67 @@
 ---
 title: Limits and quotas
-description: What's allowed on free, what's allowed on paid, and how long files stick around.
+description: What's allowed on each plan, and how long your decks stick around.
 ---
 
-2anki.net is free for everyone. To keep it that way, there are a few limits on the hosted service. If you self-host, you can change them — see [self-hosting](/documentation/reference/self-hosting).
+2anki.net is free for the conversion features. The limits below keep the hosted service fast for everyone. If you self-host, you can change them — see [self-hosting](/documentation/reference/self-hosting).
 
 ## File size
 
 | Plan | Max upload size |
 |---|---|
 | Free | 100 MB per request |
-| Paid | ~10 GB per request |
+| Subscription / Lifetime | ~10 GB per request |
+
+Free covers anonymous and signed-in users without a paid plan. The file-size limit lives in `src/lib/misc/getUploadLimits.ts`.
 
 ## PDF pages
 
 | Plan | Max pages per PDF |
 |---|---|
 | Free | 100 |
-| Paid | No fixed cap |
+| Subscription / Lifetime | No fixed cap |
 
 PDFs over the free limit return: *PDF exceeds maximum page limit of 100 for free and anonymous users.*
 
-## Storage time
+## AI-generated flashcards
 
-Uploaded files are deleted automatically **2 hours** after processing. The same window applies whether you're free or paid. The matching message on the upload page says the same thing.
+The **Use Claude AI** card option is a Subscription / Lifetime feature. Free accounts see the toggle but the conversion falls back to the standard parser.
+
+## Storage
+
+What "storage" means depends on which path you used.
+
+### File upload (no Claude AI)
+
+Your file lives on disk only long enough to build the deck. The `.apkg` is sent straight back as the response — we don't keep a copy. The temporary working files are wiped after **two hours**.
+
+**Plan:** any (anonymous, Free account, Subscription, Lifetime — same window for all).
+
+### Notion convert and Claude AI uploads
+
+These paths build your deck in the background and store the `.apkg` in our bucket so you can re-download it from **My uploads** and so [sync](/documentation/sync/how-it-works) has something to update.
+
+| Plan | How long your decks stay in the bucket |
+|---|---|
+| Free account | Removed in the next daily cleanup (within 24 hours). |
+| Subscription | Kept for as long as your subscription is active. |
+| Lifetime (Patreon) | Kept indefinitely. |
+
+If your subscription lapses, your stored decks are removed in the next daily cleanup — re-convert and they come back. You can also delete a deck yourself from **My uploads** at any time.
 
 ## Free vs paid
 
-The paid plan unlocks larger uploads, more PDF pages, and AI-powered flashcard generation (Claude). See the [pricing page](/pricing) for the current plan list.
+Free covers the conversion paths most people need: drag in a file, get a deck back. The paid plans add AI-generated flashcards, larger uploads, longer storage, and Notion sync.
+
+| Capability | Free | Subscription | Lifetime |
+|---|---|---|---|
+| Anonymous file upload | ✓ | ✓ | ✓ |
+| Account features (history, favorites, templates) | sign-in required | ✓ | ✓ |
+| AI-generated flashcards (Claude) | — | ✓ | ✓ |
+| Notion sync | — | ✓ | ✓ |
+| Long-term deck storage | 24 h | active sub | indefinite |
+| Ankify (hosted bidirectional sync) | — | — | ✓ |
+
+See the [pricing page](/pricing) for the current plan list. Privacy details — what we read, what we don't — are on the [privacy policy](/documentation/reference/privacy).
 
 If something looks wrong, [contact us](/documentation/help/contact).

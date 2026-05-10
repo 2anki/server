@@ -30,25 +30,22 @@ npm install -g pnpm
 
 ## Required env vars
 
-Create `.env` at the repo root:
+Create `.env` at the repo root. Real keys live in `src/env.example`:
 
 ```bash
 PORT=2020
+DOMAIN=http://localhost:2020
 WORKSPACE_BASE=/tmp/genanki
 UPLOAD_BASE=/tmp/genanki-uploads
 WEB_BUILD_DIR=./web/build
-RUN_MIGRATIONS=true
 
-POSTGRES_HOST=localhost
-POSTGRES_PORT=5432
-POSTGRES_USER=tanki
-POSTGRES_PASSWORD=tanki
-POSTGRES_DATABASE=tanki
+DATABASE_URL=postgresql://tanki:tanki@localhost:5432/tanki
 
 SECRET=replace-with-a-long-random-string
+THE_HASHING_SECRET=replace-with-a-different-long-random-string
 ```
 
-`SECRET` is used to sign session cookies. Set it to a long random value before exposing the server publicly. Set `RUN_MIGRATIONS=true` on first boot; leave unset in production where you run migrations out of band.
+`SECRET` signs session JWTs; `THE_HASHING_SECRET` encrypts stored Notion tokens. Both must be long random strings before you expose the server publicly. Migrations run automatically on boot via the Knex config.
 
 ## Optional integrations
 
@@ -58,9 +55,9 @@ Each integration adds a feature. You can run 2anki without any of them — the f
 |---|---|---|
 | Notion OAuth | `NOTION_CLIENT_ID`, `NOTION_CLIENT_SECRET`, `NOTION_REDIRECT_URI` | Connect Notion + Find pages picker |
 | Anthropic Claude | `ANTHROPIC_API_KEY` | AI flashcard generation from PDFs |
-| Stripe | `STRIPE_*` | Paid plans (skip if you're running for yourself) |
+| Stripe | `STRIPE_KEY`, `STRIPE_ENDPOINT_SECRET` | Paid plans (skip if you're running for yourself) |
 | SendGrid | `SENDGRID_API_KEY` | Transactional email (password reset, etc.) |
-| AWS S3 / DigitalOcean Spaces | `S3_*` | Remote upload storage instead of local disk |
+| DigitalOcean Spaces (S3-compatible) | `SPACES_ENDPOINT`, `SPACES_DEFAULT_BUCKET_NAME`, plus standard `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` | Remote storage for converted decks (needed for "My uploads" history and sync) |
 
 ## Where to get help
 

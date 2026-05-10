@@ -46,8 +46,8 @@ Drop the wrong format and 2anki tells you. The error message names the supported
 
 We need the file long enough to convert it. After that:
 
-- **Anonymous uploads** are deleted automatically two hours after conversion.
-- **Account uploads** stick around in your history until you delete them, or hit the same two-hour cleanup if storage is full.
+- **Anonymous and Free account file uploads** — the temporary working files are wiped within two hours. The `.apkg` is sent straight back as the response, so we don't keep a copy.
+- **Claude AI uploads and Notion conversions** are stored in your account so you can re-download from **My uploads**. Free accounts: removed within 24 hours. Subscription: kept while your sub is active. Lifetime: kept indefinitely.
 - We don't read your content for any reason other than building your deck. We don't train models on it.
 
 The full story is on the [privacy policy](/documentation/reference/privacy). The hard numbers are on [Limits and quotas](/documentation/help/limits).
