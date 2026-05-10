@@ -113,7 +113,7 @@ export function Sidebar({
           pathname={pathname}
           onClick={handleNavClick()}
         >
-          {getVisibleText('navigation.library')}
+          {getVisibleText('navigation.conversions')}
         </SidebarRow>
         <SidebarRow
           href="/notion"

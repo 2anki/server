@@ -42,7 +42,7 @@ describe('Sidebar work group', () => {
       'href',
       '/upload'
     );
-    expect(screen.getByRole('link', { name: 'Library' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Conversions' })).toHaveAttribute(
       'href',
       '/downloads'
     );
@@ -164,9 +164,9 @@ describe('Sidebar identity block', () => {
 });
 
 describe('Sidebar active state', () => {
-  it('marks the Library row active on /downloads', () => {
+  it('marks the Conversions row active on /downloads', () => {
     renderSidebar({ pathname: '/downloads' });
-    expect(screen.getByRole('link', { name: 'Library' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Conversions' })).toHaveAttribute(
       'aria-current',
       'page'
     );
@@ -184,9 +184,9 @@ describe('Sidebar active state', () => {
     );
   });
 
-  it('marks the Library row active on a /downloads sub-route', () => {
+  it('marks the Conversions row active on a /downloads sub-route', () => {
     renderSidebar({ pathname: '/downloads/123' });
-    expect(screen.getByRole('link', { name: 'Library' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Conversions' })).toHaveAttribute(
       'aria-current',
       'page'
     );

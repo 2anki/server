@@ -15,7 +15,7 @@ export function EmptyDownloadsSection({ hasActiveJobs, uploads }: Readonly<Prop>
     <div className={styles.card}>
       <div className={styles.empty}>
         <div className={styles.emptyIcon}>📭</div>
-        <p className={styles.emptyTitle}>No downloads yet</p>
+        <p className={styles.emptyTitle}>No conversions yet</p>
         <p className={styles.emptyDescription}>
           Convert a Notion page or upload a file to get started.
         </p>
