@@ -123,6 +123,11 @@ export default function PricingPage({
           caption="By application — we usually reply within a day."
         />
       </div>
+
+      <p className={styles.philosophy}>
+        You don't have to upgrade — free works forever. Paid plans unlock more,
+        and help fund 2anki.net.
+      </p>
     </div>
   );
 }
