@@ -12,7 +12,10 @@ export function RightSide({ path }: Readonly<RightSideProps>) {
       <NavbarItem href="/upload" path={path}>
         {getVisibleText('navigation.upload')}
       </NavbarItem>
-      <NavbarItem path="pricing" href="/pricing">
+      <NavbarItem href="/documentation" path={path}>
+        {getVisibleText('navigation.docs')}
+      </NavbarItem>
+      <NavbarItem href="/pricing" path={path}>
         {getVisibleText('navigation.pricing')}
       </NavbarItem>
       <a className={styles.loginButton} href="/login#login">

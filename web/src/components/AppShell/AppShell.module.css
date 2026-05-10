@@ -1,0 +1,245 @@
+.shell {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+}
+
+@media (max-width: 1023px) {
+  .shell {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 240px;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
+  background: var(--color-bg-secondary);
+  border-right: 1px solid var(--color-border);
+  padding: 1.25rem 0.75rem;
+}
+
+@media (max-width: 1023px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 40;
+    transform: translateX(-100%);
+    transition: transform 200ms ease;
+    box-shadow: 0 0 24px rgba(0, 0, 0, 0.12);
+  }
+
+  .sidebarOpen {
+    transform: translateX(0);
+  }
+}
+
+.sidebarLogo {
+  display: flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem 1rem;
+}
+
+.sidebarLogo img {
+  height: 28px;
+}
+
+.sidebarDivider {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 0.75rem 0.5rem;
+}
+
+.sidebarGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding: 0 0;
+}
+
+.sidebarGroupLabel {
+  padding: 0.75rem 0.75rem 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: var(--font-semibold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+}
+
+.sidebarSpacer {
+  flex: 1 1 auto;
+}
+
+.sidebarRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+  text-decoration: none;
+  font-size: var(--text-sm);
+  line-height: 1.25;
+}
+
+.sidebarRow:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+
+.sidebarRowActive {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  font-weight: var(--font-medium);
+}
+
+.sidebarRowActive:hover {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.identity {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding: 0.625rem 0.75rem;
+  margin: 0.25rem 0;
+  border-radius: var(--radius-md);
+  text-decoration: none;
+  color: var(--color-text-primary);
+}
+
+.identity:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+
+.identityRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.identityEmail {
+  flex: 1 1 auto;
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.identityPlan {
+  flex: 0 0 auto;
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+  font-size: 0.6875rem;
+  font-weight: var(--font-medium);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.identityPlanPaid {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.sidebarMore {
+  padding: 0.75rem;
+  font-size: 0.6875rem;
+  color: var(--color-text-tertiary);
+  line-height: 1.5;
+}
+
+.sidebarMoreLinks a {
+  color: var(--color-text-tertiary);
+  text-decoration: none;
+}
+
+.sidebarMoreLinks a:hover {
+  color: var(--color-text-secondary);
+  text-decoration: underline;
+}
+
+.sidebarCopyright {
+  margin-top: 0.5rem;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 100vh;
+}
+
+.mobileTopBar {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .mobileTopBar {
+    display: grid;
+    grid-template-columns: 56px 1fr 56px;
+    align-items: center;
+    height: 56px;
+    padding: 0 0.5rem;
+    background: var(--color-bg-primary);
+    border-bottom: 1px solid var(--color-border);
+    position: sticky;
+    top: 0;
+    z-index: 20;
+  }
+}
+
+.mobileBurger {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  width: 40px;
+  height: 40px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.mobileBurger span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: var(--color-text-primary);
+}
+
+.mobileLogo {
+  display: flex;
+  justify-content: center;
+}
+
+.mobileLogo img {
+  height: 28px;
+}
+
+.backdrop {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .backdropVisible {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 30;
+  }
+}
+

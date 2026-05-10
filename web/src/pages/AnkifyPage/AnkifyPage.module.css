@@ -938,7 +938,19 @@
 }
 
 .welcomeBanner {
+  align-items: flex-start;
   margin-bottom: 1.25rem;
+}
+
+.welcomeBanner button {
+  flex-shrink: 0;
+}
+
+@media (max-width: 520px) {
+  .welcomeBanner {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
 .conflictsBanner {
