@@ -55,10 +55,10 @@ function RegisterForm({ setErrorMessage, redirect }: Props) {
   };
 
   const passwordHelpClass = (() => {
-    if (!passwordTouched) {
-      return styles.helpMuted;
+    if (passwordTouched) {
+      return passwordMeetsMinimum ? styles.helpSuccess : styles.helpDanger;
     }
-    return passwordMeetsMinimum ? styles.helpSuccess : styles.helpDanger;
+    return styles.helpMuted;
   })();
 
   const passwordHelpText = (() => {
