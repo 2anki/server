@@ -3,8 +3,26 @@ title: File formats
 description: Every input we accept and how it's read.
 ---
 
-This reference page is being written. It will list every supported input — Notion HTML exports, raw HTML, Markdown, CSV, XLSX, ZIP, PDF, PPT/PPTX — with how 2anki reads each one, the limits that apply, and notes on common pitfalls.
+This is the full list of inputs 2anki accepts. The hard limits live on [Limits and quotas](/documentation/help/limits) — this page is the format reference.
 
-If you'd like this page sooner, comment on the [tracking issue](https://github.com/2anki/server/issues/2072) — we read every one.
+**Plan:** Free (any plan can upload any format; paid plans get bigger files and AI-generated cards)
 
-In the meantime: [HTML](/documentation/cards/html) and [Markdown and Obsidian](/documentation/cards/markdown) have their own pages with examples.
+| Format | How 2anki reads it | Limits | Notes |
+|---|---|---|---|
+| **Notion HTML export** (`.zip`) | Each `.html` file inside becomes a deck. Toggles inside the file become cards. The `assets/` folder is bundled into the deck. | Same size limit as any upload. | The `.zip` Notion gives you when you export with "HTML" + "Include subpages". The cleanest non-Notion-integration path. |
+| **HTML** (`.html`) | Each `<details>` block becomes a card — `<summary>` is the front, the rest is the back. `<code>` becomes cloze. `<strong>` becomes input (with the **Treat Bold Text as Input** option on). | Same size limit as any upload. | Hand-written HTML works the same way. See [HTML](/documentation/cards/html). |
+| **Markdown** (`.md`) | Bullet pairs become cards: parent bullet is the front, child bullet is the back. Backticks become cloze. | Same size limit as any upload. | Requires the **Markdown Nested Bullet Points** card option (on by default). Obsidian vaults work the same way. See [Markdown and Obsidian](/documentation/cards/markdown). |
+| **ZIP** (`.zip`) | Extracted; the contents are processed in place. Notion HTML exports, folders of HTML files, or mixed bundles all work. | Same size limit as any upload. Entries are checked for unsafe paths before extraction. | If you have a Notion export with images, keep it zipped — the assets stay attached. |
+| **CSV** (`.csv`) | One row per card. The first column is the front, the second is the back. | Same size limit as any upload. | Use commas as the separator. TSV (tab-separated) is not supported — convert to CSV first. |
+| **XLSX** (`.xlsx`) | Same as CSV but for Excel files. First column front, second column back. | Same size limit as any upload. | One sheet per deck. |
+| **PDF** (`.pdf`) | Each page becomes an image. By default, page 1 is the front and page 2 is the back, page 3 the front of the next card, page 4 the back, and so on — useful for slide decks where each topic spans two slides. | 100 pages on free, no fixed cap on paid. | Turn on **Generate Flashcards with Claude AI** to have Claude read the PDF and write questions instead of pairing pages. Paid only. |
+| **PPT / PPTX** (`.pptx`, `.ppt`) | Converted to PDF via LibreOffice, then handled like a PDF (pair-of-pages cards or AI-generated). | Same as PDF. | Same as PDF behaviour after conversion — see PDF row. |
+
+## HTML and Markdown
+
+HTML and Markdown have their own pages because the syntax for cloze and input cards is worth a couple of examples each:
+
+- [HTML](/documentation/cards/html) — toggles, cloze, input, and how images travel with the deck.
+- [Markdown and Obsidian](/documentation/cards/markdown) — bullet syntax for basic, cloze, and input cards.
+
+For the format-by-format pitfalls users actually hit, see [Common problems](/documentation/help/common-problems).
