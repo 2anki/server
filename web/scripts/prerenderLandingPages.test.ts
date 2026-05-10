@@ -13,11 +13,27 @@ const SOURCE_INDEX = `<!DOCTYPE html>
   <link rel="canonical" href="https://2anki.net" />
   <title>Create Anki Flashcards - 2anki.net</title>
   <meta name="description" content="Original description">
+  <meta property="og:url" content="https://2anki.net:443">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="2anki.net">
+  <meta property="og:description" content="Original og description">
+  <meta property="og:image" content="https://2anki.net/notion2anki.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="2anki.net">
+  <meta name="twitter:description" content="Original twitter description">
+  <meta name="twitter:image" content="https://2anki.net/notion2anki.png">
 </head>
 <body>
   <div id="root"></div>
 </body>
 </html>`;
+
+const countMatches = (html: string, needle: string | RegExp): number => {
+  if (needle instanceof RegExp) {
+    return (html.match(needle) ?? []).length;
+  }
+  return html.split(needle).length - 1;
+};
 
 beforeEach(() => {
   buildDir = mkdtempSync(join(tmpdir(), '2anki-prerender-'));
@@ -91,5 +107,29 @@ describe('emitLandingPages', () => {
     expect(html).toContain('<meta property="og:title"');
     expect(html).toContain('<meta property="og:description"');
     expect(html).toContain('<meta name="twitter:title"');
+  });
+
+  it('does not duplicate og:* or twitter:* tags from the source index', () => {
+    emitLandingPages(buildDir);
+    const html = readFileSync(
+      join(buildDir, 'notion-to-anki', 'index.html'),
+      'utf8'
+    );
+    expect(countMatches(html, /<meta\s+property="og:title"/g)).toBe(1);
+    expect(countMatches(html, /<meta\s+property="og:description"/g)).toBe(1);
+    expect(countMatches(html, /<meta\s+property="og:url"/g)).toBe(1);
+    expect(countMatches(html, /<meta\s+property="og:type"/g)).toBe(1);
+    expect(countMatches(html, /<meta\s+name="twitter:title"/g)).toBe(1);
+    expect(countMatches(html, /<meta\s+name="twitter:description"/g)).toBe(1);
+  });
+
+  it('preserves og:image and twitter:card from the source index', () => {
+    emitLandingPages(buildDir);
+    const html = readFileSync(
+      join(buildDir, 'notion-to-anki', 'index.html'),
+      'utf8'
+    );
+    expect(html).toContain('<meta property="og:image"');
+    expect(html).toContain('<meta name="twitter:card"');
   });
 });

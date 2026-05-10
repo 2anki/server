@@ -34,6 +34,25 @@ function buildHeroFragment(copy: LandingCopy): string {
   ].join('');
 }
 
+const REPLACED_OG_PROPERTIES = ['og:title', 'og:description', 'og:url', 'og:type'];
+const REPLACED_TWITTER_NAMES = ['twitter:title', 'twitter:description'];
+
+function stripExistingMeta(html: string): string {
+  let next = html;
+  for (const property of REPLACED_OG_PROPERTIES) {
+    const pattern = new RegExp(
+      `\\s*<meta\\s+property="${property}"[^>]*>`,
+      'g'
+    );
+    next = next.replace(pattern, '');
+  }
+  for (const name of REPLACED_TWITTER_NAMES) {
+    const pattern = new RegExp(`\\s*<meta\\s+name="${name}"[^>]*>`, 'g');
+    next = next.replace(pattern, '');
+  }
+  return next;
+}
+
 function rewriteHead(html: string, copy: LandingCopy): string {
   const canonical = `https://2anki.net${copy.pathname}`;
   const titleTag = `<title>${escapeHtml(copy.title)}</title>`;
@@ -62,6 +81,7 @@ function rewriteHead(html: string, copy: LandingCopy): string {
     /<link\s+rel="canonical"[^>]*>/,
     `<link rel="canonical" href="${canonical}">`
   );
+  next = stripExistingMeta(next);
   next = next.replace(
     /<\/head>/,
     `  ${ogTags}\n</head>`
