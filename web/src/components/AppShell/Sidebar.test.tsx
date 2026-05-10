@@ -192,3 +192,44 @@ describe('Sidebar active state', () => {
     );
   });
 });
+
+describe('Sidebar group hierarchy', () => {
+  it('renders Make and Learn group labels for every logged-in user', () => {
+    renderSidebar();
+    expect(screen.getByText('Make')).toBeInTheDocument();
+    expect(screen.getByText('Learn')).toBeInTheDocument();
+  });
+
+  it('omits the Admin group label when no admin flags are on', () => {
+    renderSidebar();
+    expect(screen.queryByText('Admin')).not.toBeInTheDocument();
+  });
+
+  it('renders the Admin group label when ops is on', () => {
+    renderSidebar({ ops: true });
+    expect(screen.getByText('Admin')).toBeInTheDocument();
+  });
+});
+
+describe('Sidebar More block', () => {
+  it('renders the relocated footer links and copyright', () => {
+    renderSidebar();
+    expect(screen.getByRole('link', { name: 'About' })).toHaveAttribute(
+      'href',
+      '/about'
+    );
+    expect(screen.getByRole('link', { name: 'Contact' })).toHaveAttribute(
+      'href',
+      '/contact'
+    );
+    expect(screen.getByRole('link', { name: 'Terms' })).toHaveAttribute(
+      'href',
+      '/documentation/misc/terms-of-service'
+    );
+    expect(screen.getByRole('link', { name: 'Privacy' })).toHaveAttribute(
+      'href',
+      '/documentation/misc/privacy-policy'
+    );
+    expect(screen.getByText(/2anki\.net/)).toBeInTheDocument();
+  });
+});

@@ -98,8 +98,10 @@ export function Sidebar({
       <Link className={styles.sidebarLogo} to="/" onClick={handleNavClick()}>
         <img src="/mascot/navbar-logo.png" alt="2anki Logo" />
       </Link>
-      <hr className={styles.sidebarDivider} />
       <div className={styles.sidebarGroup}>
+        <div className={styles.sidebarGroupLabel}>
+          {getVisibleText('navigation.groups.make')}
+        </div>
         <SidebarRow
           href="/upload"
           pathname={pathname}
@@ -132,8 +134,10 @@ export function Sidebar({
           </SidebarRow>
         )}
       </div>
-      <hr className={styles.sidebarDivider} />
       <div className={styles.sidebarGroup}>
+        <div className={styles.sidebarGroupLabel}>
+          {getVisibleText('navigation.groups.learn')}
+        </div>
         <SidebarRow
           href="/documentation"
           pathname={pathname}
@@ -163,29 +167,29 @@ export function Sidebar({
         )}
       </div>
       {showAdminGroup && (
-        <>
-          <hr className={styles.sidebarDivider} />
-          <div className={styles.sidebarGroup}>
-            {showKi && (
-              <SidebarRow
-                href="/ki"
-                pathname={pathname}
-                onClick={handleNavClick()}
-              >
-                KI (beta)
-              </SidebarRow>
-            )}
-            {showOps && (
-              <SidebarRow
-                href="/ops"
-                pathname={pathname}
-                onClick={handleNavClick()}
-              >
-                Ops
-              </SidebarRow>
-            )}
+        <div className={styles.sidebarGroup}>
+          <div className={styles.sidebarGroupLabel}>
+            {getVisibleText('navigation.groups.admin')}
           </div>
-        </>
+          {showKi && (
+            <SidebarRow
+              href="/ki"
+              pathname={pathname}
+              onClick={handleNavClick()}
+            >
+              KI (beta)
+            </SidebarRow>
+          )}
+          {showOps && (
+            <SidebarRow
+              href="/ops"
+              pathname={pathname}
+              onClick={handleNavClick()}
+            >
+              Ops
+            </SidebarRow>
+          )}
+        </div>
       )}
       <div className={styles.sidebarSpacer} />
       <hr className={styles.sidebarDivider} />
@@ -198,7 +202,13 @@ export function Sidebar({
           <span className={styles.identityEmail} title={email ?? undefined}>
             {email ?? 'Account'}
           </span>
-          <span className={styles.identityPlan}>{planLabel}</span>
+          <span
+            className={`${styles.identityPlan} ${
+              isPayingUser(locals) ? styles.identityPlanPaid : ''
+            }`}
+          >
+            {planLabel}
+          </span>
         </div>
       </Link>
       <div className={styles.sidebarGroup}>
@@ -217,6 +227,34 @@ export function Sidebar({
         >
           {getVisibleText('navigation.logout')}
         </a>
+      </div>
+      <div className={styles.sidebarMore}>
+        <div className={styles.sidebarMoreLinks}>
+          <Link to="/about" onClick={handleNavClick()}>
+            {getVisibleText('navigation.legal.about')}
+          </Link>
+          {' · '}
+          <Link to="/contact" onClick={handleNavClick()}>
+            {getVisibleText('navigation.contact')}
+          </Link>
+          {' · '}
+          <Link
+            to="/documentation/misc/terms-of-service"
+            onClick={handleNavClick()}
+          >
+            {getVisibleText('navigation.legal.terms')}
+          </Link>
+          {' · '}
+          <Link
+            to="/documentation/misc/privacy-policy"
+            onClick={handleNavClick()}
+          >
+            {getVisibleText('navigation.legal.privacy')}
+          </Link>
+        </div>
+        <div className={styles.sidebarCopyright}>
+          © 2024–{new Date().getFullYear()} 2anki.net
+        </div>
       </div>
     </aside>
   );

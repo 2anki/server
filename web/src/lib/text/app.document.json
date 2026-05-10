@@ -31,5 +31,11 @@
   "navigation.plan.free": "Free",
   "navigation.plan.subscriber": "Unlimited",
   "navigation.plan.patreon": "Lifetime",
+  "navigation.groups.make": "Make",
+  "navigation.groups.learn": "Learn",
+  "navigation.groups.admin": "Admin",
+  "navigation.legal.about": "About",
+  "navigation.legal.terms": "Terms",
+  "navigation.legal.privacy": "Privacy",
   "navigation.login.title": "Welcome!"
 }

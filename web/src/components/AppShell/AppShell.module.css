@@ -62,6 +62,15 @@
   padding: 0 0;
 }
 
+.sidebarGroupLabel {
+  padding: 0.75rem 0.75rem 0.25rem;
+  font-size: 0.6875rem;
+  font-weight: var(--font-semibold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+}
+
 .sidebarSpacer {
   flex: 1 1 auto;
 }
@@ -128,10 +137,40 @@
 
 .identityPlan {
   flex: 0 0 auto;
-  font-size: var(--text-xs);
-  color: var(--color-text-tertiary);
-  letter-spacing: var(--tracking-wider);
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-secondary);
+  font-size: 0.6875rem;
+  font-weight: var(--font-medium);
+  letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+
+.identityPlanPaid {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.sidebarMore {
+  padding: 0.75rem;
+  font-size: 0.6875rem;
+  color: var(--color-text-tertiary);
+  line-height: 1.5;
+}
+
+.sidebarMoreLinks a {
+  color: var(--color-text-tertiary);
+  text-decoration: none;
+}
+
+.sidebarMoreLinks a:hover {
+  color: var(--color-text-secondary);
+  text-decoration: underline;
+}
+
+.sidebarCopyright {
+  margin-top: 0.5rem;
 }
 
 .main {
