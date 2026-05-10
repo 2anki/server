@@ -1,7 +1,7 @@
 import styles from '../PricingPage.module.css';
 
 interface PricingCardProp {
-  price: string;
+  price?: string;
   title: string;
   benefits: string[];
   link?: string;
@@ -30,7 +30,7 @@ export function PricingCard({
   return (
     <div className={cardClass}>
       <div className={styles.cardHeader}>
-        <p className={styles.cardPrice}>{price}</p>
+        {price != null && <p className={styles.cardPrice}>{price}</p>}
         <p className={styles.cardTitle}>{title}</p>
       </div>
       <div className={styles.cardBody}>
