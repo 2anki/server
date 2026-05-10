@@ -131,23 +131,26 @@ function RegisterForm({ setErrorMessage, redirect }: Props) {
                   setTos(event.target.checked);
                   localStorage.setItem('tos', event.target.checked.toString());
                 }}
-              />{' '}
-              I agree to the{' '}
-              <a
-                rel="noreferrer"
-                target="_blank"
-                href="https://alemayhu.notion.site/Terms-of-services-931865161517453b99fb6495e400061d"
-              >
-                terms of service
-              </a>{' '}
-              and have read the{' '}
-              <a
-                rel="noreferrer"
-                target="_blank"
-                href="https://alemayhu.notion.site/Privacy-38c6e8238ac04ea9b2485bf488909fd0"
-              >
-                privacy policy
-              </a>.
+              />
+              <span>
+                I agree to the{' '}
+                <a
+                  rel="noreferrer"
+                  target="_blank"
+                  href="https://alemayhu.notion.site/Terms-of-services-931865161517453b99fb6495e400061d"
+                >
+                  terms of service
+                </a>{' '}
+                and have read the{' '}
+                <a
+                  rel="noreferrer"
+                  target="_blank"
+                  href="https://alemayhu.notion.site/Privacy-38c6e8238ac04ea9b2485bf488909fd0"
+                >
+                  privacy policy
+                </a>
+                .
+              </span>
             </label>
           </div>
           <div className={styles.field}>
