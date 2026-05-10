@@ -49,9 +49,9 @@ export function DownloadsPage({ setError }: Readonly<DownloadsPageProps>) {
     <div className={styles.page}>
       <div className={styles.header}>
         <div className={styles.headerCopy}>
-          <h1 className={styles.title}>Downloads</h1>
+          <h1 className={styles.title}>Conversions</h1>
           <p className={styles.subtitle}>
-            Track your conversions and download completed flashcard decks.
+            Your decks in progress and ready to download.
           </p>
         </div>
         <button
@@ -59,7 +59,7 @@ export function DownloadsPage({ setError }: Readonly<DownloadsPageProps>) {
           className={styles.refreshButton}
           onClick={handleRefresh}
           disabled={refreshing || loading}
-          aria-label="Refresh downloads"
+          aria-label="Refresh conversions"
         >
           <i className="fa-solid fa-arrows-rotate" aria-hidden="true" />
           {refreshing ? 'Refreshing…' : 'Refresh'}

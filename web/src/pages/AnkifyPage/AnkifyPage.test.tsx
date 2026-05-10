@@ -213,7 +213,7 @@ describe('AnkifyPage workspace home', () => {
 
     await waitFor(() =>
       expect(
-        screen.getByText(/your anki is ready/i)
+        screen.getByText(/you're synced/i)
       ).toBeInTheDocument()
     );
     expect(
@@ -225,7 +225,7 @@ describe('AnkifyPage workspace home', () => {
 
     await waitFor(() =>
       expect(
-        screen.queryByText(/your anki is ready/i)
+        screen.queryByText(/you're synced/i)
       ).not.toBeInTheDocument()
     );
 
@@ -237,7 +237,7 @@ describe('AnkifyPage workspace home', () => {
         screen.getByRole('heading', { name: /^ankify$/i, level: 1 })
       ).toBeInTheDocument()
     );
-    expect(screen.queryByText(/your anki is ready/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/you're synced/i)).not.toBeInTheDocument();
   });
 
   test('does not show the welcome banner once it has been seen', async () => {
@@ -257,7 +257,7 @@ describe('AnkifyPage workspace home', () => {
         screen.getByRole('heading', { name: /^ankify$/i, level: 1 })
       ).toBeInTheDocument()
     );
-    expect(screen.queryByText(/your anki is ready/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/you're synced/i)).not.toBeInTheDocument();
   });
 });
 

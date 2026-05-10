@@ -110,9 +110,8 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
           className={`${sharedStyles.alertSuccess} ${styles.welcomeBanner}`}
         >
           <span>
-            Your Anki is ready. We added two note types — Ankify Basic and
-            Ankify Cloze — so your synced cards always look right. You can
-            edit them anytime in Anki.
+            You&apos;re synced. We added two note types in Anki, Ankify Basic
+            and Ankify Cloze, so your cards look right.
           </span>
           <button
             type="button"
