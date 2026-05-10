@@ -41,7 +41,13 @@ class UsersService {
     return this.repository.getByEmail(email);
   }
 
-  register(name: string, password: string, email: string, picture: string) {
+  register(
+    name: string,
+    password: string,
+    email: string,
+    picture: string,
+    signupOrigin?: string | null
+  ) {
     const normalizedEmail = email.toLowerCase();
     const trimmedName = name?.trim() ?? '';
     const resolvedName =
@@ -50,7 +56,8 @@ class UsersService {
       resolvedName,
       password,
       normalizedEmail,
-      picture
+      picture,
+      signupOrigin ?? null
     );
   }
 

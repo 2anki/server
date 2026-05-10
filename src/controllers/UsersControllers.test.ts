@@ -117,9 +117,58 @@ describe('UsersController.register', () => {
       'Alex',
       'hashed',
       'alex@example.com',
-      expect.any(String)
+      expect.any(String),
+      null
     );
     expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it('persists signup_origin when source matches an allowed landing path', async () => {
+    const register = jest.fn().mockResolvedValue([{ id: 1 }]);
+    const { controller } = buildController({ register });
+    const req = {
+      body: {
+        email: 'al@example.com',
+        password: SAMPLE_PW,
+        source: '/notion-to-anki',
+      },
+    } as express.Request;
+    const res = buildRes();
+    const next = jest.fn();
+
+    await controller.register(req, res, next);
+
+    expect(register).toHaveBeenCalledWith(
+      expect.any(String),
+      'hashed',
+      'al@example.com',
+      expect.any(String),
+      '/notion-to-anki'
+    );
+  });
+
+  it('drops the signup_origin to null when source fails the allowlist regex', async () => {
+    const register = jest.fn().mockResolvedValue([{ id: 1 }]);
+    const { controller } = buildController({ register });
+    const req = {
+      body: {
+        email: 'al@example.com',
+        password: SAMPLE_PW,
+        source: '<script>alert(1)</script>',
+      },
+    } as express.Request;
+    const res = buildRes();
+    const next = jest.fn();
+
+    await controller.register(req, res, next);
+
+    expect(register).toHaveBeenCalledWith(
+      expect.any(String),
+      'hashed',
+      'al@example.com',
+      expect.any(String),
+      null
+    );
   });
 
   it('returns 400 when the email is already registered', async () => {
