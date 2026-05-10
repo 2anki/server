@@ -65,9 +65,10 @@ export default async function performConversion(
       await cancelJob.execute({
         id,
         owner,
-        reason: 'You have reached the limit of free jobs. Max 1 at a time.',
+        reason: 'Free plan — one conversion at a time',
       });
-      return res ? res.redirect('/downloads') : null;
+      console.info('[event] paywall_shown', { owner, attemptedJobId: id });
+      return res ? res.redirect('/downloads?paywall=1') : null;
     }
 
     console.log(`job ${id} is not active, starting`);

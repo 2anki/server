@@ -1,10 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 import { getVisibleText } from '../../lib/text/getVisibleText';
 import { get2ankiApi } from '../../lib/backend/get2ankiApi';
 import { getLifetimeLink, getSubscribeLink } from './payment.links';
 import { PricingCard } from './components/PricingCard';
 import TopMessage from '../../components/TopMessage/TopMessage';
+import { MONTHLY_PRICE, MONTHLY_SUFFIX } from './pricing.constants';
+import { firePaywallEvent } from '../../lib/analytics/firePaywallEvent';
 import styles from './PricingPage.module.css';
 
 interface PricingPageProps {
@@ -34,6 +37,14 @@ export default function PricingPage({
   const [hostedAnkiState, setHostedAnkiState] = useState<RequestState>(
     hostedAnkiRequested ? 'sent' : 'idle'
   );
+  const [searchParams] = useSearchParams();
+  const fromPaywall = searchParams.get('source') === 'paywall-cancel';
+
+  useEffect(() => {
+    if (fromPaywall) {
+      firePaywallEvent('paywall_pricing_viewed');
+    }
+  }, [fromPaywall]);
 
   const handleHostedAnkiRequest = async () => {
     if (!isLoggedIn) {
@@ -79,8 +90,8 @@ export default function PricingPage({
         <PricingCard
           className={styles.cardPro}
           badge="Best for most"
-          price="$6"
-          priceSuffix="/ mo"
+          price={MONTHLY_PRICE}
+          priceSuffix={MONTHLY_SUFFIX}
           title="Unlimited"
           benefits={[
             'Unlimited flashcards',
