@@ -16,9 +16,9 @@ interface PricingPageProps {
 type RequestState = 'idle' | 'pending' | 'sent' | 'error';
 
 const HOSTED_ANKI_LABELS: Record<RequestState, string> = {
-  idle: 'Request access',
-  pending: 'Sending…',
-  sent: 'Request sent ✓',
+  idle: 'Join the waitlist',
+  pending: 'Joining…',
+  sent: 'On the waitlist ✓',
   error: 'Try again',
 };
 
@@ -55,7 +55,8 @@ export default function PricingPage({
         <h1 className={styles.title}>{getVisibleText('pricing.page.title')}</h1>
         <TopMessage />
         <p className={styles.intro}>
-          Free for everyone — 100 cards per conversion.
+          Free for everyone — 100 cards per upload. Convert as often as you
+          like.
           {!isLoggedIn && (
             <>
               {' '}
@@ -63,26 +64,21 @@ export default function PricingPage({
             </>
           )}
         </p>
-        <p className={styles.intro}>
-          Lifetime ($345, includes Ankify) is application-only — email{' '}
-          <a href={lifetimeLink}>support@2anki.net</a>.
-        </p>
       </div>
 
       <div className={styles.grid}>
         <PricingCard
           price="$6 / mo"
-          title="Student"
+          title="Pro"
           benefits={[
             'Unlimited flashcards',
             'PDFs and large Notion exports',
             'Cancel anytime',
           ]}
           link={subcribeLink}
-          linkText="Subscribe"
+          linkText="Get Pro"
         />
         <PricingCard
-          price="$20 / mo"
           title="Hosted Anki"
           benefits={[
             'Convert once, sync forever',
@@ -95,6 +91,18 @@ export default function PricingPage({
           actionDisabled={
             hostedAnkiState === 'pending' || hostedAnkiState === 'sent'
           }
+        />
+        <PricingCard
+          price="$345"
+          title="Lifetime"
+          benefits={[
+            'Everything in Pro, paid once',
+            'Hosted Anki included',
+            'No future price changes',
+            'Application only',
+          ]}
+          link={lifetimeLink}
+          linkText="Apply"
         />
       </div>
     </div>
