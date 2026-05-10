@@ -2,16 +2,16 @@ import { describe, expect, it } from 'vitest';
 import { getPlanLabel, isPayingUser } from './getPlanLabel';
 
 describe('getPlanLabel', () => {
-  it('returns Patreon when locals.patreon is true', () => {
-    expect(getPlanLabel({ patreon: true })).toBe('Patreon');
+  it('returns Lifetime when locals.patreon is true', () => {
+    expect(getPlanLabel({ patreon: true })).toBe('Lifetime');
   });
 
-  it('returns Hosted Anki when only subscriber is true', () => {
-    expect(getPlanLabel({ subscriber: true })).toBe('Hosted Anki');
+  it('returns Unlimited when only subscriber is true', () => {
+    expect(getPlanLabel({ subscriber: true })).toBe('Unlimited');
   });
 
-  it('prefers Patreon when both flags are true', () => {
-    expect(getPlanLabel({ patreon: true, subscriber: true })).toBe('Patreon');
+  it('prefers Lifetime when both flags are true', () => {
+    expect(getPlanLabel({ patreon: true, subscriber: true })).toBe('Lifetime');
   });
 
   it('returns Free when neither flag is set', () => {

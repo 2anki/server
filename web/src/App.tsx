@@ -77,8 +77,6 @@ function AppContent({
   const { data, isLoading } = useUserLocals();
   const isLoggedIn = isLoading ? undefined : !!data?.user?.id;
   const isLoggedInResolved = isLoggedIn === true;
-  const isPaying =
-    !isLoading && (!!data?.locals?.patreon || !!data?.locals?.subscriber);
 
   const requireAuth = (element: ReactElement) => (
     <RequireAuth isLoggedIn={isLoggedInResolved} isLoading={isLoading}>
@@ -91,7 +89,6 @@ function AppContent({
       <AppShell
         error={error}
         isLoggedIn={isLoggedIn}
-        isPaying={isPaying}
         email={data?.user?.email}
         locals={data?.locals}
         features={data?.features}

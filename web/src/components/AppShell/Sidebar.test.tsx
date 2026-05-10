@@ -136,7 +136,7 @@ describe('Sidebar identity block', () => {
   it('renders the email and plan label', () => {
     renderSidebar({ email: 'alexander@alemayhu.com', patreon: true });
     expect(screen.getByText('alexander@alemayhu.com')).toBeInTheDocument();
-    expect(screen.getByText('Patreon')).toBeInTheDocument();
+    expect(screen.getByText('Lifetime')).toBeInTheDocument();
   });
 
   it('shows Free when neither plan flag is set', () => {

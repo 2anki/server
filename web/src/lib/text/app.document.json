@@ -29,7 +29,7 @@
   "navigation.experiments": "Experiments",
   "navigation.admin": "Admin",
   "navigation.plan.free": "Free",
-  "navigation.plan.subscriber": "Hosted Anki",
-  "navigation.plan.patreon": "Patreon",
+  "navigation.plan.subscriber": "Unlimited",
+  "navigation.plan.patreon": "Lifetime",
   "navigation.login.title": "Welcome!"
 }

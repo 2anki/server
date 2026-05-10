@@ -770,13 +770,6 @@
   opacity: 1;
 }
 
-.claudeLabel {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  cursor: pointer;
-}
-
 .avatar {
   width: 32px;
   height: 32px;

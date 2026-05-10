@@ -15,7 +15,6 @@ function shouldForceTopBar(pathname: string): boolean {
 
 interface AppShellProps {
   isLoggedIn: boolean | undefined;
-  isPaying: boolean;
   email: string | null | undefined;
   locals: SidebarLocals | undefined | null;
   features: SidebarFeatures | undefined | null;
@@ -25,7 +24,6 @@ interface AppShellProps {
 
 export function AppShell({
   isLoggedIn,
-  isPaying,
   email,
   locals,
   features,
@@ -51,7 +49,6 @@ export function AppShell({
         email={email}
         locals={locals}
         features={features}
-        isPaying={isPaying}
         onLogOut={onLogOut}
         error={error}
       >

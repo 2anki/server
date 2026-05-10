@@ -7,15 +7,13 @@ import { AppShell } from './AppShell';
 interface RenderOpts {
   pathname?: string;
   isLoggedIn: boolean | undefined;
-  isPaying?: boolean;
 }
 
-function renderShell({ pathname = '/', isLoggedIn, isPaying = false }: RenderOpts) {
+function renderShell({ pathname = '/', isLoggedIn }: RenderOpts) {
   return render(
     <MemoryRouter initialEntries={[pathname]}>
       <AppShell
         isLoggedIn={isLoggedIn}
-        isPaying={isPaying}
         email="alexander@alemayhu.com"
         locals={{ patreon: false, subscriber: false }}
         features={{ kiUI: false, ops: false }}
