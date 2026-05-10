@@ -12,63 +12,6 @@
   isolation: isolate;
 }
 
-.atmosphere {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: -1;
-  overflow: hidden;
-}
-
-.atmosphereGrid {
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(
-    circle at center,
-    rgba(31, 41, 55, 0.07) 1px,
-    transparent 1.25px
-  );
-  background-size: 22px 22px;
-  mask-image: radial-gradient(
-    ellipse 55% 60% at 50% 28%,
-    black 0%,
-    transparent 80%
-  );
-  -webkit-mask-image: radial-gradient(
-    ellipse 55% 60% at 50% 28%,
-    black 0%,
-    transparent 80%
-  );
-}
-
-.atmosphereGlow {
-  position: absolute;
-  top: -10rem;
-  right: -8rem;
-  width: 32rem;
-  height: 32rem;
-  background: radial-gradient(
-    circle,
-    rgba(59, 130, 246, 0.09) 0%,
-    transparent 70%
-  );
-  filter: blur(28px);
-}
-
-.atmosphereGlowSecondary {
-  position: absolute;
-  bottom: -12rem;
-  left: -6rem;
-  width: 26rem;
-  height: 26rem;
-  background: radial-gradient(
-    circle,
-    rgba(201, 169, 110, 0.08) 0%,
-    transparent 70%
-  );
-  filter: blur(28px);
-}
-
 /* =====================================================================
    HEADER
    ===================================================================== */

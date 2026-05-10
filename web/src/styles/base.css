@@ -78,7 +78,25 @@
 body {
   font-family: var(--font-sans);
   color: var(--color-text-primary);
-  background: var(--color-bg-primary);
+  background:
+    radial-gradient(
+      ellipse 90% 50% at 50% -8%,
+      rgba(59, 130, 246, 0.06) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      circle 26rem at 92% 12%,
+      rgba(99, 102, 241, 0.05) 0%,
+      transparent 65%
+    ),
+    radial-gradient(
+      circle at center,
+      rgba(31, 41, 55, 0.04) 1px,
+      transparent 1.25px
+    )
+      0 0 / 22px 22px,
+    var(--color-bg-primary);
+  background-attachment: fixed;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   margin: 0;

@@ -51,12 +51,6 @@ export default function PricingPage({
 
   return (
     <div className={styles.page}>
-      <div className={styles.atmosphere} aria-hidden="true">
-        <div className={styles.atmosphereGrid} />
-        <div className={styles.atmosphereGlow} />
-        <div className={styles.atmosphereGlowSecondary} />
-      </div>
-
       <div className={styles.header}>
         <p className={styles.kicker}>
           <span className={styles.kickerDot} aria-hidden="true" />
@@ -84,17 +78,17 @@ export default function PricingPage({
       <div className={styles.grid}>
         <PricingCard
           className={styles.cardPro}
-          badge="Most popular"
+          badge="Best for most"
           price="$6"
           priceSuffix="/ mo"
-          title="Pro"
+          title="Unlimited"
           benefits={[
             'Unlimited flashcards',
             'PDFs and large Notion exports',
             'Cancel anytime',
           ]}
           link={subcribeLink}
-          linkText="Get Pro"
+          linkText="Upgrade"
         />
         <PricingCard
           className={styles.cardHosted}
@@ -119,7 +113,7 @@ export default function PricingPage({
           priceRange
           title="Lifetime"
           benefits={[
-            'Everything in Pro, paid once',
+            'All Unlimited features, paid once',
             'Hosted Anki included',
             'No future price changes',
           ]}
