@@ -216,7 +216,8 @@ class UsersController {
       },
       locals,
       linked_email: linkedEmail,
-      features: featureFlags, // Add feature flags to response
+      features: featureFlags,
+      hostedAnkiRequested: user?.hosted_anki_requested_at != null,
     };
 
     return res.json(response);
@@ -249,6 +250,26 @@ class UsersController {
       console.info('Link email failed');
       console.error(error);
       return res.status(500).json({ message: 'Failed to link email' });
+    }
+  }
+
+  async requestHostedAnkiAccess(req: express.Request, res: express.Response) {
+    const { owner } = res.locals;
+    if (owner == null) {
+      return res.status(401).json({ message: 'Authentication required' });
+    }
+
+    try {
+      const result = await this.userService.requestHostedAnkiAccess(owner);
+      if (!result.ok) {
+        return res.status(500).json({ message: 'Could not send request' });
+      }
+      return res
+        .status(200)
+        .json({ ok: true, alreadyRequested: result.alreadyRequested ?? false });
+    } catch (error) {
+      console.error('Hosted Anki access request failed', error);
+      return res.status(500).json({ message: 'Could not send request' });
     }
   }
 

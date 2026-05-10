@@ -293,6 +293,12 @@ const UserRouter = () => {
     controller.deleteAccount(req, res)
   );
 
+  router.post(
+    '/api/users/request-hosted-anki-access',
+    RequireAuthentication,
+    (req, res) => controller.requestHostedAnkiAccess(req, res)
+  );
+
   /**
    * @swagger
    * /api/users/cancel-subscription:

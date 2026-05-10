@@ -19,6 +19,7 @@ interface GetUserLocalsResponse {
     kiUI: boolean;
     ops?: boolean;
   };
+  hostedAnkiRequested?: boolean;
 }
 
 export const getUserLocals = async (): Promise<GetUserLocalsResponse> =>

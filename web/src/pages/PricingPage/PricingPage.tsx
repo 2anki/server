@@ -1,4 +1,7 @@
+import { useState } from 'react';
+
 import { getVisibleText } from '../../lib/text/getVisibleText';
+import { get2ankiApi } from '../../lib/backend/get2ankiApi';
 import { getLifetimeLink, getSubscribeLink } from './payment.links';
 import { PricingCard } from './components/PricingCard';
 import TopMessage from '../../components/TopMessage/TopMessage';
@@ -7,65 +10,124 @@ import styles from './PricingPage.module.css';
 interface PricingPageProps {
   isLoggedIn: boolean;
   email?: string;
+  hostedAnkiRequested?: boolean;
 }
+
+type RequestState = 'idle' | 'pending' | 'sent' | 'error';
+
+const HOSTED_ANKI_LABELS: Record<RequestState, string> = {
+  idle: 'Join the waitlist',
+  pending: 'Joining…',
+  sent: 'On the waitlist ✓',
+  error: 'Try again',
+};
 
 export default function PricingPage({
   isLoggedIn,
   email,
+  hostedAnkiRequested,
 }: Readonly<PricingPageProps>) {
   const subcribeLink = isLoggedIn
     ? getSubscribeLink(email)
     : '/login?redirect=/pricing';
   const lifetimeLink = getLifetimeLink();
+  const [hostedAnkiState, setHostedAnkiState] = useState<RequestState>(
+    hostedAnkiRequested ? 'sent' : 'idle'
+  );
+
+  const handleHostedAnkiRequest = async () => {
+    if (!isLoggedIn) {
+      globalThis.location.href = '/login?redirect=/pricing';
+      return;
+    }
+    setHostedAnkiState('pending');
+    try {
+      await get2ankiApi().requestHostedAnkiAccess();
+      setHostedAnkiState('sent');
+    } catch {
+      setHostedAnkiState('error');
+    }
+  };
 
   return (
     <div className={styles.page}>
       <div className={styles.header}>
+        <p className={styles.kicker}>
+          <span className={styles.kickerDot} aria-hidden="true" />
+          <span>Plans</span>
+        </p>
         <h1 className={styles.title}>{getVisibleText('pricing.page.title')}</h1>
         <TopMessage />
-        <p className={styles.subtitle}>
-          Choose the plan that works best for you. Our monthly subscription can
-          be canceled at any time, while our lifetime access offers a one-time
-          payment solution with no recurring fees.
+        <p className={styles.intro}>
+          Free for everyone — 100 cards per upload. Convert as often as you
+          like.
+          {!isLoggedIn && (
+            <>
+              {' '}
+              <a href="/register" className={styles.introLink}>
+                Start free{' '}
+                <span className={styles.introArrow} aria-hidden="true">
+                  →
+                </span>
+              </a>
+            </>
+          )}
         </p>
       </div>
 
       <div className={styles.grid}>
         <PricingCard
-          title="Free Plan"
-          price="$0"
-          benefits={['100 flashcards and max upload (100mb)']}
-        />
-        <PricingCard
+          className={styles.cardPro}
+          badge="Best for most"
           price="$6"
-          title="Subscriber Plan - Monthly"
+          priceSuffix="/ mo"
+          title="Unlimited"
           benefits={[
-            'Unlimited Flashcards (9GB++)',
-            'PDF support using Vertex AI',
-            'Cancel anytime - no commitment required',
+            'Unlimited flashcards',
+            'PDFs and large Notion exports',
+            'Cancel anytime',
           ]}
           link={subcribeLink}
-          linkText="Subscribe"
+          linkText="Upgrade"
         />
         <PricingCard
-          price="$105"
-          title="Lifetime Access"
+          className={styles.cardHosted}
+          priceChip="Coming soon"
+          title="Hosted Anki"
           benefits={[
-            'Forever premium access to 2anki.net',
-            'PDF support using Vertex AI',
-            'One-time payment - no subscription needed',
+            'Convert once, sync forever',
+            'Notion edits flow to your decks automatically',
+            'No manual upload or download',
+          ]}
+          comingSoon
+          onAction={handleHostedAnkiRequest}
+          actionLabel={HOSTED_ANKI_LABELS[hostedAnkiState]}
+          actionDisabled={
+            hostedAnkiState === 'pending' || hostedAnkiState === 'sent'
+          }
+        />
+        <PricingCard
+          className={styles.cardLifetime}
+          price="$345"
+          priceSuffix="– $500"
+          priceRange
+          title="Lifetime"
+          benefits={[
+            'All Unlimited features, paid once',
+            'Hosted Anki included',
+            'No future price changes',
           ]}
           link={lifetimeLink}
-          linkText="Contact us"
+          linkText="Apply"
+          variant="outline"
+          caption="By application — we usually reply within a day."
         />
       </div>
 
-      <div className={styles.footer}>
-        <p>
-          Lifetime access is available by application only. Please contact{' '}
-          <a href="mailto:support@2anki.net">support@2anki.net</a> to apply.
-        </p>
-      </div>
+      <p className={styles.philosophy}>
+        You don't have to upgrade — free works forever. Paid plans unlock more,
+        and help fund 2anki.net.
+      </p>
     </div>
   );
 }
