@@ -17,53 +17,55 @@ export default function PricingPage({
     ? getSubscribeLink(email)
     : '/login?redirect=/pricing';
   const lifetimeLink = getLifetimeLink();
+  const freeLink = isLoggedIn ? undefined : '/register';
 
   return (
     <div className={styles.page}>
       <div className={styles.header}>
         <h1 className={styles.title}>{getVisibleText('pricing.page.title')}</h1>
         <TopMessage />
-        <p className={styles.subtitle}>
-          Choose the plan that works best for you. Our monthly subscription can
-          be canceled at any time, while our lifetime access offers a one-time
-          payment solution with no recurring fees.
-        </p>
       </div>
 
       <div className={styles.grid}>
         <PricingCard
-          title="Free Plan"
+          title="Free"
           price="$0"
-          benefits={['100 flashcards and max upload (100mb)']}
+          benefits={[
+            '100 cards a month',
+            'Try it on a real Notion page',
+          ]}
+          link={freeLink}
+          linkText={freeLink ? 'Start free' : undefined}
         />
         <PricingCard
           price="$6"
-          title="Subscriber Plan - Monthly"
+          title="Pro"
           benefits={[
-            'Unlimited Flashcards (9GB++)',
-            'PDF support using Vertex AI',
-            'Cancel anytime - no commitment required',
+            'Unlimited flashcards',
+            'PDFs and large Notion exports',
+            'Cancel anytime',
           ]}
           link={subcribeLink}
-          linkText="Subscribe"
+          linkText="Get Pro"
         />
         <PricingCard
           price="$105"
-          title="Lifetime Access"
+          title="Lifetime"
           benefits={[
-            'Forever premium access to 2anki.net',
-            'PDF support using Vertex AI',
-            'One-time payment - no subscription needed',
+            'All Pro features, paid once',
+            'No future price changes',
+            'One-time payment',
           ]}
           link={lifetimeLink}
-          linkText="Contact us"
+          linkText="Apply"
         />
       </div>
 
       <div className={styles.footer}>
         <p>
-          Lifetime access is available by application only. Please contact{' '}
-          <a href="mailto:support@2anki.net">support@2anki.net</a> to apply.
+          Lifetime is application-only — write to{' '}
+          <a href="mailto:support@2anki.net">support@2anki.net</a> and tell us
+          how you use 2anki.
         </p>
       </div>
     </div>

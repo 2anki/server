@@ -16,14 +16,6 @@
   margin: 0 0 1rem;
 }
 
-.subtitle {
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
-  max-width: 600px;
-  margin: 0 auto;
-  line-height: 1.6;
-}
-
 .grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
