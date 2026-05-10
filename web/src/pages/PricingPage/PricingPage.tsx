@@ -60,7 +60,9 @@ export default function PricingPage({
           {!isLoggedIn && (
             <>
               {' '}
-              <a href="/register">Start free →</a>
+              <a href="/register" className={styles.introLink}>
+                Start free →
+              </a>
             </>
           )}
         </p>
@@ -68,6 +70,7 @@ export default function PricingPage({
 
       <div className={styles.grid}>
         <PricingCard
+          className={styles.cardPro}
           price="$6 / mo"
           title="Pro"
           benefits={[
@@ -79,6 +82,8 @@ export default function PricingPage({
           linkText="Get Pro"
         />
         <PricingCard
+          className={styles.cardHosted}
+          priceChip="Coming soon"
           title="Hosted Anki"
           benefits={[
             'Convert once, sync forever',
@@ -93,16 +98,18 @@ export default function PricingPage({
           }
         />
         <PricingCard
-          price="$345"
+          className={styles.cardLifetime}
+          price="$345–$500"
           title="Lifetime"
           benefits={[
             'Everything in Pro, paid once',
             'Hosted Anki included',
             'No future price changes',
-            'Application only',
           ]}
           link={lifetimeLink}
           linkText="Apply"
+          variant="outline"
+          caption="By application — we usually reply within a day."
         />
       </div>
     </div>
