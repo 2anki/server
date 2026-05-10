@@ -5,11 +5,11 @@ import { SidebarLayout } from './SidebarLayout';
 import { SidebarFeatures, SidebarLocals } from './Sidebar';
 import { get2ankiApi } from '../../lib/backend/get2ankiApi';
 
-const TOP_BAR_PATHS = ['/login', '/register', '/forgot'];
+const TOP_BAR_PATHS = new Set(['/login', '/register', '/forgot']);
 const TOP_BAR_PREFIXES = ['/users/r/'];
 
 function shouldForceTopBar(pathname: string): boolean {
-  if (TOP_BAR_PATHS.includes(pathname)) return true;
+  if (TOP_BAR_PATHS.has(pathname)) return true;
   return TOP_BAR_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 }
 
