@@ -35,9 +35,9 @@ jobs:
             exit 0
           fi
 
-          CLEAN_MERGE=true
+          PRE_MERGE=$(git rev-parse HEAD)
+
           if ! git merge --no-edit origin/main; then
-            CLEAN_MERGE=false
             # ours = dependabot-updates (checked out), theirs = origin/main
             CONFLICTED=$(git diff --name-only --diff-filter=U)
             for f in $CONFLICTED; do
@@ -60,22 +60,23 @@ jobs:
                   ;;
               esac
             done
-          fi
-
-          # GITHUB_TOKEN can't push workflow file changes — revert any
-          # that came in from main (clean merge or conflict-resolved)
-          WORKFLOW_CHANGES=$(git diff HEAD~1 --name-only -- .github/workflows/ || true)
-          if [ -n "$WORKFLOW_CHANGES" ]; then
-            echo "$WORKFLOW_CHANGES" | xargs git checkout HEAD~1 --
-            git add .github/workflows/
-          fi
-
-          if [ "$CLEAN_MERGE" = false ]; then
             pnpm install --no-frozen-lockfile
             git add pnpm-lock.yaml
+            git commit --no-edit
           fi
 
-          # Amend the merge commit if anything was reverted or regenerated
+          # GITHUB_TOKEN can't push workflow file changes. Revert any
+          # workflow path the merge touched back to its pre-merge state:
+          # restore if it existed, remove if main added it.
+          WORKFLOW_CHANGES=$(git diff --name-only "$PRE_MERGE" HEAD -- .github/workflows/)
+          for f in $WORKFLOW_CHANGES; do
+            if git cat-file -e "$PRE_MERGE:$f" 2>/dev/null; then
+              git checkout "$PRE_MERGE" -- "$f"
+            else
+              git rm -f "$f"
+            fi
+          done
+
           if ! git diff --cached --quiet; then
             git commit --amend --no-edit
           fi
