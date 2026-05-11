@@ -1,6 +1,8 @@
 import express from 'express';
+import multer from 'multer';
 
 import RequireAuthentication from './middleware/RequireAuthentication';
+import RequireAllowedOrigin from './middleware/RequireAllowedOrigin';
 import ApkgController from '../controllers/ApkgController';
 import ApkgPreviewService from '../services/ApkgPreviewService/ApkgPreviewService';
 import DownloadService from '../services/DownloadService';
@@ -131,6 +133,18 @@ const ApkgRouter = () => {
     '/api/apkg/:key/media/:name',
     RequireAuthentication,
     (req, res) => controller.getMedia(req, res)
+  );
+
+  const pdfUpload = multer({
+    dest: process.env.UPLOAD_BASE ?? '/tmp',
+    limits: { fileSize: 100 * 1024 * 1024 },
+  });
+
+  router.post(
+    '/api/apkg/pdf',
+    RequireAllowedOrigin,
+    pdfUpload.single('file'),
+    (req, res) => controller.exportPdf(req, res)
   );
 
   return router;

@@ -3,6 +3,10 @@ import path from 'path';
 import StorageHandler from '../lib/storage/StorageHandler';
 import DownloadService from '../services/DownloadService';
 import ApkgPreviewService from '../services/ApkgPreviewService/ApkgPreviewService';
+import PdfRenderService from '../services/PdfRenderService';
+import ExportApkgToPdfUseCase, {
+  CardLimitExceededError,
+} from '../usecases/apkg/ExportApkgToPdfUseCase';
 import sendErrorResponse from '../lib/sendErrorResponse';
 
 const MEDIA_CONTENT_TYPES: Record<string, string> = {
@@ -53,7 +57,8 @@ function isApkg(key: string): boolean {
 class ApkgController {
   constructor(
     private readonly downloadService: DownloadService,
-    private readonly previewService: ApkgPreviewService
+    private readonly previewService: ApkgPreviewService,
+    private readonly pdfRenderService: PdfRenderService = new PdfRenderService()
   ) {}
 
   private async loadForKey(req: Request, res: Response) {
@@ -144,6 +149,56 @@ class ApkgController {
       console.info('APKG preview media failed');
       console.error(error);
       sendErrorResponse(error, res);
+    }
+  }
+
+  async exportPdf(req: Request, res: Response) {
+    try {
+      const file = req.file;
+      if (file == null) {
+        res.status(400).json({ message: 'No file uploaded.' });
+        return;
+      }
+      if (!isApkg(file.originalname)) {
+        res.status(400).json({ message: 'File must be an .apkg file.' });
+        return;
+      }
+      const fs = await import('fs/promises');
+      let fileBuffer: Buffer;
+      try {
+        fileBuffer = await fs.readFile(file.path);
+      } finally {
+        await fs.unlink(file.path).catch(() => {});
+      }
+      const useCase = new ExportApkgToPdfUseCase(
+        this.previewService,
+        this.pdfRenderService
+      );
+      const result = await useCase.execute(fileBuffer);
+      const safeName = file.originalname
+        .replace(/\.apkg$/i, '')
+        .replace(/[^\w\s.-]/g, '_');
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="${safeName}.pdf"`
+      );
+      res.send(result.pdf);
+    } catch (error) {
+      if (error instanceof CardLimitExceededError) {
+        res.status(400).json({ message: error.message });
+        return;
+      }
+      if (
+        error instanceof Error &&
+        (error.message.includes('No Anki collection') ||
+          error.message.includes('open failed'))
+      ) {
+        res.status(400).json({ message: 'Invalid .apkg file' });
+        return;
+      }
+      console.error(error);
+      res.status(500).json({ message: 'PDF generation failed.' });
     }
   }
 }
