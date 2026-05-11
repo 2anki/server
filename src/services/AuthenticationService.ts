@@ -53,8 +53,7 @@ class AuthenticationService {
       jwt.sign(
         { userId },
         process.env.SECRET!,
-        // TODO: let user decide expiry
-        // { expiresIn: "1d" },
+        { expiresIn: '1d' },
         (error: Error | null, token: string | undefined) => {
           if (error) {
             reject(error);
