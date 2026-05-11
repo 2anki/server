@@ -1,8 +1,11 @@
+import { decompress as zstdDecompress } from 'fzstd';
 import ApkgPreviewService, {
   ParsedApkg,
 } from '../../services/ApkgPreviewService/ApkgPreviewService';
 import PdfRenderService from '../../services/PdfRenderService';
 import { RenderedCard } from '../../services/ApkgPreviewService/types';
+
+const ZSTD_MAGIC = Buffer.from([0x28, 0xb5, 0x2f, 0xfd]);
 
 const MAX_CARDS = 500;
 
@@ -67,9 +70,12 @@ function replaceMediaWithBase64(
     if (archiveName == null) {
       return `${attr}=""`;
     }
-    const buffer = parsed.mediaEntries.get(archiveName);
+    let buffer = parsed.mediaEntries.get(archiveName);
     if (buffer == null) {
       return `${attr}=""`;
+    }
+    if (buffer.length >= 4 && buffer.subarray(0, 4).equals(ZSTD_MAGIC)) {
+      buffer = Buffer.from(zstdDecompress(new Uint8Array(buffer)));
     }
     const ext = extensionOf(nameOnly);
     const mime = IMAGE_MIME[ext] ?? 'application/octet-stream';
@@ -97,9 +103,15 @@ function processCardHtml(side: string, parsed: ParsedApkg): string {
   return result;
 }
 
+function stripFrontFromBack(back: string): string {
+  const hrIndex = back.search(/<hr\s*\/?>/i);
+  if (hrIndex === -1) return back;
+  return back.substring(hrIndex).replace(/<hr\s*\/?>/i, '');
+}
+
 function buildCardRow(card: RenderedCard, parsed: ParsedApkg): string {
   const front = processCardHtml(card.front, parsed);
-  const back = processCardHtml(card.back, parsed);
+  const back = processCardHtml(stripFrontFromBack(card.back), parsed);
   return `<tr>
     <td class="card-cell"><style scoped>${card.css}</style><div class="card-content">${front}</div></td>
     <td class="card-cell"><style scoped>${card.css}</style><div class="card-content">${back}</div></td>

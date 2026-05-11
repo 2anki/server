@@ -1,3 +1,4 @@
+import { decompress as zstdDecompress } from 'fzstd';
 import yauzl from 'yauzl';
 
 export interface ApkgArchive {
@@ -64,16 +65,14 @@ export async function extractApkg(bytes: Buffer): Promise<ApkgArchive> {
           reject(new Error('No Anki collection file found in archive'));
           return;
         }
+        let collectionBuffer = collections.get(name) as Buffer;
         if (name === 'collection.anki21b') {
-          reject(
-            new Error(
-              'This deck uses the zstd-compressed Anki 23.10+ format, which is not supported yet.'
-            )
+          collectionBuffer = Buffer.from(
+            zstdDecompress(new Uint8Array(collectionBuffer))
           );
-          return;
         }
         resolve({
-          collectionBuffer: collections.get(name) as Buffer,
+          collectionBuffer,
           collectionName: name,
           mediaManifestRaw,
           mediaEntries,
@@ -86,18 +85,112 @@ export async function extractApkg(bytes: Buffer): Promise<ApkgArchive> {
   });
 }
 
+const ZSTD_MAGIC = Buffer.from([0x28, 0xb5, 0x2f, 0xfd]);
+
+function isZstdCompressed(buf: Buffer): boolean {
+  return buf.length >= 4 && buf.subarray(0, 4).equals(ZSTD_MAGIC);
+}
+
+function parseProtobufMediaManifest(buf: Buffer): Map<string, string> {
+  const map = new Map<string, string>();
+  let entryIndex = 0;
+  let pos = 0;
+  while (pos < buf.length) {
+    let tag = 0;
+    let shift = 0;
+    while (pos < buf.length) {
+      const b = buf[pos++];
+      tag |= (b & 0x7f) << shift;
+      shift += 7;
+      if ((b & 0x80) === 0) break;
+    }
+    const wireType = tag & 7;
+    if (wireType === 2) {
+      let len = 0;
+      let lenShift = 0;
+      while (pos < buf.length) {
+        const b = buf[pos++];
+        len |= (b & 0x7f) << lenShift;
+        lenShift += 7;
+        if ((b & 0x80) === 0) break;
+      }
+      if ((tag >> 3) === 1) {
+        const sub = buf.subarray(pos, pos + len);
+        const name = readSubmessageString(sub, 1);
+        if (name) {
+          map.set(name, String(entryIndex));
+          entryIndex++;
+        }
+      }
+      pos += len;
+    } else if (wireType === 0) {
+      while (pos < buf.length && (buf[pos++] & 0x80) !== 0) {}
+    } else if (wireType === 5) {
+      pos += 4;
+    } else if (wireType === 1) {
+      pos += 8;
+    } else {
+      break;
+    }
+  }
+  return map;
+}
+
+function readSubmessageString(buf: Buffer, fieldNumber: number): string {
+  const wantTag = (fieldNumber << 3) | 2;
+  let pos = 0;
+  while (pos < buf.length) {
+    let tag = 0;
+    let shift = 0;
+    while (pos < buf.length) {
+      const b = buf[pos++];
+      tag |= (b & 0x7f) << shift;
+      shift += 7;
+      if ((b & 0x80) === 0) break;
+    }
+    const wireType = tag & 7;
+    if (wireType === 2) {
+      let len = 0;
+      let lenShift = 0;
+      while (pos < buf.length) {
+        const b = buf[pos++];
+        len |= (b & 0x7f) << lenShift;
+        lenShift += 7;
+        if ((b & 0x80) === 0) break;
+      }
+      if (tag === wantTag) {
+        return buf.subarray(pos, pos + len).toString('utf8');
+      }
+      pos += len;
+    } else if (wireType === 0) {
+      while (pos < buf.length && (buf[pos++] & 0x80) !== 0) {}
+    } else if (wireType === 5) {
+      pos += 4;
+    } else if (wireType === 1) {
+      pos += 8;
+    } else {
+      break;
+    }
+  }
+  return '';
+}
+
 export function parseMediaManifest(
   raw: Buffer | null
 ): Map<string, string> {
-  const map = new Map<string, string>();
-  if (!raw) return map;
+  if (!raw || raw.length === 0) return new Map();
+  let buf = raw;
+  if (isZstdCompressed(buf)) {
+    buf = Buffer.from(zstdDecompress(new Uint8Array(buf)));
+  }
   try {
-    const json = JSON.parse(raw.toString('utf8')) as Record<string, string>;
+    const json = JSON.parse(buf.toString('utf8')) as Record<string, string>;
+    const map = new Map<string, string>();
     for (const [archiveName, originalName] of Object.entries(json)) {
       map.set(originalName, archiveName);
     }
+    return map;
   } catch {
-    // Protobuf manifest not supported in slice 1; leave map empty.
+    return parseProtobufMediaManifest(buf);
   }
-  return map;
 }

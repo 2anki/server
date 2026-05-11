@@ -12,32 +12,21 @@ export default class PdfRenderService {
     try {
       const page = await browser.newPage();
       await page.setContent(html, { waitUntil: 'load' });
-      await page.evaluate(
-        (timeout) =>
-          new Promise<void>((resolve) => {
-            const start = Date.now();
-            const check = () => {
-              const mj = (globalThis as Record<string, unknown>).MathJax;
-              if (
-                mj &&
-                typeof mj === 'object' &&
-                'typesetPromise' in mj &&
-                typeof (mj as Record<string, unknown>).typesetPromise ===
-                  'function'
-              ) {
-                (mj as { typesetPromise: () => Promise<void> })
-                  .typesetPromise()
-                  .then(resolve)
-                  .catch(resolve);
-              } else if (Date.now() - start > timeout) {
-                resolve();
-              } else {
-                setTimeout(check, 200);
-              }
-            };
-            check();
-          }),
-        MATHJAX_SETTLE_MS
+      await page.waitForFunction(
+        `new Promise(function(resolve) {
+          var start = Date.now();
+          function check() {
+            if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
+              window.MathJax.typesetPromise().then(function() { resolve(true); }).catch(function() { resolve(true); });
+            } else if (Date.now() - start > ${MATHJAX_SETTLE_MS}) {
+              resolve(true);
+            } else {
+              setTimeout(check, 200);
+            }
+          }
+          check();
+        })`,
+        { timeout: PDF_TIMEOUT_MS }
       );
       const pdf = await page.pdf({
         format: 'A4',

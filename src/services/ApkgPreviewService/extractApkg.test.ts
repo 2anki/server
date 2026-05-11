@@ -93,11 +93,19 @@ describe('extractApkg + parseCollection composition', () => {
     expect(() => parseCollection(apkg)).toThrow(/not a database/i);
   });
 
-  it('rejects zstd-compressed Anki 23.10+ archives with a clear message', async () => {
-    const apkg = await buildApkgZip(
-      'collection.anki21b',
-      Buffer.from('zstd-compressed-bytes-here')
-    );
-    await expect(extractApkg(apkg)).rejects.toThrow(/zstd-compressed/i);
+  it('decompresses zstd-compressed collection.anki21b archives', async () => {
+    const zlib = await import('zlib');
+    const { promisify } = await import('util');
+    const zstdCompress = promisify(zlib.zstdCompress);
+    const sqliteBuffer = buildLegacyCollectionBuffer();
+    const compressed = await zstdCompress(sqliteBuffer);
+    const apkg = await buildApkgZip('collection.anki21b', compressed);
+
+    const archive = await extractApkg(apkg);
+    const collection = parseCollection(archive.collectionBuffer);
+
+    expect(archive.collectionName).toBe('collection.anki21b');
+    expect(collection.notes.size).toBe(1);
+    expect(collection.notes.get(10)?.fields).toEqual(['hello', 'world']);
   });
 });
