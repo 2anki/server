@@ -1,12 +1,7 @@
 version: 2
 updates:
-  # All updates target the long-lived `dependabot-updates` branch.
-  # That branch is then merged manually into main as a single PR,
-  # so dependency bumps trigger one production deploy instead of N.
-  # See .github/workflows/dependabot-*.yml for the automation.
   - package-ecosystem: 'npm'
     directory: '/'
-    target-branch: 'dependabot-updates'
     schedule:
       interval: 'weekly'
     open-pull-requests-limit: 10
@@ -24,7 +19,6 @@ updates:
 
   - package-ecosystem: 'npm'
     directory: '/web'
-    target-branch: 'dependabot-updates'
     schedule:
       interval: 'weekly'
     open-pull-requests-limit: 10
@@ -40,10 +34,8 @@ updates:
           - 'minor'
           - 'patch'
 
-  # GitHub Actions — one PR per week for all workflow updates.
   - package-ecosystem: 'github-actions'
     directory: '/'
-    target-branch: 'dependabot-updates'
     schedule:
       interval: 'weekly'
     open-pull-requests-limit: 5
