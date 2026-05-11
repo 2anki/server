@@ -40,9 +40,8 @@ const UNSUPPORTED_DATA_SOURCE_MESSAGE =
 const TOO_LARGE_MESSAGE =
   'This page is too large for us to convert in one go. Split it into smaller pages — or convert it section by section — and try again.';
 
-function genericMessage(jobId: string | undefined): string {
-  const idPart = jobId ?? 'unavailable';
-  return `Something went wrong on our end converting this page. Email support@2anki.net with job ID ${idPart} and we'll take a look.`;
+function genericMessage(jobId = 'unavailable'): string {
+  return `Something went wrong on our end converting this page. Email support@2anki.net with job ID ${jobId} and we'll take a look.`;
 }
 
 function hasInvalidMarkupSignature(output: string): boolean {
