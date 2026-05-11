@@ -22,12 +22,7 @@ def quiet_pass():
 
 
 def soft_nudge(message):
-    print(json.dumps({
-        "hookSpecificOutput": {
-            "hookEventName": "Stop",
-            "additionalContext": message,
-        }
-    }))
+    print(json.dumps({"systemMessage": message}))
     sys.exit(0)
 
 

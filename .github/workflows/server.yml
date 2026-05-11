@@ -20,7 +20,6 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 22.20.0
-          cache: pnpm
       - name: Cache node_modules
         id: modules-cache
         uses: actions/cache@v4
@@ -35,7 +34,7 @@ jobs:
         env:
           CI: true
       - name: Build
-        run: pnpm --filter notion2anki-server build
+        run: pnpm build
         env:
           CI: true
 
@@ -49,7 +48,6 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 22.20.0
-          cache: pnpm
       - name: Cache node_modules
         id: modules-cache
         uses: actions/cache@v4
@@ -64,7 +62,7 @@ jobs:
         env:
           CI: true
       - name: Test
-        run: pnpm --filter notion2anki-server test
+        run: pnpm test
         env:
           CI: true
           NOTION_KEY: ${{ secrets.NOTION_KEY }}
