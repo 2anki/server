@@ -21,7 +21,6 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 22.20.0
-          cache: pnpm
       - name: Cache node_modules
         id: modules-cache
         uses: actions/cache@v4
@@ -49,7 +48,6 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 22.20.0
-          cache: pnpm
       - name: Cache node_modules
         id: modules-cache
         uses: actions/cache@v4
@@ -88,7 +86,6 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 22.20.0
-          cache: pnpm
       - name: Cache node_modules
         id: modules-cache
         uses: actions/cache@v4
@@ -117,7 +114,6 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           node-version: 22.20.0
-          cache: pnpm
       - name: Cache node_modules
         id: modules-cache
         uses: actions/cache@v4
