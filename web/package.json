@@ -48,21 +48,21 @@
     "universal-cookie": "^8.1.2"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.14",
+    "@biomejs/biome": "^2.4.15",
     "@playwright/test": "^1.59.1",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
-    "@types/node": "^25.6.0",
+    "@types/node": "^25.6.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@types/swagger-ui-express": "^4.1.8",
     "@vitejs/plugin-legacy": "^8.0.1",
     "@vitejs/plugin-react": "^6.0.1",
     "@vitest/coverage-v8": "^4.1.5",
-    "@vitest/ui": "^4.1.5",
+    "@vitest/ui": "^4.1.6",
     "autoprefixer": "^10.5.0",
     "concurrently": "^9.2.1",
     "cors": "^2.8.6",
@@ -72,13 +72,13 @@
     "jsdom": "^29.1.1",
     "playwright": "^1.59.1",
     "postcss-selector-parser": "^7.1.1",
-    "swagger-typescript-api": "^13.7.2",
+    "swagger-typescript-api": "^13.9.1",
     "swagger-ui-express": "^5.0.1",
-    "terser": "^5.46.2",
+    "terser": "^5.47.1",
     "typescript": "^6.0.3",
-    "vite": "^8.0.10",
+    "vite": "^8.0.12",
     "vite-plugin-svgr": "^5.2.0",
-    "vitest": "^4.1.5"
+    "vitest": "^4.1.6"
   },
   "browserslist": {
     "production": [
