@@ -3,6 +3,7 @@ import multer from 'multer';
 
 import RequireAuthentication from './middleware/RequireAuthentication';
 import RequireAllowedOrigin from './middleware/RequireAllowedOrigin';
+import { isPaying } from '../lib/isPaying';
 import ApkgController from '../controllers/ApkgController';
 import ApkgPreviewService from '../services/ApkgPreviewService/ApkgPreviewService';
 import DownloadService from '../services/DownloadService';
@@ -143,6 +144,13 @@ const ApkgRouter = () => {
   router.post(
     '/api/apkg/pdf',
     RequireAllowedOrigin,
+    RequireAuthentication,
+    (req, res, next) => {
+      if (isPaying(res.locals)) return next();
+      return res.status(403).json({
+        message: 'PDF export is available to subscribers and lifetime members.',
+      });
+    },
     pdfUpload.single('file'),
     (req, res) => controller.exportPdf(req, res)
   );

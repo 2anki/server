@@ -85,15 +85,7 @@ function replaceMediaWithBase64(
 }
 
 function replaceMissingMediaPlaceholders(html: string): string {
-  return html.replace(
-    /data-missing-media="([^"]+)"/g,
-    (_match, name: string) => {
-      if (isAudioOrVideo(name)) {
-        return '';
-      }
-      return '';
-    }
-  );
+  return html.replace(/data-missing-media="[^"]+"/g, '');
 }
 
 function processCardHtml(side: string, parsed: ParsedApkg): string {
@@ -155,7 +147,7 @@ function buildHtml(deckName: string, cards: RenderedCard[], parsed: ParsedApkg):
 </style>
 <script>
 window.MathJax = {
-  tex: { inlineMath: [['\\\\(','\\\\)'], ['$','$']], displayMath: [['\\\\[','\\\\]'], ['$$','$$']] },
+  tex: { inlineMath: [['\\(','\\)'], ['$','$']], displayMath: [['\\[','\\]'], ['$$','$$']] },
   startup: { typeset: true }
 };
 </script>

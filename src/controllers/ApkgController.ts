@@ -163,7 +163,7 @@ class ApkgController {
         res.status(400).json({ message: 'File must be an .apkg file.' });
         return;
       }
-      const fs = await import('fs/promises');
+      const fs = await import('node:fs/promises');
       let fileBuffer: Buffer;
       try {
         fileBuffer = await fs.readFile(file.path);
