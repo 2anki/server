@@ -2,11 +2,13 @@ import express from 'express';
 
 import { GetOpsMetricsUseCase } from '../usecases/ops/GetOpsMetricsUseCase';
 import { GetBusinessMetricsUseCase } from '../usecases/ops/GetBusinessMetricsUseCase';
+import { GetConversionMetricsUseCase } from '../usecases/ops/GetConversionMetricsUseCase';
 
 class OpsController {
   constructor(
     private readonly getOpsMetrics: GetOpsMetricsUseCase,
-    private readonly getBusinessMetricsUseCase?: GetBusinessMetricsUseCase
+    private readonly getBusinessMetricsUseCase?: GetBusinessMetricsUseCase,
+    private readonly getConversionMetricsUseCase?: GetConversionMetricsUseCase
   ) {}
 
   async getMetrics(req: express.Request, res: express.Response) {
@@ -31,6 +33,20 @@ class OpsController {
     } catch (error) {
       console.error('[ops] getBusinessMetrics failed', error);
       res.status(500).json({ message: 'Failed to load business metrics' });
+    }
+  }
+
+  async getConversionMetrics(_req: express.Request, res: express.Response) {
+    if (this.getConversionMetricsUseCase == null) {
+      res.status(500).json({ message: 'Conversion metrics not configured' });
+      return;
+    }
+    try {
+      const result = await this.getConversionMetricsUseCase.execute();
+      res.status(200).json(result);
+    } catch (error) {
+      console.error('[ops] getConversionMetrics failed', error);
+      res.status(500).json({ message: 'Failed to load conversion metrics' });
     }
   }
 }
