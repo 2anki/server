@@ -35,7 +35,7 @@ jobs:
         env:
           CI: true
       - name: Build
-        run: pnpm --filter notion2anki-server build
+        run: pnpm build
         env:
           CI: true
 
@@ -64,7 +64,7 @@ jobs:
         env:
           CI: true
       - name: Test
-        run: pnpm --filter notion2anki-server test
+        run: pnpm test
         env:
           CI: true
           NOTION_KEY: ${{ secrets.NOTION_KEY }}
