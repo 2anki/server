@@ -3,6 +3,8 @@ import crypto from 'crypto';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
+
+import { readString } from './protobuf';
 import {
   Card,
   Deck,
@@ -120,45 +122,6 @@ function loadLegacyDecks(db: Database.Database): Map<number, Deck> {
   return map;
 }
 
-function readProtobufString(buf: Buffer, fieldNumber: number): string {
-  const wantTag = (fieldNumber << 3) | 2;
-  let pos = 0;
-  while (pos < buf.length) {
-    let tag = 0;
-    let shift = 0;
-    while (pos < buf.length) {
-      const byte = buf[pos++];
-      tag |= (byte & 0x7f) << shift;
-      shift += 7;
-      if ((byte & 0x80) === 0) break;
-    }
-    const wireType = tag & 0x07;
-    if (wireType === 2) {
-      let len = 0;
-      let lenShift = 0;
-      while (pos < buf.length) {
-        const byte = buf[pos++];
-        len |= (byte & 0x7f) << lenShift;
-        lenShift += 7;
-        if ((byte & 0x80) === 0) break;
-      }
-      if (tag === wantTag) {
-        return buf.subarray(pos, pos + len).toString('utf8');
-      }
-      pos += len;
-    } else if (wireType === 0) {
-      while (pos < buf.length && (buf[pos++] & 0x80) !== 0) {}
-    } else if (wireType === 5) {
-      pos += 4;
-    } else if (wireType === 1) {
-      pos += 8;
-    } else {
-      break;
-    }
-  }
-  return '';
-}
-
 function getTableColumns(db: Database.Database, table: string): Set<string> {
   const rows = db
     .prepare(`SELECT name FROM pragma_table_info('${table}')`)
@@ -208,7 +171,7 @@ function loadModernNoteTypes(db: Database.Database): Map<number, NoteType> {
   const map = new Map<number, NoteType>();
   for (const row of noteTypeRows) {
     const cfg = row.config;
-    const css = cfg ? readProtobufString(cfg, 3) : '';
+    const css = cfg ? readString(cfg, 3) : '';
     map.set(row.id, {
       id: row.id,
       name: row.name,
@@ -223,8 +186,8 @@ function loadModernNoteTypes(db: Database.Database): Map<number, NoteType> {
   }
   for (const tmpl of templateRows) {
     const cfg = tmpl.config;
-    const qfmt = cfg ? readProtobufString(cfg, 1) : '';
-    const afmt = cfg ? readProtobufString(cfg, 2) : '';
+    const qfmt = cfg ? readString(cfg, 1) : '';
+    const afmt = cfg ? readString(cfg, 2) : '';
     map.get(tmpl.ntid)?.templates.push({
       name: tmpl.name,
       ord: tmpl.ord,
