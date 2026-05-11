@@ -97,6 +97,7 @@ export default function PricingPage({
             'Unlimited flashcards',
             'Run multiple conversions at once',
             'PDFs and large Notion exports',
+            'Print decks to PDF',
             'Cancel anytime',
           ]}
           link={subcribeLink}
