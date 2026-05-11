@@ -95,6 +95,7 @@ export default function PricingPage({
           title="Unlimited"
           benefits={[
             'Unlimited flashcards',
+            'Run multiple conversions at once',
             'PDFs and large Notion exports',
             'Cancel anytime',
           ]}

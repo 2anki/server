@@ -27,6 +27,13 @@ const renderAt = (path: string) =>
     </MemoryRouter>
   );
 
+describe('PricingPage Unlimited benefits', () => {
+  it('lists parallel conversions as a benefit', () => {
+    const { getByText } = renderAt('/pricing');
+    expect(getByText('Run multiple conversions at once')).toBeInTheDocument();
+  });
+});
+
 describe('PricingPage paywall telemetry', () => {
   beforeEach(() => {
     (globalThis as AnalyticsGlobals).hj = vi.fn();
