@@ -245,6 +245,28 @@ test('Notion new export: deeply nested toggles (3 levels)', async () => {
   expect(deck.cards[0].back).toContain('summary');
 });
 
+test('Nested toggles produce one card without maxOne (new format)', async () => {
+  const deck = await getDeck(
+    'Notion Page grandchildren 2ce7ab29a11e809998e3d22ed65fc5f2.html',
+    new CardOption({ 'max-one-toggle-per-card': 'false', cherry: 'false', all: 'true', 'enable-input': 'false' })
+  );
+
+  expect(deck.cards.length).toBe(1);
+  expect(deck.cards[0].name).toContain('Parent');
+  expect(deck.cards[0].back).toContain('Child');
+});
+
+test('Nested toggles produce one card without maxOne (legacy format)', async () => {
+  const deck = await getDeck(
+    'Nested Toggles.html',
+    new CardOption({ 'max-one-toggle-per-card': 'false', cherry: 'false', all: 'true', 'enable-input': 'false' })
+  );
+
+  expect(deck.cards.length).toBe(1);
+  expect(deck.cards[0].name).toContain('Parent');
+  expect(deck.cards[0].back).toContain('Capital');
+});
+
 describe('removeNewlinesInSVGPathAttributeD', () => {
   const newParser = () =>
     new DeckParser({

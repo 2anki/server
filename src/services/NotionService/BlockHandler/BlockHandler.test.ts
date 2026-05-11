@@ -381,12 +381,10 @@ describe('BlockHandler', () => {
     expect(flashcards.length).toBeGreaterThan(0);
     const card = flashcards[0];
     
-    // Should contain both cloze syntax and <br /> tags for newlines
-    expect(card.name).toBe('Mult-line cloze <br />{{c1::First}}<br />{{c2::Second}} <br />{{c3::Third}}');
     expect(card.name).toContain('{{c1::First}}');
     expect(card.name).toContain('{{c2::Second}}');
     expect(card.name).toContain('{{c3::Third}}');
-    expect(card.name).toContain('<br />');
+    expect(card.name).not.toContain('<br />');
   });
 
   test('Cloze Deletion from Blocks', async () => {
@@ -521,5 +519,50 @@ describe('BlockHandler', () => {
   test.todo('Just the Reversed Flashcards');
   test.todo('Remove Underlines');
   test.todo('Download Media Files');
-  test.todo('Preserve Newlines in the Toggle Header and Body');
+  test('Cloze respects preserve-newlines setting', async () => {
+    const mockToggleBlock = {
+      object: "block" as const,
+      id: "preserve-nl-test",
+      parent: { type: "page_id" as const, page_id: "page-id" },
+      created_time: "",
+      last_edited_time: "",
+      created_by: { object: "user" as const, id: "user-id" },
+      last_edited_by: { object: "user" as const, id: "user-id" },
+      has_children: false,
+      archived: false,
+      in_trash: false,
+      type: "toggle" as const,
+      toggle: {
+        rich_text: [
+          {
+            type: "text" as const,
+            text: { content: "Line one\n", link: null },
+            annotations: { bold: false, italic: false, strikethrough: false, underline: false, code: false, color: "default" as const },
+            plain_text: "Line one\n",
+            href: null
+          },
+          {
+            type: "text" as const,
+            text: { content: "Answer", link: null },
+            annotations: { bold: false, italic: false, strikethrough: false, underline: false, code: true, color: "default" as const },
+            plain_text: "Answer",
+            href: null
+          }
+        ],
+        color: "default" as const
+      }
+    };
+
+    const settingsOn = new CardOption({ cloze: 'true', 'perserve-newlines': 'true' });
+    const exporterOn = new CustomExporter('', new Workspace(true, 'fs').location);
+    const blOn = new BlockHandler(exporterOn, api, settingsOn);
+    const cardsOn = await blOn.getFlashcards(new ParserRules(), [mockToggleBlock], [], undefined);
+    expect(cardsOn[0].name).toContain('<br />');
+
+    const settingsOff = new CardOption({ cloze: 'true', 'perserve-newlines': 'false' });
+    const exporterOff = new CustomExporter('', new Workspace(true, 'fs').location);
+    const blOff = new BlockHandler(exporterOff, api, settingsOff);
+    const cardsOff = await blOff.getFlashcards(new ParserRules(), [mockToggleBlock], [], undefined);
+    expect(cardsOff[0].name).not.toContain('<br />');
+  });
 });
