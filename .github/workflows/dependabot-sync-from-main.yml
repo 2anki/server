@@ -55,6 +55,13 @@ jobs:
                 git checkout --ours "$f"
                 git add "$f"
                 ;;
+              .github/workflows/*)
+                # GITHUB_TOKEN lacks `workflows` permission to push
+                # workflow changes — keep ours, main's version arrives
+                # via the merge-back PR
+                git checkout --ours "$f"
+                git add "$f"
+                ;;
               *.yml|*.yaml)
                 git checkout --theirs "$f"
                 git add "$f"
