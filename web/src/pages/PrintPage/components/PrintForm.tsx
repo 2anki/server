@@ -156,6 +156,16 @@ export default function PrintForm() {
         />
       </label>
 
+      {isUploading && (
+        <div
+          className={styles.notificationInfo}
+          style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '1rem' }}
+        >
+          <div className={styles.spinnerSmall} />
+          <span>Making your PDF — please keep this tab open until the download starts.</span>
+        </div>
+      )}
+
       {state === 'done' && (
         <p className={styles.notificationSuccess}>
           Your flashcards as a PDF{cardCount == null ? '' : ` — ${cardCount} cards`}
