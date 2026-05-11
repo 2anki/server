@@ -24,7 +24,10 @@ interface Prop {
 export function FinishedJobs({ uploads, deleteUpload, doneJobs = [], deleteJob }: Prop) {
   const [deletingKey, setDeletingKey] = useState<string | null>(null);
 
-  if ((!uploads || uploads.length === 0) && doneJobs.length === 0) {
+  const uploadObjectIds = new Set((uploads ?? []).map((u) => u.object_id));
+  const uniqueDoneJobs = doneJobs.filter((j) => !uploadObjectIds.has(j.object_id));
+
+  if ((!uploads || uploads.length === 0) && uniqueDoneJobs.length === 0) {
     return null;
   }
 
@@ -60,7 +63,7 @@ export function FinishedJobs({ uploads, deleteUpload, doneJobs = [], deleteJob }
             </tr>
           </thead>
           <tbody>
-            {doneJobs.map((j) => (
+            {uniqueDoneJobs.map((j) => (
               <tr key={j.id}>
                 <td>
                   <span data-hj-suppress className={styles.fileName}>
