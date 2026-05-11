@@ -128,6 +128,14 @@ function collectAllCards(
   return all;
 }
 
+const MATHJAX_CONFIG = String.raw`<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)'], ['$','$']], displayMath: [['\\[','\\]'], ['$$','$$']] },
+  startup: { typeset: true }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>`;
+
 function buildHtml(deckName: string, cards: RenderedCard[], parsed: ParsedApkg): string {
   const rows = cards.map((card) => buildCardRow(card, parsed)).join('\n');
   return `<!DOCTYPE html>
@@ -145,13 +153,7 @@ function buildHtml(deckName: string, cards: RenderedCard[], parsed: ParsedApkg):
   .card-content img { max-width: 100%; height: auto; }
   @media print { body { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
 </style>
-<script>
-window.MathJax = {
-  tex: { inlineMath: [['\\(','\\)'], ['$','$']], displayMath: [['\\[','\\]'], ['$$','$$']] },
-  startup: { typeset: true }
-};
-</script>
-<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+${MATHJAX_CONFIG}
 </head>
 <body>
 <h1>${escapeHtml(deckName)}</h1>
