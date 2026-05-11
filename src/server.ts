@@ -33,6 +33,7 @@ import {
 } from './routes/AnkifySessionProxyRouter';
 import templatesRouter from './routes/TemplatesRouter';
 import defaultRouter from './routes/DefaultRouter';
+import rejectScannerProbes from './routes/middleware/rejectScannerProbes';
 import webhookRouter from './routes/WebhookRouter';
 import ankifyWebhookRouter from './routes/AnkifyWebhookRouter';
 import swaggerRouter from './routes/SwaggerRouter';
@@ -100,6 +101,7 @@ const serve = async () => {
   app.use(templatesRouter());
   app.use(opsRouter());
 
+  app.use(rejectScannerProbes);
   // Note: this has to be the last router
   app.use(defaultRouter());
 

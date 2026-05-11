@@ -1,7 +1,19 @@
-import { defineConfig, loadEnv } from 'vite';
+import { defineConfig, loadEnv, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import svgr from 'vite-plugin-svgr';
 import path from 'node:path';
+import { emitLandingPages } from './scripts/prerenderLandingPages';
+
+function landingPrerender(): Plugin {
+  return {
+    name: '2anki-landing-prerender',
+    apply: 'build',
+    closeBundle() {
+      const buildDir = path.resolve(__dirname, 'build');
+      emitLandingPages(buildDir);
+    },
+  };
+}
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command, mode }) => {
@@ -19,6 +31,7 @@ export default defineConfig(({ command, mode }) => {
         },
         include: '**/*.svg',
       }),
+      landingPrerender(),
     ],
 
     // Test configuration
@@ -27,7 +40,10 @@ export default defineConfig(({ command, mode }) => {
       environment: 'jsdom',
       setupFiles: ['./src/setupTests.ts'],
       css: true,
-      include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+      include: [
+        'src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+        'scripts/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts}',
+      ],
       exclude: ['tests/**/*', 'e2e/**/*'],
       coverage: {
         provider: 'v8',

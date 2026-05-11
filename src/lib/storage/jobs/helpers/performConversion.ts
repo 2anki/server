@@ -17,6 +17,7 @@ import { BuildDeckForJobUseCase } from '../../../../usecases/jobs/BuildDeckForJo
 import { CompleteJobUseCase } from '../../../../usecases/jobs/CompleteJobUseCase';
 import { NotifyUserUseCase } from '../../../../usecases/jobs/NotifyUserUseCase';
 import { jobFailureReasonFromError } from '../../../../usecases/jobs/jobFailureReason';
+import { PythonExitError } from '../../../anki/buildPythonExitError';
 
 interface ConversionRequest {
   title: string;
@@ -65,9 +66,10 @@ export default async function performConversion(
       await cancelJob.execute({
         id,
         owner,
-        reason: 'You have reached the limit of free jobs. Max 1 at a time.',
+        reason: 'Free plan — one conversion at a time',
       });
-      return res ? res.redirect('/downloads') : null;
+      console.info('[event] paywall_shown', { owner, attemptedJobId: id });
+      return res ? res.redirect('/downloads?paywall=1') : null;
     }
 
     console.log(`job ${id} is not active, starting`);
@@ -137,8 +139,16 @@ export default async function performConversion(
     const completeJob = new CompleteJobUseCase(jobRepository);
     await completeJob.execute(id, owner);
   } catch (error) {
+    if (error instanceof PythonExitError) {
+      console.error('[conversion] python crash', {
+        jobId: id,
+        kind: error.kind,
+        code: error.code,
+        rawOutput: error.rawOutput,
+      });
+    }
     const failedJob = new SetJobFailedUseCase(jobRepository);
-    await failedJob.execute(id, owner, jobFailureReasonFromError(error));
+    await failedJob.execute(id, owner, jobFailureReasonFromError(error, id));
 
     if (waitingResponse) {
       res?.status(400).send('conversion failed.');

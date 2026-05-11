@@ -27,6 +27,8 @@ export default interface Users {
   last_login_at: Date | null;
 
   hosted_anki_requested_at: Date | null;
+
+  signup_origin: string | null;
 }
 
 /** Represents the initializer for the table public.users */
@@ -57,6 +59,8 @@ export interface UsersInitializer {
   last_login_at?: Date | null;
 
   hosted_anki_requested_at?: Date | null;
+
+  signup_origin?: string | null;
 }
 
 /** Represents the mutator for the table public.users */
@@ -82,4 +86,6 @@ export interface UsersMutator {
   last_login_at?: Date | null;
 
   hosted_anki_requested_at?: Date | null;
+
+  signup_origin?: string | null;
 }

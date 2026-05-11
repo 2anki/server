@@ -56,6 +56,29 @@ jest.mock('../services/ops/BusinessMetricsService', () => {
   };
 });
 
+jest.mock('../services/ops/ConversionMetricsService', () => {
+  return {
+    ConversionMetricsService: class {
+      async getMetrics() {
+        return {
+          free_conversions_7d: 342,
+          paid_conversions_7d: 89,
+          free_conversion_success_rate_7d: 87.5,
+          paid_conversion_success_rate_7d: 94.2,
+          conversion_errors_7d_top_reasons: [
+            { reason: 'Empty page', count: 12 },
+            { reason: 'Network timeout', count: 5 },
+          ],
+          failed_conversions_weekly: [
+            { week: '2026-05-04', count: 3 },
+            { week: '2026-05-11', count: 8 },
+          ],
+        };
+      }
+    },
+  };
+});
+
 import OpsRouter from './OpsRouter';
 
 const opsAccessState = (globalThis as unknown as {
@@ -66,7 +89,8 @@ const setOwnerAccess = (allow: boolean) => {
   opsAccessState.allow = allow;
 };
 
-const startServer = async () => {
+const startServer = async (allowOps: boolean = false) => {
+  setOwnerAccess(allowOps);
   const app = express();
   app.use(OpsRouter());
   const server = http.createServer(app);
@@ -84,8 +108,7 @@ const startServer = async () => {
 
 describe('OpsRouter /api/ops/business/metrics', () => {
   it('returns 404 for non-owner callers', async () => {
-    setOwnerAccess(false);
-    const { url, close } = await startServer();
+    const { url, close } = await startServer(false);
     try {
       const response = await fetch(`${url}/api/ops/business/metrics`);
       expect(response.status).toBe(404);
@@ -95,8 +118,7 @@ describe('OpsRouter /api/ops/business/metrics', () => {
   });
 
   it('returns 200 with the business metrics shape for the ops owner', async () => {
-    setOwnerAccess(true);
-    const { url, close } = await startServer();
+    const { url, close } = await startServer(true);
     try {
       const response = await fetch(`${url}/api/ops/business/metrics`);
       expect(response.status).toBe(200);
@@ -111,6 +133,39 @@ describe('OpsRouter /api/ops/business/metrics', () => {
           new_paid_conversions_7d: expect.any(Number),
           as_of: expect.any(String),
           cache_age_seconds: expect.any(Number),
+        })
+      );
+    } finally {
+      await close();
+    }
+  });
+});
+
+describe('OpsRouter /api/ops/conversion/metrics', () => {
+  it('returns 404 for non-owner callers', async () => {
+    const { url, close } = await startServer(false);
+    try {
+      const response = await fetch(`${url}/api/ops/conversion/metrics`);
+      expect(response.status).toBe(404);
+    } finally {
+      await close();
+    }
+  });
+
+  it('returns 200 with the conversion metrics shape for the ops owner', async () => {
+    const { url, close } = await startServer(true);
+    try {
+      const response = await fetch(`${url}/api/ops/conversion/metrics`);
+      expect(response.status).toBe(200);
+      const body = await response.json();
+      expect(body).toEqual(
+        expect.objectContaining({
+          free_conversions_7d: expect.any(Number),
+          paid_conversions_7d: expect.any(Number),
+          free_conversion_success_rate_7d: expect.any(Number),
+          paid_conversion_success_rate_7d: expect.any(Number),
+          conversion_errors_7d_top_reasons: expect.any(Array),
+          failed_conversions_weekly: expect.any(Array),
         })
       );
     } finally {

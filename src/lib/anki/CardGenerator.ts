@@ -60,8 +60,11 @@ function PYTHON(): string {
 class CardGenerator {
   currentDirectory: string;
 
-  constructor(workspace: string) {
+  jobId?: string;
+
+  constructor(workspace: string, jobId?: string) {
     this.currentDirectory = workspace;
+    this.jobId = jobId;
   }
 
   run() {
@@ -74,6 +77,7 @@ class CardGenerator {
       templateDirectory,
     ];
     console.log('execFile', path.basename(PYTHON()), createDeckScriptPathARGS.length, 'args');
+    const jobId = this.jobId;
     return new Promise((resolve, reject) => {
       const process = spawn(PYTHON(), createDeckScriptPathARGS, {
         cwd: this.currentDirectory,
@@ -102,6 +106,7 @@ class CardGenerator {
               code,
               stdout: stdoutData.join(''),
               stderr: stderrData.join(''),
+              jobId,
             })
           );
         }

@@ -39,13 +39,20 @@ class UsersRepository {
       .update({ reset_token: resetToken });
   }
 
-  createUser(name: string, password: string, email: string, picture?: string) {
+  createUser(
+    name: string,
+    password: string,
+    email: string,
+    picture?: string,
+    signupOrigin?: string | null
+  ) {
     return this.database(this.table)
       .insert({
         name,
         password,
         email,
         picture,
+        signup_origin: signupOrigin ?? null,
       })
       .returning(['id']);
   }

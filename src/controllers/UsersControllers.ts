@@ -5,6 +5,7 @@ import AuthenticationService, {
 } from '../services/AuthenticationService';
 import UsersService from '../services/UsersService';
 import { getRedirect } from './helpers/getRedirect';
+import { parseSignupOrigin } from './helpers/parseSignupOrigin';
 
 import { getIndexFileContents } from './IndexController/getIndexFileContents';
 import { getRandomUUID } from '../shared/helpers/getRandomUUID';
@@ -153,12 +154,14 @@ class UsersController {
 
     const password = this.authService.getHashPassword(req.body.password);
     const { name, email } = req.body;
+    const signupOrigin = parseSignupOrigin(req.body.source);
     try {
       await this.userService.register(
         name ?? '',
         password,
         email,
-        getDefaultAvatarPicture()
+        getDefaultAvatarPicture(),
+        signupOrigin
       );
       res.status(200).json({ message: 'ok' });
     } catch (error) {

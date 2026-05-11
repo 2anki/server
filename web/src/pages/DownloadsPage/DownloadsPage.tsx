@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Index from './components/ListJobs';
 
 import useUploads from './hooks/useUploads';
@@ -8,6 +9,7 @@ import { FinishedJobs } from './components/FinishedJobs';
 import { EmptyDownloadsSection } from './components/EmptyDownloadsSection';
 import { redirectOnError } from '../../components/shared/redirectOnError';
 import { UnfinishedJobsInfo } from './components/UnfinishedJobsInfo';
+import { PaywallBanner } from './components/PaywallBanner';
 import { ErrorHandlerType } from '../../components/errors/helpers/getErrorMessage';
 import { get2ankiApi } from '../../lib/backend/get2ankiApi';
 import styles from './DownloadsPage.module.css';
@@ -25,6 +27,8 @@ export function DownloadsPage({ setError }: Readonly<DownloadsPageProps>) {
     setError
   );
   const [refreshing, setRefreshing] = useState(false);
+  const [searchParams] = useSearchParams();
+  const showPaywall = searchParams.get('paywall') === '1';
 
   const handleRefresh = async () => {
     if (refreshing) return;
@@ -74,6 +78,10 @@ export function DownloadsPage({ setError }: Readonly<DownloadsPageProps>) {
             hasActiveJobs={unfinishedJob}
             uploads={uploads}
           />
+
+          {showPaywall && (
+            <PaywallBanner inProgressJob={activeJobs[0] ?? null} />
+          )}
 
           {unfinishedJob && (
             <div className={styles.section}>
