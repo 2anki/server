@@ -18,7 +18,9 @@ function readVarint(buf: Buffer, pos: number): [number, number] {
 
 function skipField(wireType: number, buf: Buffer, pos: number): number {
   if (wireType === 0) {
-    while (pos < buf.length && (buf[pos++] & 0x80) !== 0) {}
+    while (pos < buf.length && (buf[pos++] & 0x80) !== 0) {
+      /* varint continuation bytes */
+    }
     return pos;
   }
   if (wireType === 5) return pos + 4;
