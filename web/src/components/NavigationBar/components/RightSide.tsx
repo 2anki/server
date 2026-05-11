@@ -12,6 +12,9 @@ export function RightSide({ path }: Readonly<RightSideProps>) {
       <NavbarItem href="/upload" path={path}>
         {getVisibleText('navigation.upload')}
       </NavbarItem>
+      <NavbarItem href="/print" path={path}>
+        {getVisibleText('navigation.print')}
+      </NavbarItem>
       <NavbarItem href="/documentation" path={path}>
         {getVisibleText('navigation.docs')}
       </NavbarItem>

@@ -52,6 +52,7 @@ const MarkdownToAnki = lazy(
   () => import('./pages/LandingPage/MarkdownToAnki')
 );
 const PdfToAnki = lazy(() => import('./pages/LandingPage/PdfToAnki'));
+const PrintPage = lazy(() => import('./pages/PrintPage'));
 
 const queryClient = new QueryClient();
 
@@ -121,6 +122,7 @@ function AppContent({
             path="/upload"
             element={<UploadPage setErrorMessage={setErrorMessage} />}
           />
+          <Route path="/print" element={<PrintPage />} />
           <Route
             path="/register"
             element={<RegisterPage setErrorMessage={setErrorMessage} />}

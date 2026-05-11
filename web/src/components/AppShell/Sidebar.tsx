@@ -110,6 +110,14 @@ export function Sidebar({
           {getVisibleText('navigation.upload')}
         </SidebarRow>
         <SidebarRow
+          href="/print"
+          pathname={pathname}
+          matchPrefix={false}
+          onClick={handleNavClick()}
+        >
+          {getVisibleText('navigation.print')}
+        </SidebarRow>
+        <SidebarRow
           href="/downloads"
           pathname={pathname}
           onClick={handleNavClick()}
