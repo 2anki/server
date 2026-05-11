@@ -32,7 +32,7 @@ export function PaywallBanner({ inProgressJob }: PaywallBannerProps) {
     inProgressJob?.title != null && inProgressJob.title.trim().length > 0;
 
   return (
-    <div className={styles.banner} role="region" aria-label="Upgrade to Unlimited">
+    <section className={styles.banner} aria-label="Upgrade to Unlimited">
       <h2 className={styles.headline}>
         One conversion at a time on the free plan
       </h2>
@@ -50,7 +50,7 @@ export function PaywallBanner({ inProgressJob }: PaywallBannerProps) {
         </a>
         {inProgressJob != null && startedDistance != null && hasTitle && (
           <span className={styles.secondary}>
-            Or wait for &quot;
+            {'Or wait for "'}
             <span
               className={styles.jobTitle}
               title={inProgressJob.title ?? undefined}
@@ -58,7 +58,9 @@ export function PaywallBanner({ inProgressJob }: PaywallBannerProps) {
             >
               {inProgressJob.title}
             </span>
-            &quot; to finish — started {startedDistance} ago.
+            {'" to finish — started '}
+            {startedDistance}
+            {' ago.'}
           </span>
         )}
         {inProgressJob != null && startedDistance != null && !hasTitle && (
@@ -68,6 +70,6 @@ export function PaywallBanner({ inProgressJob }: PaywallBannerProps) {
           </span>
         )}
       </div>
-    </div>
+    </section>
   );
 }
