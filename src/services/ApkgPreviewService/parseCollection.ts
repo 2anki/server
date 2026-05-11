@@ -25,6 +25,19 @@ interface LegacyDeckJson {
   name: string;
 }
 
+function patchUnicaseCollation(buffer: Buffer): Buffer {
+  const UNICASE = Buffer.from('COLLATE unicase');
+  const REPLACE = Buffer.from('COLLATE BINARY ');
+  let pos = 0;
+  while (pos < buffer.length) {
+    const idx = buffer.indexOf(UNICASE, pos);
+    if (idx === -1) break;
+    REPLACE.copy(buffer, idx);
+    pos = idx + REPLACE.length;
+  }
+  return buffer;
+}
+
 function writeTempDb(buffer: Buffer): string {
   const tempPath = path.join(
     os.tmpdir(),
@@ -39,6 +52,9 @@ function openCollection(buffer: Buffer): {
   cleanup: () => void;
 } {
   const tempPath = writeTempDb(buffer);
+  const raw = fs.readFileSync(tempPath);
+  patchUnicaseCollation(raw);
+  fs.writeFileSync(tempPath, raw);
   const db = new Database(tempPath, { readonly: true, fileMustExist: true });
   return {
     db,
@@ -104,38 +120,100 @@ function loadLegacyDecks(db: Database.Database): Map<number, Deck> {
   return map;
 }
 
+function readProtobufString(buf: Buffer, fieldNumber: number): string {
+  const wantTag = (fieldNumber << 3) | 2;
+  let pos = 0;
+  while (pos < buf.length) {
+    let tag = 0;
+    let shift = 0;
+    while (pos < buf.length) {
+      const byte = buf[pos++];
+      tag |= (byte & 0x7f) << shift;
+      shift += 7;
+      if ((byte & 0x80) === 0) break;
+    }
+    const wireType = tag & 0x07;
+    if (wireType === 2) {
+      let len = 0;
+      let lenShift = 0;
+      while (pos < buf.length) {
+        const byte = buf[pos++];
+        len |= (byte & 0x7f) << lenShift;
+        lenShift += 7;
+        if ((byte & 0x80) === 0) break;
+      }
+      if (tag === wantTag) {
+        return buf.subarray(pos, pos + len).toString('utf8');
+      }
+      pos += len;
+    } else if (wireType === 0) {
+      while (pos < buf.length && (buf[pos++] & 0x80) !== 0) {}
+    } else if (wireType === 5) {
+      pos += 4;
+    } else if (wireType === 1) {
+      pos += 8;
+    } else {
+      break;
+    }
+  }
+  return '';
+}
+
+function getTableColumns(db: Database.Database, table: string): Set<string> {
+  const rows = db
+    .prepare(`SELECT name FROM pragma_table_info('${table}')`)
+    .all() as Array<{ name: string }>;
+  return new Set(rows.map((r) => r.name));
+}
+
+function safeQueryAll<T>(
+  db: Database.Database,
+  table: string,
+  wantedCols: string[],
+  suffix: string
+): T[] {
+  const existing = getTableColumns(db, table);
+  const cols = wantedCols.filter((c) => existing.has(c));
+  if (cols.length === 0) return [];
+  return db.prepare(`SELECT ${cols.join(', ')} FROM ${table} ${suffix}`).all() as T[];
+}
+
 function loadModernNoteTypes(db: Database.Database): Map<number, NoteType> {
-  const noteTypeRows = db
-    .prepare('SELECT id, name, mtype, config FROM notetypes')
-    .all() as Array<{
+  const noteTypeRows = safeQueryAll<{
     id: number;
     name: string;
-    mtype: number;
-    config: Buffer;
-  }>;
-  const fieldRows = db
-    .prepare(
-      'SELECT ntid, name, ord FROM fields ORDER BY ntid, ord'
-    )
-    .all() as Array<{ ntid: number; name: string; ord: number }>;
-  const templateRows = db
-    .prepare(
-      'SELECT ntid, name, ord, config FROM templates ORDER BY ntid, ord'
-    )
-    .all() as Array<{
-    ntid: number;
-    name: string;
-    ord: number;
-    config: Buffer;
-  }>;
+    mtype?: number;
+    config?: Buffer;
+  }>(db, 'notetypes', ['id', 'name', 'mtype', 'config'], '');
+  const hasFieldsTable = hasTable(db, 'fields');
+  const hasTemplatesTable = hasTable(db, 'templates');
+
+  const fieldRows = hasFieldsTable
+    ? safeQueryAll<{ ntid: number; name: string; ord: number }>(
+        db,
+        'fields',
+        ['ntid', 'name', 'ord'],
+        'ORDER BY ntid, ord'
+      )
+    : [];
+  const templateRows = hasTemplatesTable
+    ? safeQueryAll<{ ntid: number; name: string; ord: number; config: Buffer }>(
+        db,
+        'templates',
+        ['ntid', 'name', 'ord', 'config'],
+        'ORDER BY ntid, ord'
+      )
+    : [];
 
   const map = new Map<number, NoteType>();
   for (const row of noteTypeRows) {
+    const cfg = row.config;
+    const css = cfg ? readProtobufString(cfg, 3) : '';
     map.set(row.id, {
       id: row.id,
       name: row.name,
-      type: row.mtype === 1 ? 1 : 0,
-      css: '',
+      type: (row.mtype ?? 0) === 1 ? 1 : 0,
+      css,
       fields: [],
       templates: [],
     });
@@ -144,14 +222,14 @@ function loadModernNoteTypes(db: Database.Database): Map<number, NoteType> {
     map.get(field.ntid)?.fields.push({ name: field.name, ord: field.ord });
   }
   for (const tmpl of templateRows) {
-    // The modern schema stores qfmt/afmt inside a protobuf-encoded `config`
-    // blob. We don't decode protobuf here yet; surface a clear gap instead
-    // of returning malformed templates.
+    const cfg = tmpl.config;
+    const qfmt = cfg ? readProtobufString(cfg, 1) : '';
+    const afmt = cfg ? readProtobufString(cfg, 2) : '';
     map.get(tmpl.ntid)?.templates.push({
       name: tmpl.name,
       ord: tmpl.ord,
-      qfmt: '',
-      afmt: '',
+      qfmt,
+      afmt,
     });
   }
   return map;

@@ -58,6 +58,7 @@
     "express-session": "^1.18.1",
     "fflate": "^0.8.0",
     "find-remove": "^5.0.0",
+    "fzstd": "^0.1.1",
     "get-notion-object-title": "^0.2.0",
     "html-to-text": "^10.0.0",
     "http-proxy-middleware": "^4.0.0",
