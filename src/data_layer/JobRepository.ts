@@ -45,7 +45,7 @@ class JobRepository {
       .update({ status: 'interrupted', last_edited_time: new Date() });
   }
 
-  private static readonly TERMINAL_STATUSES = ['done', 'failed', 'cancelled', 'interrupted'];
+  static readonly TERMINAL_STATUSES = ['done', 'failed', 'cancelled', 'interrupted'];
 
   async updateJobStatus(
     id: string,

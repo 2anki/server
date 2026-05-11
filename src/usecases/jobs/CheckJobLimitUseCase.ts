@@ -12,7 +12,10 @@ export class CheckJobLimitUseCase {
     const { owner, maxJobs } = input;
 
     const jobs = await this.jobRepository.getJobsByOwner(owner);
+    const activeJobs = jobs.filter(
+      (j) => !JobRepository.TERMINAL_STATUSES.includes(j.status)
+    );
 
-    return jobs.length <= maxJobs;
+    return activeJobs.length <= maxJobs;
   }
 }
