@@ -57,4 +57,26 @@ describe('LandingPage', () => {
       expect(details?.open).toBe(false);
     }
   });
+
+  it('renders the three how-it-works steps with numbered circles', () => {
+    render(
+      <HelmetProvider>
+        <LandingPage copy={notionCopy} setErrorMessage={vi.fn()} />
+      </HelmetProvider>
+    );
+    expect(screen.getByText('1')).toBeInTheDocument();
+    expect(screen.getByText('2')).toBeInTheDocument();
+    expect(screen.getByText('3')).toBeInTheDocument();
+  });
+
+  it('lists supported format tags', () => {
+    render(
+      <HelmetProvider>
+        <LandingPage copy={notionCopy} setErrorMessage={vi.fn()} />
+      </HelmetProvider>
+    );
+    expect(screen.getByText('Notion')).toBeInTheDocument();
+    expect(screen.getByText('PDF')).toBeInTheDocument();
+    expect(screen.getByText('Markdown')).toBeInTheDocument();
+  });
 });

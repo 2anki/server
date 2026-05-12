@@ -1,17 +1,52 @@
 import { Navigate } from 'react-router-dom';
-import HeroSection from './components/Sections/hero';
 import UploadForm from '../UploadPage/components/UploadForm/UploadForm';
 import { ErrorHandlerType } from '../../components/errors/helpers/getErrorMessage';
-import heroStyles from './components/Sections/hero/Hero.module.css';
 import { useSettingsCardsOptions } from '../../components/modals/SettingsModal/useSettingsCardsOptions';
-import { ValueProp } from './components/ValueProp';
-import { VideosAndDocs } from './components/VideosAndDocs';
-import styles from '../../styles/shared.module.css';
+import styles from './HomePage.module.css';
 
 interface HomePageProps {
   setErrorMessage: ErrorHandlerType;
   isLoggedIn: boolean;
 }
+
+const STEPS = [
+  {
+    title: 'Upload',
+    body: 'Drop a Notion export, PDF, Markdown, or any supported file.',
+  },
+  {
+    title: 'Convert',
+    body: '2anki builds your Anki deck. Usually a few seconds.',
+  },
+  {
+    title: 'Study',
+    body: 'Open the .apkg in Anki. Images, audio, and cloze deletions included.',
+  },
+];
+
+const FORMATS = [
+  'Notion',
+  'PDF',
+  'Markdown',
+  'HTML',
+  'CSV',
+  'Word',
+  'PowerPoint',
+  'Excel',
+];
+
+const WALKTHROUGHS = [
+  {
+    title: 'Convert with Notion integration',
+    meta: 'Video walkthrough',
+    href: 'https://www.youtube.com/watch?v=LqMiK2vGQ8Q',
+  },
+  {
+    title: 'Convert with file upload',
+    meta: 'Video walkthrough',
+    href: 'https://www.youtube.com/watch?v=5ZDA79KfRi8',
+  },
+];
 
 export function HomePage({
   setErrorMessage,
@@ -25,21 +60,75 @@ export function HomePage({
 
   return (
     <div>
-      <HeroSection />
-      <div className={heroStyles.formSection}>
-        <p className={styles.textCenter}>
-          <strong>Try it now</strong> — drop any file to get started
+      <section className={styles.hero}>
+        <h1 className={styles.heroTitle}>Convert Notion to Anki</h1>
+        <p className={styles.heroSubtitle}>
+          Drop a file and get a deck. Supports Notion exports, PDF, Markdown,
+          and more.
         </p>
-        <UploadForm setErrorMessage={setErrorMessage} />
-        <p className={`${styles.smallDescription} ${styles.textCenter}`}>
-          Supports Notion exports (.zip, .html), Markdown, PDF, CSV, Word, PowerPoint, and Excel.
+        <div className={styles.uploadWrapper}>
+          <UploadForm setErrorMessage={setErrorMessage} />
+        </div>
+        <p className={styles.socialProof}>
+          Used by 300,000+ learners. Free and open source.
         </p>
-      </div>
-      <ValueProp />
-      <div className={styles.contentSection}>
-        <h2 className={styles.subHeading}>Video walkthroughs</h2>
-        <VideosAndDocs />
-      </div>
+      </section>
+
+      <section className={styles.stepsSection}>
+        <div className={styles.stepsInner}>
+          <p className={styles.stepsHeading}>How it works</p>
+          <div className={styles.stepsGrid}>
+            {STEPS.map((step, idx) => (
+              <div key={step.title} className={styles.step}>
+                <span className={styles.stepNumber}>{idx + 1}</span>
+                <p className={styles.stepTitle}>{step.title}</p>
+                <p className={styles.stepBody}>{step.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className={styles.formatsSection}>
+        <p className={styles.formatsHeading}>Supported formats</p>
+        <ul className={styles.formatsList}>
+          {FORMATS.map((format) => (
+            <li key={format} className={styles.formatTag}>
+              {format}
+            </li>
+          ))}
+        </ul>
+        <p className={styles.formatsHint}>
+          Coming from Notion?{' '}
+          <a href="/documentation/start-here/upload-a-file">
+            Learn how to export your pages.
+          </a>
+        </p>
+      </section>
+
+      <section className={styles.walkSection}>
+        <p className={styles.walkHeading}>Walkthroughs</p>
+        <div className={styles.walkGrid}>
+          {WALKTHROUGHS.map((item) => (
+            <a
+              key={item.href}
+              className={styles.walkCard}
+              href={item.href}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <span className={styles.walkCardIcon}>
+                &#9654;
+              </span>
+              <div className={styles.walkCardText}>
+                <p className={styles.walkCardTitle}>{item.title}</p>
+                <p className={styles.walkCardMeta}>{item.meta}</p>
+              </div>
+              <span className={styles.walkCardArrow}>&rarr;</span>
+            </a>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
