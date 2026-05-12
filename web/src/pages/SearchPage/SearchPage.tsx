@@ -7,6 +7,7 @@ import { ErrorHandlerType } from '../../components/errors/helpers/getErrorMessag
 import { get2ankiApi } from '../../lib/backend/get2ankiApi';
 import { ErrorPresenter } from '../../components/errors/ErrorPresenter';
 import styles from '../../styles/shared.module.css';
+import searchStyles from './SearchPage.module.css';
 
 interface SearchPageProps {
   setError: ErrorHandlerType;
@@ -46,13 +47,27 @@ export function SearchPage({ setError }: Readonly<SearchPageProps>) {
     );
   }
 
+  const useCard = notionData.loading || notionData.connected;
+
   return (
     <div className={styles.page}>
       <header className={styles.pageHeader}>
         <h1 className={styles.title}>{headerTitle}</h1>
         <p className={styles.subtitle}>{headerSubtitle}</p>
       </header>
-      {content}
+      {notionData.connected && notionData.workSpace && (
+        <div className={searchStyles.workspaceLabel}>
+          <span className={searchStyles.workspaceDot} />
+          {notionData.workSpace}
+        </div>
+      )}
+      {useCard ? (
+        <div className={searchStyles.searchSurface}>
+          {content}
+        </div>
+      ) : (
+        content
+      )}
     </div>
   );
 }

@@ -145,6 +145,24 @@
   text-decoration: underline;
 }
 
+.sidebarFeedbackLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: var(--text-sm);
+  color: var(--color-text-tertiary);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.sidebarFeedbackLink:hover {
+  color: var(--color-text-secondary);
+  text-decoration: underline;
+}
+
 .sidebarCopyright {
   margin-top: 0.5rem;
   font-size: var(--text-xs);

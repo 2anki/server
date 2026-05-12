@@ -1,5 +1,5 @@
 .page {
-  max-width: 960px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 3rem 1.5rem;
   min-height: 70vh;
@@ -361,20 +361,6 @@
   justify-content: space-between;
   gap: 1rem;
   margin-bottom: 1.5rem;
-}
-
-.alertWarning {
-  background: var(--color-warning-light);
-  border: 1px solid var(--color-warning-border);
-  border-radius: var(--radius-md);
-  padding: 1.5rem;
-  text-align: center;
-}
-
-.alertWarningTitle {
-  font-size: var(--text-xl);
-  font-weight: var(--font-semibold);
-  margin-bottom: 0.5rem;
 }
 
 .alertInfo {

@@ -39,6 +39,7 @@ import ankifyWebhookRouter from './routes/AnkifyWebhookRouter';
 import swaggerRouter from './routes/SwaggerRouter';
 import opsRouter from './routes/OpsRouter';
 import showcaseRouter from './routes/ShowcaseRouter';
+import emojiFeedbackRouter from './routes/EmojiFeedbackRouter';
 import requestLoggingMiddleware from './routes/middleware/requestLoggingMiddleware';
 
 import { getDatabase, setupDatabase } from './data_layer';
@@ -103,6 +104,7 @@ const serve = async () => {
   app.use(templatesRouter());
   app.use(showcaseRouter());
   app.use(opsRouter());
+  app.use(emojiFeedbackRouter());
 
   app.use(rejectScannerProbes);
   // Note: this has to be the last router

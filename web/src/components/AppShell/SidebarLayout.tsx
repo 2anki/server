@@ -35,7 +35,7 @@ export function SidebarLayout({
   }, [isDrawerOpen]);
 
   return (
-    <div className={styles.shell}>
+    <div className={styles.shell} data-shell>
       <Sidebar
         email={email}
         locals={locals}
