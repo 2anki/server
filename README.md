@@ -75,7 +75,7 @@ We're not replacing Anki or Notion — we're building a bridge between them. Dro
 - Toggle lists become cards, cloze deletions work out of the box
 - Embeds, audio, images, code blocks, and LaTeX carried over
 - Self-hostable if you hit the free-tier quota
-- Funded by paying subscribers and lifetime users
+- No VC funding — sustained by paying subscribers and lifetime users
 
 ## How it works
 
