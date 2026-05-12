@@ -38,8 +38,8 @@ export class PopulateShowcaseUseCase {
       .map(toPreviewBlock);
 
     const notionBlocks: ShowcaseBlockPayload[] = await Promise.all(
-      baseBlocks.map(async (block, index) => {
-        if (block.canExpand && block.hasChildren && index === 0) {
+      baseBlocks.map(async (block) => {
+        if (block.canExpand && block.hasChildren) {
           const childrenHtml = await this.fetchChildrenHtml(api, block.id);
           return { ...block, childrenHtml };
         }
