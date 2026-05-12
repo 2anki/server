@@ -110,8 +110,7 @@ export function HomePage({
         <div className={styles.heroContent}>
           <h1 className={styles.heroTitle}>Convert Notion to Anki</h1>
           <p className={styles.heroSubtitle}>
-            Drop a file and get a beautiful Anki deck back. Free and open
-            source.
+            Drop a file and get an Anki deck back. Free and open source.
           </p>
           <ul className={styles.heroPills}>
             {FORMATS.map((f) => (
