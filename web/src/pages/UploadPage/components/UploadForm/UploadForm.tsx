@@ -5,6 +5,7 @@ import getAcceptedContentTypes from '../../helpers/getAcceptedContentTypes';
 import getHeadersFilename from '../../helpers/getHeadersFilename';
 import DownloadButton from '../DownloadButton';
 import { useDrag } from './hooks/useDrag';
+import { useFileValidation } from './hooks/useFileValidation';
 import formStyles from './UploadForm.module.css';
 import styles from '../../../../styles/shared.module.css';
 
@@ -85,6 +86,11 @@ function UploadForm({
   const [warningMessage, setWarningMessage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const convertRef = useRef<HTMLButtonElement>(null);
+  const { validation, pendingFiles, validate, reset } = useFileValidation();
+
+  const submitFiles = () => {
+    convertRef.current?.click();
+  };
 
   const { dropHover } = useDrag({
     onDrop: (event) => {
@@ -92,7 +98,9 @@ function UploadForm({
       if (dataTransfer && dataTransfer.files.length > 0) {
         fileInputRef.current!.files = dataTransfer.files;
         onFileSelected?.();
-        convertRef.current?.click();
+        if (validate(dataTransfer.files)) {
+          submitFiles();
+        }
       }
       event.preventDefault();
     },
@@ -141,16 +149,58 @@ function UploadForm({
         htmlFor="pakker"
         className={`${formStyles.dropZone} ${
           dropHover ? formStyles.dropZoneActive : ''
+        } ${
+          validation?.status === 'warning' ? formStyles.dropZoneWarning : ''
+        } ${
+          validation?.status === 'error' ? formStyles.dropZoneError : ''
         }`}
       >
-        <span className={formStyles.dropIcon}>📄</span>
-        <span className={formStyles.dropText}>
-          Drag and drop your files here
-        </span>
-        <span className={formStyles.dropHint}>or</span>
-        <span className={formStyles.convertButton}>
-          Click to convert your notes
-        </span>
+        {validation ? (
+          <>
+            <span className={formStyles.dropIcon}>
+              {validation.status === 'error' ? '⚠' : 'ℹ'}
+            </span>
+            <p className={formStyles.validationTitle}>{validation.title}</p>
+            <p className={formStyles.validationBody}>{validation.body}</p>
+            <div className={formStyles.validationActions}>
+              <button
+                type="button"
+                className={formStyles.resetButton}
+                onClick={(e) => {
+                  e.preventDefault();
+                  reset();
+                  if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                  }
+                }}
+              >
+                Pick a different file
+              </button>
+              <button
+                type="button"
+                className={formStyles.continueLink}
+                onClick={(e) => {
+                  e.preventDefault();
+                  reset();
+                  submitFiles();
+                }}
+              >
+                {validation.continueLabel}
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <span className={formStyles.dropIcon}>📄</span>
+            <span className={formStyles.dropText}>
+              Drag and drop your files here
+            </span>
+            <span className={formStyles.dropHint}>or</span>
+            <span className={formStyles.convertButton}>
+              Click to convert your notes
+            </span>
+          </>
+        )}
         <input
           ref={fileInputRef}
           className={formStyles.fileInput}
@@ -162,7 +212,10 @@ function UploadForm({
           multiple
           onChange={() => {
             onFileSelected?.();
-            convertRef.current?.click();
+            const files = fileInputRef.current?.files;
+            if (files && validate(files)) {
+              submitFiles();
+            }
           }}
         />
       </label>
