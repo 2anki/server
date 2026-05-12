@@ -1,5 +1,6 @@
 import NavbarItem from '../NavbarItem';
 import { getVisibleText } from '../../../lib/text/getVisibleText';
+import { ThemeToggle } from '../../ThemeSwitcher/ThemeToggle';
 import styles from '../NavigationBar.module.css';
 
 interface RightSideProps {
@@ -21,9 +22,10 @@ export function RightSide({ path }: Readonly<RightSideProps>) {
       <NavbarItem href="/pricing" path={path}>
         {getVisibleText('navigation.pricing')}
       </NavbarItem>
-      <a className={styles.loginButton} href="/login#login">
+      <NavbarItem href="/login#login" path={path}>
         {getVisibleText('navigation.login')}
-      </a>
+      </NavbarItem>
+      <ThemeToggle />
     </div>
   );
 }

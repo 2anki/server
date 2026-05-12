@@ -138,7 +138,7 @@ export function HomePage({
         </p>
         <UploadForm setErrorMessage={setErrorMessage} />
         <div className={styles.heroFooter}>
-          <span>Free up to 100 cards per month</span>
+          <span>Free up to 100 cards per conversion</span>
           <span className={styles.footerDot} aria-hidden="true" />
           <a
             href="https://github.com/2anki/server"
