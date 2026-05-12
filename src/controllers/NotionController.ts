@@ -10,10 +10,7 @@ import {
 } from '@notionhq/client/build/src/api-endpoints';
 import Workspace from '../lib/parser/WorkSpace';
 import { blockToStaticMarkup } from '../services/NotionService/helpers/blockToStaticMarkup';
-import {
-  PreviewBlockPayload,
-  toPreviewBlock,
-} from './helpers/toPreviewBlock';
+import { toPreviewBlock } from './helpers/toPreviewBlock';
 import {
   APIErrorCode,
   APIResponseError,
