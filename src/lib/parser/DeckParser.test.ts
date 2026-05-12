@@ -140,6 +140,31 @@ test('Markdown nested bullet points', async () => {
   expect(deck.cards.length).toBe(4);
 });
 
+test('Markdown reversed cards keep numeric sort order', async () => {
+  const fixturePath = path.join(__dirname, '../../test/fixtures/simple-deck.md');
+  const contents = fs.readFileSync(fixturePath).toString();
+  const workspace = new Workspace(true, 'fs');
+  const parser = new DeckParser({
+    name: 'simple-deck.md',
+    settings: new CardOption({
+      'markdown-nested-bullet-points': 'true',
+      reversed: 'true',
+      'basic-reversed': 'false',
+    }),
+    files: [{ name: 'simple-deck.md', contents }],
+    noLimits: true,
+    workspace,
+  });
+
+  parser.customExporter.save = jest.fn().mockResolvedValue('');
+  await parser.build(workspace);
+
+  const deck = parser.payload[0];
+
+  expect(deck.cards.map((card) => card.number)).toEqual([0, 1, 2, 3]);
+  expect(deck.cards).not.toContainEqual(expect.objectContaining({ number: -1 }));
+});
+
 test('Markdown nested bullets auto-detected without explicit setting', () => {
   const fixturePath = path.join(__dirname, '../../test/fixtures/notion-nested-bullets.md');
   const contents = fs.readFileSync(fixturePath).toString();

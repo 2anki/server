@@ -63,8 +63,7 @@ export default class Note {
     const note = new Note(input.back, input.name);
     note.tags = input.tags;
     note.media = input.media;
-    // Due to backwards compatability, do not increment number here
-    note.number = -1;
+    note.number = input.number + 0.5;
     return note;
   }
 

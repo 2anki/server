@@ -586,8 +586,6 @@ export class DeckParser {
           const tmp = card.back;
           card.back = card.name;
           card.name = tmp;
-          // Due to backwards compatability, do not increment number here
-          card.number = -1;
         }
       }
       deck.cards = Deck.CleanCards(deck.cards.concat(addThese));

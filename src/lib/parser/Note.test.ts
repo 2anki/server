@@ -9,8 +9,9 @@ describe('Note', () => {
     const note = new Note('this is the back', '🔄this is the front');
     expect(note.reversed(note).name).toBe('🔄this is the front');
   });
-  test('reversed number is negative', () => {
+  test('reversed number sorts after source card', () => {
     const note = new Note('this is the back', '🔄this is the front');
-    expect(note.reversed(note).number).toBe(-1);
+    note.number = 4;
+    expect(note.reversed(note).number).toBe(4.5);
   });
 });
