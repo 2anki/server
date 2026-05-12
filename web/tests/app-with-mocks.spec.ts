@@ -137,9 +137,9 @@ test.describe('Application with Mock API', () => {
     // Check that the hero heading is present
     const heroHeading = page.locator('h1');
     await expect(heroHeading).toBeVisible();
-    await expect(heroHeading).toContainText('Create');
-    await expect(heroHeading).toContainText('Anki flashcards');
-    await expect(heroHeading).toContainText('fast');
+    await expect(heroHeading).toContainText('Convert');
+    await expect(heroHeading).toContainText('Notion');
+    await expect(heroHeading).toContainText('Anki');
 
     // Wait a bit to ensure all API calls have been made and handled
     await page.waitForTimeout(2000);
