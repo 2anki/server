@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import UploadForm from '../UploadPage/components/UploadForm/UploadForm';
 import { ErrorHandlerType } from '../../components/errors/helpers/getErrorMessage';
@@ -7,6 +7,13 @@ import ArrowUpTrayIcon from '../../components/icons/ArrowUpTrayIcon';
 import SparklesIcon from '../../components/icons/SparklesIcon';
 import BookOpenIcon from '../../components/icons/BookOpenIcon';
 import styles from './HomePage.module.css';
+
+const MASCOTS = [
+  '/mascot/Notion 2.png',
+  '/mascot/Notion 3.png',
+  '/mascot/Notion 4.png',
+  '/mascot/Notion 5.png',
+];
 
 interface HomePageProps {
   setErrorMessage: ErrorHandlerType;
@@ -96,6 +103,10 @@ export function HomePage({
   isLoggedIn,
 }: Readonly<HomePageProps>) {
   useSettingsCardsOptions(null);
+  const mascotSrc = useMemo(
+    () => MASCOTS[Math.floor(Math.random() * MASCOTS.length)],
+    []
+  );
 
   if (isLoggedIn) {
     return <Navigate to="/upload" replace />;
@@ -105,14 +116,18 @@ export function HomePage({
     <div className={styles.page}>
       <section className={styles.hero}>
         <img
-          src="/mascot/Notion 4.png"
+          src={mascotSrc}
           alt=""
           className={styles.mascot}
         />
         <h1 className={styles.heroTitle}>Convert Notion to Anki</h1>
         <p className={styles.heroSubtitle}>
           Turn your study notes into flashcards you can review in Anki.
-          Drop a file to try it — no account needed.{' '}
+        </p>
+        <p className={styles.heroSubtitle}>
+          Drop a file to try it — no account needed.
+        </p>
+        <p className={styles.heroLinks}>
           <a href="/documentation/start-here/upload-a-file">
             Read the guide
           </a>{' '}

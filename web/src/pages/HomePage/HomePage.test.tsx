@@ -53,10 +53,10 @@ describe('HomePage (anonymous)', () => {
     expect(svgs.length).toBeGreaterThanOrEqual(3);
   });
 
-  it('links to the Notion export guide', () => {
+  it('links to the guide', () => {
     renderHome();
     const link = screen.getByRole('link', {
-      name: /learn how to export/i,
+      name: /read the guide/i,
     });
     expect(link).toHaveAttribute(
       'href',

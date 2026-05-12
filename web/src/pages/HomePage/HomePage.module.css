@@ -29,10 +29,20 @@
   font-size: var(--text-2xl);
   color: var(--color-text-secondary);
   line-height: var(--leading-relaxed);
-  margin: 0 auto 2.5rem;
+  margin: 0 auto 0.25rem;
 }
 
 .heroSubtitle a {
+  color: var(--color-text-link);
+}
+
+.heroLinks {
+  font-size: var(--text-lg);
+  color: var(--color-text-tertiary);
+  margin: 0 auto 2.5rem;
+}
+
+.heroLinks a {
   color: var(--color-text-link);
 }
 
