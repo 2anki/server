@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import UploadForm from '../UploadPage/components/UploadForm/UploadForm';
 import { ErrorHandlerType } from '../../components/errors/helpers/getErrorMessage';
@@ -94,6 +95,49 @@ const WALKTHROUGHS = [
   },
 ];
 
+function VideoCard({ embedId, title }: Readonly<{ embedId: string; title: string }>) {
+  const [playing, setPlaying] = useState(false);
+
+  if (playing) {
+    return (
+      <div className={styles.walkCard}>
+        <div className={styles.walkVideo}>
+          <iframe
+            src={`https://www.youtube.com/embed/${embedId}?autoplay=1`}
+            title={title}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerPolicy="strict-origin-when-cross-origin"
+            allowFullScreen
+          />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      className={styles.walkCard}
+      onClick={() => setPlaying(true)}
+      aria-label={`Play: ${title}`}
+    >
+      <div className={styles.walkThumb}>
+        <img
+          src={`https://img.youtube.com/vi/${embedId}/hqdefault.jpg`}
+          alt={title}
+          loading="lazy"
+        />
+        <span className={styles.walkPlayBtn} aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+        </span>
+      </div>
+      <p className={styles.walkCardTitle}>{title}</p>
+    </button>
+  );
+}
+
 export function HomePage({
   setErrorMessage,
   isLoggedIn,
@@ -154,18 +198,11 @@ export function HomePage({
         <p className={styles.walkHeading}>Walkthroughs</p>
         <div className={styles.walkGrid}>
           {WALKTHROUGHS.map((item) => (
-            <div key={item.embedId} className={styles.walkCard}>
-              <div className={styles.walkVideo}>
-                <iframe
-                  src={`https://www.youtube.com/embed/${item.embedId}`}
-                  title={item.title}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  referrerPolicy="strict-origin-when-cross-origin"
-                  allowFullScreen
-                />
-              </div>
-              <p className={styles.walkCardTitle}>{item.title}</p>
-            </div>
+            <VideoCard
+              key={item.embedId}
+              embedId={item.embedId}
+              title={item.title}
+            />
           ))}
         </div>
       </section>

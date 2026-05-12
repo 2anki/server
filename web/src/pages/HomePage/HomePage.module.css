@@ -198,12 +198,64 @@
   background: var(--color-bg-secondary);
   border-radius: var(--radius-lg);
   overflow: hidden;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  font-family: inherit;
+  transition: box-shadow var(--transition-fast);
+}
+
+.walkCard:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.walkThumb {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #000;
+}
+
+.walkThumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity var(--transition-fast);
+}
+
+.walkCard:hover .walkThumb img {
+  opacity: 0.85;
+}
+
+.walkPlayBtn {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.walkPlayBtn svg {
+  width: 48px;
+  height: 48px;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.55);
+  border-radius: var(--radius-full);
+  padding: 10px;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
+
+.walkCard:hover .walkPlayBtn svg {
+  background: rgba(0, 0, 0, 0.75);
+  transform: scale(1.08);
 }
 
 .walkVideo {
   position: relative;
-  padding-bottom: 56.25%;
-  height: 0;
+  aspect-ratio: 16 / 9;
   overflow: hidden;
 }
 
@@ -221,7 +273,8 @@
   font-weight: var(--font-medium);
   color: var(--color-text-secondary);
   margin: 0;
-  padding: 0.75rem 1rem;
+  padding: 0.625rem 0.75rem;
+  line-height: var(--leading-snug);
 }
 
 @media (max-width: 768px) {

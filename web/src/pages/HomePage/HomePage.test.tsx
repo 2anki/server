@@ -63,9 +63,9 @@ describe('HomePage (anonymous)', () => {
     );
   });
 
-  it('renders walkthrough videos from the playlist', () => {
+  it('renders walkthrough thumbnails with play buttons', () => {
     renderHome();
-    const iframes = document.querySelectorAll('iframe[src*="youtube.com/embed"]');
-    expect(iframes.length).toBe(14);
+    const playButtons = screen.getAllByRole('button', { name: /play:/i });
+    expect(playButtons.length).toBe(14);
   });
 });
