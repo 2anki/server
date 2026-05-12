@@ -6,6 +6,8 @@ import MigratorConfig = Knex.MigratorConfig;
 
 import { ScheduleCleanup } from '../lib/storage/jobs/ScheduleCleanup';
 import { scheduleAnkifyReaper } from '../lib/ankify/jobs/scheduleAnkifyReaper';
+import { scheduleImportJobReaper } from '../usecases/apkg/scheduleImportJobReaper';
+import JobRepository from './JobRepository';
 import { scheduleAnkifyPolling } from '../lib/ankify/jobs/scheduleAnkifyPolling';
 import { RacService } from '../services/ankify/RacService';
 import { AnkifyClientsRepository } from './ankify/AnkifyClientsRepository';
@@ -83,6 +85,7 @@ export const setupDatabase = async (database: Knex) => {
         ankifySessionTokensRepo
       );
       scheduleAnkifyReaper(ankifyRac);
+      scheduleImportJobReaper(new JobRepository(database));
 
       const schedulesRepo = new AnkifyExportSchedulesRepository(database);
       const notionRepo = new NotionRepository(database);
