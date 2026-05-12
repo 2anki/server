@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import sharedStyles from '../../styles/shared.module.css';
 import styles from './AnkifyPage.module.css';
@@ -10,10 +10,10 @@ import { Backend } from '../../lib/backend/Backend';
 import NotionSubscriptions from './components/NotionSubscriptions';
 import WorkspaceBar from './components/WorkspaceBar';
 import ConflictsModal from './components/ConflictsModal';
+import { useUserLocals } from '../../lib/hooks/useUserLocals';
 
 const QUERY_KEY = ['ankify-clients'];
 const ANKI_WEB_ACK_KEY = 'ankify_anki_web_acknowledged';
-const ANKIFY_WELCOME_SEEN_KEY = 'ankify_welcome_seen';
 const TRACKER_LOCAL_KEY = 'ankify-export-database-id';
 const TRACKER_TITLE_LOCAL_KEY = 'ankify-export-database-title';
 const TRACKER_URL_LOCAL_KEY = 'ankify-export-database-url';
@@ -34,14 +34,6 @@ const readSignedInAcknowledged = (): boolean => {
   }
 };
 
-const readWelcomeSeen = (): boolean => {
-  try {
-    return globalThis.localStorage?.getItem(ANKIFY_WELCOME_SEEN_KEY) === 'true';
-  } catch {
-    return false;
-  }
-};
-
 interface AnkifyPageProps {
   backend?: Backend;
 }
@@ -49,14 +41,17 @@ interface AnkifyPageProps {
 export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
   const api = backend ?? get2ankiApi();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [conflictsOpen, setConflictsOpen] = useState(false);
-  const [welcomeOpen, setWelcomeOpen] = useState<boolean>(() => !readWelcomeSeen());
+  const { data: userLocals } = useUserLocals();
+  const welcomeSeen = userLocals?.user?.ankify_welcome_seen === true;
+  const [dismissed, setDismissed] = useState(false);
 
   const dismissWelcome = () => {
-    setWelcomeOpen(false);
-    try {
-      globalThis.localStorage?.setItem(ANKIFY_WELCOME_SEEN_KEY, 'true');
-    } catch {}
+    setDismissed(true);
+    api.markAnkifyWelcomeSeen().then(() => {
+      queryClient.invalidateQueries({ queryKey: ['userLocals'] });
+    }).catch(() => {});
   };
 
   const { data, isLoading } = useQuery<AnkifyClient[]>({
@@ -103,7 +98,7 @@ export default function AnkifyPage({ backend }: Readonly<AnkifyPageProps>) {
       <WorkspaceBar backend={backend} />
       <h1 className={styles.workspaceTitle}>Ankify</h1>
 
-      {welcomeOpen && (
+      {!welcomeSeen && !dismissed && (
         <div
           role="status"
           aria-live="polite"

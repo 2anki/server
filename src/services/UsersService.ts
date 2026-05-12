@@ -137,6 +137,10 @@ class UsersService {
     return { ok: true };
   }
 
+  markAnkifyWelcomeSeen(owner: string) {
+    return this.repository.markAnkifyWelcomeSeen(owner);
+  }
+
   async requestMagicLink(
     email: string,
     purpose: MagicTokenPurpose

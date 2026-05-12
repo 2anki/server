@@ -220,6 +220,7 @@ class UsersController {
         patreon: user?.patreon,
         picture: user?.picture,
         email: user?.email,
+        ankify_welcome_seen: user?.ankify_welcome_seen ?? false,
       },
       locals,
       linked_email: linkedEmail,
@@ -228,6 +229,15 @@ class UsersController {
     };
 
     return res.json(response);
+  }
+
+  async markAnkifyWelcomeSeen(_req: express.Request, res: express.Response) {
+    const { owner } = res.locals;
+    if (owner == null) {
+      return res.status(401).json({ message: 'Authentication required' });
+    }
+    await this.userService.markAnkifyWelcomeSeen(owner);
+    return res.json({ ok: true });
   }
 
   async linkEmail(req: express.Request, res: express.Response) {
