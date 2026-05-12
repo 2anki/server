@@ -3,6 +3,9 @@ import { Navigate } from 'react-router-dom';
 import UploadForm from '../UploadPage/components/UploadForm/UploadForm';
 import { ErrorHandlerType } from '../../components/errors/helpers/getErrorMessage';
 import { useSettingsCardsOptions } from '../../components/modals/SettingsModal/useSettingsCardsOptions';
+import ArrowUpTrayIcon from '../../components/icons/ArrowUpTrayIcon';
+import SparklesIcon from '../../components/icons/SparklesIcon';
+import BookOpenIcon from '../../components/icons/BookOpenIcon';
 import styles from './HomePage.module.css';
 
 interface HomePageProps {
@@ -14,14 +17,17 @@ const STEPS = [
   {
     title: 'Upload',
     body: 'Drop a Notion export, PDF, Markdown, HTML, CSV, Word, or Excel file.',
+    Icon: ArrowUpTrayIcon,
   },
   {
     title: 'Convert',
     body: '2anki builds your deck in seconds. Images, audio, code blocks, and cloze deletions all transfer.',
+    Icon: SparklesIcon,
   },
   {
     title: 'Study',
     body: 'Open the .apkg file in Anki or AnkiDroid. Your cards are ready to review.',
+    Icon: BookOpenIcon,
   },
 ];
 
@@ -178,9 +184,11 @@ export function HomePage({
         <div className={styles.stepsInner}>
           <p className={styles.stepsHeading}>How it works</p>
           <div className={styles.stepsGrid}>
-            {STEPS.map((step, idx) => (
+            {STEPS.map((step) => (
               <div key={step.title} className={styles.step}>
-                <span className={styles.stepNumber}>{idx + 1}</span>
+                <span className={styles.stepIcon}>
+                  <step.Icon width={22} height={22} />
+                </span>
                 <p className={styles.stepTitle}>{step.title}</p>
                 <p className={styles.stepBody}>{step.body}</p>
               </div>

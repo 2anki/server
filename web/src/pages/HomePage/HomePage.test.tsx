@@ -49,12 +49,13 @@ describe('HomePage (anonymous)', () => {
     expect(screen.getByText(/Notion, PDF, Markdown/i)).toBeInTheDocument();
   });
 
-  it('renders the three how-it-works steps', () => {
+  it('renders the three how-it-works steps with icons', () => {
     renderHome();
     expect(screen.getByText('Upload')).toBeInTheDocument();
     expect(screen.getByText('Convert')).toBeInTheDocument();
     expect(screen.getByText('Study')).toBeInTheDocument();
-    expect(screen.getByText(/cloze deletions all transfer/i)).toBeInTheDocument();
+    const svgs = document.querySelectorAll('svg[viewBox="0 0 24 24"]');
+    expect(svgs.length).toBeGreaterThanOrEqual(3);
   });
 
   it('links to the Notion export guide', () => {
