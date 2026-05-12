@@ -138,7 +138,7 @@ export function HomePage({
   }
 
   return (
-    <div>
+    <div className={styles.page}>
       <section className={styles.hero}>
         <img
           src="/mascot/Notion 2.png"

@@ -1,3 +1,7 @@
+.page {
+  background: var(--color-bg-secondary);
+}
+
 .hero {
   max-width: 640px;
   margin: 0 auto;
@@ -91,7 +95,7 @@
 }
 
 .stepsSection {
-  background: var(--color-bg-secondary);
+  background: var(--color-bg-primary);
   padding: 3rem 1.5rem;
 }
 
@@ -101,12 +105,11 @@
 }
 
 .stepsHeading {
-  font-size: var(--text-sm);
+  font-size: var(--text-2xl);
   font-weight: var(--font-semibold);
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: var(--color-text-tertiary);
-  margin: 0 0 1.25rem;
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-text-primary);
+  margin: 0 0 1.5rem;
   text-align: center;
 }
 
@@ -124,10 +127,9 @@
 
 .step {
   position: relative;
-  background: var(--color-bg-primary);
+  background: var(--color-bg-secondary);
   border-radius: var(--radius-lg);
   padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
 .stepNumber {
@@ -178,12 +180,11 @@
 }
 
 .walkHeading {
-  font-size: var(--text-sm);
+  font-size: var(--text-2xl);
   font-weight: var(--font-semibold);
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-  color: var(--color-text-tertiary);
-  margin: 0 0 1rem;
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-text-primary);
+  margin: 0 0 1.5rem;
   text-align: center;
 }
 
