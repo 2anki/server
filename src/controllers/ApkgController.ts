@@ -246,10 +246,17 @@ class ApkgController {
       await this.jobRepository.create(jobId, owner, file.originalname, 'apkg_import');
 
       const blocksService = new ApkgToNotionBlocksService();
+      let storageHandler: StorageHandler | undefined;
+      try {
+        storageHandler = new StorageHandler();
+      } catch {
+        // S3 not configured — import proceeds without media
+      }
       const useCase = new ImportApkgToNotionUseCase(
         this.previewService,
         blocksService,
-        this.jobRepository
+        this.jobRepository,
+        storageHandler
       );
 
       void useCase.execute(

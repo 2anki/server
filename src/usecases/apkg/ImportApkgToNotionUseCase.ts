@@ -1,3 +1,4 @@
+import path from 'path';
 import ApkgPreviewService from '../../services/ApkgPreviewService/ApkgPreviewService';
 import ApkgToNotionBlocksService, {
   DeckPage,
@@ -5,10 +6,28 @@ import ApkgToNotionBlocksService, {
 } from '../../services/ApkgToNotionBlocksService';
 import NotionAPIWrapper from '../../services/NotionService/NotionAPIWrapper';
 import JobRepository from '../../data_layer/JobRepository';
+import StorageHandler from '../../lib/storage/StorageHandler';
 import { BlockObjectRequest } from '@notionhq/client/build/src/api-endpoints';
 
 const BATCH_SIZE = 50;
 const THROTTLE_MS = 350;
+
+const IMAGE_EXTENSIONS = new Set([
+  '.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp',
+]);
+
+const MIME_TYPES: Record<string, string> = {
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png',
+  '.gif': 'image/gif',
+  '.webp': 'image/webp',
+  '.svg': 'image/svg+xml',
+  '.bmp': 'image/bmp',
+  '.mp3': 'audio/mpeg',
+  '.ogg': 'audio/ogg',
+  '.wav': 'audio/wav',
+};
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -18,7 +37,8 @@ export default class ImportApkgToNotionUseCase {
   constructor(
     private readonly previewService: ApkgPreviewService,
     private readonly blocksService: ApkgToNotionBlocksService,
-    private readonly jobRepository: JobRepository
+    private readonly jobRepository: JobRepository,
+    private readonly storageHandler?: StorageHandler
   ) {}
 
   async execute(
@@ -31,7 +51,20 @@ export default class ImportApkgToNotionUseCase {
     try {
       const cacheKey = `import:${owner}:${Date.now()}`;
       const parsed = await this.previewService.parse(cacheKey, fileBuffer);
-      const result = this.blocksService.transform(parsed.collection);
+
+      let mediaUrlMap = new Map<string, string>();
+      if (this.storageHandler && parsed.mediaMap.size > 0) {
+        mediaUrlMap = await this.uploadMedia(
+          parsed.mediaMap,
+          parsed.mediaEntries,
+          jobId
+        );
+      }
+
+      const result = this.blocksService.transform(
+        parsed.collection,
+        mediaUrlMap
+      );
 
       await this.jobRepository.updateJobStatus(
         jobId,
@@ -81,6 +114,35 @@ export default class ImportApkgToNotionUseCase {
         .updateJobStatus(jobId, owner, 'failed', message)
         .catch(() => {});
     }
+  }
+
+  private async uploadMedia(
+    mediaMap: Map<string, string>,
+    mediaEntries: Map<string, Buffer>,
+    jobId: string
+  ): Promise<Map<string, string>> {
+    const urlMap = new Map<string, string>();
+    const bucket = StorageHandler.DefaultBucketName();
+    const endpoint = process.env.SPACES_ENDPOINT ?? '';
+
+    for (const [archiveIndex, originalName] of mediaMap) {
+      const buffer = mediaEntries.get(archiveIndex);
+      if (buffer == null) continue;
+
+      const ext = path.extname(originalName).toLowerCase();
+      if (!IMAGE_EXTENSIONS.has(ext)) continue;
+
+      const s3Key = `imports/${jobId}/${originalName}`;
+      try {
+        await this.storageHandler!.uploadFile(s3Key, buffer);
+        const publicUrl = `https://${bucket}.${endpoint}/${s3Key}`;
+        urlMap.set(originalName, publicUrl);
+      } catch {
+        // Skip failed uploads — text still imports fine
+      }
+    }
+
+    return urlMap;
   }
 
   private async writeDeckPage(

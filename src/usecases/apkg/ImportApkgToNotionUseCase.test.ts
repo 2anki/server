@@ -196,7 +196,13 @@ describe('ImportApkgToNotionUseCase', () => {
   it('handles sub-decks by creating nested pages', async () => {
     const collection = makeCollection(1);
     collection.decks.set(2, { id: 2, name: 'Parent::Child' });
-    collection.cards.push({ id: 2, nid: 1, did: 2, ord: 0 });
+    collection.notes.set(2, {
+      id: 2,
+      mid: 1,
+      tags: '',
+      fields: ['Front 2', 'Back 2'],
+    });
+    collection.cards.push({ id: 2, nid: 2, did: 2, ord: 0 });
     const parsed: ParsedApkg = {
       collection,
       mediaMap: new Map(),

@@ -61,9 +61,11 @@ describe('ApkgToNotionBlocksService', () => {
       expect(toggle.heading_3.rich_text[0].plain_text).toBe('What is 2+2?');
       expect(toggle.heading_3.is_toggleable).toBe(true);
       expect(toggle.heading_3.children).toHaveLength(1);
-      expect(toggle.heading_3.children[0].paragraph.rich_text[0].plain_text).toBe(
-        'Four'
-      );
+      const firstChild = toggle.heading_3.children[0];
+      expect(firstChild.type).toBe('paragraph');
+      if (firstChild.type === 'paragraph') {
+        expect(firstChild.paragraph.rich_text[0].plain_text).toBe('Four');
+      }
     });
 
     it('strips HTML tags from fields', () => {
@@ -85,12 +87,15 @@ describe('ApkgToNotionBlocksService', () => {
       const result = service.transform(collection);
 
       const backChildren = result.deckPages[0].children[0].heading_3.children;
-      const richText = backChildren[0].paragraph.rich_text;
-      const boldSegment = richText.find(
-        (seg: { annotations?: { bold?: boolean } }) => seg.annotations?.bold === true
-      );
-      expect(boldSegment).toBeDefined();
-      expect(boldSegment!.plain_text).toBe('Important');
+      const firstChild = backChildren[0];
+      expect(firstChild.type).toBe('paragraph');
+      if (firstChild.type === 'paragraph') {
+        const boldSegment = firstChild.paragraph.rich_text.find(
+          (seg) => seg.annotations?.bold === true
+        );
+        expect(boldSegment).toBeDefined();
+        expect(boldSegment!.plain_text).toBe('Important');
+      }
     });
 
     it('preserves italic formatting from HTML', () => {
@@ -101,12 +106,15 @@ describe('ApkgToNotionBlocksService', () => {
       const result = service.transform(collection);
 
       const backChildren = result.deckPages[0].children[0].heading_3.children;
-      const richText = backChildren[0].paragraph.rich_text;
-      const italicSegment = richText.find(
-        (seg: { annotations?: { italic?: boolean } }) => seg.annotations?.italic === true
-      );
-      expect(italicSegment).toBeDefined();
-      expect(italicSegment!.plain_text).toBe('Emphasis');
+      const firstChild = backChildren[0];
+      expect(firstChild.type).toBe('paragraph');
+      if (firstChild.type === 'paragraph') {
+        const italicSegment = firstChild.paragraph.rich_text.find(
+          (seg) => seg.annotations?.italic === true
+        );
+        expect(italicSegment).toBeDefined();
+        expect(italicSegment!.plain_text).toBe('Emphasis');
+      }
     });
 
     it('creates nested deck pages for sub-decks', () => {
@@ -135,8 +143,11 @@ describe('ApkgToNotionBlocksService', () => {
 
       const toggleChildren = result.deckPages[0].children[0].heading_3.children;
       const tagBlock = toggleChildren[toggleChildren.length - 1];
-      expect(tagBlock.paragraph.rich_text[0].annotations.italic).toBe(true);
-      expect(tagBlock.paragraph.rich_text[0].plain_text).toContain('math');
+      expect(tagBlock.type).toBe('paragraph');
+      if (tagBlock.type === 'paragraph') {
+        expect(tagBlock.paragraph.rich_text[0].annotations.italic).toBe(true);
+        expect(tagBlock.paragraph.rich_text[0].plain_text).toContain('math');
+      }
     });
 
     it('handles cloze notes by stripping markers in summary', () => {
@@ -181,10 +192,14 @@ describe('ApkgToNotionBlocksService', () => {
       const result = service.transform(collection);
 
       const backChildren = result.deckPages[0].children[0].heading_3.children;
-      expect(backChildren[0].paragraph.rich_text[0].plain_text).toBe('5 > 3 & 2 < 4');
+      const firstChild = backChildren[0];
+      expect(firstChild.type).toBe('paragraph');
+      if (firstChild.type === 'paragraph') {
+        expect(firstChild.paragraph.rich_text[0].plain_text).toBe('5 > 3 & 2 < 4');
+      }
     });
 
-    it('strips media refs from fields', () => {
+    it('strips media refs from text when no URL map provided', () => {
       const notes = new Map<number, Note>([
         [100, { id: 100, mid: 1, tags: '', fields: ['<img src="image.png">Question', 'Answer [sound:audio.mp3]'] }],
       ]);
@@ -192,8 +207,63 @@ describe('ApkgToNotionBlocksService', () => {
       const result = service.transform(collection);
 
       const toggle = result.deckPages[0].children[0];
-      expect(toggle.heading_3.rich_text[0].plain_text).not.toContain('img');
-      expect(toggle.heading_3.rich_text[0].plain_text).not.toContain('image.png');
+      expect(toggle.heading_3.rich_text[0].plain_text).toBe('Question');
+    });
+
+    it('uses first non-empty text field as summary when front is image-only', () => {
+      const noteType: NoteType = {
+        id: 3,
+        name: 'Image Occlusion',
+        type: 0,
+        css: '',
+        fields: [
+          { name: 'Picture', ord: 0 },
+          { name: 'Country', ord: 1 },
+          { name: 'Notes', ord: 2 },
+        ],
+        templates: [{ name: 'Card 1', ord: 0, qfmt: '', afmt: '' }],
+      };
+      const notes = new Map<number, Note>([
+        [100, { id: 100, mid: 3, tags: '', fields: [
+          '<img src="bollard.jpg">',
+          'France',
+          'French bollards are super thick',
+        ]}],
+      ]);
+      const collection = buildCollection({
+        noteTypes: new Map([[3, noteType]]),
+        notes,
+        cards: [{ id: 1000, nid: 100, did: 10, ord: 0 }],
+      });
+      const result = service.transform(collection);
+
+      const toggle = result.deckPages[0].children[0];
+      expect(toggle.heading_3.rich_text[0].plain_text).toBe('France');
+    });
+
+    it('emits image blocks when media URL map is provided', () => {
+      const notes = new Map<number, Note>([
+        [100, { id: 100, mid: 1, tags: '', fields: [
+          '<img src="bollard.jpg">',
+          'France',
+        ]}],
+      ]);
+      const mediaUrlMap = new Map([
+        ['bollard.jpg', 'https://cdn.example.com/imports/job-1/bollard.jpg'],
+      ]);
+      const collection = buildCollection({ notes });
+      const result = service.transform(collection, mediaUrlMap);
+
+      const toggle = result.deckPages[0].children[0];
+      const imageBlock = toggle.heading_3.children.find(
+        (c) => c.type === 'image'
+      );
+      expect(imageBlock).toBeDefined();
+      if (imageBlock?.type === 'image') {
+        expect(imageBlock.image.external.url).toBe(
+          'https://cdn.example.com/imports/job-1/bollard.jpg'
+        );
+      }
     });
 
     it('returns totalNotes count', () => {
@@ -261,6 +331,48 @@ describe('ApkgToNotionBlocksService', () => {
       const deckNames = result.deckPages.map((d) => d.title);
       expect(deckNames).toContain('Math');
       expect(deckNames).toContain('History');
+    });
+
+    it('handles custom note types with many fields gracefully', () => {
+      const customType: NoteType = {
+        id: 5,
+        name: 'GeoGuessr Card',
+        type: 0,
+        css: '',
+        fields: [
+          { name: 'Picture', ord: 0 },
+          { name: 'Country', ord: 1 },
+          { name: 'AlsoFoundIn', ord: 2 },
+          { name: 'Notes', ord: 3 },
+        ],
+        templates: [{ name: 'Card 1', ord: 0, qfmt: '', afmt: '' }],
+      };
+      const notes = new Map<number, Note>([
+        [100, { id: 100, mid: 5, tags: '', fields: [
+          '<img src="pic.jpg">',
+          'Austria, Slovenia',
+          'Similar Design: Montenegro has the same design',
+          'note: Snowpole on right found in Andorra',
+        ]}],
+      ]);
+      const collection = buildCollection({
+        noteTypes: new Map([[5, customType]]),
+        notes,
+        cards: [{ id: 1000, nid: 100, did: 10, ord: 0 }],
+      });
+      const result = service.transform(collection);
+
+      const toggle = result.deckPages[0].children[0];
+      expect(toggle.heading_3.rich_text[0].plain_text).toBe('Austria, Slovenia');
+
+      const textChildren = toggle.heading_3.children.filter(
+        (c) => c.type === 'paragraph'
+      );
+      const texts = textChildren.map((c) =>
+        c.type === 'paragraph' ? c.paragraph.rich_text[0]?.plain_text : ''
+      );
+      expect(texts).toContain('Similar Design: Montenegro has the same design');
+      expect(texts).toContain('note: Snowpole on right found in Andorra');
     });
   });
 });

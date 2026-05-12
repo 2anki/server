@@ -6,14 +6,16 @@ import {
 
 const MAX_NOTES = 5000;
 const CLOZE_REGEX = /\{\{c\d+::(.*?)(?:::.*?)?\}\}/g;
-const SOUND_TAG_REGEX = /\[sound:[^\]]+\]/g;
-const IMG_TAG_REGEX = /<img[^>]*>/gi;
+const SOUND_TAG_REGEX = /\[sound:([^\]]+)\]/g;
+const IMG_SRC_REGEX = /<img[^>]*\bsrc\s*=\s*["']([^"']+)["'][^>]*>/gi;
 const BOLD_REGEX = /<b>(.*?)<\/b>/gi;
 const ITALIC_REGEX = /<i>(.*?)<\/i>/gi;
 const STRONG_REGEX = /<strong>(.*?)<\/strong>/gi;
 const EM_REGEX = /<em>(.*?)<\/em>/gi;
 const ALL_HTML_TAGS_REGEX = /<[^>]*>/g;
 const BR_REGEX = /<br\s*\/?>/gi;
+
+const IMAGE_EXTENSIONS = new Set(['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'bmp']);
 
 interface RichTextSegment {
   type: 'text';
@@ -36,12 +38,22 @@ interface ParagraphBlock {
   };
 }
 
+interface ImageBlock {
+  type: 'image';
+  image: {
+    type: 'external';
+    external: { url: string };
+  };
+}
+
+type ToggleChildBlock = ParagraphBlock | ImageBlock;
+
 interface ToggleHeading3Block {
   type: 'heading_3';
   heading_3: {
     rich_text: RichTextSegment[];
     is_toggleable: true;
-    children: ParagraphBlock[];
+    children: ToggleChildBlock[];
   };
 }
 
@@ -82,14 +94,43 @@ function decodeHtmlEntities(text: string): string {
   });
 }
 
+function extractImageFilenames(html: string): string[] {
+  const filenames: string[] = [];
+  let match: RegExpExecArray | null;
+  const regex = /<img[^>]*\bsrc\s*=\s*["']([^"']+)["'][^>]*>/gi;
+  while ((match = regex.exec(html)) !== null) {
+    filenames.push(match[1]);
+  }
+  return filenames;
+}
+
+function extractSoundFilenames(html: string): string[] {
+  const filenames: string[] = [];
+  let match: RegExpExecArray | null;
+  const regex = /\[sound:([^\]]+)\]/g;
+  while ((match = regex.exec(html)) !== null) {
+    filenames.push(match[1]);
+  }
+  return filenames;
+}
+
+function isImageFile(filename: string): boolean {
+  const ext = filename.split('.').pop()?.toLowerCase() ?? '';
+  return IMAGE_EXTENSIONS.has(ext);
+}
+
 function stripMediaRefs(html: string): string {
-  let result = html.replace(IMG_TAG_REGEX, '');
+  let result = html.replace(IMG_SRC_REGEX, '');
   result = result.replace(SOUND_TAG_REGEX, '');
   return result;
 }
 
 function stripClozeMarkers(text: string): string {
   return text.replace(CLOZE_REGEX, '$1');
+}
+
+function getPlainText(html: string): string {
+  return stripMediaRefs(html).replace(ALL_HTML_TAGS_REGEX, '').trim();
 }
 
 function makeRichText(content: string, bold = false, italic = false): RichTextSegment {
@@ -109,12 +150,21 @@ function makeRichText(content: string, bold = false, italic = false): RichTextSe
   };
 }
 
+function makeImageBlock(url: string): ImageBlock {
+  return {
+    type: 'image',
+    image: {
+      type: 'external',
+      external: { url },
+    },
+  };
+}
+
 function parseHtmlToRichText(html: string): RichTextSegment[] {
   const cleaned = stripMediaRefs(html);
   const withNewlines = cleaned.replace(BR_REGEX, '\n');
 
   const segments: RichTextSegment[] = [];
-  let remaining = withNewlines;
 
   const tagPattern = /<(b|strong|i|em)>(.*?)<\/\1>/gi;
   let match: RegExpExecArray | null;
@@ -170,27 +220,72 @@ function makeParagraph(richText: RichTextSegment[]): ParagraphBlock {
   };
 }
 
+function fieldToBlocks(
+  html: string,
+  mediaUrlMap: Map<string, string>
+): ToggleChildBlock[] {
+  const blocks: ToggleChildBlock[] = [];
+
+  const imageFiles = extractImageFilenames(html);
+  for (const filename of imageFiles) {
+    const url = mediaUrlMap.get(filename);
+    if (url && isImageFile(filename)) {
+      blocks.push(makeImageBlock(url));
+    }
+  }
+
+  const soundFiles = extractSoundFilenames(html);
+  for (const filename of soundFiles) {
+    const url = mediaUrlMap.get(filename);
+    if (url) {
+      blocks.push(makeParagraph([makeRichText(`Audio: ${filename}`, false, true)]));
+    }
+  }
+
+  const segments = parseHtmlToRichText(html);
+  if (segments.length > 0) {
+    blocks.push(makeParagraph(segments));
+  }
+
+  return blocks;
+}
+
+function findSummaryText(note: Note, isCloze: boolean): string {
+  for (const field of note.fields) {
+    let text = stripMediaRefs(field);
+    if (isCloze) {
+      text = stripClozeMarkers(text);
+    }
+    const plain = text.replace(ALL_HTML_TAGS_REGEX, '').trim();
+    if (plain.length > 0) {
+      return plain;
+    }
+  }
+  return 'Untitled';
+}
+
 function noteToToggle(
   note: Note,
-  noteType: NoteType
+  noteType: NoteType,
+  mediaUrlMap: Map<string, string>
 ): ToggleHeading3Block {
   const isCloze = noteType.type === 1;
-  const frontField = note.fields[0] ?? '';
+  const summaryText = findSummaryText(note, isCloze);
+  const summaryRichText = [makeRichText(summaryText)];
+
+  const children: ToggleChildBlock[] = [];
+
+  const frontImages = extractImageFilenames(note.fields[0] ?? '');
+  for (const filename of frontImages) {
+    const url = mediaUrlMap.get(filename);
+    if (url && isImageFile(filename)) {
+      children.push(makeImageBlock(url));
+    }
+  }
+
   const backFields = note.fields.slice(1);
 
-  let summaryText = stripMediaRefs(frontField);
-  if (isCloze) {
-    summaryText = stripClozeMarkers(summaryText);
-  }
-  const summaryPlain = summaryText.replace(ALL_HTML_TAGS_REGEX, '').trim();
-  const summaryRichText = [makeRichText(summaryPlain || 'Untitled')];
-
-  const children: ParagraphBlock[] = [];
-
   for (const field of backFields) {
-    const stripped = stripMediaRefs(field);
-    if (stripped.replace(ALL_HTML_TAGS_REGEX, '').trim().length === 0) continue;
-
     if (isCloze) {
       const clozeText = stripMediaRefs(note.fields[0] ?? '');
       const segments = parseClozeToRichText(clozeText);
@@ -198,10 +293,8 @@ function noteToToggle(
         children.push(makeParagraph(segments));
       }
     } else {
-      const segments = parseHtmlToRichText(stripped);
-      if (segments.length > 0) {
-        children.push(makeParagraph(segments));
-      }
+      const fieldBlocks = fieldToBlocks(field, mediaUrlMap);
+      children.push(...fieldBlocks);
     }
   }
 
@@ -341,15 +434,18 @@ function hasNotes(node: DeckNode): boolean {
   return false;
 }
 
-function deckNodeToDeckPage(node: DeckNode): DeckPage {
+function deckNodeToDeckPage(
+  node: DeckNode,
+  mediaUrlMap: Map<string, string>
+): DeckPage {
   const children: ToggleHeading3Block[] = node.notes.map(({ note, noteType }) =>
-    noteToToggle(note, noteType)
+    noteToToggle(note, noteType, mediaUrlMap)
   );
 
   const subDecks: DeckPage[] = [];
   for (const [, child] of node.children) {
     if (hasNotes(child)) {
-      subDecks.push(deckNodeToDeckPage(child));
+      subDecks.push(deckNodeToDeckPage(child, mediaUrlMap));
     }
   }
 
@@ -361,7 +457,10 @@ function deckNodeToDeckPage(node: DeckNode): DeckPage {
 }
 
 export default class ApkgToNotionBlocksService {
-  transform(collection: NormalizedCollection): TransformResult {
+  transform(
+    collection: NormalizedCollection,
+    mediaUrlMap: Map<string, string> = new Map()
+  ): TransformResult {
     const seenNotes = new Set<number>();
     for (const card of collection.cards) {
       seenNotes.add(card.nid);
@@ -377,7 +476,7 @@ export default class ApkgToNotionBlocksService {
 
     for (const [, node] of tree) {
       if (hasNotes(node)) {
-        deckPages.push(deckNodeToDeckPage(node));
+        deckPages.push(deckNodeToDeckPage(node, mediaUrlMap));
       }
     }
 
