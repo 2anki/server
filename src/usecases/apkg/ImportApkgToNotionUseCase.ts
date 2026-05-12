@@ -118,12 +118,12 @@ export default class ImportApkgToNotionUseCase {
       );
     } catch (error) {
       console.error(`[apkg-import] job=${jobId} failed:`, error);
-      const message =
-        error instanceof NoteTooLargeError
-          ? error.message
-          : error instanceof Error
-            ? error.message
-            : 'Import failed';
+      const isUserFacing =
+        error instanceof NoteTooLargeError ||
+        (error instanceof Error && error.message.includes('Upgrade'));
+      const message = isUserFacing
+        ? (error as Error).message
+        : 'Import failed. Please try again or contact support.';
       await this.jobRepository
         .updateJobStatus(jobId, owner, 'failed', message)
         .catch(() => {});

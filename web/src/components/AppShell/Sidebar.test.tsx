@@ -51,16 +51,16 @@ describe('Sidebar convert group', () => {
     ).toHaveAttribute('href', '/notion');
   });
 
-  it('hides Hosted Anki when the user does not have patreon access', () => {
+  it('hides Auto Sync when the user does not have patreon access', () => {
     renderSidebar({ subscriber: true });
     expect(
-      screen.queryByRole('link', { name: 'Hosted Anki' })
+      screen.queryByRole('link', { name: 'Auto Sync' })
     ).not.toBeInTheDocument();
   });
 
-  it('shows Hosted Anki when the user has patreon access', () => {
+  it('shows Auto Sync when the user has patreon access', () => {
     renderSidebar({ patreon: true });
-    expect(screen.getByRole('link', { name: 'Hosted Anki' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Auto Sync' })).toHaveAttribute(
       'href',
       '/ankify'
     );

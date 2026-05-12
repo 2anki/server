@@ -191,7 +191,7 @@ describe('ImportApkgToNotionUseCase', () => {
       (c) => c[2] === 'failed'
     );
     expect(failCall).toBeDefined();
-    expect(failCall![3]).toContain('Notion rate limit');
+    expect(failCall![3]).toBe('Import failed. Please try again or contact support.');
   });
 
   it('handles sub-decks by creating nested pages', async () => {

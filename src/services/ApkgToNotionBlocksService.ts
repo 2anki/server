@@ -5,9 +5,9 @@ import {
 } from './ApkgPreviewService/types';
 
 const MAX_NOTES = 5000;
-const CLOZE_REGEX = /\{\{c\d+::(.*?)(?:::.*?)?\}\}/g;
+const CLOZE_REGEX = /\{\{c\d+::([^}]*?)(?:::[^}]*)?\}\}/g;
 const SOUND_TAG_REGEX = /\[sound:([^\]]+)\]/g;
-const IMG_SRC_REGEX = /<img[^>]*\bsrc\s*=\s*["']([^"']+)["'][^>]*>/gi;
+const IMG_SRC_REGEX = /<img\s[^>]*?\bsrc=["']([^"']+)["'][^>]*>/gi;
 const BOLD_REGEX = /<b>(.*?)<\/b>/gi;
 const ITALIC_REGEX = /<i>(.*?)<\/i>/gi;
 const STRONG_REGEX = /<strong>(.*?)<\/strong>/gi;
@@ -216,7 +216,7 @@ function parseHtmlToRichText(html: string): RichTextSegment[] {
 
   const segments: RichTextSegment[] = [];
 
-  const tagPattern = /<(b|strong|i|em)>(.*?)<\/\1>/gi;
+  const tagPattern = /<(b|strong|i|em)>([^<]*)<\/\1>/gi;
   let match: RegExpExecArray | null;
   let lastIndex = 0;
 
@@ -460,7 +460,7 @@ function parseClozeToRichText(html: string): RichTextSegment[] {
   const segments: RichTextSegment[] = [];
   let lastIndex = 0;
   let match: RegExpExecArray | null;
-  const regex = /\{\{c\d+::(.*?)(?:::.*?)?\}\}/g;
+  const regex = /\{\{c\d+::([^}]*?)(?:::[^}]*)?\}\}/g;
 
   while ((match = regex.exec(cleaned)) !== null) {
     const before = cleaned.slice(lastIndex, match.index);

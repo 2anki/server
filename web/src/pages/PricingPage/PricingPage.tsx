@@ -107,7 +107,7 @@ export default function PricingPage({
         <PricingCard
           className={styles.cardHosted}
           priceChip="Coming soon"
-          title="Hosted Anki"
+          title="Auto Sync"
           benefits={[
             'Convert once, sync forever',
             'Notion edits flow to your decks automatically',
@@ -128,7 +128,7 @@ export default function PricingPage({
           title="Lifetime"
           benefits={[
             'All Unlimited features, paid once',
-            'Hosted Anki included',
+            'Auto Sync included',
             'No future price changes',
           ]}
           link={lifetimeLink}

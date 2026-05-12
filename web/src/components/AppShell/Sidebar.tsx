@@ -158,7 +158,7 @@ export function Sidebar({
               onClick={handleNavClick()}
               icon={SparklesIcon}
             >
-              Hosted Anki
+              Auto Sync
             </SidebarRow>
           )}
         </div>
