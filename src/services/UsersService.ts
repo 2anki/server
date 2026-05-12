@@ -1,12 +1,30 @@
+import crypto from 'crypto';
+
 import UsersRepository from '../data_layer/UsersRepository';
 import Users from '../data_layer/public/Users';
 import AuthenticationService from './AuthenticationService';
 import { IEmailService } from './EmailService/EmailService';
+import type {
+  IMagicTokenRepository,
+  MagicTokenPurpose,
+} from '../data_layer/MagicTokenRepository';
+
+const MAGIC_LINK_RATE_LIMIT = 5;
+const MAGIC_LINK_RATE_WINDOW_MS = 60 * 60 * 1000;
+const MAGIC_LINK_EXPIRY_MS = 15 * 60 * 1000;
+
+export class MagicLinkRateLimitError extends Error {
+  constructor() {
+    super('Too many magic link requests');
+    this.name = 'MagicLinkRateLimitError';
+  }
+}
 
 class UsersService {
   constructor(
     private readonly repository: UsersRepository,
-    private readonly emailService: IEmailService
+    private readonly emailService: IEmailService,
+    private readonly magicTokenRepository?: IMagicTokenRepository
   ) {}
 
   updatePassword(password: string, resetToken: string) {
@@ -117,6 +135,45 @@ class UsersService {
     }
     await this.repository.markHostedAnkiRequested(owner);
     return { ok: true };
+  }
+
+  async requestMagicLink(
+    email: string,
+    purpose: MagicTokenPurpose
+  ): Promise<void> {
+    if (this.magicTokenRepository == null) {
+      return;
+    }
+    const user = await this.repository.getByEmail(email);
+    if (user?.id == null) {
+      return;
+    }
+    const oneHourAgo = new Date(Date.now() - MAGIC_LINK_RATE_WINDOW_MS);
+    const recentCount = await this.magicTokenRepository.countRecentByOwner(
+      user.id,
+      oneHourAgo
+    );
+    if (recentCount >= MAGIC_LINK_RATE_LIMIT) {
+      throw new MagicLinkRateLimitError();
+    }
+    const token = crypto.randomBytes(64).toString('hex');
+    const expiresAt = new Date(Date.now() + MAGIC_LINK_EXPIRY_MS);
+    await this.magicTokenRepository.create(token, user.id, purpose, expiresAt);
+    await this.emailService.sendMagicLinkEmail(email, token, purpose);
+  }
+
+  async verifyMagicToken(
+    token: string
+  ): Promise<{ userId: number; purpose: string } | null> {
+    if (this.magicTokenRepository == null) {
+      return null;
+    }
+    const record = await this.magicTokenRepository.findValidToken(token);
+    if (record == null) {
+      return null;
+    }
+    await this.magicTokenRepository.markUsed(token);
+    return { userId: record.owner, purpose: record.purpose };
   }
 }
 

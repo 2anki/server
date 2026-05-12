@@ -42,6 +42,7 @@ import requestLoggingMiddleware from './routes/middleware/requestLoggingMiddlewa
 
 import { getDatabase, setupDatabase } from './data_layer';
 import JobRepository from './data_layer/JobRepository';
+import { MagicTokenRepository } from './data_layer/MagicTokenRepository';
 import { updateStripeSubscriptions } from './lib/storage/jobs/helpers/updateStripeSubscriptions';
 
 function registerSignalHandlers(server: http.Server) {
@@ -135,6 +136,12 @@ const serve = async () => {
   if (interruptedCount > 0) {
     console.info(`[startup] Marked ${interruptedCount} Claude job(s) as interrupted`);
   }
+
+  new MagicTokenRepository(database).deleteExpired().then((count) => {
+    if (count > 0) {
+      console.info(`Cleaned up ${count} expired magic token(s)`);
+    }
+  });
 
   if (process.env.STRIPE_SYNC_ON_STARTUP === 'true') {
     console.info('[startup] Running Stripe subscription sync in background');
