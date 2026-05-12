@@ -1,0 +1,89 @@
+.showcaseSection {
+  background: var(--color-bg-primary);
+  padding: 3rem 1.5rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.showcaseInner {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.showcaseHeading {
+  font-size: var(--text-4xl);
+  font-weight: var(--font-semibold);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-text-primary);
+  margin: 0 0 0.5rem;
+  text-align: center;
+}
+
+.showcaseSubheading {
+  font-size: var(--text-lg);
+  color: var(--color-text-secondary);
+  margin: 0 0 2rem;
+  text-align: center;
+}
+
+.showcaseGrid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .showcaseGrid {
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+}
+
+.showcaseColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.columnLabel {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+.notionBlocks {
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  border: 1px solid var(--color-border);
+}
+
+.notionBlock {
+  font-size: var(--text-base);
+  color: var(--color-text-primary);
+  line-height: var(--leading-relaxed);
+}
+
+.ankiCards {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (max-width: 639px) {
+  .showcaseSection {
+    padding: 2rem 1rem;
+  }
+
+  .showcaseHeading {
+    font-size: var(--text-2xl);
+  }
+
+  .showcaseSubheading {
+    font-size: var(--text-base);
+  }
+}

@@ -38,6 +38,7 @@ import webhookRouter from './routes/WebhookRouter';
 import ankifyWebhookRouter from './routes/AnkifyWebhookRouter';
 import swaggerRouter from './routes/SwaggerRouter';
 import opsRouter from './routes/OpsRouter';
+import showcaseRouter from './routes/ShowcaseRouter';
 import requestLoggingMiddleware from './routes/middleware/requestLoggingMiddleware';
 
 import { getDatabase, setupDatabase } from './data_layer';
@@ -100,6 +101,7 @@ const serve = async () => {
   app.use(favoriteRouter());
   app.use(ankifyRouter());
   app.use(templatesRouter());
+  app.use(showcaseRouter());
   app.use(opsRouter());
 
   app.use(rejectScannerProbes);
