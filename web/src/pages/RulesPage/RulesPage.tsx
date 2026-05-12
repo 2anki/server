@@ -239,7 +239,7 @@ export default function RulesPage({ setErrorMessage }: Readonly<Props>) {
       )}
       {!isLoading && loadFailed && (
         <div className={`${styles.card} ${styles.loadingCard}`}>
-          <p>Couldn&apos;t load rules for this page. Please try again.</p>
+          <p>Couldn&apos;t load rules for this page. Try again.</p>
         </div>
       )}
       {!isLoading && !loadFailed && (

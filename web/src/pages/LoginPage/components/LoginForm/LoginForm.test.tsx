@@ -32,8 +32,8 @@ describe('LoginForm', () => {
 
   it('renders email step with email input and continue button', () => {
     renderLoginForm();
-    expect(screen.getByText('Welcome back')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('Your e-mail')).toBeInTheDocument();
+    expect(screen.getByText('Log in')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Email address')).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: 'Continue with email' })
     ).toBeInTheDocument();
@@ -41,29 +41,29 @@ describe('LoginForm', () => {
 
   it('does not show password field on email step', () => {
     renderLoginForm();
-    expect(screen.queryByPlaceholderText('Your password')).toBeNull();
+    expect(screen.queryByPlaceholderText('Password')).toBeNull();
   });
 
   it('shows Google OAuth button on email step', () => {
     renderLoginForm();
-    expect(screen.getByText('Login with Google')).toBeInTheDocument();
+    expect(screen.getByText('Log in with Google')).toBeInTheDocument();
   });
 
   it('transitions to password step after clicking continue', () => {
     renderLoginForm();
-    const emailInput = screen.getByPlaceholderText('Your e-mail');
+    const emailInput = screen.getByPlaceholderText('Email address');
     fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
     fireEvent.click(
       screen.getByRole('button', { name: 'Continue with email' })
     );
 
-    expect(screen.getByPlaceholderText('Your password')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Password')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Log in' })).toBeInTheDocument();
   });
 
   it('shows change link and forgot password on password step', () => {
     renderLoginForm();
-    fireEvent.change(screen.getByPlaceholderText('Your e-mail'), {
+    fireEvent.change(screen.getByPlaceholderText('Email address'), {
       target: { value: 'test@example.com' },
     });
     fireEvent.click(
@@ -76,7 +76,7 @@ describe('LoginForm', () => {
 
   it('returns to email step when change is clicked', () => {
     renderLoginForm();
-    fireEvent.change(screen.getByPlaceholderText('Your e-mail'), {
+    fireEvent.change(screen.getByPlaceholderText('Email address'), {
       target: { value: 'test@example.com' },
     });
     fireEvent.click(
@@ -91,7 +91,7 @@ describe('LoginForm', () => {
 
   it('shows magic link option on password step', () => {
     renderLoginForm();
-    fireEvent.change(screen.getByPlaceholderText('Your e-mail'), {
+    fireEvent.change(screen.getByPlaceholderText('Email address'), {
       target: { value: 'test@example.com' },
     });
     fireEvent.click(
@@ -99,20 +99,20 @@ describe('LoginForm', () => {
     );
 
     expect(
-      screen.getByText('Send me a login link instead')
+      screen.getByText('Send a login link instead')
     ).toBeInTheDocument();
   });
 
   it('transitions to check-email step after clicking magic link', async () => {
     renderLoginForm();
-    fireEvent.change(screen.getByPlaceholderText('Your e-mail'), {
+    fireEvent.change(screen.getByPlaceholderText('Email address'), {
       target: { value: 'test@example.com' },
     });
     fireEvent.click(
       screen.getByRole('button', { name: 'Continue with email' })
     );
 
-    fireEvent.click(screen.getByText('Send me a login link instead'));
+    fireEvent.click(screen.getByText('Send a login link instead'));
 
     await waitFor(() => {
       expect(screen.getByText('Check your email')).toBeInTheDocument();
@@ -130,7 +130,7 @@ describe('LoginForm', () => {
 
   it('persists email to localStorage on change', () => {
     renderLoginForm();
-    fireEvent.change(screen.getByPlaceholderText('Your e-mail'), {
+    fireEvent.change(screen.getByPlaceholderText('Email address'), {
       target: { value: 'stored@example.com' },
     });
     expect(localStorage.getItem('email')).toBe('stored@example.com');
@@ -140,7 +140,7 @@ describe('LoginForm', () => {
     localStorage.setItem('email', 'saved@example.com');
     renderLoginForm();
     const emailInput = screen.getByPlaceholderText(
-      'Your e-mail'
+      'Email address'
     ) as HTMLInputElement;
     expect(emailInput.value).toBe('saved@example.com');
   });

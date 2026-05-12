@@ -37,7 +37,7 @@ function LoginForm() {
       await get2ankiApi().requestMagicLink(email, 'login');
       setStep('check-email');
     } catch {
-      setError('Something went wrong. Please try again.');
+      setError('Something went wrong. Try again.');
     } finally {
       setMagicLinkLoading(false);
     }
@@ -63,7 +63,7 @@ function LoginForm() {
     <div className={styles.formPage}>
       <div className={styles.formCard}>
         <TopMessage />
-        <h1 className={styles.formTitle}>Welcome back</h1>
+        <h1 className={styles.formTitle}>Log in</h1>
         {isEmailStep ? (
           <>
             <form onSubmit={handleContinueWithEmail}>
@@ -81,7 +81,7 @@ function LoginForm() {
                       localStorage.setItem('email', event.target.value);
                     }}
                     type="email"
-                    placeholder="Your e-mail"
+                    placeholder="Email address"
                     required
                   />
                 </label>
@@ -142,7 +142,7 @@ function LoginForm() {
                   onChange={(event) => setPassword(event.target.value)}
                   required
                   type="password"
-                  placeholder="Your password"
+                  placeholder="Password"
                   autoFocus
                 />
               </label>
@@ -171,8 +171,8 @@ function LoginForm() {
                 }}
               >
                 {magicLinkLoading
-                  ? 'Sending...'
-                  : 'Send me a login link instead'}
+                  ? 'Sending'
+                  : 'Send a login link instead'}
               </a>
             </p>
           </form>

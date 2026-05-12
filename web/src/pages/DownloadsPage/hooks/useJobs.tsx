@@ -33,7 +33,7 @@ export default function useJobs(
       setJobs((prev) => prev.filter((job) => job.id !== id));
     } catch (error) {
       if (error instanceof Error && error.message.includes('Cannot delete job while it is in progress')) {
-        setError(new Error('Cannot delete this job because it is currently running. Please wait for it to complete.'));
+        setError(new Error('This job is still running. Wait for it to finish before deleting.'));
       } else {
         setError(error);
       }

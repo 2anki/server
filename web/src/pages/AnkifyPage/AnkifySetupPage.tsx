@@ -260,7 +260,7 @@ export default function AnkifySetupPage({ backend }: Props) {
       {provision.error && (
         <div className={styles.provisionErrorBlock} role="alert">
           <p className={styles.provisionErrorTitle}>
-            We couldn't start your Anki.
+            Couldn't start your Anki.
           </p>
           <p className={styles.provisionErrorBody}>
             {(provision.error as Error).message}
@@ -370,7 +370,7 @@ export default function AnkifySetupPage({ backend }: Props) {
             className={`${sharedStyles.alertDanger} ${styles.signInAlert}`}
           >
             {verifyStatus === 'unreachable' ? (
-              "We can't reach Anki right now. Try again in a few seconds."
+              "Can't reach Anki right now. Try again in a few seconds."
             ) : (
               <>
                 We don't see you signed in to AnkiWeb yet. Open Anki, click{' '}
@@ -385,7 +385,7 @@ export default function AnkifySetupPage({ backend }: Props) {
             role="alert"
             className={`${sharedStyles.alertDanger} ${styles.signInAlert}`}
           >
-            We couldn't check your sign-in.{' '}
+            Couldn't check your sign-in.{' '}
             {(verifySignIn.error as Error).message}
           </div>
         )}
@@ -410,7 +410,7 @@ export default function AnkifySetupPage({ backend }: Props) {
             role="alert"
             className={`${sharedStyles.alertDanger} ${styles.signInAlert}`}
           >
-            We couldn't restart Anki. {(respin.error as Error).message}
+            Couldn't restart Anki. {(respin.error as Error).message}
           </div>
         )}
       </section>

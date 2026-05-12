@@ -18,12 +18,12 @@ const STEPS = [
     body: 'Notion link, PDF, Word, Markdown, or a Quizlet export.',
   },
   {
-    title: 'We make the deck.',
+    title: '2anki builds your deck.',
     body: 'Usually a few seconds. Bigger files take a minute.',
   },
   {
     title: 'Open it in Anki.',
-    body: 'Double-click the .apkg we send back. Your cards are ready to study.',
+    body: 'Double-click the .apkg file. Your cards are ready to study.',
   },
 ];
 

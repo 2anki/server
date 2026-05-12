@@ -8,11 +8,11 @@ type PrintState = 'idle' | 'uploading' | 'done' | 'error';
 const WRONG_TYPE_MESSAGE =
   'This tool works with Anki deck files (.apkg). To turn notes into an Anki deck, use the Upload page.';
 const CORRUPTED_MESSAGE =
-  "We couldn't read this file. Make sure it's a valid Anki deck (.apkg) and try again.";
+  "Couldn't read this file. Make sure it's a valid Anki deck (.apkg) and try again.";
 const TOO_LARGE_MESSAGE =
   'This deck is too large to print right now. Try a deck with fewer cards.';
 const GENERIC_ERROR_MESSAGE =
-  'Something went wrong while generating the PDF. Please try again.';
+  'Something went wrong while generating the PDF. Try again.';
 
 function isApkgFile(name: string): boolean {
   return /\.apkg$/i.test(name);
@@ -30,7 +30,7 @@ async function extractErrorMessage(response: Response): Promise<string> {
   return GENERIC_ERROR_MESSAGE;
 }
 
-const AUTH_MESSAGE = 'Please log in to use PDF export.';
+const AUTH_MESSAGE = 'Log in to use PDF export.';
 const UPGRADE_MESSAGE =
   'PDF export is available to subscribers and lifetime members.';
 

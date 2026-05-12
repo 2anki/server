@@ -90,7 +90,7 @@ export default function ImportPage({ setError }: Readonly<ImportPageProps>) {
         <div className={sharedStyles.pageHeader}>
           <h1 className={sharedStyles.title}>Connect Notion to import cards</h1>
           <p className={sharedStyles.subtitle}>
-            To import an Anki deck into Notion, we need access to your workspace.
+            To import an Anki deck into Notion, 2anki needs access to your workspace.
           </p>
         </div>
         <div className={styles.connectContainer}>
@@ -98,8 +98,8 @@ export default function ImportPage({ setError }: Readonly<ImportPageProps>) {
             Connect to Notion
           </a>
           <p className={styles.connectPrivacy}>
-            We only create pages where you choose. We don't read or change your
-            existing Notion content.
+            2anki only creates pages where you choose. It does not read or change
+            your existing Notion content.
           </p>
         </div>
       </div>
@@ -152,7 +152,7 @@ export default function ImportPage({ setError }: Readonly<ImportPageProps>) {
           <p className={styles.errorBody}>
             {isUpgradeError && job.errorMessage}
             {!isUpgradeError && job.progress.total_notes > 0 &&
-              `We got through ${job.progress.imported} of ${job.progress.total_notes} cards, then something went wrong. The cards we already created are still in your Notion page.`}
+              `Imported ${job.progress.imported} of ${job.progress.total_notes} cards before something went wrong. The cards already created are still in your Notion page.`}
             {!isUpgradeError && job.progress.total_notes === 0 &&
               (job.errorMessage ?? 'Something went wrong.')}
           </p>

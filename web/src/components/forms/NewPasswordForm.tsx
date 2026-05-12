@@ -30,7 +30,7 @@ function NewPasswordForm({ setErrorMessage }: Readonly<Props>) {
   })();
 
   const passwordHelpText = passwordMeetsMinimum
-    ? 'Looks good'
+    ? 'Good'
     : 'Use at least 8 characters.';
 
   const handleSubmit = async (event: SyntheticEvent) => {
@@ -56,7 +56,7 @@ function NewPasswordForm({ setErrorMessage }: Readonly<Props>) {
       <div className={styles.formCard}>
         <h1 className={styles.formTitle}>Set a new password</h1>
         <p className={sharedStyles.formDescription}>
-          Please enter your new password below.
+          Choose a new password for your account.
         </p>
         <form onSubmit={handleSubmit}>
           <div className={styles.field}>

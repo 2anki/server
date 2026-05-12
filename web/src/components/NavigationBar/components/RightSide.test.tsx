@@ -19,7 +19,7 @@ describe('RightSide (anonymous nav)', () => {
     const upload = screen.getByRole('link', { name: 'Upload' });
     const docs = screen.getByRole('link', { name: 'Docs' });
     const pricing = screen.getByRole('link', { name: 'Pricing' });
-    const login = screen.getByRole('link', { name: 'Login' });
+    const login = screen.getByRole('link', { name: 'Log in' });
 
     expect(upload).toBeInTheDocument();
     expect(docs).toBeInTheDocument();

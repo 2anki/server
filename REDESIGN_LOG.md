@@ -160,6 +160,44 @@ Verdict: ship it / minor changes / rethink
 
 ---
 
+## Voice sweep
+
+Rewrites applied per VOICE.md — Stripe/Linear register, understated tone, generous context.
+
+### Buttons and CTAs + Error messages + Helper text (combined pass)
+
+| Location | Before | After |
+|----------|--------|-------|
+| app.document.json | "Login", "Register", "Log Out" | "Log in", "Sign up", "Log out" |
+| app.document.json | "Welcome!" | "Log in" |
+| app.document.json | "You have no downloads!" | "No conversions yet." |
+| app.document.json | "Login with Google" | "Log in with Google" |
+| app.document.json | "Register with Google" | "Sign up with Google" |
+| app.document.json | "Create your account" | "Create account" |
+| app.document.json | "Don't have an account?" | "No account yet?" |
+| LoginForm | "Welcome back" | "Log in" |
+| LoginForm | "Your e-mail" / "Your password" | "Email address" / "Password" |
+| LoginForm | "Sending..." | "Sending" |
+| LoginForm | "Send me a login link instead" | "Send a login link instead" |
+| RegisterForm | "Create my account" | "Create account" |
+| UploadForm | "Drag and drop your files here" | "Drop your files here" |
+| UploadForm | "Click to convert your notes" | "Choose files" |
+| ForgotPasswordForm | "Enter your email and we'll send you..." | "Enter your email to receive a password reset link." |
+| NewPasswordForm | "Please enter your new password below." | "Choose a new password for your account." |
+| getErrorMessage | "We couldn't reach 2anki." | "Couldn't reach 2anki." |
+| getErrorMessage | "Please sign in again." | "Session expired." |
+| getErrorMessage (all) | "Please try again" | "Try again" |
+| useHandleLoginSubmit | "Invalid username or password. Please try again or click forgot password." | "Wrong email or password. Try again or reset your password." |
+| useJobs | "Cannot delete this job because it is currently running. Please wait..." | "This job is still running. Wait for it to finish before deleting." |
+| LandingPage | "We make the deck." | "2anki builds your deck." |
+| UserActionCards | "Welcome aboard! To get started, create a new account..." | "Create an account using the same email address used for your payment." |
+| UserActionCards | "Existing User" / "New User" | "Existing user" / "New user" |
+| Ankify (6 files) | "We couldn't..." | "Couldn't..." |
+| PrintForm | "Please log in to use PDF export." | "Log in to use PDF export." |
+| ImportPage | "we need access to your workspace" | "2anki needs access to your workspace" |
+
+---
+
 ## Translation needs
 
 - `upload.page.title` in `app.document.json` — no change needed (English only)

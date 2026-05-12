@@ -53,8 +53,8 @@ function CheckYourEmail({
       <div className={styles.formCard}>
         <h1 className={styles.formTitle}>Check your email</h1>
         <p className={sharedStyles.formDescription}>
-          We sent a {linkType} to <strong>{email}</strong>. Click the link in
-          the email to {actionText}. It expires in 15 minutes.
+          A {linkType} was sent to <strong>{email}</strong>. Click the link to
+          {' '}{actionText}. It expires in 15 minutes.
         </p>
         {providerLinks.length > 0 && (
           <div className={sharedStyles.flexRow} style={{ marginBottom: '1rem' }}>
