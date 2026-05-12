@@ -1,6 +1,13 @@
 import { useShowcase } from './useShowcase';
+import { ShowcaseBlock } from '../../lib/backend/getShowcase';
 import { CardFrame } from '../PreviewApkgPage/CardFrame';
 import styles from './ShowcaseSection.module.css';
+
+function blockHtml(block: ShowcaseBlock): string {
+  if (block.html) return block.html;
+  if (block.summaryHtml) return block.summaryHtml;
+  return '';
+}
 
 export function ShowcaseSection() {
   const { data } = useShowcase();
@@ -21,13 +28,17 @@ export function ShowcaseSection() {
           <div className={styles.showcaseColumn}>
             <p className={styles.columnLabel}>Notion</p>
             <div className={styles.notionBlocks}>
-              {data.notionBlocks.map((block) => (
-                <div
-                  key={block.id}
-                  className={styles.notionBlock}
-                  dangerouslySetInnerHTML={{ __html: block.html }}
-                />
-              ))}
+              {data.notionBlocks.map((block) => {
+                const html = blockHtml(block);
+                if (!html) return null;
+                return (
+                  <div
+                    key={block.id}
+                    className={styles.notionBlock}
+                    dangerouslySetInnerHTML={{ __html: html }}
+                  />
+                );
+              })}
             </div>
           </div>
           <div className={styles.showcaseColumn}>
