@@ -105,19 +105,19 @@ export function HomePage({
     <div className={styles.page}>
       <section className={styles.hero}>
         <img
-          src="/mascot/Notion 2.png"
+          src="/mascot/Notion 4.png"
           alt=""
           className={styles.mascot}
         />
         <h1 className={styles.heroTitle}>Convert Notion to Anki</h1>
         <p className={styles.heroSubtitle}>
-          Notes in, flashcards out. Drop any file — no account needed.
-          Coming from Notion?{' '}
+          Turn your study notes into flashcards you can review in Anki.
+          Drop a file to try it — no account needed.{' '}
           <a href="/documentation/start-here/upload-a-file">
-            Learn how to export
+            Read the guide
           </a>{' '}
-          or watch a{' '}
-          <a href="#walkthroughs">video walkthrough</a>.
+          or{' '}
+          <a href="#walkthroughs">watch a walkthrough</a>.
         </p>
         <UploadForm setErrorMessage={setErrorMessage} />
         <div className={styles.heroFooter}>
