@@ -204,6 +204,13 @@ export function HomePage({
               title={item.title}
             />
           ))}
+          <a href="/contact" className={styles.walkCtaCard}>
+            <span className={styles.walkCtaIcon}>+</span>
+            <p className={styles.walkCtaTitle}>Made a video about 2anki?</p>
+            <p className={styles.walkCtaBody}>
+              Contact us and we will feature it here for free.
+            </p>
+          </a>
         </div>
       </section>
     </div>

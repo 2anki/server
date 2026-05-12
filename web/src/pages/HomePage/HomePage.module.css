@@ -277,6 +277,61 @@
   line-height: var(--leading-snug);
 }
 
+.walkCtaCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2rem 1.5rem;
+  background: var(--color-bg-primary);
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  text-align: center;
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+  min-height: 200px;
+}
+
+.walkCtaCard:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+.walkCtaIcon {
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-secondary);
+  color: var(--color-text-tertiary);
+  font-size: var(--text-xl);
+  font-weight: var(--font-medium);
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.walkCtaCard:hover .walkCtaIcon {
+  background: var(--color-primary);
+  color: var(--color-bg-primary);
+}
+
+.walkCtaTitle {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.walkCtaBody {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  margin: 0;
+  max-width: 20ch;
+  line-height: var(--leading-normal);
+}
+
 @media (max-width: 768px) {
   .hero {
     grid-template-columns: 1fr;
