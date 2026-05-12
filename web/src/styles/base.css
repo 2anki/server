@@ -229,88 +229,88 @@
   --color-text-link-hover: #2563eb;
 }
 
-/* Purple */
+/* Purple — muted lavender, not neon violet */
 [data-palette='purple'] {
-  --color-primary: #8b5cf6;
-  --color-primary-hover: #7c3aed;
-  --color-primary-light: #f5f3ff;
-  --color-focus-ring: rgba(139, 92, 246, 0.5);
-  --color-text-link: #8b5cf6;
-  --color-text-link-hover: #7c3aed;
+  --color-primary: #7c6cc4;
+  --color-primary-hover: #6b59b3;
+  --color-primary-light: #f4f2fb;
+  --color-focus-ring: rgba(124, 108, 196, 0.45);
+  --color-text-link: #7c6cc4;
+  --color-text-link-hover: #6b59b3;
 }
 
 [data-theme='dark'][data-palette='purple'] {
-  --color-primary: #8b5cf6;
-  --color-primary-hover: #a78bfa;
-  --color-primary-light: #2e1a5e;
-  --color-focus-ring: rgba(167, 139, 250, 0.5);
-  --color-text-link: #a78bfa;
-  --color-text-link-hover: #c4b5fd;
+  --color-primary: #9b8fd8;
+  --color-primary-hover: #b0a6e2;
+  --color-primary-light: #25203e;
+  --color-focus-ring: rgba(155, 143, 216, 0.45);
+  --color-text-link: #9b8fd8;
+  --color-text-link-hover: #b0a6e2;
 }
 
 [data-theme='gold'][data-palette='purple'] {
-  --color-primary: #8b5cf6;
-  --color-primary-hover: #7c3aed;
-  --color-primary-light: #f3f0fc;
-  --color-focus-ring: rgba(139, 92, 246, 0.4);
-  --color-text-link: #8b5cf6;
-  --color-text-link-hover: #7c3aed;
+  --color-primary: #7c6cc4;
+  --color-primary-hover: #6b59b3;
+  --color-primary-light: #f0edf6;
+  --color-focus-ring: rgba(124, 108, 196, 0.35);
+  --color-text-link: #7c6cc4;
+  --color-text-link-hover: #6b59b3;
 }
 
-/* Green */
+/* Green — muted sage-teal, not screaming emerald */
 [data-palette='green'] {
-  --color-primary: #10b981;
-  --color-primary-hover: #059669;
-  --color-primary-light: #ecfdf5;
-  --color-focus-ring: rgba(16, 185, 129, 0.5);
-  --color-text-link: #10b981;
-  --color-text-link-hover: #059669;
+  --color-primary: #3d9a7c;
+  --color-primary-hover: #2d8a6c;
+  --color-primary-light: #eef8f4;
+  --color-focus-ring: rgba(61, 154, 124, 0.45);
+  --color-text-link: #3d9a7c;
+  --color-text-link-hover: #2d8a6c;
 }
 
 [data-theme='dark'][data-palette='green'] {
-  --color-primary: #10b981;
-  --color-primary-hover: #34d399;
-  --color-primary-light: #0b3d2e;
-  --color-focus-ring: rgba(52, 211, 153, 0.5);
-  --color-text-link: #34d399;
-  --color-text-link-hover: #6ee7b7;
+  --color-primary: #5cb89a;
+  --color-primary-hover: #76ccb0;
+  --color-primary-light: #0e2e24;
+  --color-focus-ring: rgba(92, 184, 154, 0.45);
+  --color-text-link: #5cb89a;
+  --color-text-link-hover: #76ccb0;
 }
 
 [data-theme='gold'][data-palette='green'] {
-  --color-primary: #10b981;
-  --color-primary-hover: #059669;
-  --color-primary-light: #edfcf5;
-  --color-focus-ring: rgba(16, 185, 129, 0.4);
-  --color-text-link: #10b981;
-  --color-text-link-hover: #059669;
+  --color-primary: #3d9a7c;
+  --color-primary-hover: #2d8a6c;
+  --color-primary-light: #edf7f2;
+  --color-focus-ring: rgba(61, 154, 124, 0.35);
+  --color-text-link: #3d9a7c;
+  --color-text-link-hover: #2d8a6c;
 }
 
-/* Red */
+/* Red — warm rose, not fire-engine */
 [data-palette='red'] {
-  --color-primary: #ef4444;
-  --color-primary-hover: #dc2626;
-  --color-primary-light: #fef2f2;
-  --color-focus-ring: rgba(239, 68, 68, 0.5);
-  --color-text-link: #ef4444;
-  --color-text-link-hover: #dc2626;
+  --color-primary: #d4585c;
+  --color-primary-hover: #c14549;
+  --color-primary-light: #fdf2f2;
+  --color-focus-ring: rgba(212, 88, 92, 0.45);
+  --color-text-link: #d4585c;
+  --color-text-link-hover: #c14549;
 }
 
 [data-theme='dark'][data-palette='red'] {
-  --color-primary: #ef4444;
-  --color-primary-hover: #f87171;
-  --color-primary-light: #371717;
-  --color-focus-ring: rgba(248, 113, 113, 0.5);
-  --color-text-link: #f87171;
-  --color-text-link-hover: #fca5a5;
+  --color-primary: #e87a7d;
+  --color-primary-hover: #f09496;
+  --color-primary-light: #321414;
+  --color-focus-ring: rgba(232, 122, 125, 0.45);
+  --color-text-link: #e87a7d;
+  --color-text-link-hover: #f09496;
 }
 
 [data-theme='gold'][data-palette='red'] {
-  --color-primary: #ef4444;
-  --color-primary-hover: #dc2626;
-  --color-primary-light: #fdf1f1;
-  --color-focus-ring: rgba(239, 68, 68, 0.4);
-  --color-text-link: #ef4444;
-  --color-text-link-hover: #dc2626;
+  --color-primary: #d4585c;
+  --color-primary-hover: #c14549;
+  --color-primary-light: #faf0f0;
+  --color-focus-ring: rgba(212, 88, 92, 0.35);
+  --color-text-link: #d4585c;
+  --color-text-link-hover: #c14549;
 }
 
 *,

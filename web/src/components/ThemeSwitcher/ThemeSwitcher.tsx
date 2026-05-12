@@ -17,9 +17,9 @@ const THEMES: readonly { value: Theme; label: string; icon: string }[] = [
 
 const PALETTES: readonly { value: Palette; label: string; swatch: string }[] = [
   { value: 'blue', label: 'Blue', swatch: '#3b82f6' },
-  { value: 'purple', label: 'Purple', swatch: '#8b5cf6' },
-  { value: 'green', label: 'Green', swatch: '#10b981' },
-  { value: 'red', label: 'Red', swatch: '#ef4444' },
+  { value: 'purple', label: 'Purple', swatch: '#7c6cc4' },
+  { value: 'green', label: 'Green', swatch: '#3d9a7c' },
+  { value: 'red', label: 'Red', swatch: '#d4585c' },
 ];
 
 export function ThemeSwitcher() {
