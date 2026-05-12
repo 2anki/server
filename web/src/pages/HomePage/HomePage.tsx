@@ -156,8 +156,10 @@ export function HomePage({
           Notes in, flashcards out. Drop any file — no account needed.
           Coming from Notion?{' '}
           <a href="/documentation/start-here/upload-a-file">
-            Learn how to export.
-          </a>
+            Learn how to export
+          </a>{' '}
+          or watch a{' '}
+          <a href="#walkthroughs">video walkthrough</a>.
         </p>
         <UploadForm setErrorMessage={setErrorMessage} />
         <div className={styles.heroFooter}>
@@ -194,7 +196,7 @@ export function HomePage({
         </div>
       </section>
 
-      <section className={styles.bottomSection}>
+      <section id="walkthroughs" className={styles.bottomSection}>
         <p className={styles.walkHeading}>Walkthroughs</p>
         <div className={styles.walkGrid}>
           {WALKTHROUGHS.map((item) => (
