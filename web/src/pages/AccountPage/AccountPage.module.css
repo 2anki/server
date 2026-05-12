@@ -6,9 +6,9 @@
 
 .mainCard {
   background: var(--color-bg-primary);
-  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   padding: 2rem;
+  box-shadow: var(--shadow-sm);
 }
 
 .profileSection {
@@ -84,18 +84,20 @@
   padding: 0.5rem 1rem;
   font-size: var(--text-sm);
   font-weight: var(--font-medium);
-  color: #fff;
+  color: var(--color-bg-primary);
   background: var(--color-primary);
   border: none;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-md);
   text-decoration: none;
-  transition: background var(--transition-fast);
+  box-shadow: var(--shadow-xs);
+  transition: background var(--transition-fast), box-shadow var(--transition-fast);
   cursor: pointer;
 }
 
 .planButton:hover {
   background: var(--color-primary-hover);
-  color: #fff;
+  color: var(--color-bg-primary);
+  box-shadow: var(--shadow-sm);
 }
 
 .managementCard {
@@ -120,10 +122,10 @@
 .linkedEmail {
   padding: 0.75rem 1rem;
   background: var(--color-success-light);
-  border: 1px solid #a7f3d0;
+  border: 1px solid var(--color-success-border);
   border-radius: var(--radius-md);
   font-size: var(--text-sm);
-  color: #065f46;
+  color: var(--color-success-text);
 }
 
 .helpDanger {
@@ -171,7 +173,7 @@
   color: var(--color-danger);
   background: transparent;
   border: 1px solid var(--color-danger-border);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-md);
   cursor: pointer;
   transition: all var(--transition-fast);
 }
@@ -196,7 +198,7 @@
   color: var(--color-text-secondary);
   background: transparent;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-md);
   cursor: pointer;
   transition: all var(--transition-fast);
   text-decoration: none;
@@ -209,41 +211,41 @@
 
 .scheduledBadge {
   padding: 0.75rem 1rem;
-  background: var(--color-warning-light, #fef3c7);
-  border: 1px solid var(--color-warning-border, #fcd34d);
+  background: var(--color-warning-light);
+  border: 1px solid var(--color-warning-border);
   border-radius: var(--radius-md);
   font-size: var(--text-sm);
-  color: var(--color-warning-text, #92400e);
+  color: var(--color-warning-text);
   margin-bottom: 0.75rem;
 }
 
 .activeBadge {
   padding: 0.75rem 1rem;
-  background: var(--color-success-light, #d1fae5);
-  border: 1px solid #a7f3d0;
+  background: var(--color-success-light);
+  border: 1px solid var(--color-success-border);
   border-radius: var(--radius-md);
   font-size: var(--text-sm);
-  color: #065f46;
+  color: var(--color-success-text);
   margin-bottom: 0.75rem;
 }
 
 .infoBadge {
   padding: 0.75rem 1rem;
-  background: var(--color-info-light, #eff6ff);
-  border: 1px solid var(--color-info-border, #bfdbfe);
+  background: var(--color-info-light);
+  border: 1px solid var(--color-info-border);
   border-radius: var(--radius-md);
   font-size: var(--text-sm);
-  color: var(--color-info-text, #1e40af);
+  color: var(--color-info-text);
   margin-bottom: 0.75rem;
 }
 
 .cancelledBadge {
   padding: 0.75rem 1rem;
-  background: var(--color-bg-secondary, #f3f4f6);
-  border: 1px solid var(--color-border, #d1d5db);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   font-size: var(--text-sm);
-  color: var(--color-text-secondary, #4b5563);
+  color: var(--color-text-secondary);
   margin-bottom: 0.75rem;
 }
 
