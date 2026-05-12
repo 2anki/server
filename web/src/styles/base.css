@@ -215,6 +215,104 @@
   --color-indigo-dark: #4a3a1f;
 }
 
+/* =====================================================================
+   COLOR PALETTES — accent/primary overrides (orthogonal to theme)
+   ===================================================================== */
+
+/* Blue on gold (override gold's brown accent with blue) */
+[data-theme='gold'][data-palette='blue'] {
+  --color-primary: #3b82f6;
+  --color-primary-hover: #2563eb;
+  --color-primary-light: #eef4fc;
+  --color-focus-ring: rgba(59, 130, 246, 0.4);
+  --color-text-link: #3b82f6;
+  --color-text-link-hover: #2563eb;
+}
+
+/* Purple */
+[data-palette='purple'] {
+  --color-primary: #8b5cf6;
+  --color-primary-hover: #7c3aed;
+  --color-primary-light: #f5f3ff;
+  --color-focus-ring: rgba(139, 92, 246, 0.5);
+  --color-text-link: #8b5cf6;
+  --color-text-link-hover: #7c3aed;
+}
+
+[data-theme='dark'][data-palette='purple'] {
+  --color-primary: #8b5cf6;
+  --color-primary-hover: #a78bfa;
+  --color-primary-light: #2e1a5e;
+  --color-focus-ring: rgba(167, 139, 250, 0.5);
+  --color-text-link: #a78bfa;
+  --color-text-link-hover: #c4b5fd;
+}
+
+[data-theme='gold'][data-palette='purple'] {
+  --color-primary: #8b5cf6;
+  --color-primary-hover: #7c3aed;
+  --color-primary-light: #f3f0fc;
+  --color-focus-ring: rgba(139, 92, 246, 0.4);
+  --color-text-link: #8b5cf6;
+  --color-text-link-hover: #7c3aed;
+}
+
+/* Green */
+[data-palette='green'] {
+  --color-primary: #10b981;
+  --color-primary-hover: #059669;
+  --color-primary-light: #ecfdf5;
+  --color-focus-ring: rgba(16, 185, 129, 0.5);
+  --color-text-link: #10b981;
+  --color-text-link-hover: #059669;
+}
+
+[data-theme='dark'][data-palette='green'] {
+  --color-primary: #10b981;
+  --color-primary-hover: #34d399;
+  --color-primary-light: #0b3d2e;
+  --color-focus-ring: rgba(52, 211, 153, 0.5);
+  --color-text-link: #34d399;
+  --color-text-link-hover: #6ee7b7;
+}
+
+[data-theme='gold'][data-palette='green'] {
+  --color-primary: #10b981;
+  --color-primary-hover: #059669;
+  --color-primary-light: #edfcf5;
+  --color-focus-ring: rgba(16, 185, 129, 0.4);
+  --color-text-link: #10b981;
+  --color-text-link-hover: #059669;
+}
+
+/* Red */
+[data-palette='red'] {
+  --color-primary: #ef4444;
+  --color-primary-hover: #dc2626;
+  --color-primary-light: #fef2f2;
+  --color-focus-ring: rgba(239, 68, 68, 0.5);
+  --color-text-link: #ef4444;
+  --color-text-link-hover: #dc2626;
+}
+
+[data-theme='dark'][data-palette='red'] {
+  --color-primary: #ef4444;
+  --color-primary-hover: #f87171;
+  --color-primary-light: #371717;
+  --color-focus-ring: rgba(248, 113, 113, 0.5);
+  --color-text-link: #f87171;
+  --color-text-link-hover: #fca5a5;
+}
+
+[data-theme='gold'][data-palette='red'] {
+  --color-primary: #ef4444;
+  --color-primary-hover: #dc2626;
+  --color-primary-light: #fdf1f1;
+  --color-focus-ring: rgba(239, 68, 68, 0.4);
+  --color-text-link: #ef4444;
+  --color-text-link-hover: #dc2626;
+}
+
 *,
 *::before,
 *::after {

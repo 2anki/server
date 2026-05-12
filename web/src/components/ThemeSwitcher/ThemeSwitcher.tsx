@@ -1,5 +1,12 @@
 import { useState } from 'react';
-import { type Theme, applyTheme, getStoredTheme } from '../../lib/theme';
+import {
+  type Theme,
+  type Palette,
+  applyTheme,
+  applyPalette,
+  getStoredTheme,
+  getStoredPalette,
+} from '../../lib/theme';
 import styles from './ThemeSwitcher.module.css';
 
 const THEMES: readonly { value: Theme; label: string; icon: string }[] = [
@@ -8,30 +15,61 @@ const THEMES: readonly { value: Theme; label: string; icon: string }[] = [
   { value: 'gold', label: 'Gold theme', icon: '✦' },
 ];
 
-export function ThemeSwitcher() {
-  const [current, setCurrent] = useState<Theme>(getStoredTheme);
+const PALETTES: readonly { value: Palette; label: string; swatch: string }[] = [
+  { value: 'blue', label: 'Blue', swatch: '#3b82f6' },
+  { value: 'purple', label: 'Purple', swatch: '#8b5cf6' },
+  { value: 'green', label: 'Green', swatch: '#10b981' },
+  { value: 'red', label: 'Red', swatch: '#ef4444' },
+];
 
-  function handleSelect(theme: Theme) {
-    setCurrent(theme);
+export function ThemeSwitcher() {
+  const [currentTheme, setCurrentTheme] = useState<Theme>(getStoredTheme);
+  const [currentPalette, setCurrentPalette] = useState<Palette>(getStoredPalette);
+
+  function handleTheme(theme: Theme) {
+    setCurrentTheme(theme);
     applyTheme(theme);
   }
 
+  function handlePalette(palette: Palette) {
+    setCurrentPalette(palette);
+    applyPalette(palette);
+  }
+
   return (
-    <div className={styles.switcher} role="radiogroup" aria-label="Theme">
-      {THEMES.map(({ value, label, icon }) => (
-        <button
-          key={value}
-          type="button"
-          role="radio"
-          aria-checked={current === value}
-          aria-label={label}
-          title={label}
-          className={`${styles.option} ${current === value ? styles.optionActive : ''}`}
-          onClick={() => handleSelect(value)}
-        >
-          {icon}
-        </button>
-      ))}
+    <div className={styles.container}>
+      <span className={styles.label}>Appearance</span>
+      <div className={styles.switcher} role="radiogroup" aria-label="Theme">
+        {THEMES.map(({ value, label, icon }) => (
+          <button
+            key={value}
+            type="button"
+            role="radio"
+            aria-checked={currentTheme === value}
+            aria-label={label}
+            title={label}
+            className={`${styles.option} ${currentTheme === value ? styles.optionActive : ''}`}
+            onClick={() => handleTheme(value)}
+          >
+            {icon}
+          </button>
+        ))}
+      </div>
+      <div className={styles.paletteRow} role="radiogroup" aria-label="Accent color">
+        {PALETTES.map(({ value, label, swatch }) => (
+          <button
+            key={value}
+            type="button"
+            role="radio"
+            aria-checked={currentPalette === value}
+            aria-label={label}
+            title={label}
+            className={`${styles.paletteDot} ${currentPalette === value ? styles.paletteDotActive : ''}`}
+            style={{ backgroundColor: swatch, color: swatch }}
+            onClick={() => handlePalette(value)}
+          />
+        ))}
+      </div>
     </div>
   );
 }

@@ -1,3 +1,17 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.label {
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+}
+
 .switcher {
   display: inline-flex;
   align-items: center;
@@ -32,4 +46,43 @@
   background: var(--color-bg-primary);
   color: var(--color-text-primary);
   box-shadow: var(--shadow-xs);
+}
+
+.paletteRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 0;
+}
+
+.paletteDot {
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-full);
+  border: none;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity var(--transition-fast), box-shadow var(--transition-fast);
+  padding: 0;
+}
+
+.paletteDot:hover {
+  opacity: 1;
+}
+
+.paletteDotActive {
+  opacity: 1;
+  box-shadow: 0 0 0 2px var(--color-bg-secondary), 0 0 0 4px currentColor;
+}
+
+.paletteDot:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .option,
+  .paletteDot {
+    transition: none;
+  }
 }
