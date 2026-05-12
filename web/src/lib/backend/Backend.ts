@@ -663,4 +663,36 @@ export class Backend {
     }
     return response.json();
   }
+
+  async startImportToNotion(
+    file: File,
+    notionPageId: string
+  ): Promise<{ job_id: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('parent_page_id', notionPageId);
+
+    const response = await fetch(`${this.baseURL}apkg/import`, {
+      method: 'POST',
+      credentials: 'include',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response
+        .json()
+        .catch(() => ({ message: response.statusText }));
+      throw new Error(error.message ?? 'Failed to start import');
+    }
+    return response.json();
+  }
+
+  async getImportJobStatus(jobId: string): Promise<{
+    status: string;
+    progress: { total_notes: number; imported: number };
+    notion_page_url?: string;
+    error?: string;
+  }> {
+    return get(`${this.baseURL}apkg/import/${jobId}/status`);
+  }
 }

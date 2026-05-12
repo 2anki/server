@@ -1,0 +1,128 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { get2ankiApi } from '../../../lib/backend/get2ankiApi';
+
+type ImportJobPhase = 'idle' | 'uploading' | 'polling' | 'completed' | 'failed';
+
+interface ImportJobProgress {
+  total_notes: number;
+  imported: number;
+}
+
+interface ImportJobState {
+  phase: ImportJobPhase;
+  progress: ImportJobProgress;
+  notionPageUrl: string | null;
+  errorMessage: string | null;
+}
+
+const POLL_INTERVAL_MS = 2000;
+
+export default function useImportJob() {
+  const [state, setState] = useState<ImportJobState>({
+    phase: 'idle',
+    progress: { total_notes: 0, imported: 0 },
+    notionPageUrl: null,
+    errorMessage: null,
+  });
+
+  const jobIdRef = useRef<string | null>(null);
+  const pollTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const stopPolling = useCallback(() => {
+    if (pollTimerRef.current != null) {
+      clearInterval(pollTimerRef.current);
+      pollTimerRef.current = null;
+    }
+  }, []);
+
+  const pollStatus = useCallback(async () => {
+    const jobId = jobIdRef.current;
+    if (jobId == null) return;
+
+    try {
+      const result = await get2ankiApi().getImportJobStatus(jobId);
+
+      if (result.status === 'done') {
+        stopPolling();
+        setState({
+          phase: 'completed',
+          progress: result.progress,
+          notionPageUrl: result.notion_page_url ?? null,
+          errorMessage: null,
+        });
+      } else if (result.status === 'failed') {
+        stopPolling();
+        setState({
+          phase: 'failed',
+          progress: result.progress,
+          notionPageUrl: null,
+          errorMessage: result.error ?? 'Import failed',
+        });
+      } else {
+        setState((prev) => ({
+          ...prev,
+          phase: 'polling',
+          progress: result.progress,
+        }));
+      }
+    } catch (err) {
+      stopPolling();
+      setState((prev) => ({
+        ...prev,
+        phase: 'failed',
+        errorMessage: err instanceof Error ? err.message : 'Connection lost',
+      }));
+    }
+  }, [stopPolling]);
+
+  const startPolling = useCallback(
+    (jobId: string) => {
+      jobIdRef.current = jobId;
+      stopPolling();
+      pollTimerRef.current = setInterval(pollStatus, POLL_INTERVAL_MS);
+    },
+    [pollStatus, stopPolling]
+  );
+
+  const submit = useCallback(
+    async (file: File, notionPageId: string) => {
+      setState({
+        phase: 'uploading',
+        progress: { total_notes: 0, imported: 0 },
+        notionPageUrl: null,
+        errorMessage: null,
+      });
+
+      try {
+        const result = await get2ankiApi().startImportToNotion(file, notionPageId);
+        setState((prev) => ({ ...prev, phase: 'polling' }));
+        startPolling(result.job_id);
+      } catch (err) {
+        setState({
+          phase: 'failed',
+          progress: { total_notes: 0, imported: 0 },
+          notionPageUrl: null,
+          errorMessage: err instanceof Error ? err.message : 'Failed to start import',
+        });
+      }
+    },
+    [startPolling]
+  );
+
+  const reset = useCallback(() => {
+    stopPolling();
+    jobIdRef.current = null;
+    setState({
+      phase: 'idle',
+      progress: { total_notes: 0, imported: 0 },
+      notionPageUrl: null,
+      errorMessage: null,
+    });
+  }, [stopPolling]);
+
+  useEffect(() => {
+    return () => stopPolling();
+  }, [stopPolling]);
+
+  return { ...state, submit, reset };
+}

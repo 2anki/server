@@ -1,0 +1,256 @@
+.stepSection {
+  margin-bottom: 1.5rem;
+}
+
+.stepLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-secondary, #6b7280);
+  margin-bottom: 0.5rem;
+}
+
+.stepDisabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.dropZone {
+  border: 2px dashed var(--color-border, #d1d5db);
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.dropZone:hover {
+  border-color: var(--color-primary, #4f46e5);
+}
+
+.dropZoneActive {
+  border-color: var(--color-primary, #4f46e5);
+  background: var(--color-primary-light, #eef2ff);
+}
+
+.dropZoneHasFile {
+  border-style: solid;
+  border-color: var(--color-success, #16a34a);
+  background: var(--color-success-light, #f0fdf4);
+}
+
+.dropZoneTitle {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.dropZoneSubtitle {
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.dropZoneFileName {
+  margin: 0;
+  font-weight: 500;
+}
+
+.dropZoneError {
+  color: var(--color-danger, #dc2626);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+.pagePicker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.pagePickerSearch {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.pagePickerInput {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border, #d1d5db);
+  border-radius: 6px;
+  font-size: 0.875rem;
+}
+
+.pagePickerList {
+  max-height: 320px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pagePickerRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--color-border, #d1d5db);
+  border-radius: 6px;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  font-size: 0.875rem;
+  width: 100%;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.pagePickerRow:hover {
+  border-color: var(--color-primary, #4f46e5);
+}
+
+.pagePickerRowSelected {
+  border-color: var(--color-primary, #4f46e5);
+  background: var(--color-primary-light, #eef2ff);
+}
+
+.pagePickerIcon {
+  flex-shrink: 0;
+}
+
+.pagePickerTitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pagePickerEmpty {
+  text-align: center;
+  color: var(--color-text-secondary, #6b7280);
+  padding: 1rem;
+  font-size: 0.875rem;
+}
+
+.pagePickerHelp {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary, #6b7280);
+}
+
+.progressContainer {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.progressTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem;
+}
+
+.progressSummary {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0 0 1rem;
+}
+
+.progressBar {
+  height: 8px;
+  background: var(--color-border, #d1d5db);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--color-primary, #4f46e5);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progressCount {
+  font-size: 0.875rem;
+  margin: 0 0 0.5rem;
+}
+
+.progressReassurance {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin: 0;
+}
+
+.completeContainer {
+  text-align: center;
+  padding: 2rem 1rem;
+  background: var(--color-success-light, #f0fdf4);
+  border: 1px solid var(--color-success, #16a34a);
+  border-radius: 8px;
+}
+
+.completeTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem;
+}
+
+.completeSummary {
+  font-size: 0.875rem;
+  margin: 0 0 1.5rem;
+}
+
+.completeActions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.errorContainer {
+  text-align: center;
+  padding: 2rem 1rem;
+  background: var(--color-danger-light, #fef2f2);
+  border: 1px solid var(--color-danger, #dc2626);
+  border-radius: 8px;
+}
+
+.errorTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+}
+
+.errorBody {
+  font-size: 0.875rem;
+  margin: 0 0 1.5rem;
+}
+
+.errorActions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.connectContainer {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.connectBody {
+  font-size: 0.875rem;
+  margin: 0 0 1rem;
+}
+
+.connectPrivacy {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin-top: 1rem;
+}
+
+.actions {
+  margin-top: 1.5rem;
+}
+
+@media (max-width: 640px) {
+  .dropZone {
+    padding: 2rem 1rem;
+  }
+}

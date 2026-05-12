@@ -133,6 +133,14 @@ export function Sidebar({
         >
           {getVisibleText('navigation.searchNotion')}
         </SidebarRow>
+        <SidebarRow
+          href="/import"
+          pathname={pathname}
+          matchPrefix={false}
+          onClick={handleNavClick()}
+        >
+          Import to Notion
+        </SidebarRow>
         {showAnkify && (
           <SidebarRow
             href="/ankify"

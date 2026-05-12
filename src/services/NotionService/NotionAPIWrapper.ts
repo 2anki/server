@@ -1,6 +1,7 @@
 import { Client, isFullBlock, isFullDatabase } from '@notionhq/client';
 import {
   BlockObjectRequest,
+  CreatePageResponse,
   GetBlockResponse,
   GetDatabaseResponse,
   GetPageResponse,
@@ -188,6 +189,39 @@ class NotionAPIWrapper {
       block_id: parent,
       children: [newBlock],
     });
+  }
+
+  appendBlocks(
+    parentId: string,
+    children: BlockObjectRequest[]
+  ): Promise<ListBlockChildrenResponse> {
+    return withRetry(
+      () =>
+        this.notion.blocks.children.append({
+          block_id: parentId,
+          children,
+        }),
+      { label: 'blocks.children.append:batch' }
+    );
+  }
+
+  createPage(
+    parentPageId: string,
+    title: string
+  ): Promise<CreatePageResponse> {
+    return withRetry(
+      () =>
+        this.notion.pages.create({
+          parent: { page_id: parentPageId },
+          properties: {
+            title: {
+              type: 'title',
+              title: [{ text: { content: title } }],
+            },
+          },
+        }),
+      { label: 'pages.create' }
+    );
   }
 
   getDatabase(id: string): Promise<GetDatabaseResponse> {
