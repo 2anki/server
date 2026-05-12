@@ -113,13 +113,25 @@ export default class ApkgPreviewService {
     mediaBaseUrl: string
   ): RenderedCard | null {
     const card = parsed.collection.cards.find((c) => c.id === cardId);
-    if (!card) return null;
+    if (!card) {
+      console.warn(`[apkg-preview] card ${cardId}: not found in collection`);
+      return null;
+    }
     const note = parsed.collection.notes.get(card.nid);
-    if (!note) return null;
+    if (!note) {
+      console.warn(`[apkg-preview] card ${cardId}: note ${card.nid} not found`);
+      return null;
+    }
     const noteType = parsed.collection.noteTypes.get(note.mid);
-    if (!noteType) return null;
+    if (!noteType) {
+      console.warn(`[apkg-preview] card ${cardId}: noteType ${note.mid} not found`);
+      return null;
+    }
     const template = noteType.templates.find((t) => t.ord === card.ord);
-    if (!template) return null;
+    if (!template) {
+      console.warn(`[apkg-preview] card ${cardId}: template ord=${card.ord} not found in noteType "${noteType.name}" (has ${noteType.templates.length} templates)`);
+      return null;
+    }
     const deck = parsed.collection.decks.get(card.did);
 
     const activeClozeNumber = noteType.type === 1 ? card.ord + 1 : null;
