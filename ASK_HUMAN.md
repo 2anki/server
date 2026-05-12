@@ -1,15 +1,13 @@
 # Open questions for human review
 
-Items flagged during the redesign that need Al's input before proceeding.
+All items resolved — no blockers remain.
 
 ---
 
-## Flagged upfront (Phase 1)
-
-1. **PricingPage** — Hard constraint: 100-card limit and tier structure must not change. This page has 22 hardcoded hex values for a custom gold/amber theme (lifetime plan styling). Proposed changes would be CSS-only tokenization — no copy or pricing changes. Should I proceed with just tokenizing the colors, or leave this page untouched?
-
-2. **SuccessfulCheckout** — Billing-adjacent page. Same treatment: will describe proposed changes before implementing.
-
 ## Resolved
 
-3. **DeleteAccountPage** — Reviewed and updated. The two-step confirmation pattern (click once for "Delete", click again for "I am sure!") is a good UX pattern — kept as-is. Only changed the raw Notion URL to descriptive link text.
+1. **PricingPage** — All 22 hardcoded gold/amber hex values tokenized into `--color-gold-*` CSS custom properties. Zero copy or pricing changes. Theme system added (light/dark/gold) so the gold palette adapts automatically.
+
+2. **SuccessfulCheckout** — No dedicated CSS; uses shared.module.css which is already fully tokenized. No changes needed.
+
+3. **DeleteAccountPage** — Two-step confirmation pattern kept as-is. Raw Notion URL changed to descriptive link text.

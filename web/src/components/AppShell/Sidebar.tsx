@@ -14,6 +14,7 @@ import PrinterIcon from '../icons/PrinterIcon';
 import SparklesIcon from '../icons/SparklesIcon';
 import UserCircleIcon from '../icons/UserCircleIcon';
 import WrenchIcon from '../icons/WrenchIcon';
+import { ThemeSwitcher } from '../ThemeSwitcher/ThemeSwitcher';
 import styles from './AppShell.module.css';
 
 export interface SidebarLocals {
@@ -243,6 +244,9 @@ export function Sidebar({
           <ArrowRightOnRectangleIcon width={20} height={20} />
           {getVisibleText('navigation.logout')}
         </a>
+      </div>
+      <div className={styles.sidebarTheme}>
+        <ThemeSwitcher />
       </div>
       <div className={styles.sidebarMore}>
         <div className={styles.sidebarMoreLinks}>

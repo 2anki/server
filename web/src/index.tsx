@@ -8,8 +8,10 @@ import BugsnagPluginReact from '@bugsnag/plugin-react';
 import App from './App';
 
 import { SkeletonPage } from './components/Skeleton/Skeleton';
+import { initTheme } from './lib/theme';
 
 function main() {
+  initTheme();
   Bugsnag.start({
     apiKey: '746833cc883014579ab94b5d1222c638',
     plugins: [new BugsnagPluginReact()],

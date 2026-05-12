@@ -1,0 +1,35 @@
+.switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-full);
+  padding: 2px;
+}
+
+.option {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+  font-size: 14px;
+  line-height: 1;
+  padding: 0;
+}
+
+.option:hover {
+  color: var(--color-text-primary);
+}
+
+.optionActive {
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  box-shadow: var(--shadow-xs);
+}
