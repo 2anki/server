@@ -9,6 +9,7 @@ import {
   QueryDataSourceResponse,
   SearchResponse,
 } from '@notionhq/client/build/src/api-endpoints';
+import { CreateFileUploadResponse } from '@notionhq/client/build/src/api-endpoints/file-uploads';
 import { getNotionObjectTitle } from 'get-notion-object-title';
 
 import sanitizeTags from '../../lib/anki/sanitizeTags';
@@ -222,6 +223,33 @@ class NotionAPIWrapper {
         }),
       { label: 'pages.create' }
     );
+  }
+
+  async uploadFile(
+    filename: string,
+    contentType: string,
+    data: Buffer
+  ): Promise<string> {
+    const created: CreateFileUploadResponse = await withRetry(
+      () =>
+        this.notion.fileUploads.create({
+          mode: 'single_part',
+          filename,
+          content_type: contentType,
+        }),
+      { label: 'fileUploads.create' }
+    );
+
+    await withRetry(
+      () =>
+        this.notion.fileUploads.send({
+          file_upload_id: created.id,
+          file: { data: new Blob([new Uint8Array(data)], { type: contentType }), filename },
+        }),
+      { label: 'fileUploads.send' }
+    );
+
+    return created.id;
   }
 
   getDatabase(id: string): Promise<GetDatabaseResponse> {

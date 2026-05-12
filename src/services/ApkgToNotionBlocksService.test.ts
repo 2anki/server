@@ -294,7 +294,7 @@ describe('ApkgToNotionBlocksService', () => {
       const blocks = result.deckPages[0].children;
       expect(blocks[0].type).toBe('divider');
       expect(blocks[1].type).toBe('image');
-      if (blocks[1].type === 'image') {
+      if (blocks[1].type === 'image' && blocks[1].image.type === 'external') {
         expect(blocks[1].image.external.url).toBe('https://cdn.example.com/bollard.jpg');
       }
       expect(blocks[2].type).toBe('heading_3');
@@ -372,7 +372,7 @@ describe('ApkgToNotionBlocksService', () => {
       const blocks = result.deckPages[0].children;
       const imageBlock = blocks.find((b) => b.type === 'image');
       expect(imageBlock).toBeDefined();
-      if (imageBlock?.type === 'image') {
+      if (imageBlock?.type === 'image' && imageBlock.image.type === 'external') {
         expect(imageBlock.image.external.url).toBe(
           'https://cdn.example.com/imports/job-1/bollard.jpg'
         );

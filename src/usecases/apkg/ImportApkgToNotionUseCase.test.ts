@@ -89,6 +89,7 @@ describe('ImportApkgToNotionUseCase', () => {
       getPage: jest
         .fn()
         .mockResolvedValue({ url: 'https://notion.so/page-123' }),
+      uploadFile: jest.fn().mockResolvedValue('file-upload-123'),
     } as unknown as jest.Mocked<NotionAPIWrapper>;
 
     useCase = new ImportApkgToNotionUseCase(

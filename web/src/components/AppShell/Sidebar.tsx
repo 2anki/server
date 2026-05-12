@@ -131,7 +131,7 @@ export function Sidebar({
           pathname={pathname}
           onClick={handleNavClick()}
         >
-          {getVisibleText('navigation.searchNotion')}
+          Notion → Anki
         </SidebarRow>
         <SidebarRow
           href="/import"
@@ -139,7 +139,7 @@ export function Sidebar({
           matchPrefix={false}
           onClick={handleNavClick()}
         >
-          Import to Notion
+          Anki → Notion
         </SidebarRow>
         {showAnkify && (
           <SidebarRow

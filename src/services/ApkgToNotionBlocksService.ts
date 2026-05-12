@@ -38,13 +38,23 @@ interface ParagraphBlock {
   };
 }
 
-interface ImageBlock {
+interface ExternalImageBlock {
   type: 'image';
   image: {
     type: 'external';
     external: { url: string };
   };
 }
+
+interface FileUploadImageBlock {
+  type: 'image';
+  image: {
+    type: 'file_upload';
+    file_upload: { id: string };
+  };
+}
+
+type ImageBlock = ExternalImageBlock | FileUploadImageBlock;
 
 interface DividerBlock {
   type: 'divider';
@@ -181,12 +191,21 @@ function makeRichText(content: string, bold = false, italic = false): RichTextSe
   return segments;
 }
 
-function makeImageBlock(url: string): ImageBlock {
+function makeImageBlock(ref: string): ImageBlock {
+  if (ref.startsWith('http://') || ref.startsWith('https://')) {
+    return {
+      type: 'image',
+      image: {
+        type: 'external',
+        external: { url: ref },
+      },
+    };
+  }
   return {
     type: 'image',
     image: {
-      type: 'external',
-      external: { url },
+      type: 'file_upload',
+      file_upload: { id: ref },
     },
   };
 }
