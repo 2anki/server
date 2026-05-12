@@ -1,7 +1,7 @@
 {
   "navigation.pricing": "Pricing",
   "navigation.login": "Log in",
-  "navigation.upload": "Upload",
+  "navigation.upload": "Make flashcards",
   "navigation.searchNotion": "Search Notion",
   "navigation.help": "FAQ",
   "navigation.help.url": "https://docs.2anki.net/troubleshooting/faq/",
@@ -13,7 +13,7 @@
   "navigation.deleteAccount": "Delete account",
   "navigation.page.settings": "Settings",
   "downloads.empty": "No decks yet.",
-  "upload.page.title": "Upload",
+  "upload.page.title": "Make flashcards",
   "pricing.page.title": "Pricing",
   "navigation.settings": "Settings",
   "card.options": "Card options",

@@ -24,7 +24,7 @@ describe('SidebarLayout drawer', () => {
   it('renders the page content next to the sidebar', () => {
     renderLayout();
     expect(screen.getByTestId('page-content')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Upload' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Make flashcards' })).toBeInTheDocument();
   });
 
   it('exposes a burger that toggles the drawer aria-hidden state', () => {
