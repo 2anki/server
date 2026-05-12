@@ -230,24 +230,18 @@ class NotionAPIWrapper {
     contentType: string,
     data: Buffer
   ): Promise<string> {
-    const created: CreateFileUploadResponse = await withRetry(
-      () =>
-        this.notion.fileUploads.create({
-          mode: 'single_part',
-          filename,
-          content_type: contentType,
-        }),
-      { label: 'fileUploads.create' }
-    );
+    const created = await this.notion.fileUploads.create({
+      mode: 'single_part',
+      filename,
+      content_type: contentType,
+    });
 
-    await withRetry(
-      () =>
-        this.notion.fileUploads.send({
-          file_upload_id: created.id,
-          file: { data: new Blob([new Uint8Array(data)], { type: contentType }), filename },
-        }),
-      { label: 'fileUploads.send' }
-    );
+    const blob = new Blob([new Uint8Array(data)], { type: contentType });
+
+    await this.notion.fileUploads.send({
+      file_upload_id: created.id,
+      file: { data: blob, filename },
+    });
 
     return created.id;
   }
