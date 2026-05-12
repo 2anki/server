@@ -187,7 +187,6 @@ export default function ImportPage({ setError }: Readonly<ImportPageProps>) {
       </div>
 
       <div className={styles.stepSection}>
-        <div className={styles.stepLabel}>Step 1</div>
         <ApkgDropZone
           file={file}
           onFileSelected={handleFileSelected}
@@ -197,8 +196,25 @@ export default function ImportPage({ setError }: Readonly<ImportPageProps>) {
         {fileError && <p className={styles.dropZoneError}>{fileError}</p>}
       </div>
 
+      <div className={`${styles.quickImportSection} ${file == null ? styles.stepDisabled : ''}`}>
+        <button
+          type="button"
+          className={sharedStyles.btnPrimary}
+          disabled={file == null || isRunning}
+          onClick={handleQuickImport}
+        >
+          Quick import
+        </button>
+        <p className={styles.quickImportHelp}>
+          Creates a &ldquo;2anki Imports&rdquo; page in your Notion workspace
+        </p>
+      </div>
+
+      <div className={styles.quickImportDivider}>
+        <span className={styles.quickImportDividerText}>or choose a page</span>
+      </div>
+
       <div className={`${styles.stepSection} ${file == null ? styles.stepDisabled : ''}`}>
-        <div className={styles.stepLabel}>Step 2 — Choose where to put the cards</div>
         <NotionPagePicker
           selectedPageId={selectedPageId}
           onPageSelected={handlePageSelected}
@@ -213,29 +229,12 @@ export default function ImportPage({ setError }: Readonly<ImportPageProps>) {
       <div className={styles.actions}>
         <button
           type="button"
-          className={sharedStyles.btnPrimary}
+          className={sharedStyles.btnSecondary}
           disabled={file == null || selectedPageId == null || isRunning}
           onClick={handleStartImport}
         >
-          Start import
+          Import to selected page
         </button>
-      </div>
-
-      <div className={`${styles.quickImportSection} ${file == null ? styles.stepDisabled : ''}`}>
-        <div className={styles.quickImportDivider}>
-          <span className={styles.quickImportDividerText}>or</span>
-        </div>
-        <button
-          type="button"
-          className={sharedStyles.btnSecondary}
-          disabled={file == null || isRunning}
-          onClick={handleQuickImport}
-        >
-          Quick import
-        </button>
-        <p className={styles.quickImportHelp}>
-          We'll create a "2anki Imports" page in your Notion workspace
-        </p>
       </div>
     </div>
   );
