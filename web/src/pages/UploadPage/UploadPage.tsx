@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import useQuery from '../../lib/hooks/useQuery';
-import WarningMessage from '../../components/WarningMessage';
 import UploadForm from './components/UploadForm/UploadForm';
 import SettingsIcon from '../../components/icons/SettingsIcon';
 import SettingsModal from '../../components/modals/SettingsModal/SettingsModal';
@@ -68,7 +67,6 @@ function VideoCard({
 }
 
 export function UploadPage({ setErrorMessage }: Readonly<Props>) {
-  const isDevelopment = !/2anki\.(com|net|de)/.exec(globalThis.location.host);
   const query = useQuery();
   const view = query.get('view');
 
@@ -81,7 +79,6 @@ export function UploadPage({ setErrorMessage }: Readonly<Props>) {
 
   return (
     <div className={styles.page}>
-      {isDevelopment ? <WarningMessage /> : null}
       <header className={`${styles.pageHeader} ${styles.flexBetween}`}>
         <div>
           <h1 className={styles.title}>

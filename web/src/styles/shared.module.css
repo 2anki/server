@@ -363,20 +363,6 @@
   margin-bottom: 1.5rem;
 }
 
-.alertWarning {
-  background: var(--color-warning-light);
-  border: 1px solid var(--color-warning-border);
-  border-radius: var(--radius-md);
-  padding: 1.5rem;
-  text-align: center;
-}
-
-.alertWarningTitle {
-  font-size: var(--text-xl);
-  font-weight: var(--font-semibold);
-  margin-bottom: 0.5rem;
-}
-
 .alertInfo {
   background: var(--color-primary-light);
   border: 1px solid var(--color-primary);
