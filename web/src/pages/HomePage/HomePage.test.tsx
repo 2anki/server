@@ -37,18 +37,19 @@ describe('HomePage (anonymous)', () => {
     expect(screen.getByText(/learners worldwide/i)).toBeInTheDocument();
   });
 
-  it('renders the three how-it-works steps', () => {
-    renderHome();
-    expect(screen.getByText('Upload')).toBeInTheDocument();
-    expect(screen.getByText('Convert')).toBeInTheDocument();
-    expect(screen.getByText('Study')).toBeInTheDocument();
-  });
-
-  it('lists supported formats', () => {
+  it('lists format pills in the hero', () => {
     renderHome();
     for (const format of ['Notion', 'PDF', 'Markdown', 'HTML', 'CSV', 'Word', 'Excel']) {
       expect(screen.getByText(format)).toBeInTheDocument();
     }
+  });
+
+  it('renders the three how-it-works steps with richer descriptions', () => {
+    renderHome();
+    expect(screen.getByText('Upload')).toBeInTheDocument();
+    expect(screen.getByText('Convert')).toBeInTheDocument();
+    expect(screen.getByText('Study')).toBeInTheDocument();
+    expect(screen.getByText(/cloze deletions/i)).toBeInTheDocument();
   });
 
   it('links to the Notion export guide', () => {
