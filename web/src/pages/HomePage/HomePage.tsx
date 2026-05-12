@@ -204,12 +204,15 @@ export function HomePage({
               title={item.title}
             />
           ))}
-          <a href="/contact" className={styles.walkCtaCard}>
-            <span className={styles.walkCtaIcon}>+</span>
-            <p className={styles.walkCtaTitle}>Made a video about 2anki?</p>
-            <p className={styles.walkCtaBody}>
-              Contact us and we will feature it here for free.
-            </p>
+          <a href="/contact" className={styles.walkCard}>
+            <div className={styles.walkCtaThumb}>
+              <span className={styles.walkCtaIcon}>+</span>
+              <p className={styles.walkCtaBody}>
+                Made a video about 2anki? Contact us and we will feature it
+                here for free.
+              </p>
+            </div>
+            <p className={styles.walkCardTitle}>Submit your video</p>
           </a>
         </div>
       </section>
