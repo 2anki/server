@@ -32,16 +32,10 @@ describe('HomePage (anonymous)', () => {
     expect(screen.getByText(/drop your files here/i)).toBeInTheDocument();
   });
 
-  it('shows social proof line', () => {
+  it('shows social proof and open source line', () => {
     renderHome();
     expect(screen.getByText(/learners worldwide/i)).toBeInTheDocument();
-  });
-
-  it('lists format pills in the hero', () => {
-    renderHome();
-    for (const format of ['Notion', 'PDF', 'Markdown', 'HTML', 'CSV', 'Word', 'Excel']) {
-      expect(screen.getByText(format)).toBeInTheDocument();
-    }
+    expect(screen.getByText(/open source/i)).toBeInTheDocument();
   });
 
   it('renders the three how-it-works steps with richer descriptions', () => {

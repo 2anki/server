@@ -10,17 +10,6 @@ interface HomePageProps {
   isLoggedIn: boolean;
 }
 
-const FORMATS = [
-  'Notion',
-  'PDF',
-  'Markdown',
-  'HTML',
-  'CSV',
-  'Word',
-  'PowerPoint',
-  'Excel',
-];
-
 const STEPS = [
   {
     title: 'Upload',
@@ -151,24 +140,15 @@ export function HomePage({
   return (
     <div>
       <section className={styles.hero}>
-        <div className={styles.heroContent}>
-          <h1 className={styles.heroTitle}>Convert Notion to Anki</h1>
-          <p className={styles.heroSubtitle}>
-            Drop a file and get an Anki deck back. Free and open source.
-          </p>
-          <ul className={styles.heroPills}>
-            {FORMATS.map((f) => (
-              <li key={f} className={styles.heroPill}>{f}</li>
-            ))}
-          </ul>
-          <span className={styles.socialProof}>
-            <span className={styles.socialProofDot} aria-hidden="true" />
-            Used by learners worldwide
-          </span>
-        </div>
-        <div className={styles.uploadWrapper}>
-          <UploadForm setErrorMessage={setErrorMessage} />
-        </div>
+        <h1 className={styles.heroTitle}>Convert Notion to Anki</h1>
+        <p className={styles.heroSubtitle}>
+          Drop any file — Notion, PDF, Markdown, or HTML.
+          Get an Anki deck back in seconds.
+        </p>
+        <UploadForm setErrorMessage={setErrorMessage} />
+        <p className={styles.heroFooter}>
+          Free and open source. Used by learners worldwide.
+        </p>
       </section>
 
       <section className={styles.stepsSection}>
