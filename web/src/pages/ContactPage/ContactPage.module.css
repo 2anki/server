@@ -1,0 +1,38 @@
+.layout {
+  display: grid;
+  gap: 1.5rem;
+}
+
+@media (min-width: 769px) {
+  .layout {
+    grid-template-columns: 1fr 340px;
+    align-items: start;
+  }
+}
+
+.formLead {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin: 0.25rem 0 1.25rem;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.cardText {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--leading-normal);
+  margin: 0.5rem 0 0;
+}
+
+.tipList {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  padding-left: 1.25rem;
+  margin: 0.75rem 0 0;
+  line-height: var(--leading-relaxed);
+}
