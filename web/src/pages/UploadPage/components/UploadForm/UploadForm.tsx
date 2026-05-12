@@ -171,6 +171,8 @@ function UploadForm({
           validation?.status === 'warning' ? formStyles.dropZoneWarning : ''
         } ${
           validation?.status === 'error' ? formStyles.dropZoneError : ''
+        } ${
+          validation?.status === 'info' ? formStyles.dropZoneInfo : ''
         }`}
       >
         {validation ? (
