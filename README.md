@@ -43,29 +43,6 @@ We're happy to receive AI-assisted contributions (Copilot, Claude, Cursor, etc.)
 
 If you run into trouble or have questions, open an issue — we're glad to help.
 
-## Stack at a glance
-
-Node 22 (TypeScript), Express 5, Knex + PostgreSQL (SQLite for local dev), Jest, PM2 in production. The frontend is React + Vite. Package manager is **pnpm**.
-
-## Getting started
-
-```bash
-git clone https://github.com/2anki/server.git
-cd server
-pnpm install
-
-# Create a .env file (the server runs with defaults for local dev,
-# but the dev:server script reads from .env via --env-file)
-touch .env
-
-# Run both server and frontend
-pnpm dev
-```
-
-The server starts on `http://localhost:2020` and the frontend on `http://localhost:5173`.
-
-For server-only work: `pnpm dev:server`.
-
 ## Why 2anki?
 
 We're not replacing Anki or Notion — we're building a bridge between them. Drop in what you're studying, get a deck back.
@@ -86,6 +63,29 @@ For a walkthrough, see [How to use cloze deletions](https://youtu.be/r9pPNl8Mx_Q
 ## Background
 
 Started in 2020 after [a Reddit post](https://www.reddit.com/r/Anki/comments/g29mzk/cards_imported_from_notion/) asked for a painless way to turn Notion toggle lists into Anki cards. The project grew from there.
+
+## Getting started
+
+```bash
+git clone https://github.com/2anki/server.git
+cd server
+pnpm install
+
+# Create a .env file (the server runs with defaults for local dev,
+# but the dev:server script reads from .env via --env-file)
+touch .env
+
+# Run both server and frontend
+pnpm dev
+```
+
+The server starts on `http://localhost:2020` and the frontend on `http://localhost:5173`.
+
+For server-only work: `pnpm dev:server`.
+
+## Stack at a glance
+
+Node 22 (TypeScript), Express 5, Knex + PostgreSQL (SQLite for local dev), Jest, PM2 in production. The frontend is React + Vite. Package manager is **pnpm**.
 
 ## Star History
 
@@ -137,8 +137,8 @@ Special thanks to the following contributors
                 <br /><sub>
                 <b>Guillem Palau-Salvà</b>
                 </sub></a><br />
-                <a href="#questions" title="Answering Questions">💬</a>
-                <a href="#ideas" title="Ideas & Planning">🤔</a>
+                <span title="Answering Questions">💬</span>
+                <span title="Ideas & Planning">🤔</span>
         </td>
         <td align="center">
             <a href="https://nyasaki.dev/">
@@ -146,7 +146,7 @@ Special thanks to the following contributors
                 <br /><sub>
                 <b>Marcel Walk</b>
                 </sub></a><br />
-                <a href="#questions" title="Tests">⚠</a>
+                <span title="Tests">⚠</span>
                 <a href="https://github.com/2anki/server/commits?author=MarcelWalk" title="Code">💻</a>
         </td>
     </tr>
