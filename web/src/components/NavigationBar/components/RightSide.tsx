@@ -1,4 +1,3 @@
-import { ThemeSwitcher } from '../../ThemeSwitcher/ThemeSwitcher';
 import NavbarItem from '../NavbarItem';
 import { getVisibleText } from '../../../lib/text/getVisibleText';
 import styles from '../NavigationBar.module.css';
@@ -22,7 +21,6 @@ export function RightSide({ path }: Readonly<RightSideProps>) {
       <NavbarItem href="/pricing" path={path}>
         {getVisibleText('navigation.pricing')}
       </NavbarItem>
-      <ThemeSwitcher />
       <a className={styles.loginButton} href="/login#login">
         {getVisibleText('navigation.login')}
       </a>
