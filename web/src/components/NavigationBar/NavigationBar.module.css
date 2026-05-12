@@ -2,9 +2,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #e5e5e5;
+  background: var(--color-bg-primary);
   padding: 0 1rem;
-  border-bottom: 1px solid lightgrey;
+  border-bottom: 1px solid var(--color-border-light);
   flex-wrap: wrap;
 }
 
@@ -107,17 +107,20 @@
 .navLink {
   display: block;
   padding: 0.5rem 0.75rem;
-  color: var(--color-primary);
+  color: var(--color-text-secondary);
   text-decoration: none;
-  font-size: var(--text-base);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  transition: color var(--transition-fast);
 }
 
 .navLink:hover {
-  font-weight: var(--font-bold);
+  color: var(--color-text-primary);
 }
 
 .navLinkActive {
-  font-weight: var(--font-bold);
+  color: var(--color-text-primary);
+  font-weight: var(--font-semibold);
 }
 
 .loginButton {
@@ -126,17 +129,19 @@
   justify-content: center;
   padding: 0.5rem 1.25rem;
   margin: 0.25rem;
-  color: #fff;
+  color: var(--color-bg-primary);
   background: var(--color-primary);
   border: none;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-md);
   text-decoration: none;
   font-size: var(--text-sm);
   font-weight: var(--font-medium);
-  transition: background var(--transition-fast);
+  box-shadow: var(--shadow-xs);
+  transition: background var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .loginButton:hover {
   background: var(--color-primary-hover);
-  color: #fff;
+  color: var(--color-bg-primary);
+  box-shadow: var(--shadow-sm);
 }
