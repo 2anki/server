@@ -290,7 +290,6 @@
   text-decoration: none;
   text-align: center;
   transition: border-color var(--transition-fast), background var(--transition-fast);
-  aspect-ratio: 16 / 9;
 }
 
 .walkCtaCard:hover {
