@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { EmptyState } from '../../components/EmptyState/EmptyState';
 import { ErrorPresenter } from '../../components/errors/ErrorPresenter';
 import { ErrorHandlerType } from '../../components/errors/helpers/getErrorMessage';
 import { SkeletonList } from '../../components/Skeleton/Skeleton';
@@ -143,7 +144,11 @@ export default function PreviewApkgPage({
       ) : (
         <div className={styles.cards}>
           {cards.length === 0 && (
-            <p className={styles.empty}>This deck has no cards to preview.</p>
+            <EmptyState
+              icon="🃏"
+              title="Empty deck"
+              description="This deck has no cards to preview."
+            />
           )}
           {cards.map((card) => (
             <CardFrame key={card.id} card={card} />

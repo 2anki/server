@@ -1,18 +1,18 @@
-.stripe-container {
+.container {
   background-color: var(--color-bg-primary);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   overflow: hidden;
 }
 
-.stripe-table {
+.table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
   font-family: var(--font-sans);
 }
 
-.stripe-table th {
+.table th {
   text-align: left;
   padding: 16px;
   font-weight: var(--font-medium);
@@ -22,7 +22,7 @@
   background-color: var(--color-bg-secondary);
 }
 
-.stripe-table td {
+.table td {
   padding: 16px;
   font-size: var(--text-sm);
   color: var(--color-text-primary);
@@ -30,15 +30,15 @@
   vertical-align: middle;
 }
 
-.stripe-table tr:last-child td {
+.table tr:last-child td {
   border-bottom: none;
 }
 
-.stripe-table tr:hover {
+.table tr:hover {
   background-color: var(--color-bg-secondary);
 }
 
-.stripe-status {
+.status {
   display: inline-flex;
   align-items: center;
   font-size: var(--text-xs);
@@ -47,46 +47,46 @@
   border-radius: var(--radius-full);
 }
 
-.stripe-status-dot {
+.statusDot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
   margin-right: 6px;
 }
 
-.stripe-status-info {
+.statusInfo {
   color: var(--color-primary);
   background-color: var(--color-primary-light);
 }
 
-.stripe-status-info .stripe-status-dot {
+.statusInfo .statusDot {
   background-color: var(--color-primary);
 }
 
-.stripe-status-warning {
+.statusWarning {
   color: var(--color-warning-text);
   background-color: var(--color-warning-light);
 }
 
-.stripe-status-warning .stripe-status-dot {
+.statusWarning .statusDot {
   background-color: var(--color-warning);
 }
 
-.stripe-status-danger {
+.statusDanger {
   color: var(--color-danger-text);
   background-color: var(--color-danger-light);
 }
 
-.stripe-status-danger .stripe-status-dot {
+.statusDanger .statusDot {
   background-color: var(--color-danger);
 }
 
-.stripe-actions {
+.actions {
   display: flex;
   gap: 8px;
 }
 
-.stripe-button {
+.button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -100,31 +100,31 @@
   transition: all 0.2s ease;
 }
 
-.stripe-button:hover {
+.button:hover {
   background-color: var(--color-bg-tertiary);
   color: var(--color-text-primary);
 }
 
-.stripe-button-warning:hover {
+.buttonWarning:hover {
   color: var(--color-warning);
 }
 
-.stripe-button-danger:hover {
+.buttonDanger:hover {
   color: var(--color-danger);
 }
 
-.stripe-error {
+.error {
   color: var(--color-danger);
   font-size: var(--text-xs);
   margin-top: 4px;
 }
 
-.stripe-job-title {
+.jobTitle {
   font-weight: var(--font-medium);
   color: var(--color-text-primary);
 }
 
-.stripe-time-ago {
+.timeAgo {
   color: var(--color-text-secondary);
   font-size: var(--text-xs);
 }

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { EmptyState } from '../../components/EmptyState/EmptyState';
 import { SkeletonList } from '../../components/Skeleton/Skeleton';
 import { ErrorPresenter } from '../../components/errors/ErrorPresenter';
 import { ErrorHandlerType } from '../../components/errors/helpers/getErrorMessage';
@@ -107,7 +108,11 @@ export default function PreviewPage({ setError }: Readonly<PreviewPageProps>) {
       ) : (
         <article className={styles.preview}>
           {blocks.length === 0 && (
-            <p className={styles.empty}>This page has no blocks to preview.</p>
+            <EmptyState
+              icon="📄"
+              title="Nothing to preview"
+              description="This page has no blocks to preview."
+            />
           )}
           {blocks.map((block) => (
             <BlockNode key={block.id} block={block} />

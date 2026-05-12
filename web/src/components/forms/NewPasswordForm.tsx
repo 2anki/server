@@ -102,7 +102,7 @@ function NewPasswordForm({ setErrorMessage }: Readonly<Props>) {
               className={styles.submitButton}
               disabled={!isValid() || loading}
             >
-              Reset password
+              {loading ? 'Saving…' : 'Reset password'}
             </button>
           </div>
         </form>

@@ -1,3 +1,4 @@
+import listStyles from './ListJobs.module.css';
 import styles from '../../../../styles/shared.module.css';
 
 export type JobStatus =
@@ -26,7 +27,7 @@ function getStatusStyle(status: JobStatus): {
   dotClassName: string;
 } {
   if (parseClaudeChunk(status)) {
-    return { className: 'stripe-status-info', dotClassName: styles.dotInfo };
+    return { className: listStyles.statusInfo, dotClassName: styles.dotInfo };
   }
   switch (status) {
     case 'started':
@@ -34,13 +35,13 @@ function getStatusStyle(status: JobStatus): {
     case 'step2_creating_flashcards':
     case 'step3_building_deck':
     case 'done':
-      return { className: 'stripe-status-info', dotClassName: styles.dotInfo };
+      return { className: listStyles.statusInfo, dotClassName: styles.dotInfo };
     case 'interrupted':
     case 'failed':
     case 'cancelled':
-      return { className: 'stripe-status-danger', dotClassName: styles.dotDanger };
+      return { className: listStyles.statusDanger, dotClassName: styles.dotDanger };
     default:
-      return { className: 'stripe-status-warning', dotClassName: styles.dotWarning };
+      return { className: listStyles.statusWarning, dotClassName: styles.dotWarning };
   }
 }
 
@@ -74,8 +75,8 @@ export function StatusTag({ status }: Prop) {
   const displayText = getStatusText(status);
 
   return (
-    <span className={`stripe-status ${className}`}>
-      <span className={`stripe-status-dot ${dotClassName}`} />
+    <span className={`${listStyles.status} ${className}`}>
+      <span className={`${listStyles.statusDot} ${dotClassName}`} />
       {displayText}
     </span>
   );

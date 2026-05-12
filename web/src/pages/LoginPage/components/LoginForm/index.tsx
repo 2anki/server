@@ -153,7 +153,7 @@ function LoginForm() {
                 className={styles.submitButton}
                 disabled={!isValidCredentials(email, password) || loading}
               >
-                Log in
+                {loading ? 'Logging in…' : 'Log in'}
               </button>
               {error && <p className={styles.helpDanger}>{error}</p>}
             </div>
