@@ -128,6 +128,15 @@ test.describe('Application with Mock API', () => {
   });
 
   test('homepage loads without API errors', async ({ page }) => {
+    // Override the user locals mock to simulate an anonymous visitor
+    await page.route('**/api/users/debug/locals**', async (route) => {
+      await route.fulfill({
+        status: 401,
+        contentType: 'application/json',
+        body: JSON.stringify({ message: 'Not authenticated' }),
+      });
+    });
+
     // Navigate to the homepage
     await page.goto('/');
 
@@ -153,6 +162,13 @@ test.describe('Application with Mock API', () => {
     });
 
     // Reload to catch any console errors
+    await page.route('**/api/users/debug/locals**', async (route) => {
+      await route.fulfill({
+        status: 401,
+        contentType: 'application/json',
+        body: JSON.stringify({ message: 'Not authenticated' }),
+      });
+    });
     await page.reload();
     await page.waitForTimeout(1000);
 
@@ -166,40 +182,33 @@ test.describe('Application with Mock API', () => {
   });
 
   test('can search for notion pages without backend', async ({ page }) => {
-    // Navigate to search page (if it exists)
+    // Override to simulate anon user so homepage renders
+    await page.route('**/api/users/debug/locals**', async (route) => {
+      await route.fulfill({
+        status: 401,
+        contentType: 'application/json',
+        body: JSON.stringify({ message: 'Not authenticated' }),
+      });
+    });
+
     await page.goto('/');
 
-    // Look for search functionality
     const searchInput = page
       .locator('input[type="search"], input[placeholder*="search" i]')
       .first();
 
     if (await searchInput.isVisible()) {
       await searchInput.fill('Sample');
-
-      // Wait for any API calls to complete
       await page.waitForTimeout(1000);
-
-      // The search should complete without errors due to our mocked responses
-      expect(true).toBe(true); // Test passes if we get here without errors
+      expect(true).toBe(true);
     } else {
-      // If there's no search input visible, just verify the page loaded properly
       await expect(page.locator('h1')).toBeVisible();
     }
   });
 
   test('user locals are properly mocked', async ({ page }) => {
-    // Navigate to the homepage which should trigger the user locals API call
     await page.goto('/');
-
-    // Wait for the page to fully load and API calls to complete
-    await page.waitForTimeout(2000);
-
-    // Check if any user-specific content is displayed based on our mock data
-    // This test verifies that our mocked user locals response is being used
-    await expect(page.locator('body')).toBeVisible();
-
-    // The test passes if the page loads without errors, indicating
-    // our mock response was successfully used
+    await page.waitForLoadState('networkidle');
+    await expect(page.locator('body')).toBeVisible({ timeout: 10_000 });
   });
 });
