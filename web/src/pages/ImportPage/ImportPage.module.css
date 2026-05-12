@@ -20,7 +20,7 @@
   padding: 2rem;
   text-align: center;
   cursor: pointer;
-  transition: border-color 0.15s, background 0.15s;
+  transition: border-color var(--transition-fast), background var(--transition-fast);
 }
 
 .dropZone:hover {
@@ -100,7 +100,7 @@
   text-align: left;
   font-size: var(--text-sm);
   width: 100%;
-  transition: border-color 0.15s, background 0.15s;
+  transition: border-color var(--transition-fast), background var(--transition-fast);
 }
 
 .pagePickerRow:hover {
@@ -163,7 +163,7 @@
   height: 100%;
   background: var(--color-primary);
   border-radius: var(--radius-sm);
-  transition: width 0.3s ease;
+  transition: width var(--transition-normal);
 }
 
 .progressCount {

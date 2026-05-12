@@ -168,7 +168,7 @@
 .markdown a {
   color: var(--color-text-link);
   text-decoration: underline;
-  text-decoration-color: rgba(59, 130, 246, 0.35);
+  text-decoration-color: var(--color-focus-ring);
   text-underline-offset: 2px;
 }
 
@@ -227,8 +227,8 @@
 }
 
 .markdown pre {
-  background: #0b1020;
-  color: #e5e7eb;
+  background: var(--color-code-bg);
+  color: var(--color-code-text);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   padding: 1rem;
@@ -313,7 +313,7 @@
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: var(--radius-sm);
-  color: #e5e7eb;
+  color: var(--color-code-text);
   cursor: pointer;
   transition: background var(--transition-fast);
 }
@@ -407,7 +407,7 @@
   height: 1.625rem;
   background: var(--color-primary);
   color: var(--color-bg-primary);
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   font-size: var(--text-sm);
   font-weight: var(--font-semibold);
   display: inline-flex;
@@ -603,7 +603,7 @@
 .popularList a {
   color: var(--color-text-link);
   text-decoration: underline;
-  text-decoration-color: rgba(59, 130, 246, 0.35);
+  text-decoration-color: var(--color-focus-ring);
   text-underline-offset: 2px;
   font-size: var(--text-base);
 }
@@ -641,7 +641,7 @@
 .drawerBackdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--color-backdrop);
   border: none;
   padding: 0;
   cursor: pointer;

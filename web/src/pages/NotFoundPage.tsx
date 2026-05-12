@@ -9,7 +9,7 @@ function NotFoundPage() {
           This page doesn't exist or may have moved.
         </p>
         <p>
-          <a href="/" className={styles.btnPrimary} style={{ display: 'inline-flex', width: 'auto' }}>
+          <a href="/" className={`${styles.btnPrimary} ${styles.btnInline}`}>
             Go to homepage
           </a>
         </p>

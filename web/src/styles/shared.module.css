@@ -83,6 +83,11 @@
   transition: background var(--transition-fast), box-shadow var(--transition-fast);
 }
 
+.btnInline {
+  display: inline-flex;
+  width: auto;
+}
+
 .btnPrimary:hover {
   background: var(--color-primary-hover);
   box-shadow: var(--shadow-sm);
@@ -292,7 +297,7 @@
   height: 48px;
   border: 4px solid var(--color-border);
   border-top-color: var(--color-primary);
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   animation: spin 0.8s linear infinite;
 }
 
@@ -301,7 +306,7 @@
   height: 24px;
   border: 3px solid var(--color-border);
   border-top-color: var(--color-primary);
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   animation: spin 0.8s linear infinite;
 }
 
@@ -438,7 +443,7 @@
 .modalBackdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--color-backdrop);
 }
 
 .modalCard {
@@ -796,7 +801,7 @@
 .avatar {
   width: 32px;
   height: 32px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
 }
 
 .connectWrapper {
@@ -962,7 +967,7 @@
 .select:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
+  box-shadow: 0 0 0 2px var(--color-focus-ring);
 }
 
 .stickySearch {
