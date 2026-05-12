@@ -84,6 +84,14 @@ const WALKTHROUGHS = [
     title: 'Notion to Anki walkthrough',
     embedId: '9V0_N-Ex1U0',
   },
+  {
+    title: 'Notion to Anki tutorial',
+    embedId: 'A9aqXH2jVwQ',
+  },
+  {
+    title: 'Notion to Anki — quick start',
+    embedId: 'PDdEGonPCNk',
+  },
 ];
 
 export function HomePage({
