@@ -4,12 +4,12 @@ export function VideosAndDocs() {
   return (
     <>
       <p>
-        Checkout these videos on how to get started or read the documentation on{' '}
-        <a href="/documentation/guides/getting-started">getting started</a>!
+        Watch these short walkthroughs or read the{' '}
+        <a href="/documentation/start-here/what-is-2anki">documentation</a>.
       </p>
 
       <h3 className={styles.sectionHeading}>
-        Conversion using the Notion integration
+        Convert with the Notion integration
       </h3>
       <figure className={styles.videoWrapper}>
         <iframe
@@ -23,7 +23,7 @@ export function VideosAndDocs() {
       </figure>
 
       <h3 className={styles.sectionHeading}>
-        Conversion using the file upload
+        Convert with file upload
       </h3>
       <figure className={styles.videoWrapper}>
         <iframe

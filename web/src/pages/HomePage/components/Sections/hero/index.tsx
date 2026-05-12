@@ -18,8 +18,8 @@ function HeroSection() {
           </span>
         </h1>
         <HeroText>
-          We are making it the easiest and fastest way to create beautiful Anki
-          flashcards for anyone anywhere around the world!
+          The simplest way to turn your notes into beautiful Anki decks.
+          Drop a file or connect Notion — your cards are ready in seconds.
         </HeroText>
       </div>
     </div>

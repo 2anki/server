@@ -1,15 +1,10 @@
-/* Stripe-inspired styles for ListJobs component */
-
-/* Card-like container */
 .stripe-container {
-  background-color: white;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  box-shadow: none;
+  background-color: var(--color-bg-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
 }
 
-/* Table styles */
 .stripe-table {
   width: 100%;
   border-collapse: separate;
@@ -22,16 +17,16 @@
   padding: 16px;
   font-weight: var(--font-medium);
   font-size: var(--text-sm);
-  color: #6b7280;
-  border-bottom: 1px solid #f3f4f6;
-  background-color: #f9fafb;
+  color: var(--color-text-tertiary);
+  border-bottom: 1px solid var(--color-border-light);
+  background-color: var(--color-bg-secondary);
 }
 
 .stripe-table td {
   padding: 16px;
   font-size: var(--text-sm);
-  color: #1f2937;
-  border-bottom: 1px solid #f3f4f6;
+  color: var(--color-text-primary);
+  border-bottom: 1px solid var(--color-border-light);
   vertical-align: middle;
 }
 
@@ -40,17 +35,16 @@
 }
 
 .stripe-table tr:hover {
-  background-color: #f9fafb;
+  background-color: var(--color-bg-secondary);
 }
 
-/* Status indicators */
 .stripe-status {
   display: inline-flex;
   align-items: center;
   font-size: var(--text-xs);
   font-weight: var(--font-medium);
   padding: 0.25rem 0.5rem;
-  border-radius: 9999px;
+  border-radius: var(--radius-full);
 }
 
 .stripe-status-dot {
@@ -61,33 +55,32 @@
 }
 
 .stripe-status-info {
-  color: #1e40af;
-  background-color: #eff6ff;
+  color: var(--color-info-text);
+  background-color: var(--color-info-light);
 }
 
 .stripe-status-info .stripe-status-dot {
-  background-color: #3b82f6;
+  background-color: var(--color-primary);
 }
 
 .stripe-status-warning {
-  color: #92400e;
-  background-color: #fffbeb;
+  color: var(--color-warning-text);
+  background-color: var(--color-warning-light);
 }
 
 .stripe-status-warning .stripe-status-dot {
-  background-color: #f59e0b;
+  background-color: var(--color-warning);
 }
 
 .stripe-status-danger {
-  color: #991b1b;
-  background-color: #fee2e2;
+  color: var(--color-danger-text);
+  background-color: var(--color-danger-light);
 }
 
 .stripe-status-danger .stripe-status-dot {
-  background-color: #ef4444;
+  background-color: var(--color-danger);
 }
 
-/* Action buttons */
 .stripe-actions {
   display: flex;
   gap: 8px;
@@ -99,42 +92,39 @@
   justify-content: center;
   width: 32px;
   height: 32px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   border: none;
   background-color: transparent;
-  color: #6b7280;
+  color: var(--color-text-tertiary);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .stripe-button:hover {
-  background-color: #f3f4f6;
-  color: #1f2937;
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
 }
 
 .stripe-button-warning:hover {
-  color: #d97706;
+  color: var(--color-warning);
 }
 
 .stripe-button-danger:hover {
-  color: #dc2626;
+  color: var(--color-danger);
 }
 
-/* Error message */
 .stripe-error {
-  color: #dc2626;
+  color: var(--color-danger);
   font-size: var(--text-xs);
   margin-top: 4px;
 }
 
-/* Job title */
 .stripe-job-title {
   font-weight: var(--font-medium);
-  color: #1f2937;
+  color: var(--color-text-primary);
 }
 
-/* Time ago */
 .stripe-time-ago {
-  color: #6b7280;
+  color: var(--color-text-secondary);
   font-size: var(--text-xs);
 }
