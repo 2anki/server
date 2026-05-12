@@ -86,7 +86,7 @@ function UploadForm({
   const [warningMessage, setWarningMessage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const convertRef = useRef<HTMLButtonElement>(null);
-  const { validation, pendingFiles, validate, reset } = useFileValidation();
+  const { validation, validate, reset } = useFileValidation();
 
   const submitFiles = () => {
     convertRef.current?.click();
