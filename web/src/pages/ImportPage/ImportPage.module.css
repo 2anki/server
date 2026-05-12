@@ -245,6 +245,19 @@
   margin-top: 1rem;
 }
 
+.freeTierBanner {
+  padding: 0.75rem 1rem;
+  background: var(--color-warning-light, #fffbeb);
+  border: 1px solid var(--color-warning, #f59e0b);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  margin-bottom: 1.5rem;
+}
+
+.freeTierBanner a {
+  font-weight: 600;
+}
+
 .actions {
   margin-top: 1.5rem;
 }

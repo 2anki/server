@@ -67,6 +67,14 @@ class JobRepository {
       .returning('*');
     return rows[0] as Jobs;
   }
+  countJobsByType(owner: string, type: string): Promise<number> {
+    return this.database(this.tableName)
+      .where({ owner, type })
+      .count('* as count')
+      .first()
+      .then((row) => Number((row as { count: string | number })?.count ?? 0));
+  }
+
   deleteOldJobs(type: string, olderThanMs: number): Promise<number> {
     const cutoff = new Date(Date.now() - olderThanMs);
     return this.database(this.tableName)

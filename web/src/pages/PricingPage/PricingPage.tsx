@@ -70,8 +70,8 @@ export default function PricingPage({
         <h1 className={styles.title}>{getVisibleText('pricing.page.title')}</h1>
         <TopMessage />
         <p className={styles.intro}>
-          Free for everyone — 100 cards per upload. Convert as often as you
-          like.
+          Free for everyone — 100 cards per upload, plus one Anki → Notion
+          import to try it out.
           {!isLoggedIn && (
             <>
               {' '}
@@ -97,6 +97,7 @@ export default function PricingPage({
             'Unlimited flashcards',
             'Run multiple conversions at once',
             'PDFs and large Notion exports',
+            'Unlimited Anki → Notion imports',
             'Print decks to PDF',
             'Cancel anytime',
           ]}

@@ -9,6 +9,8 @@ import ImportProgress from './components/ImportProgress';
 import useImportJob from './hooks/useImportJob';
 import useNotionData from '../SearchPage/helpers/useNotionData';
 import { get2ankiApi } from '../../lib/backend/get2ankiApi';
+import { useUserLocals } from '../../lib/hooks/useUserLocals';
+import { isPayingUser } from '../../components/NavigationBar/helpers/getPlanLabel';
 
 interface ImportPageProps {
   setError: (error: unknown) => void;
@@ -20,6 +22,8 @@ export default function ImportPage({ setError }: Readonly<ImportPageProps>) {
   const [selectedPageId, setSelectedPageId] = useState<string | null>(null);
   const [selectedPageTitle, setSelectedPageTitle] = useState<string>('');
   const notionData = useNotionData(get2ankiApi());
+  const { data: userLocals } = useUserLocals();
+  const paying = isPayingUser(userLocals?.locals);
   const job = useImportJob();
 
   const isConnected = notionData.connected === true;
@@ -138,26 +142,41 @@ export default function ImportPage({ setError }: Readonly<ImportPageProps>) {
   }
 
   if (isFailed) {
+    const isUpgradeError = job.errorMessage?.includes('Upgrade') || job.errorMessage?.includes('Free plan');
     return (
       <div className={sharedStyles.page}>
         <div className={styles.errorContainer}>
-          <h2 className={styles.errorTitle}>Import stopped</h2>
+          <h2 className={styles.errorTitle}>
+            {isUpgradeError ? 'Upgrade to continue' : 'Import stopped'}
+          </h2>
           <p className={styles.errorBody}>
-            {job.progress.total_notes > 0
-              ? `We got through ${job.progress.imported} of ${job.progress.total_notes} cards, then something went wrong. The cards we already created are still in your Notion page.`
-              : job.errorMessage ?? 'Something went wrong.'}
+            {isUpgradeError
+              ? job.errorMessage
+              : job.progress.total_notes > 0
+                ? `We got through ${job.progress.imported} of ${job.progress.total_notes} cards, then something went wrong. The cards we already created are still in your Notion page.`
+                : job.errorMessage ?? 'Something went wrong.'}
           </p>
           <div className={styles.errorActions}>
+            {isUpgradeError ? (
+              <Link to="/pricing" className={sharedStyles.btnPrimary}>
+                View plans
+              </Link>
+            ) : (
+              <button
+                type="button"
+                className={sharedStyles.btnPrimary}
+                onClick={handleReset}
+              >
+                Try again
+              </button>
+            )}
             <button
               type="button"
-              className={sharedStyles.btnPrimary}
+              className={sharedStyles.btnSecondary}
               onClick={handleReset}
             >
-              Try again
+              {isUpgradeError ? 'Try a smaller deck' : 'Start over'}
             </button>
-            <Link to="/contact" className={sharedStyles.btnSecondary}>
-              Contact support
-            </Link>
           </div>
         </div>
       </div>
@@ -186,6 +205,13 @@ export default function ImportPage({ setError }: Readonly<ImportPageProps>) {
           Turn an Anki deck into Notion toggle pages.
         </p>
       </div>
+
+      {!paying && (
+        <div className={styles.freeTierBanner}>
+          Free plan: 1 import, up to 50 cards.{' '}
+          <Link to="/pricing">Upgrade for unlimited imports</Link>
+        </div>
+      )}
 
       <div className={styles.stepSection}>
         <ApkgDropZone

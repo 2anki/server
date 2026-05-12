@@ -41,13 +41,20 @@ export default class ImportApkgToNotionUseCase {
     parentPageId: string,
     owner: string,
     notionApi: NotionAPIWrapper,
-    jobId: string
+    jobId: string,
+    options: { isPaying?: boolean } = {}
   ): Promise<void> {
     try {
       const cacheKey = `import:${owner}:${Date.now()}`;
       const parsed = await this.previewService.parse(cacheKey, fileBuffer);
 
       const result = this.blocksService.transform(parsed.collection);
+      const FREE_NOTE_LIMIT = 50;
+      if (!options.isPaying && result.totalNotes > FREE_NOTE_LIMIT) {
+        throw new Error(
+          `This deck has ${result.totalNotes} notes. Free plan supports up to ${FREE_NOTE_LIMIT}. Upgrade for unlimited imports.`
+        );
+      }
       const totalNotes = result.totalNotes;
 
       let mediaUrlMap = new Map<string, string>();
