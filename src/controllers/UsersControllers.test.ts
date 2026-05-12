@@ -264,7 +264,7 @@ describe('UsersController.requestMagicLink', () => {
     expect(res.json).toHaveBeenCalledWith({ message: 'Invalid purpose' });
   });
 
-  it('returns 429 when rate limited', async () => {
+  it('returns 200 even when rate limited to prevent email enumeration', async () => {
     const requestMagicLink = jest
       .fn()
       .mockRejectedValue(new MagicLinkRateLimitError());
@@ -277,7 +277,7 @@ describe('UsersController.requestMagicLink', () => {
 
     await controller.requestMagicLink(req, res, next);
 
-    expect(res.status).toHaveBeenCalledWith(429);
+    expect(res.status).toHaveBeenCalledWith(200);
   });
 
   it('returns 200 even when the service throws a non-rate-limit error', async () => {

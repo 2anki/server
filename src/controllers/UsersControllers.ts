@@ -490,13 +490,12 @@ class UsersController {
 
     try {
       await this.userService.requestMagicLink(email.trim(), purpose);
-      return res.status(200).json({ message: 'ok' });
     } catch (error) {
-      if (error instanceof MagicLinkRateLimitError) {
-        return res.status(429).json({ message: 'Too many requests. Please try again later.' });
+      if (!(error instanceof MagicLinkRateLimitError)) {
+        console.error('Magic link request failed:', error);
       }
-      return res.status(200).json({ message: 'ok' });
     }
+    return res.status(200).json({ message: 'ok' });
   }
 
   async verifyMagicLink(
