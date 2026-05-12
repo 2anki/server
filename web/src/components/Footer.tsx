@@ -29,7 +29,7 @@ function Footer() {
               </a>
             </li>
           </ul>
-          <div>{`© 2024–${currentYear} Alexander Alemayhu`}</div>
+          <div className={styles.copyright}>{`© 2024–${currentYear} Alexander Alemayhu`}</div>
         </div>
       </div>
     </footer>

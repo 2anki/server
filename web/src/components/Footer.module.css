@@ -23,6 +23,12 @@
   color: var(--color-border);
 }
 
+.copyright {
+  margin-top: 0.75rem;
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+}
+
 @media (max-width: 768px) {
   .links {
     margin-top: 1rem;

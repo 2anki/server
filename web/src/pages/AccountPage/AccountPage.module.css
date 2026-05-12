@@ -52,11 +52,9 @@
 }
 
 .planCard {
-  background: var(--color-bg-secondary);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
   padding: 1.25rem;
   margin-bottom: 1rem;
+  border-radius: var(--radius-md);
 }
 
 .planHeader {
@@ -101,11 +99,9 @@
 }
 
 .managementCard {
-  background: var(--color-bg-secondary);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 1.25rem;
+  padding-top: 1.5rem;
   margin-top: 1.5rem;
+  border-top: 1px solid var(--color-border-light);
 }
 
 .managementTitle {
