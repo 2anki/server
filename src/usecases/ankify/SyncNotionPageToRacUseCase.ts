@@ -101,6 +101,15 @@ const summarizeCardErrors = (errors: string[]): string | null => {
 const arrayBufferToBase64 = (buffer: ArrayBuffer): string =>
   Buffer.from(buffer).toString('base64');
 
+function isNotionNotFoundError(error: unknown): boolean {
+  return (
+    error != null &&
+    typeof error === 'object' &&
+    'code' in error &&
+    (error as { code: unknown }).code === 'object_not_found'
+  );
+}
+
 export class SyncNotionPageToRacUseCase {
   private readonly modelCacheByClient = new Map<number, Set<string>>();
 
@@ -177,6 +186,9 @@ export class SyncNotionPageToRacUseCase {
       await this.subscriptions.recordPoll(subscription.id, {
         error: message,
       });
+      if (isNotionNotFoundError(error)) {
+        await this.subscriptions.setEnabled(subscription.id, false);
+      }
       throw error;
     } finally {
       await this.persistSyncLog(input, client, result);

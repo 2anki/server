@@ -671,4 +671,68 @@ describe('SyncNotionPageToRacUseCase', () => {
     expect(ac.modelNames).not.toHaveBeenCalled();
     expect(ac.createModel).not.toHaveBeenCalled();
   });
+
+  test('disables subscription when runSync throws object_not_found', async () => {
+    const notFoundError = Object.assign(new Error('Could not find object'), {
+      code: 'object_not_found',
+    });
+    (walkNotionPageForFlashcards as jest.Mock).mockRejectedValue(notFoundError);
+    const subscriptions = makeSubscriptionsRepo();
+    const ac = makeAnkiConnectStub();
+    const useCase = new SyncNotionPageToRacUseCase(
+      makeClients(),
+      makeMappings(),
+      makeConflicts(),
+      subscriptions,
+      makeLogs(),
+      makeNotionRepo(),
+      () => ac,
+      () => async () => []
+    );
+
+    let thrownError: unknown;
+    try {
+      await useCase.execute({
+        owner: 42,
+        notionPageId: 'page-id',
+        trigger: 'polling',
+      });
+    } catch (error) {
+      thrownError = error;
+    }
+
+    expect((thrownError as Error).message).toBe('Could not find object');
+    expect(subscriptions.setEnabled).toHaveBeenCalledWith(1, false);
+    expect(subscriptions.recordPoll).toHaveBeenCalledWith(
+      1,
+      expect.objectContaining({ error: 'Could not find object' })
+    );
+  });
+
+  test('does not disable subscription for non-not-found errors', async () => {
+    const genericError = new Error('rate_limited');
+    (walkNotionPageForFlashcards as jest.Mock).mockRejectedValue(genericError);
+    const repos = makeRepos();
+    const ac = makeAnkiConnectStub();
+    const useCase = new SyncNotionPageToRacUseCase(
+      repos.clients,
+      repos.mappings,
+      repos.conflicts,
+      repos.subscriptions,
+      repos.logs,
+      repos.notionRepo,
+      () => ac,
+      () => async () => []
+    );
+
+    await expect(
+      useCase.execute({
+        owner: 42,
+        notionPageId: 'page-id',
+        trigger: 'polling',
+      })
+    ).rejects.toThrow('rate_limited');
+
+    expect(repos.subscriptions.setEnabled).not.toHaveBeenCalled();
+  });
 });
