@@ -11,10 +11,9 @@ import {
 import Workspace from '../lib/parser/WorkSpace';
 import { blockToStaticMarkup } from '../services/NotionService/helpers/blockToStaticMarkup';
 import {
-  isExpandable,
-  renderBlockPreview,
-  renderBlockSummary,
-} from '../services/NotionService/helpers/renderBlockPreview';
+  PreviewBlockPayload,
+  toPreviewBlock,
+} from './helpers/toPreviewBlock';
 import {
   APIErrorCode,
   APIResponseError,
@@ -41,26 +40,6 @@ function clampPageSize(input: unknown): number {
   return Math.min(parsed, MAX_PREVIEW_PAGE_SIZE);
 }
 
-interface PreviewBlockPayload {
-  id: string;
-  type: string;
-  hasChildren: boolean;
-  canExpand: boolean;
-  html: string;
-  summaryHtml?: string;
-}
-
-function toPreviewBlock(block: BlockObjectResponse): PreviewBlockPayload {
-  const canExpand = isExpandable(block);
-  return {
-    id: block.id,
-    type: block.type,
-    hasChildren: block.has_children === true,
-    canExpand,
-    html: canExpand ? '' : renderBlockPreview(block),
-    summaryHtml: canExpand ? renderBlockSummary(block) : undefined,
-  };
-}
 
 type NotionAPI = Awaited<ReturnType<NotionService['getNotionAPI']>>;
 

@@ -6,6 +6,7 @@ import { useSettingsCardsOptions } from '../../components/modals/SettingsModal/u
 import ArrowUpTrayIcon from '../../components/icons/ArrowUpTrayIcon';
 import SparklesIcon from '../../components/icons/SparklesIcon';
 import BookOpenIcon from '../../components/icons/BookOpenIcon';
+import { ShowcaseSection } from './ShowcaseSection';
 import styles from './HomePage.module.css';
 
 const MASCOTS = [
@@ -169,6 +170,8 @@ export function HomePage({
           </div>
         </div>
       </section>
+
+      <ShowcaseSection />
 
       <section id="walkthroughs" className={styles.bottomSection}>
         <p className={styles.walkHeading}>Walkthroughs</p>
