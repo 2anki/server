@@ -253,6 +253,9 @@ export function Sidebar({
       </div>
       <div className={styles.sidebarMore}>
         <div className={styles.sidebarMoreLinks}>
+          <Link to="/whats-new" onClick={handleNavClick()}>
+            What's new
+          </Link>
           <Link to="/about" onClick={handleNavClick()}>
             {getVisibleText('navigation.legal.about')}
           </Link>

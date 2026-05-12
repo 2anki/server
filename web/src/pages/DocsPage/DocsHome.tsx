@@ -102,7 +102,7 @@ export function DocsHome() {
 
       <footer className={styles.docsHomeFooter}>
         Stuck? Email{' '}
-        <a href="mailto:alexander@alemayhu.com">alexander@alemayhu.com</a> or{' '}
+        <a href="mailto:support@2anki.net">support@2anki.net</a> or{' '}
         <a
           href="https://github.com/2anki/server/issues/new"
           target="_blank"
