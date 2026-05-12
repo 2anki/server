@@ -47,11 +47,16 @@ export default class ImportApkgToNotionUseCase {
       const cacheKey = `import:${owner}:${Date.now()}`;
       const parsed = await this.previewService.parse(cacheKey, fileBuffer);
 
-      const mediaUrlMap = await this.uploadMediaToNotion(
-        parsed.mediaMap,
-        parsed.mediaEntries,
-        notionApi
-      );
+      let mediaUrlMap = new Map<string, string>();
+      try {
+        mediaUrlMap = await this.uploadMediaToNotion(
+          parsed.mediaMap,
+          parsed.mediaEntries,
+          notionApi
+        );
+      } catch (uploadError) {
+        console.error(`[apkg-import] job=${jobId} media upload failed, continuing without images:`, uploadError);
+      }
 
       const result = this.blocksService.transform(
         parsed.collection,
@@ -96,6 +101,7 @@ export default class ImportApkgToNotionUseCase {
         })
       );
     } catch (error) {
+      console.error(`[apkg-import] job=${jobId} failed:`, error);
       const message =
         error instanceof NoteTooLargeError
           ? error.message
