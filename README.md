@@ -66,81 +66,32 @@ The server starts on `http://localhost:2020` and the frontend on `http://localho
 
 For server-only work: `pnpm dev:server`.
 
-## Strategy
+## Why 2anki?
 
-<p align="center">
-  <a href="http://www.youtube.com/watch?v=oMg70YIqRsw">
-    <img src="http://img.youtube.com/vi/oMg70YIqRsw/0.jpg" alt="My Thoughts on The Future of Anki Collaborative Deck Creation" />
-  </a>
-</p>
+We're not replacing Anki or Notion — we're building a bridge between them. Drop in what you're studying, get a deck back.
 
-## What We Are Not
+- Free to use, no technical skills required
+- Multi-format: Notion pages (via API or HTML export), Markdown, HTML, Excel (xlsx), zip bundles
+- Toggle lists become cards, cloze deletions work out of the box
+- Embeds, audio, images, code blocks, and LaTeX carried over
+- Self-hostable if you hit the free-tier quota
 
-If you are looking for an Anki or Notion replacement then this project is probably not right for you. Watch this video [Notion + Anki](https://youtu.be/FjifJG4FoXY) to understand the project's goal. **We are never going to compete against Anki in this project**. We are building bridges 🌁
+## Support the project
 
-When that is said, if you are not content with Anki, you might want to checkout [SuperMemo](https://www.super-memory.com/).
-
-## Benefits
-
-- No technical skills required and free to use by anyone anywhere 🤗 \*
-- You can convert your Notion [toggle lists][tl] to Anki cards easily.
-- Support for embeds, audio files, images and more.
-
-<sub><sup>\* Please note that due to server costs, there are quota limits in place but you can workaround this and self-host</sup><sub>
-
-## 🎁 Support the Project
-
-> This project is brought to you by our amazing [patrons](https://patreon.com/alemayhu)
-> and [GitHub sponsors](https://github.com/sponsors/alemayhu) 🤩 Thank you!
-
-[![Patreon](https://github.com/aalemayhu/aalemayhu/raw/master/assets/become_a_patron_button.png)](https://patreon.com/alemayhu)
-[![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/W7W6QZNY)
-<a href="https://www.buymeacoffee.com/aalemayhu"  rel="noreferrer" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
+This project is brought to you by our [patrons](https://patreon.com/alemayhu) and [GitHub sponsors](https://github.com/sponsors/alemayhu). Thank you!
 
 [![GitHub Sponsor](https://img.shields.io/badge/donate-sponsors-ea4aaa.svg?logo=github)](https://github.com/sponsors/alemayhu/)
-[![Paypal](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/alemayhu)
-
-You can also support the project financially and receive exclusive member benefits ✨
-
-[tl]: https://www.notion.so/Toggles-c720af26b4bd4789b736c140b2dc73fe
+[![Patreon](https://github.com/aalemayhu/aalemayhu/raw/master/assets/become_a_patron_button.png)](https://patreon.com/alemayhu)
 
 ## How it works
 
-We treats toggle lists on the top level as Anki flashcards. The toggle list line is the front of the card and everything inside in the details is the back. That's the main feature but you can customize the behaviour via card options.
+Top-level [toggle lists][tl] become Anki flashcards: the toggle line is the front, everything inside is the back. [Cloze deletions](https://docs.ankiweb.net/#/editing?id=cloze-deletion) are enabled by default. You can also flip cards (basic, reversed, or both) via card-type options.
 
-Considering how powerful [cloze deletions](https://docs.ankiweb.net/#/editing?id=cloze-deletion) are, they are enabled by default. To see how this works in action check out this video by [Alp Kaan](https://alpkaanaksu.com/): [How to use cloze deletions in notion2anki 🤩
-](https://youtu.be/r9pPNl8Mx_Q)
-
-You can use the card type to flip which creates a mix of the cards. Basic (front & back), basic + reversed and just reversed.
-
-So by default we are reading in the Notion styles which does not necessarily look good on all devices. Especially on iOS you can see some weird text alignment issues. Those can be solved by adding this to your card template:
-
-```css
-body {
-  padding: 1rem;
-  text-align: left;
-}
-```
+For a walkthrough, see [How to use cloze deletions](https://youtu.be/r9pPNl8Mx_Q) by [Alp Kaan](https://alpkaanaksu.com/).
 
 ## Background
 
-This project was hacked together after seeing this post on Reddit by [jacksong97](https://www.reddit.com/user/jacksong97):
-
-> Hey guys just need a little help with something.
->
-> I have a whole bunch of questions that I've written for myself within Notion (nested toggle questions). I was hoping I could transfer them into Anki cards fairly painlessly. I have done some just copying and pasting each side separately but it just took too long.
->
-> Is there a way to import directly or copy and paste into a txt file or something that will create the cards for me?
->
-> Thanks!
->
-> Edit: if I were to just turn them into a text file, how do I set which text goes to the back of the card? I’ve been able to get them all into seperate cards but just the fronts
-
-https://www.reddit.com/r/Anki/comments/g29mzk/cards_imported_from_notion/
-
-## Limitations
-
-We are still heavily relying on the APKG format. Long term we want to support AnkiWeb and make it possible to do true realtime collaboration.
+Started in 2020 after [a Reddit post](https://www.reddit.com/r/Anki/comments/g29mzk/cards_imported_from_notion/) asked for a painless way to turn Notion toggle lists into Anki cards. The project grew from there.
 
 ## Star History
 
@@ -154,7 +105,7 @@ We are still heavily relying on the APKG format. Long term we want to support An
 
 ## Credits
 
-Special thanks to following developers / artistans
+Special thanks to the following contributors
 
 <table>
     <tr>
@@ -204,7 +155,6 @@ Special thanks to following developers / artistans
                 <a href="#questions" title="Tests">⚠</a>
                 <a href="https://github.com/2anki/server/commits?author=MarcelWalk" title="Code">💻</a>
         </td>
-        <!-- Add Henrik (https://github.com/henrik-de), Abi, Boni when you get the necessary information -->
     </tr>
 </table>
 
@@ -215,3 +165,4 @@ Unless otherwise specified in the source:
 The code is licensed under the [MIT](./LICENSE) Copyright (c) 2020-2026, [Alexander Alemayhu][1]
 
 [1]: https://alemayhu.com
+[tl]: https://www.notion.so/Toggles-c720af26b4bd4789b736c140b2dc73fe
