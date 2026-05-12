@@ -54,7 +54,7 @@
   composes: sectionIcon;
   background: var(--color-bg-primary);
   color: var(--color-warning);
-  border: 1px solid #fde68a;
+  border: 1px solid var(--color-warning-border);
 }
 
 .sectionHeadText {
@@ -959,11 +959,11 @@
   gap: 0.75rem;
   padding: 0.75rem 1rem;
   background: var(--color-warning-light);
-  border: 1px solid #fde68a;
+  border: 1px solid var(--color-warning-border);
   border-radius: var(--radius-md);
   margin-bottom: 1.25rem;
   font-size: var(--text-sm);
-  color: #92400e;
+  color: var(--color-warning-text);
 }
 
 .conflictsBannerLink {
@@ -971,7 +971,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  color: #92400e;
+  color: var(--color-warning-text);
   font-weight: var(--font-semibold);
   font-size: var(--text-sm);
   text-decoration: underline;
