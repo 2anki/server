@@ -57,8 +57,26 @@ describe('detectUploadIssues', () => {
     expect(detectUploadIssues([fakeFile('data.csv')])).toBeNull();
   });
 
-  it('returns null for pdf files', () => {
-    expect(detectUploadIssues([fakeFile('slides.pdf')])).toBeNull();
+  it('returns info for a single pdf file', () => {
+    const result = detectUploadIssues([fakeFile('slides.pdf')]);
+    expect(result).not.toBeNull();
+    expect(result!.status).toBe('info');
+    expect(result!.title).toContain('pair');
+  });
+
+  it('returns info for multiple pdf files', () => {
+    const result = detectUploadIssues([
+      fakeFile('chapter1.pdf'),
+      fakeFile('chapter2.pdf'),
+    ]);
+    expect(result).not.toBeNull();
+    expect(result!.status).toBe('info');
+  });
+
+  it('is case-insensitive for pdf detection', () => {
+    const result = detectUploadIssues([fakeFile('NOTES.PDF')]);
+    expect(result).not.toBeNull();
+    expect(result!.status).toBe('info');
   });
 
   it('returns null for xlsx files', () => {
@@ -74,6 +92,9 @@ describe('detectUploadIssues', () => {
   it('provides a continue label for each state', () => {
     const md = detectUploadIssues([fakeFile('n.md')]);
     expect(md!.continueLabel.length).toBeGreaterThan(0);
+
+    const pdf = detectUploadIssues([fakeFile('n.pdf')]);
+    expect(pdf!.continueLabel.length).toBeGreaterThan(0);
 
     const html = detectUploadIssues([fakeFile('n.html')]);
     expect(html!.continueLabel.length).toBeGreaterThan(0);

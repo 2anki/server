@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 
-export type ValidationStatus = 'clean' | 'warning' | 'error';
+export type ValidationStatus = 'clean' | 'info' | 'warning' | 'error';
 
 export interface FileValidationResult {
   status: ValidationStatus;
@@ -37,6 +37,18 @@ export function detectUploadIssues(
       title: 'Did Safari unzip your Notion export?',
       body: 'If your files came from a Notion export, the images might have been left behind when Safari unpacked the zip. For the best results, re-download the export from Notion using a different browser, or find the original zip in your Downloads folder and upload that instead.',
       continueLabel: 'Continue with these files',
+    };
+  }
+
+  const allPdf = fileArray.every((f) =>
+    f.name.toLowerCase().endsWith('.pdf')
+  );
+  if (allPdf) {
+    return {
+      status: 'info',
+      title: 'Each pair of pages becomes one card',
+      body: "Page 1 is the front of your first card, page 2 is the back, page 3 is the next front, and so on. This works well for lecture slides where each topic spans two pages. You can customize how cards are created in Card Options.",
+      continueLabel: 'Make cards from this PDF',
     };
   }
 

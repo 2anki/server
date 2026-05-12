@@ -117,6 +117,11 @@
   background: var(--color-danger-light);
 }
 
+.dropZoneInfo {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
 .validationTitle {
   font-size: var(--text-base);
   font-weight: var(--font-semibold);
