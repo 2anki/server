@@ -1,8 +1,7 @@
 .container {
   position: fixed;
   right: 1.5rem;
-  top: 50%;
-  transform: translateY(-50%);
+  bottom: 1.5rem;
   z-index: 50;
   pointer-events: none;
 }
@@ -27,11 +26,8 @@
 
 @media (max-width: 1500px) {
   .container {
-    position: fixed;
     right: 1rem;
-    top: auto;
-    bottom: 1.5rem;
-    transform: none;
+    bottom: 1rem;
   }
 
   .panel {
