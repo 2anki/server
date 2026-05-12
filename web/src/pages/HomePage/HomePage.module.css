@@ -219,7 +219,7 @@
   position: relative;
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  background: #000;
+  background: var(--color-bg-secondary);
 }
 
 .walkThumb img {
