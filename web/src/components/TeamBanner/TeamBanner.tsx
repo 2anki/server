@@ -19,12 +19,11 @@ export function TeamBanner() {
   return (
     <div className={styles.banner}>
       <div className={styles.content}>
-        <strong className={styles.label}>Team update</strong>
+        <span className={styles.label}>New</span>
         <span className={styles.text}>
-          Designer, PM, and a second engineer just joined Alexander as lead dev.
-          Shipping faster than ever.{' '}
+          The team just grew — new features are shipping faster than ever.{' '}
           <Link to="/whats-new" className={styles.link}>
-            See what's new &rarr;
+            See what's new
           </Link>
         </span>
       </div>
