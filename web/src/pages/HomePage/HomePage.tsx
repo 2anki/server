@@ -41,20 +41,20 @@ const WALKTHROUGHS = [
     embedId: 'UnTo_fN1jpc',
   },
   {
-    title: 'Create Anki flashcards from Notion toggle lists',
-    embedId: 'b3eQ0exhdz4',
+    title: 'Notion2Anki — Perfekter Workflow fürs Lernen',
+    embedId: 'E51yLIIS3bk',
   },
   {
     title: 'How to use cloze deletions',
     embedId: 'r9pPNl8Mx_Q',
   },
   {
-    title: 'Turn any website into Anki flashcards',
-    embedId: 'NLUfAWA2LJI',
+    title: 'Créer des flashcards Anki avec Notion',
+    embedId: 'RHReYOKywZc',
   },
   {
-    title: 'Convert multiple Notion pages at once',
-    embedId: 'o7DH3p-mRi4',
+    title: 'Turn any website into Anki flashcards',
+    embedId: 'NLUfAWA2LJI',
   },
   {
     title: 'Use Notion to Anki for learning languages',
