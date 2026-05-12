@@ -10,7 +10,9 @@ export type BusinessMetricKey =
   | 'conversions_vs_churn_weekly'
   | 'failed_payments_weekly'
   | 'cancellation_reasons_top'
-  | 'cancellation_comments_recent';
+  | 'cancellation_comments_recent'
+  | 'emoji_feedback_ratings'
+  | 'emoji_feedback_comments';
 
 export interface BusinessMetricError {
   metric: BusinessMetricKey;
@@ -49,6 +51,18 @@ export interface CancellationCommentPoint {
   created_at: string;
 }
 
+export interface EmojiFeedbackRatingPoint {
+  rating: number;
+  count: number;
+}
+
+export interface EmojiFeedbackCommentPoint {
+  rating: number;
+  comment: string;
+  page: string;
+  created_at: string;
+}
+
 export interface BusinessMetricsResponse {
   mrr_usd: number | null;
   net_new_mrr_mtd_usd: number | null;
@@ -62,6 +76,8 @@ export interface BusinessMetricsResponse {
   failed_payments_weekly: FailedPaymentsWeekPoint[] | null;
   cancellation_reasons_top: CancellationReasonPoint[] | null;
   cancellation_comments_recent: CancellationCommentPoint[] | null;
+  emoji_feedback_ratings: EmojiFeedbackRatingPoint[] | null;
+  emoji_feedback_comments: EmojiFeedbackCommentPoint[] | null;
   as_of: string;
   cache_age_seconds: number;
   errors?: BusinessMetricError[];

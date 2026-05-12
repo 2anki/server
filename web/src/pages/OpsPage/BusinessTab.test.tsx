@@ -58,6 +58,18 @@ const buildSampleMetrics = (
       created_at: '2026-05-08T11:00:00.000Z',
     },
   ],
+  emoji_feedback_ratings: [
+    { rating: 4, count: 5 },
+    { rating: 5, count: 3 },
+  ],
+  emoji_feedback_comments: [
+    {
+      rating: 5,
+      comment: 'Love it!',
+      page: '/upload',
+      created_at: '2026-05-08T12:00:00.000Z',
+    },
+  ],
   as_of: '2026-05-09T14:32:07.000Z',
   cache_age_seconds: 412,
   ...overrides,

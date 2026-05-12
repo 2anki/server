@@ -13,6 +13,10 @@ import {
   ICancellationFeedbackRepository,
   InMemoryCancellationFeedbackRepository,
 } from '../../data_layer/CancellationFeedbackRepository';
+import {
+  IEmojiFeedbackRepository,
+  InMemoryEmojiFeedbackRepository,
+} from '../../data_layer/EmojiFeedbackRepository';
 
 export type BusinessMetricKey =
   | 'mrr_usd'
@@ -26,7 +30,9 @@ export type BusinessMetricKey =
   | 'conversions_vs_churn_weekly'
   | 'failed_payments_weekly'
   | 'cancellation_reasons_top'
-  | 'cancellation_comments_recent';
+  | 'cancellation_comments_recent'
+  | 'emoji_feedback_ratings'
+  | 'emoji_feedback_comments';
 
 export interface BusinessMetricError {
   metric: BusinessMetricKey;
@@ -75,12 +81,15 @@ export interface BusinessMetricsResponse {
 export const BUSINESS_METRICS_CACHE_TTL_MS = 15 * 60 * 1000;
 export const CANCELLATION_REASONS_LOOKBACK_DAYS = 90;
 export const CANCELLATION_COMMENTS_LIMIT = 20;
+export const EMOJI_FEEDBACK_LOOKBACK_DAYS = 30;
+export const EMOJI_FEEDBACK_COMMENTS_LIMIT = 20;
 
 interface BusinessMetricsServiceDeps {
   stripeFactory?: () => Stripe;
   cacheTtlMs?: number;
   cacheRepository?: IBusinessMetricsCacheRepository;
   cancellationRepository?: ICancellationFeedbackRepository;
+  emojiFeedbackRepository?: IEmojiFeedbackRepository;
 }
 
 const SECONDS_PER_DAY = 24 * 60 * 60;
@@ -120,6 +129,8 @@ export class BusinessMetricsService {
 
   private readonly cancellationRepository: ICancellationFeedbackRepository;
 
+  private readonly emojiFeedbackRepository: IEmojiFeedbackRepository;
+
   private allSubsPromise: Promise<NormalizedSubscription[]> | null = null;
 
   private invoicesPromise: Promise<NormalizedInvoice[]> | null = null;
@@ -132,6 +143,9 @@ export class BusinessMetricsService {
     this.cancellationRepository =
       deps.cancellationRepository ??
       new InMemoryCancellationFeedbackRepository();
+    this.emojiFeedbackRepository =
+      deps.emojiFeedbackRepository ??
+      new InMemoryEmojiFeedbackRepository();
   }
 
   async getMetrics(): Promise<BusinessMetricsResponse> {
@@ -202,6 +216,23 @@ export class BusinessMetricsService {
         fetch: () =>
           this.cancellationRepository.recentComments(
             CANCELLATION_COMMENTS_LIMIT
+          ),
+      },
+      {
+        key: 'emoji_feedback_ratings',
+        fetch: () =>
+          this.emojiFeedbackRepository.countByRating(
+            new Date(
+              now.getTime() -
+                EMOJI_FEEDBACK_LOOKBACK_DAYS * SECONDS_PER_DAY * 1000
+            )
+          ),
+      },
+      {
+        key: 'emoji_feedback_comments',
+        fetch: () =>
+          this.emojiFeedbackRepository.recentComments(
+            EMOJI_FEEDBACK_COMMENTS_LIMIT
           ),
       },
     ];

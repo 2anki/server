@@ -11,6 +11,7 @@ import { BusinessMetricsService } from '../services/ops/BusinessMetricsService';
 import { ConversionMetricsService } from '../services/ops/ConversionMetricsService';
 import { BusinessMetricsCacheRepository } from '../data_layer/BusinessMetricsCacheRepository';
 import { CancellationFeedbackRepository } from '../data_layer/CancellationFeedbackRepository';
+import { EmojiFeedbackRepository } from '../data_layer/EmojiFeedbackRepository';
 import { ShowcaseRepository } from '../data_layer/ShowcaseRepository';
 import DownloadRepository from '../data_layer/DownloadRepository';
 import NotionRepository from '../data_layer/NotionRespository';
@@ -29,6 +30,7 @@ const OpsRouter = () => {
   const businessMetricsService = new BusinessMetricsService({
     cacheRepository: new BusinessMetricsCacheRepository(database),
     cancellationRepository: new CancellationFeedbackRepository(database),
+    emojiFeedbackRepository: new EmojiFeedbackRepository(database),
   });
 
   const conversionMetricsService = new ConversionMetricsService(database);
