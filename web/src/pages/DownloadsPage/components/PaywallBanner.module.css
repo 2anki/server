@@ -3,25 +3,25 @@
   flex-direction: column;
   gap: 0.75rem;
   padding: 1.25rem 1.5rem;
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-  border: 1px solid #fcd34d;
-  border-radius: 12px;
+  background: var(--color-warning-light);
+  border: 1px solid var(--color-warning-border);
+  border-radius: var(--radius-lg);
   margin-bottom: 1rem;
-  color: #78350f;
+  color: var(--color-warning-text);
 }
 
 .headline {
   font-size: var(--text-lg);
   font-weight: var(--font-semibold);
   margin: 0;
-  color: #78350f;
+  color: var(--color-warning-text);
 }
 
 .body {
   font-size: var(--text-sm);
   line-height: var(--leading-normal);
   margin: 0;
-  color: #92400e;
+  color: var(--color-warning-text);
 }
 
 .actions {
@@ -39,21 +39,23 @@
   padding: 0.5rem 1.25rem;
   font-size: var(--text-sm);
   font-weight: var(--font-semibold);
-  color: #fff;
-  background: #b45309;
-  border-radius: 9999px;
+  color: var(--color-bg-primary);
+  background: var(--color-warning);
+  border-radius: var(--radius-md);
   text-decoration: none;
-  transition: background 0.15s ease;
+  box-shadow: var(--shadow-xs);
+  transition: background 0.15s ease, box-shadow 0.15s ease;
 }
 
 .cta:hover {
-  background: #92400e;
-  color: #fff;
+  background: var(--color-warning-text);
+  color: var(--color-bg-primary);
+  box-shadow: var(--shadow-sm);
 }
 
 .secondary {
   font-size: var(--text-sm);
-  color: #92400e;
+  color: var(--color-warning-text);
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;

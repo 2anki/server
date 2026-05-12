@@ -112,7 +112,7 @@
   width: 100%;
   min-height: 160px;
   height: 260px;
-  background: #fff;
+  background: var(--color-bg-primary);
 }
 
 .sentinel {
