@@ -93,7 +93,7 @@ function displayFilename(fileInput: HTMLInputElement | null): string {
   return `${files.length} files`;
 }
 
-function UploadCloudIcon({ className }: { className?: string }) {
+function UploadCloudIcon({ className }: Readonly<{ className?: string }>) {
   return (
     <svg
       className={className}
@@ -113,7 +113,7 @@ function UploadCloudIcon({ className }: { className?: string }) {
   );
 }
 
-function CheckCircleIcon({ className }: { className?: string }) {
+function CheckCircleIcon({ className }: Readonly<{ className?: string }>) {
   return (
     <svg
       className={className}
@@ -131,7 +131,7 @@ function CheckCircleIcon({ className }: { className?: string }) {
   );
 }
 
-function WarningIcon({ className }: { className?: string }) {
+function WarningIcon({ className }: Readonly<{ className?: string }>) {
   return (
     <svg
       className={className}
@@ -160,7 +160,7 @@ function UploadForm({
   const [cardCount, setCardCount] = useState<number | null>(null);
   const [warningMessage, setWarningMessage] = useState<string | null>(null);
   const [limitInfo, setLimitInfo] = useState<LimitInfo | null>(null);
-  const [errorMessage, setLocalError] = useState<string | null>(null);
+  const [localError, setLocalError] = useState<string | null>(null);
   const [progressWidth, setProgressWidth] = useState(10);
   const [progressSlow, setProgressSlow] = useState(false);
   const [showFallback, setShowFallback] = useState(false);
@@ -305,224 +305,221 @@ function UploadForm({
     .filter(Boolean)
     .join(' ');
 
-  const renderZoneContent = () => {
-    if (validation && zoneState === 'idle') {
-      return (
-        <div className={formStyles.stateContent}>
-          <span className={formStyles.validationIcon}>
-            {validation.status === 'error' ? '⚠' : 'ℹ'}
-          </span>
-          <p className={formStyles.validationTitle}>{validation.title}</p>
-          <p className={formStyles.validationBody}>{validation.body}</p>
-          <div className={formStyles.validationActions}>
-            <button
-              type="button"
-              className={formStyles.actionButton}
-              onClick={(e) => {
-                e.preventDefault();
-                resetValidation();
-                if (fileInputRef.current) {
-                  fileInputRef.current.value = '';
-                }
-              }}
-            >
-              Pick a different file
-            </button>
-            <button
-              type="button"
-              className={formStyles.resetLink}
-              onClick={(e) => {
-                e.preventDefault();
-                resetValidation();
-                submitFiles();
-              }}
-            >
-              {validation.continueLabel}
-            </button>
-          </div>
-        </div>
-      );
-    }
-
-    if (zoneState === 'converting') {
-      return (
-        <div className={formStyles.stateContent}>
-          <p className={formStyles.filename}>
-            {displayFilename(fileInputRef.current)}
-          </p>
-          <div className={formStyles.progressTrack}>
-            <div
-              className={`${formStyles.progressFill} ${progressSlow ? formStyles.progressFillSlow : ''}`}
-              style={{ width: `${progressWidth}%` }}
-            />
-          </div>
-          <p className={formStyles.statusText}>Making your deck...</p>
-        </div>
-      );
-    }
-
-    if (zoneState === 'success') {
-      return (
-        <div className={formStyles.stateContent}>
-          <CheckCircleIcon className={formStyles.iconSuccess} />
-          <p className={formStyles.successPrimary}>
-            Your deck is ready
-            {cardCount != null && (
-              <span className={formStyles.cardCount}>
-                {' '}&mdash; {cardCount} {cardCount === 1 ? 'card' : 'cards'}
-              </span>
-            )}
-          </p>
-          <p className={formStyles.successSecondary}>
-            {deckName} was saved to your downloads
-          </p>
-          {warningMessage && (
-            <p className={formStyles.warningInline}>{warningMessage}</p>
-          )}
-          {showFallback && (
-            <button
-              type="button"
-              className={formStyles.fallbackLink}
-              onClick={() => downloadRef.current?.click()}
-            >
-              Didn't get the file? Download it here.
-            </button>
-          )}
-          <button
-            type="button"
-            className={formStyles.actionButton}
-            onClick={resetForm}
-          >
-            Make another deck
-          </button>
-        </div>
-      );
-    }
-
-    if (zoneState === 'emptyDeck') {
-      return (
-        <div className={formStyles.stateContent}>
-          <WarningIcon className={formStyles.iconWarning} />
-          <p className={formStyles.emptyTitle}>No cards found in this file</p>
-          <p className={formStyles.emptyBody}>
-            2anki turns Notion toggle blocks (the little triangles you click to
-            expand) into flashcards. We didn't find any toggles in this file.
-          </p>
-          <p className={formStyles.emptyBody}>
-            If this came from Notion, open the page, add some toggle blocks, and
-            export again.{' '}
-            <a href="/documentation/help/common-problems#could-not-create-a-deck-using-your-file-and-rules">
-              See examples
-            </a>
-            .
-          </p>
-          <div className={formStyles.emptyActions}>
-            <button
-              type="button"
-              className={formStyles.emptyDownloadButton}
-              onClick={() => downloadRef.current?.click()}
-            >
-              Download empty deck
-            </button>
-            <button
-              type="button"
-              className={formStyles.resetLink}
-              onClick={resetForm}
-            >
-              Try a different file
-            </button>
-          </div>
-        </div>
-      );
-    }
-
-    if (zoneState === 'limitReached' && limitInfo) {
-      return (
-        <div className={formStyles.limitContent}>
-          <p className={formStyles.limitTitle}>
-            You've reached the free conversion limit
-          </p>
-          <p className={formStyles.limitDescription}>
-            {limitInfo.isAnonymous
-              ? 'Create a free account to keep converting, or upgrade for unlimited decks.'
-              : 'Upgrade your plan to continue converting files.'}
-          </p>
-          {limitInfo.filename && (
-            <span className={formStyles.limitFilename}>
-              {limitInfo.filename}
-            </span>
-          )}
-          <div className={formStyles.limitActions}>
-            {limitInfo.isAnonymous ? (
-              <Link
-                to="/register?redirect=/upload"
-                className={`${sharedStyles.btnPrimary} ${sharedStyles.btnInline}`}
-              >
-                Create free account
-              </Link>
-            ) : (
-              <Link
-                to="/pricing"
-                className={`${sharedStyles.btnPrimary} ${sharedStyles.btnInline}`}
-              >
-                Upgrade to continue
-              </Link>
-            )}
-            <button
-              type="button"
-              className={formStyles.resetLink}
-              onClick={resetForm}
-            >
-              Try a different file
-            </button>
-          </div>
-        </div>
-      );
-    }
-
-    if (zoneState === 'error') {
-      return (
-        <div className={formStyles.stateContent}>
-          <WarningIcon className={formStyles.iconError} />
-          <p className={formStyles.errorTitle}>Something went wrong</p>
-          <p className={formStyles.errorBody}>
-            {errorMessage ??
-              "We couldn't make your deck. Try again, or email us at support@2anki.net."}
-          </p>
-          <button
-            type="button"
-            className={formStyles.actionButton}
-            onClick={resetForm}
-          >
-            Try again
-          </button>
-        </div>
-      );
-    }
-
-    return (
-      <div className={formStyles.stateContent}>
-        <UploadCloudIcon
-          className={`${formStyles.icon} ${dropHover ? formStyles.iconBob : ''}`}
-        />
-        <span className={formStyles.dropText}>
-          {dropHover ? 'Drop it right here' : 'Drop your files here'}
-        </span>
-        {!dropHover && (
-          <>
-            <span className={formStyles.dropHint}>or</span>
-            <span className={formStyles.chooseButton}>Choose files</span>
-            <div className={formStyles.formatList}>
-              {FORMATS.map((fmt) => (
-                <span key={fmt} className={formStyles.formatPill}>
-                  {fmt}
-                </span>
-              ))}
-            </div>
-          </>
-        )}
+  const renderValidationState = () => (
+    <div className={formStyles.stateContent}>
+      <span className={formStyles.validationIcon}>
+        {validation?.status === 'error' ? '⚠' : 'ℹ'}
+      </span>
+      <p className={formStyles.validationTitle}>{validation?.title}</p>
+      <p className={formStyles.validationBody}>{validation?.body}</p>
+      <div className={formStyles.validationActions}>
+        <button
+          type="button"
+          className={formStyles.actionButton}
+          onClick={(e) => {
+            e.preventDefault();
+            resetValidation();
+            if (fileInputRef.current) {
+              fileInputRef.current.value = '';
+            }
+          }}
+        >
+          Pick a different file
+        </button>
+        <button
+          type="button"
+          className={formStyles.resetLink}
+          onClick={(e) => {
+            e.preventDefault();
+            resetValidation();
+            submitFiles();
+          }}
+        >
+          {validation?.continueLabel}
+        </button>
       </div>
-    );
+    </div>
+  );
+
+  const renderConvertingState = () => (
+    <div className={formStyles.stateContent}>
+      <p className={formStyles.filename}>
+        {displayFilename(fileInputRef.current)}
+      </p>
+      <div className={formStyles.progressTrack}>
+        <div
+          className={`${formStyles.progressFill} ${progressSlow ? formStyles.progressFillSlow : ''}`}
+          style={{ width: `${progressWidth}%` }}
+        />
+      </div>
+      <p className={formStyles.statusText}>Making your deck...</p>
+    </div>
+  );
+
+  const renderSuccessState = () => (
+    <div className={formStyles.stateContent}>
+      <CheckCircleIcon className={formStyles.iconSuccess} />
+      <p className={formStyles.successPrimary}>
+        Your deck is ready
+        {cardCount != null && (
+          <span className={formStyles.cardCount}>
+            &nbsp;&mdash; {cardCount} {cardCount === 1 ? 'card' : 'cards'}
+          </span>
+        )}
+      </p>
+      <p className={formStyles.successSecondary}>
+        {deckName} was saved to your downloads
+      </p>
+      {warningMessage && (
+        <p className={formStyles.warningInline}>{warningMessage}</p>
+      )}
+      {showFallback && (
+        <button
+          type="button"
+          className={formStyles.fallbackLink}
+          onClick={() => downloadRef.current?.click()}
+        >
+          Didn't get the file? Download it here.
+        </button>
+      )}
+      <button
+        type="button"
+        className={formStyles.actionButton}
+        onClick={resetForm}
+      >
+        Make another deck
+      </button>
+    </div>
+  );
+
+  const renderEmptyDeckState = () => (
+    <div className={formStyles.stateContent}>
+      <WarningIcon className={formStyles.iconWarning} />
+      <p className={formStyles.emptyTitle}>No cards found in this file</p>
+      <p className={formStyles.emptyBody}>
+        2anki turns Notion toggle blocks (the little triangles you click to
+        expand) into flashcards. We didn't find any toggles in this file.
+      </p>
+      <p className={formStyles.emptyBody}>
+        If this came from Notion, open the page, add some toggle blocks, and
+        export again.
+        {' '}
+        <a href="/documentation/help/common-problems#could-not-create-a-deck-using-your-file-and-rules">
+          See examples
+        </a>
+        .
+      </p>
+      <div className={formStyles.emptyActions}>
+        <button
+          type="button"
+          className={formStyles.emptyDownloadButton}
+          onClick={() => downloadRef.current?.click()}
+        >
+          Download empty deck
+        </button>
+        <button
+          type="button"
+          className={formStyles.resetLink}
+          onClick={resetForm}
+        >
+          Try a different file
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderLimitState = () => (
+    <div className={formStyles.limitContent}>
+      <p className={formStyles.limitTitle}>
+        You've reached the free conversion limit
+      </p>
+      <p className={formStyles.limitDescription}>
+        {limitInfo?.isAnonymous
+          ? 'Create a free account to keep converting, or upgrade for unlimited decks.'
+          : 'Upgrade your plan to continue converting files.'}
+      </p>
+      {limitInfo?.filename && (
+        <span className={formStyles.limitFilename}>
+          {limitInfo.filename}
+        </span>
+      )}
+      <div className={formStyles.limitActions}>
+        {limitInfo?.isAnonymous ? (
+          <Link
+            to="/register?redirect=/upload"
+            className={`${sharedStyles.btnPrimary} ${sharedStyles.btnInline}`}
+          >
+            Create free account
+          </Link>
+        ) : (
+          <Link
+            to="/pricing"
+            className={`${sharedStyles.btnPrimary} ${sharedStyles.btnInline}`}
+          >
+            Upgrade to continue
+          </Link>
+        )}
+        <button
+          type="button"
+          className={formStyles.resetLink}
+          onClick={resetForm}
+        >
+          Try a different file
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderErrorState = () => (
+    <div className={formStyles.stateContent}>
+      <WarningIcon className={formStyles.iconError} />
+      <p className={formStyles.errorTitle}>Something went wrong</p>
+      <p className={formStyles.errorBody}>
+        {localError ??
+          "We couldn't make your deck. Try again, or email us at support@2anki.net."}
+      </p>
+      <button
+        type="button"
+        className={formStyles.actionButton}
+        onClick={resetForm}
+      >
+        Try again
+      </button>
+    </div>
+  );
+
+  const renderIdleState = () => (
+    <div className={formStyles.stateContent}>
+      <UploadCloudIcon
+        className={`${formStyles.icon} ${dropHover ? formStyles.iconBob : ''}`}
+      />
+      <span className={formStyles.dropText}>
+        {dropHover ? 'Drop it right here' : 'Drop your files here'}
+      </span>
+      {!dropHover && (
+        <>
+          <span className={formStyles.dropHint}>or</span>
+          <span className={formStyles.chooseButton}>Choose files</span>
+          <div className={formStyles.formatList}>
+            {FORMATS.map((fmt) => (
+              <span key={fmt} className={formStyles.formatPill}>
+                {fmt}
+              </span>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+
+  const renderZoneContent = () => {
+    if (validation && zoneState === 'idle') return renderValidationState();
+    if (zoneState === 'converting') return renderConvertingState();
+    if (zoneState === 'success') return renderSuccessState();
+    if (zoneState === 'emptyDeck') return renderEmptyDeckState();
+    if (zoneState === 'limitReached' && limitInfo) return renderLimitState();
+    if (zoneState === 'error') return renderErrorState();
+    return renderIdleState();
   };
 
   return (
