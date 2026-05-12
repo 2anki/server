@@ -219,6 +219,9 @@ export function Sidebar({
           </div>
         )}
       </nav>
+      <div className={styles.sidebarTheme}>
+        <ThemeSwitcher />
+      </div>
       <div className={styles.sidebarSpacer} />
       <div className={styles.identity}>
         <span className={styles.identityEmail} title={email ?? undefined}>
@@ -244,9 +247,6 @@ export function Sidebar({
           <ArrowRightOnRectangleIcon width={20} height={20} />
           {getVisibleText('navigation.logout')}
         </a>
-      </div>
-      <div className={styles.sidebarTheme}>
-        <ThemeSwitcher />
       </div>
       <div className={styles.sidebarMore}>
         <div className={styles.sidebarMoreLinks}>
