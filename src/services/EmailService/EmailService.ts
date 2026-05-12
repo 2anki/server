@@ -411,7 +411,7 @@ export class UnimplementedEmailService implements IEmailService {
     token: string,
     purpose: 'login' | 'password_reset'
   ): Promise<void> {
-    console.info('sendMagicLinkEmail not handled', email, token, purpose);
+    console.info('sendMagicLinkEmail not handled');
   }
 }
 
