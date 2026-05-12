@@ -66,16 +66,16 @@ export function DeleteAccountPage({ setError }: Readonly<Prop>) {
           {isDeleting ? 'Deleting...' : deleteButtonText}
         </button>
         <p
-          className={`${sharedStyles.smallDescription} ${sharedStyles.marginTopLg} ${sharedStyles.wordBreak}`}
+          className={`${sharedStyles.smallDescription} ${sharedStyles.marginTopLg}`}
         >
-          Also disconnect it from Notion:{' '}
+          You may also want to{' '}
           <a
             href="https://www.notion.so/help/add-and-manage-integrations-with-the-api"
             target="_blank"
             rel="noreferrer"
           >
-            https://www.notion.so/help/add-and-manage-integrations-with-the-api
-          </a>
+            disconnect 2anki from your Notion workspace
+          </a>.
         </p>
       </div>
     </div>
