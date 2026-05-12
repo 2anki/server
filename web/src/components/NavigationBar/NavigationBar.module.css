@@ -119,7 +119,7 @@
 }
 
 .navLinkActive {
-  color: var(--color-text-primary);
+  color: var(--color-primary);
   font-weight: var(--font-semibold);
 }
 

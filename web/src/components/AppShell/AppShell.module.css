@@ -83,14 +83,14 @@
 }
 
 .sidebarRowActive {
-  color: var(--color-text-primary);
+  color: var(--color-primary);
   font-weight: 500;
-  background: none;
+  background: var(--color-primary-light);
 }
 
 .sidebarRowActive:hover {
-  background: var(--color-bg-tertiary);
-  color: var(--color-text-primary);
+  background: var(--color-primary-light);
+  color: var(--color-primary);
 }
 
 .identity {
