@@ -35,8 +35,8 @@ function renderSidebar({
   );
 }
 
-describe('Sidebar work group', () => {
-  it('renders Upload, Library, and Search Notion for every logged-in user', () => {
+describe('Sidebar convert group', () => {
+  it('renders Upload, Conversions, and Notion to Anki for every logged-in user', () => {
     renderSidebar();
     expect(screen.getByRole('link', { name: 'Upload' })).toHaveAttribute(
       'href',
@@ -47,27 +47,27 @@ describe('Sidebar work group', () => {
       '/downloads'
     );
     expect(
-      screen.getByRole('link', { name: 'Search Notion' })
+      screen.getByRole('link', { name: 'Notion to Anki' })
     ).toHaveAttribute('href', '/notion');
   });
 
-  it('hides Ankify when the user does not have patreon access', () => {
+  it('hides Auto Sync when the user does not have patreon access', () => {
     renderSidebar({ subscriber: true });
     expect(
-      screen.queryByRole('link', { name: 'Ankify' })
+      screen.queryByRole('link', { name: 'Auto Sync' })
     ).not.toBeInTheDocument();
   });
 
-  it('shows Ankify when the user has patreon access', () => {
+  it('shows Auto Sync when the user has patreon access', () => {
     renderSidebar({ patreon: true });
-    expect(screen.getByRole('link', { name: 'Ankify' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Auto Sync' })).toHaveAttribute(
       'href',
       '/ankify'
     );
   });
 });
 
-describe('Sidebar reference group', () => {
+describe('Sidebar help group', () => {
   it('always shows Docs', () => {
     renderSidebar();
     expect(screen.getByRole('link', { name: 'Docs' })).toHaveAttribute(
@@ -103,7 +103,7 @@ describe('Sidebar admin group', () => {
   it('hides the admin group when no flags are on', () => {
     renderSidebar();
     expect(
-      screen.queryByRole('link', { name: /KI \(beta\)/i })
+      screen.queryByRole('link', { name: 'KI' })
     ).not.toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'Ops' })).not.toBeInTheDocument();
   });
@@ -111,7 +111,7 @@ describe('Sidebar admin group', () => {
   it('shows KI when kiUI is on', () => {
     renderSidebar({ kiUI: true });
     expect(
-      screen.getByRole('link', { name: /KI \(beta\)/i })
+      screen.getByRole('link', { name: 'KI' })
     ).toHaveAttribute('href', '/ki');
   });
 
@@ -186,10 +186,10 @@ describe('Sidebar active state', () => {
 });
 
 describe('Sidebar group hierarchy', () => {
-  it('renders Make and Learn group labels for every logged-in user', () => {
+  it('does not render group labels', () => {
     renderSidebar();
-    expect(screen.getByText('Make')).toBeInTheDocument();
-    expect(screen.getByText('Learn')).toBeInTheDocument();
+    expect(screen.queryByText('Make')).not.toBeInTheDocument();
+    expect(screen.queryByText('Learn')).not.toBeInTheDocument();
   });
 
   it('omits the Admin group label when no admin flags are on', () => {
@@ -197,14 +197,14 @@ describe('Sidebar group hierarchy', () => {
     expect(screen.queryByText('Admin')).not.toBeInTheDocument();
   });
 
-  it('renders the Admin group label when ops is on', () => {
+  it('does not render Admin group label even when ops is on', () => {
     renderSidebar({ ops: true });
-    expect(screen.getByText('Admin')).toBeInTheDocument();
+    expect(screen.queryByText('Admin')).not.toBeInTheDocument();
   });
 });
 
 describe('Sidebar More block', () => {
-  it('renders the relocated footer links and copyright', () => {
+  it('renders the footer links and copyright', () => {
     renderSidebar();
     expect(screen.getByRole('link', { name: 'About' })).toHaveAttribute(
       'href',

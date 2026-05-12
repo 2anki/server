@@ -9,6 +9,17 @@ import TrashIcon from '../../../../components/icons/TrashIcon';
 import './ListJobs.css';
 import sharedStyles from '../../../../styles/shared.module.css';
 
+const SERVICE_LABELS: Record<string, string> = {
+  notion: 'Notion → Anki',
+  claude: 'Claude',
+  apkg_import: 'Anki → Notion',
+};
+
+function getServiceLabel(type: string | null | undefined): string {
+  if (type == null) return 'Notion → Anki';
+  return SERVICE_LABELS[type] ?? type;
+}
+
 interface Props {
   readonly jobs: JobResponse[];
   readonly deleteJob: (id: JobsId) => void;
@@ -27,6 +38,25 @@ export default function Index({
 
   const renderStatusCell = (j: JobResponse) => {
     if (isDoneJob(j.status as JobStatus)) {
+      if (j.type === 'apkg_import') {
+        let notionUrl: string | null = null;
+        try {
+          const parsed = JSON.parse(j.job_reason_failure ?? '');
+          notionUrl = parsed.notion_page_url ?? null;
+        } catch { /* not JSON */ }
+        return notionUrl ? (
+          <a
+            href={notionUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="stripe-button stripe-button-primary"
+          >
+            Open in Notion
+          </a>
+        ) : (
+          <span>Done</span>
+        );
+      }
       return (
         <a
           href={`/api/upload/jobs/${j.object_id}/download`}
@@ -102,7 +132,7 @@ export default function Index({
               <td data-hj-suppress>
                 <div className="stripe-job-title">{j.title}</div>
               </td>
-              <td>{j.type ?? 'Notion'}</td>
+              <td>{getServiceLabel(j.type)}</td>
               <td>
                 {j.created_at && (
                   <div className="stripe-time-ago">

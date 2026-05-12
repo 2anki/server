@@ -1,12 +1,18 @@
 import { Request, Response } from 'express';
 import path from 'path';
+import { randomUUID } from 'crypto';
 import StorageHandler from '../lib/storage/StorageHandler';
 import DownloadService from '../services/DownloadService';
 import ApkgPreviewService from '../services/ApkgPreviewService/ApkgPreviewService';
+import ApkgToNotionBlocksService from '../services/ApkgToNotionBlocksService';
 import PdfRenderService from '../services/PdfRenderService';
 import ExportApkgToPdfUseCase, {
   CardLimitExceededError,
 } from '../usecases/apkg/ExportApkgToPdfUseCase';
+import ImportApkgToNotionUseCase from '../usecases/apkg/ImportApkgToNotionUseCase';
+import ResolveImportParentPageUseCase from '../usecases/apkg/ResolveImportParentPageUseCase';
+import { NotionService } from '../services/NotionService/NotionService';
+import JobRepository from '../data_layer/JobRepository';
 import sendErrorResponse from '../lib/sendErrorResponse';
 
 const MEDIA_CONTENT_TYPES: Record<string, string> = {
@@ -58,7 +64,9 @@ class ApkgController {
   constructor(
     private readonly downloadService: DownloadService,
     private readonly previewService: ApkgPreviewService,
-    private readonly pdfRenderService: PdfRenderService = new PdfRenderService()
+    private readonly pdfRenderService: PdfRenderService = new PdfRenderService(),
+    private readonly notionService?: NotionService,
+    private readonly jobRepository?: JobRepository
   ) {}
 
   private async loadForKey(req: Request, res: Response) {
@@ -199,6 +207,159 @@ class ApkgController {
       }
       console.error(error);
       res.status(500).json({ message: 'PDF generation failed.' });
+    }
+  }
+  async importToNotion(req: Request, res: Response) {
+    try {
+      if (this.notionService == null || this.jobRepository == null) {
+        res.status(500).json({ message: 'Import not configured.' });
+        return;
+      }
+
+      const file = req.file;
+      if (file == null) {
+        res.status(400).json({ message: 'No file uploaded.' });
+        return;
+      }
+      if (!isApkg(file.originalname)) {
+        res.status(400).json({ message: 'File must be an .apkg file.' });
+        return;
+      }
+
+      const isPaying = res.locals.patreon === true || res.locals.subscriber === true;
+      if (!isPaying) {
+        const importCount = await this.jobRepository.countJobsByType(
+          res.locals.owner,
+          'apkg_import'
+        );
+        if (importCount > 0) {
+          res.status(403).json({
+            message: 'Free plan allows one import. Upgrade for unlimited imports.',
+            upgrade: true,
+          });
+          return;
+        }
+      }
+
+      const rawParentPageId = req.body?.parent_page_id;
+      const hasExplicitParent =
+        typeof rawParentPageId === 'string' && rawParentPageId.trim().length > 0;
+
+      const { owner } = res.locals;
+      const notionApi = await this.notionService.getNotionAPI(owner);
+
+      let parentPageId: string;
+      if (hasExplicitParent) {
+        parentPageId = rawParentPageId.trim();
+      } else {
+        const resolver = new ResolveImportParentPageUseCase();
+        parentPageId = await resolver.execute(notionApi);
+      }
+
+      const fs = await import('node:fs/promises');
+      let fileBuffer: Buffer;
+      try {
+        fileBuffer = await fs.readFile(file.path);
+      } finally {
+        await fs.unlink(file.path).catch(() => {});
+      }
+
+      const jobId = randomUUID();
+      await this.jobRepository.create(jobId, owner, file.originalname, 'apkg_import');
+
+      const blocksService = new ApkgToNotionBlocksService();
+      const useCase = new ImportApkgToNotionUseCase(
+        this.previewService,
+        blocksService,
+        this.jobRepository
+      );
+
+      void useCase.execute(
+        fileBuffer,
+        parentPageId,
+        owner,
+        notionApi,
+        jobId,
+        { isPaying }
+      );
+
+      res.status(202).json({ job_id: jobId, status: 'queued' });
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        error.message === 'unauthorized'
+      ) {
+        res.status(400).json({ message: 'Notion is not connected.' });
+        return;
+      }
+      console.error(error);
+      res.status(500).json({ message: 'Import failed to start.' });
+    }
+  }
+
+  async getImportStatus(req: Request, res: Response) {
+    try {
+      if (this.jobRepository == null) {
+        res.status(500).json({ message: 'Import not configured.' });
+        return;
+      }
+
+      const { jobId } = req.params;
+      if (typeof jobId !== 'string' || jobId.trim().length === 0) {
+        res.status(400).json({ message: 'Missing job ID.' });
+        return;
+      }
+
+      const { owner } = res.locals;
+      const job = await this.jobRepository.findJobById(jobId, owner);
+
+      if (job == null) {
+        res.status(404).json({ message: 'Job not found.' });
+        return;
+      }
+
+      let progress = { total_notes: 0, imported: 0 };
+      let notionPageUrl: string | null = null;
+      let errorMessage: string | null = null;
+
+      if (job.status === 'done' && job.job_reason_failure) {
+        try {
+          const parsed = JSON.parse(job.job_reason_failure);
+          progress = {
+            total_notes: parsed.total_notes ?? 0,
+            imported: parsed.imported ?? 0,
+          };
+          notionPageUrl = parsed.notion_page_url ?? null;
+        } catch {
+          // job_reason_failure is not JSON, ignore
+        }
+      } else if (job.status === 'failed') {
+        errorMessage = job.job_reason_failure;
+      } else if (job.status === 'processing' && job.job_reason_failure) {
+        const parts = job.job_reason_failure.split('/');
+        if (parts.length === 2) {
+          progress = {
+            imported: parseInt(parts[0], 10) || 0,
+            total_notes: parseInt(parts[1].split(' ')[0], 10) || 0,
+          };
+        }
+      }
+
+      const statusText =
+        job.status === 'processing' && job.job_reason_failure?.startsWith('uploading')
+          ? job.job_reason_failure
+          : null;
+
+      res.json({
+        status: job.status === 'started' ? 'queued' : job.status,
+        progress,
+        status_text: statusText,
+        notion_page_url: notionPageUrl,
+        error: errorMessage,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Failed to get import status.' });
     }
   }
 }

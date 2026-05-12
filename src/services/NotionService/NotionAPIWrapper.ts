@@ -1,6 +1,7 @@
 import { Client, isFullBlock, isFullDatabase } from '@notionhq/client';
 import {
   BlockObjectRequest,
+  CreatePageResponse,
   GetBlockResponse,
   GetDatabaseResponse,
   GetPageResponse,
@@ -8,6 +9,7 @@ import {
   QueryDataSourceResponse,
   SearchResponse,
 } from '@notionhq/client/build/src/api-endpoints';
+import { CreateFileUploadResponse } from '@notionhq/client/build/src/api-endpoints/file-uploads';
 import { getNotionObjectTitle } from 'get-notion-object-title';
 
 import sanitizeTags from '../../lib/anki/sanitizeTags';
@@ -188,6 +190,60 @@ class NotionAPIWrapper {
       block_id: parent,
       children: [newBlock],
     });
+  }
+
+  appendBlocks(
+    parentId: string,
+    children: BlockObjectRequest[]
+  ): Promise<ListBlockChildrenResponse> {
+    return withRetry(
+      () =>
+        this.notion.blocks.children.append({
+          block_id: parentId,
+          children,
+        }),
+      { label: 'blocks.children.append:batch' }
+    );
+  }
+
+  createPage(
+    parentPageId: string,
+    title: string
+  ): Promise<CreatePageResponse> {
+    return withRetry(
+      () =>
+        this.notion.pages.create({
+          parent: { page_id: parentPageId },
+          properties: {
+            title: {
+              type: 'title',
+              title: [{ text: { content: title } }],
+            },
+          },
+        }),
+      { label: 'pages.create' }
+    );
+  }
+
+  async uploadFile(
+    filename: string,
+    contentType: string,
+    data: Buffer
+  ): Promise<string> {
+    const created = await this.notion.fileUploads.create({
+      mode: 'single_part',
+      filename,
+      content_type: contentType,
+    });
+
+    const blob = new Blob([new Uint8Array(data)], { type: contentType });
+
+    await this.notion.fileUploads.send({
+      file_upload_id: created.id,
+      file: { data: blob, filename },
+    });
+
+    return created.id;
   }
 
   getDatabase(id: string): Promise<GetDatabaseResponse> {

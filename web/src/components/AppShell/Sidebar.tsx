@@ -2,6 +2,18 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { getVisibleText } from '../../lib/text/getVisibleText';
 import { getPlanLabel, isPayingUser } from '../NavigationBar/helpers/getPlanLabel';
+import ArrowLeftIcon from '../icons/ArrowLeftIcon';
+import ArrowRightIcon from '../icons/ArrowRightIcon';
+import ArrowRightOnRectangleIcon from '../icons/ArrowRightOnRectangleIcon';
+import ArrowUpTrayIcon from '../icons/ArrowUpTrayIcon';
+import BookOpenIcon from '../icons/BookOpenIcon';
+import ClockIcon from '../icons/ClockIcon';
+import CommandLineIcon from '../icons/CommandLineIcon';
+import CreditCardIcon from '../icons/CreditCardIcon';
+import PrinterIcon from '../icons/PrinterIcon';
+import SparklesIcon from '../icons/SparklesIcon';
+import UserCircleIcon from '../icons/UserCircleIcon';
+import WrenchIcon from '../icons/WrenchIcon';
 import styles from './AppShell.module.css';
 
 export interface SidebarLocals {
@@ -29,6 +41,7 @@ interface SidebarRowProps {
   pathname: string;
   matchPrefix?: boolean;
   onClick?: React.MouseEventHandler<HTMLAnchorElement>;
+  icon?: React.ComponentType<{ width?: number; height?: number }>;
   children: React.ReactNode;
 }
 
@@ -43,6 +56,7 @@ function SidebarRow({
   pathname,
   matchPrefix = true,
   onClick,
+  icon: Icon,
   children,
 }: Readonly<SidebarRowProps>) {
   const active = isActiveRoute(pathname, href, matchPrefix);
@@ -55,6 +69,7 @@ function SidebarRow({
         active ? styles.sidebarRowActive : ''
       }`}
     >
+      {Icon && <Icon width={20} height={20} />}
       {children}
     </Link>
   );
@@ -97,125 +112,126 @@ export function Sidebar({
       <Link className={styles.sidebarLogo} to="/" onClick={handleNavClick()}>
         <img src="/mascot/navbar-logo.png" alt="2anki Logo" />
       </Link>
-      <div className={styles.sidebarGroup}>
-        <div className={styles.sidebarGroupLabel}>
-          {getVisibleText('navigation.groups.make')}
-        </div>
-        <SidebarRow
-          href="/upload"
-          pathname={pathname}
-          matchPrefix={false}
-          onClick={handleNavClick()}
-        >
-          {getVisibleText('navigation.upload')}
-        </SidebarRow>
-        {paying && (
-          <SidebarRow
-            href="/print"
-            pathname={pathname}
-            matchPrefix={false}
-            onClick={handleNavClick()}
-          >
-            {getVisibleText('navigation.print')}
-          </SidebarRow>
-        )}
-        <SidebarRow
-          href="/downloads"
-          pathname={pathname}
-          onClick={handleNavClick()}
-        >
-          {getVisibleText('navigation.conversions')}
-        </SidebarRow>
-        <SidebarRow
-          href="/notion"
-          pathname={pathname}
-          onClick={handleNavClick()}
-        >
-          {getVisibleText('navigation.searchNotion')}
-        </SidebarRow>
-        {showAnkify && (
-          <SidebarRow
-            href="/ankify"
-            pathname={pathname}
-            onClick={handleNavClick()}
-          >
-            Ankify
-          </SidebarRow>
-        )}
-      </div>
-      <div className={styles.sidebarGroup}>
-        <div className={styles.sidebarGroupLabel}>
-          {getVisibleText('navigation.groups.learn')}
-        </div>
-        <SidebarRow
-          href="/documentation"
-          pathname={pathname}
-          onClick={handleNavClick()}
-        >
-          {getVisibleText('navigation.docs')}
-        </SidebarRow>
-        {showPricing && (
-          <SidebarRow
-            href="/pricing"
-            pathname={pathname}
-            matchPrefix={false}
-            onClick={handleNavClick()}
-          >
-            {getVisibleText('navigation.pricing')}
-          </SidebarRow>
-        )}
-      </div>
-      {showAdminGroup && (
+      <nav className={styles.sidebarNav}>
         <div className={styles.sidebarGroup}>
-          <div className={styles.sidebarGroupLabel}>
-            {getVisibleText('navigation.groups.admin')}
-          </div>
-          {showKi && (
-            <SidebarRow
-              href="/ki"
-              pathname={pathname}
-              onClick={handleNavClick()}
-            >
-              KI (beta)
-            </SidebarRow>
-          )}
-          {showOps && (
-            <SidebarRow
-              href="/ops"
-              pathname={pathname}
-              onClick={handleNavClick()}
-            >
-              Ops
-            </SidebarRow>
-          )}
-        </div>
-      )}
-      <div className={styles.sidebarSpacer} />
-      <hr className={styles.sidebarDivider} />
-      <Link
-        className={styles.identity}
-        to="/account"
-        onClick={handleNavClick()}
-      >
-        <div className={styles.identityRow}>
-          <span className={styles.identityEmail} title={email ?? undefined}>
-            {email ?? 'Account'}
-          </span>
-          <span
-            className={`${styles.identityPlan} ${
-              isPayingUser(locals) ? styles.identityPlanPaid : ''
-            }`}
+          <SidebarRow
+            href="/upload"
+            pathname={pathname}
+            matchPrefix={false}
+            onClick={handleNavClick()}
+            icon={ArrowUpTrayIcon}
           >
-            {planLabel}
-          </span>
+            {getVisibleText('navigation.upload')}
+          </SidebarRow>
+          <SidebarRow
+            href="/notion"
+            pathname={pathname}
+            onClick={handleNavClick()}
+            icon={ArrowRightIcon}
+          >
+            Notion to Anki
+          </SidebarRow>
+          <SidebarRow
+            href="/import"
+            pathname={pathname}
+            matchPrefix={false}
+            onClick={handleNavClick()}
+            icon={ArrowLeftIcon}
+          >
+            Anki to Notion
+          </SidebarRow>
+          {paying && (
+            <SidebarRow
+              href="/print"
+              pathname={pathname}
+              matchPrefix={false}
+              onClick={handleNavClick()}
+              icon={PrinterIcon}
+            >
+              {getVisibleText('navigation.print')}
+            </SidebarRow>
+          )}
+          {showAnkify && (
+            <SidebarRow
+              href="/ankify"
+              pathname={pathname}
+              onClick={handleNavClick()}
+              icon={SparklesIcon}
+            >
+              Auto Sync
+            </SidebarRow>
+          )}
         </div>
-      </Link>
+        <div className={styles.sidebarGroup}>
+          <SidebarRow
+            href="/downloads"
+            pathname={pathname}
+            onClick={handleNavClick()}
+            icon={ClockIcon}
+          >
+            {getVisibleText('navigation.conversions')}
+          </SidebarRow>
+        </div>
+        <div className={styles.sidebarGroup}>
+          <SidebarRow
+            href="/documentation"
+            pathname={pathname}
+            onClick={handleNavClick()}
+            icon={BookOpenIcon}
+          >
+            {getVisibleText('navigation.docs')}
+          </SidebarRow>
+          {showPricing && (
+            <SidebarRow
+              href="/pricing"
+              pathname={pathname}
+              matchPrefix={false}
+              onClick={handleNavClick()}
+              icon={CreditCardIcon}
+            >
+              {getVisibleText('navigation.pricing')}
+            </SidebarRow>
+          )}
+        </div>
+        {showAdminGroup && (
+          <div className={styles.sidebarGroup}>
+            {showKi && (
+              <SidebarRow
+                href="/ki"
+                pathname={pathname}
+                onClick={handleNavClick()}
+                icon={CommandLineIcon}
+              >
+                KI
+              </SidebarRow>
+            )}
+            {showOps && (
+              <SidebarRow
+                href="/ops"
+                pathname={pathname}
+                onClick={handleNavClick()}
+                icon={WrenchIcon}
+              >
+                Ops
+              </SidebarRow>
+            )}
+          </div>
+        )}
+      </nav>
+      <div className={styles.sidebarSpacer} />
+      <div className={styles.identity}>
+        <span className={styles.identityEmail} title={email ?? undefined}>
+          {email ?? 'Account'}
+        </span>
+        <span className={styles.identityPlan}>{planLabel}</span>
+      </div>
       <div className={styles.sidebarGroup}>
         <SidebarRow
           href="/account"
           pathname={pathname}
           matchPrefix={false}
           onClick={handleNavClick()}
+          icon={UserCircleIcon}
         >
           {getVisibleText('navigation.account')}
         </SidebarRow>
@@ -224,6 +240,7 @@ export function Sidebar({
           href="/users/logout"
           onClick={handleNavClick(onLogOut)}
         >
+          <ArrowRightOnRectangleIcon width={20} height={20} />
           {getVisibleText('navigation.logout')}
         </a>
       </div>
@@ -232,18 +249,15 @@ export function Sidebar({
           <Link to="/about" onClick={handleNavClick()}>
             {getVisibleText('navigation.legal.about')}
           </Link>
-          {' · '}
           <Link to="/contact" onClick={handleNavClick()}>
             {getVisibleText('navigation.contact')}
           </Link>
-          {' · '}
           <Link
             to="/documentation/misc/terms-of-service"
             onClick={handleNavClick()}
           >
             {getVisibleText('navigation.legal.terms')}
           </Link>
-          {' · '}
           <Link
             to="/documentation/misc/privacy-policy"
             onClick={handleNavClick()}
@@ -252,7 +266,7 @@ export function Sidebar({
           </Link>
         </div>
         <div className={styles.sidebarCopyright}>
-          © 2024–{new Date().getFullYear()} Alexander Alemayhu
+          &copy; 2024&ndash;{new Date().getFullYear()} Alexander Alemayhu
         </div>
       </div>
     </aside>

@@ -8,13 +8,24 @@ import ApkgController from '../controllers/ApkgController';
 import ApkgPreviewService from '../services/ApkgPreviewService/ApkgPreviewService';
 import DownloadService from '../services/DownloadService';
 import DownloadRepository from '../data_layer/DownloadRepository';
+import JobRepository from '../data_layer/JobRepository';
+import NotionRepository from '../data_layer/NotionRespository';
+import { NotionService } from '../services/NotionService/NotionService';
 import { getDatabase } from '../data_layer';
 
 const ApkgRouter = () => {
   const database = getDatabase();
   const downloadService = new DownloadService(new DownloadRepository(database));
   const previewService = new ApkgPreviewService();
-  const controller = new ApkgController(downloadService, previewService);
+  const notionService = new NotionService(new NotionRepository(database));
+  const jobRepository = new JobRepository(database);
+  const controller = new ApkgController(
+    downloadService,
+    previewService,
+    undefined,
+    notionService,
+    jobRepository
+  );
   const router = express.Router();
 
   /**
@@ -134,6 +145,25 @@ const ApkgRouter = () => {
     '/api/apkg/:key/media/:name',
     RequireAuthentication,
     (req, res) => controller.getMedia(req, res)
+  );
+
+  const importUpload = multer({
+    dest: process.env.UPLOAD_BASE ?? '/tmp',
+    limits: { fileSize: 100 * 1024 * 1024 },
+  });
+
+  router.post(
+    '/api/apkg/import',
+    RequireAllowedOrigin,
+    RequireAuthentication,
+    importUpload.single('file'),
+    (req, res) => controller.importToNotion(req, res)
+  );
+
+  router.get(
+    '/api/apkg/import/:jobId/status',
+    RequireAuthentication,
+    (req, res) => controller.getImportStatus(req, res)
   );
 
   const pdfUpload = multer({

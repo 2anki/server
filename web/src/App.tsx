@@ -54,6 +54,7 @@ const MarkdownToAnki = lazy(
 const PdfToAnki = lazy(() => import('./pages/LandingPage/PdfToAnki'));
 const MagicLinkPage = lazy(() => import('./pages/MagicLinkPage'));
 const PrintPage = lazy(() => import('./pages/PrintPage'));
+const ImportPage = lazy(() => import('./pages/ImportPage'));
 
 const queryClient = new QueryClient();
 
@@ -180,6 +181,12 @@ function AppContent({
             element={<SuccessfulCheckoutPage />}
           />
           <Route path="/account" element={requireAuth(<AccountPage />)} />
+          <Route
+            path="/import"
+            element={requireAuth(
+              <ImportPage setError={setErrorMessage} />
+            )}
+          />
           <Route path="/ankify" element={requireAuth(<AnkifyPage />)} />
           <Route
             path="/ankify/setup"
