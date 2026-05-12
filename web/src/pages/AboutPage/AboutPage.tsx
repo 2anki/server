@@ -5,102 +5,81 @@ export default function AboutPage() {
   return (
     <div className={styles.page}>
       <header className={styles.pageHeaderCenter}>
-        <h1 className={styles.title}>About 2anki.net</h1>
+        <h1 className={styles.title}>About 2anki</h1>
         <p className={styles.subtitle}>
-          Making Anki flashcards easier, better, and faster
+          Turn your Notion notes into Anki flashcards — fast, free, and open
+          source.
         </p>
       </header>
 
-      <section className={`${styles.card} ${styles.marginBottomLg}`}>
-        <h2 className={styles.subHeading}>What is 2anki?</h2>
+      <section className={pageStyles.hero}>
         <p>
-          2anki.net is an open source micro-SaaS that converts Notion notes
-          into Anki flashcards. It is used by autodidacts, students and
-          professionals around the world.
+          Used by autodidacts, students, and professionals around the world,
+          2anki bridges the gap between Notion and Anki so you can focus on
+          learning, not formatting.
         </p>
-        <p>Fast, simple, easy and open source.</p>
-        <div className={styles.textCenter}>
-          <a href="/upload" className={pageStyles.ctaButton}>
-            Get started
-          </a>
-        </div>
-        <p className={styles.marginTopMd}>
-          The goal of 2anki.net is to provide a good way to make{' '}
-          <a href="https://apps.ankiweb.net/" target="_blank" rel="noreferrer">
-            Anki
-          </a>{' '}
-          flashcards easier, better and faster. The dream is to have powerful
-          and easy ways to produce high quality flashcards. This project is a
-          complement to Anki and Notion.
+        <a href="/upload" className={pageStyles.ctaButton}>
+          Get started
+        </a>
+      </section>
+
+      <section className={pageStyles.steps}>
+        <h2 className={styles.subHeading}>How it works</h2>
+        <ol className={pageStyles.stepList}>
+          <li className={pageStyles.step}>
+            <span className={pageStyles.stepNumber}>1</span>
+            <div>
+              <strong>Create toggle lists in Notion</strong>
+              <p>
+                The toggle line becomes the front of the card; everything inside
+                becomes the back.
+              </p>
+            </div>
+          </li>
+          <li className={pageStyles.step}>
+            <span className={pageStyles.stepNumber}>2</span>
+            <div>
+              <strong>Export and upload to 2anki.net</strong>
+              <p>
+                Drop your exported zip or connect your Notion workspace
+                directly.
+              </p>
+            </div>
+          </li>
+          <li className={pageStyles.step}>
+            <span className={pageStyles.stepNumber}>3</span>
+            <div>
+              <strong>Download and import into Anki</strong>
+              <p>
+                Your deck is ready — embeds, audio, images, and cloze deletions
+                included.
+              </p>
+            </div>
+          </li>
+        </ol>
+        <p className={pageStyles.stepsFooter}>
+          Want the full walkthrough?{' '}
+          <a href="/documentation/start-here/what-is-2anki">Read our guide</a>
         </p>
       </section>
 
-      <div className={`${styles.columns2} ${styles.marginBottomLg}`}>
-        <section className={styles.card}>
-          <h2 className={styles.subHeading}>What we are not</h2>
-          <p>
-            If you are looking for an Anki or Notion replacement then this
-            project is probably not right for you. We are never going to
-            compete against Anki — we are building bridges.
-          </p>
-          <p>
-            That said, if you are not content with Anki, you might want to
-            check out{' '}
-            <a
-              href="https://www.super-memory.com/"
-              target="_blank"
-              rel="noreferrer"
-            >
-              SuperMemo
-            </a>.
-          </p>
-        </section>
-
-        <section className={styles.card}>
-          <h2 className={styles.subHeading}>Benefits</h2>
-          <ul>
-            <li>
-              No technical skills required and free to use by anyone, anywhere
-              🤗
-            </li>
-            <li>Convert your Notion toggle lists to Anki cards easily</li>
-            <li>Support for embeds, audio files, images and more</li>
-          </ul>
-          <p className={styles.smallDescription}>
-            Due to server costs there are quota limits in place, but you can
-            work around this by self-hosting.
-          </p>
-        </section>
-      </div>
-
-      <section className={styles.card}>
-        <h2 className={styles.subHeading}>How it works</h2>
+      <section className={pageStyles.philosophy}>
+        <h2 className={styles.subHeading}>Our philosophy</h2>
         <p>
-          Check out our{' '}
-          <a href="/documentation/start-here/what-is-2anki">detailed guide</a>{' '}
-          or follow these simple steps:
-        </p>
-        <ol>
-          <li>Create toggle lists in Notion</li>
-          <li>Export and upload to 2anki.net</li>
-          <li>Download and import into Anki</li>
-        </ol>
-        <p className={styles.marginTopLg}>
-          Toggle lists at the top level become Anki flashcards. The toggle
-          line is the front of the card and everything inside the details is
-          the back. That is the main feature, but you can customise the
-          behaviour via card options.
-        </p>
-        <p>
-          Considering how powerful{' '}
+          We are not building an Anki replacement — we are building bridges. If
+          you want a different spaced repetition system, check out{' '}
           <a
-            href="https://docs.ankiweb.net/#/editing?id=cloze-deletion"
+            href="https://www.super-memory.com/"
             target="_blank"
             rel="noreferrer"
           >
-            cloze deletions
-          </a>{' '}
-          are, they are enabled by default.
+            SuperMemo
+          </a>
+          .
+        </p>
+        <p>
+          Due to server costs there are quota limits on the free tier, but the
+          project is open source — you can always self-host.
         </p>
       </section>
     </div>

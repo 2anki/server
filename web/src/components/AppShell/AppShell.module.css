@@ -119,7 +119,6 @@
 
 .sidebarTheme {
   display: flex;
-  justify-content: center;
   padding: 0.5rem 0.75rem;
 }
 
@@ -148,7 +147,8 @@
 
 .sidebarCopyright {
   margin-top: 0.5rem;
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
 }
 
 .main {

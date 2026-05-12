@@ -1,8 +1,20 @@
+.hero {
+  text-align: center;
+  max-width: 540px;
+  margin: 0 auto 3rem;
+  font-size: var(--text-lg);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-secondary);
+}
+
+.hero p {
+  margin: 0 0 1.5rem;
+}
+
 .ctaButton {
   display: inline-flex;
   align-items: center;
   padding: 0.625rem 1.5rem;
-  margin-top: 0.5rem;
   font-size: var(--text-sm);
   font-weight: var(--font-medium);
   color: var(--color-bg-primary);
@@ -17,4 +29,72 @@
   background: var(--color-primary-hover);
   color: var(--color-bg-primary);
   box-shadow: var(--shadow-sm);
+}
+
+.steps {
+  background: var(--color-bg-primary);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 2rem;
+}
+
+.stepList {
+  list-style: none;
+  padding: 0;
+  margin: 1.5rem 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.step {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.step p {
+  margin: 0.25rem 0 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--leading-normal);
+}
+
+.step strong {
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+}
+
+.stepNumber {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+}
+
+.stepsFooter {
+  margin: 1.5rem 0 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.philosophy {
+  max-width: 540px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.philosophy p {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--leading-relaxed);
+  margin: 0.75rem 0 0;
 }
