@@ -70,6 +70,7 @@ export function HomePage({
           <UploadForm setErrorMessage={setErrorMessage} />
         </div>
         <p className={styles.socialProof}>
+          <span className={styles.socialProofDot} aria-hidden="true" />
           Used by 300,000+ learners. Free and open source.
         </p>
       </section>
@@ -90,43 +91,45 @@ export function HomePage({
       </section>
 
       <section className={styles.formatsSection}>
-        <p className={styles.formatsHeading}>Supported formats</p>
-        <ul className={styles.formatsList}>
-          {FORMATS.map((format) => (
-            <li key={format} className={styles.formatTag}>
-              {format}
-            </li>
-          ))}
-        </ul>
-        <p className={styles.formatsHint}>
-          Coming from Notion?{' '}
-          <a href="/documentation/start-here/upload-a-file">
-            Learn how to export your pages.
-          </a>
-        </p>
+        <div className={styles.formatsPanel}>
+          <p className={styles.formatsHeading}>Supported formats</p>
+          <ul className={styles.formatsList}>
+            {FORMATS.map((format) => (
+              <li key={format} className={styles.formatTag}>
+                {format}
+              </li>
+            ))}
+          </ul>
+          <p className={styles.formatsHint}>
+            Coming from Notion?{' '}
+            <a href="/documentation/start-here/upload-a-file">
+              Learn how to export your pages.
+            </a>
+          </p>
+        </div>
       </section>
 
       <section className={styles.walkSection}>
-        <p className={styles.walkHeading}>Walkthroughs</p>
-        <div className={styles.walkGrid}>
-          {WALKTHROUGHS.map((item) => (
-            <a
-              key={item.href}
-              className={styles.walkCard}
-              href={item.href}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <span className={styles.walkCardIcon}>
-                &#9654;
-              </span>
-              <div className={styles.walkCardText}>
-                <p className={styles.walkCardTitle}>{item.title}</p>
-                <p className={styles.walkCardMeta}>{item.meta}</p>
-              </div>
-              <span className={styles.walkCardArrow}>&rarr;</span>
-            </a>
-          ))}
+        <div className={styles.walkInner}>
+          <p className={styles.walkHeading}>Walkthroughs</p>
+          <div className={styles.walkGrid}>
+            {WALKTHROUGHS.map((item) => (
+              <a
+                key={item.href}
+                className={styles.walkCard}
+                href={item.href}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <span className={styles.walkCardIcon}>&#9654;</span>
+                <div className={styles.walkCardText}>
+                  <p className={styles.walkCardTitle}>{item.title}</p>
+                  <p className={styles.walkCardMeta}>{item.meta}</p>
+                </div>
+                <span className={styles.walkCardArrow}>&rarr;</span>
+              </a>
+            ))}
+          </div>
         </div>
       </section>
     </div>

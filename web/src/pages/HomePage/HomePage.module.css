@@ -28,9 +28,25 @@
 }
 
 .socialProof {
-  margin-top: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.75rem;
+  padding: 0.5rem 1.25rem;
   font-size: var(--text-sm);
-  color: var(--color-text-tertiary);
+  font-weight: var(--font-medium);
+  color: var(--color-text-secondary);
+  background: var(--color-bg-secondary);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: var(--radius-full);
+}
+
+.socialProofDot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--color-success);
+  flex-shrink: 0;
 }
 
 .stepsSection {
@@ -49,24 +65,28 @@
   text-transform: uppercase;
   letter-spacing: 0.15em;
   color: var(--color-text-tertiary);
-  margin: 0 0 2rem;
+  margin: 0 0 1.5rem;
   text-align: center;
 }
 
 .stepsGrid {
   display: grid;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 @media (min-width: 640px) {
   .stepsGrid {
     grid-template-columns: repeat(3, 1fr);
-    gap: 2rem;
+    gap: 1.25rem;
   }
 }
 
 .step {
   text-align: center;
+  background: var(--color-bg-primary);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem 1.5rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .stepNumber {
@@ -95,9 +115,6 @@
   color: var(--color-text-secondary);
   line-height: var(--leading-normal);
   margin: 0;
-  max-width: 28ch;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 .formatsSection {
@@ -105,6 +122,12 @@
   margin: 0 auto;
   padding: 3rem 1.5rem;
   text-align: center;
+}
+
+.formatsPanel {
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
 }
 
 .formatsHeading {
@@ -123,7 +146,7 @@
   gap: 0.5rem;
   list-style: none;
   padding: 0;
-  margin: 0 0 1.5rem;
+  margin: 0 0 1.25rem;
 }
 
 .formatTag {
@@ -131,8 +154,9 @@
   font-size: var(--text-sm);
   font-weight: var(--font-medium);
   border-radius: var(--radius-full);
-  background: var(--color-bg-secondary);
+  background: var(--color-bg-primary);
   color: var(--color-text-secondary);
+  border: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .formatsHint {
@@ -146,9 +170,13 @@
 }
 
 .walkSection {
+  background: var(--color-bg-secondary);
+  padding: 3rem 1.5rem 4rem;
+}
+
+.walkInner {
   max-width: 720px;
   margin: 0 auto;
-  padding: 0 1.5rem 4rem;
 }
 
 .walkHeading {
@@ -178,16 +206,15 @@
   gap: 1rem;
   padding: 1rem 1.25rem;
   background: var(--color-bg-primary);
-  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   text-decoration: none;
   color: var(--color-text-primary);
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  transition: box-shadow var(--transition-fast);
 }
 
 .walkCard:hover {
-  border-color: var(--color-primary);
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
   color: var(--color-text-primary);
 }
 
@@ -246,7 +273,11 @@
     padding: 2rem 1rem;
   }
 
+  .formatsPanel {
+    padding: 1.5rem 1rem;
+  }
+
   .walkSection {
-    padding: 0 1rem 3rem;
+    padding: 2.5rem 1rem 3rem;
   }
 }
