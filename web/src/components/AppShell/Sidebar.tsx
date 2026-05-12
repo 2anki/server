@@ -158,7 +158,7 @@ export function Sidebar({
               onClick={handleNavClick()}
               icon={SparklesIcon}
             >
-              Ankify
+              Hosted Anki
             </SidebarRow>
           )}
         </div>
