@@ -3,7 +3,6 @@ import { Helmet } from 'react-helmet-async';
 import UploadForm from '../UploadPage/components/UploadForm/UploadForm';
 import { ErrorHandlerType } from '../../components/errors/helpers/getErrorMessage';
 import { persistSignupOrigin } from '../../lib/signupOrigin';
-import sharedStyles from '../../styles/shared.module.css';
 import styles from './LandingPage.module.css';
 import type { LandingCopy } from './types';
 
@@ -14,24 +13,28 @@ interface LandingPageProps {
 
 const STEPS = [
   {
-    title: 'Paste or drop your file.',
-    body: 'Notion link, PDF, Word, Markdown, or a Quizlet export.',
+    title: 'Drop your file',
+    body: 'Notion export, PDF, Word, Markdown, or a Quizlet export.',
   },
   {
-    title: '2anki builds your deck.',
+    title: '2anki builds your deck',
     body: 'Usually a few seconds. Bigger files take a minute.',
   },
   {
-    title: 'Open it in Anki.',
+    title: 'Open it in Anki',
     body: 'Double-click the .apkg file. Your cards are ready to study.',
   },
 ];
 
-const FILE_TYPES_SENTENCE =
-  'Works with Notion pages, PDF, Word (.docx), Markdown (.md), HTML, CSV, and Quizlet exports.';
-
-const FOOTER_CTA_TEXT = 'Ready to try it?';
-const FOOTER_CTA_LINK_TEXT = 'Drop a file at the top of this page.';
+const FORMATS = [
+  'Notion',
+  'PDF',
+  'Markdown',
+  'HTML',
+  'CSV',
+  'Word',
+  'Quizlet',
+];
 
 function LandingPage({ copy, setErrorMessage }: Readonly<LandingPageProps>) {
   useEffect(() => {
@@ -68,30 +71,34 @@ function LandingPage({ copy, setErrorMessage }: Readonly<LandingPageProps>) {
         </div>
       </section>
 
-      <section className={styles.section}>
-        <h2 className={styles.sectionHeading}>How it works</h2>
-        <div className={sharedStyles.columns3}>
-          {STEPS.map((step, idx) => (
-            <div key={step.title} className={sharedStyles.sectionCard}>
-              <p className={styles.stepNumber}>{idx + 1}</p>
-              <p className={styles.stepTitle}>{step.title}</p>
-              <p className={styles.stepBody}>{step.body}</p>
-            </div>
-          ))}
+      <section className={styles.stepsSection}>
+        <div className={styles.stepsInner}>
+          <p className={styles.sectionLabel}>How it works</p>
+          <div className={styles.stepsGrid}>
+            {STEPS.map((step, idx) => (
+              <div key={step.title} className={styles.step}>
+                <span className={styles.stepNumber}>{idx + 1}</span>
+                <p className={styles.stepTitle}>{step.title}</p>
+                <p className={styles.stepBody}>{step.body}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
       <section className={styles.section}>
-        <p className={styles.filesSentence}>
-          {FILE_TYPES_SENTENCE}{' '}
-          <a href="/documentation/reference/file-formats">
-            See the full list.
-          </a>
-        </p>
+        <p className={styles.sectionLabel}>Supported formats</p>
+        <ul className={styles.formatsList}>
+          {FORMATS.map((format) => (
+            <li key={format} className={styles.formatTag}>
+              {format}
+            </li>
+          ))}
+        </ul>
       </section>
 
       <section className={styles.section}>
-        <h2 className={styles.sectionHeading}>Common questions</h2>
+        <p className={styles.sectionLabel}>Common questions</p>
         <div className={styles.faqList}>
           {copy.faqs.map((faq) => (
             <details key={faq.q} className={styles.faqItem}>
@@ -104,9 +111,9 @@ function LandingPage({ copy, setErrorMessage }: Readonly<LandingPageProps>) {
 
       <section className={styles.footerCta}>
         <p className={styles.footerCtaText}>
-          {FOOTER_CTA_TEXT}{' '}
+          Ready to try it?{' '}
           <a href="#upload" className={styles.footerCtaLink}>
-            {FOOTER_CTA_LINK_TEXT}
+            Drop a file at the top of this page.
           </a>
         </p>
       </section>

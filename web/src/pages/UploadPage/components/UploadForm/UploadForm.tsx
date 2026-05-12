@@ -4,10 +4,16 @@ import handleRedirect from '../../../../lib/handleRedirect';
 import getAcceptedContentTypes from '../../helpers/getAcceptedContentTypes';
 import getHeadersFilename from '../../helpers/getHeadersFilename';
 import DownloadButton from '../DownloadButton';
+import { UploadLimitBanner } from '../UploadLimitBanner';
 import { useDrag } from './hooks/useDrag';
 import { useFileValidation } from './hooks/useFileValidation';
 import formStyles from './UploadForm.module.css';
 import styles from '../../../../styles/shared.module.css';
+
+interface LimitInfo {
+  isAnonymous: boolean;
+  filename: string | null;
+}
 
 interface UploadFormProps {
   setErrorMessage: ErrorHandlerType;
@@ -84,6 +90,7 @@ function UploadForm({
   const [deckName, setDeckName] = useState('');
   const [cardCount, setCardCount] = useState<number | null>(null);
   const [warningMessage, setWarningMessage] = useState<string | null>(null);
+  const [limitInfo, setLimitInfo] = useState<LimitInfo | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const convertRef = useRef<HTMLButtonElement>(null);
   const { validation, validate, reset } = useFileValidation();
@@ -116,6 +123,17 @@ function UploadForm({
         body: formData,
       });
       if (request.redirected) {
+        const redirectUrl = new URL(request.url, globalThis.location.origin);
+        if (redirectUrl.searchParams.get('error') === 'upload_limit_exceeded') {
+          const isAnonymous = redirectUrl.pathname === '/login';
+          const firstFile = fileInputRef.current?.files?.[0];
+          setLimitInfo({
+            isAnonymous,
+            filename: firstFile?.name ?? null,
+          });
+          setUploading(false);
+          return true;
+        }
         return handleRedirect(request);
       }
       if (request.status === 202) {
@@ -227,6 +245,18 @@ function UploadForm({
       />
       {warningMessage && (
         <p className={styles.notificationWarning}>{warningMessage}</p>
+      )}
+      {limitInfo && (
+        <UploadLimitBanner
+          filename={limitInfo.filename}
+          isAnonymous={limitInfo.isAnonymous}
+          onDismiss={() => {
+            setLimitInfo(null);
+            if (fileInputRef.current) {
+              fileInputRef.current.value = '';
+            }
+          }}
+        />
       )}
       <button
         aria-label="Upload file"

@@ -24,6 +24,17 @@ export function ContactPage() {
           <li>Any screenshots or error messages you see</li>
         </ul>
       </section>
+
+      <section className={styles.card}>
+        <h2 className={styles.subHeading}>Share your workflow</h2>
+        <p>
+          Made a video or tutorial about how you use 2anki? Send it to{' '}
+          <a href="mailto:support@2anki.net">support@2anki.net</a> and we
+          will feature it on the homepage for free. We already showcase
+          walkthroughs in English, German, French, and Spanish — any
+          language is welcome.
+        </p>
+      </section>
     </div>
   );
 }

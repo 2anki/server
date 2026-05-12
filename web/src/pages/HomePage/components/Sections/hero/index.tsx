@@ -8,9 +8,9 @@ function HeroSection() {
       <div className={shared.heroInner}>
         <h1 className={styles.heroTitleContainer}>
           <span className={styles.heroTitle}>
-            Create{' '}
+            Convert{' '}
             <span className={`${styles.heroTitle} ${styles.heroSubtitle}`}>
-              Anki flashcards{' '}
+              Notion to Anki{' '}
             </span>
             <span className={`${styles.heroTitle} ${styles.heroSubtitleAlignRight}`}>
               fast
@@ -18,8 +18,8 @@ function HeroSection() {
           </span>
         </h1>
         <HeroText>
-          The simplest way to turn your notes into beautiful Anki decks.
-          Drop a file or connect Notion — your cards are ready in seconds.
+          Drop a Notion export, PDF, or markdown file and get a beautiful
+          Anki deck back. Free and open source.
         </HeroText>
       </div>
     </div>

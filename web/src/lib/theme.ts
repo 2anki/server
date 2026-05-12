@@ -5,12 +5,19 @@ const VALID_THEMES: ReadonlySet<string> = new Set(['light', 'dark', 'gold', 'pur
 
 export const THEME_CHANGE_EVENT = '2anki-theme-change';
 
+function getSystemTheme(): Theme {
+  if (globalThis.matchMedia?.('(prefers-color-scheme: dark)').matches) {
+    return 'dark';
+  }
+  return 'light';
+}
+
 export function getStoredTheme(): Theme {
   const stored = globalThis.localStorage?.getItem(STORAGE_KEY);
   if (stored && VALID_THEMES.has(stored)) {
     return stored as Theme;
   }
-  return 'light';
+  return getSystemTheme();
 }
 
 export function applyTheme(theme: Theme): void {
