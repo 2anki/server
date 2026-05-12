@@ -17,7 +17,7 @@
 .dropZone:hover,
 .dropZoneActive {
   border-color: var(--color-primary);
-  background: var(--color-primary-light, #f0f7ff);
+  background: var(--color-primary-light);
 }
 
 .dropIcon {
@@ -34,7 +34,7 @@
 
 .dropHint {
   font-size: var(--text-sm);
-  color: var(--color-text-secondary);
+  color: var(--color-text-tertiary);
 }
 
 .fileInput {
@@ -49,18 +49,20 @@
   display: inline-block;
   padding: 0.625rem 1.5rem;
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-bg-primary);
   border: none;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-md);
   font-size: var(--text-sm);
   font-weight: var(--font-medium);
   cursor: pointer;
   text-decoration: none;
-  transition: background 0.15s ease;
+  box-shadow: var(--shadow-xs);
+  transition: background 0.15s ease, box-shadow 0.15s ease;
 }
 
 .convertButton:hover {
-  background: var(--color-primary-hover, #4338ca);
+  background: var(--color-primary-hover);
+  box-shadow: var(--shadow-sm);
 }
 
 .downloadWrapper {
@@ -74,41 +76,44 @@
   gap: 0.5rem;
   padding: 0.625rem 1.5rem;
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-bg-primary);
   border: none;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-md);
   font-size: var(--text-sm);
   font-weight: var(--font-medium);
   cursor: pointer;
   margin: 1rem auto 0;
-  transition: background 0.15s ease;
+  box-shadow: var(--shadow-xs);
+  transition: background 0.15s ease, box-shadow 0.15s ease;
 }
 
 .downloadButton:hover:not(:disabled) {
-  background: var(--color-primary-hover, #4338ca);
+  background: var(--color-primary-hover);
+  box-shadow: var(--shadow-sm);
 }
 
 .downloadButton:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 .downloadButtonReady {
-  background: #16a34a;
+  background: var(--color-success);
 }
 
 .downloadButtonReady:hover {
-  background: #15803d;
+  background: var(--color-success-hover);
 }
 
 .dropZoneWarning {
   border-color: var(--color-warning);
-  background: var(--color-warning-light, #fffbeb);
+  background: var(--color-warning-light);
 }
 
 .dropZoneError {
   border-color: var(--color-danger);
-  background: var(--color-danger-light, #fef2f2);
+  background: var(--color-danger-light);
 }
 
 .validationTitle {
@@ -151,17 +156,18 @@
   display: inline-block;
   padding: 0.5rem 1.25rem;
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-bg-primary);
   border: none;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-md);
   font-size: var(--text-sm);
   font-weight: var(--font-medium);
   cursor: pointer;
+  box-shadow: var(--shadow-xs);
   transition: background 0.15s ease;
 }
 
 .resetButton:hover {
-  background: var(--color-primary-hover, #4338ca);
+  background: var(--color-primary-hover);
 }
 
 @media (max-width: 600px) {

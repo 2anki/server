@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import React from 'react';
 import SearchContainer from './components/SearchContainer';
 import useNotionData from './helpers/useNotionData';
@@ -17,11 +16,11 @@ export function SearchPage({ setError }: Readonly<SearchPageProps>) {
   const notionData = useNotionData(get2ankiApi());
 
   const headerTitle = notionData.connected
-    ? 'Search Notion'
-    : 'Connect to Notion or upload manually';
+    ? 'Notion'
+    : 'Get started';
   const headerSubtitle = notionData.connected
-    ? 'Find a Notion page and convert it into an Anki deck.'
-    : 'Link your Notion workspace to search pages, or upload files directly.';
+    ? 'Find a page and convert it into an Anki deck.'
+    : 'Connect your Notion workspace or upload files to create Anki decks.';
 
   let content;
   if (notionData.loading) {

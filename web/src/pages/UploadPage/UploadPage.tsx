@@ -9,7 +9,6 @@ import SettingsModal from '../../components/modals/SettingsModal/SettingsModal';
 import styles from '../../styles/shared.module.css';
 import { ErrorHandlerType } from '../../components/errors/helpers/getErrorMessage';
 import { getVisibleText } from '../../lib/text/getVisibleText';
-import getAcceptedContentTypes from './helpers/getAcceptedContentTypes';
 
 interface Props {
   setErrorMessage: ErrorHandlerType;
@@ -26,14 +25,6 @@ export function UploadPage({ setErrorMessage }: Readonly<Props>) {
     forceCardOptionsOpen
   );
   const [fileInteracted, setFileInteracted] = useState(forceCardOptionsOpen);
-
-  const readableSupportedFiles = getAcceptedContentTypes()
-    .split(',')
-    .map((type, index, array) => {
-      if (index === array.length - 1) return `and ${type}`;
-      return type;
-    })
-    .join(', ');
 
   return (
     <div className={styles.page}>
@@ -55,15 +46,18 @@ export function UploadPage({ setErrorMessage }: Readonly<Props>) {
         setErrorMessage={setErrorMessage}
         onFileSelected={() => setFileInteracted(true)}
       />
-      <p>The following files are supported: {readableSupportedFiles}</p>
+      <p className={styles.smallDescription}>
+        Supports .zip, .html, .csv, .md, .pdf, .ppt, .pptx, .xlsx, .doc,
+        and .docx files.
+      </p>
       <p className={styles.smallDescription}>
         Coming from Notion?{' '}
         <a href="/documentation/start-here/upload-a-file">
-          See how to export your pages.
+          Learn how to export your pages.
         </a>
       </p>
       <p className={styles.smallDescription}>
-        All files uploaded here are automatically deleted after 2 hours.
+        Uploaded files are automatically deleted after 2 hours.
       </p>
       <SettingsModal
         setError={setErrorMessage}

@@ -10,31 +10,24 @@ export default function ConnectNotion({ ready, connectionLink }: Readonly<Props>
 
   return (
     <div className={`${styles.flexColumn} ${styles.connectWrapper}`}>
-      <p className={styles.textCenter}>
-        There are two ways to use 2anki.net. Choose how you want to use it:
-      </p>
       <div className={styles.sectionCard}>
-        <h3 className={styles.sectionTitle}>Connect to Notion</h3>
+        <h3 className={styles.sectionTitle}>Connect your Notion workspace</h3>
         <p className={styles.marginBottomMd}>
-          Click to convert, generated files are stored and converted in the
-          background.
+          Search and convert pages directly. We only read the pages you
+          share with 2anki.
         </p>
         <a className={styles.btnPrimary} href={connectionLink}>
-          Connect
+          Connect to Notion
         </a>
-        <p className={styles.smallDescription}>
-          We only read the pages you select. We don&apos;t store your Notion
-          content.
-        </p>
       </div>
       <div className={styles.sectionCard}>
-        <h3 className={styles.sectionTitle}>Manual File Upload</h3>
+        <h3 className={styles.sectionTitle}>Upload files instead</h3>
         <p className={styles.marginBottomMd}>
-          Upload your exported Notion files manually, and they will be
-          auto-deleted.
+          Export from Notion and upload the file. Uploaded files are
+          automatically deleted after 2 hours.
         </p>
         <a className={styles.btnSecondary} href="/upload">
-          Upload
+          Upload a file
         </a>
       </div>
     </div>
