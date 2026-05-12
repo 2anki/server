@@ -418,7 +418,7 @@
 
 .cardBadge {
   position: absolute;
-  top: 0.95rem;
+  top: -0.75rem;
   right: 1.25rem;
   display: inline-flex;
   align-items: center;
