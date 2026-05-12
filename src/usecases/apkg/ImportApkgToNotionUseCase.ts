@@ -47,16 +47,8 @@ export default class ImportApkgToNotionUseCase {
       const cacheKey = `import:${owner}:${Date.now()}`;
       const parsed = await this.previewService.parse(cacheKey, fileBuffer);
 
-      let mediaUrlMap = new Map<string, string>();
-      try {
-        mediaUrlMap = await this.uploadMediaToNotion(
-          parsed.mediaMap,
-          parsed.mediaEntries,
-          notionApi
-        );
-      } catch (uploadError) {
-        console.error(`[apkg-import] job=${jobId} media upload failed, continuing without images:`, uploadError);
-      }
+      // TODO: re-enable Notion file uploads once the crash in fileUploads.send is resolved
+      const mediaUrlMap = new Map<string, string>();
 
       const result = this.blocksService.transform(
         parsed.collection,
