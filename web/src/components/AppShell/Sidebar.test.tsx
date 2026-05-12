@@ -36,7 +36,7 @@ function renderSidebar({
 }
 
 describe('Sidebar work group', () => {
-  it('renders Upload, Library, and Search Notion for every logged-in user', () => {
+  it('renders Upload, Library, and Notion → Anki for every logged-in user', () => {
     renderSidebar();
     expect(screen.getByRole('link', { name: 'Upload' })).toHaveAttribute(
       'href',
@@ -47,7 +47,7 @@ describe('Sidebar work group', () => {
       '/downloads'
     );
     expect(
-      screen.getByRole('link', { name: 'Search Notion' })
+      screen.getByRole('link', { name: 'Notion → Anki' })
     ).toHaveAttribute('href', '/notion');
   });
 

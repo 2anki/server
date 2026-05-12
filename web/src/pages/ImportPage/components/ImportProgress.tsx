@@ -15,12 +15,14 @@ export default function ImportProgress({
   pageTitle,
   statusText,
 }: Readonly<ImportProgressProps>) {
-  const isUploadingImages = statusText != null && statusText.startsWith('uploading');
-  const percent = isUploadingImages
-    ? 0
-    : total > 0
-      ? Math.round((imported / total) * 100)
-      : 0;
+  const isUploadingImages = statusText?.startsWith('uploading') ?? false;
+
+  function getPercent() {
+    if (isUploadingImages) return 0;
+    if (total > 0) return Math.round((imported / total) * 100);
+    return 0;
+  }
+  const percent = getPercent();
 
   return (
     <div className={styles.progressContainer}>

@@ -150,11 +150,11 @@ export default function ImportPage({ setError }: Readonly<ImportPageProps>) {
             {isUpgradeError ? 'Upgrade to continue' : 'Import stopped'}
           </h2>
           <p className={styles.errorBody}>
-            {isUpgradeError
-              ? job.errorMessage
-              : job.progress.total_notes > 0
-                ? `We got through ${job.progress.imported} of ${job.progress.total_notes} cards, then something went wrong. The cards we already created are still in your Notion page.`
-                : job.errorMessage ?? 'Something went wrong.'}
+            {isUpgradeError && job.errorMessage}
+            {!isUpgradeError && job.progress.total_notes > 0 &&
+              `We got through ${job.progress.imported} of ${job.progress.total_notes} cards, then something went wrong. The cards we already created are still in your Notion page.`}
+            {!isUpgradeError && job.progress.total_notes === 0 &&
+              (job.errorMessage ?? 'Something went wrong.')}
           </p>
           <div className={styles.errorActions}>
             {isUpgradeError ? (
