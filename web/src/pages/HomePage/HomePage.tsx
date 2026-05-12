@@ -64,6 +64,18 @@ const WALKTHROUGHS = [
     title: 'Notion to Anki — Tutorial en Español',
     embedId: '57dW_buqtGM',
   },
+  {
+    title: 'Instantly turn your Notion notes into Anki flashcards',
+    embedId: 'Ah-_wm2fgIk',
+  },
+  {
+    title: 'Best Notion hack for medical students',
+    embedId: 'vINpYLMW9AE',
+  },
+  {
+    title: 'Turn your Notion notes into Anki flashcards',
+    embedId: '6CyurZC4Bf0',
+  },
 ];
 
 export function HomePage({
