@@ -216,101 +216,57 @@
 }
 
 /* =====================================================================
-   COLOR PALETTES — accent/primary overrides (orthogonal to theme)
+   PURPLE THEME
    ===================================================================== */
-
-/* Blue on gold (override gold's brown accent with blue) */
-[data-theme='gold'][data-palette='blue'] {
-  --color-primary: #3b82f6;
-  --color-primary-hover: #2563eb;
-  --color-primary-light: #eef4fc;
-  --color-focus-ring: rgba(59, 130, 246, 0.4);
-  --color-text-link: #3b82f6;
-  --color-text-link-hover: #2563eb;
-}
-
-/* Purple — muted lavender, not neon violet */
-[data-palette='purple'] {
-  --color-primary: #7c6cc4;
-  --color-primary-hover: #6b59b3;
-  --color-primary-light: #f4f2fb;
+[data-theme='purple'] {
+  --color-text-primary: #1e1b2e;
+  --color-text-secondary: #5b5675;
+  --color-text-tertiary: #8a84a0;
+  --color-text-danger: #dc2626;
+  --color-text-success: #059669;
+  --color-text-link: #7c6cc4;
+  --color-text-link-hover: #6b59b3;
+  --color-bg-primary: #faf9fd;
+  --color-bg-secondary: #f3f1f9;
+  --color-bg-tertiary: #ebe8f3;
+  --color-border: #ddd8ec;
+  --color-border-light: #ebe8f3;
   --color-focus-ring: rgba(124, 108, 196, 0.45);
-  --color-text-link: #7c6cc4;
-  --color-text-link-hover: #6b59b3;
-}
-
-[data-theme='dark'][data-palette='purple'] {
-  --color-primary: #9b8fd8;
-  --color-primary-hover: #b0a6e2;
-  --color-primary-light: #25203e;
-  --color-focus-ring: rgba(155, 143, 216, 0.45);
-  --color-text-link: #9b8fd8;
-  --color-text-link-hover: #b0a6e2;
-}
-
-[data-theme='gold'][data-palette='purple'] {
   --color-primary: #7c6cc4;
   --color-primary-hover: #6b59b3;
-  --color-primary-light: #f0edf6;
-  --color-focus-ring: rgba(124, 108, 196, 0.35);
-  --color-text-link: #7c6cc4;
-  --color-text-link-hover: #6b59b3;
-}
-
-/* Green — muted sage-teal, not screaming emerald */
-[data-palette='green'] {
-  --color-primary: #3d9a7c;
-  --color-primary-hover: #2d8a6c;
-  --color-primary-light: #eef8f4;
-  --color-focus-ring: rgba(61, 154, 124, 0.45);
-  --color-text-link: #3d9a7c;
-  --color-text-link-hover: #2d8a6c;
-}
-
-[data-theme='dark'][data-palette='green'] {
-  --color-primary: #5cb89a;
-  --color-primary-hover: #76ccb0;
-  --color-primary-light: #0e2e24;
-  --color-focus-ring: rgba(92, 184, 154, 0.45);
-  --color-text-link: #5cb89a;
-  --color-text-link-hover: #76ccb0;
-}
-
-[data-theme='gold'][data-palette='green'] {
-  --color-primary: #3d9a7c;
-  --color-primary-hover: #2d8a6c;
-  --color-primary-light: #edf7f2;
-  --color-focus-ring: rgba(61, 154, 124, 0.35);
-  --color-text-link: #3d9a7c;
-  --color-text-link-hover: #2d8a6c;
-}
-
-/* Red — warm rose, not fire-engine */
-[data-palette='red'] {
-  --color-primary: #d4585c;
-  --color-primary-hover: #c14549;
-  --color-primary-light: #fdf2f2;
-  --color-focus-ring: rgba(212, 88, 92, 0.45);
-  --color-text-link: #d4585c;
-  --color-text-link-hover: #c14549;
-}
-
-[data-theme='dark'][data-palette='red'] {
-  --color-primary: #e87a7d;
-  --color-primary-hover: #f09496;
-  --color-primary-light: #321414;
-  --color-focus-ring: rgba(232, 122, 125, 0.45);
-  --color-text-link: #e87a7d;
-  --color-text-link-hover: #f09496;
-}
-
-[data-theme='gold'][data-palette='red'] {
-  --color-primary: #d4585c;
-  --color-primary-hover: #c14549;
-  --color-primary-light: #faf0f0;
-  --color-focus-ring: rgba(212, 88, 92, 0.35);
-  --color-text-link: #d4585c;
-  --color-text-link-hover: #c14549;
+  --color-primary-light: #f0edf8;
+  --color-danger: #dc2626;
+  --color-danger-light: #fef2f2;
+  --color-danger-border: #fecaca;
+  --color-warning: #f59e0b;
+  --color-warning-light: #fffbeb;
+  --color-success: #059669;
+  --color-success-light: #ecfdf5;
+  --shadow-xs: 0 1px 2px rgba(100, 80, 160, 0.06);
+  --shadow-sm: 0 1px 3px rgba(100, 80, 160, 0.08), 0 1px 2px rgba(100, 80, 160, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(100, 80, 160, 0.08), 0 2px 4px -2px rgba(100, 80, 160, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(100, 80, 160, 0.08), 0 4px 6px -4px rgba(100, 80, 160, 0.06);
+  --shadow-xl: 0 20px 25px -5px rgba(100, 80, 160, 0.08), 0 8px 10px -6px rgba(100, 80, 160, 0.06);
+  --color-danger-text: #991b1b;
+  --color-warning-text: #92400e;
+  --color-warning-border: #fde68a;
+  --color-success-text: #065f46;
+  --color-success-border: #a7f3d0;
+  --color-info-text: #5b4a9e;
+  --color-info-border: #c4b5fd;
+  --color-info-light: #f0edf8;
+  --color-success-hover: #047857;
+  --color-gold-bg: #faf9fd;
+  --color-gold-bg-end: #f3f1f9;
+  --color-gold-border: #ddd8ec;
+  --color-gold-border-light: #c4b5fd;
+  --color-gold-border-hover: #7c6cc4;
+  --color-gold-text: #5b4a9e;
+  --color-gold-text-dark: #3d3466;
+  --color-gold-text-darker: #1e1b2e;
+  --color-gold-shadow: rgba(124, 108, 196, 0.2);
+  --color-indigo: #9b8fd8;
+  --color-indigo-dark: #7c6cc4;
 }
 
 *,

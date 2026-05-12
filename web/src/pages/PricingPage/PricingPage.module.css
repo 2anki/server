@@ -178,7 +178,7 @@
 .cardPro {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 1px var(--color-primary),
-    0 18px 44px -18px rgba(59, 130, 246, 0.36);
+    0 18px 44px -18px var(--color-focus-ring);
 }
 
 .cardPro::before {
@@ -188,14 +188,14 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-indigo) 100%);
+  background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary-hover) 100%);
   z-index: 1;
 }
 
 .cardPro:hover {
   transform: translateY(-6px);
   box-shadow: 0 0 0 1px var(--color-primary),
-    0 24px 52px -18px rgba(59, 130, 246, 0.42);
+    0 24px 52px -18px var(--color-focus-ring);
 }
 
 @media (min-width: 901px) {

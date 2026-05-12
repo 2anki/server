@@ -37,9 +37,9 @@
 }
 
 .pillActive {
-  color: var(--color-info-text);
-  background-color: var(--color-info-light);
-  border-color: var(--color-info-border);
+  color: var(--color-primary);
+  background-color: var(--color-primary-light);
+  border-color: var(--color-primary);
 }
 
 .pillActive .dot {
