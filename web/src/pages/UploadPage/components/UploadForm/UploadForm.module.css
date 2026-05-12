@@ -477,6 +477,19 @@
   }
 }
 
+.feedbackPrompt {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+  text-align: center;
+}
+
+.feedbackLabel {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin: 0 0 0.5rem;
+}
+
 @media (max-width: 600px) {
   .dropZone {
     padding: 2rem 1rem;

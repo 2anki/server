@@ -1,0 +1,120 @@
+.widget {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem 0;
+}
+
+.widgetCompact {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.prompt {
+  font-size: var(--text-base);
+  font-weight: var(--font-medium);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.emojiRow {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.emojiButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  font-size: 1.75rem;
+  background: var(--color-bg-tertiary);
+  border: 2px solid transparent;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: transform var(--transition-fast), border-color var(--transition-fast),
+    background var(--transition-fast);
+}
+
+.emojiButton:hover {
+  transform: scale(1.15);
+  background: var(--color-bg-secondary);
+}
+
+.emojiSelected {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+  transform: scale(1.2);
+}
+
+.commentInput {
+  width: 100%;
+  max-width: 360px;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-family: inherit;
+  color: var(--color-text-primary);
+  background: var(--color-bg-primary);
+  resize: vertical;
+  transition: border-color var(--transition-fast);
+}
+
+.commentInput::placeholder {
+  color: var(--color-text-tertiary);
+}
+
+.commentInput:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.submitButton {
+  padding: 0.5rem 1.25rem;
+  background: transparent;
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.submitButton:hover {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-text-tertiary);
+}
+
+.submitButton:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.thankYou {
+  text-align: center;
+  padding: 1.5rem 0;
+  font-size: var(--text-base);
+  font-weight: var(--font-medium);
+  color: var(--color-success);
+}
+
+.inlineThank {
+  text-align: center;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--color-success);
+  padding: 0.5rem 0;
+}
+
+.errorText {
+  font-size: var(--text-sm);
+  color: var(--color-danger);
+  margin: 0;
+}

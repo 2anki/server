@@ -713,4 +713,19 @@ export class Backend {
       throw new Error('Failed to send message');
     }
   }
+
+  async submitEmojiFeedback(
+    rating: number,
+    page: string,
+    comment?: string
+  ): Promise<void> {
+    const response = await post(`${this.baseURL}emoji-feedback`, {
+      rating,
+      page,
+      comment: comment ?? null,
+    });
+    if (!response.ok) {
+      throw new Error('Failed to submit feedback');
+    }
+  }
 }

@@ -7,6 +7,7 @@ import getHeadersFilename from '../../helpers/getHeadersFilename';
 import { getDownloadFileName } from '../../../DownloadsPage/helpers/getDownloadFileName';
 import { useDrag } from './hooks/useDrag';
 import { useFileValidation } from './hooks/useFileValidation';
+import { FeedbackWidget } from '../../../../components/FeedbackWidget/FeedbackWidget';
 import formStyles from './UploadForm.module.css';
 import sharedStyles from '../../../../styles/shared.module.css';
 
@@ -389,6 +390,10 @@ function UploadForm({
       >
         Make another deck
       </button>
+      <div className={formStyles.feedbackPrompt}>
+        <p className={formStyles.feedbackLabel}>How was your experience?</p>
+        <FeedbackWidget page="/upload" compact />
+      </div>
     </div>
   );
 
