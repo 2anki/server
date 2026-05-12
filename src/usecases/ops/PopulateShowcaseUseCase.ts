@@ -5,6 +5,7 @@ import { getNotionObjectTitle } from 'get-notion-object-title';
 import { IShowcaseRepository } from '../../data_layer/ShowcaseRepository';
 import { PreviewBlockPayload, toPreviewBlock } from '../../controllers/helpers/toPreviewBlock';
 import { renderBlockPreview } from '../../services/NotionService/helpers/renderBlockPreview';
+import instrumentedAxios from '../../services/observability/instrumentedAxios';
 import type { NotionService } from '../../services/NotionService/NotionService';
 import type ApkgPreviewService from '../../services/ApkgPreviewService/ApkgPreviewService';
 import type DownloadService from '../../services/DownloadService';
@@ -75,10 +76,36 @@ export class PopulateShowcaseUseCase {
         .filter((b): b is BlockObjectResponse => isFullBlock(b))
         .map((b) => renderBlockPreview(b))
         .filter(Boolean);
-      return htmlParts.join('');
+      const joined = htmlParts.join('');
+      return this.inlineImages(joined);
     } catch {
       return '';
     }
+  }
+
+  private async inlineImages(html: string): Promise<string> {
+    const imgRegex = /<img\s+src="([^"]+)"/g;
+    const matches = [...html.matchAll(imgRegex)];
+    if (matches.length === 0) return html;
+
+    let result = html;
+    for (const match of matches) {
+      const url = match[1].replace(/&amp;/g, '&');
+      try {
+        const response = await instrumentedAxios.get('notion', url, {
+          responseType: 'arraybuffer',
+          timeout: 15_000,
+        });
+        const contentType =
+          response.headers['content-type'] ?? 'image/png';
+        const base64 = Buffer.from(response.data as ArrayBuffer).toString('base64');
+        const dataUri = `data:${contentType};base64,${base64}`;
+        result = result.replace(match[1], dataUri);
+      } catch {
+        // leave original URL if download fails
+      }
+    }
+    return result;
   }
 
   private async fetchPageTitle(

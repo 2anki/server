@@ -109,6 +109,16 @@
   border-radius: var(--radius-sm);
 }
 
+.toggle code,
+.notionBlock code {
+  background: rgba(135, 131, 120, 0.15);
+  border-radius: 3px;
+  padding: 0.2em 0.4em;
+  font-size: 85%;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+  color: #eb5757;
+}
+
 .ankiCards {
   display: flex;
   flex-direction: column;
