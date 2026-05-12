@@ -38,7 +38,7 @@ function renderSidebar({
 describe('Sidebar convert group', () => {
   it('renders Upload, My Decks, and Notion to Anki for every logged-in user', () => {
     renderSidebar();
-    expect(screen.getByRole('link', { name: 'Upload' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Make flashcards' })).toHaveAttribute(
       'href',
       '/upload'
     );
@@ -162,7 +162,7 @@ describe('Sidebar active state', () => {
       'aria-current',
       'page'
     );
-    expect(screen.getByRole('link', { name: 'Upload' })).not.toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Make flashcards' })).not.toHaveAttribute(
       'aria-current',
       'page'
     );

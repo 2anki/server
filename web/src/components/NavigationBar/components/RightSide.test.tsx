@@ -16,7 +16,7 @@ function getNavLinks() {
 describe('RightSide (anonymous nav)', () => {
   it('renders Upload, Docs, Pricing, and Login in order', () => {
     render(<RightSide path="/" />);
-    const upload = screen.getByRole('link', { name: 'Upload' });
+    const upload = screen.getByRole('link', { name: 'Make flashcards' });
     const docs = screen.getByRole('link', { name: 'Docs' });
     const pricing = screen.getByRole('link', { name: 'Pricing' });
     const login = screen.getByRole('link', { name: 'Log in' });
@@ -27,7 +27,7 @@ describe('RightSide (anonymous nav)', () => {
     expect(login).toBeInTheDocument();
 
     const positions = getNavLinks().map((a) => a.textContent);
-    const uploadIdx = positions.indexOf('Upload');
+    const uploadIdx = positions.indexOf('Make flashcards');
     const docsIdx = positions.indexOf('Docs');
     const pricingIdx = positions.indexOf('Pricing');
     expect(uploadIdx).toBeGreaterThanOrEqual(0);
