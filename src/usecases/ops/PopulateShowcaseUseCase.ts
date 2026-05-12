@@ -56,7 +56,8 @@ export class PopulateShowcaseUseCase {
 
     const cacheKey = `showcase:${apkgKey}`;
     const parsed = await this.previewService.parse(cacheKey, body as Buffer);
-    const { cards } = this.previewService.getCardsPage(parsed, 0, MAX_CARDS, '');
+    const { cards: allCards } = this.previewService.getCardsPage(parsed, 0, MAX_CARDS * 3, '');
+    const cards = allCards.slice(0, MAX_CARDS);
 
     await this.showcaseRepo.upsert({
       pageTitle: pageData.pageTitle,
