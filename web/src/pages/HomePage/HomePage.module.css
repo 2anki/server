@@ -197,7 +197,7 @@
 .walkCard {
   display: flex;
   flex-direction: column;
-  background: var(--color-bg-secondary);
+  background: transparent;
   border-radius: var(--radius-lg);
   overflow: hidden;
   border: none;
@@ -221,7 +221,6 @@
   overflow: hidden;
   background: var(--color-bg-secondary);
   border-radius: var(--radius-lg);
-  margin: 0.375rem 0.375rem 0;
 }
 
 .walkThumb img {
