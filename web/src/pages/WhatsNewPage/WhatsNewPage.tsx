@@ -54,9 +54,9 @@ function groupByDate(entries: ChangelogEntry[]): DateGroup[] {
     .map(([date, items]) => ({
       date,
       label: formatGroupDate(date),
-      entries: items.sort(
-        (a, b) => (TYPE_ORDER[a.type] ?? 3) - (TYPE_ORDER[b.type] ?? 3)
-      ),
+      entries: items
+        .slice()
+        .sort((a, b) => (TYPE_ORDER[a.type] ?? 3) - (TYPE_ORDER[b.type] ?? 3)),
     }));
 }
 
@@ -156,7 +156,7 @@ export default function WhatsNewPage() {
               <ul className={styles.commitList}>
                 {group.entries.map((entry, idx) => (
                   <li key={`${entry.date}-${idx}`} className={styles.commitItem}>
-                    <span className={`${styles.typeBadge} ${styles[`badge_${entry.type}`]}`}>
+                    <span className={`${styles.typeBadge} ${styles['badge_' + entry.type]}`}>
                       {TYPE_LABELS[entry.type] ?? entry.type}
                     </span>
                     <span className={styles.commitText}>{entry.title}</span>
