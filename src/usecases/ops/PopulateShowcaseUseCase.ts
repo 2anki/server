@@ -108,7 +108,7 @@ export class PopulateShowcaseUseCase {
 
     let result = html;
     for (const match of matches) {
-      const url = match[1].replace(/&amp;/g, '&');
+      const url = match[1].replaceAll('&amp;', '&');
       try {
         const response = await instrumentedAxios.get('notion', url, {
           responseType: 'arraybuffer',
