@@ -1,6 +1,7 @@
 import UsersService from './UsersService';
 import type UsersRepository from '../data_layer/UsersRepository';
 import type { IEmailService } from './EmailService/EmailService';
+import type AuthenticationService from './AuthenticationService';
 
 const noopEmailService = {} as IEmailService;
 
@@ -104,6 +105,44 @@ describe('UsersService.register', () => {
       'pic.png',
       '/notion-to-anki'
     );
+  });
+});
+
+describe('UsersService.sendResetEmail', () => {
+  it('awaits the email send so failures propagate to the caller', async () => {
+    const sendError = new Error('SendGrid unavailable');
+    const sendResetEmail = jest.fn().mockRejectedValue(sendError);
+    const emailService = buildEmailService({ sendResetEmail });
+    const getByEmail = jest.fn().mockResolvedValue({
+      id: 1,
+      email: 'al@example.com',
+      reset_token: 'existing-token',
+    });
+    const repository = { getByEmail } as unknown as UsersRepository;
+    const service = new UsersService(repository, emailService);
+    const authService = {} as AuthenticationService;
+
+    await expect(
+      service.sendResetEmail('al@example.com', authService)
+    ).rejects.toThrow('SendGrid unavailable');
+
+    expect(sendResetEmail).toHaveBeenCalledWith(
+      'al@example.com',
+      'existing-token'
+    );
+  });
+
+  it('silently returns when no user matches the email', async () => {
+    const sendResetEmail = jest.fn();
+    const emailService = buildEmailService({ sendResetEmail });
+    const getByEmail = jest.fn().mockResolvedValue(null);
+    const repository = { getByEmail } as unknown as UsersRepository;
+    const service = new UsersService(repository, emailService);
+    const authService = {} as AuthenticationService;
+
+    await service.sendResetEmail('nobody@example.com', authService);
+
+    expect(sendResetEmail).not.toHaveBeenCalled();
   });
 });
 

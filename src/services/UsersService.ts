@@ -22,7 +22,7 @@ class UsersService {
     console.debug('user found');
 
     const resetToken = await this.getOrCreateResetToken(user, authService);
-    this.emailService.sendResetEmail(email, resetToken);
+    await this.emailService.sendResetEmail(email, resetToken);
   }
 
   private async getOrCreateResetToken(

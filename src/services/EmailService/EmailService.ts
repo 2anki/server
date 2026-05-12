@@ -19,7 +19,7 @@ import { SUPPORT_EMAIL_ADDRESS } from '../../lib/constants';
 type EmailResponse = { didSend: boolean; error?: Error };
 
 export interface IEmailService {
-  sendResetEmail(email: string, token: string): void;
+  sendResetEmail(email: string, token: string): Promise<void>;
   sendConversionEmail(email: string, filename: string, contents: Buffer): void;
   sendConversionLinkEmail(email: string, filename: string, link: string): void;
   sendContactEmail(
@@ -52,7 +52,7 @@ class EmailService implements IEmailService {
     sgMail.setApiKey(apiKey);
   }
 
-  sendResetEmail(email: string, token: string) {
+  async sendResetEmail(email: string, token: string): Promise<void> {
     const link = `${process.env.DOMAIN}/users/r/${token}`;
     const markup = PASSWORD_RESET_TEMPLATE.replace('{{link}}', link);
     const msg = {
@@ -64,7 +64,12 @@ class EmailService implements IEmailService {
       replyTo: 'support@2anki.net',
     };
 
-    sgMail.send(msg);
+    try {
+      await sgMail.send(msg);
+    } catch (error) {
+      console.error('Failed to send password reset email:', error);
+      throw error;
+    }
   }
 
   sendConversionEmail(
@@ -282,7 +287,7 @@ class EmailService implements IEmailService {
 }
 
 export class UnimplementedEmailService implements IEmailService {
-  sendResetEmail(email: string, token: string): void {
+  async sendResetEmail(email: string, token: string): Promise<void> {
     console.info('sendResetEmail not handled', email, token);
   }
 
