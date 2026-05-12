@@ -40,7 +40,7 @@ export default function ImportProgress({
       </div>
       <p className={styles.progressCount}>
         {isUploadingImages
-          ? statusText.replace('uploading images ', 'Uploading images: ')
+          ? (statusText ?? '').replace('uploading images ', 'Uploading images: ')
           : `${imported} of ${total} cards`}
       </p>
       <p className={styles.progressReassurance}>
