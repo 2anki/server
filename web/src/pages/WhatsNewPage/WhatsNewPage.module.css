@@ -1,0 +1,61 @@
+.empty {
+  text-align: center;
+  color: var(--color-text-secondary);
+  padding: 2rem 0;
+}
+
+.issueList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.issueItem {
+  padding: 1rem 1.25rem;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  transition: border-color var(--transition-fast);
+}
+
+.issueItem:hover {
+  border-color: var(--color-primary);
+}
+
+.issueLink {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.issueTitle {
+  font-size: var(--text-base);
+  font-weight: var(--font-medium);
+  color: var(--color-text-primary);
+}
+
+.issueMeta {
+  font-size: var(--text-sm);
+  color: var(--color-text-tertiary);
+}
+
+.labelRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin-top: 0.5rem;
+}
+
+.label {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  font-size: var(--text-sm);
+  border: 1px solid;
+  border-radius: var(--radius-full);
+  line-height: var(--leading-normal);
+}
