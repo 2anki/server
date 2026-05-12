@@ -70,7 +70,7 @@ describe('MagicLinkPage', () => {
         screen.getByRole('button', { name: 'Send a new link' })
       ).toBeInTheDocument();
     });
-    expect(screen.getByPlaceholderText('Your e-mail')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Email address')).toBeInTheDocument();
   });
 
   it('shows back to login link on error', async () => {
@@ -96,7 +96,7 @@ describe('MagicLinkPage', () => {
       expect(screen.getByText('Link expired or invalid')).toBeInTheDocument();
     });
     expect(
-      screen.getByText('Something went wrong. Please try again.')
+      screen.getByText('Something went wrong. Try again.')
     ).toBeInTheDocument();
   });
 });

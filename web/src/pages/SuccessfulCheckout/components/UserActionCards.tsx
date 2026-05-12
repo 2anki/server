@@ -7,26 +7,24 @@ export const UserActionCards = () => {
   return (
     <div className={styles.columns2}>
       <div>
-        <h3 className={styles.sectionTitle}>Existing User</h3>
+        <h3 className={styles.sectionTitle}>Existing user</h3>
         <p>
-          If you already have an account with us, simply log in using the email
-          address associated with your payment.
+          Log in with the email address associated with your payment.
         </p>
         <a href={loginLink} className={styles.btnPrimary}>
-          Login
+          Log in
         </a>
         <br />
         <a href={loginLink}>{loginLink}</a> (link for reference)
       </div>
 
       <div>
-        <h3 className={styles.sectionTitle}>New User</h3>
+        <h3 className={styles.sectionTitle}>New user</h3>
         <p>
-          Welcome aboard! To get started, create a new account using the same
-          email address used for your payment.
+          Create an account using the same email address used for your payment.
         </p>
         <a href={registerLink} className={styles.btnPrimary}>
-          Register
+          Sign up
         </a>
         <br />
         <a href={registerLink}>{registerLink}</a> (link for reference)

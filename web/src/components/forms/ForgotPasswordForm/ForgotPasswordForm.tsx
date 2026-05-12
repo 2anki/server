@@ -44,7 +44,7 @@ function ForgotPasswordForm({ setError }: Readonly<ForgotPasswordProps>) {
       <div className={styles.formCard}>
         <h1 className={styles.formTitle}>Reset your password</h1>
         <p className={sharedStyles.formDescription}>
-          Enter your email and we'll send you a link to create a new password.
+          Enter your email to receive a password reset link.
         </p>
         <form onSubmit={handleSubmit}>
           <div className={styles.field}>
@@ -61,7 +61,7 @@ function ForgotPasswordForm({ setError }: Readonly<ForgotPasswordProps>) {
                   localStorage.setItem('email', event.target.value);
                 }}
                 type="email"
-                placeholder="Your e-mail"
+                placeholder="Email address"
                 required
               />
             </label>

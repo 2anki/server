@@ -7,7 +7,7 @@ interface FriendlyError {
 
 const FALLBACK: FriendlyError = {
   title: 'Something went wrong.',
-  detail: 'Please try again. If the problem keeps happening, email support@2anki.net.',
+  detail: 'Try again. If the problem keeps happening, email support@2anki.net.',
 };
 
 function toText(error: unknown): string {
@@ -35,8 +35,8 @@ export function classifyError(error: unknown): FriendlyError {
     lower.includes('load failed')
   ) {
     return {
-      title: "We couldn't reach 2anki.",
-      detail: 'Please check your connection and try again.',
+      title: "Couldn't reach 2anki.",
+      detail: 'Check your connection and try again.',
     };
   }
 
@@ -57,20 +57,20 @@ export function classifyError(error: unknown): FriendlyError {
     return {
       title: 'Too many requests.',
       detail:
-        "We're throttled by the upstream service. Please try again in a minute.",
+        'Try again in a minute.',
     };
   }
 
   if (lower.includes('unauthorized') || lower.includes('401')) {
     return {
-      title: 'Please sign in again.',
-      detail: 'Your session has expired.',
+      title: 'Session expired.',
+      detail: 'Sign in again to continue.',
     };
   }
 
   if (lower.includes('object_not_found') || lower.includes('404')) {
     return {
-      title: "We couldn't find that page.",
+      title: "Couldn't find that page.",
       detail:
         'It may have been deleted in Notion, or access was revoked. Try reconnecting or choosing a different page.',
     };
@@ -79,7 +79,7 @@ export function classifyError(error: unknown): FriendlyError {
   if (lower.includes('upload_limit') || lower.includes('upload limit')) {
     return {
       title: "You've reached your conversion limit.",
-      detail: 'Upgrade your plan at /pricing to convert more decks.',
+      detail: 'Upgrade at /pricing to convert more decks.',
     };
   }
 

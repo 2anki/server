@@ -6,9 +6,9 @@ describe('classifyError', () => {
     expect(classifyError(err).title).toMatch(/couldn't reach 2anki/i);
   });
 
-  test('unauthorized message prompts sign-in', () => {
+  test('unauthorized message indicates session expired', () => {
     expect(classifyError(new Error('unauthorized')).title).toMatch(
-      /sign in again/i
+      /session expired/i
     );
   });
 

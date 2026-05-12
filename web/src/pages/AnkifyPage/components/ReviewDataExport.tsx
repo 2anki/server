@@ -242,7 +242,7 @@ export default function ReviewDataExport({ backend }: Props) {
     }
     return (
       <p role="alert" className={sharedStyles.helpDanger}>
-        We couldn't update Notion.{' '}
+        Couldn't update Notion.{' '}
         {(exportMutation.error as Error).message}
       </p>
     );

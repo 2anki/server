@@ -104,7 +104,7 @@ export default function TrackerParentPicker({
 
       {error != null && (
         <p role="alert" className={sharedStyles.helpDanger}>
-          We couldn't load your Notion pages. {error}
+          Couldn't load your Notion pages. {error}
         </p>
       )}
 

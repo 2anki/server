@@ -56,14 +56,14 @@ function MagicLinkPage() {
             status: 'error',
             message:
               errorData.message ??
-              'This link is invalid or has expired. Please request a new one.',
+              'This link is invalid or has expired. Request a new one.',
           });
         }
       } catch {
         if (cancelled) return;
         setState({
           status: 'error',
-          message: 'Something went wrong. Please try again.',
+          message: 'Something went wrong. Try again.',
         });
       }
     }
@@ -84,7 +84,7 @@ function MagicLinkPage() {
     } catch {
       setState({
         status: 'error',
-        message: 'Could not send a new link. Please try again.',
+        message: 'Could not send a new link. Try again.',
       });
     } finally {
       setRetrySending(false);
@@ -125,7 +125,7 @@ function MagicLinkPage() {
                     type="email"
                     value={retryEmail}
                     onChange={(e) => setRetryEmail(e.target.value)}
-                    placeholder="Your e-mail"
+                    placeholder="Email address"
                     required
                   />
                 </label>

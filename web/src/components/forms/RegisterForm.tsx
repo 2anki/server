@@ -61,7 +61,7 @@ function RegisterForm({ setErrorMessage, redirect }: Props) {
     } catch (error) {
       console.error('Register submit failed', error);
       setErrorMessage(
-        "We couldn't create your account. If you already have one, log in instead."
+        "Couldn't create your account. If you already have one, log in instead."
       );
       setLoading(false);
     }
@@ -76,7 +76,7 @@ function RegisterForm({ setErrorMessage, redirect }: Props) {
 
   const passwordHelpText = (() => {
     if (passwordMeetsMinimum) {
-      return '✓ Looks good';
+      return '✓ Good';
     }
     return 'Use at least 8 characters.';
   })();
@@ -106,7 +106,7 @@ function RegisterForm({ setErrorMessage, redirect }: Props) {
                   localStorage.setItem('email', event.target.value);
                 }}
                 type="email"
-                placeholder="Your e-mail"
+                placeholder="Email address"
                 required
                 name="email"
               />
@@ -124,7 +124,7 @@ function RegisterForm({ setErrorMessage, redirect }: Props) {
                 onChange={(event) => setPassword(event.target.value)}
                 required
                 type="password"
-                placeholder="Your password"
+                placeholder="Password"
                 aria-describedby="password-help"
               />
             </label>
@@ -172,7 +172,7 @@ function RegisterForm({ setErrorMessage, redirect }: Props) {
               className={styles.submitButton}
               disabled={!isValid() || loading}
             >
-              Create my account
+              Create account
             </button>
           </div>
         </form>

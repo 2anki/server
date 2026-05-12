@@ -40,7 +40,7 @@ export const useHandleLoginSubmit = (onError: ErrorHandlerType): LoginState => {
       } else {
         onError(
           new Error(
-            'Invalid username or password. Please try again or click forgot password.'
+            'Wrong email or password. Try again or reset your password.'
           )
         );
       }

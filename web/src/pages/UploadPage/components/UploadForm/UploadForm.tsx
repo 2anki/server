@@ -15,9 +15,9 @@ interface UploadFormProps {
 }
 
 const REJECTED_FALLBACK =
-  'The server rejected the upload. Please try again or contact support@2anki.net.';
+  'The server rejected the upload. Try again or email support@2anki.net.';
 const NETWORK_FALLBACK =
-  "We couldn't upload your file. Please check your connection and try again.";
+  "Couldn't upload your file. Check your connection and try again.";
 
 async function extractErrorMessage(response: Response): Promise<string> {
   try {
@@ -193,11 +193,11 @@ function UploadForm({
           <>
             <span className={formStyles.dropIcon}>📄</span>
             <span className={formStyles.dropText}>
-              Drag and drop your files here
+              Drop your files here
             </span>
             <span className={formStyles.dropHint}>or</span>
             <span className={formStyles.convertButton}>
-              Click to convert your notes
+              Choose files
             </span>
           </>
         )}

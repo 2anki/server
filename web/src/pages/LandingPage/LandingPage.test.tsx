@@ -27,7 +27,7 @@ describe('LandingPage', () => {
       </HelmetProvider>
     );
     expect(
-      screen.getByText(/Drag and drop your files here/i)
+      screen.getByText(/Drop your files here/i)
     ).toBeInTheDocument();
   });
 

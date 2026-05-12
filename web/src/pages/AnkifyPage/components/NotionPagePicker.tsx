@@ -72,7 +72,7 @@ export default function NotionPagePicker({
       {loading && <p className={styles.pickerStatus}>Looking up your pages…</p>}
       {error != null && (
         <p className={sharedStyles.helpDanger}>
-          We couldn't load your Notion pages. {error}
+          Couldn't load your Notion pages. {error}
         </p>
       )}
 
