@@ -253,15 +253,6 @@ export function Sidebar({
       </div>
       <div className={styles.sidebarMore}>
         <div className={styles.sidebarMoreLinks}>
-          <Link to="/whats-new" onClick={handleNavClick()}>
-            What's new
-          </Link>
-          <Link to="/about" onClick={handleNavClick()}>
-            {getVisibleText('navigation.legal.about')}
-          </Link>
-          <Link to="/contact" onClick={handleNavClick()}>
-            {getVisibleText('navigation.contact')}
-          </Link>
           <Link
             to="/documentation/misc/terms-of-service"
             onClick={handleNavClick()}
@@ -273,6 +264,15 @@ export function Sidebar({
             onClick={handleNavClick()}
           >
             {getVisibleText('navigation.legal.privacy')}
+          </Link>
+          <Link to="/whats-new" onClick={handleNavClick()}>
+            What's new
+          </Link>
+          <Link to="/contact" onClick={handleNavClick()}>
+            {getVisibleText('navigation.contact')}
+          </Link>
+          <Link to="/about" onClick={handleNavClick()}>
+            {getVisibleText('navigation.legal.about')}
           </Link>
         </div>
         <div className={styles.sidebarCopyright}>
