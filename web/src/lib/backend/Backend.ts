@@ -698,4 +698,15 @@ export class Backend {
   }> {
     return get(`${this.baseURL}apkg/import/${jobId}/status`);
   }
+
+  async contactUs(name: string, email: string, message: string): Promise<void> {
+    const response = await post(`${this.baseURL}contact-us`, {
+      name,
+      email,
+      message,
+    });
+    if (!response.ok) {
+      throw new Error('Failed to send message');
+    }
+  }
 }

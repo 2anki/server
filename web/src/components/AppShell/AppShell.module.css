@@ -149,6 +149,7 @@
   margin-top: 0.5rem;
   font-size: var(--text-xs);
   color: var(--color-text-tertiary);
+  white-space: nowrap;
 }
 
 .main {
