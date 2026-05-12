@@ -77,7 +77,7 @@ export default function AboutPage() {
         <h2 className={styles.subHeading}>How it works</h2>
         <p>
           Check out our{' '}
-          <a href="/documentation/guides/getting-started">detailed guide</a>{' '}
+          <a href="/documentation/start-here/what-is-2anki">detailed guide</a>{' '}
           or follow these simple steps:
         </p>
         <ol>
