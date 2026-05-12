@@ -8,7 +8,7 @@ import ArrowRightIcon from '../icons/ArrowRightIcon';
 import ArrowRightOnRectangleIcon from '../icons/ArrowRightOnRectangleIcon';
 import ArrowUpTrayIcon from '../icons/ArrowUpTrayIcon';
 import BookOpenIcon from '../icons/BookOpenIcon';
-import ClockIcon from '../icons/ClockIcon';
+import LayersIcon from '../icons/LayersIcon';
 import CommandLineIcon from '../icons/CommandLineIcon';
 import CreditCardIcon from '../icons/CreditCardIcon';
 import PrinterIcon from '../icons/PrinterIcon';
@@ -171,9 +171,9 @@ export function Sidebar({
             href="/downloads"
             pathname={pathname}
             onClick={handleNavClick()}
-            icon={ClockIcon}
+            icon={LayersIcon}
           >
-            {getVisibleText('navigation.conversions')}
+            {getVisibleText('navigation.myDecks')}
           </SidebarRow>
         </div>
         <div className={styles.sidebarGroup}>

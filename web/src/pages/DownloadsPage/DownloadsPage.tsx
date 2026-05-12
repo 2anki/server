@@ -53,9 +53,9 @@ export function DownloadsPage({ setError }: Readonly<DownloadsPageProps>) {
     <div className={styles.page}>
       <div className={styles.header}>
         <div className={styles.headerCopy}>
-          <h1 className={styles.title}>Conversions</h1>
+          <h1 className={styles.title}>My Decks</h1>
           <p className={styles.subtitle}>
-            Your decks in progress and ready to download.
+            Decks you've made, ready to download into Anki.
           </p>
         </div>
         <button
@@ -63,7 +63,7 @@ export function DownloadsPage({ setError }: Readonly<DownloadsPageProps>) {
           className={styles.refreshButton}
           onClick={handleRefresh}
           disabled={refreshing || loading}
-          aria-label="Refresh conversions"
+          aria-label="Refresh my decks"
         >
           <i className="fa-solid fa-arrows-rotate" aria-hidden="true" />
           {refreshing ? 'Refreshing…' : 'Refresh'}

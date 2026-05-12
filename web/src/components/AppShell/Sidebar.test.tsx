@@ -36,13 +36,13 @@ function renderSidebar({
 }
 
 describe('Sidebar convert group', () => {
-  it('renders Upload, Conversions, and Notion to Anki for every logged-in user', () => {
+  it('renders Upload, My Decks, and Notion to Anki for every logged-in user', () => {
     renderSidebar();
     expect(screen.getByRole('link', { name: 'Upload' })).toHaveAttribute(
       'href',
       '/upload'
     );
-    expect(screen.getByRole('link', { name: 'Conversions' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'My Decks' })).toHaveAttribute(
       'href',
       '/downloads'
     );
@@ -156,9 +156,9 @@ describe('Sidebar identity block', () => {
 });
 
 describe('Sidebar active state', () => {
-  it('marks the Conversions row active on /downloads', () => {
+  it('marks the My Decks row active on /downloads', () => {
     renderSidebar({ pathname: '/downloads' });
-    expect(screen.getByRole('link', { name: 'Conversions' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'My Decks' })).toHaveAttribute(
       'aria-current',
       'page'
     );
@@ -176,9 +176,9 @@ describe('Sidebar active state', () => {
     );
   });
 
-  it('marks the Conversions row active on a /downloads sub-route', () => {
+  it('marks the My Decks row active on a /downloads sub-route', () => {
     renderSidebar({ pathname: '/downloads/123' });
-    expect(screen.getByRole('link', { name: 'Conversions' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'My Decks' })).toHaveAttribute(
       'aria-current',
       'page'
     );
