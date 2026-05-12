@@ -187,6 +187,9 @@ describe('UsersController.register', () => {
 
     expect(register).not.toHaveBeenCalled();
     expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({ message: 'Register failed' });
+    expect(res.json).toHaveBeenCalledWith({
+      message:
+        'An account with this email already exists. Try logging in instead.',
+    });
   });
 });
