@@ -140,7 +140,7 @@ export function HomePage({
   return (
     <div>
       <section className={styles.hero}>
-        <h1 className={styles.heroTitle}>Convert Notion to Anki</h1>
+        <h1 className={styles.heroTitle}>Convert Notion{' '}<span className={styles.noBreak}>to Anki</span></h1>
         <p className={styles.heroSubtitle}>
           Drop any file — Notion, PDF, Markdown, or HTML.
           Get an Anki deck back in seconds.
