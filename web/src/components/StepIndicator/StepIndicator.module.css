@@ -17,13 +17,13 @@
   padding: 4px 10px;
   border-radius: var(--radius-full);
   border: 1px solid transparent;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
 }
 
 .dot {
   width: 6px;
   height: 6px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
 }
 
 .pillDone {

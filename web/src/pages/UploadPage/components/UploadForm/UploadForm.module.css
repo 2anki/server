@@ -10,7 +10,7 @@
   gap: 0.75rem;
   text-align: center;
   color: var(--color-text-secondary);
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
   cursor: pointer;
 }
 
@@ -57,7 +57,7 @@
   cursor: pointer;
   text-decoration: none;
   box-shadow: var(--shadow-xs);
-  transition: background 0.15s ease, box-shadow 0.15s ease;
+  transition: background var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .convertButton:hover {
@@ -84,7 +84,7 @@
   cursor: pointer;
   margin: 1rem auto 0;
   box-shadow: var(--shadow-xs);
-  transition: background 0.15s ease, box-shadow 0.15s ease;
+  transition: background var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .downloadButton:hover:not(:disabled) {
@@ -163,7 +163,7 @@
   font-weight: var(--font-medium);
   cursor: pointer;
   box-shadow: var(--shadow-xs);
-  transition: background 0.15s ease;
+  transition: background var(--transition-fast);
 }
 
 .resetButton:hover {

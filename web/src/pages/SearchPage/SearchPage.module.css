@@ -58,7 +58,7 @@
   color: var(--color-text-secondary);
   font-size: var(--text-sm);
   opacity: 0;
-  transition: opacity 150ms ease-in;
+  transition: opacity var(--transition-fast);
   pointer-events: none;
 }
 
@@ -69,7 +69,7 @@
 .searchingDot {
   width: 6px;
   height: 6px;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   background: var(--color-text-tertiary);
   animation: pulse 1s ease-in-out infinite alternate;
 }
