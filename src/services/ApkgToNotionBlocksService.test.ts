@@ -161,6 +161,29 @@ describe('ApkgToNotionBlocksService', () => {
       );
     });
 
+    it('decodes HTML entities like &nbsp;', () => {
+      const notes = new Map<number, Note>([
+        [100, { id: 100, mid: 1, tags: '', fields: ['3 x 4 =&nbsp;', '12'] }],
+      ]);
+      const collection = buildCollection({ notes });
+      const result = service.transform(collection);
+
+      const toggle = result.deckPages[0].children[0];
+      expect(toggle.heading_3.rich_text[0].plain_text).toBe('3 x 4 = ');
+      expect(toggle.heading_3.rich_text[0].plain_text).not.toContain('&nbsp;');
+    });
+
+    it('decodes numeric and named HTML entities in back fields', () => {
+      const notes = new Map<number, Note>([
+        [100, { id: 100, mid: 1, tags: '', fields: ['Q', '5 &gt; 3 &amp; 2 &lt; 4'] }],
+      ]);
+      const collection = buildCollection({ notes });
+      const result = service.transform(collection);
+
+      const backChildren = result.deckPages[0].children[0].heading_3.children;
+      expect(backChildren[0].paragraph.rich_text[0].plain_text).toBe('5 > 3 & 2 < 4');
+    });
+
     it('strips media refs from fields', () => {
       const notes = new Map<number, Note>([
         [100, { id: 100, mid: 1, tags: '', fields: ['<img src="image.png">Question', 'Answer [sound:audio.mp3]'] }],

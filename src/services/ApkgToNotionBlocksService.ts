@@ -65,6 +65,23 @@ export class NoteTooLargeError extends Error {
   }
 }
 
+const HTML_ENTITY_REGEX = /&(#(\d+)|#x([0-9a-fA-F]+)|(\w+));/g;
+const NAMED_ENTITIES: Record<string, string> = {
+  nbsp: ' ', amp: '&', lt: '<', gt: '>', quot: '"', apos: "'",
+  ndash: '–', mdash: '—', lsquo: '‘', rsquo: '’',
+  ldquo: '“', rdquo: '”', hellip: '…', copy: '©',
+  reg: '®', trade: '™', times: '×', divide: '÷',
+};
+
+function decodeHtmlEntities(text: string): string {
+  return text.replace(HTML_ENTITY_REGEX, (_, _full, decimal, hex, named) => {
+    if (decimal) return String.fromCodePoint(parseInt(decimal, 10));
+    if (hex) return String.fromCodePoint(parseInt(hex, 16));
+    if (named) return NAMED_ENTITIES[named] ?? `&${named};`;
+    return _;
+  });
+}
+
 function stripMediaRefs(html: string): string {
   let result = html.replace(IMG_TAG_REGEX, '');
   result = result.replace(SOUND_TAG_REGEX, '');
@@ -76,10 +93,11 @@ function stripClozeMarkers(text: string): string {
 }
 
 function makeRichText(content: string, bold = false, italic = false): RichTextSegment {
+  const decoded = decodeHtmlEntities(content);
   return {
     type: 'text',
-    plain_text: content,
-    text: { content },
+    plain_text: decoded,
+    text: { content: decoded },
     annotations: {
       bold,
       italic,
