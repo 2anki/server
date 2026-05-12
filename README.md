@@ -4,29 +4,6 @@
 
 This is a monorepo: the Express server lives at the root and the React frontend lives under `web/`.
 
-## Stack at a glance
-
-Node 22 (TypeScript), Express 5, Knex + PostgreSQL (SQLite for local dev), Jest, PM2 in production. The frontend is React + Vite. Package manager is **pnpm**.
-
-## Getting started
-
-```bash
-git clone https://github.com/2anki/server.git
-cd server
-pnpm install
-
-# Create a .env file (the server runs with defaults for local dev,
-# but the dev:server script reads from .env via --env-file)
-touch .env
-
-# Run both server and frontend
-pnpm dev
-```
-
-The server starts on `http://localhost:2020` and the frontend on `http://localhost:5173`.
-
-For server-only work: `pnpm dev:server`.
-
 ## Contributing
 
 We'd love your help! Whether this is your first open-source PR, you're a vibe coder using AI tools, or you've been shipping open source for years — you're welcome here. See [CONTRIBUTING.md](./CONTRIBUTING.md) for general guidelines.
@@ -65,6 +42,29 @@ We're happy to receive AI-assisted contributions (Copilot, Claude, Cursor, etc.)
 - Test new behaviour; don't rely on AI-generated code being correct without verification
 
 If you run into trouble or have questions, open an issue — we're glad to help.
+
+## Stack at a glance
+
+Node 22 (TypeScript), Express 5, Knex + PostgreSQL (SQLite for local dev), Jest, PM2 in production. The frontend is React + Vite. Package manager is **pnpm**.
+
+## Getting started
+
+```bash
+git clone https://github.com/2anki/server.git
+cd server
+pnpm install
+
+# Create a .env file (the server runs with defaults for local dev,
+# but the dev:server script reads from .env via --env-file)
+touch .env
+
+# Run both server and frontend
+pnpm dev
+```
+
+The server starts on `http://localhost:2020` and the frontend on `http://localhost:5173`.
+
+For server-only work: `pnpm dev:server`.
 
 ## Strategy
 
