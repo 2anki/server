@@ -30,7 +30,7 @@ function Footer() {
       </div>
       <div className={styles.bottom}>
         <span className={styles.copyright}>
-          {`© 2024–${currentYear} Alexander Alemayhu`}
+          {`© 2020–${currentYear} Alexander Alemayhu`}
         </span>
         <a
           href="https://github.com/2anki/server"

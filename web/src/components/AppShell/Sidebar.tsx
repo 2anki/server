@@ -273,7 +273,7 @@ export function Sidebar({
           </Link>
         </div>
         <div className={styles.sidebarCopyright}>
-          &copy; 2024&ndash;{new Date().getFullYear()} Alexander Alemayhu
+          &copy; 2020&ndash;{new Date().getFullYear()} Alexander Alemayhu
         </div>
       </div>
     </aside>
