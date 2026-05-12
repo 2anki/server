@@ -248,19 +248,6 @@
   color: var(--color-primary);
 }
 
-.bottomCallout {
-  text-align: center;
-  font-size: var(--text-sm);
-  color: var(--color-text-tertiary);
-  line-height: var(--leading-relaxed);
-  max-width: 480px;
-  margin: 0 auto;
-}
-
-.bottomCallout a {
-  color: var(--color-text-link);
-}
-
 @media (max-width: 768px) {
   .hero {
     grid-template-columns: 1fr;

@@ -125,10 +125,6 @@ export function HomePage({
             </a>
           ))}
         </div>
-        <p className={styles.bottomCallout}>
-          2anki is open source. Run it yourself or use it free at{' '}
-          <a href="/upload">2anki.net</a>.
-        </p>
       </section>
     </div>
   );
