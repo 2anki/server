@@ -44,8 +44,15 @@ function buildCollection(overrides?: {
   };
 }
 
+function getToggle(blocks: ReturnType<typeof service.transform>['deckPages'][0]['children'], index = 0) {
+  const block = blocks[index];
+  if (block.type !== 'heading_3') throw new Error(`Expected heading_3 at index ${index}, got ${block.type}`);
+  return block;
+}
+
+const service = new ApkgToNotionBlocksService();
+
 describe('ApkgToNotionBlocksService', () => {
-  const service = new ApkgToNotionBlocksService();
 
   describe('transform', () => {
     it('creates a deck page with toggle blocks for each note', () => {
@@ -56,8 +63,7 @@ describe('ApkgToNotionBlocksService', () => {
       expect(result.deckPages[0].title).toBe('Math');
       expect(result.deckPages[0].children).toHaveLength(1);
 
-      const toggle = result.deckPages[0].children[0];
-      expect(toggle.type).toBe('heading_3');
+      const toggle = getToggle(result.deckPages[0].children);
       expect(toggle.heading_3.rich_text[0].plain_text).toBe('What is 2+2?');
       expect(toggle.heading_3.is_toggleable).toBe(true);
       expect(toggle.heading_3.children).toHaveLength(1);
@@ -75,7 +81,7 @@ describe('ApkgToNotionBlocksService', () => {
       const collection = buildCollection({ notes });
       const result = service.transform(collection);
 
-      const toggle = result.deckPages[0].children[0];
+      const toggle = getToggle(result.deckPages[0].children);
       expect(toggle.heading_3.rich_text[0].plain_text).toBe('Bold text');
     });
 
@@ -86,7 +92,7 @@ describe('ApkgToNotionBlocksService', () => {
       const collection = buildCollection({ notes });
       const result = service.transform(collection);
 
-      const backChildren = result.deckPages[0].children[0].heading_3.children;
+      const backChildren = getToggle(result.deckPages[0].children).heading_3.children;
       const firstChild = backChildren[0];
       expect(firstChild.type).toBe('paragraph');
       if (firstChild.type === 'paragraph') {
@@ -105,7 +111,7 @@ describe('ApkgToNotionBlocksService', () => {
       const collection = buildCollection({ notes });
       const result = service.transform(collection);
 
-      const backChildren = result.deckPages[0].children[0].heading_3.children;
+      const backChildren = getToggle(result.deckPages[0].children).heading_3.children;
       const firstChild = backChildren[0];
       expect(firstChild.type).toBe('paragraph');
       if (firstChild.type === 'paragraph') {
@@ -141,7 +147,7 @@ describe('ApkgToNotionBlocksService', () => {
       const collection = buildCollection({ notes });
       const result = service.transform(collection);
 
-      const toggleChildren = result.deckPages[0].children[0].heading_3.children;
+      const toggleChildren = getToggle(result.deckPages[0].children).heading_3.children;
       const tagBlock = toggleChildren[toggleChildren.length - 1];
       expect(tagBlock.type).toBe('paragraph');
       if (tagBlock.type === 'paragraph') {
@@ -166,7 +172,7 @@ describe('ApkgToNotionBlocksService', () => {
       const collection = buildCollection({ noteTypes, notes });
       const result = service.transform(collection);
 
-      const toggle = result.deckPages[0].children[0];
+      const toggle = getToggle(result.deckPages[0].children);
       expect(toggle.heading_3.rich_text[0].plain_text).toBe(
         'Paris is the capital of France'
       );
@@ -179,7 +185,7 @@ describe('ApkgToNotionBlocksService', () => {
       const collection = buildCollection({ notes });
       const result = service.transform(collection);
 
-      const toggle = result.deckPages[0].children[0];
+      const toggle = getToggle(result.deckPages[0].children);
       expect(toggle.heading_3.rich_text[0].plain_text).toBe('3 x 4 = ');
       expect(toggle.heading_3.rich_text[0].plain_text).not.toContain('&nbsp;');
     });
@@ -191,7 +197,7 @@ describe('ApkgToNotionBlocksService', () => {
       const collection = buildCollection({ notes });
       const result = service.transform(collection);
 
-      const backChildren = result.deckPages[0].children[0].heading_3.children;
+      const backChildren = getToggle(result.deckPages[0].children).heading_3.children;
       const firstChild = backChildren[0];
       expect(firstChild.type).toBe('paragraph');
       if (firstChild.type === 'paragraph') {
@@ -199,18 +205,21 @@ describe('ApkgToNotionBlocksService', () => {
       }
     });
 
-    it('strips media refs from text when no URL map provided', () => {
+    it('strips media refs from text in text-heavy front fields', () => {
       const notes = new Map<number, Note>([
-        [100, { id: 100, mid: 1, tags: '', fields: ['<img src="image.png">Question', 'Answer [sound:audio.mp3]'] }],
+        [100, { id: 100, mid: 1, tags: '', fields: ['What is this? <img src="image.png"> Identify the object shown above.', 'Answer [sound:audio.mp3]'] }],
       ]);
       const collection = buildCollection({ notes });
       const result = service.transform(collection);
 
       const toggle = result.deckPages[0].children[0];
-      expect(toggle.heading_3.rich_text[0].plain_text).toBe('Question');
+      expect(toggle.type).toBe('heading_3');
+      if (toggle.type === 'heading_3') {
+        expect(toggle.heading_3.rich_text[0].plain_text).toContain('What is this?');
+      }
     });
 
-    it('uses first non-empty text field as summary when front is image-only', () => {
+    it('uses image-first layout when front is image-only', () => {
       const noteType: NoteType = {
         id: 3,
         name: 'Image Occlusion',
@@ -237,11 +246,117 @@ describe('ApkgToNotionBlocksService', () => {
       });
       const result = service.transform(collection);
 
-      const toggle = result.deckPages[0].children[0];
-      expect(toggle.heading_3.rich_text[0].plain_text).toBe('France');
+      const blocks = result.deckPages[0].children;
+      expect(blocks[0].type).toBe('divider');
+      const answerBlock = blocks.find((b) => b.type === 'heading_3');
+      expect(answerBlock).toBeDefined();
+      if (answerBlock?.type === 'heading_3') {
+        const textChildren = answerBlock.heading_3.children.filter(
+          (c) => c.type === 'paragraph'
+        );
+        const texts = textChildren.map((c) =>
+          c.type === 'paragraph' ? c.paragraph.rich_text[0]?.plain_text : ''
+        );
+        expect(texts).toContain('France');
+      }
     });
 
-    it('emits image blocks when media URL map is provided', () => {
+    it('uses image-first layout for image-only front fields', () => {
+      const noteType: NoteType = {
+        id: 3,
+        name: 'Bollard',
+        type: 0,
+        css: '',
+        fields: [
+          { name: 'Picture', ord: 0 },
+          { name: 'Country', ord: 1 },
+          { name: 'Notes', ord: 2 },
+        ],
+        templates: [{ name: 'Card 1', ord: 0, qfmt: '', afmt: '' }],
+      };
+      const notes = new Map<number, Note>([
+        [100, { id: 100, mid: 3, tags: '', fields: [
+          '<img src="bollard.jpg">',
+          'France',
+          'French bollards are super thick',
+        ]}],
+      ]);
+      const mediaUrlMap = new Map([
+        ['bollard.jpg', 'https://cdn.example.com/bollard.jpg'],
+      ]);
+      const collection = buildCollection({
+        noteTypes: new Map([[3, noteType]]),
+        notes,
+        cards: [{ id: 1000, nid: 100, did: 10, ord: 0 }],
+      });
+      const result = service.transform(collection, mediaUrlMap);
+
+      const blocks = result.deckPages[0].children;
+      expect(blocks[0].type).toBe('divider');
+      expect(blocks[1].type).toBe('image');
+      if (blocks[1].type === 'image') {
+        expect(blocks[1].image.external.url).toBe('https://cdn.example.com/bollard.jpg');
+      }
+      expect(blocks[2].type).toBe('heading_3');
+      if (blocks[2].type === 'heading_3') {
+        expect(blocks[2].heading_3.is_toggleable).toBe(true);
+        expect(blocks[2].heading_3.rich_text[0].plain_text).toBe('Answer');
+        const answerChildren = blocks[2].heading_3.children;
+        const texts = answerChildren
+          .filter((c) => c.type === 'paragraph')
+          .map((c) => (c as { type: 'paragraph'; paragraph: { rich_text: { plain_text: string }[] } }).paragraph.rich_text[0]?.plain_text);
+        expect(texts).toContain('France');
+        expect(texts).toContain('French bollards are super thick');
+      }
+    });
+
+    it('uses named field label for single back-field image-first cards', () => {
+      const noteType: NoteType = {
+        id: 4,
+        name: 'Flag Quiz',
+        type: 0,
+        css: '',
+        fields: [
+          { name: 'Flag', ord: 0 },
+          { name: 'Country', ord: 1 },
+        ],
+        templates: [{ name: 'Card 1', ord: 0, qfmt: '', afmt: '' }],
+      };
+      const notes = new Map<number, Note>([
+        [100, { id: 100, mid: 4, tags: '', fields: ['<img src="flag.png">', 'Japan'] }],
+      ]);
+      const collection = buildCollection({
+        noteTypes: new Map([[4, noteType]]),
+        notes,
+        cards: [{ id: 1000, nid: 100, did: 10, ord: 0 }],
+      });
+      const result = service.transform(collection, new Map([['flag.png', 'https://cdn.example.com/flag.png']]));
+
+      const toggleBlock = result.deckPages[0].children[2];
+      expect(toggleBlock.type).toBe('heading_3');
+      if (toggleBlock.type === 'heading_3') {
+        expect(toggleBlock.heading_3.rich_text[0].plain_text).toBe('Country');
+      }
+    });
+
+    it('keeps toggle layout for text-first notes with images', () => {
+      const notes = new Map<number, Note>([
+        [100, { id: 100, mid: 1, tags: '', fields: [
+          'What does this bollard look like? <img src="hint.jpg">',
+          'France',
+        ]}],
+      ]);
+      const collection = buildCollection({ notes });
+      const result = service.transform(collection, new Map([['hint.jpg', 'https://cdn.example.com/hint.jpg']]));
+
+      const block = result.deckPages[0].children[0];
+      expect(block.type).toBe('heading_3');
+      if (block.type === 'heading_3') {
+        expect(block.heading_3.rich_text[0].plain_text).toBe('What does this bollard look like?');
+      }
+    });
+
+    it('emits image blocks in image-first layout when media URL map is provided', () => {
       const notes = new Map<number, Note>([
         [100, { id: 100, mid: 1, tags: '', fields: [
           '<img src="bollard.jpg">',
@@ -254,10 +369,8 @@ describe('ApkgToNotionBlocksService', () => {
       const collection = buildCollection({ notes });
       const result = service.transform(collection, mediaUrlMap);
 
-      const toggle = result.deckPages[0].children[0];
-      const imageBlock = toggle.heading_3.children.find(
-        (c) => c.type === 'image'
-      );
+      const blocks = result.deckPages[0].children;
+      const imageBlock = blocks.find((b) => b.type === 'image');
       expect(imageBlock).toBeDefined();
       if (imageBlock?.type === 'image') {
         expect(imageBlock.image.external.url).toBe(
@@ -333,7 +446,7 @@ describe('ApkgToNotionBlocksService', () => {
       expect(deckNames).toContain('History');
     });
 
-    it('handles custom note types with many fields gracefully', () => {
+    it('handles custom note types with many fields using image-first layout', () => {
       const customType: NoteType = {
         id: 5,
         name: 'GeoGuessr Card',
@@ -362,17 +475,23 @@ describe('ApkgToNotionBlocksService', () => {
       });
       const result = service.transform(collection);
 
-      const toggle = result.deckPages[0].children[0];
-      expect(toggle.heading_3.rich_text[0].plain_text).toBe('Austria, Slovenia');
+      const blocks = result.deckPages[0].children;
+      expect(blocks[0].type).toBe('divider');
 
-      const textChildren = toggle.heading_3.children.filter(
-        (c) => c.type === 'paragraph'
-      );
-      const texts = textChildren.map((c) =>
-        c.type === 'paragraph' ? c.paragraph.rich_text[0]?.plain_text : ''
-      );
-      expect(texts).toContain('Similar Design: Montenegro has the same design');
-      expect(texts).toContain('note: Snowpole on right found in Andorra');
+      const answerBlock = blocks.find((b) => b.type === 'heading_3');
+      expect(answerBlock).toBeDefined();
+      if (answerBlock?.type === 'heading_3') {
+        expect(answerBlock.heading_3.rich_text[0].plain_text).toBe('Answer');
+        const textChildren = answerBlock.heading_3.children.filter(
+          (c) => c.type === 'paragraph'
+        );
+        const texts = textChildren.map((c) =>
+          c.type === 'paragraph' ? c.paragraph.rich_text[0]?.plain_text : ''
+        );
+        expect(texts).toContain('Austria, Slovenia');
+        expect(texts).toContain('Similar Design: Montenegro has the same design');
+        expect(texts).toContain('note: Snowpole on right found in Andorra');
+      }
     });
   });
 });

@@ -46,6 +46,11 @@ interface ImageBlock {
   };
 }
 
+interface DividerBlock {
+  type: 'divider';
+  divider: Record<string, never>;
+}
+
 type ToggleChildBlock = ParagraphBlock | ImageBlock;
 
 interface ToggleHeading3Block {
@@ -57,9 +62,11 @@ interface ToggleHeading3Block {
   };
 }
 
+type NoteBlock = ToggleHeading3Block | ImageBlock | DividerBlock | ParagraphBlock;
+
 export interface DeckPage {
   title: string;
-  children: ToggleHeading3Block[];
+  children: NoteBlock[];
   subDecks: DeckPage[];
 }
 
@@ -288,6 +295,79 @@ function findSummaryText(note: Note, isCloze: boolean): string {
   return 'Untitled';
 }
 
+const IMAGE_FIRST_TEXT_THRESHOLD = 20;
+
+function isImageFirstNote(note: Note, noteType: NoteType): boolean {
+  if (noteType.type === 1) return false;
+  const front = note.fields[0] ?? '';
+  const hasImage = extractImageFilenames(front).length > 0;
+  if (!hasImage) return false;
+  const textOnly = stripMediaRefs(front).replace(ALL_HTML_TAGS_REGEX, '').trim();
+  return textOnly.length <= IMAGE_FIRST_TEXT_THRESHOLD;
+}
+
+function makeDivider(): DividerBlock {
+  return { type: 'divider', divider: {} };
+}
+
+function noteToImageLayout(
+  note: Note,
+  noteType: NoteType,
+  mediaUrlMap: Map<string, string>
+): NoteBlock[] {
+  const blocks: NoteBlock[] = [makeDivider()];
+
+  const frontImages = extractImageFilenames(note.fields[0] ?? '');
+  for (const filename of frontImages) {
+    const url = mediaUrlMap.get(filename);
+    if (url && isImageFile(filename)) {
+      blocks.push(makeImageBlock(url));
+    }
+  }
+
+  const backFields = note.fields.slice(1);
+  const answerChildren: ToggleChildBlock[] = [];
+
+  for (const field of backFields) {
+    const fieldBlocks = fieldToBlocks(field, mediaUrlMap);
+    answerChildren.push(...fieldBlocks);
+  }
+
+  if (answerChildren.length === 0) {
+    answerChildren.push(makeParagraph(makeRichText(' ')));
+  }
+
+  const tags = note.tags.trim();
+  if (tags.length > 0) {
+    const tagText = tags
+      .split(/\s+/)
+      .filter((t) => t.length > 0)
+      .map((t) => `#${t}`)
+      .join(' ');
+    answerChildren.push(makeParagraph(makeRichText(tagText, false, true)));
+  }
+
+  const firstBackFieldName = noteType.fields.length > 1
+    ? noteType.fields[1].name
+    : null;
+  const toggleLabel = (
+    firstBackFieldName
+    && backFields.length === 1
+    && firstBackFieldName !== 'Back'
+  ) ? firstBackFieldName : 'Answer';
+
+  blocks.push({
+    type: 'heading_3',
+    heading_3: {
+      rich_text: makeRichText(toggleLabel),
+      is_toggleable: true,
+      children: answerChildren,
+    },
+  });
+
+  return blocks;
+}
+
 function noteToToggle(
   note: Note,
   noteType: NoteType,
@@ -462,9 +542,14 @@ function deckNodeToDeckPage(
   node: DeckNode,
   mediaUrlMap: Map<string, string>
 ): DeckPage {
-  const children: ToggleHeading3Block[] = node.notes.map(({ note, noteType }) =>
-    noteToToggle(note, noteType, mediaUrlMap)
-  );
+  const children: NoteBlock[] = [];
+  for (const { note, noteType } of node.notes) {
+    if (isImageFirstNote(note, noteType)) {
+      children.push(...noteToImageLayout(note, noteType, mediaUrlMap));
+    } else {
+      children.push(noteToToggle(note, noteType, mediaUrlMap));
+    }
+  }
 
   const subDecks: DeckPage[] = [];
   for (const [, child] of node.children) {
