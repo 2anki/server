@@ -107,10 +107,36 @@ const OpsRouter = () => {
     controller.getConversionMetrics(req, res)
   );
 
+  /**
+   * @swagger
+   * /api/ops/showcase/populate:
+   *   post:
+   *     summary: Populate homepage showcase
+   *     description: Fetches Notion blocks and APKG cards, caches them in the database for the homepage showcase section.
+   *     tags: [Ops]
+   *     responses:
+   *       200:
+   *         description: Showcase populated
+   *       404:
+   *         description: Not the ops owner
+   */
   router.post('/api/ops/showcase/populate', RequireOpsAccess, (req, res) =>
     controller.populateShowcase(req, res)
   );
 
+  /**
+   * @swagger
+   * /api/ops/showcase:
+   *   delete:
+   *     summary: Purge homepage showcase
+   *     description: Deletes the cached showcase data. The homepage section hides when no data exists.
+   *     tags: [Ops]
+   *     responses:
+   *       200:
+   *         description: Showcase purged
+   *       404:
+   *         description: Not the ops owner
+   */
   router.delete('/api/ops/showcase', RequireOpsAccess, (req, res) =>
     controller.purgeShowcase(req, res)
   );

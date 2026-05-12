@@ -40,7 +40,7 @@ describe('HomePage (anonymous)', () => {
 
   it('shows free tier info and open source in the hero', () => {
     renderHome();
-    expect(screen.getByText(/100 cards per month/i)).toBeInTheDocument();
+    expect(screen.getByText(/100 cards per conversion/i)).toBeInTheDocument();
     expect(screen.getByText(/open source/i)).toBeInTheDocument();
   });
 

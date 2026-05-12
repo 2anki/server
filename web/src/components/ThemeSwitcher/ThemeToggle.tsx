@@ -1,0 +1,35 @@
+import { useState } from 'react';
+import { type Theme, applyTheme, getStoredTheme } from '../../lib/theme';
+import styles from './ThemeSwitcher.module.css';
+
+const THEMES: readonly { value: Theme; icon: string }[] = [
+  { value: 'light', icon: '☀' },
+  { value: 'dark', icon: '☾' },
+  { value: 'gold', icon: '✦' },
+  { value: 'purple', icon: '◆' },
+];
+
+export function ThemeToggle() {
+  const [current, setCurrent] = useState<Theme>(getStoredTheme);
+
+  function cycle() {
+    const idx = THEMES.findIndex((t) => t.value === current);
+    const next = THEMES[(idx + 1) % THEMES.length];
+    setCurrent(next.value);
+    applyTheme(next.value);
+  }
+
+  const active = THEMES.find((t) => t.value === current) ?? THEMES[0];
+
+  return (
+    <button
+      type="button"
+      className={`${styles.option} ${styles.optionActive}`}
+      onClick={cycle}
+      aria-label="Cycle theme"
+      title="Cycle theme"
+    >
+      {active.icon}
+    </button>
+  );
+}
