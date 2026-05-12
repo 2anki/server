@@ -9,6 +9,7 @@ import BookOpenIcon from '../../components/icons/BookOpenIcon';
 import styles from './HomePage.module.css';
 
 const MASCOTS = [
+  '/mascot/Notion 1.png',
   '/mascot/Notion 2.png',
   '/mascot/Notion 3.png',
   '/mascot/Notion 4.png',
