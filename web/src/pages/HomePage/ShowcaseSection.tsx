@@ -12,11 +12,15 @@ function NotionBlock({ block, defaultOpen }: Readonly<{ block: ShowcaseBlock; de
           className={styles.toggleSummary}
           dangerouslySetInnerHTML={{ __html: block.summaryHtml }}
         />
-        {block.childrenHtml && (
+        {block.childrenHtml ? (
           <div
             className={styles.toggleContent}
             dangerouslySetInnerHTML={{ __html: block.childrenHtml }}
           />
+        ) : (
+          <div className={styles.toggleContentEmpty}>
+            This is a cloze deletion — the answer is in the toggle title above.
+          </div>
         )}
       </details>
     );

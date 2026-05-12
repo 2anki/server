@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTheme } from '../../lib/hooks/useTheme';
 import { getVisibleText } from '../../lib/text/getVisibleText';
@@ -16,8 +16,6 @@ import SparklesIcon from '../icons/SparklesIcon';
 import UserCircleIcon from '../icons/UserCircleIcon';
 import WrenchIcon from '../icons/WrenchIcon';
 import { ThemeSwitcher } from '../ThemeSwitcher/ThemeSwitcher';
-import ChatBubbleIcon from '../icons/ChatBubbleIcon';
-import { FeedbackModal } from '../FeedbackWidget/FeedbackModal';
 import styles from './AppShell.module.css';
 
 export interface SidebarLocals {
@@ -90,7 +88,6 @@ export function Sidebar({
 }: Readonly<SidebarProps>) {
   const { pathname } = useLocation();
   const theme = useTheme();
-  const [feedbackOpen, setFeedbackOpen] = useState(false);
   const logoSrc = theme === 'light' ? '/mascot/navbar-logo.png' : '/mascot/Notion 1.png';
   const showAnkify = locals?.patreon === true;
   const paying = isPayingUser(locals);
@@ -256,25 +253,11 @@ export function Sidebar({
       </div>
       <div className={styles.sidebarMore}>
         <div className={styles.sidebarMoreLinks}>
-          <button
-            type="button"
-            className={styles.sidebarFeedbackLink}
-            onClick={() => setFeedbackOpen(true)}
-          >
-            <ChatBubbleIcon width={14} height={14} />
-            Feedback
-          </button>
-          <Link to="/about" onClick={handleNavClick()}>
-            {getVisibleText('navigation.legal.about')}
+          <Link to="/whats-new" onClick={handleNavClick()}>
+            What's new
           </Link>
           <Link to="/contact" onClick={handleNavClick()}>
             {getVisibleText('navigation.contact')}
-          </Link>
-          <Link
-            to="/documentation/misc/terms-of-service"
-            onClick={handleNavClick()}
-          >
-            {getVisibleText('navigation.legal.terms')}
           </Link>
           <Link
             to="/documentation/misc/privacy-policy"
@@ -282,15 +265,20 @@ export function Sidebar({
           >
             {getVisibleText('navigation.legal.privacy')}
           </Link>
+          <Link
+            to="/documentation/misc/terms-of-service"
+            onClick={handleNavClick()}
+          >
+            {getVisibleText('navigation.legal.terms')}
+          </Link>
+          <Link to="/about" onClick={handleNavClick()}>
+            {getVisibleText('navigation.legal.about')}
+          </Link>
         </div>
         <div className={styles.sidebarCopyright}>
           &copy; 2020&ndash;{new Date().getFullYear()} Alexander Alemayhu
         </div>
       </div>
-      <FeedbackModal
-        isActive={feedbackOpen}
-        onClose={() => setFeedbackOpen(false)}
-      />
     </aside>
   );
 }

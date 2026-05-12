@@ -3,6 +3,8 @@ import { Sidebar, SidebarFeatures, SidebarLocals } from './Sidebar';
 import { MobileTopBar } from './MobileTopBar';
 import { SkeletonPage } from '../Skeleton/Skeleton';
 import { ErrorPresenter } from '../errors/ErrorPresenter';
+import { FloatingFeedback } from '../FeedbackWidget/FloatingFeedback';
+import { TeamBanner } from '../TeamBanner/TeamBanner';
 import sharedStyles from '../../styles/shared.module.css';
 import styles from './AppShell.module.css';
 
@@ -54,6 +56,7 @@ export function SidebarLayout({
         onClick={() => setIsDrawerOpen(false)}
       />
       <div className={styles.main}>
+        <TeamBanner />
         <MobileTopBar
           isOpen={isDrawerOpen}
           onOpen={() => setIsDrawerOpen(true)}
@@ -64,6 +67,7 @@ export function SidebarLayout({
           <Suspense fallback={<SkeletonPage rows={5} />}>{children}</Suspense>
         </main>
       </div>
+      <FloatingFeedback />
     </div>
   );
 }

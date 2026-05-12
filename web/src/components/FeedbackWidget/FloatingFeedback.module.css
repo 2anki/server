@@ -1,0 +1,42 @@
+.container {
+  position: fixed;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  z-index: 50;
+  pointer-events: none;
+}
+
+.panel {
+  pointer-events: auto;
+  width: 220px;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 1rem;
+  text-align: center;
+}
+
+.panelTitle {
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--color-text-secondary);
+  margin: 0 0 0.5rem;
+}
+
+@media (max-width: 1500px) {
+  .container {
+    right: 1rem;
+    bottom: 1rem;
+  }
+
+  .panel {
+    width: 200px;
+  }
+}
+
+@media (max-width: 1023px) {
+  .container {
+    display: none;
+  }
+}

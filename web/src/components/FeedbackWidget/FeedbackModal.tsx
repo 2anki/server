@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { useLocation } from 'react-router-dom';
 
 import sharedStyles from '../../styles/shared.module.css';
@@ -11,7 +12,7 @@ interface Props {
 export function FeedbackModal({ isActive, onClose }: Readonly<Props>) {
   const { pathname } = useLocation();
 
-  return (
+  return createPortal(
     <div className={isActive ? sharedStyles.modal : sharedStyles.modalHidden}>
       <button
         type="button"
@@ -35,6 +36,7 @@ export function FeedbackModal({ isActive, onClose }: Readonly<Props>) {
           <FeedbackWidget page={pathname} onSubmitted={onClose} />
         </section>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
