@@ -32,7 +32,6 @@ export function HomePage({
       <div className={styles.contentSection}>
         <HomePageAnonHeader />
         <VideosAndDocs />
-        <p>Happy learning!</p>
       </div>
     </div>
   );

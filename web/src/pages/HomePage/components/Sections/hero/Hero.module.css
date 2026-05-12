@@ -3,7 +3,7 @@
   font-weight: var(--font-bold);
   letter-spacing: var(--tracking-tight);
   line-height: var(--leading-tight);
-  color: #2b2e3c;
+  color: var(--color-text-primary);
 }
 
 @media (max-width: 1024px) {
@@ -20,7 +20,7 @@
 
 .heroSubtitle {
   text-align: center;
-  background: linear-gradient(#6b5eff, 70%, #5397f5);
+  background: linear-gradient(var(--color-primary-hover), 70%, var(--color-primary));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -33,7 +33,7 @@
 
 .heroSubtitleAlignRight {
   align-self: flex-end;
-  color: #5397f5;
+  color: var(--color-primary);
 }
 
 @media (max-width: 1024px) {

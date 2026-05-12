@@ -32,11 +32,11 @@
 
 .preview {
   background: var(--color-bg-primary);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   padding: 1.5rem 2rem;
   margin-top: 1.5rem;
   line-height: 1.6;
+  box-shadow: var(--shadow-sm);
 }
 
 .preview > :global(*):not(:last-child) {
