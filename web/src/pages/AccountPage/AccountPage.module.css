@@ -226,6 +226,7 @@
 }
 
 .infoBadge {
+  position: relative;
   padding: 0.75rem 1rem;
   background: var(--color-primary-light);
   border: 1px solid var(--color-primary);
@@ -233,6 +234,35 @@
   font-size: var(--text-sm);
   color: var(--color-primary);
   margin-bottom: 0.75rem;
+  overflow: hidden;
+}
+
+.infoBadge::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.25),
+    transparent
+  );
+  animation: badgeShine 3s ease-in-out infinite;
+}
+
+@keyframes badgeShine {
+  0%, 100% { left: -100%; }
+  50% { left: 150%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .infoBadge::after {
+    animation: none;
+    display: none;
+  }
 }
 
 .cancelledBadge {
