@@ -145,9 +145,7 @@ export function HomePage({
           alt=""
           className={styles.mascot}
         />
-        <h1 className={styles.heroTitle}>
-          Convert Notion{' '}<span className={styles.noBreak}>to Anki</span>
-        </h1>
+        <h1 className={styles.heroTitle}>Convert Notion to Anki</h1>
         <p className={styles.heroSubtitle}>
           Notes in, flashcards out. Drop any file — no account needed.
         </p>
@@ -182,10 +180,8 @@ export function HomePage({
           <div className={styles.stepsGrid}>
             {STEPS.map((step, idx) => (
               <div key={step.title} className={styles.step}>
-                <div className={styles.stepHeader}>
-                  <span className={styles.stepNumber}>{idx + 1}</span>
-                  <p className={styles.stepTitle}>{step.title}</p>
-                </div>
+                <span className={styles.stepNumber}>{idx + 1}</span>
+                <p className={styles.stepTitle}>{step.title}</p>
                 <p className={styles.stepBody}>{step.body}</p>
               </div>
             ))}

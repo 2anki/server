@@ -13,15 +13,12 @@
 }
 
 .heroTitle {
-  font-size: clamp(2.5rem, 7vw, 4.5rem);
+  font-size: clamp(2rem, 7vw, 4.5rem);
   font-weight: var(--font-bold);
   letter-spacing: -0.035em;
   line-height: 1;
   color: var(--color-text-primary);
   margin: 0 0 1rem;
-}
-
-.noBreak {
   white-space: nowrap;
 }
 
@@ -126,19 +123,16 @@
 }
 
 .step {
+  position: relative;
   background: var(--color-bg-secondary);
   border-radius: var(--radius-lg);
   padding: 1.5rem;
 }
 
-.stepHeader {
-  display: flex;
-  align-items: center;
-  gap: 0.625rem;
-  margin-bottom: 0.625rem;
-}
-
 .stepNumber {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -149,14 +143,13 @@
   color: var(--color-bg-primary);
   font-size: var(--text-xs);
   font-weight: var(--font-semibold);
-  flex-shrink: 0;
 }
 
 .stepTitle {
   font-size: var(--text-base);
   font-weight: var(--font-semibold);
   color: var(--color-text-primary);
-  margin: 0;
+  margin: 0 0 0.5rem;
 }
 
 .stepBody {
