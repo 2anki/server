@@ -46,44 +46,44 @@ const WALKTHROUGHS = [
     embedId: 'E51yLIIS3bk',
   },
   {
-    title: 'How to use cloze deletions',
-    embedId: 'r9pPNl8Mx_Q',
-  },
-  {
-    title: 'Créer des flashcards Anki avec Notion',
-    embedId: 'RHReYOKywZc',
+    title: 'Notion to Anki — Tutorial en Español',
+    embedId: '57dW_buqtGM',
   },
   {
     title: 'Turn any website into Anki flashcards',
     embedId: 'NLUfAWA2LJI',
   },
   {
-    title: 'Use Notion to Anki for learning languages',
-    embedId: 'lpC7C9wJoTA',
+    title: 'Créer des flashcards Anki avec Notion',
+    embedId: 'RHReYOKywZc',
   },
   {
-    title: 'Notion to Anki — Tutorial en Español',
-    embedId: '57dW_buqtGM',
-  },
-  {
-    title: 'Instantly turn your Notion notes into Anki flashcards',
-    embedId: 'Ah-_wm2fgIk',
+    title: 'How to use cloze deletions',
+    embedId: 'r9pPNl8Mx_Q',
   },
   {
     title: 'Best Notion hack for medical students',
     embedId: 'vINpYLMW9AE',
   },
   {
-    title: 'Turn your Notion notes into Anki flashcards',
-    embedId: '6CyurZC4Bf0',
-  },
-  {
     title: 'Notion to Anki — complete guide',
     embedId: 'JrYdp18Hbs8',
   },
   {
+    title: 'Use Notion to Anki for learning languages',
+    embedId: 'lpC7C9wJoTA',
+  },
+  {
+    title: 'Instantly turn your Notion notes into Anki flashcards',
+    embedId: 'Ah-_wm2fgIk',
+  },
+  {
     title: 'Notion to Anki walkthrough',
     embedId: '9V0_N-Ex1U0',
+  },
+  {
+    title: 'Turn your Notion notes into Anki flashcards',
+    embedId: '6CyurZC4Bf0',
   },
   {
     title: 'Notion to Anki tutorial',
