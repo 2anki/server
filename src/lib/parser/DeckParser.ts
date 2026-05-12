@@ -673,12 +673,12 @@ export class DeckParser {
           this.processNestedTogglesDepthFirst($nestedDetails, dom);
           
           const $summary = $nestedDetails.children('summary').first();
-          const summaryText = $summary.text().trim();
-          
-          if (summaryText) {
+          const summaryHTML = $summary.html()?.trim();
+
+          if (summaryHTML) {
             const $contentAfterSummary = $nestedDetails.contents().not('summary');
             let contentHTML = '';
-            
+
             $contentAfterSummary.each((_, content) => {
               if (dom(content).is('[style*="display:contents"]')) {
                 contentHTML += dom(content).html() || '';
@@ -686,9 +686,9 @@ export class DeckParser {
                 contentHTML += dom(content).toString();
               }
             });
-            
+
             const nestedDetailsHTML = `<details style="margin-left: 20px; margin-bottom: 10px;">
-              <summary><strong>${summaryText}</strong></summary>
+              <summary>${summaryHTML}</summary>
               ${contentHTML}
             </details>`;
             
