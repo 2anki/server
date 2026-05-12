@@ -83,6 +83,40 @@ If the PR is good, post a comment-only review with a clear "approve" verdict, th
 - Validate and sanitize user input at the handler level.
 - Never log sensitive data (passwords, tokens, personal info).
 - Use `res.locals` for authenticated user data through middleware.
+- `ErrorHandler` sends raw `err.message` to the client (`res.status(400).send(err.message)`) — ensure error messages from internal code are user-safe before throwing.
+
+## Framework-specific patterns
+
+**Express 5 (server)**
+- Async errors propagate to the error middleware natively — do not add `express-async-errors` or try/catch wrappers around route handlers.
+- `ErrorHandler` has a non-standard signature `(res, req, err)`, not Express's `(err, req, res, next)`. It is wired through a wrapper in `server.ts` — never mount it directly as middleware.
+- `req.query` values can be `undefined` — always validate before use.
+
+**React 19 + React Router 7 (web)**
+- `forwardRef` is unnecessary in React 19 — pass `ref` as a regular prop.
+- We use React Router 7 in **library mode** (`<BrowserRouter>` + `<Routes>`), not the data router. Do not introduce `createBrowserRouter`, loaders, or actions.
+- Lazy-load non-critical pages with `React.lazy()` — critical pages (`HomePage`, `UploadPage`) are eagerly imported.
+
+**TanStack Query 5 (web)**
+- All server-state fetching uses `useQuery`/`useMutation` from `@tanstack/react-query`, backed by `Backend.ts` as the fetch wrapper.
+- Invalidate caches via `useQueryClient().invalidateQueries()` after mutations.
+- Local UI state uses plain `useState` — do not reach for React Query for client-only state.
+
+**Vite 8 + Biome (web)**
+- Dev proxy: `/api` and `/v` route to `localhost:2020` (configured in `vite.config.ts`).
+- Env vars use `REACT_APP_*` prefix (CRA compatibility layer in vite config). Do not use `VITE_*` or bare `process.env.*`.
+- Biome enforces: `useOptionalChain`, `noNestedTernary`, `noNegationElse`, `noUselessTernary`. Run `pnpm --filter 2anki-web lint` locally.
+
+**Testing**
+- Server: **Jest** + ts-jest. Use `jest.mock()`, `jest.fn()`, `jest.spyOn()`.
+- Web: **Vitest**. Use `vi.mock()`, `vi.fn()`, `vi.spyOn()`. Do not use Jest API in web tests.
+- E2E: **Playwright**. Config in `web/playwright.config.ts`.
+
+**create_deck (Python bridge)**
+- `CardGenerator.ts` spawns Python to run `create_deck/create_deck.py`. The contract: it reads `deck_info.json` from the workspace, writes an `.apkg` file, and prints its path to stdout.
+- Changes to the JSON shape (`deck_info.json`) require coordinated updates in both TypeScript (the parser that writes it) and Python (the script that reads it).
+- Test Python changes with `pytest` in the `create_deck/` directory.
+- Python discovery: venv → platform lookup → env override (`PYTHON` / `ANKI_PYTHON`). Do not hardcode Python paths.
 
 ## When stuck
 

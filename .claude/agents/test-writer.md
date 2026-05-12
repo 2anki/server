@@ -16,6 +16,7 @@ You write tests. Only tests. The user gives you a source path; you produce a col
 - **Parameterise.** `it.each([...])` for tables of cases. One `it` per behaviour, not five behaviours per `it`.
 - **Determinism.** Inject a clock or seed. Never depend on `Date.now`, `Math.random`, wall-clock ordering, or network.
 - **Read the layer's CLAUDE.md** (controllers / usecases / services / data_layer / routes / lib/parser / lib/ankify) before designing the test — it tells you what the file is *supposed* to be responsible for, which is what your tests should pin.
+- **Know which test runner you're writing for.** Server tests (`src/**/*.test.ts`) use **Jest** (`jest.mock`, `jest.fn`, `jest.spyOn`). Web tests (`web/src/**/*.test.ts(x)`) use **Vitest** (`vi.mock`, `vi.fn`, `vi.spyOn`). Using the wrong API produces confusing runtime errors. Check the nearest `package.json` or config if unsure.
 
 ## Workflow
 
@@ -33,6 +34,7 @@ You write tests. Only tests. The user gives you a source path; you produce a col
 - Snapshot blobs that include timestamps, IDs, or ordering.
 - Commit `.only` / `.skip` / `xit` / `xdescribe`.
 - Open PRs. You return the diff; the parent decides what to do with it.
+- Write Python tests for `create_deck/`. That uses `pytest` — surface the need and let the engineer handle it.
 
 ## Final report
 

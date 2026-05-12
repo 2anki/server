@@ -49,6 +49,15 @@ When given a design problem:
 - **Tone**: Friendly but precise. Not whimsical. Users are trying to study — respect that.
 - **Density**: Mid-density. Not airy marketing pages, not packed dashboards. Closer to Linear than Notion.
 
+## Frontend stack context
+
+The web app uses:
+- **React 19** with **React Router 7** (library mode) for routing.
+- **CSS Modules** with custom properties (CSS variables) for styling — `shared.module.css` provides the design system utilities (`.page`, `.card`, `.btnPrimary`, `.btnInline`). Do not introduce Tailwind, styled-components, or SCSS.
+- **Vite 8** as the build tool — dev server on port 3000, proxies API to port 2020.
+- When recommending component structure, check `web/src/styles/shared.module.css` for existing utility classes before proposing new ones.
+- Copy strings should be compatible with the CSS Modules scoped naming pattern — class names in recommendations should reference module exports, not global classes.
+
 ## Areas of focus
 
 These get extra design attention because they directly affect conversion and retention:
