@@ -3,7 +3,8 @@ import { BlockObjectResponse, PageObjectResponse } from '@notionhq/client/build/
 import { getNotionObjectTitle } from 'get-notion-object-title';
 
 import { IShowcaseRepository } from '../../data_layer/ShowcaseRepository';
-import { toPreviewBlock } from '../../controllers/helpers/toPreviewBlock';
+import { PreviewBlockPayload, toPreviewBlock } from '../../controllers/helpers/toPreviewBlock';
+import { renderBlockPreview } from '../../services/NotionService/helpers/renderBlockPreview';
 import type { NotionService } from '../../services/NotionService/NotionService';
 import type ApkgPreviewService from '../../services/ApkgPreviewService/ApkgPreviewService';
 import type DownloadService from '../../services/DownloadService';
@@ -11,6 +12,10 @@ import StorageHandler from '../../lib/storage/StorageHandler';
 
 const MAX_BLOCKS = 8;
 const MAX_CARDS = 3;
+
+export interface ShowcaseBlockPayload extends PreviewBlockPayload {
+  childrenHtml?: string;
+}
 
 export class PopulateShowcaseUseCase {
   constructor(
@@ -28,9 +33,19 @@ export class PopulateShowcaseUseCase {
       this.fetchPageTitle(api, pageId),
     ]);
 
-    const notionBlocks = blocksResponse.results
+    const baseBlocks = blocksResponse.results
       .filter((block): block is BlockObjectResponse => isFullBlock(block))
       .map(toPreviewBlock);
+
+    const notionBlocks: ShowcaseBlockPayload[] = await Promise.all(
+      baseBlocks.map(async (block, index) => {
+        if (block.canExpand && block.hasChildren && index === 0) {
+          const childrenHtml = await this.fetchChildrenHtml(api, block.id);
+          return { ...block, childrenHtml };
+        }
+        return block;
+      })
+    );
 
     const storage = new StorageHandler();
     const body = await this.downloadService.getFileBody(owner, apkgKey, storage);
@@ -48,6 +63,22 @@ export class PopulateShowcaseUseCase {
       ankiCards: cards,
       populatedAt: new Date(),
     });
+  }
+
+  private async fetchChildrenHtml(
+    api: Awaited<ReturnType<NotionService['getNotionAPI']>>,
+    blockId: string
+  ): Promise<string> {
+    try {
+      const response = await api.listBlocksPage(blockId, { pageSize: 5 });
+      const htmlParts = response.results
+        .filter((b): b is BlockObjectResponse => isFullBlock(b))
+        .map((b) => renderBlockPreview(b))
+        .filter(Boolean);
+      return htmlParts.join('');
+    } catch {
+      return '';
+    }
   }
 
   private async fetchPageTitle(

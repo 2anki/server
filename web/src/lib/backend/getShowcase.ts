@@ -7,6 +7,7 @@ export interface ShowcaseBlock {
   canExpand: boolean;
   html: string;
   summaryHtml?: string;
+  childrenHtml?: string;
 }
 
 export interface ShowcaseCard {

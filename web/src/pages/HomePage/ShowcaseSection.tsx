@@ -3,10 +3,33 @@ import { ShowcaseBlock } from '../../lib/backend/getShowcase';
 import { CardFrame } from '../PreviewApkgPage/CardFrame';
 import styles from './ShowcaseSection.module.css';
 
-function blockHtml(block: ShowcaseBlock): string {
-  if (block.html) return block.html;
-  if (block.summaryHtml) return block.summaryHtml;
-  return '';
+function NotionBlock({ block, defaultOpen }: { block: ShowcaseBlock; defaultOpen?: boolean }) {
+  if (block.canExpand && block.summaryHtml) {
+    return (
+      <details className={styles.toggle} open={defaultOpen}>
+        <summary
+          className={styles.toggleSummary}
+          dangerouslySetInnerHTML={{ __html: block.summaryHtml }}
+        />
+        {block.childrenHtml && (
+          <div
+            className={styles.toggleContent}
+            dangerouslySetInnerHTML={{ __html: block.childrenHtml }}
+          />
+        )}
+      </details>
+    );
+  }
+
+  const html = block.html || block.summaryHtml;
+  if (!html) return null;
+
+  return (
+    <div
+      className={styles.notionBlock}
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
+  );
 }
 
 export function ShowcaseSection() {
@@ -28,17 +51,13 @@ export function ShowcaseSection() {
           <div className={styles.showcaseColumn}>
             <p className={styles.columnLabel}>Notion</p>
             <div className={styles.notionBlocks}>
-              {data.notionBlocks.map((block) => {
-                const html = blockHtml(block);
-                if (!html) return null;
-                return (
-                  <div
-                    key={block.id}
-                    className={styles.notionBlock}
-                    dangerouslySetInnerHTML={{ __html: html }}
-                  />
-                );
-              })}
+              {data.notionBlocks.map((block, index) => (
+                <NotionBlock
+                  key={block.id}
+                  block={block}
+                  defaultOpen={index === 0}
+                />
+              ))}
             </div>
           </div>
           <div className={styles.showcaseColumn}>
