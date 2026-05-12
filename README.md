@@ -1,6 +1,6 @@
 # 2anki.net
 
-[2anki.net](https://2anki.net) converts Notion pages, HTML, Markdown, and other formats into Anki flashcards. Drop something in, get a clean `.apkg` deck back. The project serves 300 000+ users and is a complement to Anki and Notion — not a replacement for either.
+[2anki.net](https://2anki.net) converts Notion pages, HTML, Markdown, and other formats into Anki flashcards. Drop something in, get a clean `.apkg` deck back. The project is a complement to Anki and Notion — not a replacement for either.
 
 This is a monorepo: the Express server lives at the root and the React frontend lives under `web/`.
 
