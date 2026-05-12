@@ -4,6 +4,7 @@ function NotFoundPage() {
   return (
     <div className={`${styles.pageNarrow} ${styles.textCenter}`}>
       <div className={styles.emptyState}>
+        <img src="/mascot/Notion 1.png" alt="" className={styles.mascot404} />
         <h1 className={styles.title}>Page not found</h1>
         <p className={styles.secondaryText}>
           This page doesn't exist or may have moved.

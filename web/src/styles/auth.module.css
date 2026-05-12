@@ -10,6 +10,24 @@
   border-radius: var(--radius-lg);
   padding: 2.5rem 2rem;
   box-shadow: var(--shadow-md);
+  opacity: 0;
+  transform: translateY(8px);
+  animation: cardIn 300ms ease forwards;
+}
+
+@keyframes cardIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .formCard {
+    opacity: 1;
+    transform: none;
+    animation: none;
+  }
 }
 
 .formTitle {
@@ -17,6 +35,7 @@
   font-weight: var(--font-semibold);
   color: var(--color-text-primary);
   margin: 0 0 1.75rem;
+  letter-spacing: var(--tracking-tight);
 }
 
 .field {

@@ -3,36 +3,57 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>2anki.net - Reset Password</title>
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.1/css/bulma.min.css"
-  />
+  <meta name="color-scheme" content="light dark" />
+  <title>2anki.net - Reset password</title>
+  <style>
+    @media (prefers-color-scheme: dark) {
+      body { background-color: #1a1a1a !important; }
+      .email-card { background-color: #111827 !important; }
+      .email-header { color: #f9fafb !important; border-bottom-color: #374151 !important; }
+      .email-body p, .email-body li { color: #f9fafb !important; }
+      .email-body h1 { color: #f9fafb !important; }
+      .email-cta a { background-color: #60a5fa !important; }
+      .email-footer { color: #6b7280 !important; border-top-color: #374151 !important; }
+      .email-muted { color: #6b7280 !important; }
+    }
+    @media only screen and (max-width: 600px) {
+      .email-card { width: 100% !important; padding: 0 !important; }
+      .email-body { padding: 24px 16px !important; }
+      .email-header { padding: 16px !important; }
+      .email-footer { padding: 12px 16px !important; }
+    }
+  </style>
 </head>
-
-<body class="content">
-<section class="section">
-  <div class="container">
-    <h1 class="title">Reset your 2anki.net password</h1>
-
-    <p>We received a request to reset your password. Click the link below to create a new, secure password.</p>
-
-    <p style="text-indent: 1em;">
-      {{link}}
-    </p>
-
-    <p><strong>Security Reminder:</strong> Strong passwords are essential! Use a mix of uppercase and lowercase letters, numbers, and symbols.</p>
-
-    <p>If you're having trouble, reply to this email for help.</p>
-
-    <p>Thanks,</p>
-
-    <p>The 2anki.net Team</p>
-    <hr />
-    <p class="has-text-grey-light">
-      Didn't request this? Ignore this message. Your password remains unchanged.
-    </p>
-  </div>
-</section>
+<body style="margin: 0; padding: 0; background-color: #f5f5f5; -webkit-font-smoothing: antialiased;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5;">
+    <tr>
+      <td align="center" style="padding: 32px 16px;">
+        <table role="presentation" class="email-card" cellpadding="0" cellspacing="0" style="max-width: 580px; width: 100%; background-color: #ffffff; border-radius: 8px;">
+          <tr>
+            <td class="email-header" style="text-align: center; padding: 24px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 20px; font-weight: 700; color: #1f2937; border-bottom: 1px solid #e5e7eb;">
+              2anki
+            </td>
+          </tr>
+          <tr>
+            <td class="email-body" style="padding: 32px 24px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 15px; line-height: 1.6; color: #374151;">
+              <h1 style="margin: 0 0 16px; font-size: 20px; font-weight: 600; color: #1f2937;">Reset your password</h1>
+              <p style="margin: 0 0 16px;">We received a request to reset your 2anki.net password. Use the link below to create a new one.</p>
+              <div style="text-align: center; margin: 24px 0;" class="email-cta">
+                <a href="{{link}}" style="display: inline-block; padding: 12px 32px; background-color: #3b82f6; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 15px;">Reset password</a>
+              </div>
+              <p style="margin: 0 0 16px;">Use a mix of uppercase and lowercase letters, numbers, and symbols for a strong password.</p>
+              <p style="margin: 0 0 8px;">The 2anki Team</p>
+              <p class="email-muted" style="margin: 16px 0 0; font-size: 13px; color: #9ca3af;">Did not request this? Ignore this message. Your password remains unchanged.</p>
+            </td>
+          </tr>
+          <tr>
+            <td class="email-footer" style="text-align: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 12px; color: #9ca3af; padding: 16px 24px; border-top: 1px solid #e5e7eb;">
+              2anki.net — Turn what you study into Anki flashcards
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>
