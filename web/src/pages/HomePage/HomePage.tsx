@@ -76,6 +76,10 @@ const WALKTHROUGHS = [
     title: 'Turn your Notion notes into Anki flashcards',
     embedId: '6CyurZC4Bf0',
   },
+  {
+    title: 'Notion to Anki — complete guide',
+    embedId: 'JrYdp18Hbs8',
+  },
 ];
 
 export function HomePage({

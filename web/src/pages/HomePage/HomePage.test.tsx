@@ -66,6 +66,6 @@ describe('HomePage (anonymous)', () => {
   it('renders walkthrough videos from the playlist', () => {
     renderHome();
     const iframes = document.querySelectorAll('iframe[src*="youtube.com/embed"]');
-    expect(iframes.length).toBe(10);
+    expect(iframes.length).toBe(11);
   });
 });
