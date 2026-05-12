@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useShowcase } from './useShowcase';
 import { ShowcaseBlock } from '../../lib/backend/getShowcase';
 import { CardFrame } from '../PreviewApkgPage/CardFrame';
@@ -34,11 +35,15 @@ function NotionBlock({ block, defaultOpen }: { block: ShowcaseBlock; defaultOpen
 
 export function ShowcaseSection() {
   const { data } = useShowcase();
+  const [cardIndex, setCardIndex] = useState(0);
 
   if (data == null) return null;
   if (data.notionBlocks.length === 0 && data.ankiCards.length === 0) {
     return null;
   }
+
+  const totalCards = data.ankiCards.length;
+  const card = data.ankiCards[cardIndex];
 
   return (
     <section className={styles.showcaseSection}>
@@ -62,11 +67,32 @@ export function ShowcaseSection() {
           </div>
           <div className={styles.showcaseColumn}>
             <p className={styles.columnLabel}>Anki</p>
-            <div className={styles.ankiCards}>
-              {data.ankiCards.map((card) => (
-                <CardFrame key={card.id} card={card} />
-              ))}
-            </div>
+            {card && <CardFrame card={card} />}
+            {totalCards > 1 && (
+              <div className={styles.carouselNav}>
+                <button
+                  type="button"
+                  className={styles.carouselBtn}
+                  onClick={() => setCardIndex((i) => i - 1)}
+                  disabled={cardIndex === 0}
+                  aria-label="Previous card"
+                >
+                  ←
+                </button>
+                <span className={styles.carouselCount}>
+                  {cardIndex + 1} / {totalCards}
+                </span>
+                <button
+                  type="button"
+                  className={styles.carouselBtn}
+                  onClick={() => setCardIndex((i) => i + 1)}
+                  disabled={cardIndex === totalCards - 1}
+                  aria-label="Next card"
+                >
+                  →
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

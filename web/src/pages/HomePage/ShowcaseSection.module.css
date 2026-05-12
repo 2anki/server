@@ -115,6 +115,43 @@
   gap: 1rem;
 }
 
+.carouselNav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.carouselBtn {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  width: 2.25rem;
+  height: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: var(--text-lg);
+  color: var(--color-text-primary);
+  transition: background 120ms ease;
+}
+
+.carouselBtn:hover:not(:disabled) {
+  background: var(--color-primary-light);
+}
+
+.carouselBtn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.carouselCount {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
 @media (max-width: 639px) {
   .showcaseSection {
     padding: 2rem 1rem;
