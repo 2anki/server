@@ -31,63 +31,21 @@ const STEPS = [
   },
 ];
 
-const WALKTHROUGHS = [
-  {
-    title: 'How I use Notion to Anki as a medical student',
-    embedId: 'UnTo_fN1jpc',
-  },
-  {
-    title: 'Notion2Anki — Perfekter Workflow fürs Lernen',
-    embedId: 'E51yLIIS3bk',
-  },
-  {
-    title: 'Notion to Anki — Tutorial en Español',
-    embedId: '57dW_buqtGM',
-  },
-  {
-    title: 'Turn any website into Anki flashcards',
-    embedId: 'NLUfAWA2LJI',
-  },
-  {
-    title: 'Créer des flashcards Anki avec Notion',
-    embedId: 'RHReYOKywZc',
-  },
-  {
-    title: 'How to use cloze deletions',
-    embedId: 'r9pPNl8Mx_Q',
-  },
-  {
-    title: 'Best Notion hack for medical students',
-    embedId: 'vINpYLMW9AE',
-  },
-  {
-    title: 'Notion to Anki — complete guide',
-    embedId: 'JrYdp18Hbs8',
-  },
-  {
-    title: 'Use Notion to Anki for learning languages',
-    embedId: 'lpC7C9wJoTA',
-  },
-  {
-    title: 'Instantly turn your Notion notes into Anki flashcards',
-    embedId: 'Ah-_wm2fgIk',
-  },
-  {
-    title: 'Notion to Anki walkthrough',
-    embedId: '9V0_N-Ex1U0',
-  },
-  {
-    title: 'Turn your Notion notes into Anki flashcards',
-    embedId: '6CyurZC4Bf0',
-  },
-  {
-    title: 'Notion to Anki tutorial',
-    embedId: 'A9aqXH2jVwQ',
-  },
-  {
-    title: 'Notion to Anki — quick start',
-    embedId: 'PDdEGonPCNk',
-  },
+const WALKTHROUGHS: ReadonlyArray<[string, string]> = [
+  ['UnTo_fN1jpc', 'How I use Notion to Anki as a medical student'],
+  ['E51yLIIS3bk', 'Notion2Anki — Perfekter Workflow fürs Lernen'],
+  ['57dW_buqtGM', 'Notion to Anki — Tutorial en Español'],
+  ['NLUfAWA2LJI', 'Turn any website into Anki flashcards'],
+  ['RHReYOKywZc', 'Créer des flashcards Anki avec Notion'],
+  ['r9pPNl8Mx_Q', 'How to use cloze deletions'],
+  ['vINpYLMW9AE', 'Best Notion hack for medical students'],
+  ['JrYdp18Hbs8', 'Notion to Anki — complete guide'],
+  ['lpC7C9wJoTA', 'Use Notion to Anki for learning languages'],
+  ['Ah-_wm2fgIk', 'Instantly turn your Notion notes into Anki flashcards'],
+  ['9V0_N-Ex1U0', 'Notion to Anki walkthrough'],
+  ['6CyurZC4Bf0', 'Turn your Notion notes into Anki flashcards'],
+  ['A9aqXH2jVwQ', 'Notion to Anki tutorial'],
+  ['PDdEGonPCNk', 'Notion to Anki — quick start'],
 ];
 
 function VideoCard({ embedId, title }: Readonly<{ embedId: string; title: string }>) {
@@ -199,11 +157,11 @@ export function HomePage({
       <section id="walkthroughs" className={styles.bottomSection}>
         <p className={styles.walkHeading}>Walkthroughs</p>
         <div className={styles.walkGrid}>
-          {WALKTHROUGHS.map((item) => (
+          {WALKTHROUGHS.map(([embedId, title]) => (
             <VideoCard
-              key={item.embedId}
-              embedId={item.embedId}
-              title={item.title}
+              key={embedId}
+              embedId={embedId}
+              title={title}
             />
           ))}
           <a href="/contact" className={styles.walkCard}>

@@ -26,11 +26,11 @@
 }
 
 .heroSubtitle {
-  font-size: var(--text-lg);
+  font-size: var(--text-xl);
   color: var(--color-text-secondary);
   line-height: var(--leading-relaxed);
   margin: 0 auto 2.5rem;
-  max-width: 480px;
+  max-width: 520px;
 }
 
 .heroSubtitle a {
@@ -43,7 +43,7 @@
   justify-content: center;
   gap: 0.5rem;
   margin-top: 1.25rem;
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
   color: var(--color-text-tertiary);
   flex-wrap: wrap;
 }
@@ -85,7 +85,7 @@
 }
 
 .stepsHeading {
-  font-size: var(--text-2xl);
+  font-size: var(--text-3xl);
   font-weight: var(--font-semibold);
   letter-spacing: var(--tracking-tight);
   color: var(--color-text-primary);
@@ -124,14 +124,14 @@
 }
 
 .stepTitle {
-  font-size: var(--text-base);
+  font-size: var(--text-lg);
   font-weight: var(--font-semibold);
   color: var(--color-text-primary);
   margin: 0 0 0.5rem;
 }
 
 .stepBody {
-  font-size: var(--text-sm);
+  font-size: var(--text-base);
   color: var(--color-text-secondary);
   line-height: var(--leading-relaxed);
   margin: 0;
@@ -144,7 +144,7 @@
 }
 
 .walkHeading {
-  font-size: var(--text-2xl);
+  font-size: var(--text-3xl);
   font-weight: var(--font-semibold);
   letter-spacing: var(--tracking-tight);
   color: var(--color-text-primary);
@@ -245,7 +245,7 @@
 }
 
 .walkCardTitle {
-  font-size: var(--text-sm);
+  font-size: var(--text-base);
   font-weight: var(--font-medium);
   color: var(--color-text-secondary);
   margin: 0;
