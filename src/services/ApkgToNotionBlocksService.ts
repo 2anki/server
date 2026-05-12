@@ -94,12 +94,20 @@ function decodeHtmlEntities(text: string): string {
   });
 }
 
+function decodeMediaFilename(name: string): string {
+  try {
+    return decodeURIComponent(name);
+  } catch {
+    return name;
+  }
+}
+
 function extractImageFilenames(html: string): string[] {
   const filenames: string[] = [];
   let match: RegExpExecArray | null;
   const regex = /<img[^>]*\bsrc\s*=\s*["']([^"']+)["'][^>]*>/gi;
   while ((match = regex.exec(html)) !== null) {
-    filenames.push(match[1]);
+    filenames.push(decodeMediaFilename(match[1]));
   }
   return filenames;
 }
@@ -109,7 +117,7 @@ function extractSoundFilenames(html: string): string[] {
   let match: RegExpExecArray | null;
   const regex = /\[sound:([^\]]+)\]/g;
   while ((match = regex.exec(html)) !== null) {
-    filenames.push(match[1]);
+    filenames.push(decodeMediaFilename(match[1]));
   }
   return filenames;
 }
@@ -133,12 +141,14 @@ function getPlainText(html: string): string {
   return stripMediaRefs(html).replace(ALL_HTML_TAGS_REGEX, '').trim();
 }
 
-function makeRichText(content: string, bold = false, italic = false): RichTextSegment {
-  const decoded = decodeHtmlEntities(content);
+const NOTION_RICH_TEXT_LIMIT = 2000;
+const NOTION_RICH_TEXT_ARRAY_LIMIT = 100;
+
+function makeRichTextSegment(content: string, bold = false, italic = false): RichTextSegment {
   return {
     type: 'text',
-    plain_text: decoded,
-    text: { content: decoded },
+    plain_text: content,
+    text: { content },
     annotations: {
       bold,
       italic,
@@ -148,6 +158,20 @@ function makeRichText(content: string, bold = false, italic = false): RichTextSe
       color: 'default',
     },
   };
+}
+
+function makeRichText(content: string, bold = false, italic = false): RichTextSegment[] {
+  const decoded = decodeHtmlEntities(content);
+  if (decoded.length <= NOTION_RICH_TEXT_LIMIT) {
+    return [makeRichTextSegment(decoded, bold, italic)];
+  }
+  const segments: RichTextSegment[] = [];
+  for (let i = 0; i < decoded.length; i += NOTION_RICH_TEXT_LIMIT) {
+    segments.push(
+      makeRichTextSegment(decoded.slice(i, i + NOTION_RICH_TEXT_LIMIT), bold, italic)
+    );
+  }
+  return segments;
 }
 
 function makeImageBlock(url: string): ImageBlock {
@@ -189,7 +213,7 @@ function parseHtmlToRichText(html: string): RichTextSegment[] {
   if (allMatches.length === 0) {
     const plain = withNewlines.replace(ALL_HTML_TAGS_REGEX, '').trim();
     if (plain.length > 0) {
-      segments.push(makeRichText(plain));
+      segments.push(...makeRichText(plain));
     }
     return segments;
   }
@@ -197,20 +221,20 @@ function parseHtmlToRichText(html: string): RichTextSegment[] {
   for (const m of allMatches) {
     const before = withNewlines.slice(lastIndex, m.index).replace(ALL_HTML_TAGS_REGEX, '');
     if (before.length > 0) {
-      segments.push(makeRichText(before));
+      segments.push(...makeRichText(before));
     }
     if (m.text.length > 0) {
-      segments.push(makeRichText(m.text, m.bold, m.italic));
+      segments.push(...makeRichText(m.text, m.bold, m.italic));
     }
     lastIndex = m.end;
   }
 
   const after = withNewlines.slice(lastIndex).replace(ALL_HTML_TAGS_REGEX, '');
   if (after.length > 0) {
-    segments.push(makeRichText(after));
+    segments.push(...makeRichText(after));
   }
 
-  return segments;
+  return segments.slice(0, NOTION_RICH_TEXT_ARRAY_LIMIT);
 }
 
 function makeParagraph(richText: RichTextSegment[]): ParagraphBlock {
@@ -238,7 +262,7 @@ function fieldToBlocks(
   for (const filename of soundFiles) {
     const url = mediaUrlMap.get(filename);
     if (url) {
-      blocks.push(makeParagraph([makeRichText(`Audio: ${filename}`, false, true)]));
+      blocks.push(makeParagraph(makeRichText(`Audio: ${filename}`, false, true)));
     }
   }
 
@@ -271,7 +295,7 @@ function noteToToggle(
 ): ToggleHeading3Block {
   const isCloze = noteType.type === 1;
   const summaryText = findSummaryText(note, isCloze);
-  const summaryRichText = [makeRichText(summaryText)];
+  const summaryRichText = makeRichText(summaryText);
 
   const children: ToggleChildBlock[] = [];
 
@@ -309,7 +333,7 @@ function noteToToggle(
   }
 
   if (children.length === 0) {
-    children.push(makeParagraph([makeRichText(' ')]));
+    children.push(makeParagraph(makeRichText(' ')));
   }
 
   const tags = note.tags.trim();
@@ -319,7 +343,7 @@ function noteToToggle(
       .filter((t) => t.length > 0)
       .map((t) => `#${t}`)
       .join(' ');
-    children.push(makeParagraph([makeRichText(tagText, false, true)]));
+    children.push(makeParagraph(makeRichText(tagText, false, true)));
   }
 
   return {
@@ -342,18 +366,18 @@ function parseClozeToRichText(html: string): RichTextSegment[] {
   while ((match = regex.exec(cleaned)) !== null) {
     const before = cleaned.slice(lastIndex, match.index);
     if (before.length > 0) {
-      segments.push(makeRichText(before));
+      segments.push(...makeRichText(before));
     }
-    segments.push(makeRichText(match[1], true, false));
+    segments.push(...makeRichText(match[1], true, false));
     lastIndex = match.index + match[0].length;
   }
 
   const after = cleaned.slice(lastIndex);
   if (after.length > 0) {
-    segments.push(makeRichText(after));
+    segments.push(...makeRichText(after));
   }
 
-  return segments;
+  return segments.slice(0, NOTION_RICH_TEXT_ARRAY_LIMIT);
 }
 
 interface DeckNode {
