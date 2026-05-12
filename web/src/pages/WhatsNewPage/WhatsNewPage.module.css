@@ -85,7 +85,7 @@
   width: 6px;
   height: 6px;
   border-radius: var(--radius-full);
-  background: var(--color-border);
+  background: var(--color-text-tertiary);
   transform: translateX(-50%);
 }
 
@@ -99,18 +99,18 @@
 }
 
 .badge_feature {
-  background: var(--color-primary-light);
-  color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-bg-primary);
 }
 
 .badge_fix {
-  background: var(--color-success-light);
-  color: var(--color-success);
+  background: var(--color-success);
+  color: var(--color-bg-primary);
 }
 
 .badge_style {
-  background: var(--color-warning-light);
-  color: var(--color-warning-text);
+  background: var(--color-text-tertiary);
+  color: var(--color-bg-primary);
 }
 
 .commitText {
