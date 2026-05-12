@@ -15,9 +15,9 @@ export function getStoredTheme(): Theme {
 
 export function applyTheme(theme: Theme): void {
   if (theme === 'light') {
-    document.documentElement.removeAttribute('data-theme');
+    delete document.documentElement.dataset.theme;
   } else {
-    document.documentElement.setAttribute('data-theme', theme);
+    document.documentElement.dataset.theme = theme;
   }
   globalThis.localStorage?.setItem(STORAGE_KEY, theme);
   globalThis.dispatchEvent?.(new CustomEvent(THEME_CHANGE_EVENT, { detail: theme }));
