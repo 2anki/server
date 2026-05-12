@@ -31,6 +31,8 @@ function getPriorityWeight(issue: GitHubIssue): number {
   return PRIORITY_LABELS.length;
 }
 
+const TYPE_ORDER: Record<string, number> = { feature: 0, style: 1, fix: 2 };
+
 const TYPE_LABELS: Record<string, string> = {
   feature: 'New',
   fix: 'Fix',
@@ -52,7 +54,9 @@ function groupByDate(entries: ChangelogEntry[]): DateGroup[] {
     .map(([date, items]) => ({
       date,
       label: formatGroupDate(date),
-      entries: items,
+      entries: items.sort(
+        (a, b) => (TYPE_ORDER[a.type] ?? 3) - (TYPE_ORDER[b.type] ?? 3)
+      ),
     }));
 }
 
@@ -120,8 +124,11 @@ export default function WhatsNewPage() {
         <h1 className={sharedStyles.title}>What's new</h1>
         <p className={sharedStyles.subtitle}>
           Track what we've shipped and what's coming next.
-          What do you want us to build? Tell us below.
         </p>
+        <div className={styles.inlineRating}>
+          <span className={styles.ratingLabel}>How are we doing?</span>
+          <FeedbackWidget page="/whats-new" compact />
+        </div>
       </header>
 
       <div className={styles.tabs}>
@@ -211,13 +218,6 @@ export default function WhatsNewPage() {
         </>
       )}
 
-      <div className={styles.feedbackSection}>
-        <h2 className={styles.feedbackHeading}>What do you want us to build next?</h2>
-        <p className={styles.feedbackSubtext}>
-          Your feedback shapes our roadmap. Tell us what matters most to you.
-        </p>
-        <FeedbackWidget page="/whats-new" />
-      </div>
     </div>
   );
 }
