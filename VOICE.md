@@ -2,6 +2,8 @@
 
 Source of truth for every user-facing string in 2anki. If a copy decision isn't covered here, default to the shortest sentence that gives the user what they need.
 
+**Register:** Stripe/Linear, not Muji/MoMA. This is a productivity tool — the voice is understated in *tone* (no performing, no cheering) but generous with *context* (counts, names, next steps). A quiet tool that tells you exactly what happened. Muji would say "Done"; we say "Done — 34 cards in Pharmacology." The restraint is emotional, not informational.
+
 ---
 
 ## Who we're writing for
@@ -12,9 +14,9 @@ They are busy. They are converting notes between tools, not browsing. Respect th
 
 ## Voice in one line
 
-Quietly confident. Specific. Direct. Slightly understated.
+Quietly confident. Specific. Direct. Understated in tone, generous with context.
 
-## Five principles
+## Six principles
 
 ### 1. Specific over generic
 
@@ -69,6 +71,74 @@ The product exists in the learning ecosystem. Reference it when it adds meaning.
 - **No:** "Great job uploading!" (patronizing)
 - **No:** "Let's learn together!" (forced familiarity)
 - **No:** "Happy studying!" (sign-off fluff)
+
+### 6. Understated, not silent
+
+Let the result speak. Where most products add fanfare, we add data. The restraint is in the emotion, not the information — say less about how you feel, more about what happened.
+
+- **No:** "Congratulations! Your account has been upgraded to Pro! 🎉 You now have access to all features."
+- **Yes:** "Upgraded to Pro. Unlimited cards, PDF support, priority support."
+- **No:** "We're thrilled to let you know your deck has been successfully created with 87 cards!"
+- **Yes:** "87 cards. Ready to download."
+- **No:** "Welcome back! We missed you."
+- **Yes:** "Alexander Alemayhu" (just show who's logged in — no performance)
+
+---
+
+## Protected strings — do not rewrite
+
+Some strings are controlled by external systems, legal requirements, or brand guidelines. Never change these during a copy sweep.
+
+| String | Reason |
+|--------|--------|
+| OAuth button labels ("Sign in with Google", "Continue with Notion") | Dictated by provider brand guidelines |
+| Stripe plan names and price display | Must match Stripe dashboard exactly |
+| "100 cards per month" / free tier limit | Business constraint — any change requires explicit approval |
+| "Anki", "AnkiWeb", "Notion", "Quizlet" | Third-party trademarks — spelling and capitalization are fixed |
+| Terms of Service, Privacy Policy page content | Legal copy — changes require legal review |
+| Email addresses (support@2anki.net) | Operational — don't rephrase or restyle |
+| API error codes and technical identifiers | Consumed by code, not just humans |
+
+When in doubt about whether a string is protected, flag it in ASK_HUMAN.md before rewriting.
+
+---
+
+## Showing user data inline
+
+When the product displays user-generated names (deck titles, filenames, folder names), follow these rules:
+
+**Formatting:**
+- Render in medium weight (`font-weight: 500`) to distinguish from surrounding copy.
+- No quotes around names in UI — the weight difference is enough. Use quotes only in plain-text contexts (emails, logs).
+- Preserve the user's original casing. Never title-case or lowercase their text.
+
+**Truncation:**
+- Truncate with ellipsis (`…`) after 40 characters in tables and lists.
+- Show full name in a `title` attribute on hover.
+- Never truncate in success messages or error messages — if it's too long, wrap.
+
+**Fallbacks:**
+- If the name is empty or null, use the generic noun: "Untitled deck", "Untitled export".
+- Never show "null", "undefined", or an empty string to the user.
+
+---
+
+## Numbers
+
+**Numerals, not words.** Always use digits: "3 cards", not "three cards". Even for one: "1 card", not "one card". Exception: "once", "twice" in natural phrasing ("try once more").
+
+**Thousands separator:** Use a thin space ( ), not a comma. The user base is international and EU-leaning — commas as thousands separators conflict with decimal commas. Examples: "1 200 cards", "12 450". Under 10 000, no separator needed: "9999".
+
+**File sizes:** Use binary units, abbreviated: "4.2 MB", "850 KB", "1.1 GB". Always one decimal for MB and above. No decimals for KB.
+
+**Durations and times:**
+- Relative when recent: "2 minutes ago", "about an hour ago", "3 days ago".
+- Absolute when old: "12 May 2026".
+- Never "just now" — use "a moment ago" or show the actual time.
+
+**Tabular numerals:** Use `font-variant-numeric: tabular-nums` (via CSS token `--tabular-nums`) on any column of numbers, prices, counts, or timestamps. This keeps digits aligned in tables and lists.
+
+**Counts next to labels:** The number is the hero — render it one size up and in medium or semibold weight. The label stays in the base size. Example: **87** cards, not "87 cards" in uniform weight.
 
 ---
 
