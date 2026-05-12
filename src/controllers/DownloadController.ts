@@ -22,6 +22,12 @@ class DownloadController {
     try {
       const body = await this.service.getFileBody(owner, key, storage);
       if (body) {
+        const filename = key.endsWith('.apkg') ? key : `${key}.apkg`;
+        res.setHeader('Content-Type', 'application/octet-stream');
+        res.setHeader(
+          'Content-Disposition',
+          `attachment; filename="${filename}"`
+        );
         res.send(body);
       } else {
         throw new Error(`File not found: ${key}`);

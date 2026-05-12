@@ -167,7 +167,6 @@ export class DeckParser {
       .replace(/<ul[^/>][^>]*><\/ul>/g, '')
       .replace(/<\/details><\/li><\/ul><\/details><\/li><\/ul>/g, '')
       .replace(/<\/details><\/li><\/ul>/g, '')
-      .replace(/<p[^/>][^>]*><\/p>/g, '')
       .replaceAll('<summary class="toggle"></summary>', '');
   }
 
@@ -234,9 +233,8 @@ export class DeckParser {
 
   private cleanupEmptyElements(html: string, isNewFormat: boolean = false): string {
     let result = html
-      .replace(/<li><\/li>/g, '')
-      .replace(/<p[^/>][^>]*><\/p>/g, '');
-    
+      .replace(/<li><\/li>/g, '');
+
     if (isNewFormat) {
       result = result.replace(/<summary[^>]*class="toggle"[^>]*><\/summary>/g, '');
       result = result.replace(/<summary[^>]*><\/summary>/g, '');
@@ -244,7 +242,7 @@ export class DeckParser {
     } else {
       result = result.replaceAll('<summary class="toggle"></summary>', '');
     }
-    
+
     return result;
   }
 

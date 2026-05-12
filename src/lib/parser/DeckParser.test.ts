@@ -322,6 +322,61 @@ test('Nested toggles produce one card without maxOne (legacy format)', async () 
   expect(deck.cards[0].back).toContain('Capital');
 });
 
+test('bullet points inside toggle are preserved (legacy format)', async () => {
+  const deck = await getDeck(
+    'toggle-with-bullets.html',
+    new CardOption({ 'max-one-toggle-per-card': 'true', cherry: 'false' })
+  );
+
+  expect(deck.cards.length).toBe(1);
+  expect(deck.cards[0].name).toContain('symptoms');
+  expect(deck.cards[0].back).toContain('<li');
+  expect(deck.cards[0].back).toContain('Fever');
+  expect(deck.cards[0].back).toContain('Cough');
+  expect(deck.cards[0].back).toContain('Fatigue');
+});
+
+test('bullet points preserved alongside nested toggles (legacy format)', async () => {
+  const deck = await getDeck(
+    'toggle-with-bullets-and-nested-toggle.html',
+    new CardOption({ 'max-one-toggle-per-card': 'true', cherry: 'false' })
+  );
+
+  expect(deck.cards.length).toBe(1);
+  expect(deck.cards[0].name).toContain('Cardiology');
+  expect(deck.cards[0].back).toContain('Study of the heart');
+  expect(deck.cards[0].back).toContain('Includes diagnosis and treatment');
+  expect(deck.cards[0].back).toContain('<li');
+  expect(deck.cards[0].back).not.toContain('Sub-specialties');
+});
+
+test('bullet points inside toggle are preserved (new format)', async () => {
+  const deck = await getDeck(
+    'notion-new-export-bullets-in-toggle.html',
+    new CardOption({ 'max-one-toggle-per-card': 'true', cherry: 'false' })
+  );
+
+  expect(deck.cards.length).toBe(1);
+  expect(deck.cards[0].name).toContain('symptoms');
+  expect(deck.cards[0].back).toContain('<li');
+  expect(deck.cards[0].back).toContain('Fever');
+  expect(deck.cards[0].back).toContain('Cough');
+  expect(deck.cards[0].back).toContain('Fatigue');
+});
+
+test('empty paragraphs preserved as spacing in card back', async () => {
+  const deck = await getDeck(
+    'toggle-with-spacing.html',
+    new CardOption({ 'max-one-toggle-per-card': 'true', cherry: 'false' })
+  );
+
+  expect(deck.cards.length).toBe(1);
+  expect(deck.cards[0].back).toContain('Sustained elevation');
+  expect(deck.cards[0].back).toContain('end-organ damage');
+  const emptyParagraphs = deck.cards[0].back.match(/<p[^>]*><\/p>/g);
+  expect(emptyParagraphs).not.toBeNull();
+});
+
 describe('removeNewlinesInSVGPathAttributeD', () => {
   const newParser = () =>
     new DeckParser({
