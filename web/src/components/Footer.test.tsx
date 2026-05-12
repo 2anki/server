@@ -16,7 +16,7 @@ describe('Footer', () => {
   it('renders the copyright with the current year and the founder name', () => {
     render(<Footer />);
     expect(
-      screen.getByText(/© 2024–2026 Alexander Alemayhu/)
+      screen.getByText(/© 2020–2026 Alexander Alemayhu/)
     ).toBeInTheDocument();
   });
 
