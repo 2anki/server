@@ -31,7 +31,11 @@ export interface ShowcaseData {
 
 export async function getShowcase(): Promise<ShowcaseData | null> {
   try {
-    return (await get('/api/showcase')) as ShowcaseData;
+    const data = (await get('/api/showcase')) as ShowcaseData;
+    if (!Array.isArray(data?.notionBlocks) || !Array.isArray(data?.ankiCards)) {
+      return null;
+    }
+    return data;
   } catch {
     return null;
   }
