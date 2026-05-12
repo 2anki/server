@@ -125,7 +125,7 @@ export default class ImportApkgToNotionUseCase {
     const bucket = StorageHandler.DefaultBucketName();
     const endpoint = process.env.SPACES_ENDPOINT ?? '';
 
-    for (const [archiveIndex, originalName] of mediaMap) {
+    for (const [originalName, archiveIndex] of mediaMap) {
       const buffer = mediaEntries.get(archiveIndex);
       if (buffer == null) continue;
 
