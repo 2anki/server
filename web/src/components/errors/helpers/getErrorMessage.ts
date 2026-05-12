@@ -1,3 +1,5 @@
+import { stripHtmlTags } from '../../../lib/text/stripHtmlTags';
+
 export type ErrorHandlerType = (error: unknown) => void;
 
 interface FriendlyError {
@@ -83,9 +85,9 @@ export function classifyError(error: unknown): FriendlyError {
     };
   }
 
-  // Server-provided message — trust it, it was already JSON { message: "..." }
-  if (raw.length > 0 && raw.length < 280 && !raw.startsWith('<')) {
-    return { title: raw };
+  const stripped = stripHtmlTags(raw);
+  if (stripped.length > 0 && stripped.length < 280) {
+    return { title: stripped };
   }
 
   return FALLBACK;

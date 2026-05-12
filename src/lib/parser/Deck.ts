@@ -14,6 +14,8 @@ export default class Deck {
 
   settings: CardOption | null;
 
+  globalTags: string[];
+
   get cardCount() {
     return this.cards.length;
   }
@@ -32,6 +34,7 @@ export default class Deck {
     this.image = image;
     this.style = style;
     this.id = id;
+    this.globalTags = [];
     console.log(`New Deck with ${this.cards.length} cards`);
   }
 

@@ -46,6 +46,22 @@ describe('classifyError', () => {
       /Something went wrong/i
     );
   });
+
+  test('short HTML-wrapped error is stripped and shown to the user', () => {
+    const htmlError =
+      '<p>Could not create a deck using your file</p>';
+    const result = classifyError(new Error(htmlError));
+    expect(result.title).toBe(
+      'Could not create a deck using your file'
+    );
+  });
+
+  test('rich HTML error with links is stripped to plain text', () => {
+    const htmlError =
+      '<div class="info">Verify your <a href="/upload?view=template">settings</a>.</div>';
+    const result = classifyError(new Error(htmlError));
+    expect(result.title).toBe('Verify your settings.');
+  });
 });
 
 describe('getErrorMessage', () => {

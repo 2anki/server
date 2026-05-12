@@ -21,6 +21,7 @@ const ALLOWED_TAGS = [
   'i',
   'img',
   'li',
+  'mark',
   'ol',
   'p',
   'pre',

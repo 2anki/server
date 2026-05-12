@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ErrorHandlerType } from '../../../../components/errors/helpers/getErrorMessage';
 import handleRedirect from '../../../../lib/handleRedirect';
 import getAcceptedContentTypes from '../../helpers/getAcceptedContentTypes';
+import { extractErrorMessage } from '../../helpers/extractErrorMessage';
 import getHeadersFilename from '../../helpers/getHeadersFilename';
 import { getDownloadFileName } from '../../../DownloadsPage/helpers/getDownloadFileName';
 import { useDrag } from './hooks/useDrag';
@@ -35,24 +36,6 @@ const REJECTED_FALLBACK =
   'The server rejected the upload. Try again or email support@2anki.net.';
 const NETWORK_FALLBACK =
   "Couldn't upload your file. Check your connection and try again.";
-
-async function extractErrorMessage(response: Response): Promise<string> {
-  try {
-    const body = await response.clone().json();
-    if (
-      typeof body?.message === 'string' &&
-      body.message.trim().length > 0
-    ) {
-      return body.message;
-    }
-  } catch {
-    const text = await response.text().catch(() => '');
-    if (text.length > 0 && text.length < 500 && !text.startsWith('<')) {
-      return text;
-    }
-  }
-  return REJECTED_FALLBACK;
-}
 
 function toFriendlyThrownError(error: unknown): string {
   const isNetworkError =

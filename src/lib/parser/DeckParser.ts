@@ -51,8 +51,6 @@ function hasNestedBullets(content: string | undefined): boolean {
 }
 
 export class DeckParser {
-  globalTags: cheerio.Cheerio<Element> | null;
-
   firstDeckName: string;
 
   settings: CardOption;
@@ -78,7 +76,6 @@ export class DeckParser {
     this.firstDeckName = input.name;
     this.noLimits = input.noLimits;
     this.usedHeuristic = false;
-    this.globalTags = null;
     this.payload = [];
     this.workspace = input.workspace ?? new Workspace(true, 'fs');
     this.customExporter = new CustomExporter(
@@ -308,15 +305,13 @@ export class DeckParser {
       settings: this.settings,
     });
 
-    // XXX: review this tag reassignment, does it overwrite?
-    this.globalTags = this.extractGlobalTags(dom);
+    const fileGlobalTags = this.extractGlobalTags(dom);
 
     const toggleList = this.extractToggleLists(dom);
     const paragraphs = this.extractCardsFromParagraph(dom);
     let cards: Note[] = this.extractCards(dom, toggleList, isNewFormat);
 
     const disableIndentedBullets = this.settings.disableIndentedBulletPoints;
-    // Note: this is a fallback behaviour until we can provide people more flexibility on picking non-toggles
     if (cards.length === 0) {
       cards.push(
         ...[
@@ -330,12 +325,11 @@ export class DeckParser {
       );
     }
 
-    //  Prevent bad cards from leaking out
     cards = cards.filter(Boolean);
 
-    decks.push(
-      new Deck(name, cards, image, style, get16DigitRandomId(), this.settings)
-    );
+    const deck = new Deck(name, cards, image, style, get16DigitRandomId(), this.settings);
+    deck.globalTags = fileGlobalTags;
+    decks.push(deck);
 
     const subpages = dom('.link-to-page').toArray();
     for (const page of subpages) {
@@ -356,8 +350,12 @@ export class DeckParser {
     return decks;
   }
 
-  private extractGlobalTags(dom: cheerio.CheerioAPI) {
-    return dom('.page-body > p > del');
+  private extractGlobalTags(dom: cheerio.CheerioAPI): string[] {
+    const tags: string[] = [];
+    dom('.page-body > p > del').each((_i: number, elem: Element) => {
+      tags.push(...sanitizeTags(dom(elem).text().split(',')));
+    });
+    return tags;
   }
 
   // https://stackoverflow.com/questions/6903823/regex-for-youtube-id
@@ -432,8 +430,12 @@ export class DeckParser {
     return { mangle, answer };
   }
 
-  locateTags(card: Note) {
+  locateTags(card: Note, deckGlobalTags: string[]) {
     const input = [card.name, card.back];
+
+    if (!card.tags) {
+      card.tags = [];
+    }
 
     for (const i of input) {
       if (!i) {
@@ -442,22 +444,15 @@ export class DeckParser {
 
       const dom = cheerio.load(i);
       const deletionsDOM = dom('del');
-      const deletionsArray = [deletionsDOM, this.globalTags];
-      if (!card.tags) {
-        card.tags = [];
-      }
-      for (const deletions of deletionsArray) {
-        if (!deletions) {
-          continue;
-        }
-        deletions.each((_i: number, elem: Element) => {
-          const del = dom(elem);
-          card.tags.push(...sanitizeTags(del.text().split(',')));
-          card.back = replaceAll(card.back, `<del>${del.html()}</del>`, '');
-          card.name = replaceAll(card.name, `<del>${del.html()}</del>`, '');
-        });
-      }
+      deletionsDOM.each((_i: number, elem: Element) => {
+        const del = dom(elem);
+        card.tags.push(...sanitizeTags(del.text().split(',')));
+        card.back = replaceAll(card.back, `<del>${del.html()}</del>`, '');
+        card.name = replaceAll(card.name, `<del>${del.html()}</del>`, '');
+      });
     }
+
+    card.tags.push(...deckGlobalTags);
     return card;
   }
 
@@ -569,7 +564,7 @@ export class DeckParser {
           card.tags = [];
         }
         if (this.settings.useTags) {
-          card = this.locateTags(card);
+          card = this.locateTags(card, deck.globalTags);
         }
 
         if (this.settings.basicReversed) {
@@ -580,7 +575,7 @@ export class DeckParser {
           addThese.push(note);
         }
 
-        if (this.settings.reversed || card.hasRefreshIcon()) {
+        if (this.settings.reversed) {
           const tmp = card.back;
           card.back = card.name;
           card.name = tmp;
