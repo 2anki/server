@@ -13,13 +13,12 @@
 }
 
 .heroTitle {
-  font-size: clamp(2rem, 7vw, 4.5rem);
+  font-size: clamp(2.5rem, 7vw, 4.5rem);
   font-weight: var(--font-bold);
   letter-spacing: -0.035em;
-  line-height: 1;
+  line-height: 1.1;
   color: var(--color-text-primary);
   margin: 0 0 1rem;
-  white-space: nowrap;
 }
 
 .heroSubtitle {
