@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { FeedbackWidget } from '../../components/FeedbackWidget/FeedbackWidget';
 import sharedStyles from '../../styles/shared.module.css';
 import styles from './WhatsNewPage.module.css';
 
@@ -124,6 +125,14 @@ export default function WhatsNewPage() {
           ))}
         </ul>
       )}
+
+      <div className={styles.feedbackSection}>
+        <h2 className={styles.feedbackHeading}>What do you want us to build next?</h2>
+        <p className={styles.feedbackSubtext}>
+          Your feedback shapes our roadmap. Tell us what matters most to you.
+        </p>
+        <FeedbackWidget page="/whats-new" />
+      </div>
     </div>
   );
 }
