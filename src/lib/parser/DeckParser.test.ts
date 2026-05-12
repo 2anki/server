@@ -94,8 +94,48 @@ test('Global Tags', async () => {
   expect(deck.cards[0].tags.includes('global')).toBe(true);
 });
 
+test('global tags per file are preserved in multi-file uploads', async () => {
+  const fixtureDir = path.join(__dirname, '../../test/fixtures');
+  const fileAContents = fs.readFileSync(path.join(fixtureDir, 'multi-file-tags-a.html')).toString();
+  const fileBContents = fs.readFileSync(path.join(fixtureDir, 'multi-file-tags-b.html')).toString();
+
+  const files = [
+    { name: 'multi-file-tags-a.html', contents: fileAContents },
+    { name: 'multi-file-tags-b.html', contents: fileBContents },
+  ];
+
+  const workspace = new Workspace(true, 'fs');
+  const settings = new CardOption({ tags: 'true', cherry: 'false' });
+  const parser = new DeckParser({
+    name: 'multi-file-tags-a.html',
+    settings,
+    files,
+    noLimits: true,
+    workspace,
+  });
+
+  const decks = parser.handleHTML('multi-file-tags-b.html', fileBContents, '', parser.payload);
+  parser.payload = decks;
+
+  expect(parser.payload.length).toBe(2);
+
+  parser.customExporter.save = jest.fn().mockResolvedValue('');
+  await parser.build(workspace);
+
+  const deckA = parser.payload[0];
+  const deckB = parser.payload[1];
+
+  expect(deckA.cards.length).toBe(1);
+  expect(deckB.cards.length).toBe(1);
+
+  expect(deckA.cards[0].tags).toContain('alpha-tag');
+  expect(deckA.cards[0].tags).not.toContain('beta-tag');
+
+  expect(deckB.cards[0].tags).toContain('beta-tag');
+  expect(deckB.cards[0].tags).not.toContain('alpha-tag');
+});
+
 test.todo('Input Cards ');
-test.todo('Multiple File Uploads');
 test.todo('Test Basic Card');
 
 test('Markdown empty deck', async () => {
@@ -375,6 +415,30 @@ test('empty paragraphs preserved as spacing in card back', async () => {
   expect(deck.cards[0].back).toContain('end-organ damage');
   const emptyParagraphs = deck.cards[0].back.match(/<p[^>]*><\/p>/g);
   expect(emptyParagraphs).not.toBeNull();
+});
+
+test('refresh emoji does not reverse cards when reversed setting is off', async () => {
+  const fixturePath = path.join(__dirname, '../../test/fixtures/refresh-emoji-toggle.html');
+  const contents = fs.readFileSync(fixturePath).toString();
+  const workspace = new Workspace(true, 'fs');
+  const parser = new DeckParser({
+    name: 'refresh-emoji-toggle.html',
+    settings: new CardOption({ reversed: 'false', 'basic-reversed': 'false', cherry: 'false' }),
+    files: [{ name: 'refresh-emoji-toggle.html', contents }],
+    noLimits: true,
+    workspace,
+  });
+
+  expect(parser.payload[0].cards.length).toBe(2);
+  parser.customExporter.save = jest.fn().mockResolvedValue('');
+  await parser.build(workspace);
+
+  const deck = parser.payload[0];
+  expect(deck.cards.length).toBe(2);
+  expect(deck.cards[0].name).toContain('capital of France');
+  expect(deck.cards[0].back).toContain('Paris');
+  expect(deck.cards[1].name).toContain('capital of Germany');
+  expect(deck.cards[1].back).toContain('Berlin');
 });
 
 describe('removeNewlinesInSVGPathAttributeD', () => {
