@@ -1,8 +1,15 @@
 .hero {
-  max-width: 720px;
+  max-width: 640px;
   margin: 0 auto;
-  padding: 4rem 1.5rem 0;
+  padding: 3.5rem 1.5rem 0;
   text-align: center;
+}
+
+.mascot {
+  width: auto;
+  height: 96px;
+  margin: 0 auto 1.25rem;
+  display: block;
 }
 
 .heroTitle {
@@ -22,20 +29,73 @@
   font-size: var(--text-lg);
   color: var(--color-text-secondary);
   line-height: var(--leading-relaxed);
-  margin: 0 auto 2.5rem;
-  max-width: 440px;
+  margin: 0 auto 2rem;
+  max-width: 400px;
 }
 
 .heroFooter {
-  margin-top: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
   font-size: var(--text-xs);
   color: var(--color-text-tertiary);
+  letter-spacing: 0.01em;
+  flex-wrap: wrap;
+}
+
+.footerDot {
+  width: 3px;
+  height: 3px;
+  border-radius: var(--radius-full);
+  background: var(--color-text-tertiary);
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+
+.githubLink {
+  color: var(--color-text-tertiary);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: color var(--transition-fast);
+}
+
+.githubLink:hover {
+  color: var(--color-text-primary);
+}
+
+.githubLink svg {
+  vertical-align: -0.125em;
+}
+
+.outcome {
+  background: var(--color-bg-secondary);
+  padding: 1.75rem 1.5rem;
+  text-align: center;
+  margin-top: 3rem;
+}
+
+.outcomeText {
+  font-size: var(--text-base);
+  font-weight: var(--font-medium);
+  color: var(--color-text-primary);
+  margin: 0;
+  max-width: 540px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: var(--leading-relaxed);
+}
+
+.outcomeText strong {
+  color: var(--color-primary);
+  font-weight: var(--font-semibold);
 }
 
 .stepsSection {
-  background: var(--color-bg-secondary);
   padding: 3rem 1.5rem;
-  margin-top: 3rem;
 }
 
 .stepsInner {
@@ -66,10 +126,9 @@
 }
 
 .step {
-  background: var(--color-bg-primary);
+  background: var(--color-bg-secondary);
   border-radius: var(--radius-lg);
   padding: 1.5rem;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .stepHeader {
@@ -121,7 +180,7 @@
 .bottomSection {
   max-width: 1000px;
   margin: 0 auto;
-  padding: 3rem 1.5rem 4rem;
+  padding: 1rem 1.5rem 4rem;
 }
 
 .walkHeading {
@@ -165,9 +224,6 @@
   font-family: inherit;
   text-decoration: none;
   color: inherit;
-}
-
-.walkCard:hover {
 }
 
 .walkThumb {
@@ -288,12 +344,16 @@
     padding: 2.5rem 1rem 0;
   }
 
+  .mascot {
+    width: 52px;
+    height: 52px;
+  }
+
   .stepsSection {
     padding: 2.5rem 1rem;
-    margin-top: 2rem;
   }
 
   .bottomSection {
-    padding: 2.5rem 1rem 3rem;
+    padding: 1rem 1rem 3rem;
   }
 }

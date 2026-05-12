@@ -20,6 +20,12 @@ function renderHome() {
 }
 
 describe('HomePage (anonymous)', () => {
+  it('renders the mascot as a brand mark', () => {
+    renderHome();
+    const mascot = document.querySelector('img[src*="mascot"]');
+    expect(mascot).toBeInTheDocument();
+  });
+
   it('renders the primary h1', () => {
     renderHome();
     expect(
@@ -32,13 +38,18 @@ describe('HomePage (anonymous)', () => {
     expect(screen.getByText(/drop your files here/i)).toBeInTheDocument();
   });
 
-  it('shows social proof and open source line', () => {
+  it('shows free tier info and open source in the hero', () => {
     renderHome();
-    expect(screen.getByText(/learners worldwide/i)).toBeInTheDocument();
+    expect(screen.getByText(/100 cards per month/i)).toBeInTheDocument();
     expect(screen.getByText(/open source/i)).toBeInTheDocument();
   });
 
-  it('renders the three how-it-works steps with richer descriptions', () => {
+  it('shows the outcome strip with supported formats', () => {
+    renderHome();
+    expect(screen.getByText(/Notion, PDF, Markdown/i)).toBeInTheDocument();
+  });
+
+  it('renders the three how-it-works steps', () => {
     renderHome();
     expect(screen.getByText('Upload')).toBeInTheDocument();
     expect(screen.getByText('Convert')).toBeInTheDocument();
