@@ -91,6 +91,7 @@
 }
 
 .stepsSection {
+  background: var(--color-bg-secondary);
   padding: 3rem 1.5rem;
 }
 
@@ -123,9 +124,10 @@
 
 .step {
   position: relative;
-  background: var(--color-bg-secondary);
+  background: var(--color-bg-primary);
   border-radius: var(--radius-lg);
   padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
 .stepNumber {
