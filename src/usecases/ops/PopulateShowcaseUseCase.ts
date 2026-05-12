@@ -8,6 +8,7 @@ import { renderBlockPreview } from '../../services/NotionService/helpers/renderB
 import instrumentedAxios from '../../services/observability/instrumentedAxios';
 import type { NotionService } from '../../services/NotionService/NotionService';
 import type ApkgPreviewService from '../../services/ApkgPreviewService/ApkgPreviewService';
+import type { ParsedApkg } from '../../services/ApkgPreviewService/ApkgPreviewService';
 import type DownloadService from '../../services/DownloadService';
 import StorageHandler from '../../lib/storage/StorageHandler';
 
@@ -57,13 +58,29 @@ export class PopulateShowcaseUseCase {
     const cacheKey = `showcase:${apkgKey}`;
     const parsed = await this.previewService.parse(cacheKey, body as Buffer);
     const { cards: allCards } = this.previewService.getCardsPage(parsed, 0, MAX_CARDS * 3, '');
-    const cards = allCards.slice(0, MAX_CARDS);
+    const cards = allCards.slice(0, MAX_CARDS).map((card) => ({
+      ...card,
+      front: this.inlineApkgMedia(card.front, parsed),
+      back: this.inlineApkgMedia(card.back, parsed),
+    }));
 
     await this.showcaseRepo.upsert({
       pageTitle: pageData.pageTitle,
       notionBlocks,
       ankiCards: cards,
       populatedAt: new Date(),
+    });
+  }
+
+  private inlineApkgMedia(html: string, parsed: ParsedApkg): string {
+    return html.replace(/<img\s+src="([^"]+)"/g, (_match, src: string) => {
+      const archiveName = parsed.mediaMap.get(src);
+      const buffer = archiveName ? parsed.mediaEntries.get(archiveName) : null;
+      if (buffer == null) return _match;
+      const ext = src.split('.').pop()?.toLowerCase() ?? 'png';
+      const mime = ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : `image/${ext}`;
+      const dataUri = `data:${mime};base64,${buffer.toString('base64')}`;
+      return `<img src="${dataUri}"`;
     });
   }
 
