@@ -34,7 +34,7 @@ describe('HomePage (anonymous)', () => {
 
   it('shows social proof line', () => {
     renderHome();
-    expect(screen.getByText(/300,000\+/)).toBeInTheDocument();
+    expect(screen.getByText(/learners worldwide/i)).toBeInTheDocument();
   });
 
   it('renders the three how-it-works steps', () => {

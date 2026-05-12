@@ -71,7 +71,7 @@ export function HomePage({
         </div>
         <p className={styles.socialProof}>
           <span className={styles.socialProofDot} aria-hidden="true" />
-          Used by 300,000+ learners. Free and open source.
+          Used by learners worldwide. Free and open source.
         </p>
       </section>
 
