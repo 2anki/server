@@ -3,9 +3,9 @@
 }
 
 .stepLabel {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--color-text-secondary, #6b7280);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-secondary);
   margin-bottom: 0.5rem;
 }
 
@@ -15,8 +15,8 @@
 }
 
 .dropZone {
-  border: 2px dashed var(--color-border, #d1d5db);
-  border-radius: 8px;
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-md);
   padding: 2rem;
   text-align: center;
   cursor: pointer;
@@ -24,40 +24,40 @@
 }
 
 .dropZone:hover {
-  border-color: var(--color-primary, #4f46e5);
+  border-color: var(--color-primary);
 }
 
 .dropZoneActive {
-  border-color: var(--color-primary, #4f46e5);
-  background: var(--color-primary-light, #eef2ff);
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
 }
 
 .dropZoneHasFile {
   border-style: solid;
-  border-color: var(--color-success, #16a34a);
-  background: var(--color-success-light, #f0fdf4);
+  border-color: var(--color-success);
+  background: var(--color-success-light);
 }
 
 .dropZoneTitle {
   margin: 0;
-  font-size: 1rem;
-  font-weight: 500;
+  font-size: var(--text-base);
+  font-weight: var(--font-medium);
 }
 
 .dropZoneSubtitle {
   margin: 0.25rem 0 0;
-  font-size: 0.875rem;
-  color: var(--color-text-secondary, #6b7280);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
 }
 
 .dropZoneFileName {
   margin: 0;
-  font-weight: 500;
+  font-weight: var(--font-medium);
 }
 
 .dropZoneError {
-  color: var(--color-danger, #dc2626);
-  font-size: 0.875rem;
+  color: var(--color-danger);
+  font-size: var(--text-sm);
   margin-top: 0.5rem;
 }
 
@@ -75,9 +75,9 @@
 .pagePickerInput {
   flex: 1;
   padding: 0.5rem 0.75rem;
-  border: 1px solid var(--color-border, #d1d5db);
-  border-radius: 6px;
-  font-size: 0.875rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
 }
 
 .pagePickerList {
@@ -93,23 +93,23 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.625rem 0.75rem;
-  border: 1px solid var(--color-border, #d1d5db);
-  border-radius: 6px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
   background: none;
   cursor: pointer;
   text-align: left;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   width: 100%;
   transition: border-color 0.15s, background 0.15s;
 }
 
 .pagePickerRow:hover {
-  border-color: var(--color-primary, #4f46e5);
+  border-color: var(--color-primary);
 }
 
 .pagePickerRowSelected {
-  border-color: var(--color-primary, #4f46e5);
-  background: var(--color-primary-light, #eef2ff);
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
 }
 
 .pagePickerIcon {
@@ -124,14 +124,14 @@
 
 .pagePickerEmpty {
   text-align: center;
-  color: var(--color-text-secondary, #6b7280);
+  color: var(--color-text-secondary);
   padding: 1rem;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
 }
 
 .pagePickerHelp {
-  font-size: 0.8125rem;
-  color: var(--color-text-secondary, #6b7280);
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
 }
 
 .progressContainer {
@@ -140,59 +140,59 @@
 }
 
 .progressTitle {
-  font-size: 1.125rem;
-  font-weight: 600;
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
   margin: 0 0 0.25rem;
 }
 
 .progressSummary {
-  font-size: 0.875rem;
-  color: var(--color-text-secondary, #6b7280);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
   margin: 0 0 1rem;
 }
 
 .progressBar {
   height: 8px;
-  background: var(--color-border, #d1d5db);
-  border-radius: 4px;
+  background: var(--color-border);
+  border-radius: var(--radius-sm);
   overflow: hidden;
   margin-bottom: 0.5rem;
 }
 
 .progressFill {
   height: 100%;
-  background: var(--color-primary, #4f46e5);
-  border-radius: 4px;
+  background: var(--color-primary);
+  border-radius: var(--radius-sm);
   transition: width 0.3s ease;
 }
 
 .progressCount {
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   margin: 0 0 0.5rem;
 }
 
 .progressReassurance {
-  font-size: 0.8125rem;
-  color: var(--color-text-secondary, #6b7280);
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
   margin: 0;
 }
 
 .completeContainer {
   text-align: center;
   padding: 2rem 1rem;
-  background: var(--color-success-light, #f0fdf4);
-  border: 1px solid var(--color-success, #16a34a);
-  border-radius: 8px;
+  background: var(--color-success-light);
+  border: 1px solid var(--color-success-border);
+  border-radius: var(--radius-md);
 }
 
 .completeTitle {
-  font-size: 1.125rem;
-  font-weight: 600;
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
   margin: 0 0 0.25rem;
 }
 
 .completeSummary {
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   margin: 0 0 1.5rem;
 }
 
@@ -206,19 +206,19 @@
 .errorContainer {
   text-align: center;
   padding: 2rem 1rem;
-  background: var(--color-danger-light, #fef2f2);
-  border: 1px solid var(--color-danger, #dc2626);
-  border-radius: 8px;
+  background: var(--color-danger-light);
+  border: 1px solid var(--color-danger-border);
+  border-radius: var(--radius-md);
 }
 
 .errorTitle {
-  font-size: 1.125rem;
-  font-weight: 600;
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
   margin: 0 0 0.5rem;
 }
 
 .errorBody {
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   margin: 0 0 1.5rem;
 }
 
@@ -235,27 +235,27 @@
 }
 
 .connectBody {
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   margin: 0 0 1rem;
 }
 
 .connectPrivacy {
-  font-size: 0.8125rem;
-  color: var(--color-text-secondary, #6b7280);
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
   margin-top: 1rem;
 }
 
 .freeTierBanner {
   padding: 0.75rem 1rem;
-  background: var(--color-warning-light, #fffbeb);
-  border: 1px solid var(--color-warning, #f59e0b);
-  border-radius: 6px;
-  font-size: 0.875rem;
+  background: var(--color-warning-light);
+  border: 1px solid var(--color-warning-border);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-sm);
   margin-bottom: 1.5rem;
 }
 
 .freeTierBanner a {
-  font-weight: 600;
+  font-weight: var(--font-semibold);
 }
 
 .actions {
@@ -278,20 +278,20 @@
   content: '';
   flex: 1;
   height: 1px;
-  background: var(--color-border, #d1d5db);
+  background: var(--color-border);
 }
 
 .quickImportDividerText {
   padding: 0 0.75rem;
-  font-size: 0.875rem;
-  color: var(--color-text-secondary, #6b7280);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 .quickImportHelp {
-  font-size: 0.8125rem;
-  color: var(--color-text-secondary, #6b7280);
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
   margin-top: 0.5rem;
 }
 
