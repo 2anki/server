@@ -154,6 +154,10 @@ export function HomePage({
         <h1 className={styles.heroTitle}>Convert Notion to Anki</h1>
         <p className={styles.heroSubtitle}>
           Notes in, flashcards out. Drop any file — no account needed.
+          Coming from Notion?{' '}
+          <a href="/documentation/start-here/upload-a-file">
+            Learn how to export.
+          </a>
         </p>
         <UploadForm setErrorMessage={setErrorMessage} />
         <div className={styles.heroFooter}>
@@ -173,13 +177,6 @@ export function HomePage({
         </div>
       </section>
 
-      <div className={styles.outcome}>
-        <p className={styles.outcomeText}>
-          Notion, PDF, Markdown, HTML, CSV, Word, and Excel.
-          Drop it in, get an <strong>.apkg</strong> deck back.
-        </p>
-      </div>
-
       <section className={styles.stepsSection}>
         <div className={styles.stepsInner}>
           <p className={styles.stepsHeading}>How it works</p>
@@ -194,12 +191,6 @@ export function HomePage({
               </div>
             ))}
           </div>
-          <p className={styles.stepsFooter}>
-            Coming from Notion?{' '}
-            <a href="/documentation/start-here/upload-a-file">
-              Learn how to export your pages.
-            </a>
-          </p>
         </div>
       </section>
 

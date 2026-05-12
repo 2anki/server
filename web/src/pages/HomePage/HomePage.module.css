@@ -3,9 +3,9 @@
 }
 
 .hero {
-  max-width: 640px;
+  max-width: 800px;
   margin: 0 auto;
-  padding: 3.5rem 1.5rem 0;
+  padding: 3.5rem 1.5rem 3rem;
   text-align: center;
 }
 
@@ -29,8 +29,12 @@
   font-size: var(--text-lg);
   color: var(--color-text-secondary);
   line-height: var(--leading-relaxed);
-  margin: 0 auto 2rem;
-  max-width: 400px;
+  margin: 0 auto 2.5rem;
+  max-width: 480px;
+}
+
+.heroSubtitle a {
+  color: var(--color-text-link);
 }
 
 .heroFooter {
@@ -38,10 +42,9 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  margin-top: 1rem;
+  margin-top: 1.25rem;
   font-size: var(--text-xs);
   color: var(--color-text-tertiary);
-  letter-spacing: 0.01em;
   flex-wrap: wrap;
 }
 
@@ -71,36 +74,13 @@
   vertical-align: -0.125em;
 }
 
-.outcome {
-  background: var(--color-bg-secondary);
-  padding: 1.75rem 1.5rem;
-  text-align: center;
-  margin-top: 3rem;
-}
-
-.outcomeText {
-  font-size: var(--text-base);
-  font-weight: var(--font-medium);
-  color: var(--color-text-primary);
-  margin: 0;
-  max-width: 540px;
-  margin-left: auto;
-  margin-right: auto;
-  line-height: var(--leading-relaxed);
-}
-
-.outcomeText strong {
-  color: var(--color-primary);
-  font-weight: var(--font-semibold);
-}
-
 .stepsSection {
   background: var(--color-bg-primary);
   padding: 3rem 1.5rem;
 }
 
 .stepsInner {
-  max-width: 1000px;
+  max-width: 960px;
   margin: 0 auto;
 }
 
@@ -157,21 +137,10 @@
   margin: 0;
 }
 
-.stepsFooter {
-  text-align: center;
-  margin-top: 1.25rem;
-  font-size: var(--text-sm);
-  color: var(--color-text-tertiary);
-}
-
-.stepsFooter a {
-  color: var(--color-text-link);
-}
-
 .bottomSection {
-  max-width: 1000px;
+  max-width: 960px;
   margin: 0 auto;
-  padding: 1rem 1.5rem 4rem;
+  padding: 3rem 1.5rem 4rem;
 }
 
 .walkHeading {
@@ -331,12 +300,11 @@
 
 @media (max-width: 639px) {
   .hero {
-    padding: 2.5rem 1rem 0;
+    padding: 2.5rem 1rem 2rem;
   }
 
   .mascot {
-    width: 52px;
-    height: 52px;
+    height: 72px;
   }
 
   .stepsSection {
@@ -344,6 +312,6 @@
   }
 
   .bottomSection {
-    padding: 1rem 1rem 3rem;
+    padding: 2.5rem 1rem 3rem;
   }
 }
