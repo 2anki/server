@@ -103,6 +103,13 @@
   color: var(--color-text-secondary);
 }
 
+.toggleContentEmpty {
+  padding-left: 1.25rem;
+  font-style: italic;
+  color: var(--color-text-tertiary);
+  font-size: var(--text-sm);
+}
+
 .toggleContent img {
   max-width: 100%;
   height: auto;
