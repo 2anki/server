@@ -470,6 +470,12 @@ const UserRouter = () => {
     controller.getLocals(req, res)
   );
 
+  router.post(
+    '/api/users/debug/ankify-welcome-seen',
+    RequireAuthentication,
+    (req, res) => controller.markAnkifyWelcomeSeen(req, res)
+  );
+
   /**
    * @swagger
    * /login:

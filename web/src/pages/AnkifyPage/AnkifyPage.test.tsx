@@ -9,6 +9,15 @@ import AnkifySetupPage from './AnkifySetupPage';
 import AnkifyClient from '../../lib/interfaces/AnkifyClient';
 import { Backend } from '../../lib/backend/Backend';
 
+vi.mock('../../lib/backend/getUserLocals', () => ({
+  getUserLocals: vi.fn(async () => ({
+    user: { ankify_welcome_seen: false } as Record<string, unknown>,
+    locals: {},
+  })),
+}));
+
+import { getUserLocals } from '../../lib/backend/getUserLocals';
+
 const ANKI_WEB_ACK_KEY = 'ankify_anki_web_acknowledged';
 
 const renderAt = (path: string, backend: Backend) => {
@@ -54,6 +63,7 @@ const makeBackend = (overrides: Partial<Backend> = {}): Backend =>
     listAnkifySubscriptions: vi.fn(async () => []),
     listAnkifyConflicts: vi.fn(async () => []),
     getAnkifyExportSchedule: vi.fn(async () => null),
+    markAnkifyWelcomeSeen: vi.fn(async () => {}),
     checkAnkifyActiveClientReady: vi.fn(async () => ({ ready: false })),
     checkAnkifyAnkiWebStatus: vi.fn(async () => ({
       status: 'unlinked' as const,
@@ -144,17 +154,18 @@ describe('AnkifySetupPage', () => {
   });
 });
 
-const ANKIFY_WELCOME_KEY = 'ankify_welcome_seen';
-
 describe('AnkifyPage workspace home', () => {
   beforeEach(() => {
     globalThis.localStorage?.setItem(ANKI_WEB_ACK_KEY, 'true');
-    globalThis.localStorage?.removeItem(ANKIFY_WELCOME_KEY);
+    vi.mocked(getUserLocals).mockResolvedValue({
+      user: { ankify_welcome_seen: false } as never,
+      locals: { owner: 42, patreon: false, subscriber: false, subscriptionInfo: { active: false, email: '', linked_email: '' } },
+      linked_email: '',
+    });
   });
 
   afterEach(() => {
     globalThis.localStorage?.removeItem(ANKI_WEB_ACK_KEY);
-    globalThis.localStorage?.removeItem(ANKIFY_WELCOME_KEY);
   });
 
   test('renders the Ankify title and Decks heading when setup is complete', async () => {
@@ -200,16 +211,18 @@ describe('AnkifyPage workspace home', () => {
     expect(screen.queryByText(/^beta$/i)).not.toBeInTheDocument();
   });
 
-  test('shows the welcome banner once on first arrival and remembers dismissal', async () => {
+  test('shows the welcome banner on first arrival and calls the server on dismissal', async () => {
+    const markSeen = vi.fn(async () => {});
     const backend = makeBackend({
       listAnkifyClients: vi.fn(async () => [sampleClient()]),
       checkAnkifyActiveClientReady: vi.fn(async () => ({ ready: true })),
       checkAnkifyAnkiWebStatus: vi.fn(async () => ({
         status: 'linked' as const,
       })),
+      markAnkifyWelcomeSeen: markSeen,
     });
 
-    const { unmount } = renderAt('/ankify', backend);
+    renderAt('/ankify', backend);
 
     await waitFor(() =>
       expect(
@@ -228,20 +241,15 @@ describe('AnkifyPage workspace home', () => {
         screen.queryByText(/you're synced/i)
       ).not.toBeInTheDocument()
     );
-
-    unmount();
-    renderAt('/ankify', backend);
-
-    await waitFor(() =>
-      expect(
-        screen.getByRole('heading', { name: /^ankify$/i, level: 1 })
-      ).toBeInTheDocument()
-    );
-    expect(screen.queryByText(/you're synced/i)).not.toBeInTheDocument();
+    expect(markSeen).toHaveBeenCalledTimes(1);
   });
 
-  test('does not show the welcome banner once it has been seen', async () => {
-    globalThis.localStorage?.setItem(ANKIFY_WELCOME_KEY, 'true');
+  test('does not show the welcome banner when server reports it as seen', async () => {
+    vi.mocked(getUserLocals).mockResolvedValue({
+      user: { ankify_welcome_seen: true } as never,
+      locals: { owner: 42, patreon: false, subscriber: false, subscriptionInfo: { active: false, email: '', linked_email: '' } },
+      linked_email: '',
+    });
     const backend = makeBackend({
       listAnkifyClients: vi.fn(async () => [sampleClient()]),
       checkAnkifyActiveClientReady: vi.fn(async () => ({ ready: true })),

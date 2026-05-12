@@ -354,6 +354,10 @@ export class Backend {
     return { alreadyRequested: body?.alreadyRequested === true };
   }
 
+  async markAnkifyWelcomeSeen(): Promise<void> {
+    await post(`${this.baseURL}users/debug/ankify-welcome-seen`, {});
+  }
+
   async listAnkifyClients(): Promise<AnkifyClient[]> {
     const result = await get(`${this.baseURL}ankify/clients`);
     return result ?? [];
