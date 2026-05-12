@@ -129,7 +129,7 @@ When the product displays user-generated names (deck titles, filenames, folder n
 
 **Thousands separator:** Use a thin space ( ), not a comma. The user base is international and EU-leaning — commas as thousands separators conflict with decimal commas. Examples: "1 200 cards", "12 450". Under 10 000, no separator needed: "9999".
 
-**File sizes:** Use binary units, abbreviated: "4.2 MB", "850 KB", "1.1 GB". Always one decimal for MB and above. No decimals for KB.
+**File sizes:** 1024-based math, consumer labels: KB, MB, GB (not the IEC KiB/MiB/GiB — those look wrong to non-technical users). Examples: "4.2 MB", "850 KB", "1.1 GB". One decimal place for MB and above. No decimals for KB.
 
 **Durations and times:**
 - Relative when recent: "2 minutes ago", "about an hour ago", "3 days ago".
