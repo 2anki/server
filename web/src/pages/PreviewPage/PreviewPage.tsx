@@ -70,6 +70,28 @@ export default function PreviewPage({ setError }: Readonly<PreviewPageProps>) {
   }
 
   if (error && !data) {
+    const isNotFound = error.message.includes('404');
+    if (isNotFound) {
+      return (
+        <div className={sharedStyles.page}>
+          <header className={sharedStyles.pageHeader}>
+            <h1 className={sharedStyles.title}>Preview</h1>
+          </header>
+          <EmptyState
+            title="This page is no longer available"
+            description="It was deleted in Notion, or the integration lost access."
+          />
+          <div className={styles.actionsRow}>
+            <Link to="/notion" className={sharedStyles.btnPrimary}>
+              Notion search
+            </Link>
+            <Link to="/downloads" className={sharedStyles.btnSecondary}>
+              My Decks
+            </Link>
+          </div>
+        </div>
+      );
+    }
     return (
       <div className={sharedStyles.page}>
         <header className={sharedStyles.pageHeader}>
