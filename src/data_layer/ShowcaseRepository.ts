@@ -1,11 +1,11 @@
 import type { Knex } from 'knex';
 
-import type { PreviewBlockPayload } from '../controllers/helpers/toPreviewBlock';
+import type { ShowcaseBlockPayload } from '../usecases/ops/PopulateShowcaseUseCase';
 import type { RenderedCard } from '../services/ApkgPreviewService/types';
 
 export interface ShowcaseRow {
   pageTitle: string;
-  notionBlocks: PreviewBlockPayload[];
+  notionBlocks: ShowcaseBlockPayload[];
   ankiCards: RenderedCard[];
   populatedAt: Date;
 }
@@ -19,7 +19,7 @@ export interface IShowcaseRepository {
 interface ShowcaseDbRow {
   id: number;
   page_title: string;
-  notion_blocks: PreviewBlockPayload[];
+  notion_blocks: ShowcaseBlockPayload[];
   anki_cards: RenderedCard[];
   populated_at: Date | string;
 }

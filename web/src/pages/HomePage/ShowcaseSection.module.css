@@ -68,6 +68,47 @@
   line-height: var(--leading-relaxed);
 }
 
+.toggle {
+  font-size: var(--text-base);
+  color: var(--color-text-primary);
+  line-height: var(--leading-relaxed);
+}
+
+.toggleSummary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: baseline;
+  gap: 0.375rem;
+  padding: 0.125rem 0;
+}
+
+.toggleSummary::before {
+  content: '▶';
+  font-size: 0.6em;
+  transition: transform 120ms ease;
+  flex-shrink: 0;
+}
+
+.toggle[open] > .toggleSummary::before {
+  transform: rotate(90deg);
+}
+
+.toggleSummary::-webkit-details-marker {
+  display: none;
+}
+
+.toggleContent {
+  padding-left: 1.25rem;
+  color: var(--color-text-secondary);
+}
+
+.toggleContent img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-sm);
+}
+
 .ankiCards {
   display: flex;
   flex-direction: column;
