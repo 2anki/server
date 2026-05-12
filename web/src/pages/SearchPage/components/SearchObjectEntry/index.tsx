@@ -54,9 +54,10 @@ function SearchObjectEntry(props: Readonly<Props>) {
     setConverting(true);
     get2ankiApi()
       .convert(id, getType(type), title)
-      .then((response) => {
+      .then(async (response) => {
         if (response.status === OK) {
-          globalThis.location.href = '/downloads';
+          const body = await response.json().catch(() => null);
+          globalThis.location.href = body?.redirect ?? '/downloads';
         } else {
           setConverting(false);
           response.text().then(setError);

@@ -53,7 +53,7 @@ export default async function performConversion(
     const hasInProgressJob = await checkInProgress.execute(id, owner);
     if (!hasInProgressJob) {
       console.log(`job ${id} was not started. Job is already active.`);
-      return res ? res.redirect('/downloads') : null;
+      return res ? res.status(200).json({ redirect: '/downloads' }) : null;
     }
 
     const checkLimit = new CheckJobLimitUseCase(jobRepository);
@@ -69,7 +69,7 @@ export default async function performConversion(
         reason: 'Free plan — one conversion at a time',
       });
       console.info('[event] paywall_shown', { owner, attemptedJobId: id });
-      return res ? res.redirect('/downloads?paywall=1') : null;
+      return res ? res.status(200).json({ redirect: '/downloads?paywall=1' }) : null;
     }
 
     console.log(`job ${id} is not active, starting`);
