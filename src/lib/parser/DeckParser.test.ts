@@ -245,6 +245,36 @@ test('Notion new export: deeply nested toggles (3 levels)', async () => {
   expect(deck.cards[0].back).toContain('summary');
 });
 
+test('nested toggle summaries are not forcibly bolded', async () => {
+  const deck = await getDeck(
+    'Notion Page grandchildren 2ce7ab29a11e809998e3d22ed65fc5f2.html',
+    new CardOption({ 'max-one-toggle-per-card': 'true', cherry: 'false', 'enable-input': 'false' })
+  );
+
+  expect(deck.cards.length).toBe(1);
+  const summaryMatches = deck.cards[0].back.match(/<summary[^>]*>([\s\S]*?)<\/summary>/g) || [];
+  expect(summaryMatches.length).toBeGreaterThan(0);
+  for (const match of summaryMatches) {
+    expect(match).not.toContain('<strong>');
+  }
+});
+
+test('nested toggle summaries preserve non-empty content', async () => {
+  const deck = await getDeck(
+    'Notion Page grandchildren 2ce7ab29a11e809998e3d22ed65fc5f2.html',
+    new CardOption({ 'max-one-toggle-per-card': 'true', cherry: 'false', 'enable-input': 'false' })
+  );
+
+  expect(deck.cards.length).toBe(1);
+  const back = deck.cards[0].back;
+  const summaryMatches = back.match(/<summary[^>]*>([\s\S]*?)<\/summary>/g) || [];
+  expect(summaryMatches.length).toBeGreaterThan(0);
+  for (const match of summaryMatches) {
+    const inner = match.replace(/<summary[^>]*>/g, '').replace(/<\/summary>/g, '').trim();
+    expect(inner.length).toBeGreaterThan(0);
+  }
+});
+
 test('Nested toggles produce one card without maxOne (new format)', async () => {
   const deck = await getDeck(
     'Notion Page grandchildren 2ce7ab29a11e809998e3d22ed65fc5f2.html',
