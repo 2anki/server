@@ -333,6 +333,14 @@ function buildDeckTree(
   return deckNodes;
 }
 
+function hasNotes(node: DeckNode): boolean {
+  if (node.notes.length > 0) return true;
+  for (const [, child] of node.children) {
+    if (hasNotes(child)) return true;
+  }
+  return false;
+}
+
 function deckNodeToDeckPage(node: DeckNode): DeckPage {
   const children: ToggleHeading3Block[] = node.notes.map(({ note, noteType }) =>
     noteToToggle(note, noteType)
@@ -340,7 +348,9 @@ function deckNodeToDeckPage(node: DeckNode): DeckPage {
 
   const subDecks: DeckPage[] = [];
   for (const [, child] of node.children) {
-    subDecks.push(deckNodeToDeckPage(child));
+    if (hasNotes(child)) {
+      subDecks.push(deckNodeToDeckPage(child));
+    }
   }
 
   return {
@@ -366,7 +376,9 @@ export default class ApkgToNotionBlocksService {
     const deckPages: DeckPage[] = [];
 
     for (const [, node] of tree) {
-      deckPages.push(deckNodeToDeckPage(node));
+      if (hasNotes(node)) {
+        deckPages.push(deckNodeToDeckPage(node));
+      }
     }
 
     return { deckPages, totalNotes };

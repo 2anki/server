@@ -223,6 +223,24 @@ describe('ApkgToNotionBlocksService', () => {
       expect(() => service.transform(collection)).toThrow(/too large/i);
     });
 
+    it('skips empty decks like Default', () => {
+      const decks = new Map<number, Deck>([
+        [1, { id: 1, name: 'Default' }],
+        [10, { id: 10, name: 'Spanish' }],
+      ]);
+      const notes = new Map<number, Note>([
+        [100, { id: 100, mid: 1, tags: '', fields: ['Hola', 'Hello'] }],
+      ]);
+      const cards: Card[] = [
+        { id: 1000, nid: 100, did: 10, ord: 0 },
+      ];
+      const collection = buildCollection({ decks, notes, cards });
+      const result = service.transform(collection);
+
+      expect(result.deckPages).toHaveLength(1);
+      expect(result.deckPages[0].title).toBe('Spanish');
+    });
+
     it('handles multiple decks', () => {
       const decks = new Map<number, Deck>([
         [10, { id: 10, name: 'Math' }],
