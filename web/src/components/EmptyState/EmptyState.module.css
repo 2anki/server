@@ -1,0 +1,25 @@
+.container {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.icon {
+  font-size: var(--text-4xl);
+  margin-bottom: 1rem;
+}
+
+.title {
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-primary);
+  margin: 0 0 0.5rem;
+}
+
+.description {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin: 0 0 1.5rem;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}

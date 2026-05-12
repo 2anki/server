@@ -172,7 +172,7 @@ function RegisterForm({ setErrorMessage, redirect }: Props) {
               className={styles.submitButton}
               disabled={!isValid() || loading}
             >
-              Create account
+              {loading ? 'Creating account…' : 'Create account'}
             </button>
           </div>
         </form>

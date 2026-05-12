@@ -6,7 +6,7 @@ import { jobStepFromStatus } from '../../../../components/StepIndicator/jobStepF
 import { getDistance } from '../../../../lib/getDistance';
 import RefreshIcon from '../../../../components/icons/RefreshIcon';
 import TrashIcon from '../../../../components/icons/TrashIcon';
-import './ListJobs.css';
+import listStyles from './ListJobs.module.css';
 import sharedStyles from '../../../../styles/shared.module.css';
 
 const SERVICE_LABELS: Record<string, string> = {
@@ -49,7 +49,7 @@ export default function Index({
             href={notionUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="stripe-button stripe-button-primary"
+            className={listStyles.button}
           >
             Open in Notion
           </a>
@@ -60,7 +60,7 @@ export default function Index({
       return (
         <a
           href={`/api/upload/jobs/${j.object_id}/download`}
-          className="stripe-button stripe-button-primary"
+          className={listStyles.button}
         >
           Download
         </a>
@@ -68,7 +68,7 @@ export default function Index({
     }
     if (isFailedJob(j.status)) {
       return (
-        <div className="stripe-error">
+        <div className={listStyles.error}>
           {j.job_reason_failure ? `Reason: ${j.job_reason_failure}` : 'Failed'}
         </div>
       );
@@ -85,8 +85,8 @@ export default function Index({
   }
 
   return (
-    <div className="stripe-container">
-      <table className="stripe-table">
+    <div className={listStyles.container}>
+      <table className={listStyles.table}>
         <thead>
           <tr>
             <th className={sharedStyles.actionColumnNarrow}>Action</th>
@@ -100,12 +100,12 @@ export default function Index({
           {jobs.map((j) => (
             <tr key={j.id}>
               <td>
-                <div className="stripe-actions">
+                <div className={listStyles.actions}>
                   {isFailedJob(j.status) && j.restartable && (
                     <button
                       type="button"
                       onClick={() => restartJob(j)}
-                      className="stripe-button stripe-button-warning"
+                      className={`${listStyles.button} ${listStyles.buttonWarning}`}
                       title="Restart"
                       aria-label="Restart job"
                     >
@@ -115,7 +115,7 @@ export default function Index({
                   <button
                     type="button"
                     onClick={() => deleteJob(j.id)}
-                    className="stripe-button stripe-button-danger"
+                    className={`${listStyles.button} ${listStyles.buttonDanger}`}
                     title={
                       isFailedJob(j.status) ? 'Delete' : 'Cancel'
                     }
@@ -130,12 +130,12 @@ export default function Index({
                 </div>
               </td>
               <td data-hj-suppress>
-                <div className="stripe-job-title">{j.title}</div>
+                <div className={listStyles.jobTitle}>{j.title}</div>
               </td>
               <td>{getServiceLabel(j.type)}</td>
               <td>
                 {j.created_at && (
-                  <div className="stripe-time-ago">
+                  <div className={listStyles.timeAgo}>
                     Started {getDistance(j.created_at)} ago
                   </div>
                 )}
