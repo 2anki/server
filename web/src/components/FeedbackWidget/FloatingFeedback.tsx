@@ -5,8 +5,14 @@ import { useLocation } from 'react-router-dom';
 import { FeedbackWidget } from './FeedbackWidget';
 import styles from './FloatingFeedback.module.css';
 
-const PAGES_WITH_OWN_FEEDBACK = new Set(['/whats-new']);
+const HIDDEN_PATHS = new Set(['/whats-new']);
+const HIDDEN_PREFIXES = ['/rules/'];
 const DISMISSED_KEY = '2anki_feedback_dismissed';
+
+function shouldHide(pathname: string): boolean {
+  if (HIDDEN_PATHS.has(pathname)) return true;
+  return HIDDEN_PREFIXES.some((p) => pathname.startsWith(p));
+}
 
 export function FloatingFeedback() {
   const { pathname } = useLocation();
@@ -15,7 +21,7 @@ export function FloatingFeedback() {
   );
 
   if (dismissed) return null;
-  if (PAGES_WITH_OWN_FEEDBACK.has(pathname)) return null;
+  if (shouldHide(pathname)) return null;
 
   const handleSubmitted = () => {
     sessionStorage.setItem(DISMISSED_KEY, '1');
