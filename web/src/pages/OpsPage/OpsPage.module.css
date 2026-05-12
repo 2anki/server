@@ -222,8 +222,8 @@
 }
 
 .tooltip {
-  background: #1f2937;
-  color: #fff;
+  background: var(--color-text-primary);
+  color: var(--color-bg-primary);
   border-radius: var(--radius-sm);
   padding: 0.5rem 0.75rem;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -233,7 +233,7 @@
 
 .tooltipTitle {
   margin-bottom: 0.25rem;
-  color: #d1d5db;
+  color: var(--color-border);
 }
 
 .tooltipRow {
