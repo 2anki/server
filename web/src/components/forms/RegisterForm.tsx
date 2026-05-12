@@ -50,9 +50,13 @@ function RegisterForm({ setErrorMessage, redirect }: Props) {
           : '/login';
         globalThis.location.href = loginUrl;
       } else {
+        const body = await res.json().catch(() => null);
+        const backendMessage = body?.message;
         setErrorMessage(
-          'Something went wrong on our end. Try again, or email support@2anki.net if it keeps happening.'
+          backendMessage ??
+            'Something went wrong on our end. Try again, or email support@2anki.net if it keeps happening.'
         );
+        setLoading(false);
       }
     } catch (error) {
       console.error('Register submit failed', error);
