@@ -20,7 +20,7 @@
 .links li:not(:last-child)::after {
   content: '|';
   margin-left: 1rem;
-  color: #dbdbdb;
+  color: var(--color-border);
 }
 
 @media (max-width: 768px) {
