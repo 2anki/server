@@ -23,6 +23,7 @@ Read-only. You produce a list; you do not delete.
 - Type-only exports consumed only by `.d.ts` declarations or `tsconfig` paths.
 - Anything explicitly marked with `// keep` comment-style waivers.
 - Ankify code paths (`src/lib/ankify/`, `src/services/ankify/`) gated behind the allowlist — they're "unused in prod" by design until the beta widens.
+- `create_deck/` — Python workspace, not part of the TypeScript module graph. Dead code there requires `pylint` or manual `pytest` analysis, not TS import tracing.
 
 ## Method
 
