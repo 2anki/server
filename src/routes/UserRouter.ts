@@ -10,6 +10,7 @@ import AuthenticationService from '../services/AuthenticationService';
 import { getDatabase } from '../data_layer';
 import UsersService from '../services/UsersService';
 import { getDefaultEmailService } from '../services/EmailService/EmailService';
+import { MagicTokenRepository } from '../data_layer/MagicTokenRepository';
 
 const UserRouter = () => {
   const router = express.Router();
@@ -20,8 +21,9 @@ const UserRouter = () => {
   );
 
   const emailService = getDefaultEmailService();
+  const magicTokenRepository = new MagicTokenRepository(database);
   const controller = new UsersController(
-    new UsersService(new UsersRepository(database), emailService),
+    new UsersService(new UsersRepository(database), emailService, magicTokenRepository),
     authService,
     database
   );
@@ -106,6 +108,73 @@ const UserRouter = () => {
    */
   router.post('/api/users/forgot-password', (req, res, next) =>
     controller.forgotPassword(req, res, next)
+  );
+
+  /**
+   * @swagger
+   * /api/users/magic-link:
+   *   post:
+   *     summary: Request a magic login link
+   *     description: Sends a magic link email for passwordless login or password reset. Always returns 200 to prevent email enumeration.
+   *     tags: [Authentication]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required: [email]
+   *             properties:
+   *               email:
+   *                 type: string
+   *                 format: email
+   *               purpose:
+   *                 type: string
+   *                 enum: [login, password_reset]
+   *                 default: login
+   *     responses:
+   *       200:
+   *         description: Magic link sent (or silently ignored if email not found)
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Success'
+   *       429:
+   *         description: Too many requests
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   */
+  router.post('/api/users/magic-link', (req, res, next) =>
+    controller.requestMagicLink(req, res, next)
+  );
+
+  /**
+   * @swagger
+   * /api/users/magic/{token}:
+   *   get:
+   *     summary: Verify a magic link token
+   *     description: Validates a magic link token and creates a session for login, or returns token info for password reset.
+   *     tags: [Authentication]
+   *     parameters:
+   *       - in: path
+   *         name: token
+   *         required: true
+   *         schema:
+   *           type: string
+   *     responses:
+   *       200:
+   *         description: Token valid — session created (login) or reset info returned (password_reset)
+   *       400:
+   *         description: Token invalid or expired
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   */
+  router.get('/api/users/magic/:token', (req, res, next) =>
+    controller.verifyMagicLink(req, res, next)
   );
 
   /**

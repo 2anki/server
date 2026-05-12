@@ -52,6 +52,7 @@ const MarkdownToAnki = lazy(
   () => import('./pages/LandingPage/MarkdownToAnki')
 );
 const PdfToAnki = lazy(() => import('./pages/LandingPage/PdfToAnki'));
+const MagicLinkPage = lazy(() => import('./pages/MagicLinkPage'));
 const PrintPage = lazy(() => import('./pages/PrintPage'));
 
 const queryClient = new QueryClient();
@@ -138,6 +139,7 @@ function AppContent({
             element={<Navigate to="/notion" replace />}
           />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/auth/magic" element={<MagicLinkPage />} />
           <Route
             path="/forgot"
             element={<ForgotPasswordPage setErrorMessage={setErrorMessage} />}

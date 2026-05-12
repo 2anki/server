@@ -1,0 +1,102 @@
+import { render, screen, waitFor } from '@testing-library/react';
+import '@testing-library/jest-dom';
+import { describe, expect, it, vi, afterEach } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
+import { CookiesProvider } from 'react-cookie';
+import MagicLinkPage from './MagicLinkPage';
+
+const mockValidateMagicToken = vi.fn();
+const mockRequestMagicLink = vi.fn();
+
+vi.mock('../../lib/backend/get2ankiApi', () => ({
+  get2ankiApi: () => ({
+    validateMagicToken: mockValidateMagicToken,
+    requestMagicLink: mockRequestMagicLink,
+  }),
+}));
+
+function renderMagicLinkPage(queryString: string) {
+  return render(
+    <CookiesProvider>
+      <MemoryRouter initialEntries={[`/auth/magic${queryString}`]}>
+        <MagicLinkPage />
+      </MemoryRouter>
+    </CookiesProvider>
+  );
+}
+
+describe('MagicLinkPage', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('shows error when no token is present', () => {
+    renderMagicLinkPage('');
+    expect(screen.getByText('Link expired or invalid')).toBeInTheDocument();
+    expect(
+      screen.getByText(/No token found/)
+    ).toBeInTheDocument();
+  });
+
+  it('shows loading state while validating token', () => {
+    mockValidateMagicToken.mockReturnValue(new Promise(() => {}));
+    renderMagicLinkPage('?token=abc123');
+    expect(screen.getByText('Verifying your link')).toBeInTheDocument();
+  });
+
+  it('shows error state on failed validation', async () => {
+    mockValidateMagicToken.mockResolvedValue({
+      ok: false,
+      json: () =>
+        Promise.resolve({ message: 'Token has expired' }),
+    });
+    renderMagicLinkPage('?token=expired');
+
+    await waitFor(() => {
+      expect(screen.getByText('Link expired or invalid')).toBeInTheDocument();
+    });
+    expect(screen.getByText('Token has expired')).toBeInTheDocument();
+  });
+
+  it('shows send a new link form on error', async () => {
+    mockValidateMagicToken.mockResolvedValue({
+      ok: false,
+      json: () => Promise.resolve({ message: 'Expired' }),
+    });
+    renderMagicLinkPage('?token=bad');
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('button', { name: 'Send a new link' })
+      ).toBeInTheDocument();
+    });
+    expect(screen.getByPlaceholderText('Your e-mail')).toBeInTheDocument();
+  });
+
+  it('shows back to login link on error', async () => {
+    mockValidateMagicToken.mockResolvedValue({
+      ok: false,
+      json: () => Promise.resolve({}),
+    });
+    renderMagicLinkPage('?token=bad');
+
+    await waitFor(() => {
+      expect(screen.getByText('Back to login')).toBeInTheDocument();
+    });
+    expect(
+      screen.getByRole('link', { name: 'Back to login' })
+    ).toHaveAttribute('href', '/login');
+  });
+
+  it('shows error when network request fails', async () => {
+    mockValidateMagicToken.mockRejectedValue(new Error('Network error'));
+    renderMagicLinkPage('?token=abc123');
+
+    await waitFor(() => {
+      expect(screen.getByText('Link expired or invalid')).toBeInTheDocument();
+    });
+    expect(
+      screen.getByText('Something went wrong. Please try again.')
+    ).toBeInTheDocument();
+  });
+});

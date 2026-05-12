@@ -296,6 +296,22 @@ export class Backend {
     });
   }
 
+  async requestMagicLink(
+    email: string,
+    purpose: 'login' | 'password_reset' = 'login'
+  ): Promise<Response> {
+    return post(`${this.baseURL}users/magic-link`, { email, purpose });
+  }
+
+  async validateMagicToken(
+    token: string
+  ): Promise<Response> {
+    const response = await fetch(`${this.baseURL}users/magic/${token}`, {
+      credentials: 'include',
+    });
+    return response;
+  }
+
   async forgotPassword(email: string): Promise<void> {
     const endpoint = `${this.baseURL}users/forgot-password`;
     await post(endpoint, { email });

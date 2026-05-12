@@ -12,6 +12,7 @@ import { getRandomUUID } from '../shared/helpers/getRandomUUID';
 import { getDefaultAvatarPicture } from '../lib/getDefaultAvatarPicture';
 import SubscriptionService from '../services/SubscriptionService';
 import { OPS_OWNER_EMAIL } from '../routes/middleware/RequireOpsAccess';
+import { MagicLinkRateLimitError } from '../services/UsersService';
 
 class UsersController {
   constructor(
@@ -469,6 +470,82 @@ class UsersController {
       res.status(200).redirect(getRedirect(req));
     } else {
       res.redirect('/login');
+    }
+  }
+
+  async requestMagicLink(
+    req: express.Request,
+    res: express.Response,
+    _next: express.NextFunction
+  ) {
+    const { email, purpose: rawPurpose } = req.body;
+    const purpose = rawPurpose ?? 'login';
+
+    if (email == null || typeof email !== 'string' || email.trim().length === 0) {
+      return res.status(400).json({ message: 'Email is required' });
+    }
+    if (purpose !== 'login' && purpose !== 'password_reset') {
+      return res.status(400).json({ message: 'Invalid purpose' });
+    }
+
+    try {
+      await this.userService.requestMagicLink(email.trim(), purpose);
+      return res.status(200).json({ message: 'ok' });
+    } catch (error) {
+      if (error instanceof MagicLinkRateLimitError) {
+        return res.status(429).json({ message: 'Too many requests. Please try again later.' });
+      }
+      return res.status(200).json({ message: 'ok' });
+    }
+  }
+
+  async verifyMagicLink(
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) {
+    const { token } = req.params;
+    if (token == null || token.length === 0) {
+      return res.status(400).json({ message: 'Token is required' });
+    }
+
+    try {
+      const result = await this.userService.verifyMagicToken(token);
+      if (result == null) {
+        return res
+          .status(400)
+          .json({ message: 'This link is invalid or has expired.' });
+      }
+
+      if (result.purpose === 'login') {
+        const user = await this.userService.getUserById(
+          result.userId.toString()
+        );
+        if (user == null) {
+          return res
+            .status(400)
+            .json({ message: 'This link is invalid or has expired.' });
+        }
+        const jwtToken = await this.authService.newJWTToken(user.id);
+        await this.authService.persistToken(jwtToken, user.id.toString());
+        await this.userService.updateLastLoginAt(user.id.toString());
+        res.cookie('token', jwtToken);
+        return res.status(200).json({ token: jwtToken });
+      }
+
+      if (result.purpose === 'password_reset') {
+        return res.status(200).json({
+          purpose: 'password_reset',
+          userId: result.userId,
+        });
+      }
+
+      return res
+        .status(400)
+        .json({ message: 'This link is invalid or has expired.' });
+    } catch (error) {
+      console.error('Magic link verification failed:', error);
+      next(error);
     }
   }
 

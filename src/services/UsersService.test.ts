@@ -1,7 +1,8 @@
-import UsersService from './UsersService';
+import UsersService, { MagicLinkRateLimitError } from './UsersService';
 import type UsersRepository from '../data_layer/UsersRepository';
 import type { IEmailService } from './EmailService/EmailService';
 import type AuthenticationService from './AuthenticationService';
+import { InMemoryMagicTokenRepository } from '../data_layer/MagicTokenRepository';
 
 const noopEmailService = {} as IEmailService;
 
@@ -18,6 +19,7 @@ function buildEmailService(
     sendHostedAnkiAccessRequestEmail: jest
       .fn()
       .mockResolvedValue({ didSend: true }),
+    sendMagicLinkEmail: jest.fn().mockResolvedValue(undefined),
     ...overrides,
   } as jest.Mocked<IEmailService>;
 }
@@ -239,5 +241,129 @@ describe('UsersService.requestHostedAnkiAccess', () => {
 
     expect(markHostedAnkiRequested).not.toHaveBeenCalled();
     expect(result).toEqual({ ok: false });
+  });
+});
+
+describe('UsersService.requestMagicLink', () => {
+  it('generates a token and sends an email for a known user', async () => {
+    const getByEmail = jest
+      .fn()
+      .mockResolvedValue({ id: 7, email: 'al@example.com' });
+    const repository = { getByEmail } as unknown as UsersRepository;
+    const emailService = buildEmailService();
+    const magicTokenRepo = new InMemoryMagicTokenRepository();
+    const service = new UsersService(repository, emailService, magicTokenRepo);
+
+    await service.requestMagicLink('al@example.com', 'login');
+
+    expect(emailService.sendMagicLinkEmail).toHaveBeenCalledTimes(1);
+    expect(emailService.sendMagicLinkEmail).toHaveBeenCalledWith(
+      'al@example.com',
+      expect.any(String),
+      'login'
+    );
+    const sentToken = (emailService.sendMagicLinkEmail as jest.Mock).mock
+      .calls[0][1];
+    expect(sentToken).toHaveLength(128);
+  });
+
+  it('silently returns when the user is not found', async () => {
+    const getByEmail = jest.fn().mockResolvedValue(null);
+    const repository = { getByEmail } as unknown as UsersRepository;
+    const emailService = buildEmailService();
+    const magicTokenRepo = new InMemoryMagicTokenRepository();
+    const service = new UsersService(repository, emailService, magicTokenRepo);
+
+    await service.requestMagicLink('nobody@example.com', 'login');
+
+    expect(emailService.sendMagicLinkEmail).not.toHaveBeenCalled();
+  });
+
+  it('throws MagicLinkRateLimitError after 5 requests in an hour', async () => {
+    const getByEmail = jest
+      .fn()
+      .mockResolvedValue({ id: 3, email: 'rate@example.com' });
+    const repository = { getByEmail } as unknown as UsersRepository;
+    const emailService = buildEmailService();
+    const magicTokenRepo = new InMemoryMagicTokenRepository();
+    const service = new UsersService(repository, emailService, magicTokenRepo);
+
+    for (let i = 0; i < 5; i++) {
+      await service.requestMagicLink('rate@example.com', 'login');
+    }
+
+    await expect(
+      service.requestMagicLink('rate@example.com', 'login')
+    ).rejects.toThrow(MagicLinkRateLimitError);
+  });
+});
+
+describe('UsersService.verifyMagicToken', () => {
+  it('returns userId and purpose for a valid token', async () => {
+    const getByEmail = jest
+      .fn()
+      .mockResolvedValue({ id: 10, email: 'al@example.com' });
+    const repository = { getByEmail } as unknown as UsersRepository;
+    const emailService = buildEmailService();
+    const magicTokenRepo = new InMemoryMagicTokenRepository();
+    const service = new UsersService(repository, emailService, magicTokenRepo);
+
+    await service.requestMagicLink('al@example.com', 'login');
+    const sentToken = (emailService.sendMagicLinkEmail as jest.Mock).mock
+      .calls[0][1];
+
+    const result = await service.verifyMagicToken(sentToken);
+
+    expect(result).toEqual({ userId: 10, purpose: 'login' });
+  });
+
+  it('returns null for a non-existent token', async () => {
+    const repository = {} as unknown as UsersRepository;
+    const emailService = buildEmailService();
+    const magicTokenRepo = new InMemoryMagicTokenRepository();
+    const service = new UsersService(repository, emailService, magicTokenRepo);
+
+    const result = await service.verifyMagicToken('does-not-exist');
+
+    expect(result).toBeNull();
+  });
+
+  it('returns null for a token that has already been used', async () => {
+    const getByEmail = jest
+      .fn()
+      .mockResolvedValue({ id: 10, email: 'al@example.com' });
+    const repository = { getByEmail } as unknown as UsersRepository;
+    const emailService = buildEmailService();
+    const magicTokenRepo = new InMemoryMagicTokenRepository();
+    const service = new UsersService(repository, emailService, magicTokenRepo);
+
+    await service.requestMagicLink('al@example.com', 'password_reset');
+    const sentToken = (emailService.sendMagicLinkEmail as jest.Mock).mock
+      .calls[0][1];
+    await service.verifyMagicToken(sentToken);
+
+    const secondAttempt = await service.verifyMagicToken(sentToken);
+
+    expect(secondAttempt).toBeNull();
+  });
+
+  it('returns null for an expired token', async () => {
+    const getByEmail = jest
+      .fn()
+      .mockResolvedValue({ id: 10, email: 'al@example.com' });
+    const repository = { getByEmail } as unknown as UsersRepository;
+    const emailService = buildEmailService();
+    const magicTokenRepo = new InMemoryMagicTokenRepository();
+    const service = new UsersService(repository, emailService, magicTokenRepo);
+
+    await service.requestMagicLink('al@example.com', 'login');
+    const sentToken = (emailService.sendMagicLinkEmail as jest.Mock).mock
+      .calls[0][1];
+
+    magicTokenRepo.setNow(new Date(Date.now() + 20 * 60 * 1000));
+
+    const result = await service.verifyMagicToken(sentToken);
+
+    expect(result).toBeNull();
   });
 });

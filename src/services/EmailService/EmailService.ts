@@ -7,6 +7,7 @@ import {
   CONVERT_LINK_TEMPLATE,
   CONVERT_TEMPLATE,
   DEFAULT_SENDER,
+  MAGIC_LINK_TEMPLATE,
   PASSWORD_RESET_TEMPLATE,
   SUBSCRIPTION_CANCELLED_TEMPLATE,
   SUBSCRIPTION_CANCELLATIONS_LOG_PATH,
@@ -42,6 +43,11 @@ export interface IEmailService {
     userId: string,
     userEmail: string
   ): Promise<EmailResponse>;
+  sendMagicLinkEmail(
+    email: string,
+    token: string,
+    purpose: 'login' | 'password_reset'
+  ): Promise<void>;
 }
 
 class EmailService implements IEmailService {
@@ -163,6 +169,51 @@ class EmailService implements IEmailService {
     } catch (e) {
       console.error('Error sending Hosted Anki access request email', e);
       return { didSend: false, error: e as Error };
+    }
+  }
+
+  async sendMagicLinkEmail(
+    email: string,
+    token: string,
+    purpose: 'login' | 'password_reset'
+  ): Promise<void> {
+    const link = `${process.env.DOMAIN}/auth/magic?token=${token}`;
+    const isLogin = purpose === 'login';
+    const subject = isLogin
+      ? 'Your 2anki login link'
+      : 'Reset your 2anki password';
+    const heading = isLogin
+      ? 'Sign in to 2anki.net'
+      : 'Reset your 2anki.net password';
+    const description = isLogin
+      ? 'Click the button below to sign in to your account.'
+      : 'Click the button below to reset your password.';
+    const buttonText = isLogin ? 'Sign in' : 'Reset password';
+
+    const markup = MAGIC_LINK_TEMPLATE.replace('{{title}}', heading)
+      .replace('{{heading}}', heading)
+      .replace('{{description}}', description)
+      .replace('{{link}}', link)
+      .replace('{{buttonText}}', buttonText);
+
+    const plainText = isLogin
+      ? `Sign in to your 2anki account using this link: ${link}`
+      : `Reset your 2anki password using this link: ${link}`;
+
+    const msg = {
+      to: email,
+      from: this.defaultSender,
+      subject,
+      text: plainText,
+      html: markup,
+      replyTo: 'support@2anki.net',
+    };
+
+    try {
+      await sgMail.send(msg);
+    } catch (error) {
+      console.error('Failed to send magic link email:', error);
+      throw error;
     }
   }
 
@@ -353,6 +404,14 @@ export class UnimplementedEmailService implements IEmailService {
       userEmail
     );
     return Promise.resolve({ didSend: false });
+  }
+
+  async sendMagicLinkEmail(
+    email: string,
+    token: string,
+    purpose: 'login' | 'password_reset'
+  ): Promise<void> {
+    console.info('sendMagicLinkEmail not handled', email, token, purpose);
   }
 }
 

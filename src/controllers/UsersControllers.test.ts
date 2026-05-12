@@ -17,7 +17,7 @@ jest.mock('../services/SubscriptionService', () => ({
 }));
 
 import UsersController from './UsersControllers';
-import UsersService from '../services/UsersService';
+import UsersService, { MagicLinkRateLimitError } from '../services/UsersService';
 import AuthenticationService from '../services/AuthenticationService';
 
 const SAMPLE_PW = '12345678';
@@ -190,6 +190,216 @@ describe('UsersController.register', () => {
     expect(res.json).toHaveBeenCalledWith({
       message:
         'An account with this email already exists. Try logging in instead.',
+    });
+  });
+});
+
+describe('UsersController.requestMagicLink', () => {
+  const buildMagicController = (overrides?: {
+    requestMagicLink?: jest.Mock;
+  }) => {
+    const userService = {
+      requestMagicLink:
+        overrides?.requestMagicLink ?? jest.fn().mockResolvedValue(undefined),
+    } as unknown as UsersService;
+    const authService = {} as AuthenticationService;
+    const controller = new UsersController(
+      userService,
+      authService,
+      {} as ReturnType<typeof import('../data_layer').getDatabase>
+    );
+    return { controller, userService };
+  };
+
+  it('returns 200 for a valid email and purpose', async () => {
+    const { controller } = buildMagicController();
+    const req = {
+      body: { email: 'al@example.com', purpose: 'login' },
+    } as express.Request;
+    const res = buildRes();
+    const next = jest.fn();
+
+    await controller.requestMagicLink(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({ message: 'ok' });
+  });
+
+  it('defaults purpose to login when not provided', async () => {
+    const requestMagicLink = jest.fn().mockResolvedValue(undefined);
+    const { controller } = buildMagicController({ requestMagicLink });
+    const req = {
+      body: { email: 'al@example.com' },
+    } as express.Request;
+    const res = buildRes();
+    const next = jest.fn();
+
+    await controller.requestMagicLink(req, res, next);
+
+    expect(requestMagicLink).toHaveBeenCalledWith('al@example.com', 'login');
+  });
+
+  it('returns 400 when email is missing', async () => {
+    const { controller } = buildMagicController();
+    const req = { body: { purpose: 'login' } } as express.Request;
+    const res = buildRes();
+    const next = jest.fn();
+
+    await controller.requestMagicLink(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+  });
+
+  it('returns 400 for an invalid purpose', async () => {
+    const { controller } = buildMagicController();
+    const req = {
+      body: { email: 'al@example.com', purpose: 'evil' },
+    } as express.Request;
+    const res = buildRes();
+    const next = jest.fn();
+
+    await controller.requestMagicLink(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({ message: 'Invalid purpose' });
+  });
+
+  it('returns 429 when rate limited', async () => {
+    const requestMagicLink = jest
+      .fn()
+      .mockRejectedValue(new MagicLinkRateLimitError());
+    const { controller } = buildMagicController({ requestMagicLink });
+    const req = {
+      body: { email: 'al@example.com', purpose: 'login' },
+    } as express.Request;
+    const res = buildRes();
+    const next = jest.fn();
+
+    await controller.requestMagicLink(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(429);
+  });
+
+  it('returns 200 even when the service throws a non-rate-limit error', async () => {
+    const requestMagicLink = jest
+      .fn()
+      .mockRejectedValue(new Error('SendGrid down'));
+    const { controller } = buildMagicController({ requestMagicLink });
+    const req = {
+      body: { email: 'al@example.com', purpose: 'login' },
+    } as express.Request;
+    const res = buildRes();
+    const next = jest.fn();
+
+    await controller.requestMagicLink(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({ message: 'ok' });
+  });
+});
+
+describe('UsersController.verifyMagicLink', () => {
+  const buildVerifyController = (overrides?: {
+    verifyMagicToken?: jest.Mock;
+    getUserById?: jest.Mock;
+    newJWTToken?: jest.Mock;
+    persistToken?: jest.Mock;
+    updateLastLoginAt?: jest.Mock;
+  }) => {
+    const userService = {
+      verifyMagicToken:
+        overrides?.verifyMagicToken ?? jest.fn().mockResolvedValue(null),
+      getUserById:
+        overrides?.getUserById ??
+        jest.fn().mockResolvedValue({ id: 1, email: 'al@example.com' }),
+      updateLastLoginAt:
+        overrides?.updateLastLoginAt ?? jest.fn().mockResolvedValue(undefined),
+    } as unknown as UsersService;
+    const authService = {
+      newJWTToken:
+        overrides?.newJWTToken ??
+        jest.fn().mockResolvedValue('jwt-token-abc'),
+      persistToken:
+        overrides?.persistToken ?? jest.fn().mockResolvedValue(undefined),
+    } as unknown as AuthenticationService;
+    const controller = new UsersController(
+      userService,
+      authService,
+      {} as ReturnType<typeof import('../data_layer').getDatabase>
+    );
+    return { controller, userService, authService };
+  };
+
+  const buildVerifyRes = () => {
+    const json = jest.fn();
+    const status = jest.fn().mockReturnValue({ json });
+    const cookie = jest.fn();
+    return { json, status, cookie } as unknown as express.Response & {
+      json: jest.Mock;
+      status: jest.Mock;
+      cookie: jest.Mock;
+    };
+  };
+
+  it('returns 400 for an invalid token', async () => {
+    const { controller } = buildVerifyController();
+    const req = { params: { token: 'bad-token' } } as unknown as express.Request;
+    const res = buildVerifyRes();
+    const next = jest.fn();
+
+    await controller.verifyMagicLink(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(res.json).toHaveBeenCalledWith({
+      message: 'This link is invalid or has expired.',
+    });
+  });
+
+  it('sets a JWT cookie and returns the token for a login purpose', async () => {
+    const verifyMagicToken = jest
+      .fn()
+      .mockResolvedValue({ userId: 5, purpose: 'login' });
+    const newJWTToken = jest.fn().mockResolvedValue('jwt-login-tok');
+    const persistToken = jest.fn().mockResolvedValue(undefined);
+    const updateLastLoginAt = jest.fn().mockResolvedValue(undefined);
+    const getUserById = jest
+      .fn()
+      .mockResolvedValue({ id: 5, email: 'al@example.com' });
+    const { controller } = buildVerifyController({
+      verifyMagicToken,
+      newJWTToken,
+      persistToken,
+      updateLastLoginAt,
+      getUserById,
+    });
+    const req = { params: { token: 'valid-tok' } } as unknown as express.Request;
+    const res = buildVerifyRes();
+    const next = jest.fn();
+
+    await controller.verifyMagicLink(req, res, next);
+
+    expect(res.cookie).toHaveBeenCalledWith('token', 'jwt-login-tok');
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({ token: 'jwt-login-tok' });
+    expect(persistToken).toHaveBeenCalledWith('jwt-login-tok', '5');
+    expect(updateLastLoginAt).toHaveBeenCalledWith('5');
+  });
+
+  it('returns purpose and userId for a password_reset token', async () => {
+    const verifyMagicToken = jest
+      .fn()
+      .mockResolvedValue({ userId: 8, purpose: 'password_reset' });
+    const { controller } = buildVerifyController({ verifyMagicToken });
+    const req = { params: { token: 'reset-tok' } } as unknown as express.Request;
+    const res = buildVerifyRes();
+    const next = jest.fn();
+
+    await controller.verifyMagicLink(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({
+      purpose: 'password_reset',
+      userId: 8,
     });
   });
 });

@@ -8,13 +8,30 @@ interface Props {
   setErrorMessage: ErrorHandlerType;
 }
 
+const MIN_PASSWORD_LENGTH = 8;
+
 function NewPasswordForm({ setErrorMessage }: Readonly<Props>) {
   const [password, setPassword] = useState('');
-  const [passwd, setPasswd] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const passwordTouched = password.length > 0;
+  const passwordMeetsMinimum = password.length >= MIN_PASSWORD_LENGTH;
+  const passwordsMatch = password === confirmPassword;
+
   const isValid = () =>
-    password === passwd && password.length > 0 && password.length < 256;
+    passwordsMatch && passwordMeetsMinimum && password.length < 256;
+
+  const passwordHelpClass = (() => {
+    if (passwordTouched) {
+      return passwordMeetsMinimum ? styles.helpSuccess : styles.helpDanger;
+    }
+    return styles.helpMuted;
+  })();
+
+  const passwordHelpText = passwordMeetsMinimum
+    ? 'Looks good'
+    : 'Use at least 8 characters.';
 
   const handleSubmit = async (event: SyntheticEvent) => {
     event.preventDefault();
@@ -25,7 +42,7 @@ function NewPasswordForm({ setErrorMessage }: Readonly<Props>) {
       const resetToken = paths.at(-1) ?? '';
       const res = await get2ankiApi().newPassword(password, resetToken);
       if (res.status === 200) {
-        globalThis.location.href = '/login#login';
+        globalThis.location.href = '/login';
       }
       setLoading(false);
     } catch (error) {
@@ -33,10 +50,11 @@ function NewPasswordForm({ setErrorMessage }: Readonly<Props>) {
       setLoading(false);
     }
   };
+
   return (
     <div className={styles.formPage}>
       <div className={styles.formCard}>
-        <h1 className={styles.formTitle}>Change your password?</h1>
+        <h1 className={styles.formTitle}>Set a new password</h1>
         <p className={sharedStyles.formDescription}>
           Please enter your new password below.
         </p>
@@ -45,6 +63,7 @@ function NewPasswordForm({ setErrorMessage }: Readonly<Props>) {
             <label htmlFor="password">
               <span>New password</span>
               <input
+                id="password"
                 min="8"
                 max="255"
                 value={password}
@@ -56,16 +75,20 @@ function NewPasswordForm({ setErrorMessage }: Readonly<Props>) {
                 required
               />
             </label>
+            <p id="password-help" className={passwordHelpClass}>
+              {passwordHelpText}
+            </p>
           </div>
           <div className={styles.field}>
             <label htmlFor="confirm_password">
               <span>Confirm new password</span>
               <input
+                id="confirm_password"
                 min="8"
                 max="255"
-                value={passwd}
+                value={confirmPassword}
                 onChange={(event) => {
-                  setPasswd(event.target.value);
+                  setConfirmPassword(event.target.value);
                 }}
                 type="password"
                 placeholder="Re-enter new password"
