@@ -4,9 +4,11 @@
   top: 50%;
   transform: translateY(-50%);
   z-index: 50;
+  pointer-events: none;
 }
 
 .panel {
+  pointer-events: auto;
   width: 220px;
   background: var(--color-bg-primary);
   border: 1px solid var(--color-border);
