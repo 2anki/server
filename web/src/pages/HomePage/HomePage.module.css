@@ -309,18 +309,64 @@
 
 @media (max-width: 639px) {
   .hero {
-    padding: 2.5rem 1rem 2rem;
+    padding: 2rem 1rem 1.5rem;
   }
 
   .mascot {
     height: 120px;
   }
 
+  .heroTitle {
+    font-size: 2rem;
+  }
+
+  .heroSubtitle {
+    font-size: var(--text-xl);
+  }
+
+  .heroLinks {
+    font-size: var(--text-base);
+  }
+
+  .heroFooter {
+    font-size: var(--text-sm);
+  }
+
   .stepsSection {
-    padding: 2.5rem 1rem;
+    padding: 2rem 1rem;
+  }
+
+  .stepsHeading {
+    font-size: var(--text-2xl);
+  }
+
+  .stepTitle {
+    font-size: var(--text-lg);
+  }
+
+  .stepBody {
+    font-size: var(--text-base);
   }
 
   .bottomSection {
-    padding: 2.5rem 1rem 3rem;
+    padding: 2rem 1rem 2.5rem;
+  }
+
+  .walkHeading {
+    font-size: var(--text-2xl);
+  }
+
+  .walkGrid {
+    gap: 0.75rem;
+  }
+
+  .walkCardTitle {
+    font-size: var(--text-base);
+  }
+
+  .walkPlayBtn svg {
+    width: 40px;
+    height: 40px;
+    padding: 8px;
   }
 }
