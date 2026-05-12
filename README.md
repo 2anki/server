@@ -1,8 +1,66 @@
 # 2anki.net
 
-The goal of the 2anki.net project is to provide a good way to make [Anki](https://apps.ankiweb.net/) flashcards easier, better and faster. The dream is to have powerful and easy ways to produce high quality flashcards. This project is a complement to Anki and Notion.
+[2anki.net](https://2anki.net) converts Notion pages, HTML, Markdown, and other formats into Anki flashcards. Drop something in, get a clean `.apkg` deck back. The project serves 300 000+ users and is a complement to Anki and Notion — not a replacement for either.
 
-For the frontend code, please see [2anki/web](https://github.com/2anki/web).
+This is a monorepo: the Express server lives at the root and the React frontend lives under `web/`.
+
+## Stack at a glance
+
+Node 22 (TypeScript), Express 5, Knex + PostgreSQL (SQLite for local dev), Jest, PM2 in production. The frontend is React + Vite. Package manager is **pnpm**.
+
+## Getting started
+
+```bash
+git clone https://github.com/2anki/server.git
+cd server
+pnpm install
+
+# Create a .env file (the server runs with defaults for local dev,
+# but the dev:server script reads from .env via --env-file)
+touch .env
+
+# Run both server and frontend
+pnpm dev
+```
+
+The server starts on `http://localhost:2020` and the frontend on `http://localhost:5173`.
+
+For server-only work: `pnpm dev:server`.
+
+## Contributing
+
+Contributions are welcome — whether you are a first-time contributor, a vibe coder using AI tools, or a seasoned open-source veteran. See [CONTRIBUTING.md](./CONTRIBUTING.md) for general guidelines.
+
+### Where to start
+
+- [Good first issues](https://github.com/2anki/server/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
+- [Help wanted](https://github.com/2anki/server/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22)
+
+### Before you push
+
+Run the full gate locally:
+
+```bash
+pnpm build          # server typecheck
+pnpm test           # Jest tests (scope with pnpm test <path>)
+
+# from web/
+pnpm typecheck      # frontend typecheck
+pnpm lint           # Biome lint
+pnpm test:run       # Vitest tests
+```
+
+### Review turnaround
+
+PRs are typically reviewed within a few hours during active periods. Keep each PR focused on one logical change — it is easier to review and faster to merge.
+
+### AI-assisted contributions
+
+We welcome AI-assisted contributions (Copilot, Claude, Cursor, etc.). If you used AI tooling, please disclose it in the PR body so reviewers know what to look for. The same quality bar applies regardless of how the code was written:
+
+- All commands above must pass before submission
+- One logical change per PR — avoid bundling unrelated refactors
+- Test new behaviour; don't rely on AI-generated code being correct without verification
 
 ## Strategy
 
@@ -150,6 +208,6 @@ Special thanks to following developers / artistans
 
 Unless otherwise specified in the source:
 
-The code is licensed under the [MIT](./LICENSE) Copyright (c) 2020-2023, [Alexander Alemayhu][1]
+The code is licensed under the [MIT](./LICENSE) Copyright (c) 2020-2026, [Alexander Alemayhu][1]
 
 [1]: https://alemayhu.com
