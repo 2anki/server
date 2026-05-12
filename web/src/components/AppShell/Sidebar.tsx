@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useTheme } from '../../lib/hooks/useTheme';
 import { getVisibleText } from '../../lib/text/getVisibleText';
 import { getPlanLabel, isPayingUser } from '../NavigationBar/helpers/getPlanLabel';
 import ArrowLeftIcon from '../icons/ArrowLeftIcon';
@@ -86,6 +87,8 @@ export function Sidebar({
   drawerId,
 }: Readonly<SidebarProps>) {
   const { pathname } = useLocation();
+  const theme = useTheme();
+  const logoSrc = theme === 'light' ? '/mascot/navbar-logo.png' : '/mascot/Notion 1.png';
   const showAnkify = locals?.patreon === true;
   const paying = isPayingUser(locals);
   const showPricing = !paying;
@@ -111,7 +114,7 @@ export function Sidebar({
       data-testid="app-sidebar"
     >
       <Link className={styles.sidebarLogo} to="/" onClick={handleNavClick()}>
-        <img src="/mascot/navbar-logo.png" alt="2anki Logo" />
+        <img src={logoSrc} alt="2anki Logo" />
       </Link>
       <nav className={styles.sidebarNav}>
         <div className={styles.sidebarGroup}>

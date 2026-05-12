@@ -66,11 +66,12 @@ export default function SendToAnkifyButton({ uploadId, filename }: Props) {
       disabled={disabled}
       title={title}
       style={{
-        background: 'none',
-        border: '1px solid #ddd',
-        borderRadius: '0.4rem',
-        padding: '0.25rem 0.5rem',
-        fontSize: '0.85rem',
+        background: 'var(--color-bg-primary)',
+        border: '1px solid var(--color-border)',
+        borderRadius: 'var(--radius-md)',
+        padding: '0.25rem 0.75rem',
+        fontSize: 'var(--text-sm)',
+        color: 'var(--color-text-secondary)',
         cursor: disabled ? 'not-allowed' : 'pointer',
         whiteSpace: 'nowrap',
       }}
