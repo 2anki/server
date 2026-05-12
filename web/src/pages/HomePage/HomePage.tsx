@@ -60,6 +60,10 @@ const WALKTHROUGHS = [
     title: 'Use Notion to Anki for learning languages',
     embedId: 'lpC7C9wJoTA',
   },
+  {
+    title: 'Notion to Anki — Tutorial en Español',
+    embedId: '57dW_buqtGM',
+  },
 ];
 
 export function HomePage({
