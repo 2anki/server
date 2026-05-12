@@ -59,9 +59,8 @@ export function UploadPage({ setErrorMessage }: Readonly<Props>) {
       <p className={styles.smallDescription}>
         Coming from Notion?{' '}
         <a href="/documentation/start-here/upload-a-file">
-          See how to export your pages
+          See how to export your pages.
         </a>
-        .
       </p>
       <p className={styles.smallDescription}>
         All files uploaded here are automatically deleted after 2 hours.
