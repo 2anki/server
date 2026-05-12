@@ -1,16 +1,24 @@
 import { useEffect, useState } from 'react';
 import { FeedbackWidget } from '../../components/FeedbackWidget/FeedbackWidget';
+import { changelog, ChangelogEntry } from './changelog';
 import sharedStyles from '../../styles/shared.module.css';
 import styles from './WhatsNewPage.module.css';
+
+type Tab = 'shipped' | 'in-progress';
 
 interface GitHubIssue {
   id: number;
   number: number;
   title: string;
   html_url: string;
-  state: string;
   created_at: string;
   labels: Array<{ name: string; color: string }>;
+}
+
+interface DateGroup {
+  date: string;
+  label: string;
+  entries: ChangelogEntry[];
 }
 
 const PRIORITY_LABELS = ['priority: high', 'priority: medium', 'priority: low'];
@@ -23,6 +31,31 @@ function getPriorityWeight(issue: GitHubIssue): number {
   return PRIORITY_LABELS.length;
 }
 
+const TYPE_LABELS: Record<string, string> = {
+  feature: 'New',
+  fix: 'Fix',
+  style: 'Design',
+};
+
+function groupByDate(entries: ChangelogEntry[]): DateGroup[] {
+  const map = new Map<string, ChangelogEntry[]>();
+  for (const entry of entries) {
+    const group = map.get(entry.date);
+    if (group) {
+      group.push(entry);
+    } else {
+      map.set(entry.date, [entry]);
+    }
+  }
+  return Array.from(map.entries())
+    .sort(([a], [b]) => b.localeCompare(a))
+    .map(([date, items]) => ({
+      date,
+      label: formatGroupDate(date),
+      entries: items,
+    }));
+}
+
 const formatDate = (iso: string): string => {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return iso;
@@ -33,97 +66,149 @@ const formatDate = (iso: string): string => {
   });
 };
 
+const formatGroupDate = (dateStr: string): string => {
+  const date = new Date(dateStr + 'T00:00:00');
+  if (Number.isNaN(date.getTime())) return dateStr;
+  return date.toLocaleDateString(undefined, {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+};
+
 export default function WhatsNewPage() {
+  const [tab, setTab] = useState<Tab>('shipped');
   const [issues, setIssues] = useState<GitHubIssue[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [issuesLoading, setIssuesLoading] = useState(false);
+  const [issuesError, setIssuesError] = useState<string | null>(null);
+
+  const shipped = groupByDate(changelog);
 
   useEffect(() => {
+    if (tab !== 'in-progress') return;
     let cancelled = false;
-    async function load() {
-      try {
-        const response = await fetch(
-          'https://api.github.com/repos/2anki/server/issues?state=open&per_page=50&sort=updated&direction=desc',
-          { headers: { Accept: 'application/vnd.github.v3+json' } }
-        );
-        if (!response.ok) throw new Error(`GitHub API returned ${response.status}`);
-        const data: GitHubIssue[] = await response.json();
-        if (!cancelled) {
-          const sorted = data
+    setIssuesLoading(true);
+    fetch(
+      'https://api.github.com/repos/2anki/server/issues?state=open&per_page=30&sort=updated&direction=desc',
+      { headers: { Accept: 'application/vnd.github.v3+json' } }
+    )
+      .then((res) => {
+        if (!res.ok) throw new Error(`GitHub API ${res.status}`);
+        return res.json();
+      })
+      .then((data: GitHubIssue[]) => {
+        if (cancelled) return;
+        setIssues(
+          data
             .filter((i) => !i.html_url.includes('/pull/'))
-            .sort((a, b) => getPriorityWeight(a) - getPriorityWeight(b));
-          setIssues(sorted);
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setError(err instanceof Error ? err.message : 'Failed to load issues');
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-    load();
+            .sort((a, b) => getPriorityWeight(a) - getPriorityWeight(b))
+        );
+      })
+      .catch((err) => {
+        if (!cancelled) setIssuesError(err instanceof Error ? err.message : 'Failed');
+      })
+      .finally(() => {
+        if (!cancelled) setIssuesLoading(false);
+      });
     return () => { cancelled = true; };
-  }, []);
+  }, [tab]);
 
   return (
     <div className={sharedStyles.page}>
       <header className={sharedStyles.pageHeader}>
         <h1 className={sharedStyles.title}>What's new</h1>
         <p className={sharedStyles.subtitle}>
-          Features and improvements the team is working on, prioritized by impact.
+          Track what we've shipped and what's coming next.
+          What do you want us to build? Tell us below.
         </p>
       </header>
 
-      {loading && (
-        <div className={sharedStyles.flexCenter}>
-          <div className={sharedStyles.spinnerSmall} />
+      <div className={styles.tabs}>
+        <button
+          type="button"
+          className={`${styles.tab} ${tab === 'shipped' ? styles.tabActive : ''}`}
+          onClick={() => setTab('shipped')}
+        >
+          Shipped
+        </button>
+        <button
+          type="button"
+          className={`${styles.tab} ${tab === 'in-progress' ? styles.tabActive : ''}`}
+          onClick={() => setTab('in-progress')}
+        >
+          In progress
+        </button>
+      </div>
+
+      {tab === 'shipped' && (
+        <div className={styles.timeline}>
+          {shipped.map((group) => (
+            <div key={group.date} className={styles.dateGroup}>
+              <h3 className={styles.dateHeading}>{group.label}</h3>
+              <ul className={styles.commitList}>
+                {group.entries.map((entry, idx) => (
+                  <li key={`${entry.date}-${idx}`} className={styles.commitItem}>
+                    <span className={`${styles.typeBadge} ${styles[`badge_${entry.type}`]}`}>
+                      {TYPE_LABELS[entry.type] ?? entry.type}
+                    </span>
+                    <span className={styles.commitText}>{entry.title}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
       )}
 
-      {error && (
-        <div className={sharedStyles.alertDanger}>{error}</div>
-      )}
-
-      {!loading && !error && issues.length === 0 && (
-        <p className={styles.empty}>No open issues right now — check back soon.</p>
-      )}
-
-      {issues.length > 0 && (
-        <ul className={styles.issueList}>
-          {issues.map((issue) => (
-            <li key={issue.id} className={styles.issueItem}>
-              <a
-                href={issue.html_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={styles.issueLink}
-              >
-                <span className={styles.issueTitle}>{issue.title}</span>
-                <span className={styles.issueMeta}>
-                  #{issue.number} &middot; {formatDate(issue.created_at)}
-                </span>
-              </a>
-              {issue.labels.length > 0 && (
-                <div className={styles.labelRow}>
-                  {issue.labels.map((label) => (
-                    <span
-                      key={label.name}
-                      className={styles.label}
-                      style={{
-                        background: `#${label.color}20`,
-                        color: `#${label.color}`,
-                        borderColor: `#${label.color}40`,
-                      }}
-                    >
-                      {label.name}
+      {tab === 'in-progress' && (
+        <>
+          {issuesLoading && (
+            <div className={sharedStyles.flexCenter}>
+              <div className={sharedStyles.spinnerSmall} />
+            </div>
+          )}
+          {issuesError && <div className={sharedStyles.alertDanger}>{issuesError}</div>}
+          {!issuesLoading && !issuesError && issues.length === 0 && (
+            <p className={styles.empty}>No open issues right now.</p>
+          )}
+          {issues.length > 0 && (
+            <ul className={styles.issueList}>
+              {issues.map((issue) => (
+                <li key={issue.id} className={styles.issueItem}>
+                  <a
+                    href={issue.html_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.issueLink}
+                  >
+                    <span className={styles.issueTitle}>{issue.title}</span>
+                    <span className={styles.issueMeta}>
+                      #{issue.number} &middot; {formatDate(issue.created_at)}
                     </span>
-                  ))}
-                </div>
-              )}
-            </li>
-          ))}
-        </ul>
+                  </a>
+                  {issue.labels.length > 0 && (
+                    <div className={styles.labelRow}>
+                      {issue.labels.map((label) => (
+                        <span
+                          key={label.name}
+                          className={styles.label}
+                          style={{
+                            background: `#${label.color}20`,
+                            color: `#${label.color}`,
+                            borderColor: `#${label.color}40`,
+                          }}
+                        >
+                          {label.name}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
       )}
 
       <div className={styles.feedbackSection}>

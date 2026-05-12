@@ -1,8 +1,110 @@
+.tabs {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.tab {
+  padding: 0.625rem 1.25rem;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.tab:hover {
+  color: var(--color-text-primary);
+}
+
+.tabActive {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
 .empty {
   text-align: center;
   color: var(--color-text-secondary);
   padding: 2rem 0;
 }
+
+/* ── Shipped timeline ── */
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.dateGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.dateHeading {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  margin: 0;
+}
+
+.commitList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.commitItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.typeBadge {
+  flex-shrink: 0;
+  padding: 0.125rem 0.5rem;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  border-radius: var(--radius-full);
+  line-height: var(--leading-normal);
+}
+
+.badge_feature {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.badge_fix {
+  background: var(--color-success-light);
+  color: var(--color-success);
+}
+
+.badge_style {
+  background: var(--color-warning-light);
+  color: var(--color-warning-text);
+}
+
+.commitText {
+  font-size: var(--text-base);
+  color: var(--color-text-primary);
+  line-height: var(--leading-normal);
+}
+
+/* ── In progress issues ── */
 
 .issueList {
   list-style: none;
@@ -59,6 +161,8 @@
   border-radius: var(--radius-full);
   line-height: var(--leading-normal);
 }
+
+/* ── Feedback section ── */
 
 .feedbackSection {
   margin-top: 3rem;
