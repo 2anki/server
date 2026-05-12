@@ -188,7 +188,7 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, var(--color-primary) 0%, #6366f1 100%);
+  background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-indigo) 100%);
   z-index: 1;
 }
 
@@ -230,7 +230,7 @@
     ),
     var(--color-bg-secondary);
   border-style: dashed;
-  border-color: #d1d5db;
+  border-color: var(--color-border);
 }
 
 .cardHosted:hover {
@@ -273,8 +273,8 @@
    LIFETIME — earned tier (warm paper)
    ===================================================================== */
 .cardLifetime {
-  background: linear-gradient(180deg, #fefcf7 0%, #f9f3e6 100%);
-  border-color: #ead8b8;
+  background: linear-gradient(180deg, var(--color-gold-bg) 0%, var(--color-gold-bg-end) 100%);
+  border-color: var(--color-gold-border);
 }
 
 .cardLifetime::before {
@@ -291,8 +291,8 @@
   font-size: 18px;
   font-weight: 600;
   font-variation-settings: 'opsz' 144;
-  color: #7a5b22;
-  border: 1px solid #d4b87f;
+  color: var(--color-gold-text);
+  border: 1px solid var(--color-gold-border-light);
   border-radius: 9999px;
   background: rgba(255, 255, 255, 0.5);
   z-index: 1;
@@ -301,7 +301,7 @@
 }
 
 .cardLifetime:hover {
-  border-color: #c9a96e;
+  border-color: var(--color-gold-border-hover);
 }
 
 /* =====================================================================
@@ -327,7 +327,7 @@
 }
 
 .cardLifetime .cardTitle {
-  color: #7a5b22;
+  color: var(--color-gold-text);
 }
 
 .cardPriceLine {
@@ -366,14 +366,14 @@
   font-size: 1.55rem;
   font-weight: 500;
   font-variation-settings: 'opsz' 96, 'SOFT' 40;
-  color: #7a5b22;
+  color: var(--color-gold-text);
   vertical-align: 0.55rem;
   letter-spacing: -0.02em;
   margin-left: 0.4rem;
 }
 
 .cardLifetime .cardPrice {
-  color: #4a3a1f;
+  color: var(--color-gold-text-dark);
 }
 
 .cardPriceChip {
@@ -428,8 +428,8 @@
   font-weight: var(--font-bold);
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #fff;
-  background: linear-gradient(135deg, var(--color-primary) 0%, #4f46e5 100%);
+  color: var(--color-bg-primary);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-indigo-dark) 100%);
   border-radius: var(--radius-full);
   z-index: 2;
   box-shadow: 0 2px 10px -2px rgba(59, 130, 246, 0.45);
@@ -465,11 +465,11 @@
 }
 
 .cardLifetime .benefit {
-  color: #3a2e15;
+  color: var(--color-gold-text-darker);
 }
 
 .cardLifetime .benefitIcon {
-  color: #7a5b22;
+  color: var(--color-gold-text);
 }
 
 .cardHosted .benefitIcon {
@@ -491,7 +491,7 @@
   font-size: 0.78rem;
   font-style: italic;
   font-variation-settings: 'opsz' 9, 'SOFT' 100;
-  color: #7a5b22;
+  color: var(--color-gold-text);
   text-align: center;
   margin: 0;
   line-height: var(--leading-relaxed);
@@ -512,7 +512,7 @@
   font-size: var(--text-sm);
   font-weight: var(--font-semibold);
   letter-spacing: 0.005em;
-  color: #fff;
+  color: var(--color-bg-primary);
   background: var(--color-primary);
   border: none;
   border-radius: var(--radius-full);
@@ -535,7 +535,7 @@
 
 .cardButton:hover {
   background: var(--color-primary-hover);
-  color: #fff;
+  color: var(--color-bg-primary);
   box-shadow: 0 8px 22px -8px rgba(59, 130, 246, 0.55);
 }
 
@@ -572,19 +572,19 @@
 .cardButtonOutline {
   composes: cardButton;
   background: transparent;
-  color: #4a3a1f;
-  border: 1px solid #c9a96e;
+  color: var(--color-gold-text-dark);
+  border: 1px solid var(--color-gold-border-hover);
 }
 
 .cardButtonOutline::after {
-  color: #7a5b22;
+  color: var(--color-gold-text);
 }
 
 .cardButtonOutline:hover {
   background: rgba(255, 255, 255, 0.7);
-  color: #3a2e15;
-  border-color: #7a5b22;
-  box-shadow: 0 6px 18px -6px rgba(176, 138, 62, 0.32);
+  color: var(--color-gold-text-darker);
+  border-color: var(--color-gold-text);
+  box-shadow: 0 6px 18px -6px var(--color-gold-shadow);
 }
 
 /* =====================================================================

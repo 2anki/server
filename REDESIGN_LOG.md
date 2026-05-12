@@ -124,6 +124,42 @@ Verdict: ship it / minor changes / rethink
 
 ---
 
+## Screen 6: PricingPage (`/pricing`)
+
+**Before (3/5):**
+1. Primary action: Pro tier CTA clearly elevated — good
+2. Hierarchy: three-card grid with Pro visually dominant (elevated, blue glow)
+3. System data: pricing/limits in user language
+4. Destructive styles: N/A
+5. Whitespace: generous card padding, good vertical rhythm
+6. Borders: Lifetime card uses 22 hardcoded gold/amber hex — not tokenized
+
+**After (5/5):**
+1. Same — Pro card stays dominant
+2. Same
+3. Same
+4. N/A
+5. Same
+6. All 22 gold/amber hex values extracted to `--color-gold-*` tokens. Lifetime card now theme-aware — looks correct in light, dark, and gold themes.
+
+**Verdict:** ship it
+
+---
+
+## Theme system
+
+**Added:** Light, Dark, and Gold theme support via CSS custom properties on `[data-theme]`.
+- `base.css` — 3 theme blocks: `:root` (light), `[data-theme='dark']`, `[data-theme='gold']`
+- `lib/theme.ts` — `getStoredTheme()`, `applyTheme()`, `initTheme()` with localStorage persistence
+- `ThemeSwitcher` component — compact segmented control (☀ ☾ ✦) with ARIA radiogroup
+- Wired into Sidebar (authenticated) and NavigationBar (anonymous)
+- Theme initialized before React render in `index.tsx` to prevent flash
+- 9 tests covering storage, DOM application, and initialization
+
+**No new dependencies added.**
+
+---
+
 ## Translation needs
 
 - `upload.page.title` in `app.document.json` — no change needed (English only)

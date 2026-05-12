@@ -78,7 +78,7 @@
 }
 
 .sidebarRow:hover {
-  background: rgba(0, 0, 0, 0.03);
+  background: var(--color-bg-tertiary);
   color: var(--color-text-primary);
 }
 
@@ -89,7 +89,7 @@
 }
 
 .sidebarRowActive:hover {
-  background: rgba(0, 0, 0, 0.03);
+  background: var(--color-bg-tertiary);
   color: var(--color-text-primary);
 }
 
@@ -115,6 +115,12 @@
 .identityPlan {
   font-size: var(--text-sm);
   color: var(--color-text-secondary);
+}
+
+.sidebarTheme {
+  display: flex;
+  justify-content: center;
+  padding: 0.5rem 0.75rem;
 }
 
 .sidebarMore {
