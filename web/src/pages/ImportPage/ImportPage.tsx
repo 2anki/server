@@ -172,6 +172,7 @@ export default function ImportPage({ setError }: Readonly<ImportPageProps>) {
           total={job.progress.total_notes}
           fileName={file?.name ?? ''}
           pageTitle={selectedPageTitle || '2anki Imports'}
+          statusText={job.statusText}
         />
       </div>
     );

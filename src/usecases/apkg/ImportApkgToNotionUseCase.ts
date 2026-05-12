@@ -47,29 +47,36 @@ export default class ImportApkgToNotionUseCase {
       const cacheKey = `import:${owner}:${Date.now()}`;
       const parsed = await this.previewService.parse(cacheKey, fileBuffer);
 
+      const result = this.blocksService.transform(parsed.collection);
+      const totalNotes = result.totalNotes;
+
       let mediaUrlMap = new Map<string, string>();
       if (parsed.mediaMap.size > 0) {
         try {
+          await this.jobRepository.updateJobStatus(
+            jobId, owner, 'processing', `uploading images`
+          );
           mediaUrlMap = await this.uploadMediaToNotion(
             parsed.mediaMap,
             parsed.mediaEntries,
-            notionApi
+            notionApi,
+            jobId,
+            owner
           );
+          result.deckPages = this.blocksService.transform(
+            parsed.collection,
+            mediaUrlMap
+          ).deckPages;
         } catch (uploadError) {
           console.error(`[apkg-import] job=${jobId} media upload failed, continuing without images:`, uploadError);
         }
       }
 
-      const result = this.blocksService.transform(
-        parsed.collection,
-        mediaUrlMap
-      );
-
       await this.jobRepository.updateJobStatus(
         jobId,
         owner,
         'processing',
-        `0/${result.totalNotes} notes`
+        `0/${totalNotes} notes`
       );
 
       let imported = 0;
@@ -119,17 +126,23 @@ export default class ImportApkgToNotionUseCase {
   private async uploadMediaToNotion(
     mediaMap: Map<string, string>,
     mediaEntries: Map<string, Buffer>,
-    notionApi: NotionAPIWrapper
+    notionApi: NotionAPIWrapper,
+    jobId: string,
+    owner: string
   ): Promise<Map<string, string>> {
     const idMap = new Map<string, string>();
 
-    for (const [originalName, archiveIndex] of mediaMap) {
-      const buffer = mediaEntries.get(archiveIndex);
-      if (buffer == null) continue;
+    const imageEntries = [...mediaMap.entries()].filter(([name, idx]) => {
+      const buf = mediaEntries.get(idx);
+      const ext = path.extname(name).toLowerCase();
+      return buf != null && IMAGE_EXTENSIONS.has(ext);
+    });
+    const totalImages = imageEntries.length;
+    let uploaded = 0;
 
+    for (const [originalName, archiveIndex] of imageEntries) {
+      const buffer = mediaEntries.get(archiveIndex)!;
       const ext = path.extname(originalName).toLowerCase();
-      if (!IMAGE_EXTENSIONS.has(ext)) continue;
-
       const contentType = MIME_TYPES[ext] ?? 'application/octet-stream';
 
       try {
@@ -139,9 +152,14 @@ export default class ImportApkgToNotionUseCase {
           buffer
         );
         idMap.set(originalName, fileUploadId);
+        uploaded++;
+        await this.jobRepository.updateJobStatus(
+          jobId, owner, 'processing',
+          `uploading images ${uploaded}/${totalImages}`
+        );
         await sleep(THROTTLE_MS);
-      } catch {
-        // Skip failed uploads — text still imports fine
+      } catch (err) {
+        console.error(`[apkg-import] failed to upload ${originalName}:`, err);
       }
     }
 

@@ -692,6 +692,7 @@ export class Backend {
   async getImportJobStatus(jobId: string): Promise<{
     status: string;
     progress: { total_notes: number; imported: number };
+    status_text?: string;
     notion_page_url?: string;
     error?: string;
   }> {

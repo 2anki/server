@@ -5,6 +5,7 @@ interface ImportProgressProps {
   total: number;
   fileName: string;
   pageTitle: string;
+  statusText: string | null;
 }
 
 export default function ImportProgress({
@@ -12,8 +13,14 @@ export default function ImportProgress({
   total,
   fileName,
   pageTitle,
+  statusText,
 }: Readonly<ImportProgressProps>) {
-  const percent = total > 0 ? Math.round((imported / total) * 100) : 0;
+  const isUploadingImages = statusText != null && statusText.startsWith('uploading');
+  const percent = isUploadingImages
+    ? 0
+    : total > 0
+      ? Math.round((imported / total) * 100)
+      : 0;
 
   return (
     <div className={styles.progressContainer}>
@@ -30,12 +37,14 @@ export default function ImportProgress({
         />
       </div>
       <p className={styles.progressCount}>
-        {imported} of {total} cards
+        {isUploadingImages
+          ? statusText.replace('uploading images ', 'Uploading images: ')
+          : `${imported} of ${total} cards`}
       </p>
       <p className={styles.progressReassurance}>
-        {total > 50
-          ? "This usually takes about a minute. You can leave this page — we'll keep going in the background."
-          : "This usually takes a few seconds. You can leave this page — we'll keep going in the background."}
+        {isUploadingImages
+          ? "Uploading images to Notion. This can take a minute for large decks."
+          : "You can leave this page — we'll keep going in the background."}
       </p>
     </div>
   );

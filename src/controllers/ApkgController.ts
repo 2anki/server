@@ -329,9 +329,15 @@ class ApkgController {
         }
       }
 
+      const statusText =
+        job.status === 'processing' && job.job_reason_failure?.startsWith('uploading')
+          ? job.job_reason_failure
+          : null;
+
       res.json({
         status: job.status === 'started' ? 'queued' : job.status,
         progress,
+        status_text: statusText,
         notion_page_url: notionPageUrl,
         error: errorMessage,
       });

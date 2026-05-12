@@ -11,6 +11,7 @@ interface ImportJobProgress {
 interface ImportJobState {
   phase: ImportJobPhase;
   progress: ImportJobProgress;
+  statusText: string | null;
   notionPageUrl: string | null;
   errorMessage: string | null;
 }
@@ -21,6 +22,7 @@ export default function useImportJob() {
   const [state, setState] = useState<ImportJobState>({
     phase: 'idle',
     progress: { total_notes: 0, imported: 0 },
+    statusText: null,
     notionPageUrl: null,
     errorMessage: null,
   });
@@ -47,6 +49,7 @@ export default function useImportJob() {
         setState({
           phase: 'completed',
           progress: result.progress,
+          statusText: null,
           notionPageUrl: result.notion_page_url ?? null,
           errorMessage: null,
         });
@@ -55,6 +58,7 @@ export default function useImportJob() {
         setState({
           phase: 'failed',
           progress: result.progress,
+          statusText: null,
           notionPageUrl: null,
           errorMessage: result.error ?? 'Import failed',
         });
@@ -63,6 +67,7 @@ export default function useImportJob() {
           ...prev,
           phase: 'polling',
           progress: result.progress,
+          statusText: result.status_text ?? null,
         }));
       }
     } catch (err) {
@@ -89,6 +94,7 @@ export default function useImportJob() {
       setState({
         phase: 'uploading',
         progress: { total_notes: 0, imported: 0 },
+        statusText: null,
         notionPageUrl: null,
         errorMessage: null,
       });
@@ -101,6 +107,7 @@ export default function useImportJob() {
         setState({
           phase: 'failed',
           progress: { total_notes: 0, imported: 0 },
+          statusText: null,
           notionPageUrl: null,
           errorMessage: err instanceof Error ? err.message : 'Failed to start import',
         });
@@ -115,6 +122,7 @@ export default function useImportJob() {
     setState({
       phase: 'idle',
       progress: { total_notes: 0, imported: 0 },
+      statusText: null,
       notionPageUrl: null,
       errorMessage: null,
     });
