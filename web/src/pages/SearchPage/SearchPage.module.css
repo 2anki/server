@@ -1,7 +1,7 @@
 .stickyBar {
   position: sticky;
   top: 0;
-  background: var(--color-bg-secondary);
+  background: var(--color-bg-primary);
   z-index: 10;
   padding: 1.5rem 0 1rem;
 }
@@ -91,6 +91,31 @@
   to {
     opacity: 1;
   }
+}
+
+.searchSurface {
+  background: var(--color-bg-primary);
+  border-radius: var(--radius-lg);
+  padding: 0 1.5rem 1.5rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.workspaceLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: var(--text-sm);
+  color: var(--color-text-tertiary);
+  font-weight: var(--font-medium);
+  margin-bottom: 0.75rem;
+}
+
+.workspaceDot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background: var(--color-success);
+  flex-shrink: 0;
 }
 
 @media (min-width: 769px) {

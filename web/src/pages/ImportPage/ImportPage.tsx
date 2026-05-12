@@ -213,7 +213,11 @@ export default function ImportPage({ setError }: Readonly<ImportPageProps>) {
         </div>
       )}
 
-      <div className={styles.stepSection}>
+      <div className={styles.stepCard}>
+        <div className={styles.stepCardHeader}>
+          <span className={styles.stepNumber}>1</span>
+          <p className={styles.stepTitle}>Choose your Anki deck</p>
+        </div>
         <ApkgDropZone
           file={file}
           onFileSelected={handleFileSelected}
@@ -223,45 +227,53 @@ export default function ImportPage({ setError }: Readonly<ImportPageProps>) {
         {fileError && <p className={styles.dropZoneError}>{fileError}</p>}
       </div>
 
-      <div className={`${styles.quickImportSection} ${file == null ? styles.stepDisabled : ''}`}>
-        <button
-          type="button"
-          className={sharedStyles.btnPrimary}
-          disabled={file == null || isRunning}
-          onClick={handleQuickImport}
-        >
-          Quick import
-        </button>
-        <p className={styles.quickImportHelp}>
-          Creates a &ldquo;2anki Imports&rdquo; page in your Notion workspace
-        </p>
-      </div>
+      <div className={`${styles.stepCard} ${styles.stepCardSpaced} ${file == null ? styles.stepCardDisabled : ''}`}>
+        <div className={styles.stepCardHeader}>
+          <span className={styles.stepNumber}>2</span>
+          <p className={styles.stepTitle}>Pick a destination</p>
+        </div>
 
-      <div className={styles.quickImportDivider}>
-        <span className={styles.quickImportDividerText}>or choose a page</span>
-      </div>
+        <div className={styles.destinationGroup}>
+          <div className={styles.destinationOption}>
+            <button
+              type="button"
+              className={sharedStyles.btnPrimary}
+              disabled={file == null || isRunning}
+              onClick={handleQuickImport}
+            >
+              Quick import
+            </button>
+            <p className={styles.quickImportHelp}>
+              Creates a &ldquo;2anki Imports&rdquo; page in your Notion workspace
+            </p>
+          </div>
 
-      <div className={`${styles.stepSection} ${file == null ? styles.stepDisabled : ''}`}>
-        <NotionPagePicker
-          selectedPageId={selectedPageId}
-          onPageSelected={handlePageSelected}
-          disabled={file == null || isRunning}
-        />
-        <p className={styles.pagePickerHelp}>
-          Showing top-level pages shared with 2anki. Missing a page? Check your
-          Notion sharing settings.
-        </p>
-      </div>
+          <div className={styles.quickImportDivider}>
+            <span className={styles.quickImportDividerText}>or choose a page</span>
+          </div>
 
-      <div className={styles.actions}>
-        <button
-          type="button"
-          className={sharedStyles.btnSecondary}
-          disabled={file == null || selectedPageId == null || isRunning}
-          onClick={handleStartImport}
-        >
-          Import to selected page
-        </button>
+          <div className={styles.destinationOption}>
+            <NotionPagePicker
+              selectedPageId={selectedPageId}
+              onPageSelected={handlePageSelected}
+              disabled={file == null || isRunning}
+            />
+            <p className={styles.pagePickerHelp}>
+              Showing top-level pages shared with 2anki. Missing a page? Check your
+              Notion sharing settings.
+            </p>
+            <div className={styles.destinationActions}>
+              <button
+                type="button"
+                className={sharedStyles.btnSecondary}
+                disabled={file == null || selectedPageId == null || isRunning}
+                onClick={handleStartImport}
+              >
+                Import to selected page
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

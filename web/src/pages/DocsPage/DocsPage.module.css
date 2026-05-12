@@ -702,6 +702,20 @@
   padding: 1rem 1.25rem 2rem;
 }
 
+:global([data-shell]) .layout {
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+:global([data-shell]) .menuButton {
+  display: inline-block;
+  justify-self: start;
+}
+
+:global([data-shell]) .sidebarWrapper {
+  display: none;
+}
+
 @media (max-width: 900px) {
   .layout {
     grid-template-columns: 1fr;
