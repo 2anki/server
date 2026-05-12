@@ -463,7 +463,7 @@ class UsersController {
           .send('Unknown error. Please try again or register a new account.');
       }
 
-      if (picture != user.picture) {
+      if (picture && picture !== user.picture) {
         await this.userService.updatePicture(user.id, picture);
       }
 
