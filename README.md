@@ -68,15 +68,15 @@ For server-only work: `pnpm dev:server`.
 
 ## Strategy
 
-<p align="center">  
+<p align="center">
   <a href="http://www.youtube.com/watch?v=oMg70YIqRsw">
-    <img src="http://img.youtube.com/vi/oMg70YIqRsw/0.jpg" alt="My Thoughts on The Future of Anki Collaborative Deck Creation">
+    <img src="http://img.youtube.com/vi/oMg70YIqRsw/0.jpg" alt="My Thoughts on The Future of Anki Collaborative Deck Creation" />
   </a>
-  </img>
+</p>
 
 ## What We Are Not
 
-If you are looking for a Anki or Notion replacement then this project is probably not right for you. Watch this video [Notion + Anki](https://youtu.be/FjifJG4FoXY) to understand the project's goal. **We are never going to compete against Anki in this project**. We are building bridges 🌁
+If you are looking for an Anki or Notion replacement then this project is probably not right for you. Watch this video [Notion + Anki](https://youtu.be/FjifJG4FoXY) to understand the project's goal. **We are never going to compete against Anki in this project**. We are building bridges 🌁
 
 When that is said, if you are not content with Anki, you might want to checkout [SuperMemo](https://www.super-memory.com/).
 
@@ -144,11 +144,11 @@ We are still heavily relying on the APKG format. Long term we want to support An
 
 ## Star History
 
-<a href="https://star-history.com/#2anki/2anki.net&2anki/web&Date">
+<a href="https://star-history.com/#2anki/server&Date">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=2anki/2anki.net,2anki/web&type=Date&theme=dark" />
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=2anki/2anki.net,2anki/web&type=Date" />
-    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=2anki/2anki.net,2anki/web&type=Date" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=2anki/server&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=2anki/server&type=Date" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=2anki/server&type=Date" />
   </picture>
 </a>
 
@@ -164,9 +164,9 @@ Special thanks to following developers / artistans
                 <br /><sub>
                 <b>Alexander Alemayhu</b>
                 </sub></a><br />
-                <a href="https://github.com/alemayhu/notion2anki/commits?author=aalemayhu" title="Code">💻</a>
-                <a href="https://github.com/alemayhu/notion2anki/pulls?q=is%3Apr+reviewed-by%3Aaalemayhu" title="Reviewed Pull Requests">👀</a>
-                <a href="https://github.com/alemayhu/notion2anki/commits?author=aalemayhu" title="Documentation">📖</a>
+                <a href="https://github.com/2anki/server/commits?author=aalemayhu" title="Code">💻</a>
+                <a href="https://github.com/2anki/server/pulls?q=is%3Apr+reviewed-by%3Aaalemayhu" title="Reviewed Pull Requests">👀</a>
+                <a href="https://github.com/2anki/server/commits?author=aalemayhu" title="Documentation">📖</a>
                 <a href="https://www.youtube.com/channel/UCVuQ9KPLbb3bfhm-ZYsq-bQ" title="Videos">📹</a>
         </td>
         <td align="center">
@@ -175,7 +175,7 @@ Special thanks to following developers / artistans
                 <br /><sub>
                 <b>Alp Kaan Aksu</b>
                 </sub></a><br />
-                <a href="https://github.com/alemayhu/notion2anki/commits?author=alpkaanaksu" title="Code">💻</a>
+                <a href="https://github.com/2anki/server/commits?author=alpkaanaksu" title="Code">💻</a>
                 <a href="https://www.youtube.com/channel/UCVuQ9KPLbb3bfhm-ZYsq-bQ" title="Videos">📹</a>
         </td>
         <td align="center">
@@ -184,7 +184,7 @@ Special thanks to following developers / artistans
                 <br /><sub>
                 <b>Mads Cordes</b>
                 </sub></a><br />
-                <a href="https://github.com/alemayhu/notion2anki/commits?author=mobilpadde" title="Code">💻</a>
+                <a href="https://github.com/2anki/server/commits?author=mobilpadde" title="Code">💻</a>
         </td>
         <td align="center">
             <a href="https://www.guillempalausalva.com/">
@@ -202,7 +202,7 @@ Special thanks to following developers / artistans
                 <b>Marcel Walk</b>
                 </sub></a><br />
                 <a href="#questions" title="Tests">⚠</a>
-                <a href="https://github.com/alemayhu/notion2anki/commits?author=MarcelWalk" title="Code">💻</a>
+                <a href="https://github.com/2anki/server/commits?author=MarcelWalk" title="Code">💻</a>
         </td>
         <!-- Add Henrik (https://github.com/henrik-de), Abi, Boni when you get the necessary information -->
     </tr>
