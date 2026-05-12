@@ -1,6 +1,6 @@
 # 2anki.net
 
-[2anki.net](https://2anki.net) converts Notion pages, HTML, Markdown, and other formats into Anki flashcards. Drop something in, get a clean `.apkg` deck back. The project is a complement to Anki and Notion — not a replacement for either.
+[2anki.net](https://2anki.net) helps you turn your Notion pages, HTML, Markdown, and other study material into Anki flashcards. Drop something in, get a clean `.apkg` deck back — no fuss. We love Anki and Notion and want to make them work better together.
 
 This is a monorepo: the Express server lives at the root and the React frontend lives under `web/`.
 
@@ -29,12 +29,14 @@ For server-only work: `pnpm dev:server`.
 
 ## Contributing
 
-Contributions are welcome — whether you are a first-time contributor, a vibe coder using AI tools, or a seasoned open-source veteran. See [CONTRIBUTING.md](./CONTRIBUTING.md) for general guidelines.
+We'd love your help! Whether this is your first open-source PR, you're a vibe coder using AI tools, or you've been shipping open source for years — you're welcome here. See [CONTRIBUTING.md](./CONTRIBUTING.md) for general guidelines.
 
 ### Where to start
 
-- [Good first issues](https://github.com/2anki/server/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
-- [Help wanted](https://github.com/2anki/server/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22)
+Not sure where to jump in? These are great places to begin:
+
+- [Good first issues](https://github.com/2anki/server/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) — smaller, well-scoped tasks
+- [Help wanted](https://github.com/2anki/server/issues?q=is%3Aissue+is%3Aopen+label%3A%22help+wanted%22) — things we could really use a hand with
 
 ### Before you push
 
@@ -52,15 +54,17 @@ pnpm test:run       # Vitest tests
 
 ### Review turnaround
 
-PRs are typically reviewed within a few hours during active periods. Keep each PR focused on one logical change — it is easier to review and faster to merge.
+We try to review PRs within a few hours during active periods. Keeping each PR focused on one logical change makes it easier to review and faster to merge — and we really appreciate that.
 
 ### AI-assisted contributions
 
-We welcome AI-assisted contributions (Copilot, Claude, Cursor, etc.). If you used AI tooling, please disclose it in the PR body so reviewers know what to look for. The same quality bar applies regardless of how the code was written:
+We're happy to receive AI-assisted contributions (Copilot, Claude, Cursor, etc.) — just mention it in the PR body so reviewers know what to look for. The same quality bar applies regardless of how the code was written:
 
 - All commands above must pass before submission
 - One logical change per PR — avoid bundling unrelated refactors
 - Test new behaviour; don't rely on AI-generated code being correct without verification
+
+If you run into trouble or have questions, open an issue — we're glad to help.
 
 ## Strategy
 
