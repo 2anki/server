@@ -195,6 +195,8 @@
 }
 
 .walkCard {
+  display: flex;
+  flex-direction: column;
   background: var(--color-bg-secondary);
   border-radius: var(--radius-lg);
   overflow: hidden;
@@ -204,6 +206,8 @@
   text-align: left;
   width: 100%;
   font-family: inherit;
+  text-decoration: none;
+  color: inherit;
   transition: box-shadow var(--transition-fast);
 }
 
