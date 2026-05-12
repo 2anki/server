@@ -49,7 +49,7 @@ describe('HomePage (anonymous)', () => {
     expect(screen.getByText('Upload')).toBeInTheDocument();
     expect(screen.getByText('Convert')).toBeInTheDocument();
     expect(screen.getByText('Study')).toBeInTheDocument();
-    expect(screen.getByText(/cloze deletions/i)).toBeInTheDocument();
+    expect(screen.getByText(/cloze deletions all transfer/i)).toBeInTheDocument();
   });
 
   it('links to the Notion export guide', () => {
@@ -63,12 +63,9 @@ describe('HomePage (anonymous)', () => {
     );
   });
 
-  it('renders walkthrough cards as external links', () => {
+  it('renders walkthrough videos from the playlist', () => {
     renderHome();
-    const cards = screen.getAllByRole('link', { name: /convert with/i });
-    expect(cards).toHaveLength(2);
-    for (const card of cards) {
-      expect(card).toHaveAttribute('target', '_blank');
-    }
+    const iframes = document.querySelectorAll('iframe[src*="youtube.com/embed"]');
+    expect(iframes.length).toBe(6);
   });
 });

@@ -180,7 +180,6 @@
 .walkGrid {
   display: grid;
   gap: 1rem;
-  margin-bottom: 2rem;
 }
 
 @media (min-width: 640px) {
@@ -189,63 +188,40 @@
   }
 }
 
+@media (min-width: 900px) {
+  .walkGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 .walkCard {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem 1.25rem;
   background: var(--color-bg-secondary);
   border-radius: var(--radius-lg);
-  text-decoration: none;
-  color: var(--color-text-primary);
-  transition: box-shadow var(--transition-fast);
+  overflow: hidden;
 }
 
-.walkCard:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  color: var(--color-text-primary);
+.walkVideo {
+  position: relative;
+  padding-bottom: 56.25%;
+  height: 0;
+  overflow: hidden;
 }
 
-.walkCardIcon {
-  flex-shrink: 0;
-  width: 2.5rem;
-  height: 2.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-md);
-  background: var(--color-primary-light);
-  color: var(--color-primary);
-  font-size: var(--text-lg);
-}
-
-.walkCardText {
-  flex: 1;
-  min-width: 0;
+.walkVideo iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
 }
 
 .walkCardTitle {
   font-size: var(--text-sm);
-  font-weight: var(--font-semibold);
-  margin: 0 0 0.125rem;
-}
-
-.walkCardMeta {
-  font-size: var(--text-xs);
-  color: var(--color-text-tertiary);
+  font-weight: var(--font-medium);
+  color: var(--color-text-secondary);
   margin: 0;
-}
-
-.walkCardArrow {
-  flex-shrink: 0;
-  color: var(--color-text-tertiary);
-  font-size: var(--text-sm);
-  transition: transform var(--transition-fast);
-}
-
-.walkCard:hover .walkCardArrow {
-  transform: translateX(3px);
-  color: var(--color-primary);
+  padding: 0.75rem 1rem;
 }
 
 @media (max-width: 768px) {

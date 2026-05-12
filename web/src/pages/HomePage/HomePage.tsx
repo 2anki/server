@@ -37,14 +37,28 @@ const STEPS = [
 
 const WALKTHROUGHS = [
   {
-    title: 'Convert with Notion integration',
-    meta: 'Video walkthrough',
-    href: 'https://www.youtube.com/watch?v=LqMiK2vGQ8Q',
+    title: 'How I use Notion to Anki as a medical student',
+    embedId: 'UnTo_fN1jpc',
   },
   {
-    title: 'Convert with file upload',
-    meta: 'Video walkthrough',
-    href: 'https://www.youtube.com/watch?v=5ZDA79KfRi8',
+    title: 'Create Anki flashcards from Notion toggle lists',
+    embedId: 'b3eQ0exhdz4',
+  },
+  {
+    title: 'How to use cloze deletions',
+    embedId: 'r9pPNl8Mx_Q',
+  },
+  {
+    title: 'Turn any website into Anki flashcards',
+    embedId: 'NLUfAWA2LJI',
+  },
+  {
+    title: 'Convert multiple Notion pages at once',
+    embedId: 'o7DH3p-mRi4',
+  },
+  {
+    title: 'Use Notion to Anki for learning languages',
+    embedId: 'lpC7C9wJoTA',
   },
 ];
 
@@ -109,20 +123,18 @@ export function HomePage({
         <p className={styles.walkHeading}>Walkthroughs</p>
         <div className={styles.walkGrid}>
           {WALKTHROUGHS.map((item) => (
-            <a
-              key={item.href}
-              className={styles.walkCard}
-              href={item.href}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <span className={styles.walkCardIcon}>&#9654;</span>
-              <div className={styles.walkCardText}>
-                <p className={styles.walkCardTitle}>{item.title}</p>
-                <p className={styles.walkCardMeta}>{item.meta}</p>
+            <div key={item.embedId} className={styles.walkCard}>
+              <div className={styles.walkVideo}>
+                <iframe
+                  src={`https://www.youtube.com/embed/${item.embedId}`}
+                  title={item.title}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerPolicy="strict-origin-when-cross-origin"
+                  allowFullScreen
+                />
               </div>
-              <span className={styles.walkCardArrow}>&rarr;</span>
-            </a>
+              <p className={styles.walkCardTitle}>{item.title}</p>
+            </div>
           ))}
         </div>
       </section>
