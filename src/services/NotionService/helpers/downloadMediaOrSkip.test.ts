@@ -97,4 +97,17 @@ describe('downloadMediaOrSkip', () => {
       downloadMediaOrSkip('https://example.test/broken.png')
     ).rejects.toThrow('socket hang up');
   });
+
+  test('decodes a base64 data URI without fetching', async () => {
+    const payload = Buffer.from('hello').toString('base64');
+    const result = await downloadMediaOrSkip(`data:image/png;base64,${payload}`);
+    expect(result).toEqual(Buffer.from('hello'));
+    expect(mockedAxios.get).not.toHaveBeenCalled();
+  });
+
+  test('returns null for a data URI with no comma', async () => {
+    const result = await downloadMediaOrSkip('data:image/png;base64');
+    expect(result).toBeNull();
+    expect(mockedAxios.get).not.toHaveBeenCalled();
+  });
 });
