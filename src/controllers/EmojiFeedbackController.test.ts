@@ -6,6 +6,8 @@ import { IEmojiFeedbackRepository } from '../data_layer/EmojiFeedbackRepository'
 function buildMocks() {
   const repo: jest.Mocked<IEmojiFeedbackRepository> = {
     insert: jest.fn().mockResolvedValue(undefined),
+    countByRating: jest.fn().mockResolvedValue([]),
+    recentComments: jest.fn().mockResolvedValue([]),
   };
   const controller = new EmojiFeedbackController(repo);
   const req = { body: {} } as Request;

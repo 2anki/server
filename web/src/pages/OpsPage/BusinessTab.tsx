@@ -13,6 +13,8 @@ import ActiveSubsTimeseriesChart from './charts/ActiveSubsTimeseriesChart';
 import CancellationCommentsList from './charts/CancellationCommentsList';
 import CancellationReasonsChart from './charts/CancellationReasonsChart';
 import ChartPanel from './charts/ChartPanel';
+import EmojiFeedbackChart from './charts/EmojiFeedbackChart';
+import EmojiFeedbackCommentsList from './charts/EmojiFeedbackCommentsList';
 import ConversionsChurnChart from './charts/ConversionsChurnChart';
 import FailedPaymentsWeeklyChart from './charts/FailedPaymentsWeeklyChart';
 import MrrTimeseriesChart from './charts/MrrTimeseriesChart';
@@ -190,6 +192,29 @@ export default function BusinessTab() {
         >
           <CancellationCommentsList
             points={visible?.cancellation_comments_recent ?? []}
+          />
+        </ChartPanel>
+
+        <ChartPanel
+          title="Emoji feedback, last 30 days"
+          isLoading={showInitialSkeleton}
+          isEmpty={(visible?.emoji_feedback_ratings?.length ?? 0) === 0}
+          emptyText="No emoji feedback yet."
+        >
+          <EmojiFeedbackChart
+            points={visible?.emoji_feedback_ratings ?? []}
+          />
+        </ChartPanel>
+
+        <ChartPanel
+          title="Recent feedback comments"
+          subtitle="Latest text feedback from the emoji widget"
+          isLoading={showInitialSkeleton}
+          isEmpty={(visible?.emoji_feedback_comments?.length ?? 0) === 0}
+          emptyText="No feedback comments yet."
+        >
+          <EmojiFeedbackCommentsList
+            points={visible?.emoji_feedback_comments ?? []}
           />
         </ChartPanel>
       </div>
