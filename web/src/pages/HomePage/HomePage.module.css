@@ -30,7 +30,6 @@
   color: var(--color-text-secondary);
   line-height: var(--leading-relaxed);
   margin: 0 auto 2.5rem;
-  max-width: 560px;
 }
 
 .heroSubtitle a {
