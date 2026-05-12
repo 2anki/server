@@ -10,6 +10,7 @@ import ExportApkgToPdfUseCase, {
   CardLimitExceededError,
 } from '../usecases/apkg/ExportApkgToPdfUseCase';
 import ImportApkgToNotionUseCase from '../usecases/apkg/ImportApkgToNotionUseCase';
+import ResolveImportParentPageUseCase from '../usecases/apkg/ResolveImportParentPageUseCase';
 import { NotionService } from '../services/NotionService/NotionService';
 import JobRepository from '../data_layer/JobRepository';
 import sendErrorResponse from '../lib/sendErrorResponse';
@@ -225,14 +226,20 @@ class ApkgController {
         return;
       }
 
-      const parentPageId = req.body?.parent_page_id;
-      if (typeof parentPageId !== 'string' || parentPageId.trim().length === 0) {
-        res.status(400).json({ message: 'Missing parent_page_id.' });
-        return;
-      }
+      const rawParentPageId = req.body?.parent_page_id;
+      const hasExplicitParent =
+        typeof rawParentPageId === 'string' && rawParentPageId.trim().length > 0;
 
       const { owner } = res.locals;
       const notionApi = await this.notionService.getNotionAPI(owner);
+
+      let parentPageId: string;
+      if (hasExplicitParent) {
+        parentPageId = rawParentPageId.trim();
+      } else {
+        const resolver = new ResolveImportParentPageUseCase();
+        parentPageId = await resolver.execute(notionApi);
+      }
 
       const fs = await import('node:fs/promises');
       let fileBuffer: Buffer;
@@ -261,7 +268,7 @@ class ApkgController {
 
       void useCase.execute(
         fileBuffer,
-        parentPageId.trim(),
+        parentPageId,
         owner,
         notionApi,
         jobId

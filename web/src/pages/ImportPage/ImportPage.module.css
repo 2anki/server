@@ -249,6 +249,39 @@
   margin-top: 1.5rem;
 }
 
+.quickImportSection {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.quickImportDivider {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.quickImportDivider::before,
+.quickImportDivider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--color-border, #d1d5db);
+}
+
+.quickImportDividerText {
+  padding: 0 0.75rem;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.quickImportHelp {
+  font-size: 0.8125rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin-top: 0.5rem;
+}
+
 @media (max-width: 640px) {
   .dropZone {
     padding: 2rem 1rem;

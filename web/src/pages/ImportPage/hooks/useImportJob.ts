@@ -85,7 +85,7 @@ export default function useImportJob() {
   );
 
   const submit = useCallback(
-    async (file: File, notionPageId: string) => {
+    async (file: File, notionPageId?: string) => {
       setState({
         phase: 'uploading',
         progress: { total_notes: 0, imported: 0 },

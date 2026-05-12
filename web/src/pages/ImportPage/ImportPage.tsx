@@ -53,6 +53,15 @@ export default function ImportPage({ setError }: Readonly<ImportPageProps>) {
     }
   }, [file, selectedPageId, job, setError]);
 
+  const handleQuickImport = useCallback(async () => {
+    if (file == null) return;
+    try {
+      await job.submit(file);
+    } catch (err) {
+      setError(err);
+    }
+  }, [file, job, setError]);
+
   const handleReset = useCallback(() => {
     job.reset();
     setFile(null);
@@ -99,7 +108,10 @@ export default function ImportPage({ setError }: Readonly<ImportPageProps>) {
         <div className={styles.completeContainer}>
           <h2 className={styles.completeTitle}>Import complete</h2>
           <p className={styles.completeSummary}>
-            {job.progress.imported} cards added to &ldquo;{selectedPageTitle}&rdquo;
+            {job.progress.imported} cards added
+            {selectedPageTitle
+              ? <> to &ldquo;{selectedPageTitle}&rdquo;</>
+              : <> to your &ldquo;2anki Imports&rdquo; page</>}
           </p>
           <div className={styles.completeActions}>
             {job.notionPageUrl && (
@@ -159,7 +171,7 @@ export default function ImportPage({ setError }: Readonly<ImportPageProps>) {
           imported={job.progress.imported}
           total={job.progress.total_notes}
           fileName={file?.name ?? ''}
-          pageTitle={selectedPageTitle}
+          pageTitle={selectedPageTitle || '2anki Imports'}
         />
       </div>
     );
@@ -207,6 +219,23 @@ export default function ImportPage({ setError }: Readonly<ImportPageProps>) {
         >
           Start import
         </button>
+      </div>
+
+      <div className={`${styles.quickImportSection} ${file == null ? styles.stepDisabled : ''}`}>
+        <div className={styles.quickImportDivider}>
+          <span className={styles.quickImportDividerText}>or</span>
+        </div>
+        <button
+          type="button"
+          className={sharedStyles.btnSecondary}
+          disabled={file == null || isRunning}
+          onClick={handleQuickImport}
+        >
+          Quick import
+        </button>
+        <p className={styles.quickImportHelp}>
+          We'll create a "2anki Imports" page in your Notion workspace
+        </p>
       </div>
     </div>
   );

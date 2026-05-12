@@ -666,11 +666,13 @@ export class Backend {
 
   async startImportToNotion(
     file: File,
-    notionPageId: string
+    notionPageId?: string
   ): Promise<{ job_id: string }> {
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('parent_page_id', notionPageId);
+    if (notionPageId != null && notionPageId.length > 0) {
+      formData.append('parent_page_id', notionPageId);
+    }
 
     const response = await fetch(`${this.baseURL}apkg/import`, {
       method: 'POST',
