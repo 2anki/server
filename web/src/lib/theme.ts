@@ -11,6 +11,8 @@ export function getStoredTheme(): Theme {
   return 'light';
 }
 
+export const THEME_CHANGE_EVENT = '2anki-theme-change';
+
 export function applyTheme(theme: Theme): void {
   if (theme === 'light') {
     document.documentElement.removeAttribute('data-theme');
@@ -18,6 +20,7 @@ export function applyTheme(theme: Theme): void {
     document.documentElement.setAttribute('data-theme', theme);
   }
   globalThis.localStorage?.setItem(STORAGE_KEY, theme);
+  globalThis.dispatchEvent?.(new CustomEvent(THEME_CHANGE_EVENT, { detail: theme }));
 }
 
 export function initTheme(): void {

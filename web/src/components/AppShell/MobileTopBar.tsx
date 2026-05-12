@@ -1,3 +1,4 @@
+import { useTheme } from '../../lib/hooks/useTheme';
 import styles from './AppShell.module.css';
 
 interface MobileTopBarProps {
@@ -12,6 +13,8 @@ export function MobileTopBar({
   onClose,
 }: Readonly<MobileTopBarProps>) {
   const onClick = isOpen ? onClose : onOpen;
+  const theme = useTheme();
+  const logoSrc = theme === 'light' ? '/mascot/navbar-logo.png' : '/mascot/Notion 1.png';
   return (
     <div className={styles.mobileTopBar}>
       <button
@@ -27,7 +30,7 @@ export function MobileTopBar({
         <span aria-hidden="true" />
       </button>
       <a className={styles.mobileLogo} href="/">
-        <img src="/mascot/navbar-logo.png" alt="2anki Logo" />
+        <img src={logoSrc} alt="2anki Logo" />
       </a>
       <span aria-hidden="true" />
     </div>

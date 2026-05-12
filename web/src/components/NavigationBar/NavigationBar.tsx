@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { useTheme } from '../../lib/hooks/useTheme';
 import styles from './NavigationBar.module.css';
 import { RightSide } from './components/RightSide';
 
@@ -10,6 +11,8 @@ interface NavigationBarProps {
 function NavigationBar({ isLoggedIn }: Readonly<NavigationBarProps>) {
   const [active, setActive] = useState(false);
   const path = globalThis.location.pathname;
+  const theme = useTheme();
+  const logoSrc = theme === 'light' ? '/mascot/navbar-logo.png' : '/mascot/Notion 1.png';
 
   const isResolved = isLoggedIn !== undefined;
 
@@ -17,7 +20,7 @@ function NavigationBar({ isLoggedIn }: Readonly<NavigationBarProps>) {
     <nav className={styles.navbar} aria-label="main navigation">
       <div className={styles.brand}>
         <a className={styles.logoLink} href="/">
-          <img src="/mascot/navbar-logo.png" alt="2anki Logo" />
+          <img src={logoSrc} alt="2anki Logo" />
         </a>
         <button
           type="button"
