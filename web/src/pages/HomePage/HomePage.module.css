@@ -220,6 +220,8 @@
   aspect-ratio: 16 / 9;
   overflow: hidden;
   background: var(--color-bg-secondary);
+  border-radius: var(--radius-lg);
+  margin: 0.375rem 0.375rem 0;
 }
 
 .walkThumb img {
