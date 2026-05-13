@@ -98,7 +98,10 @@ export class CreateImageOcclusionDeckUseCase {
       const deckInfo = {
         deckName: input.deckName,
         mode: input.mode,
-        images: input.images,
+        images: input.images.map((img) => ({
+          ...img,
+          imageName: path.basename(img.imageName),
+        })),
       };
 
       fs.writeFileSync(

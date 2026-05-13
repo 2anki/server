@@ -87,8 +87,12 @@ if __name__ == "__main__":
         media_files = []
         notes = []
 
+        workspace_real = os.path.realpath(workspace_dir)
         for image_entry in images:
             image_path = os.path.join(workspace_dir, image_entry["imageName"])
+            resolved = os.path.realpath(image_path)
+            if not resolved.startswith(workspace_real + os.sep):
+                raise ValueError(f"imageName escapes workspace: {image_entry['imageName']}")
             full_entry = dict(image_entry, imageName=image_path)
             image_notes = build_io_notes(full_entry, occlude_inactive, media_files)
             notes.extend(image_notes)

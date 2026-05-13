@@ -6,7 +6,14 @@ import { CreateImageOcclusionDeckUseCase } from '../usecases/imageOcclusion/Crea
 
 const ImageOcclusionRouter = () => {
   const router = express.Router();
-  const upload = multer({ dest: '/tmp' });
+  const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+  const upload = multer({
+    dest: '/tmp',
+    fileFilter: (_req, file, cb) => {
+      cb(null, ALLOWED_MIME_TYPES.includes(file.mimetype));
+    },
+    limits: { fileSize: 10 * 1024 * 1024 },
+  });
   const controller = new ImageOcclusionController(
     new CreateImageOcclusionDeckUseCase()
   );
