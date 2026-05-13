@@ -1,0 +1,126 @@
+import { Request, Response } from 'express';
+
+import { UserPreferencesController } from './UserPreferencesController';
+import { InMemoryUserPreferencesRepository } from '../data_layer/UserPreferencesRepository';
+
+function buildMocks(userId = 1) {
+  const repo = new InMemoryUserPreferencesRepository();
+  const controller = new UserPreferencesController(repo);
+  const res = {
+    locals: { owner: userId },
+    status: jest.fn().mockReturnThis(),
+    json: jest.fn().mockReturnThis(),
+  } as unknown as Response;
+  return { repo, controller, res };
+}
+
+describe('UserPreferencesController.get', () => {
+  it('returns 200 with null prefs for a fresh user', async () => {
+    const { controller, res } = buildMocks(1);
+
+    await controller.get({} as Request, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith({ cardOptions: null, theme: null });
+  });
+
+  it('returns stored prefs after a patch', async () => {
+    const { repo, controller, res } = buildMocks(2);
+    await repo.patch(2, { theme: 'dark' });
+
+    await controller.get({} as Request, res);
+
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ theme: 'dark' })
+    );
+  });
+});
+
+describe('UserPreferencesController.patch', () => {
+  it('updates theme', async () => {
+    const { controller, res } = buildMocks(3);
+    const req = { body: { theme: 'gold' } } as unknown as Request;
+
+    await controller.patch(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ theme: 'gold' }));
+  });
+
+  it('updates cardOptions', async () => {
+    const { controller, res } = buildMocks(4);
+    const req = {
+      body: { cardOptions: { deckName: 'My Deck', 'font-size': '22' } },
+    } as unknown as Request;
+
+    await controller.patch(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        cardOptions: expect.objectContaining({ deckName: 'My Deck' }),
+      })
+    );
+  });
+
+  it('returns 400 when cardOptions is not an object', async () => {
+    const { controller, res } = buildMocks(1);
+    const req = { body: { cardOptions: 'bad' } } as unknown as Request;
+
+    await controller.patch(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+  });
+
+  it('returns 400 when theme is not a string', async () => {
+    const { controller, res } = buildMocks(1);
+    const req = { body: { theme: 42 } } as unknown as Request;
+
+    await controller.patch(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+  });
+});
+
+describe('UserPreferencesController.migrate', () => {
+  it('adopts cardOptions when DB is empty', async () => {
+    const { controller, res } = buildMocks(5);
+    const req = {
+      body: { cardOptions: { deckName: 'Migrated', template: 'basic' } },
+    } as unknown as Request;
+
+    await controller.migrate(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        cardOptions: expect.objectContaining({ deckName: 'Migrated' }),
+      })
+    );
+  });
+
+  it('does not overwrite existing cardOptions', async () => {
+    const { repo, controller, res } = buildMocks(6);
+    await repo.patch(6, { cardOptions: { deckName: 'Existing' } });
+    const req = {
+      body: { cardOptions: { deckName: 'Should Not Win' } },
+    } as unknown as Request;
+
+    await controller.migrate(req, res);
+
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        cardOptions: expect.objectContaining({ deckName: 'Existing' }),
+      })
+    );
+  });
+
+  it('returns 400 when cardOptions is not an object', async () => {
+    const { controller, res } = buildMocks(1);
+    const req = { body: { cardOptions: 123 } } as unknown as Request;
+
+    await controller.migrate(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+  });
+});

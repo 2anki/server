@@ -128,12 +128,20 @@ describe('LoginForm', () => {
     );
   });
 
-  it('persists email to localStorage on change', () => {
+  it('persists email to localStorage on blur when value looks like an email', () => {
     renderLoginForm();
-    fireEvent.change(screen.getByPlaceholderText('Email address'), {
-      target: { value: 'stored@example.com' },
-    });
+    const input = screen.getByPlaceholderText('Email address');
+    fireEvent.change(input, { target: { value: 'stored@example.com' } });
+    fireEvent.blur(input);
     expect(localStorage.getItem('email')).toBe('stored@example.com');
+  });
+
+  it('does not persist to localStorage on blur when value has no @', () => {
+    renderLoginForm();
+    const input = screen.getByPlaceholderText('Email address');
+    fireEvent.change(input, { target: { value: 'notanemail' } });
+    fireEvent.blur(input);
+    expect(localStorage.getItem('email')).toBeNull();
   });
 
   it('restores email from localStorage', () => {

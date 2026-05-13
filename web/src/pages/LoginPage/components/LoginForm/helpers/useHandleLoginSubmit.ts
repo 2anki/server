@@ -11,6 +11,7 @@ import {
 } from '../../../../../components/errors/helpers/getErrorMessage';
 import { get2ankiApi } from '../../../../../lib/backend/get2ankiApi';
 import { getSearchPath } from '../../../../../components/NavigationBar/helpers/getSearchPath';
+import { migrateToServer, hydrateFromServer } from '../../../../../lib/data_layer/userPreferencesSync';
 
 interface LoginState {
   email: string;
@@ -36,6 +37,8 @@ export const useHandleLoginSubmit = (onError: ErrorHandlerType): LoginState => {
       if (res.status === 200) {
         const { token, redirect } = await res.json();
         setCookie('token', token);
+        await migrateToServer();
+        await hydrateFromServer();
         globalThis.location.href = redirect ?? getSearchPath('anki');
       } else {
         onError(

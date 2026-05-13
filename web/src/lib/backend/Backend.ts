@@ -16,6 +16,7 @@ import isOfflineMode from '../isOfflineMode';
 import getObjectIcon, { ObjectIcon } from '../notion/getObjectIcon';
 import { Rules, Settings } from '../types';
 import { del, get, getLoginURL, post } from './api';
+import { cancelPendingSync } from '../data_layer/userPreferencesSync';
 import { getResourceUrl } from './getResourceUrl';
 import { CONFLICT, OK } from './http';
 
@@ -36,6 +37,7 @@ export class Backend {
 
   async logout() {
     const isOffline = isOfflineMode();
+    cancelPendingSync();
     localStorage.clear();
     sessionStorage.clear();
     if (!isOffline) {
