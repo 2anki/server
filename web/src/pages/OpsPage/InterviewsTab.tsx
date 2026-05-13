@@ -243,8 +243,7 @@ function SnapshotForm({ onSave, onCancel }: { onSave: (s: InterviewSnapshot) => 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const photoInputRef = useRef<HTMLInputElement>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const excalidrawAPIRef = useRef<any>(null);
+  const [getExcalidrawPng, setGetExcalidrawPng] = useState<(() => Promise<string | null>) | null>(null);
 
   const set = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) =>
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -266,21 +265,7 @@ function SnapshotForm({ onSave, onCancel }: { onSave: (s: InterviewSnapshot) => 
     setSaving(true);
     setError('');
     try {
-      // Export Excalidraw canvas as PNG if there are any elements
-      let mapData = form.experienceMapData;
-      if (excalidrawAPIRef.current) {
-        const elements = excalidrawAPIRef.current.getSceneElements();
-        if (elements.length > 0) {
-          const { exportToBlob } = await import('@excalidraw/excalidraw');
-          const blob = await exportToBlob({
-            elements,
-            mimeType: 'image/png',
-            appState: excalidrawAPIRef.current.getAppState(),
-            files: excalidrawAPIRef.current.getFiles(),
-          });
-          mapData = await blobToDataUri(blob);
-        }
-      }
+      const mapData = getExcalidrawPng ? (await getExcalidrawPng()) ?? form.experienceMapData : form.experienceMapData;
 
       const snapshot = await apiCreate({ ...form, experienceMapData: mapData });
       onSave(snapshot);
@@ -472,7 +457,20 @@ function SnapshotForm({ onSave, onCancel }: { onSave: (s: InterviewSnapshot) => 
         <div className={styles.excalidrawWrap}>
           <Suspense fallback={<div className={styles.excalidrawLoading}>Loading canvas…</div>}>
             <Excalidraw
-              excalidrawAPI={(api) => { excalidrawAPIRef.current = api; }}
+              excalidrawAPI={(api) => {
+                setGetExcalidrawPng(() => async () => {
+                  const elements = api.getSceneElements();
+                  if (elements.length === 0) return null;
+                  const { exportToBlob } = await import('@excalidraw/excalidraw');
+                  const blob = await exportToBlob({
+                    elements,
+                    mimeType: 'image/png',
+                    appState: api.getAppState(),
+                    files: api.getFiles(),
+                  });
+                  return blobToDataUri(blob);
+                });
+              }}
               initialData={{ appState: { viewBackgroundColor: 'transparent' } }}
             />
           </Suspense>

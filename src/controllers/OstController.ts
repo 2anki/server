@@ -136,14 +136,7 @@ export class OstController {
     const response = await client.messages.create({
       model: 'claude-sonnet-4-5',
       max_tokens: 4096,
-      system: [
-        {
-          type: 'text',
-          text: OST_SYSTEM_PROMPT,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          cache_control: { type: 'ephemeral' } as any,
-        },
-      ],
+      system: OST_SYSTEM_PROMPT,
       messages: [{ role: 'user', content: userMessage }],
     });
 
