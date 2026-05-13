@@ -31,7 +31,6 @@ describe('UsersRepository.createUser', () => {
       'al',
       SAMPLE_HASH,
       'al@example.com',
-      'pic.png',
       '/notion-to-anki'
     );
 
@@ -39,7 +38,6 @@ describe('UsersRepository.createUser', () => {
       name: 'al',
       password: SAMPLE_HASH,
       email: 'al@example.com',
-      picture: 'pic.png',
       signup_origin: '/notion-to-anki',
     });
   });
@@ -52,7 +50,7 @@ describe('UsersRepository.createUser', () => {
     const knex = jest.fn().mockReturnValue(tableBuilder);
     const repo = new UsersRepository(knex as any);
 
-    await repo.createUser('al', SAMPLE_HASH, 'al@example.com', 'pic.png');
+    await repo.createUser('al', SAMPLE_HASH, 'al@example.com');
 
     expect(insertSpy).toHaveBeenCalledWith(
       expect.objectContaining({ signup_origin: null })

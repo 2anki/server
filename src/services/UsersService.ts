@@ -63,7 +63,6 @@ class UsersService {
     name: string,
     password: string,
     email: string,
-    picture: string,
     signupOrigin?: string | null
   ) {
     const normalizedEmail = email.toLowerCase();
@@ -74,7 +73,6 @@ class UsersService {
       resolvedName,
       password,
       normalizedEmail,
-      picture,
       signupOrigin ?? null
     );
   }
@@ -108,9 +106,6 @@ class UsersService {
     return this.repository.getById(owner);
   }
 
-  updatePicture(id: string, picture: string) {
-    return this.repository.updatePicture(id, picture);
-  }
 
   updateLastLoginAt(id: string) {
     return this.repository.updateLastLoginAt(id);

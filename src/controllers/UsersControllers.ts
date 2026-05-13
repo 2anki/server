@@ -9,7 +9,6 @@ import { parseSignupOrigin } from './helpers/parseSignupOrigin';
 
 import { getIndexFileContents } from './IndexController/getIndexFileContents';
 import { getRandomUUID } from '../shared/helpers/getRandomUUID';
-import { getDefaultAvatarPicture } from '../lib/getDefaultAvatarPicture';
 import SubscriptionService from '../services/SubscriptionService';
 import { OPS_OWNER_EMAIL } from '../routes/middleware/RequireOpsAccess';
 import { MagicLinkRateLimitError } from '../services/UsersService';
@@ -164,7 +163,6 @@ class UsersController {
         name ?? '',
         password,
         email,
-        getDefaultAvatarPicture(),
         signupOrigin
       );
       res.status(200).json({ message: 'ok' });
@@ -218,7 +216,6 @@ class UsersController {
         id: user?.id,
         name: user?.name,
         patreon: user?.patreon,
-        picture: user?.picture,
         email: user?.email,
         ankify_welcome_seen: user?.ankify_welcome_seen ?? false,
       },
@@ -448,11 +445,10 @@ class UsersController {
       /**
        * now create a new user if the user does not exist
        */
-      const { email, name, picture } = loginRequest;
+      const { email, name } = loginRequest;
       let user = await this.userService.getUserFrom(email);
       if (!user) {
-        // Create user with random password
-        await this.userService.register(name, getRandomUUID(), email, picture);
+        await this.userService.register(name, getRandomUUID(), email);
         user = await this.userService.getUserFrom(email);
       }
 
@@ -461,10 +457,6 @@ class UsersController {
         return res
           .status(400)
           .send('Unknown error. Please try again or register a new account.');
-      }
-
-      if (picture && picture !== user.picture) {
-        await this.userService.updatePicture(user.id, picture);
       }
 
       const token = await this.authService.newJWTToken(user);
@@ -558,18 +550,6 @@ class UsersController {
     }
   }
 
-  async getAvatar(req: express.Request, res: express.Response) {
-    if (!res.locals.owner) {
-      return res.status(400).json({ message: 'Missing owner' });
-    }
-
-    const user = await this.userService.getUserById(res.locals.owner);
-    const name = user.name;
-    const picture = user.picture;
-    const email = user.email;
-
-    return res.json({ name, picture, email });
-  }
 }
 
 export default UsersController;

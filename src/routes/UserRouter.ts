@@ -580,39 +580,6 @@ const UserRouter = () => {
     controller.loginWithGoogle(req, res)
   );
 
-  /**
-   * @swagger
-   * /api/users/avatar:
-   *   get:
-   *     summary: Get user avatar
-   *     description: Get the authenticated user's avatar/profile picture
-   *     tags: [Users]
-   *     security:
-   *       - bearerAuth: []
-   *       - cookieAuth: []
-   *     responses:
-   *       200:
-   *         description: Avatar URL or information
-   *         content:
-   *           application/json:
-   *             schema:
-   *               type: object
-   *               properties:
-   *                 avatar:
-   *                   type: string
-   *                   format: uri
-   *                   description: Avatar image URL
-   *       401:
-   *         description: Authentication required
-   *         content:
-   *           application/json:
-   *             schema:
-   *               $ref: '#/components/schemas/Error'
-   */
-  router.get('/api/users/avatar', RequireAuthentication, (req, res) =>
-    controller.getAvatar(req, res)
-  );
-
   return router;
 };
 

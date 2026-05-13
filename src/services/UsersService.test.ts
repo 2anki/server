@@ -47,13 +47,12 @@ describe('UsersService.register', () => {
     const repository = buildRegisterRepository();
     const service = new UsersService(repository, noopEmailService);
 
-    await service.register('Alex', 'hashed', 'Alex@Example.com', 'pic.png');
+    await service.register('Alex', 'hashed', 'Alex@Example.com');
 
     expect(repository.createUser).toHaveBeenCalledWith(
       'Alex',
       'hashed',
       'alex@example.com',
-      'pic.png',
       null
     );
   });
@@ -62,13 +61,12 @@ describe('UsersService.register', () => {
     const repository = buildRegisterRepository();
     const service = new UsersService(repository, noopEmailService);
 
-    await service.register('', 'hashed', 'jane.doe@example.com', 'pic.png');
+    await service.register('', 'hashed', 'jane.doe@example.com');
 
     expect(repository.createUser).toHaveBeenCalledWith(
       'jane.doe',
       'hashed',
       'jane.doe@example.com',
-      'pic.png',
       null
     );
   });
@@ -77,13 +75,12 @@ describe('UsersService.register', () => {
     const repository = buildRegisterRepository();
     const service = new UsersService(repository, noopEmailService);
 
-    await service.register('   ', 'hashed', 'student@uni.edu', 'pic.png');
+    await service.register('   ', 'hashed', 'student@uni.edu');
 
     expect(repository.createUser).toHaveBeenCalledWith(
       'student',
       'hashed',
       'student@uni.edu',
-      'pic.png',
       null
     );
   });
@@ -96,7 +93,6 @@ describe('UsersService.register', () => {
       'Alex',
       'hashed',
       'al@example.com',
-      'pic.png',
       '/notion-to-anki'
     );
 
@@ -104,7 +100,6 @@ describe('UsersService.register', () => {
       'Alex',
       'hashed',
       'al@example.com',
-      'pic.png',
       '/notion-to-anki'
     );
   });

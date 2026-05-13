@@ -9,7 +9,6 @@ import sharedStyles from '../../../styles/shared.module.css';
 
 interface User {
   email: string;
-  picture?: string | null;
   name?: string;
 }
 
