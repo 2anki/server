@@ -117,7 +117,6 @@ describe('UsersController.register', () => {
       'Alex',
       'hashed',
       'alex@example.com',
-      expect.any(String),
       null
     );
     expect(res.status).toHaveBeenCalledWith(200);
@@ -142,7 +141,6 @@ describe('UsersController.register', () => {
       expect.any(String),
       'hashed',
       'al@example.com',
-      expect.any(String),
       '/notion-to-anki'
     );
   });
@@ -166,7 +164,6 @@ describe('UsersController.register', () => {
       expect.any(String),
       'hashed',
       'al@example.com',
-      expect.any(String),
       null
     );
   });
