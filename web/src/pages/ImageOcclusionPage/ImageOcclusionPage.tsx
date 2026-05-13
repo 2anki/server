@@ -172,13 +172,11 @@ export function ImageOcclusionPage() {
   const handleAdd = useCallback(
     (files: File[]) => {
       const newEntries: ImageEntry[] = files.map((file) => {
-        const baseName = file.name.replace(/\.[^.]+$/, '');
-        const header = baseName.replace(/[-_]+/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
         return {
           id: crypto.randomUUID(),
           file,
           imageName: file.name,
-          header,
+          header: '',
           rects: [],
           previewUrl: URL.createObjectURL(file),
           s3Key: null,

@@ -85,7 +85,7 @@ export function ImageQueue({
               type="text"
               value={entry.header}
               onChange={(e) => onHeaderChange(i, e.target.value)}
-              placeholder="What's this image? (optional)"
+              placeholder="Card title — shown above image on every card (optional)"
               className={styles.headerInput}
               aria-label={`Header for image ${i + 1}`}
             />
