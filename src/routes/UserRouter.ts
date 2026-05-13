@@ -187,6 +187,23 @@ const UserRouter = () => {
     controller.verifyMagicLink(req, res, next)
   );
 
+  /**
+   * @swagger
+   * /api/users/verify/{token}:
+   *   get:
+   *     summary: Verify email address
+   *     description: Validates an email verification token, marks the user's email as verified, and redirects to the app.
+   *     tags: [Authentication]
+   *     parameters:
+   *       - in: path
+   *         name: token
+   *         required: true
+   *         schema:
+   *           type: string
+   *     responses:
+   *       302:
+   *         description: Redirects to /uploads on success, or /login?error=verification-expired on failure
+   */
   router.get('/api/users/verify/:token', (req, res, next) =>
     controller.verifyEmail(req, res, next)
   );
