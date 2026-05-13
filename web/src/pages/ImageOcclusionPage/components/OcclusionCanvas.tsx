@@ -617,7 +617,7 @@ export function OcclusionCanvas({ entry, onRectsChange }: Readonly<Props>) {
               ));
 
               if (rect.shape === 'polygon' && rect.points && rect.points.length >= 3) {
-                const pointsAttr = rect.points.map((p) => `${p.x * 100}%,${p.y * 100}%`).join(' ');
+                const pointsAttr = rect.points.map((p) => `${p.x * svgSize.w},${p.y * svgSize.h}`).join(' ');
                 return (
                   <g key={rect.id} data-rect={rect.id} style={{ cursor: groupCursor }}>
                     <polygon

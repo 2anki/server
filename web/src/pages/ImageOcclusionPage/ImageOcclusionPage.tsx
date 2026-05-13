@@ -59,39 +59,49 @@ async function uploadImageToServer(file: File): Promise<{ s3Key: string; presign
   return res.json() as Promise<{ s3Key: string; presignedUrl: string }>;
 }
 
-async function upsertDraft(deckName: string, mode: Mode, entries: ImageEntry[]): Promise<void> {
-  const images = entries
-    .filter((e) => e.s3Key != null)
-    .map((e) => ({
-      s3Key: e.s3Key as string,
-      imageName: e.imageName,
-      header: e.header,
-      rects: e.rects,
-    }));
-  await fetch('/api/image-occlusion/draft', {
+async function createDraft(name: string, mode: Mode, images: unknown[]): Promise<string | null> {
+  const res = await fetch('/api/image-occlusion/draft', {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, mode, images }),
+  });
+  if (!res.ok) return null;
+  const body = (await res.json()) as { id: string };
+  return body.id;
+}
+
+async function updateDraft(id: string, name: string, mode: Mode, images: unknown[]): Promise<void> {
+  await fetch(`/api/image-occlusion/draft/${id}`, {
     method: 'PUT',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ deckName, mode, images }),
+    body: JSON.stringify({ name, mode, images }),
   });
 }
 
-async function loadDraft(): Promise<{
-  deckName: string;
+async function loadLatestDraft(): Promise<{
+  id: string;
+  name: string;
   mode: Mode;
   images: Array<{ s3Key: string; imageName: string; header: string; rects: OcclusionRect[]; presignedUrl: string }>;
 } | null> {
-  const res = await fetch('/api/image-occlusion/draft', { credentials: 'include' });
+  const listRes = await fetch('/api/image-occlusion/drafts', { credentials: 'include' });
+  if (!listRes.ok) return null;
+  const list = (await listRes.json()) as Array<{ id: string }>;
+  if (list.length === 0) return null;
+  const res = await fetch(`/api/image-occlusion/draft/${list[0].id}`, { credentials: 'include' });
   if (!res.ok) return null;
   return res.json() as Promise<{
-    deckName: string;
+    id: string;
+    name: string;
     mode: Mode;
     images: Array<{ s3Key: string; imageName: string; header: string; rects: OcclusionRect[]; presignedUrl: string }>;
   } | null>;
 }
 
-async function deleteDraft(): Promise<void> {
-  await fetch('/api/image-occlusion/draft', { method: 'DELETE', credentials: 'include' });
+async function deleteDraft(id: string): Promise<void> {
+  await fetch(`/api/image-occlusion/draft/${id}`, { method: 'DELETE', credentials: 'include' });
 }
 
 export function ImageOcclusionPage() {
@@ -104,6 +114,7 @@ export function ImageOcclusionPage() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [deckName, setDeckName] = useState('My image deck');
   const [mode, setMode] = useState<Mode>('hide_all');
+  const [draftId, setDraftId] = useState<string | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [mobileDismissed, setMobileDismissed] = useState(() =>
@@ -119,13 +130,14 @@ export function ImageOcclusionPage() {
       setHydrated(true);
       return;
     }
-    loadDraft()
+    loadLatestDraft()
       .then((draft) => {
         if (draft == null) {
           setHydrated(true);
           return;
         }
-        setDeckName(draft.deckName);
+        setDraftId(draft.id);
+        setDeckName(draft.name);
         setMode(draft.mode);
         const restored: ImageEntry[] = draft.images.map((img) => ({
           id: crypto.randomUUID(),
@@ -144,12 +156,23 @@ export function ImageOcclusionPage() {
   }, [isLoggedIn]);
 
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const draftIdRef = useRef<string | null>(null);
+  draftIdRef.current = draftId;
 
   useEffect(() => {
     if (!hydrated || !isLoggedIn) return;
     if (saveTimer.current) clearTimeout(saveTimer.current);
-    saveTimer.current = setTimeout(() => {
-      upsertDraft(deckName, mode, entries).catch(() => undefined);
+    saveTimer.current = setTimeout(async () => {
+      const images = entries
+        .filter((e) => e.s3Key != null)
+        .map((e) => ({ s3Key: e.s3Key, imageName: e.imageName, header: e.header, rects: e.rects }));
+      const currentId = draftIdRef.current;
+      if (currentId != null) {
+        await updateDraft(currentId, deckName, mode, images).catch(() => undefined);
+      } else {
+        const newId = await createDraft(deckName, mode, images).catch(() => null);
+        if (newId != null) setDraftId(newId);
+      }
     }, 1000);
     return () => {
       if (saveTimer.current) clearTimeout(saveTimer.current);
@@ -265,7 +288,7 @@ export function ImageOcclusionPage() {
       a.download = `${deckName}.apkg`;
       a.click();
       URL.revokeObjectURL(url);
-      if (isLoggedIn) await deleteDraft().catch(() => undefined);
+      if (isLoggedIn && draftId != null) await deleteDraft(draftId).catch(() => undefined);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Download failed');
     } finally {
