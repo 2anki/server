@@ -12,8 +12,8 @@ export class SendInactivityWarningsUseCase {
     private readonly emailService: IEmailService
   ) {}
 
-  async execute(dryRun: boolean): Promise<SendInactivityWarningsResult> {
-    const users = await this.repo.getUsersToNotify();
+  async execute(dryRun: boolean, limit = 500): Promise<SendInactivityWarningsResult> {
+    const users = await this.repo.getUsersToNotify(limit);
 
     if (dryRun) {
       return { count: users.length, dryRun: true };

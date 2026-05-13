@@ -1,7 +1,7 @@
 import type { Knex } from 'knex';
 
 export interface IInactivityEmailRepository {
-  getUsersToNotify(): Promise<Array<{ id: number; name: string; email: string }>>;
+  getUsersToNotify(limit?: number): Promise<Array<{ id: number; name: string; email: string }>>;
   recordSend(userId: number, token: string): Promise<void>;
 }
 
@@ -16,7 +16,7 @@ export class InactivityEmailRepository implements IInactivityEmailRepository {
 
   constructor(private readonly database: Knex) {}
 
-  async getUsersToNotify(): Promise<
+  async getUsersToNotify(limit = 500): Promise<
     Array<{ id: number; name: string; email: string }>
   > {
     const rows = await this.database<UserRow>('users')
@@ -48,7 +48,7 @@ export class InactivityEmailRepository implements IInactivityEmailRepository {
           .where('email_preferences.marketing_opt_out', true)
           .limit(1)
       )
-      .limit(500);
+      .limit(limit);
 
     return rows.map((row) => ({ id: row.id, name: row.name, email: row.email }));
   }
@@ -69,10 +69,10 @@ export class InMemoryInactivityEmailRepository
     this.usersToReturn = users;
   }
 
-  async getUsersToNotify(): Promise<
+  async getUsersToNotify(limit = 500): Promise<
     Array<{ id: number; name: string; email: string }>
   > {
-    return this.usersToReturn.filter((u) => !this.sentUserIds.has(u.id));
+    return this.usersToReturn.filter((u) => !this.sentUserIds.has(u.id)).slice(0, limit);
   }
 
   async recordSend(userId: number, _token: string): Promise<void> {

@@ -43,6 +43,19 @@ describe('SendInactivityWarningsUseCase', () => {
       expect(repo.getSentUserIds().size).toBe(0);
     });
 
+    it('respects limit when counting candidates', async () => {
+      repo.seedUsers([
+        { id: 1, name: 'Alice', email: 'alice@example.com' },
+        { id: 2, name: 'Bob', email: 'bob@example.com' },
+        { id: 3, name: 'Carol', email: 'carol@example.com' },
+      ]);
+      const useCase = new SendInactivityWarningsUseCase(repo, makeEmailService());
+
+      const result = await useCase.execute(true, 1);
+
+      expect(result).toEqual({ count: 1, dryRun: true });
+    });
+
     it('returns zero when no candidates exist', async () => {
       const useCase = new SendInactivityWarningsUseCase(repo, makeEmailService());
 
@@ -95,6 +108,22 @@ describe('SendInactivityWarningsUseCase', () => {
       const result = await useCase.execute(false);
 
       expect(result).toEqual({ count: 0, dryRun: false });
+    });
+
+    it('sends only up to limit when fewer candidates exist than default', async () => {
+      repo.seedUsers([
+        { id: 1, name: 'Alice', email: 'alice@example.com' },
+        { id: 2, name: 'Bob', email: 'bob@example.com' },
+        { id: 3, name: 'Carol', email: 'carol@example.com' },
+      ]);
+      const emailService = makeEmailService();
+      const useCase = new SendInactivityWarningsUseCase(repo, emailService);
+
+      const result = await useCase.execute(false, 2);
+
+      expect(result).toEqual({ count: 2, dryRun: false });
+      expect(emailService.sendInactivityWarningEmail).toHaveBeenCalledTimes(2);
+      expect(repo.getSentUserIds().size).toBe(2);
     });
   });
 });
