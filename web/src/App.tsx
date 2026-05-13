@@ -52,6 +52,7 @@ const ContactMessagesTab = lazy(() => import('./pages/OpsPage/ContactMessagesTab
 const CommandsTab = lazy(() => import('./pages/OpsPage/CommandsTab'));
 const FeedbackPage = lazy(() => import('./pages/FeedbackPage/FeedbackPage'));
 const NotionToAnki = lazy(() => import('./pages/LandingPage/NotionToAnki'));
+const AnkiToNotion = lazy(() => import('./pages/LandingPage/AnkiToNotion'));
 const QuizletToAnki = lazy(() => import('./pages/LandingPage/QuizletToAnki'));
 const MarkdownToAnki = lazy(
   () => import('./pages/LandingPage/MarkdownToAnki')
@@ -252,6 +253,10 @@ function AppContent({
           <Route
             path="/notion-to-anki"
             element={<NotionToAnki setErrorMessage={setErrorMessage} />}
+          />
+          <Route
+            path="/anki-to-notion"
+            element={<AnkiToNotion setErrorMessage={setErrorMessage} />}
           />
           <Route
             path="/quizlet-to-anki"

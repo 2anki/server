@@ -227,20 +227,8 @@ class ApkgController {
         return;
       }
 
-      const isPaying = res.locals.patreon === true || res.locals.subscriber === true;
-      if (!isPaying) {
-        const importCount = await this.jobRepository.countJobsByType(
-          res.locals.owner,
-          'apkg_import'
-        );
-        if (importCount > 0) {
-          res.status(403).json({
-            message: 'Free plan allows one import. Upgrade for unlimited imports.',
-            upgrade: true,
-          });
-          return;
-        }
-      }
+      const userIsPaying = res.locals.patreon === true || res.locals.subscriber === true;
+      const maxNotes = userIsPaying ? 5000 : 1000;
 
       const rawParentPageId = req.body?.parent_page_id;
       const hasExplicitParent =
@@ -281,7 +269,7 @@ class ApkgController {
         owner,
         notionApi,
         jobId,
-        { isPaying }
+        { isPaying: userIsPaying, maxNotes }
       );
 
       res.status(202).json({ job_id: jobId, status: 'queued' });

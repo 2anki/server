@@ -406,6 +406,42 @@ describe('ApkgToNotionBlocksService', () => {
       expect(() => service.transform(collection)).toThrow(/too large/i);
     });
 
+    it('throws NoteTooLargeError with paid cap (5000) when deck exceeds it', () => {
+      const notes = new Map<number, Note>();
+      const cards: Card[] = [];
+      for (let i = 0; i < 5001; i++) {
+        notes.set(i, { id: i, mid: 1, tags: '', fields: [`Q${i}`, `A${i}`] });
+        cards.push({ id: 10000 + i, nid: i, did: 10, ord: 0 });
+      }
+      const collection = buildCollection({ notes, cards });
+
+      expect(() => service.transform(collection, new Map(), 5000)).toThrow(/too large/i);
+    });
+
+    it('throws NoteTooLargeError with free-tier cap (1000) when deck exceeds it', () => {
+      const notes = new Map<number, Note>();
+      const cards: Card[] = [];
+      for (let i = 0; i < 1001; i++) {
+        notes.set(i, { id: i, mid: 1, tags: '', fields: [`Q${i}`, `A${i}`] });
+        cards.push({ id: 10000 + i, nid: i, did: 10, ord: 0 });
+      }
+      const collection = buildCollection({ notes, cards });
+
+      expect(() => service.transform(collection, new Map(), 1000)).toThrow(/too large/i);
+    });
+
+    it('allows exactly 1000 notes when maxNotes is 1000', () => {
+      const notes = new Map<number, Note>();
+      const cards: Card[] = [];
+      for (let i = 0; i < 1000; i++) {
+        notes.set(i, { id: i, mid: 1, tags: '', fields: [`Q${i}`, `A${i}`] });
+        cards.push({ id: 10000 + i, nid: i, did: 10, ord: 0 });
+      }
+      const collection = buildCollection({ notes, cards });
+
+      expect(() => service.transform(collection, new Map(), 1000)).not.toThrow();
+    });
+
     it('skips empty decks like Default', () => {
       const decks = new Map<number, Deck>([
         [1, { id: 1, name: 'Default' }],

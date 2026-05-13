@@ -132,7 +132,7 @@ describe('ImportApkgToNotionUseCase', () => {
 
     const throwingBlocksService = {
       transform: () => {
-        throw new NoteTooLargeError(5001);
+        throw new NoteTooLargeError(5001, 5000);
       },
     } as unknown as ApkgToNotionBlocksService;
 
