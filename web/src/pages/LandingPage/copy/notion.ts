@@ -2,11 +2,11 @@ import type { LandingCopy } from '../types';
 
 const notionCopy: LandingCopy = {
   pathname: '/notion-to-anki',
-  title: 'Notion to Anki — convert pages to flashcards | 2anki',
+  title: 'Notion to Anki — free, no add-on required | 2anki',
   description:
-    'Turn a Notion page into an Anki deck in seconds. Paste a link, get a .apkg file, study in Anki. Free for one deck at a time.',
-  h1: 'Turn a Notion page into Anki flashcards',
-  subhead: 'Paste a Notion link and get a deck you can open in Anki.',
+    'Convert Notion pages to Anki flashcards — free, no add-on required. Connect Notion once, paste any page link, and download your deck.',
+  h1: 'Notion to Anki — free, no add-on required',
+  subhead: 'Connect Notion once, paste any page link, get a .apkg deck. No software to install.',
   faqs: [
     {
       q: 'Does this work with toggles and callouts?',
