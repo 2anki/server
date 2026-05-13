@@ -36,3 +36,53 @@
   margin: 0.75rem 0 0;
   line-height: var(--leading-relaxed);
 }
+
+.optional {
+  font-weight: var(--font-normal);
+  color: var(--color-text-tertiary);
+  font-size: var(--text-xs);
+}
+
+.fileInput {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.fileList {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.fileItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.fileName {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fileRemove {
+  background: none;
+  border: none;
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0 0.125rem;
+  flex-shrink: 0;
+}
+
+.fileRemove:hover {
+  color: var(--color-text-primary);
+}
