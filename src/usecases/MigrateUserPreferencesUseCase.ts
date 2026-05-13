@@ -4,6 +4,7 @@ export interface MigrateUserPreferencesInput {
   userId: number;
   cardOptions?: CardOptions;
   theme?: string;
+  ankiWebAcknowledgedAt?: string;
 }
 
 export class MigrateUserPreferencesUseCase {
@@ -13,6 +14,7 @@ export class MigrateUserPreferencesUseCase {
     return this.repo.migrate(input.userId, {
       cardOptions: input.cardOptions,
       theme: input.theme,
+      ankiWebAcknowledgedAt: input.ankiWebAcknowledgedAt,
     });
   }
 }

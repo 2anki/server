@@ -13,6 +13,7 @@ export const CARD_OPTION_KEYS = [
 
 const PREFERENCES_URL = '/api/users/me/preferences';
 const MIGRATE_URL = '/api/users/me/preferences/migrate';
+export const ANKI_WEB_ACK_KEY = 'ankify_anki_web_acknowledged';
 
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -61,11 +62,27 @@ export function scheduleSync(): void {
   }, 500);
 }
 
+export async function acknowledgeAnkiWeb(): Promise<void> {
+  try {
+    localStorage.setItem(ANKI_WEB_ACK_KEY, 'true');
+  } catch {}
+  try {
+    await fetch(PREFERENCES_URL, {
+      method: 'PATCH',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ankiWebAcknowledgedAt: new Date().toISOString() }),
+    });
+  } catch {
+    // silent — localStorage is already set, server will sync on next login
+  }
+}
+
 export async function hydrateFromServer(): Promise<void> {
   try {
     const res = await fetch(PREFERENCES_URL, { credentials: 'include' });
     if (!res.ok) return;
-    const { cardOptions, theme } = await res.json();
+    const { cardOptions, theme, ankiWebAcknowledgedAt } = await res.json();
     if (cardOptions != null && typeof cardOptions === 'object') {
       for (const [key, value] of Object.entries(cardOptions)) {
         if (typeof value === 'string') {
@@ -75,6 +92,9 @@ export async function hydrateFromServer(): Promise<void> {
     }
     if (typeof theme === 'string') {
       localStorage.setItem('2anki-theme', theme);
+    }
+    if (typeof ankiWebAcknowledgedAt === 'string') {
+      try { localStorage.setItem(ANKI_WEB_ACK_KEY, 'true'); } catch {}
     }
   } catch {
     // silent
@@ -91,6 +111,11 @@ export async function migrateToServer(): Promise<void> {
   if (theme != null) {
     body.theme = theme;
   }
+  try {
+    if (localStorage.getItem(ANKI_WEB_ACK_KEY) === 'true') {
+      body.ankiWebAcknowledgedAt = new Date().toISOString();
+    }
+  } catch {}
   if (Object.keys(body).length === 0) return;
   try {
     await fetch(MIGRATE_URL, {

@@ -1,3 +1,5 @@
+import { scheduleSync } from './data_layer/userPreferencesSync';
+
 export type Theme = 'light' | 'dark' | 'gold' | 'purple';
 
 const STORAGE_KEY = '2anki-theme';
@@ -27,6 +29,7 @@ export function applyTheme(theme: Theme): void {
     document.documentElement.dataset.theme = theme;
   }
   globalThis.localStorage?.setItem(STORAGE_KEY, theme);
+  scheduleSync();
   globalThis.dispatchEvent?.(new CustomEvent(THEME_CHANGE_EVENT, { detail: theme }));
 }
 

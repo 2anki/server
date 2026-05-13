@@ -16,6 +16,7 @@ export type CardOptions = Partial<{
 export interface UserPreferences {
   cardOptions: CardOptions | null;
   theme: string | null;
+  ankiWebAcknowledgedAt: string | null;
 }
 
 export interface IUserPreferencesRepository {
@@ -54,12 +55,13 @@ export class UserPreferencesRepository implements IUserPreferencesRepository {
 
   async get(userId: number): Promise<UserPreferences> {
     const row = await this.database('users')
-      .select('card_options', 'theme')
+      .select('card_options', 'theme', 'anki_web_acknowledged_at')
       .where({ id: userId })
       .first();
     return {
       cardOptions: row?.card_options ?? null,
       theme: row?.theme ?? null,
+      ankiWebAcknowledgedAt: row?.anki_web_acknowledged_at?.toISOString() ?? null,
     };
   }
 
@@ -70,6 +72,12 @@ export class UserPreferencesRepository implements IUserPreferencesRepository {
     }
     if (prefs.theme != null) {
       update.theme = prefs.theme;
+    }
+    if (prefs.ankiWebAcknowledgedAt != null) {
+      update.anki_web_acknowledged_at = this.database.raw(
+        'GREATEST(anki_web_acknowledged_at, ?::timestamptz)',
+        [prefs.ankiWebAcknowledgedAt]
+      );
     }
     if (Object.keys(update).length > 0) {
       await this.database('users').where({ id: userId }).update(update);
@@ -86,6 +94,9 @@ export class UserPreferencesRepository implements IUserPreferencesRepository {
     if (prefs.theme != null && current.theme == null) {
       update.theme = prefs.theme;
     }
+    if (prefs.ankiWebAcknowledgedAt != null && current.ankiWebAcknowledgedAt == null) {
+      update.anki_web_acknowledged_at = prefs.ankiWebAcknowledgedAt;
+    }
     if (Object.keys(update).length > 0) {
       await this.database('users').where({ id: userId }).update(update);
     }
@@ -93,11 +104,16 @@ export class UserPreferencesRepository implements IUserPreferencesRepository {
   }
 }
 
+function laterOf(a: string | null, b: string): string {
+  if (a == null) return b;
+  return a >= b ? a : b;
+}
+
 export class InMemoryUserPreferencesRepository implements IUserPreferencesRepository {
   private readonly store = new Map<number, UserPreferences>();
 
   async get(userId: number): Promise<UserPreferences> {
-    return this.store.get(userId) ?? { cardOptions: null, theme: null };
+    return this.store.get(userId) ?? { cardOptions: null, theme: null, ankiWebAcknowledgedAt: null };
   }
 
   async patch(userId: number, prefs: Partial<UserPreferences>): Promise<UserPreferences> {
@@ -105,6 +121,9 @@ export class InMemoryUserPreferencesRepository implements IUserPreferencesReposi
     const next: UserPreferences = {
       cardOptions: prefs.cardOptions ?? current.cardOptions,
       theme: prefs.theme ?? current.theme,
+      ankiWebAcknowledgedAt: prefs.ankiWebAcknowledgedAt != null
+        ? laterOf(current.ankiWebAcknowledgedAt, prefs.ankiWebAcknowledgedAt)
+        : current.ankiWebAcknowledgedAt,
     };
     this.store.set(userId, next);
     return next;
@@ -115,6 +134,7 @@ export class InMemoryUserPreferencesRepository implements IUserPreferencesReposi
     const next: UserPreferences = {
       cardOptions: current.cardOptions ?? prefs.cardOptions ?? null,
       theme: current.theme ?? prefs.theme ?? null,
+      ankiWebAcknowledgedAt: current.ankiWebAcknowledgedAt ?? prefs.ankiWebAcknowledgedAt ?? null,
     };
     this.store.set(userId, next);
     return next;

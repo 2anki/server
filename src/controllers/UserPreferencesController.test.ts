@@ -21,7 +21,7 @@ describe('UserPreferencesController.get', () => {
     await controller.get({} as Request, res);
 
     expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith({ cardOptions: null, theme: null });
+    expect(res.json).toHaveBeenCalledWith({ cardOptions: null, theme: null, ankiWebAcknowledgedAt: null });
   });
 
   it('returns stored prefs after a patch', async () => {
