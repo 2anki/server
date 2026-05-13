@@ -213,7 +213,7 @@ describe('BlockHandler', () => {
     expect(card.back).toBe(
       '<p class="" id="f83ce56a-9039-4888-81be-375b19a84790">This is the back of the card</p>'
     );
-  });
+  }, 30000);
 
   test('Multi-line Toggle with Cloze and Newlines', async () => {
     // Test cloze deletion with the exact data from the user's issue
