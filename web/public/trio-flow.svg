@@ -1,0 +1,190 @@
+<svg width="100%" viewBox="0 0 720 720" role="img" xmlns="http://www.w3.org/2000/svg">
+  <title>Signal to ship in hours — 2anki Product Trio</title>
+  <desc>Kaizen-style continuous improvement loop for 2anki. The product trio (PM, Designer, Engineer) are AI agents at the center of every change. Alexander (lead developer) is the human in the loop — he sets direction, approves specs, and merges PRs.</desc>
+
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5"
+            markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M1 1L9 5L1 9" fill="none" stroke="#E91E8C"
+            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <style>
+      @keyframes shipGlow {
+        0%, 100% { filter: drop-shadow(0 0 3px #3b82f6); }
+        50%       { filter: drop-shadow(0 0 14px #93c5fd); }
+      }
+      .ship-group { animation: shipGlow 2.5s ease-in-out infinite; }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="720" height="720" fill="#FFF5F8" rx="16"/>
+
+  <!-- Guide ring — centered on the triangle's visual centroid -->
+  <circle cx="360" cy="354" r="228" fill="none" stroke="#FFCDD2" stroke-width="1" opacity="0.55"/>
+
+  <!--
+    Outer nodes (triangle, clockwise from top):
+      Signal    — (360, 127)   12 o'clock
+      Alexander — (550, 468)    4 o'clock
+      Ship      — (170, 468)    8 o'clock
+  -->
+
+  <!-- ══════════════════════════════
+       ARC 1: Signal → Alexander
+       Flows down the right side
+  ══════════════════════════════ -->
+  <path d="M 452 140 Q 600 260 552 444"
+        fill="none" stroke="#E91E8C" stroke-width="2.5"
+        stroke-dasharray="8 5" stroke-dashoffset="0"
+        marker-end="url(#arr)" opacity="0.9">
+    <animate attributeName="stroke-dashoffset" from="0" to="-26"
+             dur="1.5s" repeatCount="indefinite"/>
+  </path>
+  <!-- Label path traces close to the visible arc, offset slightly right -->
+  <path id="arc1label" d="M 458 148 Q 604 265 558 435" fill="none" stroke="none"/>
+  <text fill="#AD1457" font-size="11"
+        font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+        font-weight="500">
+    <textPath href="#arc1label" startOffset="50%" text-anchor="middle">spec review</textPath>
+  </text>
+
+  <!-- ══════════════════════════════
+       ARC 2: Alexander → Ship
+       Sweeps across the bottom
+  ══════════════════════════════ -->
+  <path d="M 548 496 Q 360 590 192 496"
+        fill="none" stroke="#E91E8C" stroke-width="2.5"
+        stroke-dasharray="8 5" stroke-dashoffset="0"
+        marker-end="url(#arr)" opacity="0.9">
+    <animate attributeName="stroke-dashoffset" from="0" to="-26"
+             dur="1.5s" begin="0.5s" repeatCount="indefinite"/>
+  </path>
+  <!-- Label path mirrors the visible arc, shifted down slightly for clearance -->
+  <path id="arc2label" d="M 548 508 Q 360 604 192 508" fill="none" stroke="none"/>
+  <text fill="#AD1457" font-size="11"
+        font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+        font-weight="500">
+    <textPath href="#arc2label" startOffset="50%" text-anchor="middle">merged</textPath>
+  </text>
+
+  <!-- ══════════════════════════════
+       ARC 3: Ship → Signal
+       Climbs up the left side
+  ══════════════════════════════ -->
+  <path d="M 168 444 Q 110 260 268 140"
+        fill="none" stroke="#E91E8C" stroke-width="2.5"
+        stroke-dasharray="8 5" stroke-dashoffset="0"
+        marker-end="url(#arr)" opacity="0.9">
+    <animate attributeName="stroke-dashoffset" from="0" to="-26"
+             dur="1.5s" begin="1s" repeatCount="indefinite"/>
+  </path>
+  <!-- Label path traces close to the visible arc, offset slightly left -->
+  <path id="arc3label" d="M 156 442 Q 96 255 262 148" fill="none" stroke="none"/>
+  <text fill="#AD1457" font-size="11"
+        font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+        font-weight="500">
+    <textPath href="#arc3label" startOffset="50%" text-anchor="middle">metrics</textPath>
+  </text>
+
+  <!-- Signal → PM (top spoke, down) -->
+
+  <!-- ══════════════════════════════
+       OUTER NODE: Signal (top)
+  ══════════════════════════════ -->
+  <rect x="265" y="101" width="190" height="56" rx="8"
+        fill="#2D2D2A" stroke="#9C8C90" stroke-width="0.5"/>
+  <text x="360" y="124" text-anchor="middle" dominant-baseline="central"
+        fill="#E8D8DC" font-size="14"
+        font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+        font-weight="500">📨 Signal</text>
+  <text x="360" y="143" text-anchor="middle" dominant-baseline="central"
+        fill="#B09898" font-size="11"
+        font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">feedback · issues · ideas</text>
+
+  <!-- ══════════════════════════════
+       OUTER NODE: Alexander (bottom-right)
+  ══════════════════════════════ -->
+  <rect x="446" y="440" width="208" height="56" rx="8"
+        fill="#633806" stroke="#EF9F27" stroke-width="0.5"/>
+  <text x="550" y="463" text-anchor="middle" dominant-baseline="central"
+        fill="#FAC775" font-size="13"
+        font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+        font-weight="500">Alexander (lead dev)</text>
+  <text x="550" y="482" text-anchor="middle" dominant-baseline="central"
+        fill="#EF9F27" font-size="11"
+        font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">goal · approve · merge</text>
+
+  <!-- ══════════════════════════════
+       OUTER NODE: Ship (bottom-left)
+  ══════════════════════════════ -->
+  <g class="ship-group">
+    <rect x="86" y="440" width="168" height="56" rx="8"
+          fill="#1e3a8a" stroke="#60a5fa" stroke-width="1.5"/>
+    <text x="170" y="463" text-anchor="middle" dominant-baseline="central"
+          fill="#FFFFFF" font-size="13"
+          font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+          font-weight="600">🚀 Ship</text>
+    <text x="170" y="482" text-anchor="middle" dominant-baseline="central"
+          fill="#93c5fd" font-size="11"
+          font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">2anki.net</text>
+  </g>
+
+  <!-- ══════════════════════════════
+       CENTER: Product Trio
+  ══════════════════════════════ -->
+
+  <!-- PM (breathing) -->
+  <g opacity="1">
+    <animate attributeName="opacity" values="1;0.82;1"
+             dur="2.4s" repeatCount="indefinite"/>
+    <rect x="253" y="221" width="214" height="46" rx="8"
+          fill="#AD1457" stroke="#FF80AB" stroke-width="0.75"/>
+    <text x="278" y="239" dominant-baseline="central"
+          fill="#FFFFFF" font-size="12"
+          font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+          font-weight="600">🧠 PM</text>
+    <text x="278" y="255" dominant-baseline="central"
+          fill="#FFB6C1" font-size="10"
+          font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">/triage-feedback · /spec</text>
+  </g>
+
+  <!-- Designer (breathing, offset) -->
+  <g opacity="1">
+    <animate attributeName="opacity" values="1;0.82;1"
+             dur="2.4s" begin="0.5s" repeatCount="indefinite"/>
+    <rect x="253" y="275" width="214" height="46" rx="8"
+          fill="#C2185B" stroke="#FF80AB" stroke-width="0.75"/>
+    <text x="278" y="293" dominant-baseline="central"
+          fill="#FFFFFF" font-size="12"
+          font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+          font-weight="600">🎨 Designer</text>
+    <text x="278" y="309" dominant-baseline="central"
+          fill="#FFB6C1" font-size="10"
+          font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">/review · flows · copy</text>
+  </g>
+
+  <!-- Engineer (breathing, offset) -->
+  <g opacity="1">
+    <animate attributeName="opacity" values="1;0.82;1"
+             dur="2.4s" begin="1s" repeatCount="indefinite"/>
+    <rect x="253" y="329" width="214" height="46" rx="8"
+          fill="#D81B60" stroke="#FF80AB" stroke-width="0.75"/>
+    <text x="278" y="347" dominant-baseline="central"
+          fill="#FFFFFF" font-size="12"
+          font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+          font-weight="600">⚙️ Engineer</text>
+    <text x="278" y="363" dominant-baseline="central"
+          fill="#FFB6C1" font-size="10"
+          font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">/implement · /check · TDD</text>
+  </g>
+
+</svg>

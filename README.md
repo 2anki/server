@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="web/public/mascot/Notion 1.png" width="140" alt="2anki mascot" />
+</p>
+
 # 2anki.net
 
 [2anki.net](https://2anki.net) helps you turn your Notion pages, HTML, Markdown, and other study material into Anki flashcards. Drop something in, get a clean `.apkg` deck back — no fuss.
@@ -24,6 +28,16 @@ pnpm dev
 ```
 
 The server starts on `http://localhost:2020` and the frontend on `http://localhost:5173`. For server-only work: `pnpm dev:server`.
+
+## How we develop
+
+Every change that touches user-facing behavior goes through a **product trio** — three AI agents (PM, Designer, Engineer) working in parallel at the center of the loop. Alexander (lead developer) is the human in the loop: he sets direction, approves specs, and merges PRs. The goal is to catch bad assumptions before engineering time is committed.
+
+<p align="center">
+  <img src="web/public/trio-flow.svg" alt="2anki product trio kaizen loop — signal to ship in hours" />
+</p>
+
+The trio is powered by Claude subagents in `.claude/agents/`. Use `/trio <task>` to invoke all three in parallel on any prompt.
 
 ## Contributing
 
