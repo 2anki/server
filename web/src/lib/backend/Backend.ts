@@ -358,6 +358,15 @@ export class Backend {
     await post(`${this.baseURL}users/debug/ankify-welcome-seen`, {});
   }
 
+  async startTrial(): Promise<{ ok: boolean; reason?: string; trialExpiresAt?: string }> {
+    const response = await post(`${this.baseURL}users/start-trial`, {});
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ ok: false }));
+      return error as { ok: boolean; reason?: string };
+    }
+    return response.json();
+  }
+
   async listAnkifyClients(): Promise<AnkifyClient[]> {
     const result = await get(`${this.baseURL}ankify/clients`);
     return result ?? [];

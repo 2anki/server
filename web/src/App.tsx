@@ -89,7 +89,7 @@ function AppContent({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   setErrorMessage: (error: unknown) => void;
 }>) {
-  const { data, isLoading } = useUserLocals();
+  const { data, isLoading, refetch } = useUserLocals();
   const isLoggedIn = isLoading ? undefined : !!data?.user?.id;
   const isLoggedInResolved = isLoggedIn === true;
 
@@ -105,7 +105,7 @@ function AppContent({
         error={error}
         isLoggedIn={isLoggedIn}
         email={data?.user?.email}
-        locals={data?.locals}
+        locals={data?.locals == null ? data?.locals : { ...data.locals, trial_started_at: data?.user?.trial_started_at ?? null }}
         features={data?.features}
       >
         <Routes>
@@ -169,6 +169,9 @@ function AppContent({
                 isLoggedIn={isLoggedInResolved}
                 email={data?.user?.email}
                 hostedAnkiRequested={data?.hostedAnkiRequested === true}
+                trialStartedAt={data?.user?.trial_started_at ?? null}
+                patreon={data?.user?.patreon ?? null}
+                onTrialStarted={() => { refetch(); }}
               />
             }
           />

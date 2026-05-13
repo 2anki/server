@@ -67,6 +67,8 @@ function LandingPage({ copy, setErrorMessage }: Readonly<LandingPageProps>) {
           </div>
           <p className={styles.secondaryLink}>
             or <a href={registerHref}>sign up free</a>
+            {' — '}
+            <a href="/pricing">try Unlimited free for 1 hour</a>
           </p>
         </div>
       </section>
