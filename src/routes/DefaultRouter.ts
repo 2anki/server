@@ -9,6 +9,11 @@ const upload = multer({
   dest: process.env.FEEDBACK_DIR || '~/',
 });
 
+const contactUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 },
+});
+
 const DefaultRouter = () => {
   const controller = new IndexController();
   const router = express.Router();
@@ -146,7 +151,7 @@ const DefaultRouter = () => {
    *             schema:
    *               $ref: '#/components/schemas/Error'
    */
-  router.post('/api/contact-us', upload.array('attachments'), (req, res) =>
+  router.post('/api/contact-us', contactUpload.array('attachments'), (req, res) =>
     controller.contactUs(req, res)
   );
 

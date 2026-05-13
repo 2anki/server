@@ -138,6 +138,7 @@ class EmailService implements IEmailService {
     const msg = {
       to: SUPPORT_EMAIL_ADDRESS,
       from: DEFAULT_SENDER,
+      replyTo: email,
       subject: `Contact form submission on behalf of ${
         name ?? 'Anon'
       } <${email}>`,

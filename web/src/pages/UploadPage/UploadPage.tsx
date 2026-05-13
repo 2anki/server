@@ -13,7 +13,7 @@ import { getVisibleText } from '../../lib/text/getVisibleText';
 const WALKTHROUGHS: ReadonlyArray<[string, string]> = [
   ['UnTo_fN1jpc', 'How I use Notion to Anki as a medical student'],
   ['JrYdp18Hbs8', 'Notion to Anki — complete guide'],
-  ['r9pPNl8Mx_Q', 'How to use cloze deletions'],
+  ['57dW_buqtGM', 'Cómo crear FLASHCARDS de ANKI usando NOTION'],
 ];
 
 interface Props {
