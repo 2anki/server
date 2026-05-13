@@ -53,14 +53,16 @@ export function ImageQueue({
                 className={styles.queueThumb}
               />
               {entry.rects.length > 0 && (
-                <span className={styles.queueBadge}>{entry.rects.length}</span>
+                <span className={styles.queueBadge}>
+                  {entry.rects.length} {entry.rects.length === 1 ? 'box' : 'boxes'}
+                </span>
               )}
             </button>
             <input
               type="text"
               value={entry.header}
               onChange={(e) => onHeaderChange(i, e.target.value)}
-              placeholder="Header (optional)"
+              placeholder="What's this image? (optional)"
               className={styles.headerInput}
               aria-label={`Header for image ${i + 1}`}
             />
@@ -68,31 +70,42 @@ export function ImageQueue({
         ))}
       </div>
 
-      {atLimit ? (
+      <button
+        type="button"
+        className={styles.addBtn}
+        onClick={() => !atLimit && fileInputRef.current?.click()}
+        disabled={atLimit}
+        title={atLimit ? 'Upgrade to add more images' : undefined}
+        aria-disabled={atLimit}
+      >
+        + Add images
+      </button>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        multiple
+        onChange={handleFileChange}
+        style={{ display: 'none' }}
+      />
+      {!isPaying && (
         <div className={styles.upgradeNotice}>
-          <p>Free accounts support up to 3 images.</p>
-          <Link to="/pricing" className={styles.upgradeLink}>
-            Upgrade for unlimited
-          </Link>
+          {atLimit ? (
+            <>
+              <p>You&apos;ve added the 3 images on the free plan.</p>
+              <Link to="/pricing" className={styles.upgradeLink}>
+                Upgrade to add more
+              </Link>
+            </>
+          ) : (
+            <>
+              {entries.length} of 3 images on the free plan{' '}
+              <Link to="/pricing" className={styles.upgradeLink}>
+                Upgrade for unlimited
+              </Link>
+            </>
+          )}
         </div>
-      ) : (
-        <>
-          <button
-            type="button"
-            className={styles.addBtn}
-            onClick={() => fileInputRef.current?.click()}
-          >
-            + Add images
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={handleFileChange}
-            style={{ display: 'none' }}
-          />
-        </>
       )}
     </div>
   );

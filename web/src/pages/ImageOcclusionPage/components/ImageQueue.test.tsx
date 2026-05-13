@@ -34,11 +34,13 @@ describe('ImageQueue', () => {
     expect(screen.getByText('+ Add images')).toBeTruthy();
   });
 
-  it('hides the add button and shows upgrade notice at exactly the free tier limit', () => {
+  it('disables the add button and shows upgrade notice at exactly the free tier limit', () => {
     const entries = [makeEntry(0), makeEntry(1), makeEntry(2)];
     renderQueue(entries, false);
-    expect(screen.queryByText('+ Add images')).toBeNull();
-    expect(screen.getByText(/Free accounts support up to 3 images/)).toBeTruthy();
+    const addBtn = screen.getByText('+ Add images');
+    expect(addBtn).toBeTruthy();
+    expect((addBtn as HTMLButtonElement).disabled).toBe(true);
+    expect(screen.getByText(/free plan/)).toBeTruthy();
   });
 
   it('shows the add button for paying users even at 3 images', () => {

@@ -143,7 +143,6 @@ export function OcclusionCanvas({ entry, onRectsChange }: Readonly<Props>) {
           onRectsChange([...entry.rects, newRect]);
           setSelectedId(newRect.id);
         }
-        svgRect;
       }
       setDraft(null);
     },
@@ -279,13 +278,32 @@ export function OcclusionCanvas({ entry, onRectsChange }: Readonly<Props>) {
           />
         )}
       </svg>
+      {entry.rects.length === 0 && !draft && (
+        <div
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            background: 'rgba(0,0,0,0.55)',
+            color: '#fff',
+            padding: '0.5rem 1rem',
+            borderRadius: '6px',
+            fontSize: '0.875rem',
+            pointerEvents: 'none',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          Drag a box over each area to hide.
+        </div>
+      )}
       {selectedRect && (
         <div className={styles.labelInputWrapper}>
           <input
             type="text"
             value={labelInput}
             onChange={(e) => handleLabelChange(e.target.value)}
-            placeholder="Label (optional)"
+            placeholder="Label this area (optional)"
             className={styles.labelInput}
             aria-label="Rect label"
           />
@@ -297,7 +315,7 @@ export function OcclusionCanvas({ entry, onRectsChange }: Readonly<Props>) {
               setSelectedId(null);
             }}
           >
-            Delete
+            Remove
           </button>
         </div>
       )}

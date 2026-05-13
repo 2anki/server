@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 import { useUserLocals } from '../../lib/hooks/useUserLocals';
 import { isPayingUser } from '../../components/NavigationBar/helpers/getPlanLabel';
@@ -50,7 +50,16 @@ export function ImageOcclusionPage() {
 
   const [entries, setEntries] = useState<ImageEntry[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [deckName, setDeckName] = useState('Image Occlusion');
+  const [deckName, setDeckName] = useState('My image deck');
+  const [mobileDismissed, setMobileDismissed] = useState(() =>
+    typeof window !== 'undefined' && localStorage.getItem('io_mobile_dismissed') === '1'
+  );
+
+  useEffect(() => {
+    if (mobileDismissed) {
+      localStorage.setItem('io_mobile_dismissed', '1');
+    }
+  }, [mobileDismissed]);
   const [mode, setMode] = useState<Mode>('hide_all');
   const [isDownloading, setIsDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -135,17 +144,37 @@ export function ImageOcclusionPage() {
 
   const activeEntry = entries[activeIndex] ?? null;
 
+  const ctaLabel = isDownloading
+    ? 'Making your deck…'
+    : totalCards > 0
+      ? `Download deck (${totalCards} ${totalCards === 1 ? 'card' : 'cards'})`
+      : 'Add an image to start';
+
   return (
+    <>
+      {!mobileDismissed && (
+        <div className={`${styles.notificationInfo} ${pageStyles.mobileBanner}`}>
+          Drawing is easier on a larger screen.{' '}
+          <button
+            type="button"
+            onClick={() => setMobileDismissed(true)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+          >
+            Continue on this screen anyway
+          </button>
+        </div>
+      )}
     <div className={pageStyles.pageLayout}>
       <div className={pageStyles.leftPanel}>
         <div className={pageStyles.panelHeader}>
+          <label className={pageStyles.deckNameLabel} htmlFor="io-deck-name">Deck name</label>
           <input
+            id="io-deck-name"
             type="text"
             value={deckName}
             onChange={(e) => setDeckName(e.target.value)}
             className={pageStyles.deckNameInput}
-            aria-label="Deck name"
-            placeholder="Deck name"
+            placeholder="My image deck"
           />
         </div>
 
@@ -165,31 +194,31 @@ export function ImageOcclusionPage() {
               className={`${pageStyles.modeBtn} ${mode === 'hide_all' ? pageStyles.modeBtnActive : ''}`}
               onClick={() => setMode('hide_all')}
             >
-              Hide all
+              Hide all, reveal one
             </button>
             <button
               type="button"
               className={`${pageStyles.modeBtn} ${mode === 'hide_one' ? pageStyles.modeBtnActive : ''}`}
               onClick={() => setMode('hide_one')}
             >
-              Hide one
+              Hide one at a time
             </button>
           </div>
-
-          {totalCards > 0 && (
-            <span className={styles.badgePrimary}>{totalCards} cards</span>
-          )}
 
           <button
             type="button"
             className={`${styles.btnPrimary} ${styles.btnInline}`}
             onClick={handleDownload}
-            disabled={isDownloading || entries.length === 0}
+            disabled={isDownloading || entries.length === 0 || totalCards === 0}
           >
-            {isDownloading ? 'Building...' : 'Download .apkg'}
+            {ctaLabel}
           </button>
 
-          {error && <p className={styles.helpDanger}>{error}</p>}
+          {error && (
+            <div className={styles.notificationDanger}>
+              We couldn&apos;t make your deck. {error} Please try again.
+            </div>
+          )}
         </div>
       </div>
 
@@ -201,11 +230,12 @@ export function ImageOcclusionPage() {
           />
         ) : (
           <div className={styles.emptyState}>
-            <p>Add images from the panel on the left, then draw masks on them.</p>
-            <p>Each masked area becomes one flashcard in your Anki deck.</p>
+            <p>Add an image from the panel on the left.</p>
+            <p>Each box you draw becomes one flashcard.</p>
           </div>
         )}
       </div>
     </div>
+    </>
   );
 }
