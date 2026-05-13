@@ -128,12 +128,12 @@
   <!-- ═══════════════════
        NODE: You (right)
   ═══════════════════ -->
-  <rect x="540" y="333" width="160" height="54" rx="8"
+  <rect x="524" y="333" width="192" height="54" rx="8"
         fill="#633806" stroke="#EF9F27" stroke-width="0.5"/>
   <text x="620" y="354" text-anchor="middle" dominant-baseline="central"
-        fill="#FAC775" font-size="14"
+        fill="#FAC775" font-size="13"
         font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
-        font-weight="500">You</text>
+        font-weight="500">Alexander (lead dev)</text>
   <text x="620" y="373" text-anchor="middle" dominant-baseline="central"
         fill="#EF9F27" font-size="11"
         font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">goal · approve · merge</text>
