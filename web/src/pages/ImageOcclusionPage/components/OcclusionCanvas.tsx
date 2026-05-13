@@ -518,9 +518,16 @@ export function OcclusionCanvas({ entry, onRectsChange }: Readonly<Props>) {
 
   const selectedOne = selectedIds.size === 1 ? entry.rects.find((r) => selectedIds.has(r.id)) ?? null : null;
 
-  const svgSize = useMemo(() => {
+  const [svgSize, setSvgSize] = useState({ w: 1, h: 1 });
+  useEffect(() => {
     const svg = svgRef.current;
-    return { w: svg?.clientWidth ?? 1, h: svg?.clientHeight ?? 1 };
+    if (!svg) return;
+    const obs = new ResizeObserver(() => {
+      setSvgSize({ w: svg.clientWidth, h: svg.clientHeight });
+    });
+    obs.observe(svg);
+    setSvgSize({ w: svg.clientWidth, h: svg.clientHeight });
+    return () => obs.disconnect();
   }, []);
 
   return (
