@@ -23,7 +23,7 @@ export function FloatingFeedback() {
   if (dismissed) return null;
   if (shouldHide(pathname)) return null;
 
-  const handleSubmitted = () => {
+  const handleDismiss = () => {
     sessionStorage.setItem(DISMISSED_KEY, '1');
     setDismissed(true);
   };
@@ -31,8 +31,18 @@ export function FloatingFeedback() {
   return createPortal(
     <div className={styles.container}>
       <div className={styles.panel}>
-        <p className={styles.panelTitle}>How's your experience?</p>
-        <FeedbackWidget page={pathname} compact onSubmitted={handleSubmitted} />
+        <div className={styles.panelHeader}>
+          <p className={styles.panelTitle}>How's your experience?</p>
+          <button
+            type="button"
+            className={styles.dismissButton}
+            onClick={handleDismiss}
+            aria-label="Dismiss feedback widget"
+          >
+            ×
+          </button>
+        </div>
+        <FeedbackWidget page={pathname} compact onSubmitted={handleDismiss} />
       </div>
     </div>,
     document.body
