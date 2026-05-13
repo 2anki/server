@@ -136,6 +136,10 @@ class UsersService {
     return this.repository.markAnkifyWelcomeSeen(owner);
   }
 
+  markTrialStarted(userId: string) {
+    return this.repository.markTrialStarted(userId);
+  }
+
   async requestMagicLink(
     email: string,
     purpose: MagicTokenPurpose

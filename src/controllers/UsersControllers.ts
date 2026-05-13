@@ -12,6 +12,9 @@ import { getRandomUUID } from '../shared/helpers/getRandomUUID';
 import SubscriptionService from '../services/SubscriptionService';
 import { OPS_OWNER_EMAIL } from '../routes/middleware/RequireOpsAccess';
 import { MagicLinkRateLimitError } from '../services/UsersService';
+import StartTrialUseCase from '../usecases/users/StartTrialUseCase';
+import UsersRepository from '../data_layer/UsersRepository';
+import type { UsersId } from '../data_layer/public/Users';
 
 class UsersController {
   constructor(
@@ -218,6 +221,7 @@ class UsersController {
         patreon: user?.patreon,
         email: user?.email,
         ankify_welcome_seen: user?.ankify_welcome_seen ?? false,
+        trial_started_at: user?.trial_started_at ?? null,
       },
       locals,
       linked_email: linkedEmail,
@@ -235,6 +239,20 @@ class UsersController {
     }
     await this.userService.markAnkifyWelcomeSeen(owner);
     return res.json({ ok: true });
+  }
+
+  async startTrial(_req: express.Request, res: express.Response) {
+    const { owner } = res.locals;
+    if (owner == null) {
+      return res.status(401).json({ message: 'Authentication required' });
+    }
+    const repository = new UsersRepository(this.db);
+    const useCase = new StartTrialUseCase(repository);
+    const result = await useCase.execute(owner as UsersId);
+    if (result.ok) {
+      return res.json({ ok: true, trialExpiresAt: result.trialExpiresAt.toISOString() });
+    }
+    return res.json({ ok: false, reason: result.reason });
   }
 
   async linkEmail(req: express.Request, res: express.Response) {

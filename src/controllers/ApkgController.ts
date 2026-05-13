@@ -14,6 +14,7 @@ import ResolveImportParentPageUseCase from '../usecases/apkg/ResolveImportParent
 import { NotionService } from '../services/NotionService/NotionService';
 import JobRepository from '../data_layer/JobRepository';
 import sendErrorResponse from '../lib/sendErrorResponse';
+import { isPaying } from '../lib/isPaying';
 
 const MEDIA_CONTENT_TYPES: Record<string, string> = {
   png: 'image/png',
@@ -182,7 +183,7 @@ class ApkgController {
         this.previewService,
         this.pdfRenderService
       );
-      const result = await useCase.execute(fileBuffer);
+      const result = await useCase.execute(fileBuffer, isPaying(res.locals));
       const safeName = file.originalname
         .replace(/\.apkg$/i, '')
         .replace(/[^\w\s.-]/g, '_');

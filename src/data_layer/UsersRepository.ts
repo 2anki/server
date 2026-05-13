@@ -123,6 +123,12 @@ class UsersRepository {
     });
   }
 
+  markTrialStarted(userId: string) {
+    return this.database(this.table).where({ id: userId }).update({
+      trial_started_at: this.database.fn.now(),
+    });
+  }
+
   updatePatreonByEmail(email: string, patreon: boolean): Promise<number> {
     return this.database(this.table)
       .whereRaw('TRIM(LOWER(email)) = ?', [email.toLowerCase().trim()])
