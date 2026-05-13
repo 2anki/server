@@ -98,13 +98,19 @@ export function ImageOcclusionPage() {
   const totalCards = entries.reduce((sum, e) => sum + e.rects.length, 0);
 
   const handleAdd = useCallback((files: File[]) => {
-    const newEntries: ImageEntry[] = files.map((file) => ({
-      id: crypto.randomUUID(),
-      file,
-      header: '',
-      rects: [],
-      previewUrl: URL.createObjectURL(file),
-    }));
+    const newEntries: ImageEntry[] = files.map((file) => {
+      const baseName = file.name.replace(/\.[^.]+$/, '');
+      const header = baseName
+        .replace(/[-_]+/g, ' ')
+        .replace(/\b\w/g, (c) => c.toUpperCase());
+      return {
+        id: crypto.randomUUID(),
+        file,
+        header,
+        rects: [],
+        previewUrl: URL.createObjectURL(file),
+      };
+    });
     persistNewImages(newEntries);
     setEntries((prev) => {
       const next = [...prev, ...newEntries];
