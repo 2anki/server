@@ -23,11 +23,11 @@ export function EmailVerificationBanner() {
   }
 
   return (
-    <div className={styles.banner} role="status">
+    <output className={styles.banner}>
       <span>Check your inbox to verify your email.</span>
       <button type="button" onClick={dismiss} className={styles.dismiss} aria-label="Dismiss">
         &#x2715;
       </button>
-    </div>
+    </output>
   );
 }

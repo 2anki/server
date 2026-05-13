@@ -4,10 +4,7 @@ import UsersRepository from '../data_layer/UsersRepository';
 import Users from '../data_layer/public/Users';
 import AuthenticationService from './AuthenticationService';
 import { IEmailService } from './EmailService/EmailService';
-import type {
-  IMagicTokenRepository,
-  MagicTokenPurpose,
-} from '../data_layer/MagicTokenRepository';
+import type { IMagicTokenRepository } from '../data_layer/MagicTokenRepository';
 
 const MAGIC_LINK_RATE_LIMIT = 5;
 const MAGIC_LINK_RATE_WINDOW_MS = 60 * 60 * 1000;

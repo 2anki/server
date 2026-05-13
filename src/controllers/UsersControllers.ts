@@ -540,7 +540,7 @@ class UsersController {
 
     try {
       const result = await this.userService.verifyMagicToken(token);
-      if (result == null || result.purpose !== 'verify_email') {
+      if (result?.purpose !== 'verify_email') {
         return res.redirect('/login?error=verification-expired');
       }
       await this.userService.markEmailVerified(result.userId.toString());
