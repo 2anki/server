@@ -11,6 +11,7 @@ import { Skeleton } from '../../components/Skeleton/Skeleton';
 
 const QUERY_KEY = ['ankify-clients'];
 const READINESS_QUERY_KEY = ['ankify-active-ready'];
+import { acknowledgeAnkiWeb } from '../../lib/data_layer/userPreferencesSync';
 const ANKI_WEB_ACK_KEY = 'ankify_anki_web_acknowledged';
 const SESSION_URL_PREFIX = 'ankify_session_url:';
 const STARTING_TIMEOUT_MS = 45_000;
@@ -174,7 +175,7 @@ export default function AnkifySetupPage({ backend }: Props) {
   const acknowledgeAnkiWebSignIn = () => {
     setSignedInAcknowledged(true);
     try {
-      globalThis.localStorage?.setItem(ANKI_WEB_ACK_KEY, 'true');
+      void acknowledgeAnkiWeb();
     } catch {}
   };
 

@@ -27,7 +27,7 @@ export class UserPreferencesController {
   }
 
   async patch(req: Request, res: Response): Promise<void> {
-    const { cardOptions, theme } = req.body;
+    const { cardOptions, theme, ankiWebAcknowledgedAt } = req.body;
 
     if (cardOptions !== undefined && !isPlainObject(cardOptions)) {
       res.status(400).json({ message: 'cardOptions must be an object.' });
@@ -37,14 +37,18 @@ export class UserPreferencesController {
       res.status(400).json({ message: 'theme must be a string.' });
       return;
     }
+    if (ankiWebAcknowledgedAt !== undefined && typeof ankiWebAcknowledgedAt !== 'string') {
+      res.status(400).json({ message: 'ankiWebAcknowledgedAt must be a string.' });
+      return;
+    }
 
     const userId = res.locals.owner as number;
-    const prefs = await this.patchUseCase.execute({ userId, cardOptions, theme });
+    const prefs = await this.patchUseCase.execute({ userId, cardOptions, theme, ankiWebAcknowledgedAt });
     res.status(200).json(prefs);
   }
 
   async migrate(req: Request, res: Response): Promise<void> {
-    const { cardOptions, theme } = req.body;
+    const { cardOptions, theme, ankiWebAcknowledgedAt } = req.body;
 
     if (cardOptions !== undefined && !isPlainObject(cardOptions)) {
       res.status(400).json({ message: 'cardOptions must be an object.' });
@@ -54,9 +58,13 @@ export class UserPreferencesController {
       res.status(400).json({ message: 'theme must be a string.' });
       return;
     }
+    if (ankiWebAcknowledgedAt !== undefined && typeof ankiWebAcknowledgedAt !== 'string') {
+      res.status(400).json({ message: 'ankiWebAcknowledgedAt must be a string.' });
+      return;
+    }
 
     const userId = res.locals.owner as number;
-    const prefs = await this.migrateUseCase.execute({ userId, cardOptions, theme });
+    const prefs = await this.migrateUseCase.execute({ userId, cardOptions, theme, ankiWebAcknowledgedAt });
     res.status(200).json(prefs);
   }
 }
