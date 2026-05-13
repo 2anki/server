@@ -54,3 +54,8 @@ export const INACTIVITY_WARNING_TEMPLATE = fs.readFileSync(
   path.join(EMAIL_TEMPLATES_DIRECTORY, 'inactivity-warning.html'),
   'utf8'
 );
+
+export const VERIFY_EMAIL_TEMPLATE = fs.readFileSync(
+  path.join(EMAIL_TEMPLATES_DIRECTORY, 'verify-email.html'),
+  'utf8'
+);

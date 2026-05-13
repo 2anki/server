@@ -45,10 +45,8 @@ function RegisterForm({ setErrorMessage, redirect }: Props) {
     try {
       const res = await get2ankiApi().register('', email, password, signupOrigin);
       if (res.status === 200) {
-        const loginUrl = redirect
-          ? `/login?redirect=${encodeURIComponent(redirect)}`
-          : '/login';
-        globalThis.location.href = loginUrl;
+        globalThis.sessionStorage?.setItem('email_verification_pending', 'true');
+        globalThis.location.href = redirect ? `/${redirect.replace(/^\//, '')}` : '/';
       } else {
         const body = await res.json().catch(() => null);
         const backendMessage = body?.message;

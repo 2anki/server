@@ -14,6 +14,7 @@ import {
   SUBSCRIPTION_CANCELLED_TEMPLATE,
   SUBSCRIPTION_CANCELLATIONS_LOG_PATH,
   SUBSCRIPTION_SCHEDULED_CANCELLATION_TEMPLATE,
+  VERIFY_EMAIL_TEMPLATE,
 } from './constants';
 import { isValidDeckName, addDeckNameSuffix } from '../../lib/anki/format';
 import { ClientResponse } from '@sendgrid/mail';
@@ -56,6 +57,7 @@ export interface IEmailService {
     token: string
   ): Promise<void>;
   sendInactivityWarningEmail(to: string): Promise<void>;
+  sendVerificationEmail(to: string, token: string): Promise<void>;
 }
 
 class EmailService implements IEmailService {
@@ -279,6 +281,26 @@ class EmailService implements IEmailService {
     }
   }
 
+  async sendVerificationEmail(to: string, token: string): Promise<void> {
+    const link = `${process.env.DOMAIN}/api/users/verify/${token}`;
+    const markup = VERIFY_EMAIL_TEMPLATE.replace('{{link}}', link);
+    const msg = {
+      to,
+      from: this.defaultSender,
+      subject: 'Verify your 2anki email address',
+      text: `Thanks for signing up. Verify your email address here: ${link} (expires in 24 hours)`,
+      html: markup,
+      replyTo: 'support@2anki.net',
+    };
+
+    try {
+      await sgMail.send(msg);
+    } catch (error) {
+      console.error('Failed to send verification email:', error);
+      throw error;
+    }
+  }
+
   private loadCancellationsSent(): Set<string> {
     try {
       // Ensure .2anki directory exists
@@ -486,6 +508,10 @@ export class UnimplementedEmailService implements IEmailService {
 
   async sendInactivityWarningEmail(to: string): Promise<void> {
     console.info('sendInactivityWarningEmail not handled', to);
+  }
+
+  async sendVerificationEmail(to: string, token: string): Promise<void> {
+    console.info('sendVerificationEmail not handled', to, token);
   }
 }
 

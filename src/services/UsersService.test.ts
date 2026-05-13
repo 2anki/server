@@ -20,6 +20,9 @@ function buildEmailService(
       .fn()
       .mockResolvedValue({ didSend: true }),
     sendMagicLinkEmail: jest.fn().mockResolvedValue(undefined),
+    sendReEngagementEmail: jest.fn().mockResolvedValue(undefined),
+    sendInactivityWarningEmail: jest.fn().mockResolvedValue(undefined),
+    sendVerificationEmail: jest.fn().mockResolvedValue(undefined),
     ...overrides,
   } as jest.Mocked<IEmailService>;
 }
@@ -45,7 +48,7 @@ function buildAccessRepository(stubs: AccessRepoStubs): UsersRepository {
 describe('UsersService.register', () => {
   it('passes the supplied name through to the repository unchanged', async () => {
     const repository = buildRegisterRepository();
-    const service = new UsersService(repository, noopEmailService);
+    const service = new UsersService(repository, buildEmailService());
 
     await service.register('Alex', 'hashed', 'Alex@Example.com');
 
@@ -57,9 +60,43 @@ describe('UsersService.register', () => {
     );
   });
 
+  it('sends a verification email after creating the user', async () => {
+    const repository = buildRegisterRepository();
+    const emailService = buildEmailService();
+    const magicTokenRepo = new InMemoryMagicTokenRepository();
+    const service = new UsersService(repository, emailService, magicTokenRepo);
+
+    await service.register('Alex', 'hashed', 'alex@example.com');
+
+    expect(emailService.sendVerificationEmail).toHaveBeenCalledTimes(1);
+    expect(emailService.sendVerificationEmail).toHaveBeenCalledWith(
+      'alex@example.com',
+      expect.any(String)
+    );
+  });
+
+  it('stores a verify_email magic token with 24h expiry', async () => {
+    const repository = buildRegisterRepository();
+    const emailService = buildEmailService();
+    const magicTokenRepo = new InMemoryMagicTokenRepository();
+    const before = new Date();
+    const service = new UsersService(repository, emailService, magicTokenRepo);
+
+    await service.register('Alex', 'hashed', 'alex@example.com');
+
+    const sentToken = (emailService.sendVerificationEmail as jest.Mock).mock.calls[0][1];
+    const record = await magicTokenRepo.findValidToken(sentToken);
+    expect(record).not.toBeNull();
+    expect(record!.purpose).toBe('verify_email');
+    const expectedExpiry = new Date(before.getTime() + 24 * 60 * 60 * 1000);
+    expect(record!.expires_at.getTime()).toBeGreaterThanOrEqual(
+      expectedExpiry.getTime() - 1000
+    );
+  });
+
   it('defaults the name to the local part of the email when no name is supplied', async () => {
     const repository = buildRegisterRepository();
-    const service = new UsersService(repository, noopEmailService);
+    const service = new UsersService(repository, buildEmailService());
 
     await service.register('', 'hashed', 'jane.doe@example.com');
 
@@ -73,7 +110,7 @@ describe('UsersService.register', () => {
 
   it('uses the email local part when the name is whitespace only', async () => {
     const repository = buildRegisterRepository();
-    const service = new UsersService(repository, noopEmailService);
+    const service = new UsersService(repository, buildEmailService());
 
     await service.register('   ', 'hashed', 'student@uni.edu');
 
@@ -87,7 +124,7 @@ describe('UsersService.register', () => {
 
   it('forwards a validated signup_origin to the repository', async () => {
     const repository = buildRegisterRepository();
-    const service = new UsersService(repository, noopEmailService);
+    const service = new UsersService(repository, buildEmailService());
 
     await service.register(
       'Alex',

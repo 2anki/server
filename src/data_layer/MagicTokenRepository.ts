@@ -2,7 +2,7 @@ import type { Knex } from 'knex';
 
 import type MagicTokens from './public/MagicTokens';
 
-export type MagicTokenPurpose = 'login' | 'password_reset';
+export type MagicTokenPurpose = 'login' | 'password_reset' | 'verify_email';
 
 export interface MagicTokenRecord {
   token: string;
