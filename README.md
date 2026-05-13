@@ -34,14 +34,15 @@ The server starts on `http://localhost:2020` and the frontend on `http://localho
 Every change that touches user-facing behavior goes through a **product trio**: a PM, a designer, and an engineer who consult in parallel — not in a handoff chain. The goal is to catch bad assumptions before engineering time is committed.
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#FF69B4', 'primaryTextColor': '#fff', 'primaryBorderColor': '#FF1493', 'lineColor': '#FF1493', 'secondaryColor': '#FFB6C1', 'tertiaryColor': '#FFF0F5', 'clusterBkg': '#FFF0F5', 'edgeLabelBackground': '#FFE4E1'}}}%%
 flowchart TD
-    IN([📨 Signal\nfeedback · issue · idea])
+    IN([📨 Signal\nfeedback · issue · idea]):::signal
 
-    subgraph trio ["🤝 Product Trio"]
+    subgraph trio ["💖 Product Trio 💖"]
         direction LR
-        PM["🧠 PM\nsynthesize → spec → prioritize\n/triage-feedback · /spec"]
-        D["🎨 Designer\nflows · copy · visual hierarchy\n/review"]
-        E["⚙️ Engineer\nfeasibility · TDD · /check\n/implement"]
+        PM["🧠 PM\nsynthesize → spec → prioritize\n/triage-feedback · /spec"]:::pmNode
+        D["🎨 Designer\nflows · copy · visual hierarchy\n/review"]:::designerNode
+        E["⚙️ Engineer\nfeasibility · TDD · /check\n/implement"]:::engineerNode
 
         PM -->|spec| D
         PM -->|spec| E
@@ -49,12 +50,19 @@ flowchart TD
         E -.->|feasibility push-back| PM
     end
 
-    PR(["📋 Pull Request\ntests · instrumentation · goal alignment"])
-    SHIP(["🚀 Ships to 2anki.net"])
+    PR(["📋 Pull Request\ntests · instrumentation · goal alignment"]):::prNode
+    SHIP(["🚀 Ships to 2anki.net"]):::shipNode
 
     IN --> PM
     E --> PR --> SHIP
     SHIP -.->|metrics & feedback| IN
+
+    classDef signal fill:#FF69B4,stroke:#FF1493,color:#fff,stroke-width:3px
+    classDef pmNode fill:#FF1493,stroke:#C71585,color:#fff,stroke-width:3px
+    classDef designerNode fill:#FF007F,stroke:#AD1457,color:#fff,stroke-width:3px
+    classDef engineerNode fill:#E91E8C,stroke:#C71585,color:#fff,stroke-width:3px
+    classDef prNode fill:#FFB6C1,stroke:#FF69B4,color:#880E4F,stroke-width:2px
+    classDef shipNode fill:#FF1493,stroke:#880E4F,color:#fff,stroke-width:4px
 ```
 
 The trio is powered by Claude subagents in `.claude/agents/`. Use `/trio <task>` to invoke all three in parallel on any prompt.
