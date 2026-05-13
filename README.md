@@ -25,6 +25,36 @@ pnpm dev
 
 The server starts on `http://localhost:2020` and the frontend on `http://localhost:5173`. For server-only work: `pnpm dev:server`.
 
+## How we develop
+
+Every change that touches user-facing behavior goes through a **product trio**: a PM, a designer, and an engineer who consult in parallel — not in a handoff chain. The goal is to catch bad assumptions before engineering time is committed.
+
+```mermaid
+flowchart TD
+    IN([📨 Signal\nfeedback · issue · idea])
+
+    subgraph trio ["🤝 Product Trio"]
+        direction LR
+        PM["🧠 PM\nsynthesize → spec → prioritize\n/triage-feedback · /spec"]
+        D["🎨 Designer\nflows · copy · visual hierarchy\n/review"]
+        E["⚙️ Engineer\nfeasibility · TDD · /check\n/implement"]
+
+        PM -->|spec| D
+        PM -->|spec| E
+        D -->|UX sign-off| E
+        E -.->|feasibility push-back| PM
+    end
+
+    PR(["📋 Pull Request\ntests · instrumentation · goal alignment"])
+    SHIP(["🚀 Ships to 2anki.net"])
+
+    IN --> PM
+    E --> PR --> SHIP
+    SHIP -.->|metrics & feedback| IN
+```
+
+The trio is powered by Claude subagents in `.claude/agents/`. Use `/trio <task>` to invoke all three in parallel on any prompt.
+
 ## Contributing
 
 We'd love your help! See [CONTRIBUTING.md](./CONTRIBUTING.md) for how to get started, run the test gate, and submit a PR.
