@@ -94,6 +94,7 @@ export function UploadPage({ setErrorMessage }: Readonly<Props>) {
             to="?view=template"
             onClick={() => setShowCardOptionsModal(true)}
             aria-label="Card and deck options"
+            style={{ minWidth: '44px', minHeight: '44px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
           >
             <SettingsIcon />
           </Link>

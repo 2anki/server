@@ -44,3 +44,8 @@ export const MAGIC_LINK_TEMPLATE = fs.readFileSync(
   path.join(EMAIL_TEMPLATES_DIRECTORY, 'magic-link.html'),
   'utf8'
 );
+
+export const RE_ENGAGEMENT_TEMPLATE = fs.readFileSync(
+  path.join(EMAIL_TEMPLATES_DIRECTORY, 're-engagement.html'),
+  'utf8'
+);

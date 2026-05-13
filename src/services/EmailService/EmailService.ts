@@ -9,6 +9,7 @@ import {
   DEFAULT_SENDER,
   MAGIC_LINK_TEMPLATE,
   PASSWORD_RESET_TEMPLATE,
+  RE_ENGAGEMENT_TEMPLATE,
   SUBSCRIPTION_CANCELLED_TEMPLATE,
   SUBSCRIPTION_CANCELLATIONS_LOG_PATH,
   SUBSCRIPTION_SCHEDULED_CANCELLATION_TEMPLATE,
@@ -47,6 +48,11 @@ export interface IEmailService {
     email: string,
     token: string,
     purpose: 'login' | 'password_reset'
+  ): Promise<void>;
+  sendReEngagementEmail(
+    to: string,
+    name: string,
+    token: string
   ): Promise<void>;
 }
 
@@ -213,6 +219,35 @@ class EmailService implements IEmailService {
       await sgMail.send(msg);
     } catch (error) {
       console.error('Failed to send magic link email:', error);
+      throw error;
+    }
+  }
+
+  async sendReEngagementEmail(
+    to: string,
+    name: string,
+    token: string
+  ): Promise<void> {
+    const domain = process.env.DOMAIN ?? 'https://2anki.net';
+    const surveyUrl = `${domain}/feedback/onboarding?uid=${token}`;
+    const unsubscribeUrl = `${domain}/unsubscribe?uid=${token}`;
+    const markup = RE_ENGAGEMENT_TEMPLATE.replace(/{{name}}/g, name)
+      .replace(/{{surveyUrl}}/g, surveyUrl)
+      .replace(/{{unsubscribeUrl}}/g, unsubscribeUrl);
+
+    const msg = {
+      to,
+      from: this.defaultSender,
+      subject: 'Still figuring out 2anki? We can help.',
+      text: `Hi ${name},\n\nYou signed up for 2anki a few days ago but haven't converted anything yet.\n\nWhen you're ready, visit https://2anki.net\n\nTell us what happened: ${surveyUrl}\n\nThe 2anki Team`,
+      html: markup,
+      replyTo: 'support@2anki.net',
+    };
+
+    try {
+      await sgMail.send(msg);
+    } catch (error) {
+      console.error('Failed to send re-engagement email:', error);
       throw error;
     }
   }
@@ -412,6 +447,14 @@ export class UnimplementedEmailService implements IEmailService {
     purpose: 'login' | 'password_reset'
   ): Promise<void> {
     console.info('sendMagicLinkEmail not handled');
+  }
+
+  async sendReEngagementEmail(
+    to: string,
+    name: string,
+    token: string
+  ): Promise<void> {
+    console.info('sendReEngagementEmail not handled', to, name, token);
   }
 }
 

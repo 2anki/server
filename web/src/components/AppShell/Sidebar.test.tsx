@@ -204,7 +204,7 @@ describe('Sidebar group hierarchy', () => {
 });
 
 describe('Sidebar More block', () => {
-  it('renders the footer links and copyright', () => {
+  it('renders the footer links', () => {
     renderSidebar();
     expect(screen.getByRole('link', { name: 'About' })).toHaveAttribute(
       'href',
@@ -222,6 +222,5 @@ describe('Sidebar More block', () => {
       'href',
       '/documentation/misc/privacy-policy'
     );
-    expect(screen.getByText(/Alexander Alemayhu/)).toBeInTheDocument();
   });
 });

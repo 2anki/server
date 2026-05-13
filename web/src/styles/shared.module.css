@@ -720,6 +720,16 @@
   .pageWide {
     padding: 2rem 1rem;
   }
+
+  .btnIcon {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .btnSmallPill {
+    min-height: 40px;
+    padding: 0.5rem 0.875rem;
+  }
 }
 
 .formDescription {

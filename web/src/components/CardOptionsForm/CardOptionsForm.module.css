@@ -99,3 +99,12 @@
 .actionButton {
   width: auto;
 }
+
+@media (max-width: 600px) {
+  .actions {
+    flex-direction: column;
+  }
+  .actionButton {
+    width: 100%;
+  }
+}

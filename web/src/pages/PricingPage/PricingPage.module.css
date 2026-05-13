@@ -646,4 +646,9 @@
   .cardPriceLineRange .cardPriceSuffix {
     font-size: 1.25rem;
   }
+
+  .cardPro {
+    transform: none;
+    animation-name: cardFadeIn;
+  }
 }

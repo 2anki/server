@@ -40,12 +40,16 @@ import swaggerRouter from './routes/SwaggerRouter';
 import opsRouter from './routes/OpsRouter';
 import showcaseRouter from './routes/ShowcaseRouter';
 import emojiFeedbackRouter from './routes/EmojiFeedbackRouter';
+import reEngagementRouter from './routes/ReEngagementRouter';
 import requestLoggingMiddleware from './routes/middleware/requestLoggingMiddleware';
 
 import { getDatabase, setupDatabase } from './data_layer';
 import JobRepository from './data_layer/JobRepository';
 import { MagicTokenRepository } from './data_layer/MagicTokenRepository';
+import ReEngagementRepository from './data_layer/ReEngagementRepository';
 import { updateStripeSubscriptions } from './lib/storage/jobs/helpers/updateStripeSubscriptions';
+import { sendReEngagementEmails } from './lib/storage/jobs/helpers/sendReEngagementEmails';
+import { getDefaultEmailService } from './services/EmailService/EmailService';
 
 function registerSignalHandlers(server: http.Server) {
   process.on('uncaughtException', (error) => {
@@ -105,6 +109,7 @@ const serve = async () => {
   app.use(showcaseRouter());
   app.use(opsRouter());
   app.use(emojiFeedbackRouter());
+  app.use(reEngagementRouter());
 
   app.use(rejectScannerProbes);
   // Note: this has to be the last router
@@ -153,6 +158,15 @@ const serve = async () => {
       console.error('[startup] Stripe subscription sync failed:', error);
     });
   }
+
+  const reEngagementRepo = new ReEngagementRepository(database);
+  const emailService = getDefaultEmailService();
+  const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+  setInterval(() => {
+    sendReEngagementEmails(reEngagementRepo, emailService).catch((error) => {
+      console.error('[re-engagement] daily job failed:', error);
+    });
+  }, ONE_DAY_MS);
 };
 
 serve();

@@ -54,6 +54,7 @@ export function FinishedJobs({ uploads, deleteUpload, doneJobs = [], deleteJob }
         Your flashcard decks are ready. Download them into Anki.
       </p>
       <div className={styles.card}>
+        <div style={{ overflowX: 'auto' }}>
         <table className={styles.table}>
           <thead>
             <tr>
@@ -158,6 +159,7 @@ export function FinishedJobs({ uploads, deleteUpload, doneJobs = [], deleteJob }
             ))}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   );
