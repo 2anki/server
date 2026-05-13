@@ -22,7 +22,7 @@ Every PR is checked against both — does it make the experience simpler/faster/
 - `src/routes/` → `src/controllers/` → `src/usecases/` → `src/services/` → `src/data_layer/` (DB).
   Each layer has its own CLAUDE.md — read it before editing.
 - Hot path docs: @src/lib/parser/FEATURE.md, @src/services/NotionService/FEATURE.md, @src/services/observability/FEATURE.md, @src/lib/ankify/FEATURE.md
-- Deeper context: `Documentation/`, `ROADMAP.md`, `RULES.md`.
+- Deeper context: `Documentation/`, `ROADMAP.md`.
 
 ## Run it
 
@@ -30,7 +30,7 @@ Every PR is checked against both — does it make the experience simpler/faster/
 - **Ask before starting the server.** Dev: `pnpm dev` (server + web). Server only: `pnpm dev:server`.
 - Tests: `pnpm test <path>` to scope to one file. If output is truncated, rerun without coverage.
 - All-green gate: `/check` (parallel server tsc + web typecheck + web vitest + web lint).
-- Migrations: regenerate types after a new migration with `pnpm kanel`.
+- Migrations: create with `npx knex migrate:make <name> --knexfile ./src/KnexConfig.ts --migrations-directory ../migrations -x js`, then regenerate types with `pnpm kanel`.
 - Production deploys via the `deploy.2anki.net.yml` workflow; verify with `/deploy-status` after.
 
 ## Rules (loaded from .claude/rules/)
@@ -39,6 +39,7 @@ Every PR is checked against both — does it make the experience simpler/faster/
 @.claude/rules/testing.md
 @.claude/rules/code-quality.md
 @.claude/rules/dependencies.md
+@.claude/rules/sonar.md
 
 ## Git
 
