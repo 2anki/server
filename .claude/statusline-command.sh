@@ -8,7 +8,7 @@ YELLOW='\033[33m'
 GREEN='\033[32m'
 RED='\033[31m'
 MAGENTA='\033[35m'
-SEP="${DIM}|${RESET}"
+SEP=" ${DIM}|${RESET} "
 
 input=$(cat)
 
