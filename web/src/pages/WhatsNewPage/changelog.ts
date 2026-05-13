@@ -5,6 +5,7 @@ export interface ChangelogEntry {
 }
 
 export const changelog: ChangelogEntry[] = [
+  { type: 'feature', title: 'Try every Pro feature free for 1 hour — unlimited uploads, no card limit', date: '2026-05-13' },
   { type: 'fix', title: 'Contact form works again — file attachments now supported too', date: '2026-05-13' },
   { type: 'feature', title: 'Share your experience — tell us what you study and what gets in your way', date: '2026-05-13' },
   { type: 'feature', title: 'Rate us 😠 or 😕 after an upload and we\'ll ask for the details', date: '2026-05-13' },
