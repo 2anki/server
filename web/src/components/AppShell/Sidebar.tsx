@@ -275,9 +275,7 @@ export function Sidebar({
             {getVisibleText('navigation.legal.about')}
           </Link>
         </div>
-        <div className={styles.sidebarCopyright}>
-          &copy; 2020&ndash;{new Date().getFullYear()} Alexander Alemayhu
-        </div>
+
       </div>
     </aside>
   );

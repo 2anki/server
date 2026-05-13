@@ -161,7 +161,7 @@
   line-height: var(--leading-snug);
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .walkthroughGrid {
     grid-template-columns: 1fr;
   }

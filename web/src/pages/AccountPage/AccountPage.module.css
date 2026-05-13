@@ -281,3 +281,14 @@
   color: inherit;
   opacity: 0.85;
 }
+
+@media (max-width: 500px) {
+  .profileSection {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .planHeader {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+}

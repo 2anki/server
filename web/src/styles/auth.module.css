@@ -169,3 +169,12 @@
   width: auto;
   margin-top: 0.125rem;
 }
+
+@media (max-width: 480px) {
+  .formPage {
+    padding: 1.5rem 1rem;
+  }
+  .formCard {
+    padding: 2rem 1.25rem;
+  }
+}

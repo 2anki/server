@@ -1,14 +1,15 @@
 .layout {
   display: grid;
-  grid-template-columns: 260px minmax(0, 1fr);
-  gap: 2.5rem;
+  grid-template-columns: 1fr;
+  gap: 1rem;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem 1.5rem 4rem;
+  padding: 1.25rem 1rem 3rem;
   align-items: start;
 }
 
 .sidebarWrapper {
+  display: none;
   position: sticky;
   top: 1.5rem;
   align-self: start;
@@ -436,7 +437,7 @@
 
 .pager {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 1rem;
   margin-top: 1.5rem;
   padding-top: 1.5rem;
@@ -486,7 +487,7 @@
 }
 
 .docsHomeTitle {
-  font-size: var(--text-4xl);
+  font-size: var(--text-3xl);
   font-weight: var(--font-bold);
   letter-spacing: var(--tracking-tight);
   margin: 0 0 0.5rem;
@@ -621,7 +622,7 @@
 }
 
 .menuButton {
-  display: none;
+  display: inline-block;
   padding: 0.5rem 0.875rem;
   border: 1px solid var(--color-border);
   background: var(--color-bg-primary);
@@ -716,23 +717,22 @@
   display: none;
 }
 
-@media (max-width: 900px) {
+@media (min-width: 901px) {
   .layout {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-    padding: 1.25rem 1rem 3rem;
+    grid-template-columns: 260px minmax(0, 1fr);
+    gap: 2.5rem;
+    padding: 2rem 1.5rem 4rem;
   }
   .menuButton {
-    display: inline-block;
-    justify-self: start;
-  }
-  .sidebarWrapper {
     display: none;
   }
+  .sidebarWrapper {
+    display: block;
+  }
   .pager {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
   }
   .docsHomeTitle {
-    font-size: var(--text-3xl);
+    font-size: var(--text-4xl);
   }
 }

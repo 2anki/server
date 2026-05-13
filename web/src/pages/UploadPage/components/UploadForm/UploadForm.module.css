@@ -493,7 +493,7 @@
 @media (max-width: 600px) {
   .dropZone {
     padding: 2rem 1rem;
-    min-height: 200px;
+    min-height: 280px;
   }
 
   .emptyActions,

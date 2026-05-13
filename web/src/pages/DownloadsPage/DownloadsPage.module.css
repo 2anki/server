@@ -10,6 +10,8 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
+  flex-wrap: wrap;
+  row-gap: 0.75rem;
 }
 
 .headerCopy {
@@ -138,6 +140,11 @@
 .fileName {
   font-weight: var(--font-medium);
   color: var(--color-text-primary);
+  max-width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-block;
 }
 
 .timeAgo {
