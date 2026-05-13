@@ -8,6 +8,7 @@ function makeEntry(i: number): ImageEntry {
   return {
     id: `entry-${i}`,
     file: new File(['x'], `img${i}.jpg`, { type: 'image/jpeg' }),
+    imageName: `img${i}.jpg`,
     header: '',
     rects: [],
     previewUrl: `blob:fake-${i}`, s3Key: null, uploading: false,

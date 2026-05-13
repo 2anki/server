@@ -68,11 +68,11 @@ export function ImageQueue({
               type="button"
               className={styles.queueThumbBtn}
               onClick={() => onSelect(i)}
-              aria-label={`Select image ${i + 1}: ${entry.file.name}`}
+              aria-label={`Select image ${i + 1}: ${entry.imageName}`}
             >
               <img
                 src={entry.previewUrl}
-                alt={entry.file.name}
+                alt={entry.imageName}
                 className={styles.queueThumb}
               />
               {entry.rects.length > 0 && (

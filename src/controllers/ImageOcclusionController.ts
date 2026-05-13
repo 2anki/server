@@ -3,12 +3,29 @@ import path from "node:path";
 import express from "express";
 import { CreateImageOcclusionDeckUseCase, ImageOcclusionImage, OcclusionRect } from "../usecases/imageOcclusion/CreateImageOcclusionDeckUseCase";
 
-interface RawRect { x: unknown; y: unknown; w: unknown; h: unknown; label?: unknown; }
+interface RawPoint { x: unknown; y: unknown; }
+interface RawRect { x: unknown; y: unknown; w: unknown; h: unknown; label?: unknown; shape?: unknown; points?: unknown; groupId?: unknown; }
 interface RawImageEntry { imageName?: unknown; header?: unknown; rects?: unknown; }
 interface RawData { deckName?: unknown; mode?: unknown; images?: unknown; }
 
 function parseRect(r: RawRect): OcclusionRect {
-  return { x: Number(r.x), y: Number(r.y), w: Number(r.w), h: Number(r.h), label: typeof r.label === "string" ? r.label : "" };
+  const base: OcclusionRect = {
+    x: Number(r.x),
+    y: Number(r.y),
+    w: Number(r.w),
+    h: Number(r.h),
+    label: typeof r.label === "string" ? r.label : "",
+  };
+  if (r.shape === "ellipse" || r.shape === "polygon" || r.shape === "rect") {
+    base.shape = r.shape;
+  }
+  if (r.shape === "polygon" && Array.isArray(r.points)) {
+    base.points = (r.points as RawPoint[]).map((p) => ({ x: Number(p.x), y: Number(p.y) }));
+  }
+  if (typeof r.groupId === "string" && r.groupId.length > 0) {
+    base.groupId = r.groupId;
+  }
+  return base;
 }
 function parseImageEntry(e: RawImageEntry): ImageOcclusionImage {
   return { imageName: typeof e.imageName === "string" ? e.imageName : "", header: typeof e.header === "string" ? e.header : "", rects: Array.isArray(e.rects) ? (e.rects as RawRect[]).map(parseRect) : [] };

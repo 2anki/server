@@ -10,16 +10,39 @@ import pageStyles from './ImageOcclusionPage.module.css';
 
 type Mode = 'hide_all' | 'hide_one';
 
-function buildDownloadFormData(deckName: string, mode: Mode, entries: ImageEntry[]): FormData {
+async function fetchBlob(url: string): Promise<Blob> {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('Failed to fetch image from storage');
+  return res.blob();
+}
+
+async function buildDownloadFormData(deckName: string, mode: Mode, entries: ImageEntry[]): Promise<FormData> {
   const form = new FormData();
-  const images = entries.map((entry) => ({
-    imageName: entry.file.name,
+
+  const resolvedEntries = await Promise.all(
+    entries.map(async (entry) => {
+      const file = entry.file ?? new File([await fetchBlob(entry.previewUrl)], entry.imageName, { type: 'image/jpeg' });
+      return { entry, file };
+    })
+  );
+
+  const images = resolvedEntries.map(({ entry }) => ({
+    imageName: entry.imageName,
     header: entry.header,
-    rects: entry.rects.map((r) => ({ x: r.x, y: r.y, w: r.w, h: r.h, label: r.label })),
+    rects: entry.rects.map((r) => ({
+      x: r.x,
+      y: r.y,
+      w: r.w,
+      h: r.h,
+      label: r.label,
+      shape: r.shape,
+      ...(r.points == null ? {} : { points: r.points }),
+      ...(r.groupId == null ? {} : { groupId: r.groupId }),
+    })),
   }));
   form.append('data', JSON.stringify({ deckName, mode, images }));
-  for (const entry of entries) {
-    form.append('images', entry.file, entry.file.name);
+  for (const { entry, file } of resolvedEntries) {
+    form.append('images', file, entry.imageName);
   }
   return form;
 }
@@ -36,47 +59,39 @@ async function uploadImageToServer(file: File): Promise<{ s3Key: string; presign
   return res.json() as Promise<{ s3Key: string; presignedUrl: string }>;
 }
 
-async function saveDraft(
-  draftId: string | null,
-  name: string,
-  mode: Mode,
-  entries: ImageEntry[]
-): Promise<string | null> {
+async function upsertDraft(deckName: string, mode: Mode, entries: ImageEntry[]): Promise<void> {
   const images = entries
     .filter((e) => e.s3Key != null)
     .map((e) => ({
       s3Key: e.s3Key as string,
-      imageName: e.file.name,
+      imageName: e.imageName,
       header: e.header,
       rects: e.rects,
     }));
-
-  if (draftId != null) {
-    await fetch(`/api/image-occlusion/draft/${draftId}`, {
-      method: 'PUT',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, mode, images }),
-    });
-    return draftId;
-  }
-
-  const res = await fetch('/api/image-occlusion/draft', {
-    method: 'POST',
+  await fetch('/api/image-occlusion/draft', {
+    method: 'PUT',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, mode, images }),
+    body: JSON.stringify({ deckName, mode, images }),
   });
-  if (!res.ok) return null;
-  const body = (await res.json()) as { id: string };
-  return body.id;
 }
 
-async function deleteDraft(draftId: string): Promise<void> {
-  await fetch(`/api/image-occlusion/draft/${draftId}`, {
-    method: 'DELETE',
-    credentials: 'include',
-  });
+async function loadDraft(): Promise<{
+  deckName: string;
+  mode: Mode;
+  images: Array<{ s3Key: string; imageName: string; header: string; rects: OcclusionRect[]; presignedUrl: string }>;
+} | null> {
+  const res = await fetch('/api/image-occlusion/draft', { credentials: 'include' });
+  if (!res.ok) return null;
+  return res.json() as Promise<{
+    deckName: string;
+    mode: Mode;
+    images: Array<{ s3Key: string; imageName: string; header: string; rects: OcclusionRect[]; presignedUrl: string }>;
+  } | null>;
+}
+
+async function deleteDraft(): Promise<void> {
+  await fetch('/api/image-occlusion/draft', { method: 'DELETE', credentials: 'include' });
 }
 
 export function ImageOcclusionPage() {
@@ -84,13 +99,13 @@ export function ImageOcclusionPage() {
   const isPaying = isPayingUser(data?.locals);
   const isLoggedIn = data?.locals != null;
 
+  const [hydrated, setHydrated] = useState(false);
   const [entries, setEntries] = useState<ImageEntry[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [deckName, setDeckName] = useState('My image deck');
   const [mode, setMode] = useState<Mode>('hide_all');
   const [isDownloading, setIsDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [draftId, setDraftId] = useState<string | null>(null);
   const [mobileDismissed, setMobileDismissed] = useState(() =>
     typeof window !== 'undefined' && localStorage.getItem('io_mobile_dismissed') === '1'
   );
@@ -99,19 +114,47 @@ export function ImageOcclusionPage() {
     if (mobileDismissed) localStorage.setItem('io_mobile_dismissed', '1');
   }, [mobileDismissed]);
 
+  useEffect(() => {
+    if (!isLoggedIn) {
+      setHydrated(true);
+      return;
+    }
+    loadDraft()
+      .then((draft) => {
+        if (draft == null) {
+          setHydrated(true);
+          return;
+        }
+        setDeckName(draft.deckName);
+        setMode(draft.mode);
+        const restored: ImageEntry[] = draft.images.map((img) => ({
+          id: crypto.randomUUID(),
+          file: null,
+          imageName: img.imageName,
+          header: img.header,
+          rects: img.rects,
+          previewUrl: img.presignedUrl,
+          s3Key: img.s3Key,
+          uploading: false,
+        }));
+        if (restored.length > 0) setEntries(restored);
+        setHydrated(true);
+      })
+      .catch(() => setHydrated(true));
+  }, [isLoggedIn]);
+
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    if (!isLoggedIn) return;
+    if (!hydrated || !isLoggedIn) return;
     if (saveTimer.current) clearTimeout(saveTimer.current);
-    saveTimer.current = setTimeout(async () => {
-      const newId = await saveDraft(draftId, deckName, mode, entries).catch(() => null);
-      if (newId != null && draftId == null) setDraftId(newId);
+    saveTimer.current = setTimeout(() => {
+      upsertDraft(deckName, mode, entries).catch(() => undefined);
     }, 1000);
     return () => {
       if (saveTimer.current) clearTimeout(saveTimer.current);
     };
-  }, [deckName, mode, entries, isLoggedIn, draftId]);
+  }, [deckName, mode, entries, hydrated, isLoggedIn]);
 
   const totalCards = entries.reduce((sum, e) => sum + e.rects.length, 0);
 
@@ -123,6 +166,7 @@ export function ImageOcclusionPage() {
         return {
           id: crypto.randomUUID(),
           file,
+          imageName: file.name,
           header,
           rects: [],
           previewUrl: URL.createObjectURL(file),
@@ -139,7 +183,7 @@ export function ImageOcclusionPage() {
 
       if (isLoggedIn) {
         for (const entry of newEntries) {
-          uploadImageToServer(entry.file)
+          uploadImageToServer(entry.file as File)
             .then(({ s3Key, presignedUrl }) => {
               setEntries((prev) =>
                 prev.map((e) =>
@@ -204,7 +248,7 @@ export function ImageOcclusionPage() {
     setError(null);
     setIsDownloading(true);
     try {
-      const formData = buildDownloadFormData(deckName, mode, entries);
+      const formData = await buildDownloadFormData(deckName, mode, entries);
       const response = await fetch('/api/image-occlusion', {
         method: 'POST',
         credentials: 'include',
@@ -221,13 +265,17 @@ export function ImageOcclusionPage() {
       a.download = `${deckName}.apkg`;
       a.click();
       URL.revokeObjectURL(url);
-      if (draftId != null) await deleteDraft(draftId).catch(() => undefined);
+      if (isLoggedIn) await deleteDraft().catch(() => undefined);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Download failed');
     } finally {
       setIsDownloading(false);
     }
   };
+
+  if (!hydrated) {
+    return <div className={pageStyles.pageLayout}>Restoring your session…</div>;
+  }
 
   const activeEntry = entries[activeIndex] ?? null;
 
@@ -311,13 +359,13 @@ export function ImageOcclusionPage() {
           </div>
         </div>
         <div className={pageStyles.rightPanel}>
-          {activeEntry != null ? (
-            <OcclusionCanvas entry={activeEntry} onRectsChange={handleRectsChange} />
-          ) : (
+          {activeEntry == null ? (
             <div className={pageStyles.emptyCanvas}>
               <p>Add an image from the panel on the left.</p>
               <p>Each box you draw becomes one flashcard.</p>
             </div>
+          ) : (
+            <OcclusionCanvas entry={activeEntry} onRectsChange={handleRectsChange} />
           )}
         </div>
       </div>

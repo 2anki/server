@@ -5,11 +5,15 @@ export interface OcclusionRect {
   w: number;
   h: number;
   label: string;
+  shape: 'rect' | 'ellipse' | 'polygon';
+  points?: { x: number; y: number }[];
+  groupId?: string;
 }
 
 export interface ImageEntry {
   id: string;
-  file: File;
+  file: File | null;
+  imageName: string;
   header: string;
   rects: OcclusionRect[];
   previewUrl: string;

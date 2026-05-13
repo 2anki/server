@@ -7,6 +7,7 @@ function makeEntry(overrides: Partial<ImageEntry> = {}): ImageEntry {
   return {
     id: 'entry-test',
     file: new File(['x'], 'test.jpg', { type: 'image/jpeg' }),
+    imageName: 'test.jpg',
     header: '',
     rects: [],
     previewUrl: 'blob:fake', s3Key: null, uploading: false,
@@ -25,7 +26,7 @@ describe('OcclusionCanvas', () => {
 
   it('renders existing rects as SVG rect elements', () => {
     const entry = makeEntry({
-      rects: [{ id: 'r1', x: 0.1, y: 0.1, w: 0.2, h: 0.2, label: '' }],
+      rects: [{ id: 'r1', x: 0.1, y: 0.1, w: 0.2, h: 0.2, label: '', shape: 'rect' as const }],
     });
     const { container } = render(
       <OcclusionCanvas entry={entry} onRectsChange={vi.fn()} />
@@ -72,27 +73,37 @@ describe('OcclusionCanvas', () => {
 
   it('shows label input when a rect is selected', () => {
     const entry = makeEntry({
-      rects: [{ id: 'r1', x: 0.1, y: 0.1, w: 0.5, h: 0.5, label: 'Heart' }],
+      rects: [{ id: 'r1', x: 0.1, y: 0.1, w: 0.5, h: 0.5, label: 'Heart', shape: 'rect' as const }],
     });
     const { container, getByRole } = render(
       <OcclusionCanvas entry={entry} onRectsChange={vi.fn()} />
     );
+    const svg = container.querySelector('svg')!;
+    svg.getBoundingClientRect = () => ({
+      left: 0, top: 0, right: 500, bottom: 400, width: 500, height: 400, x: 0, y: 0,
+      toJSON: () => ({}),
+    });
     const rectEl = container.querySelector('[data-rect]')!;
-    fireEvent.click(rectEl);
+    fireEvent.pointerDown(rectEl, { clientX: 100, clientY: 100, bubbles: true });
     const input = getByRole('textbox', { name: /Rect label/ });
     expect(input).toBeTruthy();
   });
 
   it('calls onRectsChange when Delete key pressed with selected rect', () => {
     const entry = makeEntry({
-      rects: [{ id: 'r1', x: 0.1, y: 0.1, w: 0.5, h: 0.5, label: '' }],
+      rects: [{ id: 'r1', x: 0.1, y: 0.1, w: 0.5, h: 0.5, label: '', shape: 'rect' as const }],
     });
     const onRectsChange = vi.fn();
     const { container } = render(
       <OcclusionCanvas entry={entry} onRectsChange={onRectsChange} />
     );
+    const svg = container.querySelector('svg')!;
+    svg.getBoundingClientRect = () => ({
+      left: 0, top: 0, right: 500, bottom: 400, width: 500, height: 400, x: 0, y: 0,
+      toJSON: () => ({}),
+    });
     const rectEl = container.querySelector('[data-rect]')!;
-    fireEvent.click(rectEl);
+    fireEvent.pointerDown(rectEl, { clientX: 100, clientY: 100, bubbles: true });
 
     const appEl = container.querySelector('[role="application"]')!;
     fireEvent.keyDown(appEl, { key: 'Delete' });

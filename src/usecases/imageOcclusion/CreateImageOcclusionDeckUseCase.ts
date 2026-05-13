@@ -13,6 +13,9 @@ export interface OcclusionRect {
   w: number;
   h: number;
   label: string;
+  shape?: 'rect' | 'ellipse' | 'polygon';
+  points?: { x: number; y: number }[];
+  groupId?: string;
 }
 
 export interface ImageOcclusionImage {
