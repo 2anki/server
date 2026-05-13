@@ -155,11 +155,11 @@ export function ImageOcclusionPage() {
         .filter((e) => e.s3Key != null)
         .map((e) => ({ s3Key: e.s3Key, imageName: e.imageName, header: e.header, rects: e.rects }));
       const currentId = draftIdRef.current;
-      if (currentId != null) {
-        await updateDraft(currentId, deckName, mode, images).catch(() => undefined);
-      } else {
+      if (currentId == null) {
         const newId = await createDraft(deckName, mode, images).catch(() => null);
         if (newId != null) setDraftId(newId);
+      } else {
+        await updateDraft(currentId, deckName, mode, images).catch(() => undefined);
       }
     }, 1000);
     return () => {

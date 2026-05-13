@@ -41,7 +41,7 @@ const POLYGON_CLOSE_DIST = 15;
 const DUPLICATE_OFFSET = 0.02;
 
 function generateId(): string {
-  return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+  return crypto.randomUUID();
 }
 
 function toNorm(px: number, dim: number): number {
