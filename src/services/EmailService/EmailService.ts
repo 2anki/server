@@ -7,6 +7,7 @@ import {
   CONVERT_LINK_TEMPLATE,
   CONVERT_TEMPLATE,
   DEFAULT_SENDER,
+  INACTIVITY_WARNING_TEMPLATE,
   MAGIC_LINK_TEMPLATE,
   PASSWORD_RESET_TEMPLATE,
   RE_ENGAGEMENT_TEMPLATE,
@@ -54,6 +55,7 @@ export interface IEmailService {
     name: string,
     token: string
   ): Promise<void>;
+  sendInactivityWarningEmail(to: string): Promise<void>;
 }
 
 class EmailService implements IEmailService {
@@ -249,6 +251,30 @@ class EmailService implements IEmailService {
       await sgMail.send(msg);
     } catch (error) {
       console.error('Failed to send re-engagement email:', error);
+      throw error;
+    }
+  }
+
+  async sendInactivityWarningEmail(to: string): Promise<void> {
+    const domain = process.env.DOMAIN ?? 'https://2anki.net';
+    const markup = INACTIVITY_WARNING_TEMPLATE.replace('{{link}}', domain);
+
+    const $ = cheerio.load(markup);
+    const text = $('body').text().replace(/\s+/g, ' ').trim();
+
+    const msg = {
+      to,
+      from: this.defaultSender,
+      subject: 'Your 2anki account will be deleted soon',
+      text,
+      html: markup,
+      replyTo: 'support@2anki.net',
+    };
+
+    try {
+      await sgMail.send(msg);
+    } catch (error) {
+      console.error(`Failed to send inactivity warning to ${to}:`, error);
       throw error;
     }
   }
@@ -456,6 +482,10 @@ export class UnimplementedEmailService implements IEmailService {
     token: string
   ): Promise<void> {
     console.info('sendReEngagementEmail not handled', to, name, token);
+  }
+
+  async sendInactivityWarningEmail(to: string): Promise<void> {
+    console.info('sendInactivityWarningEmail not handled', to);
   }
 }
 

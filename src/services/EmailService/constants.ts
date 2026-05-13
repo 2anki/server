@@ -49,3 +49,8 @@ export const RE_ENGAGEMENT_TEMPLATE = fs.readFileSync(
   path.join(EMAIL_TEMPLATES_DIRECTORY, 're-engagement.html'),
   'utf8'
 );
+
+export const INACTIVITY_WARNING_TEMPLATE = fs.readFileSync(
+  path.join(EMAIL_TEMPLATES_DIRECTORY, 'inactivity-warning.html'),
+  'utf8'
+);
