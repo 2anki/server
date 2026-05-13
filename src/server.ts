@@ -45,6 +45,7 @@ import contactMessagesRouter from './routes/ContactMessagesRouter';
 import showcaseRouter from './routes/ShowcaseRouter';
 import emojiFeedbackRouter from './routes/EmojiFeedbackRouter';
 import reEngagementRouter from './routes/ReEngagementRouter';
+import imageOcclusionRouter from './routes/ImageOcclusionRouter';
 import requestLoggingMiddleware from './routes/middleware/requestLoggingMiddleware';
 
 import { getDatabase, setupDatabase } from './data_layer';
@@ -118,6 +119,7 @@ const serve = async () => {
   app.use(contactMessagesRouter());
   app.use(emojiFeedbackRouter());
   app.use(reEngagementRouter());
+  app.use(imageOcclusionRouter());
 
   app.use(rejectScannerProbes);
   // Note: this has to be the last router
