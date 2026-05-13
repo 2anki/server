@@ -22,6 +22,7 @@ import { getDatabase } from '../data_layer';
 import RequireOpsAccess from './middleware/RequireOpsAccess';
 import InactivityEmailRepository from '../data_layer/InactivityEmailRepository';
 import { SendInactivityWarningsUseCase } from '../usecases/ops/SendInactivityWarningsUseCase';
+import { getDefaultEmailService } from '../services/EmailService/EmailService';
 
 const OpsRouter = () => {
   const router = express.Router();
@@ -51,7 +52,7 @@ const OpsRouter = () => {
     new GetConversionMetricsUseCase(conversionMetricsService),
     populateShowcase,
     showcaseRepo,
-    new SendInactivityWarningsUseCase(new InactivityEmailRepository(database))
+    new SendInactivityWarningsUseCase(new InactivityEmailRepository(database), getDefaultEmailService())
   );
 
   /**
