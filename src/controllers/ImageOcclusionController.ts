@@ -5,7 +5,7 @@ import { CreateImageOcclusionDeckUseCase, ImageOcclusionImage, OcclusionRect } f
 
 interface RawPoint { x: unknown; y: unknown; }
 interface RawRect { x: unknown; y: unknown; w: unknown; h: unknown; label?: unknown; shape?: unknown; points?: unknown; groupId?: unknown; }
-interface RawImageEntry { imageName?: unknown; header?: unknown; rects?: unknown; }
+interface RawImageEntry { imageName?: unknown; header?: unknown; rects?: unknown; s3Key?: unknown; }
 interface RawData { deckName?: unknown; mode?: unknown; images?: unknown; }
 
 function parseRect(r: RawRect): OcclusionRect {
@@ -28,7 +28,7 @@ function parseRect(r: RawRect): OcclusionRect {
   return base;
 }
 function parseImageEntry(e: RawImageEntry): ImageOcclusionImage {
-  return { imageName: typeof e.imageName === "string" ? e.imageName : "", header: typeof e.header === "string" ? e.header : "", rects: Array.isArray(e.rects) ? (e.rects as RawRect[]).map(parseRect) : [] };
+  return { imageName: typeof e.imageName === "string" ? e.imageName : "", header: typeof e.header === "string" ? e.header : "", rects: Array.isArray(e.rects) ? (e.rects as RawRect[]).map(parseRect) : [], s3Key: typeof e.s3Key === "string" ? e.s3Key : undefined };
 }
 
 class ImageOcclusionController {

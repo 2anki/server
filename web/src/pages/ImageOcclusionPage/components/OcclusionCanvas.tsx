@@ -103,6 +103,7 @@ export function OcclusionCanvas({ entry, onRectsChange }: Readonly<Props>) {
   const [activeTool, setActiveTool] = useState<ActiveTool>('rect');
   const [masksHidden, setMasksHidden] = useState(false);
   const [pendingPolygon, setPendingPolygon] = useState<{ x: number; y: number }[]>([]);
+  const [cursorPt, setCursorPt] = useState<{ x: number; y: number } | null>(null);
   const [labelInput, setLabelInput] = useState('');
 
   const history = useOcclusionHistory(entry.rects);
@@ -184,6 +185,7 @@ export function OcclusionCanvas({ entry, onRectsChange }: Readonly<Props>) {
       pushAndNotify(next);
       setSelectedIds(new Set([newRect.id]));
       setPendingPolygon([]);
+      setCursorPt(null);
     },
     [pushAndNotify]
   );
@@ -356,8 +358,13 @@ export function OcclusionCanvas({ entry, onRectsChange }: Readonly<Props>) {
         const { x, y } = getSvgPt(e);
         setDraft((prev) => (prev ? { ...prev, currentX: x, currentY: y } : null));
       }
+
+      if (activeTool === 'polygon' && pendingPolygon.length > 0) {
+        const { x, y } = getSvgPt(e);
+        setCursorPt({ x, y });
+      }
     },
-    [panState, drag, draft, getSvgPt, entry.rects, onRectsChange, zoom, setPan]
+    [panState, drag, draft, getSvgPt, entry.rects, onRectsChange, zoom, setPan, activeTool, pendingPolygon.length]
   );
 
   const handlePointerUp = useCallback(
@@ -744,6 +751,18 @@ export function OcclusionCanvas({ entry, onRectsChange }: Readonly<Props>) {
                     strokeDasharray="4 2"
                     style={{ pointerEvents: 'none' }}
                   />
+                  {cursorPt && (
+                    <line
+                      x1={last.x * svgSize.w}
+                      y1={last.y * svgSize.h}
+                      x2={cursorPt.x}
+                      y2={cursorPt.y}
+                      stroke="#4f46e5"
+                      strokeWidth={1.5}
+                      strokeDasharray="5 3"
+                      style={{ pointerEvents: 'none' }}
+                    />
+                  )}
                   {pendingPolygon.length >= 2 && (
                     <line
                       x1={last.x * svgSize.w}

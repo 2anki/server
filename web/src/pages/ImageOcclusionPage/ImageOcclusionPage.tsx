@@ -10,40 +10,28 @@ import pageStyles from './ImageOcclusionPage.module.css';
 
 type Mode = 'hide_all' | 'hide_one';
 
-async function fetchBlob(url: string): Promise<Blob> {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error('Failed to fetch image from storage');
-  return res.blob();
-}
-
 async function buildDownloadFormData(deckName: string, mode: Mode, entries: ImageEntry[]): Promise<FormData> {
   const form = new FormData();
 
-  const resolvedEntries = await Promise.all(
-    entries.map(async (entry) => {
-      const file = entry.file ?? new File([await fetchBlob(entry.previewUrl)], entry.imageName, { type: 'image/jpeg' });
-      return { entry, file };
-    })
-  );
-
-  const images = resolvedEntries.map(({ entry }) => ({
+  const images = entries.map((entry) => ({
     imageName: entry.imageName,
     header: entry.header,
+    s3Key: entry.s3Key ?? undefined,
     rects: entry.rects.map((r) => ({
-      x: r.x,
-      y: r.y,
-      w: r.w,
-      h: r.h,
-      label: r.label,
-      shape: r.shape,
+      x: r.x, y: r.y, w: r.w, h: r.h, label: r.label, shape: r.shape,
       ...(r.points == null ? {} : { points: r.points }),
       ...(r.groupId == null ? {} : { groupId: r.groupId }),
     })),
   }));
+
   form.append('data', JSON.stringify({ deckName, mode, images }));
-  for (const { entry, file } of resolvedEntries) {
-    form.append('images', file, entry.imageName);
+
+  for (const entry of entries) {
+    if (entry.file != null) {
+      form.append('images', entry.file, entry.imageName);
+    }
   }
+
   return form;
 }
 
