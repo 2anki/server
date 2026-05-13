@@ -3,7 +3,6 @@ import styles from '../AccountPage.module.css';
 interface User {
   name: string;
   email: string;
-  picture?: string | null;
 }
 
 interface UserProfileProps {

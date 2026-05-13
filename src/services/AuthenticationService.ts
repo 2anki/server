@@ -187,8 +187,6 @@ class AuthenticationService {
         email: decoded.email,
         // @ts-ignore
         name: decoded.name,
-        // @ts-ignore
-        picture: decoded.picture,
       };
     } catch (error) {
       console.info("Couldn't login with Google");

@@ -43,7 +43,6 @@ class UsersRepository {
     name: string,
     password: string,
     email: string,
-    picture?: string,
     signupOrigin?: string | null
   ) {
     return this.database(this.table)
@@ -51,7 +50,6 @@ class UsersRepository {
         name,
         password,
         email,
-        picture,
         signup_origin: signupOrigin ?? null,
       })
       .returning(['id']);
@@ -106,9 +104,6 @@ class UsersRepository {
     return subscription?.linked_email;
   }
 
-  updatePicture(id: string, picture: string) {
-    return this.database(this.table).where({ id }).update({ picture });
-  }
 
   updateLastLoginAt(id: string) {
     return this.database(this.table).where({ id }).update({
