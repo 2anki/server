@@ -144,11 +144,14 @@ export function ImageOcclusionPage() {
 
   const activeEntry = entries[activeIndex] ?? null;
 
-  const ctaLabel = isDownloading
-    ? 'Making your deck…'
-    : totalCards > 0
-      ? `Download deck (${totalCards} ${totalCards === 1 ? 'card' : 'cards'})`
-      : 'Add an image to start';
+  let ctaLabel: string;
+  if (isDownloading) {
+    ctaLabel = 'Making your deck…';
+  } else if (totalCards > 0) {
+    ctaLabel = `Download deck (${totalCards} ${totalCards === 1 ? 'card' : 'cards'})`;
+  } else {
+    ctaLabel = 'Add an image to start';
+  }
 
   return (
     <>
