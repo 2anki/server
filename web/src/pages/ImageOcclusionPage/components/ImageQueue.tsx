@@ -8,6 +8,7 @@ interface Props {
   activeIndex: number;
   onSelect: (i: number) => void;
   onAdd: (files: File[]) => void;
+  onRemove: (id: string) => void;
   onHeaderChange: (i: number, header: string) => void;
   isPaying: boolean;
 }
@@ -19,6 +20,7 @@ export function ImageQueue({
   activeIndex,
   onSelect,
   onAdd,
+  onRemove,
   onHeaderChange,
   isPaying,
 }: Readonly<Props>) {
@@ -38,7 +40,7 @@ export function ImageQueue({
       <div className={styles.queueList}>
         {entries.map((entry, i) => (
           <div
-            key={entry.previewUrl}
+            key={entry.id}
             className={`${styles.queueItem} ${i === activeIndex ? styles.queueItemActive : ''}`}
           >
             <button
@@ -66,6 +68,14 @@ export function ImageQueue({
               className={styles.headerInput}
               aria-label={`Header for image ${i + 1}`}
             />
+            <button
+              type="button"
+              className={styles.queueRemoveBtn}
+              onClick={() => onRemove(entry.id)}
+              aria-label={`Remove image ${i + 1}`}
+            >
+              ×
+            </button>
           </div>
         ))}
       </div>

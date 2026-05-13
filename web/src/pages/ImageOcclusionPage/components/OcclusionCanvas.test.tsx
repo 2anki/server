@@ -5,6 +5,7 @@ import { ImageEntry } from '../types';
 
 function makeEntry(overrides: Partial<ImageEntry> = {}): ImageEntry {
   return {
+    id: 'entry-test',
     file: new File(['x'], 'test.jpg', { type: 'image/jpeg' }),
     header: '',
     rects: [],

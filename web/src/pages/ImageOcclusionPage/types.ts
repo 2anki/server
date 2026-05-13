@@ -8,6 +8,7 @@ export interface OcclusionRect {
 }
 
 export interface ImageEntry {
+  id: string;
   file: File;
   header: string;
   rects: OcclusionRect[];

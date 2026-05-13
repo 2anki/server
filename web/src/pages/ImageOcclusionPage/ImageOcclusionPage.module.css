@@ -124,6 +124,21 @@
   border-color: var(--color-primary);
 }
 
+.queueRemoveBtn {
+  align-self: flex-end;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  font-size: var(--text-base);
+  line-height: 1;
+  padding: 0 0.25rem;
+}
+
+.queueRemoveBtn:hover {
+  color: var(--color-danger, #e53e3e);
+}
+
 .addBtn {
   margin-top: 0.5rem;
   padding: 0.5rem;

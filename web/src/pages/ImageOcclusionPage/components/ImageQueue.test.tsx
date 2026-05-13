@@ -6,6 +6,7 @@ import { ImageEntry } from '../types';
 
 function makeEntry(i: number): ImageEntry {
   return {
+    id: `entry-${i}`,
     file: new File(['x'], `img${i}.jpg`, { type: 'image/jpeg' }),
     header: '',
     rects: [],
@@ -21,6 +22,7 @@ function renderQueue(entries: ImageEntry[], isPaying: boolean) {
         activeIndex={0}
         onSelect={vi.fn()}
         onAdd={vi.fn()}
+        onRemove={vi.fn()}
         onHeaderChange={vi.fn()}
         isPaying={isPaying}
       />
