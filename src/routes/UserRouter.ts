@@ -187,6 +187,10 @@ const UserRouter = () => {
     controller.verifyMagicLink(req, res, next)
   );
 
+  router.get('/api/users/verify/:token', (req, res, next) =>
+    controller.verifyEmail(req, res, next)
+  );
+
   /**
    * @swagger
    * /api/users/logout:

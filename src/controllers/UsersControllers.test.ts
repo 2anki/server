@@ -25,9 +25,11 @@ const SAMPLE_PW = '12345678';
 const buildRes = () => {
   const json = jest.fn();
   const status = jest.fn().mockReturnValue({ json });
-  return { json, status } as unknown as express.Response & {
+  const cookie = jest.fn();
+  return { json, status, cookie } as unknown as express.Response & {
     json: jest.Mock;
     status: jest.Mock;
+    cookie: jest.Mock;
   };
 };
 
@@ -35,14 +37,24 @@ const buildController = (overrides?: {
   getUserFrom?: jest.Mock;
   register?: jest.Mock;
   getHashPassword?: jest.Mock;
+  newJWTToken?: jest.Mock;
+  persistToken?: jest.Mock;
+  updateLastLoginAt?: jest.Mock;
 }) => {
+  const mockUser = { id: 1, email: 'test@example.com' };
   const userService = {
-    getUserFrom: overrides?.getUserFrom ?? jest.fn().mockResolvedValue(null),
+    getUserFrom: overrides?.getUserFrom ?? jest.fn()
+      .mockResolvedValueOnce(null)
+      .mockResolvedValue(mockUser),
     register: overrides?.register ?? jest.fn().mockResolvedValue([{ id: 1 }]),
+    updateLastLoginAt: overrides?.updateLastLoginAt ?? jest.fn().mockResolvedValue(undefined),
   } as unknown as UsersService;
   const authService = {
     getHashPassword:
       overrides?.getHashPassword ?? jest.fn().mockReturnValue('hashed'),
+    newJWTToken: overrides?.newJWTToken ?? jest.fn().mockResolvedValue('jwt-tok'),
+    persistToken: overrides?.persistToken ?? jest.fn().mockResolvedValue(undefined),
+    isValidLogin: jest.fn().mockReturnValue(true),
   } as unknown as AuthenticationService;
   const controller = new UsersController(
     userService,
@@ -81,20 +93,27 @@ describe('UsersController.register', () => {
     expect(res.status).toHaveBeenCalledWith(400);
   });
 
-  it('does not require name in the request body', async () => {
+  it('auto-logs in the user after registration and sets a JWT cookie', async () => {
     const register = jest.fn().mockResolvedValue([{ id: 1 }]);
-    const { controller } = buildController({ register });
+    const newJWTToken = jest.fn().mockResolvedValue('jwt-reg-tok');
+    const persistToken = jest.fn().mockResolvedValue(undefined);
+    const updateLastLoginAt = jest.fn().mockResolvedValue(undefined);
+    const { controller } = buildController({ register, newJWTToken, persistToken, updateLastLoginAt });
     const req = {
       body: { email: 'jane.doe@example.com', password: SAMPLE_PW },
-    } as express.Request;
+      query: {},
+    } as unknown as express.Request;
     const res = buildRes();
     const next = jest.fn();
 
     await controller.register(req, res, next);
 
     expect(register).toHaveBeenCalledTimes(1);
+    expect(res.cookie).toHaveBeenCalledWith('token', 'jwt-reg-tok');
     expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith({ message: 'ok' });
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ token: 'jwt-reg-tok', verificationPending: true })
+    );
     expect(next).not.toHaveBeenCalled();
   });
 
@@ -107,7 +126,8 @@ describe('UsersController.register', () => {
         password: SAMPLE_PW,
         name: 'Alex',
       },
-    } as express.Request;
+      query: {},
+    } as unknown as express.Request;
     const res = buildRes();
     const next = jest.fn();
 
@@ -131,7 +151,8 @@ describe('UsersController.register', () => {
         password: SAMPLE_PW,
         source: '/notion-to-anki',
       },
-    } as express.Request;
+      query: {},
+    } as unknown as express.Request;
     const res = buildRes();
     const next = jest.fn();
 
@@ -154,7 +175,8 @@ describe('UsersController.register', () => {
         password: SAMPLE_PW,
         source: '<script>alert(1)</script>',
       },
-    } as express.Request;
+      query: {},
+    } as unknown as express.Request;
     const res = buildRes();
     const next = jest.fn();
 
@@ -188,6 +210,73 @@ describe('UsersController.register', () => {
       message:
         'An account with this email already exists. Try logging in instead.',
     });
+  });
+});
+
+describe('UsersController.verifyEmail', () => {
+  const buildVerifyEmailController = (overrides?: {
+    verifyMagicToken?: jest.Mock;
+    markEmailVerified?: jest.Mock;
+  }) => {
+    const userService = {
+      verifyMagicToken:
+        overrides?.verifyMagicToken ?? jest.fn().mockResolvedValue(null),
+      markEmailVerified:
+        overrides?.markEmailVerified ?? jest.fn().mockResolvedValue(1),
+    } as unknown as UsersService;
+    const authService = {} as AuthenticationService;
+    const controller = new UsersController(
+      userService,
+      authService,
+      {} as ReturnType<typeof import('../data_layer').getDatabase>
+    );
+    return { controller, userService };
+  };
+
+  const buildVerifyEmailRes = () => {
+    const redirect = jest.fn();
+    return { redirect } as unknown as express.Response & { redirect: jest.Mock };
+  };
+
+  it('redirects to /uploads when the verify_email token is valid', async () => {
+    const verifyMagicToken = jest
+      .fn()
+      .mockResolvedValue({ userId: 7, purpose: 'verify_email' });
+    const markEmailVerified = jest.fn().mockResolvedValue(1);
+    const { controller } = buildVerifyEmailController({ verifyMagicToken, markEmailVerified });
+    const req = { params: { token: 'valid-verify-tok' } } as unknown as express.Request;
+    const res = buildVerifyEmailRes();
+    const next = jest.fn();
+
+    await controller.verifyEmail(req, res, next);
+
+    expect(markEmailVerified).toHaveBeenCalledWith('7');
+    expect(res.redirect).toHaveBeenCalledWith('/uploads');
+  });
+
+  it('redirects to /login?error=verification-expired when token is invalid', async () => {
+    const { controller } = buildVerifyEmailController();
+    const req = { params: { token: 'bad-tok' } } as unknown as express.Request;
+    const res = buildVerifyEmailRes();
+    const next = jest.fn();
+
+    await controller.verifyEmail(req, res, next);
+
+    expect(res.redirect).toHaveBeenCalledWith('/login?error=verification-expired');
+  });
+
+  it('redirects to /login?error=verification-expired for non-verify_email purpose tokens', async () => {
+    const verifyMagicToken = jest
+      .fn()
+      .mockResolvedValue({ userId: 7, purpose: 'login' });
+    const { controller } = buildVerifyEmailController({ verifyMagicToken });
+    const req = { params: { token: 'login-tok' } } as unknown as express.Request;
+    const res = buildVerifyEmailRes();
+    const next = jest.fn();
+
+    await controller.verifyEmail(req, res, next);
+
+    expect(res.redirect).toHaveBeenCalledWith('/login?error=verification-expired');
   });
 });
 

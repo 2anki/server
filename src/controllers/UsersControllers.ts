@@ -168,6 +168,16 @@ class UsersController {
         email,
         signupOrigin
       );
+      const newUser = await this.userService.getUserFrom(email);
+      if (newUser) {
+        const token = await this.authService.newJWTToken(newUser.id);
+        if (token) {
+          await this.authService.persistToken(token, newUser.id.toString());
+          await this.userService.updateLastLoginAt(newUser.id.toString());
+          res.cookie('token', token);
+          return res.status(200).json({ token, verificationPending: true });
+        }
+      }
       res.status(200).json({ message: 'ok' });
     } catch (error) {
       console.info('Register failed');
@@ -516,6 +526,29 @@ class UsersController {
       }
     }
     return res.status(200).json({ message: 'ok' });
+  }
+
+  async verifyEmail(
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) {
+    const { token } = req.params;
+    if (token == null || token.length === 0) {
+      return res.redirect('/login?error=verification-expired');
+    }
+
+    try {
+      const result = await this.userService.verifyMagicToken(token);
+      if (result == null || result.purpose !== 'verify_email') {
+        return res.redirect('/login?error=verification-expired');
+      }
+      await this.userService.markEmailVerified(result.userId.toString());
+      return res.redirect('/uploads');
+    } catch (error) {
+      console.error('Email verification failed:', error);
+      next(error);
+    }
   }
 
   async verifyMagicLink(

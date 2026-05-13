@@ -12,6 +12,7 @@ import type {
 const MAGIC_LINK_RATE_LIMIT = 5;
 const MAGIC_LINK_RATE_WINDOW_MS = 60 * 60 * 1000;
 const MAGIC_LINK_EXPIRY_MS = 15 * 60 * 1000;
+const VERIFY_EMAIL_EXPIRY_MS = 24 * 60 * 60 * 1000;
 
 export class MagicLinkRateLimitError extends Error {
   constructor() {
@@ -59,7 +60,7 @@ class UsersService {
     return this.repository.getByEmail(email);
   }
 
-  register(
+  async register(
     name: string,
     password: string,
     email: string,
@@ -69,12 +70,25 @@ class UsersService {
     const trimmedName = name?.trim() ?? '';
     const resolvedName =
       trimmedName.length > 0 ? trimmedName : normalizedEmail.split('@')[0];
-    return this.repository.createUser(
+    const rows = await this.repository.createUser(
       resolvedName,
       password,
       normalizedEmail,
       signupOrigin ?? null
     );
+    const userId = Array.isArray(rows) ? rows[0]?.id : null;
+    if (userId != null && this.magicTokenRepository != null) {
+      const token = crypto.randomBytes(64).toString('hex');
+      const expiresAt = new Date(Date.now() + VERIFY_EMAIL_EXPIRY_MS);
+      await this.magicTokenRepository.create(
+        token,
+        Number(userId),
+        'verify_email',
+        expiresAt
+      );
+      await this.emailService.sendVerificationEmail(normalizedEmail, token);
+    }
+    return rows;
   }
 
   deleteUser(owner: any) {
@@ -136,13 +150,17 @@ class UsersService {
     return this.repository.markAnkifyWelcomeSeen(owner);
   }
 
+  markEmailVerified(userId: string) {
+    return this.repository.markEmailVerified(userId);
+  }
+
   markTrialStarted(userId: string) {
     return this.repository.markTrialStarted(userId);
   }
 
   async requestMagicLink(
     email: string,
-    purpose: MagicTokenPurpose
+    purpose: 'login' | 'password_reset'
   ): Promise<void> {
     if (this.magicTokenRepository == null) {
       return;

@@ -3,6 +3,7 @@ import { Sidebar, SidebarFeatures, SidebarLocals } from './Sidebar';
 import { MobileTopBar } from './MobileTopBar';
 import { SkeletonPage } from '../Skeleton/Skeleton';
 import { ErrorPresenter } from '../errors/ErrorPresenter';
+import { EmailVerificationBanner } from '../EmailVerificationBanner/EmailVerificationBanner';
 import sharedStyles from '../../styles/shared.module.css';
 import styles from './AppShell.module.css';
 
@@ -59,6 +60,7 @@ export function SidebarLayout({
           onOpen={() => setIsDrawerOpen(true)}
           onClose={() => setIsDrawerOpen(false)}
         />
+        <EmailVerificationBanner />
         {error && <ErrorPresenter error={error} />}
         <main className={sharedStyles.flexGrow}>
           <Suspense fallback={<SkeletonPage rows={5} />}>{children}</Suspense>

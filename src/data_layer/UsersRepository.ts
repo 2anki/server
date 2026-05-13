@@ -129,6 +129,12 @@ class UsersRepository {
     });
   }
 
+  markEmailVerified(userId: string) {
+    return this.database(this.table)
+      .where({ id: userId })
+      .update({ email_verified: true });
+  }
+
   updatePatreonByEmail(email: string, patreon: boolean): Promise<number> {
     return this.database(this.table)
       .whereRaw('TRIM(LOWER(email)) = ?', [email.toLowerCase().trim()])
