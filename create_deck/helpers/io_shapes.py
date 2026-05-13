@@ -21,10 +21,5 @@ def shapes_to_occlusion_field(shapes, occlude_inactive: bool = True) -> str:
         lines.append(
             f"{{{{c{ordinal}::image-occlusion:rect:left={left}:top={top}:width={width}:height={height}{oi_suffix}}}}}<br>"
         )
-        if shape.get("label"):
-            label = shape["label"].replace(":", "\\:")
-            lines.append(
-                f"{{{{c0::image-occlusion:text:text={label}:left={left}:top={top}:scale=1}}}}<br>"
-            )
         ordinal += 1
     return "\n".join(lines)
