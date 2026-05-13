@@ -224,9 +224,9 @@ function SnapshotCard({ snapshot, onDelete }: { snapshot: InterviewSnapshot; onD
         <span className={styles.interviewCardDate}>{snapshot.interviewDate}</span>
         {snapshot.opportunities.length > 0 && (
           <span className={styles.interviewCardOpCount}>
-            {oppCount > 0 && `${oppCount} opp${oppCount !== 1 ? 's' : ''}`}
+            {oppCount > 0 && `${oppCount} opp${oppCount === 1 ? '' : 's'}`}
             {oppCount > 0 && insightCount > 0 && ' · '}
-            {insightCount > 0 && `${insightCount} insight${insightCount !== 1 ? 's' : ''}`}
+            {insightCount > 0 && `${insightCount} insight${insightCount === 1 ? '' : 's'}`}
           </span>
         )}
       </div>
@@ -497,6 +497,10 @@ function SnapshotForm({ onSave, onCancel }: { onSave: (s: InterviewSnapshot) => 
   );
 }
 
+function generateButtonLabel(ost: OstVersion | null | undefined): string {
+  return ost ? 'Regenerate' : 'Generate tree';
+}
+
 // ── OST node (sortable) ──────────────────────────────────────────────────────
 
 const NODE_TYPE_LABELS: Record<NodeType, string> = {
@@ -590,7 +594,7 @@ function OstSection({ snapshotCount }: { snapshotCount: number }) {
           <p className={styles.panelTitle}>Opportunity solution tree</p>
           <p className={styles.panelSubtitle}>
             {ost
-              ? `Generated from ${ost.snapshotCount} snapshot${ost.snapshotCount !== 1 ? 's' : ''} · ${new Date(ost.generatedAt).toLocaleDateString()}`
+              ? `Generated from ${ost.snapshotCount} snapshot${ost.snapshotCount === 1 ? '' : 's'} · ${new Date(ost.generatedAt).toLocaleDateString()}`
               : 'Claude organizes your interview snapshots into a prioritized tree.'}
           </p>
         </div>
@@ -601,7 +605,7 @@ function OstSection({ snapshotCount }: { snapshotCount: number }) {
           disabled={generating || !canGenerate}
           title={canGenerate ? undefined : `Need ${MIN_SNAPSHOTS} snapshots (have ${snapshotCount})`}
         >
-          {generating ? 'Generating…' : ost ? 'Regenerate' : 'Generate tree'}
+          {generating ? 'Generating…' : generateButtonLabel(ost)}
         </button>
       </div>
 
@@ -697,13 +701,13 @@ export default function InterviewsTab() {
 
       {error && <div className={`${sharedStyles.alertDanger} ${styles.banner}`}>{error}</div>}
 
-      {loading ? (
-        <div className={styles.skeletonBar} style={{ height: 120 }} />
-      ) : snapshots.length === 0 ? (
+      {loading && <div className={styles.skeletonBar} style={{ height: 120 }} />}
+      {!loading && snapshots.length === 0 && (
         <div className={`${sharedStyles.surface} ${styles.interviewEmpty}`}>
           <p>No snapshots yet. Run your first customer interview and capture it here.</p>
         </div>
-      ) : (
+      )}
+      {!loading && snapshots.length > 0 && (
         <div className={styles.interviewGrid}>
           {snapshots.map((s) => (
             <SnapshotCard key={s.id} snapshot={s} onDelete={handleDelete} />
