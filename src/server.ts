@@ -52,9 +52,12 @@ import { getDatabase, setupDatabase } from './data_layer';
 import JobRepository from './data_layer/JobRepository';
 import { MagicTokenRepository } from './data_layer/MagicTokenRepository';
 import ReEngagementRepository from './data_layer/ReEngagementRepository';
+import InactivityEmailRepository from './data_layer/InactivityEmailRepository';
 import { updateStripeSubscriptions } from './lib/storage/jobs/helpers/updateStripeSubscriptions';
 import { sendReEngagementEmails } from './lib/storage/jobs/helpers/sendReEngagementEmails';
+import { scheduleInactivityWarnings } from './lib/inactivity/jobs/scheduleInactivityWarnings';
 import { getDefaultEmailService } from './services/EmailService/EmailService';
+import { SendInactivityWarningsUseCase } from './usecases/ops/SendInactivityWarningsUseCase';
 
 function registerSignalHandlers(server: http.Server) {
   process.on('uncaughtException', (error) => {
@@ -177,6 +180,10 @@ const serve = async () => {
       console.error('[re-engagement] daily job failed:', error);
     });
   }, ONE_DAY_MS);
+
+  const inactivityEmailRepo = new InactivityEmailRepository(database);
+  const sendInactivityWarningsUseCase = new SendInactivityWarningsUseCase(inactivityEmailRepo, emailService);
+  scheduleInactivityWarnings(sendInactivityWarningsUseCase);
 };
 
 serve();
