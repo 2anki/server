@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 
 import type { IReEngagementRepository } from '../../../../data_layer/ReEngagementRepository';
 import type { IEmailService } from '../../../../services/EmailService/EmailService';
@@ -11,8 +11,7 @@ export async function sendReEngagementEmails(
 
   for (const user of users) {
     const token = crypto.randomBytes(32).toString('hex');
-    const emailId = await repo.recordSend(user.id, token);
-    void emailId;
+    await repo.recordSend(user.id, token);
     try {
       await emailService.sendReEngagementEmail(user.email, user.name, token);
     } catch (error) {

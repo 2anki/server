@@ -231,9 +231,9 @@ class EmailService implements IEmailService {
     const domain = process.env.DOMAIN ?? 'https://2anki.net';
     const surveyUrl = `${domain}/feedback/onboarding?uid=${token}`;
     const unsubscribeUrl = `${domain}/unsubscribe?uid=${token}`;
-    const markup = RE_ENGAGEMENT_TEMPLATE.replace(/{{name}}/g, name)
-      .replace(/{{surveyUrl}}/g, surveyUrl)
-      .replace(/{{unsubscribeUrl}}/g, unsubscribeUrl);
+    const markup = RE_ENGAGEMENT_TEMPLATE.replaceAll('{{name}}', name)
+      .replaceAll('{{surveyUrl}}', surveyUrl)
+      .replaceAll('{{unsubscribeUrl}}', unsubscribeUrl);
 
     const msg = {
       to,
