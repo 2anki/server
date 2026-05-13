@@ -93,7 +93,7 @@ export async function hydrateEntries(meta: PersistedMeta): Promise<ImageEntry[]>
       file,
       header: img.header,
       rects: img.rects,
-      previewUrl: URL.createObjectURL(blob),
+      previewUrl: URL.createObjectURL(blob), s3Key: null, uploading: false,
     });
   }
   return entries;

@@ -13,4 +13,6 @@ export interface ImageEntry {
   header: string;
   rects: OcclusionRect[];
   previewUrl: string;
+  s3Key: string | null;
+  uploading: boolean;
 }

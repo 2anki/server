@@ -10,7 +10,7 @@ function makeEntry(i: number): ImageEntry {
     file: new File(['x'], `img${i}.jpg`, { type: 'image/jpeg' }),
     header: '',
     rects: [],
-    previewUrl: `blob:fake-${i}`,
+    previewUrl: `blob:fake-${i}`, s3Key: null, uploading: false,
   };
 }
 

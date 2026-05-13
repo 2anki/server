@@ -9,7 +9,7 @@ function makeEntry(overrides: Partial<ImageEntry> = {}): ImageEntry {
     file: new File(['x'], 'test.jpg', { type: 'image/jpeg' }),
     header: '',
     rects: [],
-    previewUrl: 'blob:fake',
+    previewUrl: 'blob:fake', s3Key: null, uploading: false,
     ...overrides,
   };
 }
