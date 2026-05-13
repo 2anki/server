@@ -440,13 +440,7 @@ export class UnimplementedEmailService implements IEmailService {
     message: string,
     attachments: Express.Multer.File[]
   ): Promise<EmailResponse> {
-    console.info(
-      'sendContactEmail not handled',
-      name,
-      email,
-      message,
-      attachments
-    );
+    console.info('sendContactEmail not handled');
     return Promise.resolve({ didSend: false });
   }
 
@@ -511,7 +505,7 @@ export class UnimplementedEmailService implements IEmailService {
   }
 
   async sendVerificationEmail(to: string, token: string): Promise<void> {
-    console.info('sendVerificationEmail not handled', to, token);
+    console.info('sendVerificationEmail not handled');
   }
 }
 
