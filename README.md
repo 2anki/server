@@ -34,13 +34,13 @@ The server starts on `http://localhost:2020` and the frontend on `http://localho
 Every change that touches user-facing behavior goes through a **product trio**: a PM, a designer, and an engineer who consult in parallel — not in a handoff chain. The goal is to catch bad assumptions before engineering time is committed.
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#FF69B4', 'primaryTextColor': '#fff', 'primaryBorderColor': '#FF1493', 'lineColor': '#FF1493', 'secondaryColor': '#FFB6C1', 'tertiaryColor': '#FFF0F5', 'clusterBkg': '#FFF0F5', 'edgeLabelBackground': '#FFE4E1'}}}%%
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#E91E8C', 'primaryTextColor': '#fff', 'primaryBorderColor': '#AD1457', 'lineColor': '#C2185B', 'tertiaryColor': '#FFF0F5', 'clusterBkg': '#FFF0F5', 'edgeLabelBackground': '#FCE4EC', 'textColor': '#880E4F'}}}%%
 flowchart TD
-    IN([📨 Signal\nfeedback · issue · idea]):::signal
+    IN([📨 Signal — feedback · issue · idea]):::signal
 
     subgraph trio ["💖 Product Trio 💖"]
         direction LR
-        PM["🧠 PM\nsynthesize → spec → prioritize\n/triage-feedback · /spec"]:::pmNode
+        PM["🧠 PM\nsynthesize → spec → prioritize\n/triage-feedback  ·  /spec"]:::pmNode
         D["🎨 Designer\nflows · copy · visual hierarchy\n/review"]:::designerNode
         E["⚙️ Engineer\nfeasibility · TDD · /check\n/implement"]:::engineerNode
 
@@ -57,12 +57,12 @@ flowchart TD
     E --> PR --> SHIP
     SHIP -.->|metrics & feedback| IN
 
-    classDef signal fill:#FF69B4,stroke:#FF1493,color:#fff,stroke-width:3px
-    classDef pmNode fill:#FF1493,stroke:#C71585,color:#fff,stroke-width:3px
-    classDef designerNode fill:#FF007F,stroke:#AD1457,color:#fff,stroke-width:3px
-    classDef engineerNode fill:#E91E8C,stroke:#C71585,color:#fff,stroke-width:3px
-    classDef prNode fill:#FFB6C1,stroke:#FF69B4,color:#880E4F,stroke-width:2px
-    classDef shipNode fill:#FF1493,stroke:#880E4F,color:#fff,stroke-width:4px
+    classDef signal fill:#E91E8C,stroke:#AD1457,color:#fff,stroke-width:2px
+    classDef pmNode fill:#AD1457,stroke:#880E4F,color:#fff,stroke-width:2px
+    classDef designerNode fill:#C2185B,stroke:#880E4F,color:#fff,stroke-width:2px
+    classDef engineerNode fill:#D81B60,stroke:#AD1457,color:#fff,stroke-width:2px
+    classDef prNode fill:#FCE4EC,stroke:#E91E8C,color:#880E4F,stroke-width:2px
+    classDef shipNode fill:#880E4F,stroke:#4A0028,color:#fff,stroke-width:3px
 ```
 
 The trio is powered by Claude subagents in `.claude/agents/`. Use `/trio <task>` to invoke all three in parallel on any prompt.
