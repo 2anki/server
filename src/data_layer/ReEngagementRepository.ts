@@ -74,7 +74,6 @@ export class ReEngagementRepository implements IReEngagementRepository {
   async getUsersToEmail(): Promise<
     Array<{ id: number; name: string; email: string }>
   > {
-    const now = this.database.fn.now();
     const rows = await this.database<UserRow>('users')
       .select('users.id', 'users.name', 'users.email')
       .whereRaw(
@@ -95,7 +94,6 @@ export class ReEngagementRepository implements IReEngagementRepository {
           .limit(1)
       )
       .limit(500);
-    void now;
     return rows.map((row) => ({
       id: row.id,
       name: row.name,
@@ -107,7 +105,7 @@ export class ReEngagementRepository implements IReEngagementRepository {
 export class InMemoryReEngagementRepository
   implements IReEngagementRepository
 {
-  private sentUserIds = new Set<number>();
+  private readonly sentUserIds = new Set<number>();
   private emails: Array<{ id: number; userId: number; token: string }> = [];
   private responses: Array<{
     emailId: number;
