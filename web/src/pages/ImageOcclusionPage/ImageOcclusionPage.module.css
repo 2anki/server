@@ -51,6 +51,14 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  transition: background-color 0.15s;
+}
+
+.queueDragOver {
+  background-color: var(--color-bg-subtle, #f0f4ff);
+  outline: 2px dashed var(--color-primary, #4f46e5);
+  outline-offset: -4px;
+  border-radius: 8px;
 }
 
 .queueList {

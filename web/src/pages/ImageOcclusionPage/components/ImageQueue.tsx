@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { ImageEntry } from '../types';
 import styles from '../ImageOcclusionPage.module.css';
 import { Link } from 'react-router-dom';
@@ -26,17 +26,38 @@ export function ImageQueue({
 }: Readonly<Props>) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const atLimit = !isPaying && entries.length >= FREE_TIER_LIMIT;
+  const [isDragOver, setIsDragOver] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
-    if (files.length > 0) {
-      onAdd(files);
-    }
+    if (files.length > 0) onAdd(files);
     e.target.value = '';
   };
 
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    if (!atLimit) setIsDragOver(true);
+  };
+
+  const handleDragLeave = () => setIsDragOver(false);
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    if (atLimit) return;
+    const files = Array.from(e.dataTransfer.files).filter((f) =>
+      f.type.startsWith('image/')
+    );
+    if (files.length > 0) onAdd(files);
+  };
+
   return (
-    <div className={styles.queue}>
+    <div
+      className={`${styles.queue} ${isDragOver ? styles.queueDragOver : ''}`}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
       <div className={styles.queueList}>
         {entries.map((entry, i) => (
           <div

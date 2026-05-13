@@ -113,6 +113,23 @@ export function ImageOcclusionPage() {
     });
   }, []);
 
+  useEffect(() => {
+    const onPaste = (e: ClipboardEvent) => {
+      const items = Array.from(e.clipboardData?.items ?? []);
+      const imageItems = items.filter((item) => item.type.startsWith('image/'));
+      if (imageItems.length === 0) return;
+      const files = imageItems
+        .map((item) => item.getAsFile())
+        .filter((f): f is File => f != null);
+      if (files.length > 0) {
+        e.preventDefault();
+        handleAdd(files);
+      }
+    };
+    document.addEventListener('paste', onPaste);
+    return () => document.removeEventListener('paste', onPaste);
+  }, [handleAdd]);
+
   const handleRectsChange = useCallback(
     (rects: OcclusionRect[]) => {
       setEntries((prev) =>
