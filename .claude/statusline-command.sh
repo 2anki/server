@@ -40,8 +40,8 @@ if [ -n "$branch" ] && command -v gh > /dev/null 2>&1; then
   fi
 fi
 
-# Token usage — traffic-light colouring
-tokens_part=""
+# Context window — traffic-light colouring
+ctx_part=""
 used_pct=$(echo "$input" | jq -r '.context_window.used_percentage // empty')
 if [ -n "$used_pct" ]; then
   pct_int=$(printf "%.0f" "$used_pct")
@@ -49,13 +49,21 @@ if [ -n "$used_pct" ]; then
   elif [ "$pct_int" -ge 50 ]; then ctx_color="$YELLOW"
   else                              ctx_color="$GREEN"
   fi
-  tokens_part="${ctx_color}ctx:${pct_int}%${RESET}"
+  ctx_part="${ctx_color}ctx:${pct_int}%${RESET}"
+fi
+
+# Session cost in USD
+cost_part=""
+total_cost=$(echo "$input" | jq -r '.cost.total_cost_usd // empty')
+if [ -n "$total_cost" ]; then
+  cost_part="${DIM}\$$(printf "%.4f" "$total_cost")${RESET}"
 fi
 
 # Assemble
 result="${CYAN}${folder}${RESET}"
-[ -n "$branch" ]      && result+="${SEP}${YELLOW}${branch}${RESET}"
-[ -n "$pr_info" ]     && result+="${SEP}${pr_info}"
-[ -n "$tokens_part" ] && result+="${SEP}${tokens_part}"
+[ -n "$branch" ]    && result+="${SEP}${YELLOW}${branch}${RESET}"
+[ -n "$pr_info" ]   && result+="${SEP}${pr_info}"
+[ -n "$ctx_part" ]  && result+="${SEP}${ctx_part}"
+[ -n "$cost_part" ] && result+="${SEP}${cost_part}"
 
 printf '%b' "$result"
