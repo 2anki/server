@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="web/public/mascot/Notion 1.png" width="140" alt="2anki mascot" />
+</p>
+
 # 2anki.net
 
 [2anki.net](https://2anki.net) helps you turn your Notion pages, HTML, Markdown, and other study material into Anki flashcards. Drop something in, get a clean `.apkg` deck back — no fuss.
