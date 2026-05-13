@@ -26,11 +26,13 @@ def _ellipse_cloze(ordinal: int, shape: dict, oi_suffix: str) -> str:
 
 
 def _polygon_cloze(ordinal: int, shape: dict, oi_suffix: str) -> str:
+    left = float_to_display(shape["x"])
+    top = float_to_display(shape["y"])
     points = shape.get("points") or []
     pts_str = " ".join(
         f"{float_to_display(p['x'])},{float_to_display(p['y'])}" for p in points
     )
-    return f"{{{{c{ordinal}::image-occlusion:polygon:points={pts_str}{oi_suffix}}}}}<br>"
+    return f"{{{{c{ordinal}::image-occlusion:polygon:left={left}:top={top}:points={pts_str}{oi_suffix}}}}}<br>"
 
 
 def shapes_to_occlusion_field(shapes, occlude_inactive: bool = True) -> str:

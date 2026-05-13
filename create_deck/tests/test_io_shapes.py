@@ -86,6 +86,12 @@ class TestShapesToOcclusionField(unittest.TestCase):
         result = shapes_to_occlusion_field([_rect(shape="polygon", points=pts)])
         self.assertIn("image-occlusion:polygon:", result)
 
+    def test_polygon_has_left_and_top(self):
+        pts = [{"x": 0.2, "y": 0.3}, {"x": 0.5, "y": 0.3}, {"x": 0.35, "y": 0.5}]
+        result = shapes_to_occlusion_field([_rect(x=0.2, y=0.3, shape="polygon", points=pts)])
+        self.assertIn("left=.2", result)
+        self.assertIn("top=.3", result)
+
     def test_polygon_points_serialized(self):
         pts = [{"x": 0.1, "y": 0.2}, {"x": 0.5, "y": 0.3}]
         result = shapes_to_occlusion_field([_rect(shape="polygon", points=pts)])
