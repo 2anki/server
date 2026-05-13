@@ -75,7 +75,7 @@ interface MessageCardProps {
   onAcknowledge: (id: number) => void;
 }
 
-function MessageCard({ message, onAcknowledge }: MessageCardProps) {
+function MessageCard({ message, onAcknowledge }: Readonly<MessageCardProps>) {
   const attachments: string[] = (() => {
     try {
       return message.attachments ? JSON.parse(message.attachments) : [];

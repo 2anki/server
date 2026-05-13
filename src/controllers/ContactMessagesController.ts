@@ -19,7 +19,7 @@ class ContactMessagesController {
   }
 
   async acknowledge(req: express.Request, res: express.Response) {
-    const id = parseInt(req.params.id, 10);
+    const id = Number.parseInt(req.params.id, 10);
     if (Number.isNaN(id)) {
       return res.status(400).json({ error: 'Invalid id' });
     }

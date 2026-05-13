@@ -7,9 +7,10 @@ import { GetBusinessMetricsUseCase } from '../usecases/ops/GetBusinessMetricsUse
 const buildRes = () => {
   const json = jest.fn();
   const status = jest.fn().mockReturnValue({ json });
-  return { json, status, end: jest.fn() } as unknown as express.Response & {
+  return { json, status, end: jest.fn(), set: jest.fn() } as unknown as express.Response & {
     json: jest.Mock;
     status: jest.Mock;
+    set: jest.Mock;
   };
 };
 
