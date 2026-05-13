@@ -89,8 +89,34 @@ Default: `pm` produces a spec → `designer` validates UX (only if user-facing) 
 
 Trio conventions: be opinionated (one recommendation, not five options); specs fit on one page; say what *not* to build; reply to support email *as a draft for Alexander to send*.
 
+## Trio review policy
+
+For any task that changes user-facing behavior, invoke `pm`, `designer`, and `engineer` subagents **in parallel** via the Agent tool before writing code. Synthesize their input, surface any conflict explicitly, then proceed.
+
+**Trio required:**
+- New features or changes to existing features
+- UI/UX changes, copy that users see
+- Pricing, limits, quotas, or API surface changes
+- Onboarding, signup, payment, or core conversion flows
+- Refactors that change user-visible behavior
+
+**Trio optional (proceed unless you sense a product question):**
+- Pure refactors with no behavior change
+- Test fixes, CI/build issues
+- Dependency bumps, internal-only tooling
+- Documentation that isn't user-facing
+
+**Synthesis format** (produce this before acting on any trio task):
+- What each agent said (one line each)
+- Where they agree
+- Where they conflict, and how the conflict was resolved
+- The resulting plan
+
+Use `/trio <task>` to force a trio review on any prompt regardless of the heuristic. See `.claude/commands/trio.md`.
+
 ## Slash commands (`.claude/commands/` and `.claude/skills/`)
 
+- `/trio` — force a trio review on any task.
 - `/triage-feedback`, `/spec`, `/implement`, `/review-pr`, `/changelog`, `/weekly-retro`, `/support-reply` — trio workflow.
 - `/check`, `/pr-checks`, `/deploy-status` — local + remote status.
 - `/tdd`, `/add-tests`, `/security-audit`, `/verify-completion`, `/simplify`, `/systematic-debugging`, `/revise-claude-md` — engineering aids.
