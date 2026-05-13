@@ -119,3 +119,19 @@
   color: var(--color-danger);
   margin: 0;
 }
+
+.nudge {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+  text-align: center;
+}
+
+.nudgeLink {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.nudgeLink:hover {
+  text-decoration: underline;
+}
