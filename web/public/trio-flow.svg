@@ -1,0 +1,221 @@
+<svg width="100%" viewBox="0 0 720 740" role="img" xmlns="http://www.w3.org/2000/svg">
+  <title>Signal to ship in hours — 2anki Product Trio</title>
+  <desc>A kaizen-style continuous improvement loop: Signal → You → Trio (PM, Designer, Engineer) → Ship → metrics back to Signal.</desc>
+
+  <defs>
+    <!-- Arrowhead for arcs -->
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5"
+            markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M1 1L9 5L1 9" fill="none" stroke="#E91E8C"
+            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+
+    <!-- Arrowhead for connector lines inside trio -->
+    <marker id="arrS" viewBox="0 0 10 10" refX="9" refY="5"
+            markerWidth="5" markerHeight="5" orient="auto">
+      <path d="M1 1L9 5L1 9" fill="none" stroke="#FF80AB"
+            stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </marker>
+
+    <!-- Glow filter for Ship node -->
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <style>
+      @keyframes shipGlow {
+        0%, 100% { filter: url(#glow) drop-shadow(0 0 3px #E91E8C); }
+        50%       { filter: url(#glow) drop-shadow(0 0 14px #FF80AB); }
+      }
+      .ship-group { animation: shipGlow 2.5s ease-in-out infinite; }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect width="720" height="740" fill="#FFF5F8" rx="16"/>
+
+  <!-- Subtle guide ring -->
+  <circle cx="360" cy="370" r="238" fill="none"
+          stroke="#FFCDD2" stroke-width="1" opacity="0.6"/>
+
+  <!-- ╔══════════════════╗
+       ║   KAIZEN ARCS    ║
+       ╚══════════════════╝
+       Nodes (centers):
+         Signal  (360,  80)  — top
+         You     (620, 360)  — right
+         Trio    (360, 650)  — bottom
+         Ship    (100, 360)  — left
+  -->
+
+  <!-- Arc 1: Signal → You (top → right) -->
+  <path d="M 458 80 C 570 80 620 200 620 333"
+        fill="none" stroke="#E91E8C" stroke-width="2.5"
+        stroke-dasharray="8 5" stroke-dashoffset="0"
+        marker-end="url(#arr)" opacity="0.9">
+    <animate attributeName="stroke-dashoffset" from="0" to="-26"
+             dur="1.4s" repeatCount="indefinite"/>
+  </path>
+  <text x="578" y="188" text-anchor="middle" fill="#AD1457" font-size="11"
+        font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+        font-weight="500" transform="rotate(55,578,188)">spec</text>
+
+  <!-- Arc 2: You → Trio (right → bottom) -->
+  <path d="M 620 387 C 620 540 490 650 487 650"
+        fill="none" stroke="#E91E8C" stroke-width="2.5"
+        stroke-dasharray="8 5" stroke-dashoffset="0"
+        marker-end="url(#arr)" opacity="0.9">
+    <animate attributeName="stroke-dashoffset" from="0" to="-26"
+             dur="1.4s" begin="0.35s" repeatCount="indefinite"/>
+  </path>
+  <text x="600" y="530" text-anchor="middle" fill="#AD1457" font-size="11"
+        font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+        font-weight="500" transform="rotate(-55,600,530)">build</text>
+
+  <!-- Arc 3: Trio → Ship (bottom → left) -->
+  <path d="M 233 650 C 160 650 100 540 100 387"
+        fill="none" stroke="#E91E8C" stroke-width="2.5"
+        stroke-dasharray="8 5" stroke-dashoffset="0"
+        marker-end="url(#arr)" opacity="0.9">
+    <animate attributeName="stroke-dashoffset" from="0" to="-26"
+             dur="1.4s" begin="0.7s" repeatCount="indefinite"/>
+  </path>
+  <text x="120" y="530" text-anchor="middle" fill="#AD1457" font-size="11"
+        font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+        font-weight="500" transform="rotate(55,120,530)">ship</text>
+
+  <!-- Arc 4: Ship → Signal (left → top, feedback) -->
+  <path d="M 100 333 C 100 200 220 80 262 80"
+        fill="none" stroke="#E91E8C" stroke-width="2.5"
+        stroke-dasharray="8 5" stroke-dashoffset="0"
+        marker-end="url(#arr)" opacity="0.9">
+    <animate attributeName="stroke-dashoffset" from="0" to="-26"
+             dur="1.4s" begin="1.05s" repeatCount="indefinite"/>
+  </path>
+  <text x="142" y="188" text-anchor="middle" fill="#AD1457" font-size="11"
+        font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+        font-weight="500" transform="rotate(-55,142,188)">measure</text>
+
+  <!-- ═══════════════════
+       CENTER LABEL
+  ═══════════════════ -->
+  <text x="360" y="355" text-anchor="middle" dominant-baseline="central"
+        fill="#C2185B" font-size="13"
+        font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+        font-weight="700" opacity="0.55">continuous</text>
+  <text x="360" y="375" text-anchor="middle" dominant-baseline="central"
+        fill="#C2185B" font-size="13"
+        font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+        font-weight="700" opacity="0.55">improvement</text>
+
+  <!-- ═══════════════════
+       NODE: Signal (top)
+  ═══════════════════ -->
+  <rect x="262" y="53" width="196" height="54" rx="8"
+        fill="#2D2D2A" stroke="#9C8C90" stroke-width="0.5"/>
+  <text x="360" y="74" text-anchor="middle" dominant-baseline="central"
+        fill="#E8D8DC" font-size="14"
+        font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+        font-weight="500">📨 Signal</text>
+  <text x="360" y="93" text-anchor="middle" dominant-baseline="central"
+        fill="#B09898" font-size="11"
+        font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">feedback · issues · ideas</text>
+
+  <!-- ═══════════════════
+       NODE: You (right)
+  ═══════════════════ -->
+  <rect x="540" y="333" width="160" height="54" rx="8"
+        fill="#633806" stroke="#EF9F27" stroke-width="0.5"/>
+  <text x="620" y="354" text-anchor="middle" dominant-baseline="central"
+        fill="#FAC775" font-size="14"
+        font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+        font-weight="500">You</text>
+  <text x="620" y="373" text-anchor="middle" dominant-baseline="central"
+        fill="#EF9F27" font-size="11"
+        font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">goal · approve · merge</text>
+
+  <!-- ═══════════════════
+       NODE: Trio (bottom) — PM + Designer + Engineer stacked
+  ═══════════════════ -->
+
+  <!-- PM (breathing) -->
+  <g opacity="1">
+    <animate attributeName="opacity" values="1;0.82;1"
+             dur="2.4s" repeatCount="indefinite"/>
+    <rect x="233" y="580" width="254" height="44" rx="8"
+          fill="#AD1457" stroke="#FF80AB" stroke-width="0.75"/>
+    <text x="284" y="602" dominant-baseline="central"
+          fill="#FFFFFF" font-size="12"
+          font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+          font-weight="600">🧠 PM</text>
+    <text x="284" y="616" dominant-baseline="central"
+          fill="#FFB6C1" font-size="10.5"
+          font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">/triage-feedback · /spec</text>
+  </g>
+
+  <!-- connector PM → Designer -->
+  <line x1="360" y1="624" x2="360" y2="632"
+        stroke="#FF80AB" stroke-width="1.2" marker-end="url(#arrS)"/>
+
+  <!-- Designer (breathing, offset) -->
+  <g opacity="1">
+    <animate attributeName="opacity" values="1;0.82;1"
+             dur="2.4s" begin="0.5s" repeatCount="indefinite"/>
+    <rect x="233" y="634" width="254" height="44" rx="8"
+          fill="#C2185B" stroke="#FF80AB" stroke-width="0.75"/>
+    <text x="284" y="656" dominant-baseline="central"
+          fill="#FFFFFF" font-size="12"
+          font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+          font-weight="600">🎨 Designer</text>
+    <text x="284" y="670" dominant-baseline="central"
+          fill="#FFB6C1" font-size="10.5"
+          font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">/review · flows · copy</text>
+  </g>
+
+  <!-- connector Designer → Engineer -->
+  <line x1="360" y1="678" x2="360" y2="686"
+        stroke="#FF80AB" stroke-width="1.2" marker-end="url(#arrS)"/>
+
+  <!-- Engineer (breathing, offset) -->
+  <g opacity="1">
+    <animate attributeName="opacity" values="1;0.82;1"
+             dur="2.4s" begin="1s" repeatCount="indefinite"/>
+    <rect x="233" y="688" width="254" height="44" rx="8"
+          fill="#D81B60" stroke="#FF80AB" stroke-width="0.75"/>
+    <text x="284" y="710" dominant-baseline="central"
+          fill="#FFFFFF" font-size="12"
+          font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+          font-weight="600">⚙️ Engineer</text>
+    <text x="284" y="724" dominant-baseline="central"
+          fill="#FFB6C1" font-size="10.5"
+          font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">/implement · /check · TDD</text>
+  </g>
+
+  <!-- ═══════════════════
+       NODE: Ship (left) — glowing
+  ═══════════════════ -->
+  <g class="ship-group">
+    <rect x="20" y="333" width="160" height="54" rx="8"
+          fill="#880E4F" stroke="#E91E8C" stroke-width="1.5"/>
+    <text x="100" y="354" text-anchor="middle" dominant-baseline="central"
+          fill="#FFFFFF" font-size="13"
+          font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+          font-weight="600">🚀 Ship</text>
+    <text x="100" y="373" text-anchor="middle" dominant-baseline="central"
+          fill="#FFB6C1" font-size="11"
+          font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">2anki.net</text>
+  </g>
+
+  <!-- "Hours, not weeks" badge -->
+  <rect x="248" y="272" width="224" height="36" rx="18"
+        fill="#4A0028" stroke="#E91E8C" stroke-width="1"/>
+  <text x="360" y="290" text-anchor="middle" dominant-baseline="central"
+        fill="#FFB6C1" font-size="12.5"
+        font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+        font-weight="500">Hours, not weeks ✦</text>
+
+</svg>
