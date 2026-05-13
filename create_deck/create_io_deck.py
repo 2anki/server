@@ -40,7 +40,8 @@ IO_MODEL_ID = get_model_id(IO_MODEL_NAME)
 
 
 def build_io_notes(image_entry, occlude_inactive, media_files):
-    imageName = image_entry["imageName"]
+    image_path = image_entry["imageName"]
+    image_basename = os.path.basename(image_path)
     header = image_entry.get("header", "")
     rects = image_entry.get("rects", [])
 
@@ -51,16 +52,16 @@ def build_io_notes(image_entry, occlude_inactive, media_files):
     img_h = rects[0]["imgH"]
 
     occlusion_field = shapes_to_occlusion_field(rects, img_w, img_h, occlude_inactive)
-    image_html = f'<img src="{imageName}">'
+    image_html = f'<img src="{image_basename}">'
 
     model = get_model(("io", IO_MODEL_ID, IO_MODEL_NAME, None, None, None))
 
     fields = [occlusion_field, image_html, header, "", ""]
 
-    note_guid = guid_for(imageName, header, occlusion_field)
+    note_guid = guid_for(image_basename, header, occlusion_field)
     note = Note(model, fields=fields, guid=note_guid)
 
-    media_files.append(imageName)
+    media_files.append(image_path)
     return [note]
 
 
