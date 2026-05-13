@@ -31,7 +31,7 @@ The server starts on `http://localhost:2020` and the frontend on `http://localho
 
 ## How we develop
 
-Every change that touches user-facing behavior goes through a **product trio**: a PM, a designer, and an engineer who consult in parallel — not in a handoff chain. The goal is to catch bad assumptions before engineering time is committed.
+Every change that touches user-facing behavior goes through a **product trio** — three AI agents (PM, Designer, Engineer) working in parallel at the center of the loop. Alexander (lead developer) is the human in the loop: he sets direction, approves specs, and merges PRs. The goal is to catch bad assumptions before engineering time is committed.
 
 <p align="center">
   <img src="web/public/trio-flow.svg" alt="2anki product trio kaizen loop — signal to ship in hours" />
