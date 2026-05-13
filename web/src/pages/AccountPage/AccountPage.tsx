@@ -1,4 +1,4 @@
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useUserLocals } from '../../lib/hooks/useUserLocals';
 import { SkeletonPage } from '../../components/Skeleton/Skeleton';
 import { useSubscriptionStatus } from './hooks';
@@ -97,6 +97,12 @@ export default function AccountPage() {
         />
 
         <AccountDeletion />
+
+        <div className={styles.feedbackFooter}>
+          <Link to="/feedback" className={sharedStyles.btnGhost}>
+            Share your experience
+          </Link>
+        </div>
       </div>
     </div>
   );
