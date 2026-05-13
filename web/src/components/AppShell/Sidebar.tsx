@@ -8,6 +8,7 @@ import ArrowRightIcon from '../icons/ArrowRightIcon';
 import ArrowRightOnRectangleIcon from '../icons/ArrowRightOnRectangleIcon';
 import ArrowUpTrayIcon from '../icons/ArrowUpTrayIcon';
 import BookOpenIcon from '../icons/BookOpenIcon';
+import RectangleGroupIcon from '../icons/RectangleGroupIcon';
 import LayersIcon from '../icons/LayersIcon';
 import CommandLineIcon from '../icons/CommandLineIcon';
 import CreditCardIcon from '../icons/CreditCardIcon';
@@ -175,6 +176,15 @@ export function Sidebar({
             icon={ArrowLeftIcon}
           >
             Anki to Notion
+          </SidebarRow>
+          <SidebarRow
+            href="/image-occlusion"
+            pathname={pathname}
+            matchPrefix={false}
+            onClick={handleNavClick()}
+            icon={RectangleGroupIcon}
+          >
+            Image Occlusion
           </SidebarRow>
           {paying && (
             <SidebarRow
