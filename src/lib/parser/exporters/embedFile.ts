@@ -54,15 +54,32 @@ const getFile = (
   /*
    * Last resort: match by filename only.
    * Mirrors ClaudeService's resolveMediaPath behaviour.
+   * When multiple files share the same filename, prefer the one whose
+   * directory is closest to the requesting path's directory.
    */
   const filename = normalizedFilePath.split('/').pop();
   if (filename) {
-    const byFilename = files.find((f) => {
+    const matches = files.filter((f) => {
       const normalizedName = f.name.replaceAll('\\', '/');
       return normalizedName === filename || normalizedName.endsWith('/' + filename);
     });
-    if (byFilename) {
-      return byFilename;
+    if (matches.length === 1) {
+      return matches[0];
+    }
+    if (matches.length > 1) {
+      const requestDir = normalizedFilePath.split('/').slice(0, -1).join('/');
+      const scored = matches.map((f) => {
+        const fDir = f.name.replaceAll('\\', '/').split('/').slice(0, -1).join('/');
+        const reqParts = requestDir.split('/');
+        const fParts = fDir.split('/');
+        let shared = 0;
+        while (shared < reqParts.length && shared < fParts.length && reqParts[shared] === fParts[shared]) {
+          shared++;
+        }
+        return { file: f, shared };
+      });
+      scored.sort((a, b) => b.shared - a.shared);
+      return scored[0].file;
     }
   }
 

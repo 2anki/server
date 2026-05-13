@@ -9,6 +9,28 @@ import Workspace from './WorkSpace';
 
 beforeEach(() => setupTests());
 
+test('deck style includes Notion highlight color rules for file uploads', async () => {
+  const html = `<html><head><title>Colors</title><style>body { font-size: 16px; }</style></head>
+<body><article>
+<h2 class="toggle"><summary>Q</summary><div>
+  Answer with <span class="highlight-red">red highlight</span>
+</div></h2>
+</article></body></html>`;
+
+  const workspace = new Workspace(true, 'fs');
+  const parser = new DeckParser({
+    name: 'colors.html',
+    settings: new CardOption({ cherry: 'false' }),
+    files: [{ name: 'colors.html', contents: html }],
+    noLimits: true,
+    workspace,
+  });
+  await parser.build(workspace);
+
+  const style = parser.payload[0].style ?? '';
+  expect(style).toContain('.highlight-red');
+});
+
 test('Toggle Headings', async () => {
   const deck = await getDeck(
     'Toggle Hea 0e02b 2.html',

@@ -31,6 +31,7 @@ import { getTitleFromMarkdown } from './getTitleFromMarkdown';
 import { checkFlashcardsLimits } from '../User/checkFlashcardsLimits';
 import { extractStyles } from './extractStyles';
 import { withFontSize } from './withFontSize';
+import { NOTION_STYLE } from '../../templates/helper';
 import { transformDetailsTagToNotionToggleList } from './transformDetailsTagToNotionToggleList';
 import { findNotionToggleLists } from './findNotionToggleLists';
 import { getNoPackageError } from '../error/constants';
@@ -290,7 +291,11 @@ export class DeckParser {
   ) {
     const { dom, isNewFormat } = this.loadAndNormalizeDOM(contents);
 
-    const style = withFontSize(extractStyles(dom), this.settings.fontSize);
+    const extractedStyle = extractStyles(dom);
+    const style = withFontSize(
+      extractedStyle ? `${NOTION_STYLE}\n${extractedStyle}` : NOTION_STYLE,
+      this.settings.fontSize
+    );
     let image: string | undefined = this.extractCoverImage(dom);
 
     const name = extractName({
