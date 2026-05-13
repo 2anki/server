@@ -21,7 +21,9 @@ _Adapted from [Jmen](https://github.com/Jmen)_
 
 ## Commands
 
-- Use `npm run test` scoped to the current test file.
+- Package manager is **pnpm** — never `npm` or `yarn`.
+- Run server tests scoped to a file: `pnpm test <path>`
+- Run web tests: `pnpm --filter 2anki-web test`
 - If test output is truncated (hiding errors), rerun tests without coverage reporting for full output.
 
 ## Process
