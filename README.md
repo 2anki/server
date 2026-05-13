@@ -34,7 +34,7 @@ The server starts on `http://localhost:2020` and the frontend on `http://localho
 Every change that touches user-facing behavior goes through a **product trio**: a PM, a designer, and an engineer who consult in parallel — not in a handoff chain. The goal is to catch bad assumptions before engineering time is committed.
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#E91E8C', 'primaryTextColor': '#fff', 'primaryBorderColor': '#AD1457', 'lineColor': '#C2185B', 'tertiaryColor': '#FFF0F5', 'clusterBkg': '#FFF0F5', 'edgeLabelBackground': '#FCE4EC', 'textColor': '#880E4F'}}}%%
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#E91E8C', 'primaryTextColor': '#880E4F', 'primaryBorderColor': '#AD1457', 'lineColor': '#C2185B', 'tertiaryColor': '#FFF0F5', 'clusterBkg': '#FFF0F5', 'edgeLabelBackground': '#FCE4EC', 'textColor': '#880E4F'}}}%%
 flowchart TD
     IN([📨 Signal — feedback · issue · idea]):::signal
 
