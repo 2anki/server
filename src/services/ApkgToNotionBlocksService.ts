@@ -86,9 +86,9 @@ export interface TransformResult {
 }
 
 export class NoteTooLargeError extends Error {
-  constructor(count: number) {
+  constructor(count: number, limit: number) {
     super(
-      `This deck has ${count} notes. Import supports up to ${MAX_NOTES} notes — it is too large to import.`
+      `This deck has ${count} notes. Import supports up to ${limit} notes — it is too large to import.`
     );
     this.name = 'NoteTooLargeError';
   }
@@ -587,7 +587,8 @@ function deckNodeToDeckPage(
 export default class ApkgToNotionBlocksService {
   transform(
     collection: NormalizedCollection,
-    mediaUrlMap: Map<string, string> = new Map()
+    mediaUrlMap: Map<string, string> = new Map(),
+    maxNotes: number = MAX_NOTES
   ): TransformResult {
     const seenNotes = new Set<number>();
     for (const card of collection.cards) {
@@ -595,8 +596,8 @@ export default class ApkgToNotionBlocksService {
     }
     const totalNotes = seenNotes.size;
 
-    if (totalNotes > MAX_NOTES) {
-      throw new NoteTooLargeError(totalNotes);
+    if (totalNotes > maxNotes) {
+      throw new NoteTooLargeError(totalNotes, maxNotes);
     }
 
     const tree = buildDeckTree(collection);

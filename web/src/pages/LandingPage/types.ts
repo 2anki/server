@@ -3,6 +3,11 @@ export interface LandingFaq {
   a: string;
 }
 
+export interface WhatComesAcrossItem {
+  title: string;
+  body: string;
+}
+
 export interface LandingCopy {
   pathname: string;
   title: string;
@@ -10,4 +15,7 @@ export interface LandingCopy {
   h1: string;
   subhead: string;
   faqs: LandingFaq[];
+  ctaLabel?: string;
+  ctaHref?: string;
+  whatComesAcross?: WhatComesAcrossItem[];
 }

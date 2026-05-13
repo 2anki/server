@@ -104,6 +104,13 @@ export function UploadPage({ setErrorMessage }: Readonly<Props>) {
         setErrorMessage={setErrorMessage}
         onFileSelected={() => setFileInteracted(true)}
       />
+      <details className={styles.notificationInfo} style={{ marginTop: '1rem' }}>
+        <summary style={{ cursor: 'pointer', fontWeight: 500 }}>How we handle PDFs</summary>
+        <p style={{ margin: '0.5rem 0 0' }}>
+          We extract the text from your PDF and turn each paragraph into a flashcard. Images in PDFs
+          are not extracted. For best results, use PDFs with clean text — not scanned documents.
+        </p>
+      </details>
       <p className={pageStyles.footnote}>
         Your uploaded files are deleted after 2 hours.
       </p>

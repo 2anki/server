@@ -1,0 +1,44 @@
+import type { LandingCopy } from '../types';
+
+const ankiToNotionCopy: LandingCopy = {
+  pathname: '/anki-to-notion',
+  title: 'Anki to Notion — free import, no add-on | 2anki',
+  description:
+    'Import any Anki deck into Notion. Upload your .apkg file and get every card as a Notion toggle. Free — up to 1,000 cards per import, no add-on required.',
+  h1: 'Import Anki decks into Notion in one click.',
+  subhead:
+    'Upload an .apkg file. Get every card as a toggle in a Notion page you can study, search, and edit.',
+  ctaLabel: 'Start free import',
+  ctaHref: '/register?source=/anki-to-notion',
+  whatComesAcross: [
+    { title: 'Card fronts and backs', body: 'Each card becomes a toggle heading (front) with the back as its body.' },
+    { title: 'Images', body: 'Images embed inline inside the toggle.' },
+    { title: 'Cloze deletions', body: 'Cloze answers stay wrapped in {{...}} so they remain readable.' },
+    { title: 'Tags', body: 'Card tags appear as italicised text at the bottom of each toggle.' },
+    { title: 'Subdecks', body: 'Each subdeck becomes a nested Notion page.' },
+  ],
+  faqs: [
+    {
+      q: 'Do I need an add-on for Notion or Anki?',
+      a: 'No. You upload your .apkg file on 2anki.net and we write the cards into a Notion page you choose. Nothing to install on either side.',
+    },
+    {
+      q: 'What survives the import?',
+      a: 'Card fronts, backs, images, cloze deletions, tags, and subdeck structure. Card styling (custom CSS) does not come across — Notion pages do not support it.',
+    },
+    {
+      q: 'Will edits in Notion sync back to Anki?',
+      a: 'A one-time import is a snapshot. Changes do not flow back to Anki automatically.',
+    },
+    {
+      q: 'Is it free?',
+      a: 'Yes. Free covers up to 1,000 cards per import. For larger decks, upgrade to Unlimited or split your deck in Anki (File → Export → Selected Deck) and run two imports.',
+    },
+    {
+      q: 'How big can my deck be?',
+      a: 'Free: 1,000 cards per import. Unlimited: up to 5,000 cards per import. For very large decks we split across multiple Notion pages automatically.',
+    },
+  ],
+};
+
+export default ankiToNotionCopy;

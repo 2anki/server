@@ -21,13 +21,13 @@ export const checkFlashcardsLimits = ({
   paying,
   trial,
 }: UserOptions) => {
-  const CARD_LIMIT = 100;
+  const CARD_LIMIT = 300;
   const cardCount = getCardCount(cards ?? 0, decks);
-  const isAbove100 = cardCount > CARD_LIMIT;
+  const isAboveLimit = cardCount > CARD_LIMIT;
 
   if (paying || hasUnlimitedAccess(trial)) return;
 
-  if (isAbove100) {
+  if (isAboveLimit) {
     throw new Error(getLimitMessage());
   }
 };

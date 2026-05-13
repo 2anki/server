@@ -10,6 +10,7 @@ import { BlockObjectRequest } from '@notionhq/client/build/src/api-endpoints';
 
 const BATCH_SIZE = 50;
 const THROTTLE_MS = 350;
+const MAX_NOTES = 5000;
 
 const IMAGE_EXTENSIONS = new Set([
   '.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp',
@@ -42,19 +43,14 @@ export default class ImportApkgToNotionUseCase {
     owner: string,
     notionApi: NotionAPIWrapper,
     jobId: string,
-    options: { isPaying?: boolean } = {}
+    options: { isPaying?: boolean; maxNotes?: number } = {}
   ): Promise<void> {
+    const maxNotes = options.maxNotes ?? MAX_NOTES;
     try {
       const cacheKey = `import:${owner}:${Date.now()}`;
       const parsed = await this.previewService.parse(cacheKey, fileBuffer);
 
-      const result = this.blocksService.transform(parsed.collection);
-      const FREE_NOTE_LIMIT = 50;
-      if (!options.isPaying && result.totalNotes > FREE_NOTE_LIMIT) {
-        throw new Error(
-          `This deck has ${result.totalNotes} notes. Free plan supports up to ${FREE_NOTE_LIMIT}. Upgrade for unlimited imports.`
-        );
-      }
+      const result = this.blocksService.transform(parsed.collection, new Map(), maxNotes);
       const totalNotes = result.totalNotes;
 
       let mediaUrlMap = new Map<string, string>();
@@ -72,7 +68,8 @@ export default class ImportApkgToNotionUseCase {
           );
           result.deckPages = this.blocksService.transform(
             parsed.collection,
-            mediaUrlMap
+            mediaUrlMap,
+            maxNotes
           ).deckPages;
         } catch (uploadError) {
           console.error(`[apkg-import] job=${jobId} media upload failed, continuing without images:`, uploadError);
