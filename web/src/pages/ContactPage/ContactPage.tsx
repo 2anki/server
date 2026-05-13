@@ -1,4 +1,4 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useRef, useState } from 'react';
 
 import { get2ankiApi } from '../../lib/backend/get2ankiApi';
 import styles from '../../styles/shared.module.css';
@@ -10,7 +10,9 @@ export function ContactPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
+  const [files, setFiles] = useState<File[]>([]);
   const [status, setStatus] = useState<FormStatus>('idle');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const canSubmit =
     status !== 'sending' &&
@@ -18,15 +20,26 @@ export function ContactPage() {
     email.trim().length > 0 &&
     message.trim().length > 0;
 
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setFiles(Array.from(e.target.files ?? []));
+  }
+
+  function removeFile(index: number) {
+    setFiles((prev) => prev.filter((_, i) => i !== index));
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  }
+
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     setStatus('sending');
     try {
-      await get2ankiApi().contactUs(name, email, message);
+      await get2ankiApi().contactUs(name, email, message, files);
       setStatus('sent');
       setName('');
       setEmail('');
       setMessage('');
+      setFiles([]);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     } catch {
       setStatus('error');
     }
@@ -91,6 +104,37 @@ export function ContactPage() {
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Tell us what's on your mind…"
               />
+            </div>
+            <div className={styles.field}>
+              <label htmlFor="contact-files">
+                Attachments{' '}
+                <span className={contactStyles.optional}>(optional)</span>
+              </label>
+              <input
+                ref={fileInputRef}
+                id="contact-files"
+                type="file"
+                multiple
+                onChange={handleFileChange}
+                className={contactStyles.fileInput}
+              />
+              {files.length > 0 && (
+                <ul className={contactStyles.fileList}>
+                  {files.map((f, i) => (
+                    <li key={f.name} className={contactStyles.fileItem}>
+                      <span className={contactStyles.fileName}>{f.name}</span>
+                      <button
+                        type="button"
+                        className={contactStyles.fileRemove}
+                        onClick={() => removeFile(i)}
+                        aria-label={`Remove ${f.name}`}
+                      >
+                        ×
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
             <button
               type="submit"

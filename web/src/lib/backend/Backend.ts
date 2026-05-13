@@ -703,11 +703,23 @@ export class Backend {
     return get(`${this.baseURL}apkg/import/${jobId}/status`);
   }
 
-  async contactUs(name: string, email: string, message: string): Promise<void> {
-    const response = await post(`${this.baseURL}contact-us`, {
-      name,
-      email,
-      message,
+  async contactUs(
+    name: string,
+    email: string,
+    message: string,
+    files?: File[]
+  ): Promise<void> {
+    const form = new FormData();
+    form.append('name', name);
+    form.append('email', email);
+    form.append('message', message);
+    for (const file of files ?? []) {
+      form.append('attachments', file);
+    }
+    const response = await fetch(`${this.baseURL}contact-us`, {
+      method: 'POST',
+      credentials: 'include',
+      body: form,
     });
     if (!response.ok) {
       throw new Error('Failed to send message');

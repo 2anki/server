@@ -25,7 +25,7 @@ class IndexController {
       return res.status(400).send({ error: 'Missing email or message' });
     }
 
-    const attachments = req.files as Express.Multer.File[];
+    const attachments = Array.isArray(req.files) ? req.files : [];
     const database = getDatabase();
 
     await database('feedback').insert({
