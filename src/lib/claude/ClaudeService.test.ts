@@ -1,6 +1,7 @@
 import {
   looksLikeEmptyContentExplanation,
   EMPTY_CONTENT_USER_MESSAGE,
+  parseDeckResponse,
   rewriteAudioAnchors,
 } from './ClaudeService';
 
@@ -31,6 +32,34 @@ describe('looksLikeEmptyContentExplanation', () => {
 
   it('does not match an empty JSON array', () => {
     expect(looksLikeEmptyContentExplanation('[]')).toBe(false);
+  });
+});
+
+describe('parseDeckResponse', () => {
+  const deck = [{ deck: 'Test', cards: [{ q: 'Q', a: 'A' }] }];
+  const deckJson = JSON.stringify(deck);
+
+  it('parses clean JSON', () => {
+    expect(parseDeckResponse(deckJson, deckJson, 0)).toEqual(deck);
+  });
+
+  it('parses JSON followed by Claude explanation prose (the prod failure pattern)', () => {
+    const cleaned = `${deckJson}\n\nI've created flashcards for all key concepts.`;
+    expect(parseDeckResponse(cleaned, cleaned, 0)).toEqual(deck);
+  });
+
+  it('parses [] followed by explanation text as an empty deck (downstream no-cards error handles it)', () => {
+    const cleaned = '[]\n\nThe document appears to be a course overview with no actual Q&A content to convert. I cannot find any flashcard material.';
+    expect(parseDeckResponse(cleaned, cleaned, 0)).toEqual([]);
+  });
+
+  it('throws generic error for truncated/invalid JSON', () => {
+    const cleaned = '[{"deck":"Bio","cards":[{"q":"What is';
+    expect(() => parseDeckResponse(cleaned, cleaned, 0)).toThrow('Claude returned invalid JSON');
+  });
+
+  it('throws generic error when there is no ] at all', () => {
+    expect(() => parseDeckResponse('not json', 'not json', 0)).toThrow('Claude returned invalid JSON');
   });
 });
 

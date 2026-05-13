@@ -288,20 +288,27 @@ function buildUserMessage(
   return `Convert this HTML content into the compact deck JSON:\n\n${strippedContent}${mediaFilesList}${instructionsSection}`;
 }
 
-function parseDeckResponse(
+export function parseDeckResponse(
   cleaned: string,
   raw: string,
   chunkIndex: number
 ): CompactDeck[] {
+  // Claude sometimes appends explanation prose after the closing fence/bracket.
+  // Truncate at the last ']' so trailing text doesn't break JSON.parse.
+  const jsonEnd = cleaned.lastIndexOf(']');
+  const toParse = jsonEnd >= 0 ? cleaned.slice(0, jsonEnd + 1) : cleaned;
+
   let parsed: unknown;
   try {
-    parsed = JSON.parse(cleaned);
+    parsed = JSON.parse(toParse);
   } catch {
-    console.error('[Claude] Failed to parse response as JSON', { raw, chunkIndex });
-    if (
-      !cleaned.trim().startsWith('[') &&
-      looksLikeEmptyContentExplanation(cleaned)
-    ) {
+    console.error('[Claude] Failed to parse response as JSON', {
+      raw,
+      cleaned,
+      toParse,
+      chunkIndex,
+    });
+    if (looksLikeEmptyContentExplanation(cleaned)) {
       throw new Error(EMPTY_CONTENT_USER_MESSAGE);
     }
     throw new Error(`Claude returned invalid JSON:\n${raw}`);
