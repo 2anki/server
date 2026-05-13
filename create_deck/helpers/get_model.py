@@ -17,6 +17,10 @@ MODEL_INFO = {
     "input": {
         "file_name": "n2a-input.json",
         "model_type": Model.FRONT_BACK
+    },
+    "io": {
+        "file_name": "n2a-io.json",
+        "model_type": Model.CLOZE
     }
 }
 

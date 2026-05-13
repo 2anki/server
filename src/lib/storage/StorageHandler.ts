@@ -118,6 +118,16 @@ class StorageHandler {
       );
     });
   }
+
+  getPresignedUrl(key: string, expiresSeconds = 3600): Promise<string> {
+    return new Promise((resolve, reject) => {
+      this.s3.getSignedUrl(
+        'getObject',
+        { Bucket: StorageHandler.DefaultBucketName(), Key: key, Expires: expiresSeconds },
+        (err, url) => (err ? reject(err) : resolve(url))
+      );
+    });
+  }
 }
 
 export default StorageHandler;

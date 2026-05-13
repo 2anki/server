@@ -60,6 +60,11 @@ const MagicLinkPage = lazy(() => import('./pages/MagicLinkPage'));
 const PrintPage = lazy(() => import('./pages/PrintPage'));
 const WhatsNewPage = lazy(() => import('./pages/WhatsNewPage/WhatsNewPage'));
 const ImportPage = lazy(() => import('./pages/ImportPage'));
+const ImageOcclusionPage = lazy(() =>
+  import('./pages/ImageOcclusionPage').then((m) => ({
+    default: m.ImageOcclusionPage,
+  }))
+);
 
 const queryClient = new QueryClient();
 
@@ -130,6 +135,7 @@ function AppContent({
             element={<UploadPage setErrorMessage={setErrorMessage} />}
           />
           <Route path="/print" element={<PrintPage />} />
+          <Route path="/image-occlusion" element={<ImageOcclusionPage />} />
           <Route
             path="/register"
             element={<RegisterPage setErrorMessage={setErrorMessage} />}
