@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 import { get2ankiApi } from '../../lib/backend/get2ankiApi';
 import styles from './FeedbackWidget.module.css';
@@ -71,6 +72,14 @@ export function FeedbackWidget({
           );
         })}
       </div>
+      {selectedRating != null && selectedRating <= 2 && (
+        <p className={styles.nudge}>
+          Want to tell us more?{' '}
+          <Link to="/feedback" className={styles.nudgeLink}>
+            Share on the feedback page
+          </Link>
+        </p>
+      )}
       {selectedRating != null && (
         <>
           <textarea

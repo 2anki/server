@@ -217,7 +217,7 @@ function expandCompactDeckInfo(compact: CompactDeck[], availableMediaFiles: stri
 
 let _anthropicClient: Anthropic | null = null;
 
-function getAnthropicClient(): Anthropic {
+export function getAnthropicClient(): Anthropic {
   if (!_anthropicClient) {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const AnthropicClass = require('@anthropic-ai/sdk').default;

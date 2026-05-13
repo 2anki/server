@@ -1,9 +1,33 @@
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useRef, useState } from 'react';
+
+import {
+  DndContext,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  arrayMove,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 import sharedStyles from '../../styles/shared.module.css';
 import styles from './OpsPage.module.css';
 
+// ── Lazy Excalidraw (large bundle, only loaded in the form) ─────────────────
+const Excalidraw = lazy(() =>
+  import('@excalidraw/excalidraw').then((m) => ({ default: m.Excalidraw }))
+);
+
+// ── Types ────────────────────────────────────────────────────────────────────
+
 type OpportunityTag = 'opportunity' | 'insight';
+type NodeType = 'outcome' | 'opportunity' | 'sub_opportunity' | 'solution';
 
 interface InterviewOpportunity {
   id: string;
@@ -27,10 +51,26 @@ interface InterviewSnapshot {
   opportunities: InterviewOpportunity[];
 }
 
+interface OstNode {
+  id: string;
+  parentId: string | null;
+  body: string;
+  type: NodeType;
+  depth: number;
+  sortOrder: number;
+}
+
+interface OstVersion {
+  id: string;
+  generatedAt: string;
+  snapshotCount: number;
+  nodes: OstNode[];
+}
+
+// ── API helpers ──────────────────────────────────────────────────────────────
+
 async function apiList(): Promise<InterviewSnapshot[]> {
-  const res = await fetch('/api/ops/discovery/snapshots', {
-    credentials: 'include',
-  });
+  const res = await fetch('/api/ops/discovery/snapshots', { credentials: 'include' });
   if (!res.ok) throw new Error(`${res.status}`);
   return res.json() as Promise<InterviewSnapshot[]>;
 }
@@ -59,6 +99,26 @@ async function apiDelete(id: string): Promise<void> {
   if (!res.ok) throw new Error(`${res.status}`);
 }
 
+async function apiGetOst(): Promise<OstVersion | null> {
+  const res = await fetch('/api/ops/discovery/ost', { credentials: 'include' });
+  if (!res.ok) throw new Error(`${res.status}`);
+  return res.json() as Promise<OstVersion | null>;
+}
+
+async function apiGenerateOst(): Promise<OstVersion> {
+  const res = await fetch('/api/ops/discovery/ost/generate', {
+    method: 'POST',
+    credentials: 'include',
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({})) as { message?: string };
+    throw new Error(data.message ?? `${res.status}`);
+  }
+  return res.json() as Promise<OstVersion>;
+}
+
+// ── Shared helpers ───────────────────────────────────────────────────────────
+
 function initials(name: string): string {
   return name
     .trim()
@@ -66,6 +126,15 @@ function initials(name: string): string {
     .slice(0, 2)
     .map((w) => w[0]?.toUpperCase() ?? '')
     .join('');
+}
+
+async function blobToDataUri(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
 }
 
 function readFileAsDataUri(file: File): Promise<string> {
@@ -93,13 +162,9 @@ function blankForm(): Omit<InterviewSnapshot, 'id' | 'createdAt'> {
   };
 }
 
-interface AvatarProps {
-  dataUri: string | null;
-  name: string;
-  size?: number;
-}
+// ── Avatar ───────────────────────────────────────────────────────────────────
 
-function Avatar({ dataUri, name, size = 40 }: AvatarProps) {
+function Avatar({ dataUri, name, size = 40 }: { dataUri: string | null; name: string; size?: number }) {
   if (dataUri) {
     return (
       <img
@@ -121,13 +186,10 @@ function Avatar({ dataUri, name, size = 40 }: AvatarProps) {
   );
 }
 
-interface SnapshotCardProps {
-  snapshot: InterviewSnapshot;
-  onDelete: (id: string) => void;
-}
+// ── Snapshot card ────────────────────────────────────────────────────────────
 
-function SnapshotCard({ snapshot, onDelete }: SnapshotCardProps) {
-  const opportunityCount = snapshot.opportunities.filter((o) => o.tag === 'opportunity').length;
+function SnapshotCard({ snapshot, onDelete }: { snapshot: InterviewSnapshot; onDelete: (id: string) => void }) {
+  const oppCount = snapshot.opportunities.filter((o) => o.tag === 'opportunity').length;
   const insightCount = snapshot.opportunities.filter((o) => o.tag === 'insight').length;
 
   const handleDelete = () => {
@@ -141,12 +203,8 @@ function SnapshotCard({ snapshot, onDelete }: SnapshotCardProps) {
       <div className={styles.interviewCardHeader}>
         <Avatar dataUri={snapshot.photoData} name={snapshot.participantName} />
         <div className={styles.interviewCardMeta}>
-          <span className={styles.interviewCardName}>
-            {snapshot.participantName || 'Unknown'}
-          </span>
-          {snapshot.planTier && (
-            <span className={styles.interviewCardTier}>{snapshot.planTier}</span>
-          )}
+          <span className={styles.interviewCardName}>{snapshot.participantName || 'Unknown'}</span>
+          {snapshot.planTier && <span className={styles.interviewCardTier}>{snapshot.planTier}</span>}
         </div>
         <button
           type="button"
@@ -166,8 +224,8 @@ function SnapshotCard({ snapshot, onDelete }: SnapshotCardProps) {
         <span className={styles.interviewCardDate}>{snapshot.interviewDate}</span>
         {snapshot.opportunities.length > 0 && (
           <span className={styles.interviewCardOpCount}>
-            {opportunityCount > 0 && `${opportunityCount} opp${opportunityCount !== 1 ? 's' : ''}`}
-            {opportunityCount > 0 && insightCount > 0 && ' · '}
+            {oppCount > 0 && `${oppCount} opp${oppCount !== 1 ? 's' : ''}`}
+            {oppCount > 0 && insightCount > 0 && ' · '}
             {insightCount > 0 && `${insightCount} insight${insightCount !== 1 ? 's' : ''}`}
           </span>
         )}
@@ -176,32 +234,20 @@ function SnapshotCard({ snapshot, onDelete }: SnapshotCardProps) {
   );
 }
 
-interface SnapshotFormProps {
-  onSave: (snapshot: InterviewSnapshot) => void;
-  onCancel: () => void;
-}
+// ── Snapshot form ────────────────────────────────────────────────────────────
 
-function SnapshotForm({ onSave, onCancel }: SnapshotFormProps) {
+function SnapshotForm({ onSave, onCancel }: { onSave: (s: InterviewSnapshot) => void; onCancel: () => void }) {
   const [form, setForm] = useState(blankForm());
   const [oppInput, setOppInput] = useState('');
   const [oppTag, setOppTag] = useState<OpportunityTag>('opportunity');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const photoInputRef = useRef<HTMLInputElement>(null);
-  const mapInputRef = useRef<HTMLInputElement>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const excalidrawAPIRef = useRef<any>(null);
 
   const set = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) =>
     setForm((prev) => ({ ...prev, [key]: value }));
-
-  const handlePhotoFile = async (file: File) => {
-    const uri = await readFileAsDataUri(file);
-    set('photoData', uri);
-  };
-
-  const handleMapFile = async (file: File) => {
-    const uri = await readFileAsDataUri(file);
-    set('experienceMapData', uri);
-  };
 
   const addOpportunity = () => {
     if (oppInput.trim().length === 0) return;
@@ -220,10 +266,23 @@ function SnapshotForm({ onSave, onCancel }: SnapshotFormProps) {
     setSaving(true);
     setError('');
     try {
-      const snapshot = await apiCreate({
-        ...form,
-        sessionLengthMinutes: form.sessionLengthMinutes,
-      });
+      // Export Excalidraw canvas as PNG if there are any elements
+      let mapData = form.experienceMapData;
+      if (excalidrawAPIRef.current) {
+        const elements = excalidrawAPIRef.current.getSceneElements();
+        if (elements.length > 0) {
+          const { exportToBlob } = await import('@excalidraw/excalidraw');
+          const blob = await exportToBlob({
+            elements,
+            mimeType: 'image/png',
+            appState: excalidrawAPIRef.current.getAppState(),
+            files: excalidrawAPIRef.current.getFiles(),
+          });
+          mapData = await blobToDataUri(blob);
+        }
+      }
+
+      const snapshot = await apiCreate({ ...form, experienceMapData: mapData });
       onSave(snapshot);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Save failed');
@@ -233,10 +292,9 @@ function SnapshotForm({ onSave, onCancel }: SnapshotFormProps) {
 
   return (
     <div className={styles.interviewForm}>
-      {error && (
-        <div className={`${sharedStyles.alertDanger} ${styles.banner}`}>{error}</div>
-      )}
+      {error && <div className={`${sharedStyles.alertDanger} ${styles.banner}`}>{error}</div>}
 
+      {/* Participant + photo */}
       <div className={styles.interviewFormSection}>
         <div className={styles.interviewFormRow}>
           <div className={styles.interviewPhotoZone}>
@@ -253,7 +311,6 @@ function SnapshotForm({ onSave, onCancel }: SnapshotFormProps) {
                 type="button"
                 className={styles.interviewPhotoPlaceholder}
                 onClick={() => photoInputRef.current?.click()}
-                aria-label="Upload participant photo"
               >
                 Photo
               </button>
@@ -265,7 +322,7 @@ function SnapshotForm({ onSave, onCancel }: SnapshotFormProps) {
               hidden
               onChange={(e) => {
                 const f = e.target.files?.[0];
-                if (f) handlePhotoFile(f);
+                if (f) readFileAsDataUri(f).then((uri) => set('photoData', uri));
               }}
             />
           </div>
@@ -299,6 +356,7 @@ function SnapshotForm({ onSave, onCancel }: SnapshotFormProps) {
         </div>
       </div>
 
+      {/* Quote */}
       <div className={styles.interviewFormSection}>
         <label className={styles.controlsLabel} htmlFor="iv-quote">
           Memorable quote — their exact words
@@ -313,13 +371,14 @@ function SnapshotForm({ onSave, onCancel }: SnapshotFormProps) {
         />
       </div>
 
+      {/* Quick facts */}
       <div className={styles.interviewFormSection}>
         <p className={styles.controlsLabel}>Quick facts</p>
         <div className={styles.interviewQuickFacts}>
           <input
             className={styles.textInput}
             type="text"
-            placeholder="Usage pattern (e.g. uploads weekly)"
+            placeholder="Usage pattern"
             value={form.usagePattern}
             onChange={(e) => set('usagePattern', e.target.value)}
           />
@@ -343,16 +402,14 @@ function SnapshotForm({ onSave, onCancel }: SnapshotFormProps) {
             placeholder="Session length (min)"
             value={form.sessionLengthMinutes ?? ''}
             onChange={(e) =>
-              set(
-                'sessionLengthMinutes',
-                e.target.value === '' ? null : Number(e.target.value)
-              )
+              set('sessionLengthMinutes', e.target.value === '' ? null : Number(e.target.value))
             }
             min={0}
           />
         </div>
       </div>
 
+      {/* Opportunities */}
       <div className={styles.interviewFormSection}>
         <label className={styles.controlsLabel} htmlFor="iv-opp-input">
           Opportunities & insights — their words, not solutions, not feelings
@@ -362,14 +419,11 @@ function SnapshotForm({ onSave, onCancel }: SnapshotFormProps) {
             id="iv-opp-input"
             className={styles.textInput}
             type="text"
-            placeholder="e.g. I don't want to re-type my notes every time I make a deck"
+            placeholder="e.g. I don't want to re-type my notes every time"
             value={oppInput}
             onChange={(e) => setOppInput(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                addOpportunity();
-              }
+              if (e.key === 'Enter') { e.preventDefault(); addOpportunity(); }
             }}
           />
           <select
@@ -394,9 +448,7 @@ function SnapshotForm({ onSave, onCancel }: SnapshotFormProps) {
           <ul className={styles.interviewOppList}>
             {form.opportunities.map((opp) => (
               <li key={opp.id} className={styles.interviewOppItem}>
-                <span className={styles.interviewOppTag} data-tag={opp.tag}>
-                  {opp.tag}
-                </span>
+                <span className={styles.interviewOppTag} data-tag={opp.tag}>{opp.tag}</span>
                 <span className={styles.interviewOppBody}>{opp.body}</span>
                 <button
                   type="button"
@@ -412,44 +464,22 @@ function SnapshotForm({ onSave, onCancel }: SnapshotFormProps) {
         )}
       </div>
 
+      {/* Experience map — Excalidraw canvas */}
       <div className={styles.interviewFormSection}>
         <label className={styles.controlsLabel}>
-          Experience map — upload a photo or screenshot of the drawn journey
+          Experience map — draw the participant&rsquo;s journey
         </label>
-        {form.experienceMapData ? (
-          <div className={styles.interviewMapPreviewWrap}>
-            <img
-              src={form.experienceMapData}
-              alt="Experience map"
-              className={styles.interviewMapPreview}
+        <div className={styles.excalidrawWrap}>
+          <Suspense fallback={<div className={styles.excalidrawLoading}>Loading canvas…</div>}>
+            <Excalidraw
+              excalidrawAPI={(api) => { excalidrawAPIRef.current = api; }}
+              initialData={{ appState: { viewBackgroundColor: 'transparent' } }}
             />
-            <button
-              type="button"
-              className={sharedStyles.btnSmall}
-              onClick={() => set('experienceMapData', null)}
-            >
-              Remove map
-            </button>
-          </div>
-        ) : (
-          <button
-            type="button"
-            className={styles.interviewMapUploadBtn}
-            onClick={() => mapInputRef.current?.click()}
-          >
-            Upload experience map image
-          </button>
-        )}
-        <input
-          ref={mapInputRef}
-          type="file"
-          accept="image/*"
-          hidden
-          onChange={(e) => {
-            const f = e.target.files?.[0];
-            if (f) handleMapFile(f);
-          }}
-        />
+          </Suspense>
+        </div>
+        <p className={styles.panelSubtitle}>
+          The map is exported as a PNG and saved with the snapshot.
+        </p>
       </div>
 
       <div className={styles.interviewFormActions}>
@@ -468,6 +498,152 @@ function SnapshotForm({ onSave, onCancel }: SnapshotFormProps) {
     </div>
   );
 }
+
+// ── OST node (sortable) ──────────────────────────────────────────────────────
+
+const NODE_TYPE_LABELS: Record<NodeType, string> = {
+  outcome: 'Outcome',
+  opportunity: 'Opportunity',
+  sub_opportunity: 'Sub-opportunity',
+  solution: 'Solution',
+};
+
+function SortableOstNode({ node }: { node: OstNode }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({ id: node.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    paddingLeft: node.depth * 24,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`${sharedStyles.surface} ${styles.ostNode}`}
+    >
+      <span className={styles.ostDragHandle} {...attributes} {...listeners} aria-label="Drag">
+        ⠿
+      </span>
+      <span className={styles.ostNodeBody}>{node.body}</span>
+      {node.type !== 'outcome' && (
+        <span className={styles.ostNodeBadge} data-type={node.type}>
+          {NODE_TYPE_LABELS[node.type]}
+        </span>
+      )}
+    </div>
+  );
+}
+
+// ── OST tree section ─────────────────────────────────────────────────────────
+
+function OstSection({ snapshotCount }: { snapshotCount: number }) {
+  const [ost, setOst] = useState<OstVersion | null | undefined>(undefined);
+  const [nodes, setNodes] = useState<OstNode[]>([]);
+  const [generating, setGenerating] = useState(false);
+  const [error, setError] = useState('');
+  const MIN_SNAPSHOTS = 5;
+
+  const sensors = useSensors(useSensor(PointerSensor));
+
+  useEffect(() => {
+    apiGetOst()
+      .then((v) => {
+        setOst(v);
+        if (v) setNodes(v.nodes);
+      })
+      .catch(() => setOst(null));
+  }, []);
+
+  const handleGenerate = async () => {
+    setGenerating(true);
+    setError('');
+    try {
+      const v = await apiGenerateOst();
+      setOst(v);
+      setNodes(v.nodes);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Generation failed');
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setNodes((prev) => {
+        const oldIdx = prev.findIndex((n) => n.id === active.id);
+        const newIdx = prev.findIndex((n) => n.id === over.id);
+        return arrayMove(prev, oldIdx, newIdx);
+      });
+    }
+  }, []);
+
+  const canGenerate = snapshotCount >= MIN_SNAPSHOTS;
+
+  return (
+    <section className={styles.ostSection}>
+      <div className={styles.interviewArchiveHeader}>
+        <div>
+          <p className={styles.panelTitle}>Opportunity solution tree</p>
+          <p className={styles.panelSubtitle}>
+            {ost
+              ? `Generated from ${ost.snapshotCount} snapshot${ost.snapshotCount !== 1 ? 's' : ''} · ${new Date(ost.generatedAt).toLocaleDateString()}`
+              : 'Claude organizes your interview snapshots into a prioritized tree.'}
+          </p>
+        </div>
+        <button
+          type="button"
+          className={sharedStyles.btnSmall}
+          onClick={handleGenerate}
+          disabled={generating || !canGenerate}
+          title={canGenerate ? undefined : `Need ${MIN_SNAPSHOTS} snapshots (have ${snapshotCount})`}
+        >
+          {generating ? 'Generating…' : ost ? 'Regenerate' : 'Generate tree'}
+        </button>
+      </div>
+
+      {error && <div className={`${sharedStyles.alertDanger} ${styles.banner}`}>{error}</div>}
+
+      {!canGenerate && (
+        <div className={`${sharedStyles.surface} ${styles.interviewEmpty}`}>
+          <p>
+            Add at least {MIN_SNAPSHOTS} interview snapshots to generate the tree.
+            Currently have {snapshotCount}.
+          </p>
+        </div>
+      )}
+
+      {canGenerate && ost === undefined && (
+        <div className={styles.skeletonBar} style={{ height: 80 }} />
+      )}
+
+      {canGenerate && ost === null && !generating && (
+        <div className={`${sharedStyles.surface} ${styles.interviewEmpty}`}>
+          <p>No tree generated yet. Click &ldquo;Generate tree&rdquo; to build it from your snapshots.</p>
+        </div>
+      )}
+
+      {nodes.length > 0 && (
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={nodes.map((n) => n.id)} strategy={verticalListSortingStrategy}>
+            <div className={styles.ostTree}>
+              {nodes.map((node) => (
+                <SortableOstNode key={node.id} node={node} />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
+      )}
+    </section>
+  );
+}
+
+// ── Root tab component ───────────────────────────────────────────────────────
 
 export default function InterviewsTab() {
   const [snapshots, setSnapshots] = useState<InterviewSnapshot[]>([]);
@@ -516,18 +692,12 @@ export default function InterviewsTab() {
             One snapshot per customer conversation. Fill in right after the interview, never batched.
           </p>
         </div>
-        <button
-          type="button"
-          className={sharedStyles.btnPrimary}
-          onClick={() => setView('form')}
-        >
+        <button type="button" className={sharedStyles.btnPrimary} onClick={() => setView('form')}>
           New snapshot
         </button>
       </div>
 
-      {error && (
-        <div className={`${sharedStyles.alertDanger} ${styles.banner}`}>{error}</div>
-      )}
+      {error && <div className={`${sharedStyles.alertDanger} ${styles.banner}`}>{error}</div>}
 
       {loading ? (
         <div className={styles.skeletonBar} style={{ height: 120 }} />
@@ -542,6 +712,9 @@ export default function InterviewsTab() {
           ))}
         </div>
       )}
+
+      <hr className={styles.ostDivider} />
+      <OstSection snapshotCount={snapshots.length} />
     </>
   );
 }

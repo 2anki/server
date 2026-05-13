@@ -5,7 +5,7 @@ import { useLocation } from 'react-router-dom';
 import { FeedbackWidget } from './FeedbackWidget';
 import styles from './FloatingFeedback.module.css';
 
-const HIDDEN_PATHS = new Set(['/whats-new']);
+const HIDDEN_PATHS = new Set(['/whats-new', '/feedback']);
 const HIDDEN_PREFIXES = ['/rules/'];
 const DISMISSED_KEY = '2anki_feedback_dismissed';
 

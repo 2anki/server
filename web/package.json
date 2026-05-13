@@ -30,6 +30,10 @@
   "dependencies": {
     "@bugsnag/js": "^8.9.0",
     "@bugsnag/plugin-react": "^8.9.0",
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
+    "@excalidraw/excalidraw": "^0.18.1",
     "@tanstack/react-query": "^5.100.10",
     "date-fns": "^4.1.0",
     "get-notion-object-title": "^0.2.9",

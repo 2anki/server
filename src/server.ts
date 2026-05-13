@@ -39,6 +39,7 @@ import ankifyWebhookRouter from './routes/AnkifyWebhookRouter';
 import swaggerRouter from './routes/SwaggerRouter';
 import opsRouter from './routes/OpsRouter';
 import opsDiscoveryRouter from './routes/OpsDiscoveryRouter';
+import ostRouter from './routes/OstRouter';
 import feedbackRouter from './routes/FeedbackRouter';
 import showcaseRouter from './routes/ShowcaseRouter';
 import emojiFeedbackRouter from './routes/EmojiFeedbackRouter';
@@ -111,6 +112,7 @@ const serve = async () => {
   app.use(showcaseRouter());
   app.use(opsRouter());
   app.use(opsDiscoveryRouter());
+  app.use(ostRouter());
   app.use(feedbackRouter());
   app.use(emojiFeedbackRouter());
   app.use(reEngagementRouter());

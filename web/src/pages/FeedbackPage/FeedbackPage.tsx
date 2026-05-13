@@ -59,11 +59,15 @@ export default function FeedbackPage() {
     return (
       <main className={sharedStyles.pageNarrow}>
         <div className={`${sharedStyles.card} ${styles.successCard}`}>
-          <h1 className={styles.successHeading}>Thank you</h1>
+          <p className={styles.successIcon} aria-hidden="true">✦</p>
+          <h1 className={styles.successHeading}>
+            Got it — you're helping us build something better.
+          </h1>
           <p className={styles.successBody}>
-            We read every response. Your feedback helps shape what we build next.
+            We read every response. What you shared will shape the next thing we
+            fix or build. Thank you for taking the time.
           </p>
-          <a href="/downloads" className={sharedStyles.btnGhost}>
+          <a href="/downloads" className={`${sharedStyles.btnSecondary} ${sharedStyles.btnInline}`}>
             Back to my decks
           </a>
         </div>
@@ -74,9 +78,9 @@ export default function FeedbackPage() {
   return (
     <main className={sharedStyles.pageNarrow}>
       <header className={styles.header}>
-        <h1 className={sharedStyles.title}>Help us build better flashcards</h1>
+        <h1 className={sharedStyles.title}>What's your 2anki story?</h1>
         <p className={sharedStyles.subtitle}>
-          Three quick questions — no rating scales. Just tell us in your own words. Takes about 60 seconds.
+          Your own words, under a minute.
         </p>
       </header>
 
@@ -86,6 +90,10 @@ export default function FeedbackPage() {
             <label htmlFor="fb-story" className={styles.label}>
               Tell us about a time 2anki helped you
             </label>
+            <p className={styles.hint}>
+              Maybe it saved you before an exam, or turned a long document into
+              something you could actually study.
+            </p>
             <textarea
               id="fb-story"
               className={`${sharedStyles.fullWidthTextarea} ${styles.textarea}`}
@@ -101,11 +109,15 @@ export default function FeedbackPage() {
             <label htmlFor="fb-need" className={styles.label}>
               What gets in your way?
             </label>
+            <p className={styles.hint}>
+              Describe the most frustrating part — whatever makes you wish
+              something worked differently.
+            </p>
             <textarea
               id="fb-need"
               className={`${sharedStyles.fullWidthTextarea} ${styles.textarea}`}
               rows={3}
-              placeholder="Describe the most frustrating part of your current workflow — whatever you wish worked differently."
+              placeholder="For example: Images don't come through, so I have to add them manually after."
               value={mainNeed}
               onChange={(e) => setMainNeed(e.target.value)}
               required
@@ -121,7 +133,7 @@ export default function FeedbackPage() {
               id="fb-extra"
               className={`${sharedStyles.fullWidthTextarea} ${styles.textarea}`}
               rows={2}
-              placeholder="Any other observations, wishes, or context you'd like to share."
+              placeholder="For example: I mainly use it for medical school — spaced repetition is the only way I keep up."
               value={secondItem}
               onChange={(e) => setSecondItem(e.target.value)}
             />
@@ -136,10 +148,10 @@ export default function FeedbackPage() {
           <div className={styles.actions}>
             <button
               type="submit"
-              className={sharedStyles.btnPrimary}
+              className={`${sharedStyles.btnPrimary} ${styles.submitBtn}`}
               disabled={submitting || !canSubmit}
             >
-              {submitting ? 'Sending…' : 'Send feedback'}
+              {submitting ? 'Sending…' : 'Send your answers'}
             </button>
           </div>
         </form>
