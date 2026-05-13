@@ -14,47 +14,48 @@ interface DraftRect {
   currentY: number;
 }
 
-const MIN_SIZE_PX = 10;
+type HandleDir = 'nw' | 'ne' | 'sw' | 'se';
+
+interface DragState {
+  type: 'move' | 'resize';
+  handle?: HandleDir;
+  rectId: string;
+  startPx: number;
+  startPy: number;
+  startRect: OcclusionRect;
+}
+
+const MIN_NORM = 0.01;
+const HANDLE_SIZE = 8;
 
 function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
-function toNormalized(px: number, dimension: number): number {
-  return Math.max(0, Math.min(1, px / dimension));
+function toNorm(px: number, dim: number): number {
+  return Math.max(0, Math.min(1, px / dim));
 }
 
-function clampRect(
-  startX: number,
-  startY: number,
-  endX: number,
-  endY: number,
-  imgW: number,
-  imgH: number
-): { x: number; y: number; w: number; h: number } {
-  const x = Math.min(startX, endX);
-  const y = Math.min(startY, endY);
-  const w = Math.abs(endX - startX);
-  const h = Math.abs(endY - startY);
-  return {
-    x: Math.max(0, x),
-    y: Math.max(0, y),
-    w: Math.min(w, imgW - x),
-    h: Math.min(h, imgH - y),
-  };
+function clampRect(x: number, y: number, w: number, h: number): { x: number; y: number; w: number; h: number } {
+  const cx = Math.max(0, Math.min(1 - MIN_NORM, x));
+  const cy = Math.max(0, Math.min(1 - MIN_NORM, y));
+  return { x: cx, y: cy, w: Math.max(MIN_NORM, Math.min(1 - cx, w)), h: Math.max(MIN_NORM, Math.min(1 - cy, h)) };
 }
 
 export function OcclusionCanvas({ entry, onRectsChange }: Readonly<Props>) {
   const containerRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [draft, setDraft] = useState<DraftRect | null>(null);
+  const [drag, setDrag] = useState<DragState | null>(null);
   const [labelInput, setLabelInput] = useState('');
   const [imgNaturalSize, setImgNaturalSize] = useState({ w: 0, h: 0 });
 
   useEffect(() => {
     setSelectedId(null);
     setDraft(null);
+    setDrag(null);
   }, [entry.file]);
 
   const selectedRect = entry.rects.find((r) => r.id === selectedId) ?? null;
@@ -63,98 +64,120 @@ export function OcclusionCanvas({ entry, onRectsChange }: Readonly<Props>) {
     setLabelInput(selectedRect?.label ?? '');
   }, [selectedRect]);
 
-  const getSvgCoords = useCallback(
-    (e: PointerEvent | React.PointerEvent): { x: number; y: number } => {
-      const svg = containerRef.current?.querySelector('svg');
-      if (!svg) return { x: 0, y: 0 };
-      const rect = svg.getBoundingClientRect();
-      return {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      };
-    },
-    []
-  );
+  const getSvgPt = useCallback((e: React.PointerEvent | PointerEvent) => {
+    const svg = svgRef.current;
+    if (!svg) return { x: 0, y: 0, svgW: 1, svgH: 1 };
+    const r = svg.getBoundingClientRect();
+    return { x: e.clientX - r.left, y: e.clientY - r.top, svgW: r.width, svgH: r.height };
+  }, []);
 
-  const svgToNatural = useCallback(
-    (svgX: number, svgY: number): { x: number; y: number } => {
-      const svg = containerRef.current?.querySelector('svg');
-      const img = imgRef.current;
-      if (!svg || !img || imgNaturalSize.w === 0) return { x: 0, y: 0 };
-      const svgRect = svg.getBoundingClientRect();
-      const scaleX = imgNaturalSize.w / svgRect.width;
-      const scaleY = imgNaturalSize.h / svgRect.height;
-      return {
-        x: svgX * scaleX,
-        y: svgY * scaleY,
-      };
-    },
-    [imgNaturalSize]
+  const toNormPt = useCallback(
+    (svgX: number, svgY: number, svgW: number, svgH: number) => ({
+      nx: toNorm(svgX, svgW),
+      ny: toNorm(svgY, svgH),
+    }),
+    []
   );
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent<SVGSVGElement>) => {
-      if ((e.target as Element).closest('[data-rect]')) return;
-      const coords = getSvgCoords(e);
-      setDraft({ startX: coords.x, startY: coords.y, currentX: coords.x, currentY: coords.y });
-      setSelectedId(null);
-      try {
-        (e.currentTarget as SVGSVGElement).setPointerCapture(e.pointerId);
-      } catch {
-        // jsdom does not implement setPointerCapture
+      const target = e.target as Element;
+      const handleEl = target.closest('[data-handle]');
+      const rectEl = target.closest('[data-rect]');
+
+      if (handleEl) {
+        const dir = handleEl.getAttribute('data-handle') as HandleDir;
+        const rectId = handleEl.closest('[data-rect]')?.getAttribute('data-rect');
+        if (!rectId) return;
+        const rect = entry.rects.find((r) => r.id === rectId);
+        if (!rect) return;
+        e.stopPropagation();
+        const { x, y } = getSvgPt(e);
+        setDrag({ type: 'resize', handle: dir, rectId, startPx: x, startPy: y, startRect: { ...rect } });
+        try { (e.currentTarget as SVGSVGElement).setPointerCapture(e.pointerId); } catch { /* jsdom */ }
+        return;
       }
+
+      if (rectEl) {
+        const rectId = rectEl.getAttribute('data-rect');
+        if (!rectId) return;
+        const rect = entry.rects.find((r) => r.id === rectId);
+        if (!rect) return;
+        e.stopPropagation();
+        setSelectedId(rectId);
+        const { x, y } = getSvgPt(e);
+        setDrag({ type: 'move', rectId, startPx: x, startPy: y, startRect: { ...rect } });
+        try { (e.currentTarget as SVGSVGElement).setPointerCapture(e.pointerId); } catch { /* jsdom */ }
+        return;
+      }
+
+      const { x, y } = getSvgPt(e);
+      setDraft({ startX: x, startY: y, currentX: x, currentY: y });
+      setSelectedId(null);
+      try { (e.currentTarget as SVGSVGElement).setPointerCapture(e.pointerId); } catch { /* jsdom */ }
     },
-    [getSvgCoords]
+    [entry.rects, getSvgPt]
   );
 
   const handlePointerMove = useCallback(
     (e: React.PointerEvent<SVGSVGElement>) => {
-      if (!draft) return;
-      const coords = getSvgCoords(e);
-      setDraft((prev) => (prev ? { ...prev, currentX: coords.x, currentY: coords.y } : null));
+      if (drag) {
+        const { x, y, svgW, svgH } = getSvgPt(e);
+        const dx = (x - drag.startPx) / svgW;
+        const dy = (y - drag.startPy) / svgH;
+        const sr = drag.startRect;
+
+        let updated: OcclusionRect;
+        if (drag.type === 'move') {
+          const clamped = clampRect(sr.x + dx, sr.y + dy, sr.w, sr.h);
+          updated = { ...sr, ...clamped };
+        } else {
+          const h = drag.handle!;
+          let nx = sr.x, ny = sr.y, nw = sr.w, nh = sr.h;
+          if (h === 'nw') { nx = sr.x + dx; ny = sr.y + dy; nw = sr.w - dx; nh = sr.h - dy; }
+          if (h === 'ne') { ny = sr.y + dy; nw = sr.w + dx; nh = sr.h - dy; }
+          if (h === 'sw') { nx = sr.x + dx; nw = sr.w - dx; nh = sr.h + dy; }
+          if (h === 'se') { nw = sr.w + dx; nh = sr.h + dy; }
+          const clamped = clampRect(nx, ny, nw, nh);
+          updated = { ...sr, ...clamped };
+        }
+
+        onRectsChange(entry.rects.map((r) => (r.id === drag.rectId ? updated : r)));
+        return;
+      }
+
+      if (draft) {
+        const { x, y } = getSvgPt(e);
+        setDraft((prev) => (prev ? { ...prev, currentX: x, currentY: y } : null));
+      }
     },
-    [draft, getSvgCoords]
+    [drag, draft, getSvgPt, entry.rects, onRectsChange]
   );
 
   const handlePointerUp = useCallback(
     (e: React.PointerEvent<SVGSVGElement>) => {
+      if (drag) {
+        setDrag(null);
+        return;
+      }
       if (!draft) return;
-      const coords = getSvgCoords(e);
-      const svg = containerRef.current?.querySelector('svg');
-      if (svg) {
-        const svgRect = svg.getBoundingClientRect();
-        const wPx = Math.abs(coords.x - draft.startX);
-        const hPx = Math.abs(coords.y - draft.startY);
-        if (wPx >= MIN_SIZE_PX && hPx >= MIN_SIZE_PX) {
-          const nat1 = svgToNatural(draft.startX, draft.startY);
-          const nat2 = svgToNatural(coords.x, coords.y);
-          const clamped = clampRect(
-            nat1.x, nat1.y, nat2.x, nat2.y,
-            imgNaturalSize.w, imgNaturalSize.h
-          );
-          const newRect: OcclusionRect = {
-            id: generateId(),
-            x: toNormalized(clamped.x, imgNaturalSize.w),
-            y: toNormalized(clamped.y, imgNaturalSize.h),
-            w: toNormalized(clamped.w, imgNaturalSize.w),
-            h: toNormalized(clamped.h, imgNaturalSize.h),
-            label: '',
-          };
-          onRectsChange([...entry.rects, newRect]);
-          setSelectedId(newRect.id);
-        }
+      const { x, y, svgW, svgH } = getSvgPt(e);
+      const wPx = Math.abs(x - draft.startX);
+      const hPx = Math.abs(y - draft.startY);
+      if (wPx >= 10 && hPx >= 10) {
+        const { nx: nx1, ny: ny1 } = toNormPt(draft.startX, draft.startY, svgW, svgH);
+        const { nx: nx2, ny: ny2 } = toNormPt(x, y, svgW, svgH);
+        const raw = clampRect(
+          Math.min(nx1, nx2), Math.min(ny1, ny2),
+          Math.abs(nx2 - nx1), Math.abs(ny2 - ny1)
+        );
+        const newRect: OcclusionRect = { id: generateId(), label: '', ...raw };
+        onRectsChange([...entry.rects, newRect]);
+        setSelectedId(newRect.id);
       }
       setDraft(null);
     },
-    [draft, getSvgCoords, svgToNatural, imgNaturalSize, entry.rects, onRectsChange]
-  );
-
-  const handleRectClick = useCallback(
-    (e: React.MouseEvent, id: string) => {
-      e.stopPropagation();
-      setSelectedId(id);
-    },
-    []
+    [drag, draft, getSvgPt, toNormPt, entry.rects, onRectsChange]
   );
 
   const handleKeyDown = useCallback(
@@ -170,28 +193,18 @@ export function OcclusionCanvas({ entry, onRectsChange }: Readonly<Props>) {
   const handleLabelChange = useCallback(
     (value: string) => {
       setLabelInput(value);
-      onRectsChange(
-        entry.rects.map((r) => (r.id === selectedId ? { ...r, label: value } : r))
-      );
+      onRectsChange(entry.rects.map((r) => (r.id === selectedId ? { ...r, label: value } : r)));
     },
     [selectedId, entry.rects, onRectsChange]
   );
 
-  const handleImgLoad = useCallback(() => {
-    const img = imgRef.current;
-    if (img) {
-      setImgNaturalSize({ w: img.naturalWidth, h: img.naturalHeight });
-    }
-  }, []);
-
   const draftDisplay = draft
-    ? (() => {
-        const x = Math.min(draft.startX, draft.currentX);
-        const y = Math.min(draft.startY, draft.currentY);
-        const w = Math.abs(draft.currentX - draft.startX);
-        const h = Math.abs(draft.currentY - draft.startY);
-        return { x, y, w, h };
-      })()
+    ? {
+        x: Math.min(draft.startX, draft.currentX),
+        y: Math.min(draft.startY, draft.currentY),
+        w: Math.abs(draft.currentX - draft.startX),
+        h: Math.abs(draft.currentY - draft.startY),
+      }
     : null;
 
   return (
@@ -208,10 +221,14 @@ export function OcclusionCanvas({ entry, onRectsChange }: Readonly<Props>) {
         src={entry.previewUrl}
         alt={entry.file.name}
         className={styles.canvasImage}
-        onLoad={handleImgLoad}
+        onLoad={() => {
+          const img = imgRef.current;
+          if (img) setImgNaturalSize({ w: img.naturalWidth, h: img.naturalHeight });
+        }}
         draggable={false}
       />
       <svg
+        ref={svgRef}
         className={styles.canvasSvg}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
@@ -219,81 +236,58 @@ export function OcclusionCanvas({ entry, onRectsChange }: Readonly<Props>) {
       >
         {entry.rects.map((rect, i) => {
           const isSelected = rect.id === selectedId;
+          const x = `${rect.x * 100}%`;
+          const y = `${rect.y * 100}%`;
+          const w = `${rect.w * 100}%`;
+          const h = `${rect.h * 100}%`;
+          const cx = `${(rect.x + rect.w) * 100}%`;
+          const cy = `${(rect.y + rect.h) * 100}%`;
+          const mx = `${(rect.x + rect.w / 2) * 100}%`;
+          const my = `${(rect.y + rect.h / 2) * 100}%`;
+          const hs = HANDLE_SIZE;
           return (
-            <g
-              key={rect.id}
-              data-rect={rect.id}
-              onClick={(e) => handleRectClick(e, rect.id)}
-              style={{ cursor: 'pointer' }}
-            >
+            <g key={rect.id} data-rect={rect.id} style={{ cursor: drag?.rectId === rect.id && drag.type === 'move' ? 'grabbing' : 'grab' }}>
               <rect
-                x={`${rect.x * 100}%`}
-                y={`${rect.y * 100}%`}
-                width={`${rect.w * 100}%`}
-                height={`${rect.h * 100}%`}
+                x={x} y={y} width={w} height={h}
                 fill={isSelected ? '#ff8e8e' : '#ffeba2'}
                 fillOpacity={0.7}
                 stroke="#212121"
                 strokeWidth={2}
               />
               {rect.label && (
-                <text
-                  x={`${rect.x * 100}%`}
-                  y={`${rect.y * 100}%`}
-                  dy="1.2em"
-                  dx="0.3em"
-                  fontSize={12}
-                  fill="#212121"
-                  style={{ pointerEvents: 'none', userSelect: 'none' }}
-                >
+                <text x={x} y={y} dy="1.2em" dx="0.3em" fontSize={12} fill="#212121"
+                  style={{ pointerEvents: 'none', userSelect: 'none' }}>
                   {rect.label}
                 </text>
               )}
-              <text
-                x={`${(rect.x + rect.w / 2) * 100}%`}
-                y={`${(rect.y + rect.h / 2) * 100}%`}
-                textAnchor="middle"
-                dominantBaseline="middle"
-                fontSize={11}
-                fontWeight="bold"
-                fill="#212121"
-                style={{ pointerEvents: 'none', userSelect: 'none' }}
-              >
+              <text x={mx} y={my} textAnchor="middle" dominantBaseline="middle"
+                fontSize={11} fontWeight="bold" fill="#212121"
+                style={{ pointerEvents: 'none', userSelect: 'none' }}>
                 {i + 1}
               </text>
+              {isSelected && (
+                <>
+                  {([['nw', x, y, 'nw-resize'], ['ne', cx, y, 'ne-resize'], ['sw', x, cy, 'sw-resize'], ['se', cx, cy, 'se-resize']] as const).map(([dir, hx, hy, cur]) => (
+                    <rect key={dir} data-handle={dir} x={hx} y={hy} width={hs} height={hs}
+                      transform={`translate(-${hs / 2}, -${hs / 2})`}
+                      fill="#fff" stroke="#212121" strokeWidth={1.5} style={{ cursor: cur }} />
+                  ))}
+                </>
+              )}
             </g>
           );
         })}
         {draftDisplay && (
           <rect
-            x={draftDisplay.x}
-            y={draftDisplay.y}
-            width={draftDisplay.w}
-            height={draftDisplay.h}
-            fill="#ffeba2"
-            fillOpacity={0.5}
-            stroke="#212121"
-            strokeWidth={1}
-            strokeDasharray="4 2"
+            x={draftDisplay.x} y={draftDisplay.y}
+            width={draftDisplay.w} height={draftDisplay.h}
+            fill="#ffeba2" fillOpacity={0.5}
+            stroke="#212121" strokeWidth={1} strokeDasharray="4 2"
           />
         )}
       </svg>
       {entry.rects.length === 0 && !draft && (
-        <div
-          style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            background: 'rgba(0,0,0,0.55)',
-            color: '#fff',
-            padding: '0.5rem 1rem',
-            borderRadius: '6px',
-            fontSize: '0.875rem',
-            pointerEvents: 'none',
-            whiteSpace: 'nowrap',
-          }}
-        >
+        <div className={styles.canvasEmptyHint}>
           Drag a box over each area to hide.
         </div>
       )}

@@ -49,11 +49,7 @@ function parseImageEntry(entry: RawImageEntry): ImageOcclusionImage {
 }
 
 class ImageOcclusionController {
-  private readonly useCase: CreateImageOcclusionDeckUseCase;
-
-  constructor(useCase: CreateImageOcclusionDeckUseCase) {
-    this.useCase = useCase;
-  }
+  constructor(private readonly useCase: CreateImageOcclusionDeckUseCase) {}
 
   async create(req: express.Request, res: express.Response): Promise<void> {
     let rawData: RawData;
@@ -71,8 +67,7 @@ class ImageOcclusionController {
         ? rawData.deckName.trim()
         : 'Image Occlusion';
 
-    const mode =
-      rawData.mode === 'hide_one' ? 'hide_one' : 'hide_all';
+    const mode = rawData.mode === 'hide_one' ? 'hide_one' : 'hide_all';
 
     const images: ImageOcclusionImage[] = Array.isArray(rawData.images)
       ? (rawData.images as RawImageEntry[]).map(parseImageEntry)
@@ -83,27 +78,13 @@ class ImageOcclusionController {
       return;
     }
 
-    const uploadedFiles = (
-      req.files as Express.Multer.File[] | undefined ?? []
-    );
-
-    const imageFiles = uploadedFiles.map((f) => ({
-      name: f.originalname,
-      path: f.path,
-    }));
-
-    const isPaying =
-      res.locals['patreon'] === true || res.locals['subscriber'] === true;
+    const uploadedFiles = (req.files as Express.Multer.File[] | undefined ?? []);
+    const imageFiles = uploadedFiles.map((f) => ({ name: f.originalname, path: f.path }));
+    const isPaying = res.locals['patreon'] === true || res.locals['subscriber'] === true;
 
     let apkgPath: string;
     try {
-      apkgPath = await this.useCase.execute({
-        deckName,
-        mode,
-        images,
-        imageFiles,
-        isPaying,
-      });
+      apkgPath = await this.useCase.execute({ deckName, mode, images, imageFiles, isPaying });
     } catch (err) {
       const statusErr = err as NodeJS.ErrnoException & { status?: number };
       if (statusErr.status === 403) {
@@ -112,22 +93,15 @@ class ImageOcclusionController {
       }
       throw err;
     } finally {
-      for (const f of uploadedFiles) {
-        fs.unlink(f.path, () => undefined);
-      }
+      for (const f of uploadedFiles) fs.unlink(f.path, () => undefined);
     }
 
     const filename = path.basename(apkgPath);
-    res.setHeader(
-      'Content-Disposition',
-      `attachment; filename="${filename}"`
-    );
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
     res.setHeader('Content-Type', 'application/octet-stream');
 
     const stream = fs.createReadStream(apkgPath);
-    stream.on('end', () => {
-      fs.unlink(apkgPath, () => undefined);
-    });
+    stream.on('end', () => { fs.unlink(apkgPath, () => undefined); });
     stream.pipe(res);
   }
 }
