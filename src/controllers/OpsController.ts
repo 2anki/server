@@ -4,6 +4,7 @@ import { GetOpsMetricsUseCase } from '../usecases/ops/GetOpsMetricsUseCase';
 import { GetBusinessMetricsUseCase } from '../usecases/ops/GetBusinessMetricsUseCase';
 import { GetConversionMetricsUseCase } from '../usecases/ops/GetConversionMetricsUseCase';
 import { PopulateShowcaseUseCase } from '../usecases/ops/PopulateShowcaseUseCase';
+import { SendInactivityWarningsUseCase } from '../usecases/ops/SendInactivityWarningsUseCase';
 import { IShowcaseRepository } from '../data_layer/ShowcaseRepository';
 
 class OpsController {
@@ -12,7 +13,8 @@ class OpsController {
     private readonly getBusinessMetricsUseCase?: GetBusinessMetricsUseCase,
     private readonly getConversionMetricsUseCase?: GetConversionMetricsUseCase,
     private readonly populateShowcaseUseCase?: PopulateShowcaseUseCase,
-    private readonly showcaseRepo?: IShowcaseRepository
+    private readonly showcaseRepo?: IShowcaseRepository,
+    private readonly sendInactivityWarningsUseCase?: SendInactivityWarningsUseCase
   ) {}
 
   async getMetrics(req: express.Request, res: express.Response) {
@@ -92,6 +94,21 @@ class OpsController {
     } catch (error) {
       console.error('[ops] purgeShowcase failed', error);
       res.status(500).json({ message: 'Failed to purge showcase.' });
+    }
+  }
+
+  async sendInactivityWarnings(req: express.Request, res: express.Response) {
+    if (this.sendInactivityWarningsUseCase == null) {
+      res.status(500).json({ message: 'Inactivity warnings not configured' });
+      return;
+    }
+    try {
+      const dryRun = req.query.dryRun !== 'false';
+      const result = await this.sendInactivityWarningsUseCase.execute(dryRun);
+      res.status(200).json(result);
+    } catch (error) {
+      console.error('[ops] sendInactivityWarnings failed', error);
+      res.status(500).json({ message: 'Failed to run inactivity warnings' });
     }
   }
 }
