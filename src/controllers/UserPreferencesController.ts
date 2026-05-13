@@ -9,6 +9,32 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
+function isValidTimestamp(value: unknown): value is string {
+  return typeof value === 'string' && !isNaN(Date.parse(value));
+}
+
+interface PrefsBody {
+  cardOptions?: unknown;
+  theme?: unknown;
+  ankiWebAcknowledgedAt?: unknown;
+}
+
+function validatePrefsBody(body: PrefsBody, res: Response): boolean {
+  if (body.cardOptions !== undefined && !isPlainObject(body.cardOptions)) {
+    res.status(400).json({ message: 'cardOptions must be an object.' });
+    return false;
+  }
+  if (body.theme !== undefined && typeof body.theme !== 'string') {
+    res.status(400).json({ message: 'theme must be a string.' });
+    return false;
+  }
+  if (body.ankiWebAcknowledgedAt !== undefined && !isValidTimestamp(body.ankiWebAcknowledgedAt)) {
+    res.status(400).json({ message: 'ankiWebAcknowledgedAt must be a valid ISO timestamp.' });
+    return false;
+  }
+  return true;
+}
+
 export class UserPreferencesController {
   private readonly getUseCase: GetUserPreferencesUseCase;
   private readonly patchUseCase: PatchUserPreferencesUseCase;
@@ -28,20 +54,7 @@ export class UserPreferencesController {
 
   async patch(req: Request, res: Response): Promise<void> {
     const { cardOptions, theme, ankiWebAcknowledgedAt } = req.body;
-
-    if (cardOptions !== undefined && !isPlainObject(cardOptions)) {
-      res.status(400).json({ message: 'cardOptions must be an object.' });
-      return;
-    }
-    if (theme !== undefined && typeof theme !== 'string') {
-      res.status(400).json({ message: 'theme must be a string.' });
-      return;
-    }
-    if (ankiWebAcknowledgedAt !== undefined && typeof ankiWebAcknowledgedAt !== 'string') {
-      res.status(400).json({ message: 'ankiWebAcknowledgedAt must be a string.' });
-      return;
-    }
-
+    if (!validatePrefsBody({ cardOptions, theme, ankiWebAcknowledgedAt }, res)) return;
     const userId = res.locals.owner as number;
     const prefs = await this.patchUseCase.execute({ userId, cardOptions, theme, ankiWebAcknowledgedAt });
     res.status(200).json(prefs);
@@ -49,20 +62,7 @@ export class UserPreferencesController {
 
   async migrate(req: Request, res: Response): Promise<void> {
     const { cardOptions, theme, ankiWebAcknowledgedAt } = req.body;
-
-    if (cardOptions !== undefined && !isPlainObject(cardOptions)) {
-      res.status(400).json({ message: 'cardOptions must be an object.' });
-      return;
-    }
-    if (theme !== undefined && typeof theme !== 'string') {
-      res.status(400).json({ message: 'theme must be a string.' });
-      return;
-    }
-    if (ankiWebAcknowledgedAt !== undefined && typeof ankiWebAcknowledgedAt !== 'string') {
-      res.status(400).json({ message: 'ankiWebAcknowledgedAt must be a string.' });
-      return;
-    }
-
+    if (!validatePrefsBody({ cardOptions, theme, ankiWebAcknowledgedAt }, res)) return;
     const userId = res.locals.owner as number;
     const prefs = await this.migrateUseCase.execute({ userId, cardOptions, theme, ankiWebAcknowledgedAt });
     res.status(200).json(prefs);

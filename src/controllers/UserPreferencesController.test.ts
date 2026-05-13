@@ -80,6 +80,24 @@ describe('UserPreferencesController.patch', () => {
 
     expect(res.status).toHaveBeenCalledWith(400);
   });
+
+  it('returns 400 when ankiWebAcknowledgedAt is not a valid timestamp', async () => {
+    const { controller, res } = buildMocks(1);
+    const req = { body: { ankiWebAcknowledgedAt: 'not-a-date' } } as unknown as Request;
+
+    await controller.patch(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+  });
+
+  it('accepts a valid ISO timestamp for ankiWebAcknowledgedAt', async () => {
+    const { controller, res } = buildMocks(1);
+    const req = { body: { ankiWebAcknowledgedAt: '2026-05-13T18:00:00.000Z' } } as unknown as Request;
+
+    await controller.patch(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
 });
 
 describe('UserPreferencesController.migrate', () => {
