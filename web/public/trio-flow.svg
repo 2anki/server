@@ -111,23 +111,23 @@
   ══════════════════════════════ -->
 
   <!-- Signal → PM (top spoke, down) -->
-  <line x1="360" y1="181" x2="360" y2="292"
+  <line x1="360" y1="163" x2="360" y2="242"
         stroke="#C2185B" stroke-width="1.5" stroke-dasharray="4 3"
         marker-end="url(#arrIn)" opacity="0.7"/>
 
   <!-- Engineer → Ship (bottom-left spoke) -->
-  <path d="M 310 464 Q 264 478 248 468"
+  <path d="M 300 414 Q 260 432 248 440"
         fill="none" stroke="#C2185B" stroke-width="1.5" stroke-dasharray="4 3"
         marker-end="url(#arrIn)" opacity="0.7"/>
-  <text x="272" y="458" fill="#AD1457" font-size="10"
+  <text x="266" y="425" fill="#AD1457" font-size="10"
         font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
         font-weight="500" text-anchor="middle" opacity="0.85">PR</text>
 
   <!-- Alexander → Trio (right spoke, inward) -->
-  <path d="M 450 466 Q 418 428 410 404"
+  <path d="M 446 462 Q 460 390 467 333"
         fill="none" stroke="#C2185B" stroke-width="1.5" stroke-dasharray="4 3"
         marker-end="url(#arrIn)" opacity="0.7"/>
-  <text x="446" y="440" fill="#AD1457" font-size="10"
+  <text x="456" y="422" fill="#AD1457" font-size="10"
         font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
         font-weight="500" text-anchor="middle" opacity="0.85">approve</text>
 
@@ -180,51 +180,51 @@
   <g opacity="1">
     <animate attributeName="opacity" values="1;0.82;1"
              dur="2.4s" repeatCount="indefinite"/>
-    <rect x="253" y="294" width="214" height="46" rx="8"
+    <rect x="253" y="244" width="214" height="46" rx="8"
           fill="#AD1457" stroke="#FF80AB" stroke-width="0.75"/>
-    <text x="278" y="312" dominant-baseline="central"
+    <text x="278" y="262" dominant-baseline="central"
           fill="#FFFFFF" font-size="12"
           font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
           font-weight="600">🧠 PM</text>
-    <text x="278" y="328" dominant-baseline="central"
+    <text x="278" y="278" dominant-baseline="central"
           fill="#FFB6C1" font-size="10"
           font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">/triage-feedback · /spec</text>
   </g>
 
   <!-- PM → Designer connector (14px gap gives the arrowhead room) -->
-  <line x1="360" y1="340" x2="360" y2="354"
+  <line x1="360" y1="290" x2="360" y2="304"
         stroke="#FF80AB" stroke-width="1.2" marker-end="url(#arrS)"/>
 
   <!-- Designer (breathing, offset) -->
   <g opacity="1">
     <animate attributeName="opacity" values="1;0.82;1"
              dur="2.4s" begin="0.5s" repeatCount="indefinite"/>
-    <rect x="253" y="356" width="214" height="46" rx="8"
+    <rect x="253" y="306" width="214" height="46" rx="8"
           fill="#C2185B" stroke="#FF80AB" stroke-width="0.75"/>
-    <text x="278" y="374" dominant-baseline="central"
+    <text x="278" y="324" dominant-baseline="central"
           fill="#FFFFFF" font-size="12"
           font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
           font-weight="600">🎨 Designer</text>
-    <text x="278" y="390" dominant-baseline="central"
+    <text x="278" y="340" dominant-baseline="central"
           fill="#FFB6C1" font-size="10"
           font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">/review · flows · copy</text>
   </g>
 
   <!-- Designer → Engineer connector -->
-  <line x1="360" y1="402" x2="360" y2="416"
+  <line x1="360" y1="352" x2="360" y2="366"
         stroke="#FF80AB" stroke-width="1.2" marker-end="url(#arrS)"/>
 
   <!-- Engineer (breathing, offset) -->
   <g opacity="1">
     <animate attributeName="opacity" values="1;0.82;1"
              dur="2.4s" begin="1s" repeatCount="indefinite"/>
-    <rect x="253" y="418" width="214" height="46" rx="8"
+    <rect x="253" y="368" width="214" height="46" rx="8"
           fill="#D81B60" stroke="#FF80AB" stroke-width="0.75"/>
-    <text x="278" y="436" dominant-baseline="central"
+    <text x="278" y="386" dominant-baseline="central"
           fill="#FFFFFF" font-size="12"
           font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
           font-weight="600">⚙️ Engineer</text>
-    <text x="278" y="452" dominant-baseline="central"
+    <text x="278" y="402" dominant-baseline="central"
           fill="#FFB6C1" font-size="10"
           font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif">/implement · /check · TDD</text>
   </g>
