@@ -20,6 +20,8 @@ import ApkgPreviewService from '../services/ApkgPreviewService/ApkgPreviewServic
 import { NotionService } from '../services/NotionService/NotionService';
 import { getDatabase } from '../data_layer';
 import RequireOpsAccess from './middleware/RequireOpsAccess';
+import InactivityEmailRepository from '../data_layer/InactivityEmailRepository';
+import { SendInactivityWarningsUseCase } from '../usecases/ops/SendInactivityWarningsUseCase';
 
 const OpsRouter = () => {
   const router = express.Router();
@@ -48,7 +50,8 @@ const OpsRouter = () => {
     new GetBusinessMetricsUseCase(businessMetricsService),
     new GetConversionMetricsUseCase(conversionMetricsService),
     populateShowcase,
-    showcaseRepo
+    showcaseRepo,
+    new SendInactivityWarningsUseCase(new InactivityEmailRepository(database))
   );
 
   /**
@@ -141,6 +144,34 @@ const OpsRouter = () => {
    */
   router.delete('/api/ops/showcase', RequireOpsAccess, (req, res) =>
     controller.purgeShowcase(req, res)
+  );
+
+  /**
+   * @swagger
+   * /api/ops/send-inactivity-warnings:
+   *   post:
+   *     summary: Send inactivity warning emails to dormant free accounts
+   *     description: |
+   *       Finds free users inactive for 6+ months and sends a deletion warning email.
+   *       Exempt: patreon=true (lifetime) and active Stripe subscribers.
+   *       Pass ?dryRun=false to send real emails; omit or pass ?dryRun=true to count candidates only.
+   *       Run manually — do not put on a cron until signal is validated.
+   *     tags: [Ops]
+   *     parameters:
+   *       - in: query
+   *         name: dryRun
+   *         schema:
+   *           type: string
+   *           enum: ['true', 'false']
+   *         description: Defaults to true. Pass false to actually send emails.
+   *     responses:
+   *       200:
+   *         description: Result with candidate count and dryRun flag
+   *       404:
+   *         description: Not the ops owner
+   */
+  router.post('/api/ops/send-inactivity-warnings', RequireOpsAccess, (req, res) =>
+    controller.sendInactivityWarnings(req, res)
   );
 
   return router;
