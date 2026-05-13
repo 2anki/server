@@ -5,6 +5,7 @@ import TokenRepository from '../../data_layer/TokenRepository';
 import UsersRepository from '../../data_layer/UsersRepository';
 import { configureUserLocal } from '../../routes/middleware/configureUserLocal';
 import { getIndexFileContents } from './getIndexFileContents';
+import { getDefaultEmailService } from '../../services/EmailService/EmailService';
 
 class IndexController {
   public getIndex(request: express.Request, response: express.Response) {
@@ -32,7 +33,12 @@ class IndexController {
       name,
       email,
       message,
-      attachments: JSON.stringify(attachments.map((a) => a.path)),
+      attachments: JSON.stringify(attachments.map((a) => a.originalname)),
+    });
+
+    const emailService = getDefaultEmailService();
+    emailService.sendContactEmail(name, email, message, attachments).catch((err) => {
+      console.error('Failed to send contact email notification', err);
     });
 
     return res.status(200).send();

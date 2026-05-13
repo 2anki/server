@@ -41,6 +41,7 @@ import opsRouter from './routes/OpsRouter';
 import opsDiscoveryRouter from './routes/OpsDiscoveryRouter';
 import ostRouter from './routes/OstRouter';
 import feedbackRouter from './routes/FeedbackRouter';
+import contactMessagesRouter from './routes/ContactMessagesRouter';
 import showcaseRouter from './routes/ShowcaseRouter';
 import emojiFeedbackRouter from './routes/EmojiFeedbackRouter';
 import reEngagementRouter from './routes/ReEngagementRouter';
@@ -114,6 +115,7 @@ const serve = async () => {
   app.use(opsDiscoveryRouter());
   app.use(ostRouter());
   app.use(feedbackRouter());
+  app.use(contactMessagesRouter());
   app.use(emojiFeedbackRouter());
   app.use(reEngagementRouter());
 

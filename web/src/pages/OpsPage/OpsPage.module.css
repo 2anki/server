@@ -704,3 +704,75 @@
   align-items: center;
   padding-top: 0.5rem;
 }
+
+/* Contact Messages Tab */
+.contactMessages {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.messageList {
+  list-style: none;
+  padding: 0;
+  margin: 0.75rem 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.messageCard {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+}
+
+.messageCardRead {
+  opacity: 0.65;
+}
+
+.messageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin-bottom: 0.625rem;
+}
+
+.messageName {
+  font-weight: var(--font-semibold);
+  font-size: var(--text-sm);
+  margin-right: 0.5rem;
+}
+
+.messageEmail {
+  font-size: var(--text-sm);
+  color: var(--color-primary);
+}
+
+.messageDate {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+}
+
+.messageBody {
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+  line-height: var(--leading-relaxed);
+  white-space: pre-wrap;
+  margin: 0 0 0.75rem;
+}
+
+.messageAttachments {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  margin: 0 0 0.75rem;
+}
+
+.messageActions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}

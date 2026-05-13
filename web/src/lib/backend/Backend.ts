@@ -740,4 +740,28 @@ export class Backend {
       throw new Error('Failed to submit feedback');
     }
   }
+
+  async listContactMessages(): Promise<ContactMessage[]> {
+    return get(`${this.baseURL}ops/contact-messages`);
+  }
+
+  async acknowledgeContactMessage(id: number): Promise<void> {
+    const response = await fetch(
+      `${this.baseURL}ops/contact-messages/${id}/acknowledge`,
+      { method: 'PATCH', credentials: 'include' }
+    );
+    if (!response.ok) {
+      throw new Error('Failed to acknowledge message');
+    }
+  }
+}
+
+export interface ContactMessage {
+  id: number;
+  name: string;
+  email: string;
+  message: string;
+  attachments: string | null;
+  is_acknowledged: boolean;
+  created_at: string;
 }

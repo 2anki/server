@@ -11,6 +11,7 @@ const TABS = [
   { to: '/ops/business', label: 'Business', match: (path: string) => path.startsWith('/ops/business') },
   { to: '/ops/showcase', label: 'Showcase', match: (path: string) => path.startsWith('/ops/showcase') },
   { to: '/ops/interviews', label: 'Interviews', match: (path: string) => path.startsWith('/ops/interviews') },
+  { to: '/ops/messages', label: 'Messages', match: (path: string) => path.startsWith('/ops/messages') },
 ];
 
 export default function OpsLayout() {
