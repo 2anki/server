@@ -1,62 +1,30 @@
-import type { Knex } from 'knex';
+import type { Knex } from "knex";
 
-export interface IoDraftRect {
-  id: string;
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-  label: string;
-}
+export interface IoDraftRect { x: number; y: number; w: number; h: number; label: string; }
+export interface IoDraftImage { s3Key: string; imageName: string; header: string; rects: IoDraftRect[]; }
+export interface IoDraftRow { id: string; user_id: number; name: string; mode: string; images: IoDraftImage[]; updated_at: Date; }
 
-export interface IoDraftImage {
-  s3Key: string;
-  imageName: string;
-  header: string;
-  rects: IoDraftRect[];
-}
-
-export interface IoDraftRow {
-  id: string;
-  user_id: number;
-  deck_name: string;
-  mode: string;
-  images: IoDraftImage[];
-  updated_at: Date;
-}
-
-export interface IIoDraftRepository {
-  upsert(userId: number, deckName: string, mode: string, images: IoDraftImage[]): Promise<void>;
-  findByUser(userId: number): Promise<IoDraftRow | null>;
-  deleteByUser(userId: number): Promise<void>;
-}
-
-export class IoDraftRepository implements IIoDraftRepository {
-  private readonly table = 'io_drafts';
-
+export class IoDraftRepository {
+  private readonly table = "io_drafts";
   constructor(private readonly database: Knex) {}
 
-  async upsert(userId: number, deckName: string, mode: string, images: IoDraftImage[]): Promise<void> {
-    await this.database(this.table)
-      .insert({
-        user_id: userId,
-        deck_name: deckName,
-        mode,
-        images: JSON.stringify(images),
-        updated_at: new Date(),
-      })
-      .onConflict(['user_id'])
-      .merge(['deck_name', 'mode', 'images', 'updated_at']);
+  listByUser(userId: number): Promise<Array<Pick<IoDraftRow, "id" | "name" | "mode" | "updated_at" | "images">>> {
+    return this.database<IoDraftRow>(this.table).select("id","name","mode","updated_at","images").where({user_id:userId}).orderBy("updated_at","desc");
   }
-
-  async findByUser(userId: number): Promise<IoDraftRow | null> {
-    const row = await this.database<IoDraftRow>(this.table)
-      .where({ user_id: userId })
-      .first();
-    return row ?? null;
+  getById(id: string, userId: number): Promise<IoDraftRow | undefined> {
+    return this.database<IoDraftRow>(this.table).select("*").where({id,user_id:userId}).first();
   }
-
-  async deleteByUser(userId: number): Promise<void> {
-    await this.database(this.table).where({ user_id: userId }).delete();
+  async create(userId: number, name: string, mode: string, images: IoDraftImage[]): Promise<string> {
+    const [row] = await this.database(this.table).insert({user_id:userId,name,mode,images:JSON.stringify(images)}).returning("id");
+    return typeof row === "string" ? row : (row as {id:string}).id;
+  }
+  update(id: string, userId: number, name: string, mode: string, images: IoDraftImage[]): Promise<number> {
+    return this.database(this.table).where({id,user_id:userId}).update({name,mode,images:JSON.stringify(images),updated_at:new Date()});
+  }
+  async deleteById(id: string, userId: number): Promise<IoDraftImage[]> {
+    const draft = await this.getById(id, userId);
+    if (draft == null) return [];
+    await this.database(this.table).where({id,user_id:userId}).delete();
+    return draft.images;
   }
 }
