@@ -1,9 +1,8 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 
 import useQuery from '../../lib/hooks/useQuery';
 import UploadForm from './components/UploadForm/UploadForm';
-import SettingsIcon from '../../components/icons/SettingsIcon';
+import CardOptionsRow from './components/CardOptionsRow/CardOptionsRow';
 import SettingsModal from '../../components/modals/SettingsModal/SettingsModal';
 import styles from '../../styles/shared.module.css';
 import pageStyles from './UploadPage.module.css';
@@ -75,35 +74,19 @@ export function UploadPage({ setErrorMessage }: Readonly<Props>) {
   const [showCardOptionsModal, setShowCardOptionsModal] = useState(
     forceCardOptionsOpen
   );
-  const [fileInteracted, setFileInteracted] = useState(forceCardOptionsOpen);
 
   return (
     <div className={styles.page}>
-      <header className={`${styles.pageHeader} ${styles.flexBetween}`}>
-        <div>
-          <h1 className={styles.title}>
-            {getVisibleText('upload.page.title')}
-          </h1>
-          <p className={styles.subtitle}>
-            Turn your notes into flashcards in seconds
-          </p>
-        </div>
-        {fileInteracted && (
-          <Link
-            className={styles.secondaryText}
-            to="?view=template"
-            onClick={() => setShowCardOptionsModal(true)}
-            aria-label="Card and deck options"
-            style={{ minWidth: '44px', minHeight: '44px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
-          >
-            <SettingsIcon />
-          </Link>
-        )}
+      <header className={styles.pageHeader}>
+        <h1 className={styles.title}>
+          {getVisibleText('upload.page.title')}
+        </h1>
+        <p className={styles.subtitle}>
+          Turn your notes into flashcards in seconds
+        </p>
       </header>
-      <UploadForm
-        setErrorMessage={setErrorMessage}
-        onFileSelected={() => setFileInteracted(true)}
-      />
+      <CardOptionsRow onOpen={() => setShowCardOptionsModal(true)} />
+      <UploadForm setErrorMessage={setErrorMessage} />
       <details className={styles.notificationInfo} style={{ marginTop: '1rem' }}>
         <summary style={{ cursor: 'pointer', fontWeight: 500 }}>How we handle PDFs</summary>
         <p style={{ margin: '0.5rem 0 0' }}>

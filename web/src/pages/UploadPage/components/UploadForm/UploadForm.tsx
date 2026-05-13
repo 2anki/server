@@ -30,7 +30,6 @@ interface LimitInfo {
 
 interface UploadFormProps {
   setErrorMessage: ErrorHandlerType;
-  onFileSelected?: () => void;
 }
 
 const FORMATS = ['.zip', '.html', '.md', '.pdf', '.docx', '.xlsx', '.pptx', '.csv'];
@@ -137,10 +136,7 @@ function WarningIcon({ className }: Readonly<{ className?: string }>) {
   );
 }
 
-function UploadForm({
-  setErrorMessage,
-  onFileSelected,
-}: Readonly<UploadFormProps>) {
+function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
   const [zoneState, setZoneState] = useState<ZoneState>('idle');
   const [downloadLink, setDownloadLink] = useState<string | null>(null);
   const [deckName, setDeckName] = useState('');
@@ -206,7 +202,6 @@ function UploadForm({
       const { dataTransfer } = event;
       if (dataTransfer && dataTransfer.files.length > 0) {
         fileInputRef.current!.files = dataTransfer.files;
-        onFileSelected?.();
         if (validate(dataTransfer.files)) {
           submitFiles();
         }
@@ -557,7 +552,6 @@ function UploadForm({
           required
           multiple
           onChange={() => {
-            onFileSelected?.();
             const files = fileInputRef.current?.files;
             if (files && validate(files)) {
               submitFiles();
