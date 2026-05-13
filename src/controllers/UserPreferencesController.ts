@@ -10,7 +10,7 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 }
 
 function isValidTimestamp(value: unknown): value is string {
-  return typeof value === 'string' && !isNaN(Date.parse(value));
+  return typeof value === 'string' && !Number.isNaN(Date.parse(value));
 }
 
 interface PrefsBody {

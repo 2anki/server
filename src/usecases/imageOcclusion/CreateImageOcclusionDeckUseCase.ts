@@ -97,14 +97,15 @@ export class CreateImageOcclusionDeckUseCase {
         fs.copyFileSync(imageFile.path, path.join(workspaceDir, safeName));
       }
 
-      const StorageHandler = (await import('../../lib/storage/StorageHandler')).default;
-      const storage = new StorageHandler();
-      for (const img of input.images) {
-        if (img.s3Key != null) {
+      const imagesWithS3 = input.images.filter((img) => img.s3Key != null);
+      if (imagesWithS3.length > 0) {
+        const StorageHandler = (await import('../../lib/storage/StorageHandler')).default;
+        const storage = new StorageHandler();
+        for (const img of imagesWithS3) {
           const safeName = path.basename(img.imageName);
           const dest = path.join(workspaceDir, safeName);
           if (!fs.existsSync(dest)) {
-            const s3Obj = await storage.getFileContents(img.s3Key);
+            const s3Obj = await storage.getFileContents(img.s3Key as string);
             if (s3Obj.Body != null) {
               fs.writeFileSync(dest, s3Obj.Body as Buffer);
             }

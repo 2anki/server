@@ -121,9 +121,9 @@ export class InMemoryUserPreferencesRepository implements IUserPreferencesReposi
     const next: UserPreferences = {
       cardOptions: prefs.cardOptions ?? current.cardOptions,
       theme: prefs.theme ?? current.theme,
-      ankiWebAcknowledgedAt: prefs.ankiWebAcknowledgedAt != null
-        ? laterOf(current.ankiWebAcknowledgedAt, prefs.ankiWebAcknowledgedAt)
-        : current.ankiWebAcknowledgedAt,
+      ankiWebAcknowledgedAt: prefs.ankiWebAcknowledgedAt == null
+        ? current.ankiWebAcknowledgedAt
+        : laterOf(current.ankiWebAcknowledgedAt, prefs.ankiWebAcknowledgedAt),
     };
     this.store.set(userId, next);
     return next;

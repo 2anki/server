@@ -174,9 +174,7 @@ export default function AnkifySetupPage({ backend }: Props) {
 
   const acknowledgeAnkiWebSignIn = () => {
     setSignedInAcknowledged(true);
-    try {
-      void acknowledgeAnkiWeb();
-    } catch {}
+    acknowledgeAnkiWeb().catch(() => undefined);
   };
 
   const verifySignIn = useMutation({
