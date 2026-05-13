@@ -1,8 +1,9 @@
-// Note that in the pageId null case this is a NO-op.
-// This can be refactored away but left in to reduce on regression testing.
+import { scheduleSync } from './userPreferencesSync';
+
 export const saveValueInLocalStorage = (key: string, value: string, pageId: string | null) => {
   if (pageId) {
     return;
   }
   localStorage.setItem(key, value);
+  scheduleSync();
 };

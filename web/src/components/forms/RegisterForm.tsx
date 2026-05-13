@@ -16,7 +16,7 @@ const MIN_PASSWORD_LENGTH = 8;
 
 function RegisterForm({ setErrorMessage, redirect }: Props) {
   const [email, setEmail] = useState(localStorage.getItem('email') || '');
-  const [tos, setTos] = useState(localStorage.getItem('tos') === 'true');
+  const [tos, setTos] = useState(false);
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const signupOrigin = useMemo(
@@ -101,9 +101,11 @@ function RegisterForm({ setErrorMessage, redirect }: Props) {
                 min="3"
                 max="255"
                 value={email}
-                onChange={(event) => {
-                  setEmail(event.target.value);
-                  localStorage.setItem('email', event.target.value);
+                onChange={(event) => setEmail(event.target.value)}
+                onBlur={(event) => {
+                  if (event.target.value.includes('@')) {
+                    localStorage.setItem('email', event.target.value);
+                  }
                 }}
                 type="email"
                 placeholder="Email address"
@@ -140,10 +142,7 @@ function RegisterForm({ setErrorMessage, redirect }: Props) {
                 required
                 type="checkbox"
                 checked={tos}
-                onChange={(event) => {
-                  setTos(event.target.checked);
-                  localStorage.setItem('tos', event.target.checked.toString());
-                }}
+                onChange={(event) => setTos(event.target.checked)}
               />
               <span>
                 I agree to the{' '}

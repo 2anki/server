@@ -5,9 +5,11 @@ import RequireAuthentication, {
 } from './middleware/RequireAuthentication';
 import UsersController from '../controllers/UsersControllers';
 import { EmailPreferencesController } from '../controllers/EmailPreferencesController';
+import { UserPreferencesController } from '../controllers/UserPreferencesController';
 import UsersRepository from '../data_layer/UsersRepository';
 import TokenRepository from '../data_layer/TokenRepository';
 import EmailPreferencesRepository from '../data_layer/EmailPreferencesRepository';
+import UserPreferencesRepository from '../data_layer/UserPreferencesRepository';
 import AuthenticationService from '../services/AuthenticationService';
 import { getDatabase } from '../data_layer';
 import UsersService from '../services/UsersService';
@@ -31,6 +33,9 @@ const UserRouter = () => {
   );
   const emailPreferencesController = new EmailPreferencesController(
     new EmailPreferencesRepository(database)
+  );
+  const userPreferencesController = new UserPreferencesController(
+    new UserPreferencesRepository(database)
   );
 
   // No authentication required for new password since user has reset token
@@ -604,6 +609,23 @@ const UserRouter = () => {
     (req, res) => emailPreferencesController.update(req, res)
   );
 
+  router.get(
+    '/api/users/me/preferences',
+    RequireAuthentication,
+    (req, res) => userPreferencesController.get(req, res)
+  );
+
+  router.patch(
+    '/api/users/me/preferences',
+    RequireAuthentication,
+    (req, res) => userPreferencesController.patch(req, res)
+  );
+
+  router.post(
+    '/api/users/me/preferences/migrate',
+    RequireAuthentication,
+    (req, res) => userPreferencesController.migrate(req, res)
+  );
 
   return router;
 };

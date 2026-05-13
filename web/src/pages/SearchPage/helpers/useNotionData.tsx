@@ -14,7 +14,7 @@ export default function useNotionData(
 ): NotionData & { refetch: () => void } {
   const [state, setState] = useState<NotionData>(() => ({
     loading: true,
-    workSpace: localStorage.getItem('__workspace'),
+    workSpace: null,
     connected: false,
     connectionLink: '',
   }));

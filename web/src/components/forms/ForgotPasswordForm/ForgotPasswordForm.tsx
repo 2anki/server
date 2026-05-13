@@ -56,9 +56,11 @@ function ForgotPasswordForm({ setError }: Readonly<ForgotPasswordProps>) {
                 min="3"
                 max="255"
                 value={email}
-                onChange={(event) => {
-                  setEmail(event.target.value);
-                  localStorage.setItem('email', event.target.value);
+                onChange={(event) => setEmail(event.target.value)}
+                onBlur={(event) => {
+                  if (event.target.value.includes('@')) {
+                    localStorage.setItem('email', event.target.value);
+                  }
                 }}
                 type="email"
                 placeholder="Email address"
