@@ -1,6 +1,15 @@
 #!/usr/bin/env bash
 # Claude Code status line: folder | git branch | PR | token usage
 
+RESET='\033[0m'
+DIM='\033[2m'
+CYAN='\033[36m'
+YELLOW='\033[33m'
+GREEN='\033[32m'
+RED='\033[31m'
+MAGENTA='\033[35m'
+SEP="${DIM}|${RESET}"
+
 input=$(cat)
 
 # Current folder (basename of cwd from JSON, fallback to pwd)
@@ -21,21 +30,32 @@ if [ -n "$branch" ] && command -v gh > /dev/null 2>&1; then
   pr_num=$(echo "$pr_json" | jq -r '.[0].number // empty' 2>/dev/null)
   pr_state=$(echo "$pr_json" | jq -r '.[0].state // empty' 2>/dev/null)
   if [ -n "$pr_num" ]; then
-    pr_info="PR#${pr_num}(${pr_state})"
+    case "$pr_state" in
+      OPEN)   pr_color="$GREEN" ;;
+      MERGED) pr_color="$MAGENTA" ;;
+      CLOSED) pr_color="$DIM" ;;
+      *)      pr_color="$RESET" ;;
+    esac
+    pr_info="${pr_color}PR#${pr_num}(${pr_state})${RESET}"
   fi
 fi
 
-# Token usage
-used_pct=$(echo "$input" | jq -r '.context_window.used_percentage // empty')
+# Token usage — traffic-light colouring
 tokens_part=""
+used_pct=$(echo "$input" | jq -r '.context_window.used_percentage // empty')
 if [ -n "$used_pct" ]; then
-  tokens_part=$(printf "ctx:%.0f%%" "$used_pct")
+  pct_int=$(printf "%.0f" "$used_pct")
+  if   [ "$pct_int" -ge 80 ]; then ctx_color="$RED"
+  elif [ "$pct_int" -ge 50 ]; then ctx_color="$YELLOW"
+  else                              ctx_color="$GREEN"
+  fi
+  tokens_part="${ctx_color}ctx:${pct_int}%${RESET}"
 fi
 
-# Assemble parts
-parts=("$folder")
-[ -n "$branch" ]      && parts+=("$branch")
-[ -n "$pr_info" ]     && parts+=("$pr_info")
-[ -n "$tokens_part" ] && parts+=("$tokens_part")
+# Assemble
+result="${CYAN}${folder}${RESET}"
+[ -n "$branch" ]      && result+="${SEP}${YELLOW}${branch}${RESET}"
+[ -n "$pr_info" ]     && result+="${SEP}${pr_info}"
+[ -n "$tokens_part" ] && result+="${SEP}${tokens_part}"
 
-printf '%s' "$(IFS='|'; echo "${parts[*]}")"
+printf '%b' "$result"
