@@ -47,6 +47,7 @@ const OpsLayout = lazy(() => import('./pages/OpsPage/OpsLayout'));
 const EngineeringTab = lazy(() => import('./pages/OpsPage/EngineeringTab'));
 const BusinessTab = lazy(() => import('./pages/OpsPage/BusinessTab'));
 const ShowcaseTab = lazy(() => import('./pages/OpsPage/ShowcaseTab'));
+const InterviewsTab = lazy(() => import('./pages/OpsPage/InterviewsTab'));
 const NotionToAnki = lazy(() => import('./pages/LandingPage/NotionToAnki'));
 const QuizletToAnki = lazy(() => import('./pages/LandingPage/QuizletToAnki'));
 const MarkdownToAnki = lazy(
@@ -202,6 +203,7 @@ function AppContent({
             <Route index element={<EngineeringTab />} />
             <Route path="business" element={<BusinessTab />} />
             <Route path="showcase" element={<ShowcaseTab />} />
+            <Route path="interviews" element={<InterviewsTab />} />
           </Route>
           <Route path="/settings" element={requireAuth(<AccountPage />)} />
           <Route path="/about" element={<AboutPage />} />
