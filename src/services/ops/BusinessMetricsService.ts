@@ -14,6 +14,8 @@ import {
   InMemoryCancellationFeedbackRepository,
 } from '../../data_layer/CancellationFeedbackRepository';
 import {
+  EmojiFeedbackCommentEntry,
+  EmojiFeedbackRatingCount,
   IEmojiFeedbackRepository,
   InMemoryEmojiFeedbackRepository,
 } from '../../data_layer/EmojiFeedbackRepository';
@@ -73,6 +75,8 @@ export interface BusinessMetricsResponse {
   failed_payments_weekly: FailedPaymentsWeekPoint[] | null;
   cancellation_reasons_top: CancellationReasonCount[] | null;
   cancellation_comments_recent: CancellationCommentEntry[] | null;
+  emoji_feedback_ratings: EmojiFeedbackRatingCount[] | null;
+  emoji_feedback_comments: EmojiFeedbackCommentEntry[] | null;
   as_of: string;
   cache_age_seconds: number;
   errors?: BusinessMetricError[];
@@ -295,6 +299,8 @@ export class BusinessMetricsService {
       cancellation_comments_recent: valueByKey.get(
         'cancellation_comments_recent'
       ) as CancellationCommentEntry[] | null,
+      emoji_feedback_ratings: valueByKey.get('emoji_feedback_ratings') as EmojiFeedbackRatingCount[] | null,
+      emoji_feedback_comments: valueByKey.get('emoji_feedback_comments') as EmojiFeedbackCommentEntry[] | null,
       as_of: now.toISOString(),
       cache_age_seconds: cacheAgeSeconds,
     };
