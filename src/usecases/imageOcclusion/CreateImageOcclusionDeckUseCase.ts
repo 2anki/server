@@ -12,8 +12,6 @@ export interface OcclusionRect {
   y: number;
   w: number;
   h: number;
-  imgW: number;
-  imgH: number;
   label: string;
 }
 

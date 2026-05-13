@@ -17,7 +17,7 @@ function buildInput(overrides: Partial<CreateImageOcclusionDeckInput> = {}): Cre
       {
         imageName: 'img1.jpg',
         header: '',
-        rects: [{ x: 0, y: 0, w: 10, h: 10, imgW: 100, imgH: 100, label: '' }],
+        rects: [{ x: 0, y: 0, w: 10, h: 10, label: '' }],
       },
     ],
     imageFiles: [{ name: 'img1.jpg', path: '/tmp/img1.jpg' }],
@@ -30,7 +30,7 @@ function buildFourImageInput(): CreateImageOcclusionDeckInput {
   const images = Array.from({ length: 4 }, (_, i) => ({
     imageName: `img${i}.jpg`,
     header: '',
-    rects: [{ x: 0, y: 0, w: 10, h: 10, imgW: 100, imgH: 100, label: '' }],
+    rects: [{ x: 0, y: 0, w: 10, h: 10, label: '' }],
   }));
   const imageFiles = Array.from({ length: 4 }, (_, i) => ({
     name: `img${i}.jpg`,
@@ -58,7 +58,7 @@ describe('CreateImageOcclusionDeckUseCase', () => {
       const threeImages = Array.from({ length: 3 }, (_, i) => ({
         imageName: `img${i}.jpg`,
         header: '',
-        rects: [{ x: 0, y: 0, w: 10, h: 10, imgW: 100, imgH: 100, label: '' }],
+        rects: [{ x: 0, y: 0, w: 10, h: 10, label: '' }],
       }));
       const threeFiles = Array.from({ length: 3 }, (_, i) => ({
         name: `img${i}.jpg`,
@@ -102,7 +102,7 @@ describe('CreateImageOcclusionDeckUseCase', () => {
       const manyImages = Array.from({ length: 10 }, (_, i) => ({
         imageName: `img${i}.jpg`,
         header: '',
-        rects: [{ x: 0, y: 0, w: 10, h: 10, imgW: 100, imgH: 100, label: '' }],
+        rects: [{ x: 0, y: 0, w: 10, h: 10, label: '' }],
       }));
       const manyFiles = Array.from({ length: 10 }, (_, i) => ({
         name: `img${i}.jpg`,

@@ -9,15 +9,15 @@ def float_to_display(value: float) -> str:
     return s if s else "0"
 
 
-def shapes_to_occlusion_field(shapes, img_w: int, img_h: int, occlude_inactive: bool = True) -> str:
+def shapes_to_occlusion_field(shapes, occlude_inactive: bool = True) -> str:
     lines = []
     ordinal = 1
     oi_suffix = ":oi=1" if occlude_inactive else ""
     for shape in shapes:
-        left = float_to_display(shape["x"] / img_w)
-        top = float_to_display(shape["y"] / img_h)
-        width = float_to_display(shape["w"] / img_w)
-        height = float_to_display(shape["h"] / img_h)
+        left = float_to_display(shape["x"])
+        top = float_to_display(shape["y"])
+        width = float_to_display(shape["w"])
+        height = float_to_display(shape["h"])
         lines.append(
             f"{{{{c{ordinal}::image-occlusion:rect:left={left}:top={top}:width={width}:height={height}{oi_suffix}}}}}<br>"
         )

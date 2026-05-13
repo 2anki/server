@@ -21,27 +21,21 @@ type Mode = 'hide_all' | 'hide_one';
 function buildProperFormData(
   deckName: string,
   mode: Mode,
-  entries: ImageEntry[],
-  naturalSizes: Map<string, { w: number; h: number }>
+  entries: ImageEntry[]
 ): FormData {
   const form = new FormData();
 
-  const images = entries.map((entry) => {
-    const nat = naturalSizes.get(entry.previewUrl) ?? { w: 1, h: 1 };
-    return {
-      imageName: entry.file.name,
-      header: entry.header,
-      rects: entry.rects.map((r) => ({
-        x: Math.round(r.x * nat.w),
-        y: Math.round(r.y * nat.h),
-        w: Math.round(r.w * nat.w),
-        h: Math.round(r.h * nat.h),
-        imgW: nat.w,
-        imgH: nat.h,
-        label: r.label,
-      })),
-    };
-  });
+  const images = entries.map((entry) => ({
+    imageName: entry.file.name,
+    header: entry.header,
+    rects: entry.rects.map((r) => ({
+      x: r.x,
+      y: r.y,
+      w: r.w,
+      h: r.h,
+      label: r.label,
+    })),
+  }));
 
   form.append('data', JSON.stringify({ deckName, mode, images }));
 
@@ -73,9 +67,6 @@ export function ImageOcclusionPage() {
   const [mode, setMode] = useState<Mode>('hide_all');
   const [isDownloading, setIsDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [naturalSizes] = useState<Map<string, { w: number; h: number }>>(
-    () => new Map()
-  );
 
   useEffect(() => {
     const meta = loadMeta();
@@ -160,7 +151,7 @@ export function ImageOcclusionPage() {
     setIsDownloading(true);
 
     try {
-      const formData = buildProperFormData(deckName, mode, entries, naturalSizes);
+      const formData = buildProperFormData(deckName, mode, entries);
 
       const response = await fetch('/api/image-occlusion', {
         method: 'POST',

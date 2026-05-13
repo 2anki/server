@@ -13,8 +13,6 @@ interface RawRect {
   y: unknown;
   w: unknown;
   h: unknown;
-  imgW: unknown;
-  imgH: unknown;
   label?: unknown;
 }
 
@@ -36,8 +34,6 @@ function parseRect(r: RawRect): OcclusionRect {
     y: Number(r.y),
     w: Number(r.w),
     h: Number(r.h),
-    imgW: Number(r.imgW),
-    imgH: Number(r.imgH),
     label: typeof r.label === 'string' ? r.label : '',
   };
 }

@@ -48,10 +48,7 @@ def build_io_notes(image_entry, occlude_inactive, media_files):
     if not rects:
         return []
 
-    img_w = rects[0]["imgW"]
-    img_h = rects[0]["imgH"]
-
-    occlusion_field = shapes_to_occlusion_field(rects, img_w, img_h, occlude_inactive)
+    occlusion_field = shapes_to_occlusion_field(rects, occlude_inactive)
     image_html = f'<img src="{image_basename}">'
 
     model = get_model(("io", IO_MODEL_ID, IO_MODEL_NAME, None, None, None))
