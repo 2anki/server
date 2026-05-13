@@ -4,8 +4,10 @@ import RequireAuthentication, {
   OptionalAuthentication,
 } from './middleware/RequireAuthentication';
 import UsersController from '../controllers/UsersControllers';
+import { EmailPreferencesController } from '../controllers/EmailPreferencesController';
 import UsersRepository from '../data_layer/UsersRepository';
 import TokenRepository from '../data_layer/TokenRepository';
+import EmailPreferencesRepository from '../data_layer/EmailPreferencesRepository';
 import AuthenticationService from '../services/AuthenticationService';
 import { getDatabase } from '../data_layer';
 import UsersService from '../services/UsersService';
@@ -26,6 +28,9 @@ const UserRouter = () => {
     new UsersService(new UsersRepository(database), emailService, magicTokenRepository),
     authService,
     database
+  );
+  const emailPreferencesController = new EmailPreferencesController(
+    new EmailPreferencesRepository(database)
   );
 
   // No authentication required for new password since user has reset token
@@ -579,6 +584,20 @@ const UserRouter = () => {
   router.get('/api/users/auth/google', (req, res) =>
     controller.loginWithGoogle(req, res)
   );
+
+
+  router.get(
+    '/api/users/email-preferences',
+    RequireAuthentication,
+    (req, res) => emailPreferencesController.get(req, res)
+  );
+
+  router.patch(
+    '/api/users/email-preferences',
+    RequireAuthentication,
+    (req, res) => emailPreferencesController.update(req, res)
+  );
+
 
   return router;
 };
