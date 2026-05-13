@@ -37,11 +37,13 @@ const ALLOWED_CARD_OPTION_KEYS = new Set([
   'skip-defaults',
 ]);
 
-function sanitizeCardOptions(raw: Record<string, unknown>): CardOptions {
+function sanitizeCardOptions(raw: CardOptions): CardOptions {
   const result: CardOptions = {};
   for (const key of ALLOWED_CARD_OPTION_KEYS) {
-    if (typeof raw[key] === 'string') {
-      (result as Record<string, string>)[key] = raw[key] as string;
+    const typedKey = key as keyof CardOptions;
+    const value = raw[typedKey];
+    if (typeof value === 'string') {
+      result[typedKey] = value;
     }
   }
   return result;
@@ -64,7 +66,7 @@ export class UserPreferencesRepository implements IUserPreferencesRepository {
   async patch(userId: number, prefs: Partial<UserPreferences>): Promise<UserPreferences> {
     const update: Record<string, unknown> = {};
     if (prefs.cardOptions != null) {
-      update.card_options = sanitizeCardOptions(prefs.cardOptions as Record<string, unknown>);
+      update.card_options = sanitizeCardOptions(prefs.cardOptions);
     }
     if (prefs.theme != null) {
       update.theme = prefs.theme;
@@ -79,7 +81,7 @@ export class UserPreferencesRepository implements IUserPreferencesRepository {
     const current = await this.get(userId);
     const update: Record<string, unknown> = {};
     if (prefs.cardOptions != null && current.cardOptions == null) {
-      update.card_options = sanitizeCardOptions(prefs.cardOptions as Record<string, unknown>);
+      update.card_options = sanitizeCardOptions(prefs.cardOptions);
     }
     if (prefs.theme != null && current.theme == null) {
       update.theme = prefs.theme;
@@ -111,8 +113,8 @@ export class InMemoryUserPreferencesRepository implements IUserPreferencesReposi
   async migrate(userId: number, prefs: Partial<UserPreferences>): Promise<UserPreferences> {
     const current = await this.get(userId);
     const next: UserPreferences = {
-      cardOptions: current.cardOptions == null ? (prefs.cardOptions ?? null) : current.cardOptions,
-      theme: current.theme == null ? (prefs.theme ?? null) : current.theme,
+      cardOptions: current.cardOptions ?? prefs.cardOptions ?? null,
+      theme: current.theme ?? prefs.theme ?? null,
     };
     this.store.set(userId, next);
     return next;

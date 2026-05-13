@@ -1,5 +1,4 @@
-import type { IUserPreferencesRepository, UserPreferences } from '../data_layer/UserPreferencesRepository';
-import type { CardOptions } from '../data_layer/UserPreferencesRepository';
+import type { IUserPreferencesRepository, UserPreferences, CardOptions } from '../data_layer/UserPreferencesRepository';
 
 export interface MigrateUserPreferencesInput {
   userId: number;

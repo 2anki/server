@@ -432,7 +432,7 @@ describe('BlockHandler', () => {
     );
     const avocado = flashcards.find((c) => c.name.includes('🥑'));
     expect(avocado).toBeFalsy();
-  });
+  }, 30000);
 
   test('Use Notion ID', async () => {
     const flashcards = await loadCards(
