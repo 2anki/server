@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTheme } from '../../lib/hooks/useTheme';
 import { getVisibleText } from '../../lib/text/getVisibleText';
@@ -18,9 +18,40 @@ import WrenchIcon from '../icons/WrenchIcon';
 import { ThemeSwitcher } from '../ThemeSwitcher/ThemeSwitcher';
 import styles from './AppShell.module.css';
 
+const TRIAL_DURATION_MS = 60 * 60 * 1000;
+
+function useTrialCountdown(trialStartedAt: string | null | undefined): string | null {
+  const [label, setLabel] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (trialStartedAt == null) {
+      setLabel(null);
+      return;
+    }
+    const startedAt = new Date(trialStartedAt).getTime();
+
+    function tick() {
+      const remaining = startedAt + TRIAL_DURATION_MS - Date.now();
+      if (remaining <= 0) {
+        setLabel(null);
+        return;
+      }
+      const minutes = Math.floor(remaining / 60000);
+      setLabel(`Unlimited · ${minutes}m left`);
+    }
+
+    tick();
+    const id = setInterval(tick, 60000);
+    return () => clearInterval(id);
+  }, [trialStartedAt]);
+
+  return label;
+}
+
 export interface SidebarLocals {
   patreon?: boolean;
   subscriber?: boolean;
+  trial_started_at?: string | null;
 }
 
 export interface SidebarFeatures {
@@ -95,7 +126,8 @@ export function Sidebar({
   const showKi = features?.kiUI === true;
   const showOps = features?.ops === true;
   const showAdminGroup = showKi || showOps;
-  const planLabel = getPlanLabel(locals);
+  const trialCountdown = useTrialCountdown(locals?.trial_started_at);
+  const planLabel = trialCountdown ?? getPlanLabel(locals);
 
   const handleNavClick = (
     handler?: React.MouseEventHandler<HTMLAnchorElement>

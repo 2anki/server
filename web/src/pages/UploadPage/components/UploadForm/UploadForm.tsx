@@ -1,5 +1,6 @@
 import { type SyntheticEvent, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { ErrorHandlerType } from '../../../../components/errors/helpers/getErrorMessage';
 import handleRedirect from '../../../../lib/handleRedirect';
 import getAcceptedContentTypes from '../../helpers/getAcceptedContentTypes';
@@ -9,6 +10,8 @@ import { getDownloadFileName } from '../../../DownloadsPage/helpers/getDownloadF
 import { useDrag } from './hooks/useDrag';
 import { useFileValidation } from './hooks/useFileValidation';
 import { FeedbackWidget } from '../../../../components/FeedbackWidget/FeedbackWidget';
+import { useUserLocals } from '../../../../lib/hooks/useUserLocals';
+import { get2ankiApi } from '../../../../lib/backend/get2ankiApi';
 import formStyles from './UploadForm.module.css';
 import sharedStyles from '../../../../styles/shared.module.css';
 
@@ -148,11 +151,31 @@ function UploadForm({
   const [progressWidth, setProgressWidth] = useState(10);
   const [progressSlow, setProgressSlow] = useState(false);
   const [showFallback, setShowFallback] = useState(false);
+  const [trialPending, setTrialPending] = useState(false);
+  const { data: userLocals } = useUserLocals();
+  const queryClient = useQueryClient();
+  const showTrialButton =
+    !limitInfo?.isAnonymous &&
+    userLocals?.user?.trial_started_at == null &&
+    userLocals?.locals?.patreon !== true;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const convertRef = useRef<HTMLButtonElement>(null);
   const downloadRef = useRef<HTMLAnchorElement>(null);
   const fallbackTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
   const { validation, validate, reset: resetValidation } = useFileValidation();
+
+  const handleStartTrial = async () => {
+    setTrialPending(true);
+    try {
+      const result = await get2ankiApi().startTrial();
+      if (result.ok) {
+        await queryClient.invalidateQueries({ queryKey: ['userLocals'] });
+        resetForm();
+      }
+    } finally {
+      setTrialPending(false);
+    }
+  };
 
   const submitFiles = () => {
     convertRef.current?.click();
@@ -446,6 +469,16 @@ function UploadForm({
           >
             Upgrade to continue
           </Link>
+        )}
+        {showTrialButton && (
+          <button
+            type="button"
+            className={`${sharedStyles.btnSecondary} ${sharedStyles.btnInline}`}
+            onClick={handleStartTrial}
+            disabled={trialPending}
+          >
+            {trialPending ? 'Starting trial…' : 'Start 1-hour trial'}
+          </button>
         )}
         <button
           type="button"

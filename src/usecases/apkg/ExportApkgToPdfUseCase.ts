@@ -179,12 +179,12 @@ export default class ExportApkgToPdfUseCase {
     private readonly pdfRenderService: PdfRenderService
   ) {}
 
-  async execute(fileBuffer: Buffer): Promise<ExportApkgToPdfResult> {
+  async execute(fileBuffer: Buffer, unlimitedAccess = false): Promise<ExportApkgToPdfResult> {
     const cacheKey = `pdf-export:${Date.now()}`;
     const parsed = await this.previewService.parse(cacheKey, fileBuffer);
     const meta = this.previewService.getMeta(parsed);
 
-    if (meta.totalCards > MAX_CARDS) {
+    if (!unlimitedAccess && meta.totalCards > MAX_CARDS) {
       throw new CardLimitExceededError(meta.totalCards);
     }
 

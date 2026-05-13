@@ -14,6 +14,9 @@ interface PricingPageProps {
   isLoggedIn: boolean;
   email?: string;
   hostedAnkiRequested?: boolean;
+  trialStartedAt?: string | null;
+  patreon?: boolean | null;
+  onTrialStarted?: () => void;
 }
 
 type RequestState = 'idle' | 'pending' | 'sent' | 'error';
@@ -29,6 +32,9 @@ export default function PricingPage({
   isLoggedIn,
   email,
   hostedAnkiRequested,
+  trialStartedAt,
+  patreon,
+  onTrialStarted,
 }: Readonly<PricingPageProps>) {
   const subcribeLink = isLoggedIn
     ? getSubscribeLink(email)
@@ -37,8 +43,15 @@ export default function PricingPage({
   const [hostedAnkiState, setHostedAnkiState] = useState<RequestState>(
     hostedAnkiRequested ? 'sent' : 'idle'
   );
+  const [trialState, setTrialState] = useState<RequestState>('idle');
   const [searchParams] = useSearchParams();
   const fromPaywall = searchParams.get('source') === 'paywall-cancel';
+
+  const showTrialCta =
+    isLoggedIn &&
+    patreon !== true &&
+    trialStartedAt == null &&
+    trialState !== 'sent';
 
   useEffect(() => {
     if (fromPaywall) {
@@ -57,6 +70,21 @@ export default function PricingPage({
       setHostedAnkiState('sent');
     } catch {
       setHostedAnkiState('error');
+    }
+  };
+
+  const handleStartTrial = async () => {
+    setTrialState('pending');
+    try {
+      const result = await get2ankiApi().startTrial();
+      if (result.ok) {
+        setTrialState('sent');
+        onTrialStarted?.();
+      } else {
+        setTrialState('error');
+      }
+    } catch {
+      setTrialState('error');
     }
   };
 
@@ -85,6 +113,21 @@ export default function PricingPage({
           )}
         </p>
       </div>
+
+      {showTrialCta && (
+        <div className={styles.trialCta}>
+          <button
+            type="button"
+            className={styles.trialButton}
+            onClick={handleStartTrial}
+            disabled={trialState === 'pending'}
+          >
+            {trialState === 'pending'
+              ? 'Starting trial…'
+              : 'Try Unlimited free for 1 hour — no card needed'}
+          </button>
+        </div>
+      )}
 
       <div className={styles.grid}>
         <PricingCard

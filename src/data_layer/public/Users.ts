@@ -31,6 +31,8 @@ export default interface Users {
   signup_origin: string | null;
 
   ankify_welcome_seen: boolean;
+
+  trial_started_at: Date | null;
 }
 
 /** Represents the initializer for the table public.users */
@@ -66,6 +68,8 @@ export interface UsersInitializer {
 
   /** Default value: false */
   ankify_welcome_seen?: boolean;
+
+  trial_started_at?: Date | null;
 }
 
 /** Represents the mutator for the table public.users */
@@ -95,4 +99,6 @@ export interface UsersMutator {
   signup_origin?: string | null;
 
   ankify_welcome_seen?: boolean;
+
+  trial_started_at?: Date | null;
 }
