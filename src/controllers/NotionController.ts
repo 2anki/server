@@ -72,7 +72,14 @@ class NotionController {
       return res.redirect('/notion');
     }
 
-    if (state === 'login') {
+    const stateStr = state as string | undefined;
+    if (stateStr?.startsWith('login:')) {
+      const nonce = stateStr.slice('login:'.length);
+      const expected = req.cookies?.notion_login_state as string | undefined;
+      res.clearCookie('notion_login_state');
+      if (!nonce || !expected || nonce !== expected) {
+        return res.redirect('/login?error=notion_cancelled');
+      }
       return res.redirect(`/api/users/auth/notion?code=${encodeURIComponent(code as string)}`);
     }
 

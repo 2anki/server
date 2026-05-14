@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 import express from 'express';
 
 import RequireAuthentication, {
@@ -617,12 +618,19 @@ const UserRouter = () => {
     controller.loginWithGoogle(req, res)
   );
 
-  router.get('/api/users/auth/notion/init', (_req, res) => {
+  router.get('/api/users/auth/notion/init', (req, res) => {
     const clientId = process.env.NOTION_CLIENT_ID;
     if (!clientId) {
       return res.redirect('/login?error=notion_cancelled');
     }
-    const url = `https://api.notion.com/v1/oauth/authorize?owner=user&client_id=${clientId}&response_type=code&state=login`;
+    const nonce = crypto.randomBytes(16).toString('hex');
+    res.cookie('notion_login_state', nonce, {
+      httpOnly: true,
+      sameSite: 'lax',
+      maxAge: 300_000,
+    });
+    const state = `login:${nonce}`;
+    const url = `https://api.notion.com/v1/oauth/authorize?owner=user&client_id=${clientId}&response_type=code&state=${encodeURIComponent(state)}`;
     return res.redirect(url);
   });
 
