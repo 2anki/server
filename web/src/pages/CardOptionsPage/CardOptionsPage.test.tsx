@@ -30,21 +30,21 @@ describe('CardOptionsPage per-page list', () => {
     mockApi.listSettings.mockResolvedValue({ items: [] });
   });
 
-  it('shows the per-page overrides heading on the default view', async () => {
+  it('shows the pages section heading on the default view', async () => {
     renderPage();
     await waitFor(() => {
-      expect(screen.getByText('Per-page overrides')).toBeInTheDocument();
+      expect(screen.getByText('Pages with custom options')).toBeInTheDocument();
     });
   });
 
-  it('shows empty state when no per-page overrides exist', async () => {
+  it('shows empty state when no pages have custom options', async () => {
     renderPage();
     await waitFor(() => {
-      expect(screen.getByText('No per-page overrides saved.')).toBeInTheDocument();
+      expect(screen.getByText('No pages with custom options yet.')).toBeInTheDocument();
     });
   });
 
-  it('renders a row for each saved per-page override', async () => {
+  it('renders a row for each saved per-page override linking to rules page', async () => {
     mockApi.listSettings.mockResolvedValue({
       items: [
         { pageId: 'abc-123', updatedAt: '2026-01-15T10:00:00.000Z' },
@@ -55,23 +55,23 @@ describe('CardOptionsPage per-page list', () => {
     await waitFor(() => {
       expect(screen.getByRole('link', { name: /abc-123/i })).toHaveAttribute(
         'href',
-        '/card-options?pageId=abc-123'
+        '/rules/abc-123'
       );
       expect(screen.getByRole('link', { name: /def-456/i })).toHaveAttribute(
         'href',
-        '/card-options?pageId=def-456'
+        '/rules/def-456'
       );
     });
   });
 
-  it('does not render the per-page list when viewing a specific page', async () => {
+  it('does not render the pages section when viewing a specific page', async () => {
     mockApi.listSettings.mockResolvedValue({
       items: [{ pageId: 'abc-123', updatedAt: null }],
     });
     renderPage('?pageId=abc-123');
     await waitFor(() => {
       expect(
-        screen.queryByText('Per-page overrides')
+        screen.queryByText('Pages with custom options')
       ).not.toBeInTheDocument();
     });
   });

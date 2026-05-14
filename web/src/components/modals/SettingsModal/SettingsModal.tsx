@@ -28,7 +28,7 @@ function SettingsModal({
   if (pageId) params.set('pageId', pageId);
   if (pageTitle) params.set('title', pageTitle);
   params.set('returnTo', returnTo);
-  const fullPageHref = `/settings/card-options?${params.toString()}`;
+  const fullPageHref = `/card-options?${params.toString()}`;
 
   return (
     <div className={isActive ? sharedStyles.modal : sharedStyles.modalHidden}>

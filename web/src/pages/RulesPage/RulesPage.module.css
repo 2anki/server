@@ -28,36 +28,8 @@
   min-width: 0;
 }
 
-.favoriteButton {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.5rem 1rem;
-  background: var(--color-bg-primary);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-full);
-  color: var(--color-text-secondary);
-  font-size: var(--text-sm);
-  font-weight: var(--font-medium);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  flex-shrink: 0;
-  margin-top: 0.25rem;
-}
-
-.favoriteButton:hover {
-  border-color: var(--color-warning);
-  color: var(--color-warning);
-}
-
-.favoriteButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 .favoriteActive {
   border-color: var(--color-warning);
-  background: var(--color-warning-light);
   color: var(--color-warning);
 }
 
@@ -101,16 +73,16 @@
 
 .stickyActions {
   position: sticky;
-  bottom: 0;
+  bottom: 1rem;
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
-  padding: 1rem;
-  margin: 0 -1rem;
+  padding: 0.75rem 1rem;
+  margin-top: 0.5rem;
   background: var(--color-bg-primary);
-  border-top: 1px solid var(--color-border);
-  backdrop-filter: blur(4px);
-  z-index: 5;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .actionButton {

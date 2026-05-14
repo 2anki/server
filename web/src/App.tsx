@@ -237,9 +237,7 @@ function AppContent({
           <Route path="/documentation/*" element={<DocsPage />} />
           <Route
             path="/settings/card-options"
-            element={requireAuth(
-              <CardOptionsPage setErrorMessage={setErrorMessage} />
-            )}
+            element={<Navigate to="/card-options" replace />}
           />
           <Route
             path="/card-options"
