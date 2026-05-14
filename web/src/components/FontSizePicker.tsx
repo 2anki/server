@@ -13,10 +13,7 @@ function FontSizePicker(delegate: Readonly<FontPickerDelegate>) {
       <label htmlFor="font-size">
         <strong>Font Size</strong>
       </label>
-      <div
-        className={styles.flexRow}
-        style={{ alignItems: 'center', gap: '1rem' }}
-      >
+      <div className={styles.flexRow} style={{ width: '100%', gap: '0.75rem' }}>
         <input
           id="font-size"
           name="font-size"
@@ -25,14 +22,10 @@ function FontSizePicker(delegate: Readonly<FontPickerDelegate>) {
           max="100"
           value={fontSize}
           onChange={(event) => pickedFontSize(event.target.value)}
-          style={{
-            writingMode: 'vertical-lr',
-            direction: 'rtl',
-            height: '100px',
-          }}
+          style={{ flex: 1 }}
         />
-        <span style={{ fontSize: `${fontSize}px`, overflow: 'hidden' }}>
-          {fontSize}
+        <span style={{ minWidth: '3rem', textAlign: 'right', fontSize: 'var(--text-sm)' }}>
+          {fontSize}px
         </span>
       </div>
     </div>
