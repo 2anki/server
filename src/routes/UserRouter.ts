@@ -618,6 +618,17 @@ const UserRouter = () => {
     controller.loginWithGoogle(req, res)
   );
 
+  /**
+   * @swagger
+   * /api/users/auth/notion/init:
+   *   get:
+   *     summary: Initiate Notion OAuth login
+   *     description: Redirects to Notion OAuth authorization page. Sets a short-lived nonce cookie to prevent account fixation.
+   *     tags: [Authentication]
+   *     responses:
+   *       302:
+   *         description: Redirect to Notion OAuth
+   */
   router.get('/api/users/auth/notion/init', (req, res) => {
     const clientId = process.env.NOTION_CLIENT_ID;
     if (!clientId) {
@@ -634,6 +645,24 @@ const UserRouter = () => {
     return res.redirect(url);
   });
 
+  /**
+   * @swagger
+   * /api/users/auth/notion:
+   *   get:
+   *     summary: Notion OAuth callback
+   *     description: Exchanges the Notion OAuth code for a session. Upserts the user by email, mints a JWT, and saves the Notion workspace token.
+   *     tags: [Authentication]
+   *     parameters:
+   *       - in: query
+   *         name: code
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: Authorization code from Notion OAuth
+   *     responses:
+   *       302:
+   *         description: Redirect to home on success, or /login?error=notion_cancelled on failure
+   */
   router.get('/api/users/auth/notion', (req, res) =>
     controller.loginWithNotion(req, res)
   );
