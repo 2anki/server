@@ -546,7 +546,7 @@ class UsersController {
     await notionRepository.saveNotionToken(user.id, accessData, hashToken);
 
     res.cookie('token', token);
-    return res.status(200).redirect(getRedirect(req));
+    return res.status(200).redirect('/notion');
   }
 
   async requestMagicLink(
