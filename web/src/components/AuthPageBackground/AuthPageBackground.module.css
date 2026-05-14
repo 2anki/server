@@ -28,12 +28,7 @@
   }
 
   .overlay {
-    display: block;
-    position: fixed;
-    inset: 0;
-    z-index: 2;
-    background: rgba(255, 255, 255, 0.55);
-    pointer-events: none;
+    display: none;
   }
 
   .content {
