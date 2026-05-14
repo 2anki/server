@@ -168,13 +168,14 @@ class AuthenticationService {
   } | null> {
     const clientId = process.env.NOTION_CLIENT_ID;
     const clientSecret = process.env.NOTION_CLIENT_SECRET;
-    if (!clientId || !clientSecret) return null;
+    const redirectUri = process.env.NOTION_REDIRECT_URI;
+    if (!clientId || !clientSecret || !redirectUri) return null;
 
     try {
       const result = await instrumentedAxios.post<{ [key: string]: unknown }>(
         'notion',
         'https://api.notion.com/v1/oauth/token',
-        { grant_type: 'authorization_code', code },
+        { grant_type: 'authorization_code', code, redirect_uri: redirectUri },
         {
           auth: { username: clientId, password: clientSecret },
           headers: { 'Content-Type': 'application/json' },
