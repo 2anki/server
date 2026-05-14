@@ -1,10 +1,11 @@
+import { FieldHint } from '../../../components/FieldHint';
+import sharedStyles from '../../../styles/shared.module.css';
 import FlashcardType from './FlashcardType';
-import styles from '../../../styles/shared.module.css';
-import rulesStyles from './Rules.module.css';
+import styles from './Rules.module.css';
 
 interface RuleDefinitionProps {
-  description: string;
   title: string;
+  hint: string;
   options: string[];
   value: string[];
   onSelected: (value: string) => void;
@@ -12,16 +13,18 @@ interface RuleDefinitionProps {
 
 export default function RuleDefinition({
   title,
+  hint,
   options,
   value,
   onSelected,
-  description,
 }: Readonly<RuleDefinitionProps>) {
   return (
-    <details className={rulesStyles.details} open>
-      <summary>{title}</summary>
-      <p className={styles.smallDescription}>{description}</p>
-      <div className={styles.flexWrap}>
+    <>
+      <div className={styles.groupHeader}>
+        <h2 className={styles.groupHeading}>{title}</h2>
+        <FieldHint text={hint} />
+      </div>
+      <div className={sharedStyles.flexWrap}>
         {options.map((fco) => (
           <FlashcardType
             key={fco}
@@ -31,6 +34,6 @@ export default function RuleDefinition({
           />
         ))}
       </div>
-    </details>
+    </>
   );
 }

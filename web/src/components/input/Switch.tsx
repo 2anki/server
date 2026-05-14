@@ -9,17 +9,18 @@ interface SwitchProps {
 
 function Switch({ title, id, checked, onSwitched }: Readonly<SwitchProps>) {
   return (
-    <label htmlFor={id} className={styles.switchField}>
+    <div className={styles.checkboxControl}>
       <input
         id={id}
         type="checkbox"
         name={id}
-        className="switch"
         checked={checked}
         onChange={() => onSwitched()}
       />
-      {title}
-    </label>
+      <label htmlFor={id} className={styles.checkboxLabel}>
+        {title}
+      </label>
+    </div>
   );
 }
 
