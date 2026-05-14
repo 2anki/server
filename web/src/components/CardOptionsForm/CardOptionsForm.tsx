@@ -101,6 +101,16 @@ const PREMIUM_KEYS = new Set([
   'image-quiz-html-to-anki',
 ]);
 
+// REVIEW: common/advanced split — adjust based on actual usage data
+const COMMON_KEYS: Record<string, string[]> = {
+  'Content':            ['all', 'max-one-toggle-per-card'],
+  'Card types':         ['cloze'],
+  'Filtering':          ['tags', 'disable-indented-bullets'],
+  'Links & formatting': ['use-notion-id', 'no-underline'],
+  'PDF & AI':           ['process-pdfs'],
+  'Debugging':          [],
+};
+
 function computeSnapshot(values: {
   deckName: string;
   fontSize: string;
@@ -377,6 +387,9 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
       );
     }
 
+    const isDirty =
+      initialSnapshot !== null && currentSnapshot !== initialSnapshot;
+
     const optionsByKey = Object.fromEntries(
       (options ?? []).map((o: CardOption) => [o.key, o])
     );
@@ -411,8 +424,8 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
 
     return (
       <div className={fieldStyles.form}>
-        {!hideActions && (
-          <div className={fieldStyles.stickyActions}>
+        {!hideActions && isDirty && (
+          <div className={fieldStyles.saveBar}>
             <button
               type="button"
               className={`${sharedStyles.btnSecondary} ${fieldStyles.actionButton}`}
@@ -459,7 +472,7 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
               Page icon
             </label>
             <p className={fieldStyles.sectionHint}>
-              Control whether to use the Notion page icon and its position.
+              Whether to include the Notion page icon and where to place it.
             </p>
             <TemplateSelect
               values={[
@@ -477,22 +490,14 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
           </div>
 
           <div className={fieldStyles.section}>
-            <p className={fieldStyles.sectionHint}>
-              <strong>How toggles become cards:</strong> each toggle&apos;s
-              header is the front of a card, its contents the back. A nested
-              toggle becomes its own card.
-            </p>
-          </div>
-
-          <div className={fieldStyles.section}>
             <label htmlFor="toggle-mode" className={fieldStyles.sectionLabel}>
               Toggle mode
             </label>
             <p className={fieldStyles.sectionHint}>
-              Controls how nested toggles render on the back of a card.{' '}
-              <em>Open nested toggles</em> shows their contents expanded;{' '}
-              <em>Close nested toggles</em> keeps them collapsed so you can
-              reveal them one at a time while reviewing.
+              Toggle header = card front; contents = card back. Nested toggles
+              become their own cards.{' '}
+              <em>Open</em> expands nested toggle contents;{' '}
+              <em>Close</em> keeps them collapsed for step-by-step review.
             </p>
             <TemplateSelect
               values={[
@@ -533,23 +538,44 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
             .filter(Boolean);
           if (groupOptions.length === 0) return null;
 
+          const commonSet = new Set(COMMON_KEYS[group.label] ?? []);
+          const commonOpts = groupOptions.filter((o) => commonSet.has(o.key));
+          const advancedOpts = groupOptions.filter((o) => !commonSet.has(o.key));
           const isPdfAiGroup = group.label === 'PDF & AI';
+          const hasSplit = commonOpts.length > 0 && advancedOpts.length > 0;
+
+          const renderCheckbox = (o: CardOption) => (
+            <LocalCheckbox
+              key={o.key}
+              defaultValue={checkboxValues[o.key] ?? false}
+              label={o.label}
+              description={o.description}
+              onChecked={(checked) => toggleCheckbox(o.key, checked)}
+              badge={PREMIUM_KEYS.has(o.key) ? 'Premium' : undefined}
+            />
+          );
+
+          const visibleOpts = hasSplit ? commonOpts : groupOptions;
 
           return (
             <div key={group.label} className={fieldStyles.optionGroup}>
               <h3 className={fieldStyles.groupHeading}>{group.label}</h3>
               <div className={fieldStyles.groupOptions}>
-                {groupOptions.map((o: CardOption) => (
-                  <LocalCheckbox
-                    key={o.key}
-                    defaultValue={checkboxValues[o.key] ?? false}
-                    label={o.label}
-                    description={o.description}
-                    onChecked={(checked) => toggleCheckbox(o.key, checked)}
-                    badge={PREMIUM_KEYS.has(o.key) ? 'Premium' : undefined}
-                  />
-                ))}
-                {isPdfAiGroup && userInstructionsDisclosure}
+                {visibleOpts.map(renderCheckbox)}
+
+                {hasSplit && (
+                  <details className={fieldStyles.advancedDisclosure}>
+                    <summary className={fieldStyles.advancedSummary}>
+                      Advanced options
+                    </summary>
+                    <div className={fieldStyles.advancedOptions}>
+                      {advancedOpts.map(renderCheckbox)}
+                      {isPdfAiGroup && userInstructionsDisclosure}
+                    </div>
+                  </details>
+                )}
+
+                {!hasSplit && isPdfAiGroup && userInstructionsDisclosure}
               </div>
             </div>
           );
