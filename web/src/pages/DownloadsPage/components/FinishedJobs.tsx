@@ -9,6 +9,7 @@ import DownloadIcon from '../../../components/icons/DownloadIcon';
 import EyeIcon from '../../../components/icons/EyeIcon';
 import TrashIcon from '../../../components/icons/TrashIcon';
 import SendToAnkifyButton from './SendToAnkifyButton';
+import { fireAnalyticsEvent } from '../../../lib/analytics/fireAnalyticsEvent';
 import styles from '../DownloadsPage.module.css';
 import sharedStyles from '../../../styles/shared.module.css';
 
@@ -96,6 +97,7 @@ export function FinishedJobs({ uploads, deleteUpload, doneJobs = [], deleteJob }
                       className={styles.iconButton}
                       aria-label={`Download ${j.title}`}
                       title="Download"
+                      onClick={() => fireAnalyticsEvent('deck_downloaded')}
                     >
                       <DownloadIcon width={18} height={18} />
                     </a>
@@ -144,6 +146,7 @@ export function FinishedJobs({ uploads, deleteUpload, doneJobs = [], deleteJob }
                       className={styles.iconButton}
                       aria-label={`Download ${u.filename}`}
                       title="Download"
+                      onClick={() => fireAnalyticsEvent('deck_downloaded')}
                     >
                       <DownloadIcon width={18} height={18} />
                     </a>
