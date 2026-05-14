@@ -1,5 +1,7 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Disallow: /rules/
+Disallow: /notion
+Disallow: /favorites
 
 Sitemap: https://2anki.net/sitemap.xml
