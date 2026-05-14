@@ -4,8 +4,10 @@ import AuthenticationService from './AuthenticationService';
 import TokenRepository from '../data_layer/TokenRepository';
 import UsersRepository from '../data_layer/UsersRepository';
 import instrumentedAxios from './observability/instrumentedAxios';
+import { OAuth2Client } from 'google-auth-library';
 
 jest.mock('./observability/instrumentedAxios');
+jest.mock('google-auth-library');
 
 const SECRET = 'test-secret';
 
@@ -113,6 +115,79 @@ describe('loginWithNotion', () => {
 
     process.env.NOTION_CLIENT_ID = originalId;
     expect(result).toBeNull();
+  });
+});
+
+describe('loginWithGoogle', () => {
+  const MockedOAuth2Client = OAuth2Client as jest.MockedClass<typeof OAuth2Client>;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    process.env.GOOGLE_CLIENT_ID = 'test-google-client-id';
+    process.env.GOOGLE_CLIENT_SECRET = 'test-google-client-secret';
+    process.env.GOOGLE_REDIRECT_URI = 'http://localhost:2020/api/auth/google';
+  });
+
+  it('returns email and name when the ID token is valid', async () => {
+    mockedAxios.post = jest.fn().mockResolvedValue({
+      data: { id_token: 'valid.id.token' },
+    });
+
+    const mockGetPayload = jest.fn().mockReturnValue({
+      email: 'user@example.com',
+      name: 'Test User',
+    });
+    MockedOAuth2Client.prototype.verifyIdToken = jest.fn().mockResolvedValue({
+      getPayload: mockGetPayload,
+    });
+
+    const service = createService();
+    const result = await service.loginWithGoogle('auth-code');
+
+    expect(result).toEqual({ email: 'user@example.com', name: 'Test User' });
+    expect(MockedOAuth2Client.prototype.verifyIdToken).toHaveBeenCalledWith({
+      idToken: 'valid.id.token',
+      audience: 'test-google-client-id',
+    });
+  });
+
+  it('returns undefined when the ID token fails verification', async () => {
+    mockedAxios.post = jest.fn().mockResolvedValue({
+      data: { id_token: 'tampered.token' },
+    });
+
+    MockedOAuth2Client.prototype.verifyIdToken = jest
+      .fn()
+      .mockRejectedValue(new Error('Token used too late'));
+
+    const service = createService();
+    const result = await service.loginWithGoogle('auth-code');
+
+    expect(result).toBeUndefined();
+  });
+
+  it('returns undefined when the audience claim does not match', async () => {
+    mockedAxios.post = jest.fn().mockResolvedValue({
+      data: { id_token: 'wrong.audience.token' },
+    });
+
+    MockedOAuth2Client.prototype.verifyIdToken = jest
+      .fn()
+      .mockRejectedValue(new Error('Wrong recipient'));
+
+    const service = createService();
+    const result = await service.loginWithGoogle('auth-code');
+
+    expect(result).toBeUndefined();
+  });
+
+  it('returns undefined when the token exchange call fails', async () => {
+    mockedAxios.post = jest.fn().mockRejectedValue(new Error('network error'));
+
+    const service = createService();
+    const result = await service.loginWithGoogle('auth-code');
+
+    expect(result).toBeUndefined();
   });
 });
 

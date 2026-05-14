@@ -3,6 +3,7 @@ import crypto from 'crypto';
 
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import { OAuth2Client } from 'google-auth-library';
 
 import TokenRepository from '../data_layer/TokenRepository';
 import UsersRepository from '../data_layer/UsersRepository';
@@ -222,13 +223,15 @@ class AuthenticationService {
         }
       );
       const idToken = result.data.id_token;
-      const decoded = jwt.decode(idToken)!;
-
+      const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+      const ticket = await client.verifyIdToken({
+        idToken,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+      const payload = ticket.getPayload();
       return {
-        // @ts-ignore
-        email: decoded.email,
-        // @ts-ignore
-        name: decoded.name,
+        email: payload?.email,
+        name: payload?.name,
       };
     } catch (error) {
       console.info("Couldn't login with Google");

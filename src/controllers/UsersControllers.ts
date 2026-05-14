@@ -474,14 +474,14 @@ class UsersController {
     const loginRequest = await this.authService.loginWithGoogle(code as string);
 
     if (loginRequest) {
-      /**
-       * now create a new user if the user does not exist
-       */
       const { email, name } = loginRequest;
+      if (email == null) {
+        return res.redirect('/login');
+      }
       let user = await this.userService.getUserFrom(email);
       if (!user) {
         const hashedPassword = this.authService.getHashPassword(getRandomUUID());
-        await this.userService.register(name, hashedPassword, email, null, true);
+        await this.userService.register(name ?? email, hashedPassword, email, null, true);
         user = await this.userService.getUserFrom(email);
       }
 
