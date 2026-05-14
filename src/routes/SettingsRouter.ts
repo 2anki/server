@@ -241,6 +241,48 @@ const SettingsRouter = () => {
     res.json(defaultOptions);
   });
 
+  /**
+   * @swagger
+   * /api/settings/list:
+   *   get:
+   *     summary: List per-page settings
+   *     description: Retrieve all per-page setting overrides for the authenticated user, including page title and last-updated timestamp.
+   *     tags: [Settings]
+   *     security:
+   *       - bearerAuth: []
+   *       - cookieAuth: []
+   *     responses:
+   *       200:
+   *         description: Per-page settings retrieved successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 items:
+   *                   type: array
+   *                   items:
+   *                     type: object
+   *                     properties:
+   *                       pageId:
+   *                         type: string
+   *                         description: Notion page ID
+   *                       title:
+   *                         type: string
+   *                         nullable: true
+   *                         description: Page title resolved from Notion, if known
+   *                       updatedAt:
+   *                         type: string
+   *                         nullable: true
+   *                         format: date-time
+   *                         description: Timestamp of the most recent override save
+   *       401:
+   *         description: Authentication required
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   */
   router.get('/api/settings/list', RequireAuthentication, (req, res) =>
     controller.listSettings(req, res)
   );
