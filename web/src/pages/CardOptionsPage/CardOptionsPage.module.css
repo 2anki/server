@@ -45,7 +45,7 @@
   background: var(--color-bg-primary);
   border-radius: var(--radius-lg);
   padding: 1.5rem;
-  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border);
 }
 
 .pagesHeading {
@@ -129,12 +129,6 @@
   text-overflow: ellipsis;
 }
 
-.entryTitleMuted {
-  font-weight: var(--font-normal);
-  color: var(--color-text-secondary);
-  font-family: var(--font-mono, monospace);
-  font-size: var(--text-xs);
-}
 
 .entryMeta:hover .entryTitle {
   color: var(--color-primary);
