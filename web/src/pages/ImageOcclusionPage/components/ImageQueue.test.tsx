@@ -15,7 +15,7 @@ function makeEntry(i: number): ImageEntry {
   };
 }
 
-function renderQueue(entries: ImageEntry[], isPaying: boolean) {
+function renderQueue(entries: ImageEntry[], isPaying: boolean, isNotionConnected = false) {
   return render(
     <MemoryRouter>
       <ImageQueue
@@ -26,6 +26,8 @@ function renderQueue(entries: ImageEntry[], isPaying: boolean) {
         onRemove={vi.fn()}
         onHeaderChange={vi.fn()}
         isPaying={isPaying}
+        isNotionConnected={isNotionConnected}
+        onImportFromNotion={vi.fn()}
       />
     </MemoryRouter>
   );
@@ -34,13 +36,13 @@ function renderQueue(entries: ImageEntry[], isPaying: boolean) {
 describe('ImageQueue', () => {
   it('shows the add button when under the free tier limit', () => {
     renderQueue([makeEntry(0), makeEntry(1)], false);
-    expect(screen.getByText('+ Add images')).toBeTruthy();
+    expect(screen.getByText('+ Upload images')).toBeTruthy();
   });
 
   it('disables the add button and shows upgrade notice at exactly the free tier limit', () => {
     const entries = [makeEntry(0), makeEntry(1), makeEntry(2)];
     renderQueue(entries, false);
-    const addBtn = screen.getByText('+ Add images');
+    const addBtn = screen.getByText('+ Upload images');
     expect(addBtn).toBeTruthy();
     expect((addBtn as HTMLButtonElement).disabled).toBe(true);
     expect(screen.getByText(/free plan/)).toBeTruthy();
@@ -49,14 +51,14 @@ describe('ImageQueue', () => {
   it('shows the add button for paying users even at 3 images', () => {
     const entries = [makeEntry(0), makeEntry(1), makeEntry(2)];
     renderQueue(entries, true);
-    expect(screen.getByText('+ Add images')).toBeTruthy();
+    expect(screen.getByText('+ Upload images')).toBeTruthy();
     expect(screen.queryByText(/Free accounts/)).toBeNull();
   });
 
   it('shows the add button for paying users with many images', () => {
     const entries = Array.from({ length: 10 }, (_, i) => makeEntry(i));
     renderQueue(entries, true);
-    expect(screen.getByText('+ Add images')).toBeTruthy();
+    expect(screen.getByText('+ Upload images')).toBeTruthy();
   });
 
   it('shows upgrade link pointing to /pricing', () => {

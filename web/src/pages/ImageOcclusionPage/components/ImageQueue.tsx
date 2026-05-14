@@ -11,6 +11,8 @@ interface Props {
   onRemove: (id: string) => void;
   onHeaderChange: (i: number, header: string) => void;
   isPaying: boolean;
+  isNotionConnected: boolean;
+  onImportFromNotion: () => void;
 }
 
 const FREE_TIER_LIMIT = 3;
@@ -23,6 +25,8 @@ export function ImageQueue({
   onRemove,
   onHeaderChange,
   isPaying,
+  isNotionConnected,
+  onImportFromNotion,
 }: Readonly<Props>) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const atLimit = !isPaying && entries.length >= FREE_TIER_LIMIT;
@@ -67,15 +71,21 @@ export function ImageQueue({
             <button
               type="button"
               className={styles.queueThumbBtn}
-              onClick={() => onSelect(i)}
-              aria-label={`Select image ${i + 1}: ${entry.imageName}`}
+              onClick={() => !entry.uploading && onSelect(i)}
+              disabled={entry.uploading}
+              aria-busy={entry.uploading || undefined}
+              aria-label={entry.uploading ? `Importing ${entry.imageName}` : `Select image ${i + 1}: ${entry.imageName}`}
             >
-              <img
-                src={entry.previewUrl}
-                alt={entry.imageName}
-                className={styles.queueThumb}
-              />
-              {entry.rects.length > 0 && (
+              {entry.uploading ? (
+                <div className={styles.queueThumbSkeleton} />
+              ) : (
+                <img
+                  src={entry.previewUrl}
+                  alt={entry.imageName}
+                  className={styles.queueThumb}
+                />
+              )}
+              {entry.rects.length > 0 && !entry.uploading && (
                 <span className={styles.queueBadge}>
                   {entry.rects.length} {entry.rects.length === 1 ? 'box' : 'boxes'}
                 </span>
@@ -109,8 +119,27 @@ export function ImageQueue({
         title={atLimit ? 'Upgrade to add more images' : undefined}
         aria-disabled={atLimit}
       >
-        + Add images
+        + Upload images
       </button>
+      {isNotionConnected && (
+        <button
+          type="button"
+          className={styles.addBtn}
+          onClick={() => !atLimit && onImportFromNotion()}
+          disabled={atLimit}
+          title={atLimit ? 'Upgrade to add more images' : 'Pick a page, pick the images'}
+          aria-disabled={atLimit}
+        >
+          <img
+            src="/icons/Notion_app_logo.png"
+            alt=""
+            width={14}
+            height={14}
+            style={{ verticalAlign: 'middle', marginRight: '0.375rem', opacity: 0.8 }}
+          />
+          Import from Notion
+        </button>
+      )}
       <input
         ref={fileInputRef}
         type="file"

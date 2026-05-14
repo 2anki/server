@@ -5,6 +5,7 @@ import ImageOcclusionController from "../controllers/ImageOcclusionController";
 import { IoDraftController } from "../controllers/IoDraftController";
 import { CreateImageOcclusionDeckUseCase } from "../usecases/imageOcclusion/CreateImageOcclusionDeckUseCase";
 import { IoDraftRepository } from "../data_layer/IoDraftRepository";
+import NotionRepository from "../data_layer/NotionRespository";
 import { getDatabase } from "../data_layer";
 import StorageHandler from "../lib/storage/StorageHandler";
 
@@ -13,7 +14,7 @@ const ImageOcclusionRouter = () => {
   const ALLOWED = ["image/jpeg","image/png","image/webp","image/gif"];
   const upload = multer({ dest:"/tmp", fileFilter:(_req,file,cb)=>{ cb(null,ALLOWED.includes(file.mimetype)); }, limits:{fileSize:10*1024*1024} });
   const oc = new ImageOcclusionController(new CreateImageOcclusionDeckUseCase());
-  const dc = new IoDraftController(new IoDraftRepository(getDatabase()), new StorageHandler());
+  const dc = new IoDraftController(new IoDraftRepository(getDatabase()), new StorageHandler(), new NotionRepository(getDatabase()));
 
   /**
    * @swagger
@@ -170,6 +171,36 @@ const ImageOcclusionRouter = () => {
    *         description: Authentication required
    */
   router.delete("/api/image-occlusion/draft/:id", RequireAuthentication, (req,res)=>dc.remove(req,res));
+
+  /**
+   * @swagger
+   * /api/image-occlusion/draft/notion-image:
+   *   post:
+   *     summary: Import images from Notion blocks into an occlusion draft
+   *     tags: [ImageOcclusion]
+   *     security:
+   *       - bearerAuth: []
+   *       - cookieAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               blockIds:
+   *                 type: array
+   *                 items:
+   *                   type: string
+   *     responses:
+   *       200:
+   *         description: Array of uploaded images with s3Key and presignedUrl
+   *       400:
+   *         description: Invalid blockIds
+   *       401:
+   *         description: Authentication required or Notion not connected
+   */
+  router.post("/api/image-occlusion/draft/notion-image", RequireAuthentication, express.json(), (req,res)=>dc.importFromNotion(req,res));
 
   return router;
 };
