@@ -22,13 +22,16 @@ function formatUpdatedAt(value: string | null): string | null {
   if (Number.isNaN(date.getTime())) return null;
   const diffMs = Date.now() - date.getTime();
   const diffMin = Math.floor(diffMs / 60_000);
-  if (diffMin < 1) return 'Updated a moment ago';
-  if (diffMin < 60) return `Updated ${diffMin} minute${diffMin === 1 ? '' : 's'} ago`;
+  if (diffMin < 1) return 'a moment ago';
+  if (diffMin < 60) return `${diffMin} minute${diffMin === 1 ? '' : 's'} ago`;
   const diffHours = Math.floor(diffMin / 60);
-  if (diffHours < 24) return `Updated ${diffHours} hour${diffHours === 1 ? '' : 's'} ago`;
+  if (diffHours < 24) return `${diffHours} hour${diffHours === 1 ? '' : 's'} ago`;
   const diffDays = Math.floor(diffHours / 24);
-  if (diffDays < 7) return `Updated ${diffDays} day${diffDays === 1 ? '' : 's'} ago`;
-  return `Updated ${date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+  if (diffDays < 30) return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`;
+  const diffMonths = Math.floor(diffDays / 30);
+  if (diffMonths < 12) return `${diffMonths} month${diffMonths === 1 ? '' : 's'} ago`;
+  const diffYears = Math.floor(diffMonths / 12);
+  return `${diffYears} year${diffYears === 1 ? '' : 's'} ago`;
 }
 
 export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
@@ -78,7 +81,7 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
       </header>
 
       {pageId == null && (
-        <section className={styles.pagesSection}>
+        <section className={`${styles.pagesSection} ${styles.pagesCard}`}>
           <div className={styles.sectionHead}>
             <div>
               <h2 className={sharedStyles.sectionHeading}>Pages with custom options</h2>
@@ -128,7 +131,7 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
                             {displayTitle}
                           </span>
                           {updatedLabel && (
-                            <span className={styles.entryTimestamp}>{updatedLabel}</span>
+                            <span className={styles.entryTimestamp}>Updated {updatedLabel}</span>
                           )}
                         </div>
                       </Link>
