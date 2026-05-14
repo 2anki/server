@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useUserLocals } from '../../lib/hooks/useUserLocals';
 import { get, post } from '../../lib/backend/api';
 import SendIcon from '../../components/icons/SendIcon';
+import AssistantMarkdown from './AssistantMarkdown';
 import CardPreview from './CardPreview';
 import styles from './ChatPage.module.css';
 
@@ -185,7 +186,7 @@ export default function ChatPage() {
               {m.role === 'assistant' && (
                 <>
                   {m.contentBefore != null && (
-                    <div className={styles.assistantText}>{m.contentBefore}</div>
+                    <AssistantMarkdown>{m.contentBefore}</AssistantMarkdown>
                   )}
                   {m.cards != null && m.cards.length > 0 && (
                     <CardPreview
@@ -194,10 +195,10 @@ export default function ChatPage() {
                     />
                   )}
                   {m.contentAfter != null && (
-                    <div className={styles.assistantText}>{m.contentAfter}</div>
+                    <AssistantMarkdown>{m.contentAfter}</AssistantMarkdown>
                   )}
                   {m.cards == null && (
-                    <div className={styles.assistantText}>{m.content}</div>
+                    <AssistantMarkdown>{m.content}</AssistantMarkdown>
                   )}
                 </>
               )}
