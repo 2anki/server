@@ -67,6 +67,7 @@ const ImageOcclusionPage = lazy(() =>
     default: m.ImageOcclusionPage,
   }))
 );
+const ChatPage = lazy(() => import('./pages/Chat/ChatPage'));
 
 const queryClient = new QueryClient();
 
@@ -138,6 +139,7 @@ function AppContent({
           />
           <Route path="/print" element={<PrintPage />} />
           <Route path="/image-occlusion" element={<ImageOcclusionPage />} />
+          <Route path="/chat" element={requireAuth(<ChatPage />)} />
           <Route
             path="/register"
             element={<RegisterPage setErrorMessage={setErrorMessage} />}

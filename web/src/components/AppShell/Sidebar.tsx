@@ -8,6 +8,7 @@ import ArrowRightIcon from '../icons/ArrowRightIcon';
 import ArrowRightOnRectangleIcon from '../icons/ArrowRightOnRectangleIcon';
 import ArrowUpTrayIcon from '../icons/ArrowUpTrayIcon';
 import BookOpenIcon from '../icons/BookOpenIcon';
+import ChatBubbleIcon from '../icons/ChatBubbleIcon';
 import RectangleGroupIcon from '../icons/RectangleGroupIcon';
 import LayersIcon from '../icons/LayersIcon';
 import CommandLineIcon from '../icons/CommandLineIcon';
@@ -185,6 +186,15 @@ export function Sidebar({
             icon={RectangleGroupIcon}
           >
             Image Occlusion
+          </SidebarRow>
+          <SidebarRow
+            href="/chat"
+            pathname={pathname}
+            matchPrefix={false}
+            onClick={handleNavClick()}
+            icon={ChatBubbleIcon}
+          >
+            Chat
           </SidebarRow>
           {paying && (
             <SidebarRow
