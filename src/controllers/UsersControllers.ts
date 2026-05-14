@@ -478,7 +478,7 @@ class UsersController {
       let user = await this.userService.getUserFrom(email);
       if (!user) {
         const hashedPassword = this.authService.getHashPassword(getRandomUUID());
-        await this.userService.register(name, hashedPassword, email);
+        await this.userService.register(name, hashedPassword, email, null, true);
         user = await this.userService.getUserFrom(email);
       }
 
@@ -488,6 +488,8 @@ class UsersController {
           .status(400)
           .send('Unknown error. Please try again or register a new account.');
       }
+
+      await this.userService.markEmailVerified(user.id.toString());
 
       const token = await this.authService.newJWTToken(user);
       if (!token) {
@@ -508,7 +510,7 @@ class UsersController {
   async requestMagicLink(
     req: express.Request,
     res: express.Response,
-    _next: express.NextFunction
+    next: express.NextFunction
   ) {
     const { email, purpose: rawPurpose } = req.body;
     const purpose = rawPurpose ?? 'login';
@@ -523,9 +525,10 @@ class UsersController {
     try {
       await this.userService.requestMagicLink(email.trim(), purpose);
     } catch (error) {
-      if (!(error instanceof MagicLinkRateLimitError)) {
-        console.error('Magic link request failed:', error);
+      if (error instanceof MagicLinkRateLimitError) {
+        return res.status(200).json({ message: 'ok' });
       }
+      return next(error);
     }
     return res.status(200).json({ message: 'ok' });
   }

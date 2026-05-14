@@ -65,7 +65,8 @@ class UsersService {
     name: string,
     password: string,
     email: string,
-    signupOrigin?: string | null
+    signupOrigin?: string | null,
+    skipEmailVerification?: boolean
   ) {
     const normalizedEmail = email.toLowerCase();
     const trimmedName = name?.trim() ?? '';
@@ -78,7 +79,7 @@ class UsersService {
       signupOrigin ?? null
     );
     const userId = Array.isArray(rows) ? rows[0]?.id : null;
-    if (userId != null && this.magicTokenRepository != null) {
+    if (userId != null && this.magicTokenRepository != null && !skipEmailVerification) {
       const token = crypto.randomBytes(64).toString('hex');
       const expiresAt = new Date(Date.now() + VERIFY_EMAIL_EXPIRY_MS);
       await this.magicTokenRepository.create(

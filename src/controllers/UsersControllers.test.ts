@@ -366,10 +366,9 @@ describe('UsersController.requestMagicLink', () => {
     expect(res.status).toHaveBeenCalledWith(200);
   });
 
-  it('returns 200 even when the service throws a non-rate-limit error', async () => {
-    const requestMagicLink = jest
-      .fn()
-      .mockRejectedValue(new Error('SendGrid down'));
+  it('forwards infrastructure errors to next() so ErrorHandler can surface them', async () => {
+    const sendgridError = new Error('SendGrid down');
+    const requestMagicLink = jest.fn().mockRejectedValue(sendgridError);
     const { controller } = buildMagicController({ requestMagicLink });
     const req = {
       body: { email: 'al@example.com', purpose: 'login' },
@@ -379,8 +378,8 @@ describe('UsersController.requestMagicLink', () => {
 
     await controller.requestMagicLink(req, res, next);
 
-    expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith({ message: 'ok' });
+    expect(next).toHaveBeenCalledWith(sendgridError);
+    expect(res.status).not.toHaveBeenCalledWith(200);
   });
 });
 

@@ -122,6 +122,17 @@ describe('UsersService.register', () => {
     );
   });
 
+  it('skips the verification email and magic token when skipEmailVerification is true', async () => {
+    const repository = buildRegisterRepository();
+    const emailService = buildEmailService();
+    const magicTokenRepo = new InMemoryMagicTokenRepository();
+    const service = new UsersService(repository, emailService, magicTokenRepo);
+
+    await service.register('Alex', 'hashed', 'alex@example.com', null, true);
+
+    expect(emailService.sendVerificationEmail).not.toHaveBeenCalled();
+  });
+
   it('forwards a validated signup_origin to the repository', async () => {
     const repository = buildRegisterRepository();
     const service = new UsersService(repository, buildEmailService());
