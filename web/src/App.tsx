@@ -17,6 +17,7 @@ import DeleteAccountPage from './pages/DeleteAccountPage';
 import { getErrorMessage } from './components/errors/helpers/getErrorMessage';
 import { sendError } from './lib/SendError';
 import { useUserLocals } from './lib/hooks/useUserLocals';
+import { get2ankiApi } from './lib/backend/get2ankiApi';
 import { SkeletonPage } from './components/Skeleton/Skeleton';
 import NotFoundPage from './pages/NotFoundPage';
 
@@ -107,14 +108,20 @@ function AppContent({
     </RequireAuth>
   );
 
+  const handleResendVerification = async () => {
+    await get2ankiApi().resendVerificationEmail();
+  };
+
   return (
     <BrowserRouter>
       <AppShell
         error={error}
         isLoggedIn={isLoggedIn}
         email={data?.user?.email}
+        emailVerified={data?.user?.email_verified ?? true}
         locals={data?.locals == null ? data?.locals : { ...data.locals, trial_started_at: data?.user?.trial_started_at ?? null }}
         features={data?.features}
+        onResendVerification={handleResendVerification}
       >
         <Routes>
           <Route

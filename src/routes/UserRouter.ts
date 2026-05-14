@@ -514,6 +514,12 @@ const UserRouter = () => {
     (req, res) => controller.startTrial(req, res)
   );
 
+  router.post(
+    '/api/users/resend-verification',
+    RequireAuthentication,
+    (req, res, next) => controller.resendVerificationEmail(req, res, next)
+  );
+
   /**
    * @swagger
    * /login:

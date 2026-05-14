@@ -3,7 +3,6 @@ import { ErrorPresenter } from '../errors/ErrorPresenter';
 import NavigationBar from '../NavigationBar/NavigationBar';
 import Footer from '../Footer';
 import { SkeletonPage } from '../Skeleton/Skeleton';
-import { EmailVerificationBanner } from '../EmailVerificationBanner/EmailVerificationBanner';
 import sharedStyles from '../../styles/shared.module.css';
 import styles from './Layout.module.css';
 
@@ -21,7 +20,6 @@ export function PageLayout({
   return (
     <div className={styles.pageContent}>
       <NavigationBar isLoggedIn={isLoggedIn} />
-      <EmailVerificationBanner />
       {error && <ErrorPresenter error={error} />}
       <main className={sharedStyles.flexGrow}>
         <Suspense fallback={<SkeletonPage rows={5} />}>{children}</Suspense>

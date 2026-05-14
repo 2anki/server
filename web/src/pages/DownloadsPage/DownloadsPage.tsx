@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Index from './components/ListJobs';
 
@@ -13,6 +13,7 @@ import { PaywallBanner } from './components/PaywallBanner';
 import { ErrorHandlerType } from '../../components/errors/helpers/getErrorMessage';
 import { get2ankiApi } from '../../lib/backend/get2ankiApi';
 import styles from './DownloadsPage.module.css';
+import sharedStyles from '../../styles/shared.module.css';
 
 interface DownloadsPageProps {
   setError: ErrorHandlerType;
@@ -27,8 +28,20 @@ export function DownloadsPage({ setError }: Readonly<DownloadsPageProps>) {
     setError
   );
   const [refreshing, setRefreshing] = useState(false);
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const showPaywall = searchParams.get('paywall') === '1';
+  const [showVerifiedBanner, setShowVerifiedBanner] = useState(
+    searchParams.get('verified') === '1'
+  );
+
+  useEffect(() => {
+    if (searchParams.get('verified') !== '1') return;
+    const params = new URLSearchParams(searchParams);
+    params.delete('verified');
+    setSearchParams(params, { replace: true });
+    const timer = setTimeout(() => setShowVerifiedBanner(false), 6000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleRefresh = async () => {
     if (refreshing) return;
@@ -51,6 +64,11 @@ export function DownloadsPage({ setError }: Readonly<DownloadsPageProps>) {
 
   return (
     <div className={styles.page}>
+      {showVerifiedBanner && (
+        <div className={sharedStyles.alertSuccess} role="status" aria-live="polite">
+          Email verified. You're all set.
+        </div>
+      )}
       <div className={styles.header}>
         <div className={styles.headerCopy}>
           <h1 className={styles.title}>My Decks</h1>

@@ -233,6 +233,7 @@ class UsersController {
         name: user?.name,
         patreon: user?.patreon,
         email: user?.email,
+        email_verified: user?.email_verified ?? false,
         ankify_welcome_seen: user?.ankify_welcome_seen ?? false,
         trial_started_at: user?.trial_started_at ?? null,
       },
@@ -575,23 +576,52 @@ class UsersController {
     return res.status(200).json({ message: 'ok' });
   }
 
+  async resendVerificationEmail(
+    _req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) {
+    const { owner } = res.locals;
+    if (owner == null) {
+      return res.status(401).json({ message: 'Authentication required' });
+    }
+
+    try {
+      const result = await this.userService.resendVerificationEmail(owner.toString());
+      return res.json(result);
+    } catch (error) {
+      if (error instanceof MagicLinkRateLimitError) {
+        return res.status(429).json({ message: 'Too many requests. Try again in a minute.' });
+      }
+      next(error);
+    }
+  }
+
   async verifyEmail(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
   ) {
     const { token } = req.params;
+
+    const expiredRedirect = async () => {
+      const sessionUser = await this.authService.getUserFrom(req.cookies?.token);
+      return sessionUser != null
+        ? res.redirect('/account?verify_error=expired')
+        : res.redirect('/login?verify_error=expired');
+    };
+
     if (token == null || token.length === 0) {
-      return res.redirect('/login?error=verification-expired');
+      return expiredRedirect();
     }
 
     try {
       const result = await this.userService.verifyMagicToken(token);
       if (result?.purpose !== 'verify_email') {
-        return res.redirect('/login?error=verification-expired');
+        return expiredRedirect();
       }
       await this.userService.markEmailVerified(result.userId.toString());
-      return res.redirect('/uploads');
+      return res.redirect('/downloads?verified=1');
     } catch (error) {
       console.error('Email verification failed:', error);
       next(error);

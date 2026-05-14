@@ -10,9 +10,11 @@ function renderLayout() {
     <MemoryRouter initialEntries={['/upload']}>
       <SidebarLayout
         email="alexander@alemayhu.com"
+        emailVerified={true}
         locals={{ patreon: true, subscriber: false }}
         features={{ kiUI: false, ops: false }}
         onLogOut={onLogOut}
+        onResendVerification={vi.fn()}
       >
         <div data-testid="page-content">hello</div>
       </SidebarLayout>

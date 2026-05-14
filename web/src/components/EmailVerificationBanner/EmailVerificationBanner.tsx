@@ -1,33 +1,67 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import styles from './EmailVerificationBanner.module.css';
 
-const STORAGE_KEY = 'email_verification_pending';
+type ResendState = 'idle' | 'sending' | 'sent' | 'rate-limited';
 
-export function EmailVerificationBanner() {
-  const [visible, setVisible] = useState(false);
+interface Props {
+  emailVerified: boolean;
+  email: string;
+  onResend: () => Promise<void>;
+}
 
-  useEffect(() => {
-    const pending = globalThis.sessionStorage?.getItem(STORAGE_KEY);
-    if (pending === 'true') {
-      setVisible(true);
-    }
-  }, []);
+export function EmailVerificationBanner({ emailVerified, email, onResend }: Readonly<Props>) {
+  const [resendState, setResendState] = useState<ResendState>('idle');
+  const [dismissed, setDismissed] = useState(false);
 
-  const dismiss = () => {
-    globalThis.sessionStorage?.removeItem(STORAGE_KEY);
-    setVisible(false);
-  };
-
-  if (!visible) {
+  if (emailVerified || dismissed) {
     return null;
   }
 
+  const handleResend = async () => {
+    setResendState('sending');
+    try {
+      await onResend();
+      setResendState('sent');
+      setTimeout(() => setResendState('idle'), 60_000);
+    } catch {
+      setResendState('rate-limited');
+      setTimeout(() => setResendState('idle'), 60_000);
+    }
+  };
+
+  const resendLabel: Record<ResendState, string> = {
+    idle: 'Resend email',
+    sending: 'Sending…',
+    sent: 'Sent — check your inbox',
+    'rate-limited': 'Try again in a minute',
+  };
+
   return (
-    <output className={styles.banner}>
-      <span>Check your inbox to verify your email.</span>
-      <button type="button" onClick={dismiss} className={styles.dismiss} aria-label="Dismiss">
-        &#x2715;
-      </button>
-    </output>
+    <div className={styles.banner} role="status">
+      <div className={styles.text}>
+        <span>Verify your email so you can recover your account.</span>
+        <span className={styles.sub}>We sent a link to {email}.</span>
+      </div>
+      <div className={styles.actions}>
+        <button
+          type="button"
+          className={styles.resend}
+          onClick={handleResend}
+          disabled={resendState !== 'idle'}
+        >
+          {resendLabel[resendState]}
+        </button>
+        {resendState !== 'idle' && (
+          <button
+            type="button"
+            onClick={() => setDismissed(true)}
+            className={styles.dismiss}
+            aria-label="Dismiss"
+          >
+            &#x2715;
+          </button>
+        )}
+      </div>
+    </div>
   );
 }
