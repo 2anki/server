@@ -109,18 +109,6 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
                         className={styles.entryMeta}
                         aria-label={`Edit settings for ${displayTitle ?? item.pageId}`}
                       >
-                        <svg
-                          className={styles.pageIcon}
-                          width="16"
-                          height="16"
-                          viewBox="0 0 16 16"
-                          fill="none"
-                          aria-hidden="true"
-                        >
-                          <rect x="2" y="1" width="9" height="14" rx="1.5" stroke="currentColor" strokeWidth="1.25" />
-                          <path d="M5 5h5M5 8h5M5 11h3" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
-                          <path d="M11 1v4h4" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
                         <div className={styles.entryText}>
                           <span className={styles.entryTitle}>
                             {displayTitle ?? 'Untitled page'}
