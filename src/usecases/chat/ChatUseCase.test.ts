@@ -133,6 +133,72 @@ describe('ChatUseCase', () => {
 
       expect(result.cards).toBeUndefined();
     });
+
+    it('returns contentBefore and contentAfter when JSON block is surrounded by prose', async () => {
+      const repo = new InMemoryChatMessagesRepository();
+      const cards = [{ front: 'Q1', back: 'A1' }];
+      const responseText = `Here are your cards:\n\`\`\`json\n${JSON.stringify(cards)}\n\`\`\`\nHope that helps!`;
+      const anthropic = buildAnthropicMock(responseText);
+      const useCase = new ChatUseCase(repo, anthropic as never);
+
+      const result = await useCase.execute({
+        user: FREE_USER,
+        content: 'Make cards',
+        conversationHistory: [],
+      });
+
+      expect(result.contentBefore).toBe('Here are your cards:');
+      expect(result.contentAfter).toBe('Hope that helps!');
+    });
+
+    it('returns contentBefore as undefined when no text before JSON block', async () => {
+      const repo = new InMemoryChatMessagesRepository();
+      const cards = [{ front: 'Q1', back: 'A1' }];
+      const responseText = `\`\`\`json\n${JSON.stringify(cards)}\n\`\`\`\nHope that helps!`;
+      const anthropic = buildAnthropicMock(responseText);
+      const useCase = new ChatUseCase(repo, anthropic as never);
+
+      const result = await useCase.execute({
+        user: FREE_USER,
+        content: 'Make cards',
+        conversationHistory: [],
+      });
+
+      expect(result.contentBefore).toBeUndefined();
+      expect(result.contentAfter).toBe('Hope that helps!');
+    });
+
+    it('returns contentAfter as undefined when no text after JSON block', async () => {
+      const repo = new InMemoryChatMessagesRepository();
+      const cards = [{ front: 'Q1', back: 'A1' }];
+      const responseText = `Here are your cards:\n\`\`\`json\n${JSON.stringify(cards)}\n\`\`\``;
+      const anthropic = buildAnthropicMock(responseText);
+      const useCase = new ChatUseCase(repo, anthropic as never);
+
+      const result = await useCase.execute({
+        user: FREE_USER,
+        content: 'Make cards',
+        conversationHistory: [],
+      });
+
+      expect(result.contentBefore).toBe('Here are your cards:');
+      expect(result.contentAfter).toBeUndefined();
+    });
+
+    it('returns undefined contentBefore and contentAfter when no JSON block present', async () => {
+      const repo = new InMemoryChatMessagesRepository();
+      const anthropic = buildAnthropicMock('Just plain text response.');
+      const useCase = new ChatUseCase(repo, anthropic as never);
+
+      const result = await useCase.execute({
+        user: FREE_USER,
+        content: 'Explain something',
+        conversationHistory: [],
+      });
+
+      expect(result.contentBefore).toBeUndefined();
+      expect(result.contentAfter).toBeUndefined();
+    });
   });
 
   describe('message persistence', () => {

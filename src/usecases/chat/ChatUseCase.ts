@@ -34,6 +34,8 @@ export interface ChatMessage {
 
 export interface SendMessageResult {
   content: string;
+  contentBefore?: string;
+  contentAfter?: string;
   cards?: ChatCard[];
 }
 
@@ -53,18 +55,27 @@ function firstOfNextMonth(): string {
   return next.toISOString();
 }
 
-function extractCards(text: string): ChatCard[] | undefined {
+interface ExtractCardsResult {
+  cards: ChatCard[] | undefined;
+  contentBefore: string | undefined;
+  contentAfter: string | undefined;
+}
+
+function extractCards(text: string): ExtractCardsResult {
   const match = /```json\s*([\s\S]*?)```/.exec(text);
-  if (match == null) return undefined;
+  if (match == null) return { cards: undefined, contentBefore: undefined, contentAfter: undefined };
+
+  const before = text.slice(0, match.index).trim();
+  const after = text.slice(match.index + match[0].length).trim();
 
   let parsed: unknown;
   try {
     parsed = JSON.parse(match[1].trim());
   } catch {
-    return undefined;
+    return { cards: undefined, contentBefore: undefined, contentAfter: undefined };
   }
 
-  if (!Array.isArray(parsed)) return undefined;
+  if (!Array.isArray(parsed)) return { cards: undefined, contentBefore: undefined, contentAfter: undefined };
 
   const cards: ChatCard[] = [];
   for (const item of parsed) {
@@ -81,8 +92,13 @@ function extractCards(text: string): ChatCard[] | undefined {
     }
   }
 
-  if (cards.length === 0) return undefined;
-  return cards;
+  if (cards.length === 0) return { cards: undefined, contentBefore: undefined, contentAfter: undefined };
+
+  return {
+    cards,
+    contentBefore: before.length > 0 ? before : undefined,
+    contentAfter: after.length > 0 ? after : undefined,
+  };
 }
 
 export class ChatUseCase {
@@ -128,8 +144,13 @@ export class ChatUseCase {
     await this.repo.insert({ userId: user.owner, role: 'user', content });
     await this.repo.insert({ userId: user.owner, role: 'assistant', content: assistantContent });
 
-    const cards = extractCards(assistantContent);
+    const { cards, contentBefore, contentAfter } = extractCards(assistantContent);
 
-    return { content: assistantContent, ...(cards != null ? { cards } : {}) };
+    return {
+      content: assistantContent,
+      ...(cards != null ? { cards } : {}),
+      ...(contentBefore != null ? { contentBefore } : {}),
+      ...(contentAfter != null ? { contentAfter } : {}),
+    };
   }
 }
