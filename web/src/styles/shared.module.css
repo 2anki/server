@@ -644,6 +644,28 @@
   white-space: nowrap;
 }
 
+.infoButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+  transition: color var(--transition-fast);
+}
+
+.infoButton:hover,
+.infoButton:focus-visible {
+  color: var(--color-text-primary);
+  outline: none;
+}
+
 .checkboxDescription {
   width: 100%;
   font-size: var(--text-xs);
