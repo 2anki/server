@@ -12,6 +12,7 @@ import { useFileValidation } from './hooks/useFileValidation';
 import { FeedbackWidget } from '../../../../components/FeedbackWidget/FeedbackWidget';
 import { useUserLocals } from '../../../../lib/hooks/useUserLocals';
 import { get2ankiApi } from '../../../../lib/backend/get2ankiApi';
+import { fireAnalyticsEvent } from '../../../../lib/analytics/fireAnalyticsEvent';
 import formStyles from './UploadForm.module.css';
 import sharedStyles from '../../../../styles/shared.module.css';
 
@@ -213,6 +214,7 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
   useEffect(() => {
     if (zoneState === 'success' && downloadLink && !showFallback) {
       if (cardCount !== 0) {
+        fireAnalyticsEvent('deck_downloaded');
         downloadRef.current?.click();
       }
       fallbackTimerRef.current = setTimeout(() => {
@@ -239,6 +241,7 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
   const handleSubmit = async (event: SyntheticEvent) => {
     event.preventDefault();
     setZoneState('converting');
+    fireAnalyticsEvent('upload_started');
     setProgressWidth(10);
     setProgressSlow(false);
     setShowFallback(false);
@@ -282,6 +285,7 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
       if (count === 0) {
         setZoneState('emptyDeck');
       } else {
+        fireAnalyticsEvent('conversion_success');
         setZoneState('success');
       }
     } catch (error) {
