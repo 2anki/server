@@ -159,6 +159,16 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
         </section>
       )}
 
+      {pageId == null && (
+        <div className={styles.formHeader}>
+          <hr className={styles.divider} />
+          <h2 className={styles.formHeading}>Default options</h2>
+          <p className={sharedStyles.smallDescription}>
+            Applied to every upload and Notion import. Per-page overrides above take precedence.
+          </p>
+        </div>
+      )}
+
       <CardOptionsForm
         pageId={pageId}
         pageTitle={pageTitle}
