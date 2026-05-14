@@ -1,5 +1,10 @@
 import LoginForm from './components/LoginForm';
+import { AuthPageBackground } from '../../components/AuthPageBackground';
 
 export function LoginPage() {
-  return <LoginForm />;
+  return (
+    <AuthPageBackground>
+      <LoginForm />
+    </AuthPageBackground>
+  );
 }

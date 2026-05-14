@@ -1,0 +1,61 @@
+.root {
+  position: relative;
+  min-height: 100vh;
+}
+
+.bg,
+.overlay {
+  display: none;
+}
+
+.attribution {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .bg {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background-size: cover;
+    background-position: center;
+    filter: blur(3px) brightness(0.88);
+    transform: scale(1.04);
+  }
+
+  .overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    background: rgba(255, 255, 255, 0.72);
+  }
+
+  .root > :not(.bg):not(.overlay):not(.attribution) {
+    position: relative;
+    z-index: 2;
+  }
+
+  .attribution {
+    display: block;
+    position: fixed;
+    bottom: 0.75rem;
+    right: 1rem;
+    z-index: 3;
+    font-size: 0.7rem;
+    color: rgba(0, 0, 0, 0.45);
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  .attribution a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .attribution a:hover {
+    color: rgba(0, 0, 0, 0.7);
+    text-decoration: underline;
+  }
+}

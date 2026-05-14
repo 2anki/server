@@ -129,10 +129,6 @@ function LoginForm() {
               text={getVisibleText('navigation.login.google')}
             />
             <div className={styles.divider} />
-            <p className={styles.registerHint}>New to 2anki?</p>
-            <a href={registerHref} className={styles.createAccountButton}>
-              Create a free account
-            </a>
           </>
         ) : (
           <form onSubmit={onSubmit}>
