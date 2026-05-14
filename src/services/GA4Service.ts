@@ -4,7 +4,7 @@ interface PurchaseParams {
   transactionId: string;
   valueCents: number;
   currency: string;
-  email: string;
+  stripeCustomerId: string;
   clientId?: string;
 }
 
@@ -16,7 +16,7 @@ export async function sendPurchaseEvent(params: PurchaseParams): Promise<void> {
     return;
   }
 
-  const clientId = params.clientId ?? params.email;
+  const clientId = params.clientId ?? params.stripeCustomerId;
   const url = `${GA4_ENDPOINT}?measurement_id=${measurementId}&api_secret=${apiSecret}`;
 
   await fetch(url, {

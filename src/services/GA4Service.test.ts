@@ -26,7 +26,7 @@ describe('sendPurchaseEvent', () => {
       transactionId: 'cs_test_abc123',
       valueCents: 999,
       currency: 'usd',
-      email: 'user@example.com',
+      stripeCustomerId: 'cus_test123',
       clientId: 'GA1.1.123456789.1234567890',
     });
 
@@ -62,7 +62,7 @@ describe('sendPurchaseEvent', () => {
       transactionId: 'cs_test_abc123',
       valueCents: 999,
       currency: 'usd',
-      email: 'user@example.com',
+      stripeCustomerId: 'cus_test123',
     });
 
     expect(global.fetch).not.toHaveBeenCalled();
@@ -76,23 +76,23 @@ describe('sendPurchaseEvent', () => {
       transactionId: 'cs_test_abc123',
       valueCents: 999,
       currency: 'usd',
-      email: 'user@example.com',
+      stripeCustomerId: 'cus_test123',
     });
 
     expect(global.fetch).not.toHaveBeenCalled();
   });
 
-  it('falls back to email as client_id when clientId param is absent', async () => {
+  it('falls back to stripeCustomerId as client_id when clientId param is absent', async () => {
     const { sendPurchaseEvent } = await import('./GA4Service');
     await sendPurchaseEvent({
       transactionId: 'cs_test_abc123',
       valueCents: 500,
       currency: 'eur',
-      email: 'fallback@example.com',
+      stripeCustomerId: 'cus_fallback123',
     });
 
     const [, options] = (global.fetch as jest.MockedFunction<typeof fetch>).mock.calls[0];
     const body = JSON.parse((options as RequestInit).body as string);
-    expect(body.client_id).toBe('fallback@example.com');
+    expect(body.client_id).toBe('cus_fallback123');
   });
 });

@@ -177,7 +177,7 @@ const WebhooksRouter = () => {
               transactionId: session.id,
               valueCents: session.amount_total ?? 0,
               currency: session.currency ?? 'usd',
-              email: session.customer_details?.email ?? '',
+              stripeCustomerId: typeof session.customer === 'string' ? session.customer : '',
               clientId: (session.metadata as Record<string, string> | null)?.ga_client_id,
             });
           } catch (ga4Error) {
