@@ -113,6 +113,14 @@ export class Backend {
     });
   }
 
+  async listSettings(): Promise<{ items: { pageId: string; updatedAt: string | null }[] }> {
+    const result = await get(`${this.baseURL}settings/list`);
+    if (!result) {
+      return { items: [] };
+    }
+    return result;
+  }
+
   async searchTopLevelPages(query: string): Promise<NotionObject[]> {
     const favorites = await this.getFavorites();
     const response = await post(`${this.baseURL}notion/top-level-pages`, {

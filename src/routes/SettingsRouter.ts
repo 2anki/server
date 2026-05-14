@@ -233,6 +233,10 @@ const SettingsRouter = () => {
     res.json(defaultOptions);
   });
 
+  router.get('/api/settings/list', RequireAuthentication, (req, res) =>
+    controller.listSettings(req, res)
+  );
+
   return router;
 };
 

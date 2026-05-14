@@ -17,6 +17,13 @@ class FakeSettingsService implements IServiceSettings {
       payload: 'payload',
     });
   }
+
+  getAllByOwner(owner: string): Promise<{ object_id: string; updated_at: Date | null }[]> {
+    return Promise.resolve([
+      { object_id: 'page-abc', updated_at: new Date('2026-01-01') },
+      { object_id: 'page-xyz', updated_at: null },
+    ]);
+  }
 }
 
 function testDefaultSettings(
@@ -29,6 +36,31 @@ function testDefaultSettings(
   const defaultOptions = settingsController.getDefaultCardOptions(type);
   expect(defaultOptions).toStrictEqual(expectedOptions);
 }
+
+describe('CardOptionsController.listSettings', () => {
+  function makeMockRes(owner: string) {
+    const json = jest.fn();
+    const status = jest.fn().mockReturnValue({ send: jest.fn() });
+    return {
+      locals: { owner },
+      json,
+      status,
+    } as unknown as import('express').Response;
+  }
+
+  it('returns items shaped as { pageId, updatedAt }', async () => {
+    const controller = new CardOptionsController(new FakeSettingsService());
+    const req = {} as import('express').Request;
+    const res = makeMockRes('user-1');
+    await controller.listSettings(req, res);
+    expect(res.json).toHaveBeenCalledWith({
+      items: [
+        { pageId: 'page-abc', updatedAt: new Date('2026-01-01').toISOString() },
+        { pageId: 'page-xyz', updatedAt: null },
+      ],
+    });
+  });
+});
 
 describe('SettingsController', () => {
   test('returns default settings for client', () => {

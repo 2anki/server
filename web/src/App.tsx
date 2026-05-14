@@ -242,6 +242,12 @@ function AppContent({
             )}
           />
           <Route
+            path="/card-options"
+            element={requireAuth(
+              <CardOptionsPage setErrorMessage={setErrorMessage} />
+            )}
+          />
+          <Route
             path="/rules/:id"
             element={requireAuth(
               <RulesPage setErrorMessage={setErrorMessage} />

@@ -21,3 +21,16 @@
   border-radius: var(--radius-lg);
   padding: 2rem;
 }
+
+.perPageSection {
+  margin-top: 2rem;
+}
+
+.perPageList {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
