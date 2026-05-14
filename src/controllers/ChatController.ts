@@ -3,6 +3,10 @@ import { ChatUseCase, ChatRateLimitError } from '../usecases/chat/ChatUseCase';
 
 const MAX_CONTENT_LENGTH = 4000;
 
+function sseWrite(res: Response, event: string, data: unknown): void {
+  res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+}
+
 class ChatController {
   constructor(private readonly chatUseCase: ChatUseCase) {}
 
@@ -35,26 +39,33 @@ class ChatController {
       )
       .map((m: { role: 'user' | 'assistant'; content: string }) => ({ role: m.role, content: m.content }));
 
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders();
+
     try {
       const result = await this.chatUseCase.execute({
         user: { owner, patreon },
         content,
         conversationHistory,
+        onToken: (text) => sseWrite(res, 'token', text),
       });
 
-      res.status(200).json({
-        role: 'assistant',
+      sseWrite(res, 'done', {
         content: result.content,
+        ...(result.cards != null ? { cards: result.cards } : {}),
         ...(result.contentBefore != null ? { contentBefore: result.contentBefore } : {}),
         ...(result.contentAfter != null ? { contentAfter: result.contentAfter } : {}),
-        ...(result.cards != null ? { cards: result.cards } : {}),
       });
     } catch (err) {
       if (err instanceof ChatRateLimitError) {
-        res.status(429).json({ error: 'Message limit reached', resetDate: err.resetDate });
-        return;
+        sseWrite(res, 'error', { type: 'rate_limit', resetDate: err.resetDate });
+      } else {
+        sseWrite(res, 'error', { type: 'server_error' });
       }
-      throw err;
+    } finally {
+      res.end();
     }
   }
 }

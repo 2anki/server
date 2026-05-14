@@ -69,6 +69,21 @@
   text-underline-offset: 2px;
 }
 
+.streamingCaret {
+  display: inline-block;
+  width: 2px;
+  height: 0.85em;
+  background: var(--color-text-primary);
+  vertical-align: text-bottom;
+  margin-left: 1px;
+  animation: caretBlink 1.1s ease infinite;
+}
+
+@keyframes caretBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
 .prose blockquote {
   margin: 0.5rem 0;
   padding-left: 0.75rem;

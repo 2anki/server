@@ -5,11 +5,15 @@ const FREE_USER = { owner: 1, patreon: false } as const;
 const PATREON_USER = { owner: 2, patreon: true } as const;
 
 function buildAnthropicMock(responseContent: string) {
+  const mockStream = {
+    on: jest.fn().mockReturnThis(),
+    finalMessage: jest.fn().mockResolvedValue({
+      content: [{ type: 'text', text: responseContent }],
+    }),
+  };
   return {
     messages: {
-      create: jest.fn().mockResolvedValue({
-        content: [{ type: 'text', text: responseContent }],
-      }),
+      stream: jest.fn().mockReturnValue(mockStream),
     },
   };
 }
@@ -70,7 +74,7 @@ describe('ChatUseCase', () => {
 
       await useCase.execute({ user: FREE_USER, content: 'question', conversationHistory: [] });
 
-      expect(anthropic.messages.create).toHaveBeenCalledWith(
+      expect(anthropic.messages.stream).toHaveBeenCalledWith(
         expect.objectContaining({ model: 'claude-haiku-4-5-20251001' })
       );
     });
@@ -82,7 +86,7 @@ describe('ChatUseCase', () => {
 
       await useCase.execute({ user: PATREON_USER, content: 'question', conversationHistory: [] });
 
-      expect(anthropic.messages.create).toHaveBeenCalledWith(
+      expect(anthropic.messages.stream).toHaveBeenCalledWith(
         expect.objectContaining({ model: 'claude-sonnet-4-6' })
       );
     });
