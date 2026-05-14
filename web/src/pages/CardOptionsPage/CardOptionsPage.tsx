@@ -107,7 +107,7 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
                   <li key={item.pageId}>
                     <div className={styles.entry}>
                       <Link
-                        to={`/rules/${encodeURIComponent(item.pageId)}`}
+                        to={`/rules/${encodeURIComponent(item.pageId)}?returnTo=/card-options${item.title ? `&title=${encodeURIComponent(item.title)}` : ''}`}
                         className={styles.entryMeta}
                         aria-label={`Edit settings for ${displayTitle}`}
                       >
@@ -150,7 +150,7 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
                           />
                         </a>
                         <Link
-                          to={`/rules/${encodeURIComponent(item.pageId)}`}
+                          to={`/rules/${encodeURIComponent(item.pageId)}?returnTo=/card-options${item.title ? `&title=${encodeURIComponent(item.title)}` : ''}`}
                           className={styles.actionButton}
                           aria-label={`Configure settings for ${displayTitle}`}
                           title="Configure settings"
