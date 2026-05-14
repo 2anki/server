@@ -10,6 +10,7 @@ import React, {
 import { SettingsPayload } from '../../lib/types';
 
 import FontSizePicker from '../FontSizePicker';
+import { FieldHint } from '../FieldHint';
 import LocalCheckbox from '../LocalCheckbox';
 import TemplateName from '../TemplateName';
 import TemplateSelect from '../TemplateSelect';
@@ -438,12 +439,12 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
           <h3 className={fieldStyles.groupHeading}>Deck &amp; structure</h3>
 
           <div className={fieldStyles.section}>
-            <label htmlFor="deck-name" className={fieldStyles.sectionLabel}>
-              Deck name
-            </label>
-            <p className={fieldStyles.sectionHint}>
-              Customize the deck name. Leave it empty if you use subpages.
-            </p>
+            <div className={fieldStyles.labelRow}>
+              <label htmlFor="deck-name" className={fieldStyles.sectionLabel}>
+                Deck name
+              </label>
+              <FieldHint text="Customize the deck name. Leave it empty if you use subpages." />
+            </div>
             <input
               id="deck-name"
               name="deck-name"
@@ -459,10 +460,10 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
           </div>
 
           <div className={fieldStyles.section}>
-            <label className={fieldStyles.sectionLabel}>Page icon</label>
-            <p className={fieldStyles.sectionHint}>
-              Whether to include the Notion page icon and where to place it.
-            </p>
+            <div className={fieldStyles.labelRow}>
+              <label className={fieldStyles.sectionLabel}>Page icon</label>
+              <FieldHint text="Whether to include the Notion page icon and where to place it." />
+            </div>
             <div className={fieldStyles.segmented} role="group" aria-label="Page icon position">
               {([
                 { label: 'Icon first', value: 'first_emoji' },
@@ -485,13 +486,10 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
           </div>
 
           <div className={fieldStyles.section}>
-            <label className={fieldStyles.sectionLabel}>Toggle mode</label>
-            <p className={fieldStyles.sectionHint}>
-              Toggle header = card front; contents = card back. Nested toggles
-              become their own cards.{' '}
-              <em>Open</em> expands nested contents;{' '}
-              <em>Close</em> keeps them collapsed for step-by-step review.
-            </p>
+            <div className={fieldStyles.labelRow}>
+              <label className={fieldStyles.sectionLabel}>Toggle mode</label>
+              <FieldHint text="Toggle header = card front; contents = card back. Nested toggles become their own cards. Open expands nested contents; Close keeps them collapsed for step-by-step review." />
+            </div>
             <div className={fieldStyles.segmented} role="group" aria-label="Toggle mode">
               {([
                 { label: 'Open nested toggles', value: 'open_toggle' },
