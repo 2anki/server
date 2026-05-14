@@ -101,40 +101,67 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
             <ul className={styles.list}>
               {perPageItems.map((item) => {
                 const updatedLabel = formatUpdatedAt(item.updatedAt);
+                const displayTitle = item.title ?? 'Untitled page';
                 return (
                   <li key={item.pageId}>
-                    <Link
-                      to={`/rules/${encodeURIComponent(item.pageId)}`}
-                      className={styles.row}
-                      aria-label={`Edit settings for ${item.title ?? item.pageId}`}
-                    >
-                      <div className={styles.rowText}>
-                        <span className={styles.rowTitle} title={item.title ?? item.pageId}>
-                          {item.title ?? 'Untitled page'}
-                        </span>
-                        {updatedLabel && (
-                          <span className={styles.rowMeta}>{updatedLabel}</span>
-                        )}
-                      </div>
-                      <a
-                        href={`https://www.notion.so/${item.pageId.replace(/-/g, '')}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={styles.notionLink}
-                        aria-label={`Open ${item.title ?? 'page'} in Notion`}
-                        title="Open in Notion"
-                        onClick={(e) => e.stopPropagation()}
+                    <div className={styles.entry}>
+                      <Link
+                        to={`/rules/${encodeURIComponent(item.pageId)}`}
+                        className={styles.entryMeta}
+                        aria-label={`Edit settings for ${displayTitle}`}
                       >
-                        <img
-                          src="/icons/Notion_app_logo.png"
-                          alt=""
-                          width={16}
-                          height={16}
-                          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                        />
-                      </a>
-                      <span className={styles.rowChevron} aria-hidden="true">→</span>
-                    </Link>
+                        <svg
+                          className={styles.pageIcon}
+                          width="16"
+                          height="16"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                          aria-hidden="true"
+                        >
+                          <rect x="2" y="1" width="9" height="14" rx="1.5" stroke="currentColor" strokeWidth="1.25" />
+                          <path d="M5 5h5M5 8h5M5 11h3" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
+                          <path d="M11 1v4h4" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                        <div className={styles.entryText}>
+                          <span className={styles.entryTitle} title={item.title ?? item.pageId}>
+                            {displayTitle}
+                          </span>
+                          {updatedLabel && (
+                            <span className={styles.entryTimestamp}>{updatedLabel}</span>
+                          )}
+                        </div>
+                      </Link>
+                      <div className={styles.entryActions}>
+                        <a
+                          href={`https://www.notion.so/${item.pageId.replace(/-/g, '')}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.actionButton}
+                          aria-label={`Open ${displayTitle} in Notion`}
+                          title="Open in Notion"
+                        >
+                          <img
+                            src="/icons/Notion_app_logo.png"
+                            alt=""
+                            width={16}
+                            height={16}
+                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                          />
+                        </a>
+                        <Link
+                          to={`/rules/${encodeURIComponent(item.pageId)}`}
+                          className={styles.actionButton}
+                          aria-label={`Configure settings for ${displayTitle}`}
+                          title="Configure settings"
+                        >
+                          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                            <circle cx="8" cy="8" r="1.25" fill="currentColor" />
+                            <circle cx="3" cy="8" r="1.25" fill="currentColor" />
+                            <circle cx="13" cy="8" r="1.25" fill="currentColor" />
+                          </svg>
+                        </Link>
+                      </div>
+                    </div>
                   </li>
                 );
               })}
