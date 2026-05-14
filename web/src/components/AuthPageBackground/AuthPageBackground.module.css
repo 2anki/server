@@ -1,43 +1,37 @@
 .root {
-  position: relative;
   min-height: 100vh;
 }
 
+.bg,
+.overlay,
 .attribution {
   display: none;
 }
 
 @media (min-width: 768px) {
-  .root {
-    overflow: hidden;
-  }
-
-  /* Blurred background image — contained entirely within .root */
-  .root::before {
-    content: '';
-    position: absolute;
-    inset: -30px;
-    background-image: var(--auth-bg);
+  .bg {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 1;
     background-size: cover;
     background-position: center;
-    filter: blur(4px) brightness(0.85);
-    z-index: 0;
+    filter: blur(3px) brightness(0.85);
+    transform: scale(1.04);
   }
 
-  /* White overlay for card legibility */
-  .root::after {
-    content: '';
-    position: absolute;
+  .overlay {
+    display: block;
+    position: fixed;
     inset: 0;
-    background: rgba(255, 255, 255, 0.7);
-    z-index: 1;
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.68);
     pointer-events: none;
   }
 
-  /* Form content sits above the overlays */
-  .root > * {
+  .content {
     position: relative;
-    z-index: 2;
+    z-index: 3;
   }
 
   .attribution {
@@ -45,7 +39,7 @@
     position: fixed;
     bottom: 0.75rem;
     right: 1rem;
-    z-index: 3;
+    z-index: 4;
     font-size: 0.7rem;
     color: rgba(0, 0, 0, 0.45);
     margin: 0;
