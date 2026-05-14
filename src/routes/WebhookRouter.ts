@@ -170,6 +170,20 @@ const WebhooksRouter = () => {
               );
             }
           }
+
+          try {
+            const { sendPurchaseEvent } = await import('../services/GA4Service');
+            await sendPurchaseEvent({
+              transactionId: session.id,
+              valueCents: session.amount_total ?? 0,
+              currency: session.currency ?? 'usd',
+              email: session.customer_details?.email ?? '',
+              clientId: (session.metadata as Record<string, string> | null)?.ga_client_id,
+            });
+          } catch (ga4Error) {
+            console.error('[ga4] failed to send purchase event', ga4Error);
+          }
+
           console.log('checkout.session.completed');
           break;
         default:
