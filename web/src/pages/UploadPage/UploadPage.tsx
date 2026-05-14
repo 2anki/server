@@ -1,12 +1,11 @@
 import { useState } from 'react';
-import { Navigate } from 'react-router-dom';
-
-import useQuery from '../../lib/hooks/useQuery';
-import UploadForm from './components/UploadForm/UploadForm';
-import styles from '../../styles/shared.module.css';
-import pageStyles from './UploadPage.module.css';
+import { Link, Navigate } from 'react-router-dom';
 import { ErrorHandlerType } from '../../components/errors/helpers/getErrorMessage';
+import useQuery from '../../lib/hooks/useQuery';
 import { getVisibleText } from '../../lib/text/getVisibleText';
+import styles from '../../styles/shared.module.css';
+import UploadForm from './components/UploadForm/UploadForm';
+import pageStyles from './UploadPage.module.css';
 
 const WALKTHROUGHS: ReadonlyArray<[string, string]> = [
   ['UnTo_fN1jpc', 'How I use Notion to Anki as a medical student'],
@@ -68,21 +67,27 @@ export function UploadPage({ setErrorMessage }: Readonly<Props>) {
   const query = useQuery();
   const view = query.get('view');
 
-  if (view === 'template' || view === 'deck-options' || view === 'card-options') {
+  if (
+    view === 'template' ||
+    view === 'deck-options' ||
+    view === 'card-options'
+  ) {
     return <Navigate to="/card-options" replace />;
   }
 
   return (
     <div className={styles.page}>
       <header className={styles.pageHeader}>
-        <h1 className={styles.title}>
-          {getVisibleText('upload.page.title')}
-        </h1>
+        <h1 className={styles.title}>{getVisibleText('upload.page.title')}</h1>
         <p className={styles.subtitle}>
           Turn your notes into flashcards in seconds
         </p>
       </header>
       <UploadForm setErrorMessage={setErrorMessage} />
+      <p className={pageStyles.settingsHint}>
+        Change deck names, templates, and conversion defaults in{' '}
+        <Link to="/card-options">Settings</Link>.
+      </p>
       <p className={pageStyles.footnote}>
         Your uploaded files are deleted after 2 hours.
       </p>
