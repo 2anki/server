@@ -110,7 +110,14 @@ async function fetchBlocks(blockId: string, signal: AbortSignal): Promise<FetchR
     }
   }
 
-  return { images, childPages, error: null };
+  const seenBlockIds = new Set<string>();
+  const dedupedImages = images.filter((item) => {
+    if (seenBlockIds.has(item.blockId)) return false;
+    seenBlockIds.add(item.blockId);
+    return true;
+  });
+
+  return { images: dedupedImages, childPages, error: null };
 }
 
 export function NotionImportDrawer({
@@ -128,6 +135,7 @@ export function NotionImportDrawer({
   const [importing, setImporting] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
   const seenIds = useRef<Set<string>>(new Set());
+  const seenImageIds = useRef<Set<string>>(new Set());
   const pendingRef = useRef(0);
   const [anyPending, setAnyPending] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
@@ -150,10 +158,16 @@ export function NotionImportDrawer({
     fetchBlocks(id, signal).then((result) => {
       if (signal.aborted) return;
 
-      if (result.images.length > 0 || result.error != null) {
+      const uniqueImages = result.images.filter((item) => {
+        if (seenImageIds.current.has(item.blockId)) return false;
+        seenImageIds.current.add(item.blockId);
+        return true;
+      });
+
+      if (uniqueImages.length > 0 || result.error != null) {
         setSections((prev) => [
           ...prev,
-          { id, title, icon, images: result.images, loading: false, error: result.error, showAll: false },
+          { id, title, icon, images: uniqueImages, loading: false, error: result.error, showAll: false },
         ]);
       }
 
@@ -173,6 +187,7 @@ export function NotionImportDrawer({
 
   const startCrawl = (controller: AbortController) => {
     seenIds.current = new Set();
+    seenImageIds.current = new Set();
     pendingRef.current = 0;
     setSections([]);
     setAnyPending(false);
