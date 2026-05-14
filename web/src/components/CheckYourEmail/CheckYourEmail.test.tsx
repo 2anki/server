@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, expect, it, vi } from 'vitest';
 import CheckYourEmail from './CheckYourEmail';
@@ -91,5 +91,56 @@ describe('CheckYourEmail', () => {
     );
     fireEvent.click(screen.getByText('try again'));
     expect(onRetry).toHaveBeenCalledOnce();
+  });
+
+  it('shows delivery estimate text', () => {
+    render(
+      <CheckYourEmail
+        email="user@example.com"
+        onRetry={vi.fn()}
+        purpose="login"
+      />
+    );
+    expect(screen.getByText(/Usually arrives within a minute/)).toBeInTheDocument();
+  });
+
+  it('shows a resend link button', () => {
+    render(
+      <CheckYourEmail
+        email="user@example.com"
+        onRetry={vi.fn()}
+        purpose="login"
+        onResend={vi.fn()}
+      />
+    );
+    expect(screen.getByRole('button', { name: 'Resend link' })).toBeInTheDocument();
+  });
+
+  it('shows Sent! after resend succeeds', async () => {
+    const onResend = vi.fn().mockResolvedValue(undefined);
+    render(
+      <CheckYourEmail
+        email="user@example.com"
+        onRetry={vi.fn()}
+        purpose="login"
+        onResend={onResend}
+      />
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Resend link' }));
+    await waitFor(() => {
+      expect(screen.getByText('Sent!')).toBeInTheDocument();
+    });
+  });
+
+  it('shows support link at the bottom', () => {
+    render(
+      <CheckYourEmail
+        email="user@example.com"
+        onRetry={vi.fn()}
+        purpose="login"
+      />
+    );
+    const link = screen.getByRole('link', { name: 'support@2anki.net' });
+    expect(link).toHaveAttribute('href', 'mailto:support@2anki.net');
   });
 });

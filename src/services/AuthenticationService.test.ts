@@ -32,3 +32,27 @@ test('isValidToken rejects an expired token', async () => {
 
   await expect(service.isValidToken(token)).rejects.toThrow();
 });
+
+describe('isNewPasswordValid', () => {
+  it('returns false (valid) for a UUID-length reset token and a strong password', () => {
+    const service = createService();
+    const uuid = '550e8400-e29b-41d4-a716-446655440000';
+    expect(service.isNewPasswordValid(uuid, 'password123')).toBe(false);
+  });
+
+  it('returns true (invalid) for an empty reset token', () => {
+    const service = createService();
+    expect(service.isNewPasswordValid('', 'password123')).toBe(true);
+  });
+
+  it('returns true (invalid) for a password shorter than 8 characters', () => {
+    const service = createService();
+    const uuid = '550e8400-e29b-41d4-a716-446655440000';
+    expect(service.isNewPasswordValid(uuid, 'short')).toBe(true);
+  });
+
+  it('returns true (invalid) for a non-string reset token', () => {
+    const service = createService();
+    expect(service.isNewPasswordValid(null, 'password123')).toBe(true);
+  });
+});

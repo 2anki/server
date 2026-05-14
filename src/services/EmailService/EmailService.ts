@@ -69,7 +69,7 @@ class EmailService implements IEmailService {
   }
 
   async sendResetEmail(email: string, token: string): Promise<void> {
-    const link = `${process.env.DOMAIN}/users/r/${token}`;
+    const link = `${process.env.DOMAIN ?? 'https://2anki.net'}/users/r/${token}`;
     const markup = PASSWORD_RESET_TEMPLATE.replace('{{link}}', link);
     const msg = {
       to: email,
@@ -188,7 +188,7 @@ class EmailService implements IEmailService {
     token: string,
     purpose: 'login' | 'password_reset'
   ): Promise<void> {
-    const link = `${process.env.DOMAIN}/auth/magic?token=${token}`;
+    const link = `${process.env.DOMAIN ?? 'https://2anki.net'}/auth/magic?token=${token}`;
     const isLogin = purpose === 'login';
     const subject = isLogin
       ? 'Your 2anki login link'
@@ -282,7 +282,7 @@ class EmailService implements IEmailService {
   }
 
   async sendVerificationEmail(to: string, token: string): Promise<void> {
-    const link = `${process.env.DOMAIN}/api/users/verify/${token}`;
+    const link = `${process.env.DOMAIN ?? 'https://2anki.net'}/api/users/verify/${token}`;
     const markup = VERIFY_EMAIL_TEMPLATE.replace('{{link}}', link);
     const msg = {
       to,
