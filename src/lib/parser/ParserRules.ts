@@ -48,8 +48,12 @@ class ParserRules {
 
       if (result) {
         rules.setFlashcardTypes(result.flashcard_is.split(','));
-        rules.DECK = result.deck_is;
-        rules.SUB_DECKS = result.sub_deck_is;
+        rules.DECK = (result.deck_is ?? '')
+          .split(',')
+          .filter(Boolean);
+        rules.SUB_DECKS = (result.sub_deck_is ?? '')
+          .split(',')
+          .filter(Boolean);
         rules.TAGS = result.tags_is;
         rules.EMAIL_NOTIFICATION = result.email_notification;
       } else {

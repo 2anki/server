@@ -24,18 +24,29 @@ interface Props {
 }
 
 const flashCardOptions = [
+  'paragraph',
+  'callout',
+  'quote',
+  'code',
   'toggle',
+  'to_do',
   'bulleted_list_item',
   'numbered_list_item',
+  'column_list',
   'heading_1',
   'heading_2',
   'heading_3',
-  'column_list',
-  'quote',
 ];
 const tagOptions = ['heading', 'strikethrough'];
-const subDeckOptions = ['child_page', 'child_database', ...flashCardOptions];
-const deckOptions = ['page', 'database', ...subDeckOptions];
+const subDeckOptions = [
+  'child_page',
+  'child_database',
+  'toggle',
+  'heading_1',
+  'heading_2',
+  'heading_3',
+];
+const deckOptions = ['page', 'database'];
 
 const defaultRules: NewRule = {
   id: 0,
@@ -113,8 +124,10 @@ export default function RulesPage({ setErrorMessage }: Readonly<Props>) {
           ? {
               ...rule,
               flashcard_is: rule.flashcard_is.split(',').filter(Boolean),
-              sub_deck_is: rule.sub_deck_is.split(',').filter(Boolean),
-              deck_is: rule.deck_is.split(',').filter(Boolean),
+              sub_deck_is: rule.sub_deck_is
+                .split(',')
+                .filter((v: string) => subDeckOptions.includes(v)),
+              deck_is: deckOptions,
             }
           : defaultRules;
         setRules(loaded);
@@ -262,19 +275,15 @@ export default function RulesPage({ setErrorMessage }: Readonly<Props>) {
         {!isLoading && !loadFailed && (
           <>
             <section className={styles.optionGroup}>
+              <div className={styles.groupHeader}>
+                <h2 className={styles.groupHeading}>Decks and sub-decks</h2>
+                <FieldHint text="Pages and databases always become decks. Pick which blocks nest inside as sub-decks." />
+              </div>
+              <p className={styles.groupHint}>
+                Pages and databases become decks. The blocks below nest inside
+                as sub-decks.
+              </p>
               <RuleDefinition
-                title="Decks"
-                hint="Notion blocks that become a top-level deck."
-                value={rules.deck_is}
-                options={deckOptions}
-                onSelected={(fco) => toggleSelection('deck_is', fco)}
-              />
-            </section>
-
-            <section className={styles.optionGroup}>
-              <RuleDefinition
-                title="Sub-decks"
-                hint="Notion blocks that nest inside a deck."
                 value={rules.sub_deck_is}
                 options={subDeckOptions}
                 onSelected={(fco) => toggleSelection('sub_deck_is', fco)}
@@ -282,9 +291,11 @@ export default function RulesPage({ setErrorMessage }: Readonly<Props>) {
             </section>
 
             <section className={styles.optionGroup}>
+              <div className={styles.groupHeader}>
+                <h2 className={styles.groupHeading}>Flashcards</h2>
+                <FieldHint text="Notion blocks that become individual cards." />
+              </div>
               <RuleDefinition
-                title="Flashcards"
-                hint="Notion blocks that become individual cards."
                 value={rules.flashcard_is}
                 options={flashCardOptions}
                 onSelected={(fco) => toggleSelection('flashcard_is', fco)}
