@@ -5,6 +5,10 @@ export interface ChangelogEntry {
 }
 
 export const changelog: ChangelogEntry[] = [
+  { type: 'feature', title: 'Image occlusion: draw masks on any image and export native Anki 23.10 cards — source images pull straight from Notion', date: '2026-05-14' },
+  { type: 'feature', title: 'Chat study assistant: ask Claude questions about any deck and download the conversation as a .txt file', date: '2026-05-14' },
+  { type: 'feature', title: 'Sign in with Notion: one-click login alongside Google and email', date: '2026-05-14' },
+  { type: 'feature', title: 'Anki-to-Notion is free for everyone — higher PDF page limit and a dedicated landing page', date: '2026-05-13' },
   { type: 'feature', title: 'Try every Pro feature free for 1 hour — unlimited uploads, no card limit', date: '2026-05-13' },
   { type: 'fix', title: 'Contact form works again — file attachments now supported too', date: '2026-05-13' },
   { type: 'feature', title: 'Share your experience — tell us what you study and what gets in your way', date: '2026-05-13' },
