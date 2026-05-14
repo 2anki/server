@@ -14,13 +14,6 @@ export const NORWAY_PHOTOS: UnsplashPhoto[] = [
     location: 'Holmenkollen, Oslo',
     year: '2018',
   },
-  {
-    id: '1662357259439-df552e3f8f97',
-    photographer: 'Stig Husby',
-    photographerUrl: 'https://unsplash.com/@stighusby',
-    location: 'Holmenkollen, Oslo',
-    year: '2022',
-  },
 ];
 
 export function getDailyPhoto(): UnsplashPhoto {
