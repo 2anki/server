@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { startTransition, useEffect, useRef, useState } from 'react';
 import { get2ankiApi } from '../../../lib/backend/get2ankiApi';
 import NotionObject from '../../../lib/interfaces/NotionObject';
 import { BlockIcon } from '../../SearchPage/components/BlockIcon';
@@ -53,6 +53,30 @@ interface Props {
 
 const FREE_TIER_LIMIT = 3;
 const PREVIEW_COUNT = 6;
+const FETCH_CONCURRENCY = 6;
+
+interface Sem {
+  acquire(): Promise<void>;
+  release(): void;
+}
+
+function makeSem(limit: number): Sem {
+  let active = 0;
+  const queue: Array<() => void> = [];
+  return {
+    acquire() {
+      return new Promise<void>((resolve) => {
+        if (active < limit) { active++; resolve(); }
+        else { queue.push(resolve); }
+      });
+    },
+    release() {
+      active--;
+      const next = queue.shift();
+      if (next) { active++; next(); }
+    },
+  };
+}
 
 function getImageUrl(block: NotionImageBlock): string | null {
   if (block.image.type === 'file') return block.image.file?.url ?? null;
@@ -66,8 +90,14 @@ interface FetchResult {
   error: { isPermission: boolean } | null;
 }
 
-async function fetchBlocks(blockId: string, signal: AbortSignal): Promise<FetchResult> {
-  const res = await fetch(`/api/notion/blocks/${blockId}`, { credentials: 'include', signal });
+async function fetchBlocks(blockId: string, signal: AbortSignal, sem: Sem): Promise<FetchResult> {
+  await sem.acquire();
+  let res: Response;
+  try {
+    res = await fetch(`/api/notion/blocks/${blockId}`, { credentials: 'include', signal });
+  } finally {
+    sem.release();
+  }
   if (!res.ok) {
     const body = await res.text().catch(() => '');
     const isPermission =
@@ -98,7 +128,7 @@ async function fetchBlocks(blockId: string, signal: AbortSignal): Promise<FetchR
       (block as { has_children?: boolean }).has_children === true
     ) {
       // toggles, columns, callouts, synced blocks, etc. — recurse to find nested images
-      containerFetches.push(fetchBlocks(block.id, signal));
+      containerFetches.push(fetchBlocks(block.id, signal, sem));
     }
   }
 
@@ -137,6 +167,7 @@ export function NotionImportDrawer({
   const seenIds = useRef<Set<string>>(new Set());
   const seenImageIds = useRef<Set<string>>(new Set());
   const pendingRef = useRef(0);
+  const semRef = useRef<Sem>(makeSem(FETCH_CONCURRENCY));
   const [anyPending, setAnyPending] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -155,7 +186,7 @@ export function NotionImportDrawer({
     pendingRef.current += 1;
     setAnyPending(true);
 
-    fetchBlocks(id, signal).then((result) => {
+    fetchBlocks(id, signal, semRef.current).then((result) => {
       if (signal.aborted) return;
 
       const uniqueImages = result.images.filter((item) => {
@@ -165,10 +196,12 @@ export function NotionImportDrawer({
       });
 
       if (uniqueImages.length > 0 || result.error != null) {
-        setSections((prev) => [
-          ...prev,
-          { id, title, icon, images: uniqueImages, loading: false, error: result.error, showAll: false },
-        ]);
+        startTransition(() => {
+          setSections((prev) => [
+            ...prev,
+            { id, title, icon, images: uniqueImages, loading: false, error: result.error, showAll: false },
+          ]);
+        });
       }
 
       if (result.error == null) {
@@ -181,7 +214,9 @@ export function NotionImportDrawer({
     }).finally(() => {
       if (signal.aborted) return;
       pendingRef.current -= 1;
-      if (pendingRef.current === 0) setAnyPending(false);
+      if (pendingRef.current === 0) {
+        startTransition(() => setAnyPending(false));
+      }
     });
   };
 
@@ -189,6 +224,7 @@ export function NotionImportDrawer({
     seenIds.current = new Set();
     seenImageIds.current = new Set();
     pendingRef.current = 0;
+    semRef.current = makeSem(FETCH_CONCURRENCY);
     setSections([]);
     setAnyPending(false);
     setPagesLoading(true);
@@ -378,6 +414,8 @@ export function NotionImportDrawer({
                                 src={item.imageUrl}
                                 alt={item.caption || 'Notion image'}
                                 className={styles.galleryTileImg}
+                                loading="lazy"
+                                decoding="async"
                               />
                               {isSelected && <span className={styles.galleryCheckBadge}>✓</span>}
                             </button>
