@@ -16,13 +16,7 @@ interface NotionImageBlock {
   };
 }
 
-interface NotionChildPageBlock {
-  id: string;
-  type: 'child_page';
-  child_page: { title: string };
-}
-
-type NotionBlock = NotionImageBlock | NotionChildPageBlock | { id: string; type: string };
+type NotionBlock = NotionImageBlock | { id: string; type: string };
 
 interface GalleryItem {
   blockId: string;
@@ -30,20 +24,13 @@ interface GalleryItem {
   caption: string;
 }
 
-interface PageEntry {
-  id: string;
-  title: string;
-  icon?: string;
-}
-
-interface PageContents {
+interface PageSection {
+  page: NotionObject;
   images: GalleryItem[];
-  subPages: PageEntry[];
+  loading: boolean;
+  error: { isPermission: boolean } | null;
+  showAll: boolean;
 }
-
-type DrawerView =
-  | { kind: 'pages' }
-  | { kind: 'page'; stack: PageEntry[] };
 
 interface Props {
   isOpen: boolean;
@@ -54,7 +41,8 @@ interface Props {
 }
 
 const FREE_TIER_LIMIT = 3;
-const SKELETON_COUNT = 6;
+const PREVIEW_COUNT = 6;
+const SKELETON_SECTIONS = 3;
 
 function getImageUrl(block: NotionImageBlock): string | null {
   if (block.image.type === 'file') return block.image.file?.url ?? null;
@@ -62,45 +50,31 @@ function getImageUrl(block: NotionImageBlock): string | null {
   return null;
 }
 
-class NotionPageError extends Error {
-  constructor(
-    message: string,
-    readonly isPermission: boolean
-  ) {
-    super(message);
-  }
-}
-
-async function fetchPageContents(pageId: string, signal: AbortSignal): Promise<PageContents> {
+async function fetchImages(pageId: string, signal: AbortSignal): Promise<GalleryItem[]> {
   const res = await fetch(`/api/notion/blocks/${pageId}`, { credentials: 'include', signal });
   if (!res.ok) {
     const body = await res.text().catch(() => '');
     const isPermission =
       res.status === 400 &&
       (body.includes('object_not_found') || body.includes('not_found') || body.includes('shared'));
-    throw new NotionPageError(body || String(res.status), isPermission);
+    const err = new Error(body || String(res.status)) as Error & { isPermission: boolean };
+    err.isPermission = isPermission;
+    throw err;
   }
   const data = (await res.json()) as { results?: NotionBlock[] } | NotionBlock[];
   const blocks = Array.isArray(data) ? data : (data.results ?? []);
-
-  const images: GalleryItem[] = [];
-  const subPages: PageEntry[] = [];
-
+  const items: GalleryItem[] = [];
   for (const block of blocks) {
     if (block.type === 'image') {
       const url = getImageUrl(block as NotionImageBlock);
       if (url != null) {
         const caption =
           (block as NotionImageBlock).image.caption?.map((c) => c.plain_text).join('') ?? '';
-        images.push({ blockId: block.id, imageUrl: url, caption });
+        items.push({ blockId: block.id, imageUrl: url, caption });
       }
-    } else if (block.type === 'child_page') {
-      const title = (block as NotionChildPageBlock).child_page.title || 'Untitled page';
-      subPages.push({ id: block.id, title });
     }
   }
-
-  return { images, subPages };
+  return items;
 }
 
 export function NotionImportDrawer({
@@ -110,14 +84,10 @@ export function NotionImportDrawer({
   isPaying,
   currentCount,
 }: Readonly<Props>) {
-  const [view, setView] = useState<DrawerView>({ kind: 'pages' });
-  const [pages, setPages] = useState<NotionObject[]>([]);
+  const [sections, setSections] = useState<PageSection[]>([]);
   const [pagesLoading, setPagesLoading] = useState(false);
-  const [pagesError, setPagesError] = useState<string | null>(null);
+  const [pagesError, setPageError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
-  const [contents, setContents] = useState<PageContents | null>(null);
-  const [contentsLoading, setContentsLoading] = useState(false);
-  const [contentsError, setContentsError] = useState<{ message: string; isPermission: boolean } | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [importing, setImporting] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
@@ -128,85 +98,51 @@ export function NotionImportDrawer({
 
   useEffect(() => {
     if (!isOpen) return;
-    setView({ kind: 'pages' });
     setSearch('');
-    setContents(null);
-    setContentsError(null);
     setSelected(new Set());
+    setSections([]);
+    setPageError(null);
     setPagesLoading(true);
-    setPagesError(null);
+
     const controller = new AbortController();
     abortRef.current = controller;
+
     get2ankiApi()
       .searchTopLevelPages('')
-      .then((data) => {
+      .then((pages) => {
         if (controller.signal.aborted) return;
-        setPages(data);
         setPagesLoading(false);
+        setSections(pages.map((page) => ({ page, images: [], loading: true, error: null, showAll: false })));
         setTimeout(() => searchRef.current?.focus(), 50);
+
+        for (const page of pages) {
+          fetchImages(page.id, controller.signal)
+            .then((images) => {
+              if (controller.signal.aborted) return;
+              setSections((prev) =>
+                prev.map((s) => (s.page.id === page.id ? { ...s, images, loading: false } : s))
+              );
+            })
+            .catch((err: Error & { isPermission?: boolean }) => {
+              if (controller.signal.aborted) return;
+              setSections((prev) =>
+                prev.map((s) =>
+                  s.page.id === page.id
+                    ? { ...s, loading: false, error: { isPermission: err.isPermission === true } }
+                    : s
+                )
+              );
+            });
+        }
       })
       .catch((err: Error) => {
         if (controller.signal.aborted) return;
-        setPagesError(err.message);
+        setPageError(err.message);
         setPagesLoading(false);
       });
+
     return () => controller.abort();
   }, [isOpen]);
-
-  const navigateTo = (entry: PageEntry) => {
-    abortRef.current?.abort();
-    const controller = new AbortController();
-    abortRef.current = controller;
-
-    setView((prev) => {
-      const stack = prev.kind === 'page' ? [...prev.stack, entry] : [entry];
-      return { kind: 'page', stack };
-    });
-    setContents(null);
-    setContentsError(null);
-    setContentsLoading(true);
-
-    fetchPageContents(entry.id, controller.signal)
-      .then((data) => {
-        if (controller.signal.aborted) return;
-        setContents(data);
-        setContentsLoading(false);
-      })
-      .catch((err: Error) => {
-        if (controller.signal.aborted) return;
-        const isPermission = err instanceof NotionPageError && err.isPermission;
-        setContentsError({ message: err.message, isPermission });
-        setContentsLoading(false);
-      });
-  };
-
-  const navigateBack = () => {
-    abortRef.current?.abort();
-    setView((prev) => {
-      if (prev.kind !== 'page') return prev;
-      if (prev.stack.length <= 1) return { kind: 'pages' };
-      const stack = prev.stack.slice(0, -1);
-      const parent = stack[stack.length - 1];
-      const controller = new AbortController();
-      abortRef.current = controller;
-      setContents(null);
-      setContentsError(null);
-      setContentsLoading(true);
-      fetchPageContents(parent.id, controller.signal)
-        .then((data) => {
-          if (controller.signal.aborted) return;
-          setContents(data);
-          setContentsLoading(false);
-        })
-        .catch((err: Error) => {
-          if (controller.signal.aborted) return;
-          const isPermission = err instanceof NotionPageError && err.isPermission;
-          setContentsError({ message: err.message, isPermission });
-          setContentsLoading(false);
-        });
-      return { kind: 'page', stack };
-    });
-  };
 
   const toggleImage = (blockId: string) => {
     setSelected((prev) => {
@@ -233,10 +169,9 @@ export function NotionImportDrawer({
 
   if (!isOpen) return null;
 
-  const currentPage = view.kind === 'page' ? view.stack[view.stack.length - 1] : null;
-  const filteredPages = search.trim() === ''
-    ? pages
-    : pages.filter((p) => p.title.toLowerCase().includes(search.toLowerCase()));
+  const filteredSections = search.trim() === ''
+    ? sections
+    : sections.filter((s) => s.page.title.toLowerCase().includes(search.toLowerCase()));
 
   const addLabel = selected.size === 0
     ? 'Select images to add'
@@ -245,213 +180,169 @@ export function NotionImportDrawer({
   return (
     <div className={styles.drawer} role="dialog" aria-modal="true" aria-label="Import from Notion">
       <div className={styles.drawerHeader}>
-        {view.kind === 'page' ? (
-          <>
-            <button type="button" className={styles.drawerBackBtn} onClick={navigateBack}>
-              ← Pages
-            </button>
-            <span className={styles.drawerBreadcrumb} title={currentPage?.title ?? ''}>
-              {currentPage?.title ?? 'Untitled page'}
-            </span>
-          </>
-        ) : (
-          <span className={styles.drawerTitle}>Import from Notion</span>
-        )}
+        <span className={styles.drawerTitle}>Import from Notion</span>
         <button type="button" className={styles.drawerCloseBtn} onClick={onClose} aria-label="Close">
           ×
         </button>
       </div>
 
       <div className={styles.drawerBody}>
-        {view.kind === 'pages' && (
-          <>
-            <div className={`${sharedStyles.searchBarGroup} ${styles.drawerSearchBar}`}>
-              <input
-                ref={searchRef}
-                type="search"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search pages"
-                aria-label="Search pages"
-              />
-            </div>
-
-            {pagesLoading && (
-              <ul className={styles.pageList} aria-label="Loading pages">
-                {Array.from({ length: SKELETON_COUNT }).map((_, i) => (
-                  // eslint-disable-next-line react/no-array-index-key
-                  <li key={i} className={styles.pageRowSkeleton} aria-hidden="true">
-                    <div className={styles.pageRowSkeletonIcon} />
-                    <div className={styles.pageRowSkeletonText} />
-                  </li>
-                ))}
-              </ul>
-            )}
-
-            {pagesError != null && (
-              <div className={styles.drawerEmpty}>
-                <p>Couldn't reach Notion. Try again in a moment.</p>
-                <button
-                  type="button"
-                  className={styles.drawerRetryBtn}
-                  onClick={() => {
-                    setPagesError(null);
-                    setPagesLoading(true);
-                    get2ankiApi()
-                      .searchTopLevelPages('')
-                      .then((data) => { setPages(data); setPagesLoading(false); })
-                      .catch((err: Error) => { setPagesError(err.message); setPagesLoading(false); });
-                  }}
-                >
-                  Try again
-                </button>
-              </div>
-            )}
-
-            {!pagesLoading && pagesError == null && filteredPages.length === 0 && (
-              <div className={styles.drawerEmpty}>
-                {search.trim().length > 0 ? (
-                  <p>No pages match "<strong>{search}</strong>".</p>
-                ) : (
-                  <>
-                    <p>No pages shared with 2anki yet.</p>
-                    <p>Share a page in Notion, then come back here.</p>
-                  </>
-                )}
-              </div>
-            )}
-
-            {!pagesLoading && pagesError == null && filteredPages.length > 0 && (
-              <ul className={styles.pageList}>
-                {filteredPages.map((page) => (
-                  <li key={page.id}>
-                    <button
-                      type="button"
-                      className={styles.pageRow}
-                      onClick={() => navigateTo({ id: page.id, title: page.title || 'Untitled page', icon: page.icon })}
-                    >
-                      <span className={styles.pageRowIcon}>
-                        <BlockIcon icon={page.icon} />
-                      </span>
-                      <span className={styles.pageRowTitle}>{page.title || 'Untitled page'}</span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </>
+        {!pagesLoading && sections.length > 0 && (
+          <div className={`${sharedStyles.searchBarGroup} ${styles.drawerSearchBar}`}>
+            <input
+              ref={searchRef}
+              type="search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search pages"
+              aria-label="Search pages"
+            />
+          </div>
         )}
 
-        {view.kind === 'page' && (
-          <>
-            {atFreeTierCap && (
-              <p className={styles.drawerFreeTierNote}>
-                Free plan: 3 images already added.{' '}
-                <a href="/pricing" className={styles.drawerUpgradeLink}>Upgrade for unlimited</a>
-              </p>
-            )}
+        {pagesError != null && (
+          <div className={styles.drawerEmpty}>
+            <p>Couldn't reach Notion. Try again in a moment.</p>
+            <button
+              type="button"
+              className={styles.drawerRetryBtn}
+              onClick={() => {
+                setPageError(null);
+                setPagesLoading(true);
+                get2ankiApi()
+                  .searchTopLevelPages('')
+                  .then((pages) => {
+                    setSections(pages.map((p) => ({ page: p, images: [], loading: true, error: null, showAll: false })));
+                    setPagesLoading(false);
+                  })
+                  .catch((err: Error) => { setPageError(err.message); setPagesLoading(false); });
+              }}
+            >
+              Try again
+            </button>
+          </div>
+        )}
 
-            {contentsLoading && (
-              <div className={styles.galleryGrid}>
-                {Array.from({ length: SKELETON_COUNT }).map((_, i) => (
-                  // eslint-disable-next-line react/no-array-index-key
-                  <div key={i} className={styles.gallerySkeletonTile} aria-hidden="true" />
-                ))}
+        {pagesLoading && (
+          <div className={styles.gallerySections}>
+            {Array.from({ length: SKELETON_SECTIONS }).map((_, i) => (
+              // eslint-disable-next-line react/no-array-index-key
+              <div key={i} className={styles.gallerySection}>
+                <div className={styles.gallerySectionHeaderSkeleton} aria-hidden="true" />
+                <div className={styles.galleryGrid}>
+                  {Array.from({ length: PREVIEW_COUNT }).map((__, j) => (
+                    // eslint-disable-next-line react/no-array-index-key
+                    <div key={j} className={styles.gallerySkeletonTile} aria-hidden="true" />
+                  ))}
+                </div>
               </div>
-            )}
+            ))}
+          </div>
+        )}
 
-            {contentsError != null && (
-              <div className={styles.drawerEmpty}>
-                {contentsError.isPermission ? (
-                  <>
-                    <p>This page isn't shared with 2anki.</p>
-                    <p>Open Notion, find the page, and share it with the 2anki integration.</p>
-                    <button
-                      type="button"
-                      className={styles.drawerRetryBtn}
-                      onClick={navigateBack}
-                    >
-                      ← Back to pages
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <p>Couldn't reach Notion. Try again in a moment.</p>
-                    <button
-                      type="button"
-                      className={styles.drawerRetryBtn}
-                      onClick={() => currentPage != null && navigateTo(currentPage)}
-                    >
-                      Try again
-                    </button>
-                  </>
+        {!pagesLoading && pagesError == null && filteredSections.length === 0 && sections.length === 0 && (
+          <div className={styles.drawerEmpty}>
+            <p>No pages shared with 2anki yet.</p>
+            <p>Share a page in Notion, then come back here.</p>
+          </div>
+        )}
+
+        {!pagesLoading && pagesError == null && filteredSections.length === 0 && sections.length > 0 && (
+          <div className={styles.drawerEmpty}>
+            <p>No pages match "<strong>{search}</strong>".</p>
+          </div>
+        )}
+
+        {atFreeTierCap && sections.length > 0 && (
+          <p className={styles.drawerFreeTierNote}>
+            Free plan: 3 images already added.{' '}
+            <a href="/pricing" className={styles.drawerUpgradeLink}>Upgrade for unlimited</a>
+          </p>
+        )}
+
+        <div className={styles.gallerySections}>
+          {filteredSections.map((section) => {
+            const visible = section.showAll
+              ? section.images
+              : section.images.slice(0, PREVIEW_COUNT);
+            const hiddenCount = section.images.length - PREVIEW_COUNT;
+
+            return (
+              <div key={section.page.id} className={styles.gallerySection}>
+                <div className={styles.gallerySectionHeader}>
+                  <span className={styles.gallerySectionIcon}>
+                    <BlockIcon icon={section.page.icon} />
+                  </span>
+                  <span className={styles.gallerySectionTitle}>
+                    {section.page.title || 'Untitled page'}
+                  </span>
+                </div>
+
+                {section.loading && (
+                  <div className={styles.galleryGrid}>
+                    {Array.from({ length: PREVIEW_COUNT }).map((_, i) => (
+                      // eslint-disable-next-line react/no-array-index-key
+                      <div key={i} className={styles.gallerySkeletonTile} aria-hidden="true" />
+                    ))}
+                  </div>
                 )}
-              </div>
-            )}
 
-            {!contentsLoading && contentsError == null && contents != null && (
-              <>
-                {contents.subPages.length > 0 && (
-                  <div className={styles.subPageSection}>
-                    <span className={styles.subPageSectionLabel}>Sub-pages</span>
-                    <div className={styles.subPageChips}>
-                      {contents.subPages.map((sp) => (
+                {section.error != null && (
+                  <p className={styles.gallerySectionError}>
+                    {section.error.isPermission
+                      ? 'Not shared with 2anki. Share this page from Notion.'
+                      : "Couldn't load images."}
+                  </p>
+                )}
+
+                {!section.loading && section.error == null && section.images.length === 0 && (
+                  <p className={styles.gallerySectionEmpty}>No images on this page.</p>
+                )}
+
+                {visible.length > 0 && (
+                  <div className={styles.galleryGrid}>
+                    {visible.map((item) => {
+                      const isSelected = selected.has(item.blockId);
+                      const atLimit = !isPaying && !isSelected && selected.size >= freeSlotsLeft;
+                      return (
                         <button
-                          key={sp.id}
+                          key={item.blockId}
                           type="button"
-                          className={styles.subPageChip}
-                          onClick={() => navigateTo(sp)}
+                          className={`${styles.galleryTile} ${isSelected ? styles.galleryTileSelected : ''}`}
+                          onClick={() => !atLimit && toggleImage(item.blockId)}
+                          disabled={atLimit && !isSelected}
+                          aria-pressed={isSelected}
+                          title={item.caption || undefined}
                         >
-                          {sp.title}
+                          <img
+                            src={item.imageUrl}
+                            alt={item.caption || 'Notion image'}
+                            className={styles.galleryTileImg}
+                          />
+                          {isSelected && <span className={styles.galleryCheckBadge}>✓</span>}
                         </button>
-                      ))}
-                    </div>
+                      );
+                    })}
                   </div>
                 )}
 
-                {contents.images.length === 0 && contents.subPages.length === 0 && (
-                  <div className={styles.drawerEmpty}>
-                    <p>No images on this page.</p>
-                  </div>
+                {!section.showAll && hiddenCount > 0 && (
+                  <button
+                    type="button"
+                    className={styles.galleryShowMore}
+                    onClick={() =>
+                      setSections((prev) =>
+                        prev.map((s) => (s.page.id === section.page.id ? { ...s, showAll: true } : s))
+                      )
+                    }
+                  >
+                    Show {hiddenCount} more {hiddenCount === 1 ? 'image' : 'images'}
+                  </button>
                 )}
-
-                {contents.images.length === 0 && contents.subPages.length > 0 && null}
-
-                {contents.images.length > 0 && (
-                  <>
-                    {contents.subPages.length > 0 && (
-                      <span className={styles.subPageSectionLabel}>Images on this page</span>
-                    )}
-                    <div className={styles.galleryGrid}>
-                      {contents.images.map((item) => {
-                        const isSelected = selected.has(item.blockId);
-                        const atLimit = !isPaying && !isSelected && selected.size >= freeSlotsLeft;
-                        return (
-                          <button
-                            key={item.blockId}
-                            type="button"
-                            className={`${styles.galleryTile} ${isSelected ? styles.galleryTileSelected : ''}`}
-                            onClick={() => !atLimit && toggleImage(item.blockId)}
-                            disabled={atLimit && !isSelected}
-                            aria-pressed={isSelected}
-                            title={item.caption || undefined}
-                          >
-                            <img
-                              src={item.imageUrl}
-                              alt={item.caption || 'Notion image'}
-                              className={styles.galleryTileImg}
-                            />
-                            {isSelected && <span className={styles.galleryCheckBadge}>✓</span>}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </>
-                )}
-              </>
-            )}
-          </>
-        )}
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       <div className={styles.drawerFooter}>
