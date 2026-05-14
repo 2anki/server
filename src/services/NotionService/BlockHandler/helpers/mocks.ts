@@ -26,6 +26,72 @@ export const CHILD_PAGE_MOCK: BlockObjectResponse = {
   },
 };
 
+const richText = (content: string) => [
+  {
+    type: 'text' as const,
+    text: { content, link: null },
+    annotations: {
+      bold: false,
+      italic: false,
+      strikethrough: false,
+      underline: false,
+      code: false,
+      color: 'default' as const,
+    },
+    plain_text: content,
+    href: null,
+  },
+];
+
+const baseBlockMeta = {
+  object: 'block' as const,
+  id: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+  parent: {
+    type: 'page_id' as const,
+    page_id: 'd693054c-328f-404a-9267-d78681a75bef',
+  },
+  created_time: '2021-03-20T12:54:00.000Z',
+  last_edited_time: '2021-03-20T12:55:00.000Z',
+  created_by: {
+    object: 'user' as const,
+    id: '1590db54-99fe-467c-a656-be319fe6ca8b',
+  },
+  last_edited_by: {
+    object: 'user' as const,
+    id: '1590db54-99fe-467c-a656-be319fe6ca8b',
+  },
+  has_children: false,
+  archived: false,
+  in_trash: false,
+};
+
+export const BULLETED_LIST_MOCK: BlockObjectResponse = {
+  ...baseBlockMeta,
+  type: 'bulleted_list_item',
+  bulleted_list_item: {
+    rich_text: richText('First chapter'),
+    color: 'default',
+  },
+};
+
+export const NUMBERED_LIST_MOCK: BlockObjectResponse = {
+  ...baseBlockMeta,
+  type: 'numbered_list_item',
+  numbered_list_item: {
+    rich_text: richText('Step one'),
+    color: 'default',
+  },
+};
+
+export const EMPTY_BULLETED_LIST_MOCK: BlockObjectResponse = {
+  ...baseBlockMeta,
+  type: 'bulleted_list_item',
+  bulleted_list_item: {
+    rich_text: [],
+    color: 'default',
+  },
+};
+
 export const HEADING_MOCK: BlockObjectResponse = {
   object: 'block',
   id: '02f65a53-c1af-405f-8ba9-fa9cf6933113',

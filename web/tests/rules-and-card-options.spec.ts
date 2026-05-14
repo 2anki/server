@@ -111,7 +111,7 @@ test.describe('RulesPage', () => {
     );
 
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-      'My Notion Page'
+      'Rules for My Notion Page'
     );
     await expect(page.getByRole('button', { name: '← Back' })).toBeVisible();
     await expect(
@@ -125,18 +125,21 @@ test.describe('RulesPage', () => {
     page,
   }) => {
     await page.goto('/rules/page-1');
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-      'Conversion rules'
-    );
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Rules');
   });
 
-  test('renders rule definitions open by default', async ({ page }) => {
+  test('renders the grouped option cards', async ({ page }) => {
     await page.goto('/rules/page-1?title=My%20Page');
 
-    const deckDetails = page.locator('details', {
-      hasText: 'What counts as a deck?',
-    });
-    await expect(deckDetails).toHaveAttribute('open', '');
+    await expect(
+      page.getByRole('heading', { name: 'Decks and sub-decks' })
+    ).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: 'Flashcards' })
+    ).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: 'Tags and notifications' })
+    ).toBeVisible();
   });
 
   test('Save changes posts to both rules and settings endpoints', async ({
@@ -191,8 +194,9 @@ test.describe('RulesPage', () => {
     await page.goto('/rules/page-1?title=My%20Page&returnTo=/notion');
     await page.getByRole('button', { name: /Save changes/ }).waitFor();
 
-    // Toggle a chip to make the page dirty.
-    await page.getByRole('button', { name: 'database', exact: true }).click();
+    // Toggle a chip to make the page dirty. `toggle` is in the default
+    // sub-deck options after the redesign.
+    await page.getByRole('button', { name: 'toggle', exact: true }).click();
 
     // Cancel the native confirm so we stay on the page.
     page.once('dialog', (dialog) => {
@@ -229,31 +233,24 @@ test.describe('RulesPage', () => {
 test.describe('CardOptionsPage', () => {
   test.beforeEach(({ page }) => setupMocks(page));
 
-  test('renders header, back, and form card', async ({ page }) => {
-    await page.goto('/settings/card-options');
+  test('renders header and form card on the defaults view', async ({
+    page,
+  }) => {
+    await page.goto('/card-options');
 
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(
-      'Card options'
+      'Settings'
     );
-    await expect(page.getByRole('button', { name: '← Back' })).toBeVisible();
     await expect(
       page.getByRole('button', { name: /Save card options/ })
     ).toBeVisible();
-  });
-
-  test('Back returns to /upload by default', async ({ page }) => {
-    await page.goto('/settings/card-options');
-    await page.getByRole('button', { name: '← Back' }).waitFor();
-
-    await page.getByRole('button', { name: '← Back' }).click();
-    await page.waitForURL('**/upload');
   });
 
   test('Back returns to the provided returnTo when supplied', async ({
     page,
   }) => {
     await page.goto(
-      '/settings/card-options?pageId=page-1&title=Any&returnTo=/rules/page-1'
+      '/card-options?pageId=page-1&title=Any&returnTo=/rules/page-1'
     );
     await page.getByRole('button', { name: '← Back' }).waitFor();
 

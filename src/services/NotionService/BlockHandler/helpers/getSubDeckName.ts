@@ -9,33 +9,35 @@ import { getChildDatabaseBlock } from '../../blocks/helpers/getChildDatabaseBloc
 const getSubDeckName = (
   block: BlockObjectResponse | { title: string }
 ): string => {
-  let subDeckName = 'Untitled';
+  const fallback = 'Untitled';
   if ('title' in block) {
     return block.title;
   }
 
-  if (isFullBlock(block as BlockObjectResponse)) {
-    switch (block.type) {
-      case 'child_page':
-        return getChildPageBlock(block).title;
-      case 'child_database':
-        return getChildDatabaseBlock(block).title;
-      case 'toggle':
-        return richObjectToString(getToggleBlock(block));
-      case 'heading_1':
-      case 'heading_2':
-      case 'heading_3':
-        const heading = getHeading(block);
-        if (heading) {
-          return richObjectToString(heading);
-        }
-      case 'column_list':
-      case 'bulleted_list_item':
-      case 'numbered_list_item':
-        return subDeckName;
-    }
+  if (!isFullBlock(block as BlockObjectResponse)) {
+    return fallback;
   }
-  return subDeckName;
+
+  switch (block.type) {
+    case 'child_page':
+      return getChildPageBlock(block).title;
+    case 'child_database':
+      return getChildDatabaseBlock(block).title;
+    case 'toggle':
+      return richObjectToString(getToggleBlock(block));
+    case 'heading_1':
+    case 'heading_2':
+    case 'heading_3': {
+      const heading = getHeading(block);
+      return heading ? richObjectToString(heading) : fallback;
+    }
+    case 'bulleted_list_item':
+      return richObjectToString(block.bulleted_list_item) || fallback;
+    case 'numbered_list_item':
+      return richObjectToString(block.numbered_list_item) || fallback;
+    default:
+      return fallback;
+  }
 };
 
 export default getSubDeckName;
