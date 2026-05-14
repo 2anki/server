@@ -14,6 +14,44 @@ const ChatRouter = () => {
   const useCase = new ChatUseCase(repo, anthropic);
   const controller = new ChatController(useCase);
 
+  /**
+   * @swagger
+   * /api/chat/message:
+   *   post:
+   *     summary: Send a message to the study assistant
+   *     tags: [Chat]
+   *     security:
+   *       - bearerAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required: [content]
+   *             properties:
+   *               content:
+   *                 type: string
+   *                 maxLength: 4000
+   *               history:
+   *                 type: array
+   *                 items:
+   *                   type: object
+   *                   required: [role, content]
+   *                   properties:
+   *                     role:
+   *                       type: string
+   *                       enum: [user, assistant]
+   *                     content:
+   *                       type: string
+   *     responses:
+   *       200:
+   *         description: Assistant reply
+   *       400:
+   *         description: Invalid content
+   *       429:
+   *         description: Monthly message limit reached
+   */
   router.post('/api/chat/message', RequireAuthentication, (req, res) =>
     controller.sendMessage(req, res)
   );
