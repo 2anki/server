@@ -67,9 +67,13 @@ class NotionController {
   constructor(private readonly service: NotionService) {}
 
   async connect(req: Request, res: Response) {
-    const { code } = req.query;
+    const { code, state } = req.query;
     if (!code) {
       return res.redirect('/notion');
+    }
+
+    if (state === 'login') {
+      return res.redirect(`/api/users/auth/notion?code=${encodeURIComponent(code as string)}`);
     }
 
     try {

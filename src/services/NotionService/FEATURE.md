@@ -4,7 +4,7 @@ Wraps the Notion SDK (`@notionhq/client`) and the OAuth dance. Owns token storag
 
 ## Responsibilities
 
-- **OAuth:** `getNotionAuthorizationLink` (for the Ankify connect flow) and `getLoginAuthorizationLink` (for the "Sign in with Notion" login/register flow, uses `NOTION_LOGIN_REDIRECT_URI`). Redirect handling lives in the controller layer. Tokens land in `INotionRepository`.
+- **OAuth:** `getNotionAuthorizationLink` and the redirect handler in the controller layer. Tokens land in `INotionRepository`.
 - **Top-level pages cache:** `topLevelPagesCache` + `topLevelPagesRefreshGate` — pages are stale after `TOP_LEVEL_PAGES_STALE_AFTER_MS` (5 minutes). The gate prevents thundering-herd refreshes when many tabs hit the picker at once.
 - **Block walking:** `BlockHandler/` and `blocks/` recursively fetch a page's blocks and hand them to the parser. Pagination, image URL refresh, and rate-limit handling live here.
 - **File uploads:** `NotionAPIWrapper.uploadFile` uses the Notion file uploads API (`fileUploads.create` + `fileUploads.send`) to upload media (images) to Notion's storage. Returns a `file_upload` ID that can be referenced in image blocks. Used by the APKG import flow.

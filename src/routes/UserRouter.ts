@@ -619,11 +619,10 @@ const UserRouter = () => {
 
   router.get('/api/users/auth/notion/init', (_req, res) => {
     const clientId = process.env.NOTION_CLIENT_ID;
-    const redirectUri = process.env.NOTION_LOGIN_REDIRECT_URI;
-    if (!clientId || !redirectUri) {
+    if (!clientId) {
       return res.redirect('/login?error=notion_cancelled');
     }
-    const url = `https://api.notion.com/v1/oauth/authorize?owner=user&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code`;
+    const url = `https://api.notion.com/v1/oauth/authorize?owner=user&client_id=${clientId}&response_type=code&state=login`;
     return res.redirect(url);
   });
 

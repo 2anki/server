@@ -1,6 +1,6 @@
 import express from 'express';
 
-import RequireAuthentication from './middleware/RequireAuthentication';
+import RequireAuthentication, { OptionalAuthentication } from './middleware/RequireAuthentication';
 import RequirePaying from './middleware/RequirePaying';
 import NotionController from '../controllers/NotionController';
 import NotionRepository from '../data_layer/NotionRespository';
@@ -42,7 +42,7 @@ const NotionRouter = () => {
    *             schema:
    *               $ref: '#/components/schemas/Error'
    */
-  router.get('/api/notion/connect', RequireAuthentication, (req, res) =>
+  router.get('/api/notion/connect', OptionalAuthentication, (req, res) =>
     controller.connect(req, res)
   );
 
