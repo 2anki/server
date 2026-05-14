@@ -14,7 +14,7 @@ interface GetUserLocalsResponse {
     };
   };
   linked_email: string;
-  user?: Users & { ankify_welcome_seen?: boolean; trial_started_at?: string | null };
+  user?: Users & { ankify_welcome_seen?: boolean; trial_started_at?: string | null; email_verified?: boolean };
   features?: {
     kiUI: boolean;
     ops?: boolean;

@@ -155,6 +155,31 @@ class UsersService {
     return this.repository.markEmailVerified(userId);
   }
 
+  async resendVerificationEmail(
+    userId: string
+  ): Promise<{ ok: true } | { ok: true; alreadyVerified: true }> {
+    const user = await this.repository.getById(userId);
+    if (user?.email_verified) {
+      return { ok: true, alreadyVerified: true };
+    }
+    if (this.magicTokenRepository == null || user?.email == null) {
+      return { ok: true };
+    }
+    const oneHourAgo = new Date(Date.now() - MAGIC_LINK_RATE_WINDOW_MS);
+    const recentCount = await this.magicTokenRepository.countRecentByOwner(
+      user.id,
+      oneHourAgo
+    );
+    if (recentCount >= MAGIC_LINK_RATE_LIMIT) {
+      throw new MagicLinkRateLimitError();
+    }
+    const token = crypto.randomBytes(64).toString('hex');
+    const expiresAt = new Date(Date.now() + VERIFY_EMAIL_EXPIRY_MS);
+    await this.magicTokenRepository.create(token, user.id, 'verify_email', expiresAt);
+    await this.emailService.sendVerificationEmail(user.email, token);
+    return { ok: true };
+  }
+
   markTrialStarted(userId: string) {
     return this.repository.markTrialStarted(userId);
   }

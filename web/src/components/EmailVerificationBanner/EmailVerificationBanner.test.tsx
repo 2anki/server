@@ -1,51 +1,106 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import { EmailVerificationBanner } from './EmailVerificationBanner';
 
-const STORAGE_KEY = 'email_verification_pending';
-
 describe('EmailVerificationBanner', () => {
-  const storage: Record<string, string> = {};
+  it('renders when emailVerified is false', () => {
+    render(
+      <EmailVerificationBanner
+        emailVerified={false}
+        email="al@example.com"
+        onResend={vi.fn()}
+      />
+    );
 
-  beforeEach(() => {
-    const mockStorage = {
-      getItem: (key: string) => storage[key] ?? null,
-      setItem: (key: string, value: string) => { storage[key] = value; },
-      removeItem: (key: string) => { delete storage[key]; },
-    };
-    Object.defineProperty(globalThis, 'sessionStorage', {
-      value: mockStorage,
-      writable: true,
+    expect(screen.getByText(/verify your email/i)).toBeTruthy();
+    expect(screen.getByText(/al@example.com/)).toBeTruthy();
+  });
+
+  it('does not render when emailVerified is true', () => {
+    render(
+      <EmailVerificationBanner
+        emailVerified={true}
+        email="al@example.com"
+        onResend={vi.fn()}
+      />
+    );
+
+    expect(screen.queryByText(/verify your email/i)).toBeNull();
+  });
+
+  it('calls onResend and shows sent state after click', async () => {
+    const onResend = vi.fn().mockResolvedValue(undefined);
+
+    render(
+      <EmailVerificationBanner
+        emailVerified={false}
+        email="al@example.com"
+        onResend={onResend}
+      />
+    );
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /resend email/i }));
     });
+
+    expect(onResend).toHaveBeenCalledTimes(1);
+    expect(screen.getByText(/sent — check your inbox/i)).toBeTruthy();
   });
 
-  afterEach(() => {
-    for (const key of Object.keys(storage)) {
-      delete storage[key];
-    }
+  it('shows rate-limited state when onResend rejects', async () => {
+    const onResend = vi.fn().mockRejectedValue(new Error('rate limited'));
+
+    render(
+      <EmailVerificationBanner
+        emailVerified={false}
+        email="al@example.com"
+        onResend={onResend}
+      />
+    );
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /resend email/i }));
+    });
+
+    expect(screen.getByText(/try again in a minute/i)).toBeTruthy();
   });
 
-  it('renders when email_verification_pending is set', () => {
-    storage[STORAGE_KEY] = 'true';
+  it('shows dismiss button only after resend is clicked', async () => {
+    const onResend = vi.fn().mockResolvedValue(undefined);
 
-    render(<EmailVerificationBanner />);
+    render(
+      <EmailVerificationBanner
+        emailVerified={false}
+        email="al@example.com"
+        onResend={onResend}
+      />
+    );
 
-    expect(screen.getByText(/check your inbox to verify your email/i)).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /dismiss/i })).toBeNull();
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /resend email/i }));
+    });
+
+    expect(screen.getByRole('button', { name: /dismiss/i })).toBeTruthy();
   });
 
-  it('does not render when email_verification_pending is absent', () => {
-    render(<EmailVerificationBanner />);
+  it('hides banner when dismiss is clicked after resend', async () => {
+    const onResend = vi.fn().mockResolvedValue(undefined);
 
-    expect(screen.queryByText(/check your inbox/i)).toBeNull();
-  });
+    render(
+      <EmailVerificationBanner
+        emailVerified={false}
+        email="al@example.com"
+        onResend={onResend}
+      />
+    );
 
-  it('dismisses and clears sessionStorage when the dismiss button is clicked', () => {
-    storage[STORAGE_KEY] = 'true';
-
-    render(<EmailVerificationBanner />);
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /resend email/i }));
+    });
     fireEvent.click(screen.getByRole('button', { name: /dismiss/i }));
 
-    expect(screen.queryByText(/check your inbox/i)).toBeNull();
-    expect(storage[STORAGE_KEY]).toBeUndefined();
+    expect(screen.queryByText(/verify your email/i)).toBeNull();
   });
 });

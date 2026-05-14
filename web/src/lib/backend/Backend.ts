@@ -49,6 +49,14 @@ export class Backend {
     globalThis.location.href = '/';
   }
 
+  async resendVerificationEmail(): Promise<{ ok: true } | { ok: true; alreadyVerified: true }> {
+    const response = await post(`${this.baseURL}users/resend-verification`, {});
+    if (!response.ok) {
+      throw new Error(`${response.status}`);
+    }
+    return response.json();
+  }
+
   async getNotionConnectionInfo(): Promise<ConnectionInfo> {
     return get(`${this.baseURL}notion/get-notion-link`);
   }

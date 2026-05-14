@@ -9,18 +9,22 @@ import styles from './AppShell.module.css';
 
 interface SidebarLayoutProps {
   email: string | null | undefined;
+  emailVerified: boolean;
   locals: SidebarLocals | undefined | null;
   features: SidebarFeatures | undefined | null;
   onLogOut: (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => void;
+  onResendVerification: () => Promise<void>;
   error?: Error | null;
   children: ReactNode;
 }
 
 export function SidebarLayout({
   email,
+  emailVerified,
   locals,
   features,
   onLogOut,
+  onResendVerification,
   error,
   children,
 }: Readonly<SidebarLayoutProps>) {
@@ -60,7 +64,11 @@ export function SidebarLayout({
           onOpen={() => setIsDrawerOpen(true)}
           onClose={() => setIsDrawerOpen(false)}
         />
-        <EmailVerificationBanner />
+        <EmailVerificationBanner
+          emailVerified={emailVerified}
+          email={email ?? ''}
+          onResend={onResendVerification}
+        />
         {error && <ErrorPresenter error={error} />}
         <main className={sharedStyles.flexGrow}>
           <Suspense fallback={<SkeletonPage rows={5} />}>{children}</Suspense>

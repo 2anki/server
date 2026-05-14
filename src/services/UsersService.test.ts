@@ -330,6 +330,65 @@ describe('UsersService.requestMagicLink', () => {
   });
 });
 
+describe('UsersService.resendVerificationEmail', () => {
+  it('returns ok:true on happy path and sends a verification email', async () => {
+    const emailService = buildEmailService();
+    const magicTokenRepo = new InMemoryMagicTokenRepository();
+    const getById = jest.fn().mockResolvedValue({
+      id: 5,
+      email: 'al@example.com',
+      email_verified: false,
+    });
+    const repository = { getById } as unknown as UsersRepository;
+    const service = new UsersService(repository, emailService, magicTokenRepo);
+
+    const result = await service.resendVerificationEmail('5');
+
+    expect(result).toEqual({ ok: true });
+    expect(emailService.sendVerificationEmail).toHaveBeenCalledWith(
+      'al@example.com',
+      expect.any(String)
+    );
+  });
+
+  it('returns alreadyVerified:true without sending email when user is already verified', async () => {
+    const emailService = buildEmailService();
+    const magicTokenRepo = new InMemoryMagicTokenRepository();
+    const getById = jest.fn().mockResolvedValue({
+      id: 5,
+      email: 'al@example.com',
+      email_verified: true,
+    });
+    const repository = { getById } as unknown as UsersRepository;
+    const service = new UsersService(repository, emailService, magicTokenRepo);
+
+    const result = await service.resendVerificationEmail('5');
+
+    expect(result).toEqual({ ok: true, alreadyVerified: true });
+    expect(emailService.sendVerificationEmail).not.toHaveBeenCalled();
+  });
+
+  it('throws MagicLinkRateLimitError when the rate limit is hit', async () => {
+    const emailService = buildEmailService();
+    const magicTokenRepo = new InMemoryMagicTokenRepository();
+    const getById = jest.fn().mockResolvedValue({
+      id: 3,
+      email: 'rate@example.com',
+      email_verified: false,
+    });
+    const repository = { getById } as unknown as UsersRepository;
+    const service = new UsersService(repository, emailService, magicTokenRepo);
+
+    for (let i = 0; i < 5; i++) {
+      await service.resendVerificationEmail('3');
+    }
+
+    await expect(service.resendVerificationEmail('3')).rejects.toThrow(
+      MagicLinkRateLimitError
+    );
+  });
+});
+
 describe('UsersService.verifyMagicToken', () => {
   it('returns userId and purpose for a valid token', async () => {
     const getByEmail = jest

@@ -16,8 +16,10 @@ function shouldForceTopBar(pathname: string): boolean {
 interface AppShellProps {
   isLoggedIn: boolean | undefined;
   email: string | null | undefined;
+  emailVerified: boolean;
   locals: SidebarLocals | undefined | null;
   features: SidebarFeatures | undefined | null;
+  onResendVerification: () => Promise<void>;
   error?: Error | null;
   children: ReactNode;
 }
@@ -25,8 +27,10 @@ interface AppShellProps {
 export function AppShell({
   isLoggedIn,
   email,
+  emailVerified,
   locals,
   features,
+  onResendVerification,
   error,
   children,
 }: Readonly<AppShellProps>) {
@@ -47,9 +51,11 @@ export function AppShell({
     return (
       <SidebarLayout
         email={email}
+        emailVerified={emailVerified}
         locals={locals}
         features={features}
         onLogOut={onLogOut}
+        onResendVerification={onResendVerification}
         error={error}
       >
         {children}
