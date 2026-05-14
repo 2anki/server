@@ -2,9 +2,11 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 
 import { useUserLocals } from '../../lib/hooks/useUserLocals';
 import { isPayingUser } from '../../components/NavigationBar/helpers/getPlanLabel';
+import { get2ankiApi } from '../../lib/backend/get2ankiApi';
 import { ImageEntry, OcclusionRect } from './types';
 import { OcclusionCanvas } from './components/OcclusionCanvas';
 import { ImageQueue } from './components/ImageQueue';
+import { NotionImportDrawer } from './components/NotionImportDrawer';
 import styles from '../../styles/shared.module.css';
 import pageStyles from './ImageOcclusionPage.module.css';
 
@@ -105,6 +107,8 @@ export function ImageOcclusionPage() {
   const [draftId, setDraftId] = useState<string | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isNotionConnected, setIsNotionConnected] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [mobileDismissed, setMobileDismissed] = useState(() =>
     typeof window !== 'undefined' && localStorage.getItem('io_mobile_dismissed') === '1'
   );
@@ -112,6 +116,14 @@ export function ImageOcclusionPage() {
   useEffect(() => {
     if (mobileDismissed) localStorage.setItem('io_mobile_dismissed', '1');
   }, [mobileDismissed]);
+
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    get2ankiApi()
+      .getNotionConnectionInfo()
+      .then((info) => setIsNotionConnected(info.isConnected))
+      .catch(() => undefined);
+  }, [isLoggedIn]);
 
   useEffect(() => {
     if (!isLoggedIn) {
@@ -251,6 +263,68 @@ export function ImageOcclusionPage() {
     });
   }, []);
 
+  const handleAddFromNotion = useCallback(async (blockIds: string[]) => {
+    const placeholders: ImageEntry[] = blockIds.map((id) => ({
+      id: crypto.randomUUID(),
+      file: null,
+      imageName: `notion-${id.slice(0, 8)}`,
+      header: '',
+      rects: [],
+      previewUrl: '',
+      s3Key: null,
+      uploading: true,
+      _notionBlockId: id,
+    } as ImageEntry & { _notionBlockId: string }));
+
+    setEntries((prev) => {
+      const next = [...prev, ...placeholders];
+      setActiveIndex(next.length - 1);
+      return next;
+    });
+
+    try {
+      const res = await fetch('/api/image-occlusion/draft/notion-image', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ blockIds }),
+      });
+
+      if (res.status === 401) {
+        setEntries((prev) => prev.filter((e) => !placeholders.some((p) => p.id === e.id)));
+        setError('Your Notion connection needs a refresh.');
+        return;
+      }
+      if (!res.ok) {
+        setEntries((prev) => prev.filter((e) => !placeholders.some((p) => p.id === e.id)));
+        setError("We couldn't reach Notion just now.");
+        return;
+      }
+
+      const imported = (await res.json()) as Array<{ s3Key: string; presignedUrl: string }>;
+
+      setEntries((prev) => {
+        const withoutPlaceholders = prev.filter((e) => !placeholders.some((p) => p.id === e.id));
+        const resolved: ImageEntry[] = imported.map((item, i) => ({
+          id: crypto.randomUUID(),
+          file: null,
+          imageName: placeholders[i]?.imageName ?? `notion-image-${i + 1}`,
+          header: '',
+          rects: [],
+          previewUrl: item.presignedUrl,
+          s3Key: item.s3Key,
+          uploading: false,
+        }));
+        const next = [...withoutPlaceholders, ...resolved];
+        if (resolved.length > 0) setActiveIndex(next.length - 1);
+        return next;
+      });
+    } catch {
+      setEntries((prev) => prev.filter((e) => !placeholders.some((p) => p.id === e.id)));
+      setError("We couldn't reach Notion just now.");
+    }
+  }, []);
+
   const handleDownload = async () => {
     if (entries.length === 0) { setError('Add at least one image first.'); return; }
     if (totalCards === 0) { setError('Draw at least one mask on an image.'); return; }
@@ -311,7 +385,14 @@ export function ImageOcclusionPage() {
           </button>
         </div>
       )}
-      <div className={pageStyles.pageLayout}>
+      <div className={`${pageStyles.pageLayout} ${drawerOpen ? pageStyles.pageLayoutDrawerOpen : ''}`}>
+        <NotionImportDrawer
+          isOpen={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
+          onImport={handleAddFromNotion}
+          isPaying={isPaying}
+          currentCount={entries.length}
+        />
         <div className={pageStyles.leftPanel}>
           <div className={pageStyles.panelHeader}>
             <label className={pageStyles.deckNameLabel} htmlFor="io-deck-name">
@@ -334,6 +415,8 @@ export function ImageOcclusionPage() {
             onRemove={handleRemove}
             onHeaderChange={handleHeaderChange}
             isPaying={isPaying}
+            isNotionConnected={isNotionConnected}
+            onImportFromNotion={() => setDrawerOpen(true)}
           />
           <div className={pageStyles.panelFooter}>
             <div className={pageStyles.modeToggle}>

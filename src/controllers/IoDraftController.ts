@@ -3,12 +3,18 @@ import path from "node:path";
 import { randomUUID } from "node:crypto";
 import express from "express";
 import { IoDraftRepository, IoDraftImage } from "../data_layer/IoDraftRepository";
+import { INotionRepository } from "../data_layer/NotionRespository";
 import StorageHandler from "../lib/storage/StorageHandler";
+import { ImportNotionImagesUseCase } from "../usecases/imageOcclusion/ImportNotionImagesUseCase";
 
 function userId(res: express.Response): number { return Number(res.locals["owner"]); }
 
 export class IoDraftController {
-  constructor(private readonly repo: IoDraftRepository, private readonly storage: StorageHandler) {}
+  constructor(
+    private readonly repo: IoDraftRepository,
+    private readonly storage: StorageHandler,
+    private readonly notionRepo: INotionRepository
+  ) {}
 
   async uploadImage(req: express.Request, res: express.Response): Promise<void> {
     const file = req.file;
@@ -54,5 +60,34 @@ export class IoDraftController {
     const deleted = await this.repo.deleteById(req.params["id"], userId(res));
     await Promise.all(deleted.map((img) => this.storage.delete(img.s3Key)));
     res.json({ ok: true });
+  }
+
+  async importFromNotion(req: express.Request, res: express.Response): Promise<void> {
+    const owner = String(userId(res));
+    const body = req.body as { blockIds?: unknown };
+    const { blockIds } = body;
+
+    if (!Array.isArray(blockIds) || blockIds.length === 0) {
+      res.status(400).json({ message: 'blockIds must be a non-empty array.' });
+      return;
+    }
+
+    const token = await this.notionRepo.getNotionToken(owner);
+    const useCase = new ImportNotionImagesUseCase(this.storage);
+    try {
+      const results = await useCase.execute(blockIds as string[], owner, token);
+      res.json(results);
+    } catch (err) {
+      const status = (err as { status?: number }).status;
+      if (status === 401) {
+        res.status(401).json({ message: 'Notion connection required.' });
+        return;
+      }
+      if (status === 400) {
+        res.status(400).json({ message: (err as Error).message });
+        return;
+      }
+      throw err;
+    }
   }
 }

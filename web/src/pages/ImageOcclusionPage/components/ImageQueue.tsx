@@ -11,6 +11,8 @@ interface Props {
   onRemove: (id: string) => void;
   onHeaderChange: (i: number, header: string) => void;
   isPaying: boolean;
+  isNotionConnected: boolean;
+  onImportFromNotion: () => void;
 }
 
 const FREE_TIER_LIMIT = 3;
@@ -23,6 +25,8 @@ export function ImageQueue({
   onRemove,
   onHeaderChange,
   isPaying,
+  isNotionConnected,
+  onImportFromNotion,
 }: Readonly<Props>) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const atLimit = !isPaying && entries.length >= FREE_TIER_LIMIT;
@@ -109,8 +113,20 @@ export function ImageQueue({
         title={atLimit ? 'Upgrade to add more images' : undefined}
         aria-disabled={atLimit}
       >
-        + Add images
+        + Upload images
       </button>
+      {isNotionConnected && (
+        <button
+          type="button"
+          className={styles.addBtn}
+          onClick={() => !atLimit && onImportFromNotion()}
+          disabled={atLimit}
+          title={atLimit ? 'Upgrade to add more images' : 'Pick a page, pick the images'}
+          aria-disabled={atLimit}
+        >
+          + Import from Notion
+        </button>
+      )}
       <input
         ref={fileInputRef}
         type="file"
