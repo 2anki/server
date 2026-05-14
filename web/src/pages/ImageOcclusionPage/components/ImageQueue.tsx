@@ -130,7 +130,14 @@ export function ImageQueue({
           title={atLimit ? 'Upgrade to add more images' : 'Pick a page, pick the images'}
           aria-disabled={atLimit}
         >
-          + Import from Notion
+          <img
+            src="/icons/Notion_app_logo.png"
+            alt=""
+            width={14}
+            height={14}
+            style={{ verticalAlign: 'middle', marginRight: '0.375rem', opacity: 0.8 }}
+          />
+          Import from Notion
         </button>
       )}
       <input
