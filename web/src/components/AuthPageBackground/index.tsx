@@ -11,13 +11,10 @@ export function AuthPageBackground({ children }: Readonly<Props>) {
   const imgUrl = `https://images.unsplash.com/photo-${photo.id}?auto=format&fit=crop&w=1920&q=80`;
 
   return (
-    <div className={styles.root}>
-      <div
-        className={styles.bg}
-        style={{ backgroundImage: `url(${imgUrl})` }}
-        aria-hidden="true"
-      />
-      <div className={styles.overlay} aria-hidden="true" />
+    <div
+      className={styles.root}
+      style={{ '--auth-bg': `url("${imgUrl}")` } as React.CSSProperties}
+    >
       {children}
       <p className={styles.attribution}>
         <a
