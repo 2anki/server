@@ -52,6 +52,11 @@ function formatResetDate(iso: string): string {
   }
 }
 
+function visibleStreamingText(text: string): string {
+  const fenceIndex = text.indexOf('\n```json');
+  return fenceIndex === -1 ? text : text.slice(0, fenceIndex);
+}
+
 async function downloadDeck(cards: ChatCard[], deckName: string): Promise<void> {
   const response = await post('/api/chat/deck', { cards, deckName });
   if (!response.ok) {
@@ -211,6 +216,8 @@ export default function ChatPage() {
     });
   }
 
+  const isCardStreaming = streamingText.includes('\n```json');
+
   const hasMessages = messages.length > 0;
 
   return (
@@ -251,7 +258,14 @@ export default function ChatPage() {
           {isLoading && (
             <div className={`${styles.message} ${styles.messageAssistant}`}>
               {streamingText.length > 0 ? (
-                <AssistantMarkdown isStreaming={true}>{streamingText}</AssistantMarkdown>
+                <>
+                  <AssistantMarkdown isStreaming={!isCardStreaming}>
+                    {visibleStreamingText(streamingText)}
+                  </AssistantMarkdown>
+                  {isCardStreaming && (
+                    <span className={styles.buildingCards}>Building cards</span>
+                  )}
+                </>
               ) : (
                 <div className={styles.messageSkeleton} />
               )}

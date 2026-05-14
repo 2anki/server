@@ -98,6 +98,47 @@ describe('ChatPage', () => {
     expect(screen.queryByText('Save as deck')).not.toBeInTheDocument();
   });
 
+  it('shows Building cards indicator and hides JSON while streaming cards', async () => {
+    const cards = [{ front: 'Q1', back: 'A1' }];
+    const encoder = new TextEncoder();
+    let enqueue!: (chunk: Uint8Array) => void;
+    let close!: () => void;
+    const stream = new ReadableStream({
+      start(controller) {
+        enqueue = (c) => controller.enqueue(c);
+        close = () => controller.close();
+      },
+    });
+    mockPost.mockResolvedValueOnce({ ok: true, status: 200, body: stream });
+
+    render(<ChatPage />);
+    fireEvent.change(screen.getByRole('textbox', { name: 'Message input' }), {
+      target: { value: 'Make cards' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Send message' }));
+
+    enqueue(encoder.encode('event: token\ndata: "Here are your cards:"\n\n'));
+    enqueue(encoder.encode('event: token\ndata: "\\n```json"\n\n'));
+    enqueue(encoder.encode('event: token\ndata: "[{\\"front\\":\\"Q1\\",\\"back\\":\\"A1\\"}]"\n\n'));
+
+    await waitFor(() => {
+      expect(screen.getByText('Building cards')).toBeInTheDocument();
+    });
+    expect(screen.queryByText(/```json/)).not.toBeInTheDocument();
+
+    enqueue(encoder.encode(`event: done\ndata: ${JSON.stringify({
+      content: 'Here are your cards:\n```json\n[{"front":"Q1","back":"A1"}]\n```',
+      contentBefore: 'Here are your cards:',
+      cards,
+    })}\n\n`));
+    close();
+
+    await waitFor(() => {
+      expect(screen.getByText('Q1')).toBeInTheDocument();
+    });
+    expect(screen.queryByText('Building cards')).not.toBeInTheDocument();
+  });
+
   it('hydrates usage counter from server on mount', async () => {
     mockGet.mockResolvedValueOnce({ used: 5, limit: 20 });
 
