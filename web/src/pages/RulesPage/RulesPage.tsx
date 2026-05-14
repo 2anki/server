@@ -1,16 +1,21 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import Switch from '../../components/input/Switch';
-import TemplateSelect from '../../components/TemplateSelect';
-import RuleDefinition from '../SearchPage/components/RuleDefinition';
-import { NewRule } from '../SearchPage/types';
-import { ErrorHandlerType } from '../../components/errors/helpers/getErrorMessage';
-import { get2ankiApi } from '../../lib/backend/get2ankiApi';
+import {
+  Link,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from 'react-router-dom';
 import {
   CardOptionsForm,
   CardOptionsFormHandle,
 } from '../../components/CardOptionsForm/CardOptionsForm';
+import { ErrorHandlerType } from '../../components/errors/helpers/getErrorMessage';
+import Switch from '../../components/input/Switch';
+import TemplateSelect from '../../components/TemplateSelect';
+import { get2ankiApi } from '../../lib/backend/get2ankiApi';
 import sharedStyles from '../../styles/shared.module.css';
+import RuleDefinition from '../SearchPage/components/RuleDefinition';
+import { NewRule } from '../SearchPage/types';
 import styles from './RulesPage.module.css';
 
 interface Props {
@@ -204,114 +209,123 @@ export default function RulesPage({ setErrorMessage }: Readonly<Props>) {
   const backLabel = returnTo === '/notion' ? '← Back to Notion' : '← Back';
 
   return (
-    <div className={sharedStyles.page}>
-      <header className={sharedStyles.pageHeader}>
-        <button type="button" onClick={handleBack} className={styles.backLink}>
-          {backLabel}
-        </button>
-        <div className={styles.headerRow}>
-          <div className={styles.headerText}>
-            <h1 className={sharedStyles.title} data-hj-suppress>
-              {headingTitle}
-            </h1>
-            <p className={sharedStyles.subtitle}>
-              Settings for this Notion page. Block rules decide what becomes a
-              deck or card. Card options control the deck itself.
-            </p>
-          </div>
+    <div className={styles.pageShell}>
+      <div className={sharedStyles.page}>
+        <header className={sharedStyles.pageHeader}>
           <button
             type="button"
-            className={`${sharedStyles.btnIcon} ${favorite ? styles.favoriteActive : ''}`}
-            onClick={toggleFavorite}
-            disabled={isTogglingFavorite || isLoading}
-            aria-pressed={favorite}
-            aria-label={favorite ? 'Remove from favorites' : 'Favorite this page'}
-            title={favorite ? 'Remove from favorites' : 'Favorite this page'}
+            onClick={handleBack}
+            className={styles.backLink}
           >
-            <span aria-hidden="true">{favorite ? '★' : '☆'}</span>
+            {backLabel}
           </button>
-        </div>
-      </header>
-
-      {isLoading && (
-        <div className={`${styles.card} ${styles.loadingCard}`}>
-          <div className={sharedStyles.spinner} />
-        </div>
-      )}
-      {!isLoading && loadFailed && (
-        <div className={`${styles.card} ${styles.loadingCard}`}>
-          <p>Couldn&apos;t load rules for this page. Check your connection and try again.</p>
-        </div>
-      )}
-      {!isLoading && !loadFailed && (
-        <>
-          <div className={styles.card}>
-            <header className={styles.sectionHeader}>
-              <h2 className={sharedStyles.subHeading}>Block rules</h2>
-              <p className={sharedStyles.smallDescription}>
-                Tell 2anki which Notion blocks should become decks, sub-decks, and flashcards.
+          <div className={styles.headerRow}>
+            <div className={styles.headerText}>
+              <h1 className={sharedStyles.title} data-hj-suppress>
+                {headingTitle}
+              </h1>
+              <p className={sharedStyles.subtitle}>
+                Settings for this Notion page. Block rules decide what becomes a
+                deck or card. Card options control the deck itself.
               </p>
-            </header>
-            <RuleDefinition
-              title="What counts as a deck?"
-              description="The top-level blocks that appear in your Anki deck overview."
-              value={rules.deck_is}
-              options={deckOptions}
-              onSelected={(fco) => toggleSelection('deck_is', fco)}
-            />
-            <RuleDefinition
-              title="What counts as a sub-deck?"
-              description="Nested under the decks above."
-              value={rules.sub_deck_is}
-              options={subDeckOptions}
-              onSelected={(fco) => toggleSelection('sub_deck_is', fco)}
-            />
-            <RuleDefinition
-              title="What counts as a flashcard?"
-              description="Block types converted into individual cards."
-              value={rules.flashcard_is}
-              options={flashCardOptions}
-              onSelected={(fco) => toggleSelection('flashcard_is', fco)}
-            />
+            </div>
+            <button
+              type="button"
+              className={`${sharedStyles.btnIcon} ${favorite ? styles.favoriteActive : ''}`}
+              onClick={toggleFavorite}
+              disabled={isTogglingFavorite || isLoading}
+              aria-pressed={favorite}
+              aria-label={
+                favorite ? 'Remove from favorites' : 'Favorite this page'
+              }
+              title={favorite ? 'Remove from favorites' : 'Favorite this page'}
+            >
+              <span aria-hidden="true">{favorite ? '★' : '☆'}</span>
+            </button>
+          </div>
+        </header>
 
-            <div className={styles.miscSection}>
-              <div>
-                <label htmlFor="tags-format" className={styles.miscLabel}>
-                  Tag format
-                </label>
-                <p className={sharedStyles.smallDescription}>
-                  Which Notion formatting marks a block as a tag.
-                </p>
-                <TemplateSelect
-                  data-hj-suppress
-                  pickedTemplate={(name: string) => setTags(name)}
-                  values={tagOptions.map((fco) => ({
-                    label: `Tags are ${fco}`,
-                    value: fco,
-                  }))}
-                  name="tags-format"
-                  value={tags}
+        {isLoading && (
+          <div className={`${styles.optionGroup} ${styles.loadingCard}`}>
+            <div className={sharedStyles.spinner} />
+          </div>
+        )}
+        {!isLoading && loadFailed && (
+          <div className={`${styles.optionGroup} ${styles.loadingCard}`}>
+            <p>
+              Couldn&apos;t load rules for this page. Check your connection and
+              try again.
+            </p>
+          </div>
+        )}
+        {!isLoading && !loadFailed && (
+          <>
+            <section className={styles.optionGroup}>
+              <h2 className={styles.groupHeading}>Block rules</h2>
+              <p className={styles.groupHint}>
+                Tell 2anki which Notion blocks become decks, sub-decks, and
+                flashcards.
+              </p>
+              <RuleDefinition
+                title="What counts as a deck?"
+                description="The top-level blocks that appear in your Anki deck overview."
+                value={rules.deck_is}
+                options={deckOptions}
+                onSelected={(fco) => toggleSelection('deck_is', fco)}
+              />
+              <RuleDefinition
+                title="What counts as a sub-deck?"
+                description="Nested under the decks above."
+                value={rules.sub_deck_is}
+                options={subDeckOptions}
+                onSelected={(fco) => toggleSelection('sub_deck_is', fco)}
+              />
+              <RuleDefinition
+                title="What counts as a flashcard?"
+                description="Block types converted into individual cards."
+                value={rules.flashcard_is}
+                options={flashCardOptions}
+                onSelected={(fco) => toggleSelection('flashcard_is', fco)}
+              />
+
+              <div className={styles.miscSection}>
+                <div>
+                  <label htmlFor="tags-format" className={styles.miscLabel}>
+                    Tag format
+                  </label>
+                  <p className={sharedStyles.smallDescription}>
+                    Which Notion formatting marks a block as a tag.
+                  </p>
+                  <TemplateSelect
+                    data-hj-suppress
+                    pickedTemplate={(name: string) => setTags(name)}
+                    values={tagOptions.map((fco) => ({
+                      label: `Tags are ${fco}`,
+                      value: fco,
+                    }))}
+                    name="tags-format"
+                    value={tags}
+                  />
+                </div>
+
+                <Switch
+                  id="email-notification"
+                  title="Email me when conversion is ready"
+                  checked={sendEmail}
+                  onSwitched={() => setSendEmail((prev) => !prev)}
                 />
               </div>
+            </section>
 
-              <Switch
-                id="email-notification"
-                title="Email me when conversion is ready"
-                checked={sendEmail}
-                onSwitched={() => setSendEmail((prev) => !prev)}
-              />
-            </div>
-          </div>
-
-          <section className={styles.card}>
-            <header className={styles.sectionHeader}>
-              <h2 className={sharedStyles.subHeading}>Card options</h2>
+            <div className={styles.formHeader}>
+              <hr className={styles.divider} />
+              <h2 className={styles.formHeading}>Card options</h2>
               <p className={sharedStyles.smallDescription}>
-                Customize the deck name, templates, and conversion behavior for
-                this page only.{' '}
-                <Link to="/card-options">Edit your defaults</Link> instead.
+                Customise the deck name, templates, and conversion for this page
+                only. <Link to="/card-options">Edit your defaults</Link>{' '}
+                instead.
               </p>
-            </header>
+            </div>
             <CardOptionsForm
               ref={cardOptionsRef}
               pageId={id}
@@ -319,28 +333,28 @@ export default function RulesPage({ setErrorMessage }: Readonly<Props>) {
               setError={setErrorMessage}
               hideActions
             />
-          </section>
 
-          <div className={styles.stickyActions}>
-            <button
-              type="button"
-              className={`${sharedStyles.btnSecondary} ${styles.actionButton}`}
-              onClick={handleBack}
-              disabled={isSaving}
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              className={`${sharedStyles.btnPrimary} ${styles.actionButton}`}
-              onClick={saveAll}
-              disabled={isSaving}
-            >
-              {isSaving ? 'Saving' : 'Save changes'}
-            </button>
-          </div>
-        </>
-      )}
+            <div className={styles.saveBar}>
+              <button
+                type="button"
+                className={`${sharedStyles.btnSecondary} ${styles.actionButton}`}
+                onClick={handleBack}
+                disabled={isSaving}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className={`${sharedStyles.btnPrimary} ${styles.actionButton}`}
+                onClick={saveAll}
+                disabled={isSaving}
+              >
+                {isSaving ? 'Saving' : 'Save changes'}
+              </button>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 }
