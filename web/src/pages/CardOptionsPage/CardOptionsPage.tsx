@@ -16,24 +16,31 @@ interface Props {
   setErrorMessage: ErrorHandlerType;
 }
 
+interface RelativeUnit {
+  ms: number;
+  label: string;
+}
+
+const RELATIVE_UNITS: RelativeUnit[] = [
+  { ms: 60_000, label: 'minute' },
+  { ms: 3_600_000, label: 'hour' },
+  { ms: 86_400_000, label: 'day' },
+  { ms: 2_592_000_000, label: 'month' },
+  { ms: 31_536_000_000, label: 'year' },
+];
+
 function formatUpdatedAt(value: string | null): string | null {
   if (!value) return null;
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return null;
   const diffMs = Date.now() - date.getTime();
-  const diffMin = Math.floor(diffMs / 60_000);
-  if (diffMin < 1) return 'a moment ago';
-  if (diffMin < 60) return `${diffMin} minute${diffMin === 1 ? '' : 's'} ago`;
-  const diffHours = Math.floor(diffMin / 60);
-  if (diffHours < 24)
-    return `${diffHours} hour${diffHours === 1 ? '' : 's'} ago`;
-  const diffDays = Math.floor(diffHours / 24);
-  if (diffDays < 30) return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`;
-  const diffMonths = Math.floor(diffDays / 30);
-  if (diffMonths < 12)
-    return `${diffMonths} month${diffMonths === 1 ? '' : 's'} ago`;
-  const diffYears = Math.floor(diffMonths / 12);
-  return `${diffYears} year${diffYears === 1 ? '' : 's'} ago`;
+  if (diffMs < RELATIVE_UNITS[0].ms) return 'a moment ago';
+  let unit: RelativeUnit = RELATIVE_UNITS[0];
+  for (const candidate of RELATIVE_UNITS) {
+    if (diffMs >= candidate.ms) unit = candidate;
+  }
+  const count = Math.floor(diffMs / unit.ms);
+  return `${count} ${unit.label}${count === 1 ? '' : 's'} ago`;
 }
 
 export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
@@ -103,7 +110,10 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
                 {perPageItems.map((item) => {
                   const updatedLabel = formatUpdatedAt(item.updatedAt);
                   const displayTitle = item.title ?? null;
-                  const rulesHref = `/rules/${encodeURIComponent(item.pageId)}?returnTo=/card-options${item.title ? `&title=${encodeURIComponent(item.title)}` : ''}`;
+                  const baseHref = `/rules/${encodeURIComponent(item.pageId)}?returnTo=/card-options`;
+                  const rulesHref = item.title
+                    ? `${baseHref}&title=${encodeURIComponent(item.title)}`
+                    : baseHref;
                   return (
                     <li key={item.pageId}>
                       <div className={styles.entry}>
@@ -124,7 +134,7 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
                           </div>
                         </Link>
                         <a
-                          href={`https://www.notion.so/${item.pageId.replace(/-/g, '')}`}
+                          href={`https://www.notion.so/${item.pageId.replaceAll('-', '')}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className={styles.actionButton}
@@ -168,7 +178,6 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
           onSaved={pageId == null ? undefined : goBack}
           onReset={pageId == null ? undefined : goBack}
           setError={setErrorMessage}
-          layout="grid"
         />
       </div>
     </div>

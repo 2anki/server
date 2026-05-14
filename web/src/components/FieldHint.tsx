@@ -12,7 +12,11 @@ export function FieldHint({ text }: Readonly<Props>) {
   useEffect(() => {
     if (!open) return;
     function handleOutside(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
+      if (
+        ref.current &&
+        e.target instanceof Node &&
+        !ref.current.contains(e.target)
+      ) {
         setOpen(false);
       }
     }
@@ -29,9 +33,20 @@ export function FieldHint({ text }: Readonly<Props>) {
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
       >
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 14 14"
+          fill="none"
+          aria-hidden="true"
+        >
           <circle cx="7" cy="7" r="6.5" stroke="currentColor" />
-          <path d="M7 6v4" stroke="currentColor" strokeLinecap="round" strokeWidth="1.25" />
+          <path
+            d="M7 6v4"
+            stroke="currentColor"
+            strokeLinecap="round"
+            strokeWidth="1.25"
+          />
           <circle cx="7" cy="4.25" r="0.625" fill="currentColor" />
         </svg>
       </button>
