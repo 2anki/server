@@ -669,6 +669,14 @@
   white-space: nowrap;
 }
 
+.checkboxRight {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
 /* info icon + click-controlled popover */
 .infoAnchor {
   position: relative;

@@ -571,6 +571,8 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
                 saveValueInLocalStorage('template', t, pageId);
               }}
             />
+          </div>
+          <div className={fieldStyles.section}>
             <TemplateName
               name="basic_model_name"
               value={basicName}
@@ -581,6 +583,8 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
                 saveValueInLocalStorage('basic_model_name', name, pageId);
               }}
             />
+          </div>
+          <div className={fieldStyles.section}>
             <TemplateName
               name="cloze_model_name"
               value={clozeName}
@@ -591,6 +595,8 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
                 saveValueInLocalStorage('cloze_model_name', name, pageId);
               }}
             />
+          </div>
+          <div className={fieldStyles.section}>
             <TemplateName
               name="input_model_name"
               value={inputName}
