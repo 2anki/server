@@ -10,6 +10,12 @@ import EyeIcon from '../../../components/icons/EyeIcon';
 import TrashIcon from '../../../components/icons/TrashIcon';
 import SendToAnkifyButton from './SendToAnkifyButton';
 import { fireAnalyticsEvent } from '../../../lib/analytics/fireAnalyticsEvent';
+import { useUserLocals } from '../../../lib/hooks/useUserLocals';
+import { isPayingUser } from '../../../components/NavigationBar/helpers/getPlanLabel';
+import {
+  MONTHLY_PRICE,
+  MONTHLY_SUFFIX,
+} from '../../PricingPage/pricing.constants';
 import styles from '../DownloadsPage.module.css';
 import sharedStyles from '../../../styles/shared.module.css';
 
@@ -24,6 +30,8 @@ interface Prop {
 
 export function FinishedJobs({ uploads, deleteUpload, doneJobs = [], deleteJob }: Prop) {
   const [deletingKey, setDeletingKey] = useState<string | null>(null);
+  const { data } = useUserLocals();
+  const showUpgradeFooter = !isPayingUser(data?.locals);
 
   const uploadObjectIds = new Set((uploads ?? []).map((u) => u.object_id));
   const uniqueDoneJobs = doneJobs.filter((j) => !uploadObjectIds.has(j.object_id));
@@ -163,10 +171,15 @@ export function FinishedJobs({ uploads, deleteUpload, doneJobs = [], deleteJob }
           </tbody>
         </table>
         </div>
-        <div className={styles.upgradeFooter}>
-          Hitting the 100-card limit?{' '}
-          <Link to="/pricing">Upgrade to Unlimited — $5/month, cancel anytime →</Link>
-        </div>
+        {showUpgradeFooter && (
+          <div className={styles.upgradeFooter}>
+            Hitting the 100-card limit?{' '}
+            <Link to="/pricing">
+              Upgrade to Unlimited — {MONTHLY_PRICE} {MONTHLY_SUFFIX}, cancel
+              anytime →
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );
