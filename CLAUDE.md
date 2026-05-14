@@ -41,6 +41,7 @@ Every PR is checked against both — does it make the experience simpler/faster/
 @.claude/rules/security.md
 @.claude/rules/testing.md
 @.claude/rules/code-quality.md
+@.claude/rules/email-templates.md
 @.claude/rules/dependencies.md
 @.claude/rules/sonar.md
 
