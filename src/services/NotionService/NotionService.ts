@@ -58,6 +58,12 @@ export class NotionService {
     return `https://api.notion.com/v1/oauth/authorize?owner=user&client_id=${clientId}&response_type=code`;
   }
 
+  getLoginAuthorizationLink() {
+    const redirectUri = process.env.NOTION_LOGIN_REDIRECT_URI;
+    if (!redirectUri) throw new Error('NOTION_LOGIN_REDIRECT_URI is not set');
+    return `https://api.notion.com/v1/oauth/authorize?owner=user&client_id=${this.clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code`;
+  }
+
   isValidUUID(id: string | undefined | null) {
     if (!id) {
       return false;

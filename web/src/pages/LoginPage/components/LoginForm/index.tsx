@@ -6,6 +6,7 @@ import { isValidCredentials } from './helpers/isValidCredentials';
 import { useHandleLoginSubmit } from './helpers/useHandleLoginSubmit';
 import { getVisibleText } from '../../../../lib/text/getVisibleText';
 import { WithGoogleLink } from '../../../../components/forms/WithGoogleLink';
+import { WithNotionLink } from '../../../../components/forms/WithNotionLink';
 import { get2ankiApi } from '../../../../lib/backend/get2ankiApi';
 import styles from '../../../../styles/auth.module.css';
 
@@ -123,6 +124,7 @@ function LoginForm() {
             <div className={styles.divider}>
               <span className={styles.dividerLabel}>or</span>
             </div>
+            <WithNotionLink text="Continue with Notion" />
             <WithGoogleLink
               text={getVisibleText('navigation.login.google')}
             />

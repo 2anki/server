@@ -617,6 +617,19 @@ const UserRouter = () => {
     controller.loginWithGoogle(req, res)
   );
 
+  router.get('/api/users/auth/notion/init', (_req, res) => {
+    const clientId = process.env.NOTION_CLIENT_ID;
+    const redirectUri = process.env.NOTION_LOGIN_REDIRECT_URI;
+    if (!clientId || !redirectUri) {
+      return res.redirect('/login?error=notion_cancelled');
+    }
+    const url = `https://api.notion.com/v1/oauth/authorize?owner=user&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code`;
+    return res.redirect(url);
+  });
+
+  router.get('/api/users/auth/notion', (req, res) =>
+    controller.loginWithNotion(req, res)
+  );
 
   router.get(
     '/api/users/email-preferences',

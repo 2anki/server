@@ -161,6 +161,45 @@ class AuthenticationService {
     };
   }
 
+  async loginWithNotion(code: string): Promise<{
+    email: string;
+    name: string;
+    accessData: { [key: string]: string };
+  } | null> {
+    const clientId = process.env.NOTION_CLIENT_ID;
+    const clientSecret = process.env.NOTION_CLIENT_SECRET;
+    if (!clientId || !clientSecret) return null;
+
+    try {
+      const result = await instrumentedAxios.post<{ [key: string]: unknown }>(
+        'notion',
+        'https://api.notion.com/v1/oauth/token',
+        { grant_type: 'authorization_code', code },
+        {
+          auth: { username: clientId, password: clientSecret },
+          headers: { 'Content-Type': 'application/json' },
+        }
+      );
+      const ownerUser = (
+        result.data?.owner as {
+          user?: { person?: { email?: string }; name?: string };
+        }
+      )?.user;
+      const email = ownerUser?.person?.email;
+      const name = ownerUser?.name;
+      if (!email) return null;
+      return {
+        email,
+        name: name ?? email.split('@')[0],
+        accessData: result.data as { [key: string]: string },
+      };
+    } catch (error) {
+      console.info("Couldn't login with Notion");
+      console.error(error);
+      return null;
+    }
+  }
+
   async loginWithGoogle(code: string) {
     const url = 'https://oauth2.googleapis.com/token';
     const values = {
