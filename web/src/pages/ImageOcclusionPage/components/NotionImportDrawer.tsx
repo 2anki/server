@@ -50,7 +50,6 @@ interface Props {
 
 const FREE_TIER_LIMIT = 3;
 const PREVIEW_COUNT = 6;
-const MAX_DEPTH = 2;
 
 function getImageUrl(block: NotionImageBlock): string | null {
   if (block.image.type === 'file') return block.image.file?.url ?? null;
@@ -111,6 +110,8 @@ export function NotionImportDrawer({
   const [importing, setImporting] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
   const seenIds = useRef<Set<string>>(new Set());
+  const pendingRef = useRef(0);
+  const [anyPending, setAnyPending] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
 
   const freeSlotsLeft = isPaying ? Infinity : Math.max(0, FREE_TIER_LIMIT - currentCount);
@@ -120,43 +121,43 @@ export function NotionImportDrawer({
     id: string,
     title: string,
     icon: string | undefined,
-    signal: AbortSignal,
-    depth: number
+    signal: AbortSignal
   ) => {
     if (seenIds.current.has(id)) return;
     seenIds.current.add(id);
 
-    setSections((prev) => [...prev, { id, title, icon, images: [], loading: true, error: null, showAll: false }]);
+    pendingRef.current += 1;
+    setAnyPending(true);
 
     fetchBlocks(id, signal).then((result) => {
       if (signal.aborted) return;
 
-      setSections((prev) =>
-        prev.map((s) =>
-          s.id === id
-            ? { ...s, images: result.images, loading: false, error: result.error }
-            : s
-        )
-      );
+      if (result.images.length > 0 || result.error != null) {
+        setSections((prev) => [
+          ...prev,
+          { id, title, icon, images: result.images, loading: false, error: result.error, showAll: false },
+        ]);
+      }
 
-      if (result.error == null && depth < MAX_DEPTH) {
+      if (result.error == null) {
         for (const child of result.childPages) {
-          crawlPage(child.id, child.title, undefined, signal, depth + 1);
+          crawlPage(child.id, child.title, undefined, signal);
         }
       }
     }).catch(() => {
+      // silently drop network errors mid-crawl
+    }).finally(() => {
       if (signal.aborted) return;
-      setSections((prev) =>
-        prev.map((s) =>
-          s.id === id ? { ...s, loading: false, error: { isPermission: false } } : s
-        )
-      );
+      pendingRef.current -= 1;
+      if (pendingRef.current === 0) setAnyPending(false);
     });
   };
 
   const startCrawl = (controller: AbortController) => {
     seenIds.current = new Set();
+    pendingRef.current = 0;
     setSections([]);
+    setAnyPending(false);
     setPagesLoading(true);
     setPagesError(null);
 
@@ -167,7 +168,7 @@ export function NotionImportDrawer({
         setPagesLoading(false);
         setTimeout(() => searchRef.current?.focus(), 50);
         for (const page of pages) {
-          crawlPage(page.id, page.title || 'Untitled page', page.icon, controller.signal, 0);
+          crawlPage(page.id, page.title || 'Untitled page', page.icon, controller.signal);
         }
       })
       .catch((err: Error) => {
@@ -214,12 +215,12 @@ export function NotionImportDrawer({
   if (!isOpen) return null;
 
   const visibleSections = sections
-    .filter((s) => s.loading || s.error != null || s.images.length > 0)
+    .filter((s) => s.error != null || s.images.length > 0)
     .filter((s) =>
       search.trim() === '' || s.title.toLowerCase().includes(search.toLowerCase())
     );
 
-  const stillLoading = pagesLoading || sections.some((s) => s.loading);
+  const stillLoading = pagesLoading || anyPending;
 
   const addLabel = selected.size === 0
     ? 'Select images to add'
