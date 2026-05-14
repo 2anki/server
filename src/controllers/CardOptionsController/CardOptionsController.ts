@@ -59,6 +59,22 @@ class CardOptionsController {
     }
   }
 
+  async listSettings(req: Request, res: Response) {
+    const owner = getOwner(res);
+    try {
+      const rows = await this.service.getAllByOwner(owner);
+      res.json({
+        items: rows.map((r) => ({
+          pageId: r.object_id,
+          updatedAt: r.updated_at ? r.updated_at.toISOString() : null,
+        })),
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).send();
+    }
+  }
+
   getDefaultCardOptions(source: 'client' | 'server') {
     if (source === 'client') {
       return this.getDefaultCardOptionDetails()

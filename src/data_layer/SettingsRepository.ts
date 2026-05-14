@@ -1,5 +1,5 @@
 import { Knex } from 'knex';
-import { SettingsInitializer } from './public/Settings';
+import Settings, { SettingsInitializer } from './public/Settings';
 
 class SettingsRepository {
   table: string;
@@ -28,6 +28,13 @@ class SettingsRepository {
       .where({ object_id })
       .returning(['payload'])
       .first();
+  }
+
+  getAllByOwner(owner: string): Promise<Pick<Settings, 'object_id' | 'updated_at'>[]> {
+    return this.database(this.table)
+      .select('object_id', 'updated_at')
+      .where({ owner })
+      .orderBy('updated_at', 'desc');
   }
 }
 

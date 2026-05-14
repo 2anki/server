@@ -5,6 +5,7 @@ export interface IServiceSettings {
   create: (settings: SettingsInitializer) => Promise<number[]>;
   delete: (owner: string, id: string) => Promise<void>;
   getById: (id: string) => Promise<SettingsInitializer>;
+  getAllByOwner: (owner: string) => Promise<{ object_id: string; updated_at: Date | null }[]>;
 }
 
 class SettingsService implements IServiceSettings {
@@ -40,6 +41,10 @@ class SettingsService implements IServiceSettings {
 
   getById(id: string) {
     return this.repository.getById(id);
+  }
+
+  getAllByOwner(owner: string) {
+    return this.repository.getAllByOwner(owner);
   }
 }
 
