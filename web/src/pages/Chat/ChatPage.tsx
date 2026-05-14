@@ -76,6 +76,7 @@ export default function ChatPage() {
   const isPatreon = userLocals?.user?.patreon === true;
 
   const [messages, setMessages] = useState<Message[]>([]);
+  const [expandedUserMessages, setExpandedUserMessages] = useState<Set<number>>(new Set());
   const [streamingText, setStreamingText] = useState('');
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -210,6 +211,18 @@ export default function ChatPage() {
     }
   }
 
+  function toggleUserMessage(index: number) {
+    setExpandedUserMessages((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) {
+        next.delete(index);
+      } else {
+        next.add(index);
+      }
+      return next;
+    });
+  }
+
   function handleSaveAsDeck(cards: ChatCard[], deckName: string) {
     downloadDeck(cards, deckName).catch(() => {
       setNetworkError("Couldn't generate the deck. Try again.");
@@ -229,11 +242,29 @@ export default function ChatPage() {
               key={i}
               className={`${styles.message} ${m.role === 'user' ? styles.messageUser : styles.messageAssistant} ${m.role === 'assistant' && m.cards != null && m.cards.length > 0 ? styles.messageAssistantWithCards : ''}`}
             >
-              {m.role === 'user' && (
-                <div className={`${styles.messageBubble} ${styles.messageBubbleUser}`}>
-                  {m.content}
-                </div>
-              )}
+              {m.role === 'user' && (() => {
+                const isLong = m.content.length > 600 || m.content.split('\n').length > 12;
+                const isExpanded = expandedUserMessages.has(i);
+                return (
+                  <>
+                    <div
+                      className={`${styles.messageBubble} ${styles.messageBubbleUser} ${isLong ? styles.userBubbleCollapsible : ''} ${isLong && !isExpanded ? styles.userBubbleClamped : ''}`}
+                    >
+                      {m.content}
+                    </div>
+                    {isLong && (
+                      <button
+                        type="button"
+                        className={styles.expandToggle}
+                        onClick={() => toggleUserMessage(i)}
+                        aria-expanded={isExpanded}
+                      >
+                        {isExpanded ? 'Show less' : 'Show full message'}
+                      </button>
+                    )}
+                  </>
+                );
+              })()}
               {m.role === 'assistant' && (
                 <>
                   {m.contentBefore != null && (

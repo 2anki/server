@@ -130,10 +130,11 @@ const ChatRouter = () => {
   router.get('/api/chat/usage', RequireAuthentication, async (req, res) => {
     const owner = res.locals.owner as number;
     const patreon = (res.locals.patreon as boolean) ?? false;
+    const subscriber = (res.locals.subscriber as boolean) ?? false;
     const count = await repo.countThisMonth(owner);
     res.status(200).json({
       used: count,
-      limit: patreon ? null : 20,
+      limit: patreon || subscriber ? null : 20,
     });
   });
 
