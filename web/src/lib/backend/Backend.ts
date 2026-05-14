@@ -113,7 +113,7 @@ export class Backend {
     });
   }
 
-  async listSettings(): Promise<{ items: { pageId: string; updatedAt: string | null }[] }> {
+  async listSettings(): Promise<{ items: { pageId: string; title: string | null; updatedAt: string | null }[] }> {
     const result = await get(`${this.baseURL}settings/list`);
     if (!result) {
       return { items: [] };

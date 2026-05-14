@@ -5,19 +5,20 @@ export interface IServiceSettings {
   create: (settings: SettingsInitializer) => Promise<number[]>;
   delete: (owner: string, id: string) => Promise<void>;
   getById: (id: string) => Promise<SettingsInitializer>;
-  getAllByOwner: (owner: string) => Promise<{ object_id: string; updated_at: Date | null }[]>;
+  getAllByOwner: (owner: string) => Promise<{ object_id: string; title: string | null; updated_at: Date | null }[]>;
 }
 
 class SettingsService implements IServiceSettings {
   constructor(private readonly repository: SettingsRepository) {}
 
-  create({ owner, payload, object_id }: SettingsInitializer) {
+  create({ owner, payload, object_id, title }: SettingsInitializer) {
     return new Promise<number[]>((resolve, reject) => {
       return this.repository
         .create({
           owner,
           payload,
           object_id,
+          title,
         })
         .then((settings) => {
           resolve(settings);

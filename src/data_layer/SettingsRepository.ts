@@ -8,12 +8,13 @@ class SettingsRepository {
     this.table = 'settings';
   }
 
-  create({ owner, object_id, payload }: SettingsInitializer) {
+  create({ owner, object_id, payload, title }: SettingsInitializer) {
     return this.database(this.table)
       .insert({
         owner,
         object_id,
         payload,
+        title,
       })
       .onConflict('object_id')
       .merge();
@@ -30,9 +31,9 @@ class SettingsRepository {
       .first();
   }
 
-  getAllByOwner(owner: string): Promise<Pick<Settings, 'object_id' | 'updated_at'>[]> {
+  getAllByOwner(owner: string): Promise<Pick<Settings, 'object_id' | 'title' | 'updated_at'>[]> {
     return this.database(this.table)
-      .select('object_id', 'updated_at')
+      .select('object_id', 'title', 'updated_at')
       .where({ owner })
       .orderBy('updated_at', 'desc');
   }

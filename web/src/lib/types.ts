@@ -1,5 +1,6 @@
 export interface Settings {
   object_id: string;
+  title?: string | null;
   payload: { [key: string]: string };
 }
 

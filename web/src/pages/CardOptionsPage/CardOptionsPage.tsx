@@ -8,6 +8,7 @@ import styles from './CardOptionsPage.module.css';
 
 interface PerPageItem {
   pageId: string;
+  title: string | null;
   updatedAt: string | null;
 }
 
@@ -58,11 +59,11 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
           </button>
         )}
         <h1 className={sharedStyles.title}>Card options</h1>
-        <p className={sharedStyles.subtitle}>
-          {pageId != null
-            ? `Custom options for ${pageTitle ?? 'this page'}. Saved changes apply only to this page.`
-            : 'These defaults apply to every conversion. You can override them for individual pages from your Notion library.'}
-        </p>
+        {pageId != null && (
+          <p className={sharedStyles.subtitle}>
+            {`Custom options for ${pageTitle ?? 'this page'}. Saved changes apply only to this page.`}
+          </p>
+        )}
       </header>
 
       {pageId == null && (
@@ -95,11 +96,11 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
                     <Link
                       to={`/rules/${encodeURIComponent(item.pageId)}`}
                       className={styles.row}
-                      aria-label={`Edit settings for ${item.pageId}`}
+                      aria-label={`Edit settings for ${item.title ?? item.pageId}`}
                     >
                       <div className={styles.rowText}>
-                        <span className={styles.rowTitle} title={item.pageId}>
-                          {item.pageId}
+                        <span className={styles.rowTitle} title={item.title ?? item.pageId}>
+                          {item.title ?? 'Untitled page'}
                         </span>
                         {updatedLabel && (
                           <span className={styles.rowMeta}>{updatedLabel}</span>
@@ -113,6 +114,15 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
             </ul>
           )}
         </section>
+      )}
+
+      {pageId == null && (
+        <div className={styles.defaultsHeader}>
+          <h2 className={sharedStyles.sectionHeading}>Default options</h2>
+          <p className={sharedStyles.smallDescription}>
+            These defaults apply to every conversion. You can override them for individual pages from your Notion library.
+          </p>
+        </div>
       )}
 
       <div className={sharedStyles.sectionCard}>

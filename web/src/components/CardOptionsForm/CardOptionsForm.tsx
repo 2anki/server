@@ -302,7 +302,7 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
       payload['user-instructions'] = userInstructions;
 
       try {
-        await get2ankiApi().saveSettings({ object_id: pageId, payload });
+        await get2ankiApi().saveSettings({ object_id: pageId, title: pageTitle ?? null, payload });
         setInitialSnapshot(currentSnapshot);
         return true;
       } catch (error) {
