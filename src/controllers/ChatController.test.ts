@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import ChatController from './ChatController';
 import { ChatRateLimitError } from '../usecases/chat/ChatUseCase';
 
-function buildRes(owner = 42, patreon = false): Response {
+function buildRes(owner = 42, patreon = false, subscriber = false): Response {
   return {
     status: jest.fn().mockReturnThis(),
     json: jest.fn().mockReturnThis(),
@@ -10,14 +10,14 @@ function buildRes(owner = 42, patreon = false): Response {
     flushHeaders: jest.fn(),
     write: jest.fn(),
     end: jest.fn(),
-    locals: { owner, patreon },
+    locals: { owner, patreon, subscriber },
   } as unknown as Response;
 }
 
-function buildMocks(owner = 42, patreon = false) {
+function buildMocks(owner = 42, patreon = false, subscriber = false) {
   const execute = jest.fn();
   const controller = new ChatController({ execute } as never);
-  const res = buildRes(owner, patreon);
+  const res = buildRes(owner, patreon, subscriber);
   return { execute, controller, res };
 }
 
@@ -50,9 +50,31 @@ describe('ChatController.sendMessage', () => {
     expect(res.status).toHaveBeenCalledWith(400);
   });
 
-  it('returns 400 when content exceeds 4000 chars', async () => {
+  it('returns 400 when content exceeds 4000 chars for free users', async () => {
     const { controller, res } = buildMocks();
     await controller.sendMessage(buildReq({ content: 'x'.repeat(4001) }), res);
+    expect(res.status).toHaveBeenCalledWith(400);
+  });
+
+  it('allows content up to 100 000 chars for patreon users', async () => {
+    const { execute, controller, res } = buildMocks(42, true, false);
+    execute.mockResolvedValueOnce({ content: 'ok' });
+    await controller.sendMessage(buildReq({ content: 'x'.repeat(100_000) }), res);
+    expect(res.status).not.toHaveBeenCalledWith(400);
+    expect(execute).toHaveBeenCalled();
+  });
+
+  it('allows content up to 100 000 chars for subscriber users', async () => {
+    const { execute, controller, res } = buildMocks(42, false, true);
+    execute.mockResolvedValueOnce({ content: 'ok' });
+    await controller.sendMessage(buildReq({ content: 'x'.repeat(100_000) }), res);
+    expect(res.status).not.toHaveBeenCalledWith(400);
+    expect(execute).toHaveBeenCalled();
+  });
+
+  it('returns 400 when content exceeds 100 000 chars even for premium users', async () => {
+    const { controller, res } = buildMocks(42, true, false);
+    await controller.sendMessage(buildReq({ content: 'x'.repeat(100_001) }), res);
     expect(res.status).toHaveBeenCalledWith(400);
   });
 

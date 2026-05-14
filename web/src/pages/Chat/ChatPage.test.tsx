@@ -139,6 +139,39 @@ describe('ChatPage', () => {
     expect(screen.queryByText('Building cards')).not.toBeInTheDocument();
   });
 
+  it('does not collapse short user messages', async () => {
+    render(<ChatPage />);
+    fireEvent.change(screen.getByRole('textbox', { name: 'Message input' }), {
+      target: { value: 'Short message' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Send message' }));
+    expect(screen.queryByRole('button', { name: 'Show full message' })).not.toBeInTheDocument();
+  });
+
+  it('collapses long user messages and shows expand toggle', () => {
+    render(<ChatPage />);
+    const longContent = 'x'.repeat(601);
+    fireEvent.change(screen.getByRole('textbox', { name: 'Message input' }), {
+      target: { value: longContent },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Send message' }));
+    expect(screen.getByRole('button', { name: 'Show full message' })).toBeInTheDocument();
+  });
+
+  it('toggles long message between collapsed and expanded', () => {
+    render(<ChatPage />);
+    const longContent = 'x'.repeat(601);
+    fireEvent.change(screen.getByRole('textbox', { name: 'Message input' }), {
+      target: { value: longContent },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Send message' }));
+    const toggle = screen.getByRole('button', { name: 'Show full message' });
+    fireEvent.click(toggle);
+    expect(screen.getByRole('button', { name: 'Show less' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Show less' }));
+    expect(screen.getByRole('button', { name: 'Show full message' })).toBeInTheDocument();
+  });
+
   it('hydrates usage counter from server on mount', async () => {
     mockGet.mockResolvedValueOnce({ used: 5, limit: 20 });
 

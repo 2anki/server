@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { ChatUseCase, ChatRateLimitError } from '../usecases/chat/ChatUseCase';
 
 const MAX_CONTENT_LENGTH = 4000;
+const MAX_CONTENT_LENGTH_PREMIUM = 100_000;
 
 function sseWrite(res: Response, event: string, data: unknown): void {
   res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
@@ -19,13 +20,16 @@ class ChatController {
       return;
     }
 
-    if (content.length > MAX_CONTENT_LENGTH) {
-      res.status(400).json({ error: `content must be ${MAX_CONTENT_LENGTH} characters or fewer` });
-      return;
-    }
-
     const owner = res.locals.owner as number;
     const patreon = (res.locals.patreon as boolean) ?? false;
+    const subscriber = (res.locals.subscriber as boolean) ?? false;
+    const isPremium = patreon || subscriber;
+    const contentLimit = isPremium ? MAX_CONTENT_LENGTH_PREMIUM : MAX_CONTENT_LENGTH;
+
+    if (content.length > contentLimit) {
+      res.status(400).json({ error: `content must be ${contentLimit} characters or fewer` });
+      return;
+    }
 
     const rawHistory = Array.isArray(req.body?.history) ? req.body.history : [];
     const conversationHistory = rawHistory
@@ -46,7 +50,7 @@ class ChatController {
 
     try {
       const result = await this.chatUseCase.execute({
-        user: { owner, patreon },
+        user: { owner, patreon: isPremium },
         content,
         conversationHistory,
         onToken: (text) => sseWrite(res, 'token', text),

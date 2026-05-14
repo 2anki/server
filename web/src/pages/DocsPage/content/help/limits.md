@@ -27,6 +27,18 @@ PDFs over the free limit return: *PDF exceeds maximum page limit of 100 for free
 
 The **Use Claude AI** card option is a Subscription / Lifetime feature. Free accounts see the toggle but the conversion falls back to the standard parser.
 
+## Chat
+
+The Chat study assistant is available to all signed-in users.
+
+| | Free | Subscription | Lifetime |
+|---|---|---|---|
+| Messages per month | 20 | Unlimited | Unlimited |
+| Message length | 4 000 characters | 100 000 characters | 100 000 characters |
+| Model | Claude Haiku | Claude Sonnet | Claude Sonnet |
+
+Free users who reach 20 messages see the exact reset date (first of the following month). Message count resets monthly.
+
 ## Storage
 
 What "storage" means depends on which path you used.
@@ -58,7 +70,8 @@ Free covers the conversion paths most people need: drag in a file, get a deck ba
 | Anonymous file upload | ✓ | ✓ | ✓ |
 | Account features (history, favorites, templates) | sign-in required | ✓ | ✓ |
 | AI-generated flashcards (Claude) | — | ✓ | ✓ |
-| Notion sync | — | ✓ | ✓ |
+| Chat (study assistant) | 20 msg / mo | Unlimited | Unlimited |
+| Notion sync | — | — | ✓ |
 | Long-term deck storage | 24 h | active sub | indefinite |
 | Hosted Anki | — | — | ✓ |
 
