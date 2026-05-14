@@ -24,8 +24,7 @@
     z-index: 1;
     background-size: cover;
     background-position: center;
-    filter: blur(0.5px) brightness(0.9);
-    transform: scale(1.04);
+    filter: brightness(0.9);
   }
 
   .overlay {
