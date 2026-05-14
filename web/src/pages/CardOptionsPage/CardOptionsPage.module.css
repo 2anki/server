@@ -19,13 +19,12 @@
   margin-bottom: 2rem;
 }
 
-
 .sectionHead {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 0.75rem;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
 .sectionCount {
@@ -37,72 +36,94 @@
   padding-top: 0.25rem;
 }
 
+/* flat list — no container border */
 .list {
   list-style: none;
   padding: 0;
   margin: 0;
-  background: var(--color-bg-primary);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
 }
 
-.list > li + li {
-  border-top: 1px solid var(--color-border);
-}
-
-.row {
+/* row inspired by SearchObjectEntry */
+.entry {
   display: flex;
   align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.5rem;
+  border-radius: var(--radius-md);
   justify-content: space-between;
-  gap: 1rem;
-  padding: 0.875rem 1rem;
-  color: var(--color-text-primary);
-  text-decoration: none;
+  width: 100%;
   transition: background var(--transition-fast);
 }
 
-.row:hover {
+.entry:hover {
   background: var(--color-bg-secondary);
 }
 
-.rowText {
+.entryMeta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+  flex: 1;
+  text-decoration: none;
+  color: inherit;
+}
+
+.pageIcon {
+  flex-shrink: 0;
+  color: var(--color-text-tertiary);
+}
+
+.entryText {
   display: flex;
   flex-direction: column;
   gap: 0.125rem;
   min-width: 0;
 }
 
-.rowTitle {
-  font-weight: 500;
+.entryTitle {
   font-size: var(--text-sm);
+  font-weight: var(--font-medium);
   color: var(--color-text-primary);
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
-.rowMeta {
+.entryMeta:hover .entryTitle {
+  color: var(--color-primary);
+}
+
+.entryTimestamp {
   font-size: var(--text-xs);
   color: var(--color-text-secondary);
   font-variant-numeric: tabular-nums;
 }
 
-.rowChevron {
-  color: var(--color-text-secondary);
-  flex-shrink: 0;
-}
-
-.notionLink {
-  display: inline-flex;
+.entryActions {
+  display: flex;
+  gap: 0.25rem;
   align-items: center;
   flex-shrink: 0;
-  opacity: 0.5;
-  border-radius: var(--radius-sm);
-  padding: 0.125rem;
-  transition: opacity var(--transition-fast);
 }
 
-.notionLink:hover {
-  opacity: 1;
+.actionButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-tertiary);
+  cursor: pointer;
+  text-decoration: none;
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.actionButton:hover {
+  color: var(--color-primary);
+  background: var(--color-bg-tertiary);
 }
