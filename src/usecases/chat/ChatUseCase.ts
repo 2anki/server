@@ -111,8 +111,9 @@ export class ChatUseCase {
     user: ChatUser;
     content: string;
     conversationHistory: ChatMessage[];
+    onToken?: (text: string) => void;
   }): Promise<SendMessageResult> {
-    const { user, content, conversationHistory } = input;
+    const { user, content, conversationHistory, onToken } = input;
 
     if (!user.patreon) {
       const count = await this.repo.countThisMonth(user.owner);
@@ -129,19 +130,26 @@ export class ChatUseCase {
       { role: 'user', content },
     ];
 
-    const response = await this.anthropic.messages.create({
+    await this.repo.insert({ userId: user.owner, role: 'user', content });
+
+    const stream = this.anthropic.messages.stream({
       model,
       max_tokens: MAX_TOKENS,
       system: STUDY_ASSISTANT_SYSTEM_PROMPT,
       messages,
     });
 
-    const assistantContent = response.content
+    if (onToken != null) {
+      stream.on('text', onToken);
+    }
+
+    const finalMessage = await stream.finalMessage();
+
+    const assistantContent = finalMessage.content
       .filter((block): block is Anthropic.TextBlock => block.type === 'text')
       .map((block) => block.text)
       .join('');
 
-    await this.repo.insert({ userId: user.owner, role: 'user', content });
     await this.repo.insert({ userId: user.owner, role: 'assistant', content: assistantContent });
 
     const { cards, contentBefore, contentAfter } = extractCards(assistantContent);

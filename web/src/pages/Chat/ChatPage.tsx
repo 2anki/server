@@ -19,17 +19,16 @@ interface Message {
   cards?: ChatCard[];
 }
 
-interface ApiSuccessResponse {
-  role: 'assistant';
+interface ApiDonePayload {
   content: string;
   contentBefore?: string;
   contentAfter?: string;
   cards?: ChatCard[];
 }
 
-interface ApiRateLimitResponse {
-  error: string;
-  resetDate: string;
+interface ApiErrorPayload {
+  type: 'rate_limit' | 'server_error';
+  resetDate?: string;
 }
 
 interface ApiUsageResponse {
@@ -72,6 +71,7 @@ export default function ChatPage() {
   const isPatreon = userLocals?.user?.patreon === true;
 
   const [messages, setMessages] = useState<Message[]>([]);
+  const [streamingText, setStreamingText] = useState('');
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [networkError, setNetworkError] = useState<string | null>(null);
@@ -97,8 +97,8 @@ export default function ChatPage() {
   }, []);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isLoading]);
+    bottomRef.current?.scrollIntoView({ behavior: streamingText.length > 0 ? 'auto' : 'smooth' });
+  }, [messages, isLoading, streamingText]);
 
   const remainingMessages = FREE_MONTHLY_LIMIT - messagesUsedThisMonth;
 
@@ -113,42 +113,86 @@ export default function ChatPage() {
     setInputValue('');
     setNetworkError(null);
     setIsLoading(true);
+    setStreamingText('');
 
     const history = nextMessages.slice(-10).map((m) => ({ role: m.role, content: m.content }));
 
     try {
       const response = await post('/api/chat/message', { content, history });
 
-      if (response.status === 429) {
-        const data: ApiRateLimitResponse = await response.json();
-        setLimitReached(true);
-        setResetDate(data.resetDate);
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({})) as { error?: string };
+        setNetworkError(data.error ?? "Couldn't send this message. Try again.");
         setIsLoading(false);
         return;
       }
 
-      if (!response.ok) {
+      if (response.body == null) {
         setNetworkError("Couldn't send this message. Try again.");
         setIsLoading(false);
         return;
       }
 
-      const data: ApiSuccessResponse = await response.json();
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: 'assistant',
-          content: data.content,
-          contentBefore: data.contentBefore,
-          contentAfter: data.contentAfter,
-          cards: data.cards,
-        },
-      ]);
-      setMessagesUsedThisMonth((n) => n + 1);
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const events = buffer.split('\n\n');
+        buffer = events.pop() ?? '';
+
+        for (const rawEvent of events) {
+          if (!rawEvent.trim()) continue;
+
+          const lines = rawEvent.split('\n');
+          let eventType = '';
+          let data = '';
+
+          for (const line of lines) {
+            if (line.startsWith('event: ')) {
+              eventType = line.slice(7).trim();
+            } else if (line.startsWith('data: ')) {
+              data = line.slice(6);
+            }
+          }
+
+          if (eventType === 'token') {
+            const text = JSON.parse(data) as string;
+            setStreamingText((prev) => prev + text);
+          } else if (eventType === 'done') {
+            const result = JSON.parse(data) as ApiDonePayload;
+            setMessages((prev) => [
+              ...prev,
+              {
+                role: 'assistant',
+                content: result.content,
+                contentBefore: result.contentBefore,
+                contentAfter: result.contentAfter,
+                cards: result.cards,
+              },
+            ]);
+            setStreamingText('');
+            setMessagesUsedThisMonth((n) => n + 1);
+          } else if (eventType === 'error') {
+            const err = JSON.parse(data) as ApiErrorPayload;
+            if (err.type === 'rate_limit') {
+              setLimitReached(true);
+              if (err.resetDate != null) setResetDate(err.resetDate);
+            } else {
+              setNetworkError("Couldn't send this message. Try again.");
+            }
+          }
+        }
+      }
     } catch {
       setNetworkError("Couldn't send this message. Try again.");
     } finally {
       setIsLoading(false);
+      setStreamingText('');
     }
   }
 
@@ -171,7 +215,7 @@ export default function ChatPage() {
 
   return (
     <div className={styles.container}>
-      {hasMessages ? (
+      {hasMessages || isLoading ? (
         <div className={styles.messageList}>
           {messages.map((m, i) => (
             <div
@@ -206,7 +250,11 @@ export default function ChatPage() {
           ))}
           {isLoading && (
             <div className={`${styles.message} ${styles.messageAssistant}`}>
-              <div className={styles.messageSkeleton} />
+              {streamingText.length > 0 ? (
+                <AssistantMarkdown isStreaming={true}>{streamingText}</AssistantMarkdown>
+              ) : (
+                <div className={styles.messageSkeleton} />
+              )}
             </div>
           )}
           <div ref={bottomRef} />

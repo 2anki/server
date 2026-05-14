@@ -15,12 +15,13 @@ const components: Components = {
 
 const plugins = [remarkGfm];
 
-export default function AssistantMarkdown({ children }: { children: string }) {
+export default function AssistantMarkdown({ children, isStreaming }: { children: string; isStreaming?: boolean }) {
   return (
     <div className={styles.prose}>
       <ReactMarkdown remarkPlugins={plugins} components={components}>
         {children}
       </ReactMarkdown>
+      {isStreaming === true && <span className={styles.streamingCaret} aria-hidden="true" />}
     </div>
   );
 }

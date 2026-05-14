@@ -19,6 +19,20 @@ import { post, get } from '../../lib/backend/api';
 const mockPost = post as ReturnType<typeof vi.fn>;
 const mockGet = get as ReturnType<typeof vi.fn>;
 
+function makeSseResponse(events: Array<{ event: string; data: unknown }>) {
+  const encoder = new TextEncoder();
+  const chunks = events.map(
+    ({ event, data }) => encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`)
+  );
+  const stream = new ReadableStream({
+    start(controller) {
+      for (const chunk of chunks) controller.enqueue(chunk);
+      controller.close();
+    },
+  });
+  return { ok: true, status: 200, body: stream };
+}
+
 describe('ChatPage', () => {
   beforeEach(() => {
     mockPost.mockReset();
@@ -32,17 +46,19 @@ describe('ChatPage', () => {
 
   it('renders CardPreview when assistant message has cards', async () => {
     const cards = [{ front: 'Q1', back: 'A1' }, { front: 'Q2', back: 'A2' }];
-    mockPost.mockResolvedValueOnce({
-      ok: true,
-      status: 200,
-      json: async () => ({
-        role: 'assistant',
-        content: 'Here are cards:\n```json\n[]\n```\nDone!',
-        contentBefore: 'Here are cards:',
-        contentAfter: 'Done!',
-        cards,
-      }),
-    });
+    mockPost.mockResolvedValueOnce(
+      makeSseResponse([
+        {
+          event: 'done',
+          data: {
+            content: 'Here are cards:\n```json\n[]\n```\nDone!',
+            contentBefore: 'Here are cards:',
+            contentAfter: 'Done!',
+            cards,
+          },
+        },
+      ])
+    );
 
     render(<ChatPage />);
 
@@ -62,14 +78,11 @@ describe('ChatPage', () => {
   });
 
   it('renders plain text for assistant message without cards', async () => {
-    mockPost.mockResolvedValueOnce({
-      ok: true,
-      status: 200,
-      json: async () => ({
-        role: 'assistant',
-        content: 'Photosynthesis is the process...',
-      }),
-    });
+    mockPost.mockResolvedValueOnce(
+      makeSseResponse([
+        { event: 'done', data: { content: 'Photosynthesis is the process...' } },
+      ])
+    );
 
     render(<ChatPage />);
 
