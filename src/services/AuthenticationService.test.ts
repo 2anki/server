@@ -13,6 +13,7 @@ beforeAll(() => {
   process.env.SECRET = SECRET;
   process.env.NOTION_CLIENT_ID = 'test-client-id';
   process.env.NOTION_CLIENT_SECRET = 'test-client-secret';
+  process.env.NOTION_REDIRECT_URI = 'http://localhost:2020/api/notion/connect';
 });
 
 const mockedAxios = instrumentedAxios as jest.Mocked<typeof instrumentedAxios>;
