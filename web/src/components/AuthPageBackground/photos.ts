@@ -6,28 +6,20 @@ export interface UnsplashPhoto {
   year: string;
 }
 
-// Verify each attribution at https://unsplash.com/photos/{id}
 export const NORWAY_PHOTOS: UnsplashPhoto[] = [
   {
-    id: '1506905925346-21bda4d32df4',
-    photographer: 'Kace Rodriguez',
-    photographerUrl: 'https://unsplash.com/@kacerodriguez',
-    location: 'Geiranger, Norway',
+    id: 'kmhZI_wVsPY',
+    photographer: 'Michael Ankes',
+    photographerUrl: 'https://unsplash.com/@w83design',
+    location: 'Holmenkollen, Oslo',
     year: '2018',
   },
   {
-    id: '1469474968028-56623f02e42e',
-    photographer: 'Tobias Mrzyk',
-    photographerUrl: 'https://unsplash.com/@tobiasmrzyk',
-    location: 'Nordfjordeid, Norway',
-    year: '2016',
-  },
-  {
-    id: '1531366936337-7c912a4589a7',
-    photographer: 'Arto Marttinen',
-    photographerUrl: 'https://unsplash.com/@wandervisions',
-    location: 'Lofoten Islands, Norway',
-    year: '2017',
+    id: '3Mzi-3DvEQY',
+    photographer: 'Stig Husby',
+    photographerUrl: 'https://unsplash.com/@stighusby',
+    location: 'Holmenkollen, Oslo',
+    year: '2022',
   },
 ];
 
