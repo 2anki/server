@@ -37,36 +37,32 @@ export interface Job {
   job_reason_failure?: string;
 }
 
-/**
- * Check if the file name is equal to the name
- * This can be used to find the contents of a file in the payload.
- * Due to encoding issues, we need to check both the encoded and decoded names
- *
- * @param file uploaded file from user
- * @param name name of the file
- * @returns true if the file name is equal to the name
- */
+function recoverLatin1(s: string): string {
+  return Buffer.from(s, 'latin1').toString('utf8');
+}
+
+function safeDecodeURIComponent(s: string): string {
+  try {
+    return global.decodeURIComponent(s);
+  } catch {
+    return s;
+  }
+}
+
 export function isFileNameEqual(file: File, name: string) {
-  try {
-    // For backwards compatibility, we need to support the old way of parsing
-    const decodedName = global.decodeURIComponent(name);
-    if (file.name === decodedName) {
-      return true;
-    }
-  } catch (error) {
-    console.error(error);
-    console.debug('Failed to decode name');
+  if (file.name === name) {
+    return true;
   }
 
-  try {
-    const decodedFilename = global.decodeURIComponent(file.name);
-    const decodedName = global.decodeURIComponent(name);
+  const decodedFileName = safeDecodeURIComponent(file.name);
+  const decodedName = safeDecodeURIComponent(name);
 
-    return decodedFilename === decodedName;
-  } catch (error) {
-    console.error(error);
-    console.debug('Failed to decode names');
+  if (decodedFileName === decodedName) {
+    return true;
   }
 
-  return file.name === name;
+  const recoveredFileName = recoverLatin1(file.name);
+  const recoveredName = recoverLatin1(name);
+
+  return recoveredFileName === decodedName || decodedFileName === recoveredName;
 }
