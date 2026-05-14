@@ -511,14 +511,14 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
               className={`${sharedStyles.btnPrimary} ${fieldStyles.actionButton}`}
               onClick={onSubmit}
             >
-              Save card options
+              Save defaults
             </button>
             <button
               type="button"
               className={`${sharedStyles.btnSecondary} ${fieldStyles.actionButton}`}
               onClick={resetStore}
             >
-              Reset to defaults
+              Reset to 2anki defaults
             </button>
           </div>
         )}
