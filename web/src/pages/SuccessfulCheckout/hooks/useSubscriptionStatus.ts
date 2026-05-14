@@ -31,9 +31,12 @@ const fetchSubscriptionStatus = async (
   return response.json();
 };
 
+const CONFIRMATION_DELAY_MS = 600;
+
 export const useSubscriptionStatus = () => {
   const [shouldPoll, setShouldPoll] = useState(true);
   const [timeoutReached, setTimeoutReached] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
   const sessionId = new URLSearchParams(globalThis.location.search).get(
     'session_id'
   );
@@ -56,26 +59,46 @@ export const useSubscriptionStatus = () => {
   }, []);
 
   useEffect(() => {
-    if (query.data) {
-      if (!query.data.authenticated) {
-        setShouldPoll(false);
+    if (!query.data) {
+      return;
+    }
+
+    if (!query.data.authenticated) {
+      setShouldPoll(false);
+    }
+
+    if (
+      query.data.hasActiveSubscription ||
+      (query.data.authenticated && timeoutReached)
+    ) {
+      const destination = query.data.authenticated
+        ? '/account?subscribed=1'
+        : '/notion';
+
+      const dedupeKey = sessionId ? `purchase_fired_${sessionId}` : null;
+
+      if (dedupeKey && sessionStorage.getItem(dedupeKey)) {
+        globalThis.location.href = destination;
+        return;
       }
 
-      if (
-        query.data.hasActiveSubscription ||
-        (query.data.authenticated && timeoutReached)
-      ) {
-        const destination = query.data.authenticated
-          ? '/account?subscribed=1'
-          : '/notion';
-        globalThis.location.href = destination;
+      if (dedupeKey) {
+        sessionStorage.setItem(dedupeKey, '1');
       }
+
+      setShouldPoll(false);
+      setShowConfirmation(true);
+
+      setTimeout(() => {
+        globalThis.location.href = destination;
+      }, CONFIRMATION_DELAY_MS);
     }
-  }, [query.data, timeoutReached]);
+  }, [query.data, timeoutReached, sessionId]);
 
   return {
     ...query,
     timeoutReached,
+    showConfirmation,
     shouldShowLoading:
       query.isLoading ||
       (shouldPoll &&
