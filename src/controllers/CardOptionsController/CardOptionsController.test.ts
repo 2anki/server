@@ -24,6 +24,10 @@ class FakeSettingsService implements IServiceSettings {
       { object_id: 'page-xyz', title: null, updated_at: null },
     ]);
   }
+
+  updateTitle(_object_id: string, _title: string): Promise<void> {
+    return Promise.resolve();
+  }
 }
 
 function testDefaultSettings(

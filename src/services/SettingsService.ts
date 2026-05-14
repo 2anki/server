@@ -6,6 +6,7 @@ export interface IServiceSettings {
   delete: (owner: string, id: string) => Promise<void>;
   getById: (id: string) => Promise<SettingsInitializer>;
   getAllByOwner: (owner: string) => Promise<{ object_id: string; title: string | null; updated_at: Date | null }[]>;
+  updateTitle: (object_id: string, title: string) => Promise<void>;
 }
 
 class SettingsService implements IServiceSettings {
@@ -46,6 +47,10 @@ class SettingsService implements IServiceSettings {
 
   getAllByOwner(owner: string) {
     return this.repository.getAllByOwner(owner);
+  }
+
+  updateTitle(object_id: string, title: string) {
+    return this.repository.updateTitle(object_id, title);
   }
 }
 

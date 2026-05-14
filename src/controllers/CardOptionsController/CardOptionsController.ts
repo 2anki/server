@@ -1,12 +1,17 @@
 import { Request, Response } from 'express';
+import { getNotionObjectTitle } from 'get-notion-object-title';
 import { IServiceSettings } from '../../services/SettingsService';
+import { NotionService } from '../../services/NotionService/NotionService';
 import { getOwner } from '../../lib/User/getOwner';
 import supportedOptions from './supportedOptions';
 import CardOption from '../../lib/parser/Settings/CardOption';
 import { CardOptionDetail } from './CardOptionDetail';
 
 class CardOptionsController {
-  constructor(private readonly service: IServiceSettings) {}
+  constructor(
+    private readonly service: IServiceSettings,
+    private readonly notionService?: NotionService
+  ) {}
 
   async createSetting(req: Request, res: Response) {
     console.info(`/settings/create ${req.params.id}`);
@@ -64,8 +69,26 @@ class CardOptionsController {
     const owner = getOwner(res);
     try {
       const rows = await this.service.getAllByOwner(owner);
+
+      const enriched = await Promise.all(
+        rows.map(async (r) => {
+          if (r.title != null || !this.notionService) return r;
+          try {
+            const api = await this.notionService.getNotionAPI(owner);
+            const page = await api.getPage(r.object_id.replace(/-/g, ''));
+            const title = page ? (getNotionObjectTitle(page, { emoji: false }) ?? null) : null;
+            if (title) {
+              await this.service.updateTitle(r.object_id, title);
+            }
+            return { ...r, title };
+          } catch {
+            return r;
+          }
+        })
+      );
+
       res.json({
-        items: rows.map((r) => ({
+        items: enriched.map((r) => ({
           pageId: r.object_id,
           title: r.title ?? null,
           updatedAt: r.updated_at ? r.updated_at.toISOString() : null,
