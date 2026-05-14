@@ -461,48 +461,6 @@
   padding: 1rem;
 }
 
-.drawerPickerView,
-.drawerGalleryView {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.drawerLabel {
-  font-size: var(--text-sm);
-  font-weight: var(--font-medium);
-  color: var(--color-text-secondary);
-}
-
-.drawerSearchInput {
-  width: 100%;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 0.5rem 0.75rem;
-  font-size: var(--text-sm);
-  color: var(--color-text-primary);
-  background: var(--color-bg-primary);
-  box-sizing: border-box;
-}
-
-.drawerSearchInput:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px var(--color-focus-ring);
-}
-
-.drawerStatus {
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
-  margin: 0;
-}
-
-.drawerError {
-  font-size: var(--text-sm);
-  color: var(--color-danger, #e53e3e);
-  margin: 0;
-}
-
 .drawerRetryBtn {
   background: none;
   border: none;
@@ -519,46 +477,13 @@
   font-size: var(--text-sm);
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  padding: 2rem 0;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 3rem 1rem;
 }
 
 .drawerEmpty p {
   margin: 0;
-}
-
-.drawerPageList {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.drawerPageItem {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.625rem 0.75rem;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-bg-primary);
-  cursor: pointer;
-  text-align: left;
-  gap: 0.5rem;
-  transition: background-color var(--transition-fast);
-}
-
-.drawerPageItem:hover {
-  background: var(--color-bg-secondary);
-}
-
-.drawerOpenLabel {
-  font-size: var(--text-xs);
-  color: var(--color-primary);
-  flex-shrink: 0;
 }
 
 .drawerFreeTierNote {
@@ -582,8 +507,26 @@
 
 .galleryGrid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.5rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.625rem;
+}
+
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.gallerySkeletonTile {
+  border-radius: var(--radius-md);
+  aspect-ratio: 3 / 2;
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-secondary) 25%,
+    var(--color-border) 50%,
+    var(--color-bg-secondary) 75%
+  );
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite linear;
 }
 
 .galleryTile {
@@ -594,28 +537,44 @@
   padding: 0;
   cursor: pointer;
   overflow: hidden;
-  aspect-ratio: 3 / 2;
-  transition: border-color var(--transition-fast);
+  display: flex;
+  flex-direction: column;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .galleryTile:hover:not(:disabled) {
   border-color: var(--color-primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .galleryTile:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
 }
 
 .galleryTileSelected {
   border-color: var(--color-primary);
+  box-shadow: 0 0 0 1px var(--color-primary);
 }
 
 .galleryTileImg {
   width: 100%;
-  height: 100%;
+  aspect-ratio: 3 / 2;
   object-fit: cover;
   display: block;
+  flex-shrink: 0;
+}
+
+.galleryTileCaption {
+  display: block;
+  padding: 0.25rem 0.375rem;
+  font-size: 10px;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: var(--color-bg-primary);
+  line-height: 1.4;
 }
 
 .galleryCheckBadge {
@@ -632,6 +591,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  pointer-events: none;
 }
 
 .drawerFooter {
