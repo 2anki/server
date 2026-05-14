@@ -14,6 +14,7 @@ function NewPasswordForm({ setErrorMessage }: Readonly<Props>) {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [resetError, setResetError] = useState<string | null>(null);
 
   const passwordTouched = password.length > 0;
   const passwordMeetsMinimum = password.length >= MIN_PASSWORD_LENGTH;
@@ -43,6 +44,10 @@ function NewPasswordForm({ setErrorMessage }: Readonly<Props>) {
       const res = await get2ankiApi().newPassword(password, resetToken);
       if (res.status === 200) {
         globalThis.location.href = '/login';
+      } else {
+        setResetError(
+          'Could not reset your password. The link may have expired — request a new one.'
+        );
       }
       setLoading(false);
     } catch (error) {
@@ -104,6 +109,9 @@ function NewPasswordForm({ setErrorMessage }: Readonly<Props>) {
             >
               {loading ? 'Saving…' : 'Reset password'}
             </button>
+            {resetError && (
+              <p className={styles.helpDanger}>{resetError}</p>
+            )}
           </div>
         </form>
       </div>

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import styles from '../../styles/auth.module.css';
 import sharedStyles from '../../styles/shared.module.css';
 
@@ -36,17 +37,31 @@ interface CheckYourEmailProps {
   email: string;
   onRetry: () => void;
   purpose: 'login' | 'password_reset';
+  onResend?: () => Promise<void>;
 }
 
 function CheckYourEmail({
   email,
   onRetry,
   purpose,
+  onResend,
 }: Readonly<CheckYourEmailProps>) {
+  const [resendState, setResendState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
   const isLogin = purpose === 'login';
   const linkType = isLogin ? 'login link' : 'password reset link';
   const actionText = isLogin ? 'log in' : 'reset your password';
   const providerLinks = getEmailProviderLinks(email);
+
+  const handleResend = async () => {
+    if (onResend == null) return;
+    setResendState('sending');
+    try {
+      await onResend();
+      setResendState('sent');
+    } catch {
+      setResendState('error');
+    }
+  };
 
   return (
     <div className={styles.formPage}>
@@ -56,6 +71,7 @@ function CheckYourEmail({
           A {linkType} was sent to <strong>{email}</strong>. Click the link to
           {' '}{actionText}. It expires in 15 minutes.
         </p>
+        <p className={styles.helpMuted}>Usually arrives within a minute.</p>
         {providerLinks.length > 0 && (
           <div className={sharedStyles.flexRow} style={{ marginBottom: '1rem' }}>
             {providerLinks.map((link) => (
@@ -83,6 +99,31 @@ function CheckYourEmail({
             try again
           </a>
           .
+        </p>
+        {onResend != null && (
+          <div className={styles.field}>
+            {resendState === 'sent' ? (
+              <p className={styles.helpSuccess}>Sent!</p>
+            ) : (
+              <button
+                type="button"
+                className={styles.submitButton}
+                onClick={handleResend}
+                disabled={resendState === 'sending'}
+              >
+                {resendState === 'sending' ? 'Sending…' : 'Resend link'}
+              </button>
+            )}
+            {resendState === 'error' && (
+              <p className={styles.helpDanger}>
+                Could not send — try again in a moment.
+              </p>
+            )}
+          </div>
+        )}
+        <p className={styles.helpMuted}>
+          {'Still nothing? Email '}
+          <a href="mailto:support@2anki.net">support@2anki.net</a>
         </p>
       </div>
     </div>

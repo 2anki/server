@@ -121,9 +121,32 @@ describe('LoginForm', () => {
 
   it('shows create account button on the email step', () => {
     renderLoginForm();
-    const link = screen.getByText('Create a free account');
+    expect(screen.getByText("Sign up — it's free")).toBeInTheDocument();
+    expect(screen.getByText("Sign up — it's free").closest('a')).toHaveAttribute(
+      'href',
+      '/register'
+    );
+  });
+
+  it('shows forgot password link on the email step', () => {
+    renderLoginForm();
+    const link = screen.getByRole('link', { name: 'Forgot your password?' });
     expect(link).toBeInTheDocument();
-    expect(link.closest('a')).toHaveAttribute('href', '/register');
+    expect(link).toHaveAttribute('href', '/forgot');
+  });
+
+  it('shows email-me-a-sign-in-link when email is filled in on email step', async () => {
+    renderLoginForm();
+    expect(screen.queryByText('Email me a sign-in link')).toBeNull();
+    fireEvent.change(screen.getByPlaceholderText('Email address'), {
+      target: { value: 'test@example.com' },
+    });
+    expect(screen.getByText('Email me a sign-in link')).toBeInTheDocument();
+  });
+
+  it('shows dont have an account copy on email step', () => {
+    renderLoginForm();
+    expect(screen.getByText("Don't have an account?")).toBeInTheDocument();
   });
 
   it('persists email to localStorage on blur when value looks like an email', () => {

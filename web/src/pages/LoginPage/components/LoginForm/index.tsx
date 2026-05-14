@@ -99,6 +99,24 @@ function LoginForm() {
                 {error && <p className={styles.helpDanger}>{error}</p>}
               </div>
             </form>
+            <p className={styles.footerText}>
+              <a rel="noreferrer" href="/forgot">
+                Forgot your password?
+              </a>
+            </p>
+            {email.length > 0 && (
+              <p className={styles.footerText}>
+                <a
+                  href="#magic-link"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleSendMagicLink();
+                  }}
+                >
+                  {magicLinkLoading ? 'Sending…' : 'Email me a sign-in link'}
+                </a>
+              </p>
+            )}
             <div className={styles.divider}>
               <span className={styles.dividerLabel}>or</span>
             </div>
@@ -184,14 +202,12 @@ function LoginForm() {
             </p>
           </form>
         )}
-        {!isEmailStep && (
-          <p className={styles.footerText}>
-            {getVisibleText('navigation.register.question')}{' '}
-            <a rel="noreferrer" href={registerHref}>
-              Sign up
-            </a>
-          </p>
-        )}
+        <p className={styles.footerText}>
+          {"Don't have an account?"}{' '}
+          <a rel="noreferrer" href={registerHref}>
+            {"Sign up — it's free"}
+          </a>
+        </p>
       </div>
     </div>
   );

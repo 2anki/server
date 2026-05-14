@@ -40,6 +40,14 @@ export const useHandleLoginSubmit = (onError: ErrorHandlerType): LoginState => {
         await migrateToServer();
         await hydrateFromServer();
         globalThis.location.href = redirect ?? getSearchPath('anki');
+      } else if (res.status === 401) {
+        const data = await res.json().catch(() => ({}));
+        onError(
+          new Error(
+            (data as { message?: string }).message ??
+              'Wrong email or password. Try again or reset your password.'
+          )
+        );
       } else {
         onError(
           new Error(
