@@ -95,6 +95,12 @@ const OPTION_GROUPS: Array<{ label: string; keys: string[] }> = [
 
 const GROUPED_KEYS = new Set(OPTION_GROUPS.flatMap((g) => g.keys));
 
+const PREMIUM_KEYS = new Set([
+  'vertex-ai-pdf-questions',
+  'claude-ai-flashcards',
+  'image-quiz-html-to-anki',
+]);
+
 function computeSnapshot(values: {
   deckName: string;
   fontSize: string;
@@ -383,7 +389,7 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
       <div className={fieldStyles.section}>
         <details>
           <summary className={fieldStyles.detailsSummary}>
-            User Instructions for PDF conversion
+            User instructions for PDF conversion
           </summary>
           <textarea
             className={fieldStyles.instructionsTextarea}
@@ -405,81 +411,102 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
 
     return (
       <div className={fieldStyles.form}>
-        <div className={fieldStyles.section}>
-          <label htmlFor="deck-name" className={fieldStyles.sectionLabel}>
-            Deck Name
-          </label>
-          <p className={fieldStyles.sectionHint}>
-            You can customize the deck name here. Leave it empty if you use
-            subpages.
-          </p>
-          <input
-            id="deck-name"
-            name="deck-name"
-            className={fieldStyles.deckInput}
-            placeholder="Enter deck name (optional)"
-            value={deckName}
-            onChange={(e) => {
-              const newName = e.target.value;
-              if (newName !== deckName) setDeckName(newName);
-              saveValueInLocalStorage(deckNameKey, newName, pageId);
-            }}
-          />
-        </div>
+        {!hideActions && (
+          <div className={fieldStyles.stickyActions}>
+            <button
+              type="button"
+              className={`${sharedStyles.btnSecondary} ${fieldStyles.actionButton}`}
+              onClick={resetStore}
+            >
+              Reset to 2anki defaults
+            </button>
+            <button
+              type="button"
+              className={`${sharedStyles.btnPrimary} ${fieldStyles.actionButton}`}
+              onClick={onSubmit}
+            >
+              Save defaults
+            </button>
+          </div>
+        )}
 
-        <div className={fieldStyles.section}>
-          <label htmlFor="page-emoji" className={fieldStyles.sectionLabel}>
-            Page Icon
-          </label>
-          <p className={fieldStyles.sectionHint}>
-            Control whether to use the Notion page icon and its position.
-          </p>
-          <TemplateSelect
-            values={[
-              { label: 'Icon first', value: 'first_emoji' },
-              { label: 'Icon last', value: 'last_emoji' },
-              { label: 'Disable icon', value: 'disable_emoji' },
-            ]}
-            value={pageEmoji}
-            name="page-emoji"
-            pickedTemplate={(t) => {
-              setPageEmoji(t);
-              saveValueInLocalStorage('page-emoji', t, pageId);
-            }}
-          />
-        </div>
+        <div className={fieldStyles.optionGroup}>
+          <h3 className={fieldStyles.groupHeading}>Deck &amp; structure</h3>
 
-        <div className={fieldStyles.section}>
-          <p className={fieldStyles.sectionHint}>
-            <strong>How toggles become cards:</strong> each toggle&apos;s header
-            is the front of a card, and its contents become the back. A toggle
-            inside a toggle (nested toggle) becomes its own card using the
-            rules below.
-          </p>
-        </div>
+          <div className={fieldStyles.section}>
+            <label htmlFor="deck-name" className={fieldStyles.sectionLabel}>
+              Deck name
+            </label>
+            <p className={fieldStyles.sectionHint}>
+              Customize the deck name. Leave it empty if you use subpages.
+            </p>
+            <input
+              id="deck-name"
+              name="deck-name"
+              className={fieldStyles.deckInput}
+              placeholder="Enter deck name (optional)"
+              value={deckName}
+              onChange={(e) => {
+                const newName = e.target.value;
+                if (newName !== deckName) setDeckName(newName);
+                saveValueInLocalStorage(deckNameKey, newName, pageId);
+              }}
+            />
+          </div>
 
-        <div className={fieldStyles.section}>
-          <label htmlFor="toggle-mode" className={fieldStyles.sectionLabel}>
-            Toggle Mode
-          </label>
-          <p className={fieldStyles.sectionHint}>
-            Controls how nested toggles render on the back of a card.{' '}
-            <em>Open nested toggles</em> shows their contents expanded;{' '}
-            <em>Close nested toggles</em> keeps them collapsed so you can reveal
-            them one at a time while reviewing.
-          </p>
-          <TemplateSelect
-            values={[
-              { label: 'Open nested toggles', value: 'open_toggle' },
-              { label: 'Close nested toggles', value: 'close_toggle' },
-            ]}
-            value={toggleMode}
-            name="toggle-mode"
-            pickedTemplate={(t) => {
-              setToggleMode(t);
-              saveValueInLocalStorage('toggle-mode', t, pageId);
-            }}
-          />
+          <div className={fieldStyles.section}>
+            <label htmlFor="page-emoji" className={fieldStyles.sectionLabel}>
+              Page icon
+            </label>
+            <p className={fieldStyles.sectionHint}>
+              Control whether to use the Notion page icon and its position.
+            </p>
+            <TemplateSelect
+              values={[
+                { label: 'Icon first', value: 'first_emoji' },
+                { label: 'Icon last', value: 'last_emoji' },
+                { label: 'Disable icon', value: 'disable_emoji' },
+              ]}
+              value={pageEmoji}
+              name="page-emoji"
+              pickedTemplate={(t) => {
+                setPageEmoji(t);
+                saveValueInLocalStorage('page-emoji', t, pageId);
+              }}
+            />
+          </div>
+
+          <div className={fieldStyles.section}>
+            <p className={fieldStyles.sectionHint}>
+              <strong>How toggles become cards:</strong> each toggle&apos;s
+              header is the front of a card, its contents the back. A nested
+              toggle becomes its own card.
+            </p>
+          </div>
+
+          <div className={fieldStyles.section}>
+            <label htmlFor="toggle-mode" className={fieldStyles.sectionLabel}>
+              Toggle mode
+            </label>
+            <p className={fieldStyles.sectionHint}>
+              Controls how nested toggles render on the back of a card.{' '}
+              <em>Open nested toggles</em> shows their contents expanded;{' '}
+              <em>Close nested toggles</em> keeps them collapsed so you can
+              reveal them one at a time while reviewing.
+            </p>
+            <TemplateSelect
+              values={[
+                { label: 'Open nested toggles', value: 'open_toggle' },
+                { label: 'Close nested toggles', value: 'close_toggle' },
+              ]}
+              value={toggleMode}
+              name="toggle-mode"
+              pickedTemplate={(t) => {
+                setToggleMode(t);
+                saveValueInLocalStorage('toggle-mode', t, pageId);
+              }}
+            />
+          </div>
         </div>
 
         {generalOptions.length > 0 && (
@@ -493,6 +520,7 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
                   label={o.label}
                   description={o.description}
                   onChecked={(checked) => toggleCheckbox(o.key, checked)}
+                  badge={PREMIUM_KEYS.has(o.key) ? 'Premium' : undefined}
                 />
               ))}
             </div>
@@ -518,6 +546,7 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
                     label={o.label}
                     description={o.description}
                     onChecked={(checked) => toggleCheckbox(o.key, checked)}
+                    badge={PREMIUM_KEYS.has(o.key) ? 'Premium' : undefined}
                   />
                 ))}
                 {isPdfAiGroup && userInstructionsDisclosure}
@@ -526,75 +555,59 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
           );
         })}
 
-        <div className={fieldStyles.section}>
-          <h3 className={fieldStyles.templateHeading}>Template Options</h3>
-          <TemplateSelect
-            values={availableTemplates}
-            value={template}
-            name="template"
-            pickedTemplate={(t) => {
-              setTemplate(t);
-              saveValueInLocalStorage('template', t, pageId);
-            }}
-          />
-          <TemplateName
-            name="basic_model_name"
-            value={basicName}
-            placeholder="Defaults to n2a-basic"
-            label="Basic Template Name"
-            pickedName={(name) => {
-              setBasicName(name);
-              saveValueInLocalStorage('basic_model_name', name, pageId);
-            }}
-          />
-          <TemplateName
-            name="cloze_model_name"
-            value={clozeName}
-            placeholder="Defaults to n2a-cloze"
-            label="Cloze Template Name"
-            pickedName={(name) => {
-              setClozeName(name);
-              saveValueInLocalStorage('cloze_model_name', name, pageId);
-            }}
-          />
-          <TemplateName
-            name="input_model_name"
-            value={inputName}
-            placeholder="Defaults to n2a-input"
-            label="Input Template Name"
-            pickedName={(name) => {
-              setInputName(name);
-              saveValueInLocalStorage('input_model_name', name, pageId);
-            }}
-          />
-        </div>
-
-        <FontSizePicker
-          fontSize={fontSize}
-          pickedFontSize={(fs) => {
-            setFontSize(fs);
-            saveValueInLocalStorage('font-size', fs.toString(), pageId);
-          }}
-        />
-
-        {!hideActions && (
-          <div className={fieldStyles.stickyActions}>
-            <button
-              type="button"
-              className={`${sharedStyles.btnSecondary} ${fieldStyles.actionButton}`}
-              onClick={resetStore}
-            >
-              Reset to 2anki defaults
-            </button>
-            <button
-              type="button"
-              className={`${sharedStyles.btnPrimary} ${fieldStyles.actionButton}`}
-              onClick={onSubmit}
-            >
-              Save defaults
-            </button>
+        <div className={fieldStyles.optionGroup}>
+          <h3 className={fieldStyles.groupHeading}>Templates</h3>
+          <div className={fieldStyles.section}>
+            <TemplateSelect
+              values={availableTemplates}
+              value={template}
+              name="template"
+              pickedTemplate={(t) => {
+                setTemplate(t);
+                saveValueInLocalStorage('template', t, pageId);
+              }}
+            />
+            <TemplateName
+              name="basic_model_name"
+              value={basicName}
+              placeholder="Defaults to n2a-basic"
+              label="Basic template name"
+              pickedName={(name) => {
+                setBasicName(name);
+                saveValueInLocalStorage('basic_model_name', name, pageId);
+              }}
+            />
+            <TemplateName
+              name="cloze_model_name"
+              value={clozeName}
+              placeholder="Defaults to n2a-cloze"
+              label="Cloze template name"
+              pickedName={(name) => {
+                setClozeName(name);
+                saveValueInLocalStorage('cloze_model_name', name, pageId);
+              }}
+            />
+            <TemplateName
+              name="input_model_name"
+              value={inputName}
+              placeholder="Defaults to n2a-input"
+              label="Input template name"
+              pickedName={(name) => {
+                setInputName(name);
+                saveValueInLocalStorage('input_model_name', name, pageId);
+              }}
+            />
           </div>
-        )}
+          <div className={fieldStyles.section}>
+            <FontSizePicker
+              fontSize={fontSize}
+              pickedFontSize={(fs) => {
+                setFontSize(fs);
+                saveValueInLocalStorage('font-size', fs.toString(), pageId);
+              }}
+            />
+          </div>
+        </div>
       </div>
     );
   }

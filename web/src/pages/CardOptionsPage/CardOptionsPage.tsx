@@ -115,7 +115,13 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
                         title="Open in Notion"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <img src="/icons/Notion_app_logo.png" alt="" width={16} height={16} />
+                        <img
+                          src="/icons/Notion_app_logo.png"
+                          alt=""
+                          width={16}
+                          height={16}
+                          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                        />
                       </a>
                       <span className={styles.rowChevron} aria-hidden="true">→</span>
                     </Link>

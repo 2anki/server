@@ -624,6 +624,26 @@
   accent-color: var(--color-primary);
 }
 
+.checkboxLabelRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.checkboxBadge {
+  display: inline-block;
+  padding: 0.1rem 0.4rem;
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  color: var(--color-text-secondary);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
 .checkboxDescription {
   width: 100%;
   font-size: var(--text-xs);
