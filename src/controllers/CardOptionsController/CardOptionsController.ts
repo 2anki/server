@@ -75,7 +75,7 @@ class CardOptionsController {
           if (r.title != null || !this.notionService) return r;
           try {
             const api = await this.notionService.getNotionAPI(owner);
-            const page = await api.getPage(r.object_id.replace(/-/g, ''));
+            const page = await api.getPage(r.object_id.replaceAll('-', ''));
             const title = page ? (getNotionObjectTitle(page, { emoji: false }) ?? null) : null;
             if (title) {
               await this.service.updateTitle(r.object_id, title);

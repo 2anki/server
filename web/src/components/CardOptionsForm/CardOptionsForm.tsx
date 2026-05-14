@@ -1,30 +1,29 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import React, {
-  SyntheticEvent,
   forwardRef,
+  SyntheticEvent,
   useEffect,
   useImperativeHandle,
   useMemo,
   useState,
 } from 'react';
+import { get2ankiApi } from '../../lib/backend/get2ankiApi';
+import { clearStoredCardOptions } from '../../lib/data_layer/clearStoredCardOptions';
+import { getLocalStorageBooleanValue } from '../../lib/data_layer/getLocalStorageBooleanValue';
+import { getLocalStorageValue } from '../../lib/data_layer/getLocalStorageValue';
+import CardOption from '../../lib/data_layer/model/CardOption';
+import { saveValueInLocalStorage } from '../../lib/data_layer/saveValueInLocalStorage';
 import { SettingsPayload } from '../../lib/types';
-
-import FontSizePicker from '../FontSizePicker';
+import sharedStyles from '../../styles/shared.module.css';
+import { ErrorHandlerType } from '../errors/helpers/getErrorMessage';
 import { FieldHint } from '../FieldHint';
+import FontSizePicker from '../FontSizePicker';
 import LocalCheckbox from '../LocalCheckbox';
+import { availableTemplates } from '../modals/SettingsModal/constants';
+import { useSettingsCardsOptions } from '../modals/SettingsModal/useSettingsCardsOptions';
 import TemplateName from '../TemplateName';
 import TemplateSelect from '../TemplateSelect';
-import { saveValueInLocalStorage } from '../../lib/data_layer/saveValueInLocalStorage';
-import { ErrorHandlerType } from '../errors/helpers/getErrorMessage';
-import { clearStoredCardOptions } from '../../lib/data_layer/clearStoredCardOptions';
-import { availableTemplates } from '../modals/SettingsModal/constants';
-import { getLocalStorageValue } from '../../lib/data_layer/getLocalStorageValue';
-import { get2ankiApi } from '../../lib/backend/get2ankiApi';
-import { getLocalStorageBooleanValue } from '../../lib/data_layer/getLocalStorageBooleanValue';
-import CardOption from '../../lib/data_layer/model/CardOption';
-import { useSettingsCardsOptions } from '../modals/SettingsModal/useSettingsCardsOptions';
 import fieldStyles from './CardOptionsForm.module.css';
-import sharedStyles from '../../styles/shared.module.css';
 
 interface Props {
   pageTitle?: string | null;
@@ -33,7 +32,6 @@ interface Props {
   onReset?: () => void;
   setError: ErrorHandlerType;
   hideActions?: boolean;
-  layout?: 'stack' | 'grid';
 }
 
 export interface CardOptionsFormHandle {
@@ -101,7 +99,6 @@ const PREMIUM_KEYS = new Set([
   'claude-ai-flashcards',
   'image-quiz-html-to-anki',
 ]);
-
 
 function computeSnapshot(values: {
   deckName: string;
@@ -342,7 +339,11 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
       payload['user-instructions'] = userInstructions;
 
       try {
-        await get2ankiApi().saveSettings({ object_id: pageId, title: pageTitle ?? null, payload });
+        await get2ankiApi().saveSettings({
+          object_id: pageId,
+          title: pageTitle ?? null,
+          payload,
+        });
         setInitialSnapshot(currentSnapshot);
         return true;
       } catch (error) {
@@ -464,12 +465,14 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
               <label className={fieldStyles.sectionLabel}>Page icon</label>
               <FieldHint text="Whether to include the Notion page icon and where to place it." />
             </div>
-            <div className={fieldStyles.segmented} role="group" aria-label="Page icon position">
-              {([
-                { label: 'Icon first', value: 'first_emoji' },
-                { label: 'Icon last', value: 'last_emoji' },
-                { label: 'Disable', value: 'disable_emoji' },
-              ] as const).map(({ label, value }) => (
+            <div className={fieldStyles.segmented}>
+              {(
+                [
+                  { label: 'Icon first', value: 'first_emoji' },
+                  { label: 'Icon last', value: 'last_emoji' },
+                  { label: 'Disable', value: 'disable_emoji' },
+                ] as const
+              ).map(({ label, value }) => (
                 <button
                   key={value}
                   type="button"
@@ -490,11 +493,13 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
               <label className={fieldStyles.sectionLabel}>Toggle mode</label>
               <FieldHint text="Toggle header = card front; contents = card back. Nested toggles become their own cards. Open expands nested contents; Close keeps them collapsed for step-by-step review." />
             </div>
-            <div className={fieldStyles.segmented} role="group" aria-label="Toggle mode">
-              {([
-                { label: 'Open nested toggles', value: 'open_toggle' },
-                { label: 'Close nested toggles', value: 'close_toggle' },
-              ] as const).map(({ label, value }) => (
+            <div className={fieldStyles.segmented}>
+              {(
+                [
+                  { label: 'Open nested toggles', value: 'open_toggle' },
+                  { label: 'Close nested toggles', value: 'close_toggle' },
+                ] as const
+              ).map(({ label, value }) => (
                 <button
                   key={value}
                   type="button"
