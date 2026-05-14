@@ -33,46 +33,46 @@ describe('CardOptionsPage per-page list', () => {
   it('shows the pages section heading on the default view', async () => {
     renderPage();
     await waitFor(() => {
-      expect(screen.getByText('Pages with custom options')).toBeInTheDocument();
+      expect(screen.getByText('Saved pages')).toBeInTheDocument();
     });
   });
 
   it('shows empty state when no pages have custom options', async () => {
     renderPage();
     await waitFor(() => {
-      expect(screen.getByText('No pages with custom options yet.')).toBeInTheDocument();
+      expect(
+        screen.getByText(/No saved pages yet\./i)
+      ).toBeInTheDocument();
     });
   });
 
   it('renders a row for each saved per-page override linking to rules page', async () => {
     mockApi.listSettings.mockResolvedValue({
       items: [
-        { pageId: 'abc-123', updatedAt: '2026-01-15T10:00:00.000Z' },
-        { pageId: 'def-456', updatedAt: null },
+        { pageId: 'abc-123', title: null, updatedAt: '2026-01-15T10:00:00.000Z' },
+        { pageId: 'def-456', title: null, updatedAt: null },
       ],
     });
     renderPage();
     await waitFor(() => {
       expect(screen.getByRole('link', { name: /abc-123/i })).toHaveAttribute(
         'href',
-        '/rules/abc-123'
+        '/rules/abc-123?returnTo=/card-options'
       );
       expect(screen.getByRole('link', { name: /def-456/i })).toHaveAttribute(
         'href',
-        '/rules/def-456'
+        '/rules/def-456?returnTo=/card-options'
       );
     });
   });
 
   it('does not render the pages section when viewing a specific page', async () => {
     mockApi.listSettings.mockResolvedValue({
-      items: [{ pageId: 'abc-123', updatedAt: null }],
+      items: [{ pageId: 'abc-123', title: null, updatedAt: null }],
     });
     renderPage('?pageId=abc-123');
     await waitFor(() => {
-      expect(
-        screen.queryByText('Pages with custom options')
-      ).not.toBeInTheDocument();
+      expect(screen.queryByText('Saved pages')).not.toBeInTheDocument();
     });
   });
 });

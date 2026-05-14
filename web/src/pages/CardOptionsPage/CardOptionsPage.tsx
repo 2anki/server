@@ -25,11 +25,13 @@ function formatUpdatedAt(value: string | null): string | null {
   if (diffMin < 1) return 'a moment ago';
   if (diffMin < 60) return `${diffMin} minute${diffMin === 1 ? '' : 's'} ago`;
   const diffHours = Math.floor(diffMin / 60);
-  if (diffHours < 24) return `${diffHours} hour${diffHours === 1 ? '' : 's'} ago`;
+  if (diffHours < 24)
+    return `${diffHours} hour${diffHours === 1 ? '' : 's'} ago`;
   const diffDays = Math.floor(diffHours / 24);
   if (diffDays < 30) return `${diffDays} day${diffDays === 1 ? '' : 's'} ago`;
   const diffMonths = Math.floor(diffDays / 30);
-  if (diffMonths < 12) return `${diffMonths} month${diffMonths === 1 ? '' : 's'} ago`;
+  if (diffMonths < 12)
+    return `${diffMonths} month${diffMonths === 1 ? '' : 's'} ago`;
   const diffYears = Math.floor(diffMonths / 12);
   return `${diffYears} year${diffYears === 1 ? '' : 's'} ago`;
 }
@@ -55,113 +57,120 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
 
   return (
     <div className={styles.pageShell}>
-    <div className={sharedStyles.page}>
-      <header className={sharedStyles.pageHeader}>
-        {pageId != null && (
-          <button type="button" onClick={goBack} className={styles.backLink}>
-            ← Back
-          </button>
-        )}
-        <h1 className={sharedStyles.title}>Settings</h1>
-        {pageId == null && (
-          <p className={sharedStyles.subtitle}>
-            Control how 2anki converts your content into Anki cards — deck names,
-            templates, card types, and more. Changes here apply to every new
-            conversion. To adjust settings for a single Notion page, open it from
-            the list below.{' '}
-            <Link to="/documentation">Read the docs</Link> for a full explanation
-            of each option.
-          </p>
-        )}
-        {pageId != null && (
-          <p className={sharedStyles.subtitle}>
-            {`Custom options for ${pageTitle ?? 'this page'}. Saved changes apply only to this page.`}
-          </p>
-        )}
-      </header>
-
-      {pageId == null && (
-        <section className={`${styles.pagesSection} ${styles.pagesCard}`}>
-          <h2 className={styles.pagesHeading}>
-            Saved pages
-            {perPageItems.length > 0 && (
-              <span className={styles.sectionCount}>
-                {perPageItems.length}
-              </span>
-            )}
-          </h2>
-
-          {perPageItems.length === 0 ? (
-            <p className={styles.emptyInCard}>
-              No saved pages yet. When you customise options for a specific Notion page, it appears here.
-            </p>
-          ) : (
-            <ul className={styles.list}>
-              {perPageItems.map((item) => {
-                const updatedLabel = formatUpdatedAt(item.updatedAt);
-                const displayTitle = item.title ?? null;
-                const rulesHref = `/rules/${encodeURIComponent(item.pageId)}?returnTo=/card-options${item.title ? `&title=${encodeURIComponent(item.title)}` : ''}`;
-                return (
-                  <li key={item.pageId}>
-                    <div className={styles.entry}>
-                      <Link
-                        to={rulesHref}
-                        className={styles.entryMeta}
-                        aria-label={`Edit settings for ${displayTitle ?? item.pageId}`}
-                      >
-                        <div className={styles.entryText}>
-                          <span className={styles.entryTitle}>
-                            {displayTitle ?? 'Untitled page'}
-                          </span>
-                          {updatedLabel && (
-                            <span className={styles.entryTimestamp}>Updated {updatedLabel}</span>
-                          )}
-                        </div>
-                      </Link>
-                      <a
-                        href={`https://www.notion.so/${item.pageId.replace(/-/g, '')}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={styles.actionButton}
-                        aria-label={`Open ${displayTitle ?? 'page'} in Notion`}
-                        title="Open in Notion"
-                      >
-                        <img
-                          src="/icons/Notion_app_logo.png"
-                          alt=""
-                          width={22}
-                          height={22}
-                          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                        />
-                      </a>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
+      <div className={sharedStyles.page}>
+        <header className={sharedStyles.pageHeader}>
+          {pageId != null && (
+            <button type="button" onClick={goBack} className={styles.backLink}>
+              ← Back
+            </button>
           )}
-        </section>
-      )}
+          <h1 className={sharedStyles.title}>Settings</h1>
+          {pageId == null && (
+            <p className={sharedStyles.subtitle}>
+              Control how 2anki converts your content into Anki cards — deck
+              names, templates, card types, and more. Changes here apply to
+              every new conversion. To adjust settings for a single Notion page,
+              open it from the list below.{' '}
+              <Link to="/documentation">Read the docs</Link> for a full
+              explanation of each option.
+            </p>
+          )}
+          {pageId != null && (
+            <p className={sharedStyles.subtitle}>
+              {`Custom options for ${pageTitle ?? 'this page'}. Saved changes apply only to this page.`}
+            </p>
+          )}
+        </header>
 
-      {pageId == null && (
-        <div className={styles.formHeader}>
-          <hr className={styles.divider} />
-          <h2 className={styles.formHeading}>Default options</h2>
-          <p className={sharedStyles.smallDescription}>
-            Used for every file upload and any Notion page without saved overrides.
-          </p>
-        </div>
-      )}
+        {pageId == null && (
+          <section className={`${styles.pagesSection} ${styles.pagesCard}`}>
+            <h2 className={styles.pagesHeading}>
+              Saved pages
+              {perPageItems.length > 0 && (
+                <span className={styles.sectionCount}>
+                  {perPageItems.length}
+                </span>
+              )}
+            </h2>
 
-      <CardOptionsForm
-        pageId={pageId}
-        pageTitle={pageTitle}
-        onSaved={pageId != null ? goBack : undefined}
-        onReset={pageId != null ? goBack : undefined}
-        setError={setErrorMessage}
-        layout="grid"
-      />
-    </div>
+            {perPageItems.length === 0 ? (
+              <p className={styles.emptyInCard}>
+                No saved pages yet. When you customise options for a specific
+                Notion page, it appears here.
+              </p>
+            ) : (
+              <ul className={styles.list}>
+                {perPageItems.map((item) => {
+                  const updatedLabel = formatUpdatedAt(item.updatedAt);
+                  const displayTitle = item.title ?? null;
+                  const rulesHref = `/rules/${encodeURIComponent(item.pageId)}?returnTo=/card-options${item.title ? `&title=${encodeURIComponent(item.title)}` : ''}`;
+                  return (
+                    <li key={item.pageId}>
+                      <div className={styles.entry}>
+                        <Link
+                          to={rulesHref}
+                          className={styles.entryMeta}
+                          aria-label={`Edit settings for ${displayTitle ?? item.pageId}`}
+                        >
+                          <div className={styles.entryText}>
+                            <span className={styles.entryTitle}>
+                              {displayTitle ?? 'Untitled page'}
+                            </span>
+                            {updatedLabel && (
+                              <span className={styles.entryTimestamp}>
+                                Updated {updatedLabel}
+                              </span>
+                            )}
+                          </div>
+                        </Link>
+                        <a
+                          href={`https://www.notion.so/${item.pageId.replace(/-/g, '')}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.actionButton}
+                          aria-label={`Open ${displayTitle ?? 'page'} in Notion`}
+                          title="Open in Notion"
+                        >
+                          <img
+                            src="/icons/Notion_app_logo.png"
+                            alt=""
+                            width={22}
+                            height={22}
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display =
+                                'none';
+                            }}
+                          />
+                        </a>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </section>
+        )}
+
+        {pageId == null && (
+          <div className={styles.formHeader}>
+            <hr className={styles.divider} />
+            <h2 className={styles.formHeading}>Default options</h2>
+            <p className={sharedStyles.smallDescription}>
+              Used for every file upload and any Notion page without saved
+              overrides.
+            </p>
+          </div>
+        )}
+
+        <CardOptionsForm
+          pageId={pageId}
+          pageTitle={pageTitle}
+          onSaved={pageId == null ? undefined : goBack}
+          onReset={pageId == null ? undefined : goBack}
+          setError={setErrorMessage}
+          layout="grid"
+        />
+      </div>
     </div>
   );
 }
