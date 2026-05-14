@@ -8,6 +8,14 @@
   display: none;
 }
 
+.content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100vh;
+  width: 100%;
+}
+
 @media (min-width: 768px) {
   .bg {
     display: block;
@@ -16,7 +24,7 @@
     z-index: 1;
     background-size: cover;
     background-position: center;
-    filter: blur(3px) brightness(0.85);
+    filter: blur(2px) brightness(0.85);
     transform: scale(1.04);
   }
 

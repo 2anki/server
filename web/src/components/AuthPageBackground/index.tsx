@@ -8,7 +8,7 @@ interface Props {
 
 export function AuthPageBackground({ children }: Readonly<Props>) {
   const photo = useMemo(getDailyPhoto, []);
-  const imgUrl = `https://images.unsplash.com/photo-${photo.id}?auto=format&fit=crop&w=1920&q=80`;
+  const imgUrl = `https://images.unsplash.com/photo-${photo.id}?auto=format&fit=crop&w=2560&q=95`;
 
   return (
     <div className={styles.root}>
