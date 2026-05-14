@@ -88,9 +88,12 @@ class AuthenticationService {
     return { ...user, owner: user.id };
   }
 
-  isNewPasswordValid(resetToken: any, password: any) {
+  isNewPasswordValid(resetToken: unknown, password: unknown) {
     return (
-      !resetToken || resetToken.length < 128 || !password || password.length < 8
+      typeof resetToken !== 'string' ||
+      resetToken.length === 0 ||
+      typeof password !== 'string' ||
+      password.length < 8
     );
   }
 
@@ -180,7 +183,6 @@ class AuthenticationService {
       );
       const idToken = result.data.id_token;
       const decoded = jwt.decode(idToken)!;
-      console.log('decoded', decoded);
 
       return {
         // @ts-ignore

@@ -471,11 +471,29 @@ describe('UsersController.verifyMagicLink', () => {
     expect(updateLastLoginAt).toHaveBeenCalledWith('5');
   });
 
-  it('returns purpose and userId for a password_reset token', async () => {
+  it('returns purpose and reset_token for a password_reset token', async () => {
     const verifyMagicToken = jest
       .fn()
       .mockResolvedValue({ userId: 8, purpose: 'password_reset' });
-    const { controller } = buildVerifyController({ verifyMagicToken });
+    const getUserById = jest
+      .fn()
+      .mockResolvedValue({ id: 8, email: 'reset@example.com' });
+    const updateResetToken = jest.fn().mockResolvedValue(undefined);
+    const userService = {
+      verifyMagicToken,
+      getUserById,
+      updateResetToken,
+      updateLastLoginAt: jest.fn().mockResolvedValue(undefined),
+    } as unknown as UsersService;
+    const authService = {
+      newJWTToken: jest.fn().mockResolvedValue('jwt-tok'),
+      persistToken: jest.fn().mockResolvedValue(undefined),
+    } as unknown as AuthenticationService;
+    const controller = new UsersController(
+      userService,
+      authService,
+      {} as ReturnType<typeof import('../data_layer').getDatabase>
+    );
     const req = { params: { token: 'reset-tok' } } as unknown as express.Request;
     const res = buildVerifyRes();
     const next = jest.fn();
@@ -483,9 +501,10 @@ describe('UsersController.verifyMagicLink', () => {
     await controller.verifyMagicLink(req, res, next);
 
     expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith({
-      purpose: 'password_reset',
-      userId: 8,
-    });
+    const jsonCall = res.json.mock.calls[0][0];
+    expect(jsonCall.purpose).toBe('password_reset');
+    expect(typeof jsonCall.reset_token).toBe('string');
+    expect(jsonCall.reset_token.length).toBeGreaterThan(0);
+    expect(updateResetToken).toHaveBeenCalledWith('8', jsonCall.reset_token);
   });
 });

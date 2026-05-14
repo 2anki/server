@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import express from 'express';
 
 import AuthenticationService, {
@@ -108,13 +109,18 @@ class UsersController {
       const user = await this.userService.getUserFrom(email);
       if (!user) {
         console.debug(`No user matching email ${email}`);
-        return res.status(400).json({
+        return res.status(401).json({
           message: 'Unknown error. Please try again or register a new account.',
         });
       }
 
       const isMatch = this.authService.comparePassword(password, user.password);
       if (!isMatch) {
+        if (typeof user.password === 'string' && !user.password.startsWith('$2b$')) {
+          return res.status(401).json({
+            message: 'This account was created with Google. Use "Log in with Google" or request a login link.',
+          });
+        }
         return res.status(401).json({ message: 'Invalid password.' });
       }
 
@@ -476,7 +482,8 @@ class UsersController {
       const { email, name } = loginRequest;
       let user = await this.userService.getUserFrom(email);
       if (!user) {
-        await this.userService.register(name, getRandomUUID(), email);
+        const hashedPassword = this.authService.getHashPassword(getRandomUUID());
+        await this.userService.register(name, hashedPassword, email);
         user = await this.userService.getUserFrom(email);
       }
 
@@ -586,10 +593,15 @@ class UsersController {
       }
 
       if (result.purpose === 'password_reset') {
-        return res.status(200).json({
-          purpose: 'password_reset',
-          userId: result.userId,
-        });
+        const user = await this.userService.getUserById(result.userId.toString());
+        if (user == null) {
+          return res
+            .status(400)
+            .json({ message: 'This link is invalid or has expired.' });
+        }
+        const resetToken = crypto.randomUUID();
+        await this.userService.updateResetToken(user.id.toString(), resetToken);
+        return res.status(200).json({ purpose: 'password_reset', reset_token: resetToken });
       }
 
       return res

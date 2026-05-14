@@ -29,6 +29,10 @@ class UsersService {
     return this.repository.updatePassword(password, resetToken);
   }
 
+  updateResetToken(userId: string, resetToken: string) {
+    return this.repository.updateResetToken(userId, resetToken);
+  }
+
   async sendResetEmail(email: string, authService: AuthenticationService) {
     const user = await this.repository.getByEmail(email);
     if (!user?.id) {
