@@ -48,12 +48,52 @@ const DEFAULT_FONT_SIZE = '20';
 const DEFAULT_USER_INSTRUCTIONS = `Some extra rules and explanations:
 - Read the document from start to finish and identify any question and answers.
 - Use the same language as the document or infer the language based on what is mostly used.
-- Use the same text as in the document and do not make up any questions or answers.
+- Use the same text as the document and do not make up any questions or answers.
 - Cite the document as source for the text.
 - Be complete by finding all of the questions and answer in the document.
 - Do not limit the number of number of questions and answer but create all of them!
 - Do not make up any questions and use the questions in the document!
 - Create a ul for every question pair, not one ul for all of them with li!`;
+
+const OPTION_GROUPS: Array<{ label: string; keys: string[] }> = [
+  {
+    label: 'Content',
+    keys: ['all', 'paragraph', 'max-one-toggle-per-card', 'perserve-newlines'],
+  },
+  {
+    label: 'Card types',
+    keys: ['cloze', 'enable-input', 'basic-reversed', 'reversed'],
+  },
+  {
+    label: 'Filtering',
+    keys: ['cherry', 'avocado', 'tags', 'disable-indented-bullets'],
+  },
+  {
+    label: 'Links & formatting',
+    keys: [
+      'add-notion-link',
+      'use-notion-id',
+      'no-underline',
+      'remove-mp3-links',
+      'markdown-nested-bullet-points',
+    ],
+  },
+  {
+    label: 'PDF & AI',
+    keys: [
+      'process-pdfs',
+      'vertex-ai-pdf-questions',
+      'claude-ai-flashcards',
+      'image-quiz-html-to-anki',
+    ],
+  },
+  {
+    label: 'Debugging',
+    keys: ['share-files-for-debugging'],
+  },
+];
+
+const GROUPED_KEYS = new Set(OPTION_GROUPS.flatMap((g) => g.keys));
 
 function computeSnapshot(values: {
   deckName: string;
@@ -82,7 +122,6 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
       onReset,
       setError,
       hideActions = false,
-      layout = 'stack',
     }: Readonly<Props>,
     ref
   ) {
@@ -131,7 +170,6 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
     >({});
     const [initialSnapshot, setInitialSnapshot] = useState<string | null>(null);
 
-    // Seed checkbox state from options + settings when they load.
     useEffect(() => {
       if (!options) return;
       const next: Record<string, boolean> = {};
@@ -145,8 +183,6 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
       setCheckboxValues(next);
     }, [options, settings]);
 
-    // Hydrate every server-backed field when settings load. Use key-presence
-    // checks so that a persisted empty string is applied (not skipped).
     useEffect(() => {
       if (!pageId) {
         setLoading(false);
@@ -154,8 +190,6 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
       }
       setLoading(true);
       setInitialSnapshot(null);
-      // Reset to the same defaults used for the first mount so switching
-      // pageId doesn't carry over the previous page's values.
       setDeckName(pageTitle ?? localStorage.getItem(deckNameKey) ?? '');
       setFontSize(localStorage.getItem('font-size') ?? '');
       setTemplate(localStorage.getItem('template') ?? DEFAULT_TEMPLATE);
@@ -201,7 +235,6 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
         });
     }, [pageId]);
 
-    // Surface card-option loading errors without firing setError during render.
     useEffect(() => {
       if (isError && loadingDefaultsError) {
         setError(loadingDefaultsError);
@@ -236,7 +269,6 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
       ]
     );
 
-    // Capture initial snapshot once fields and checkbox state are seeded.
     useEffect(() => {
       if (loading || isLoading) return;
       if (initialSnapshot !== null) return;
@@ -339,11 +371,40 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
       );
     }
 
-    const formClassName =
-      layout === 'grid' ? fieldStyles.formGrid : fieldStyles.form;
+    const optionsByKey = Object.fromEntries(
+      (options ?? []).map((o: CardOption) => [o.key, o])
+    );
+
+    const generalOptions = (options ?? []).filter(
+      (o: CardOption) => !GROUPED_KEYS.has(o.key)
+    );
+
+    const userInstructionsDisclosure = (
+      <div className={fieldStyles.section}>
+        <details>
+          <summary className={fieldStyles.detailsSummary}>
+            User Instructions for PDF conversion
+          </summary>
+          <textarea
+            className={fieldStyles.instructionsTextarea}
+            value={userInstructions}
+            onChange={(e) => {
+              setUserInstructions(e.target.value);
+              saveValueInLocalStorage(
+                'user-instructions',
+                e.target.value,
+                pageId
+              );
+            }}
+            rows={4}
+            placeholder="Instructions for PDF conversion..."
+          />
+        </details>
+      </div>
+    );
 
     return (
-      <div className={formClassName}>
+      <div className={fieldStyles.form}>
         <div className={fieldStyles.section}>
           <label htmlFor="deck-name" className={fieldStyles.sectionLabel}>
             Deck Name
@@ -388,7 +449,7 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
           />
         </div>
 
-        <div className={`${fieldStyles.section} ${fieldStyles.fullRow}`}>
+        <div className={fieldStyles.section}>
           <p className={fieldStyles.sectionHint}>
             <strong>How toggles become cards:</strong> each toggle&apos;s header
             is the front of a card, and its contents become the back. A toggle
@@ -421,39 +482,51 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
           />
         </div>
 
-        {options?.map((o: CardOption) => (
-          <LocalCheckbox
-            key={o.key}
-            defaultValue={checkboxValues[o.key] ?? false}
-            label={o.label}
-            description={o.description}
-            onChecked={(checked) => toggleCheckbox(o.key, checked)}
-          />
-        ))}
+        {generalOptions.length > 0 && (
+          <div className={fieldStyles.optionGroup}>
+            <h3 className={fieldStyles.groupHeading}>General</h3>
+            <div className={fieldStyles.groupOptions}>
+              {generalOptions.map((o: CardOption) => (
+                <LocalCheckbox
+                  key={o.key}
+                  defaultValue={checkboxValues[o.key] ?? false}
+                  label={o.label}
+                  description={o.description}
+                  onChecked={(checked) => toggleCheckbox(o.key, checked)}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {OPTION_GROUPS.map((group) => {
+          const groupOptions = group.keys
+            .map((k) => optionsByKey[k])
+            .filter(Boolean);
+          if (groupOptions.length === 0) return null;
+
+          const isPdfAiGroup = group.label === 'PDF & AI';
+
+          return (
+            <div key={group.label} className={fieldStyles.optionGroup}>
+              <h3 className={fieldStyles.groupHeading}>{group.label}</h3>
+              <div className={fieldStyles.groupOptions}>
+                {groupOptions.map((o: CardOption) => (
+                  <LocalCheckbox
+                    key={o.key}
+                    defaultValue={checkboxValues[o.key] ?? false}
+                    label={o.label}
+                    description={o.description}
+                    onChecked={(checked) => toggleCheckbox(o.key, checked)}
+                  />
+                ))}
+                {isPdfAiGroup && userInstructionsDisclosure}
+              </div>
+            </div>
+          );
+        })}
 
         <div className={fieldStyles.section}>
-          <details>
-            <summary className={fieldStyles.detailsSummary}>
-              User Instructions for PDF conversion
-            </summary>
-            <textarea
-              className={fieldStyles.instructionsTextarea}
-              value={userInstructions}
-              onChange={(e) => {
-                setUserInstructions(e.target.value);
-                saveValueInLocalStorage(
-                  'user-instructions',
-                  e.target.value,
-                  pageId
-                );
-              }}
-              rows={4}
-              placeholder="Instructions for PDF conversion..."
-            />
-          </details>
-        </div>
-
-        <div className={`${fieldStyles.section} ${fieldStyles.fullRow}`}>
           <h3 className={fieldStyles.templateHeading}>Template Options</h3>
           <TemplateSelect
             values={availableTemplates}
@@ -505,20 +578,20 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
         />
 
         {!hideActions && (
-          <div className={`${fieldStyles.actions} ${fieldStyles.fullRow}`}>
-            <button
-              type="button"
-              className={`${sharedStyles.btnPrimary} ${fieldStyles.actionButton}`}
-              onClick={onSubmit}
-            >
-              Save defaults
-            </button>
+          <div className={fieldStyles.stickyActions}>
             <button
               type="button"
               className={`${sharedStyles.btnSecondary} ${fieldStyles.actionButton}`}
               onClick={resetStore}
             >
               Reset to 2anki defaults
+            </button>
+            <button
+              type="button"
+              className={`${sharedStyles.btnPrimary} ${fieldStyles.actionButton}`}
+              onClick={onSubmit}
+            >
+              Save defaults
             </button>
           </div>
         )}

@@ -613,13 +613,15 @@
 .checkbox {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.5rem;
   cursor: pointer;
 }
 
 .checkbox input {
   margin-right: 0.25rem;
+  margin-top: 2px;
+  accent-color: var(--color-primary);
 }
 
 .checkboxDescription {
