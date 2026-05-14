@@ -88,6 +88,7 @@ export default function ChatPage() {
   const [messagesUsedThisMonth, setMessagesUsedThisMonth] = useState(0);
 
   const bottomRef = useRef<HTMLDivElement>(null);
+  const messageListRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -105,7 +106,12 @@ export default function ChatPage() {
   }, []);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: streamingText.length > 0 ? 'auto' : 'smooth' });
+    const el = messageListRef.current;
+    if (el == null) return;
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    if (distanceFromBottom < 120) {
+      bottomRef.current?.scrollIntoView({ behavior: streamingText.length > 0 ? 'auto' : 'smooth' });
+    }
   }, [messages, isLoading, streamingText]);
 
   const remainingMessages = FREE_MONTHLY_LIMIT - messagesUsedThisMonth;
@@ -238,7 +244,8 @@ export default function ChatPage() {
   return (
     <div className={styles.container}>
       {hasMessages || isLoading ? (
-        <div className={styles.messageList}>
+        <div className={styles.messageList} ref={messageListRef}>
+          <div className={styles.messageListInner}>
           {messages.map((m, i) => (
             <div
               key={i}
@@ -305,6 +312,7 @@ export default function ChatPage() {
             </div>
           )}
           <div ref={bottomRef} />
+          </div>
         </div>
       ) : (
         <div className={styles.emptyState}>
