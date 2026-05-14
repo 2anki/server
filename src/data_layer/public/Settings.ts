@@ -17,6 +17,8 @@ export default interface Settings {
   created_at: Date | null;
 
   updated_at: Date | null;
+
+  title: string | null;
 }
 
 /** Represents the initializer for the table public.settings */
@@ -35,6 +37,8 @@ export interface SettingsInitializer {
 
   /** Default value: CURRENT_TIMESTAMP */
   updated_at?: Date | null;
+
+  title?: string | null;
 }
 
 /** Represents the mutator for the table public.settings */
@@ -50,4 +54,6 @@ export interface SettingsMutator {
   created_at?: Date | null;
 
   updated_at?: Date | null;
+
+  title?: string | null;
 }

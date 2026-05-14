@@ -18,6 +18,7 @@ class CardOptionsController {
         owner: owner,
         payload: settings,
         object_id: settings.object_id,
+        title: settings.title ?? null,
       });
       res.status(200).send();
     } catch (error) {
@@ -66,6 +67,7 @@ class CardOptionsController {
       res.json({
         items: rows.map((r) => ({
           pageId: r.object_id,
+          title: r.title ?? null,
           updatedAt: r.updated_at ? r.updated_at.toISOString() : null,
         })),
       });
