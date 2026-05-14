@@ -142,16 +142,14 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
         </div>
       )}
 
-      <div className={sharedStyles.sectionCard}>
-        <CardOptionsForm
-          pageId={pageId}
-          pageTitle={pageTitle}
-          onSaved={pageId != null ? goBack : undefined}
-          onReset={pageId != null ? goBack : undefined}
-          setError={setErrorMessage}
-          layout="grid"
-        />
-      </div>
+      <CardOptionsForm
+        pageId={pageId}
+        pageTitle={pageTitle}
+        onSaved={pageId != null ? goBack : undefined}
+        onReset={pageId != null ? goBack : undefined}
+        setError={setErrorMessage}
+        layout="grid"
+      />
     </div>
   );
 }
