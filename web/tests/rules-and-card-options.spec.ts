@@ -75,6 +75,14 @@ async function setupMocks(page: Page, overrides: RouteSetup = {}) {
     })
   );
 
+  await page.route('**/api/settings/list**', (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ items: [] }),
+    })
+  );
+
   await page.route('**/api/favorite**', (route) => {
     const method = route.request().method();
     if (method === 'GET') {
@@ -118,7 +126,9 @@ test.describe('RulesPage', () => {
       page.getByRole('button', { name: /Save changes/ })
     ).toBeVisible();
     await expect(page.getByRole('button', { name: 'Cancel' })).toBeVisible();
-    await expect(page.getByRole('button', { name: /Favorite/ })).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: 'Favorite this page' })
+    ).toBeVisible();
   });
 
   test('falls back to generic title when no title param is provided', async ({
@@ -194,9 +204,13 @@ test.describe('RulesPage', () => {
     await page.goto('/rules/page-1?title=My%20Page&returnTo=/notion');
     await page.getByRole('button', { name: /Save changes/ }).waitFor();
 
-    // Toggle a chip to make the page dirty. `toggle` is in the default
-    // sub-deck options after the redesign.
-    await page.getByRole('button', { name: 'toggle', exact: true }).click();
+    // Toggle a chip to make the page dirty. `toggle` appears in both the
+    // Decks-and-sub-decks card and the Flashcards card, so scope the click
+    // to the first matching chip.
+    await page
+      .getByRole('button', { name: 'toggle', exact: true })
+      .first()
+      .click();
 
     // Cancel the native confirm so we stay on the page.
     page.once('dialog', (dialog) => {
@@ -216,17 +230,19 @@ test.describe('RulesPage', () => {
     page,
   }) => {
     await page.goto('/rules/page-1?title=My%20Page&type=page');
-    await page.getByRole('button', { name: 'Favorite', exact: true }).waitFor();
+    await page.getByRole('button', { name: 'Favorite this page' }).waitFor();
 
     const favoriteCreate = page.waitForRequest(
       (req) =>
         req.url().includes('/api/favorite/create') && req.method() === 'POST'
     );
 
-    await page.getByRole('button', { name: 'Favorite', exact: true }).click();
+    await page.getByRole('button', { name: 'Favorite this page' }).click();
     await favoriteCreate;
 
-    await expect(page.getByRole('button', { name: 'Favorited' })).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: 'Remove from favorites' })
+    ).toBeVisible();
   });
 });
 
