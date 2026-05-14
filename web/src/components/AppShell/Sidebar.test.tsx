@@ -68,17 +68,17 @@ describe('Sidebar convert group', () => {
 });
 
 describe('Sidebar your-stuff group', () => {
-  it('shows Card options for every logged-in user', () => {
+  it('shows Settings for every logged-in user', () => {
     renderSidebar();
-    expect(screen.getByRole('link', { name: 'Card options' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Settings' })).toHaveAttribute(
       'href',
       '/card-options'
     );
   });
 
-  it('marks Card options active on /card-options', () => {
+  it('marks Settings active on /card-options', () => {
     renderSidebar({ pathname: '/card-options' });
-    expect(screen.getByRole('link', { name: 'Card options' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Settings' })).toHaveAttribute(
       'aria-current',
       'page'
     );

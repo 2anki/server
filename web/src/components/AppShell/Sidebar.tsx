@@ -235,7 +235,7 @@ export function Sidebar({
             onClick={handleNavClick()}
             icon={SettingsIcon}
           >
-            Card options
+            Settings
           </SidebarRow>
         </div>
         <div className={styles.sidebarGroup}>

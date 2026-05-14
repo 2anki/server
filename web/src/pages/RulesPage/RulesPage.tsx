@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import Switch from '../../components/input/Switch';
 import TemplateSelect from '../../components/TemplateSelect';
 import RuleDefinition from '../SearchPage/components/RuleDefinition';
@@ -201,11 +201,13 @@ export default function RulesPage({ setErrorMessage }: Readonly<Props>) {
     }
   };
 
+  const backLabel = returnTo === '/notion' ? '← Back to Notion' : '← Back';
+
   return (
     <div className={sharedStyles.page}>
       <header className={sharedStyles.pageHeader}>
         <button type="button" onClick={handleBack} className={styles.backLink}>
-          ← Back
+          {backLabel}
         </button>
         <div className={styles.headerRow}>
           <div className={styles.headerText}>
@@ -213,21 +215,20 @@ export default function RulesPage({ setErrorMessage }: Readonly<Props>) {
               {headingTitle}
             </h1>
             <p className={sharedStyles.subtitle}>
-              Tell 2anki which Notion blocks should become decks, sub-decks, and
-              flashcards {titleParam ? `for ${parent}` : ''}.
+              Settings for this Notion page. Block rules decide what becomes a
+              deck or card. Card options control the deck itself.
             </p>
           </div>
           <button
             type="button"
-            className={`${styles.favoriteButton} ${
-              favorite ? styles.favoriteActive : ''
-            }`}
+            className={`${sharedStyles.btnIcon} ${favorite ? styles.favoriteActive : ''}`}
             onClick={toggleFavorite}
             disabled={isTogglingFavorite || isLoading}
             aria-pressed={favorite}
+            aria-label={favorite ? 'Remove from favorites' : 'Favorite this page'}
+            title={favorite ? 'Remove from favorites' : 'Favorite this page'}
           >
             <span aria-hidden="true">{favorite ? '★' : '☆'}</span>
-            {favorite ? 'Favorited' : 'Favorite'}
           </button>
         </div>
       </header>
@@ -239,12 +240,18 @@ export default function RulesPage({ setErrorMessage }: Readonly<Props>) {
       )}
       {!isLoading && loadFailed && (
         <div className={`${styles.card} ${styles.loadingCard}`}>
-          <p>Couldn&apos;t load rules for this page. Try again.</p>
+          <p>Couldn&apos;t load rules for this page. Check your connection and try again.</p>
         </div>
       )}
       {!isLoading && !loadFailed && (
         <>
           <div className={styles.card}>
+            <header className={styles.sectionHeader}>
+              <h2 className={sharedStyles.subHeading}>Block rules</h2>
+              <p className={sharedStyles.smallDescription}>
+                Tell 2anki which Notion blocks should become decks, sub-decks, and flashcards.
+              </p>
+            </header>
             <RuleDefinition
               title="What counts as a deck?"
               description="The top-level blocks that appear in your Anki deck overview."
@@ -299,9 +306,10 @@ export default function RulesPage({ setErrorMessage }: Readonly<Props>) {
           <section className={styles.card}>
             <header className={styles.sectionHeader}>
               <h2 className={sharedStyles.subHeading}>Card options</h2>
-              <p className={sharedStyles.subtitle}>
+              <p className={sharedStyles.smallDescription}>
                 Customize the deck name, templates, and conversion behavior for
-                this page.
+                this page only.{' '}
+                <Link to="/card-options">Edit your defaults</Link> instead.
               </p>
             </header>
             <CardOptionsForm
@@ -328,7 +336,7 @@ export default function RulesPage({ setErrorMessage }: Readonly<Props>) {
               onClick={saveAll}
               disabled={isSaving}
             >
-              {isSaving ? 'Saving...' : 'Save changes'}
+              {isSaving ? 'Saving' : 'Save changes'}
             </button>
           </div>
         </>

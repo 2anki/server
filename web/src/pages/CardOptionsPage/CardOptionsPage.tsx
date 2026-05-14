@@ -15,6 +15,21 @@ interface Props {
   setErrorMessage: ErrorHandlerType;
 }
 
+function formatUpdatedAt(value: string | null): string | null {
+  if (!value) return null;
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return null;
+  const diffMs = Date.now() - date.getTime();
+  const diffMin = Math.floor(diffMs / 60_000);
+  if (diffMin < 1) return 'Updated a moment ago';
+  if (diffMin < 60) return `Updated ${diffMin} minute${diffMin === 1 ? '' : 's'} ago`;
+  const diffHours = Math.floor(diffMin / 60);
+  if (diffHours < 24) return `Updated ${diffHours} hour${diffHours === 1 ? '' : 's'} ago`;
+  const diffDays = Math.floor(diffHours / 24);
+  if (diffDays < 7) return `Updated ${diffDays} day${diffDays === 1 ? '' : 's'} ago`;
+  return `Updated ${date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}`;
+}
+
 export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
   const [params] = useSearchParams();
   const navigate = useNavigate();
@@ -37,40 +52,75 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
   return (
     <div className={sharedStyles.page}>
       <header className={sharedStyles.pageHeader}>
-        <button type="button" onClick={goBack} className={styles.backLink}>
-          ← Back
-        </button>
+        {pageId != null && (
+          <button type="button" onClick={goBack} className={styles.backLink}>
+            ← Back
+          </button>
+        )}
         <h1 className={sharedStyles.title}>Card options</h1>
         <p className={sharedStyles.subtitle}>
-          {pageId
-            ? `Customize how ${pageTitle ?? 'this page'} is converted into flashcards.`
-            : 'Set the defaults used when converting uploads and Notion pages.'}
+          {pageId != null
+            ? `Custom options for ${pageTitle ?? 'this page'}. Saved changes apply only to this page.`
+            : 'These defaults apply to every conversion. You can override them for individual pages from your Notion library.'}
         </p>
       </header>
 
-      <div className={styles.card}>
+      <div className={sharedStyles.sectionCard}>
         <CardOptionsForm
           pageId={pageId}
           pageTitle={pageTitle}
-          onSaved={goBack}
-          onReset={goBack}
+          onSaved={pageId != null ? goBack : undefined}
+          onReset={pageId != null ? goBack : undefined}
           setError={setErrorMessage}
           layout="grid"
         />
       </div>
 
       {pageId == null && (
-        <section className={styles.perPageSection}>
-          <h2 className={sharedStyles.sectionHeading}>Per-page overrides</h2>
+        <section className={styles.pagesSection}>
+          <div className={styles.sectionHead}>
+            <div>
+              <h2 className={sharedStyles.sectionHeading}>Pages with custom options</h2>
+              <p className={sharedStyles.smallDescription}>Open one to edit or reset its options.</p>
+            </div>
+            {perPageItems.length > 0 && (
+              <span className={styles.sectionCount}>
+                {perPageItems.length} {perPageItems.length === 1 ? 'page' : 'pages'}
+              </span>
+            )}
+          </div>
+
           {perPageItems.length === 0 ? (
-            <p className={sharedStyles.emptyState}>No per-page overrides saved.</p>
+            <div className={sharedStyles.emptyState}>
+              <p>No pages with custom options yet.</p>
+              <p className={sharedStyles.smallDescription}>
+                When you change card options for a specific page, it shows up here. The defaults above stay untouched.
+              </p>
+            </div>
           ) : (
-            <ul className={styles.perPageList}>
-              {perPageItems.map((item) => (
-                <li key={item.pageId}>
-                  <Link to={`/card-options?pageId=${item.pageId}`}>{item.pageId}</Link>
-                </li>
-              ))}
+            <ul className={styles.list}>
+              {perPageItems.map((item) => {
+                const updatedLabel = formatUpdatedAt(item.updatedAt);
+                return (
+                  <li key={item.pageId}>
+                    <Link
+                      to={`/rules/${encodeURIComponent(item.pageId)}`}
+                      className={styles.row}
+                      aria-label={`Edit settings for ${item.pageId}`}
+                    >
+                      <div className={styles.rowText}>
+                        <span className={styles.rowTitle} title={item.pageId}>
+                          {item.pageId}
+                        </span>
+                        {updatedLabel && (
+                          <span className={styles.rowMeta}>{updatedLabel}</span>
+                        )}
+                      </div>
+                      <span className={styles.rowChevron} aria-hidden="true">→</span>
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </section>
