@@ -57,7 +57,7 @@ class CardOptionsController {
 
     try {
       const storedSettings = await this.service.getById(id);
-      return res.json({ payload: storedSettings });
+      return res.json({ payload: storedSettings?.payload ?? null });
     } catch (error) {
       console.info('Get setting failed');
       console.error(error);
