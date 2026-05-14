@@ -82,37 +82,32 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
 
       {pageId == null && (
         <section className={`${styles.pagesSection} ${styles.pagesCard}`}>
-          <div className={styles.sectionHead}>
-            <div>
-              <h2 className={sharedStyles.sectionHeading}>Pages with custom options</h2>
-              <p className={sharedStyles.smallDescription}>Open one to edit or reset its options.</p>
-            </div>
+          <h2 className={styles.pagesHeading}>
+            Saved pages
             {perPageItems.length > 0 && (
               <span className={styles.sectionCount}>
-                {perPageItems.length} {perPageItems.length === 1 ? 'page' : 'pages'}
+                {perPageItems.length}
               </span>
             )}
-          </div>
+          </h2>
 
           {perPageItems.length === 0 ? (
-            <div className={sharedStyles.emptyState}>
-              <p>No pages with custom options yet.</p>
-              <p className={sharedStyles.smallDescription}>
-                When you change card options for a specific page, it shows up here. The defaults below stay untouched.
-              </p>
-            </div>
+            <p className={styles.emptyInCard}>
+              No saved pages yet. When you customise options for a specific Notion page, it appears here.
+            </p>
           ) : (
             <ul className={styles.list}>
               {perPageItems.map((item) => {
                 const updatedLabel = formatUpdatedAt(item.updatedAt);
-                const displayTitle = item.title ?? 'Untitled page';
+                const displayTitle = item.title ?? null;
+                const rulesHref = `/rules/${encodeURIComponent(item.pageId)}?returnTo=/card-options${item.title ? `&title=${encodeURIComponent(item.title)}` : ''}`;
                 return (
                   <li key={item.pageId}>
                     <div className={styles.entry}>
                       <Link
-                        to={`/rules/${encodeURIComponent(item.pageId)}?returnTo=/card-options${item.title ? `&title=${encodeURIComponent(item.title)}` : ''}`}
+                        to={rulesHref}
                         className={styles.entryMeta}
-                        aria-label={`Edit settings for ${displayTitle}`}
+                        aria-label={`Edit settings for ${displayTitle ?? item.pageId}`}
                       >
                         <svg
                           className={styles.pageIcon}
@@ -127,44 +122,34 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
                           <path d="M11 1v4h4" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                         <div className={styles.entryText}>
-                          <span className={styles.entryTitle} title={item.title ?? item.pageId}>
-                            {displayTitle}
+                          <span className={styles.entryTitle}>
+                            {displayTitle ?? (
+                              <span className={styles.entryTitleMuted}>
+                                {'…' + item.pageId.slice(-12)}
+                              </span>
+                            )}
                           </span>
                           {updatedLabel && (
                             <span className={styles.entryTimestamp}>Updated {updatedLabel}</span>
                           )}
                         </div>
                       </Link>
-                      <div className={styles.entryActions}>
-                        <a
-                          href={`https://www.notion.so/${item.pageId.replace(/-/g, '')}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={styles.actionButton}
-                          aria-label={`Open ${displayTitle} in Notion`}
-                          title="Open in Notion"
-                        >
-                          <img
-                            src="/icons/Notion_app_logo.png"
-                            alt=""
-                            width={16}
-                            height={16}
-                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                          />
-                        </a>
-                        <Link
-                          to={`/rules/${encodeURIComponent(item.pageId)}?returnTo=/card-options${item.title ? `&title=${encodeURIComponent(item.title)}` : ''}`}
-                          className={styles.actionButton}
-                          aria-label={`Configure settings for ${displayTitle}`}
-                          title="Configure settings"
-                        >
-                          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                            <circle cx="8" cy="8" r="1.25" fill="currentColor" />
-                            <circle cx="3" cy="8" r="1.25" fill="currentColor" />
-                            <circle cx="13" cy="8" r="1.25" fill="currentColor" />
-                          </svg>
-                        </Link>
-                      </div>
+                      <a
+                        href={`https://www.notion.so/${item.pageId.replace(/-/g, '')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.actionButton}
+                        aria-label={`Open ${displayTitle ?? 'page'} in Notion`}
+                        title="Open in Notion"
+                      >
+                        <img
+                          src="/icons/Notion_app_logo.png"
+                          alt=""
+                          width={16}
+                          height={16}
+                          onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                        />
+                      </a>
                     </div>
                   </li>
                 );
