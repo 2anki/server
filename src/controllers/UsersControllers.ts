@@ -108,20 +108,15 @@ class UsersController {
     try {
       const user = await this.userService.getUserFrom(email);
       if (!user) {
-        console.debug(`No user matching email ${email}`);
-        return res.status(401).json({
-          message: 'Unknown error. Please try again or register a new account.',
-        });
+        return res.status(401).json({ message: 'Wrong email or password.' });
       }
 
       const isMatch = this.authService.comparePassword(password, user.password);
       if (!isMatch) {
         if (typeof user.password === 'string' && !user.password.startsWith('$2b$')) {
-          return res.status(401).json({
-            message: 'This account was created with Google. Use "Log in with Google" or request a login link.',
-          });
+          return res.status(401).json({ message: 'Wrong email or password.', hint: 'google' });
         }
-        return res.status(401).json({ message: 'Invalid password.' });
+        return res.status(401).json({ message: 'Wrong email or password.' });
       }
 
       const token = await this.authService.newJWTToken(user);
