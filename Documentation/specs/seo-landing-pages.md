@@ -1,6 +1,6 @@
 # Spec: SEO landing pages for conversion-intent queries
 
-**Author:** PM. **Date:** 2026-05-10. **Inputs:** `docs/retros/2026-W19.md`, `docs-overhaul-design.md` (#2090).
+**Author:** PM. **Date:** 2026-05-10. **Inputs:** `Documentation/retros/2026-W19.md`, `docs-overhaul-design.md` (#2090).
 
 ## Outcome
 

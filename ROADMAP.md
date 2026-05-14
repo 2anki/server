@@ -91,4 +91,4 @@ Mission: give people the simplest, fastest way to turn what they're studying int
 - Uploads up 174% WoW, distinct uploaders up 63% WoW
 - Biggest gap: top-of-funnel acquisition, not conversion
 
-See `docs/retros/` for weekly retro history.
+See `Documentation/retros/` for weekly retro history.

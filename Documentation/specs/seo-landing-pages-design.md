@@ -1,6 +1,6 @@
 # Design: SEO landing pages
 
-**Author:** Designer. **Date:** 2026-05-10. **Input:** `Documentation/specs/seo-landing-pages.md` (PM), `docs/retros/2026-W19.md`.
+**Author:** Designer. **Date:** 2026-05-10. **Input:** `Documentation/specs/seo-landing-pages.md` (PM), `Documentation/retros/2026-W19.md`.
 
 This doc is the hand-off to engineer for the four pages: `/notion-to-anki`, `/quizlet-to-anki`, `/markdown-to-anki`, `/pdf-to-anki`. It is a complete design call, not options. Where the spec left a question, the answer is here.
 
