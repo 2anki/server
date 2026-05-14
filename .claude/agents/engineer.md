@@ -106,6 +106,8 @@ If the PR is good, post a comment-only review with a clear "approve" verdict, th
 - Never log sensitive data (passwords, tokens, personal info).
 - Use `res.locals` for authenticated user data through middleware.
 - `ErrorHandler` sends raw `err.message` to the client (`res.status(400).send(err.message)`) — ensure error messages from internal code are user-safe before throwing.
+- Never send raw database rows, Knex query results, or untyped objects directly to the client. Map results to an explicit typed response shape before calling `res.json()`.
+- Never use `localStorage` for user data, preferences, history, or anything that should persist across sessions — unless Alexander explicitly asked for it or existing code already does so for that specific purpose. Persist in the database with a Knex migration.
 
 ## Framework-specific patterns
 
