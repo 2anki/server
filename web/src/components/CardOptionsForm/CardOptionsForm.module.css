@@ -79,16 +79,16 @@
 
 .stickyActions {
   position: sticky;
-  bottom: 1rem;
+  top: 0;
   display: flex;
   justify-content: flex-end;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
-  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
   background: var(--color-bg-primary);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border-radius: var(--radius-md);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
   z-index: 4;
   flex-wrap: wrap;
 }
@@ -128,5 +128,5 @@
 .groupOptions {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1rem;
 }

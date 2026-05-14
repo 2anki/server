@@ -4,7 +4,7 @@ const supportedOptions = (): CardOptionDetail[] => {
   const v = [
     new CardOptionDetail(
       'add-notion-link',
-      'Add Notion Link',
+      'Add Notion link',
       'Add a link to the Notion page where the toggle was created. Please use this with the (Use Notion ID) to avoid duplicates.',
       false
     ),
@@ -16,121 +16,121 @@ const supportedOptions = (): CardOptionDetail[] => {
     ),
     new CardOptionDetail(
       'all',
-      'Use All Toggle Lists',
+      'Use all toggle lists',
       'By default we only check for toggle lists in the first page. Use this option to retrieve toggle lists from anywhere in the page.',
       true
     ),
     new CardOptionDetail(
       'paragraph',
-      'Use Plain Text for Back',
+      'Use plain text for back',
       'This option will remove formatting and get the text content only.',
       false
     ),
     new CardOptionDetail(
       'cherry',
-      'Enable Cherry Picking Using 🍒 Emoji',
-      'This will Only create flashcards from the toggle lists that include 🍒 in the toggle (header or body)',
+      'Cherry-pick using 🍒 emoji',
+      'This will only create flashcards from the toggle lists that include 🍒 in the toggle (header or body)',
       false
     ),
     new CardOptionDetail(
       'avocado',
-      "Only Create Flashcards From Toggles That Don't Have The 🥑 Emoji",
+      'Skip toggles with the 🥑 emoji',
       "This option enables you to ignore certain toggles when creating flashcards from pages that you don't want to change too much.",
       false
     ),
     new CardOptionDetail(
       'tags',
-      'Treat Strikethrough as Tags',
+      'Treat strikethrough as tags',
       'This will go treat the strikethroughs in the page as global ones. The ones inside of a toggle will be treated as locally to the toggle.',
       false
     ),
     new CardOptionDetail(
       'cloze',
-      'Cloze Deletion',
-      'Create cloze flashcards from code blocks.',
+      'Cloze deletion',
+      'Create cloze flashcards. Inline code and {{c1::}} syntax are both supported.',
       true
     ),
     new CardOptionDetail(
       'enable-input',
-      'Treat Bold Text as Input',
+      'Treat bold text as input',
       'Words marked as bold will be removed and you will have to enter them in when reviewing the card. This is useful when you need to type out the answer.',
       false
     ),
     new CardOptionDetail(
       'basic-reversed',
-      'Basic and Reversed',
+      'Basic and reversed',
       'Create the question and answer flashcards but also reversed ones. Where the answer and question change places.',
       false
     ),
     new CardOptionDetail(
       'reversed',
-      'Just the Reversed Flashcards',
+      'Just the reversed flashcards',
       'Only create flashcards from the reverse. This is useful when you want to say show an image first.',
       false
     ),
     new CardOptionDetail(
       'no-underline',
-      'Remove Underlines',
+      'Remove underlines',
       'Disable underline. This is an option that was created due to changes in the way Notion handles underlines.',
       false
     ),
     new CardOptionDetail(
       'max-one-toggle-per-card',
-      'Maximum One Toggle Per Card',
+      'Maximum one toggle per card',
       "This will limit to 1 card so you don't see too many toggles in one card. When you combine this with 'Use all toggle lists' you can create flashcards from everything in your upload, regardless of how deeply nested they are.",
       true
     ),
     new CardOptionDetail(
       'remove-mp3-links',
-      'Remove the MP3 Links Created From Audio Files',
-      "Due to backwards-compatability we leave links untouched but this option let's you remove mp3 links",
+      'Remove MP3 links from audio files',
+      "Due to backwards-compatibility we leave links untouched but this option lets you remove mp3 links",
       true
     ),
     new CardOptionDetail(
       'perserve-newlines',
-      'Preserve Newlines in the Toggle Header and Body',
+      'Preserve newlines in toggle header and body',
       'This will allow you to use SHIFT-Enter in the toggles to create multiple lines for all card types (Basic, Cloze, etc.)',
       true
     ),
     new CardOptionDetail(
       'process-pdfs',
-      'Process PDF Files',
+      'Process PDF files',
       'When enabled, PDF files in ZIP uploads will be processed and converted to Anki cards. Disable this to skip PDF processing and speed up conversion of ZIP files containing PDFs.',
       true
     ),
     new CardOptionDetail(
       'markdown-nested-bullet-points',
-      'Markdown Nested Bullet Points',
+      'Markdown nested bullet points',
       'Enable conversion of bullet and sub bullet points in Markdown. If you are a Obsidian user, enable this',
       true
     ),
     new CardOptionDetail(
       'vertex-ai-pdf-questions',
-      'Generate Questions from Single PDF File Uploads',
+      'Generate questions from PDF uploads',
       'Use Vertex AI API to generate questions from PDFs. This is a paid feature and if enabled will send your notes to Google Cloud.',
       false
     ),
     new CardOptionDetail(
       'disable-indented-bullets',
-      'Disable Indented Bullets',
+      'Disable indented bullets',
       'Disable indented bullets from becoming separate cards. This applies to bullet lists.',
       false
     ),
     new CardOptionDetail(
       'image-quiz-html-to-anki',
-      'Convert Image Quiz HTML to Anki Cards',
+      'Convert image quiz HTML to Anki cards',
       'Use OCR to extract images and answers from HTML quizzes and convert them into Anki flashcards for review. This is a premium experimental feature.',
       false
     ),
     new CardOptionDetail(
       'claude-ai-flashcards',
-      'Generate Flashcards with Claude AI',
+      'Generate flashcards with Claude AI',
       'Use Claude Anthropic to generate flashcards from your content. Produces more reliable results for complex documents. This is a premium feature available to subscribers.',
       false
     ),
     new CardOptionDetail(
       'share-files-for-debugging',
-      'Share Files for Debugging When Conversion Fails',
+      'Share files for debugging when conversion fails',
       'When a conversion fails, send the uploaded files and error details to the 2anki team so we can reproduce and fix the issue. Off by default to keep your notes private.',
       false
     ),

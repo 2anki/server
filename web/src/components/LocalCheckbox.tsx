@@ -5,6 +5,7 @@ interface Props {
   defaultValue: boolean;
   description: string | null;
   onChecked: (checked: boolean) => void;
+  badge?: string;
 }
 
 function LocalCheckbox({
@@ -12,6 +13,7 @@ function LocalCheckbox({
   defaultValue,
   description = null,
   onChecked,
+  badge,
 }: Readonly<Props>) {
   return (
     <label htmlFor={label} className={styles.checkbox}>
@@ -21,7 +23,10 @@ function LocalCheckbox({
         checked={defaultValue}
         onChange={(event) => onChecked(event.target.checked)}
       />
-      <strong>{label}</strong>
+      <span className={styles.checkboxLabelRow}>
+        <strong>{label}</strong>
+        {badge && <span className={styles.checkboxBadge}>{badge}</span>}
+      </span>
       {description && (
         <p className={styles.checkboxDescription}>{description}</p>
       )}
