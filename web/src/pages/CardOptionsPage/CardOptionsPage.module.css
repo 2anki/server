@@ -1,3 +1,8 @@
+.pageShell {
+  background: var(--color-bg-secondary);
+  min-height: 100vh;
+}
+
 .backLink {
   display: inline-flex;
   align-items: center;

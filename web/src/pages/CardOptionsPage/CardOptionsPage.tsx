@@ -51,6 +51,7 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
   }, [pageId]);
 
   return (
+    <div className={styles.pageShell}>
     <div className={sharedStyles.page}>
       <header className={sharedStyles.pageHeader}>
         {pageId != null && (
@@ -178,6 +179,7 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
         setError={setErrorMessage}
         layout="grid"
       />
+    </div>
     </div>
   );
 }
