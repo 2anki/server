@@ -70,7 +70,8 @@ Free covers the conversion paths most people need: drag in a file, get a deck ba
 | Anonymous file upload | ✓ | ✓ | ✓ |
 | Account features (history, favorites, templates) | sign-in required | ✓ | ✓ |
 | AI-generated flashcards (Claude) | — | ✓ | ✓ |
-| Notion sync | — | ✓ | ✓ |
+| Chat (study assistant) | 20 msg / mo | Unlimited | Unlimited |
+| Notion sync | — | — | ✓ |
 | Long-term deck storage | 24 h | active sub | indefinite |
 | Hosted Anki | — | — | ✓ |
 
