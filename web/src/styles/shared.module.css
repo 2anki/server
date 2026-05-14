@@ -634,14 +634,13 @@
 
 .checkboxControl {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 0.5rem;
   flex: 1;
   min-width: 0;
 }
 
 .checkboxControl input[type='checkbox'] {
-  margin-top: 2px;
   flex-shrink: 0;
   accent-color: var(--color-primary);
   cursor: pointer;
