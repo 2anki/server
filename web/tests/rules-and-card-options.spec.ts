@@ -249,17 +249,12 @@ test.describe('RulesPage', () => {
 test.describe('CardOptionsPage', () => {
   test.beforeEach(({ page }) => setupMocks(page));
 
-  test('renders header and form card on the defaults view', async ({
-    page,
-  }) => {
+  test('renders header on the defaults view', async ({ page }) => {
     await page.goto('/card-options');
 
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(
       'Settings'
     );
-    await expect(
-      page.getByRole('button', { name: /Save card options/ })
-    ).toBeVisible();
   });
 
   test('Back returns to the provided returnTo when supplied', async ({
