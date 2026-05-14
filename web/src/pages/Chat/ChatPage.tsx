@@ -53,8 +53,10 @@ function formatResetDate(iso: string): string {
 }
 
 function visibleStreamingText(text: string): string {
-  const fenceIndex = text.indexOf('\n```json');
-  return fenceIndex === -1 ? text : text.slice(0, fenceIndex);
+  const fenceIndex = text.search(/(?:^|\n)```json/);
+  if (fenceIndex !== -1) return text.slice(0, fenceIndex);
+  const rawArrayIndex = text.search(/(?:^|\n)\s*\[\s*\{/);
+  return rawArrayIndex === -1 ? text : text.slice(0, rawArrayIndex);
 }
 
 async function downloadDeck(cards: ChatCard[], deckName: string): Promise<void> {
@@ -229,7 +231,7 @@ export default function ChatPage() {
     });
   }
 
-  const isCardStreaming = streamingText.includes('\n```json');
+  const isCardStreaming = /(?:^|\n)```json/.test(streamingText) || /(?:^|\n)\s*\[\s*\{/.test(streamingText);
 
   const hasMessages = messages.length > 0;
 

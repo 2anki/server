@@ -5,15 +5,17 @@ const FREE_MONTHLY_LIMIT = 20;
 const FREE_MODEL = 'claude-haiku-4-5-20251001';
 const PATREON_MODEL = 'claude-sonnet-4-6';
 const MAX_HISTORY_TURNS = 10;
-const MAX_TOKENS = 1024;
+const MAX_TOKENS = 4096;
 
 const STUDY_ASSISTANT_SYSTEM_PROMPT = `You are a study assistant for 2anki, a tool that turns notes into Anki flashcards.
 
-Help users understand material, answer study questions, and create flashcards. When generating flashcards, always output them as a JSON code block in this exact format:
+Help users understand material, answer study questions, and create flashcards. When generating flashcards, you MUST wrap them in a JSON code block using EXACTLY this format — no exceptions:
 
 \`\`\`json
 [{"front": "question or term", "back": "answer or definition"}]
 \`\`\`
+
+Never output raw JSON without the code fence. Always include the opening \`\`\`json and closing \`\`\` markers.
 
 After giving any explanation or answer, offer to turn the content into flashcards if the user hasn't already asked. Keep responses focused and practical — this is a study tool, not a general assistant.`;
 
@@ -61,22 +63,14 @@ interface ExtractCardsResult {
   contentAfter: string | undefined;
 }
 
-function extractCards(text: string): ExtractCardsResult {
-  const match = /```json\s*([\s\S]*?)```/.exec(text);
-  if (match == null) return { cards: undefined, contentBefore: undefined, contentAfter: undefined };
-
-  const before = text.slice(0, match.index).trim();
-  const after = text.slice(match.index + match[0].length).trim();
-
+function parseCardArray(raw: string): ChatCard[] | undefined {
   let parsed: unknown;
   try {
-    parsed = JSON.parse(match[1].trim());
+    parsed = JSON.parse(raw.trim());
   } catch {
-    return { cards: undefined, contentBefore: undefined, contentAfter: undefined };
+    return undefined;
   }
-
-  if (!Array.isArray(parsed)) return { cards: undefined, contentBefore: undefined, contentAfter: undefined };
-
+  if (!Array.isArray(parsed)) return undefined;
   const cards: ChatCard[] = [];
   for (const item of parsed) {
     if (
@@ -91,14 +85,40 @@ function extractCards(text: string): ExtractCardsResult {
       });
     }
   }
+  return cards.length > 0 ? cards : undefined;
+}
 
-  if (cards.length === 0) return { cards: undefined, contentBefore: undefined, contentAfter: undefined };
+function extractCards(text: string): ExtractCardsResult {
+  const fencedMatch = /```json\s*([\s\S]*?)```/.exec(text);
+  if (fencedMatch != null) {
+    const cards = parseCardArray(fencedMatch[1]);
+    if (cards != null) {
+      const before = text.slice(0, fencedMatch.index).trim();
+      const after = text.slice(fencedMatch.index + fencedMatch[0].length).trim();
+      return {
+        cards,
+        contentBefore: before.length > 0 ? before : undefined,
+        contentAfter: after.length > 0 ? after : undefined,
+      };
+    }
+  }
 
-  return {
-    cards,
-    contentBefore: before.length > 0 ? before : undefined,
-    contentAfter: after.length > 0 ? after : undefined,
-  };
+  // Fallback: detect a raw JSON array that starts with [{"front": ...}]
+  const rawMatch = /((?:^|\n)\s*)(\[\s*\{[\s\S]*\}\s*\])/.exec(text);
+  if (rawMatch != null) {
+    const cards = parseCardArray(rawMatch[2]);
+    if (cards != null) {
+      const before = text.slice(0, rawMatch.index).trim();
+      const after = text.slice(rawMatch.index + rawMatch[0].length).trim();
+      return {
+        cards,
+        contentBefore: before.length > 0 ? before : undefined,
+        contentAfter: after.length > 0 ? after : undefined,
+      };
+    }
+  }
+
+  return { cards: undefined, contentBefore: undefined, contentAfter: undefined };
 }
 
 export class ChatUseCase {

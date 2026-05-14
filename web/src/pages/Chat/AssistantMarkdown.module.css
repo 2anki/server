@@ -46,6 +46,7 @@
   background: var(--color-bg-tertiary);
   border-radius: var(--radius-md);
   overflow-x: auto;
+  overflow-y: hidden;
   font-size: 0.8125rem;
   line-height: var(--leading-normal);
 }
