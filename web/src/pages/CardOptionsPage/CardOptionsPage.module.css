@@ -95,3 +95,17 @@
   color: var(--color-text-secondary);
   flex-shrink: 0;
 }
+
+.notionLink {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  opacity: 0.5;
+  border-radius: var(--radius-sm);
+  padding: 0.125rem;
+  transition: opacity var(--transition-fast);
+}
+
+.notionLink:hover {
+  opacity: 1;
+}

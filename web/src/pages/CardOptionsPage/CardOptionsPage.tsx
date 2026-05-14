@@ -106,6 +106,17 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
                           <span className={styles.rowMeta}>{updatedLabel}</span>
                         )}
                       </div>
+                      <a
+                        href={`https://www.notion.so/${item.pageId.replace(/-/g, '')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.notionLink}
+                        aria-label={`Open ${item.title ?? 'page'} in Notion`}
+                        title="Open in Notion"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <img src="/icons/Notion_app_logo.png" alt="" width={16} height={16} />
+                      </a>
                       <span className={styles.rowChevron} aria-hidden="true">→</span>
                     </Link>
                   </li>
