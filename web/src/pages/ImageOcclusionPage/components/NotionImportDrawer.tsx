@@ -169,9 +169,11 @@ export function NotionImportDrawer({
 
   if (!isOpen) return null;
 
-  const filteredSections = search.trim() === ''
-    ? sections
-    : sections.filter((s) => s.page.title.toLowerCase().includes(search.toLowerCase()));
+  const filteredSections = sections
+    .filter((s) => s.loading || s.error != null || s.images.length > 0)
+    .filter((s) =>
+      search.trim() === '' || s.page.title.toLowerCase().includes(search.toLowerCase())
+    );
 
   const addLabel = selected.size === 0
     ? 'Select images to add'
@@ -293,10 +295,6 @@ export function NotionImportDrawer({
                       ? 'Not shared with 2anki. Share this page from Notion.'
                       : "Couldn't load images."}
                   </p>
-                )}
-
-                {!section.loading && section.error == null && section.images.length === 0 && (
-                  <p className={styles.gallerySectionEmpty}>No images on this page.</p>
                 )}
 
                 {visible.length > 0 && (
