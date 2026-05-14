@@ -45,6 +45,8 @@ class ChatController {
       res.status(200).json({
         role: 'assistant',
         content: result.content,
+        ...(result.contentBefore != null ? { contentBefore: result.contentBefore } : {}),
+        ...(result.contentAfter != null ? { contentAfter: result.contentAfter } : {}),
         ...(result.cards != null ? { cards: result.cards } : {}),
       });
     } catch (err) {
