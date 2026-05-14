@@ -65,17 +65,6 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
         </p>
       </header>
 
-      <div className={sharedStyles.sectionCard}>
-        <CardOptionsForm
-          pageId={pageId}
-          pageTitle={pageTitle}
-          onSaved={pageId != null ? goBack : undefined}
-          onReset={pageId != null ? goBack : undefined}
-          setError={setErrorMessage}
-          layout="grid"
-        />
-      </div>
-
       {pageId == null && (
         <section className={styles.pagesSection}>
           <div className={styles.sectionHead}>
@@ -94,7 +83,7 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
             <div className={sharedStyles.emptyState}>
               <p>No pages with custom options yet.</p>
               <p className={sharedStyles.smallDescription}>
-                When you change card options for a specific page, it shows up here. The defaults above stay untouched.
+                When you change card options for a specific page, it shows up here. The defaults below stay untouched.
               </p>
             </div>
           ) : (
@@ -125,6 +114,17 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
           )}
         </section>
       )}
+
+      <div className={sharedStyles.sectionCard}>
+        <CardOptionsForm
+          pageId={pageId}
+          pageTitle={pageTitle}
+          onSaved={pageId != null ? goBack : undefined}
+          onReset={pageId != null ? goBack : undefined}
+          setError={setErrorMessage}
+          layout="grid"
+        />
+      </div>
     </div>
   );
 }
