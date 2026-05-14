@@ -468,49 +468,57 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
           </div>
 
           <div className={fieldStyles.section}>
-            <label htmlFor="page-emoji" className={fieldStyles.sectionLabel}>
-              Page icon
-            </label>
+            <label className={fieldStyles.sectionLabel}>Page icon</label>
             <p className={fieldStyles.sectionHint}>
               Whether to include the Notion page icon and where to place it.
             </p>
-            <TemplateSelect
-              values={[
+            <div className={fieldStyles.segmented} role="group" aria-label="Page icon position">
+              {([
                 { label: 'Icon first', value: 'first_emoji' },
                 { label: 'Icon last', value: 'last_emoji' },
-                { label: 'Disable icon', value: 'disable_emoji' },
-              ]}
-              value={pageEmoji}
-              name="page-emoji"
-              pickedTemplate={(t) => {
-                setPageEmoji(t);
-                saveValueInLocalStorage('page-emoji', t, pageId);
-              }}
-            />
+                { label: 'Disable', value: 'disable_emoji' },
+              ] as const).map(({ label, value }) => (
+                <button
+                  key={value}
+                  type="button"
+                  className={`${fieldStyles.segment} ${pageEmoji === value ? fieldStyles.segmentActive : ''}`}
+                  onClick={() => {
+                    setPageEmoji(value);
+                    saveValueInLocalStorage('page-emoji', value, pageId);
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className={fieldStyles.section}>
-            <label htmlFor="toggle-mode" className={fieldStyles.sectionLabel}>
-              Toggle mode
-            </label>
+            <label className={fieldStyles.sectionLabel}>Toggle mode</label>
             <p className={fieldStyles.sectionHint}>
               Toggle header = card front; contents = card back. Nested toggles
               become their own cards.{' '}
-              <em>Open</em> expands nested toggle contents;{' '}
+              <em>Open</em> expands nested contents;{' '}
               <em>Close</em> keeps them collapsed for step-by-step review.
             </p>
-            <TemplateSelect
-              values={[
+            <div className={fieldStyles.segmented} role="group" aria-label="Toggle mode">
+              {([
                 { label: 'Open nested toggles', value: 'open_toggle' },
                 { label: 'Close nested toggles', value: 'close_toggle' },
-              ]}
-              value={toggleMode}
-              name="toggle-mode"
-              pickedTemplate={(t) => {
-                setToggleMode(t);
-                saveValueInLocalStorage('toggle-mode', t, pageId);
-              }}
-            />
+              ] as const).map(({ label, value }) => (
+                <button
+                  key={value}
+                  type="button"
+                  className={`${fieldStyles.segment} ${toggleMode === value ? fieldStyles.segmentActive : ''}`}
+                  onClick={() => {
+                    setToggleMode(value);
+                    saveValueInLocalStorage('toggle-mode', value, pageId);
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
