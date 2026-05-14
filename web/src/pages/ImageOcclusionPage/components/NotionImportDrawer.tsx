@@ -215,7 +215,7 @@ export function NotionImportDrawer({
   if (!isOpen) return null;
 
   const visibleSections = sections
-    .filter((s) => s.error != null || s.images.length > 0)
+    .filter((s) => s.images.length > 0 || (s.error != null && !s.error.isPermission))
     .filter((s) =>
       search.trim() === '' || s.title.toLowerCase().includes(search.toLowerCase())
     );
