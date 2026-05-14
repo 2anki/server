@@ -101,15 +101,6 @@ const PREMIUM_KEYS = new Set([
   'image-quiz-html-to-anki',
 ]);
 
-// REVIEW: common/advanced split — adjust based on actual usage data
-const COMMON_KEYS: Record<string, string[]> = {
-  'Content':            ['all', 'max-one-toggle-per-card'],
-  'Card types':         ['cloze'],
-  'Filtering':          ['tags', 'disable-indented-bullets'],
-  'Links & formatting': ['use-notion-id', 'no-underline'],
-  'PDF & AI':           ['process-pdfs'],
-  'Debugging':          [],
-};
 
 function computeSnapshot(values: {
   deckName: string;
@@ -546,44 +537,23 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
             .filter(Boolean);
           if (groupOptions.length === 0) return null;
 
-          const commonSet = new Set(COMMON_KEYS[group.label] ?? []);
-          const commonOpts = groupOptions.filter((o) => commonSet.has(o.key));
-          const advancedOpts = groupOptions.filter((o) => !commonSet.has(o.key));
           const isPdfAiGroup = group.label === 'PDF & AI';
-          const hasSplit = commonOpts.length > 0 && advancedOpts.length > 0;
-
-          const renderCheckbox = (o: CardOption) => (
-            <LocalCheckbox
-              key={o.key}
-              defaultValue={checkboxValues[o.key] ?? false}
-              label={o.label}
-              description={o.description}
-              onChecked={(checked) => toggleCheckbox(o.key, checked)}
-              badge={PREMIUM_KEYS.has(o.key) ? 'Premium' : undefined}
-            />
-          );
-
-          const visibleOpts = hasSplit ? commonOpts : groupOptions;
 
           return (
             <div key={group.label} className={fieldStyles.optionGroup}>
               <h3 className={fieldStyles.groupHeading}>{group.label}</h3>
               <div className={fieldStyles.groupOptions}>
-                {visibleOpts.map(renderCheckbox)}
-
-                {hasSplit && (
-                  <details className={fieldStyles.advancedDisclosure}>
-                    <summary className={fieldStyles.advancedSummary}>
-                      Advanced options
-                    </summary>
-                    <div className={fieldStyles.advancedOptions}>
-                      {advancedOpts.map(renderCheckbox)}
-                      {isPdfAiGroup && userInstructionsDisclosure}
-                    </div>
-                  </details>
-                )}
-
-                {!hasSplit && isPdfAiGroup && userInstructionsDisclosure}
+                {groupOptions.map((o: CardOption) => (
+                  <LocalCheckbox
+                    key={o.key}
+                    defaultValue={checkboxValues[o.key] ?? false}
+                    label={o.label}
+                    description={o.description}
+                    onChecked={(checked) => toggleCheckbox(o.key, checked)}
+                    badge={PREMIUM_KEYS.has(o.key) ? 'Premium' : undefined}
+                  />
+                ))}
+                {isPdfAiGroup && userInstructionsDisclosure}
               </div>
             </div>
           );

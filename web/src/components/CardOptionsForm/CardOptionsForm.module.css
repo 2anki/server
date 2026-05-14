@@ -128,41 +128,6 @@
   gap: var(--space-4);
 }
 
-.advancedDisclosure {
-  margin-top: var(--space-4);
-}
-
-.advancedSummary {
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  user-select: none;
-  list-style: none;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-}
-
-.advancedSummary::-webkit-details-marker {
-  display: none;
-}
-
-.advancedSummary::before {
-  content: '›';
-  display: inline-block;
-  transition: transform 0.15s;
-}
-
-details[open] .advancedSummary::before {
-  transform: rotate(90deg);
-}
-
-.advancedOptions {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  margin-top: var(--space-4);
-}
 
 /* segmented control — for binary / small-n option sets */
 .segmented {
