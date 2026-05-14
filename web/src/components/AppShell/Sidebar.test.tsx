@@ -67,6 +67,24 @@ describe('Sidebar convert group', () => {
   });
 });
 
+describe('Sidebar your-stuff group', () => {
+  it('shows Card options for every logged-in user', () => {
+    renderSidebar();
+    expect(screen.getByRole('link', { name: 'Card options' })).toHaveAttribute(
+      'href',
+      '/card-options'
+    );
+  });
+
+  it('marks Card options active on /card-options', () => {
+    renderSidebar({ pathname: '/card-options' });
+    expect(screen.getByRole('link', { name: 'Card options' })).toHaveAttribute(
+      'aria-current',
+      'page'
+    );
+  });
+});
+
 describe('Sidebar help group', () => {
   it('always shows Docs', () => {
     renderSidebar();

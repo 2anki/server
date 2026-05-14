@@ -1,9 +1,8 @@
 import { useState } from 'react';
+import { Navigate } from 'react-router-dom';
 
 import useQuery from '../../lib/hooks/useQuery';
 import UploadForm from './components/UploadForm/UploadForm';
-import CardOptionsRow from './components/CardOptionsRow/CardOptionsRow';
-import SettingsModal from '../../components/modals/SettingsModal/SettingsModal';
 import styles from '../../styles/shared.module.css';
 import pageStyles from './UploadPage.module.css';
 import { ErrorHandlerType } from '../../components/errors/helpers/getErrorMessage';
@@ -69,11 +68,9 @@ export function UploadPage({ setErrorMessage }: Readonly<Props>) {
   const query = useQuery();
   const view = query.get('view');
 
-  const forceCardOptionsOpen =
-    view === 'template' || view === 'deck-options' || view === 'card-options';
-  const [showCardOptionsModal, setShowCardOptionsModal] = useState(
-    forceCardOptionsOpen
-  );
+  if (view === 'template' || view === 'deck-options' || view === 'card-options') {
+    return <Navigate to="/card-options" replace />;
+  }
 
   return (
     <div className={styles.page}>
@@ -85,7 +82,6 @@ export function UploadPage({ setErrorMessage }: Readonly<Props>) {
           Turn your notes into flashcards in seconds
         </p>
       </header>
-      <CardOptionsRow onOpen={() => setShowCardOptionsModal(true)} />
       <UploadForm setErrorMessage={setErrorMessage} />
       <p className={pageStyles.footnote}>
         Your uploaded files are deleted after 2 hours.
@@ -133,15 +129,6 @@ export function UploadPage({ setErrorMessage }: Readonly<Props>) {
           ))}
         </div>
       </section>
-      <SettingsModal
-        setError={setErrorMessage}
-        pageId={null}
-        isActive={showCardOptionsModal}
-        onClickClose={() => {
-          globalThis.history.pushState({}, '', 'upload');
-          setShowCardOptionsModal(false);
-        }}
-      />
     </div>
   );
 }

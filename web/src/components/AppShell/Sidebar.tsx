@@ -16,6 +16,7 @@ import CreditCardIcon from '../icons/CreditCardIcon';
 import PrinterIcon from '../icons/PrinterIcon';
 import SparklesIcon from '../icons/SparklesIcon';
 import UserCircleIcon from '../icons/UserCircleIcon';
+import SettingsIcon from '../icons/SettingsIcon';
 import WrenchIcon from '../icons/WrenchIcon';
 import { ThemeSwitcher } from '../ThemeSwitcher/ThemeSwitcher';
 import styles from './AppShell.module.css';
@@ -226,6 +227,15 @@ export function Sidebar({
             icon={LayersIcon}
           >
             {getVisibleText('navigation.myDecks')}
+          </SidebarRow>
+          <SidebarRow
+            href="/card-options"
+            pathname={pathname}
+            matchPrefix={false}
+            onClick={handleNavClick()}
+            icon={SettingsIcon}
+          >
+            Card options
           </SidebarRow>
         </div>
         <div className={styles.sidebarGroup}>
