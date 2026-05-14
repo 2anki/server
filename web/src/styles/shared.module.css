@@ -690,6 +690,7 @@
   flex-wrap: wrap;
   cursor: pointer;
   font-size: var(--text-sm);
+  line-height: 1.125rem;
 }
 
 .checkboxBadge {
