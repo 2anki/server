@@ -102,6 +102,36 @@
   border-radius: var(--radius-sm);
 }
 
+@keyframes queueShimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.queueThumbSkeleton {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(
+    90deg,
+    var(--color-bg-secondary) 0%,
+    var(--color-border) 50%,
+    var(--color-bg-secondary) 100%
+  );
+  background-size: 200% 100%;
+  animation: queueShimmer 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .queueThumbSkeleton {
+    animation: none;
+    background: var(--color-bg-secondary);
+  }
+}
+
+.queueThumbBtn:disabled {
+  cursor: default;
+}
+
 .queueBadge {
   position: absolute;
   bottom: 4px;

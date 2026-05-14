@@ -71,15 +71,21 @@ export function ImageQueue({
             <button
               type="button"
               className={styles.queueThumbBtn}
-              onClick={() => onSelect(i)}
-              aria-label={`Select image ${i + 1}: ${entry.imageName}`}
+              onClick={() => !entry.uploading && onSelect(i)}
+              disabled={entry.uploading}
+              aria-busy={entry.uploading || undefined}
+              aria-label={entry.uploading ? `Importing ${entry.imageName}` : `Select image ${i + 1}: ${entry.imageName}`}
             >
-              <img
-                src={entry.previewUrl}
-                alt={entry.imageName}
-                className={styles.queueThumb}
-              />
-              {entry.rects.length > 0 && (
+              {entry.uploading ? (
+                <div className={styles.queueThumbSkeleton} />
+              ) : (
+                <img
+                  src={entry.previewUrl}
+                  alt={entry.imageName}
+                  className={styles.queueThumb}
+                />
+              )}
+              {entry.rects.length > 0 && !entry.uploading && (
                 <span className={styles.queueBadge}>
                   {entry.rects.length} {entry.rects.length === 1 ? 'box' : 'boxes'}
                 </span>
