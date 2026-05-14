@@ -10,6 +10,7 @@ import {
   CardOptionsFormHandle,
 } from '../../components/CardOptionsForm/CardOptionsForm';
 import { ErrorHandlerType } from '../../components/errors/helpers/getErrorMessage';
+import { FieldHint } from '../../components/FieldHint';
 import Switch from '../../components/input/Switch';
 import TemplateSelect from '../../components/TemplateSelect';
 import { get2ankiApi } from '../../lib/backend/get2ankiApi';
@@ -67,7 +68,7 @@ export default function RulesPage({ setErrorMessage }: Readonly<Props>) {
   const navigate = useNavigate();
 
   const titleParam = params.get('title');
-  const headingTitle = titleParam ?? 'Conversion rules';
+  const headingTitle = titleParam ? `Rules for ${titleParam}` : 'Rules';
   const parent = titleParam ?? 'this page';
   const type = params.get('type');
   const returnTo = params.get('returnTo') ?? '/notion';
@@ -226,7 +227,7 @@ export default function RulesPage({ setErrorMessage }: Readonly<Props>) {
               </h1>
               <p className={sharedStyles.subtitle}>
                 Settings for this Notion page. Block rules decide what becomes a
-                deck or card. Card options control the deck itself.
+                deck or card. Card options shape the deck itself.
               </p>
             </div>
             <button
@@ -261,59 +262,68 @@ export default function RulesPage({ setErrorMessage }: Readonly<Props>) {
         {!isLoading && !loadFailed && (
           <>
             <section className={styles.optionGroup}>
-              <h2 className={styles.groupHeading}>Block rules</h2>
-              <p className={styles.groupHint}>
-                Tell 2anki which Notion blocks become decks, sub-decks, and
-                flashcards.
-              </p>
               <RuleDefinition
-                title="What counts as a deck?"
-                description="The top-level blocks that appear in your Anki deck overview."
+                title="Decks"
+                hint="Notion blocks that become a top-level deck."
                 value={rules.deck_is}
                 options={deckOptions}
                 onSelected={(fco) => toggleSelection('deck_is', fco)}
               />
+            </section>
+
+            <section className={styles.optionGroup}>
               <RuleDefinition
-                title="What counts as a sub-deck?"
-                description="Nested under the decks above."
+                title="Sub-decks"
+                hint="Notion blocks that nest inside a deck."
                 value={rules.sub_deck_is}
                 options={subDeckOptions}
                 onSelected={(fco) => toggleSelection('sub_deck_is', fco)}
               />
+            </section>
+
+            <section className={styles.optionGroup}>
               <RuleDefinition
-                title="What counts as a flashcard?"
-                description="Block types converted into individual cards."
+                title="Flashcards"
+                hint="Notion blocks that become individual cards."
                 value={rules.flashcard_is}
                 options={flashCardOptions}
                 onSelected={(fco) => toggleSelection('flashcard_is', fco)}
               />
+            </section>
 
-              <div className={styles.miscSection}>
-                <div>
-                  <label htmlFor="tags-format" className={styles.miscLabel}>
+            <section className={styles.optionGroup}>
+              <div className={styles.groupHeader}>
+                <h2 className={styles.groupHeading}>Tags and notifications</h2>
+                <FieldHint text="How tags are detected and when 2anki emails you." />
+              </div>
+
+              <div className={styles.section}>
+                <div className={styles.labelRow}>
+                  <label htmlFor="tags-format" className={styles.sectionLabel}>
                     Tag format
                   </label>
-                  <p className={sharedStyles.smallDescription}>
-                    Which Notion formatting marks a block as a tag.
-                  </p>
-                  <TemplateSelect
-                    data-hj-suppress
-                    pickedTemplate={(name: string) => setTags(name)}
-                    values={tagOptions.map((fco) => ({
-                      label: `Tags are ${fco}`,
-                      value: fco,
-                    }))}
-                    name="tags-format"
-                    value={tags}
-                  />
+                  <FieldHint text="The Notion styling that marks a block as a tag." />
                 </div>
+                <TemplateSelect
+                  data-hj-suppress
+                  pickedTemplate={(name: string) => setTags(name)}
+                  values={tagOptions.map((fco) => ({
+                    label: `Tags are ${fco}`,
+                    value: fco,
+                  }))}
+                  name="tags-format"
+                  value={tags}
+                />
+              </div>
 
+              <div className={styles.switchRow}>
                 <Switch
                   id="email-notification"
-                  title="Email me when conversion is ready"
+                  title="Email the deck when it's ready"
                   checked={sendEmail}
                   onSwitched={() => setSendEmail((prev) => !prev)}
                 />
+                <FieldHint text="Sends the .apkg as an attachment for decks under 24 MB. Larger decks always email a download link." />
               </div>
             </section>
 
@@ -321,9 +331,9 @@ export default function RulesPage({ setErrorMessage }: Readonly<Props>) {
               <hr className={styles.divider} />
               <h2 className={styles.formHeading}>Card options</h2>
               <p className={sharedStyles.smallDescription}>
-                Customise the deck name, templates, and conversion for this page
-                only. <Link to="/card-options">Edit your defaults</Link>{' '}
-                instead.
+                Change the deck name, templates, and conversion for this page
+                only. <Link to="/card-options">Edit your defaults</Link> to
+                change every page.
               </p>
             </div>
             <CardOptionsForm

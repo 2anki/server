@@ -49,43 +49,53 @@
   margin-bottom: 1.5rem;
 }
 
+.groupHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
 .groupHeading {
   font-size: var(--text-base);
   font-weight: var(--font-semibold);
   color: var(--color-text-primary);
   letter-spacing: -0.01em;
   margin: 0;
-  padding-bottom: var(--space-3);
-  border-bottom: 1px solid var(--color-border);
 }
 
-.groupHint {
-  font-size: var(--text-xs);
-  color: var(--color-text-secondary);
-  margin: 0;
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.labelRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.sectionLabel {
+  font-weight: var(--font-semibold);
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+}
+
+.switchRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
 }
 
 .loadingCard {
   align-items: center;
   justify-content: center;
   min-height: 240px;
-}
-
-.miscSection {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  padding-top: 1.25rem;
-  margin-top: 0.5rem;
-  border-top: 1px solid var(--color-border);
-}
-
-.miscLabel {
-  display: block;
-  font-weight: var(--font-semibold);
-  font-size: var(--text-sm);
-  color: var(--color-text-primary);
-  margin-bottom: 0.25rem;
 }
 
 .formHeader {
