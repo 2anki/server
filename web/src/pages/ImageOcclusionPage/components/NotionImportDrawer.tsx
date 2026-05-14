@@ -48,7 +48,9 @@ async function loadAllImages(signal: AbortSignal): Promise<GalleryItem[]> {
         signal,
       });
       if (!res.ok) return [];
-      const blocks = (await res.json()) as NotionBlock[];
+      // getBlocks returns ListBlockChildrenResponse: { results: Block[], ... }
+      const data = (await res.json()) as { results?: NotionBlock[] } | NotionBlock[];
+      const blocks = Array.isArray(data) ? data : (data.results ?? []);
       return blocks
         .filter((b) => b.type === 'image')
         .map<GalleryItem>((b) => ({
