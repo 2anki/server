@@ -631,7 +631,8 @@ const UserRouter = () => {
    */
   router.get('/api/users/auth/notion/init', (req, res) => {
     const clientId = process.env.NOTION_CLIENT_ID;
-    if (!clientId) {
+    const redirectUri = process.env.NOTION_REDIRECT_URI;
+    if (!clientId || !redirectUri) {
       return res.redirect('/login?error=notion_cancelled');
     }
     const nonce = crypto.randomBytes(16).toString('hex');
@@ -641,7 +642,7 @@ const UserRouter = () => {
       maxAge: 300_000,
     });
     const state = `login:${nonce}`;
-    const url = `https://api.notion.com/v1/oauth/authorize?owner=user&client_id=${clientId}&response_type=code&state=${encodeURIComponent(state)}`;
+    const url = `https://api.notion.com/v1/oauth/authorize?owner=user&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&state=${encodeURIComponent(state)}`;
     return res.redirect(url);
   });
 
