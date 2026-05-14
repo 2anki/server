@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useUserLocals } from '../../lib/hooks/useUserLocals';
-import { post } from '../../lib/backend/api';
-import ChatBubbleIcon from '../../components/icons/ChatBubbleIcon';
+import { get, post } from '../../lib/backend/api';
 import SendIcon from '../../components/icons/SendIcon';
+import CardPreview from './CardPreview';
 import styles from './ChatPage.module.css';
 
 interface ChatCard {
@@ -13,18 +13,27 @@ interface ChatCard {
 interface Message {
   role: 'user' | 'assistant';
   content: string;
+  contentBefore?: string;
+  contentAfter?: string;
   cards?: ChatCard[];
 }
 
 interface ApiSuccessResponse {
   role: 'assistant';
   content: string;
+  contentBefore?: string;
+  contentAfter?: string;
   cards?: ChatCard[];
 }
 
 interface ApiRateLimitResponse {
   error: string;
   resetDate: string;
+}
+
+interface ApiUsageResponse {
+  used: number;
+  limit: number | null;
 }
 
 const STARTER_PROMPTS = [
@@ -43,6 +52,20 @@ function formatResetDate(iso: string): string {
   }
 }
 
+async function downloadDeck(cards: ChatCard[], deckName: string): Promise<void> {
+  const response = await post('/api/chat/deck', { cards, deckName });
+  if (!response.ok) {
+    throw new Error('Failed to generate deck');
+  }
+  const blob = await response.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${deckName}.apkg`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export default function ChatPage() {
   const { data: userLocals } = useUserLocals();
   const isPatreon = userLocals?.user?.patreon === true;
@@ -53,16 +76,30 @@ export default function ChatPage() {
   const [networkError, setNetworkError] = useState<string | null>(null);
   const [limitReached, setLimitReached] = useState(false);
   const [resetDate, setResetDate] = useState<string | null>(null);
-  const [messagesSentThisSession, setMessagesSentThisSession] = useState(0);
+  const [messagesUsedThisMonth, setMessagesUsedThisMonth] = useState(0);
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
+    get('/api/chat/usage', { redirect: false })
+      .then((data: ApiUsageResponse | undefined) => {
+        if (data != null) {
+          setMessagesUsedThisMonth(data.used);
+          if (data.limit != null && data.used >= data.limit) {
+            setLimitReached(true);
+          }
+        }
+      })
+      .catch(() => {
+      });
+  }, []);
+
+  useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
 
-  const remainingMessages = FREE_MONTHLY_LIMIT - messagesSentThisSession;
+  const remainingMessages = FREE_MONTHLY_LIMIT - messagesUsedThisMonth;
 
   const canSend = inputValue.trim().length > 0 && !isLoading && !limitReached;
 
@@ -98,9 +135,15 @@ export default function ChatPage() {
       const data: ApiSuccessResponse = await response.json();
       setMessages((prev) => [
         ...prev,
-        { role: 'assistant', content: data.content, cards: data.cards },
+        {
+          role: 'assistant',
+          content: data.content,
+          contentBefore: data.contentBefore,
+          contentAfter: data.contentAfter,
+          cards: data.cards,
+        },
       ]);
-      setMessagesSentThisSession((n) => n + 1);
+      setMessagesUsedThisMonth((n) => n + 1);
     } catch {
       setNetworkError("Couldn't send this message. Try again.");
     } finally {
@@ -117,18 +160,10 @@ export default function ChatPage() {
     }
   }
 
-  function handleSaveAsDeck(cards: ChatCard[]) {
-    const deckName = globalThis.prompt('Deck name:');
-    if (deckName == null || deckName.trim().length === 0) return;
-
-    const lines = cards.map((c) => `${c.front}\t${c.back}`).join('\n');
-    const blob = new Blob([lines], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${deckName.trim()}.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
+  function handleSaveAsDeck(cards: ChatCard[], deckName: string) {
+    downloadDeck(cards, deckName).catch(() => {
+      setNetworkError("Couldn't generate the deck. Try again.");
+    });
   }
 
   const hasMessages = messages.length > 0;
@@ -140,22 +175,31 @@ export default function ChatPage() {
           {messages.map((m, i) => (
             <div
               key={i}
-              className={`${styles.message} ${m.role === 'user' ? styles.messageUser : styles.messageAssistant}`}
+              className={`${styles.message} ${m.role === 'user' ? styles.messageUser : styles.messageAssistant} ${m.role === 'assistant' && m.cards != null && m.cards.length > 0 ? styles.messageAssistantWithCards : ''}`}
             >
-              <div
-                className={`${styles.messageBubble} ${m.role === 'user' ? styles.messageBubbleUser : styles.messageBubbleAssistant}`}
-              >
-                {m.content}
-              </div>
-              {m.role === 'assistant' && m.cards != null && m.cards.length > 0 && (
-                <button
-                  type="button"
-                  className={styles.saveAsDeckBtn}
-                  onClick={() => handleSaveAsDeck(m.cards!)}
-                >
-                  <ChatBubbleIcon width={14} height={14} />
-                  Save as deck
-                </button>
+              {m.role === 'user' && (
+                <div className={`${styles.messageBubble} ${styles.messageBubbleUser}`}>
+                  {m.content}
+                </div>
+              )}
+              {m.role === 'assistant' && (
+                <>
+                  {m.contentBefore != null && (
+                    <div className={styles.assistantText}>{m.contentBefore}</div>
+                  )}
+                  {m.cards != null && m.cards.length > 0 && (
+                    <CardPreview
+                      cards={m.cards}
+                      onSave={(deckName) => handleSaveAsDeck(m.cards!, deckName)}
+                    />
+                  )}
+                  {m.contentAfter != null && (
+                    <div className={styles.assistantText}>{m.contentAfter}</div>
+                  )}
+                  {m.cards == null && (
+                    <div className={styles.assistantText}>{m.content}</div>
+                  )}
+                </>
               )}
             </div>
           ))}
@@ -228,7 +272,7 @@ export default function ChatPage() {
             <SendIcon width={18} height={18} />
           </button>
         </div>
-        {!isPatreon && !limitReached && messagesSentThisSession > 0 && (
+        {!isPatreon && !limitReached && messagesUsedThisMonth > 0 && (
           <p className={styles.usageLine}>
             {remainingMessages} of {FREE_MONTHLY_LIMIT} messages left this month
           </p>
