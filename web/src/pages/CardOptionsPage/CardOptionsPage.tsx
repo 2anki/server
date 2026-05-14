@@ -141,8 +141,8 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
                         <img
                           src="/icons/Notion_app_logo.png"
                           alt=""
-                          width={16}
-                          height={16}
+                          width={22}
+                          height={22}
                           onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
                         />
                       </a>
