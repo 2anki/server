@@ -48,7 +48,7 @@ export default function CardPreview({ cards, onSave }: CardPreviewProps) {
   }
 
   function cancelNaming() {
-    setSaveState(savedName != null ? 'saved' : 'idle');
+    setSaveState(savedName == null ? 'idle' : 'saved');
   }
 
   function commitSave() {
