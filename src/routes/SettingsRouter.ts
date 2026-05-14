@@ -3,14 +3,22 @@ import express from 'express';
 import RequireAuthentication from './middleware/RequireAuthentication';
 import CardOptionsController from '../controllers/CardOptionsController/CardOptionsController';
 import SettingsRepository from '../data_layer/SettingsRepository';
+import NotionRepository from '../data_layer/NotionRespository';
+import NotionTopLevelPagesRepository from '../data_layer/NotionTopLevelPagesRepository';
 import { getDatabase } from '../data_layer';
 import SettingsService from '../services/SettingsService';
+import NotionService from '../services/NotionService';
 
 const SettingsRouter = () => {
   const router = express.Router();
   const database = getDatabase();
+  const notionService = new NotionService(
+    new NotionRepository(database),
+    new NotionTopLevelPagesRepository(database)
+  );
   const controller = new CardOptionsController(
-    new SettingsService(new SettingsRepository(database))
+    new SettingsService(new SettingsRepository(database)),
+    notionService
   );
 
   /**

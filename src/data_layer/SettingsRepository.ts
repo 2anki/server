@@ -37,6 +37,12 @@ class SettingsRepository {
       .where({ owner })
       .orderBy('updated_at', 'desc');
   }
+
+  updateTitle(object_id: string, title: string): Promise<void> {
+    return this.database(this.table)
+      .where({ object_id })
+      .update({ title });
+  }
 }
 
 export default SettingsRepository;
