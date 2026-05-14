@@ -5,133 +5,133 @@ const supportedOptions = (): CardOptionDetail[] => {
     new CardOptionDetail(
       'add-notion-link',
       'Add Notion link',
-      'Add a link to the Notion page where the toggle was created. Please use this with the (Use Notion ID) to avoid duplicates.',
+      'Add a link back to the Notion page on each card. Turn on Use Notion ID alongside this to avoid duplicates.',
       false
     ),
     new CardOptionDetail(
       'use-notion-id',
       'Use Notion ID',
-      'By default we create a new id from your fields. This can cause duplicates and in those cases you want to enable the Notion ID which is more reliable and avoid duplicates.',
+      'Identify each card by its Notion block ID instead of its content. Prevents duplicates when you re-upload an updated page.',
       true
     ),
     new CardOptionDetail(
       'all',
       'Use all toggle lists',
-      'By default we only check for toggle lists in the first page. Use this option to retrieve toggle lists from anywhere in the page.',
+      'Pull toggles from anywhere on the page, including nested ones. Off, only top-level toggles become cards.',
       true
     ),
     new CardOptionDetail(
       'paragraph',
       'Use plain text for back',
-      'This option will remove formatting and get the text content only.',
+      'Strip formatting from the back of each card and keep only the text. Use this when colors and styles distract from review.',
       false
     ),
     new CardOptionDetail(
       'cherry',
       'Cherry-pick using 🍒 emoji',
-      'This will only create flashcards from the toggle lists that include 🍒 in the toggle (header or body)',
+      'Only build cards from toggles that contain 🍒 in the header or body. Use this to publish a few cards from a long page.',
       false
     ),
     new CardOptionDetail(
       'avocado',
       'Skip toggles with the 🥑 emoji',
-      "This option enables you to ignore certain toggles when creating flashcards from pages that you don't want to change too much.",
+      'Ignore any toggle marked with 🥑. Use this to exclude drafts or notes without editing the page.',
       false
     ),
     new CardOptionDetail(
       'tags',
       'Treat strikethrough as tags',
-      'This will go treat the strikethroughs in the page as global ones. The ones inside of a toggle will be treated as locally to the toggle.',
+      'Turn strikethrough text into Anki tags. Strikethrough at the page level becomes a global tag; inside a toggle it tags only that card.',
       false
     ),
     new CardOptionDetail(
       'cloze',
       'Cloze deletion',
-      'Create cloze flashcards. Inline code and {{c1::}} syntax are both supported.',
+      'Create cloze cards from inline code and {{c1::}} syntax in your toggles.',
       true
     ),
     new CardOptionDetail(
       'enable-input',
       'Treat bold text as input',
-      'Words marked as bold will be removed and you will have to enter them in when reviewing the card. This is useful when you need to type out the answer.',
+      'Hide bold words on the front of the card so you type them during review. Useful for vocabulary and exact-answer recall.',
       false
     ),
     new CardOptionDetail(
       'basic-reversed',
       'Basic and reversed',
-      'Create the question and answer flashcards but also reversed ones. Where the answer and question change places.',
+      'Create two cards per toggle: question to answer, and answer to question.',
       false
     ),
     new CardOptionDetail(
       'reversed',
-      'Just the reversed flashcards',
-      'Only create flashcards from the reverse. This is useful when you want to say show an image first.',
+      'Reversed only',
+      'Create only the reversed card, swapping front and back. Useful when the back is an image you want to see first.',
       false
     ),
     new CardOptionDetail(
       'no-underline',
       'Remove underlines',
-      'Disable underline. This is an option that was created due to changes in the way Notion handles underlines.',
+      'Strip underline formatting from card text. Turn this on if Notion underlines are showing up where you do not want them.',
       false
     ),
     new CardOptionDetail(
       'max-one-toggle-per-card',
       'Maximum one toggle per card',
-      "This will limit to 1 card so you don't see too many toggles in one card. When you combine this with 'Use all toggle lists' you can create flashcards from everything in your upload, regardless of how deeply nested they are.",
+      'Keep each card focused on a single toggle. Combine with Use all toggle lists to turn every nested toggle into its own card.',
       true
     ),
     new CardOptionDetail(
       'remove-mp3-links',
       'Remove MP3 links from audio files',
-      "Due to backwards-compatibility we leave links untouched but this option lets you remove mp3 links",
+      'Hide raw MP3 URLs on cards while keeping the audio playable.',
       true
     ),
     new CardOptionDetail(
       'perserve-newlines',
       'Preserve newlines in toggle header and body',
-      'This will allow you to use SHIFT-Enter in the toggles to create multiple lines for all card types (Basic, Cloze, etc.)',
+      'Keep line breaks made with Shift+Enter inside toggles. Applies to every card type.',
       true
     ),
     new CardOptionDetail(
       'process-pdfs',
       'Process PDF files',
-      'When enabled, PDF files in ZIP uploads will be processed and converted to Anki cards. Disable this to skip PDF processing and speed up conversion of ZIP files containing PDFs.',
+      'Convert PDFs found inside ZIP uploads into cards. Turn off to skip them and finish ZIP uploads faster.',
       true
     ),
     new CardOptionDetail(
       'markdown-nested-bullet-points',
       'Markdown nested bullet points',
-      'Enable conversion of bullet and sub bullet points in Markdown. If you are a Obsidian user, enable this',
+      'Turn bullets and their sub-bullets into front-and-back cards. Recommended for Obsidian exports.',
       true
     ),
     new CardOptionDetail(
       'vertex-ai-pdf-questions',
       'Generate questions from PDF uploads',
-      'Use Vertex AI API to generate questions from PDFs. This is a paid feature and if enabled will send your notes to Google Cloud.',
+      'Use Vertex AI to draft questions from your PDFs. Your content is sent to Google Cloud for processing.',
       false
     ),
     new CardOptionDetail(
       'disable-indented-bullets',
       'Disable indented bullets',
-      'Disable indented bullets from becoming separate cards. This applies to bullet lists.',
+      'Keep indented bullets attached to their parent instead of becoming separate cards.',
       false
     ),
     new CardOptionDetail(
       'image-quiz-html-to-anki',
       'Convert image quiz HTML to Anki cards',
-      'Use OCR to extract images and answers from HTML quizzes and convert them into Anki flashcards for review. This is a premium experimental feature.',
+      'Use OCR to pull images and answers out of HTML quizzes and turn them into cards.',
       false
     ),
     new CardOptionDetail(
       'claude-ai-flashcards',
       'Generate flashcards with Claude AI',
-      'Use Claude Anthropic to generate flashcards from your content. Produces more reliable results for complex documents. This is a premium feature available to subscribers.',
+      'Use Claude AI to draft cards from your content. Produces stronger results on dense or unstructured documents.',
       false
     ),
     new CardOptionDetail(
       'share-files-for-debugging',
       'Share files for debugging when conversion fails',
-      'When a conversion fails, send the uploaded files and error details to the 2anki team so we can reproduce and fix the issue. Off by default to keep your notes private.',
+      'On a failed conversion, send the uploaded files and error details to the 2anki team to investigate. Off by default to keep your notes private.',
       false
     ),
   ];
