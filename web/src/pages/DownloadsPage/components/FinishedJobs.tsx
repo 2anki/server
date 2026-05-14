@@ -163,6 +163,10 @@ export function FinishedJobs({ uploads, deleteUpload, doneJobs = [], deleteJob }
           </tbody>
         </table>
         </div>
+        <div className={styles.upgradeFooter}>
+          Hitting the 100-card limit?{' '}
+          <Link to="/pricing">Upgrade to Unlimited — $5/month, cancel anytime →</Link>
+        </div>
       </div>
     </div>
   );

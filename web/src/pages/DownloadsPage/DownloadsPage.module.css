@@ -305,6 +305,23 @@
   box-shadow: var(--shadow-sm);
 }
 
+.upgradeFooter {
+  border-top: 1px solid var(--color-border-light);
+  padding: 0.875rem 1rem;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.upgradeFooter a {
+  color: var(--color-primary);
+  font-weight: var(--font-medium);
+  text-decoration: none;
+}
+
+.upgradeFooter a:hover {
+  text-decoration: underline;
+}
+
 .preparingBanner {
   display: flex;
   align-items: center;

@@ -119,13 +119,11 @@ describe('LoginForm', () => {
     });
   });
 
-  it('shows sign up link on every step', () => {
+  it('shows create account button on the email step', () => {
     renderLoginForm();
-    expect(screen.getByText('Sign up')).toBeInTheDocument();
-    expect(screen.getByText('Sign up').closest('a')).toHaveAttribute(
-      'href',
-      '/register'
-    );
+    const link = screen.getByText('Create a free account');
+    expect(link).toBeInTheDocument();
+    expect(link.closest('a')).toHaveAttribute('href', '/register');
   });
 
   it('persists email to localStorage on blur when value looks like an email', () => {

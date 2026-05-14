@@ -105,6 +105,11 @@ function LoginForm() {
             <WithGoogleLink
               text={getVisibleText('navigation.login.google')}
             />
+            <div className={styles.divider} />
+            <p className={styles.registerHint}>New to 2anki?</p>
+            <a href={registerHref} className={styles.createAccountButton}>
+              Create a free account
+            </a>
           </>
         ) : (
           <form onSubmit={onSubmit}>
@@ -179,12 +184,14 @@ function LoginForm() {
             </p>
           </form>
         )}
-        <p className={styles.footerText}>
-          {getVisibleText('navigation.register.question')}{' '}
-          <a rel="noreferrer" href={registerHref}>
-            Sign up
-          </a>
-        </p>
+        {!isEmailStep && (
+          <p className={styles.footerText}>
+            {getVisibleText('navigation.register.question')}{' '}
+            <a rel="noreferrer" href={registerHref}>
+              Sign up
+            </a>
+          </p>
+        )}
       </div>
     </div>
   );
