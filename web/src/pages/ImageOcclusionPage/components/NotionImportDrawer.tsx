@@ -22,7 +22,10 @@ interface NotionChildPageBlock {
   child_page: { title: string };
 }
 
-type NotionBlock = NotionImageBlock | NotionChildPageBlock | { id: string; type: string };
+type NotionBlock =
+  | NotionImageBlock
+  | NotionChildPageBlock
+  | { id: string; type: string; has_children?: boolean };
 
 interface GalleryItem {
   blockId: string;
@@ -63,8 +66,8 @@ interface FetchResult {
   error: { isPermission: boolean } | null;
 }
 
-async function fetchBlocks(pageId: string, signal: AbortSignal): Promise<FetchResult> {
-  const res = await fetch(`/api/notion/blocks/${pageId}`, { credentials: 'include', signal });
+async function fetchBlocks(blockId: string, signal: AbortSignal): Promise<FetchResult> {
+  const res = await fetch(`/api/notion/blocks/${blockId}`, { credentials: 'include', signal });
   if (!res.ok) {
     const body = await res.text().catch(() => '');
     const isPermission =
@@ -77,6 +80,7 @@ async function fetchBlocks(pageId: string, signal: AbortSignal): Promise<FetchRe
 
   const images: GalleryItem[] = [];
   const childPages: Array<{ id: string; title: string }> = [];
+  const containerFetches: Promise<FetchResult>[] = [];
 
   for (const block of blocks) {
     if (block.type === 'image') {
@@ -89,6 +93,20 @@ async function fetchBlocks(pageId: string, signal: AbortSignal): Promise<FetchRe
     } else if (block.type === 'child_page') {
       const title = (block as NotionChildPageBlock).child_page.title || 'Untitled page';
       childPages.push({ id: block.id, title });
+    } else if (
+      block.type !== 'child_database' &&
+      (block as { has_children?: boolean }).has_children === true
+    ) {
+      // toggles, columns, callouts, synced blocks, etc. — recurse to find nested images
+      containerFetches.push(fetchBlocks(block.id, signal));
+    }
+  }
+
+  if (containerFetches.length > 0) {
+    const nested = await Promise.all(containerFetches);
+    for (const r of nested) {
+      images.push(...r.images);
+      childPages.push(...r.childPages);
     }
   }
 
