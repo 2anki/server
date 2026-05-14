@@ -610,6 +610,7 @@
   color: var(--color-text-secondary);
 }
 
+/* legacy — kept for any remaining direct usage */
 .checkbox {
   display: flex;
   flex-wrap: wrap;
@@ -624,11 +625,35 @@
   accent-color: var(--color-primary);
 }
 
-.checkboxLabelRow {
-  display: inline-flex;
+/* new checkbox layout: control row + optional tooltip icon */
+.checkboxRow {
+  display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+.checkboxControl {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.checkboxControl input[type='checkbox'] {
+  margin-top: 2px;
+  flex-shrink: 0;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+.checkboxLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
   flex-wrap: wrap;
+  cursor: pointer;
+  font-size: var(--text-sm);
 }
 
 .checkboxBadge {
@@ -644,12 +669,20 @@
   white-space: nowrap;
 }
 
+/* info icon + click-controlled popover */
+.infoAnchor {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
 .infoButton {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   padding: 0;
   border: none;
   background: transparent;
@@ -664,6 +697,24 @@
 .infoButton:focus-visible {
   color: var(--color-text-primary);
   outline: none;
+}
+
+.infoPopover {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  right: 0;
+  width: 240px;
+  padding: 0.625rem 0.75rem;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  font-size: var(--text-xs);
+  font-weight: normal;
+  color: var(--color-text-primary);
+  line-height: 1.5;
+  z-index: 200;
+  white-space: normal;
 }
 
 .checkboxDescription {

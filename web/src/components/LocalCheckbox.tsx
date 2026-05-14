@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import styles from '../styles/shared.module.css';
 
 interface Props {
@@ -15,23 +16,44 @@ function LocalCheckbox({
   onChecked,
   badge,
 }: Readonly<Props>) {
+  const [open, setOpen] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const id = `chk-${label}`;
+
+  useEffect(() => {
+    if (!open) return;
+    function handleOutside(e: MouseEvent) {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleOutside);
+    return () => document.removeEventListener('mousedown', handleOutside);
+  }, [open]);
+
   return (
-    <label htmlFor={label} className={styles.checkbox}>
-      <input
-        name={label}
-        type="checkbox"
-        checked={defaultValue}
-        onChange={(event) => onChecked(event.target.checked)}
-      />
-      <span className={styles.checkboxLabelRow}>
-        <strong>{label}</strong>
-        {badge && <span className={styles.checkboxBadge}>{badge}</span>}
-        {description && (
+    <div className={styles.checkboxRow}>
+      <div className={styles.checkboxControl}>
+        <input
+          id={id}
+          name={label}
+          type="checkbox"
+          checked={defaultValue}
+          onChange={(event) => onChecked(event.target.checked)}
+        />
+        <label htmlFor={id} className={styles.checkboxLabel}>
+          <strong>{label}</strong>
+          {badge && <span className={styles.checkboxBadge}>{badge}</span>}
+        </label>
+      </div>
+      {description && (
+        <div ref={wrapperRef} className={styles.infoAnchor}>
           <button
             type="button"
             className={styles.infoButton}
-            title={description}
-            aria-label={description}
+            aria-label={open ? 'Hide description' : 'Show description'}
+            aria-expanded={open}
+            onClick={() => setOpen((v) => !v)}
           >
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
               <circle cx="7" cy="7" r="6.5" stroke="currentColor" />
@@ -39,9 +61,14 @@ function LocalCheckbox({
               <circle cx="7" cy="4.25" r="0.625" fill="currentColor" />
             </svg>
           </button>
-        )}
-      </span>
-    </label>
+          {open && (
+            <div className={styles.infoPopover} role="tooltip">
+              {description}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 
