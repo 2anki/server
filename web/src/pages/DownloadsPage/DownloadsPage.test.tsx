@@ -29,6 +29,12 @@ vi.mock('../../lib/backend/get2ankiApi', () => ({
   get2ankiApi: () => ({}),
 }));
 
+vi.mock('../../lib/hooks/useUserLocals', () => ({
+  useUserLocals: () => ({
+    data: { locals: { patreon: false, subscriber: false } },
+  }),
+}));
+
 type AnalyticsGlobals = {
   hj?: ReturnType<typeof vi.fn>;
   gtag?: ReturnType<typeof vi.fn>;
