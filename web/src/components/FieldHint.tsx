@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import styles from './styles/shared.module.css';
+import styles from '../styles/shared.module.css';
 
 interface Props {
   text: string;
