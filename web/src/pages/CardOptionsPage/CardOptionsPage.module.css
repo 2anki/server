@@ -21,7 +21,24 @@
 }
 
 .pagesSection {
-  margin-bottom: 2rem;
+  margin-bottom: 0;
+}
+
+.formHeader {
+  margin: 2rem 0 1.5rem;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 0 0 1.5rem;
+}
+
+.formHeading {
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-primary);
+  margin: 0 0 0.375rem;
 }
 
 .pagesCard {
