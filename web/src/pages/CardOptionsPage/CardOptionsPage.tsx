@@ -81,7 +81,7 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
       </header>
 
       {pageId == null && (
-        <section className={styles.pagesSection}>
+        <section className={`${styles.pagesSection} ${styles.pagesCard}`}>
           <h2 className={styles.pagesHeading}>
             Saved pages
             {perPageItems.length > 0 && (
@@ -123,11 +123,7 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
                         </svg>
                         <div className={styles.entryText}>
                           <span className={styles.entryTitle}>
-                            {displayTitle ?? (
-                              <span className={styles.entryTitleMuted}>
-                                {'…' + item.pageId.slice(-12)}
-                              </span>
-                            )}
+                            {displayTitle ?? 'Untitled page'}
                           </span>
                           {updatedLabel && (
                             <span className={styles.entryTimestamp}>Updated {updatedLabel}</span>
@@ -164,7 +160,7 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
           <hr className={styles.divider} />
           <h2 className={styles.formHeading}>Default options</h2>
           <p className={sharedStyles.smallDescription}>
-            Applied to every upload and Notion import. Per-page overrides above take precedence.
+            Used for every file upload and any Notion page without saved overrides.
           </p>
         </div>
       )}
