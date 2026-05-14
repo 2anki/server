@@ -24,7 +24,7 @@
     z-index: 1;
     background-size: cover;
     background-position: center;
-    filter: blur(2px) brightness(0.85);
+    filter: blur(0.5px) brightness(0.9);
     transform: scale(1.04);
   }
 
@@ -33,7 +33,7 @@
     position: fixed;
     inset: 0;
     z-index: 2;
-    background: rgba(255, 255, 255, 0.68);
+    background: rgba(255, 255, 255, 0.55);
     pointer-events: none;
   }
 
