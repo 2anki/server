@@ -46,7 +46,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          mkdir -p docs/retros
+          mkdir -p Documentation/retros
           since=$(date -u -d '7 days ago' +%Y-%m-%d)
 
           merged_prs=$(gh pr list \
@@ -64,7 +64,7 @@ jobs:
             --jq '.[] | "- [#\(.number)](\(.url)) \(.title) (\(.state))"' \
             || true)
 
-          file="docs/retros/${{ steps.week.outputs.iso_week }}.md"
+          file="Documentation/retros/${{ steps.week.outputs.iso_week }}.md"
           {
             echo "# Weekly retro — ${{ steps.week.outputs.iso_week }}"
             echo ""
@@ -116,7 +116,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b "${{ steps.week.outputs.branch }}"
-          git add docs/retros
+          git add Documentation/retros
           git commit -m "retro: draft for ${{ steps.week.outputs.iso_week }}"
           git push -u origin "${{ steps.week.outputs.branch }}"
           gh pr create \
@@ -124,4 +124,4 @@ jobs:
             --base main \
             --head "${{ steps.week.outputs.branch }}" \
             --title "retro: ${{ steps.week.outputs.iso_week }}" \
-            --body "Auto-drafted weekly retro. Fill in numbers + the single biggest gap, then merge to archive under \`docs/retros/\`."
+            --body "Auto-drafted weekly retro. Fill in numbers + the single biggest gap, then merge to archive under \`Documentation/retros/\`."
