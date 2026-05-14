@@ -58,6 +58,22 @@ describe('UsersRepository.createUser', () => {
   });
 });
 
+describe('UsersRepository.getByEmail', () => {
+  it('uses LOWER(TRIM(email)) so mixed-case stored emails still match', async () => {
+    const firstSpy = jest.fn().mockResolvedValue({ id: 1, email: 'user@example.com' });
+    const whereRawSpy = jest.fn().mockReturnValue({ first: firstSpy });
+    const knex = jest.fn().mockReturnValue({ whereRaw: whereRawSpy }) as unknown as jest.Mock;
+    const repo = new UsersRepository(knex as any);
+
+    await repo.getByEmail('  User@Example.COM  ');
+
+    expect(whereRawSpy).toHaveBeenCalledWith(
+      'LOWER(TRIM(email)) = LOWER(?)',
+      ['  User@Example.COM  '.trim()]
+    );
+  });
+});
+
 describe('UsersRepository.updatePatreonByEmail', () => {
   it('matches the user by email using TRIM + lowercase so Stripe casing differences still update', async () => {
     const knex = buildKnexMock();

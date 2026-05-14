@@ -37,7 +37,9 @@ function LoginForm() {
       await get2ankiApi().requestMagicLink(email, 'login');
       setStep('check-email');
     } catch {
-      setError('Something went wrong. Try again.');
+      setError(
+        "We couldn't send your sign-in link right now. Try again in a minute, or use your password below."
+      );
     } finally {
       setMagicLinkLoading(false);
     }
@@ -53,6 +55,7 @@ function LoginForm() {
         email={email}
         onRetry={handleRetryMagicLink}
         purpose="login"
+        onResend={handleSendMagicLink}
       />
     );
   }

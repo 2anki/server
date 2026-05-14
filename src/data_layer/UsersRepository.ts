@@ -28,8 +28,7 @@ class UsersRepository {
 
   getByEmail(email: string) {
     return this.database(this.table)
-      .whereRaw('TRIM(email) = ?', [email.toLocaleLowerCase().trim()])
-      .returning(['reset_token', 'id'])
+      .whereRaw('LOWER(TRIM(email)) = LOWER(?)', [email.trim()])
       .first();
   }
 
