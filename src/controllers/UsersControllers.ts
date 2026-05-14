@@ -16,6 +16,8 @@ import { MagicLinkRateLimitError } from '../services/UsersService';
 import StartTrialUseCase from '../usecases/users/StartTrialUseCase';
 import UsersRepository from '../data_layer/UsersRepository';
 import type { UsersId } from '../data_layer/public/Users';
+import NotionRepository from '../data_layer/NotionRespository';
+import hashToken from '../lib/misc/hashToken';
 
 class UsersController {
   constructor(
@@ -505,6 +507,46 @@ class UsersController {
     } else {
       res.redirect('/login');
     }
+  }
+
+  async loginWithNotion(req: express.Request, res: express.Response) {
+    const { code } = req.query;
+    if (!code) {
+      return res.redirect('/login?error=notion_cancelled');
+    }
+
+    const loginRequest = await this.authService.loginWithNotion(code as string);
+    if (!loginRequest) {
+      return res.redirect('/login?error=notion_cancelled');
+    }
+
+    const { email, name, accessData } = loginRequest;
+    let user = await this.userService.getUserFrom(email);
+    if (!user) {
+      const hashedPassword = this.authService.getHashPassword(getRandomUUID());
+      await this.userService.register(name, hashedPassword, email, 'notion_oauth');
+      user = await this.userService.getUserFrom(email);
+    }
+
+    if (!user) {
+      console.info('Failed to create user from Notion login');
+      return res.status(400).send('Unknown error. Please try again or register a new account.');
+    }
+
+    const token = await this.authService.newJWTToken(user);
+    if (!token) {
+      console.info('Failed to create token for Notion login');
+      return res.status(400).send('Unknown error. Please try again or register a new account.');
+    }
+
+    await this.authService.persistToken(token, user.id.toString());
+    await this.userService.updateLastLoginAt(user.id.toString());
+
+    const notionRepository = new NotionRepository(this.db);
+    await notionRepository.saveNotionToken(user.id, accessData, hashToken);
+
+    res.cookie('token', token);
+    return res.status(200).redirect('/notion');
   }
 
   async requestMagicLink(

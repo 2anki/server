@@ -3,12 +3,19 @@ import jwt from 'jsonwebtoken';
 import AuthenticationService from './AuthenticationService';
 import TokenRepository from '../data_layer/TokenRepository';
 import UsersRepository from '../data_layer/UsersRepository';
+import instrumentedAxios from './observability/instrumentedAxios';
+
+jest.mock('./observability/instrumentedAxios');
 
 const SECRET = 'test-secret';
 
 beforeAll(() => {
   process.env.SECRET = SECRET;
+  process.env.NOTION_CLIENT_ID = 'test-client-id';
+  process.env.NOTION_CLIENT_SECRET = 'test-client-secret';
 });
+
+const mockedAxios = instrumentedAxios as jest.Mocked<typeof instrumentedAxios>;
 
 function createService() {
   const tokenRepo = {} as TokenRepository;
@@ -31,6 +38,81 @@ test('isValidToken rejects an expired token', async () => {
   const token = jwt.sign({ userId: 1 }, SECRET, { expiresIn: '0s' });
 
   await expect(service.isValidToken(token)).rejects.toThrow();
+});
+
+describe('loginWithNotion', () => {
+  const notionResponse = {
+    access_token: 'secret-token',
+    token_type: 'bearer',
+    bot_id: 'bot-123',
+    workspace_name: 'My Workspace',
+    workspace_icon: null,
+    workspace_id: 'ws-123',
+    owner: {
+      user: {
+        name: 'Alice',
+        person: { email: 'alice@example.com' },
+      },
+    },
+  };
+
+  it('returns email, name, and accessData on success', async () => {
+    mockedAxios.post = jest.fn().mockResolvedValue({ data: notionResponse });
+
+    const service = createService();
+    const result = await service.loginWithNotion('auth-code');
+
+    expect(result).toEqual({
+      email: 'alice@example.com',
+      name: 'Alice',
+      accessData: notionResponse,
+    });
+  });
+
+  it('falls back to email prefix as name when name is absent', async () => {
+    const responseWithoutName = {
+      ...notionResponse,
+      owner: { user: { person: { email: 'bob@example.com' } } },
+    };
+    mockedAxios.post = jest.fn().mockResolvedValue({ data: responseWithoutName });
+
+    const service = createService();
+    const result = await service.loginWithNotion('auth-code');
+
+    expect(result?.name).toBe('bob');
+    expect(result?.email).toBe('bob@example.com');
+  });
+
+  it('returns null when Notion response has no email', async () => {
+    mockedAxios.post = jest.fn().mockResolvedValue({
+      data: { access_token: 'tok', owner: { user: { person: {} } } },
+    });
+
+    const service = createService();
+    const result = await service.loginWithNotion('auth-code');
+
+    expect(result).toBeNull();
+  });
+
+  it('returns null when the Notion API call throws', async () => {
+    mockedAxios.post = jest.fn().mockRejectedValue(new Error('network error'));
+
+    const service = createService();
+    const result = await service.loginWithNotion('auth-code');
+
+    expect(result).toBeNull();
+  });
+
+  it('returns null when NOTION_CLIENT_ID is not set', async () => {
+    const originalId = process.env.NOTION_CLIENT_ID;
+    delete process.env.NOTION_CLIENT_ID;
+
+    const service = createService();
+    const result = await service.loginWithNotion('auth-code');
+
+    process.env.NOTION_CLIENT_ID = originalId;
+    expect(result).toBeNull();
+  });
 });
 
 describe('isNewPasswordValid', () => {

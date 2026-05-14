@@ -1,0 +1,65 @@
+.root {
+  min-height: 100vh;
+}
+
+.bg,
+.overlay,
+.attribution {
+  display: none;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100vh;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .bg {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    background-size: cover;
+    background-position: center;
+    filter: brightness(0.9);
+  }
+
+  .overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.55);
+    pointer-events: none;
+  }
+
+  .content {
+    position: relative;
+    z-index: 3;
+  }
+
+  .attribution {
+    display: block;
+    position: fixed;
+    bottom: 0.75rem;
+    right: 1rem;
+    z-index: 4;
+    font-size: 0.7rem;
+    color: rgba(0, 0, 0, 0.45);
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  .attribution a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .attribution a:hover {
+    color: rgba(0, 0, 0, 0.7);
+    text-decoration: underline;
+  }
+}
