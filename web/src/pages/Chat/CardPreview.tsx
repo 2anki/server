@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import DownloadIcon from '../../components/icons/DownloadIcon';
 import styles from './CardPreview.module.css';
 
 interface ChatCard {
@@ -79,6 +80,7 @@ export default function CardPreview({ cards, onSave }: CardPreviewProps) {
 
         {saveState === 'idle' && (
           <button type="button" className={styles.cardPreviewSave} onClick={openNaming}>
+            <DownloadIcon width={13} height={13} />
             Save as deck
           </button>
         )}
