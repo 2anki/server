@@ -16,7 +16,13 @@ interface NotionImageBlock {
   };
 }
 
-type NotionBlock = NotionImageBlock | { id: string; type: string };
+interface NotionChildPageBlock {
+  id: string;
+  type: 'child_page';
+  child_page: { title: string };
+}
+
+type NotionBlock = NotionImageBlock | NotionChildPageBlock | { id: string; type: string };
 
 interface GalleryItem {
   blockId: string;
@@ -25,7 +31,9 @@ interface GalleryItem {
 }
 
 interface PageSection {
-  page: NotionObject;
+  id: string;
+  title: string;
+  icon?: string;
   images: GalleryItem[];
   loading: boolean;
   error: { isPermission: boolean } | null;
@@ -42,7 +50,7 @@ interface Props {
 
 const FREE_TIER_LIMIT = 3;
 const PREVIEW_COUNT = 6;
-const SKELETON_SECTIONS = 3;
+const MAX_DEPTH = 2;
 
 function getImageUrl(block: NotionImageBlock): string | null {
   if (block.image.type === 'file') return block.image.file?.url ?? null;
@@ -50,31 +58,42 @@ function getImageUrl(block: NotionImageBlock): string | null {
   return null;
 }
 
-async function fetchImages(pageId: string, signal: AbortSignal): Promise<GalleryItem[]> {
+interface FetchResult {
+  images: GalleryItem[];
+  childPages: Array<{ id: string; title: string }>;
+  error: { isPermission: boolean } | null;
+}
+
+async function fetchBlocks(pageId: string, signal: AbortSignal): Promise<FetchResult> {
   const res = await fetch(`/api/notion/blocks/${pageId}`, { credentials: 'include', signal });
   if (!res.ok) {
     const body = await res.text().catch(() => '');
     const isPermission =
       res.status === 400 &&
       (body.includes('object_not_found') || body.includes('not_found') || body.includes('shared'));
-    const err = new Error(body || String(res.status)) as Error & { isPermission: boolean };
-    err.isPermission = isPermission;
-    throw err;
+    return { images: [], childPages: [], error: { isPermission } };
   }
   const data = (await res.json()) as { results?: NotionBlock[] } | NotionBlock[];
   const blocks = Array.isArray(data) ? data : (data.results ?? []);
-  const items: GalleryItem[] = [];
+
+  const images: GalleryItem[] = [];
+  const childPages: Array<{ id: string; title: string }> = [];
+
   for (const block of blocks) {
     if (block.type === 'image') {
       const url = getImageUrl(block as NotionImageBlock);
       if (url != null) {
         const caption =
           (block as NotionImageBlock).image.caption?.map((c) => c.plain_text).join('') ?? '';
-        items.push({ blockId: block.id, imageUrl: url, caption });
+        images.push({ blockId: block.id, imageUrl: url, caption });
       }
+    } else if (block.type === 'child_page') {
+      const title = (block as NotionChildPageBlock).child_page.title || 'Untitled page';
+      childPages.push({ id: block.id, title });
     }
   }
-  return items;
+
+  return { images, childPages, error: null };
 }
 
 export function NotionImportDrawer({
@@ -86,62 +105,87 @@ export function NotionImportDrawer({
 }: Readonly<Props>) {
   const [sections, setSections] = useState<PageSection[]>([]);
   const [pagesLoading, setPagesLoading] = useState(false);
-  const [pagesError, setPageError] = useState<string | null>(null);
+  const [pagesError, setPagesError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [importing, setImporting] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
+  const seenIds = useRef<Set<string>>(new Set());
   const abortRef = useRef<AbortController | null>(null);
 
   const freeSlotsLeft = isPaying ? Infinity : Math.max(0, FREE_TIER_LIMIT - currentCount);
   const atFreeTierCap = !isPaying && currentCount >= FREE_TIER_LIMIT;
 
-  useEffect(() => {
-    if (!isOpen) return;
-    setSearch('');
-    setSelected(new Set());
-    setSections([]);
-    setPageError(null);
-    setPagesLoading(true);
+  const crawlPage = (
+    id: string,
+    title: string,
+    icon: string | undefined,
+    signal: AbortSignal,
+    depth: number
+  ) => {
+    if (seenIds.current.has(id)) return;
+    seenIds.current.add(id);
 
-    const controller = new AbortController();
-    abortRef.current = controller;
+    setSections((prev) => [...prev, { id, title, icon, images: [], loading: true, error: null, showAll: false }]);
+
+    fetchBlocks(id, signal).then((result) => {
+      if (signal.aborted) return;
+
+      setSections((prev) =>
+        prev.map((s) =>
+          s.id === id
+            ? { ...s, images: result.images, loading: false, error: result.error }
+            : s
+        )
+      );
+
+      if (result.error == null && depth < MAX_DEPTH) {
+        for (const child of result.childPages) {
+          crawlPage(child.id, child.title, undefined, signal, depth + 1);
+        }
+      }
+    }).catch(() => {
+      if (signal.aborted) return;
+      setSections((prev) =>
+        prev.map((s) =>
+          s.id === id ? { ...s, loading: false, error: { isPermission: false } } : s
+        )
+      );
+    });
+  };
+
+  const startCrawl = (controller: AbortController) => {
+    seenIds.current = new Set();
+    setSections([]);
+    setPagesLoading(true);
+    setPagesError(null);
 
     get2ankiApi()
       .searchTopLevelPages('')
       .then((pages) => {
         if (controller.signal.aborted) return;
         setPagesLoading(false);
-        setSections(pages.map((page) => ({ page, images: [], loading: true, error: null, showAll: false })));
         setTimeout(() => searchRef.current?.focus(), 50);
-
         for (const page of pages) {
-          fetchImages(page.id, controller.signal)
-            .then((images) => {
-              if (controller.signal.aborted) return;
-              setSections((prev) =>
-                prev.map((s) => (s.page.id === page.id ? { ...s, images, loading: false } : s))
-              );
-            })
-            .catch((err: Error & { isPermission?: boolean }) => {
-              if (controller.signal.aborted) return;
-              setSections((prev) =>
-                prev.map((s) =>
-                  s.page.id === page.id
-                    ? { ...s, loading: false, error: { isPermission: err.isPermission === true } }
-                    : s
-                )
-              );
-            });
+          crawlPage(page.id, page.title || 'Untitled page', page.icon, controller.signal, 0);
         }
       })
       .catch((err: Error) => {
         if (controller.signal.aborted) return;
-        setPageError(err.message);
+        setPagesError(err.message);
         setPagesLoading(false);
       });
+  };
 
+  useEffect(() => {
+    if (!isOpen) return;
+    setSearch('');
+    setSelected(new Set());
+    const controller = new AbortController();
+    abortRef.current = controller;
+    startCrawl(controller);
     return () => controller.abort();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
   const toggleImage = (blockId: string) => {
@@ -169,11 +213,13 @@ export function NotionImportDrawer({
 
   if (!isOpen) return null;
 
-  const filteredSections = sections
+  const visibleSections = sections
     .filter((s) => s.loading || s.error != null || s.images.length > 0)
     .filter((s) =>
-      search.trim() === '' || s.page.title.toLowerCase().includes(search.toLowerCase())
+      search.trim() === '' || s.title.toLowerCase().includes(search.toLowerCase())
     );
+
+  const stillLoading = pagesLoading || sections.some((s) => s.loading);
 
   const addLabel = selected.size === 0
     ? 'Select images to add'
@@ -189,19 +235,6 @@ export function NotionImportDrawer({
       </div>
 
       <div className={styles.drawerBody}>
-        {!pagesLoading && sections.length > 0 && (
-          <div className={`${sharedStyles.searchBarGroup} ${styles.drawerSearchBar}`}>
-            <input
-              ref={searchRef}
-              type="search"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search pages"
-              aria-label="Search pages"
-            />
-          </div>
-        )}
-
         {pagesError != null && (
           <div className={styles.drawerEmpty}>
             <p>Couldn't reach Notion. Try again in a moment.</p>
@@ -209,15 +242,10 @@ export function NotionImportDrawer({
               type="button"
               className={styles.drawerRetryBtn}
               onClick={() => {
-                setPageError(null);
-                setPagesLoading(true);
-                get2ankiApi()
-                  .searchTopLevelPages('')
-                  .then((pages) => {
-                    setSections(pages.map((p) => ({ page: p, images: [], loading: true, error: null, showAll: false })));
-                    setPagesLoading(false);
-                  })
-                  .catch((err: Error) => { setPageError(err.message); setPagesLoading(false); });
+                abortRef.current?.abort();
+                const controller = new AbortController();
+                abortRef.current = controller;
+                startCrawl(controller);
               }}
             >
               Try again
@@ -225,122 +253,136 @@ export function NotionImportDrawer({
           </div>
         )}
 
-        {pagesLoading && (
-          <div className={styles.gallerySections}>
-            {Array.from({ length: SKELETON_SECTIONS }).map((_, i) => (
-              // eslint-disable-next-line react/no-array-index-key
-              <div key={i} className={styles.gallerySection}>
-                <div className={styles.gallerySectionHeaderSkeleton} aria-hidden="true" />
-                <div className={styles.galleryGrid}>
-                  {Array.from({ length: PREVIEW_COUNT }).map((__, j) => (
-                    // eslint-disable-next-line react/no-array-index-key
-                    <div key={j} className={styles.gallerySkeletonTile} aria-hidden="true" />
-                  ))}
-                </div>
+        {!pagesLoading && pagesError == null && visibleSections.length === 0 && !stillLoading && (
+          <div className={styles.drawerEmpty}>
+            {search.trim().length > 0 ? (
+              <p>No pages match "<strong>{search}</strong>".</p>
+            ) : (
+              <>
+                <p>No images found in your shared pages.</p>
+                <p>Share a page with images in Notion, then come back here.</p>
+              </>
+            )}
+          </div>
+        )}
+
+        {(visibleSections.length > 0 || stillLoading) && (
+          <>
+            {visibleSections.length > 0 && (
+              <div className={`${sharedStyles.searchBarGroup} ${styles.drawerSearchBar}`}>
+                <input
+                  ref={searchRef}
+                  type="search"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search pages"
+                  aria-label="Search pages"
+                />
               </div>
-            ))}
-          </div>
-        )}
+            )}
 
-        {!pagesLoading && pagesError == null && filteredSections.length === 0 && sections.length === 0 && (
-          <div className={styles.drawerEmpty}>
-            <p>No pages shared with 2anki yet.</p>
-            <p>Share a page in Notion, then come back here.</p>
-          </div>
-        )}
+            {atFreeTierCap && (
+              <p className={styles.drawerFreeTierNote}>
+                Free plan: 3 images already added.{' '}
+                <a href="/pricing" className={styles.drawerUpgradeLink}>Upgrade for unlimited</a>
+              </p>
+            )}
 
-        {!pagesLoading && pagesError == null && filteredSections.length === 0 && sections.length > 0 && (
-          <div className={styles.drawerEmpty}>
-            <p>No pages match "<strong>{search}</strong>".</p>
-          </div>
-        )}
+            <div className={styles.gallerySections}>
+              {visibleSections.map((section) => {
+                const visible = section.showAll
+                  ? section.images
+                  : section.images.slice(0, PREVIEW_COUNT);
+                const hiddenCount = section.images.length - PREVIEW_COUNT;
 
-        {atFreeTierCap && sections.length > 0 && (
-          <p className={styles.drawerFreeTierNote}>
-            Free plan: 3 images already added.{' '}
-            <a href="/pricing" className={styles.drawerUpgradeLink}>Upgrade for unlimited</a>
-          </p>
-        )}
+                return (
+                  <div key={section.id} className={styles.gallerySection}>
+                    <div className={styles.gallerySectionHeader}>
+                      {section.icon != null && (
+                        <span className={styles.gallerySectionIcon}>
+                          <BlockIcon icon={section.icon} />
+                        </span>
+                      )}
+                      <span className={styles.gallerySectionTitle}>
+                        {section.title}
+                      </span>
+                    </div>
 
-        <div className={styles.gallerySections}>
-          {filteredSections.map((section) => {
-            const visible = section.showAll
-              ? section.images
-              : section.images.slice(0, PREVIEW_COUNT);
-            const hiddenCount = section.images.length - PREVIEW_COUNT;
+                    {section.loading && (
+                      <div className={styles.galleryGrid}>
+                        {Array.from({ length: PREVIEW_COUNT }).map((_, i) => (
+                          // eslint-disable-next-line react/no-array-index-key
+                          <div key={i} className={styles.gallerySkeletonTile} aria-hidden="true" />
+                        ))}
+                      </div>
+                    )}
 
-            return (
-              <div key={section.page.id} className={styles.gallerySection}>
-                <div className={styles.gallerySectionHeader}>
-                  <span className={styles.gallerySectionIcon}>
-                    <BlockIcon icon={section.page.icon} />
-                  </span>
-                  <span className={styles.gallerySectionTitle}>
-                    {section.page.title || 'Untitled page'}
-                  </span>
-                </div>
+                    {section.error != null && (
+                      <p className={styles.gallerySectionError}>
+                        {section.error.isPermission
+                          ? 'Not shared with 2anki. Share this page from Notion.'
+                          : "Couldn't load images."}
+                      </p>
+                    )}
 
-                {section.loading && (
+                    {visible.length > 0 && (
+                      <div className={styles.galleryGrid}>
+                        {visible.map((item) => {
+                          const isSelected = selected.has(item.blockId);
+                          const atLimit = !isPaying && !isSelected && selected.size >= freeSlotsLeft;
+                          return (
+                            <button
+                              key={item.blockId}
+                              type="button"
+                              className={`${styles.galleryTile} ${isSelected ? styles.galleryTileSelected : ''}`}
+                              onClick={() => !atLimit && toggleImage(item.blockId)}
+                              disabled={atLimit && !isSelected}
+                              aria-pressed={isSelected}
+                              title={item.caption || undefined}
+                            >
+                              <img
+                                src={item.imageUrl}
+                                alt={item.caption || 'Notion image'}
+                                className={styles.galleryTileImg}
+                              />
+                              {isSelected && <span className={styles.galleryCheckBadge}>✓</span>}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {!section.showAll && hiddenCount > 0 && (
+                      <button
+                        type="button"
+                        className={styles.galleryShowMore}
+                        onClick={() =>
+                          setSections((prev) =>
+                            prev.map((s) => (s.id === section.id ? { ...s, showAll: true } : s))
+                          )
+                        }
+                      >
+                        Show {hiddenCount} more {hiddenCount === 1 ? 'image' : 'images'}
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+
+              {stillLoading && (
+                <div className={styles.gallerySection} aria-label="Loading more pages">
+                  <div className={styles.gallerySectionHeaderSkeleton} aria-hidden="true" />
                   <div className={styles.galleryGrid}>
                     {Array.from({ length: PREVIEW_COUNT }).map((_, i) => (
                       // eslint-disable-next-line react/no-array-index-key
                       <div key={i} className={styles.gallerySkeletonTile} aria-hidden="true" />
                     ))}
                   </div>
-                )}
-
-                {section.error != null && (
-                  <p className={styles.gallerySectionError}>
-                    {section.error.isPermission
-                      ? 'Not shared with 2anki. Share this page from Notion.'
-                      : "Couldn't load images."}
-                  </p>
-                )}
-
-                {visible.length > 0 && (
-                  <div className={styles.galleryGrid}>
-                    {visible.map((item) => {
-                      const isSelected = selected.has(item.blockId);
-                      const atLimit = !isPaying && !isSelected && selected.size >= freeSlotsLeft;
-                      return (
-                        <button
-                          key={item.blockId}
-                          type="button"
-                          className={`${styles.galleryTile} ${isSelected ? styles.galleryTileSelected : ''}`}
-                          onClick={() => !atLimit && toggleImage(item.blockId)}
-                          disabled={atLimit && !isSelected}
-                          aria-pressed={isSelected}
-                          title={item.caption || undefined}
-                        >
-                          <img
-                            src={item.imageUrl}
-                            alt={item.caption || 'Notion image'}
-                            className={styles.galleryTileImg}
-                          />
-                          {isSelected && <span className={styles.galleryCheckBadge}>✓</span>}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-
-                {!section.showAll && hiddenCount > 0 && (
-                  <button
-                    type="button"
-                    className={styles.galleryShowMore}
-                    onClick={() =>
-                      setSections((prev) =>
-                        prev.map((s) => (s.page.id === section.page.id ? { ...s, showAll: true } : s))
-                      )
-                    }
-                  >
-                    Show {hiddenCount} more {hiddenCount === 1 ? 'image' : 'images'}
-                  </button>
-                )}
-              </div>
-            );
-          })}
-        </div>
+                </div>
+              )}
+            </div>
+          </>
+        )}
       </div>
 
       <div className={styles.drawerFooter}>
