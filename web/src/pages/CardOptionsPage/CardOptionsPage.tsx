@@ -81,7 +81,7 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
       </header>
 
       {pageId == null && (
-        <section className={`${styles.pagesSection} ${styles.pagesCard}`}>
+        <section className={styles.pagesSection}>
           <h2 className={styles.pagesHeading}>
             Saved pages
             {perPageItems.length > 0 && (
