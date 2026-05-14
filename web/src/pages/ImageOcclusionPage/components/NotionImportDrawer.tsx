@@ -62,9 +62,24 @@ function getImageUrl(block: NotionImageBlock): string | null {
   return null;
 }
 
+class NotionPageError extends Error {
+  constructor(
+    message: string,
+    readonly isPermission: boolean
+  ) {
+    super(message);
+  }
+}
+
 async function fetchPageContents(pageId: string, signal: AbortSignal): Promise<PageContents> {
   const res = await fetch(`/api/notion/blocks/${pageId}`, { credentials: 'include', signal });
-  if (!res.ok) throw new Error(`${res.status}`);
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    const isPermission =
+      res.status === 400 &&
+      (body.includes('object_not_found') || body.includes('not_found') || body.includes('shared'));
+    throw new NotionPageError(body || String(res.status), isPermission);
+  }
   const data = (await res.json()) as { results?: NotionBlock[] } | NotionBlock[];
   const blocks = Array.isArray(data) ? data : (data.results ?? []);
 
@@ -102,7 +117,7 @@ export function NotionImportDrawer({
   const [search, setSearch] = useState('');
   const [contents, setContents] = useState<PageContents | null>(null);
   const [contentsLoading, setContentsLoading] = useState(false);
-  const [contentsError, setContentsError] = useState<string | null>(null);
+  const [contentsError, setContentsError] = useState<{ message: string; isPermission: boolean } | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [importing, setImporting] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
@@ -159,7 +174,8 @@ export function NotionImportDrawer({
       })
       .catch((err: Error) => {
         if (controller.signal.aborted) return;
-        setContentsError(err.message);
+        const isPermission = err instanceof NotionPageError && err.isPermission;
+        setContentsError({ message: err.message, isPermission });
         setContentsLoading(false);
       });
   };
@@ -184,7 +200,8 @@ export function NotionImportDrawer({
         })
         .catch((err: Error) => {
           if (controller.signal.aborted) return;
-          setContentsError(err.message);
+          const isPermission = err instanceof NotionPageError && err.isPermission;
+          setContentsError({ message: err.message, isPermission });
           setContentsLoading(false);
         });
       return { kind: 'page', stack };
@@ -345,14 +362,30 @@ export function NotionImportDrawer({
 
             {contentsError != null && (
               <div className={styles.drawerEmpty}>
-                <p>Couldn't reach Notion. Try again in a moment.</p>
-                <button
-                  type="button"
-                  className={styles.drawerRetryBtn}
-                  onClick={() => currentPage != null && navigateTo(currentPage)}
-                >
-                  Try again
-                </button>
+                {contentsError.isPermission ? (
+                  <>
+                    <p>This page isn't shared with 2anki.</p>
+                    <p>Open Notion, find the page, and share it with the 2anki integration.</p>
+                    <button
+                      type="button"
+                      className={styles.drawerRetryBtn}
+                      onClick={navigateBack}
+                    >
+                      ← Back to pages
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <p>Couldn't reach Notion. Try again in a moment.</p>
+                    <button
+                      type="button"
+                      className={styles.drawerRetryBtn}
+                      onClick={() => currentPage != null && navigateTo(currentPage)}
+                    >
+                      Try again
+                    </button>
+                  </>
+                )}
               </div>
             )}
 
