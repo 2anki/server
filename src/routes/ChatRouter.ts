@@ -1,4 +1,5 @@
 import express from 'express';
+import multer from 'multer';
 import ChatController from '../controllers/ChatController';
 import ChatDeckController from '../controllers/ChatDeckController';
 import ConversationsController from '../controllers/ConversationsController';
@@ -10,6 +11,11 @@ import { ConversationsRepository } from '../data_layer/ConversationsRepository';
 import { getDatabase } from '../data_layer';
 import { getAnthropicClient } from '../lib/claude/ClaudeService';
 import RequireAuthentication from './middleware/RequireAuthentication';
+
+const chatUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024, files: 5 },
+});
 
 const ChatRouter = () => {
   const router = express.Router();
@@ -65,8 +71,11 @@ const ChatRouter = () => {
    *       429:
    *         description: Monthly message limit reached
    */
-  router.post('/api/chat/message', RequireAuthentication, (req, res) =>
-    controller.sendMessage(req, res)
+  router.post(
+    '/api/chat/message',
+    RequireAuthentication,
+    chatUpload.array('files', 5),
+    (req, res) => controller.sendMessage(req, res)
   );
 
   /**

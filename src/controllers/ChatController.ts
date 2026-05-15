@@ -1,12 +1,25 @@
 import { Request, Response } from 'express';
+import { fromBuffer as fileTypeFromBuffer } from 'file-type';
 import {
   ChatUseCase,
   ChatRateLimitError,
   ChatConversationNotFoundError,
 } from '../usecases/chat/ChatUseCase';
+import type { ChatAttachment } from '../usecases/chat/buildAttachmentBlocks';
+import { getSafeFilename } from '../lib/getSafeFilename';
 
 const MAX_CONTENT_LENGTH = 4000;
 const MAX_CONTENT_LENGTH_PREMIUM = 100_000;
+const MAX_FILE_COUNT = 5;
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
+const MAX_TOTAL_SIZE = 25 * 1024 * 1024;
+const ALLOWED_MIMES = new Set([
+  'application/pdf',
+  'image/png',
+  'image/jpeg',
+  'image/gif',
+  'image/webp',
+]);
 
 function sseWrite(res: Response, event: string, data: unknown): void {
   res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
@@ -45,6 +58,54 @@ class ChatController {
       return;
     }
 
+    const rawFiles = Array.isArray(req.files) ? (req.files as Express.Multer.File[]) : [];
+
+    if (rawFiles.length > MAX_FILE_COUNT) {
+      res.status(400).json({ error: `Too many files. Maximum is ${MAX_FILE_COUNT} per message.` });
+      return;
+    }
+
+    for (const file of rawFiles) {
+      if (file.size > MAX_FILE_SIZE) {
+        const safeName = getSafeFilename(file.originalname);
+        const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+        res.status(400).json({
+          error: `${safeName} is ${sizeMB} MB. The per-file limit is 10 MB.`,
+        });
+        return;
+      }
+
+      if (!ALLOWED_MIMES.has(file.mimetype)) {
+        const safeName = getSafeFilename(file.originalname);
+        res.status(400).json({
+          error: `Can't attach ${safeName}. Only PDF and image files work here.`,
+        });
+        return;
+      }
+    }
+
+    const totalSize = rawFiles.reduce((sum, f) => sum + f.size, 0);
+    if (totalSize > MAX_TOTAL_SIZE) {
+      const totalMB = (totalSize / (1024 * 1024)).toFixed(1);
+      res.status(400).json({
+        error: `That's ${totalMB} MB total. A message can carry up to 25 MB across all files.`,
+      });
+      return;
+    }
+
+    const attachments: ChatAttachment[] = [];
+    for (const file of rawFiles) {
+      const detected = await fileTypeFromBuffer(file.buffer);
+      if (detected == null || detected.mime !== file.mimetype) {
+        const safeName = getSafeFilename(file.originalname);
+        res.status(400).json({
+          error: `Can't attach ${safeName}. Only PDF and image files work here.`,
+        });
+        return;
+      }
+      attachments.push({ mimeType: file.mimetype, data: file.buffer });
+    }
+
     const conversationId = parseConversationId(req.body?.conversationId);
 
     const rawHistory = Array.isArray(req.body?.history) ? req.body.history : [];
@@ -70,6 +131,7 @@ class ChatController {
         content,
         conversationHistory,
         conversationId,
+        attachments,
         onToken: (text) => sseWrite(res, 'token', text),
       });
 

@@ -24,8 +24,26 @@ function buildMocks(owner = 42, patreon = false, subscriber = false) {
   return { execute, controller, res };
 }
 
-function buildReq(body: unknown): Request {
-  return { body } as unknown as Request;
+function buildReq(body: unknown, files?: Express.Multer.File[]): Request {
+  return { body, files: files ?? [] } as unknown as Request;
+}
+
+function makeFile(
+  overrides: Partial<Express.Multer.File> = {}
+): Express.Multer.File {
+  return {
+    fieldname: 'files',
+    originalname: 'test.pdf',
+    encoding: '7bit',
+    mimetype: 'application/pdf',
+    size: 1024,
+    buffer: Buffer.alloc(4, 0x25),
+    stream: null as never,
+    destination: '',
+    filename: '',
+    path: '',
+    ...overrides,
+  };
 }
 
 function writtenEvents(res: Response): Array<{ event: string; data: unknown }> {
@@ -155,5 +173,86 @@ describe('ChatController.sendMessage', () => {
       event: 'error',
       data: { type: 'conversation_not_found' },
     });
+  });
+});
+
+jest.mock('file-type', () => ({
+  fromBuffer: jest.fn(),
+}));
+
+import { fromBuffer as fileTypeFromBuffer } from 'file-type';
+const mockFileTypeFromBuffer = fileTypeFromBuffer as jest.MockedFunction<typeof fileTypeFromBuffer>;
+
+describe('ChatController.sendMessage — file attachments', () => {
+  beforeEach(() => {
+    mockFileTypeFromBuffer.mockReset();
+    mockFileTypeFromBuffer.mockResolvedValue({ ext: 'pdf', mime: 'application/pdf' });
+  });
+
+  it('returns 400 when more than 5 files are attached', async () => {
+    const { controller, res } = buildMocks();
+    const files = Array.from({ length: 6 }, () => makeFile());
+    await controller.sendMessage(buildReq({ content: 'Hi' }, files), res);
+    expect(res.status).toHaveBeenCalledWith(400);
+  });
+
+  it('returns 400 when a file exceeds 10 MB', async () => {
+    const { controller, res } = buildMocks();
+    const bigFile = makeFile({ size: 11 * 1024 * 1024 });
+    await controller.sendMessage(buildReq({ content: 'Hi' }, [bigFile]), res);
+    expect(res.status).toHaveBeenCalledWith(400);
+  });
+
+  it('returns 400 when total file size exceeds 25 MB', async () => {
+    const { controller, res } = buildMocks();
+    const files = Array.from({ length: 3 }, () =>
+      makeFile({ size: 9 * 1024 * 1024, buffer: Buffer.alloc(9 * 1024 * 1024) })
+    );
+    await controller.sendMessage(buildReq({ content: 'Hi' }, files), res);
+    expect(res.status).toHaveBeenCalledWith(400);
+  });
+
+  it('returns 400 when MIME type is not allowlisted', async () => {
+    const { controller, res } = buildMocks();
+    const file = makeFile({ mimetype: 'application/msword', originalname: 'doc.doc' });
+    await controller.sendMessage(buildReq({ content: 'Hi' }, [file]), res);
+    expect(res.status).toHaveBeenCalledWith(400);
+  });
+
+  it('returns 400 when magic bytes do not match declared MIME', async () => {
+    const { controller, res } = buildMocks();
+    const file = makeFile({ mimetype: 'image/png', originalname: 'fake.png' });
+    mockFileTypeFromBuffer.mockResolvedValueOnce({ ext: 'pdf', mime: 'application/pdf' });
+    await controller.sendMessage(buildReq({ content: 'Hi' }, [file]), res);
+    expect(res.status).toHaveBeenCalledWith(400);
+  });
+
+  it('passes validated attachments to the use case on happy path', async () => {
+    const { execute, controller, res } = buildMocks();
+    execute.mockResolvedValueOnce({ content: 'ok', conversationId: 1 });
+    mockFileTypeFromBuffer.mockResolvedValue({ ext: 'png', mime: 'image/png' });
+
+    const file = makeFile({
+      mimetype: 'image/png',
+      originalname: 'diagram.png',
+      buffer: Buffer.from([0x89, 0x50, 0x4e, 0x47]),
+    });
+    await controller.sendMessage(buildReq({ content: 'Hi' }, [file]), res);
+    expect(execute).toHaveBeenCalledWith(
+      expect.objectContaining({
+        attachments: expect.arrayContaining([
+          expect.objectContaining({ mimeType: 'image/png' }),
+        ]),
+      })
+    );
+  });
+
+  it('allows send with no files attached (backward-compatible)', async () => {
+    const { execute, controller, res } = buildMocks();
+    execute.mockResolvedValueOnce({ content: 'ok', conversationId: 1 });
+    await controller.sendMessage(buildReq({ content: 'Plain text message' }), res);
+    expect(execute).toHaveBeenCalledWith(
+      expect.objectContaining({ attachments: [] })
+    );
   });
 });
