@@ -43,6 +43,10 @@ class SettingsRepository {
       .where({ object_id })
       .update({ title });
   }
+
+  deleteAllByOwner(owner: string): Promise<number> {
+    return this.database(this.table).where({ owner }).del();
+  }
 }
 
 export default SettingsRepository;

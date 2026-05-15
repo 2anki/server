@@ -40,6 +40,10 @@ class ParserRulesRepository {
       .where({ object_id: objectId, owner })
       .del();
   }
+
+  deleteAllByOwner(owner: string): Promise<number> {
+    return this.database(this.tableName).where({ owner }).del();
+  }
 }
 
 export default ParserRulesRepository;
