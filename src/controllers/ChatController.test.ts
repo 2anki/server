@@ -248,3 +248,71 @@ describe('ChatController.sendMessage — file attachments', () => {
     );
   });
 });
+
+describe('ChatController.sendMessage — multipart history parsing', () => {
+  it('parses history when serialized as a JSON string by multer (multipart/form-data)', async () => {
+    const { execute, controller, res } = buildMocks();
+    execute.mockResolvedValueOnce({ content: 'ok', conversationId: 1 });
+
+    const history = [
+      { role: 'user', content: 'previous question' },
+      { role: 'assistant', content: 'previous answer' },
+    ];
+
+    const file = makeFile({
+      mimetype: 'image/png',
+      originalname: 'diagram.png',
+      buffer: Buffer.concat([PNG_MAGIC, Buffer.alloc(20)]),
+    });
+
+    await controller.sendMessage(
+      buildReq(
+        { content: 'follow-up question', history: JSON.stringify(history) },
+        [file]
+      ),
+      res
+    );
+
+    expect(execute).toHaveBeenCalledWith(
+      expect.objectContaining({
+        conversationHistory: [
+          { role: 'user', content: 'previous question' },
+          { role: 'assistant', content: 'previous answer' },
+        ],
+      })
+    );
+  });
+
+  it('returns an empty history when the multipart string is not valid JSON', async () => {
+    const { execute, controller, res } = buildMocks();
+    execute.mockResolvedValueOnce({ content: 'ok', conversationId: 1 });
+
+    await controller.sendMessage(
+      buildReq({ content: 'Hi', history: 'not-json[' }),
+      res
+    );
+
+    expect(execute).toHaveBeenCalledWith(
+      expect.objectContaining({ conversationHistory: [] })
+    );
+  });
+
+  it('still accepts history as a real array (JSON request body)', async () => {
+    const { execute, controller, res } = buildMocks();
+    execute.mockResolvedValueOnce({ content: 'ok', conversationId: 1 });
+
+    await controller.sendMessage(
+      buildReq({
+        content: 'Hi',
+        history: [{ role: 'user', content: 'prior' }],
+      }),
+      res
+    );
+
+    expect(execute).toHaveBeenCalledWith(
+      expect.objectContaining({
+        conversationHistory: [{ role: 'user', content: 'prior' }],
+      })
+    );
+  });
+});
