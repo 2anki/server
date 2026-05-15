@@ -25,6 +25,7 @@ function buildBuilder(
 ) {
   const built = { setVisible: vi.fn() };
   const builder: Record<string, unknown> = {};
+  builder.setAppId = vi.fn().mockReturnValue(builder);
   builder.setOAuthToken = vi.fn().mockReturnValue(builder);
   builder.setDeveloperKey = vi.fn().mockReturnValue(builder);
   builder.addView = vi.fn().mockReturnValue(builder);
@@ -152,6 +153,17 @@ describe('useGooglePicker', () => {
       await expect(result.current.openPicker()).rejects.toThrow(
         /access_denied/
       );
+    });
+
+    it('calls setAppId with the project number derived from the client id', async () => {
+      process.env.REACT_APP_GOOGLE_CLIENT_ID =
+        '806855830059-abc123def.apps.googleusercontent.com';
+      const { builder } = stubGoogle((cb) => {
+        queueMicrotask(() => cb({ action: 'cancel' }));
+      });
+      const { result } = renderHook(() => useGooglePicker());
+      await result.current.openPicker();
+      expect(builder.setAppId).toHaveBeenCalledWith('806855830059');
     });
   });
 });

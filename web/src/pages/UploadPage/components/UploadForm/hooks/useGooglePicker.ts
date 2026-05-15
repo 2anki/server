@@ -47,7 +47,7 @@ interface PickerBuilder {
   setDeveloperKey: (key: string) => PickerBuilder;
   setCallback: (cb: (data: PickerCallbackData) => void) => PickerBuilder;
   addView: (view: unknown) => PickerBuilder;
-  setAppId?: (id: string) => PickerBuilder;
+  setAppId: (id: string) => PickerBuilder;
   build: () => { setVisible: (visible: boolean) => void };
 }
 
@@ -204,6 +204,8 @@ export function useGooglePicker() {
     }
     inFlightRef.current = true;
 
+    const projectNumber = id.split('-')[0];
+
     return Promise.all([loadPicker(), loadIdentityServices()])
       .then(
         ([picker, oauth2]) =>
@@ -223,6 +225,7 @@ export function useGooglePicker() {
                 const view = new picker.DocsView();
                 view.setIncludeFolders(false);
                 const built = new picker.PickerBuilder()
+                  .setAppId(projectNumber)
                   .setOAuthToken(resp.access_token)
                   .setDeveloperKey(key)
                   .addView(view)
