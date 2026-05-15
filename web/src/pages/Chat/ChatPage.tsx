@@ -257,10 +257,10 @@ export default function ChatPage() {
 
     setChips((prev) => [
       ...prev,
-      ...toAdd.map((f) => ({
+      ...toAdd.map<AttachmentChip>((f) => ({
         id: crypto.randomUUID(),
         file: f,
-        state: 'idle' as ChipState,
+        state: 'idle',
         retryCount: 0,
       })),
     ]);
@@ -268,6 +268,14 @@ export default function ChatPage() {
 
   function removeChip(id: string) {
     setChips((prev) => prev.filter((c) => c.id !== id));
+  }
+
+  function retryChip(id: string) {
+    setChips((prev) =>
+      prev.map((c) =>
+        c.id === id ? { ...c, state: 'idle', retryCount: c.retryCount + 1 } : c
+      )
+    );
   }
 
   function upsertConversation(id: number, title: string): void {
@@ -669,6 +677,8 @@ export default function ChatPage() {
             </div>
           )}
           <div
+            role="region"
+            aria-label="Chat composer with file drop zone"
             className={`${styles.composerCard} ${isDragging ? styles.composerCardDragging : ''}`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
@@ -709,9 +719,7 @@ export default function ChatPage() {
                         <button
                           type="button"
                           className={styles.chipRetry}
-                          onClick={() => setChips((prev) =>
-                            prev.map((c) => c.id === chip.id ? { ...c, state: 'idle', retryCount: c.retryCount + 1 } : c)
-                          )}
+                          onClick={() => retryChip(chip.id)}
                         >
                           Retry
                         </button>
