@@ -263,6 +263,19 @@ export class Backend {
     }
   }
 
+  async getGoogleDriveUploads(offset = 0): Promise<GoogleDriveUpload[]> {
+    return get(`${this.baseURL}upload/google_drive/mine?offset=${offset}`);
+  }
+
+  async deleteGoogleDriveUpload(id: string): Promise<void> {
+    const response = await del(
+      `${this.baseURL}upload/google_drive/mine/${encodeURIComponent(id)}`
+    );
+    if (!response?.ok) {
+      throw new Error('Failed to delete Google Drive upload');
+    }
+  }
+
   async getJobs(): Promise<JobResponse[]> {
     return get(`${this.baseURL}upload/jobs`);
   }
@@ -811,6 +824,16 @@ export interface DropboxUpload {
   bytes: number;
   name: string;
   created_at: string | null;
+}
+
+export interface GoogleDriveUpload {
+  id: string;
+  iconUrl: string;
+  mimeType: string;
+  name: string;
+  sizeBytes: string | null;
+  url: string;
+  last_converted_at: string | null;
 }
 
 export interface ContactMessage {
