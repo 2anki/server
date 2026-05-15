@@ -10,6 +10,7 @@ import { getDownloadFileName } from '../../../DownloadsPage/helpers/getDownloadF
 import { useDrag } from './hooks/useDrag';
 import { useFileValidation } from './hooks/useFileValidation';
 import { useDropboxChooser, type DropboxFile } from './hooks/useDropboxChooser';
+import { UploadSourceTabs, type UploadSource } from './UploadSourceTabs';
 import { FeedbackWidget } from '../../../../components/FeedbackWidget/FeedbackWidget';
 import { useUserLocals } from '../../../../lib/hooks/useUserLocals';
 import { get2ankiApi } from '../../../../lib/backend/get2ankiApi';
@@ -166,6 +167,7 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
   const [dropboxFilename, setDropboxFilename] = useState<string | null>(null);
   const [dropboxPending, setDropboxPending] = useState(false);
   const [dropboxError, setDropboxError] = useState<string | null>(null);
+  const [source, setSource] = useState<UploadSource>('local');
   const { data: userLocals } = useUserLocals();
   const queryClient = useQueryClient();
   const showTrialButton =
@@ -209,6 +211,7 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
     setShowFallback(false);
     setDropboxFilename(null);
     setDropboxError(null);
+    setSource('local');
     resetValidation();
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -642,9 +645,28 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
     return renderIdleState();
   };
 
+  const showTabs = isDropboxConfigured && zoneState === 'idle' && !validation;
+  const showDropboxPanel = showTabs && source === 'dropbox';
+  const showLocalPanel = !showTabs || source === 'local';
+
   return (
     <form encType="multipart/form-data" method="post" onSubmit={handleSubmit}>
-      <label htmlFor="pakker" className={zoneClassName}>
+      {showTabs && (
+        <div className={formStyles.tabsRow}>
+          <UploadSourceTabs
+            active={source}
+            onChange={setSource}
+            dropboxAvailable={isDropboxConfigured}
+          />
+        </div>
+      )}
+      <label
+        htmlFor="pakker"
+        id="upload-panel-local"
+        role={showTabs ? 'tabpanel' : undefined}
+        className={`${zoneClassName} ${showLocalPanel ? '' : formStyles.panelHidden}`}
+        aria-hidden={!showLocalPanel}
+      >
         {renderZoneContent()}
         <input
           ref={fileInputRef}
@@ -663,19 +685,35 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
           }}
         />
       </label>
-      {isDropboxConfigured && zoneState === 'idle' && !validation && (
-        <div className={formStyles.dropboxRow}>
-          <span>or</span>
-          <button
-            type="button"
-            className={formStyles.dropboxButton}
-            onClick={handleDropboxClick}
-            disabled={dropboxPending}
-            aria-label="Choose from Dropbox"
-          >
-            <DropboxIcon className={formStyles.dropboxIcon} />
-            {dropboxPending ? 'Loading…' : 'Choose from Dropbox'}
-          </button>
+      {showTabs && (
+        <div
+          id="upload-panel-dropbox"
+          role="tabpanel"
+          className={`${zoneClassName} ${showDropboxPanel ? '' : formStyles.panelHidden}`}
+          aria-hidden={!showDropboxPanel}
+        >
+          <div className={formStyles.stateContent}>
+            <DropboxIcon className={formStyles.dropboxIconLarge} />
+            <span className={formStyles.dropText}>
+              Pick a file from your Dropbox to convert it into a deck
+            </span>
+            <button
+              type="button"
+              className={formStyles.chooseButton}
+              onClick={handleDropboxClick}
+              disabled={dropboxPending}
+              aria-label="Choose from Dropbox"
+            >
+              {dropboxPending ? 'Opening Dropbox' : 'Choose from Dropbox'}
+            </button>
+            <div className={formStyles.formatList}>
+              {FORMATS.map((fmt) => (
+                <span key={fmt} className={formStyles.formatPill}>
+                  {fmt}
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
       )}
       {dropboxError && (

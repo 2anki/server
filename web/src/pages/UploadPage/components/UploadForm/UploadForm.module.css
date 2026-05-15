@@ -551,3 +551,18 @@
   font-size: var(--text-sm);
   color: var(--color-error, #b00020);
 }
+
+.dropboxIconLarge {
+  width: 48px;
+  height: 48px;
+  color: #0061fe;
+}
+
+.tabsRow {
+  display: flex;
+  justify-content: center;
+}
+
+.panelHidden {
+  display: none !important;
+}

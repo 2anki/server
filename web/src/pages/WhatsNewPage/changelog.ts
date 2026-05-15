@@ -5,6 +5,7 @@ export interface ChangelogEntry {
 }
 
 export const changelog: ChangelogEntry[] = [
+  { type: 'style', title: 'Upload form has tabs — Your computer and Dropbox sit side by side at the top of the page', date: '2026-05-15' },
   { type: 'feature', title: 'Upload form: pick a file from Dropbox in one click', date: '2026-05-15' },
   { type: 'feature', title: 'From Dropbox section on Downloads shows the files you\'ve picked from Dropbox', date: '2026-05-15' },
   { type: 'feature', title: 'PDF export — pick paper size (A4, Letter, Legal), orientation, margins, and page color', date: '2026-05-15' },

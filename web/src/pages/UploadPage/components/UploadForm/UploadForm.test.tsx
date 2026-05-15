@@ -149,6 +149,54 @@ describe('UploadForm analytics events', () => {
     process.env.REACT_APP_DROPBOX_APP_KEY = previousKey;
   });
 
+  it('shows the local panel and hides the Dropbox panel by default', () => {
+    const previousKey = process.env.REACT_APP_DROPBOX_APP_KEY;
+    process.env.REACT_APP_DROPBOX_APP_KEY = 'test-key';
+    const { container } = renderUploadForm(<UploadForm setErrorMessage={vi.fn()} />);
+    const localPanel = container.querySelector('#upload-panel-local')!;
+    const dropboxPanel = container.querySelector('#upload-panel-dropbox')!;
+    expect(localPanel.getAttribute('aria-hidden')).toBe('false');
+    expect(dropboxPanel.getAttribute('aria-hidden')).toBe('true');
+    process.env.REACT_APP_DROPBOX_APP_KEY = previousKey;
+  });
+
+  it('reveals the Dropbox panel and hides the local panel when its tab is clicked', async () => {
+    const previousKey = process.env.REACT_APP_DROPBOX_APP_KEY;
+    process.env.REACT_APP_DROPBOX_APP_KEY = 'test-key';
+    const { container } = renderUploadForm(<UploadForm setErrorMessage={vi.fn()} />);
+    const dropboxTab = Array.from(
+      container.querySelectorAll('button[role="tab"]')
+    ).find((b) => b.textContent === 'Dropbox') as HTMLButtonElement;
+    expect(dropboxTab).toBeTruthy();
+    await act(async () => {
+      dropboxTab.click();
+    });
+    const localPanel = container.querySelector('#upload-panel-local')!;
+    const dropboxPanel = container.querySelector('#upload-panel-dropbox')!;
+    expect(localPanel.getAttribute('aria-hidden')).toBe('true');
+    expect(dropboxPanel.getAttribute('aria-hidden')).toBe('false');
+    process.env.REACT_APP_DROPBOX_APP_KEY = previousKey;
+  });
+
+  it('keeps the same file input mounted across a tab switch round-trip', async () => {
+    const previousKey = process.env.REACT_APP_DROPBOX_APP_KEY;
+    process.env.REACT_APP_DROPBOX_APP_KEY = 'test-key';
+    const { container } = renderUploadForm(<UploadForm setErrorMessage={vi.fn()} />);
+    const before = container.querySelector('input#pakker');
+    const tabs = Array.from(container.querySelectorAll('button[role="tab"]'));
+    const dropboxTab = tabs.find((b) => b.textContent === 'Dropbox') as HTMLButtonElement;
+    const localTab = tabs.find((b) => b.textContent === 'Your computer') as HTMLButtonElement;
+    await act(async () => {
+      dropboxTab.click();
+    });
+    await act(async () => {
+      localTab.click();
+    });
+    const after = container.querySelector('input#pakker');
+    expect(after).toBe(before);
+    process.env.REACT_APP_DROPBOX_APP_KEY = previousKey;
+  });
+
   it('does not fire conversion_success when the deck is empty', async () => {
     const gtag = (globalThis as AnalyticsGlobals).gtag!;
 
