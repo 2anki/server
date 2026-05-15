@@ -9,6 +9,7 @@ import getHeadersFilename from '../../helpers/getHeadersFilename';
 import { getDownloadFileName } from '../../../DownloadsPage/helpers/getDownloadFileName';
 import { useDrag } from './hooks/useDrag';
 import { useFileValidation } from './hooks/useFileValidation';
+import { useDropboxChooser, type DropboxFile } from './hooks/useDropboxChooser';
 import { FeedbackWidget } from '../../../../components/FeedbackWidget/FeedbackWidget';
 import { useUserLocals } from '../../../../lib/hooks/useUserLocals';
 import { get2ankiApi } from '../../../../lib/backend/get2ankiApi';
@@ -118,6 +119,19 @@ function CheckCircleIcon({ className }: Readonly<{ className?: string }>) {
   );
 }
 
+function DropboxIcon({ className }: Readonly<{ className?: string }>) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 32 32"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path d="M8 4l8 5-8 5-8-5 8-5zm16 0l8 5-8 5-8-5 8-5zM0 19l8-5 8 5-8 5-8-5zm24-5l8 5-8 5-8-5 8-5zM8 26l8-5 8 5-8 5-8-5z" />
+    </svg>
+  );
+}
+
 function WarningIcon({ className }: Readonly<{ className?: string }>) {
   return (
     <svg
@@ -149,6 +163,9 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
   const [progressSlow, setProgressSlow] = useState(false);
   const [showFallback, setShowFallback] = useState(false);
   const [trialPending, setTrialPending] = useState(false);
+  const [dropboxFilename, setDropboxFilename] = useState<string | null>(null);
+  const [dropboxPending, setDropboxPending] = useState(false);
+  const [dropboxError, setDropboxError] = useState<string | null>(null);
   const { data: userLocals } = useUserLocals();
   const queryClient = useQueryClient();
   const showTrialButton =
@@ -160,6 +177,7 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
   const downloadRef = useRef<HTMLAnchorElement>(null);
   const fallbackTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
   const { validation, validate, reset: resetValidation } = useFileValidation();
+  const { openChooser, isConfigured: isDropboxConfigured } = useDropboxChooser(FORMATS);
 
   const handleStartTrial = async () => {
     setTrialPending(true);
@@ -189,6 +207,8 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
     setProgressWidth(10);
     setProgressSlow(false);
     setShowFallback(false);
+    setDropboxFilename(null);
+    setDropboxError(null);
     resetValidation();
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -237,6 +257,84 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
     }, 2000);
     return () => clearTimeout(timer);
   }, [zoneState]);
+
+  const handleDropboxFiles = async (files: DropboxFile[]) => {
+    const first = files[0];
+    setDropboxFilename(first?.name ?? null);
+    setDropboxError(null);
+    setZoneState('converting');
+    fireAnalyticsEvent('upload_started');
+    setProgressWidth(10);
+    setProgressSlow(false);
+    setShowFallback(false);
+    try {
+      const formData = new FormData();
+      formData.append('files', JSON.stringify(files));
+      for (const [key, value] of Object.entries(globalThis.localStorage)) {
+        formData.append(key, value);
+      }
+      const request = await globalThis.fetch('/api/upload/dropbox', {
+        method: 'post',
+        body: formData,
+      });
+      if (request.redirected) {
+        const redirectUrl = new URL(request.url, globalThis.location.origin);
+        if (redirectUrl.searchParams.get('error') === 'upload_limit_exceeded') {
+          const isAnonymous = redirectUrl.pathname === '/login';
+          setLimitInfo({ isAnonymous, filename: first?.name ?? null });
+          setZoneState('limitReached');
+          return;
+        }
+        handleRedirect(request);
+        return;
+      }
+      if (request.status === 202) {
+        globalThis.location.href = '/downloads';
+        return;
+      }
+      if (request.status !== 200) {
+        const message = await extractErrorMessage(request);
+        setLocalError(message);
+        setZoneState('error');
+        return;
+      }
+      setWarningMessage(request.headers.get('X-Warning'));
+      setDeckName(resolveDeckName(request.headers));
+      const count = parseCardCountHeader(request.headers);
+      setCardCount(count);
+      const blob = await request.blob();
+      setDownloadLink(globalThis.URL.createObjectURL(blob));
+      setProgressWidth(100);
+      if (count === 0) {
+        setZoneState('emptyDeck');
+      } else {
+        fireAnalyticsEvent('conversion_success');
+        setZoneState('success');
+      }
+    } catch (error) {
+      setLocalError(toFriendlyThrownError(error));
+      setZoneState('error');
+    }
+  };
+
+  const handleDropboxClick = async () => {
+    setDropboxError(null);
+    setDropboxPending(true);
+    try {
+      const outcome = await openChooser();
+      if (outcome.kind === 'cancelled') return;
+      if (outcome.files.length === 0) return;
+      await handleDropboxFiles(outcome.files);
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Couldn't open Dropbox. Try again in a moment.";
+      setDropboxError(message);
+    } finally {
+      setDropboxPending(false);
+    }
+  };
 
   const handleSubmit = async (event: SyntheticEvent) => {
     event.preventDefault();
@@ -350,7 +448,7 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
   const renderConvertingState = () => (
     <div className={formStyles.stateContent}>
       <p className={formStyles.filename}>
-        {displayFilename(fileInputRef.current)}
+        {dropboxFilename ?? displayFilename(fileInputRef.current)}
       </p>
       <div className={formStyles.progressTrack}>
         <div
@@ -358,7 +456,9 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
           style={{ width: `${progressWidth}%` }}
         />
       </div>
-      <p className={formStyles.statusText}>Making your deck...</p>
+      <p className={formStyles.statusText}>
+        {dropboxFilename ? `Fetching ${dropboxFilename} from Dropbox` : 'Making your deck...'}
+      </p>
     </div>
   );
 
@@ -563,6 +663,26 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
           }}
         />
       </label>
+      {isDropboxConfigured && zoneState === 'idle' && !validation && (
+        <div className={formStyles.dropboxRow}>
+          <span>or</span>
+          <button
+            type="button"
+            className={formStyles.dropboxButton}
+            onClick={handleDropboxClick}
+            disabled={dropboxPending}
+            aria-label="Choose from Dropbox"
+          >
+            <DropboxIcon className={formStyles.dropboxIcon} />
+            {dropboxPending ? 'Loading…' : 'Choose from Dropbox'}
+          </button>
+        </div>
+      )}
+      {dropboxError && (
+        <p className={formStyles.dropboxError} role="alert">
+          {dropboxError}
+        </p>
+      )}
       {downloadLink && (
         <a
           hidden
