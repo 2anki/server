@@ -222,38 +222,37 @@ class UsersController {
     }
   }
 
+  private async resolveSignupCountry(
+    user: UserWithOwner | null,
+    req: express.Request
+  ): Promise<string | null> {
+    if (user?.id == null) return null;
+    const repo = new UsersRepository(this.db);
+    try {
+      const existing = await repo.getSignupCountry(user.id);
+      if (existing != null) return existing;
+    } catch {
+      return null;
+    }
+    const fromHeader = extractCountryFromRequest(req);
+    if (fromHeader == null) return null;
+    try {
+      await repo.setSignupCountryIfMissing(user.id, fromHeader);
+    } catch {
+      // best-effort write; ignore so getLocals stays robust in tests
+    }
+    return fromHeader;
+  }
+
   async getLocals(req: express.Request, res: express.Response) {
     const { locals } = res;
     const user: UserWithOwner | null = await this.authService.getUserFrom(
       req.cookies.token
     );
-    let linkedEmail: string | null = null;
-    let signupCountry: string | null = null;
-    if (user?.owner) {
-      linkedEmail = await this.userService.getSubscriptionLinkedEmail(
-        user?.owner.toString()
-      );
-      try {
-        signupCountry = await new UsersRepository(this.db).getSignupCountry(
-          user.id
-        );
-      } catch {
-        signupCountry = null;
-      }
-    }
-    if (user != null && signupCountry == null) {
-      signupCountry = extractCountryFromRequest(req);
-      if (signupCountry != null && user.id != null) {
-        try {
-          await new UsersRepository(this.db).setSignupCountryIfMissing(
-            user.id,
-            signupCountry
-          );
-        } catch {
-          // best-effort write; ignore so getLocals stays robust in tests
-        }
-      }
-    }
+    const linkedEmail = user?.owner
+      ? await this.userService.getSubscriptionLinkedEmail(user.owner.toString())
+      : null;
+    const signupCountry = await this.resolveSignupCountry(user, req);
 
     const featureFlags = {
       kiUI: false,

@@ -18,7 +18,7 @@ const formatMs = (value: number | null): string => {
 
 const formatCount = (n: number): string => {
   if (n < 10_000) return String(n);
-  return n.toLocaleString('en', { useGrouping: true }).replace(/,/g, ' ');
+  return n.toLocaleString('en', { useGrouping: true }).replaceAll(',', ' ');
 };
 
 const STATUS_COLORS: Record<string, string> = {

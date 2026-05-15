@@ -77,10 +77,10 @@ export class PerformanceMetricsService {
     )) as { rows: { p50: string | null; p95: string | null; p99: string | null; total: string }[] };
     const row = result.rows[0];
     return {
-      p50_ms: row?.p50 != null ? Math.round(Number(row.p50)) : null,
-      p95_ms: row?.p95 != null ? Math.round(Number(row.p95)) : null,
-      p99_ms: row?.p99 != null ? Math.round(Number(row.p99)) : null,
-      count: row?.total != null ? Number(row.total) : 0,
+      p50_ms: row?.p50 == null ? null : Math.round(Number(row.p50)),
+      p95_ms: row?.p95 == null ? null : Math.round(Number(row.p95)),
+      p99_ms: row?.p99 == null ? null : Math.round(Number(row.p99)),
+      count: row?.total == null ? 0 : Number(row.total),
     };
   }
 
@@ -130,7 +130,7 @@ export class PerformanceMetricsService {
     return result.rows.map((row) => ({
       id: Number(row.id),
       type: row.type,
-      card_count: row.card_count != null ? Number(row.card_count) : null,
+      card_count: row.card_count == null ? null : Number(row.card_count),
       completed_at:
         row.completed_at instanceof Date
           ? row.completed_at.toISOString()
