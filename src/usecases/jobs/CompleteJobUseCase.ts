@@ -26,7 +26,9 @@ export class CompleteJobUseCase {
     const updated = await this.jobRepository.updateJobStatus(
       jobId,
       owner,
-      'done'
+      'done',
+      undefined,
+      cardCount
     );
 
     if (this.usersRepository && cardCount > 0) {

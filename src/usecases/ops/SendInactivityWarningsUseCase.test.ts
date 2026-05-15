@@ -17,6 +17,7 @@ function makeEmailService(
     sendReEngagementEmail: jest.fn(),
     sendInactivityWarningEmail: jest.fn().mockResolvedValue(undefined),
     sendVerificationEmail: jest.fn().mockResolvedValue(undefined),
+    sendAbandonedCheckoutRecoveryEmail: jest.fn().mockResolvedValue(undefined),
     ...overrides,
   };
 }

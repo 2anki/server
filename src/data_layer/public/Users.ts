@@ -47,6 +47,8 @@ export default interface Users {
   cards_used_this_month: number;
 
   cards_month_started_at: Date;
+
+  signup_country: string | null;
 }
 
 /** Represents the initializer for the table public.users */
@@ -102,6 +104,8 @@ export interface UsersInitializer {
 
   /** Default value: CURRENT_TIMESTAMP */
   cards_month_started_at?: Date;
+
+  signup_country?: string | null;
 }
 
 /** Represents the mutator for the table public.users */
@@ -147,4 +151,6 @@ export interface UsersMutator {
   cards_used_this_month?: number;
 
   cards_month_started_at?: Date;
+
+  signup_country?: string | null;
 }

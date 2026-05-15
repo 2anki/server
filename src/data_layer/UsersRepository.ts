@@ -193,6 +193,37 @@ class UsersRepository {
     };
   }
 
+  setSignupCountryIfMissing(id: string | number, country: string) {
+    return this.database(this.table)
+      .where({ id })
+      .whereNull('signup_country')
+      .update({ signup_country: country });
+  }
+
+  getSignupCountry(id: string | number): Promise<string | null> {
+    return this.database(this.table)
+      .where({ id })
+      .select('signup_country')
+      .first()
+      .then((row: { signup_country: string | null } | undefined) =>
+        row?.signup_country ?? null
+      );
+  }
+
+  signupCountryBreakdown(sinceDays: number) {
+    return this.database(this.table)
+      .whereNotNull('signup_country')
+      .where(
+        'created_at',
+        '>=',
+        this.database.raw("NOW() - (? * INTERVAL '1 day')", [sinceDays])
+      )
+      .select('signup_country')
+      .count<{ signup_country: string; count: string }[]>('* as count')
+      .groupBy('signup_country')
+      .orderBy('count', 'desc');
+  }
+
   incrementCardUsage(id: string | number, cardCount: number) {
     if (cardCount <= 0) return Promise.resolve(0);
     return this.database(this.table)

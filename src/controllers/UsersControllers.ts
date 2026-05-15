@@ -20,6 +20,7 @@ import { isPaying } from '../lib/isPaying';
 import type { UsersId } from '../data_layer/public/Users';
 import NotionRepository from '../data_layer/NotionRespository';
 import hashToken from '../lib/misc/hashToken';
+import { extractCountryFromRequest } from '../lib/http/extractCountryFromRequest';
 
 class UsersController {
   constructor(
@@ -175,6 +176,17 @@ class UsersController {
       );
       const newUser = await this.userService.getUserFrom(email);
       if (newUser) {
+        try {
+          const country = extractCountryFromRequest(req);
+          if (country != null) {
+            await new UsersRepository(this.db).setSignupCountryIfMissing(
+              newUser.id,
+              country
+            );
+          }
+        } catch {
+          // country capture is best-effort
+        }
         const token = await this.authService.newJWTToken(newUser.id);
         if (token) {
           await this.authService.persistToken(token, newUser.id.toString());
@@ -216,10 +228,31 @@ class UsersController {
       req.cookies.token
     );
     let linkedEmail: string | null = null;
+    let signupCountry: string | null = null;
     if (user?.owner) {
       linkedEmail = await this.userService.getSubscriptionLinkedEmail(
         user?.owner.toString()
       );
+      try {
+        signupCountry = await new UsersRepository(this.db).getSignupCountry(
+          user.id
+        );
+      } catch {
+        signupCountry = null;
+      }
+    }
+    if (user != null && signupCountry == null) {
+      signupCountry = extractCountryFromRequest(req);
+      if (signupCountry != null && user.id != null) {
+        try {
+          await new UsersRepository(this.db).setSignupCountryIfMissing(
+            user.id,
+            signupCountry
+          );
+        } catch {
+          // best-effort write; ignore so getLocals stays robust in tests
+        }
+      }
     }
 
     const featureFlags = {
@@ -238,6 +271,7 @@ class UsersController {
         email_verified: user?.email_verified ?? false,
         ankify_welcome_seen: user?.ankify_welcome_seen ?? false,
         trial_started_at: user?.trial_started_at ?? null,
+        signup_country: signupCountry,
       },
       locals,
       linked_email: linkedEmail,
@@ -511,10 +545,24 @@ class UsersController {
         return res.redirect('/login');
       }
       let user = await this.userService.getUserFrom(email);
+      const isNewUser = !user;
       if (!user) {
         const hashedPassword = this.authService.getHashPassword(getRandomUUID());
         await this.userService.register(name ?? email, hashedPassword, email, null, true);
         user = await this.userService.getUserFrom(email);
+      }
+      if (isNewUser && user) {
+        try {
+          const country = extractCountryFromRequest(req);
+          if (country != null) {
+            await new UsersRepository(this.db).setSignupCountryIfMissing(
+              user.id,
+              country
+            );
+          }
+        } catch {
+          // country capture is best-effort
+        }
       }
 
       if (!user) {
@@ -555,10 +603,20 @@ class UsersController {
 
     const { email, name, accessData } = loginRequest;
     let user = await this.userService.getUserFrom(email);
+    const isNewUser = !user;
     if (!user) {
       const hashedPassword = this.authService.getHashPassword(getRandomUUID());
       await this.userService.register(name, hashedPassword, email, 'notion_oauth');
       user = await this.userService.getUserFrom(email);
+    }
+    if (isNewUser && user) {
+      const country = extractCountryFromRequest(req);
+      if (country != null) {
+        await new UsersRepository(this.db).setSignupCountryIfMissing(
+          user.id,
+          country
+        );
+      }
     }
 
     if (!user) {

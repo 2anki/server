@@ -93,7 +93,7 @@ Some strings are controlled by external systems, legal requirements, or brand gu
 |--------|--------|
 | OAuth button labels ("Sign in with Google", "Continue with Notion") | Dictated by provider brand guidelines |
 | Stripe plan names and price display | Must match Stripe dashboard exactly |
-| "100 cards per month" / free tier limit | Business constraint — any change requires explicit approval |
+| "100 cards per month" (marketing copy on `/pricing`) and `Your monthly limit: N cards` (in-product display) | Business constraint — any change requires explicit approval. In product UI (sidebar counter, banner, account), use the personal phrasing so the number can vary per user without lying. The marketing string on `/pricing` stays as-is for organic SEO and brand consistency. |
 | "Anki", "AnkiWeb", "Notion", "Quizlet" | Third-party trademarks — spelling and capitalization are fixed |
 | Terms of Service, Privacy Policy page content | Legal copy — changes require legal review |
 | Email addresses (support@2anki.net) | Operational — don't rephrase or restyle |

@@ -28,7 +28,9 @@ describe('CompleteJobUseCase', () => {
     expect(jobRepository.updateJobStatus).toHaveBeenCalledWith(
       'page-1',
       'user-a',
-      'done'
+      'done',
+      undefined,
+      0
     );
     expect(jobRepository.deleteJob).not.toHaveBeenCalled();
     expect(result).toEqual(updatedJob);
