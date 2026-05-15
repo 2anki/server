@@ -8,6 +8,7 @@ import CardOption from '../../../lib/parser/Settings';
 import BlockEquation from '../blocks/BlockEquation';
 import HandleBlockAnnotations from '../blocks/HandleBlockAnnotations';
 import isEquation from './isEquation';
+import isMention from './isMention';
 import isText from './isText';
 import preserveNewlinesIfApplicable from './preserveNewlinesIfApplicable';
 
@@ -24,7 +25,7 @@ export default function renderTextChildren(
         return BlockEquation(t as EquationRichTextItemResponse);
       }
 
-      if (isText(t)) {
+      if (isText(t) || isMention(t)) {
         return ReactDOMServer.renderToStaticMarkup(
           <>
             {HandleBlockAnnotations(t.annotations, t, {
