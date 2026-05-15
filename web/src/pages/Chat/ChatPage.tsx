@@ -258,7 +258,7 @@ export default function ChatPage() {
     setChips((prev) => [
       ...prev,
       ...toAdd.map((f) => ({
-        id: `${Date.now()}-${Math.random()}`,
+        id: crypto.randomUUID(),
         file: f,
         state: 'idle' as ChipState,
         retryCount: 0,
