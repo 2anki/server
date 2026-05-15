@@ -14,9 +14,15 @@ export interface ChatDeckInput {
   deckName: string;
 }
 
-function deterministicId(input: string): number {
-  const hex = createHash('sha1').update(input).digest('hex').slice(0, 13);
+function randomDeckId(): number {
+  const hex = createHash('sha1').update(randomUUID()).digest('hex').slice(0, 13);
   return Number.parseInt(hex, 16) % 1e13;
+}
+
+const CLOZE_PATTERN = /\{\{c\d+::/;
+
+export function looksLikeCloze(front: string): boolean {
+  return CLOZE_PATTERN.test(front);
 }
 
 export class ChatDeckUseCase {
@@ -31,20 +37,20 @@ export class ChatDeckUseCase {
           name: deckName,
           image: '',
           style: null,
-          id: deterministicId(deckName),
+          id: randomDeckId(),
           settings: {
             template: 'specialstyle',
             clozeModelName: 'n2a-cloze',
             basicModelName: 'n2a-basic',
             inputModelName: 'n2a-input',
-            useNotionId: true,
+            useNotionId: false,
           },
-          cards: cards.map((c) => ({
+          cards: cards.map((c, index) => ({
             name: c.front,
             back: c.back,
             tags: [],
-            cloze: false,
-            number: 0,
+            cloze: looksLikeCloze(c.front),
+            number: index,
             enableInput: false,
             answer: '',
             media: [],
