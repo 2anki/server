@@ -10,6 +10,10 @@ import { getDownloadFileName } from '../../../DownloadsPage/helpers/getDownloadF
 import { useDrag } from './hooks/useDrag';
 import { useFileValidation } from './hooks/useFileValidation';
 import { useDropboxChooser, type DropboxFile } from './hooks/useDropboxChooser';
+import {
+  useGooglePicker,
+  type GoogleDriveFile,
+} from './hooks/useGooglePicker';
 import { UploadSourceTabs, type UploadSource } from './UploadSourceTabs';
 import { FeedbackWidget } from '../../../../components/FeedbackWidget/FeedbackWidget';
 import { useUserLocals } from '../../../../lib/hooks/useUserLocals';
@@ -133,6 +137,19 @@ function DropboxIcon({ className }: Readonly<{ className?: string }>) {
   );
 }
 
+function GoogleDriveIcon({ className }: Readonly<{ className?: string }>) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 32 32"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path d="M11 4h10l10 17.5h-10L11 4zm-1 1.7L0 23.2 5 32h10L5 14.5 10 5.7zM10.5 23.5h21L26.5 32H5.5l5-8.5z" />
+    </svg>
+  );
+}
+
 function WarningIcon({ className }: Readonly<{ className?: string }>) {
   return (
     <svg
@@ -167,6 +184,9 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
   const [dropboxFilename, setDropboxFilename] = useState<string | null>(null);
   const [dropboxPending, setDropboxPending] = useState(false);
   const [dropboxError, setDropboxError] = useState<string | null>(null);
+  const [driveFilename, setDriveFilename] = useState<string | null>(null);
+  const [drivePending, setDrivePending] = useState(false);
+  const [driveError, setDriveError] = useState<string | null>(null);
   const [source, setSource] = useState<UploadSource>('local');
   const { data: userLocals } = useUserLocals();
   const queryClient = useQueryClient();
@@ -180,6 +200,7 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
   const fallbackTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
   const { validation, validate, reset: resetValidation } = useFileValidation();
   const { openChooser, isConfigured: isDropboxConfigured } = useDropboxChooser(FORMATS);
+  const { openPicker, isConfigured: isGoogleDriveConfigured } = useGooglePicker();
 
   const handleStartTrial = async () => {
     setTrialPending(true);
@@ -211,6 +232,8 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
     setShowFallback(false);
     setDropboxFilename(null);
     setDropboxError(null);
+    setDriveFilename(null);
+    setDriveError(null);
     setSource('local');
     resetValidation();
     if (fileInputRef.current) {
@@ -339,6 +362,88 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
     }
   };
 
+  const handleGoogleDriveFiles = async (
+    files: GoogleDriveFile[],
+    accessToken: string
+  ) => {
+    const first = files[0];
+    setDriveFilename(first?.name ?? null);
+    setDriveError(null);
+    setZoneState('converting');
+    fireAnalyticsEvent('upload_started');
+    setProgressWidth(10);
+    setProgressSlow(false);
+    setShowFallback(false);
+    try {
+      const formData = new FormData();
+      formData.append('files', JSON.stringify(files));
+      formData.append('googleDriveAuth', accessToken);
+      for (const [key, value] of Object.entries(globalThis.localStorage)) {
+        formData.append(key, value);
+      }
+      const request = await globalThis.fetch('/api/upload/google_drive', {
+        method: 'post',
+        body: formData,
+      });
+      if (request.redirected) {
+        const redirectUrl = new URL(request.url, globalThis.location.origin);
+        if (redirectUrl.searchParams.get('error') === 'upload_limit_exceeded') {
+          const isAnonymous = redirectUrl.pathname === '/login';
+          setLimitInfo({ isAnonymous, filename: first?.name ?? null });
+          setZoneState('limitReached');
+          return;
+        }
+        handleRedirect(request);
+        return;
+      }
+      if (request.status === 202) {
+        globalThis.location.href = '/downloads';
+        return;
+      }
+      if (request.status !== 200) {
+        const message = await extractErrorMessage(request);
+        setLocalError(message);
+        setZoneState('error');
+        return;
+      }
+      setWarningMessage(request.headers.get('X-Warning'));
+      setDeckName(resolveDeckName(request.headers));
+      const count = parseCardCountHeader(request.headers);
+      setCardCount(count);
+      const blob = await request.blob();
+      setDownloadLink(globalThis.URL.createObjectURL(blob));
+      setProgressWidth(100);
+      if (count === 0) {
+        setZoneState('emptyDeck');
+      } else {
+        fireAnalyticsEvent('conversion_success');
+        setZoneState('success');
+      }
+    } catch (error) {
+      setLocalError(toFriendlyThrownError(error));
+      setZoneState('error');
+    }
+  };
+
+  const handleGoogleDriveClick = async () => {
+    setDriveError(null);
+    setDrivePending(true);
+    try {
+      const outcome = await openPicker();
+      if (outcome.kind === 'cancelled') return;
+      if (outcome.files.length === 0) return;
+      await handleGoogleDriveFiles(outcome.files, outcome.accessToken);
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Couldn't reach Google Drive. Sign in again and retry.";
+      setDriveError(message);
+    } finally {
+      setDrivePending(false);
+    }
+  };
+
   const handleSubmit = async (event: SyntheticEvent) => {
     event.preventDefault();
     setZoneState('converting');
@@ -448,22 +553,34 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
     </div>
   );
 
-  const renderConvertingState = () => (
-    <div className={formStyles.stateContent}>
-      <p className={formStyles.filename}>
-        {dropboxFilename ?? displayFilename(fileInputRef.current)}
-      </p>
-      <div className={formStyles.progressTrack}>
-        <div
-          className={`${formStyles.progressFill} ${progressSlow ? formStyles.progressFillSlow : ''}`}
-          style={{ width: `${progressWidth}%` }}
-        />
+  const remoteSourceLabel = (): string | null => {
+    if (driveFilename) return 'Google Drive';
+    if (dropboxFilename) return 'Dropbox';
+    return null;
+  };
+
+  const renderConvertingState = () => {
+    const remoteFilename = driveFilename ?? dropboxFilename;
+    const remoteSource = remoteSourceLabel();
+    return (
+      <div className={formStyles.stateContent}>
+        <p className={formStyles.filename}>
+          {remoteFilename ?? displayFilename(fileInputRef.current)}
+        </p>
+        <div className={formStyles.progressTrack}>
+          <div
+            className={`${formStyles.progressFill} ${progressSlow ? formStyles.progressFillSlow : ''}`}
+            style={{ width: `${progressWidth}%` }}
+          />
+        </div>
+        <p className={formStyles.statusText}>
+          {remoteFilename && remoteSource
+            ? `Fetching ${remoteFilename} from ${remoteSource}`
+            : 'Making your deck...'}
+        </p>
       </div>
-      <p className={formStyles.statusText}>
-        {dropboxFilename ? `Fetching ${dropboxFilename} from Dropbox` : 'Making your deck...'}
-      </p>
-    </div>
-  );
+    );
+  };
 
   const renderSuccessState = () => (
     <div className={formStyles.stateContent}>
@@ -645,8 +762,10 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
     return renderIdleState();
   };
 
-  const showTabs = isDropboxConfigured && zoneState === 'idle' && !validation;
+  const anyRemoteSource = isDropboxConfigured || isGoogleDriveConfigured;
+  const showTabs = anyRemoteSource && zoneState === 'idle' && !validation;
   const showDropboxPanel = showTabs && source === 'dropbox';
+  const showGoogleDrivePanel = showTabs && source === 'google_drive';
   const showLocalPanel = !showTabs || source === 'local';
 
   return (
@@ -657,6 +776,7 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
             active={source}
             onChange={setSource}
             dropboxAvailable={isDropboxConfigured}
+            googleDriveAvailable={isGoogleDriveConfigured}
           />
         </div>
       )}
@@ -719,6 +839,42 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
       {dropboxError && (
         <p className={formStyles.dropboxError} role="alert">
           {dropboxError}
+        </p>
+      )}
+      {showTabs && isGoogleDriveConfigured && (
+        <div
+          id="upload-panel-google-drive"
+          role="tabpanel"
+          className={`${zoneClassName} ${showGoogleDrivePanel ? '' : formStyles.panelHidden}`}
+          aria-hidden={!showGoogleDrivePanel}
+        >
+          <div className={formStyles.stateContent}>
+            <GoogleDriveIcon className={formStyles.dropboxIconLarge} />
+            <span className={formStyles.dropText}>
+              Pick a file from your Google Drive to convert it into a deck
+            </span>
+            <button
+              type="button"
+              className={formStyles.chooseButton}
+              onClick={handleGoogleDriveClick}
+              disabled={drivePending}
+              aria-label="Choose from Google Drive"
+            >
+              {drivePending ? 'Opening Google Drive' : 'Choose from Google Drive'}
+            </button>
+            <div className={formStyles.formatList}>
+              {FORMATS.map((fmt) => (
+                <span key={fmt} className={formStyles.formatPill}>
+                  {fmt}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+      {driveError && (
+        <p className={formStyles.dropboxError} role="alert">
+          {driveError}
         </p>
       )}
       {downloadLink && (

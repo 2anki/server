@@ -1,14 +1,20 @@
 import styles from './UploadSourceTabs.module.css';
 
-export type UploadSource = 'local' | 'dropbox';
+export type UploadSource = 'local' | 'dropbox' | 'google_drive';
 
 interface Props {
   active: UploadSource;
   onChange: (next: UploadSource) => void;
   dropboxAvailable: boolean;
+  googleDriveAvailable: boolean;
 }
 
-export function UploadSourceTabs({ active, onChange, dropboxAvailable }: Props) {
+export function UploadSourceTabs({
+  active,
+  onChange,
+  dropboxAvailable,
+  googleDriveAvailable,
+}: Props) {
   return (
     <div
       className={styles.tabs}
@@ -35,6 +41,18 @@ export function UploadSourceTabs({ active, onChange, dropboxAvailable }: Props) 
           onClick={() => onChange('dropbox')}
         >
           Dropbox
+        </button>
+      )}
+      {googleDriveAvailable && (
+        <button
+          type="button"
+          role="tab"
+          aria-selected={active === 'google_drive'}
+          aria-controls="upload-panel-google-drive"
+          className={`${styles.tab} ${active === 'google_drive' ? styles.tabActive : ''}`}
+          onClick={() => onChange('google_drive')}
+        >
+          Google Drive
         </button>
       )}
     </div>
