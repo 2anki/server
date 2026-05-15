@@ -83,13 +83,21 @@ class UploadController {
   }
 
   async dropbox(req: express.Request, res: express.Response): Promise<void> {
-    await handleDropbox(req, res, this.service.handleUpload).then(() => {
+    await handleDropbox(
+      req,
+      res,
+      this.service.handleUpload.bind(this.service)
+    ).then(() => {
       console.debug('dropbox upload success');
     });
   }
 
   async googleDrive(req: express.Request, res: express.Response) {
-    await handleGoogleDrive(req, res, this.service.handleUpload).then(() => {
+    await handleGoogleDrive(
+      req,
+      res,
+      this.service.handleUpload.bind(this.service)
+    ).then(() => {
       console.debug('google drive upload success');
     });
   }
