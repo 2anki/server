@@ -5,7 +5,7 @@ export interface ChangelogEntry {
 }
 
 export const changelog: ChangelogEntry[] = [
-  { type: 'feature', title: 'Saved pages — reset one back to defaults from the list, or clear them all at once', date: '2026-05-15' },
+  { type: 'feature', title: 'Pages with custom settings — reset one back to defaults from the list, or all of them at once', date: '2026-05-15' },
   { type: 'fix', title: 'Downloaded decks keep their original filename — accents, kanji, Cyrillic, and Arabic', date: '2026-05-15' },
   { type: 'fix', title: 'Saved deck names persist on reload', date: '2026-05-15' },
   { type: 'feature', title: 'Card options in the sidebar — saved pages and defaults in one place', date: '2026-05-14' },

@@ -146,7 +146,7 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
             role="status"
             aria-live="polite"
           >
-            <p>All saved pages reset to defaults</p>
+            <p>All custom settings reset to defaults</p>
             <button
               type="button"
               className={sharedStyles.btnGhost}
@@ -166,7 +166,7 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
         {pageId == null && (
           <section className={`${styles.pagesSection} ${styles.pagesCard}`}>
             <h2 className={styles.pagesHeading}>
-              Saved pages
+              Pages with custom settings
               {perPageItems.length > 0 && (
                 <span className={styles.sectionCount}>
                   {perPageItems.length}
@@ -182,8 +182,8 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
 
             {perPageItems.length === 0 ? (
               <p className={styles.emptyInCard}>
-                No saved pages yet. When you customise options for a specific
-                Notion page, it appears here.
+                When you save options for a specific Notion page, it shows up
+                here. Every other page uses your defaults below.
               </p>
             ) : (
               <>
@@ -223,9 +223,9 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
                               className={styles.resetButton}
                               onClick={() => handleRowReset(item)}
                               disabled={isResetting || bulkPending}
-                              aria-label={`Reset ${displayTitle ?? item.pageId}`}
+                              aria-label={`Reset ${displayTitle ?? item.pageId} to defaults`}
                             >
-                              Reset
+                              Reset to defaults
                             </button>
                             <a
                               href={`https://www.notion.so/${item.pageId.replaceAll('-', '')}`}
@@ -260,7 +260,7 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
                     onClick={() => setConfirmOpen(true)}
                     disabled={anyRowPending || bulkPending}
                   >
-                    Reset all saved pages
+                    Reset all to defaults
                   </button>
                 </div>
               </>
@@ -306,7 +306,7 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
               id="bulk-reset-dialog-title"
               className={sharedStyles.modalHeaderTitle}
             >
-              Reset all saved pages?
+              Reset all custom settings?
             </span>
             <button
               type="button"
@@ -320,8 +320,9 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
           <div className={sharedStyles.modalBody}>
             <p>
               {itemCount} {itemCount === 1 ? 'page' : 'pages'} will go back to
-              your defaults. Per-page options and parser rules are removed. You
-              can re-save any page individually.
+              your default options. The custom options and parser rules saved
+              for these pages are removed. You can save new options for any
+              page later.
             </p>
           </div>
           <div className={sharedStyles.modalFooter}>

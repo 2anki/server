@@ -40,7 +40,7 @@ describe('CardOptionsPage per-page list', () => {
   it('shows the pages section heading on the default view', async () => {
     renderPage();
     await waitFor(() => {
-      expect(screen.getByText('Saved pages')).toBeInTheDocument();
+      expect(screen.getByText('Pages with custom settings')).toBeInTheDocument();
     });
   });
 
@@ -48,7 +48,7 @@ describe('CardOptionsPage per-page list', () => {
     renderPage();
     await waitFor(() => {
       expect(
-        screen.getByText(/No saved pages yet\./i)
+        screen.getByText(/When you save options for a specific Notion page/i)
       ).toBeInTheDocument();
     });
   });
@@ -79,7 +79,7 @@ describe('CardOptionsPage per-page list', () => {
     });
     renderPage('?pageId=abc-123');
     await waitFor(() => {
-      expect(screen.queryByText('Saved pages')).not.toBeInTheDocument();
+      expect(screen.queryByText('Pages with custom settings')).not.toBeInTheDocument();
     });
   });
 
@@ -91,7 +91,7 @@ describe('CardOptionsPage per-page list', () => {
     });
     renderPage();
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /Reset Organic Chemistry/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Reset Organic Chemistry to defaults/i })).toBeInTheDocument();
     });
   });
 
@@ -102,7 +102,7 @@ describe('CardOptionsPage per-page list', () => {
       ],
     });
     renderPage();
-    const resetButton = await screen.findByRole('button', { name: /Reset Organic Chemistry/i });
+    const resetButton = await screen.findByRole('button', { name: /Reset Organic Chemistry to defaults/i });
     fireEvent.click(resetButton);
     await waitFor(() => {
       expect(screen.queryByText('Organic Chemistry')).not.toBeInTheDocument();
@@ -117,7 +117,7 @@ describe('CardOptionsPage per-page list', () => {
       ],
     });
     renderPage();
-    const resetButton = await screen.findByRole('button', { name: /Reset Page A/i });
+    const resetButton = await screen.findByRole('button', { name: /Reset Page A to defaults/i });
     fireEvent.click(resetButton);
     await waitFor(() => {
       expect(screen.getByText("Couldn't reset. Try again.")).toBeInTheDocument();
@@ -127,7 +127,7 @@ describe('CardOptionsPage per-page list', () => {
   it('hides bulk reset button when list is empty', async () => {
     renderPage();
     await waitFor(() => {
-      expect(screen.queryByRole('button', { name: /Reset all saved pages/i })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: /Reset all to defaults/i })).not.toBeInTheDocument();
     });
   });
 
@@ -140,7 +140,7 @@ describe('CardOptionsPage per-page list', () => {
     });
     renderPage();
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /Reset all saved pages/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Reset all to defaults/i })).toBeInTheDocument();
     });
   });
 
@@ -152,7 +152,7 @@ describe('CardOptionsPage per-page list', () => {
       ],
     });
     renderPage();
-    const bulkButton = await screen.findByRole('button', { name: /Reset all saved pages/i });
+    const bulkButton = await screen.findByRole('button', { name: /Reset all to defaults/i });
     fireEvent.click(bulkButton);
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'Reset 2 pages' })).toBeInTheDocument();
@@ -167,7 +167,7 @@ describe('CardOptionsPage per-page list', () => {
       .mockResolvedValueOnce({ items: [] });
 
     renderPage();
-    const bulkButton = await screen.findByRole('button', { name: /Reset all saved pages/i });
+    const bulkButton = await screen.findByRole('button', { name: /Reset all to defaults/i });
     fireEvent.click(bulkButton);
     const confirmButton = await screen.findByRole('button', { name: 'Reset 1 page' });
     fireEvent.click(confirmButton);
@@ -184,7 +184,7 @@ describe('CardOptionsPage per-page list', () => {
       items: [{ pageId: 'abc-123', title: 'Page A', updatedAt: null }],
     });
     renderPage();
-    const bulkButton = await screen.findByRole('button', { name: /Reset all saved pages/i });
+    const bulkButton = await screen.findByRole('button', { name: /Reset all to defaults/i });
     fireEvent.click(bulkButton);
     const confirmButton = await screen.findByRole('button', { name: 'Reset 1 page' });
     fireEvent.click(confirmButton);
