@@ -38,6 +38,7 @@ jobs:
             git -C ${SERVER_DIR} clean -fd
 
             pnpm --dir ${SERVER_DIR} install --frozen-lockfile
+            pnpm --dir ${SERVER_DIR} exec puppeteer browsers install chrome
             pip install -r ${SERVER_DIR}/create_deck/requirements.txt
 
             pnpm --dir ${SERVER_DIR} run build
