@@ -672,7 +672,7 @@ class UsersController {
   ) {
     const { token } = req.params;
     const sessionUser = await this.authService.getUserFrom(req.cookies?.token);
-    const base = sessionUser != null ? '/account' : '/login';
+    const base = sessionUser ? '/account' : '/login';
 
     if (token == null || token.length === 0) {
       return res.redirect(`${base}?verify_error=expired`);

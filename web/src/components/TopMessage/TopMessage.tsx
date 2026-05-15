@@ -9,9 +9,9 @@ function TopMessage() {
 
   if (verified === '1') {
     return (
-      <div className={styles.alertSuccess} role="status">
+      <output className={styles.alertSuccess}>
         <p>Email verified. Sign in to continue.</p>
-      </div>
+      </output>
     );
   }
 
