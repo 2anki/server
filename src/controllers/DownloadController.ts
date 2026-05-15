@@ -6,6 +6,7 @@ import StorageHandler from '../lib/storage/StorageHandler';
 import DownloadService from '../services/DownloadService';
 import { canAccess } from '../lib/misc/canAccess';
 import { DownloadPage } from '../ui/pages/DownloadPage';
+import { buildContentDisposition } from '../lib/buildContentDisposition';
 
 class DownloadController {
   constructor(private service: DownloadService) {}
@@ -24,10 +25,7 @@ class DownloadController {
       if (body) {
         const filename = key.endsWith('.apkg') ? key : `${key}.apkg`;
         res.setHeader('Content-Type', 'application/octet-stream');
-        res.setHeader(
-          'Content-Disposition',
-          `attachment; filename="${filename}"`
-        );
+        res.setHeader('Content-Disposition', buildContentDisposition(filename));
         res.send(body);
       } else {
         throw new Error(`File not found: ${key}`);
@@ -119,10 +117,7 @@ class DownloadController {
       });
 
       res.setHeader('Content-Type', 'application/zip');
-      res.setHeader(
-        'Content-Disposition',
-        `attachment; filename="anki-decks-${id}.zip"`
-      );
+      res.setHeader('Content-Disposition', buildContentDisposition(`anki-decks-${id}.zip`));
 
       archive.pipe(res);
       ankiFiles.forEach((file) => {

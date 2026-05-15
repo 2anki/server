@@ -114,7 +114,7 @@ describe('ChatDeckController.generate', () => {
     expect(res.setHeader).toHaveBeenCalledWith('Content-Type', 'application/octet-stream');
     expect(res.setHeader).toHaveBeenCalledWith(
       'Content-Disposition',
-      'attachment; filename="My Deck.apkg"'
+      "attachment; filename=\"My Deck.apkg\"; filename*=UTF-8''My%20Deck.apkg"
     );
     expect(res.send).toHaveBeenCalledWith(fakeBuffer);
   });

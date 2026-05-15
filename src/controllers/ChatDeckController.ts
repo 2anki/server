@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { ChatDeckUseCase } from '../usecases/chat/ChatDeckUseCase';
+import { buildContentDisposition } from '../lib/buildContentDisposition';
 
 const MAX_DECK_NAME_LENGTH = 120;
 const MAX_CARDS = 200;
@@ -58,7 +59,7 @@ class ChatDeckController {
     });
 
     res.setHeader('Content-Type', 'application/octet-stream');
-    res.setHeader('Content-Disposition', `attachment; filename="${deckName}.apkg"`);
+    res.setHeader('Content-Disposition', buildContentDisposition(`${deckName}.apkg`));
     res.send(buffer);
   }
 }

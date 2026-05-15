@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import express from "express";
 import { CreateImageOcclusionDeckUseCase, ImageOcclusionImage, OcclusionRect } from "../usecases/imageOcclusion/CreateImageOcclusionDeckUseCase";
+import { buildContentDisposition } from "../lib/buildContentDisposition";
 
 interface RawPoint { x: unknown; y: unknown; }
 interface RawRect { x: unknown; y: unknown; w: unknown; h: unknown; label?: unknown; shape?: unknown; points?: unknown; groupId?: unknown; }
@@ -52,7 +53,7 @@ class ImageOcclusionController {
       if (e.status === 403) { res.status(403).json({ message: e.message }); return; }
       throw err;
     } finally { for (const f of uploadedFiles) fs.unlink(f.path, () => undefined); }
-    res.setHeader("Content-Disposition", `attachment; filename="${path.basename(apkgPath)}"`);
+    res.setHeader("Content-Disposition", buildContentDisposition(path.basename(apkgPath)));
     res.setHeader("Content-Type", "application/octet-stream");
     const stream = fs.createReadStream(apkgPath);
     stream.on("end", () => { fs.unlink(apkgPath, () => undefined); });
