@@ -175,3 +175,15 @@
   font-weight: var(--font-medium);
   box-shadow: var(--shadow-xs);
 }
+
+.noteTypesLink {
+  display: inline-block;
+  font-size: var(--text-sm);
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.noteTypesLink:hover,
+.noteTypesLink:focus-visible {
+  text-decoration: underline;
+}

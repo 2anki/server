@@ -7,6 +7,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import { Link } from 'react-router-dom';
 import { get2ankiApi } from '../../lib/backend/get2ankiApi';
 import { clearStoredCardOptions } from '../../lib/data_layer/clearStoredCardOptions';
 import { getLocalStorageBooleanValue } from '../../lib/data_layer/getLocalStorageBooleanValue';
@@ -633,6 +634,11 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
                 saveValueInLocalStorage('font-size', fs.toString(), pageId);
               }}
             />
+          </div>
+          <div className={fieldStyles.section}>
+            <Link to="/templates" className={fieldStyles.noteTypesLink}>
+              Looking for ready-made note types? Browse note types →
+            </Link>
           </div>
         </div>
       </div>

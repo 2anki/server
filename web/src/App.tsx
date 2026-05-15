@@ -34,6 +34,7 @@ const SuccessfulCheckoutPage = lazy(
 );
 const DocsPage = lazy(() => import('./pages/DocsPage/DocsPage'));
 const CardOptionsPage = lazy(() => import('./pages/CardOptionsPage'));
+const TemplatesPage = lazy(() => import('./pages/TemplatesPage'));
 const RulesPage = lazy(() => import('./pages/RulesPage'));
 const PreviewPage = lazy(() => import('./pages/PreviewPage'));
 const PreviewApkgPage = lazy(() => import('./pages/PreviewApkgPage'));
@@ -245,6 +246,7 @@ function AppContent({
               <CardOptionsPage setErrorMessage={setErrorMessage} />
             )}
           />
+          <Route path="/templates" element={<TemplatesPage />} />
           <Route
             path="/rules/:id"
             element={requireAuth(
