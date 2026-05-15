@@ -37,6 +37,20 @@ Flag the riskiest assumption explicitly. Propose the smallest spike, shadow call
 
 The request path is layered: `routes/` → `controllers/` → `usecases/` → `services/` → `data_layer/`. Each layer has its own CLAUDE.md — read it before editing files in that layer. Don't skip layers (e.g. controllers calling data_layer directly).
 
+## Mandatory worktree paths
+
+Before the first `Edit`, `Write`, or `Bash` command that mutates files, check the task's affected paths against the trigger list below. If any path matches, call `EnterWorktree` first — no exceptions, no override flag. This is the safety floor. If no path matches, proceed normally in the main checkout.
+
+**Trigger paths** (any match → `EnterWorktree` required):
+
+- `src/services/AuthenticationService/**`
+- `src/services/StripeService/**`
+- `src/lib/Token.ts`
+- `migrations/**`
+- Any path matching `**/auth/**` or `**/payments/**` (case-insensitive)
+
+**Why:** Reverting a worktree is free; reverting a bad edit on the orchestrator's main checkout costs a force-revert and may require a re-deploy. The cost of `EnterWorktree` is seconds; the cost of a botched auth or payments change on main is hours.
+
 ## Workflow
 
 When given a spec or issue:

@@ -61,7 +61,7 @@ Every PR is checked against both — does it make the experience simpler/faster/
 ## Working speed
 
 - For research spanning 3+ queries (where is X defined, what touches Y), spawn `Agent(subagent_type=Explore)`. If the result isn't immediately needed, run it with `run_in_background: true` and keep editing.
-- For risky changes (auth, payments, migrations, deploy pipeline), use `EnterWorktree` — reverting a worktree is free.
+- For risky changes (auth, payments, migrations, deploy pipeline), **must** use `EnterWorktree` — reverting a worktree is free. See `.claude/agents/engineer.md` for the enforced path list.
 - For "wait until X" (long builds, CI, deploys baking on prod), use `ScheduleWakeup` (270s if cache-warm matters, 1200s+ for genuine waits). Never busy-poll with sleep.
 - After deploys to 2anki.net, run `/deploy-status` to confirm the box is healthy.
 - If you keep approving the same read-only Bash commands, suggest `/fewer-permission-prompts`.
