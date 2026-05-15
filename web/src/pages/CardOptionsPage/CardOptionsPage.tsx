@@ -237,7 +237,20 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
                               aria-label={`Reset ${displayTitle ?? item.pageId}`}
                               title="Reset to defaults"
                             >
-                              ↺
+                              <svg
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                aria-hidden="true"
+                              >
+                                <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
+                                <path d="M3 3v5h5" />
+                              </svg>
                             </button>
                             <a
                               href={`https://www.notion.so/${item.pageId.replaceAll('-', '')}`}
@@ -346,7 +359,7 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
             </button>
             <button
               type="button"
-              className={sharedStyles.btnDanger}
+              className={sharedStyles.btnPrimary}
               onClick={handleBulkConfirm}
               disabled={bulkPending}
             >

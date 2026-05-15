@@ -176,7 +176,6 @@
   border-radius: var(--radius-sm);
   color: var(--color-text-tertiary);
   cursor: pointer;
-  font-size: var(--text-xs);
   transition: color var(--transition-fast), background var(--transition-fast);
 }
 
