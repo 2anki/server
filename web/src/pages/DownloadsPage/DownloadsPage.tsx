@@ -7,6 +7,7 @@ import useJobs from './hooks/useJobs';
 import { SkeletonList } from '../../components/Skeleton/Skeleton';
 import { FinishedJobs } from './components/FinishedJobs';
 import { DropboxHistorySection } from './components/DropboxHistorySection';
+import { GoogleDriveHistorySection } from './components/GoogleDriveHistorySection';
 import { EmptyDownloadsSection } from './components/EmptyDownloadsSection';
 import { redirectOnError } from '../../components/shared/redirectOnError';
 import { UnfinishedJobsInfo } from './components/UnfinishedJobsInfo';
@@ -133,6 +134,8 @@ export function DownloadsPage({ setError }: Readonly<DownloadsPageProps>) {
           />
 
           <DropboxHistorySection backend={get2ankiApi()} />
+
+          <GoogleDriveHistorySection backend={get2ankiApi()} />
         </>
       )}
     </div>

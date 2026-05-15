@@ -10,15 +10,21 @@ import { handleDropbox } from './helpers/handleDropbox';
 import { handleGoogleDrive } from './helpers/handleGoogleDrive';
 import { GetDropboxUploadsUseCase } from '../../usecases/uploads/GetDropboxUploadsUseCase';
 import { DeleteDropboxUploadUseCase } from '../../usecases/uploads/DeleteDropboxUploadUseCase';
+import { GetGoogleDriveUploadsUseCase } from '../../usecases/uploads/GetGoogleDriveUploadsUseCase';
+import { DeleteGoogleDriveUploadUseCase } from '../../usecases/uploads/DeleteGoogleDriveUploadUseCase';
 
 const DROPBOX_PAGE_SIZE = 10;
+const GOOGLE_DRIVE_PAGE_SIZE = 10;
+const GOOGLE_DRIVE_ID_PATTERN = /^[A-Za-z0-9_-]+$/;
 
 class UploadController {
   constructor(
     private readonly service: UploadService,
     private readonly notionService: NotionService,
     private readonly getDropboxUploadsUseCase?: GetDropboxUploadsUseCase,
-    private readonly deleteDropboxUploadUseCase?: DeleteDropboxUploadUseCase
+    private readonly deleteDropboxUploadUseCase?: DeleteDropboxUploadUseCase,
+    private readonly getGoogleDriveUploadsUseCase?: GetGoogleDriveUploadsUseCase,
+    private readonly deleteGoogleDriveUploadUseCase?: DeleteGoogleDriveUploadUseCase
   ) {}
 
   async deleteUpload(req: express.Request, res: express.Response) {
@@ -144,6 +150,50 @@ class UploadController {
 
     try {
       await this.deleteDropboxUploadUseCase!.execute(id, owner);
+      return res.json({});
+    } catch (error) {
+      return res.status(404).json({ message: 'Upload not found.' });
+    }
+  }
+
+  async getGoogleDriveUploads(req: express.Request, res: express.Response) {
+    const owner = getOwner(res);
+    if (owner == null) {
+      return res.status(401).json({ message: 'Authentication required.' });
+    }
+
+    const rawOffset = (req.query as Record<string, string>).offset;
+    const offset = rawOffset != null ? parseInt(rawOffset, 10) : 0;
+
+    try {
+      const uploads = await this.getGoogleDriveUploadsUseCase!.execute(
+        owner,
+        GOOGLE_DRIVE_PAGE_SIZE,
+        Number.isFinite(offset) ? offset : 0
+      );
+      return res.json(uploads);
+    } catch (error) {
+      console.error('getGoogleDriveUploads failed', error);
+      return res.status(500).json({
+        message:
+          "Couldn't load your Google Drive history right now. Refresh to try again.",
+      });
+    }
+  }
+
+  async deleteGoogleDriveUpload(req: express.Request, res: express.Response) {
+    const owner = getOwner(res);
+    if (owner == null) {
+      return res.status(401).json({ message: 'Authentication required.' });
+    }
+
+    const rawId = (req.params as Record<string, string>).id;
+    if (rawId == null || !GOOGLE_DRIVE_ID_PATTERN.test(rawId)) {
+      return res.status(400).json({ message: 'Invalid upload id.' });
+    }
+
+    try {
+      await this.deleteGoogleDriveUploadUseCase!.execute(rawId, owner);
       return res.json({});
     } catch (error) {
       return res.status(404).json({ message: 'Upload not found.' });

@@ -13,8 +13,11 @@ import UploadRepository from '../data_layer/UploadRespository';
 import NotionRepository from '../data_layer/NotionRespository';
 import NotionService from '../services/NotionService';
 import { DropboxRepository } from '../data_layer/DropboxRepository';
+import { GoogleDriveRepository } from '../data_layer/GoogleDriveRepository';
 import { GetDropboxUploadsUseCase } from '../usecases/uploads/GetDropboxUploadsUseCase';
 import { DeleteDropboxUploadUseCase } from '../usecases/uploads/DeleteDropboxUploadUseCase';
+import { GetGoogleDriveUploadsUseCase } from '../usecases/uploads/GetGoogleDriveUploadsUseCase';
+import { DeleteGoogleDriveUploadUseCase } from '../usecases/uploads/DeleteGoogleDriveUploadUseCase';
 
 const UploadRouter = () => {
   const router = express.Router();
@@ -23,11 +26,14 @@ const UploadRouter = () => {
     new JobService(new JobRepository(database))
   );
   const dropboxRepository = new DropboxRepository(database);
+  const googleDriveRepository = new GoogleDriveRepository(database);
   const uploadController = new UploadController(
     new UploadService(new UploadRepository(database), new JobRepository(database)),
     new NotionService(new NotionRepository(database)),
     new GetDropboxUploadsUseCase(dropboxRepository),
-    new DeleteDropboxUploadUseCase(dropboxRepository)
+    new DeleteDropboxUploadUseCase(dropboxRepository),
+    new GetGoogleDriveUploadsUseCase(googleDriveRepository),
+    new DeleteGoogleDriveUploadUseCase(googleDriveRepository)
   );
 
   /**
@@ -497,6 +503,107 @@ const UploadRouter = () => {
    */
   router.delete('/api/upload/dropbox/mine/:id', RequireAuthentication, (req, res) =>
     uploadController.deleteDropboxUpload(req, res)
+  );
+
+  /**
+   * @swagger
+   * /api/upload/google_drive/mine:
+   *   get:
+   *     summary: List the authenticated user's Google Drive upload history
+   *     description: Returns the most recent Google Drive files the user has converted, ordered by last_converted_at descending. Folder entries are excluded.
+   *     tags: [Upload]
+   *     security:
+   *       - sessionAuth: []
+   *     parameters:
+   *       - in: query
+   *         name: offset
+   *         required: false
+   *         schema:
+   *           type: integer
+   *           minimum: 0
+   *         description: Number of rows to skip for paging beyond the first page
+   *     responses:
+   *       200:
+   *         description: Google Drive upload history retrieved successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: array
+   *               items:
+   *                 type: object
+   *                 properties:
+   *                   id:
+   *                     type: string
+   *                   iconUrl:
+   *                     type: string
+   *                   mimeType:
+   *                     type: string
+   *                   name:
+   *                     type: string
+   *                   sizeBytes:
+   *                     type: string
+   *                     nullable: true
+   *                   url:
+   *                     type: string
+   *                   last_converted_at:
+   *                     type: string
+   *                     format: date-time
+   *                     nullable: true
+   *       401:
+   *         description: Authentication required
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   */
+  router.get('/api/upload/google_drive/mine', RequireAuthentication, (req, res) =>
+    uploadController.getGoogleDriveUploads(req, res)
+  );
+
+  /**
+   * @swagger
+   * /api/upload/google_drive/mine/{id}:
+   *   delete:
+   *     summary: Remove a row from the user's Google Drive upload history
+   *     description: Deletes a single google_drive_uploads row owned by the authenticated user. The underlying file in Drive is not affected.
+   *     tags: [Upload]
+   *     security:
+   *       - sessionAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: Google Drive file id (alphanumeric, underscore, hyphen)
+   *     responses:
+   *       200:
+   *         description: History entry removed successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Success'
+   *       400:
+   *         description: Missing or invalid id
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   *       401:
+   *         description: Authentication required
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   *       404:
+   *         description: History entry not found
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   */
+  router.delete('/api/upload/google_drive/mine/:id', RequireAuthentication, (req, res) =>
+    uploadController.deleteGoogleDriveUpload(req, res)
   );
 
   return router;
