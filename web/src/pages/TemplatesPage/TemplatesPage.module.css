@@ -264,3 +264,9 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.ankiIcon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
