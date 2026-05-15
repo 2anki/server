@@ -62,36 +62,7 @@ function PresetPicker({
         </p>
       </header>
 
-      <section
-        className={editorStyles.presetSection}
-        aria-labelledby="preset-blank-heading"
-      >
-        <h2 id="preset-blank-heading" className={editorStyles.presetHeading}>
-          From scratch
-        </h2>
-        <div className={editorStyles.presetGrid}>
-          <button
-            type="button"
-            className={editorStyles.presetCard}
-            onClick={() => onPick('basic')}
-          >
-            <span className={editorStyles.presetName}>Blank Basic</span>
-            <span className={editorStyles.presetDescription}>
-              Two fields (Front, Back), one card. Sensible default styles.
-            </span>
-          </button>
-          <button
-            type="button"
-            className={editorStyles.presetCard}
-            onClick={() => onPick('cloze')}
-          >
-            <span className={editorStyles.presetName}>Blank Cloze</span>
-            <span className={editorStyles.presetDescription}>
-              Cloze deletion with a Text + Extra field. One card per cloze.
-            </span>
-          </button>
-        </div>
-      </section>
+      <AIGenerateSection onGenerated={onPick} />
 
       <section
         className={editorStyles.presetSection}
@@ -130,7 +101,36 @@ function PresetPicker({
         )}
       </section>
 
-      <AIGenerateSection onGenerated={onPick} />
+      <section
+        className={editorStyles.presetSection}
+        aria-labelledby="preset-blank-heading"
+      >
+        <h2 id="preset-blank-heading" className={editorStyles.presetHeading}>
+          From scratch
+        </h2>
+        <div className={editorStyles.presetGrid}>
+          <button
+            type="button"
+            className={editorStyles.presetCard}
+            onClick={() => onPick('basic')}
+          >
+            <span className={editorStyles.presetName}>Blank Basic</span>
+            <span className={editorStyles.presetDescription}>
+              Two fields (Front, Back), one card. Sensible default styles.
+            </span>
+          </button>
+          <button
+            type="button"
+            className={editorStyles.presetCard}
+            onClick={() => onPick('cloze')}
+          >
+            <span className={editorStyles.presetName}>Blank Cloze</span>
+            <span className={editorStyles.presetDescription}>
+              Cloze deletion with a Text + Extra field. One card per cloze.
+            </span>
+          </button>
+        </div>
+      </section>
 
       <Link to="/templates" className={editorStyles.presetBack}>
         ← Back to Note types
@@ -167,18 +167,18 @@ function AIGenerateSection({ onGenerated }: Readonly<AIGenerateSectionProps>) {
       aria-labelledby="preset-ai-heading"
     >
       <h2 id="preset-ai-heading" className={editorStyles.presetHeading}>
-        Generate with Claude
+        Describe your note type
       </h2>
       <p className={editorStyles.presetSubtitle}>
-        Describe the note type you want. Claude returns a starting point you can
-        edit, preview, and refine.
+        Tell us what fields you want. We'll draft a starting point you can edit
+        and preview.
       </p>
       <div className={editorStyles.aiPromptRow}>
         <input
           className={editorStyles.aiPromptInput}
           value={prompt}
           onChange={(event) => setPrompt(event.target.value)}
-          placeholder="e.g. Japanese vocabulary with kanji, reading, English meaning, and a pitch-accent diagram"
+          placeholder="Japanese vocabulary — kanji, hiragana reading, English meaning, pitch-accent diagram"
           aria-label="Describe the note type"
           disabled={busy}
           onKeyDown={(event) => {
@@ -193,7 +193,7 @@ function AIGenerateSection({ onGenerated }: Readonly<AIGenerateSectionProps>) {
           onClick={onSubmit}
           disabled={busy || prompt.trim().length === 0}
         >
-          {busy ? 'Generating…' : 'Generate'}
+          {busy ? 'Drafting…' : 'Draft it'}
         </button>
       </div>
       {error && (
