@@ -14,7 +14,9 @@ import SubscriptionService from '../services/SubscriptionService';
 import { OPS_OWNER_EMAIL } from '../routes/middleware/RequireOpsAccess';
 import { MagicLinkRateLimitError } from '../services/UsersService';
 import StartTrialUseCase from '../usecases/users/StartTrialUseCase';
+import { MONTHLY_CARD_LIMIT } from '../usecases/users/CheckMonthlyCardLimitUseCase';
 import UsersRepository from '../data_layer/UsersRepository';
+import { isPaying } from '../lib/isPaying';
 import type { UsersId } from '../data_layer/public/Users';
 import NotionRepository from '../data_layer/NotionRespository';
 import hashToken from '../lib/misc/hashToken';
@@ -441,6 +443,36 @@ class UsersController {
       return res
         .status(500)
         .json({ message: 'Failed to load subscription status' });
+    }
+  }
+
+  async getCardUsage(_req: express.Request, res: express.Response) {
+    const { owner } = res.locals;
+    if (!owner) {
+      return res.status(401).json({ message: 'Authentication required' });
+    }
+
+    const unlimited = isPaying(res.locals);
+    if (unlimited) {
+      return res.status(200).json({
+        cards_used: 0,
+        cards_limit: MONTHLY_CARD_LIMIT,
+        unlimited: true,
+      });
+    }
+
+    try {
+      const usersRepository = new UsersRepository(this.db);
+      const { cards_used } = await usersRepository.getCardUsage(owner);
+      return res.status(200).json({
+        cards_used,
+        cards_limit: MONTHLY_CARD_LIMIT,
+        unlimited: false,
+      });
+    } catch (error) {
+      console.info('Get card usage failed');
+      console.error(error);
+      return res.status(500).json({ message: 'Failed to load card usage' });
     }
   }
 

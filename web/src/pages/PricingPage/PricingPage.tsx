@@ -46,6 +46,8 @@ export default function PricingPage({
   const [trialState, setTrialState] = useState<RequestState>('idle');
   const [searchParams] = useSearchParams();
   const fromPaywall = searchParams.get('source') === 'paywall-cancel';
+  const fromContext = searchParams.get('from');
+  const showContextBanner = fromContext != null && !isLoggedIn ? false : fromContext != null;
 
   const showTrialCta =
     isLoggedIn &&
@@ -97,8 +99,13 @@ export default function PricingPage({
         </p>
         <h1 className={styles.title}>{getVisibleText('pricing.page.title')}</h1>
         <TopMessage />
+        {showContextBanner && (
+          <div className={styles.contextBanner} role="status">
+            You're on the free plan — 100 cards per month.
+          </div>
+        )}
         <p className={styles.intro}>
-          Free for everyone — 100 cards per upload, plus one Anki → Notion
+          Free for everyone — 100 cards per month, plus one Anki → Notion
           import to try it out.
           {!isLoggedIn && (
             <>

@@ -28,7 +28,6 @@ import { getFileContents } from './getFileContents';
 import { handleNestedBulletPointsInMarkdown } from './handleNestedBulletPointsInMarkdown';
 import { guessMarkdownCards, MarkdownHeuristicResult } from './guessMarkdownCards';
 import { getTitleFromMarkdown } from './getTitleFromMarkdown';
-import { checkFlashcardsLimits } from '../User/checkFlashcardsLimits';
 import { extractStyles } from './extractStyles';
 import { withFontSize } from './withFontSize';
 import { NOTION_STYLE } from '../../templates/helper';
@@ -778,8 +777,6 @@ export class DeckParser {
       const parentUL = p;
       const parentClass = p.attr('class') || '';
 
-      this.checkLimits(cards.length, []);
-
       if (this.settings.toggleMode === 'open_toggle') {
         dom('details').attr('open', '');
       } else if (this.settings.toggleMode === 'close_toggle') {
@@ -872,11 +869,9 @@ export class DeckParser {
     lists.forEach((list) => {
       if (!disableIndentedBullets) {
         for (const child of dom(list).find('li')) {
-          this.checkLimits(cards.length, []);
           cards.push(new Note(dom(child).html() ?? '', ''));
         }
       } else {
-        this.checkLimits(cards.length, []);
         cards.push(new Note(dom(list).html() ?? '', ''));
       }
     });
@@ -884,11 +879,4 @@ export class DeckParser {
     return cards;
   }
 
-  private checkLimits(cards: number, decks: Deck[]) {
-    checkFlashcardsLimits({
-      cards: cards,
-      decks: decks,
-      paying: this.noLimits,
-    });
-  }
 }

@@ -5,7 +5,12 @@ import { Knex } from 'knex';
 import NotionAPIWrapper from '../../../../services/NotionService/NotionAPIWrapper';
 import { isPaying } from '../../../isPaying';
 import JobRepository from '../../../../data_layer/JobRepository';
+import UsersRepository from '../../../../data_layer/UsersRepository';
 import { FindOrCreateJobUseCase } from '../../../../usecases/jobs/FindOrCreateJobUseCase';
+import {
+  CheckMonthlyCardLimitUseCase,
+  MonthlyLimitError,
+} from '../../../../usecases/users/CheckMonthlyCardLimitUseCase';
 import { CheckInProgressJobUseCase } from '../../../../usecases/jobs/CheckInProgressJobUseCase';
 import { CheckJobLimitUseCase } from '../../../../usecases/jobs/CheckJobLimitUseCase';
 import { CancelJobUseCase } from '../../../../usecases/jobs/CancelJobUseCase';
@@ -38,6 +43,7 @@ export default async function performConversion(
 
   const storage = new StorageHandler();
   const jobRepository = new JobRepository(database);
+  const usersRepository = new UsersRepository(database);
 
   const findOrCreateJobUseCase = new FindOrCreateJobUseCase(jobRepository);
 
@@ -112,6 +118,23 @@ export default async function performConversion(
       return;
     }
 
+    const cardCount = decks.reduce((acc, d) => acc + d.cards.length, 0);
+    const checkMonthlyLimit = new CheckMonthlyCardLimitUseCase(usersRepository);
+    try {
+      await checkMonthlyLimit.execute({
+        userId: owner,
+        candidateCardCount: cardCount,
+        isPaying: isPaying(res?.locals),
+      });
+    } catch (error) {
+      if (error instanceof MonthlyLimitError) {
+        const setJobFailed = new SetJobFailedUseCase(jobRepository);
+        await setJobFailed.execute(id, owner, error.message);
+        return;
+      }
+      throw error;
+    }
+
     const buildDeck = new BuildDeckForJobUseCase(jobRepository);
     const { size, key, apkg } = await buildDeck.execute({
       bl,
@@ -136,8 +159,8 @@ export default async function performConversion(
       apkg,
     });
 
-    const completeJob = new CompleteJobUseCase(jobRepository);
-    await completeJob.execute(id, owner);
+    const completeJob = new CompleteJobUseCase(jobRepository, usersRepository);
+    await completeJob.execute(id, owner, cardCount);
   } catch (error) {
     if (error instanceof PythonExitError) {
       console.error('[conversion] python crash', {

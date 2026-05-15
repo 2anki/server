@@ -5,6 +5,8 @@ export interface ChangelogEntry {
 }
 
 export const changelog: ChangelogEntry[] = [
+  { type: 'feature', title: 'Free plan shows your monthly card count in the sidebar — 100 cards per month, resets each month, takes effect 1 June', date: '2026-05-15' },
+  { type: 'feature', title: 'Print preview shows up in the sidebar for everyone — subscribe to unlock it', date: '2026-05-15' },
   { type: 'feature', title: 'Note types — browse 8 ready-to-use Anki templates, customize them in the browser, and download as .apkg', date: '2026-05-15' },
   { type: 'feature', title: 'Drop a PDF or photo straight into the chat composer — Claude reads it and turns it into cards without leaving the conversation', date: '2026-05-15' },
   { type: 'feature', title: 'Pages with custom settings — reset one back to defaults from the list, or all of them at once', date: '2026-05-15' },

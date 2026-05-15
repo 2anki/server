@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from '../../lib/hooks/useTheme';
+import { useCardUsage } from '../../lib/hooks/useCardUsage';
 import { getVisibleText } from '../../lib/text/getVisibleText';
 import { getPlanLabel, isPayingUser } from '../NavigationBar/helpers/getPlanLabel';
 import ArrowLeftIcon from '../icons/ArrowLeftIcon';
@@ -23,6 +24,33 @@ import { ThemeSwitcher } from '../ThemeSwitcher/ThemeSwitcher';
 import styles from './AppShell.module.css';
 
 const TRIAL_DURATION_MS = 60 * 60 * 1000;
+
+interface CardUsageCounterProps {
+  used: number;
+  limit: number;
+}
+
+function CardUsageCounter({ used, limit }: Readonly<CardUsageCounterProps>) {
+  const atLimit = used >= limit;
+  const approaching = !atLimit && used >= limit * 0.8;
+  const heroClass = approaching || atLimit
+    ? `${styles.identityUsageHero} ${styles.identityUsageWarning}`
+    : styles.identityUsageHero;
+  const restClass = approaching || atLimit
+    ? `${styles.identityUsageRest} ${styles.identityUsageWarning}`
+    : styles.identityUsageRest;
+  return (
+    <span className={styles.identityUsage}>
+      <span className={heroClass}>{used}</span>
+      <span className={restClass}> / {limit} cards this month</span>
+      {atLimit && (
+        <Link to="/pricing?from=limit" className={styles.identityUsageUpgrade}>
+          Upgrade for unlimited
+        </Link>
+      )}
+    </span>
+  );
+}
 
 function useTrialCountdown(trialStartedAt: string | null | undefined): string | null {
   const [label, setLabel] = useState<string | null>(null);
@@ -112,6 +140,33 @@ function SidebarRow({
   );
 }
 
+interface LockedSidebarRowProps {
+  label: string;
+  pill: string;
+  onActivate: () => void;
+  icon?: React.ComponentType<{ width?: number; height?: number }>;
+}
+
+function LockedSidebarRow({
+  label,
+  pill,
+  onActivate,
+  icon: Icon,
+}: Readonly<LockedSidebarRowProps>) {
+  return (
+    <button
+      type="button"
+      onClick={onActivate}
+      aria-label={`${label} — upgrade to unlock`}
+      className={`${styles.sidebarRow} ${styles.sidebarRowLocked}`}
+    >
+      {Icon && <Icon width={20} height={20} />}
+      <span className={styles.sidebarRowLockedLabel}>{label}</span>
+      <span className={styles.sidebarRowPill}>{pill}</span>
+    </button>
+  );
+}
+
 export function Sidebar({
   email,
   locals,
@@ -122,6 +177,7 @@ export function Sidebar({
   drawerId,
 }: Readonly<SidebarProps>) {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
   const theme = useTheme();
   const logoSrc = theme === 'light' ? '/mascot/navbar-logo.png' : '/mascot/Notion 1.png';
   const showAnkify = locals?.patreon === true;
@@ -132,6 +188,8 @@ export function Sidebar({
   const showAdminGroup = showKi || showOps;
   const trialCountdown = useTrialCountdown(locals?.trial_started_at);
   const planLabel = trialCountdown ?? getPlanLabel(locals);
+  const usage = useCardUsage(!paying);
+  const showUsage = usage != null && !usage.unlimited && !usage.loading;
 
   const handleNavClick = (
     handler?: React.MouseEventHandler<HTMLAnchorElement>
@@ -207,7 +265,7 @@ export function Sidebar({
           >
             Chat
           </SidebarRow>
-          {paying && (
+          {paying ? (
             <SidebarRow
               href="/print"
               pathname={pathname}
@@ -217,6 +275,16 @@ export function Sidebar({
             >
               {getVisibleText('navigation.print')}
             </SidebarRow>
+          ) : (
+            <LockedSidebarRow
+              label={getVisibleText('navigation.print')}
+              pill="Subscriber"
+              icon={PrinterIcon}
+              onActivate={() => {
+                onNavigate?.();
+                navigate('/pricing?from=print');
+              }}
+            />
           )}
           {showAnkify && (
             <SidebarRow
@@ -303,6 +371,9 @@ export function Sidebar({
           {email ?? 'Account'}
         </span>
         <span className={styles.identityPlan}>{planLabel}</span>
+        {showUsage && usage && (
+          <CardUsageCounter used={usage.cards_used} limit={usage.cards_limit} />
+        )}
       </div>
       <div className={styles.sidebarGroup}>
         <SidebarRow

@@ -3,7 +3,6 @@ import CardOption from '../../lib/parser/Settings/CardOption';
 import { ZipHandler } from '../../lib/zip/zip';
 import { PrepareDeck } from '../../infrastracture/adapters/fileConversion/PrepareDeck';
 import Package from '../../lib/parser/Package';
-import { checkFlashcardsLimits } from '../../lib/User/checkFlashcardsLimits';
 import { PackageResult } from './GeneratePackagesUseCase';
 import Workspace from '../../lib/parser/WorkSpace';
 import { getMaxUploadCount } from '../../lib/misc/getMaxUploadCount';
@@ -68,18 +67,7 @@ export const getPackagesFromZip = async (
       packages.push(new Package(deck.name, deck.cardCount ?? 0));
       if (deck.warning) warnings.push(deck.warning);
       cardCount += deck.deck.reduce((acc, d) => acc + d.cards.length, 0);
-
-      checkFlashcardsLimits({
-        cards: 0,
-        decks: deck.deck,
-        paying,
-      });
     }
-
-    checkFlashcardsLimits({
-      cards: cardCount,
-      paying: paying,
-    });
   }
 
   return { packages, warnings };

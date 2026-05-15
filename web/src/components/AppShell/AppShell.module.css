@@ -93,6 +93,38 @@
   color: var(--color-primary);
 }
 
+.sidebarRowLocked {
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+  color: var(--color-text-tertiary);
+  font-family: inherit;
+}
+
+.sidebarRowLocked:hover {
+  color: var(--color-text-secondary);
+  background: var(--color-bg-tertiary);
+}
+
+.sidebarRowLockedLabel {
+  flex: 1 1 auto;
+}
+
+.sidebarRowPill {
+  font-size: 0.6875rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-tertiary);
+  letter-spacing: 0.02em;
+}
+
+.sidebarRowLocked:hover .sidebarRowPill {
+  background: var(--color-bg-primary);
+}
+
 .identity {
   display: flex;
   flex-direction: column;
@@ -115,6 +147,41 @@
 .identityPlan {
   font-size: var(--text-sm);
   color: var(--color-text-secondary);
+}
+
+.identityUsage {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  font-size: var(--text-sm);
+  color: var(--color-text-tertiary);
+  font-variant-numeric: tabular-nums;
+  margin-top: 0.125rem;
+}
+
+.identityUsageHero {
+  font-weight: var(--font-medium);
+  color: var(--color-text-primary);
+}
+
+.identityUsageRest {
+  color: var(--color-text-tertiary);
+}
+
+.identityUsageWarning {
+  color: var(--color-warning);
+}
+
+.identityUsageUpgrade {
+  flex-basis: 100%;
+  font-size: var(--text-sm);
+  color: var(--color-text-link);
+  text-decoration: none;
+  margin-top: 0.125rem;
+}
+
+.identityUsageUpgrade:hover {
+  text-decoration: underline;
 }
 
 .sidebarTheme {
