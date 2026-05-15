@@ -83,11 +83,60 @@ Rules:
 - previewData covers every field in flds and shows a single example card the user would recognize.
 - Always return valid JSON. No comments, no trailing commas. No prose outside the fenced block.`;
 
+const FENCE_OPEN = '```json';
+const FENCE_CLOSE = '```';
+
+function findFencedJson(text: string): string | null {
+  const lower = text.toLowerCase();
+  const openIndex = lower.indexOf(FENCE_OPEN);
+  if (openIndex === -1) return null;
+  let contentStart = openIndex + FENCE_OPEN.length;
+  while (
+    contentStart < text.length &&
+    (text[contentStart] === ' ' ||
+      text[contentStart] === '\t' ||
+      text[contentStart] === '\r' ||
+      text[contentStart] === '\n')
+  ) {
+    contentStart += 1;
+  }
+  const closeIndex = text.indexOf(FENCE_CLOSE, contentStart);
+  if (closeIndex === -1) return null;
+  return text.slice(contentStart, closeIndex).trim();
+}
+
+function findBareJson(text: string): string | null {
+  const start = text.indexOf('{');
+  if (start === -1) return null;
+  let depth = 0;
+  let inString = false;
+  let escape = false;
+  for (let i = start; i < text.length; i += 1) {
+    const char = text[i];
+    if (escape) {
+      escape = false;
+      continue;
+    }
+    if (char === '\\' && inString) {
+      escape = true;
+      continue;
+    }
+    if (char === '"') {
+      inString = !inString;
+      continue;
+    }
+    if (inString) continue;
+    if (char === '{') depth += 1;
+    else if (char === '}') {
+      depth -= 1;
+      if (depth === 0) return text.slice(start, i + 1);
+    }
+  }
+  return null;
+}
+
 function extractJsonBlock(text: string): string | null {
-  const fence = /```json\s*([\s\S]*?)```/i.exec(text);
-  if (fence) return fence[1].trim();
-  const bare = /\{[\s\S]*\}/.exec(text);
-  return bare ? bare[0] : null;
+  return findFencedJson(text) ?? findBareJson(text);
 }
 
 interface ParsedResponse {
