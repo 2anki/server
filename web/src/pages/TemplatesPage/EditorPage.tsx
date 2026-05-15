@@ -3,8 +3,11 @@ import { Helmet } from 'react-helmet-async';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import {
+  AIChatMessage,
   AnkiNoteType,
   NoteTypeStarter,
+  aiGenerateNoteType,
+  aiModifyNoteType,
   downloadNoteTypeApkg,
   getDefaultNoteTypes,
   getUserTemplates,
@@ -127,10 +130,78 @@ function PresetPicker({
         )}
       </section>
 
+      <AIGenerateSection onGenerated={onPick} />
+
       <Link to="/templates" className={editorStyles.presetBack}>
         ← Back to Note types
       </Link>
     </div>
+  );
+}
+
+interface AIGenerateSectionProps {
+  onGenerated: (pick: NoteTypeStarter) => void;
+}
+
+function AIGenerateSection({ onGenerated }: Readonly<AIGenerateSectionProps>) {
+  const [prompt, setPrompt] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const onSubmit = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      const result = await aiGenerateNoteType(prompt);
+      onGenerated(result.starter);
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Could not generate');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <section
+      className={editorStyles.presetSection}
+      aria-labelledby="preset-ai-heading"
+    >
+      <h2 id="preset-ai-heading" className={editorStyles.presetHeading}>
+        Generate with Claude
+      </h2>
+      <p className={editorStyles.presetSubtitle}>
+        Describe the note type you want. Claude returns a starting point you can
+        edit, preview, and refine.
+      </p>
+      <div className={editorStyles.aiPromptRow}>
+        <input
+          className={editorStyles.aiPromptInput}
+          value={prompt}
+          onChange={(event) => setPrompt(event.target.value)}
+          placeholder="e.g. Japanese vocabulary with kanji, reading, English meaning, and a pitch-accent diagram"
+          aria-label="Describe the note type"
+          disabled={busy}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' && !busy && prompt.trim().length > 0) {
+              onSubmit();
+            }
+          }}
+        />
+        <button
+          type="button"
+          className={`${sharedStyles.btnPrimary} ${sharedStyles.btnInline}`}
+          onClick={onSubmit}
+          disabled={busy || prompt.trim().length === 0}
+        >
+          {busy ? 'Generating…' : 'Generate'}
+        </button>
+      </div>
+      {error && (
+        <p className={editorStyles.aiError} role="alert">
+          {error}
+        </p>
+      )}
+    </section>
   );
 }
 
@@ -158,6 +229,10 @@ function EditorBody({
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [savedAt, setSavedAt] = useState<number | null>(null);
+  const [chatHistory, setChatHistory] = useState<AIChatMessage[]>([]);
+  const [chatInput, setChatInput] = useState('');
+  const [chatBusy, setChatBusy] = useState(false);
+  const [chatError, setChatError] = useState<string | null>(null);
 
   useEffect(() => {
     setDraft(initialStarter);
@@ -219,6 +294,40 @@ function EditorBody({
       );
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleSendChat = async () => {
+    const instruction = chatInput.trim();
+    if (instruction.length === 0 || chatBusy) return;
+    setChatBusy(true);
+    setChatError(null);
+    setChatInput('');
+    const nextHistory: AIChatMessage[] = [
+      ...chatHistory,
+      { role: 'user', content: instruction },
+    ];
+    setChatHistory(nextHistory);
+    try {
+      const result = await aiModifyNoteType(draft, instruction, chatHistory);
+      setDraft((current) => ({
+        ...current,
+        name: result.starter.name,
+        description: result.starter.description,
+        baseType: result.starter.baseType,
+        noteType: result.starter.noteType,
+        previewData: result.starter.previewData,
+      }));
+      setChatHistory([
+        ...nextHistory,
+        { role: 'assistant', content: result.reply || 'Updated.' },
+      ]);
+    } catch (error: unknown) {
+      setChatError(
+        error instanceof Error ? error.message : 'Claude could not respond'
+      );
+    } finally {
+      setChatBusy(false);
     }
   };
 
@@ -403,6 +512,66 @@ function EditorBody({
               sandbox=""
               srcDoc={previewDoc}
             />
+          </div>
+          <div className={editorStyles.chatPanel}>
+            <div className={editorStyles.previewLabel}>Ask Claude</div>
+            <div
+              className={editorStyles.chatHistory}
+              aria-live="polite"
+              aria-atomic="false"
+            >
+              {chatHistory.length === 0 && !chatBusy && (
+                <p className={editorStyles.chatEmpty}>
+                  Try: "Make the back darker", "Add a hint field", "Use a serif
+                  font for the question."
+                </p>
+              )}
+              {chatHistory.map((message, index) => (
+                <div
+                  // eslint-disable-next-line react/no-array-index-key
+                  key={index}
+                  className={`${editorStyles.chatBubble} ${message.role === 'user' ? editorStyles.chatBubbleUser : editorStyles.chatBubbleAssistant}`}
+                >
+                  {message.content}
+                </div>
+              ))}
+              {chatBusy && (
+                <div
+                  className={`${editorStyles.chatBubble} ${editorStyles.chatBubbleAssistant} ${editorStyles.chatPending}`}
+                >
+                  Thinking…
+                </div>
+              )}
+            </div>
+            {chatError && (
+              <p className={editorStyles.aiError} role="alert">
+                {chatError}
+              </p>
+            )}
+            <div className={editorStyles.chatInputRow}>
+              <input
+                className={editorStyles.chatInput}
+                value={chatInput}
+                onChange={(event) => setChatInput(event.target.value)}
+                placeholder="Ask Claude to change something"
+                disabled={chatBusy}
+                aria-label="Ask Claude"
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' && !event.shiftKey) {
+                    event.preventDefault();
+                    handleSendChat();
+                  }
+                }}
+              />
+              <button
+                type="button"
+                className={`${sharedStyles.btnPrimary} ${sharedStyles.btnInline}`}
+                onClick={handleSendChat}
+                disabled={chatBusy || chatInput.trim().length === 0}
+              >
+                Send
+              </button>
+            </div>
           </div>
         </div>
       </div>

@@ -121,3 +121,54 @@ export async function deleteUserTemplate(
   await putUserTemplates(payload);
   return payload;
 }
+
+export interface AIChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+export interface AIGenerateResponse {
+  reply: string;
+  starter: NoteTypeStarter;
+}
+
+export async function aiGenerateNoteType(
+  prompt: string
+): Promise<AIGenerateResponse> {
+  const response = await post('/api/templates/ai/generate', { prompt });
+  if (!response.ok) {
+    const message = await safeErrorMessage(response, 'AI generation failed');
+    throw new Error(message);
+  }
+  return response.json();
+}
+
+export async function aiModifyNoteType(
+  starter: NoteTypeStarter,
+  instruction: string,
+  history: AIChatMessage[]
+): Promise<AIGenerateResponse> {
+  const response = await post('/api/templates/ai/modify', {
+    starter,
+    instruction,
+    history,
+  });
+  if (!response.ok) {
+    const message = await safeErrorMessage(response, 'AI modify failed');
+    throw new Error(message);
+  }
+  return response.json();
+}
+
+async function safeErrorMessage(
+  response: Response,
+  fallback: string
+): Promise<string> {
+  try {
+    const data = await response.json();
+    if (data && typeof data.error === 'string') return data.error;
+  } catch {
+    // ignore
+  }
+  return `${fallback}: ${response.status} ${response.statusText}`;
+}
