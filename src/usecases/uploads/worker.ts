@@ -26,11 +26,10 @@ interface GenerationData {
  */
 function getFileContents(file: UploadedFile): Buffer {
   if (!file.path) {
-    return file.buffer;
+    return Buffer.from(file.buffer);
   }
 
   try {
-    // Check if a file exists before trying to read it
     if (fs.existsSync(file.path)) {
       return fs.readFileSync(file.path);
     }
@@ -39,7 +38,7 @@ function getFileContents(file: UploadedFile): Buffer {
     console.error(`Error reading file at path: ${file.path}`, error);
   }
 
-  return file.buffer;
+  return Buffer.from(file.buffer);
 }
 
 /**
