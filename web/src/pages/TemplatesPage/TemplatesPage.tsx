@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
+import { Link } from 'react-router-dom';
 
 import {
   NoteTypeStarter,
   downloadNoteTypeApkg,
   getDefaultNoteTypes,
+  getUserTemplates,
 } from '../../lib/backend/templates';
 import sharedStyles from '../../styles/shared.module.css';
 import styles from './TemplatesPage.module.css';
@@ -31,6 +33,7 @@ async function triggerDownload(starter: NoteTypeStarter): Promise<void> {
 interface NoteTypeCardProps {
   starter: NoteTypeStarter;
   busy: boolean;
+  ownedByUser: boolean;
   onDownload: (starter: NoteTypeStarter) => void;
   onPreview: (starter: NoteTypeStarter) => void;
 }
@@ -38,6 +41,7 @@ interface NoteTypeCardProps {
 function NoteTypeCard({
   starter,
   busy,
+  ownedByUser,
   onDownload,
   onPreview,
 }: Readonly<NoteTypeCardProps>) {
@@ -45,6 +49,7 @@ function NoteTypeCard({
     () => buildPreviewDocument(starter.noteType, starter.previewData, 'front'),
     [starter]
   );
+  const editHref = `/templates/edit/${encodeURIComponent(starter.id)}`;
 
   return (
     <article className={styles.card}>
@@ -76,6 +81,12 @@ function NoteTypeCard({
           >
             {busy ? 'Preparing…' : 'Download .apkg'}
           </button>
+          <Link
+            to={editHref}
+            className={`${sharedStyles.btnSecondary} ${sharedStyles.btnInline}`}
+          >
+            {ownedByUser ? 'Edit' : 'Customize'}
+          </Link>
         </div>
       </div>
     </article>
@@ -166,6 +177,7 @@ function PreviewModal({ starter, onClose }: Readonly<PreviewModalProps>) {
 
 export function TemplatesPage() {
   const [starters, setStarters] = useState<NoteTypeStarter[] | null>(null);
+  const [userIds, setUserIds] = useState<Set<string>>(new Set());
   const [loadError, setLoadError] = useState<string | null>(null);
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -174,10 +186,23 @@ export function TemplatesPage() {
   useEffect(() => {
     let cancelled = false;
     setLoadError(null);
-    getDefaultNoteTypes()
-      .then((items) => {
+    Promise.all([
+      getDefaultNoteTypes(),
+      getUserTemplates().catch(() => ({ templates: [], hiddenIds: [] })),
+    ])
+      .then(([defaults, user]) => {
         if (cancelled) return;
-        setStarters(items);
+        const hidden = new Set(user.hiddenIds);
+        const visibleDefaults = defaults.filter((s) => !hidden.has(s.id));
+        const seen = new Set<string>();
+        const merged: NoteTypeStarter[] = [];
+        for (const item of [...user.templates, ...visibleDefaults]) {
+          if (!item?.id || seen.has(item.id)) continue;
+          seen.add(item.id);
+          merged.push(item);
+        }
+        setStarters(merged);
+        setUserIds(new Set(user.templates.map((t) => t.id)));
       })
       .catch((error: unknown) => {
         if (cancelled) return;
@@ -211,11 +236,19 @@ export function TemplatesPage() {
       <Helmet>
         <title>Note types — 2anki</title>
       </Helmet>
-      <header className={sharedStyles.pageHeader}>
-        <h1 className={sharedStyles.title}>Note types</h1>
-        <p className={sharedStyles.subtitle}>
-          Starter Anki note types you can drop in and start using. Open the .apkg in Anki to import.
-        </p>
+      <header className={`${sharedStyles.pageHeader} ${styles.pageHeaderRow}`}>
+        <div>
+          <h1 className={sharedStyles.title}>Note types</h1>
+          <p className={sharedStyles.subtitle}>
+            Starter Anki note types you can drop in or customize. Open the .apkg in Anki to import.
+          </p>
+        </div>
+        <Link
+          to="/templates/new"
+          className={`${sharedStyles.btnPrimary} ${sharedStyles.btnInline}`}
+        >
+          New note type
+        </Link>
       </header>
 
       {loadError && (
@@ -241,6 +274,7 @@ export function TemplatesPage() {
             <NoteTypeCard
               key={starter.id}
               starter={starter}
+              ownedByUser={userIds.has(starter.id)}
               busy={busyId === starter.id}
               onDownload={handleDownload}
               onPreview={setPreviewed}

@@ -193,3 +193,16 @@
   color: inherit;
   inset: auto;
 }
+
+.pageHeaderRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.pageHeaderRow > div {
+  flex: 1;
+  min-width: 220px;
+}

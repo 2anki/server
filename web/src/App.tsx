@@ -35,6 +35,9 @@ const SuccessfulCheckoutPage = lazy(
 const DocsPage = lazy(() => import('./pages/DocsPage/DocsPage'));
 const CardOptionsPage = lazy(() => import('./pages/CardOptionsPage'));
 const TemplatesPage = lazy(() => import('./pages/TemplatesPage'));
+const TemplatesEditorPage = lazy(
+  () => import('./pages/TemplatesPage/EditorPage')
+);
 const RulesPage = lazy(() => import('./pages/RulesPage'));
 const PreviewPage = lazy(() => import('./pages/PreviewPage'));
 const PreviewApkgPage = lazy(() => import('./pages/PreviewApkgPage'));
@@ -247,6 +250,14 @@ function AppContent({
             )}
           />
           <Route path="/templates" element={<TemplatesPage />} />
+          <Route
+            path="/templates/new"
+            element={requireAuth(<TemplatesEditorPage mode="new" />)}
+          />
+          <Route
+            path="/templates/edit/:id"
+            element={requireAuth(<TemplatesEditorPage mode="edit" />)}
+          />
           <Route
             path="/rules/:id"
             element={requireAuth(

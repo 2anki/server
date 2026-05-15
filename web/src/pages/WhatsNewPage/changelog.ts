@@ -5,7 +5,7 @@ export interface ChangelogEntry {
 }
 
 export const changelog: ChangelogEntry[] = [
-  { type: 'feature', title: 'Note types — browse 8 ready-to-use Anki templates with live previews and download any of them as an .apkg', date: '2026-05-15' },
+  { type: 'feature', title: 'Note types — browse 8 ready-to-use Anki templates, customize them in the browser, and download as .apkg', date: '2026-05-15' },
   { type: 'feature', title: 'Drop a PDF or photo straight into the chat composer — Claude reads it and turns it into cards without leaving the conversation', date: '2026-05-15' },
   { type: 'feature', title: 'Pages with custom settings — reset one back to defaults from the list, or all of them at once', date: '2026-05-15' },
   { type: 'fix', title: 'Notion search — the page you just edited reappears at the top when you return from rules', date: '2026-05-15' },
