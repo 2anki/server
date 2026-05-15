@@ -2,14 +2,36 @@ import { lazy, Suspense, useEffect, useState } from 'react';
 import styles from './CodeEditor.module.css';
 
 const MonacoEditor = lazy(async () => {
-  const mod = await import('@monaco-editor/react');
-  const { loader } = mod;
-  loader.config({
-    paths: {
-      vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.44.0/min/vs',
+  const [{ default: Editor, loader }, monaco] = await Promise.all([
+    import('@monaco-editor/react'),
+    import('monaco-editor'),
+  ]);
+
+  const editorWorker = (
+    await import('monaco-editor/esm/vs/editor/editor.worker?worker')
+  ).default;
+  const cssWorker = (
+    await import('monaco-editor/esm/vs/language/css/css.worker?worker')
+  ).default;
+  const htmlWorker = (
+    await import('monaco-editor/esm/vs/language/html/html.worker?worker')
+  ).default;
+
+  (globalThis as unknown as { MonacoEnvironment: object }).MonacoEnvironment = {
+    getWorker(_workerId: string, label: string) {
+      if (label === 'css' || label === 'scss' || label === 'less') {
+        return new cssWorker();
+      }
+      if (label === 'html' || label === 'handlebars' || label === 'razor') {
+        return new htmlWorker();
+      }
+      return new editorWorker();
     },
-  });
-  return { default: mod.default };
+  };
+
+  loader.config({ monaco });
+  await loader.init();
+  return { default: Editor };
 });
 
 interface CodeEditorProps {

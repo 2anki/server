@@ -39,6 +39,7 @@
     "date-fns": "^4.1.0",
     "get-notion-object-title": "^0.2.9",
     "gray-matter": "^4.0.3",
+    "monaco-editor": "^0.55.1",
     "react": "^19.2.6",
     "react-confetti": "^6.4.0",
     "react-cookie": "^8.1.2",
