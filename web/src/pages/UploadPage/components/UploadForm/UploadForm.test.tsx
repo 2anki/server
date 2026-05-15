@@ -29,6 +29,44 @@ describe('UploadForm', () => {
     );
     expect(container.querySelector('.null')).toBeNull();
   });
+
+  test('renders the Google Drive tab when env vars are configured', () => {
+    const previousClient = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+    const previousKey = process.env.REACT_APP_GOOGLE_API_KEY;
+    process.env.REACT_APP_GOOGLE_CLIENT_ID = 'test-client';
+    process.env.REACT_APP_GOOGLE_API_KEY = 'test-key';
+    try {
+      const { container } = renderUploadForm(
+        <UploadForm setErrorMessage={vi.fn()} />
+      );
+      const tabs = Array.from(
+        container.querySelectorAll('button[role="tab"]')
+      );
+      expect(tabs.map((b) => b.textContent)).toContain('Google Drive');
+    } finally {
+      process.env.REACT_APP_GOOGLE_CLIENT_ID = previousClient;
+      process.env.REACT_APP_GOOGLE_API_KEY = previousKey;
+    }
+  });
+
+  test('omits the Google Drive tab when env vars are missing', () => {
+    const previousClient = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+    const previousKey = process.env.REACT_APP_GOOGLE_API_KEY;
+    process.env.REACT_APP_GOOGLE_CLIENT_ID = '';
+    process.env.REACT_APP_GOOGLE_API_KEY = '';
+    try {
+      const { container } = renderUploadForm(
+        <UploadForm setErrorMessage={vi.fn()} />
+      );
+      const tabs = Array.from(
+        container.querySelectorAll('button[role="tab"]')
+      );
+      expect(tabs.map((b) => b.textContent)).not.toContain('Google Drive');
+    } finally {
+      process.env.REACT_APP_GOOGLE_CLIENT_ID = previousClient;
+      process.env.REACT_APP_GOOGLE_API_KEY = previousKey;
+    }
+  });
 });
 
 describe('UploadForm analytics events', () => {
