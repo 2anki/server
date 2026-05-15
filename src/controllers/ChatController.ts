@@ -1,11 +1,25 @@
 import { Request, Response } from 'express';
-import { ChatUseCase, ChatRateLimitError } from '../usecases/chat/ChatUseCase';
+import {
+  ChatUseCase,
+  ChatRateLimitError,
+  ChatConversationNotFoundError,
+} from '../usecases/chat/ChatUseCase';
 
 const MAX_CONTENT_LENGTH = 4000;
 const MAX_CONTENT_LENGTH_PREMIUM = 100_000;
 
 function sseWrite(res: Response, event: string, data: unknown): void {
   res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+}
+
+function parseConversationId(raw: unknown): number | null {
+  if (raw == null) return null;
+  if (typeof raw === 'number' && Number.isSafeInteger(raw) && raw > 0) return raw;
+  if (typeof raw === 'string' && /^[1-9]\d*$/.test(raw)) {
+    const n = Number(raw);
+    return Number.isSafeInteger(n) ? n : null;
+  }
+  return null;
 }
 
 class ChatController {
@@ -31,6 +45,8 @@ class ChatController {
       return;
     }
 
+    const conversationId = parseConversationId(req.body?.conversationId);
+
     const rawHistory = Array.isArray(req.body?.history) ? req.body.history : [];
     const conversationHistory = rawHistory
       .filter(
@@ -53,11 +69,13 @@ class ChatController {
         user: { owner, patreon: isPremium },
         content,
         conversationHistory,
+        conversationId,
         onToken: (text) => sseWrite(res, 'token', text),
       });
 
       sseWrite(res, 'done', {
         content: result.content,
+        conversationId: result.conversationId,
         ...(result.cards != null ? { cards: result.cards } : {}),
         ...(result.contentBefore != null ? { contentBefore: result.contentBefore } : {}),
         ...(result.contentAfter != null ? { contentAfter: result.contentAfter } : {}),
@@ -65,6 +83,8 @@ class ChatController {
     } catch (err) {
       if (err instanceof ChatRateLimitError) {
         sseWrite(res, 'error', { type: 'rate_limit', resetDate: err.resetDate });
+      } else if (err instanceof ChatConversationNotFoundError) {
+        sseWrite(res, 'error', { type: 'conversation_not_found' });
       } else {
         sseWrite(res, 'error', { type: 'server_error' });
       }

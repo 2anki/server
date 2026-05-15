@@ -1,6 +1,9 @@
 import { Request, Response } from 'express';
 import ChatController from './ChatController';
-import { ChatRateLimitError } from '../usecases/chat/ChatUseCase';
+import {
+  ChatRateLimitError,
+  ChatConversationNotFoundError,
+} from '../usecases/chat/ChatUseCase';
 
 function buildRes(owner = 42, patreon = false, subscriber = false): Response {
   return {
@@ -103,5 +106,54 @@ describe('ChatController.sendMessage', () => {
     await controller.sendMessage(buildReq({ content: 'Make flashcards' }), res);
     const events = writtenEvents(res);
     expect(events).toContainEqual({ event: 'done', data: expect.objectContaining({ cards }) });
+  });
+
+  it('passes conversationId from body through to the use case', async () => {
+    const { execute, controller, res } = buildMocks();
+    execute.mockResolvedValueOnce({ content: 'ok', conversationId: 7 });
+    await controller.sendMessage(
+      buildReq({ content: 'Hi', conversationId: 7 }),
+      res
+    );
+    expect(execute).toHaveBeenCalledWith(
+      expect.objectContaining({ conversationId: 7 })
+    );
+  });
+
+  it('rejects non-positive or non-integer conversationId values by sending null', async () => {
+    const { execute, controller, res } = buildMocks();
+    execute.mockResolvedValueOnce({ content: 'ok', conversationId: 1 });
+    await controller.sendMessage(
+      buildReq({ content: 'Hi', conversationId: 'abc' }),
+      res
+    );
+    expect(execute).toHaveBeenCalledWith(
+      expect.objectContaining({ conversationId: null })
+    );
+  });
+
+  it('emits conversationId in done event', async () => {
+    const { execute, controller, res } = buildMocks();
+    execute.mockResolvedValueOnce({ content: 'reply', conversationId: 42 });
+    await controller.sendMessage(buildReq({ content: 'Hi' }), res);
+    const events = writtenEvents(res);
+    expect(events).toContainEqual({
+      event: 'done',
+      data: expect.objectContaining({ conversationId: 42 }),
+    });
+  });
+
+  it('sends conversation_not_found error event when use case throws ChatConversationNotFoundError', async () => {
+    const { execute, controller, res } = buildMocks();
+    execute.mockRejectedValueOnce(new ChatConversationNotFoundError());
+    await controller.sendMessage(
+      buildReq({ content: 'Hi', conversationId: 999 }),
+      res
+    );
+    const events = writtenEvents(res);
+    expect(events).toContainEqual({
+      event: 'error',
+      data: { type: 'conversation_not_found' },
+    });
   });
 });

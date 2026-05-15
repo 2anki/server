@@ -1,9 +1,12 @@
 import express from 'express';
 import ChatController from '../controllers/ChatController';
 import ChatDeckController from '../controllers/ChatDeckController';
+import ConversationsController from '../controllers/ConversationsController';
 import { ChatUseCase } from '../usecases/chat/ChatUseCase';
 import { ChatDeckUseCase } from '../usecases/chat/ChatDeckUseCase';
+import { ConversationsUseCase } from '../usecases/chat/ConversationsUseCase';
 import { ChatMessagesRepository } from '../data_layer/ChatMessagesRepository';
+import { ConversationsRepository } from '../data_layer/ConversationsRepository';
 import { getDatabase } from '../data_layer';
 import { getAnthropicClient } from '../lib/claude/ClaudeService';
 import RequireAuthentication from './middleware/RequireAuthentication';
@@ -11,12 +14,15 @@ import RequireAuthentication from './middleware/RequireAuthentication';
 const ChatRouter = () => {
   const router = express.Router();
   const db = getDatabase();
-  const repo = new ChatMessagesRepository(db);
+  const messagesRepo = new ChatMessagesRepository(db);
+  const conversationsRepo = new ConversationsRepository(db);
   const anthropic = getAnthropicClient();
-  const useCase = new ChatUseCase(repo, anthropic);
+  const useCase = new ChatUseCase(messagesRepo, conversationsRepo, anthropic);
   const controller = new ChatController(useCase);
   const deckUseCase = new ChatDeckUseCase();
   const deckController = new ChatDeckController(deckUseCase);
+  const conversationsUseCase = new ConversationsUseCase(conversationsRepo);
+  const conversationsController = new ConversationsController(conversationsUseCase);
 
   /**
    * @swagger
@@ -37,6 +43,9 @@ const ChatRouter = () => {
    *               content:
    *                 type: string
    *                 maxLength: 4000
+   *               conversationId:
+   *                 type: integer
+   *                 nullable: true
    *               history:
    *                 type: array
    *                 items:
@@ -131,12 +140,100 @@ const ChatRouter = () => {
     const owner = res.locals.owner as number;
     const patreon = (res.locals.patreon as boolean) ?? false;
     const subscriber = (res.locals.subscriber as boolean) ?? false;
-    const count = await repo.countThisMonth(owner);
+    const count = await messagesRepo.countThisMonth(owner);
     res.status(200).json({
       used: count,
       limit: patreon || subscriber ? null : 20,
     });
   });
+
+  /**
+   * @swagger
+   * /api/chat/conversations:
+   *   get:
+   *     summary: List the user's chat conversations
+   *     tags: [Chat]
+   *     security:
+   *       - bearerAuth: []
+   *     responses:
+   *       200:
+   *         description: Conversation summaries, newest first
+   */
+  router.get('/api/chat/conversations', RequireAuthentication, (req, res) =>
+    conversationsController.list(req, res)
+  );
+
+  /**
+   * @swagger
+   * /api/chat/conversations/{id}:
+   *   get:
+   *     summary: Load a conversation and its messages
+   *     tags: [Chat]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema: { type: integer }
+   *     responses:
+   *       200:
+   *         description: Conversation with messages
+   *       404:
+   *         description: Conversation not found
+   *   patch:
+   *     summary: Rename a conversation
+   *     tags: [Chat]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema: { type: integer }
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required: [title]
+   *             properties:
+   *               title:
+   *                 type: string
+   *                 maxLength: 120
+   *     responses:
+   *       204:
+   *         description: Renamed
+   *       400:
+   *         description: Invalid title
+   *       404:
+   *         description: Conversation not found
+   *   delete:
+   *     summary: Soft-delete a conversation
+   *     tags: [Chat]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema: { type: integer }
+   *     responses:
+   *       204:
+   *         description: Deleted
+   *       404:
+   *         description: Conversation not found
+   */
+  router.get('/api/chat/conversations/:id', RequireAuthentication, (req, res) =>
+    conversationsController.get(req, res)
+  );
+  router.patch('/api/chat/conversations/:id', RequireAuthentication, (req, res) =>
+    conversationsController.rename(req, res)
+  );
+  router.delete('/api/chat/conversations/:id', RequireAuthentication, (req, res) =>
+    conversationsController.delete(req, res)
+  );
 
   return router;
 };

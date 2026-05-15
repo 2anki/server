@@ -1,11 +1,13 @@
 import type Anthropic from '@anthropic-ai/sdk';
 import type { IChatMessagesRepository } from '../../data_layer/ChatMessagesRepository';
+import type { IConversationsRepository } from '../../data_layer/ConversationsRepository';
 
 const FREE_MONTHLY_LIMIT = 20;
 const FREE_MODEL = 'claude-haiku-4-5-20251001';
 const PATREON_MODEL = 'claude-sonnet-4-6';
 const MAX_HISTORY_TURNS = 10;
 const MAX_TOKENS = 4096;
+const AUTO_TITLE_MAX_LENGTH = 60;
 
 const STUDY_ASSISTANT_SYSTEM_PROMPT = `You are a study assistant for 2anki, a tool that turns notes into Anki flashcards.
 
@@ -36,9 +38,17 @@ export interface ChatMessage {
 
 export interface SendMessageResult {
   content: string;
+  conversationId: number;
   contentBefore?: string;
   contentAfter?: string;
   cards?: ChatCard[];
+}
+
+function buildAutoTitle(firstMessage: string): string {
+  const trimmed = firstMessage.replace(/\s+/g, ' ').trim();
+  if (trimmed.length === 0) return 'New conversation';
+  if (trimmed.length <= AUTO_TITLE_MAX_LENGTH) return trimmed;
+  return `${trimmed.slice(0, AUTO_TITLE_MAX_LENGTH).trimEnd()}…`;
 }
 
 export class ChatRateLimitError extends Error {
@@ -121,9 +131,17 @@ function extractCards(text: string): ExtractCardsResult {
   return { cards: undefined, contentBefore: undefined, contentAfter: undefined };
 }
 
+export class ChatConversationNotFoundError extends Error {
+  constructor() {
+    super('Conversation not found');
+    this.name = 'ChatConversationNotFoundError';
+  }
+}
+
 export class ChatUseCase {
   constructor(
-    private readonly repo: IChatMessagesRepository,
+    private readonly messagesRepo: IChatMessagesRepository,
+    private readonly conversationsRepo: IConversationsRepository,
     private readonly anthropic: Anthropic
   ) {}
 
@@ -131,15 +149,33 @@ export class ChatUseCase {
     user: ChatUser;
     content: string;
     conversationHistory: ChatMessage[];
+    conversationId?: number | null;
     onToken?: (text: string) => void;
   }): Promise<SendMessageResult> {
     const { user, content, conversationHistory, onToken } = input;
 
     if (!user.patreon) {
-      const count = await this.repo.countThisMonth(user.owner);
+      const count = await this.messagesRepo.countThisMonth(user.owner);
       if (count >= FREE_MONTHLY_LIMIT) {
         throw new ChatRateLimitError(firstOfNextMonth());
       }
+    }
+
+    let conversationId: number;
+    if (input.conversationId != null) {
+      const existing = await this.conversationsRepo.findForUser({
+        userId: user.owner,
+        conversationId: input.conversationId,
+      });
+      if (existing == null) {
+        throw new ChatConversationNotFoundError();
+      }
+      conversationId = existing.id;
+    } else {
+      conversationId = await this.conversationsRepo.create({
+        userId: user.owner,
+        title: buildAutoTitle(content),
+      });
     }
 
     const model = user.patreon ? PATREON_MODEL : FREE_MODEL;
@@ -150,7 +186,12 @@ export class ChatUseCase {
       { role: 'user', content },
     ];
 
-    await this.repo.insert({ userId: user.owner, role: 'user', content });
+    await this.messagesRepo.insert({
+      userId: user.owner,
+      conversationId,
+      role: 'user',
+      content,
+    });
 
     const stream = this.anthropic.messages.stream({
       model,
@@ -170,12 +211,19 @@ export class ChatUseCase {
       .map((block) => block.text)
       .join('');
 
-    await this.repo.insert({ userId: user.owner, role: 'assistant', content: assistantContent });
+    await this.messagesRepo.insert({
+      userId: user.owner,
+      conversationId,
+      role: 'assistant',
+      content: assistantContent,
+    });
+    await this.conversationsRepo.touch({ userId: user.owner, conversationId });
 
     const { cards, contentBefore, contentAfter } = extractCards(assistantContent);
 
     return {
       content: assistantContent,
+      conversationId,
       ...(cards != null ? { cards } : {}),
       ...(contentBefore != null ? { contentBefore } : {}),
       ...(contentAfter != null ? { contentAfter } : {}),
