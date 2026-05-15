@@ -1,4 +1,9 @@
-import type { IConversationsRepository, ConversationSummary, ConversationWithMessages } from '../../data_layer/ConversationsRepository';
+import type {
+  IConversationsRepository,
+  ConversationSummary,
+  ConversationWithMessages,
+} from '../../data_layer/ConversationsRepository';
+import { extractCards, ChatCard } from './ChatUseCase';
 
 const MAX_TITLE_LENGTH = 120;
 
@@ -9,6 +14,41 @@ export class InvalidTitleError extends Error {
   }
 }
 
+export interface ConversationMessageView {
+  id: number;
+  role: 'user' | 'assistant';
+  content: string;
+  created_at: Date;
+  cards?: ChatCard[];
+  contentBefore?: string;
+  contentAfter?: string;
+}
+
+export interface ConversationView {
+  id: number;
+  title: string;
+  created_at: Date;
+  updated_at: Date;
+  messages: ConversationMessageView[];
+}
+
+function hydrateMessages(
+  conv: ConversationWithMessages
+): ConversationMessageView[] {
+  return conv.messages.map((m) => {
+    if (m.role !== 'assistant') {
+      return m;
+    }
+    const { cards, contentBefore, contentAfter } = extractCards(m.content);
+    return {
+      ...m,
+      ...(cards != null ? { cards } : {}),
+      ...(contentBefore != null ? { contentBefore } : {}),
+      ...(contentAfter != null ? { contentAfter } : {}),
+    };
+  });
+}
+
 export class ConversationsUseCase {
   constructor(private readonly repo: IConversationsRepository) {}
 
@@ -16,8 +56,19 @@ export class ConversationsUseCase {
     return this.repo.listForUser(userId);
   }
 
-  get(input: { userId: number; conversationId: number }): Promise<ConversationWithMessages | null> {
-    return this.repo.findForUser(input);
+  async get(input: {
+    userId: number;
+    conversationId: number;
+  }): Promise<ConversationView | null> {
+    const conv = await this.repo.findForUser(input);
+    if (conv == null) return null;
+    return {
+      id: conv.id,
+      title: conv.title,
+      created_at: conv.created_at,
+      updated_at: conv.updated_at,
+      messages: hydrateMessages(conv),
+    };
   }
 
   async rename(input: {

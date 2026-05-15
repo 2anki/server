@@ -56,6 +56,64 @@ describe('ConversationsUseCase', () => {
         expect.objectContaining({ role: 'assistant', content: 'hi' }),
       ]);
     });
+
+    it('hydrates cards from assistant messages that contain a JSON code block', async () => {
+      const repo = new InMemoryConversationsRepository();
+      const useCase = new ConversationsUseCase(repo);
+      const id = await repo.create({ userId: USER_A, title: 'Cards' });
+      repo.recordMessage({ userId: USER_A, conversationId: id, role: 'user', content: 'make cards' });
+      const assistantContent =
+        'Here are your cards:\n```json\n[{"front":"Q1","back":"A1"},{"front":"Q2","back":"A2"}]\n```\nHope that helps!';
+      repo.recordMessage({
+        userId: USER_A,
+        conversationId: id,
+        role: 'assistant',
+        content: assistantContent,
+      });
+
+      const result = await useCase.get({ userId: USER_A, conversationId: id });
+      const assistant = result?.messages.find((m) => m.role === 'assistant');
+      expect(assistant?.cards).toEqual([
+        { front: 'Q1', back: 'A1' },
+        { front: 'Q2', back: 'A2' },
+      ]);
+      expect(assistant?.contentBefore).toBe('Here are your cards:');
+      expect(assistant?.contentAfter).toBe('Hope that helps!');
+    });
+
+    it('does not attach cards to user messages even when their content has JSON', async () => {
+      const repo = new InMemoryConversationsRepository();
+      const useCase = new ConversationsUseCase(repo);
+      const id = await repo.create({ userId: USER_A, title: 'Mixed' });
+      repo.recordMessage({
+        userId: USER_A,
+        conversationId: id,
+        role: 'user',
+        content: 'Turn this into cards:\n```json\n[{"front":"X","back":"Y"}]\n```',
+      });
+
+      const result = await useCase.get({ userId: USER_A, conversationId: id });
+      const userMsg = result?.messages.find((m) => m.role === 'user');
+      expect((userMsg as { cards?: unknown }).cards).toBeUndefined();
+    });
+
+    it('leaves assistant messages without JSON cards untouched', async () => {
+      const repo = new InMemoryConversationsRepository();
+      const useCase = new ConversationsUseCase(repo);
+      const id = await repo.create({ userId: USER_A, title: 'Prose' });
+      repo.recordMessage({
+        userId: USER_A,
+        conversationId: id,
+        role: 'assistant',
+        content: 'Just a plain explanation.',
+      });
+
+      const result = await useCase.get({ userId: USER_A, conversationId: id });
+      const assistant = result?.messages.find((m) => m.role === 'assistant');
+      expect((assistant as { cards?: unknown }).cards).toBeUndefined();
+      expect((assistant as { contentBefore?: unknown }).contentBefore).toBeUndefined();
+      expect((assistant as { contentAfter?: unknown }).contentAfter).toBeUndefined();
+    });
   });
 
   describe('rename', () => {

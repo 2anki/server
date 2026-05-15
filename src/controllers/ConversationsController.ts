@@ -45,6 +45,9 @@ class ConversationsController {
         role: m.role,
         content: m.content,
         createdAt: m.created_at.toISOString(),
+        ...(m.cards != null ? { cards: m.cards } : {}),
+        ...(m.contentBefore != null ? { contentBefore: m.contentBefore } : {}),
+        ...(m.contentAfter != null ? { contentAfter: m.contentAfter } : {}),
       })),
     });
   }

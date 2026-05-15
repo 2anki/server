@@ -67,7 +67,7 @@ function firstOfNextMonth(): string {
   return next.toISOString();
 }
 
-interface ExtractCardsResult {
+export interface ExtractCardsResult {
   cards: ChatCard[] | undefined;
   contentBefore: string | undefined;
   contentAfter: string | undefined;
@@ -98,7 +98,7 @@ function parseCardArray(raw: string): ChatCard[] | undefined {
   return cards.length > 0 ? cards : undefined;
 }
 
-function extractCards(text: string): ExtractCardsResult {
+export function extractCards(text: string): ExtractCardsResult {
   const fencedMatch = /```json\s*([\s\S]*?)```/.exec(text);
   if (fencedMatch != null) {
     const cards = parseCardArray(fencedMatch[1]);

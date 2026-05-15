@@ -49,6 +49,9 @@ interface ApiConversationDetailMessage {
   role: 'user' | 'assistant';
   content: string;
   createdAt: string;
+  cards?: ChatCard[];
+  contentBefore?: string;
+  contentAfter?: string;
 }
 
 interface ApiConversationDetailResponse {
@@ -181,7 +184,13 @@ export default function ChatPage() {
         | undefined;
       if (data == null) return;
       setMessages(
-        data.messages.map((m) => ({ role: m.role, content: m.content }))
+        data.messages.map((m) => ({
+          role: m.role,
+          content: m.content,
+          ...(m.cards != null ? { cards: m.cards } : {}),
+          ...(m.contentBefore != null ? { contentBefore: m.contentBefore } : {}),
+          ...(m.contentAfter != null ? { contentAfter: m.contentAfter } : {}),
+        }))
       );
     } catch {
       setNetworkError("Couldn't load this conversation.");
