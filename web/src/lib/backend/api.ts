@@ -50,6 +50,13 @@ export const post = async (url: string, body: unknown) =>
     body: JSON.stringify(body),
   });
 
+export const postMultipart = async (url: string, formData: FormData) =>
+  fetch(url, {
+    method: 'POST',
+    credentials: 'include',
+    body: formData,
+  });
+
 export const patch = async (url: string, body: unknown) =>
   fetch(url, {
     method: 'PATCH',

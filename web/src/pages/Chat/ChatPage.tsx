@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { useUserLocals } from '../../lib/hooks/useUserLocals';
-import { get, post, patch, del } from '../../lib/backend/api';
+import { get, post, postMultipart, patch, del } from '../../lib/backend/api';
 import SendIcon from '../../components/icons/SendIcon';
 import AssistantMarkdown from './AssistantMarkdown';
 import CardPreview from './CardPreview';
@@ -65,8 +65,29 @@ interface ApiConversationDetailResponse {
 
 const DRAFT_DEBOUNCE_MS = 500;
 
+type ChipState = 'idle' | 'uploading' | 'failed';
+
+interface AttachmentChip {
+  id: string;
+  file: File;
+  state: ChipState;
+  retryCount: number;
+}
+
+const ALLOWED_TYPES = new Set([
+  'application/pdf',
+  'image/png',
+  'image/jpeg',
+  'image/gif',
+  'image/webp',
+]);
+
+const MAX_FILE_BYTES = 10 * 1024 * 1024;
+const MAX_TOTAL_BYTES = 25 * 1024 * 1024;
+const MAX_FILE_COUNT = 5;
+
 const STARTER_PROMPTS = [
-  'Make 10 cards from notes I\'ll paste',
+  "Make 10 cards from notes I'll paste",
   'Explain a concept, then make cards',
   'Turn this into cloze cards: [paste]',
 ];
@@ -102,6 +123,27 @@ async function downloadDeck(cards: ChatCard[], deckName: string): Promise<void> 
   URL.revokeObjectURL(url);
 }
 
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024 * 1024) {
+    return `${Math.round(bytes / 1024)} KB`;
+  }
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function chipIcon(mimeType: string): string {
+  return mimeType === 'application/pdf' ? '📄' : '🖼';
+}
+
+function truncateName(name: string, max: number): string {
+  if (name.length <= max) return name;
+  const ext = name.lastIndexOf('.');
+  if (ext > 0 && name.length - ext <= 6) {
+    const truncated = name.slice(0, max - 3 - (name.length - ext));
+    return `${truncated}…${name.slice(ext)}`;
+  }
+  return `${name.slice(0, max - 1)}…`;
+}
+
 export default function ChatPage() {
   const { data: userLocals } = useUserLocals();
   const isPatreon = userLocals?.user?.patreon === true;
@@ -117,11 +159,14 @@ export default function ChatPage() {
   const [limitReached, setLimitReached] = useState(false);
   const [resetDate, setResetDate] = useState<string | null>(null);
   const [messagesUsedThisMonth, setMessagesUsedThisMonth] = useState(0);
+  const [chips, setChips] = useState<AttachmentChip[]>([]);
+  const [isDragging, setIsDragging] = useState(false);
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const messageListRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const lastSavedDraftRef = useRef<string>('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     get('/api/chat/usage', { redirect: false })
@@ -177,7 +222,53 @@ export default function ChatPage() {
 
   const remainingMessages = FREE_MONTHLY_LIMIT - messagesUsedThisMonth;
 
-  const canSend = inputValue.trim().length > 0 && !isLoading && !limitReached;
+  const readyChips = chips.filter((c) => c.state === 'idle');
+  const canSend = (inputValue.trim().length > 0 || readyChips.length > 0) && !isLoading && !limitReached;
+
+  function addFiles(files: File[]) {
+    setNetworkError(null);
+
+    const disallowed = files.filter((f) => !ALLOWED_TYPES.has(f.type));
+    if (disallowed.length > 0) {
+      if (disallowed.length === 1) {
+        setNetworkError(`Can't attach ${disallowed[0].name}. Only PDF and image files work here.`);
+      } else {
+        setNetworkError(`Can't attach ${disallowed.length} files. Only PDF and image files work here.`);
+      }
+      return;
+    }
+
+    const oversized = files.find((f) => f.size > MAX_FILE_BYTES);
+    if (oversized != null) {
+      setNetworkError(`${oversized.name} is ${formatFileSize(oversized.size)}. The per-file limit is 10 MB.`);
+      return;
+    }
+
+    const currentTotal = chips.reduce((s, c) => s + c.file.size, 0);
+    const newTotal = files.reduce((s, f) => s + f.size, currentTotal);
+    if (newTotal > MAX_TOTAL_BYTES) {
+      setNetworkError(`That's ${formatFileSize(newTotal)} total. A message can carry up to 25 MB across all files.`);
+      return;
+    }
+
+    const currentCount = chips.length;
+    const allowedCount = Math.max(0, MAX_FILE_COUNT - currentCount);
+    const toAdd = files.slice(0, allowedCount);
+
+    setChips((prev) => [
+      ...prev,
+      ...toAdd.map((f) => ({
+        id: `${Date.now()}-${Math.random()}`,
+        file: f,
+        state: 'idle' as ChipState,
+        retryCount: 0,
+      })),
+    ]);
+  }
+
+  function removeChip(id: string) {
+    setChips((prev) => prev.filter((c) => c.id !== id));
+  }
 
   function upsertConversation(id: number, title: string): void {
     setConversations((prev) => {
@@ -202,6 +293,7 @@ export default function ChatPage() {
     setNetworkError(null);
     setInputValue('');
     lastSavedDraftRef.current = '';
+    setChips([]);
     try {
       const data = (await get(`/api/chat/conversations/${id}`, { redirect: false })) as
         | ApiConversationDetailResponse
@@ -232,6 +324,8 @@ export default function ChatPage() {
     setStreamingText('');
     setNetworkError(null);
     setInputValue('');
+    lastSavedDraftRef.current = '';
+    setChips([]);
     textareaRef.current?.focus();
   }
 
@@ -272,42 +366,69 @@ export default function ChatPage() {
   }
 
   async function sendMessage(content: string) {
-    if (!content.trim()) return;
+    if (!content.trim() && readyChips.length === 0) return;
 
     const userMessage: Message = { role: 'user', content };
     const nextMessages = [...messages, userMessage];
     setMessages(nextMessages);
     setInputValue('');
+    setChips([]);
     setNetworkError(null);
     setIsLoading(true);
     setStreamingText('');
 
     const history = nextMessages.slice(-10).map((m) => ({ role: m.role, content: m.content }));
 
-    try {
-      const response = await post('/api/chat/message', {
-        content,
-        history,
-        conversationId: activeConversationId,
-      });
-
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({})) as { error?: string };
-        setNetworkError(data.error ?? "Couldn't send this message. Try again.");
-        setIsLoading(false);
-        return;
+    let response: Response;
+    if (readyChips.length > 0) {
+      const formData = new FormData();
+      formData.append('content', content);
+      formData.append('history', JSON.stringify(history));
+      if (activeConversationId != null) {
+        formData.append('conversationId', String(activeConversationId));
       }
-
-      if (response.body == null) {
+      for (const chip of readyChips) {
+        formData.append('files', chip.file, chip.file.name);
+      }
+      try {
+        response = await postMultipart('/api/chat/message', formData);
+      } catch {
         setNetworkError("Couldn't send this message. Try again.");
         setIsLoading(false);
         return;
       }
+    } else {
+      try {
+        response = await post('/api/chat/message', {
+          content,
+          history,
+          conversationId: activeConversationId,
+        });
+      } catch {
+        setNetworkError("Couldn't send this message. Try again.");
+        setIsLoading(false);
+        return;
+      }
+    }
 
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = '';
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({})) as { error?: string };
+      setNetworkError(data.error ?? "Couldn't send this message. Try again.");
+      setIsLoading(false);
+      return;
+    }
 
+    if (response.body == null) {
+      setNetworkError("Couldn't send this message. Try again.");
+      setIsLoading(false);
+      return;
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    try {
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
@@ -401,6 +522,25 @@ export default function ChatPage() {
       setNetworkError("Couldn't generate the deck. Try again.");
     });
   }
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    if (e.currentTarget.contains(e.relatedTarget as Node)) return;
+    setIsDragging(false);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) {
+      addFiles(files);
+    }
+  }, [chips]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const isCardStreaming = /(?:^|\n)```json/.test(streamingText) || /(?:^|\n)\s*\[\s*\{/.test(streamingText);
 
@@ -528,31 +668,124 @@ export default function ChatPage() {
               </a>
             </div>
           )}
-          <div className={styles.inputRow}>
-            <textarea
-              ref={textareaRef}
-              className={styles.textarea}
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Ask a study question or paste notes…"
-              disabled={isLoading || limitReached}
-              rows={1}
-              aria-label="Message input"
-            />
-            <button
-              type="button"
-              className={styles.sendBtn}
-              onClick={() => sendMessage(inputValue)}
-              disabled={!canSend}
-              aria-label="Send message"
-            >
-              <SendIcon width={18} height={18} />
-            </button>
+          <div
+            className={`${styles.composerCard} ${isDragging ? styles.composerCardDragging : ''}`}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+          >
+            {isDragging && (
+              <div className={styles.dropOverlay}>
+                <span className={styles.dropOverlayTitle}>Drop to attach</span>
+                <span className={styles.dropOverlaySub}>PDF or image, up to 10 MB each</span>
+              </div>
+            )}
+            {chips.length > 0 && (
+              <div className={styles.chipStrip}>
+                {chips.map((chip) => (
+                  <div
+                    key={chip.id}
+                    className={`${styles.chip} ${chip.state === 'failed' ? styles.chipError : ''}`}
+                  >
+                    <span className={styles.chipIcon}>{chipIcon(chip.file.type)}</span>
+                    <span
+                      className={styles.chipName}
+                      title={chip.file.name}
+                    >
+                      {truncateName(chip.file.name, 32)}
+                    </span>
+                    <span className={styles.chipSeparator}> · </span>
+                    {chip.state === 'uploading' && (
+                      <>
+                        <span className={`${styles.chipSize} ${styles.chipSizeError}`}>
+                          <span className={styles.spinnerSmall} />
+                        </span>
+                        <span className={styles.chipSize}>Uploading</span>
+                      </>
+                    )}
+                    {chip.state === 'failed' && (
+                      <>
+                        <span className={`${styles.chipSize} ${styles.chipSizeError}`}>Upload failed</span>
+                        <button
+                          type="button"
+                          className={styles.chipRetry}
+                          onClick={() => setChips((prev) =>
+                            prev.map((c) => c.id === chip.id ? { ...c, state: 'idle', retryCount: c.retryCount + 1 } : c)
+                          )}
+                        >
+                          Retry
+                        </button>
+                      </>
+                    )}
+                    {chip.state === 'idle' && (
+                      <span className={styles.chipSize}>{formatFileSize(chip.file.size)}</span>
+                    )}
+                    <button
+                      type="button"
+                      className={styles.chipRemove}
+                      aria-label={`Remove ${chip.file.name}`}
+                      onClick={() => removeChip(chip.id)}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className={styles.composerBottom}>
+              <textarea
+                ref={textareaRef}
+                className={styles.textarea}
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Ask a study question, paste notes, or attach a PDF…"
+                disabled={isLoading || limitReached}
+                rows={1}
+                aria-label="Message input"
+              />
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                accept="application/pdf,image/png,image/jpeg,image/gif,image/webp"
+                style={{ display: 'none' }}
+                onChange={(e) => {
+                  if (e.target.files != null && e.target.files.length > 0) {
+                    addFiles(Array.from(e.target.files));
+                  }
+                  e.target.value = '';
+                }}
+                aria-hidden="true"
+                tabIndex={-1}
+              />
+              <button
+                type="button"
+                className={styles.paperclipBtn}
+                aria-label="Attach files"
+                disabled={isLoading || limitReached || chips.length >= MAX_FILE_COUNT}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                className={styles.sendBtn}
+                onClick={() => sendMessage(inputValue)}
+                disabled={!canSend}
+                aria-label="Send message"
+              >
+                <SendIcon width={18} height={18} />
+              </button>
+            </div>
           </div>
           {!isPatreon && !limitReached && messagesUsedThisMonth > 0 && (
             <p className={styles.usageLine}>
-              {remainingMessages} of {FREE_MONTHLY_LIMIT} messages left this month
+              {remainingMessages === 1
+                ? '1 message left this month — your next send uses it'
+                : `${remainingMessages} of ${FREE_MONTHLY_LIMIT} messages left this month`}
             </p>
           )}
           {networkError != null && (
