@@ -24,7 +24,7 @@ async function triggerDownload(starter: NoteTypeStarter): Promise<void> {
   anchor.download = `${safeFilename(starter.name)}.apkg`;
   document.body.appendChild(anchor);
   anchor.click();
-  document.body.removeChild(anchor);
+  anchor.remove();
   URL.revokeObjectURL(url);
 }
 
@@ -48,12 +48,14 @@ function NoteTypeCard({
 
   return (
     <article className={styles.card}>
-      <iframe
-        title={`${starter.name} preview`}
-        className={styles.previewFrame}
-        sandbox=""
-        srcDoc={previewDoc}
-      />
+      <div className={styles.previewWrap}>
+        <iframe
+          title={`${starter.name} preview`}
+          className={styles.previewFrame}
+          sandbox=""
+          srcDoc={previewDoc}
+        />
+      </div>
       <div className={styles.body}>
         <h2 className={styles.name}>
           <button
@@ -104,18 +106,18 @@ function PreviewModal({ starter, onClose }: Readonly<PreviewModalProps>) {
   }, [onClose]);
 
   return (
-    <div className={sharedStyles.modal} role="presentation">
+    <div className={sharedStyles.modal}>
       <button
         type="button"
         className={sharedStyles.modalBackdrop}
         onClick={onClose}
         aria-label="Close preview"
       />
-      <div
-        role="dialog"
+      <dialog
+        open
         aria-modal="true"
         aria-labelledby="note-type-preview-title"
-        className={sharedStyles.modalCard}
+        className={`${sharedStyles.modalCard} ${styles.dialog}`}
       >
         <div className={sharedStyles.modalHeader}>
           <h2
@@ -136,24 +138,28 @@ function PreviewModal({ starter, onClose }: Readonly<PreviewModalProps>) {
         <div className={styles.modalBody}>
           <div className={styles.modalSide}>
             <span className={styles.sideLabel}>Front</span>
-            <iframe
-              title={`${starter.name} front preview`}
-              className={styles.modalFrame}
-              sandbox=""
-              srcDoc={frontDoc}
-            />
+            <div className={styles.modalFrameWrap}>
+              <iframe
+                title={`${starter.name} front preview`}
+                className={styles.modalFrame}
+                sandbox=""
+                srcDoc={frontDoc}
+              />
+            </div>
           </div>
           <div className={styles.modalSide}>
             <span className={styles.sideLabel}>Back</span>
-            <iframe
-              title={`${starter.name} back preview`}
-              className={styles.modalFrame}
-              sandbox=""
-              srcDoc={backDoc}
-            />
+            <div className={styles.modalFrameWrap}>
+              <iframe
+                title={`${starter.name} back preview`}
+                className={styles.modalFrame}
+                sandbox=""
+                srcDoc={backDoc}
+              />
+            </div>
           </div>
         </div>
-      </div>
+      </dialog>
     </div>
   );
 }
@@ -223,7 +229,7 @@ export function TemplatesPage() {
         </div>
       )}
 
-      {starters && starters.length === 0 && !loadError && (
+      {starters?.length === 0 && !loadError && (
         <div className={styles.empty}>
           No starter note types are available right now.
         </div>

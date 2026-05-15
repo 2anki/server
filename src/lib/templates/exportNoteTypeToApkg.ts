@@ -2,13 +2,21 @@ import crypto from 'node:crypto';
 import path from 'node:path';
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const initSqlJs = require('sql.js') as typeof import('sql.js');
+const initSqlJs = require('sql.js');
 import { zipSync } from 'fflate';
 
 const FIELD_SEPARATOR = '\x1f';
 
 function randomGuid(): string {
   return crypto.randomBytes(8).toString('base64url').slice(0, 10);
+}
+
+function computeSfldChecksum(sfld: string): number {
+  let hash = 0;
+  for (const char of sfld) {
+    hash = Math.trunc(hash * 31 + (char.codePointAt(0) ?? 0));
+  }
+  return hash >>> 0;
 }
 
 function locateSqlWasm(filename: string): string {
@@ -87,9 +95,15 @@ function buildModel(noteType: AnkiNoteType, modelId: number, now: number) {
         description: '',
       })),
       css: noteType.css ?? '',
-      latexPre:
-        '\\documentclass[12pt]{article}\n\\special{papersize=3in,5in}\n\\usepackage[utf8]{inputenc}\n\\usepackage{amssymb,amsmath}\n\\pagestyle{empty}\n\\setlength{\\parindent}{0in}\n\\begin{document}\n',
-      latexPost: '\\end{document}',
+      latexPre: String.raw`\documentclass[12pt]{article}
+\special{papersize=3in,5in}
+\usepackage[utf8]{inputenc}
+\usepackage{amssymb,amsmath}
+\pagestyle{empty}
+\setlength{\parindent}{0in}
+\begin{document}
+`,
+      latexPost: String.raw`\end{document}`,
       latexsvg: false,
       req: noteType.tmpls.map((_, i) => [i, 'all', [0]]),
     },
@@ -187,10 +201,7 @@ function insertPreviewNote(
   const sfld = previewData[noteType.flds[0]?.name] ?? '';
   const noteId = now * 1000;
   const guid = randomGuid();
-  const csum =
-    sfld
-      .split('')
-      .reduce((acc, c) => ((acc << 5) - acc + c.charCodeAt(0)) | 0, 0) >>> 0;
+  const csum = computeSfldChecksum(sfld);
 
   db.run('INSERT INTO notes VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', [
     noteId,

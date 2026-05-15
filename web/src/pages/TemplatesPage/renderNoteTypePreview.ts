@@ -35,7 +35,7 @@ export function renderCardSide(
     return substituteFields(template.qfmt, previewData, 'front');
   }
   const frontHtml = substituteFields(template.qfmt, previewData, 'front');
-  const backWithFront = template.afmt.replace(/\{\{FrontSide\}\}/g, frontHtml);
+  const backWithFront = template.afmt.replaceAll('{{FrontSide}}', frontHtml);
   return substituteFields(backWithFront, previewData, 'back');
 }
 

@@ -1,8 +1,3 @@
-// TODO: migrate this hard-coded default-template library into the
-// 2anki/templates repo so editors can add / tune starter note types
-// without a server deploy. Kept in-process for the Edit Templates UI
-// until that move happens.
-
 interface AnkiField {
   name: string;
   ord: number;
