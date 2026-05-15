@@ -5,6 +5,8 @@ export interface ChangelogEntry {
 }
 
 export const changelog: ChangelogEntry[] = [
+  { type: 'fix', title: 'Notion mentions (people, dates, linked pages) appear as text in your cards instead of a JSON dump', date: '2026-05-15' },
+  { type: 'fix', title: 'Downloaded Notion decks are named after your page or custom deck name — not an internal storage key', date: '2026-05-15' },
   { type: 'feature', title: 'Pricing page speaks to MCAT, USMLE, and bar-exam learners when you sign up from the US', date: '2026-05-15' },
   { type: 'feature', title: 'Free plan shows your monthly card count in the sidebar — 100 cards per month, resets each month, takes effect 1 June', date: '2026-05-15' },
   { type: 'feature', title: 'Print preview shows up in the sidebar for everyone — subscribe to unlock it', date: '2026-05-15' },
