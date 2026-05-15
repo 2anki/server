@@ -8,6 +8,11 @@ import {
 } from '../lib/templates/exportNoteTypeToApkg';
 import { getDefaultTemplates } from '../services/DefaultTemplatesService';
 import { getOfficialTemplates } from '../services/officialTemplates';
+import {
+  AINoteTypeUseCase,
+  ChatMessage,
+  NoteTypeStarterInput,
+} from '../usecases/ai/AINoteTypeUseCase';
 import TemplatesService from '../services/TemplatesService';
 
 const EMPTY_USER_PAYLOAD = { templates: [], hiddenIds: [] } as const;
@@ -33,7 +38,10 @@ function safeApkgFilename(name: string | undefined): string {
 }
 
 class TemplatesController {
-  constructor(private readonly service: TemplatesService) {}
+  constructor(
+    private readonly service: TemplatesService,
+    private readonly aiUseCase: AINoteTypeUseCase = new AINoteTypeUseCase()
+  ) {}
 
   async createTemplate(req: Request, res: Response) {
     const { templates } = req.body;
@@ -89,6 +97,48 @@ class TemplatesController {
 
   listOfficialTemplates(_req: Request, res: Response) {
     res.json(getOfficialTemplates());
+  }
+
+  async aiGenerate(req: Request, res: Response) {
+    const prompt = typeof req.body?.prompt === 'string' ? req.body.prompt : '';
+    if (prompt.trim().length === 0) {
+      res.status(400).json({ error: 'prompt is required' });
+      return;
+    }
+    try {
+      const result = await this.aiUseCase.generate(prompt);
+      res.json(result);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'AI generation failed';
+      res.status(500).json({ error: message });
+    }
+  }
+
+  async aiModify(req: Request, res: Response) {
+    const body = req.body ?? {};
+    const instruction =
+      typeof body.instruction === 'string' ? body.instruction : '';
+    if (instruction.trim().length === 0) {
+      res.status(400).json({ error: 'instruction is required' });
+      return;
+    }
+    const starter = body.starter as NoteTypeStarterInput | undefined;
+    if (!starter || typeof starter !== 'object') {
+      res.status(400).json({ error: 'starter is required' });
+      return;
+    }
+    const history: ChatMessage[] = Array.isArray(body.history)
+      ? (body.history as ChatMessage[])
+      : [];
+    try {
+      const result = await this.aiUseCase.modify(starter, instruction, history);
+      res.json(result);
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'AI modify failed';
+      res.status(500).json({ error: message });
+    }
   }
 
   async exportTemplate(req: Request, res: Response) {

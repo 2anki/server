@@ -74,10 +74,10 @@ const DEFAULT_PREVIEW_DATA: Record<BaseType, Record<string, string>> = {
 };
 
 function randomId(): string {
-  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
-    return `user-${crypto.randomUUID()}`;
+  if (typeof crypto === 'undefined' || !('randomUUID' in crypto)) {
+    throw new Error('crypto.randomUUID is not available in this environment');
   }
-  return `user-${Math.random().toString(36).slice(2)}`;
+  return `user-${crypto.randomUUID()}`;
 }
 
 export function buildEmptyNoteType(baseType: BaseType): NoteTypeStarter {

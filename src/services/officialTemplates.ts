@@ -220,7 +220,7 @@ export function getOfficialTemplates(): OfficialStarter[] {
   const starters: Array<OfficialStarter | null> = [
     jsonStarter(
       'n2a-basic.json',
-      'official-default-basic',
+      'official-n2a-basic',
       'Default (Basic)',
       'The classic 2anki look — Notion-styled basic note type, used by every standard conversion',
       'basic',
@@ -230,7 +230,7 @@ export function getOfficialTemplates(): OfficialStarter[] {
     ),
     jsonStarter(
       'n2a-cloze.json',
-      'official-default-cloze',
+      'official-n2a-cloze',
       'Default (Cloze)',
       'Cloze deletion that matches the standard 2anki conversion output',
       'cloze',
@@ -240,7 +240,7 @@ export function getOfficialTemplates(): OfficialStarter[] {
     ),
     jsonStarter(
       'n2a-input.json',
-      'official-default-input',
+      'official-n2a-input',
       'Default (Type the answer)',
       'Type-in-the-answer note type from the 2anki conversion pipeline',
       'basic',
@@ -255,7 +255,7 @@ export function getOfficialTemplates(): OfficialStarter[] {
     ),
     jsonStarter(
       'n2a-io.json',
-      'official-default-io',
+      'official-n2a-io',
       'Image Occlusion',
       "Anki's image-occlusion note type, kept in sync with the 2anki conversion target",
       'cloze',

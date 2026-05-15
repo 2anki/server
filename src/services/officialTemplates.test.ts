@@ -8,10 +8,10 @@ describe('getOfficialTemplates', () => {
     const ids = templates.map((t) => t.id);
     expect(ids).toEqual(
       expect.arrayContaining([
-        'official-default-basic',
-        'official-default-cloze',
-        'official-default-input',
-        'official-default-io',
+        'official-n2a-basic',
+        'official-n2a-cloze',
+        'official-n2a-input',
+        'official-n2a-io',
         'official-only-notion-basic',
         'official-only-notion-cloze',
         'official-no-style-basic',
@@ -45,14 +45,14 @@ describe('getOfficialTemplates', () => {
   });
 
   it('marks the cloze and image-occlusion templates as cloze type', () => {
-    const cloze = templates.find((t) => t.id === 'official-default-cloze');
-    const io = templates.find((t) => t.id === 'official-default-io');
+    const cloze = templates.find((t) => t.id === 'official-n2a-cloze');
+    const io = templates.find((t) => t.id === 'official-n2a-io');
     expect(cloze?.noteType.type).toBe(1);
     expect(io?.noteType.type).toBe(1);
   });
 
   it('keeps the Anki template HTML in qfmt/afmt', () => {
-    const basic = templates.find((t) => t.id === 'official-default-basic');
+    const basic = templates.find((t) => t.id === 'official-n2a-basic');
     expect(basic?.noteType.tmpls[0].qfmt).toContain('{{Front}}');
     expect(basic?.noteType.tmpls[0].afmt).toContain('{{Back}}');
   });

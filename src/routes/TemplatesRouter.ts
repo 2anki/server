@@ -206,6 +206,73 @@ const TemplatesRouter = () => {
     controller.exportTemplate(req, res)
   );
 
+  /**
+   * @swagger
+   * /api/templates/ai/generate:
+   *   post:
+   *     summary: Generate a new Anki note type with Claude from a natural-language prompt
+   *     tags: [Templates]
+   *     security:
+   *       - bearerAuth: []
+   *       - cookieAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required: [prompt]
+   *             properties:
+   *               prompt:
+   *                 type: string
+   *     responses:
+   *       200: { description: Generated starter + reply text }
+   *       400: { description: Invalid prompt }
+   *       401: { description: Authentication required }
+   *       500: { description: Generation failed }
+   */
+  router.post('/api/templates/ai/generate', RequireAuthentication, (req, res) =>
+    controller.aiGenerate(req, res)
+  );
+
+  /**
+   * @swagger
+   * /api/templates/ai/modify:
+   *   post:
+   *     summary: Ask Claude to modify the current note type given a chat instruction
+   *     tags: [Templates]
+   *     security:
+   *       - bearerAuth: []
+   *       - cookieAuth: []
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required: [starter, instruction]
+   *             properties:
+   *               starter:
+   *                 type: object
+   *               instruction:
+   *                 type: string
+   *               history:
+   *                 type: array
+   *                 items:
+   *                   type: object
+   *                   properties:
+   *                     role: { type: string, enum: [user, assistant] }
+   *                     content: { type: string }
+   *     responses:
+   *       200: { description: Updated starter + reply text }
+   *       400: { description: Invalid request }
+   *       401: { description: Authentication required }
+   *       500: { description: Modification failed }
+   */
+  router.post('/api/templates/ai/modify', RequireAuthentication, (req, res) =>
+    controller.aiModify(req, res)
+  );
+
   return router;
 };
 
