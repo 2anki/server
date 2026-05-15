@@ -5,6 +5,10 @@ module.exports = {
   testMatch: ['**/*.test.ts', '**/*.test.tsx'],
   testPathIgnorePatterns: ['/node_modules/', '<rootDir>/web/'],
   modulePathIgnorePatterns: ['<rootDir>/test/'],
+  moduleNameMapper: {
+    '^puppeteer$': '<rootDir>/src/test/mocks/puppeteer.ts',
+    '^archiver$': '<rootDir>/src/test/mocks/archiver.ts',
+  },
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',
     '!src/**/*.test.{ts,tsx}',
@@ -12,6 +16,7 @@ module.exports = {
     '!src/templates/**',
     '!src/migrations/**',
     '!src/test/fixtures/**',
+    '!src/test/mocks/**',
     '!src/config/swagger.ts',
   ],
   coverageDirectory: 'coverage',
