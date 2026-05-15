@@ -136,6 +136,13 @@ export class Backend {
     return result;
   }
 
+  async deleteAllUserSettings(): Promise<void> {
+    const response = await del(`${this.baseURL}users/me/settings`);
+    if (response != null && !response.ok) {
+      throw new Error(`Failed to reset all pages: ${response.status}`);
+    }
+  }
+
   async searchTopLevelPages(query: string): Promise<NotionObject[]> {
     const favorites = await this.getFavorites();
     const response = await post(`${this.baseURL}notion/top-level-pages`, {

@@ -163,3 +163,60 @@
   color: var(--color-primary);
   background: var(--color-bg-tertiary);
 }
+
+.resetButton {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 0.625rem;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  cursor: pointer;
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.resetButton:hover {
+  color: var(--color-danger);
+  background: var(--color-danger-light);
+}
+
+.resetButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.sectionFooter {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+  margin-top: var(--space-2);
+}
+
+.bulkResetButton {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.375rem 0.75rem;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--color-text-tertiary);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.bulkResetButton:hover {
+  color: var(--color-danger);
+  background: var(--color-danger-light);
+}
+
+.bulkResetButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

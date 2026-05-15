@@ -7,10 +7,15 @@ import supportedOptions from './supportedOptions';
 import CardOption from '../../lib/parser/Settings/CardOption';
 import { CardOptionDetail } from './CardOptionDetail';
 
+interface DeleteAllUseCase {
+  execute(owner: string): Promise<void>;
+}
+
 class CardOptionsController {
   constructor(
     private readonly service: IServiceSettings,
-    private readonly notionService?: NotionService
+    private readonly notionService?: NotionService,
+    private readonly deleteAllUseCase?: DeleteAllUseCase
   ) {}
 
   async createSetting(req: Request, res: Response) {
@@ -94,6 +99,17 @@ class CardOptionsController {
           updatedAt: r.updated_at ? r.updated_at.toISOString() : null,
         })),
       });
+    } catch (error) {
+      console.error(error);
+      res.status(500).send();
+    }
+  }
+
+  async deleteAllUserSettings(req: Request, res: Response) {
+    const owner = getOwner(res);
+    try {
+      await this.deleteAllUseCase?.execute(owner);
+      res.status(204).send();
     } catch (error) {
       console.error(error);
       res.status(500).send();

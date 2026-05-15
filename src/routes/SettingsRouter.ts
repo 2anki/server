@@ -3,11 +3,13 @@ import express from 'express';
 import RequireAuthentication from './middleware/RequireAuthentication';
 import CardOptionsController from '../controllers/CardOptionsController/CardOptionsController';
 import SettingsRepository from '../data_layer/SettingsRepository';
+import ParserRulesRepository from '../data_layer/ParserRulesRepository';
 import NotionRepository from '../data_layer/NotionRespository';
 import NotionTopLevelPagesRepository from '../data_layer/NotionTopLevelPagesRepository';
 import { getDatabase } from '../data_layer';
 import SettingsService from '../services/SettingsService';
 import NotionService from '../services/NotionService';
+import DeleteAllUserSettingsUseCase from '../usecases/DeleteAllUserSettingsUseCase';
 
 const SettingsRouter = () => {
   const router = express.Router();
@@ -16,9 +18,12 @@ const SettingsRouter = () => {
     new NotionRepository(database),
     new NotionTopLevelPagesRepository(database)
   );
+  const settingsRepository = new SettingsRepository(database);
+  const parserRulesRepository = new ParserRulesRepository(database);
   const controller = new CardOptionsController(
-    new SettingsService(new SettingsRepository(database)),
-    notionService
+    new SettingsService(settingsRepository),
+    notionService,
+    new DeleteAllUserSettingsUseCase(settingsRepository, parserRulesRepository)
   );
 
   /**
@@ -285,6 +290,30 @@ const SettingsRouter = () => {
    */
   router.get('/api/settings/list', RequireAuthentication, (req, res) =>
     controller.listSettings(req, res)
+  );
+
+  /**
+   * @swagger
+   * /api/users/me/settings:
+   *   delete:
+   *     summary: Reset all saved per-page settings
+   *     description: Owner-scoped wipe of every per-page parser rule and per-page card-option override for the authenticated user. Idempotent — returns 204 even when the user has no saved pages.
+   *     tags: [Settings]
+   *     security:
+   *       - bearerAuth: []
+   *       - cookieAuth: []
+   *     responses:
+   *       204:
+   *         description: Saved per-page settings reset (or already empty)
+   *       401:
+   *         description: Authentication required
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   */
+  router.delete('/api/users/me/settings', RequireAuthentication, (req, res) =>
+    controller.deleteAllUserSettings(req, res)
   );
 
   return router;
