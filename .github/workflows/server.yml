@@ -10,29 +10,17 @@ on:
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     name: build (22.20.0)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 22.20.0
-      - name: Cache node_modules
-        id: modules-cache
-        uses: actions/cache@v5
-        with:
-          path: |
-            node_modules
-            web/node_modules
-          key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-      - name: Install
-        if: steps.modules-cache.outputs.cache-hit != 'true'
-        run: pnpm install --frozen-lockfile
-        env:
-          CI: true
+      - uses: ./.github/actions/setup
       - name: Build
         run: pnpm build
         env:
@@ -44,23 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 22.20.0
-      - name: Cache node_modules
-        id: modules-cache
-        uses: actions/cache@v5
-        with:
-          path: |
-            node_modules
-            web/node_modules
-          key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-      - name: Install
-        if: steps.modules-cache.outputs.cache-hit != 'true'
-        run: pnpm install --frozen-lockfile
-        env:
-          CI: true
+      - uses: ./.github/actions/setup
       - name: Test
         run: pnpm test
         env:
