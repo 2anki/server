@@ -147,6 +147,28 @@
   min-height: 360px;
 }
 
+.previewFrameWrap {
+  position: relative;
+  flex: 1;
+  min-height: 360px;
+  overflow: hidden;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  container-type: inline-size;
+}
+
+.previewFrame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 800px;
+  height: 600px;
+  border: 0;
+  transform-origin: top left;
+  transform: scale(calc(100cqw / 800px));
+}
+
 .previewLabel {
   font-size: var(--text-xs);
   font-weight: var(--font-medium);

@@ -12,7 +12,7 @@ import {
 } from '../../lib/backend/templates';
 import sharedStyles from '../../styles/shared.module.css';
 import editorStyles from './EditorPage.module.css';
-import styles from './TemplatesPage.module.css';
+import galleryStyles from './TemplatesPage.module.css';
 import { CodeEditor } from './components/CodeEditor/CodeEditor';
 import { BaseType, buildEmptyNoteType, duplicateStarter } from './lib/buildNoteType';
 import { buildPreviewDocument } from './renderNoteTypePreview';
@@ -241,10 +241,10 @@ function EditorBody({
           <div className={editorStyles.previewLabel}>
             Live preview &mdash; {previewSide}
           </div>
-          <div className={styles.modalFrameWrap}>
+          <div className={editorStyles.previewFrameWrap}>
             <iframe
               title={`${draft.name} ${previewSide} preview`}
-              className={styles.modalFrame}
+              className={editorStyles.previewFrame}
               sandbox=""
               srcDoc={previewDoc}
             />
@@ -307,7 +307,7 @@ export function EditorPage({ mode }: Readonly<EditorPageProps>) {
   if (loadError) {
     return (
       <div className={sharedStyles.page}>
-        <p className={styles.error} role="alert">
+        <p className={galleryStyles.error} role="alert">
           {loadError}
         </p>
         <Link to="/templates" className={sharedStyles.btnSecondary}>
