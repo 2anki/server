@@ -81,7 +81,7 @@ function NoteTypeCard({
         <div className={styles.actions}>
           <button
             type="button"
-            className={styles.iconButton}
+            className={styles.ankiButton}
             onClick={() => onDownload(starter)}
             disabled={busy}
             aria-label={busy ? 'Preparing .apkg' : `Download ${starter.name} as .apkg`}
