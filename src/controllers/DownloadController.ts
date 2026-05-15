@@ -7,6 +7,7 @@ import DownloadService from '../services/DownloadService';
 import { canAccess } from '../lib/misc/canAccess';
 import { DownloadPage } from '../ui/pages/DownloadPage';
 import { buildContentDisposition } from '../lib/buildContentDisposition';
+import { getSafeFilename } from '../lib/getSafeFilename';
 
 class DownloadController {
   constructor(private service: DownloadService) {}
@@ -23,7 +24,13 @@ class DownloadController {
     try {
       const body = await this.service.getFileBody(owner, key, storage);
       if (body) {
-        const filename = key.endsWith('.apkg') ? key : `${key}.apkg`;
+        const dbName = await this.service.getFilename(owner, key);
+        const basename = dbName
+          ? getSafeFilename(dbName)
+          : key.endsWith('.apkg')
+            ? key
+            : `${key}.apkg`;
+        const filename = basename.endsWith('.apkg') ? basename : `${basename}.apkg`;
         res.setHeader('Content-Type', 'application/octet-stream');
         res.setHeader('Content-Disposition', buildContentDisposition(filename));
         res.send(body);
