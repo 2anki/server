@@ -10,6 +10,7 @@ interface PerPageItem {
   pageId: string;
   title: string | null;
   updatedAt: string | null;
+  resetDone?: boolean;
 }
 
 interface Props {
@@ -47,6 +48,12 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const [perPageItems, setPerPageItems] = useState<PerPageItem[]>([]);
+  const [pendingResetIds, setPendingResetIds] = useState<Set<string>>(new Set());
+  const [rowError, setRowError] = useState<string | null>(null);
+  const [bulkError, setBulkError] = useState<string | null>(null);
+  const [bulkSuccess, setBulkSuccess] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [bulkPending, setBulkPending] = useState(false);
 
   const pageId = params.get('pageId');
   const pageTitle = params.get('title');
@@ -54,13 +61,62 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
 
   const goBack = () => navigate(returnTo);
 
-  useEffect(() => {
-    if (pageId != null) return;
+  const loadSettings = () => {
     get2ankiApi()
       .listSettings()
       .then((data) => setPerPageItems(data.items))
       .catch(() => setPerPageItems([]));
+  };
+
+  useEffect(() => {
+    if (pageId != null) return;
+    loadSettings();
   }, [pageId]);
+
+  const handleRowReset = async (item: PerPageItem) => {
+    setRowError(null);
+    setPendingResetIds((prev) => new Set(prev).add(item.pageId));
+    try {
+      await Promise.all([
+        get2ankiApi().deleteSettings(item.pageId),
+        get2ankiApi().deleteRules(item.pageId),
+      ]);
+      setPerPageItems((prev) =>
+        prev.map((p) =>
+          p.pageId === item.pageId ? { ...p, resetDone: true } : p
+        )
+      );
+    } catch {
+      setRowError("Couldn't reset. Try again.");
+    } finally {
+      setPendingResetIds((prev) => {
+        const next = new Set(prev);
+        next.delete(item.pageId);
+        return next;
+      });
+    }
+  };
+
+  const handleBulkConfirm = async () => {
+    setBulkError(null);
+    setBulkPending(true);
+    try {
+      await get2ankiApi().deleteAllUserSettings();
+      setBulkSuccess(true);
+      setConfirmOpen(false);
+      loadSettings();
+    } catch {
+      setBulkError(
+        "Couldn't reset all pages. Some may have been reset — refresh to check."
+      );
+      setConfirmOpen(false);
+    } finally {
+      setBulkPending(false);
+    }
+  };
+
+  const anyRowPending = pendingResetIds.size > 0;
+  const itemCount = perPageItems.length;
 
   return (
     <div className={styles.pageShell}>
@@ -89,6 +145,29 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
           )}
         </header>
 
+        {bulkSuccess && (
+          <div
+            className={sharedStyles.alertSuccess}
+            role="status"
+            aria-live="polite"
+          >
+            <p>All saved pages reset to defaults</p>
+            <button
+              type="button"
+              className={sharedStyles.btnGhost}
+              onClick={() => setBulkSuccess(false)}
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
+
+        {bulkError && (
+          <div className={sharedStyles.alertDanger} role="alert">
+            {bulkError}
+          </div>
+        )}
+
         {pageId == null && (
           <section className={`${styles.pagesSection} ${styles.pagesCard}`}>
             <h2 className={styles.pagesHeading}>
@@ -100,63 +179,103 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
               )}
             </h2>
 
+            {rowError && (
+              <div className={sharedStyles.alertDanger} role="alert">
+                {rowError}
+              </div>
+            )}
+
             {perPageItems.length === 0 ? (
               <p className={styles.emptyInCard}>
                 No saved pages yet. When you customise options for a specific
                 Notion page, it appears here.
               </p>
             ) : (
-              <ul className={styles.list}>
-                {perPageItems.map((item) => {
-                  const updatedLabel = formatUpdatedAt(item.updatedAt);
-                  const displayTitle = item.title ?? null;
-                  const baseHref = `/rules/${encodeURIComponent(item.pageId)}?returnTo=/card-options`;
-                  const rulesHref = item.title
-                    ? `${baseHref}&title=${encodeURIComponent(item.title)}`
-                    : baseHref;
-                  return (
-                    <li key={item.pageId}>
-                      <div className={styles.entry}>
-                        <Link
-                          to={rulesHref}
-                          className={styles.entryMeta}
-                          aria-label={`Edit settings for ${displayTitle ?? item.pageId}`}
-                        >
-                          <div className={styles.entryText}>
-                            <span className={styles.entryTitle}>
-                              {displayTitle ?? 'Untitled page'}
-                            </span>
-                            {updatedLabel && (
-                              <span className={styles.entryTimestamp}>
-                                Updated {updatedLabel}
+              <>
+                <ul className={styles.list}>
+                  {perPageItems.map((item) => {
+                    const displayTitle = item.title ?? null;
+                    const baseHref = `/rules/${encodeURIComponent(item.pageId)}?returnTo=/card-options`;
+                    const rulesHref = item.title
+                      ? `${baseHref}&title=${encodeURIComponent(item.title)}`
+                      : baseHref;
+                    const isResetting = pendingResetIds.has(item.pageId);
+                    return (
+                      <li key={item.pageId}>
+                        <div className={styles.entry}>
+                          <Link
+                            to={rulesHref}
+                            className={styles.entryMeta}
+                            aria-label={`Edit settings for ${displayTitle ?? item.pageId}`}
+                          >
+                            <div className={styles.entryText}>
+                              <span className={styles.entryTitle}>
+                                {displayTitle ?? 'Untitled page'}
                               </span>
-                            )}
+                              {item.resetDone ? (
+                                <span className={styles.usingDefaults}>
+                                  Using defaults
+                                </span>
+                              ) : (
+                                (() => {
+                                  const updatedLabel = formatUpdatedAt(item.updatedAt);
+                                  return updatedLabel ? (
+                                    <span className={styles.entryTimestamp}>
+                                      Updated {updatedLabel}
+                                    </span>
+                                  ) : null;
+                                })()
+                              )}
+                            </div>
+                          </Link>
+                          <div className={styles.entryActions}>
+                            <button
+                              type="button"
+                              className={styles.resetButton}
+                              onClick={() => handleRowReset(item)}
+                              disabled={isResetting || bulkPending}
+                              aria-label={`Reset ${displayTitle ?? item.pageId}`}
+                              title="Reset to defaults"
+                            >
+                              ↺
+                            </button>
+                            <a
+                              href={`https://www.notion.so/${item.pageId.replaceAll('-', '')}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={styles.actionButton}
+                              aria-label={`Open ${displayTitle ?? 'page'} in Notion`}
+                              title="Open in Notion"
+                            >
+                              <img
+                                src="/icons/Notion_app_logo.png"
+                                alt=""
+                                width={22}
+                                height={22}
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).style.display =
+                                    'none';
+                                }}
+                              />
+                            </a>
                           </div>
-                        </Link>
-                        <a
-                          href={`https://www.notion.so/${item.pageId.replaceAll('-', '')}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={styles.actionButton}
-                          aria-label={`Open ${displayTitle ?? 'page'} in Notion`}
-                          title="Open in Notion"
-                        >
-                          <img
-                            src="/icons/Notion_app_logo.png"
-                            alt=""
-                            width={22}
-                            height={22}
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).style.display =
-                                'none';
-                            }}
-                          />
-                        </a>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+
+                <div className={styles.sectionFooter}>
+                  <button
+                    type="button"
+                    className={styles.bulkResetButton}
+                    onClick={() => setConfirmOpen(true)}
+                    disabled={anyRowPending || bulkPending}
+                  >
+                    Reset all saved pages
+                  </button>
+                </div>
+              </>
             )}
           </section>
         )}
@@ -179,6 +298,62 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
           onReset={pageId == null ? undefined : goBack}
           setError={setErrorMessage}
         />
+      </div>
+
+      <div
+        className={confirmOpen ? sharedStyles.modal : sharedStyles.modalHidden}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="bulk-reset-dialog-title"
+      >
+        <button
+          type="button"
+          className={sharedStyles.modalBackdrop}
+          onClick={() => setConfirmOpen(false)}
+          aria-label="Close"
+        />
+        <div className={sharedStyles.modalCardNarrow}>
+          <div className={sharedStyles.modalHeader}>
+            <span
+              id="bulk-reset-dialog-title"
+              className={sharedStyles.modalHeaderTitle}
+            >
+              Reset all saved pages?
+            </span>
+            <button
+              type="button"
+              className={sharedStyles.modalClose}
+              onClick={() => setConfirmOpen(false)}
+              aria-label="Close"
+            >
+              &times;
+            </button>
+          </div>
+          <div className={sharedStyles.modalBody}>
+            <p>
+              {itemCount} {itemCount === 1 ? 'page' : 'pages'} will go back to
+              your defaults. Per-page options and parser rules are removed. You
+              can re-save any page individually.
+            </p>
+          </div>
+          <div className={sharedStyles.modalFooter}>
+            <button
+              type="button"
+              className={sharedStyles.btnSecondary}
+              onClick={() => setConfirmOpen(false)}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              className={sharedStyles.btnDanger}
+              onClick={handleBulkConfirm}
+              disabled={bulkPending}
+            >
+              Reset {itemCount} {itemCount === 1 ? 'page' : 'pages'}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
