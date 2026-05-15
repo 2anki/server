@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
-import { fromBuffer as fileTypeFromBuffer } from 'file-type';
 import {
   ChatUseCase,
   ChatRateLimitError,
   ChatConversationNotFoundError,
 } from '../usecases/chat/ChatUseCase';
 import type { ChatAttachment } from '../usecases/chat/buildAttachmentBlocks';
+import { detectFileMime } from '../lib/detectFileMime';
 import { getSafeFilename } from '../lib/getSafeFilename';
 
 const MAX_CONTENT_LENGTH = 4000;
@@ -95,8 +95,8 @@ class ChatController {
 
     const attachments: ChatAttachment[] = [];
     for (const file of rawFiles) {
-      const detected = await fileTypeFromBuffer(file.buffer);
-      if (detected == null || detected.mime !== file.mimetype) {
+      const detected = detectFileMime(file.buffer);
+      if (detected !== file.mimetype) {
         const safeName = getSafeFilename(file.originalname);
         res.status(400).json({
           error: `Can't attach ${safeName}. Only PDF and image files work here.`,

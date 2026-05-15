@@ -37,7 +37,7 @@ function makeFile(
     encoding: '7bit',
     mimetype: 'application/pdf',
     size: 1024,
-    buffer: Buffer.alloc(4, 0x25),
+    buffer: Buffer.concat([Buffer.from([0x25, 0x50, 0x44, 0x46]), Buffer.alloc(20)]),
     stream: null as never,
     destination: '',
     filename: '',
@@ -176,19 +176,9 @@ describe('ChatController.sendMessage', () => {
   });
 });
 
-jest.mock('file-type', () => ({
-  fromBuffer: jest.fn(),
-}));
-
-import { fromBuffer as fileTypeFromBuffer } from 'file-type';
-const mockFileTypeFromBuffer = fileTypeFromBuffer as jest.MockedFunction<typeof fileTypeFromBuffer>;
+const PNG_MAGIC = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
 describe('ChatController.sendMessage — file attachments', () => {
-  beforeEach(() => {
-    mockFileTypeFromBuffer.mockReset();
-    mockFileTypeFromBuffer.mockResolvedValue({ ext: 'pdf', mime: 'application/pdf' });
-  });
-
   it('returns 400 when more than 5 files are attached', async () => {
     const { controller, res } = buildMocks();
     const files = Array.from({ length: 6 }, () => makeFile());
@@ -221,8 +211,11 @@ describe('ChatController.sendMessage — file attachments', () => {
 
   it('returns 400 when magic bytes do not match declared MIME', async () => {
     const { controller, res } = buildMocks();
-    const file = makeFile({ mimetype: 'image/png', originalname: 'fake.png' });
-    mockFileTypeFromBuffer.mockResolvedValueOnce({ ext: 'pdf', mime: 'application/pdf' });
+    const file = makeFile({
+      mimetype: 'image/png',
+      originalname: 'fake.png',
+      buffer: Buffer.concat([Buffer.from([0x25, 0x50, 0x44, 0x46]), Buffer.alloc(20)]),
+    });
     await controller.sendMessage(buildReq({ content: 'Hi' }, [file]), res);
     expect(res.status).toHaveBeenCalledWith(400);
   });
@@ -230,12 +223,11 @@ describe('ChatController.sendMessage — file attachments', () => {
   it('passes validated attachments to the use case on happy path', async () => {
     const { execute, controller, res } = buildMocks();
     execute.mockResolvedValueOnce({ content: 'ok', conversationId: 1 });
-    mockFileTypeFromBuffer.mockResolvedValue({ ext: 'png', mime: 'image/png' });
 
     const file = makeFile({
       mimetype: 'image/png',
       originalname: 'diagram.png',
-      buffer: Buffer.from([0x89, 0x50, 0x4e, 0x47]),
+      buffer: Buffer.concat([PNG_MAGIC, Buffer.alloc(20)]),
     });
     await controller.sendMessage(buildReq({ content: 'Hi' }, [file]), res);
     expect(execute).toHaveBeenCalledWith(

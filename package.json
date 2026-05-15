@@ -57,7 +57,6 @@
     "express": "^5.1.0",
     "express-session": "^1.18.1",
     "fflate": "^0.8.0",
-    "file-type": "^16.5.4",
     "find-remove": "^5.0.0",
     "fzstd": "^0.1.1",
     "get-notion-object-title": "^0.2.0",
