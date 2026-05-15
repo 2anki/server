@@ -50,6 +50,17 @@ export const post = async (url: string, body: unknown) =>
     body: JSON.stringify(body),
   });
 
+export const patch = async (url: string, body: unknown) =>
+  fetch(url, {
+    method: 'PATCH',
+    credentials: 'include',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  });
+
 const DEFAULT_GET_OPTIONS: ClientSideOptions = { redirect: true };
 
 export const get = async (

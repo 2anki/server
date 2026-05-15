@@ -1,0 +1,100 @@
+import { Request, Response } from 'express';
+import { ConversationsUseCase, InvalidTitleError } from '../usecases/chat/ConversationsUseCase';
+
+function parseConversationId(raw: unknown): number | null {
+  if (typeof raw !== 'string') return null;
+  if (!/^[1-9]\d*$/.test(raw)) return null;
+  const n = Number(raw);
+  return Number.isSafeInteger(n) ? n : null;
+}
+
+class ConversationsController {
+  constructor(private readonly useCase: ConversationsUseCase) {}
+
+  async list(req: Request, res: Response): Promise<void> {
+    const owner = res.locals.owner as number;
+    const items = await this.useCase.list(owner);
+    res.status(200).json({
+      conversations: items.map((c) => ({
+        id: c.id,
+        title: c.title,
+        updatedAt: c.updated_at.toISOString(),
+      })),
+    });
+  }
+
+  async get(req: Request, res: Response): Promise<void> {
+    const owner = res.locals.owner as number;
+    const id = parseConversationId(req.params.id);
+    if (id == null) {
+      res.status(400).json({ error: 'invalid conversation id' });
+      return;
+    }
+    const conv = await this.useCase.get({ userId: owner, conversationId: id });
+    if (conv == null) {
+      res.status(404).json({ error: 'conversation not found' });
+      return;
+    }
+    res.status(200).json({
+      id: conv.id,
+      title: conv.title,
+      createdAt: conv.created_at.toISOString(),
+      updatedAt: conv.updated_at.toISOString(),
+      messages: conv.messages.map((m) => ({
+        id: m.id,
+        role: m.role,
+        content: m.content,
+        createdAt: m.created_at.toISOString(),
+      })),
+    });
+  }
+
+  async rename(req: Request, res: Response): Promise<void> {
+    const owner = res.locals.owner as number;
+    const id = parseConversationId(req.params.id);
+    if (id == null) {
+      res.status(400).json({ error: 'invalid conversation id' });
+      return;
+    }
+    const rawTitle = req.body?.title;
+    if (typeof rawTitle !== 'string') {
+      res.status(400).json({ error: 'title is required' });
+      return;
+    }
+    try {
+      const updated = await this.useCase.rename({
+        userId: owner,
+        conversationId: id,
+        title: rawTitle,
+      });
+      if (!updated) {
+        res.status(404).json({ error: 'conversation not found' });
+        return;
+      }
+      res.status(204).end();
+    } catch (err) {
+      if (err instanceof InvalidTitleError) {
+        res.status(400).json({ error: 'title must be 1 to 120 characters' });
+        return;
+      }
+      throw err;
+    }
+  }
+
+  async delete(req: Request, res: Response): Promise<void> {
+    const owner = res.locals.owner as number;
+    const id = parseConversationId(req.params.id);
+    if (id == null) {
+      res.status(400).json({ error: 'invalid conversation id' });
+      return;
+    }
+    const deleted = await this.useCase.delete({ userId: owner, conversationId: id });
+    if (!deleted) {
+      res.status(404).json({ error: 'conversation not found' });
+      return;
+    }
+    res.status(204).end();
+  }
+}
+
+export default ConversationsController;

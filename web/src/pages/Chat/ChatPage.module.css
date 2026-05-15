@@ -1,7 +1,16 @@
+.layout {
+  display: flex;
+  flex-direction: row;
+  height: calc(100vh - 0px);
+  min-height: 0;
+}
+
 .container {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 0px);
+  flex: 1;
+  min-width: 0;
+  height: 100%;
 }
 
 .messageList {
