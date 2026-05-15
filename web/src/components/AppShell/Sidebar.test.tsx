@@ -1,8 +1,16 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, expect, it, vi } from 'vitest';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
+
+vi.mock('../../lib/backend/getCardUsage', () => ({
+  getCardUsage: vi.fn().mockResolvedValue({
+    cards_used: 23,
+    cards_limit: 100,
+    unlimited: false,
+  }),
+}));
 
 interface SidebarRenderOpts {
   pathname?: string;
@@ -49,6 +57,52 @@ describe('Sidebar convert group', () => {
     expect(
       screen.getByRole('link', { name: 'Notion to Anki' })
     ).toHaveAttribute('href', '/notion');
+  });
+
+  it('shows Print locked with a Subscriber pill for free users', () => {
+    renderSidebar();
+    const locked = screen.getByRole('button', {
+      name: /Print Decks — upgrade to unlock/i,
+    });
+    expect(locked).toBeInTheDocument();
+    expect(locked).toHaveTextContent('Subscriber');
+  });
+
+  it('navigates to /pricing?from=print when the locked Print row is clicked', () => {
+    function LocationProbe() {
+      const location = useLocation();
+      return <div data-testid="path">{location.pathname + location.search}</div>;
+    }
+    render(
+      <MemoryRouter initialEntries={['/upload']}>
+        <Sidebar
+          email="x@y.z"
+          locals={{ patreon: false, subscriber: false }}
+          features={{}}
+          onLogOut={vi.fn()}
+        />
+        <Routes>
+          <Route path="*" element={<LocationProbe />} />
+        </Routes>
+      </MemoryRouter>
+    );
+    fireEvent.click(
+      screen.getByRole('button', { name: /Print Decks — upgrade to unlock/i })
+    );
+    expect(screen.getByTestId('path')).toHaveTextContent(
+      '/pricing?from=print'
+    );
+  });
+
+  it('shows Print as a real link for paying users', () => {
+    renderSidebar({ subscriber: true });
+    expect(screen.getByRole('link', { name: 'Print Decks' })).toHaveAttribute(
+      'href',
+      '/print'
+    );
+    expect(
+      screen.queryByRole('button', { name: /Print Decks — upgrade to unlock/i })
+    ).not.toBeInTheDocument();
   });
 
   it('hides Auto Sync when the user does not have patreon access', () => {
@@ -218,6 +272,26 @@ describe('Sidebar group hierarchy', () => {
   it('does not render Admin group label even when ops is on', () => {
     renderSidebar({ ops: true });
     expect(screen.queryByText('Admin')).not.toBeInTheDocument();
+  });
+});
+
+describe('Sidebar cards-used counter', () => {
+  it('renders the counter for free users with the fetched usage', async () => {
+    renderSidebar();
+    await waitFor(() =>
+      expect(screen.getByText('23')).toBeInTheDocument()
+    );
+    expect(
+      screen.getByText('/ 100 cards this month')
+    ).toBeInTheDocument();
+  });
+
+  it('does not render the counter for paying users', async () => {
+    renderSidebar({ subscriber: true });
+    await new Promise((r) => setTimeout(r, 10));
+    expect(
+      screen.queryByText('/ 100 cards this month')
+    ).not.toBeInTheDocument();
   });
 });
 

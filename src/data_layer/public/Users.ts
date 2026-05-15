@@ -22,8 +22,6 @@ export default interface Users {
 
   patreon: boolean | null;
 
-  picture: string | null;
-
   last_login_at: Date | null;
 
   hosted_anki_requested_at: Date | null;
@@ -34,11 +32,23 @@ export default interface Users {
 
   trial_started_at: Date | null;
 
+  card_options: unknown | null;
+
+  theme: string | null;
+
+  anki_web_acknowledged_at: Date | null;
+
   email_verified: boolean;
 
   ai_template_generate_count: number;
 
   ai_template_modify_count: number;
+
+  cards_used_this_month: number;
+
+  cards_month_started_at: Date;
+
+  signup_country: string | null;
 }
 
 /** Represents the initializer for the table public.users */
@@ -63,9 +73,6 @@ export interface UsersInitializer {
   /** Default value: false */
   patreon?: boolean | null;
 
-  /** Default value: NULL::character varying */
-  picture?: string | null;
-
   last_login_at?: Date | null;
 
   hosted_anki_requested_at?: Date | null;
@@ -77,6 +84,12 @@ export interface UsersInitializer {
 
   trial_started_at?: Date | null;
 
+  card_options?: unknown | null;
+
+  theme?: string | null;
+
+  anki_web_acknowledged_at?: Date | null;
+
   /** Default value: false */
   email_verified?: boolean;
 
@@ -85,6 +98,14 @@ export interface UsersInitializer {
 
   /** Default value: 0 */
   ai_template_modify_count?: number;
+
+  /** Default value: 0 */
+  cards_used_this_month?: number;
+
+  /** Default value: CURRENT_TIMESTAMP */
+  cards_month_started_at?: Date;
+
+  signup_country?: string | null;
 }
 
 /** Represents the mutator for the table public.users */
@@ -105,8 +126,6 @@ export interface UsersMutator {
 
   patreon?: boolean | null;
 
-  picture?: string | null;
-
   last_login_at?: Date | null;
 
   hosted_anki_requested_at?: Date | null;
@@ -117,9 +136,21 @@ export interface UsersMutator {
 
   trial_started_at?: Date | null;
 
+  card_options?: unknown | null;
+
+  theme?: string | null;
+
+  anki_web_acknowledged_at?: Date | null;
+
   email_verified?: boolean;
 
   ai_template_generate_count?: number;
 
   ai_template_modify_count?: number;
+
+  cards_used_this_month?: number;
+
+  cards_month_started_at?: Date;
+
+  signup_country?: string | null;
 }

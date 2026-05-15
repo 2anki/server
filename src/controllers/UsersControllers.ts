@@ -14,10 +14,13 @@ import SubscriptionService from '../services/SubscriptionService';
 import { OPS_OWNER_EMAIL } from '../routes/middleware/RequireOpsAccess';
 import { MagicLinkRateLimitError } from '../services/UsersService';
 import StartTrialUseCase from '../usecases/users/StartTrialUseCase';
+import { MONTHLY_CARD_LIMIT } from '../usecases/users/CheckMonthlyCardLimitUseCase';
 import UsersRepository from '../data_layer/UsersRepository';
+import { isPaying } from '../lib/isPaying';
 import type { UsersId } from '../data_layer/public/Users';
 import NotionRepository from '../data_layer/NotionRespository';
 import hashToken from '../lib/misc/hashToken';
+import { extractCountryFromRequest } from '../lib/http/extractCountryFromRequest';
 
 class UsersController {
   constructor(
@@ -173,6 +176,17 @@ class UsersController {
       );
       const newUser = await this.userService.getUserFrom(email);
       if (newUser) {
+        try {
+          const country = extractCountryFromRequest(req);
+          if (country != null) {
+            await new UsersRepository(this.db).setSignupCountryIfMissing(
+              newUser.id,
+              country
+            );
+          }
+        } catch {
+          // country capture is best-effort
+        }
         const token = await this.authService.newJWTToken(newUser.id);
         if (token) {
           await this.authService.persistToken(token, newUser.id.toString());
@@ -208,17 +222,37 @@ class UsersController {
     }
   }
 
+  private async resolveSignupCountry(
+    user: UserWithOwner | null,
+    req: express.Request
+  ): Promise<string | null> {
+    if (user?.id == null) return null;
+    const repo = new UsersRepository(this.db);
+    try {
+      const existing = await repo.getSignupCountry(user.id);
+      if (existing != null) return existing;
+    } catch {
+      return null;
+    }
+    const fromHeader = extractCountryFromRequest(req);
+    if (fromHeader == null) return null;
+    try {
+      await repo.setSignupCountryIfMissing(user.id, fromHeader);
+    } catch {
+      // best-effort write; ignore so getLocals stays robust in tests
+    }
+    return fromHeader;
+  }
+
   async getLocals(req: express.Request, res: express.Response) {
     const { locals } = res;
     const user: UserWithOwner | null = await this.authService.getUserFrom(
       req.cookies.token
     );
-    let linkedEmail: string | null = null;
-    if (user?.owner) {
-      linkedEmail = await this.userService.getSubscriptionLinkedEmail(
-        user?.owner.toString()
-      );
-    }
+    const linkedEmail = user?.owner
+      ? await this.userService.getSubscriptionLinkedEmail(user.owner.toString())
+      : null;
+    const signupCountry = await this.resolveSignupCountry(user, req);
 
     const featureFlags = {
       kiUI: false,
@@ -236,6 +270,7 @@ class UsersController {
         email_verified: user?.email_verified ?? false,
         ankify_welcome_seen: user?.ankify_welcome_seen ?? false,
         trial_started_at: user?.trial_started_at ?? null,
+        signup_country: signupCountry,
       },
       locals,
       linked_email: linkedEmail,
@@ -444,6 +479,36 @@ class UsersController {
     }
   }
 
+  async getCardUsage(_req: express.Request, res: express.Response) {
+    const { owner } = res.locals;
+    if (!owner) {
+      return res.status(401).json({ message: 'Authentication required' });
+    }
+
+    const unlimited = isPaying(res.locals);
+    if (unlimited) {
+      return res.status(200).json({
+        cards_used: 0,
+        cards_limit: MONTHLY_CARD_LIMIT,
+        unlimited: true,
+      });
+    }
+
+    try {
+      const usersRepository = new UsersRepository(this.db);
+      const { cards_used } = await usersRepository.getCardUsage(owner);
+      return res.status(200).json({
+        cards_used,
+        cards_limit: MONTHLY_CARD_LIMIT,
+        unlimited: false,
+      });
+    } catch (error) {
+      console.info('Get card usage failed');
+      console.error(error);
+      return res.status(500).json({ message: 'Failed to load card usage' });
+    }
+  }
+
   async checkUser(req: express.Request, res: express.Response) {
     const user = await this.authService.getUserFrom(req.cookies.token);
     if (!user) {
@@ -479,10 +544,24 @@ class UsersController {
         return res.redirect('/login');
       }
       let user = await this.userService.getUserFrom(email);
+      const isNewUser = !user;
       if (!user) {
         const hashedPassword = this.authService.getHashPassword(getRandomUUID());
         await this.userService.register(name ?? email, hashedPassword, email, null, true);
         user = await this.userService.getUserFrom(email);
+      }
+      if (isNewUser && user) {
+        try {
+          const country = extractCountryFromRequest(req);
+          if (country != null) {
+            await new UsersRepository(this.db).setSignupCountryIfMissing(
+              user.id,
+              country
+            );
+          }
+        } catch {
+          // country capture is best-effort
+        }
       }
 
       if (!user) {
@@ -523,10 +602,20 @@ class UsersController {
 
     const { email, name, accessData } = loginRequest;
     let user = await this.userService.getUserFrom(email);
+    const isNewUser = !user;
     if (!user) {
       const hashedPassword = this.authService.getHashPassword(getRandomUUID());
       await this.userService.register(name, hashedPassword, email, 'notion_oauth');
       user = await this.userService.getUserFrom(email);
+    }
+    if (isNewUser && user) {
+      const country = extractCountryFromRequest(req);
+      if (country != null) {
+        await new UsersRepository(this.db).setSignupCountryIfMissing(
+          user.id,
+          country
+        );
+      }
     }
 
     if (!user) {

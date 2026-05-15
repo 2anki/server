@@ -16,16 +16,20 @@ function mockResponse(): Response {
   return res;
 }
 
+function makeService(overrides: Record<string, unknown> = {}) {
+  return {
+    isValidKey: () => true,
+    getFileBody: jest.fn().mockResolvedValue(Buffer.from('fake-apkg')),
+    getFilename: jest.fn().mockResolvedValue(null),
+    isMissingDownloadError: () => false,
+    deleteMissingFile: jest.fn(),
+    ...overrides,
+  };
+}
+
 describe('DownloadController.getFile', () => {
   it('sets Content-Type and Content-Disposition headers for .apkg files', async () => {
-    const service = {
-      isValidKey: () => true,
-      getFileBody: jest.fn().mockResolvedValue(Buffer.from('fake-apkg')),
-      isMissingDownloadError: () => false,
-      deleteMissingFile: jest.fn(),
-    };
-
-    const controller = new DownloadController(service as any);
+    const controller = new DownloadController(makeService() as any);
     const req = { params: { key: '123-deck.apkg' } } as unknown as Request;
     const res = mockResponse();
 
@@ -43,14 +47,7 @@ describe('DownloadController.getFile', () => {
   });
 
   it('appends .apkg extension when key lacks it', async () => {
-    const service = {
-      isValidKey: () => true,
-      getFileBody: jest.fn().mockResolvedValue(Buffer.from('data')),
-      isMissingDownloadError: () => false,
-      deleteMissingFile: jest.fn(),
-    };
-
-    const controller = new DownloadController(service as any);
+    const controller = new DownloadController(makeService() as any);
     const req = { params: { key: '123-deck' } } as unknown as Request;
     const res = mockResponse();
 
@@ -60,6 +57,34 @@ describe('DownloadController.getFile', () => {
     expect(res.setHeader).toHaveBeenCalledWith(
       'Content-Disposition',
       "attachment; filename=\"123-deck.apkg\"; filename*=UTF-8''123-deck.apkg"
+    );
+  });
+
+  it('uses the friendly deck name from DB when available', async () => {
+    const controller = new DownloadController(
+      makeService({ getFilename: jest.fn().mockResolvedValue('My Custom Deck') }) as any
+    );
+    const req = { params: { key: 'owner-1234-uuid.apkg' } } as unknown as Request;
+    const res = mockResponse();
+
+    await controller.getFile(req, res, {} as any);
+
+    expect(res.setHeader).toHaveBeenCalledWith(
+      'Content-Disposition',
+      "attachment; filename=\"My Custom Deck.apkg\"; filename*=UTF-8''My%20Custom%20Deck.apkg"
+    );
+  });
+
+  it('falls back to the page-title slug when no custom name and no DB name', async () => {
+    const controller = new DownloadController(makeService() as any);
+    const req = { params: { key: 'owner-1234-uuid.apkg' } } as unknown as Request;
+    const res = mockResponse();
+
+    await controller.getFile(req, res, {} as any);
+
+    expect(res.setHeader).toHaveBeenCalledWith(
+      'Content-Disposition',
+      "attachment; filename=\"owner-1234-uuid.apkg\"; filename*=UTF-8''owner-1234-uuid.apkg"
     );
   });
 });

@@ -475,6 +475,37 @@ const UserRouter = () => {
 
   /**
    * @swagger
+   * /api/users/usage:
+   *   get:
+   *     summary: Get monthly card usage for the current user
+   *     description: Returns cards used this month, the monthly limit, and whether the user is on an unlimited plan
+   *     tags: [Users]
+   *     security:
+   *       - bearerAuth: []
+   *       - cookieAuth: []
+   *     responses:
+   *       200:
+   *         description: Current usage retrieved
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 cards_used:
+   *                   type: integer
+   *                 cards_limit:
+   *                   type: integer
+   *                 unlimited:
+   *                   type: boolean
+   *       401:
+   *         description: Authentication required
+   */
+  router.get('/api/users/usage', RequireAuthentication, (req, res) =>
+    controller.getCardUsage(req, res)
+  );
+
+  /**
+   * @swagger
    * /api/users/debug/locals:
    *   get:
    *     summary: Get debug information

@@ -4,11 +4,14 @@ import OpsController from '../controllers/OpsController';
 import { GetOpsMetricsUseCase } from '../usecases/ops/GetOpsMetricsUseCase';
 import { GetBusinessMetricsUseCase } from '../usecases/ops/GetBusinessMetricsUseCase';
 import { GetConversionMetricsUseCase } from '../usecases/ops/GetConversionMetricsUseCase';
+import { GetPerformanceMetricsUseCase } from '../usecases/ops/GetPerformanceMetricsUseCase';
+import { SendAbandonedCheckoutRecoveryUseCase } from '../usecases/ops/SendAbandonedCheckoutRecoveryUseCase';
 import { PopulateShowcaseUseCase } from '../usecases/ops/PopulateShowcaseUseCase';
 import { ObservabilityRepository } from '../data_layer/ObservabilityRepository';
 import { ObservabilityQueryService } from '../services/observability/ObservabilityQueryService';
 import { BusinessMetricsService } from '../services/ops/BusinessMetricsService';
 import { ConversionMetricsService } from '../services/ops/ConversionMetricsService';
+import { PerformanceMetricsService } from '../services/ops/PerformanceMetricsService';
 import { BusinessMetricsCacheRepository } from '../data_layer/BusinessMetricsCacheRepository';
 import { CancellationFeedbackRepository } from '../data_layer/CancellationFeedbackRepository';
 import { EmojiFeedbackRepository } from '../data_layer/EmojiFeedbackRepository';
@@ -37,6 +40,7 @@ const OpsRouter = () => {
   });
 
   const conversionMetricsService = new ConversionMetricsService(database);
+  const performanceMetricsService = new PerformanceMetricsService(database);
 
   const showcaseRepo = new ShowcaseRepository(database);
   const populateShowcase = new PopulateShowcaseUseCase(
@@ -46,13 +50,19 @@ const OpsRouter = () => {
     new DownloadService(new DownloadRepository(database))
   );
 
+  const emailService = getDefaultEmailService();
   const controller = new OpsController(
     new GetOpsMetricsUseCase(queryService),
     new GetBusinessMetricsUseCase(businessMetricsService),
     new GetConversionMetricsUseCase(conversionMetricsService),
     populateShowcase,
     showcaseRepo,
-    new SendInactivityWarningsUseCase(new InactivityEmailRepository(database), getDefaultEmailService())
+    new SendInactivityWarningsUseCase(
+      new InactivityEmailRepository(database),
+      emailService
+    ),
+    new GetPerformanceMetricsUseCase(performanceMetricsService),
+    new SendAbandonedCheckoutRecoveryUseCase(emailService)
   );
 
   /**
@@ -173,6 +183,59 @@ const OpsRouter = () => {
    */
   router.post('/api/ops/send-inactivity-warnings', RequireOpsAccess, (req, res) =>
     controller.sendInactivityWarnings(req, res)
+  );
+
+  /**
+   * @swagger
+   * /api/ops/performance/metrics:
+   *   get:
+   *     summary: Job-duration percentiles, status breakdown, and signup-country counts
+   *     description: |
+   *       Internal endpoint locked to the ops owner. Returns p50/p95/p99 job durations (24h and 7d), terminal-status counts, the 20 slowest done jobs in the last 24h, and signup country breakdown for the last 7 days. Returns 404 for everyone else.
+   *     tags: [Ops]
+   *     responses:
+   *       200:
+   *         description: Performance metrics payload
+   *       404:
+   *         description: Not the ops owner
+   */
+  router.get('/api/ops/performance/metrics', RequireOpsAccess, (req, res) =>
+    controller.getPerformanceMetrics(req, res)
+  );
+
+  /**
+   * @swagger
+   * /api/ops/send-abandoned-checkout-recovery:
+   *   post:
+   *     summary: Send abandoned-checkout recovery emails
+   *     description: |
+   *       Mail the supplied list of email addresses with the abandoned-checkout recovery template. Pass `dryRun: false` in the body to actually send; defaults to true. Run manually only.
+   *     tags: [Ops]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required: [emails]
+   *             properties:
+   *               emails:
+   *                 type: array
+   *                 items: { type: string }
+   *               dryRun:
+   *                 type: boolean
+   *     responses:
+   *       200:
+   *         description: Result with sent/failed counts and dryRun flag
+   *       400:
+   *         description: emails missing or invalid
+   *       404:
+   *         description: Not the ops owner
+   */
+  router.post(
+    '/api/ops/send-abandoned-checkout-recovery',
+    RequireOpsAccess,
+    (req, res) => controller.sendAbandonedCheckoutRecovery(req, res)
   );
 
   return router;

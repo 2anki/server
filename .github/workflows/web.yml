@@ -5,11 +5,16 @@ on:
     paths:
       - 'web/**'
       - '.github/workflows/web.yml'
+      - '.github/actions/setup/**'
       - 'pnpm-lock.yaml'
       - 'pnpm-workspace.yaml'
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   lint:
@@ -17,23 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 22.20.0
-      - name: Cache node_modules
-        id: modules-cache
-        uses: actions/cache@v5
-        with:
-          path: |
-            node_modules
-            web/node_modules
-          key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-      - name: Install
-        if: steps.modules-cache.outputs.cache-hit != 'true'
-        run: pnpm install --frozen-lockfile
-        env:
-          CI: true
+      - uses: ./.github/actions/setup
       - name: Lint
         run: pnpm --filter 2anki-web lint
         env:
@@ -44,23 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 22.20.0
-      - name: Cache node_modules
-        id: modules-cache
-        uses: actions/cache@v5
-        with:
-          path: |
-            node_modules
-            web/node_modules
-          key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-      - name: Install
-        if: steps.modules-cache.outputs.cache-hit != 'true'
-        run: pnpm install --frozen-lockfile
-        env:
-          CI: true
+      - uses: ./.github/actions/setup
       - name: Typecheck
         run: pnpm --filter 2anki-web typecheck
         env:
@@ -82,75 +55,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 22.20.0
-      - name: Cache node_modules
-        id: modules-cache
-        uses: actions/cache@v5
-        with:
-          path: |
-            node_modules
-            web/node_modules
-          key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-      - name: Install
-        if: steps.modules-cache.outputs.cache-hit != 'true'
-        run: pnpm install --frozen-lockfile
-        env:
-          CI: true
+      - uses: ./.github/actions/setup
       - name: Test
         run: pnpm --filter 2anki-web test
         env:
           CI: true
-
-  playwright:
-    name: playwright (22.20.0)
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v6
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 22.20.0
-      - name: Cache node_modules
-        id: modules-cache
-        uses: actions/cache@v5
-        with:
-          path: |
-            node_modules
-            web/node_modules
-          key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-      - name: Install
-        if: steps.modules-cache.outputs.cache-hit != 'true'
-        run: pnpm install --frozen-lockfile
-      - name: Cache Playwright browsers
-        id: playwright-cache
-        uses: actions/cache@v5
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-      - name: Install Playwright Browsers
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: pnpm --filter 2anki-web exec playwright install --with-deps chromium
-      - name: Cache dist
-        id: dist-cache
-        uses: actions/cache@v5
-        with:
-          path: web/build
-          key: dist-${{ runner.os }}-${{ hashFiles('web/src/**', 'web/public/**', 'web/index.html', 'web/vite.config.*', 'web/tsconfig*', 'pnpm-lock.yaml') }}
-      - name: Build the application
-        if: steps.dist-cache.outputs.cache-hit != 'true'
-        run: pnpm --filter 2anki-web build
-      - name: Run Playwright tests
-        working-directory: web
-        run: pnpm exec playwright test
-        env:
-          PLAYWRIGHT_WITH_MOCK: true
-      - uses: actions/upload-artifact@v7
-        if: always()
-        with:
-          name: playwright-report
-          path: web/playwright-report/
-          retention-days: 30

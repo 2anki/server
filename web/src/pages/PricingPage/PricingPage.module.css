@@ -61,6 +61,17 @@
   line-height: var(--leading-relaxed);
 }
 
+.contextBanner {
+  display: inline-block;
+  margin: 0 auto 1.5rem;
+  padding: 0.625rem 1rem;
+  border-radius: var(--radius-md);
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+}
+
 .introLink {
   color: var(--color-primary);
   font-weight: var(--font-semibold);

@@ -51,20 +51,23 @@ class JobRepository {
     id: string,
     owner: string,
     status: string,
-    description?: string
+    description?: string,
+    cardCount?: number
   ): Promise<Jobs> {
     const isTerminal = JobRepository.TERMINAL_STATUSES.includes(status);
     const query = this.database(this.tableName).where({ object_id: id, owner });
     if (!isTerminal) {
       query.whereNotIn('status', JobRepository.TERMINAL_STATUSES);
     }
-    const rows = await query
-      .update({
-        status,
-        job_reason_failure: description,
-        last_edited_time: new Date(),
-      })
-      .returning('*');
+    const update: Record<string, unknown> = {
+      status,
+      job_reason_failure: description,
+      last_edited_time: new Date(),
+    };
+    if (cardCount != null && cardCount >= 0) {
+      update.card_count = cardCount;
+    }
+    const rows = await query.update(update).returning('*');
     return rows[0] as Jobs;
   }
   countJobsByType(owner: string, type: string): Promise<number> {

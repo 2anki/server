@@ -1,5 +1,6 @@
 import { CompleteJobUseCase } from './CompleteJobUseCase';
 import JobRepository from '../../data_layer/JobRepository';
+import UsersRepository from '../../data_layer/UsersRepository';
 
 describe('CompleteJobUseCase', () => {
   it('marks the job as done instead of deleting it', async () => {
@@ -27,10 +28,76 @@ describe('CompleteJobUseCase', () => {
     expect(jobRepository.updateJobStatus).toHaveBeenCalledWith(
       'page-1',
       'user-a',
-      'done'
+      'done',
+      undefined,
+      0
     );
     expect(jobRepository.deleteJob).not.toHaveBeenCalled();
     expect(result).toEqual(updatedJob);
+  });
+
+  it('increments the user card counter when usersRepository is provided', async () => {
+    const jobRepository = {
+      findJobById: jest.fn().mockResolvedValue({
+        id: 1,
+        object_id: 'page-1',
+        owner: 'user-a',
+        status: 'started',
+      }),
+      updateJobStatus: jest.fn().mockResolvedValue({ status: 'done' }),
+    } as unknown as JobRepository;
+    const usersRepository = {
+      incrementCardUsage: jest.fn().mockResolvedValue(1),
+    } as unknown as UsersRepository;
+
+    const useCase = new CompleteJobUseCase(jobRepository, usersRepository);
+    await useCase.execute('page-1', 'user-a', 42);
+
+    expect(usersRepository.incrementCardUsage).toHaveBeenCalledWith(
+      'user-a',
+      42
+    );
+  });
+
+  it('does not increment when card count is zero', async () => {
+    const jobRepository = {
+      findJobById: jest.fn().mockResolvedValue({
+        id: 1,
+        object_id: 'page-1',
+        owner: 'user-a',
+        status: 'started',
+      }),
+      updateJobStatus: jest.fn().mockResolvedValue({ status: 'done' }),
+    } as unknown as JobRepository;
+    const usersRepository = {
+      incrementCardUsage: jest.fn(),
+    } as unknown as UsersRepository;
+
+    const useCase = new CompleteJobUseCase(jobRepository, usersRepository);
+    await useCase.execute('page-1', 'user-a', 0);
+
+    expect(usersRepository.incrementCardUsage).not.toHaveBeenCalled();
+  });
+
+  it('does not increment when the job was already cancelled', async () => {
+    const cancelled = {
+      id: 1,
+      object_id: 'page-1',
+      owner: 'user-a',
+      status: 'cancelled',
+    };
+    const jobRepository = {
+      findJobById: jest.fn().mockResolvedValue(cancelled),
+      updateJobStatus: jest.fn(),
+    } as unknown as JobRepository;
+    const usersRepository = {
+      incrementCardUsage: jest.fn(),
+    } as unknown as UsersRepository;
+
+    const useCase = new CompleteJobUseCase(jobRepository, usersRepository);
+    await useCase.execute('page-1', 'user-a', 50);
+
+    expect(usersRepository.incrementCardUsage).not.toHaveBeenCalled();
   });
 
   it('returns the job unchanged when already cancelled', async () => {

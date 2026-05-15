@@ -16,6 +16,17 @@ class DownloadRepository {
     return this.database(this.table).where(query).returning(['key']).first();
   }
 
+  async getFilename(owner: string, key: string): Promise<string | null> {
+    if (owner == null) {
+      return null;
+    }
+    const row = await this.database(this.table)
+      .where({ key, owner })
+      .select('filename')
+      .first();
+    return row?.filename ?? null;
+  }
+
   deleteMissingFile(owner: string, key: string) {
     if (owner == null) {
       console.warn(

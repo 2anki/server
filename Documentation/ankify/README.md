@@ -93,7 +93,8 @@ If picking this up in a new session, read in this order:
 
 1. This file — current state + posture + image fix.
 2. [security-hardening.md](./security-hardening.md) — per-slice status; what's done, what's deferred, what's blocked on the image.
-3. The CLAUDE.md files at repo root and in `web/`, `src/services/`, `src/data_layer/`, `src/usecases/`, `src/routes/`, `src/controllers/`.
+3. [scaling.md](./scaling.md) — capacity ceilings on the prod box, per-container caps, and the phased scale-up plan.
+4. The CLAUDE.md files at repo root and in `web/`, `src/services/`, `src/data_layer/`, `src/usecases/`, `src/routes/`, `src/controllers/`.
 
 Most-recent commits to skim on `feat/ankify-rac`:
 - Security work: slices 1, 2 partial, plus the deferral commits (`3db9eacc`, `3ec5ee2f`).

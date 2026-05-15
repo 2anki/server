@@ -4,7 +4,10 @@ export interface WithRetryOptions {
   maxAttempts?: number;
   baseDelayMs?: number;
   label?: string;
+  sleepFn?: (ms: number) => Promise<void>;
 }
+
+const RETRY_AFTER_MAX_MS = 30_000;
 
 const RETRYABLE_NOTION_CODES = new Set<string>([
   APIErrorCode.RateLimited,
@@ -40,6 +43,23 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function parseRetryAfterMs(error: unknown): number | null {
+  if (!(error instanceof APIResponseError)) {
+    return null;
+  }
+  const raw = (error.headers as Record<string, string> | undefined)?.[
+    'retry-after'
+  ];
+  if (!raw) {
+    return null;
+  }
+  const seconds = Number.parseInt(raw, 10);
+  if (!Number.isFinite(seconds) || seconds <= 0) {
+    return null;
+  }
+  return Math.min(seconds * 1000, RETRY_AFTER_MAX_MS);
+}
+
 export async function withRetry<T>(
   operation: () => Promise<T>,
   options: WithRetryOptions = {}
@@ -47,6 +67,7 @@ export async function withRetry<T>(
   const maxAttempts = options.maxAttempts ?? 3;
   const baseDelayMs = options.baseDelayMs ?? 500;
   const label = options.label;
+  const doSleep = options.sleepFn ?? sleep;
 
   let lastError: unknown;
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
@@ -57,13 +78,15 @@ export async function withRetry<T>(
       if (attempt === maxAttempts || !isRetryable(error)) {
         throw error;
       }
+      const retryAfterMs = parseRetryAfterMs(error);
       const jitter = 0.5 + Math.random();
-      const delay = Math.floor(baseDelayMs * 2 ** (attempt - 1) * jitter);
+      const delay =
+        retryAfterMs ?? Math.floor(baseDelayMs * 2 ** (attempt - 1) * jitter);
       const message = (error as { message?: string })?.message ?? 'unknown';
       console.warn(
         `[withRetry${label ? `:${label}` : ''}] attempt ${attempt}/${maxAttempts} failed (${message}); retrying in ${delay}ms`
       );
-      await sleep(delay);
+      await doSleep(delay);
     }
   }
   throw lastError;

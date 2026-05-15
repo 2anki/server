@@ -1,0 +1,34 @@
+name: Setup
+description: Install pnpm + Node, restore caches, run pnpm install --frozen-lockfile
+
+runs:
+  using: composite
+  steps:
+    - uses: pnpm/action-setup@v6
+    - uses: actions/setup-node@v6
+      with:
+        node-version: 22.20.0
+    - name: Resolve pnpm store path
+      shell: bash
+      run: echo "STORE_PATH=$(pnpm store path --silent)" >> "$GITHUB_ENV"
+    - name: Cache pnpm store
+      uses: actions/cache@v5
+      with:
+        path: ${{ env.STORE_PATH }}
+        key: pnpm-store-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+        restore-keys: |
+          pnpm-store-${{ runner.os }}-
+    - name: Cache node_modules
+      uses: actions/cache@v5
+      with:
+        path: |
+          node_modules
+          web/node_modules
+        key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+        restore-keys: |
+          node-modules-${{ runner.os }}-
+    - name: Install
+      shell: bash
+      run: pnpm install --frozen-lockfile --prefer-offline
+      env:
+        CI: true
