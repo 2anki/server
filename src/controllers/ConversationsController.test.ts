@@ -140,6 +140,81 @@ describe('ConversationsController', () => {
     });
   });
 
+  describe('saveDraft', () => {
+    it('returns 400 when content is missing', async () => {
+      const repo = new InMemoryConversationsRepository();
+      const id = await repo.create({ userId: 42, title: 'work' });
+      const controller = new ConversationsController(new ConversationsUseCase(repo));
+      const res = buildRes(42);
+
+      await controller.saveDraft(
+        buildReq({ params: { id: String(id) }, body: {} }),
+        res
+      );
+
+      expect(res.status).toHaveBeenCalledWith(400);
+    });
+
+    it('accepts a string draft and returns 204', async () => {
+      const repo = new InMemoryConversationsRepository();
+      const id = await repo.create({ userId: 42, title: 'work' });
+      const controller = new ConversationsController(new ConversationsUseCase(repo));
+      const res = buildRes(42);
+
+      await controller.saveDraft(
+        buildReq({ params: { id: String(id) }, body: { content: 'in-progress' } }),
+        res
+      );
+
+      expect(res.status).toHaveBeenCalledWith(204);
+    });
+
+    it('accepts null content to clear the draft', async () => {
+      const repo = new InMemoryConversationsRepository();
+      const id = await repo.create({ userId: 42, title: 'work' });
+      const controller = new ConversationsController(new ConversationsUseCase(repo));
+      const res = buildRes(42);
+
+      await controller.saveDraft(
+        buildReq({ params: { id: String(id) }, body: { content: null } }),
+        res
+      );
+
+      expect(res.status).toHaveBeenCalledWith(204);
+    });
+
+    it('returns 400 when content is over the size cap', async () => {
+      const repo = new InMemoryConversationsRepository();
+      const id = await repo.create({ userId: 42, title: 'work' });
+      const controller = new ConversationsController(new ConversationsUseCase(repo));
+      const res = buildRes(42);
+
+      await controller.saveDraft(
+        buildReq({
+          params: { id: String(id) },
+          body: { content: 'x'.repeat(100_001) },
+        }),
+        res
+      );
+
+      expect(res.status).toHaveBeenCalledWith(400);
+    });
+
+    it('returns 404 when the conversation belongs to another user', async () => {
+      const repo = new InMemoryConversationsRepository();
+      const id = await repo.create({ userId: 99, title: 'theirs' });
+      const controller = new ConversationsController(new ConversationsUseCase(repo));
+      const res = buildRes(42);
+
+      await controller.saveDraft(
+        buildReq({ params: { id: String(id) }, body: { content: 'sneaky' } }),
+        res
+      );
+
+      expect(res.status).toHaveBeenCalledWith(404);
+    });
+  });
+
   describe('delete', () => {
     it('returns 204 on success', async () => {
       const repo = new InMemoryConversationsRepository();

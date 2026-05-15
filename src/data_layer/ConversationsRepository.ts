@@ -4,6 +4,7 @@ export interface ConversationRow {
   id: number;
   user_id: number;
   title: string;
+  draft_content: string | null;
   created_at: Date;
   updated_at: Date;
   deleted_at: Date | null;
@@ -18,6 +19,7 @@ export interface ConversationSummary {
 export interface ConversationWithMessages {
   id: number;
   title: string;
+  draft: string | null;
   created_at: Date;
   updated_at: Date;
   messages: Array<{
@@ -35,6 +37,11 @@ export interface IConversationsRepository {
   rename(input: { userId: number; conversationId: number; title: string }): Promise<boolean>;
   softDelete(input: { userId: number; conversationId: number }): Promise<boolean>;
   touch(input: { userId: number; conversationId: number }): Promise<void>;
+  saveDraft(input: {
+    userId: number;
+    conversationId: number;
+    content: string | null;
+  }): Promise<boolean>;
 }
 
 export class ConversationsRepository implements IConversationsRepository {
@@ -85,6 +92,7 @@ export class ConversationsRepository implements IConversationsRepository {
     return {
       id: conv.id,
       title: conv.title,
+      draft: conv.draft_content ?? null,
       created_at: conv.created_at,
       updated_at: conv.updated_at,
       messages,
@@ -120,6 +128,18 @@ export class ConversationsRepository implements IConversationsRepository {
       .whereNull('deleted_at')
       .update({ updated_at: this.database.fn.now() });
   }
+
+  async saveDraft(input: {
+    userId: number;
+    conversationId: number;
+    content: string | null;
+  }): Promise<boolean> {
+    const updated = await this.database(this.table)
+      .where({ id: input.conversationId, user_id: input.userId })
+      .whereNull('deleted_at')
+      .update({ draft_content: input.content });
+    return updated > 0;
+  }
 }
 
 export class InMemoryConversationsRepository implements IConversationsRepository {
@@ -142,6 +162,7 @@ export class InMemoryConversationsRepository implements IConversationsRepository
       id,
       user_id: input.userId,
       title: input.title,
+      draft_content: null,
       created_at: now,
       updated_at: now,
       deleted_at: null,
@@ -174,6 +195,7 @@ export class InMemoryConversationsRepository implements IConversationsRepository
     return {
       id: conv.id,
       title: conv.title,
+      draft: conv.draft_content ?? null,
       created_at: conv.created_at,
       updated_at: conv.updated_at,
       messages,
@@ -211,6 +233,19 @@ export class InMemoryConversationsRepository implements IConversationsRepository
       (r) => r.id === input.conversationId && r.user_id === input.userId && r.deleted_at == null
     );
     if (conv != null) conv.updated_at = new Date();
+  }
+
+  async saveDraft(input: {
+    userId: number;
+    conversationId: number;
+    content: string | null;
+  }): Promise<boolean> {
+    const conv = this.rows.find(
+      (r) => r.id === input.conversationId && r.user_id === input.userId && r.deleted_at == null
+    );
+    if (conv == null) return false;
+    conv.draft_content = input.content;
+    return true;
   }
 
   recordMessage(entry: {

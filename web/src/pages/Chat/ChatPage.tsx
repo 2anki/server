@@ -57,10 +57,13 @@ interface ApiConversationDetailMessage {
 interface ApiConversationDetailResponse {
   id: number;
   title: string;
+  draft: string | null;
   createdAt: string;
   updatedAt: string;
   messages: ApiConversationDetailMessage[];
 }
+
+const DRAFT_DEBOUNCE_MS = 500;
 
 const STARTER_PROMPTS = [
   'Make 10 cards from notes I\'ll paste',
@@ -118,6 +121,7 @@ export default function ChatPage() {
   const bottomRef = useRef<HTMLDivElement>(null);
   const messageListRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const lastSavedDraftRef = useRef<string>('');
 
   useEffect(() => {
     get('/api/chat/usage', { redirect: false })
@@ -153,6 +157,24 @@ export default function ChatPage() {
     }
   }, [messages, isLoading, streamingText]);
 
+  useEffect(() => {
+    if (activeConversationId == null) return;
+    if (inputValue === lastSavedDraftRef.current) return;
+    const conversationId = activeConversationId;
+    const draft = inputValue;
+    const handle = setTimeout(() => {
+      patch(`/api/chat/conversations/${conversationId}/draft`, {
+        content: draft.length === 0 ? null : draft,
+      })
+        .then(() => {
+          lastSavedDraftRef.current = draft;
+        })
+        .catch(() => {
+        });
+    }, DRAFT_DEBOUNCE_MS);
+    return () => clearTimeout(handle);
+  }, [inputValue, activeConversationId]);
+
   const remainingMessages = FREE_MONTHLY_LIMIT - messagesUsedThisMonth;
 
   const canSend = inputValue.trim().length > 0 && !isLoading && !limitReached;
@@ -178,6 +200,8 @@ export default function ChatPage() {
     setExpandedUserMessages(new Set());
     setStreamingText('');
     setNetworkError(null);
+    setInputValue('');
+    lastSavedDraftRef.current = '';
     try {
       const data = (await get(`/api/chat/conversations/${id}`, { redirect: false })) as
         | ApiConversationDetailResponse
@@ -192,6 +216,10 @@ export default function ChatPage() {
           ...(m.contentAfter == null ? {} : { contentAfter: m.contentAfter }),
         }))
       );
+      if (data.draft != null && data.draft.length > 0) {
+        setInputValue(data.draft);
+        lastSavedDraftRef.current = data.draft;
+      }
     } catch {
       setNetworkError("Couldn't load this conversation.");
     }
@@ -321,6 +349,7 @@ export default function ChatPage() {
             setStreamingText('');
             setMessagesUsedThisMonth((n) => n + 1);
             setActiveConversationId(result.conversationId);
+            lastSavedDraftRef.current = '';
             const provisionalTitle =
               content.length > 60 ? `${content.slice(0, 60).trimEnd()}…` : content;
             upsertConversation(result.conversationId, provisionalTitle);

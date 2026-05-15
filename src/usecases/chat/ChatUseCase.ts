@@ -218,6 +218,11 @@ export class ChatUseCase {
       content: assistantContent,
     });
     await this.conversationsRepo.touch({ userId: user.owner, conversationId });
+    await this.conversationsRepo.saveDraft({
+      userId: user.owner,
+      conversationId,
+      content: null,
+    });
 
     const { cards, contentBefore, contentAfter } = extractCards(assistantContent);
 

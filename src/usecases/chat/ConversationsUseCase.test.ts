@@ -1,4 +1,8 @@
-import { ConversationsUseCase, InvalidTitleError } from './ConversationsUseCase';
+import {
+  ConversationsUseCase,
+  InvalidTitleError,
+  InvalidDraftError,
+} from './ConversationsUseCase';
 import { InMemoryConversationsRepository } from '../../data_layer/ConversationsRepository';
 
 const USER_A = 1;
@@ -154,6 +158,72 @@ describe('ConversationsUseCase', () => {
       const id = await repo.create({ userId: USER_B, title: 'theirs' });
 
       const ok = await useCase.rename({ userId: USER_A, conversationId: id, title: 'mine now' });
+      expect(ok).toBe(false);
+    });
+  });
+
+  describe('saveDraft', () => {
+    it('stores the draft on the conversation', async () => {
+      const repo = new InMemoryConversationsRepository();
+      const useCase = new ConversationsUseCase(repo);
+      const id = await repo.create({ userId: USER_A, title: 'Working' });
+
+      const ok = await useCase.saveDraft({
+        userId: USER_A,
+        conversationId: id,
+        content: 'half-typed message',
+      });
+
+      expect(ok).toBe(true);
+      const view = await useCase.get({ userId: USER_A, conversationId: id });
+      expect(view?.draft).toBe('half-typed message');
+    });
+
+    it('treats an empty string as null (clears the draft)', async () => {
+      const repo = new InMemoryConversationsRepository();
+      const useCase = new ConversationsUseCase(repo);
+      const id = await repo.create({ userId: USER_A, title: 'Working' });
+      await useCase.saveDraft({ userId: USER_A, conversationId: id, content: 'hello' });
+
+      await useCase.saveDraft({ userId: USER_A, conversationId: id, content: '' });
+
+      const view = await useCase.get({ userId: USER_A, conversationId: id });
+      expect(view?.draft).toBeNull();
+    });
+
+    it('clears the draft when content is null', async () => {
+      const repo = new InMemoryConversationsRepository();
+      const useCase = new ConversationsUseCase(repo);
+      const id = await repo.create({ userId: USER_A, title: 'Working' });
+      await useCase.saveDraft({ userId: USER_A, conversationId: id, content: 'hello' });
+
+      await useCase.saveDraft({ userId: USER_A, conversationId: id, content: null });
+
+      const view = await useCase.get({ userId: USER_A, conversationId: id });
+      expect(view?.draft).toBeNull();
+    });
+
+    it('rejects drafts over the 100 000 char cap', async () => {
+      const repo = new InMemoryConversationsRepository();
+      const useCase = new ConversationsUseCase(repo);
+      const id = await repo.create({ userId: USER_A, title: 'Working' });
+
+      await expect(
+        useCase.saveDraft({ userId: USER_A, conversationId: id, content: 'x'.repeat(100_001) })
+      ).rejects.toBeInstanceOf(InvalidDraftError);
+    });
+
+    it('returns false when saving to another user\'s conversation', async () => {
+      const repo = new InMemoryConversationsRepository();
+      const useCase = new ConversationsUseCase(repo);
+      const id = await repo.create({ userId: USER_B, title: 'Theirs' });
+
+      const ok = await useCase.saveDraft({
+        userId: USER_A,
+        conversationId: id,
+        content: 'sneaky',
+      });
+
       expect(ok).toBe(false);
     });
   });
