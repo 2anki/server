@@ -68,20 +68,24 @@ Keep it to one page. If the work is bigger, split into numbered files (`<slug>-1
 
 ## Step 5 — Open a draft PR
 
-1. Create a branch in the format `docs/spec-<slug>`:
+1. Pick the conventional commit prefix the implementation will land under — `feat` for new behavior, `fix` for a bug, `refactor`/`chore`/`perf` otherwise. The branch keeps this prefix through implementation, so don't use `docs/`.
+
+   Create the branch as `<type>/spec-<slug>`:
    ```
-   git checkout -b docs/spec-<slug>
+   git checkout -b feat/spec-<slug>     # or fix/spec-<slug>, refactor/spec-<slug>, ...
    ```
 2. Stage and commit the new spec file:
    ```
    git add Documentation/specs/<slug>.md
    git commit -m "docs: add spec for <feature name>"
    ```
-3. Push and open a draft PR:
+3. Push and open a **draft** PR:
    ```
-   git push -u origin docs/spec-<slug>
+   git push -u origin <type>/spec-<slug>
    gh pr create --draft --title "spec: <feature name>" --body "..."
    ```
    PR body must include: what the spec covers, a link to the spec file, and the trio synthesis block.
+
+   This PR is the same PR `/implement` will graduate to "ready for review" later — do not close it after spec review, and do not start a second branch when implementation begins.
 
 Return the PR URL at the end.

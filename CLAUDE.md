@@ -119,6 +119,16 @@ For any task that changes user-facing behavior, invoke `pm`, `designer`, and `en
 
 Use `/trio <task>` to force a trio review on any prompt regardless of the heuristic. See `.claude/commands/trio.md`.
 
+## Spec lifecycle
+
+Specs live in `Documentation/specs/` only while a feature is in flight. Workflow:
+
+1. `/spec-draft-pr` writes the spec and opens a **draft** PR on a branch named after the eventual commit type — `feat/spec-<slug>`, `fix/spec-<slug>`, `refactor/spec-<slug>`, etc. Never `docs/spec-<slug>` — that branch can't graduate to `feat:`/`fix:` cleanly.
+2. `/implement` takes that same draft PR over: `gh pr checkout`, codes on the same branch, renames the PR title from `spec: …` to `<type>: …`, and runs `gh pr ready`.
+3. Before the final push, `git rm Documentation/specs/<slug>.md` in a `chore: remove implemented spec for …` commit. The spec text stays recoverable via `git log -p -- Documentation/specs/<slug>.md` (and lives in the original `docs: add spec for …` commit on the branch). The folder stays small.
+
+Do not open a separate implementation PR alongside a spec PR. Do not let `Documentation/specs/` collect specs for already-shipped work.
+
 ## Slash commands (`.claude/commands/` and `.claude/skills/`)
 
 - `/trio` — force a trio review on any task.

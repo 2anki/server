@@ -1,27 +1,62 @@
 ---
-description: Take a spec and ship it - branch, code, tests, PR
-argument-hint: paste the spec or path to spec file
+description: Take a spec and ship it - take over the draft spec PR, code, tests, mark ready
+argument-hint: spec PR number or URL (preferred), or paste the spec / path to a spec file
 ---
 
 Use the `engineer` agent.
 
-1. Read the spec below the `---` line (or the file path if provided).
-2. Follow the engineer workflow in `.claude/agents/engineer.md`:
+## Primary path — take over the draft spec PR
+
+When `$ARGUMENTS` is a PR number or URL (or you can find a draft PR titled `spec: …` for the spec at hand), graduate that PR to implementation rather than creating a new branch:
+
+1. Fetch the PR (`gh pr view <n> --json title,headRefName,isDraft,body`) and check out its branch locally:
+   ```
+   gh pr checkout <n>
+   ```
+   The branch should already be `feat/spec-<slug>` / `fix/spec-<slug>` / `refactor/spec-<slug>` etc. (the spec author picked the prefix to match the implementation). If it is still on the legacy `docs/spec-<slug>` shape, rename the local branch and update the PR head before pushing more commits:
+   ```
+   git branch -m feat/spec-<slug>
+   git push origin -u feat/spec-<slug>
+   gh pr edit <n> --head feat/spec-<slug>
+   ```
+2. Read the spec at `Documentation/specs/<slug>.md` (it is the source of truth — do not re-derive scope).
+3. Follow the engineer workflow in `.claude/agents/engineer.md`:
    - Restate the change in one sentence.
    - Trace the code path (list files, name the layer).
    - Plan the diff.
    - Write the failing test first (TDD per CLAUDE.md).
    - Implement (smallest viable change, no comments — meaningful names instead).
-3. Suggest a branch name to me before creating it. Format: `<type>/<short-slug>` using a conventional commit prefix (`fix/`, `feat/`, `chore/`, `refactor/`, `test/`, `docs/`).
-4. Once I confirm, create the branch, commit in logical chunks with conventional-commit messages, and push.
-5. Run `/check` (parallel tsc + web typecheck + web vitest). All green before opening the PR.
-6. Open the PR with `gh pr create` using the template in the engineer agent file.
+4. Commit in logical chunks on the existing branch using conventional-commit messages.
+5. Before the final push, remove the spec file — its text lives in the original `docs: add spec for …` commit on this branch and in the deletion diff:
+   ```
+   git rm Documentation/specs/<slug>.md
+   git commit -m "chore: remove implemented spec for <feature name>" \
+     -m "Spec text preserved in git history: git log -p -- Documentation/specs/<slug>.md"
+   ```
+6. Run `/check` (parallel tsc + web typecheck + web vitest + web lint). All green before flipping the PR.
+7. Graduate the PR from draft to ready, and rename the title to match the implementation prefix:
+   ```
+   gh pr edit <n> --title "<type>: <feature name>"   # feat: / fix: / refactor: / ...
+   gh pr ready <n>
+   ```
+   Update the PR body to the engineer template in `.claude/agents/engineer.md` (What / Why / How / Measuring success / Testing / Risks / Goal alignment). Keep the link to the trio synthesis if it was useful.
 
 Before merging:
 - All checks green.
 - If user-facing, ping the `designer` agent for a review pass.
 - If the change touches auth, payments, or external-API integration, run `/security-review` first.
 - Note goal alignment in the PR body (per `CLAUDE.md`).
+
+## Fallback — no draft spec PR exists
+
+If `$ARGUMENTS` is a raw spec (pasted body or a path to a `.md` file with no associated draft PR):
+
+1. Read the spec.
+2. Follow the engineer workflow above.
+3. Suggest a branch name. Format: `<type>/<short-slug>` using a conventional commit prefix (`fix/`, `feat/`, `chore/`, `refactor/`, `test/`). Do **not** use `docs/` for an implementation branch.
+4. Once confirmed, create the branch, commit in logical chunks, run `/check`, then open the PR (not draft) with `gh pr create` using the engineer template.
+
+In this path there is no spec file in the repo to remove — skip the spec-cleanup commit.
 
 ---
 
