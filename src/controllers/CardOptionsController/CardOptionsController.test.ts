@@ -97,6 +97,49 @@ describe('CardOptionsController.listSettings', () => {
   });
 });
 
+describe('CardOptionsController.deleteAllUserSettings', () => {
+  function makeMockRes(owner: string) {
+    const json = jest.fn();
+    const send = jest.fn();
+    const status = jest.fn().mockReturnValue({ send });
+    return {
+      locals: { owner },
+      json,
+      send,
+      status,
+    } as unknown as import('express').Response;
+  }
+
+  it('returns 204 when use case resolves', async () => {
+    const mockUseCase = { execute: jest.fn().mockResolvedValue(undefined) };
+    const controller = new CardOptionsController(
+      new FakeSettingsService(),
+      undefined,
+      mockUseCase as any
+    );
+    const req = {} as import('express').Request;
+    const res = makeMockRes('user-1');
+    await controller.deleteAllUserSettings(req, res);
+    expect(mockUseCase.execute).toHaveBeenCalledWith('user-1');
+    expect(res.status).toHaveBeenCalledWith(204);
+  });
+
+  it('returns 500 when use case throws', async () => {
+    const mockUseCase = {
+      execute: jest.fn().mockRejectedValue(new Error('DB down')),
+    };
+    const controller = new CardOptionsController(
+      new FakeSettingsService(),
+      undefined,
+      mockUseCase as any
+    );
+    const req = {} as import('express').Request;
+    const res = makeMockRes('user-1');
+    await controller.deleteAllUserSettings(req, res);
+    expect(res.status).toHaveBeenCalledWith(500);
+  });
+});
+
 describe('SettingsController', () => {
   test('returns default settings for client', () => {
     testDefaultSettings('client', {
