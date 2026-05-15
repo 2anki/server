@@ -187,9 +187,9 @@ export default function ChatPage() {
         data.messages.map((m) => ({
           role: m.role,
           content: m.content,
-          ...(m.cards != null ? { cards: m.cards } : {}),
-          ...(m.contentBefore != null ? { contentBefore: m.contentBefore } : {}),
-          ...(m.contentAfter != null ? { contentAfter: m.contentAfter } : {}),
+          ...(m.cards == null ? {} : { cards: m.cards }),
+          ...(m.contentBefore == null ? {} : { contentBefore: m.contentBefore }),
+          ...(m.contentAfter == null ? {} : { contentAfter: m.contentAfter }),
         }))
       );
     } catch {
