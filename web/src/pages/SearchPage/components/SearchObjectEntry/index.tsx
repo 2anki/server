@@ -44,7 +44,8 @@ function SearchObjectEntry(props: Readonly<Props>) {
     params.set('title', title);
     const resolvedType = getType(type);
     if (resolvedType) params.set('type', resolvedType);
-    params.set('returnTo', `${location.pathname}${location.search}`);
+    const notionSearchReturn = new URLSearchParams({ q: title });
+    params.set('returnTo', `${location.pathname}?${notionSearchReturn.toString()}`);
     navigate(`/rules/${encodeURIComponent(id)}?${params.toString()}`);
   };
 
