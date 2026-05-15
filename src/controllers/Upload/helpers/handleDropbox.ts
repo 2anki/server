@@ -48,20 +48,10 @@ export async function handleDropbox(
         const contents = await instrumentedAxios.get<ArrayBuffer>('dropbox', file.link, {
           responseType: 'arraybuffer',
         });
-        const buffer = Buffer.from(contents.data);
-        console.info('[handleDropbox] fetched', {
-          name: file.name,
-          expectedBytes: file.bytes,
-          actualBytes: buffer.length,
-          status: contents.status,
-          contentType: contents.headers['content-type'],
-          contentLength: contents.headers['content-length'],
-          firstBytes: buffer.subarray(0, 200).toString('utf8'),
-        });
         return {
           originalname: file.name,
           size: file.bytes,
-          buffer,
+          buffer: Buffer.from(contents.data),
         };
       })
     );
