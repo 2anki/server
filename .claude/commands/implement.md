@@ -33,8 +33,9 @@ When `$ARGUMENTS` is a PR number or URL (or you can find a draft PR titled `spec
    git commit -m "chore: remove implemented spec for <feature name>" \
      -m "Spec text preserved in git history: git log -p -- Documentation/specs/<slug>.md"
    ```
-6. Run `/check` (parallel tsc + web typecheck + web vitest + web lint). All green before flipping the PR.
-7. Graduate the PR from draft to ready, and rename the title to match the implementation prefix:
+6. **Add a changelog entry if this PR changes user-visible behavior.** See CLAUDE.md > Changelog for the rules (file path, when to add, voice). One line, user-facing prose — no implementation details. If you can't write the entry without referencing internal code, the PR probably doesn't need one. Commit as `chore: add changelog entry for <feature>`.
+7. Run `/check` (parallel tsc + web typecheck + web vitest + web lint). All green before flipping the PR.
+8. Graduate the PR from draft to ready, and rename the title to match the implementation prefix:
    ```
    gh pr edit <n> --title "<type>: <feature name>"   # feat: / fix: / refactor: / ...
    gh pr ready <n>
@@ -43,6 +44,7 @@ When `$ARGUMENTS` is a PR number or URL (or you can find a draft PR titled `spec
 
 Before merging:
 - All checks green.
+- Changelog entry added if the PR is user-visible (or explicit note in the PR body that no entry is warranted).
 - If user-facing, ping the `designer` agent for a review pass.
 - If the change touches auth, payments, or external-API integration, run `/security-review` first.
 - Note goal alignment in the PR body (per `CLAUDE.md`).
@@ -54,7 +56,7 @@ If `$ARGUMENTS` is a raw spec (pasted body or a path to a `.md` file with no ass
 1. Read the spec.
 2. Follow the engineer workflow above.
 3. Suggest a branch name. Format: `<type>/<short-slug>` using a conventional commit prefix (`fix/`, `feat/`, `chore/`, `refactor/`, `test/`). Do **not** use `docs/` for an implementation branch.
-4. Once confirmed, create the branch, commit in logical chunks, run `/check`, then open the PR (not draft) with `gh pr create` using the engineer template.
+4. Once confirmed, create the branch, commit in logical chunks. If the work changes user-visible behavior, add a changelog entry per CLAUDE.md > Changelog (separate `chore: add changelog entry …` commit). Run `/check`, then open the PR (not draft) with `gh pr create` using the engineer template.
 
 In this path there is no spec file in the repo to remove — skip the spec-cleanup commit.
 

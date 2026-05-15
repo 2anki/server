@@ -48,8 +48,9 @@ When given a spec or issue:
 5. **Write the failing test first.**
 6. **Implement.** Smallest viable change. No drive-by refactors.
 7. **Answer: how will we measure this worked?** Name the specific log line, metric, or query that will confirm the behavior in production. Add instrumentation alongside the implementation — not as a follow-up ticket.
-8. **Run `/check`** — parallel tsc + web typecheck + web vitest. Everything green before pushing.
-9. **Open the PR.** Title uses a conventional commit prefix (`fix:`, `feat:`, `chore:`, `refactor:`, `test:`, `docs:`) followed by an imperative summary.
+8. **Changelog entry.** If a real user would notice this change, add a line to `web/src/pages/WhatsNewPage/changelog.ts` in the same PR. User voice, no implementation details — see CLAUDE.md > Changelog. If the PR is internal-only, say so in the PR body so reviewers don't ask.
+9. **Run `/check`** — parallel tsc + web typecheck + web vitest. Everything green before pushing.
+10. **Open the PR.** Title uses a conventional commit prefix (`fix:`, `feat:`, `chore:`, `refactor:`, `test:`, `docs:`) followed by an imperative summary.
 
 ### When the work originated from a draft spec PR
 
@@ -80,6 +81,9 @@ Specific log, metric, or query that confirms this worked in production.
 ## Testing
 - Unit tests added: ...
 - Manually verified: ...
+
+## Changelog
+The exact line added to `web/src/pages/WhatsNewPage/changelog.ts`, or "No entry — internal-only, no user-visible change."
 
 ## Risks
 What could break. Rollback plan if relevant.
