@@ -23,6 +23,7 @@ export interface IUserPreferencesRepository {
   get(userId: number): Promise<UserPreferences>;
   patch(userId: number, prefs: Partial<UserPreferences>): Promise<UserPreferences>;
   migrate(userId: number, prefs: Partial<UserPreferences>): Promise<UserPreferences>;
+  clearCardOptions(userId: number): Promise<UserPreferences>;
 }
 
 const ALLOWED_CARD_OPTION_KEYS = new Set([
@@ -102,6 +103,11 @@ export class UserPreferencesRepository implements IUserPreferencesRepository {
     }
     return this.get(userId);
   }
+
+  async clearCardOptions(userId: number): Promise<UserPreferences> {
+    await this.database('users').where({ id: userId }).update({ card_options: null });
+    return this.get(userId);
+  }
 }
 
 function laterOf(a: string | null, b: string): string {
@@ -136,6 +142,13 @@ export class InMemoryUserPreferencesRepository implements IUserPreferencesReposi
       theme: current.theme ?? prefs.theme ?? null,
       ankiWebAcknowledgedAt: current.ankiWebAcknowledgedAt ?? prefs.ankiWebAcknowledgedAt ?? null,
     };
+    this.store.set(userId, next);
+    return next;
+  }
+
+  async clearCardOptions(userId: number): Promise<UserPreferences> {
+    const current = await this.get(userId);
+    const next: UserPreferences = { ...current, cardOptions: null };
     this.store.set(userId, next);
     return next;
   }

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { Backend } from './Backend';
-import * as api from './api';
 import { JobsId } from '../../schemas/public/Jobs';
+import * as api from './api';
+import { Backend } from './Backend';
 
 // Mock the api module
 vi.mock('./api', () => ({
@@ -72,7 +72,9 @@ describe('Backend', () => {
 
     it('should handle 409 Conflict with default message', async () => {
       const mockResponse = createMockResponse(409, false, 'Conflict');
-      (mockResponse as any).json = vi.fn().mockRejectedValue(new Error('Invalid JSON'));
+      (mockResponse as any).json = vi
+        .fn()
+        .mockRejectedValue(new Error('Invalid JSON'));
       vi.mocked(api.del).mockResolvedValue(mockResponse);
 
       await expect(backend.deleteJob(123 as JobsId)).rejects.toThrow(
@@ -81,7 +83,11 @@ describe('Backend', () => {
     });
 
     it('should handle other HTTP errors', async () => {
-      const mockResponse = createMockResponse(500, false, 'Internal Server Error');
+      const mockResponse = createMockResponse(
+        500,
+        false,
+        'Internal Server Error'
+      );
       vi.mocked(api.del).mockResolvedValue(mockResponse);
 
       await expect(backend.deleteJob(123 as JobsId)).rejects.toThrow(
@@ -164,6 +170,60 @@ describe('Backend', () => {
       expect(api.post).toHaveBeenCalledWith(
         expect.stringContaining('upload/jobs/abc-123/restart'),
         {}
+      );
+    });
+  });
+
+  describe('resetUserCardOptions', () => {
+    it('calls DELETE on the card-options endpoint', async () => {
+      const mockResponse = createMockResponse(204, true);
+      vi.mocked(api.del).mockResolvedValue(mockResponse);
+
+      await expect(backend.resetUserCardOptions()).resolves.toBeUndefined();
+      expect(api.del).toHaveBeenCalledWith(
+        '/api/users/me/preferences/card-options'
+      );
+    });
+
+    it('throws on non-2xx response', async () => {
+      const mockResponse = createMockResponse(
+        500,
+        false,
+        'Internal Server Error'
+      );
+      vi.mocked(api.del).mockResolvedValue(mockResponse);
+
+      await expect(backend.resetUserCardOptions()).rejects.toThrow(
+        'Failed to reset card options: 500'
+      );
+    });
+
+    it('resolves when response is null', async () => {
+      vi.mocked(api.del).mockResolvedValue(null);
+
+      await expect(backend.resetUserCardOptions()).resolves.toBeUndefined();
+    });
+  });
+
+  describe('deleteRules', () => {
+    it('calls DELETE on the rules endpoint with the page id', async () => {
+      const mockResponse = createMockResponse(204, true);
+      vi.mocked(api.del).mockResolvedValue(mockResponse);
+
+      await expect(backend.deleteRules('page-xyz')).resolves.toBeUndefined();
+      expect(api.del).toHaveBeenCalledWith('/api/rules/page-xyz');
+    });
+
+    it('throws on non-2xx response', async () => {
+      const mockResponse = createMockResponse(
+        500,
+        false,
+        'Internal Server Error'
+      );
+      vi.mocked(api.del).mockResolvedValue(mockResponse);
+
+      await expect(backend.deleteRules('page-xyz')).rejects.toThrow(
+        'Failed to delete rules: 500'
       );
     });
   });

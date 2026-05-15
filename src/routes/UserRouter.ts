@@ -704,6 +704,12 @@ const UserRouter = () => {
     (req, res) => userPreferencesController.migrate(req, res)
   );
 
+  router.delete(
+    '/api/users/me/preferences/card-options',
+    RequireAuthentication,
+    (req, res) => userPreferencesController.deleteCardOptions(req, res)
+  );
+
   return router;
 };
 

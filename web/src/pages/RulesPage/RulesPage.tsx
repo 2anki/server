@@ -92,6 +92,7 @@ export default function RulesPage({ setErrorMessage }: Readonly<Props>) {
   const [favorite, setFavorite] = useState<boolean>(false);
   const [isTogglingFavorite, setIsTogglingFavorite] = useState(false);
   const [initialSnapshot, setInitialSnapshot] = useState('');
+  const [isResetting, setIsResetting] = useState(false);
 
   const cardOptionsRef = useRef<CardOptionsFormHandle>(null);
 
@@ -149,6 +150,32 @@ export default function RulesPage({ setErrorMessage }: Readonly<Props>) {
       cancelled = true;
     };
   }, [id]);
+
+  const resetAll = async () => {
+    if (isResetting) return;
+    setIsResetting(true);
+    try {
+      await Promise.all([
+        get2ankiApi().deleteRules(id),
+        get2ankiApi().deleteSettings(id),
+      ]);
+      setRules(defaultRules);
+      setTags(defaultRules.tags_is);
+      setSendEmail(defaultRules.email_notification);
+      setInitialSnapshot(
+        snapshot(
+          defaultRules,
+          defaultRules.tags_is,
+          defaultRules.email_notification
+        )
+      );
+      await cardOptionsRef.current?.reset();
+    } catch (error) {
+      setErrorMessage(error);
+    } finally {
+      setIsResetting(false);
+    }
+  };
 
   const goBack = () => navigate(returnTo);
 
@@ -356,6 +383,14 @@ export default function RulesPage({ setErrorMessage }: Readonly<Props>) {
             />
 
             <div className={styles.saveBar}>
+              <button
+                type="button"
+                className={`${sharedStyles.btnSecondary} ${styles.actionButton}`}
+                onClick={resetAll}
+                disabled={isSaving || isResetting}
+              >
+                {isResetting ? 'Resetting' : 'Reset to defaults'}
+              </button>
               <button
                 type="button"
                 className={`${sharedStyles.btnSecondary} ${styles.actionButton}`}

@@ -10,6 +10,10 @@ class ParserRulesService {
   getById(id: string) {
     return this.repository.getById(id);
   }
+
+  deleteRule(id: string, owner: string): Promise<number> {
+    return this.repository.deleteByObjectId(id, owner);
+  }
 }
 
 export default ParserRulesService;
