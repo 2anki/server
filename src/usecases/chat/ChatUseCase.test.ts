@@ -357,6 +357,59 @@ describe('ChatUseCase', () => {
     });
   });
 
+  describe('attachments', () => {
+    it('sends a mixed-content user turn when attachments are provided', async () => {
+      const { anthropic, useCase } = buildUseCase('answer');
+      const attachment = { mimeType: 'image/png', data: Buffer.from([0x89, 0x50, 0x4e, 0x47]) };
+
+      await useCase.execute({
+        user: FREE_USER,
+        content: 'Explain this diagram',
+        conversationHistory: [],
+        attachments: [attachment],
+      });
+
+      const callArg = anthropic.messages.stream.mock.calls[0][0];
+      const lastMessage = callArg.messages[callArg.messages.length - 1];
+      expect(Array.isArray(lastMessage.content)).toBe(true);
+      expect(lastMessage.content).toHaveLength(2);
+      expect(lastMessage.content[0]).toMatchObject({ type: 'image' });
+      expect(lastMessage.content[1]).toMatchObject({ type: 'text', text: 'Explain this diagram' });
+    });
+
+    it('sends a plain string user turn when no attachments are provided', async () => {
+      const { anthropic, useCase } = buildUseCase('answer');
+
+      await useCase.execute({
+        user: FREE_USER,
+        content: 'Plain message',
+        conversationHistory: [],
+        attachments: [],
+      });
+
+      const callArg = anthropic.messages.stream.mock.calls[0][0];
+      const lastMessage = callArg.messages[callArg.messages.length - 1];
+      expect(typeof lastMessage.content).toBe('string');
+      expect(lastMessage.content).toBe('Plain message');
+    });
+
+    it('stores plain text in chat_messages even when attachments are present', async () => {
+      const { messagesRepo, useCase } = buildUseCase('answer');
+      const attachment = { mimeType: 'application/pdf', data: Buffer.from([0x25, 0x50, 0x44, 0x46]) };
+
+      await useCase.execute({
+        user: FREE_USER,
+        content: 'Summarize this PDF',
+        conversationHistory: [],
+        attachments: [attachment],
+      });
+
+      const all = messagesRepo.getAll();
+      const userMsg = all.find((m) => m.role === 'user');
+      expect(userMsg?.content).toBe('Summarize this PDF');
+    });
+  });
+
   describe('ChatRateLimitError', () => {
     it('provides a resetDate as the first of next month', async () => {
       const { messagesRepo, useCase } = buildUseCase('');

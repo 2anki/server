@@ -1,6 +1,7 @@
 import type Anthropic from '@anthropic-ai/sdk';
 import type { IChatMessagesRepository } from '../../data_layer/ChatMessagesRepository';
 import type { IConversationsRepository } from '../../data_layer/ConversationsRepository';
+import { buildAttachmentBlocks, type ChatAttachment } from './buildAttachmentBlocks';
 
 const FREE_MONTHLY_LIMIT = 20;
 const FREE_MODEL = 'claude-haiku-4-5-20251001';
@@ -151,8 +152,10 @@ export class ChatUseCase {
     conversationHistory: ChatMessage[];
     conversationId?: number | null;
     onToken?: (text: string) => void;
+    attachments?: ChatAttachment[];
   }): Promise<SendMessageResult> {
     const { user, content, conversationHistory, onToken } = input;
+    const attachments = input.attachments ?? [];
 
     if (!user.patreon) {
       const count = await this.messagesRepo.countThisMonth(user.owner);
@@ -181,9 +184,14 @@ export class ChatUseCase {
     const model = user.patreon ? PATREON_MODEL : FREE_MODEL;
 
     const recentHistory = conversationHistory.slice(-MAX_HISTORY_TURNS);
+    const attachmentBlocks = buildAttachmentBlocks(attachments);
+    const userContent: Anthropic.MessageParam['content'] =
+      attachmentBlocks.length > 0
+        ? [...attachmentBlocks, { type: 'text', text: content }]
+        : content;
     const messages: Anthropic.MessageParam[] = [
       ...recentHistory.map((m) => ({ role: m.role, content: m.content })),
-      { role: 'user', content },
+      { role: 'user', content: userContent },
     ];
 
     await this.messagesRepo.insert({
