@@ -44,6 +44,13 @@
   margin: 0 0 0.5rem;
 }
 
+.profileVerified {
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  color: var(--color-text-secondary);
+  margin: 0 0 0.5rem;
+}
+
 .sectionTitle {
   font-size: var(--text-base);
   font-weight: var(--font-semibold);

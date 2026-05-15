@@ -192,8 +192,8 @@ const UserRouter = () => {
    * @swagger
    * /api/users/verify/{token}:
    *   get:
-   *     summary: Verify email address
-   *     description: Validates an email verification token, marks the user's email as verified, and redirects to the app.
+   *     summary: Honor in-flight email verification links
+   *     description: Kept alive for verify_email tokens issued before email verification was removed. New signups no longer receive these.
    *     tags: [Authentication]
    *     parameters:
    *       - in: path
@@ -203,7 +203,7 @@ const UserRouter = () => {
    *           type: string
    *     responses:
    *       302:
-   *         description: Redirects to /uploads on success, or /login?error=verification-expired on failure
+   *         description: Redirects to /login?verified=1 (or /account?verified=1 if signed in) on success; same paths with verify_error=expired on failure
    */
   router.get('/api/users/verify/:token', (req, res, next) =>
     controller.verifyEmail(req, res, next)
@@ -543,12 +543,6 @@ const UserRouter = () => {
     '/api/users/start-trial',
     RequireAuthentication,
     (req, res) => controller.startTrial(req, res)
-  );
-
-  router.post(
-    '/api/users/resend-verification',
-    RequireAuthentication,
-    (req, res, next) => controller.resendVerificationEmail(req, res, next)
   );
 
   /**

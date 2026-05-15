@@ -5,6 +5,15 @@ import styles from '../../styles/shared.module.css';
 function TopMessage() {
   const query = useQuery();
   const errorMessage = query.get('error');
+  const verified = query.get('verified');
+
+  if (verified === '1') {
+    return (
+      <output className={styles.alertSuccess}>
+        <p>Email verified. Sign in to continue.</p>
+      </output>
+    );
+  }
 
   if (errorMessage === 'upload_limit_exceeded') {
     return (

@@ -13,7 +13,6 @@ function makeEmailService(): jest.Mocked<IEmailService> {
     sendMagicLinkEmail: jest.fn(),
     sendReEngagementEmail: jest.fn(),
     sendInactivityWarningEmail: jest.fn(),
-    sendVerificationEmail: jest.fn(),
     sendAbandonedCheckoutRecoveryEmail: jest.fn().mockResolvedValue(undefined),
   };
 }

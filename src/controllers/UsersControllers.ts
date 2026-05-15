@@ -192,7 +192,7 @@ class UsersController {
           await this.authService.persistToken(token, newUser.id.toString());
           await this.userService.updateLastLoginAt(newUser.id.toString());
           res.cookie('token', token);
-          return res.status(200).json({ token, verificationPending: true });
+          return res.status(200).json({ token });
         }
       }
       res.status(200).json({ message: 'ok' });
@@ -547,7 +547,7 @@ class UsersController {
       const isNewUser = !user;
       if (!user) {
         const hashedPassword = this.authService.getHashPassword(getRandomUUID());
-        await this.userService.register(name ?? email, hashedPassword, email, null, true);
+        await this.userService.register(name ?? email, hashedPassword, email, null);
         user = await this.userService.getUserFrom(email);
       }
       if (isNewUser && user) {
@@ -665,54 +665,27 @@ class UsersController {
     return res.status(200).json({ message: 'ok' });
   }
 
-  async resendVerificationEmail(
-    _req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) {
-    const { owner } = res.locals;
-    if (owner == null) {
-      return res.status(401).json({ message: 'Authentication required' });
-    }
-
-    try {
-      const result = await this.userService.resendVerificationEmail(owner.toString());
-      return res.json(result);
-    } catch (error) {
-      if (error instanceof MagicLinkRateLimitError) {
-        return res.status(429).json({ message: 'Too many requests. Try again in a minute.' });
-      }
-      next(error);
-    }
-  }
-
   async verifyEmail(
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
   ) {
     const { token } = req.params;
-
-    const expiredRedirect = async () => {
-      const sessionUser = await this.authService.getUserFrom(req.cookies?.token);
-      return sessionUser != null
-        ? res.redirect('/account?verify_error=expired')
-        : res.redirect('/login?verify_error=expired');
-    };
+    const sessionUser = await this.authService.getUserFrom(req.cookies?.token);
+    const base = sessionUser ? '/account' : '/login';
 
     if (token == null || token.length === 0) {
-      return expiredRedirect();
+      return res.redirect(`${base}?verify_error=expired`);
     }
 
     try {
       const result = await this.userService.verifyMagicToken(token);
       if (result?.purpose !== 'verify_email') {
-        return expiredRedirect();
+        return res.redirect(`${base}?verify_error=expired`);
       }
       await this.userService.markEmailVerified(result.userId.toString());
-      return res.redirect('/downloads?verified=1');
+      return res.redirect(`${base}?verified=1`);
     } catch (error) {
-      console.error('Email verification failed:', error);
       next(error);
     }
   }
@@ -747,6 +720,7 @@ class UsersController {
         const jwtToken = await this.authService.newJWTToken(user.id);
         await this.authService.persistToken(jwtToken, user.id.toString());
         await this.userService.updateLastLoginAt(user.id.toString());
+        await this.userService.markEmailVerified(user.id.toString());
         res.cookie('token', jwtToken);
         return res.status(200).json({ token: jwtToken });
       }
@@ -760,6 +734,7 @@ class UsersController {
         }
         const resetToken = crypto.randomUUID();
         await this.userService.updateResetToken(user.id.toString(), resetToken);
+        await this.userService.markEmailVerified(user.id.toString());
         return res.status(200).json({ purpose: 'password_reset', reset_token: resetToken });
       }
 
