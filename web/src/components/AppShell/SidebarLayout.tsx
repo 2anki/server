@@ -4,6 +4,8 @@ import { MobileTopBar } from './MobileTopBar';
 import { SkeletonPage } from '../Skeleton/Skeleton';
 import { ErrorPresenter } from '../errors/ErrorPresenter';
 import { EmailVerificationBanner } from '../EmailVerificationBanner/EmailVerificationBanner';
+import { MonthlyLimitBanner } from '../MonthlyLimitBanner/MonthlyLimitBanner';
+import { isPayingUser } from '../NavigationBar/helpers/getPlanLabel';
 import sharedStyles from '../../styles/shared.module.css';
 import styles from './AppShell.module.css';
 
@@ -69,6 +71,7 @@ export function SidebarLayout({
           email={email ?? ''}
           onResend={onResendVerification}
         />
+        <MonthlyLimitBanner isPaying={isPayingUser(locals)} />
         {error && <ErrorPresenter error={error} />}
         <main className={sharedStyles.flexGrow}>
           <Suspense fallback={<SkeletonPage rows={5} />}>{children}</Suspense>

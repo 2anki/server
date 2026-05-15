@@ -2,6 +2,7 @@ import { Knex } from 'knex';
 
 import Users from './public/Users';
 import Subscriptions from './public/Subscriptions';
+import { isNewMonth } from '../lib/User/isNewMonth';
 
 class UsersRepository {
   table: string;
@@ -169,6 +170,42 @@ class UsersRepository {
       .where({ email: email.toLowerCase() })
       .first();
     return !!subscription;
+  }
+
+  async getCardUsage(
+    id: string | number
+  ): Promise<{ cards_used: number; month_started_at: Date | null }> {
+    const row = await this.database
+      .table(this.table)
+      .where({ id })
+      .select('cards_used_this_month', 'cards_month_started_at')
+      .first();
+    if (!row) {
+      return { cards_used: 0, month_started_at: null };
+    }
+    const startedAt: Date | null = row.cards_month_started_at ?? null;
+    if (startedAt && isNewMonth(startedAt, new Date())) {
+      return { cards_used: 0, month_started_at: startedAt };
+    }
+    return {
+      cards_used: row.cards_used_this_month ?? 0,
+      month_started_at: startedAt,
+    };
+  }
+
+  incrementCardUsage(id: string | number, cardCount: number) {
+    if (cardCount <= 0) return Promise.resolve(0);
+    return this.database(this.table)
+      .where({ id })
+      .update({
+        cards_used_this_month: this.database.raw(
+          `CASE WHEN cards_month_started_at < date_trunc('month', NOW()) THEN ? ELSE cards_used_this_month + ? END`,
+          [cardCount, cardCount]
+        ),
+        cards_month_started_at: this.database.raw(
+          `CASE WHEN cards_month_started_at < date_trunc('month', NOW()) THEN date_trunc('month', NOW()) ELSE cards_month_started_at END`
+        ),
+      });
   }
 }
 
