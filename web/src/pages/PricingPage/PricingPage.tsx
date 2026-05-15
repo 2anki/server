@@ -16,6 +16,7 @@ interface PricingPageProps {
   hostedAnkiRequested?: boolean;
   trialStartedAt?: string | null;
   patreon?: boolean | null;
+  signupCountry?: string | null;
   onTrialStarted?: () => void;
 }
 
@@ -34,8 +35,10 @@ export default function PricingPage({
   hostedAnkiRequested,
   trialStartedAt,
   patreon,
+  signupCountry,
   onTrialStarted,
 }: Readonly<PricingPageProps>) {
+  const isUS = signupCountry === 'US';
   const subcribeLink = isLoggedIn
     ? getSubscribeLink(email)
     : '/login?redirect=/pricing';
@@ -105,8 +108,9 @@ export default function PricingPage({
           </div>
         )}
         <p className={styles.intro}>
-          Free for everyone — 100 cards per month, plus one Anki → Notion
-          import to try it out.
+          {isUS
+            ? 'Built for spaced repetition — MCAT, USMLE, bar exam, and language prep. 100 cards a month free, plus one Anki → Notion import.'
+            : 'Free for everyone — 100 cards per month, plus one Anki → Notion import to try it out.'}
           {!isLoggedIn && (
             <>
               {' '}

@@ -59,3 +59,8 @@ export const VERIFY_EMAIL_TEMPLATE = fs.readFileSync(
   path.join(EMAIL_TEMPLATES_DIRECTORY, 'verify-email.html'),
   'utf8'
 );
+
+export const ABANDONED_CHECKOUT_RECOVERY_TEMPLATE = fs.readFileSync(
+  path.join(EMAIL_TEMPLATES_DIRECTORY, 'abandoned-checkout-recovery.html'),
+  'utf8'
+);

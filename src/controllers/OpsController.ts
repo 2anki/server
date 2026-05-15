@@ -3,8 +3,10 @@ import express from 'express';
 import { GetOpsMetricsUseCase } from '../usecases/ops/GetOpsMetricsUseCase';
 import { GetBusinessMetricsUseCase } from '../usecases/ops/GetBusinessMetricsUseCase';
 import { GetConversionMetricsUseCase } from '../usecases/ops/GetConversionMetricsUseCase';
+import { GetPerformanceMetricsUseCase } from '../usecases/ops/GetPerformanceMetricsUseCase';
 import { PopulateShowcaseUseCase } from '../usecases/ops/PopulateShowcaseUseCase';
 import { SendInactivityWarningsUseCase } from '../usecases/ops/SendInactivityWarningsUseCase';
+import { SendAbandonedCheckoutRecoveryUseCase } from '../usecases/ops/SendAbandonedCheckoutRecoveryUseCase';
 import { IShowcaseRepository } from '../data_layer/ShowcaseRepository';
 
 class OpsController {
@@ -14,7 +16,9 @@ class OpsController {
     private readonly getConversionMetricsUseCase?: GetConversionMetricsUseCase,
     private readonly populateShowcaseUseCase?: PopulateShowcaseUseCase,
     private readonly showcaseRepo?: IShowcaseRepository,
-    private readonly sendInactivityWarningsUseCase?: SendInactivityWarningsUseCase
+    private readonly sendInactivityWarningsUseCase?: SendInactivityWarningsUseCase,
+    private readonly getPerformanceMetricsUseCase?: GetPerformanceMetricsUseCase,
+    private readonly sendAbandonedCheckoutRecoveryUseCase?: SendAbandonedCheckoutRecoveryUseCase
   ) {}
 
   async getMetrics(req: express.Request, res: express.Response) {
@@ -94,6 +98,53 @@ class OpsController {
     } catch (error) {
       console.error('[ops] purgeShowcase failed', error);
       res.status(500).json({ message: 'Failed to purge showcase.' });
+    }
+  }
+
+  async getPerformanceMetrics(_req: express.Request, res: express.Response) {
+    if (this.getPerformanceMetricsUseCase == null) {
+      res.status(500).json({ message: 'Performance metrics not configured' });
+      return;
+    }
+    try {
+      const result = await this.getPerformanceMetricsUseCase.execute();
+      res.status(200).json(result);
+    } catch (error) {
+      console.error('[ops] getPerformanceMetrics failed', error);
+      res.status(500).json({ message: 'Failed to load performance metrics' });
+    }
+  }
+
+  async sendAbandonedCheckoutRecovery(
+    req: express.Request,
+    res: express.Response
+  ) {
+    if (this.sendAbandonedCheckoutRecoveryUseCase == null) {
+      res
+        .status(500)
+        .json({ message: 'Abandoned-checkout recovery not configured' });
+      return;
+    }
+    const body = req.body as { emails?: unknown; dryRun?: unknown };
+    if (!Array.isArray(body.emails)) {
+      res.status(400).json({ message: 'emails must be an array of strings' });
+      return;
+    }
+    const emails = body.emails.filter(
+      (e): e is string => typeof e === 'string' && e.includes('@')
+    );
+    const dryRun = body.dryRun !== false;
+    try {
+      const result = await this.sendAbandonedCheckoutRecoveryUseCase.execute(
+        emails,
+        dryRun
+      );
+      res.status(200).json(result);
+    } catch (error) {
+      console.error('[ops] sendAbandonedCheckoutRecovery failed', error);
+      res
+        .status(500)
+        .json({ message: 'Failed to run abandoned-checkout recovery' });
     }
   }
 

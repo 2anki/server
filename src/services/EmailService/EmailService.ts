@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 import {
+  ABANDONED_CHECKOUT_RECOVERY_TEMPLATE,
   CONVERT_LINK_TEMPLATE,
   CONVERT_TEMPLATE,
   DEFAULT_SENDER,
@@ -58,6 +59,7 @@ export interface IEmailService {
   ): Promise<void>;
   sendInactivityWarningEmail(to: string): Promise<void>;
   sendVerificationEmail(to: string, token: string): Promise<void>;
+  sendAbandonedCheckoutRecoveryEmail(to: string): Promise<void>;
 }
 
 class EmailService implements IEmailService {
@@ -301,6 +303,34 @@ class EmailService implements IEmailService {
     }
   }
 
+  async sendAbandonedCheckoutRecoveryEmail(to: string): Promise<void> {
+    const domain = process.env.DOMAIN ?? 'https://2anki.net';
+    const link = `${domain}/pricing?from=recovery`;
+    const markup = ABANDONED_CHECKOUT_RECOVERY_TEMPLATE.replace(
+      '{{link}}',
+      link
+    );
+    const $ = cheerio.load(markup);
+    const text = $('body').text().replace(/\s+/g, ' ').trim();
+    const msg = {
+      to,
+      from: this.defaultSender,
+      subject: 'Pick up where you left off on 2anki',
+      text,
+      html: markup,
+      replyTo: 'support@2anki.net',
+    };
+    try {
+      await sgMail.send(msg);
+    } catch (error) {
+      console.error(
+        `Failed to send abandoned-checkout recovery to ${to}:`,
+        error
+      );
+      throw error;
+    }
+  }
+
   private loadCancellationsSent(): Set<string> {
     try {
       // Ensure .2anki directory exists
@@ -506,6 +536,10 @@ export class UnimplementedEmailService implements IEmailService {
 
   async sendVerificationEmail(to: string, token: string): Promise<void> {
     console.info('sendVerificationEmail not handled');
+  }
+
+  async sendAbandonedCheckoutRecoveryEmail(to: string): Promise<void> {
+    console.info('sendAbandonedCheckoutRecoveryEmail not handled', to);
   }
 }
 

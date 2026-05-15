@@ -20,6 +20,7 @@ import { isPaying } from '../lib/isPaying';
 import type { UsersId } from '../data_layer/public/Users';
 import NotionRepository from '../data_layer/NotionRespository';
 import hashToken from '../lib/misc/hashToken';
+import { extractCountryFromRequest } from '../lib/http/extractCountryFromRequest';
 
 class UsersController {
   constructor(
@@ -175,6 +176,17 @@ class UsersController {
       );
       const newUser = await this.userService.getUserFrom(email);
       if (newUser) {
+        try {
+          const country = extractCountryFromRequest(req);
+          if (country != null) {
+            await new UsersRepository(this.db).setSignupCountryIfMissing(
+              newUser.id,
+              country
+            );
+          }
+        } catch {
+          // country capture is best-effort
+        }
         const token = await this.authService.newJWTToken(newUser.id);
         if (token) {
           await this.authService.persistToken(token, newUser.id.toString());
@@ -210,17 +222,37 @@ class UsersController {
     }
   }
 
+  private async resolveSignupCountry(
+    user: UserWithOwner | null,
+    req: express.Request
+  ): Promise<string | null> {
+    if (user?.id == null) return null;
+    const repo = new UsersRepository(this.db);
+    try {
+      const existing = await repo.getSignupCountry(user.id);
+      if (existing != null) return existing;
+    } catch {
+      return null;
+    }
+    const fromHeader = extractCountryFromRequest(req);
+    if (fromHeader == null) return null;
+    try {
+      await repo.setSignupCountryIfMissing(user.id, fromHeader);
+    } catch {
+      // best-effort write; ignore so getLocals stays robust in tests
+    }
+    return fromHeader;
+  }
+
   async getLocals(req: express.Request, res: express.Response) {
     const { locals } = res;
     const user: UserWithOwner | null = await this.authService.getUserFrom(
       req.cookies.token
     );
-    let linkedEmail: string | null = null;
-    if (user?.owner) {
-      linkedEmail = await this.userService.getSubscriptionLinkedEmail(
-        user?.owner.toString()
-      );
-    }
+    const linkedEmail = user?.owner
+      ? await this.userService.getSubscriptionLinkedEmail(user.owner.toString())
+      : null;
+    const signupCountry = await this.resolveSignupCountry(user, req);
 
     const featureFlags = {
       kiUI: false,
@@ -238,6 +270,7 @@ class UsersController {
         email_verified: user?.email_verified ?? false,
         ankify_welcome_seen: user?.ankify_welcome_seen ?? false,
         trial_started_at: user?.trial_started_at ?? null,
+        signup_country: signupCountry,
       },
       locals,
       linked_email: linkedEmail,
@@ -511,10 +544,24 @@ class UsersController {
         return res.redirect('/login');
       }
       let user = await this.userService.getUserFrom(email);
+      const isNewUser = !user;
       if (!user) {
         const hashedPassword = this.authService.getHashPassword(getRandomUUID());
         await this.userService.register(name ?? email, hashedPassword, email, null, true);
         user = await this.userService.getUserFrom(email);
+      }
+      if (isNewUser && user) {
+        try {
+          const country = extractCountryFromRequest(req);
+          if (country != null) {
+            await new UsersRepository(this.db).setSignupCountryIfMissing(
+              user.id,
+              country
+            );
+          }
+        } catch {
+          // country capture is best-effort
+        }
       }
 
       if (!user) {
@@ -555,10 +602,20 @@ class UsersController {
 
     const { email, name, accessData } = loginRequest;
     let user = await this.userService.getUserFrom(email);
+    const isNewUser = !user;
     if (!user) {
       const hashedPassword = this.authService.getHashPassword(getRandomUUID());
       await this.userService.register(name, hashedPassword, email, 'notion_oauth');
       user = await this.userService.getUserFrom(email);
+    }
+    if (isNewUser && user) {
+      const country = extractCountryFromRequest(req);
+      if (country != null) {
+        await new UsersRepository(this.db).setSignupCountryIfMissing(
+          user.id,
+          country
+        );
+      }
     }
 
     if (!user) {
