@@ -145,6 +145,39 @@ const ParserRulesRouter = () => {
     controller.createRule(req, res)
   );
 
+  /**
+   * @swagger
+   * /api/rules/{id}:
+   *   delete:
+   *     summary: Delete parser rule
+   *     description: Remove the parser rule row for the given object ID, scoped to the authenticated owner. Idempotent — returns 204 whether or not a row was deleted.
+   *     tags: [Parser Rules]
+   *     security:
+   *       - bearerAuth: []
+   *       - cookieAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: string
+   *         description: Object ID whose parser rule should be removed
+   *     responses:
+   *       204:
+   *         description: Parser rule deleted (or did not exist)
+   *       400:
+   *         description: Missing object ID
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   *       401:
+   *         description: Authentication required
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   */
   router.delete('/api/rules/:id', RequireAuthentication, (req, res) =>
     controller.deleteRule(req, res)
   );
