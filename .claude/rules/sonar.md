@@ -1,10 +1,14 @@
 # SonarCloud quality gate
 
-The gate blocks merges when **Security Rating on New Code < A**. Security issues are the only category that regularly causes failures — reliability and maintainability rarely flip.
+The gate blocks merges when **Security Rating on New Code < A**. Security issues are the only category that regularly causes failures — reliability and maintainability rarely flip. But maintainability code smells (cognitive complexity, function nesting, redundant assertions, non-native interactive elements) still land on every PR and have to be cleared one push at a time. Run Sonar locally to find them before they bounce off CI.
 
-## Run Sonar locally before pushing
+## Run Sonar locally before pushing — required for non-trivial code changes
 
-Install the scanner once:
+**When it's required:** any PR that adds or significantly modifies a function, component, controller, or use case. Skip only for pure dependency bumps, doc/changelog edits, test-only changes, or single-line typo fixes.
+
+**Why it's required:** `/check` (tsc + Biome + Jest + Vitest) does not run SonarCloud's rule engine. Cognitive complexity, nesting depth, redundant type assertions, and accessibility smells are invisible to local tooling — they surface only after the push, after CI runs, after the agent has already declared the work done. Catching them locally costs 30–90 seconds; catching them post-push costs another rebase + force-push + CI cycle.
+
+**One-time setup:**
 
 ```bash
 brew install sonar-scanner          # macOS
@@ -12,20 +16,19 @@ brew install sonar-scanner          # macOS
 npm install -g sonar-scanner        # any platform
 ```
 
-Get a token from https://sonarcloud.io/account/security (one-time, save it).
+Get a token from https://sonarcloud.io/account/security and stash it in your shell profile as `SONAR_TOKEN`.
 
-Generate coverage then scan:
+**Per-PR run (from repo root, before `gh pr ready` / before any push that flips a PR ready):**
 
 ```bash
-# from repo root
 pnpm test -- --coverage
 pnpm --filter 2anki-web test -- --coverage
-
-SONAR_TOKEN=<your-token> sonar-scanner \
-  -Dsonar.host.url=https://sonarcloud.io
+sonar-scanner -Dsonar.host.url=https://sonarcloud.io
 ```
 
-The scanner reads `sonar-project.properties` for everything else. The report link appears in stdout — click it to see issues before CI sees them.
+The scanner reads `sonar-project.properties` for everything else. The report link appears in stdout — click it; resolve any new code smells **before** pushing. If `SONAR_TOKEN` is unset, the scanner posts results anonymously to the PR analysis once `sonar-project.properties` is configured for that — the link still appears.
+
+**If running it locally is impractical** (no token configured, no scanner installed, very small change): say so explicitly in the PR body so reviewers know to expect a Sonar bounce, rather than going silent and then re-pushing 30 minutes later. Don't pretend it was run.
 
 ## What triggers a security issue
 
