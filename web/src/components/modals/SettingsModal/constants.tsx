@@ -12,7 +12,7 @@ export const availableTemplates = [
   },
   {
     value: 'custom',
-    label: 'Use custom style from the editor'
+    label: 'My note types'
   }
 ];
 

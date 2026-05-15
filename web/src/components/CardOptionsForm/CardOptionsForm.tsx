@@ -25,6 +25,8 @@ import { useSettingsCardsOptions } from '../modals/SettingsModal/useSettingsCard
 import TemplateName from '../TemplateName';
 import TemplateSelect from '../TemplateSelect';
 import fieldStyles from './CardOptionsForm.module.css';
+import { NoteTypePicker } from './NoteTypePicker';
+import { useAvailableNoteTypes } from './useAvailableNoteTypes';
 
 interface Props {
   pageTitle?: string | null;
@@ -133,6 +135,10 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
   ) {
     const { isLoading, isError, options, loadingDefaultsError } =
       useSettingsCardsOptions(pageId);
+    const {
+      options: availableNoteTypes,
+      loading: noteTypesLoading,
+    } = useAvailableNoteTypes();
     const [settings, setSettings] = useState<SettingsPayload>({});
     const [loading, setLoading] = useState(!!pageId);
     const deckNameKey = 'deckName';
@@ -590,42 +596,91 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
               }}
             />
           </div>
-          <div className={fieldStyles.section}>
-            <TemplateName
-              name="basic_model_name"
-              value={basicName}
-              placeholder="Defaults to n2a-basic"
-              label="Basic template name"
-              pickedName={(name) => {
-                setBasicName(name);
-                saveValueInLocalStorage('basic_model_name', name, pageId);
-              }}
-            />
-          </div>
-          <div className={fieldStyles.section}>
-            <TemplateName
-              name="cloze_model_name"
-              value={clozeName}
-              placeholder="Defaults to n2a-cloze"
-              label="Cloze template name"
-              pickedName={(name) => {
-                setClozeName(name);
-                saveValueInLocalStorage('cloze_model_name', name, pageId);
-              }}
-            />
-          </div>
-          <div className={fieldStyles.section}>
-            <TemplateName
-              name="input_model_name"
-              value={inputName}
-              placeholder="Defaults to n2a-input"
-              label="Input template name"
-              pickedName={(name) => {
-                setInputName(name);
-                saveValueInLocalStorage('input_model_name', name, pageId);
-              }}
-            />
-          </div>
+          {template === 'custom' ? (
+            <>
+              <div className={fieldStyles.section}>
+                <NoteTypePicker
+                  name="basic_model_name"
+                  label="Basic note type"
+                  placeholder="Defaults to n2a-basic"
+                  value={basicName}
+                  options={availableNoteTypes.basic}
+                  loading={noteTypesLoading}
+                  onChange={(name) => {
+                    setBasicName(name);
+                    saveValueInLocalStorage('basic_model_name', name, pageId);
+                  }}
+                />
+              </div>
+              <div className={fieldStyles.section}>
+                <NoteTypePicker
+                  name="cloze_model_name"
+                  label="Cloze note type"
+                  placeholder="Defaults to n2a-cloze"
+                  value={clozeName}
+                  options={availableNoteTypes.cloze}
+                  loading={noteTypesLoading}
+                  onChange={(name) => {
+                    setClozeName(name);
+                    saveValueInLocalStorage('cloze_model_name', name, pageId);
+                  }}
+                />
+              </div>
+              <div className={fieldStyles.section}>
+                <NoteTypePicker
+                  name="input_model_name"
+                  label="Input note type"
+                  placeholder="Defaults to n2a-input"
+                  value={inputName}
+                  options={availableNoteTypes.input}
+                  loading={noteTypesLoading}
+                  onChange={(name) => {
+                    setInputName(name);
+                    saveValueInLocalStorage('input_model_name', name, pageId);
+                  }}
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              <div className={fieldStyles.section}>
+                <TemplateName
+                  name="basic_model_name"
+                  value={basicName}
+                  placeholder="Defaults to n2a-basic"
+                  label="Basic template name"
+                  pickedName={(name) => {
+                    setBasicName(name);
+                    saveValueInLocalStorage('basic_model_name', name, pageId);
+                  }}
+                />
+              </div>
+              <div className={fieldStyles.section}>
+                <TemplateName
+                  name="cloze_model_name"
+                  value={clozeName}
+                  placeholder="Defaults to n2a-cloze"
+                  label="Cloze template name"
+                  pickedName={(name) => {
+                    setClozeName(name);
+                    saveValueInLocalStorage('cloze_model_name', name, pageId);
+                  }}
+                />
+              </div>
+              <div className={fieldStyles.section}>
+                <TemplateName
+                  name="input_model_name"
+                  value={inputName}
+                  placeholder="Defaults to n2a-input"
+                  label="Input template name"
+                  pickedName={(name) => {
+                    setInputName(name);
+                    saveValueInLocalStorage('input_model_name', name, pageId);
+                  }}
+                />
+              </div>
+            </>
+          )}
           <div className={fieldStyles.section}>
             <FontSizePicker
               fontSize={fontSize}
