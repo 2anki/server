@@ -15,6 +15,7 @@ import { NotionService } from '../services/NotionService/NotionService';
 import JobRepository from '../data_layer/JobRepository';
 import sendErrorResponse from '../lib/sendErrorResponse';
 import { isPaying } from '../lib/isPaying';
+import { buildContentDisposition } from '../lib/buildContentDisposition';
 
 const MEDIA_CONTENT_TYPES: Record<string, string> = {
   png: 'image/png',
@@ -188,10 +189,7 @@ class ApkgController {
         .replace(/\.apkg$/i, '')
         .replace(/[^\w\s.-]/g, '_');
       res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader(
-        'Content-Disposition',
-        `attachment; filename="${safeName}.pdf"`
-      );
+      res.setHeader('Content-Disposition', buildContentDisposition(`${safeName}.pdf`));
       res.send(result.pdf);
     } catch (error) {
       if (error instanceof CardLimitExceededError) {

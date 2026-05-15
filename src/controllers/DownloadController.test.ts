@@ -38,7 +38,7 @@ describe('DownloadController.getFile', () => {
     );
     expect(res.setHeader).toHaveBeenCalledWith(
       'Content-Disposition',
-      'attachment; filename="123-deck.apkg"'
+      "attachment; filename=\"123-deck.apkg\"; filename*=UTF-8''123-deck.apkg"
     );
   });
 
@@ -59,7 +59,7 @@ describe('DownloadController.getFile', () => {
     expect(res.send).toHaveBeenCalled();
     expect(res.setHeader).toHaveBeenCalledWith(
       'Content-Disposition',
-      'attachment; filename="123-deck.apkg"'
+      "attachment; filename=\"123-deck.apkg\"; filename*=UTF-8''123-deck.apkg"
     );
   });
 });
