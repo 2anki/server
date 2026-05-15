@@ -86,8 +86,16 @@ function isHistoryEntry(m: unknown): m is HistoryEntry {
 }
 
 function parseHistory(raw: unknown): HistoryEntry[] {
-  if (!Array.isArray(raw)) return [];
-  return raw.filter(isHistoryEntry).map((m) => ({ role: m.role, content: m.content }));
+  let parsed: unknown = raw;
+  if (typeof raw === 'string') {
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      return [];
+    }
+  }
+  if (!Array.isArray(parsed)) return [];
+  return parsed.filter(isHistoryEntry).map((m) => ({ role: m.role, content: m.content }));
 }
 
 function emitChatError(res: Response, err: unknown): void {
