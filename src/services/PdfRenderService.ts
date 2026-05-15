@@ -1,10 +1,17 @@
 import puppeteer from 'puppeteer';
+import type { PdfOptions } from '../usecases/apkg/ExportApkgToPdfUseCase';
 
 const PDF_TIMEOUT_MS = 30_000;
 const MATHJAX_SETTLE_MS = 2_000;
 
+const MARGIN_VALUES: Record<string, string> = {
+  narrow: '0.5cm',
+  normal: '1cm',
+  wide: '2cm',
+};
+
 export default class PdfRenderService {
-  async renderHtml(html: string): Promise<Buffer> {
+  async renderHtml(html: string, options?: PdfOptions): Promise<Buffer> {
     const browser = await puppeteer.launch({
       headless: true,
       args: ['--no-sandbox', '--disable-setuid-sandbox'],
@@ -28,10 +35,12 @@ export default class PdfRenderService {
         })`,
         { timeout: PDF_TIMEOUT_MS }
       );
+      const marginValue = MARGIN_VALUES[options?.margins ?? 'normal'] ?? '1cm';
       const pdf = await page.pdf({
-        format: 'A4',
+        format: options?.paperSize ?? 'A4',
+        landscape: options?.orientation === 'landscape',
         printBackground: true,
-        margin: { top: '1cm', right: '1cm', bottom: '1cm', left: '1cm' },
+        margin: { top: marginValue, right: marginValue, bottom: marginValue, left: marginValue },
         timeout: PDF_TIMEOUT_MS,
       });
       return Buffer.from(pdf);
