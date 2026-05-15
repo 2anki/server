@@ -1,12 +1,17 @@
 import { APIErrorCode, APIResponseError } from '@notionhq/client';
 import { withRetry } from './withRetry';
 
-function makeApiError(code: APIErrorCode, status = 500): APIResponseError {
+function makeApiError(
+  code: APIErrorCode,
+  status = 500,
+  headers: Record<string, string> = {}
+): APIResponseError {
   const err = new Error('api') as any;
   Object.setPrototypeOf(err, APIResponseError.prototype);
   err.code = code;
   err.status = status;
   err.name = 'APIResponseError';
+  err.headers = headers;
   return err as APIResponseError;
 }
 
@@ -82,5 +87,52 @@ describe('withRetry', () => {
       withRetry(fn, { maxAttempts: 3, baseDelayMs: 1 })
     ).rejects.toBe(err);
     expect(fn).toHaveBeenCalledTimes(3);
+  });
+
+  describe('Retry-After header', () => {
+    it('waits the Retry-After integer seconds when header is present on 429', async () => {
+      const sleepFn = jest.fn().mockResolvedValue(undefined);
+      const err = makeApiError(APIErrorCode.RateLimited, 429, {
+        'retry-after': '7',
+      });
+      const fn = jest
+        .fn()
+        .mockRejectedValueOnce(err)
+        .mockResolvedValueOnce('ok');
+
+      await withRetry(fn, { maxAttempts: 3, baseDelayMs: 1000, sleepFn });
+
+      expect(sleepFn).toHaveBeenCalledWith(7000);
+    });
+
+    it('falls through to exponential backoff when Retry-After header is missing', async () => {
+      const sleepFn = jest.fn().mockResolvedValue(undefined);
+      const err = makeApiError(APIErrorCode.RateLimited, 429);
+      const fn = jest
+        .fn()
+        .mockRejectedValueOnce(err)
+        .mockResolvedValueOnce('ok');
+
+      await withRetry(fn, { maxAttempts: 3, baseDelayMs: 100, sleepFn });
+
+      const delayUsed = (sleepFn.mock.calls[0] as [number])[0];
+      expect(delayUsed).toBeGreaterThanOrEqual(50);
+      expect(delayUsed).toBeLessThanOrEqual(300);
+    });
+
+    it('clamps Retry-After values above 30s to 30s', async () => {
+      const sleepFn = jest.fn().mockResolvedValue(undefined);
+      const err = makeApiError(APIErrorCode.RateLimited, 429, {
+        'retry-after': '120',
+      });
+      const fn = jest
+        .fn()
+        .mockRejectedValueOnce(err)
+        .mockResolvedValueOnce('ok');
+
+      await withRetry(fn, { maxAttempts: 3, baseDelayMs: 1000, sleepFn });
+
+      expect(sleepFn).toHaveBeenCalledWith(30000);
+    });
   });
 });
