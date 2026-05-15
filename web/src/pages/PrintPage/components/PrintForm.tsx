@@ -172,14 +172,19 @@ export default function PrintForm() {
           </select>
         </div>
         <div>
-          <label htmlFor="print-bg-color" className={styles.fieldLabel}>Background color</label>
-          <input
-            id="print-bg-color"
-            type="color"
-            value={backgroundColor}
-            onChange={(e) => setBackgroundColor(e.target.value)}
-            style={{ display: 'block', width: '100%', height: '2.375rem', padding: '0.125rem 0.25rem', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', cursor: 'pointer', background: 'var(--color-bg-primary)' }}
-          />
+          <label htmlFor="print-bg-color" className={styles.fieldLabel}>Page background</label>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', height: '2.375rem' }}>
+            <input
+              id="print-bg-color"
+              type="color"
+              value={backgroundColor}
+              onChange={(e) => setBackgroundColor(e.target.value)}
+              style={{ width: '3rem', height: '2.375rem', padding: '0.125rem', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', cursor: 'pointer', background: 'var(--color-bg-primary)' }}
+            />
+            <span style={{ color: 'var(--color-text-secondary)', fontVariantNumeric: 'tabular-nums', fontSize: '0.875rem' }}>
+              {backgroundColor.toUpperCase()}
+            </span>
+          </div>
         </div>
       </div>
       <label
