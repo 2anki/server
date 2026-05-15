@@ -95,7 +95,7 @@ describe('CardOptionsPage per-page list', () => {
     });
   });
 
-  it('replaces timestamp with "Using defaults" after a row reset', async () => {
+  it('removes the row from the list after a successful row reset', async () => {
     mockApi.listSettings.mockResolvedValue({
       items: [
         { pageId: 'abc-123', title: 'Organic Chemistry', updatedAt: '2026-01-15T10:00:00.000Z' },
@@ -105,7 +105,7 @@ describe('CardOptionsPage per-page list', () => {
     const resetButton = await screen.findByRole('button', { name: /Reset Organic Chemistry/i });
     fireEvent.click(resetButton);
     await waitFor(() => {
-      expect(screen.getByText('Using defaults')).toBeInTheDocument();
+      expect(screen.queryByText('Organic Chemistry')).not.toBeInTheDocument();
     });
   });
 

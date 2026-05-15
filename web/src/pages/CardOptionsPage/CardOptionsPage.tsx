@@ -10,7 +10,6 @@ interface PerPageItem {
   pageId: string;
   title: string | null;
   updatedAt: string | null;
-  resetDone?: boolean;
 }
 
 interface Props {
@@ -81,11 +80,7 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
         get2ankiApi().deleteSettings(item.pageId),
         get2ankiApi().deleteRules(item.pageId),
       ]);
-      setPerPageItems((prev) =>
-        prev.map((p) =>
-          p.pageId === item.pageId ? { ...p, resetDone: true } : p
-        )
-      );
+      setPerPageItems((prev) => prev.filter((p) => p.pageId !== item.pageId));
     } catch {
       setRowError("Couldn't reset. Try again.");
     } finally {
@@ -212,20 +207,14 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
                               <span className={styles.entryTitle}>
                                 {displayTitle ?? 'Untitled page'}
                               </span>
-                              {item.resetDone ? (
-                                <span className={styles.usingDefaults}>
-                                  Using defaults
-                                </span>
-                              ) : (
-                                (() => {
-                                  const updatedLabel = formatUpdatedAt(item.updatedAt);
-                                  return updatedLabel ? (
-                                    <span className={styles.entryTimestamp}>
-                                      Updated {updatedLabel}
-                                    </span>
-                                  ) : null;
-                                })()
-                              )}
+                              {(() => {
+                                const updatedLabel = formatUpdatedAt(item.updatedAt);
+                                return updatedLabel ? (
+                                  <span className={styles.entryTimestamp}>
+                                    Updated {updatedLabel}
+                                  </span>
+                                ) : null;
+                              })()}
                             </div>
                           </Link>
                           <div className={styles.entryActions}>
@@ -235,22 +224,8 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
                               onClick={() => handleRowReset(item)}
                               disabled={isResetting || bulkPending}
                               aria-label={`Reset ${displayTitle ?? item.pageId}`}
-                              title="Reset to defaults"
                             >
-                              <svg
-                                width="16"
-                                height="16"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                aria-hidden="true"
-                              >
-                                <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
-                                <path d="M3 3v5h5" />
-                              </svg>
+                              Reset
                             </button>
                             <a
                               href={`https://www.notion.so/${item.pageId.replaceAll('-', '')}`}
