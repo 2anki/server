@@ -266,26 +266,29 @@
 }
 
 .ankiButton {
+  appearance: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 2.5rem;
   height: 2.5rem;
   padding: 0;
-  background: transparent;
-  border: 0;
-  border-radius: var(--radius-md);
+  margin: 0;
+  background: none;
+  border: none;
+  box-shadow: none;
   cursor: pointer;
-  transition: transform var(--transition-fast), opacity var(--transition-fast);
+  transition: opacity var(--transition-fast);
 }
 
 .ankiButton:hover:not(:disabled) {
-  transform: scale(1.08);
+  opacity: 0.75;
 }
 
 .ankiButton:focus-visible {
   outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
+  outline-offset: 4px;
+  border-radius: var(--radius-sm);
 }
 
 .ankiButton:disabled {
@@ -297,4 +300,5 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
+  display: block;
 }
