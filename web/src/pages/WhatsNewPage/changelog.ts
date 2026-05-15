@@ -5,7 +5,7 @@ export interface ChangelogEntry {
 }
 
 export const changelog: ChangelogEntry[] = [
-  { type: 'feature', title: 'Printable PDFs — pick background color, paper size (A4, Letter, Legal), orientation, and margins before you download', date: '2026-05-15' },
+  { type: 'feature', title: 'PDF export — pick paper size (A4, Letter, Legal), orientation, margins, and page color', date: '2026-05-15' },
   { type: 'fix', title: 'Signup goes straight to your decks — no verification email to chase down, your address is confirmed the first time you use a sign-in link or password reset', date: '2026-05-15' },
   { type: 'fix', title: 'Notion mentions (people, dates, linked pages) appear as text in your cards instead of a JSON dump', date: '2026-05-15' },
   { type: 'fix', title: 'Downloaded Notion decks use the page title (or your custom deck name) as the filename', date: '2026-05-15' },
