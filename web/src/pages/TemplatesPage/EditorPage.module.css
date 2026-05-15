@@ -208,3 +208,140 @@
   color: var(--color-bg-primary);
   border-color: var(--color-primary);
 }
+
+.fieldsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.fieldsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.fieldsLabel {
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.fieldsList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.fieldRow {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) minmax(0, 2fr) auto;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+@media (max-width: 640px) {
+  .fieldRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+.fieldNameInput,
+.fieldPreviewInput {
+  padding: 0.45rem 0.65rem;
+  font-size: var(--text-sm);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-primary);
+}
+
+.fieldNameInput:focus-visible,
+.fieldPreviewInput:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -1px;
+  border-color: var(--color-primary);
+}
+
+.fieldRemove {
+  width: auto;
+  min-height: 2rem;
+  padding: 0.4rem 0.65rem;
+  font-size: var(--text-sm);
+}
+
+.presetSection {
+  margin-top: 1.5rem;
+}
+
+.presetSection + .presetSection {
+  margin-top: 2rem;
+}
+
+.presetHeading {
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  margin: 0 0 0.75rem;
+}
+
+.presetGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.75rem;
+}
+
+.presetCard {
+  appearance: none;
+  text-align: left;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+}
+
+.presetCard:hover,
+.presetCard:focus-visible {
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.presetName {
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-primary);
+}
+
+.presetDescription {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--leading-normal);
+}
+
+.presetEmpty {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.presetBack {
+  display: inline-block;
+  margin-top: 2rem;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+}
+
+.presetBack:hover,
+.presetBack:focus-visible {
+  text-decoration: underline;
+  color: var(--color-text-primary);
+}

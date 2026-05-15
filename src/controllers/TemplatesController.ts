@@ -7,6 +7,7 @@ import {
   exportNoteTypeToApkg,
 } from '../lib/templates/exportNoteTypeToApkg';
 import { getDefaultTemplates } from '../services/DefaultTemplatesService';
+import { getOfficialTemplates } from '../services/officialTemplates';
 import TemplatesService from '../services/TemplatesService';
 
 const EMPTY_USER_PAYLOAD = { templates: [], hiddenIds: [] } as const;
@@ -84,6 +85,10 @@ class TemplatesController {
 
   listDefaultTemplates(_req: Request, res: Response) {
     res.json(getDefaultTemplates());
+  }
+
+  listOfficialTemplates(_req: Request, res: Response) {
+    res.json(getOfficialTemplates());
   }
 
   async exportTemplate(req: Request, res: Response) {

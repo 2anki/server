@@ -91,6 +91,27 @@ const TemplatesRouter = () => {
 
   /**
    * @swagger
+   * /api/templates/official:
+   *   get:
+   *     summary: List official 2anki note types used by the conversion pipeline
+   *     description: Returns the four canonical 2anki templates (Notion Basic, Notion Cloze, Notion Input, Image Occlusion).
+   *     tags: [Templates]
+   *     responses:
+   *       200:
+   *         description: Array of official note types
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: array
+   *               items:
+   *                 type: object
+   */
+  router.get('/api/templates/official', (req, res) =>
+    controller.listOfficialTemplates(req, res)
+  );
+
+  /**
+   * @swagger
    * /api/templates/user:
    *   get:
    *     summary: Get the authenticated user's saved template payload

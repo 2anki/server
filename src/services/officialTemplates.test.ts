@@ -1,0 +1,52 @@
+import { getOfficialTemplates } from './officialTemplates';
+
+describe('getOfficialTemplates', () => {
+  const templates = getOfficialTemplates();
+
+  it('returns at least the four canonical templates', () => {
+    expect(templates.length).toBeGreaterThanOrEqual(4);
+    const ids = templates.map((t) => t.id);
+    expect(ids).toEqual(
+      expect.arrayContaining([
+        'official-n2a-basic',
+        'official-n2a-cloze',
+        'official-n2a-input',
+        'official-n2a-io',
+      ])
+    );
+  });
+
+  it('shapes each entry as a NoteTypeStarter', () => {
+    for (const template of templates) {
+      expect(template).toMatchObject({
+        id: expect.any(String),
+        name: expect.any(String),
+        description: expect.any(String),
+        baseType: expect.any(String),
+        noteType: {
+          name: expect.any(String),
+          tmpls: expect.any(Array),
+          flds: expect.any(Array),
+          css: expect.any(String),
+        },
+        previewData: expect.any(Object),
+        tags: expect.any(Array),
+      });
+      expect(template.noteType.tmpls.length).toBeGreaterThan(0);
+      expect(template.noteType.flds.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('marks the cloze and image-occlusion templates as cloze type', () => {
+    const cloze = templates.find((t) => t.id === 'official-n2a-cloze');
+    const io = templates.find((t) => t.id === 'official-n2a-io');
+    expect(cloze?.noteType.type).toBe(1);
+    expect(io?.noteType.type).toBe(1);
+  });
+
+  it('keeps the Anki template HTML in qfmt/afmt', () => {
+    const basic = templates.find((t) => t.id === 'official-n2a-basic');
+    expect(basic?.noteType.tmpls[0].qfmt).toContain('{{Front}}');
+    expect(basic?.noteType.tmpls[0].afmt).toContain('{{Back}}');
+  });
+});

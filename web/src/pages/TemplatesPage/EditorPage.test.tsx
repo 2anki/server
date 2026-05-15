@@ -69,32 +69,48 @@ describe('EditorPage (new)', () => {
       templates: [],
       hiddenIds: [],
     });
+    vi.spyOn(templatesApi, 'getDefaultNoteTypes').mockResolvedValue([]);
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
-  it('renders a Basic starter by default', async () => {
+  it('shows the preset picker first', async () => {
     renderEditor('new', '/templates/new');
+    expect(
+      await screen.findByRole('button', { name: /blank basic/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /blank cloze/i })
+    ).toBeInTheDocument();
+  });
+
+  it('opens the editor with My Basic when Blank Basic is picked', async () => {
+    renderEditor('new', '/templates/new');
+    fireEvent.click(
+      await screen.findByRole('button', { name: /blank basic/i })
+    );
     expect(
       await screen.findByRole('textbox', { name: /template name/i })
     ).toHaveValue('My Basic');
   });
 
-  it('switches the base type when Cloze is selected', async () => {
+  it('opens the editor with My Cloze when Blank Cloze is picked', async () => {
     renderEditor('new', '/templates/new');
-    await screen.findByRole('textbox', { name: /template name/i });
-    fireEvent.click(screen.getByRole('button', { name: 'Cloze' }));
-    await waitFor(() => {
-      expect(
-        screen.getByRole('textbox', { name: /template name/i })
-      ).toHaveValue('My Cloze');
-    });
+    fireEvent.click(
+      await screen.findByRole('button', { name: /blank cloze/i })
+    );
+    expect(
+      await screen.findByRole('textbox', { name: /template name/i })
+    ).toHaveValue('My Cloze');
   });
 
-  it('renders the three tabs', async () => {
+  it('renders the three editor tabs after picking a preset', async () => {
     renderEditor('new', '/templates/new');
+    fireEvent.click(
+      await screen.findByRole('button', { name: /blank basic/i })
+    );
     await screen.findByRole('textbox', { name: /template name/i });
     expect(screen.getByRole('tab', { name: 'Front' })).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: 'Back' })).toBeInTheDocument();
@@ -106,6 +122,9 @@ describe('EditorPage (new)', () => {
       .spyOn(templatesApi, 'saveUserTemplate')
       .mockResolvedValue({ templates: [], hiddenIds: [] });
     renderEditor('new', '/templates/new');
+    fireEvent.click(
+      await screen.findByRole('button', { name: /blank basic/i })
+    );
 
     await screen.findByRole('textbox', { name: /template name/i });
     fireEvent.click(screen.getByRole('button', { name: /^save$/i }));

@@ -39,6 +39,11 @@ export async function getDefaultNoteTypes(): Promise<NoteTypeStarter[]> {
   return Array.isArray(payload) ? (payload as NoteTypeStarter[]) : [];
 }
 
+export async function getOfficialNoteTypes(): Promise<NoteTypeStarter[]> {
+  const payload = await get('/api/templates/official');
+  return Array.isArray(payload) ? (payload as NoteTypeStarter[]) : [];
+}
+
 export async function downloadNoteTypeApkg(
   noteType: AnkiNoteType,
   previewData: Record<string, string>

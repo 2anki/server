@@ -15,6 +15,12 @@ import editorStyles from './EditorPage.module.css';
 import galleryStyles from './TemplatesPage.module.css';
 import { CodeEditor } from './components/CodeEditor/CodeEditor';
 import { BaseType, buildEmptyNoteType, duplicateStarter } from './lib/buildNoteType';
+import {
+  addField as addFieldOp,
+  removeField as removeFieldOp,
+  renameField as renameFieldOp,
+  setPreviewValue as setPreviewValueOp,
+} from './lib/editFields';
 import { buildPreviewDocument } from './renderNoteTypePreview';
 
 type Pane = 'front' | 'back' | 'css';
@@ -28,6 +34,104 @@ function safeFilename(name: string): string {
 function getSaveLabel(saving: boolean, shouldFork: boolean): string {
   if (saving) return 'Saving…';
   return shouldFork ? 'Save as copy' : 'Save';
+}
+
+interface PresetPickerProps {
+  loading: boolean;
+  presets: NoteTypeStarter[];
+  onPick: (pick: NoteTypeStarter | BaseType) => void;
+}
+
+function PresetPicker({
+  loading,
+  presets,
+  onPick,
+}: Readonly<PresetPickerProps>) {
+  return (
+    <div className={sharedStyles.page}>
+      <Helmet>
+        <title>New note type — 2anki</title>
+      </Helmet>
+      <header className={sharedStyles.pageHeader}>
+        <h1 className={sharedStyles.title}>Start a new note type</h1>
+        <p className={sharedStyles.subtitle}>
+          Pick a starting point. You can rename, edit, and reshape it before saving.
+        </p>
+      </header>
+
+      <section
+        className={editorStyles.presetSection}
+        aria-labelledby="preset-blank-heading"
+      >
+        <h2 id="preset-blank-heading" className={editorStyles.presetHeading}>
+          From scratch
+        </h2>
+        <div className={editorStyles.presetGrid}>
+          <button
+            type="button"
+            className={editorStyles.presetCard}
+            onClick={() => onPick('basic')}
+          >
+            <span className={editorStyles.presetName}>Blank Basic</span>
+            <span className={editorStyles.presetDescription}>
+              Two fields (Front, Back), one card. Sensible default styles.
+            </span>
+          </button>
+          <button
+            type="button"
+            className={editorStyles.presetCard}
+            onClick={() => onPick('cloze')}
+          >
+            <span className={editorStyles.presetName}>Blank Cloze</span>
+            <span className={editorStyles.presetDescription}>
+              Cloze deletion with a Text + Extra field. One card per cloze.
+            </span>
+          </button>
+        </div>
+      </section>
+
+      <section
+        className={editorStyles.presetSection}
+        aria-labelledby="preset-starter-heading"
+      >
+        <h2
+          id="preset-starter-heading"
+          className={editorStyles.presetHeading}
+        >
+          From a starter
+        </h2>
+        {loading && (
+          <p className={editorStyles.presetEmpty}>Loading starters…</p>
+        )}
+        {!loading && presets.length === 0 && (
+          <p className={editorStyles.presetEmpty}>
+            No starter templates available right now.
+          </p>
+        )}
+        {presets.length > 0 && (
+          <div className={editorStyles.presetGrid}>
+            {presets.map((preset) => (
+              <button
+                key={preset.id}
+                type="button"
+                className={editorStyles.presetCard}
+                onClick={() => onPick(preset)}
+              >
+                <span className={editorStyles.presetName}>{preset.name}</span>
+                <span className={editorStyles.presetDescription}>
+                  {preset.description}
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <Link to="/templates" className={editorStyles.presetBack}>
+        ← Back to Note types
+      </Link>
+    </div>
+  );
 }
 
 async function findStarter(id: string): Promise<NoteTypeStarter | null> {
@@ -205,6 +309,57 @@ function EditorBody({
         />
       </div>
 
+      <div className={editorStyles.fieldsSection}>
+        <div className={editorStyles.fieldsHeader}>
+          <span className={editorStyles.fieldsLabel}>Fields</span>
+          <button
+            type="button"
+            className={`${sharedStyles.btnSecondary} ${sharedStyles.btnInline}`}
+            onClick={() => setDraft((current) => addFieldOp(current))}
+          >
+            + Add field
+          </button>
+        </div>
+        <div className={editorStyles.fieldsList}>
+          {draft.noteType.flds.map((field, index) => (
+            <div key={`${field.ord}-${field.name}`} className={editorStyles.fieldRow}>
+              <input
+                className={editorStyles.fieldNameInput}
+                value={field.name}
+                onChange={(event) =>
+                  setDraft((current) =>
+                    renameFieldOp(current, index, event.target.value)
+                  )
+                }
+                aria-label={`Field ${index + 1} name`}
+              />
+              <input
+                className={editorStyles.fieldPreviewInput}
+                value={draft.previewData[field.name] ?? ''}
+                onChange={(event) =>
+                  setDraft((current) =>
+                    setPreviewValueOp(current, field.name, event.target.value)
+                  )
+                }
+                placeholder={`${field.name} preview value`}
+                aria-label={`${field.name} preview value`}
+              />
+              <button
+                type="button"
+                className={`${sharedStyles.btnSecondary} ${editorStyles.fieldRemove}`}
+                onClick={() =>
+                  setDraft((current) => removeFieldOp(current, index))
+                }
+                disabled={draft.noteType.flds.length <= 1}
+                aria-label={`Remove ${field.name}`}
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div className={editorStyles.workspace}>
         <div className={editorStyles.editorPane}>
           <div
@@ -264,12 +419,31 @@ export function EditorPage({ mode }: Readonly<EditorPageProps>) {
   const [initial, setInitial] = useState<NoteTypeStarter | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [shouldFork, setShouldFork] = useState(false);
-  const [baseType, setBaseType] = useState<BaseType>('basic');
+  const [presetOptions, setPresetOptions] = useState<NoteTypeStarter[] | null>(
+    null
+  );
+  const [pickedPreset, setPickedPreset] = useState<
+    NoteTypeStarter | BaseType | null
+  >(null);
 
   useEffect(() => {
     let cancelled = false;
     if (mode === 'new') {
-      setInitial(buildEmptyNoteType(baseType));
+      if (pickedPreset == null) {
+        getDefaultNoteTypes()
+          .then((defaults) => {
+            if (!cancelled) setPresetOptions(defaults);
+          })
+          .catch(() => {
+            if (!cancelled) setPresetOptions([]);
+          });
+        return;
+      }
+      if (pickedPreset === 'basic' || pickedPreset === 'cloze') {
+        setInitial(buildEmptyNoteType(pickedPreset));
+      } else {
+        setInitial(duplicateStarter(pickedPreset));
+      }
       setShouldFork(false);
       return;
     }
@@ -302,7 +476,7 @@ export function EditorPage({ mode }: Readonly<EditorPageProps>) {
     return () => {
       cancelled = true;
     };
-  }, [mode, id, baseType]);
+  }, [mode, id, pickedPreset]);
 
   if (loadError) {
     return (
@@ -314,6 +488,16 @@ export function EditorPage({ mode }: Readonly<EditorPageProps>) {
           Back to Note types
         </Link>
       </div>
+    );
+  }
+
+  if (mode === 'new' && pickedPreset == null) {
+    return (
+      <PresetPicker
+        loading={presetOptions == null}
+        presets={presetOptions ?? []}
+        onPick={setPickedPreset}
+      />
     );
   }
 
@@ -332,21 +516,6 @@ export function EditorPage({ mode }: Readonly<EditorPageProps>) {
           {mode === 'new' ? 'New note type' : `Edit ${initial.name}`} — 2anki
         </title>
       </Helmet>
-      {mode === 'new' && (
-        <div className={editorStyles.baseTypeBar}>
-          <span className={editorStyles.baseTypeLabel}>Base type</span>
-          {(['basic', 'cloze'] as const).map((value) => (
-            <button
-              key={value}
-              type="button"
-              className={`${editorStyles.baseTypeOption} ${baseType === value ? editorStyles.baseTypeOptionActive : ''}`}
-              onClick={() => setBaseType(value)}
-            >
-              {value === 'basic' ? 'Basic' : 'Cloze'}
-            </button>
-          ))}
-        </div>
-      )}
       <EditorBody initialStarter={initial} shouldFork={shouldFork} />
     </>
   );

@@ -206,3 +206,61 @@
   flex: 1;
   min-width: 220px;
 }
+
+.section {
+  margin-top: 1.5rem;
+}
+
+.section + .section {
+  margin-top: 2rem;
+}
+
+.sectionHeading {
+  font-size: var(--text-lg);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-primary);
+  margin: 0 0 0.75rem;
+}
+
+.deleteButton {
+  color: var(--color-text-secondary);
+}
+
+.deleteButton:hover,
+.deleteButton:focus-visible {
+  color: var(--color-text-primary);
+}
+
+.iconButton,
+.iconLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  background: var(--color-bg-primary);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background var(--transition-fast), color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.iconButton:hover:not(:disabled),
+.iconLink:hover {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+}
+
+.iconButton:focus-visible,
+.iconLink:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.iconButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

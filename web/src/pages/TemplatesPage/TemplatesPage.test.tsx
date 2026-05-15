@@ -151,7 +151,9 @@ describe('TemplatesPage', () => {
 
     renderPage();
 
-    const button = await screen.findByRole('button', { name: /download \.apkg/i });
+    const button = await screen.findByRole('button', {
+      name: /download.*\.apkg/i,
+    });
     fireEvent.click(button);
 
     await waitFor(() => {
@@ -171,7 +173,9 @@ describe('TemplatesPage', () => {
 
     renderPage();
 
-    const button = await screen.findByRole('button', { name: /download \.apkg/i });
+    const button = await screen.findByRole('button', {
+      name: /download.*\.apkg/i,
+    });
     fireEvent.click(button);
 
     expect(
