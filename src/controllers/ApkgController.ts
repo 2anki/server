@@ -8,6 +8,11 @@ import ApkgToNotionBlocksService from '../services/ApkgToNotionBlocksService';
 import PdfRenderService from '../services/PdfRenderService';
 import ExportApkgToPdfUseCase, {
   CardLimitExceededError,
+  DEFAULT_PDF_OPTIONS,
+  type Margins,
+  type Orientation,
+  type PaperSize,
+  type PdfOptions,
 } from '../usecases/apkg/ExportApkgToPdfUseCase';
 import ImportApkgToNotionUseCase from '../usecases/apkg/ImportApkgToNotionUseCase';
 import ResolveImportParentPageUseCase from '../usecases/apkg/ResolveImportParentPageUseCase';
@@ -60,6 +65,42 @@ function clampCursor(input: unknown): number {
 
 function isApkg(key: string): boolean {
   return /\.apkg$/i.test(key);
+}
+
+const BACKGROUND_COLOR_REGEX = /^#[0-9a-f]{6}$/i;
+const ALLOWED_PAPER_SIZES: PaperSize[] = ['A4', 'Letter', 'Legal'];
+const ALLOWED_ORIENTATIONS: Orientation[] = ['portrait', 'landscape'];
+const ALLOWED_MARGINS: Margins[] = ['narrow', 'normal', 'wide'];
+
+export function parsePdfOptions(body: Record<string, unknown>): PdfOptions | null {
+  const rawColor = body.backgroundColor;
+  if (typeof rawColor === 'string' && !BACKGROUND_COLOR_REGEX.test(rawColor)) {
+    return null;
+  }
+  const backgroundColor =
+    typeof rawColor === 'string' && BACKGROUND_COLOR_REGEX.test(rawColor)
+      ? rawColor
+      : DEFAULT_PDF_OPTIONS.backgroundColor;
+
+  const rawPaper = body.paperSize;
+  const paperSize: PaperSize =
+    typeof rawPaper === 'string' && (ALLOWED_PAPER_SIZES as string[]).includes(rawPaper)
+      ? (rawPaper as PaperSize)
+      : DEFAULT_PDF_OPTIONS.paperSize;
+
+  const rawOrientation = body.orientation;
+  const orientation: Orientation =
+    typeof rawOrientation === 'string' && (ALLOWED_ORIENTATIONS as string[]).includes(rawOrientation)
+      ? (rawOrientation as Orientation)
+      : DEFAULT_PDF_OPTIONS.orientation;
+
+  const rawMargins = body.margins;
+  const margins: Margins =
+    typeof rawMargins === 'string' && (ALLOWED_MARGINS as string[]).includes(rawMargins)
+      ? (rawMargins as Margins)
+      : DEFAULT_PDF_OPTIONS.margins;
+
+  return { backgroundColor, paperSize, orientation, margins };
 }
 
 class ApkgController {
@@ -173,6 +214,11 @@ class ApkgController {
         res.status(400).json({ message: 'File must be an .apkg file.' });
         return;
       }
+      const pdfOptions = parsePdfOptions(req.body as Record<string, unknown>);
+      if (pdfOptions == null) {
+        res.status(400).json({ message: 'Invalid background color. Use a six-digit hex value like #ffffff.' });
+        return;
+      }
       const fs = await import('node:fs/promises');
       let fileBuffer: Buffer;
       try {
@@ -184,7 +230,7 @@ class ApkgController {
         this.previewService,
         this.pdfRenderService
       );
-      const result = await useCase.execute(fileBuffer, isPaying(res.locals));
+      const result = await useCase.execute(fileBuffer, isPaying(res.locals), pdfOptions);
       const safeName = file.originalname
         .replace(/\.apkg$/i, '')
         .replace(/[^\w\s.-]/g, '_');

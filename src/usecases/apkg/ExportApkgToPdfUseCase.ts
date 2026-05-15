@@ -136,7 +136,7 @@ window.MathJax = {
 </script>
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>`;
 
-function buildHtml(deckName: string, cards: RenderedCard[], parsed: ParsedApkg): string {
+function buildHtml(deckName: string, cards: RenderedCard[], parsed: ParsedApkg, backgroundColor: string): string {
   const rows = cards.map((card) => buildCardRow(card, parsed)).join('\n');
   return `<!DOCTYPE html>
 <html lang="en">
@@ -144,7 +144,7 @@ function buildHtml(deckName: string, cards: RenderedCard[], parsed: ParsedApkg):
 <meta charset="utf-8" />
 <title>${escapeHtml(deckName)}</title>
 <style>
-  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; background:${backgroundColor}; }
   h1 { font-size: 18px; margin: 16px 0 8px; }
   table { width: 100%; border-collapse: collapse; table-layout: fixed; }
   th { text-align: left; font-size: 12px; padding: 6px 10px; border-bottom: 2px solid #333; }
@@ -167,6 +167,24 @@ ${rows}
 </html>`;
 }
 
+export type PaperSize = 'A4' | 'Letter' | 'Legal';
+export type Orientation = 'portrait' | 'landscape';
+export type Margins = 'narrow' | 'normal' | 'wide';
+
+export interface PdfOptions {
+  backgroundColor: string;
+  paperSize: PaperSize;
+  orientation: Orientation;
+  margins: Margins;
+}
+
+export const DEFAULT_PDF_OPTIONS: PdfOptions = {
+  backgroundColor: '#ffffff',
+  paperSize: 'A4',
+  orientation: 'portrait',
+  margins: 'normal',
+};
+
 export interface ExportApkgToPdfResult {
   pdf: Buffer;
   deckName: string;
@@ -179,7 +197,11 @@ export default class ExportApkgToPdfUseCase {
     private readonly pdfRenderService: PdfRenderService
   ) {}
 
-  async execute(fileBuffer: Buffer, unlimitedAccess = false): Promise<ExportApkgToPdfResult> {
+  async execute(
+    fileBuffer: Buffer,
+    unlimitedAccess = false,
+    options: PdfOptions = DEFAULT_PDF_OPTIONS
+  ): Promise<ExportApkgToPdfResult> {
     const cacheKey = `pdf-export:${Date.now()}`;
     const parsed = await this.previewService.parse(cacheKey, fileBuffer);
     const meta = this.previewService.getMeta(parsed);
@@ -191,8 +213,8 @@ export default class ExportApkgToPdfUseCase {
     const cards = collectAllCards(this.previewService, parsed);
     const deckName =
       meta.decks.length > 0 ? meta.decks[0].fullName : 'Flashcards';
-    const html = buildHtml(deckName, cards, parsed);
-    const pdf = await this.pdfRenderService.renderHtml(html);
+    const html = buildHtml(deckName, cards, parsed, options.backgroundColor);
+    const pdf = await this.pdfRenderService.renderHtml(html, options);
     return { pdf, deckName, cardCount: cards.length };
   }
 }

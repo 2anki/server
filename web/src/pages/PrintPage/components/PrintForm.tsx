@@ -4,6 +4,9 @@ import formStyles from '../../UploadPage/components/UploadForm/UploadForm.module
 import styles from '../../../styles/shared.module.css';
 
 type PrintState = 'idle' | 'uploading' | 'done' | 'error';
+type PaperSize = 'A4' | 'Letter' | 'Legal';
+type Orientation = 'portrait' | 'landscape';
+type Margins = 'narrow' | 'normal' | 'wide';
 
 const WRONG_TYPE_MESSAGE =
   'This tool works with Anki deck files (.apkg). To turn notes into an Anki deck, use the Upload page.';
@@ -49,6 +52,10 @@ export default function PrintForm() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const submitRef = useRef<HTMLButtonElement>(null);
   const [dropHover, setDropHover] = useState(false);
+  const [backgroundColor, setBackgroundColor] = useState('#ffffff');
+  const [paperSize, setPaperSize] = useState<PaperSize>('A4');
+  const [orientation, setOrientation] = useState<Orientation>('portrait');
+  const [margins, setMargins] = useState<Margins>('normal');
 
   const resetForm = () => {
     setState('idle');
@@ -71,6 +78,10 @@ export default function PrintForm() {
 
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('backgroundColor', backgroundColor);
+    formData.append('paperSize', paperSize);
+    formData.append('orientation', orientation);
+    formData.append('margins', margins);
 
     try {
       const response = await globalThis.fetch('/api/apkg/pdf', {
@@ -121,6 +132,56 @@ export default function PrintForm() {
 
   return (
     <form onSubmit={handleSubmit}>
+      <div className={styles.field} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '1rem', marginBottom: '1.25rem' }}>
+        <div>
+          <label htmlFor="print-paper-size" className={styles.fieldLabel}>Paper size</label>
+          <select
+            id="print-paper-size"
+            className={styles.select}
+            value={paperSize}
+            onChange={(e) => setPaperSize(e.target.value as PaperSize)}
+          >
+            <option value="A4">A4</option>
+            <option value="Letter">Letter</option>
+            <option value="Legal">Legal</option>
+          </select>
+        </div>
+        <div>
+          <label htmlFor="print-orientation" className={styles.fieldLabel}>Orientation</label>
+          <select
+            id="print-orientation"
+            className={styles.select}
+            value={orientation}
+            onChange={(e) => setOrientation(e.target.value as Orientation)}
+          >
+            <option value="portrait">Portrait</option>
+            <option value="landscape">Landscape</option>
+          </select>
+        </div>
+        <div>
+          <label htmlFor="print-margins" className={styles.fieldLabel}>Margins</label>
+          <select
+            id="print-margins"
+            className={styles.select}
+            value={margins}
+            onChange={(e) => setMargins(e.target.value as Margins)}
+          >
+            <option value="narrow">Narrow (0.5 cm)</option>
+            <option value="normal">Normal (1 cm)</option>
+            <option value="wide">Wide (2 cm)</option>
+          </select>
+        </div>
+        <div>
+          <label htmlFor="print-bg-color" className={styles.fieldLabel}>Background color</label>
+          <input
+            id="print-bg-color"
+            type="color"
+            value={backgroundColor}
+            onChange={(e) => setBackgroundColor(e.target.value)}
+            style={{ display: 'block', width: '100%', height: '2.375rem', padding: '0.125rem 0.25rem', border: '1px solid var(--color-border)', borderRadius: 'var(--radius-md)', cursor: 'pointer', background: 'var(--color-bg-primary)' }}
+          />
+        </div>
+      </div>
       <label
         htmlFor="print-file"
         className={`${formStyles.dropZone} ${

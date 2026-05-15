@@ -171,4 +171,59 @@ describe('ExportApkgToPdfUseCase', () => {
     const expectedBase64 = Buffer.from('fake-png-data').toString('base64');
     expect(htmlArg).toContain(`data:image/png;base64,${expectedBase64}`);
   });
+
+  it('uses white background by default', async () => {
+    const parsed = makeParsed(1);
+    const cards = [makeCard(1)];
+    previewService.parse.mockResolvedValue(parsed);
+    previewService.getMeta.mockReturnValue(makeMeta(1));
+    previewService.getCardsPage.mockReturnValueOnce({ cards, nextCursor: null, total: 1 });
+    pdfRenderService.renderHtml.mockResolvedValue(Buffer.from('%PDF'));
+
+    await useCase.execute(Buffer.from('fake-apkg'));
+
+    const htmlArg: string = pdfRenderService.renderHtml.mock.calls[0][0];
+    expect(htmlArg).toContain('background:#ffffff');
+  });
+
+  it('applies custom backgroundColor to the generated HTML body', async () => {
+    const parsed = makeParsed(1);
+    const cards = [makeCard(1)];
+    previewService.parse.mockResolvedValue(parsed);
+    previewService.getMeta.mockReturnValue(makeMeta(1));
+    previewService.getCardsPage.mockReturnValueOnce({ cards, nextCursor: null, total: 1 });
+    pdfRenderService.renderHtml.mockResolvedValue(Buffer.from('%PDF'));
+
+    await useCase.execute(Buffer.from('fake-apkg'), false, {
+      backgroundColor: '#1a2b3c',
+      paperSize: 'A4',
+      orientation: 'portrait',
+      margins: 'normal',
+    });
+
+    const htmlArg: string = pdfRenderService.renderHtml.mock.calls[0][0];
+    expect(htmlArg).toContain('background:#1a2b3c');
+  });
+
+  it('forwards print options to pdfRenderService.renderHtml', async () => {
+    const parsed = makeParsed(1);
+    const cards = [makeCard(1)];
+    previewService.parse.mockResolvedValue(parsed);
+    previewService.getMeta.mockReturnValue(makeMeta(1));
+    previewService.getCardsPage.mockReturnValueOnce({ cards, nextCursor: null, total: 1 });
+    pdfRenderService.renderHtml.mockResolvedValue(Buffer.from('%PDF'));
+
+    const options = {
+      backgroundColor: '#ffffff',
+      paperSize: 'Letter' as const,
+      orientation: 'landscape' as const,
+      margins: 'wide' as const,
+    };
+    await useCase.execute(Buffer.from('fake-apkg'), false, options);
+
+    expect(pdfRenderService.renderHtml).toHaveBeenCalledWith(
+      expect.any(String),
+      options
+    );
+  });
 });
