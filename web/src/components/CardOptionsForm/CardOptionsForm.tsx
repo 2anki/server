@@ -585,11 +585,21 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
 
         <div className={fieldStyles.optionGroup}>
           <h3 className={fieldStyles.groupHeading}>Templates</h3>
+          <p className={fieldStyles.groupIntro}>
+            Pick the look of your generated cards and the names 2anki gives the
+            Anki note types it creates. Saved note types from{' '}
+            <Link to="/templates" className={fieldStyles.groupIntroLink}>
+              Note types
+            </Link>{' '}
+            show up under <strong>My note types</strong>.
+          </p>
           <div className={fieldStyles.section}>
             <TemplateSelect
               values={availableTemplates}
               value={template}
               name="template"
+              label="Card style"
+              hint="Pick the visual style applied during Notion → Anki conversion. Choose 'My note types' to use templates you saved in the Note types editor."
               pickedTemplate={(t) => {
                 setTemplate(t);
                 saveValueInLocalStorage('template', t, pageId);
@@ -603,6 +613,7 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
                   name="basic_model_name"
                   label="Basic note type"
                   placeholder="Defaults to n2a-basic"
+                  hint="Which of your saved note types to use for Basic (front/back) cards in this conversion."
                   value={basicName}
                   options={availableNoteTypes.basic}
                   loading={noteTypesLoading}
@@ -617,6 +628,7 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
                   name="cloze_model_name"
                   label="Cloze note type"
                   placeholder="Defaults to n2a-cloze"
+                  hint="Which of your saved note types to use for Cloze deletion cards in this conversion."
                   value={clozeName}
                   options={availableNoteTypes.cloze}
                   loading={noteTypesLoading}
@@ -631,6 +643,7 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
                   name="input_model_name"
                   label="Input note type"
                   placeholder="Defaults to n2a-input"
+                  hint="Which of your saved note types to use for Type-the-answer cards in this conversion."
                   value={inputName}
                   options={availableNoteTypes.input}
                   loading={noteTypesLoading}
@@ -649,6 +662,7 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
                   value={basicName}
                   placeholder="Defaults to n2a-basic"
                   label="Basic template name"
+                  hint="Name 2anki will give the Basic note type in Anki. Leave blank to use n2a-basic."
                   pickedName={(name) => {
                     setBasicName(name);
                     saveValueInLocalStorage('basic_model_name', name, pageId);
@@ -661,6 +675,7 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
                   value={clozeName}
                   placeholder="Defaults to n2a-cloze"
                   label="Cloze template name"
+                  hint="Name 2anki will give the Cloze note type in Anki. Leave blank to use n2a-cloze."
                   pickedName={(name) => {
                     setClozeName(name);
                     saveValueInLocalStorage('cloze_model_name', name, pageId);
@@ -673,6 +688,7 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
                   value={inputName}
                   placeholder="Defaults to n2a-input"
                   label="Input template name"
+                  hint="Name 2anki will give the Type-the-answer note type in Anki. Leave blank to use n2a-input."
                   pickedName={(name) => {
                     setInputName(name);
                     saveValueInLocalStorage('input_model_name', name, pageId);
@@ -689,11 +705,6 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
                 saveValueInLocalStorage('font-size', fs.toString(), pageId);
               }}
             />
-          </div>
-          <div className={fieldStyles.section}>
-            <Link to="/templates" className={fieldStyles.noteTypesLink}>
-              Looking for ready-made note types? Browse note types →
-            </Link>
           </div>
         </div>
       </div>

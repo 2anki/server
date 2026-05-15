@@ -1,4 +1,5 @@
-import styles from '../styles/shared.module.css';
+import sharedStyles from '../styles/shared.module.css';
+import { FieldHint } from './FieldHint';
 
 interface SelectOption {
   value: string;
@@ -11,6 +12,8 @@ interface TemplateSelectPicker {
   name: string;
   value: string;
   className?: string;
+  label?: string;
+  hint?: string;
 }
 
 function TemplateSelect({
@@ -19,11 +22,24 @@ function TemplateSelect({
   pickedTemplate,
   values,
   className,
+  label,
+  hint,
 }: Readonly<TemplateSelectPicker>) {
   return (
     <div className={className ?? ''}>
+      {(label || hint) && (
+        <div className={sharedStyles.fieldHeader}>
+          {label && (
+            <label htmlFor={name} className={sharedStyles.fieldLabel}>
+              {label}
+            </label>
+          )}
+          {hint && <FieldHint text={hint} />}
+        </div>
+      )}
       <select
-        className={styles.select}
+        id={name}
+        className={sharedStyles.select}
         name={name}
         value={value}
         onChange={(event) => pickedTemplate(event.target.value)}

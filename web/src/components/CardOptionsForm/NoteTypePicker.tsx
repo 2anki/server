@@ -1,4 +1,5 @@
 import sharedStyles from '../../styles/shared.module.css';
+import { FieldHint } from '../FieldHint';
 import { NoteTypeOption } from './useAvailableNoteTypes';
 
 interface NoteTypePickerProps {
@@ -9,6 +10,7 @@ interface NoteTypePickerProps {
   options: NoteTypeOption[];
   loading: boolean;
   onChange: (value: string) => void;
+  hint?: string;
 }
 
 export function NoteTypePicker({
@@ -19,6 +21,7 @@ export function NoteTypePicker({
   options,
   loading,
   onChange,
+  hint,
 }: Readonly<NoteTypePickerProps>) {
   const selectedIsCustom =
     value.length > 0 && !options.some((option) => option.value === value);
@@ -31,17 +34,20 @@ export function NoteTypePicker({
 
   return (
     <div>
-      <label htmlFor={name}>
-        {label}
-        <div>
-          <select
-            id={name}
-            name={name}
-            className={sharedStyles.select}
-            value={value}
-            onChange={(event) => onChange(event.target.value)}
-            disabled={loading}
-          >
+      <div className={sharedStyles.fieldHeader}>
+        <label htmlFor={name} className={sharedStyles.fieldLabel}>
+          {label}
+        </label>
+        {hint && <FieldHint text={hint} />}
+      </div>
+      <select
+        id={name}
+        name={name}
+        className={sharedStyles.select}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        disabled={loading}
+      >
             <option value="">{placeholder}</option>
             {groupedByOrigin.user.length > 0 && (
               <optgroup label="Your note types">
@@ -70,12 +76,8 @@ export function NoteTypePicker({
                 ))}
               </optgroup>
             )}
-            {selectedIsCustom && (
-              <option value={value}>{value} (custom)</option>
-            )}
-          </select>
-        </div>
-      </label>
+        {selectedIsCustom && <option value={value}>{value} (custom)</option>}
+      </select>
     </div>
   );
 }
