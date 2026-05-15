@@ -18,6 +18,10 @@ class DownloadService {
     return file?.Body;
   }
 
+  async getFilename(owner: string, key: string): Promise<string | null> {
+    return this.downloadRepository.getFilename(owner, key);
+  }
+
   isValidKey(key: string) {
     return key && key.length > 0;
   }
