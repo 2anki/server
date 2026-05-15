@@ -3,6 +3,7 @@ import styles from '../AccountPage.module.css';
 interface User {
   name: string;
   email: string;
+  email_verified?: boolean;
 }
 
 interface UserProfileProps {
@@ -19,6 +20,9 @@ export function UserProfile({ user }: UserProfileProps) {
         <p className={styles.profileEmail} data-hj-suppress>
           {user.email}
         </p>
+        {user.email_verified && (
+          <p className={styles.profileVerified}>Email verified</p>
+        )}
       </div>
     </div>
   );

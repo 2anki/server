@@ -3,7 +3,6 @@ import { Sidebar, SidebarFeatures, SidebarLocals } from './Sidebar';
 import { MobileTopBar } from './MobileTopBar';
 import { SkeletonPage } from '../Skeleton/Skeleton';
 import { ErrorPresenter } from '../errors/ErrorPresenter';
-import { EmailVerificationBanner } from '../EmailVerificationBanner/EmailVerificationBanner';
 import { MonthlyLimitBanner } from '../MonthlyLimitBanner/MonthlyLimitBanner';
 import { isPayingUser } from '../NavigationBar/helpers/getPlanLabel';
 import sharedStyles from '../../styles/shared.module.css';
@@ -11,22 +10,18 @@ import styles from './AppShell.module.css';
 
 interface SidebarLayoutProps {
   email: string | null | undefined;
-  emailVerified: boolean;
   locals: SidebarLocals | undefined | null;
   features: SidebarFeatures | undefined | null;
   onLogOut: (event: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => void;
-  onResendVerification: () => Promise<void>;
   error?: Error | null;
   children: ReactNode;
 }
 
 export function SidebarLayout({
   email,
-  emailVerified,
   locals,
   features,
   onLogOut,
-  onResendVerification,
   error,
   children,
 }: Readonly<SidebarLayoutProps>) {
@@ -65,11 +60,6 @@ export function SidebarLayout({
           isOpen={isDrawerOpen}
           onOpen={() => setIsDrawerOpen(true)}
           onClose={() => setIsDrawerOpen(false)}
-        />
-        <EmailVerificationBanner
-          emailVerified={emailVerified}
-          email={email ?? ''}
-          onResend={onResendVerification}
         />
         <MonthlyLimitBanner isPaying={isPayingUser(locals)} />
         {error && <ErrorPresenter error={error} />}

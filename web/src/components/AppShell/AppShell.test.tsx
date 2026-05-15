@@ -15,10 +15,8 @@ function renderShell({ pathname = '/', isLoggedIn }: RenderOpts) {
       <AppShell
         isLoggedIn={isLoggedIn}
         email="alexander@alemayhu.com"
-        emailVerified={true}
         locals={{ patreon: false, subscriber: false }}
         features={{ kiUI: false, ops: false }}
-        onResendVerification={async () => {}}
       >
         <div data-testid="page-content">page</div>
       </AppShell>

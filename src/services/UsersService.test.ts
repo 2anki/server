@@ -4,8 +4,6 @@ import type { IEmailService } from './EmailService/EmailService';
 import type AuthenticationService from './AuthenticationService';
 import { InMemoryMagicTokenRepository } from '../data_layer/MagicTokenRepository';
 
-const noopEmailService = {} as IEmailService;
-
 function buildEmailService(
   overrides: Partial<IEmailService> = {}
 ): jest.Mocked<IEmailService> {
@@ -22,7 +20,6 @@ function buildEmailService(
     sendMagicLinkEmail: jest.fn().mockResolvedValue(undefined),
     sendReEngagementEmail: jest.fn().mockResolvedValue(undefined),
     sendInactivityWarningEmail: jest.fn().mockResolvedValue(undefined),
-    sendVerificationEmail: jest.fn().mockResolvedValue(undefined),
     ...overrides,
   } as jest.Mocked<IEmailService>;
 }
@@ -60,40 +57,6 @@ describe('UsersService.register', () => {
     );
   });
 
-  it('sends a verification email after creating the user', async () => {
-    const repository = buildRegisterRepository();
-    const emailService = buildEmailService();
-    const magicTokenRepo = new InMemoryMagicTokenRepository();
-    const service = new UsersService(repository, emailService, magicTokenRepo);
-
-    await service.register('Alex', 'hashed', 'alex@example.com');
-
-    expect(emailService.sendVerificationEmail).toHaveBeenCalledTimes(1);
-    expect(emailService.sendVerificationEmail).toHaveBeenCalledWith(
-      'alex@example.com',
-      expect.any(String)
-    );
-  });
-
-  it('stores a verify_email magic token with 24h expiry', async () => {
-    const repository = buildRegisterRepository();
-    const emailService = buildEmailService();
-    const magicTokenRepo = new InMemoryMagicTokenRepository();
-    const before = new Date();
-    const service = new UsersService(repository, emailService, magicTokenRepo);
-
-    await service.register('Alex', 'hashed', 'alex@example.com');
-
-    const sentToken = (emailService.sendVerificationEmail as jest.Mock).mock.calls[0][1];
-    const record = await magicTokenRepo.findValidToken(sentToken);
-    expect(record).not.toBeNull();
-    expect(record!.purpose).toBe('verify_email');
-    const expectedExpiry = new Date(before.getTime() + 24 * 60 * 60 * 1000);
-    expect(record!.expires_at.getTime()).toBeGreaterThanOrEqual(
-      expectedExpiry.getTime() - 1000
-    );
-  });
-
   it('defaults the name to the local part of the email when no name is supplied', async () => {
     const repository = buildRegisterRepository();
     const service = new UsersService(repository, buildEmailService());
@@ -120,17 +83,6 @@ describe('UsersService.register', () => {
       'student@uni.edu',
       null
     );
-  });
-
-  it('skips the verification email and magic token when skipEmailVerification is true', async () => {
-    const repository = buildRegisterRepository();
-    const emailService = buildEmailService();
-    const magicTokenRepo = new InMemoryMagicTokenRepository();
-    const service = new UsersService(repository, emailService, magicTokenRepo);
-
-    await service.register('Alex', 'hashed', 'alex@example.com', null, true);
-
-    expect(emailService.sendVerificationEmail).not.toHaveBeenCalled();
   });
 
   it('forwards a validated signup_origin to the repository', async () => {
@@ -338,65 +290,6 @@ describe('UsersService.requestMagicLink', () => {
     await expect(
       service.requestMagicLink('rate@example.com', 'login')
     ).rejects.toThrow(MagicLinkRateLimitError);
-  });
-});
-
-describe('UsersService.resendVerificationEmail', () => {
-  it('returns ok:true on happy path and sends a verification email', async () => {
-    const emailService = buildEmailService();
-    const magicTokenRepo = new InMemoryMagicTokenRepository();
-    const getById = jest.fn().mockResolvedValue({
-      id: 5,
-      email: 'al@example.com',
-      email_verified: false,
-    });
-    const repository = { getById } as unknown as UsersRepository;
-    const service = new UsersService(repository, emailService, magicTokenRepo);
-
-    const result = await service.resendVerificationEmail('5');
-
-    expect(result).toEqual({ ok: true });
-    expect(emailService.sendVerificationEmail).toHaveBeenCalledWith(
-      'al@example.com',
-      expect.any(String)
-    );
-  });
-
-  it('returns alreadyVerified:true without sending email when user is already verified', async () => {
-    const emailService = buildEmailService();
-    const magicTokenRepo = new InMemoryMagicTokenRepository();
-    const getById = jest.fn().mockResolvedValue({
-      id: 5,
-      email: 'al@example.com',
-      email_verified: true,
-    });
-    const repository = { getById } as unknown as UsersRepository;
-    const service = new UsersService(repository, emailService, magicTokenRepo);
-
-    const result = await service.resendVerificationEmail('5');
-
-    expect(result).toEqual({ ok: true, alreadyVerified: true });
-    expect(emailService.sendVerificationEmail).not.toHaveBeenCalled();
-  });
-
-  it('throws MagicLinkRateLimitError when the rate limit is hit', async () => {
-    const emailService = buildEmailService();
-    const magicTokenRepo = new InMemoryMagicTokenRepository();
-    const getById = jest.fn().mockResolvedValue({
-      id: 3,
-      email: 'rate@example.com',
-      email_verified: false,
-    });
-    const repository = { getById } as unknown as UsersRepository;
-    const service = new UsersService(repository, emailService, magicTokenRepo);
-
-    for (let i = 0; i < 5; i++) {
-      await service.resendVerificationEmail('3');
-    }
-
-    await expect(service.resendVerificationEmail('3')).rejects.toThrow(
-      MagicLinkRateLimitError
-    );
   });
 });
 

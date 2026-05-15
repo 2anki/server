@@ -112,7 +112,7 @@ describe('UsersController.register', () => {
     expect(res.cookie).toHaveBeenCalledWith('token', 'jwt-reg-tok');
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith(
-      expect.objectContaining({ token: 'jwt-reg-tok', verificationPending: true })
+      expect.objectContaining({ token: 'jwt-reg-tok' })
     );
     expect(next).not.toHaveBeenCalled();
   });
@@ -241,7 +241,7 @@ describe('UsersController.verifyEmail', () => {
     return { redirect } as unknown as express.Response & { redirect: jest.Mock };
   };
 
-  it('redirects to /uploads?verified=1 when the verify_email token is valid', async () => {
+  it('redirects to /login?verified=1 when the verify_email token is valid and user is unauthenticated', async () => {
     const verifyMagicToken = jest
       .fn()
       .mockResolvedValue({ userId: 7, purpose: 'verify_email' });
@@ -254,7 +254,31 @@ describe('UsersController.verifyEmail', () => {
     await controller.verifyEmail(req, res, next);
 
     expect(markEmailVerified).toHaveBeenCalledWith('7');
-    expect(res.redirect).toHaveBeenCalledWith('/downloads?verified=1');
+    expect(res.redirect).toHaveBeenCalledWith('/login?verified=1');
+  });
+
+  it('redirects to /account?verified=1 when the token is valid and user is authenticated', async () => {
+    const verifyMagicToken = jest
+      .fn()
+      .mockResolvedValue({ userId: 7, purpose: 'verify_email' });
+    const markEmailVerified = jest.fn().mockResolvedValue(1);
+    const authGetUserFrom = jest.fn().mockResolvedValue({ id: 7 });
+    const { controller } = buildVerifyEmailController({
+      verifyMagicToken,
+      markEmailVerified,
+      authGetUserFrom,
+    });
+    const req = {
+      params: { token: 'valid-verify-tok' },
+      cookies: { token: 'session' },
+    } as unknown as express.Request;
+    const res = buildVerifyEmailRes();
+    const next = jest.fn();
+
+    await controller.verifyEmail(req, res, next);
+
+    expect(markEmailVerified).toHaveBeenCalledWith('7');
+    expect(res.redirect).toHaveBeenCalledWith('/account?verified=1');
   });
 
   it('redirects to /login?verify_error=expired when token is invalid and user is unauthenticated', async () => {
@@ -405,6 +429,7 @@ describe('UsersController.verifyMagicLink', () => {
     newJWTToken?: jest.Mock;
     persistToken?: jest.Mock;
     updateLastLoginAt?: jest.Mock;
+    markEmailVerified?: jest.Mock;
   }) => {
     const userService = {
       verifyMagicToken:
@@ -414,6 +439,8 @@ describe('UsersController.verifyMagicLink', () => {
         jest.fn().mockResolvedValue({ id: 1, email: 'al@example.com' }),
       updateLastLoginAt:
         overrides?.updateLastLoginAt ?? jest.fn().mockResolvedValue(undefined),
+      markEmailVerified:
+        overrides?.markEmailVerified ?? jest.fn().mockResolvedValue(1),
     } as unknown as UsersService;
     const authService = {
       newJWTToken:
@@ -498,6 +525,7 @@ describe('UsersController.verifyMagicLink', () => {
       getUserById,
       updateResetToken,
       updateLastLoginAt: jest.fn().mockResolvedValue(undefined),
+      markEmailVerified: jest.fn().mockResolvedValue(1),
     } as unknown as UsersService;
     const authService = {
       newJWTToken: jest.fn().mockResolvedValue('jwt-tok'),
@@ -520,6 +548,62 @@ describe('UsersController.verifyMagicLink', () => {
     expect(typeof jsonCall.reset_token).toBe('string');
     expect(jsonCall.reset_token.length).toBeGreaterThan(0);
     expect(updateResetToken).toHaveBeenCalledWith('8', jsonCall.reset_token);
+  });
+
+  it('marks email verified after a successful login magic link', async () => {
+    const verifyMagicToken = jest
+      .fn()
+      .mockResolvedValue({ userId: 5, purpose: 'login' });
+    const getUserById = jest
+      .fn()
+      .mockResolvedValue({ id: 5, email: 'al@example.com' });
+    const markEmailVerified = jest.fn().mockResolvedValue(1);
+    const { controller } = buildVerifyController({
+      verifyMagicToken,
+      getUserById,
+      markEmailVerified,
+    });
+    const req = { params: { token: 'valid-tok' } } as unknown as express.Request;
+    const res = buildVerifyRes();
+    const next = jest.fn();
+
+    await controller.verifyMagicLink(req, res, next);
+
+    expect(markEmailVerified).toHaveBeenCalledWith('5');
+  });
+
+  it('marks email verified after a successful password_reset magic link', async () => {
+    const verifyMagicToken = jest
+      .fn()
+      .mockResolvedValue({ userId: 8, purpose: 'password_reset' });
+    const getUserById = jest
+      .fn()
+      .mockResolvedValue({ id: 8, email: 'reset@example.com' });
+    const markEmailVerified = jest.fn().mockResolvedValue(1);
+    const updateResetToken = jest.fn().mockResolvedValue(undefined);
+    const userService = {
+      verifyMagicToken,
+      getUserById,
+      updateResetToken,
+      updateLastLoginAt: jest.fn().mockResolvedValue(undefined),
+      markEmailVerified,
+    } as unknown as UsersService;
+    const authService = {
+      newJWTToken: jest.fn().mockResolvedValue('jwt-tok'),
+      persistToken: jest.fn().mockResolvedValue(undefined),
+    } as unknown as AuthenticationService;
+    const controller = new UsersController(
+      userService,
+      authService,
+      {} as ReturnType<typeof import('../data_layer').getDatabase>
+    );
+    const req = { params: { token: 'reset-tok' } } as unknown as express.Request;
+    const res = buildVerifyRes();
+    const next = jest.fn();
+
+    await controller.verifyMagicLink(req, res, next);
+
+    expect(markEmailVerified).toHaveBeenCalledWith('8');
   });
 });
 
@@ -593,97 +677,3 @@ describe('UsersController.getLocals', () => {
   });
 });
 
-describe('UsersController.resendVerificationEmail', () => {
-  it('returns 200 with ok:true on success', async () => {
-    const resendVerificationEmail = jest.fn().mockResolvedValue({ ok: true });
-    const userService = { resendVerificationEmail } as unknown as UsersService;
-    const authService = {} as unknown as AuthenticationService;
-    const controller = new UsersController(
-      userService,
-      authService,
-      {} as ReturnType<typeof import('../data_layer').getDatabase>
-    );
-    const req = {} as express.Request;
-    const res = {
-      locals: { owner: 5 },
-      json: jest.fn(),
-      status: jest.fn().mockReturnThis(),
-    } as unknown as express.Response & { json: jest.Mock; status: jest.Mock };
-    const next = jest.fn();
-
-    await controller.resendVerificationEmail(req, res, next);
-
-    expect(res.json).toHaveBeenCalledWith({ ok: true });
-  });
-
-  it('returns 200 with alreadyVerified:true when already verified', async () => {
-    const resendVerificationEmail = jest
-      .fn()
-      .mockResolvedValue({ ok: true, alreadyVerified: true });
-    const userService = { resendVerificationEmail } as unknown as UsersService;
-    const authService = {} as unknown as AuthenticationService;
-    const controller = new UsersController(
-      userService,
-      authService,
-      {} as ReturnType<typeof import('../data_layer').getDatabase>
-    );
-    const req = {} as express.Request;
-    const res = {
-      locals: { owner: 5 },
-      json: jest.fn(),
-      status: jest.fn().mockReturnThis(),
-    } as unknown as express.Response & { json: jest.Mock; status: jest.Mock };
-    const next = jest.fn();
-
-    await controller.resendVerificationEmail(req, res, next);
-
-    expect(res.json).toHaveBeenCalledWith({ ok: true, alreadyVerified: true });
-  });
-
-  it('returns 429 when rate limited', async () => {
-    const resendVerificationEmail = jest
-      .fn()
-      .mockRejectedValue(new MagicLinkRateLimitError());
-    const userService = { resendVerificationEmail } as unknown as UsersService;
-    const authService = {} as unknown as AuthenticationService;
-    const controller = new UsersController(
-      userService,
-      authService,
-      {} as ReturnType<typeof import('../data_layer').getDatabase>
-    );
-    const req = {} as express.Request;
-    const json = jest.fn();
-    const res = {
-      locals: { owner: 5 },
-      json,
-      status: jest.fn().mockReturnValue({ json }),
-    } as unknown as express.Response & { json: jest.Mock; status: jest.Mock };
-    const next = jest.fn();
-
-    await controller.resendVerificationEmail(req, res, next);
-
-    expect(res.status).toHaveBeenCalledWith(429);
-  });
-
-  it('returns 401 when not authenticated', async () => {
-    const userService = {} as unknown as UsersService;
-    const authService = {} as unknown as AuthenticationService;
-    const controller = new UsersController(
-      userService,
-      authService,
-      {} as ReturnType<typeof import('../data_layer').getDatabase>
-    );
-    const req = {} as express.Request;
-    const json = jest.fn();
-    const res = {
-      locals: {},
-      json,
-      status: jest.fn().mockReturnValue({ json }),
-    } as unknown as express.Response & { json: jest.Mock; status: jest.Mock };
-    const next = jest.fn();
-
-    await controller.resendVerificationEmail(req, res, next);
-
-    expect(res.status).toHaveBeenCalledWith(401);
-  });
-});
