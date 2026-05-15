@@ -11,6 +11,7 @@ import {
   getUserTemplates,
 } from '../../lib/backend/templates';
 import sharedStyles from '../../styles/shared.module.css';
+import DownloadIcon from '../../components/icons/DownloadIcon';
 import PencilIcon from '../../components/icons/PencilIcon';
 import TrashIcon from '../../components/icons/TrashIcon';
 import styles from './TemplatesPage.module.css';
@@ -81,17 +82,13 @@ function NoteTypeCard({
         <div className={styles.actions}>
           <button
             type="button"
-            className={styles.ankiButton}
+            className={styles.iconButton}
             onClick={() => onDownload(starter)}
             disabled={busy}
             aria-label={busy ? 'Preparing .apkg' : `Download ${starter.name} as .apkg`}
             title={busy ? 'Preparing…' : 'Download .apkg'}
           >
-            <img
-              src="/icons/Anki_app_logo.png"
-              alt=""
-              className={styles.ankiIcon}
-            />
+            <DownloadIcon width={18} height={18} />
           </button>
           <Link
             to={editHref}
