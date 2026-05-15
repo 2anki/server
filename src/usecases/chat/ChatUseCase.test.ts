@@ -236,6 +236,31 @@ describe('ChatUseCase', () => {
     });
   });
 
+  describe('draft auto-clear', () => {
+    it('clears the conversation draft after a successful assistant reply', async () => {
+      const { conversationsRepo, useCase } = buildUseCase('reply');
+      const id = await conversationsRepo.create({ userId: FREE_USER.owner, title: 'With draft' });
+      await conversationsRepo.saveDraft({
+        userId: FREE_USER.owner,
+        conversationId: id,
+        content: 'half-typed prompt',
+      });
+
+      await useCase.execute({
+        user: FREE_USER,
+        content: 'final prompt',
+        conversationHistory: [],
+        conversationId: id,
+      });
+
+      const conv = await conversationsRepo.findForUser({
+        userId: FREE_USER.owner,
+        conversationId: id,
+      });
+      expect(conv?.draft).toBeNull();
+    });
+  });
+
   describe('conversation management', () => {
     it('creates a new conversation when no conversationId is provided', async () => {
       const { conversationsRepo, useCase } = buildUseCase('reply');

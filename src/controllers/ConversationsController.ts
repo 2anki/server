@@ -1,5 +1,9 @@
 import { Request, Response } from 'express';
-import { ConversationsUseCase, InvalidTitleError } from '../usecases/chat/ConversationsUseCase';
+import {
+  ConversationsUseCase,
+  InvalidTitleError,
+  InvalidDraftError,
+} from '../usecases/chat/ConversationsUseCase';
 
 function parseConversationId(raw: unknown): number | null {
   if (typeof raw !== 'string') return null;
@@ -38,6 +42,7 @@ class ConversationsController {
     res.status(200).json({
       id: conv.id,
       title: conv.title,
+      draft: conv.draft,
       createdAt: conv.created_at.toISOString(),
       updatedAt: conv.updated_at.toISOString(),
       messages: conv.messages.map((m) => ({
@@ -78,6 +83,43 @@ class ConversationsController {
     } catch (err) {
       if (err instanceof InvalidTitleError) {
         res.status(400).json({ error: 'title must be 1 to 120 characters' });
+        return;
+      }
+      throw err;
+    }
+  }
+
+  async saveDraft(req: Request, res: Response): Promise<void> {
+    const owner = res.locals.owner as number;
+    const id = parseConversationId(req.params.id);
+    if (id == null) {
+      res.status(400).json({ error: 'invalid conversation id' });
+      return;
+    }
+    const rawContent = req.body?.content;
+    let content: string | null;
+    if (rawContent === null) {
+      content = null;
+    } else if (typeof rawContent === 'string') {
+      content = rawContent;
+    } else {
+      res.status(400).json({ error: 'content must be a string or null' });
+      return;
+    }
+    try {
+      const updated = await this.useCase.saveDraft({
+        userId: owner,
+        conversationId: id,
+        content,
+      });
+      if (!updated) {
+        res.status(404).json({ error: 'conversation not found' });
+        return;
+      }
+      res.status(204).end();
+    } catch (err) {
+      if (err instanceof InvalidDraftError) {
+        res.status(400).json({ error: 'draft is too long' });
         return;
       }
       throw err;

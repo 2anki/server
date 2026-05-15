@@ -27,9 +27,19 @@ export interface ConversationMessageView {
 export interface ConversationView {
   id: number;
   title: string;
+  draft: string | null;
   created_at: Date;
   updated_at: Date;
   messages: ConversationMessageView[];
+}
+
+const MAX_DRAFT_LENGTH = 100_000;
+
+export class InvalidDraftError extends Error {
+  constructor() {
+    super('Invalid draft');
+    this.name = 'InvalidDraftError';
+  }
 }
 
 function hydrateMessages(
@@ -65,10 +75,35 @@ export class ConversationsUseCase {
     return {
       id: conv.id,
       title: conv.title,
+      draft: conv.draft,
       created_at: conv.created_at,
       updated_at: conv.updated_at,
       messages: hydrateMessages(conv),
     };
+  }
+
+  async saveDraft(input: {
+    userId: number;
+    conversationId: number;
+    content: string | null;
+  }): Promise<boolean> {
+    let normalised: string | null;
+    if (input.content == null) {
+      normalised = null;
+    } else {
+      if (typeof input.content !== 'string') {
+        throw new InvalidDraftError();
+      }
+      if (input.content.length > MAX_DRAFT_LENGTH) {
+        throw new InvalidDraftError();
+      }
+      normalised = input.content.length === 0 ? null : input.content;
+    }
+    return this.repo.saveDraft({
+      userId: input.userId,
+      conversationId: input.conversationId,
+      content: normalised,
+    });
   }
 
   async rename(input: {

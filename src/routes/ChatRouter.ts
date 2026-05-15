@@ -235,6 +235,43 @@ const ChatRouter = () => {
     conversationsController.delete(req, res)
   );
 
+  /**
+   * @swagger
+   * /api/chat/conversations/{id}/draft:
+   *   patch:
+   *     summary: Save the in-progress draft for a conversation
+   *     tags: [Chat]
+   *     security:
+   *       - bearerAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema: { type: integer }
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             required: [content]
+   *             properties:
+   *               content:
+   *                 type: string
+   *                 nullable: true
+   *                 maxLength: 100000
+   *     responses:
+   *       204:
+   *         description: Draft saved (or cleared if content is null)
+   *       400:
+   *         description: Invalid input
+   *       404:
+   *         description: Conversation not found
+   */
+  router.patch('/api/chat/conversations/:id/draft', RequireAuthentication, (req, res) =>
+    conversationsController.saveDraft(req, res)
+  );
+
   return router;
 };
 
