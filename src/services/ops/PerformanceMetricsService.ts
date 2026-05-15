@@ -36,6 +36,13 @@ export interface PerformanceMetricsResponse {
 
 const TERMINAL_STATUSES = ['done', 'failed', 'cancelled', 'interrupted'];
 
+const DURATION_MS_SQL =
+  "EXTRACT(EPOCH FROM (last_edited_time - created_at)) * 1000";
+
+const DONE_JOBS_SINCE_SQL = `status = 'done'
+  AND last_edited_time >= NOW() - (? * INTERVAL '1 day')
+  AND created_at IS NOT NULL`;
+
 export class PerformanceMetricsService {
   constructor(private readonly db: Knex) {}
 
@@ -64,14 +71,12 @@ export class PerformanceMetricsService {
   ): Promise<Omit<JobDurationPercentiles, 'window'>> {
     const result = (await this.db.raw(
       `SELECT
-         percentile_disc(0.5) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM (last_edited_time - created_at)) * 1000) AS p50,
-         percentile_disc(0.95) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM (last_edited_time - created_at)) * 1000) AS p95,
-         percentile_disc(0.99) WITHIN GROUP (ORDER BY EXTRACT(EPOCH FROM (last_edited_time - created_at)) * 1000) AS p99,
+         percentile_disc(0.5) WITHIN GROUP (ORDER BY ${DURATION_MS_SQL}) AS p50,
+         percentile_disc(0.95) WITHIN GROUP (ORDER BY ${DURATION_MS_SQL}) AS p95,
+         percentile_disc(0.99) WITHIN GROUP (ORDER BY ${DURATION_MS_SQL}) AS p99,
          COUNT(*) AS total
        FROM jobs
-       WHERE status = 'done'
-         AND last_edited_time >= NOW() - (? * INTERVAL '1 day')
-         AND created_at IS NOT NULL
+       WHERE ${DONE_JOBS_SINCE_SQL}
          AND last_edited_time IS NOT NULL`,
       [sinceDays]
     )) as { rows: { p50: string | null; p95: string | null; p99: string | null; total: string }[] };
@@ -110,11 +115,9 @@ export class PerformanceMetricsService {
   ): Promise<SlowJob[]> {
     const result = (await this.db.raw(
       `SELECT id, type, card_count, last_edited_time AS completed_at,
-              EXTRACT(EPOCH FROM (last_edited_time - created_at)) * 1000 AS duration_ms
+              ${DURATION_MS_SQL} AS duration_ms
        FROM jobs
-       WHERE status = 'done'
-         AND last_edited_time >= NOW() - (? * INTERVAL '1 day')
-         AND created_at IS NOT NULL
+       WHERE ${DONE_JOBS_SINCE_SQL}
        ORDER BY duration_ms DESC NULLS LAST
        LIMIT ?`,
       [sinceDays, limit]

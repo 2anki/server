@@ -8,7 +8,11 @@ export interface SendAbandonedCheckoutRecoveryResult {
   failures: { email: string; error: string }[];
 }
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MAX_EMAIL_LEN = 320;
+const EMAIL_RE = /^[^\s@]{1,64}@[^\s@]{1,255}\.[^\s@]{1,63}$/;
+
+const isValidEmail = (value: string): boolean =>
+  value.length <= MAX_EMAIL_LEN && EMAIL_RE.test(value);
 
 export class SendAbandonedCheckoutRecoveryUseCase {
   constructor(private readonly emailService: IEmailService) {}
@@ -21,7 +25,7 @@ export class SendAbandonedCheckoutRecoveryUseCase {
       new Set(
         emails
           .map((e) => (typeof e === 'string' ? e.trim().toLowerCase() : ''))
-          .filter((e) => e.length > 0 && EMAIL_RE.test(e))
+          .filter((e) => e.length > 0 && isValidEmail(e))
       )
     );
 
