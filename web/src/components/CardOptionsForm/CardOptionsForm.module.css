@@ -175,3 +175,32 @@
   font-weight: var(--font-medium);
   box-shadow: var(--shadow-xs);
 }
+
+.noteTypesLink {
+  display: inline-block;
+  font-size: var(--text-sm);
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.noteTypesLink:hover,
+.noteTypesLink:focus-visible {
+  text-decoration: underline;
+}
+
+.groupIntro {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--leading-normal);
+}
+
+.groupIntroLink {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.groupIntroLink:hover,
+.groupIntroLink:focus-visible {
+  text-decoration: underline;
+}

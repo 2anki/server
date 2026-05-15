@@ -10,6 +10,7 @@ import ArrowUpTrayIcon from '../icons/ArrowUpTrayIcon';
 import BookOpenIcon from '../icons/BookOpenIcon';
 import ChatBubbleIcon from '../icons/ChatBubbleIcon';
 import RectangleGroupIcon from '../icons/RectangleGroupIcon';
+import SwatchIcon from '../icons/SwatchIcon';
 import LayersIcon from '../icons/LayersIcon';
 import CommandLineIcon from '../icons/CommandLineIcon';
 import CreditCardIcon from '../icons/CreditCardIcon';
@@ -187,6 +188,15 @@ export function Sidebar({
             icon={RectangleGroupIcon}
           >
             Image Occlusion
+          </SidebarRow>
+          <SidebarRow
+            href="/templates"
+            pathname={pathname}
+            matchPrefix={false}
+            onClick={handleNavClick()}
+            icon={SwatchIcon}
+          >
+            Note types
           </SidebarRow>
           <SidebarRow
             href="/chat"

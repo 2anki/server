@@ -5,9 +5,13 @@ export class TemplateService {
 
   create(owner: string, templates: unknown) {
     return this.repository.create({
-      owner: owner,
+      owner,
       payload: templates,
     });
+  }
+
+  findByOwner(owner: string) {
+    return this.repository.findByOwner(owner);
   }
 
   delete(owner: string) {

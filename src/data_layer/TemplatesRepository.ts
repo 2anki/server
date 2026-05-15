@@ -10,11 +10,16 @@ class TemplatesRepository {
   create({ owner, payload }: TemplatesInitializer) {
     return this.database(this.table)
       .insert({
-        owner: owner,
+        owner,
         payload: JSON.stringify(payload),
       })
       .onConflict('owner')
       .merge();
+  }
+
+  async findByOwner(owner: number | string) {
+    const row = await this.database(this.table).where({ owner }).first();
+    return row?.payload ?? null;
   }
 
   delete(owner: number | string) {

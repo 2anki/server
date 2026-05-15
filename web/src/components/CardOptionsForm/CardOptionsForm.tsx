@@ -7,6 +7,7 @@ import React, {
   useMemo,
   useState,
 } from 'react';
+import { Link } from 'react-router-dom';
 import { get2ankiApi } from '../../lib/backend/get2ankiApi';
 import { clearStoredCardOptions } from '../../lib/data_layer/clearStoredCardOptions';
 import { getLocalStorageBooleanValue } from '../../lib/data_layer/getLocalStorageBooleanValue';
@@ -24,6 +25,8 @@ import { useSettingsCardsOptions } from '../modals/SettingsModal/useSettingsCard
 import TemplateName from '../TemplateName';
 import TemplateSelect from '../TemplateSelect';
 import fieldStyles from './CardOptionsForm.module.css';
+import { NoteTypePicker } from './NoteTypePicker';
+import { useAvailableNoteTypes } from './useAvailableNoteTypes';
 
 interface Props {
   pageTitle?: string | null;
@@ -132,6 +135,10 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
   ) {
     const { isLoading, isError, options, loadingDefaultsError } =
       useSettingsCardsOptions(pageId);
+    const {
+      options: availableNoteTypes,
+      loading: noteTypesLoading,
+    } = useAvailableNoteTypes();
     const [settings, setSettings] = useState<SettingsPayload>({});
     const [loading, setLoading] = useState(!!pageId);
     const deckNameKey = 'deckName';
@@ -578,53 +585,118 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
 
         <div className={fieldStyles.optionGroup}>
           <h3 className={fieldStyles.groupHeading}>Templates</h3>
+          <p className={fieldStyles.groupIntro}>
+            Pick the look of your generated cards and the names 2anki gives the
+            Anki note types it creates. Saved note types from{' '}
+            <Link to="/templates" className={fieldStyles.groupIntroLink}>
+              Note types
+            </Link>{' '}
+            show up under <strong>My note types</strong>.
+          </p>
           <div className={fieldStyles.section}>
             <TemplateSelect
               values={availableTemplates}
               value={template}
               name="template"
+              label="Card style"
+              hint="Pick the visual style applied during Notion → Anki conversion. Choose 'My note types' to use templates you saved in the Note types editor."
               pickedTemplate={(t) => {
                 setTemplate(t);
                 saveValueInLocalStorage('template', t, pageId);
               }}
             />
           </div>
-          <div className={fieldStyles.section}>
-            <TemplateName
-              name="basic_model_name"
-              value={basicName}
-              placeholder="Defaults to n2a-basic"
-              label="Basic template name"
-              pickedName={(name) => {
-                setBasicName(name);
-                saveValueInLocalStorage('basic_model_name', name, pageId);
-              }}
-            />
-          </div>
-          <div className={fieldStyles.section}>
-            <TemplateName
-              name="cloze_model_name"
-              value={clozeName}
-              placeholder="Defaults to n2a-cloze"
-              label="Cloze template name"
-              pickedName={(name) => {
-                setClozeName(name);
-                saveValueInLocalStorage('cloze_model_name', name, pageId);
-              }}
-            />
-          </div>
-          <div className={fieldStyles.section}>
-            <TemplateName
-              name="input_model_name"
-              value={inputName}
-              placeholder="Defaults to n2a-input"
-              label="Input template name"
-              pickedName={(name) => {
-                setInputName(name);
-                saveValueInLocalStorage('input_model_name', name, pageId);
-              }}
-            />
-          </div>
+          {template === 'custom' ? (
+            <>
+              <div className={fieldStyles.section}>
+                <NoteTypePicker
+                  name="basic_model_name"
+                  label="Basic note type"
+                  placeholder="Defaults to n2a-basic"
+                  hint="Which of your saved note types to use for Basic (front/back) cards in this conversion."
+                  value={basicName}
+                  options={availableNoteTypes.basic}
+                  loading={noteTypesLoading}
+                  onChange={(name) => {
+                    setBasicName(name);
+                    saveValueInLocalStorage('basic_model_name', name, pageId);
+                  }}
+                />
+              </div>
+              <div className={fieldStyles.section}>
+                <NoteTypePicker
+                  name="cloze_model_name"
+                  label="Cloze note type"
+                  placeholder="Defaults to n2a-cloze"
+                  hint="Which of your saved note types to use for Cloze deletion cards in this conversion."
+                  value={clozeName}
+                  options={availableNoteTypes.cloze}
+                  loading={noteTypesLoading}
+                  onChange={(name) => {
+                    setClozeName(name);
+                    saveValueInLocalStorage('cloze_model_name', name, pageId);
+                  }}
+                />
+              </div>
+              <div className={fieldStyles.section}>
+                <NoteTypePicker
+                  name="input_model_name"
+                  label="Input note type"
+                  placeholder="Defaults to n2a-input"
+                  hint="Which of your saved note types to use for Type-the-answer cards in this conversion."
+                  value={inputName}
+                  options={availableNoteTypes.input}
+                  loading={noteTypesLoading}
+                  onChange={(name) => {
+                    setInputName(name);
+                    saveValueInLocalStorage('input_model_name', name, pageId);
+                  }}
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              <div className={fieldStyles.section}>
+                <TemplateName
+                  name="basic_model_name"
+                  value={basicName}
+                  placeholder="Defaults to n2a-basic"
+                  label="Basic template name"
+                  hint="Name 2anki will give the Basic note type in Anki. Leave blank to use n2a-basic."
+                  pickedName={(name) => {
+                    setBasicName(name);
+                    saveValueInLocalStorage('basic_model_name', name, pageId);
+                  }}
+                />
+              </div>
+              <div className={fieldStyles.section}>
+                <TemplateName
+                  name="cloze_model_name"
+                  value={clozeName}
+                  placeholder="Defaults to n2a-cloze"
+                  label="Cloze template name"
+                  hint="Name 2anki will give the Cloze note type in Anki. Leave blank to use n2a-cloze."
+                  pickedName={(name) => {
+                    setClozeName(name);
+                    saveValueInLocalStorage('cloze_model_name', name, pageId);
+                  }}
+                />
+              </div>
+              <div className={fieldStyles.section}>
+                <TemplateName
+                  name="input_model_name"
+                  value={inputName}
+                  placeholder="Defaults to n2a-input"
+                  label="Input template name"
+                  hint="Name 2anki will give the Type-the-answer note type in Anki. Leave blank to use n2a-input."
+                  pickedName={(name) => {
+                    setInputName(name);
+                    saveValueInLocalStorage('input_model_name', name, pageId);
+                  }}
+                />
+              </div>
+            </>
+          )}
           <div className={fieldStyles.section}>
             <FontSizePicker
               fontSize={fontSize}
