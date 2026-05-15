@@ -6,12 +6,19 @@
   border-radius: var(--radius-md);
   justify-content: space-between;
   width: 100%;
-  transition: background var(--transition-fast);
+  cursor: pointer;
+  transition: background var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-.entry:hover {
-  background: var(--color-bg-primary);
-  box-shadow: var(--shadow-xs);
+.entry:hover,
+.entry:focus-visible {
+  background: var(--color-bg-tertiary);
+  box-shadow: inset 2px 0 0 var(--color-primary);
+}
+
+.entry:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 .objectMeta {
