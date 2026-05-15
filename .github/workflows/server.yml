@@ -15,26 +15,30 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build:
-    name: build (22.20.0)
+  typecheck:
+    name: typecheck (22.20.0)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
       - uses: ./.github/actions/setup
-      - name: Build
-        run: pnpm build
+      - name: Typecheck
+        run: pnpm typecheck
         env:
           CI: true
 
   test:
-    name: test (22.20.0)
+    name: test (${{ matrix.shard }})
     if: ${{ github.actor != 'dependabot[bot]' }}
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ['1/3', '2/3', '3/3']
     steps:
       - uses: actions/checkout@v6
       - uses: ./.github/actions/setup
       - name: Test
-        run: pnpm test
+        run: pnpm test --shard=${{ matrix.shard }}
         env:
           CI: true
           NOTION_KEY: ${{ secrets.NOTION_KEY }}
