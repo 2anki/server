@@ -35,6 +35,17 @@ vi.mock('../../lib/hooks/useUserLocals', () => ({
   }),
 }));
 
+vi.mock('./hooks/useDropboxUploads', () => ({
+  default: () => ({
+    uploads: [],
+    loading: false,
+    error: false,
+    deleteUpload: vi.fn(),
+    loadMore: vi.fn(),
+    hasMore: false,
+  }),
+}));
+
 type AnalyticsGlobals = {
   hj?: ReturnType<typeof vi.fn>;
   gtag?: ReturnType<typeof vi.fn>;

@@ -252,6 +252,17 @@ export class Backend {
     return get(`${this.baseURL}upload/mine`);
   }
 
+  async getDropboxUploads(offset = 0): Promise<DropboxUpload[]> {
+    return get(`${this.baseURL}upload/dropbox/mine?offset=${offset}`);
+  }
+
+  async deleteDropboxUpload(id: number): Promise<void> {
+    const response = await del(`${this.baseURL}upload/dropbox/mine/${id}`);
+    if (!response?.ok) {
+      throw new Error('Failed to delete Dropbox upload');
+    }
+  }
+
   async getJobs(): Promise<JobResponse[]> {
     return get(`${this.baseURL}upload/jobs`);
   }
@@ -793,6 +804,13 @@ export class Backend {
       throw new Error('Failed to acknowledge message');
     }
   }
+}
+
+export interface DropboxUpload {
+  id: number;
+  bytes: number;
+  name: string;
+  created_at: string | null;
 }
 
 export interface ContactMessage {

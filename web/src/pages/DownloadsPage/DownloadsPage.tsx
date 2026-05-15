@@ -6,6 +6,7 @@ import useUploads from './hooks/useUploads';
 import useJobs from './hooks/useJobs';
 import { SkeletonList } from '../../components/Skeleton/Skeleton';
 import { FinishedJobs } from './components/FinishedJobs';
+import { DropboxHistorySection } from './components/DropboxHistorySection';
 import { EmptyDownloadsSection } from './components/EmptyDownloadsSection';
 import { redirectOnError } from '../../components/shared/redirectOnError';
 import { UnfinishedJobsInfo } from './components/UnfinishedJobsInfo';
@@ -130,6 +131,8 @@ export function DownloadsPage({ setError }: Readonly<DownloadsPageProps>) {
             doneJobs={doneJobs}
             deleteJob={deleteJob}
           />
+
+          <DropboxHistorySection backend={get2ankiApi()} />
         </>
       )}
     </div>

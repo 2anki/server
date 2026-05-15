@@ -8,11 +8,17 @@ import { isLimitError } from '../../lib/misc/isLimitError';
 import { handleUploadLimitError } from './helpers/handleUploadLimitError';
 import { handleDropbox } from './helpers/handleDropbox';
 import { handleGoogleDrive } from './helpers/handleGoogleDrive';
+import { GetDropboxUploadsUseCase } from '../../usecases/uploads/GetDropboxUploadsUseCase';
+import { DeleteDropboxUploadUseCase } from '../../usecases/uploads/DeleteDropboxUploadUseCase';
+
+const DROPBOX_PAGE_SIZE = 10;
 
 class UploadController {
   constructor(
     private readonly service: UploadService,
-    private readonly notionService: NotionService
+    private readonly notionService: NotionService,
+    private readonly getDropboxUploadsUseCase?: GetDropboxUploadsUseCase,
+    private readonly deleteDropboxUploadUseCase?: DeleteDropboxUploadUseCase
   ) {}
 
   async deleteUpload(req: express.Request, res: express.Response) {
@@ -86,6 +92,54 @@ class UploadController {
     await handleGoogleDrive(req, res, this.service.handleUpload).then(() => {
       console.debug('google drive upload success');
     });
+  }
+
+  async getDropboxUploads(req: express.Request, res: express.Response) {
+    const owner = getOwner(res);
+    if (owner == null) {
+      return res.status(401).json({ message: 'Authentication required.' });
+    }
+
+    const rawOffset = (req.query as Record<string, string>).offset;
+    const offset = rawOffset != null ? parseInt(rawOffset, 10) : 0;
+
+    try {
+      const uploads = await this.getDropboxUploadsUseCase!.execute(
+        owner,
+        DROPBOX_PAGE_SIZE,
+        Number.isFinite(offset) ? offset : 0
+      );
+      return res.json(uploads);
+    } catch (error) {
+      console.error('getDropboxUploads failed', error);
+      return res.status(500).json({
+        message: "Couldn't load your Dropbox history right now. Refresh to try again.",
+      });
+    }
+  }
+
+  async deleteDropboxUpload(req: express.Request, res: express.Response) {
+    const owner = getOwner(res);
+    if (owner == null) {
+      return res.status(401).json({ message: 'Authentication required.' });
+    }
+
+    const rawId = (req.params as Record<string, string>).id;
+    if (rawId == null) {
+      return res.status(400).json({ message: 'Missing upload id.' });
+    }
+
+    const id = parseInt(rawId, 10);
+    if (!Number.isFinite(id)) {
+      return res.status(400).json({ message: 'Invalid upload id.' });
+    }
+
+    try {
+      await this.deleteDropboxUploadUseCase!.execute(id, owner);
+      return res.json({});
+    } catch (error) {
+      return res.status(404).json({ message: 'Upload not found.' });
+    }
   }
 }
 

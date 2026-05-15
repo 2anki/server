@@ -12,6 +12,9 @@ import { getDatabase } from '../data_layer';
 import UploadRepository from '../data_layer/UploadRespository';
 import NotionRepository from '../data_layer/NotionRespository';
 import NotionService from '../services/NotionService';
+import { DropboxRepository } from '../data_layer/DropboxRepository';
+import { GetDropboxUploadsUseCase } from '../usecases/uploads/GetDropboxUploadsUseCase';
+import { DeleteDropboxUploadUseCase } from '../usecases/uploads/DeleteDropboxUploadUseCase';
 
 const UploadRouter = () => {
   const router = express.Router();
@@ -19,9 +22,12 @@ const UploadRouter = () => {
   const jobController = new JobController(
     new JobService(new JobRepository(database))
   );
+  const dropboxRepository = new DropboxRepository(database);
   const uploadController = new UploadController(
     new UploadService(new UploadRepository(database), new JobRepository(database)),
-    new NotionService(new NotionRepository(database))
+    new NotionService(new NotionRepository(database)),
+    new GetDropboxUploadsUseCase(dropboxRepository),
+    new DeleteDropboxUploadUseCase(dropboxRepository)
   );
 
   /**
@@ -397,6 +403,100 @@ const UploadRouter = () => {
    */
   router.delete('/api/upload/mine/:key', RequireAuthentication, (req, res) =>
     uploadController.deleteUpload(req, res)
+  );
+
+  /**
+   * @swagger
+   * /api/upload/dropbox/mine:
+   *   get:
+   *     summary: List the authenticated user's Dropbox upload history
+   *     description: Returns the most recent Dropbox uploads for the logged-in user, sorted newest first. Folder entries are excluded.
+   *     tags: [Upload]
+   *     security:
+   *       - sessionAuth: []
+   *     parameters:
+   *       - in: query
+   *         name: offset
+   *         required: false
+   *         schema:
+   *           type: integer
+   *           minimum: 0
+   *         description: Number of rows to skip for paging beyond the first page
+   *     responses:
+   *       200:
+   *         description: Dropbox upload history retrieved successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: array
+   *               items:
+   *                 type: object
+   *                 properties:
+   *                   id:
+   *                     type: integer
+   *                   name:
+   *                     type: string
+   *                   bytes:
+   *                     type: integer
+   *                   created_at:
+   *                     type: string
+   *                     format: date-time
+   *                     nullable: true
+   *       401:
+   *         description: Authentication required
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   */
+  router.get('/api/upload/dropbox/mine', RequireAuthentication, (req, res) =>
+    uploadController.getDropboxUploads(req, res)
+  );
+
+  /**
+   * @swagger
+   * /api/upload/dropbox/mine/{id}:
+   *   delete:
+   *     summary: Remove a row from the user's Dropbox upload history
+   *     description: Deletes a single dropbox_uploads row owned by the authenticated user. The underlying file in Dropbox is not affected.
+   *     tags: [Upload]
+   *     security:
+   *       - sessionAuth: []
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         required: true
+   *         schema:
+   *           type: integer
+   *         description: Dropbox upload row ID
+   *     responses:
+   *       200:
+   *         description: History entry removed successfully
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Success'
+   *       400:
+   *         description: Missing or invalid id
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   *       401:
+   *         description: Authentication required
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   *       404:
+   *         description: History entry not found
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   */
+  router.delete('/api/upload/dropbox/mine/:id', RequireAuthentication, (req, res) =>
+    uploadController.deleteDropboxUpload(req, res)
   );
 
   return router;
