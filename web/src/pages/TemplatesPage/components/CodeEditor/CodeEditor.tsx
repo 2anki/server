@@ -80,7 +80,7 @@ export function CodeEditor({
 
   useEffect(() => {
     setSupportsMonaco(
-      typeof globalThis.window !== 'undefined' && 'Worker' in globalThis
+      globalThis.window !== undefined && 'Worker' in globalThis
     );
   }, []);
 

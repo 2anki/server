@@ -50,6 +50,132 @@ const validNoteType = {
   css: '.card { color: black; }',
 };
 
+function buildQuota(overrides: Partial<{
+  check: jest.Mock;
+  record: jest.Mock;
+}> = {}) {
+  return {
+    check:
+      overrides.check ??
+      jest.fn().mockResolvedValue({
+        allowed: true,
+        remaining: 5,
+        limit: 5,
+        used: 0,
+        unlimited: false,
+      }),
+    record: overrides.record ?? jest.fn().mockResolvedValue(undefined),
+  };
+}
+
+describe('TemplatesController.aiGenerate quota', () => {
+  beforeEach(() => {
+    mockedExport.mockReset();
+  });
+
+  it('returns 429 when the free generate quota is exhausted', async () => {
+    const quota = buildQuota({
+      check: jest.fn().mockResolvedValue({
+        allowed: false,
+        remaining: 0,
+        limit: 3,
+        used: 3,
+        unlimited: false,
+      }),
+    });
+    const controller = new TemplatesController(
+      buildService() as never,
+      { generate: jest.fn(), modify: jest.fn() } as never,
+      quota as never
+    );
+    const res = buildRes();
+    await controller.aiGenerate(buildReq({ prompt: 'hi' }), res);
+    expect(res.status).toHaveBeenCalledWith(429);
+    expect(quota.record).not.toHaveBeenCalled();
+  });
+
+  it('records the generate after a successful AI call', async () => {
+    const aiUseCase = {
+      generate: jest.fn().mockResolvedValue({ starter: {}, reply: '' }),
+      modify: jest.fn(),
+    };
+    const quota = buildQuota();
+    const controller = new TemplatesController(
+      buildService() as never,
+      aiUseCase as never,
+      quota as never
+    );
+    const res = buildRes();
+    await controller.aiGenerate(buildReq({ prompt: 'hi' }), res);
+    expect(aiUseCase.generate).toHaveBeenCalledWith('hi');
+    expect(quota.record).toHaveBeenCalledWith(42, 'generate');
+  });
+
+  it('does not record on AI failure', async () => {
+    const aiUseCase = {
+      generate: jest.fn().mockRejectedValue(new Error('boom')),
+      modify: jest.fn(),
+    };
+    const quota = buildQuota();
+    const controller = new TemplatesController(
+      buildService() as never,
+      aiUseCase as never,
+      quota as never
+    );
+    const res = buildRes();
+    await controller.aiGenerate(buildReq({ prompt: 'hi' }), res);
+    expect(res.status).toHaveBeenCalledWith(500);
+    expect(quota.record).not.toHaveBeenCalled();
+  });
+});
+
+describe('TemplatesController.aiModify quota', () => {
+  const starter = { name: 'X', noteType: { tmpls: [{}], flds: [{}] } };
+
+  it('returns 429 when the free modify quota is exhausted', async () => {
+    const quota = buildQuota({
+      check: jest.fn().mockResolvedValue({
+        allowed: false,
+        remaining: 0,
+        limit: 5,
+        used: 5,
+        unlimited: false,
+      }),
+    });
+    const controller = new TemplatesController(
+      buildService() as never,
+      { generate: jest.fn(), modify: jest.fn() } as never,
+      quota as never
+    );
+    const res = buildRes();
+    await controller.aiModify(
+      buildReq({ starter, instruction: 'darker', history: [] }),
+      res
+    );
+    expect(res.status).toHaveBeenCalledWith(429);
+  });
+
+  it('records the modify after a successful AI call', async () => {
+    const aiUseCase = {
+      generate: jest.fn(),
+      modify: jest.fn().mockResolvedValue({ starter: {}, reply: '' }),
+    };
+    const quota = buildQuota();
+    const controller = new TemplatesController(
+      buildService() as never,
+      aiUseCase as never,
+      quota as never
+    );
+    const res = buildRes();
+    await controller.aiModify(
+      buildReq({ starter, instruction: 'darker', history: [] }),
+      res
+    );
+    expect(aiUseCase.modify).toHaveBeenCalled();
+    expect(quota.record).toHaveBeenCalledWith(42, 'modify');
+  });
+});
+
 describe('TemplatesController.getUserData', () => {
   it('returns empty payload when user has no saved templates', async () => {
     const service = buildService({ findByOwner: jest.fn().mockResolvedValue(null) });

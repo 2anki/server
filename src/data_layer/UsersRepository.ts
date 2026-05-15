@@ -16,6 +16,30 @@ class UsersRepository {
     return user;
   }
 
+  async getAiTemplateCounts(id: string | number) {
+    const row = await this.database
+      .table(this.table)
+      .where({ id })
+      .select('ai_template_generate_count', 'ai_template_modify_count')
+      .first();
+    return {
+      generate: row?.ai_template_generate_count ?? 0,
+      modify: row?.ai_template_modify_count ?? 0,
+    };
+  }
+
+  incrementAiTemplateGenerateCount(id: string | number) {
+    return this.database(this.table)
+      .where({ id })
+      .increment('ai_template_generate_count', 1);
+  }
+
+  incrementAiTemplateModifyCount(id: string | number) {
+    return this.database(this.table)
+      .where({ id })
+      .increment('ai_template_modify_count', 1);
+  }
+
   updatePassword(hashPassword: string, reset_token: string) {
     return this.database(this.table)
       .where({ reset_token })

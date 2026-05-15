@@ -467,3 +467,16 @@
   outline-offset: -1px;
   border-color: var(--color-primary);
 }
+
+.aiUpgradeLink {
+  display: inline-block;
+  margin-left: 0.25rem;
+  color: var(--color-primary);
+  font-weight: var(--font-medium);
+  text-decoration: none;
+}
+
+.aiUpgradeLink:hover,
+.aiUpgradeLink:focus-visible {
+  text-decoration: underline;
+}

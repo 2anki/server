@@ -4,6 +4,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import {
   AIChatMessage,
+  AiQuotaExceededError,
   AnkiNoteType,
   NoteTypeStarter,
   aiGenerateNoteType,
@@ -147,15 +148,20 @@ function AIGenerateSection({ onGenerated }: Readonly<AIGenerateSectionProps>) {
   const [prompt, setPrompt] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [quotaUpgradeUrl, setQuotaUpgradeUrl] = useState<string | null>(null);
 
   const onSubmit = async () => {
     setBusy(true);
     setError(null);
+    setQuotaUpgradeUrl(null);
     try {
       const result = await aiGenerateNoteType(prompt);
       onGenerated(result.starter);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Could not generate');
+      if (err instanceof AiQuotaExceededError) {
+        setQuotaUpgradeUrl(err.upgradeUrl);
+      }
     } finally {
       setBusy(false);
     }
@@ -199,6 +205,17 @@ function AIGenerateSection({ onGenerated }: Readonly<AIGenerateSectionProps>) {
       {error && (
         <p className={editorStyles.aiError} role="alert">
           {error}
+          {quotaUpgradeUrl && (
+            <>
+              {' '}
+              <Link
+                to={quotaUpgradeUrl}
+                className={editorStyles.aiUpgradeLink}
+              >
+                See pricing →
+              </Link>
+            </>
+          )}
         </p>
       )}
     </section>
@@ -233,6 +250,7 @@ function EditorBody({
   const [chatInput, setChatInput] = useState('');
   const [chatBusy, setChatBusy] = useState(false);
   const [chatError, setChatError] = useState<string | null>(null);
+  const [chatUpgradeUrl, setChatUpgradeUrl] = useState<string | null>(null);
 
   useEffect(() => {
     setDraft(initialStarter);
@@ -302,6 +320,7 @@ function EditorBody({
     if (instruction.length === 0 || chatBusy) return;
     setChatBusy(true);
     setChatError(null);
+    setChatUpgradeUrl(null);
     setChatInput('');
     const nextHistory: AIChatMessage[] = [
       ...chatHistory,
@@ -326,6 +345,9 @@ function EditorBody({
       setChatError(
         error instanceof Error ? error.message : 'Claude could not respond'
       );
+      if (error instanceof AiQuotaExceededError) {
+        setChatUpgradeUrl(error.upgradeUrl);
+      }
     } finally {
       setChatBusy(false);
     }
@@ -546,6 +568,17 @@ function EditorBody({
             {chatError && (
               <p className={editorStyles.aiError} role="alert">
                 {chatError}
+                {chatUpgradeUrl && (
+                  <>
+                    {' '}
+                    <Link
+                      to={chatUpgradeUrl}
+                      className={editorStyles.aiUpgradeLink}
+                    >
+                      See pricing →
+                    </Link>
+                  </>
+                )}
               </p>
             )}
             <div className={editorStyles.chatInputRow}>

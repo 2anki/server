@@ -35,6 +35,10 @@ export default interface Users {
   trial_started_at: Date | null;
 
   email_verified: boolean;
+
+  ai_template_generate_count: number;
+
+  ai_template_modify_count: number;
 }
 
 /** Represents the initializer for the table public.users */
@@ -75,6 +79,12 @@ export interface UsersInitializer {
 
   /** Default value: false */
   email_verified?: boolean;
+
+  /** Default value: 0 */
+  ai_template_generate_count?: number;
+
+  /** Default value: 0 */
+  ai_template_modify_count?: number;
 }
 
 /** Represents the mutator for the table public.users */
@@ -108,4 +118,8 @@ export interface UsersMutator {
   trial_started_at?: Date | null;
 
   email_verified?: boolean;
+
+  ai_template_generate_count?: number;
+
+  ai_template_modify_count?: number;
 }

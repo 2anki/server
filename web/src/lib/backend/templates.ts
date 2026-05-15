@@ -132,14 +132,33 @@ export interface AIGenerateResponse {
   starter: NoteTypeStarter;
 }
 
+export class AiQuotaExceededError extends Error {
+  readonly kind: 'generate' | 'modify';
+  readonly limit: number;
+  readonly used: number;
+  readonly upgradeUrl: string;
+
+  constructor(
+    message: string,
+    kind: 'generate' | 'modify',
+    limit: number,
+    used: number,
+    upgradeUrl: string
+  ) {
+    super(message);
+    this.name = 'AiQuotaExceededError';
+    this.kind = kind;
+    this.limit = limit;
+    this.used = used;
+    this.upgradeUrl = upgradeUrl;
+  }
+}
+
 export async function aiGenerateNoteType(
   prompt: string
 ): Promise<AIGenerateResponse> {
   const response = await post('/api/templates/ai/generate', { prompt });
-  if (!response.ok) {
-    const message = await safeErrorMessage(response, 'AI generation failed');
-    throw new Error(message);
-  }
+  if (!response.ok) throw await aiError(response, 'AI generation failed');
   return response.json();
 }
 
@@ -153,22 +172,40 @@ export async function aiModifyNoteType(
     instruction,
     history,
   });
-  if (!response.ok) {
-    const message = await safeErrorMessage(response, 'AI modify failed');
-    throw new Error(message);
-  }
+  if (!response.ok) throw await aiError(response, 'AI modify failed');
   return response.json();
 }
 
-async function safeErrorMessage(
-  response: Response,
-  fallback: string
-): Promise<string> {
+interface AiErrorBody {
+  error?: unknown;
+  kind?: unknown;
+  limit?: unknown;
+  used?: unknown;
+  upgradeUrl?: unknown;
+}
+
+async function aiError(response: Response, fallback: string): Promise<Error> {
+  let data: AiErrorBody = {};
   try {
-    const data = await response.json();
-    if (data && typeof data.error === 'string') return data.error;
+    data = (await response.json()) as AiErrorBody;
   } catch {
     // ignore
   }
-  return `${fallback}: ${response.status} ${response.statusText}`;
+  const message =
+    typeof data.error === 'string'
+      ? data.error
+      : `${fallback}: ${response.status} ${response.statusText}`;
+  if (
+    response.status === 429 &&
+    (data.kind === 'generate' || data.kind === 'modify')
+  ) {
+    return new AiQuotaExceededError(
+      message,
+      data.kind,
+      typeof data.limit === 'number' ? data.limit : 0,
+      typeof data.used === 'number' ? data.used : 0,
+      typeof data.upgradeUrl === 'string' ? data.upgradeUrl : '/pricing'
+    );
+  }
+  return new Error(message);
 }

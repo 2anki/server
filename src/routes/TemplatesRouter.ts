@@ -3,15 +3,21 @@ import express from 'express';
 import RequireAuthentication from './middleware/RequireAuthentication';
 import TemplatesController from '../controllers/TemplatesController';
 import TemplatesRepository from '../data_layer/TemplatesRepository';
+import UsersRepository from '../data_layer/UsersRepository';
 import { getDatabase } from '../data_layer';
 import TemplateService from '../services/TemplatesService';
+import { AINoteTypeUseCase } from '../usecases/ai/AINoteTypeUseCase';
+import { AiTemplateQuotaService } from '../services/ai/AiTemplateQuotaService';
 
 const TemplatesRouter = () => {
   const router = express.Router();
 
   const database = getDatabase();
+  const usersRepository = new UsersRepository(database);
   const controller = new TemplatesController(
-    new TemplateService(new TemplatesRepository(database))
+    new TemplateService(new TemplatesRepository(database)),
+    new AINoteTypeUseCase(),
+    new AiTemplateQuotaService(usersRepository)
   );
 
   /**
