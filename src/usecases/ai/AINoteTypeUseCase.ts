@@ -105,32 +105,36 @@ function findFencedJson(text: string): string | null {
   return text.slice(contentStart, closeIndex).trim();
 }
 
+interface ScanState {
+  depth: number;
+  inString: boolean;
+  escape: boolean;
+  done: boolean;
+}
+
+function advance(state: ScanState, char: string): ScanState {
+  if (state.escape) return { ...state, escape: false };
+  if (state.inString) {
+    if (char === '\\') return { ...state, escape: true };
+    if (char === '"') return { ...state, inString: false };
+    return state;
+  }
+  if (char === '"') return { ...state, inString: true };
+  if (char === '{') return { ...state, depth: state.depth + 1 };
+  if (char === '}') {
+    const depth = state.depth - 1;
+    return { ...state, depth, done: depth === 0 };
+  }
+  return state;
+}
+
 function findBareJson(text: string): string | null {
   const start = text.indexOf('{');
   if (start === -1) return null;
-  let depth = 0;
-  let inString = false;
-  let escape = false;
+  let state: ScanState = { depth: 0, inString: false, escape: false, done: false };
   for (let i = start; i < text.length; i += 1) {
-    const char = text[i];
-    if (escape) {
-      escape = false;
-      continue;
-    }
-    if (char === '\\' && inString) {
-      escape = true;
-      continue;
-    }
-    if (char === '"') {
-      inString = !inString;
-      continue;
-    }
-    if (inString) continue;
-    if (char === '{') depth += 1;
-    else if (char === '}') {
-      depth -= 1;
-      if (depth === 0) return text.slice(start, i + 1);
-    }
+    state = advance(state, text[i]);
+    if (state.done) return text.slice(start, i + 1);
   }
   return null;
 }
@@ -213,7 +217,7 @@ function validateStarter(value: unknown): NoteTypeStarterInput {
       flds: noteType.flds,
       css: noteType.css,
     },
-    previewData: candidate.previewData as Record<string, string>,
+    previewData: candidate.previewData,
     tags: Array.isArray(candidate.tags) ? candidate.tags : [],
   };
 }
@@ -285,25 +289,29 @@ export class AINoteTypeUseCase {
     if (instruction.length > 2000) {
       throw new Error('Instruction is too long (max 2000 chars)');
     }
-    const messages: ClaudeMessage[] = [];
-    messages.push({
-      role: 'user',
-      content: `Here is the current note type:\n\n\`\`\`json\n${JSON.stringify(
-        starter,
-        null,
-        2
-      )}\n\`\`\`\n\nI'll ask you for changes; respond with the updated full starter object plus a reply summary.`,
-    });
-    messages.push({
-      role: 'assistant',
-      content: 'Got it. What would you like to change?',
-    });
-    for (const message of history.slice(-10)) {
-      if (message.role !== 'user' && message.role !== 'assistant') continue;
-      if (typeof message.content !== 'string') continue;
-      messages.push({ role: message.role, content: message.content });
-    }
-    messages.push({ role: 'user', content: instruction });
+    const sanitizedHistory = history
+      .slice(-10)
+      .filter(
+        (m): m is ChatMessage =>
+          (m.role === 'user' || m.role === 'assistant') &&
+          typeof m.content === 'string'
+      );
+    const messages: ClaudeMessage[] = [
+      {
+        role: 'user',
+        content: `Here is the current note type:\n\n\`\`\`json\n${JSON.stringify(
+          starter,
+          null,
+          2
+        )}\n\`\`\`\n\nI'll ask you for changes; respond with the updated full starter object plus a reply summary.`,
+      },
+      {
+        role: 'assistant',
+        content: 'Got it. What would you like to change?',
+      },
+      ...sanitizedHistory,
+      { role: 'user', content: instruction },
+    ];
 
     const text = await askClaude(messages);
     return parseResponse(text);

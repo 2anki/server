@@ -79,7 +79,9 @@ export function CodeEditor({
   const [supportsMonaco, setSupportsMonaco] = useState(false);
 
   useEffect(() => {
-    setSupportsMonaco(typeof window !== 'undefined' && 'Worker' in window);
+    setSupportsMonaco(
+      typeof globalThis.window !== 'undefined' && 'Worker' in globalThis
+    );
   }, []);
 
   if (!supportsMonaco) {

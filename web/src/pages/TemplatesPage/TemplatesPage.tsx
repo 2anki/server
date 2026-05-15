@@ -271,8 +271,8 @@ export function TemplatesPage() {
 
   const handleDelete = useCallback(async (starter: NoteTypeStarter) => {
     if (
-      typeof window !== 'undefined' &&
-      !window.confirm(`Delete "${starter.name}"? This cannot be undone.`)
+      typeof globalThis.window !== 'undefined' &&
+      !globalThis.confirm(`Delete "${starter.name}"? This cannot be undone.`)
     ) {
       return;
     }

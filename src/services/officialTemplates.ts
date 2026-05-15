@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 
 const TEMPLATES_DIR = path.join(__dirname, '..', 'templates');
 
@@ -53,17 +53,19 @@ function nextNoteTypeId(): number {
   return STABLE_ID_BASE + idOffset;
 }
 
-function jsonStarter(
-  file: string,
-  id: string,
-  name: string,
-  description: string,
-  baseType: string,
-  ankiType: number,
-  previewData: Record<string, string>,
-  tags: string[]
-): OfficialStarter | null {
-  const text = safeRead(file);
+interface JsonStarterSpec {
+  file: string;
+  id: string;
+  name: string;
+  description: string;
+  baseType: string;
+  ankiType: number;
+  previewData: Record<string, string>;
+  tags: string[];
+}
+
+function jsonStarter(spec: JsonStarterSpec): OfficialStarter | null {
+  const text = safeRead(spec.file);
   if (text == null) return null;
   let raw: RawJsonTemplate;
   try {
@@ -72,14 +74,14 @@ function jsonStarter(
     return null;
   }
   return {
-    id,
-    name,
-    description,
-    baseType,
+    id: spec.id,
+    name: spec.name,
+    description: spec.description,
+    baseType: spec.baseType,
     noteType: {
       id: nextNoteTypeId(),
-      name: raw.name ?? name,
-      type: ankiType,
+      name: raw.name ?? spec.name,
+      type: spec.ankiType,
       tmpls: [
         {
           name: raw.parent ?? 'Card 1',
@@ -91,8 +93,8 @@ function jsonStarter(
       flds: raw.fields.map((f, i) => ({ name: f.name, ord: i })),
       css: raw.styling,
     },
-    previewData,
-    tags,
+    previewData: spec.previewData,
+    tags: spec.tags,
   };
 }
 
@@ -218,57 +220,59 @@ const ALEX_CLOZE_FLDS = [
 export function getOfficialTemplates(): OfficialStarter[] {
   idOffset = 0;
   const starters: Array<OfficialStarter | null> = [
-    jsonStarter(
-      'n2a-basic.json',
-      'official-n2a-basic',
-      'Default (Basic)',
-      'The classic 2anki look — Notion-styled basic note type, used by every standard conversion',
-      'basic',
-      0,
-      BASIC_PREVIEW,
-      ['default', 'basic', 'notion']
-    ),
-    jsonStarter(
-      'n2a-cloze.json',
-      'official-n2a-cloze',
-      'Default (Cloze)',
-      'Cloze deletion that matches the standard 2anki conversion output',
-      'cloze',
-      1,
-      CLOZE_PREVIEW,
-      ['default', 'cloze', 'notion']
-    ),
-    jsonStarter(
-      'n2a-input.json',
-      'official-n2a-input',
-      'Default (Type the answer)',
-      'Type-in-the-answer note type from the 2anki conversion pipeline',
-      'basic',
-      0,
-      {
+    jsonStarter({
+      file: 'n2a-basic.json',
+      id: 'official-n2a-basic',
+      name: 'Default (Basic)',
+      description:
+        'The classic 2anki look — Notion-styled basic note type, used by every standard conversion',
+      baseType: 'basic',
+      ankiType: 0,
+      previewData: BASIC_PREVIEW,
+      tags: ['default', 'basic', 'notion'],
+    }),
+    jsonStarter({
+      file: 'n2a-cloze.json',
+      id: 'official-n2a-cloze',
+      name: 'Default (Cloze)',
+      description: 'Cloze deletion that matches the standard 2anki conversion output',
+      baseType: 'cloze',
+      ankiType: 1,
+      previewData: CLOZE_PREVIEW,
+      tags: ['default', 'cloze', 'notion'],
+    }),
+    jsonStarter({
+      file: 'n2a-input.json',
+      id: 'official-n2a-input',
+      name: 'Default (Type the answer)',
+      description: 'Type-in-the-answer note type from the 2anki conversion pipeline',
+      baseType: 'basic',
+      ankiType: 0,
+      previewData: {
         Front: 'Capital of France?',
         Back: 'Paris',
         Input: 'Paris',
         MyMedia: '',
       },
-      ['default', 'input', 'type-the-answer']
-    ),
-    jsonStarter(
-      'n2a-io.json',
-      'official-n2a-io',
-      'Image Occlusion',
-      "Anki's image-occlusion note type, kept in sync with the 2anki conversion target",
-      'cloze',
-      1,
-      {
+      tags: ['default', 'input', 'type-the-answer'],
+    }),
+    jsonStarter({
+      file: 'n2a-io.json',
+      id: 'official-n2a-io',
+      name: 'Image Occlusion',
+      description:
+        "Anki's image-occlusion note type, kept in sync with the 2anki conversion target",
+      baseType: 'cloze',
+      ankiType: 1,
+      previewData: {
         Header: 'Cell anatomy',
         Image: '',
         Occlusion: '{{c1::Nucleus}}',
         'Back Extra': 'Mitochondria is the powerhouse of the cell.',
         Comments: '',
       },
-      ['image-occlusion']
-    ),
+      tags: ['image-occlusion'],
+    }),
     styledFromJson({
       id: 'official-only-notion-basic',
       name: 'Only Notion (Basic)',
