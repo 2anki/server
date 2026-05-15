@@ -5,6 +5,7 @@ export interface ChangelogEntry {
 }
 
 export const changelog: ChangelogEntry[] = [
+  { type: 'feature', title: 'Upload form: pick a file from Google Drive in one click', date: '2026-05-16' },
   { type: 'feature', title: 'From Google Drive section on Downloads — see the files you picked from Drive and open any of them with one click', date: '2026-05-16' },
   { type: 'style', title: 'Upload form has tabs — Your computer and Dropbox sit side by side at the top of the page', date: '2026-05-15' },
   { type: 'feature', title: 'Upload form: pick a file from Dropbox in one click', date: '2026-05-15' },
