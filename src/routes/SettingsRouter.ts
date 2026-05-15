@@ -292,6 +292,26 @@ const SettingsRouter = () => {
     controller.listSettings(req, res)
   );
 
+  /**
+   * @swagger
+   * /api/users/me/settings:
+   *   delete:
+   *     summary: Reset all saved per-page settings
+   *     description: Owner-scoped wipe of every per-page parser rule and per-page card-option override for the authenticated user. Idempotent — returns 204 even when the user has no saved pages.
+   *     tags: [Settings]
+   *     security:
+   *       - bearerAuth: []
+   *       - cookieAuth: []
+   *     responses:
+   *       204:
+   *         description: Saved per-page settings reset (or already empty)
+   *       401:
+   *         description: Authentication required
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Error'
+   */
   router.delete('/api/users/me/settings', RequireAuthentication, (req, res) =>
     controller.deleteAllUserSettings(req, res)
   );
