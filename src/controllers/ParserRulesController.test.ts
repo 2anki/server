@@ -13,6 +13,7 @@ describe('ParserRulesController', () => {
     service = {
       createRule: jest.fn(),
       getById: jest.fn(),
+      deleteRule: jest.fn(),
     } as any;
     controller = new RulesController(service);
     req = {
@@ -71,5 +72,65 @@ describe('ParserRulesController', () => {
       res as express.Response
     );
     expect(res.status).toHaveBeenCalledWith(400);
+  });
+});
+
+describe('RulesController.deleteRule', () => {
+  let service: ParserRulesService;
+  let controller: RulesController;
+  let req: Partial<express.Request>;
+  let res: Partial<express.Response>;
+
+  beforeEach(() => {
+    service = {
+      createRule: jest.fn(),
+      getById: jest.fn(),
+      deleteRule: jest.fn(),
+    } as any;
+    controller = new RulesController(service);
+    req = { params: { id: 'page-abc' } };
+    res = {
+      send: jest.fn(),
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+      locals: { owner: 'owner1' },
+    };
+    jest.spyOn(getOwnerModule, 'getOwner').mockReturnValue('owner1');
+  });
+
+  it('calls deleteRule with id and owner and returns 204', async () => {
+    (service.deleteRule as jest.Mock).mockResolvedValue(1);
+
+    await controller.deleteRule(
+      req as express.Request,
+      res as express.Response
+    );
+
+    expect(service.deleteRule).toHaveBeenCalledWith('page-abc', 'owner1');
+    expect(res.status).toHaveBeenCalledWith(204);
+    expect(res.send).toHaveBeenCalled();
+  });
+
+  it('returns 204 even when no row is found (idempotent)', async () => {
+    (service.deleteRule as jest.Mock).mockResolvedValue(0);
+
+    await controller.deleteRule(
+      req as express.Request,
+      res as express.Response
+    );
+
+    expect(res.status).toHaveBeenCalledWith(204);
+  });
+
+  it('returns 400 when id is missing', async () => {
+    req.params = {};
+
+    await controller.deleteRule(
+      req as express.Request,
+      res as express.Response
+    );
+
+    expect(res.status).toHaveBeenCalledWith(400);
+    expect(service.deleteRule).not.toHaveBeenCalled();
   });
 });

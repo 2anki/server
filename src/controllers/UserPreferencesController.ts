@@ -4,6 +4,7 @@ import type { IUserPreferencesRepository } from '../data_layer/UserPreferencesRe
 import { GetUserPreferencesUseCase } from '../usecases/GetUserPreferencesUseCase';
 import { PatchUserPreferencesUseCase } from '../usecases/PatchUserPreferencesUseCase';
 import { MigrateUserPreferencesUseCase } from '../usecases/MigrateUserPreferencesUseCase';
+import { DeleteUserPreferencesCardOptionsUseCase } from '../usecases/UserPreferences/DeleteUserPreferencesCardOptionsUseCase';
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -39,11 +40,13 @@ export class UserPreferencesController {
   private readonly getUseCase: GetUserPreferencesUseCase;
   private readonly patchUseCase: PatchUserPreferencesUseCase;
   private readonly migrateUseCase: MigrateUserPreferencesUseCase;
+  private readonly deleteCardOptionsUseCase: DeleteUserPreferencesCardOptionsUseCase;
 
   constructor(repo: IUserPreferencesRepository) {
     this.getUseCase = new GetUserPreferencesUseCase(repo);
     this.patchUseCase = new PatchUserPreferencesUseCase(repo);
     this.migrateUseCase = new MigrateUserPreferencesUseCase(repo);
+    this.deleteCardOptionsUseCase = new DeleteUserPreferencesCardOptionsUseCase(repo);
   }
 
   async get(_req: Request, res: Response): Promise<void> {
@@ -66,5 +69,11 @@ export class UserPreferencesController {
     const userId = res.locals.owner as number;
     const prefs = await this.migrateUseCase.execute({ userId, cardOptions, theme, ankiWebAcknowledgedAt });
     res.status(200).json(prefs);
+  }
+
+  async deleteCardOptions(_req: Request, res: Response): Promise<void> {
+    const userId = res.locals.owner as number;
+    await this.deleteCardOptionsUseCase.execute(userId);
+    res.status(204).send();
   }
 }

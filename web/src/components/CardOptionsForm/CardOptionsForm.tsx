@@ -298,6 +298,13 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
     const resetStore = async () => {
       if (pageId) {
         await get2ankiApi().deleteSettings(pageId);
+      } else {
+        try {
+          await get2ankiApi().resetUserCardOptions();
+        } catch {
+          setError(new Error("Couldn't reset card options. Try again."));
+          return;
+        }
       }
       if (options) clearStoredCardOptions(options);
       localStorage.removeItem('page-emoji');
@@ -415,24 +422,31 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
       </div>
     );
 
+    const showResetButton = !hideActions && pageId == null;
+    const showSaveButton = !hideActions && isDirty;
+
     return (
       <div className={fieldStyles.form}>
-        {!hideActions && isDirty && (
+        {(showResetButton || showSaveButton) && (
           <div className={fieldStyles.saveBar}>
-            <button
-              type="button"
-              className={`${sharedStyles.btnSecondary} ${fieldStyles.actionButton}`}
-              onClick={resetStore}
-            >
-              Reset to 2anki defaults
-            </button>
-            <button
-              type="button"
-              className={`${sharedStyles.btnPrimary} ${fieldStyles.actionButton}`}
-              onClick={onSubmit}
-            >
-              Save defaults
-            </button>
+            {showResetButton && (
+              <button
+                type="button"
+                className={`${sharedStyles.btnSecondary} ${fieldStyles.actionButton}`}
+                onClick={resetStore}
+              >
+                Reset to defaults
+              </button>
+            )}
+            {showSaveButton && (
+              <button
+                type="button"
+                className={`${sharedStyles.btnPrimary} ${fieldStyles.actionButton}`}
+                onClick={onSubmit}
+              >
+                Save defaults
+              </button>
+            )}
           </div>
         )}
 

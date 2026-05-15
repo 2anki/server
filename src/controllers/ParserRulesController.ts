@@ -39,6 +39,17 @@ class RulesController {
       res.status(200).json();
     }
   }
+
+  async deleteRule(req: Request, res: Response) {
+    const { id } = req.params;
+
+    if (!id) {
+      return res.status(400).send();
+    }
+
+    await this.service.deleteRule(id, getOwner(res));
+    res.status(204).send();
+  }
 }
 
 export default RulesController;

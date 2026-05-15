@@ -1,22 +1,17 @@
-import Cookies from 'universal-cookie';
-
 import { getNotionObjectTitle } from 'get-notion-object-title';
-import { 
-  NotionDatabase, 
-  NotionPage 
-} from '../../generated/data-contracts';
+import Cookies from 'universal-cookie';
+import { NotionDatabase, NotionPage } from '../../generated/data-contracts';
+import JobResponse from '../../schemas/public/JobResponse';
+import { JobsId } from '../../schemas/public/Jobs';
+import { cancelPendingSync } from '../data_layer/userPreferencesSync';
+import AnkifyClient from '../interfaces/AnkifyClient';
+import { ConnectionInfo } from '../interfaces/ConnectionInfo';
 import NotionObject from '../interfaces/NotionObject';
 import UserUpload from '../interfaces/UserUpload';
-import AnkifyClient from '../interfaces/AnkifyClient';
-
-import { JobsId } from '../../schemas/public/Jobs';
-import JobResponse from '../../schemas/public/JobResponse';
-import { ConnectionInfo } from '../interfaces/ConnectionInfo';
 import isOfflineMode from '../isOfflineMode';
 import getObjectIcon, { ObjectIcon } from '../notion/getObjectIcon';
 import { Rules, Settings } from '../types';
 import { del, get, getLoginURL, post } from './api';
-import { cancelPendingSync } from '../data_layer/userPreferencesSync';
 import { getResourceUrl } from './getResourceUrl';
 import { CONFLICT, OK } from './http';
 
@@ -49,7 +44,9 @@ export class Backend {
     globalThis.location.href = '/';
   }
 
-  async resendVerificationEmail(): Promise<{ ok: true } | { ok: true; alreadyVerified: true }> {
+  async resendVerificationEmail(): Promise<
+    { ok: true } | { ok: true; alreadyVerified: true }
+  > {
     const response = await post(`${this.baseURL}users/resend-verification`, {});
     if (!response.ok) {
       throw new Error(`${response.status}`);
@@ -113,7 +110,25 @@ export class Backend {
     });
   }
 
-  async listSettings(): Promise<{ items: { pageId: string; title: string | null; updatedAt: string | null }[] }> {
+  async resetUserCardOptions(): Promise<void> {
+    const response = await del(
+      `${this.baseURL}users/me/preferences/card-options`
+    );
+    if (response != null && !response.ok) {
+      throw new Error(`Failed to reset card options: ${response.status}`);
+    }
+  }
+
+  async deleteRules(pageId: string): Promise<void> {
+    const response = await del(`${this.baseURL}rules/${pageId}`);
+    if (response != null && !response.ok) {
+      throw new Error(`Failed to delete rules: ${response.status}`);
+    }
+  }
+
+  async listSettings(): Promise<{
+    items: { pageId: string; title: string | null; updatedAt: string | null }[];
+  }> {
     const result = await get(`${this.baseURL}settings/list`);
     if (!result) {
       return { items: [] };
@@ -321,9 +336,7 @@ export class Backend {
     return post(`${this.baseURL}users/magic-link`, { email, purpose });
   }
 
-  async validateMagicToken(
-    token: string
-  ): Promise<Response> {
+  async validateMagicToken(token: string): Promise<Response> {
     const response = await fetch(`${this.baseURL}users/magic/${token}`, {
       credentials: 'include',
     });
@@ -376,7 +389,11 @@ export class Backend {
     await post(`${this.baseURL}users/debug/ankify-welcome-seen`, {});
   }
 
-  async startTrial(): Promise<{ ok: boolean; reason?: string; trialExpiresAt?: string }> {
+  async startTrial(): Promise<{
+    ok: boolean;
+    reason?: string;
+    trialExpiresAt?: string;
+  }> {
     const response = await post(`${this.baseURL}users/start-trial`, {});
     if (!response.ok) {
       const error = await response.json().catch(() => ({ ok: false }));
@@ -523,9 +540,7 @@ export class Backend {
   }
 
   async deleteAnkifySubscription(id: number): Promise<void> {
-    const response = await del(
-      `${this.baseURL}ankify/subscriptions/${id}`
-    );
+    const response = await del(`${this.baseURL}ankify/subscriptions/${id}`);
     if (!response?.ok) {
       throw new Error('Failed to delete subscription');
     }
@@ -548,7 +563,9 @@ export class Backend {
       const body = await response
         .json()
         .catch(() => ({ message: response.statusText }));
-      const error = new Error(body.message ?? 'Failed to update deck') as Error & {
+      const error = new Error(
+        body.message ?? 'Failed to update deck'
+      ) as Error & {
         status?: number;
         retryAfterSeconds?: number;
       };
@@ -572,9 +589,7 @@ export class Backend {
       created_at: string;
     }>
   > {
-    const result = await get(
-      `${this.baseURL}ankify/conflicts?status=pending`
-    );
+    const result = await get(`${this.baseURL}ankify/conflicts?status=pending`);
     return result ?? [];
   }
 

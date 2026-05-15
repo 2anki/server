@@ -145,6 +145,10 @@ const ParserRulesRouter = () => {
     controller.createRule(req, res)
   );
 
+  router.delete('/api/rules/:id', RequireAuthentication, (req, res) =>
+    controller.deleteRule(req, res)
+  );
+
   return router;
 };
 

@@ -10,6 +10,7 @@ function buildMocks(userId = 1) {
     locals: { owner: userId },
     status: jest.fn().mockReturnThis(),
     json: jest.fn().mockReturnThis(),
+    send: jest.fn().mockReturnThis(),
   } as unknown as Response;
   return { repo, controller, res };
 }
@@ -97,6 +98,29 @@ describe('UserPreferencesController.patch', () => {
     await controller.patch(req, res);
 
     expect(res.status).toHaveBeenCalledWith(200);
+  });
+});
+
+describe('UserPreferencesController.deleteCardOptions', () => {
+  it('returns 204 and nulls cardOptions while preserving theme and ankiWebAcknowledgedAt', async () => {
+    const { repo, controller, res } = buildMocks(10);
+    await repo.patch(10, { theme: 'dark', cardOptions: { deckName: 'Old' } });
+
+    await controller.deleteCardOptions({} as Request, res);
+
+    expect(res.status).toHaveBeenCalledWith(204);
+    expect(res.json).not.toHaveBeenCalled();
+    const stored = await repo.get(10);
+    expect(stored.cardOptions).toBeNull();
+    expect(stored.theme).toBe('dark');
+  });
+
+  it('is idempotent when cardOptions is already null', async () => {
+    const { controller, res } = buildMocks(11);
+
+    await controller.deleteCardOptions({} as Request, res);
+
+    expect(res.status).toHaveBeenCalledWith(204);
   });
 });
 

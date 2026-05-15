@@ -34,6 +34,12 @@ class ParserRulesRepository {
       .returning('*')
       .first();
   }
+
+  deleteByObjectId(objectId: string, owner: string): Promise<number> {
+    return this.database(this.tableName)
+      .where({ object_id: objectId, owner })
+      .del();
+  }
 }
 
 export default ParserRulesRepository;
