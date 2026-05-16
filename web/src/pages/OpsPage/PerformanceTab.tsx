@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import sharedStyles from '../../styles/shared.module.css';
 import styles from './OpsPage.module.css';
@@ -10,6 +10,43 @@ import {
   PerformanceMetricsResponse,
   SignupCountryBreakdownItem,
 } from './performanceTypes';
+
+interface JobIdCellProps {
+  id: number;
+}
+
+function JobIdCell({ id }: Readonly<JobIdCellProps>) {
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (!copied) return undefined;
+    const timer = window.setTimeout(() => setCopied(false), 1200);
+    return () => window.clearTimeout(timer);
+  }, [copied]);
+
+  const handleClick = useCallback(() => {
+    const text = String(id);
+    if (navigator.clipboard?.writeText != null) {
+      navigator.clipboard
+        .writeText(text)
+        .then(() => setCopied(true))
+        .catch(() => setCopied(false));
+    }
+  }, [id]);
+
+  return (
+    <button
+      type="button"
+      className={`${styles.jobIdButton} ${copied ? styles.jobIdCopied : ''}`}
+      onClick={handleClick}
+      aria-label={`Copy job ID ${id} to clipboard`}
+      title={copied ? 'Copied' : 'Click to copy'}
+    >
+      #{id}
+      {copied ? ' ✓' : ''}
+    </button>
+  );
+}
 
 const formatMs = (value: number | null): string => {
   if (value == null) return '—';
@@ -113,7 +150,9 @@ const renderSlowestJobs = (
       <tbody>
         {rows.map((row) => (
           <tr key={row.id}>
-            <td className={styles.numericMuted}>#{row.id}</td>
+            <td className={styles.numericMuted}>
+              <JobIdCell id={row.id} />
+            </td>
             <td>{row.type ?? '—'}</td>
             <td className={styles.numeric}>{formatMs(row.duration_ms)}</td>
             <td className={styles.numeric}>
@@ -222,10 +261,11 @@ export default function PerformanceTab() {
 
         <ChartPanel
           title="Slowest 20 jobs, last 24h"
-          subtitle="Click an ID in pg to investigate"
+          subtitle="Click an ID to copy it for pg lookup"
           isLoading={isInitial}
           isEmpty={(data?.slowest_jobs_24h.length ?? 0) === 0}
           emptyText="No completed jobs in this window."
+          autoHeight
         >
           {data != null && renderSlowestJobs(data.slowest_jobs_24h)}
         </ChartPanel>
