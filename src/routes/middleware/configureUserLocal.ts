@@ -11,6 +11,7 @@ export async function configureUserLocal(
   const user = await authService.getUserFrom(req.cookies.token);
   if (user) {
     res.locals.owner = user.owner;
+    res.locals.email = user.email;
     res.locals.patreon = user.patreon;
     res.locals.trial_started_at = user.trial_started_at ?? null;
     res.locals.chat_consent_at = user.chat_consent_at ?? null;

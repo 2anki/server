@@ -4,7 +4,7 @@ export interface AnkifyAccessUser {
 
 export interface AnkifyAccessSubscription {
   active: boolean;
-  stripe_product_id: string | null;
+  stripe_product_id?: string | null;
 }
 
 export const hasAnkifyAccess = (

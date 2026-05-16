@@ -9,7 +9,7 @@ Background-job factories and pure helpers for the Ankify product (separate from 
 - `scheduler/instance.ts` — singleton scheduler; survives one process lifetime.
 - `nextDailyRunAt.ts` — pure cron-ish next-run calculation. Heavily tested.
 - `notionWebhookSignature.ts` — HMAC verification for Notion's webhook payloads. Currently unused in prod (see deferred doc) but kept ready and tested.
-- `access.ts` — `hasAnkifyAccess(user, subscriptions, autoSyncProductId)` returns true when `users.patreon === true` **OR** `subscriptions` contains an active row whose `stripe_product_id` equals `autoSyncProductId`. Single source of truth for the gate; consumed by `RequireAnkifyAccess` middleware, `ValidateAnkifySessionTokenUseCase`, and `AnkifyWebhookRouter`. Pass `process.env.AUTO_SYNC_PRODUCT_ID ?? ''` as the third argument at every call site. Exports `AnkifyAccessUser` and `AnkifyAccessSubscription` interfaces.
+- `access.ts` — `hasAnkifyAccess(user, subscriptions, autoSyncProductId)` returns true when `users.patreon === true` **OR** `subscriptions` contains an active row whose `stripe_product_id` equals `autoSyncProductId`. Single source of truth for the gate; consumed by `RequireAnkifyAccess` middleware, `ValidateAnkifySessionTokenUseCase`, and `AnkifyWebhookRouter`. Pass `process.env.AUTO_SYNC_PRODUCT_ID ?? ''` as the third argument at every call site. Exports `AnkifyAccessUser` and `AnkifyAccessSubscription` interfaces. `AnkifyAccessSubscription.stripe_product_id` is optional so that existing `Subscriptions` DB rows (which lack the column pre-migration) pass the type check — once `pnpm kanel` runs after the migration, the generated type will include it.
 
 ## Things to know before editing
 

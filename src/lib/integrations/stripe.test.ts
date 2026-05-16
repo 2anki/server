@@ -54,7 +54,7 @@ describe('updateStoreSubscription', () => {
       makeSubscription('active', 'prod_auto_sync')
     );
 
-    const subsResult = (db as jest.Mock).mock.results[0]?.value;
+    const subsResult = (db as unknown as jest.Mock).mock.results[0]?.value;
     expect(subsResult.insert).toHaveBeenCalledWith(
       expect.objectContaining({ stripe_product_id: 'prod_auto_sync', active: true })
     );
@@ -69,7 +69,7 @@ describe('updateStoreSubscription', () => {
       makeSubscription('canceled', 'prod_auto_sync')
     );
 
-    const subsResult = (db as jest.Mock).mock.results[0]?.value;
+    const subsResult = (db as unknown as jest.Mock).mock.results[0]?.value;
     expect(subsResult.insert).toHaveBeenCalledWith(
       expect.objectContaining({ active: false })
     );
@@ -83,7 +83,7 @@ describe('updateStoreSubscription', () => {
       makeSubscription('active', 'prod_auto_sync')
     );
 
-    const usersCall = (db as jest.Mock).mock.calls.find((c) => c[0] === 'users');
+    const usersCall = (db as unknown as jest.Mock).mock.calls.find((c) => c[0] === 'users');
     expect(usersCall).toBeDefined();
     expect(whereChain.update).toHaveBeenCalledWith({ stripe_customer_id: 'cus_test123' });
   });
@@ -96,7 +96,7 @@ describe('updateStoreSubscription', () => {
       makeSubscription('active', 'prod_auto_sync')
     );
 
-    const usersCall = (db as jest.Mock).mock.calls.find((c) => c[0] === 'users');
+    const usersCall = (db as unknown as jest.Mock).mock.calls.find((c) => c[0] === 'users');
     expect(usersCall).toBeUndefined();
   });
 });
