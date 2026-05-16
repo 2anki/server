@@ -11,7 +11,7 @@ const CheckoutRouter = () => {
 
   const priceId = process.env.AUTO_SYNC_PRICE_ID ?? '';
   const productId = process.env.AUTO_SYNC_PRODUCT_ID ?? '';
-  const maxSubscribers = parseInt(process.env.HOSTED_ANKI_MAX_SUBSCRIBERS ?? '', 10) || DEFAULT_MAX_SUBSCRIBERS;
+  const maxSubscribers = Number.parseInt(process.env.HOSTED_ANKI_MAX_SUBSCRIBERS ?? '', 10) || DEFAULT_MAX_SUBSCRIBERS;
 
   router.post(
     '/api/checkout/auto-sync',

@@ -15,6 +15,19 @@ export const getCustomerId = (
   return customer?.id;
 };
 
+const extractProductId = (
+  subscription: StripeTypes.Subscription
+): string | null => {
+  const product = subscription.items?.data?.[0]?.price?.product;
+  if (product == null) {
+    return null;
+  }
+  if (typeof product === 'string') {
+    return product;
+  }
+  return product.id;
+};
+
 export const updateStoreSubscription = async (
   db: Knex,
   customer: StripeTypes.Customer,
@@ -31,17 +44,12 @@ export const updateStoreSubscription = async (
     shouldRemainActive = currentDate < periodEndDate;
   }
 
-  const stripeProductId =
-    subscription.items?.data?.[0]?.price?.product != null
-      ? typeof subscription.items.data[0].price.product === 'string'
-        ? subscription.items.data[0].price.product
-        : (subscription.items.data[0].price.product as StripeTypes.Product).id
-      : null;
+  const stripeProductId = extractProductId(subscription);
 
   const customerId =
     typeof subscription.customer === 'string'
       ? subscription.customer
-      : (subscription.customer as StripeTypes.Customer | null)?.id ?? null;
+      : subscription.customer?.id ?? null;
 
   await db('subscriptions')
     .insert({

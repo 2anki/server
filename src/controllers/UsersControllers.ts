@@ -262,10 +262,10 @@ class UsersController {
     // featureFlags.kiUI = user?.patreon || res.locals.subscriber;
 
     const autoSyncProductId = process.env.AUTO_SYNC_PRODUCT_ID ?? '';
-    const maxSubscribers = parseInt(process.env.HOSTED_ANKI_MAX_SUBSCRIBERS ?? '', 10) || 50;
-    const autoSyncActiveCount = autoSyncProductId !== ''
-      ? await SubscriptionService.countActiveByProductId(autoSyncProductId)
-      : 0;
+    const maxSubscribers = Number.parseInt(process.env.HOSTED_ANKI_MAX_SUBSCRIBERS ?? '', 10) || 50;
+    const autoSyncActiveCount = autoSyncProductId === ''
+      ? 0
+      : await SubscriptionService.countActiveByProductId(autoSyncProductId);
     const autoSyncCapReached = autoSyncActiveCount >= maxSubscribers;
 
     const userSubs = user?.email

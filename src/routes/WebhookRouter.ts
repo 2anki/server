@@ -89,18 +89,20 @@ const WebhooksRouter = () => {
             customerSubscriptionUpdated
           );
 
-          const updatedProductId = customerSubscriptionUpdated.items?.data?.[0]?.price?.product;
-          const autoSyncProductId = process.env.AUTO_SYNC_PRODUCT_ID;
-          if (autoSyncProductId != null && updatedProductId === autoSyncProductId) {
-            if (customerSubscriptionUpdated.status === 'active') {
-              console.info('auto_sync.subscription.activated', {
-                subscription_status: customerSubscriptionUpdated.status,
-              });
-            } else if (customerSubscriptionUpdated.cancel_at_period_end === true) {
-              console.info('auto_sync.subscription.canceled', {
-                subscription_status: customerSubscriptionUpdated.status,
-                access_until: new Date((customerSubscriptionUpdated.cancel_at ?? 0) * 1000).toISOString(),
-              });
+          {
+            const updatedProductId = customerSubscriptionUpdated.items?.data?.[0]?.price?.product;
+            const autoSyncProductId = process.env.AUTO_SYNC_PRODUCT_ID;
+            if (autoSyncProductId != null && updatedProductId === autoSyncProductId) {
+              if (customerSubscriptionUpdated.status === 'active') {
+                console.info('auto_sync.subscription.activated', {
+                  subscription_status: customerSubscriptionUpdated.status,
+                });
+              } else if (customerSubscriptionUpdated.cancel_at_period_end === true) {
+                console.info('auto_sync.subscription.canceled', {
+                  subscription_status: customerSubscriptionUpdated.status,
+                  access_until: new Date((customerSubscriptionUpdated.cancel_at ?? 0) * 1000).toISOString(),
+                });
+              }
             }
           }
 
