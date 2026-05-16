@@ -285,6 +285,7 @@ class UsersController {
         ankify_welcome_seen: user?.ankify_welcome_seen ?? false,
         trial_started_at: user?.trial_started_at ?? null,
         signup_country: signupCountry,
+        chat_consent_at: user?.chat_consent_at ?? null,
       },
       locals,
       linked_email: linkedEmail,
