@@ -410,6 +410,22 @@ describe('ChatUseCase', () => {
     });
   });
 
+  describe('system prompt caching', () => {
+    it('passes system as an array with a cache_control ephemeral block', async () => {
+      const { anthropic, useCase } = buildUseCase('answer');
+
+      await useCase.execute({ user: FREE_USER, content: 'question', conversationHistory: [] });
+
+      const callArg = anthropic.messages.stream.mock.calls[0][0];
+      expect(Array.isArray(callArg.system)).toBe(true);
+      expect(callArg.system).toHaveLength(1);
+      expect(callArg.system[0]).toMatchObject({
+        type: 'text',
+        cache_control: { type: 'ephemeral' },
+      });
+    });
+  });
+
   describe('ChatRateLimitError', () => {
     it('provides a resetDate as the first of next month', async () => {
       const { messagesRepo, useCase } = buildUseCase('');
