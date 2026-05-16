@@ -11,8 +11,29 @@ import {
 } from '../../../data_layer/GoogleDriveRepository';
 import { isEmptyUpload } from './isEmptyUpload';
 import { getFilesOrEmpty } from './getFilesOrEmpty';
-import { createGoogleDriveDownloadLink } from './createGoogleDriveDownloadLink';
+import {
+  createGoogleDriveDownloadLink,
+  createGoogleDriveExportLink,
+  NATIVE_GOOGLE_APPS_EXPORT_MIMES,
+} from './createGoogleDriveDownloadLink';
 import instrumentedAxios from '../../../services/observability/instrumentedAxios';
+
+function resolveUrlAndName(
+  file: GoogleDriveFile
+): { url: string; originalname: string } {
+  const exportSpec = NATIVE_GOOGLE_APPS_EXPORT_MIMES[file.mimeType];
+  if (exportSpec) {
+    const baseName = file.name.replace(/\.[^.]+$/, '');
+    return {
+      url: createGoogleDriveExportLink(file, exportSpec.exportMime),
+      originalname: baseName + exportSpec.extension,
+    };
+  }
+  return {
+    url: createGoogleDriveDownloadLink(file),
+    originalname: file.name,
+  };
+}
 
 export async function handleGoogleDrive(
   req: express.Request,
@@ -20,10 +41,8 @@ export async function handleGoogleDrive(
   handleUpload: (req: express.Request, res: express.Response) => void
 ) {
   try {
-    console.log('handling Google Drive files', req.body);
     const files = getFilesOrEmpty<GoogleDriveFile>(req.body);
     if (isEmptyUpload(files)) {
-      console.debug('No Google Drive files selected.');
       res.status(400).send('No Google Drive files selected, one is required.');
       return;
     }
@@ -50,16 +69,15 @@ export async function handleGoogleDrive(
     const owner = getOwner(res);
     if (owner) {
       await repo.saveFiles(files, owner);
-    } else {
-      console.log('Not storing anon users Google Drive files');
     }
 
-    // @ts-ignore
+    // @ts-ignore — Express request does not declare files in its type
     req.files = await Promise.all(
       files.map(async (file) => {
+        const { url, originalname } = resolveUrlAndName(file);
         const contents = await instrumentedAxios.get(
           'google_drive',
-          createGoogleDriveDownloadLink(file),
+          url,
           {
             headers: {
               Authorization: `Bearer ${googleDriveAuth}`,
@@ -68,7 +86,7 @@ export async function handleGoogleDrive(
           }
         );
         return {
-          originalname: file.name,
+          originalname,
           size: file.sizeBytes,
           buffer: contents.data,
         };
@@ -76,7 +94,6 @@ export async function handleGoogleDrive(
     );
     handleUpload(req, res);
   } catch (error) {
-    console.debug('Error handling Google files', error);
     res.status(400).send('Error handling Google Drive files');
   }
 }
