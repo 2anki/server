@@ -277,6 +277,8 @@ export default function PricingPage({
 
         <PricingCard
           className={styles.cardLifetime}
+          badge="Pay once"
+          badgeMuted
           price="$345"
           priceSuffix="– $500"
           priceRange
