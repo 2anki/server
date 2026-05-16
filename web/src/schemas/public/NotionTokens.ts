@@ -20,8 +20,6 @@ export default interface NotionTokens {
   workspace_id: string | null;
 
   notion_owner: unknown | null;
-
-  encrypted: boolean | null;
 }
 
 /** Represents the initializer for the table public.notion_tokens */
@@ -45,9 +43,6 @@ export interface NotionTokensInitializer {
   workspace_id?: string | null;
 
   notion_owner?: unknown | null;
-
-  /** Default value: false */
-  encrypted?: boolean | null;
 }
 
 /** Represents the mutator for the table public.notion_tokens */
@@ -69,6 +64,4 @@ export interface NotionTokensMutator {
   workspace_id?: string | null;
 
   notion_owner?: unknown | null;
-
-  encrypted?: boolean | null;
 }

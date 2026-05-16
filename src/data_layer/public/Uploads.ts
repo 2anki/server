@@ -18,8 +18,6 @@ export default interface Uploads {
 
   size_mb: number | null;
 
-  external_url: string | null;
-
   created_at: Date | null;
 }
 
@@ -38,8 +36,6 @@ export interface UploadsInitializer {
 
   size_mb?: number | null;
 
-  external_url?: string | null;
-
   /** Default value: CURRENT_TIMESTAMP */
   created_at?: Date | null;
 }
@@ -57,8 +53,6 @@ export interface UploadsMutator {
   object_id?: string | null;
 
   size_mb?: number | null;
-
-  external_url?: string | null;
 
   created_at?: Date | null;
 }

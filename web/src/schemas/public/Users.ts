@@ -21,8 +21,6 @@ export default interface Users {
   reset_token: string | null;
 
   patreon: boolean | null;
-
-  picture: string | null;
 }
 
 /** Represents the initializer for the table public.users */
@@ -46,9 +44,6 @@ export interface UsersInitializer {
 
   /** Default value: false */
   patreon?: boolean | null;
-
-  /** Default value: NULL::character varying */
-  picture?: string | null;
 }
 
 /** Represents the mutator for the table public.users */
@@ -68,6 +63,4 @@ export interface UsersMutator {
   reset_token?: string | null;
 
   patreon?: boolean | null;
-
-  picture?: string | null;
 }
