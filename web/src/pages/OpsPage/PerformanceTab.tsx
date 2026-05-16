@@ -20,8 +20,8 @@ function JobIdCell({ id }: Readonly<JobIdCellProps>) {
 
   useEffect(() => {
     if (!copied) return undefined;
-    const timer = window.setTimeout(() => setCopied(false), 1200);
-    return () => window.clearTimeout(timer);
+    const timer = setTimeout(() => setCopied(false), 1200);
+    return () => clearTimeout(timer);
   }, [copied]);
 
   const handleClick = useCallback(() => {
