@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useUserLocals } from '../../lib/hooks/useUserLocals';
 import { get, post, postMultipart, patch, del } from '../../lib/backend/api';
+import ConsentModal from '../../components/ConsentModal/ConsentModal';
 import SendIcon from '../../components/icons/SendIcon';
 import AssistantMarkdown from './AssistantMarkdown';
 import CardPreview from './CardPreview';
@@ -31,7 +33,7 @@ interface ApiDonePayload {
 }
 
 interface ApiErrorPayload {
-  type: 'rate_limit' | 'server_error' | 'conversation_not_found';
+  type: 'rate_limit' | 'server_error' | 'conversation_not_found' | 'consent_required';
   resetDate?: string;
 }
 
@@ -145,15 +147,24 @@ function truncateName(name: string, max: number): string {
 }
 
 export default function ChatPage() {
-  const { data: userLocals } = useUserLocals();
+  const { data: userLocals, refetch: refetchUserLocals } = useUserLocals();
   const isPatreon = userLocals?.user?.patreon === true;
+  const hasConsented = userLocals?.user?.chat_consent_at != null;
+  const [showConsentModal, setShowConsentModal] = useState(false);
+
+  const [searchParams] = useSearchParams();
+  const cameFromUpload = searchParams.get('from') === 'upload';
+  const uploadFilename = searchParams.get('filename');
+  const prefilledPrompt = cameFromUpload
+    ? `I tried to convert ${uploadFilename ?? 'this file'} and got stuck. What can I do?`
+    : '';
 
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<number | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [expandedUserMessages, setExpandedUserMessages] = useState<Set<number>>(new Set());
   const [streamingText, setStreamingText] = useState('');
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState(prefilledPrompt);
   const [isLoading, setIsLoading] = useState(false);
   const [networkError, setNetworkError] = useState<string | null>(null);
   const [limitReached, setLimitReached] = useState(false);
@@ -490,6 +501,8 @@ export default function ChatPage() {
             } else if (err.type === 'conversation_not_found') {
               setNetworkError('This conversation is gone. Start a new one.');
               setActiveConversationId(null);
+            } else if (err.type === 'consent_required') {
+              setShowConsentModal(true);
             } else {
               setNetworkError("Couldn't send this message. Try again.");
             }
@@ -555,6 +568,16 @@ export default function ChatPage() {
   const hasMessages = messages.length > 0;
 
   return (
+    <>
+    {(showConsentModal || (!hasConsented && userLocals != null)) && (
+      <ConsentModal
+        onAccept={async () => {
+          await refetchUserLocals();
+          setShowConsentModal(false);
+        }}
+        onDismiss={() => setShowConsentModal(false)}
+      />
+    )}
     <div className={styles.layout}>
       <ConversationsSidebar
         conversations={conversations}
@@ -640,23 +663,27 @@ export default function ChatPage() {
           <div className={styles.emptyState}>
             <h1 className={styles.emptyHeading}>Chat</h1>
             <p className={styles.emptySubhead}>
-              A study assistant. Paste your notes, ask for cards, or work through a concept.
+              {cameFromUpload
+                ? "Tell me what's in your file — I'll help you get cards out of it."
+                : 'A study assistant. Paste your notes, ask for cards, or work through a concept.'}
             </p>
-            <div className={styles.starterChips}>
-              {STARTER_PROMPTS.map((prompt) => (
-                <button
-                  key={prompt}
-                  type="button"
-                  className={styles.starterChip}
-                  onClick={() => {
-                    setInputValue(prompt);
-                    textareaRef.current?.focus();
-                  }}
-                >
-                  {prompt}
-                </button>
-              ))}
-            </div>
+            {!cameFromUpload && (
+              <div className={styles.starterChips}>
+                {STARTER_PROMPTS.map((prompt) => (
+                  <button
+                    key={prompt}
+                    type="button"
+                    className={styles.starterChip}
+                    onClick={() => {
+                      setInputValue(prompt);
+                      textareaRef.current?.focus();
+                    }}
+                  >
+                    {prompt}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
@@ -802,5 +829,6 @@ export default function ChatPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

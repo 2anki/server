@@ -49,6 +49,8 @@ export default interface Users {
   cards_month_started_at: Date;
 
   signup_country: string | null;
+
+  chat_consent_at: Date | null;
 }
 
 /** Represents the initializer for the table public.users */
@@ -106,6 +108,8 @@ export interface UsersInitializer {
   cards_month_started_at?: Date;
 
   signup_country?: string | null;
+
+  chat_consent_at?: Date | null;
 }
 
 /** Represents the mutator for the table public.users */
@@ -153,4 +157,6 @@ export interface UsersMutator {
   cards_month_started_at?: Date;
 
   signup_country?: string | null;
+
+  chat_consent_at?: Date | null;
 }

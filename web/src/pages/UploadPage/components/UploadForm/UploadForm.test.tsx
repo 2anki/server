@@ -251,4 +251,52 @@ describe('UploadForm analytics events', () => {
 
     expect(gtag).not.toHaveBeenCalledWith('event', 'conversion_success');
   });
+
+  it('shows the chat CTA link in the error state', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      redirected: false,
+      status: 400,
+      text: () => Promise.resolve('Bad request'),
+      headers: new Headers({ 'Content-Type': 'text/plain' }),
+    }));
+
+    const { container } = renderUploadForm(<UploadForm setErrorMessage={vi.fn()} />);
+    const form = container.querySelector('form')!;
+    await act(async () => {
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    });
+
+    await waitFor(() => {
+      expect(container.querySelector('a[href*="/chat"]')).not.toBeNull();
+    });
+    const link = container.querySelector('a[href*="/chat"]') as HTMLAnchorElement;
+    expect(link.textContent).toContain('Stuck?');
+    expect(link.href).toContain('from=upload');
+  });
+
+  it('shows the chat CTA link in the empty-deck state', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      redirected: false,
+      status: 200,
+      headers: new Headers({
+        'Content-Type': 'application/octet-stream',
+        'X-Card-Count': '0',
+      }),
+      blob: () => Promise.resolve(new Blob(['fake'])),
+    }));
+
+    const { container } = renderUploadForm(<UploadForm setErrorMessage={vi.fn()} />);
+    const form = container.querySelector('form')!;
+    await act(async () => {
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    });
+
+    await waitFor(() => {
+      expect(container.querySelector('a[href*="/chat"]')).not.toBeNull();
+    });
+    const link = container.querySelector('a[href*="/chat"]') as HTMLAnchorElement;
+    expect(link.textContent).toContain('Stuck?');
+    expect(link.href).toContain('from=upload');
+    expect(link.href).toContain('reason=empty');
+  });
 });

@@ -698,6 +698,9 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
           >
             Try a different file
           </button>
+          <Link to={chatCtaHref('empty')} className={formStyles.resetLink}>
+            Stuck? Ask Claude about this file →
+          </Link>
         </div>
       </div>
     );
@@ -755,6 +758,16 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
     </div>
   );
 
+  const currentFilename = (): string =>
+    driveFilename ?? dropboxFilename ?? displayFilename(fileInputRef.current);
+
+  const chatCtaHref = (reason: 'error' | 'empty' | 'unsupported'): string => {
+    const filename = currentFilename();
+    const params = new URLSearchParams({ from: 'upload', reason });
+    if (filename) params.set('filename', filename);
+    return `/chat?${params.toString()}`;
+  };
+
   const renderErrorState = () => (
     <div className={formStyles.stateContent}>
       <WarningIcon className={formStyles.iconError} />
@@ -770,6 +783,9 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
       >
         Try again
       </button>
+      <Link to={chatCtaHref('error')} className={formStyles.resetLink}>
+        Stuck? Ask Claude about this file →
+      </Link>
     </div>
   );
 

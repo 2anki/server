@@ -1,12 +1,26 @@
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import ChatPage from './ChatPage';
 
 window.HTMLElement.prototype.scrollIntoView = vi.fn();
 
+function renderChatPage(path = '/chat') {
+  return render(
+    <MemoryRouter initialEntries={[path]}>
+      <Routes>
+        <Route path="/chat" element={<ChatPage />} />
+      </Routes>
+    </MemoryRouter>
+  );
+}
+
 vi.mock('../../lib/hooks/useUserLocals', () => ({
-  useUserLocals: () => ({ data: { user: { patreon: false } } }),
+  useUserLocals: () => ({
+    data: { user: { patreon: false, chat_consent_at: '2026-01-01T00:00:00.000Z' } },
+    refetch: vi.fn(),
+  }),
 }));
 
 vi.mock('../../lib/backend/api', () => ({
@@ -44,7 +58,7 @@ describe('ChatPage', () => {
   });
 
   it('renders the empty state heading', () => {
-    render(<ChatPage />);
+    renderChatPage();
     expect(screen.getByRole('heading', { name: 'Chat' })).toBeInTheDocument();
   });
 
@@ -64,7 +78,7 @@ describe('ChatPage', () => {
       ])
     );
 
-    render(<ChatPage />);
+    renderChatPage();
 
     fireEvent.change(screen.getByRole('textbox', { name: 'Message input' }), {
       target: { value: 'Make cards' },
@@ -88,7 +102,7 @@ describe('ChatPage', () => {
       ])
     );
 
-    render(<ChatPage />);
+    renderChatPage();
 
     fireEvent.change(screen.getByRole('textbox', { name: 'Message input' }), {
       target: { value: 'Explain photosynthesis' },
@@ -115,7 +129,7 @@ describe('ChatPage', () => {
     });
     mockPost.mockResolvedValueOnce({ ok: true, status: 200, body: stream });
 
-    render(<ChatPage />);
+    renderChatPage();
     fireEvent.change(screen.getByRole('textbox', { name: 'Message input' }), {
       target: { value: 'Make cards' },
     });
@@ -144,7 +158,7 @@ describe('ChatPage', () => {
   });
 
   it('does not collapse short user messages', async () => {
-    render(<ChatPage />);
+    renderChatPage();
     fireEvent.change(screen.getByRole('textbox', { name: 'Message input' }), {
       target: { value: 'Short message' },
     });
@@ -153,7 +167,7 @@ describe('ChatPage', () => {
   });
 
   it('collapses long user messages and shows expand toggle', () => {
-    render(<ChatPage />);
+    renderChatPage();
     const longContent = 'x'.repeat(601);
     fireEvent.change(screen.getByRole('textbox', { name: 'Message input' }), {
       target: { value: longContent },
@@ -163,7 +177,7 @@ describe('ChatPage', () => {
   });
 
   it('toggles long message between collapsed and expanded', () => {
-    render(<ChatPage />);
+    renderChatPage();
     const longContent = 'x'.repeat(601);
     fireEvent.change(screen.getByRole('textbox', { name: 'Message input' }), {
       target: { value: longContent },
@@ -179,7 +193,7 @@ describe('ChatPage', () => {
   it('hydrates usage counter from server on mount', async () => {
     mockGet.mockResolvedValueOnce({ used: 5, limit: 20 });
 
-    render(<ChatPage />);
+    renderChatPage();
 
     await waitFor(() => {
       expect(mockGet).toHaveBeenCalledWith('/api/chat/usage', { redirect: false });
@@ -187,12 +201,12 @@ describe('ChatPage', () => {
   });
 
   it('shows paperclip button in the composer', () => {
-    render(<ChatPage />);
+    renderChatPage();
     expect(screen.getByRole('button', { name: 'Attach files' })).toBeInTheDocument();
   });
 
   it('shows chip when a valid file is attached via input', async () => {
-    render(<ChatPage />);
+    renderChatPage();
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
     const file = new File(['%PDF-1.4'], 'lecture.pdf', { type: 'application/pdf' });
     Object.defineProperty(input, 'files', { value: [file], configurable: true });
@@ -204,7 +218,7 @@ describe('ChatPage', () => {
   });
 
   it('shows error when file type is not allowed', async () => {
-    render(<ChatPage />);
+    renderChatPage();
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
     const file = new File(['data'], 'document.docx', { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
     Object.defineProperty(input, 'files', { value: [file], configurable: true });
@@ -216,7 +230,7 @@ describe('ChatPage', () => {
   });
 
   it('removes chip when the remove button is clicked', async () => {
-    render(<ChatPage />);
+    renderChatPage();
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
     const file = new File(['%PDF-1.4'], 'notes.pdf', { type: 'application/pdf' });
     Object.defineProperty(input, 'files', { value: [file], configurable: true });
@@ -241,7 +255,7 @@ describe('ChatPage', () => {
       ])
     );
 
-    render(<ChatPage />);
+    renderChatPage();
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
     const file = new File(['%PDF-1.4'], 'slides.pdf', { type: 'application/pdf' });
     Object.defineProperty(input, 'files', { value: [file], configurable: true });
@@ -267,10 +281,48 @@ describe('ChatPage', () => {
       return Promise.resolve({ conversations: [] });
     });
 
-    render(<ChatPage />);
+    renderChatPage();
 
     await waitFor(() => {
       expect(screen.getByText('1 message left this month — your next send uses it')).toBeInTheDocument();
     });
+  });
+});
+
+describe('ChatPage — query-param handling', () => {
+  beforeEach(() => {
+    mockPost.mockReset();
+    mockGet.mockResolvedValue({ used: 0, limit: 20 });
+  });
+
+  it('pre-fills input with filename from query param when from=upload', async () => {
+    renderChatPage('/chat?from=upload&filename=Biology.epub');
+    await waitFor(() => {
+      const textarea = screen.getByRole('textbox', { name: 'Message input' }) as HTMLTextAreaElement;
+      expect(textarea.value).toBe('I tried to convert Biology.epub and got stuck. What can I do?');
+    });
+  });
+
+  it('falls back to "this file" when filename param is absent', async () => {
+    renderChatPage('/chat?from=upload');
+    await waitFor(() => {
+      const textarea = screen.getByRole('textbox', { name: 'Message input' }) as HTMLTextAreaElement;
+      expect(textarea.value).toBe('I tried to convert this file and got stuck. What can I do?');
+    });
+  });
+
+  it('hides starter chips when from=upload', () => {
+    renderChatPage('/chat?from=upload&filename=Notes.pdf');
+    expect(screen.queryByText("Make 10 cards from notes I'll paste")).not.toBeInTheDocument();
+  });
+
+  it('shows starter chips when no from param', () => {
+    renderChatPage('/chat');
+    expect(screen.getByText("Make 10 cards from notes I'll paste")).toBeInTheDocument();
+  });
+
+  it('renders the upload empty-state subhead when from=upload', () => {
+    renderChatPage('/chat?from=upload');
+    expect(screen.getByText("Tell me what's in your file — I'll help you get cards out of it.")).toBeInTheDocument();
   });
 });
