@@ -42,11 +42,11 @@ export function UploadSourceChips({
   onChange,
   dropboxAvailable,
   googleDriveAvailable,
-}: Props) {
+}: Readonly<Props>) {
   return (
-    <div className={styles.rail}>
-      <span className={styles.label}>Or pick from:</span>
-      <div role="group" aria-label="Other sources" className={styles.chips}>
+    <fieldset className={styles.rail}>
+      <legend className={styles.label}>Or pick from:</legend>
+      <div className={styles.chips}>
         <button
           type="button"
           aria-label="Dropbox"
@@ -70,6 +70,6 @@ export function UploadSourceChips({
           <span>Google Drive</span>
         </button>
       </div>
-    </div>
+    </fieldset>
   );
 }

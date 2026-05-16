@@ -94,6 +94,7 @@ export async function handleGoogleDrive(
     );
     handleUpload(req, res);
   } catch (error) {
+    console.error('[handleGoogleDrive] failed:', error);
     res.status(400).send('Error handling Google Drive files');
   }
 }

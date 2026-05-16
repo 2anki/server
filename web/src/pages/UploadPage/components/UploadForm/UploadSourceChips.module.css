@@ -6,11 +6,14 @@
   max-width: 800px;
   margin: 0 auto;
   padding: 0 0.25rem;
+  border: 0;
+  min-inline-size: 0;
 }
 
 .label {
   font-size: var(--text-sm);
   color: var(--color-text-tertiary);
+  padding: 0;
 }
 
 .chips {

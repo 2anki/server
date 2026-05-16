@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { UploadSourceChips, type UploadSource } from './UploadSourceChips';
 
 describe('UploadSourceChips', () => {
-  it('renders a group with accessible label', () => {
+  it('renders a fieldset with a legend introducing the chips', () => {
     const { container } = render(
       <UploadSourceChips
         active="local"
@@ -12,9 +12,10 @@ describe('UploadSourceChips', () => {
         googleDriveAvailable={true}
       />
     );
-    const group = container.querySelector('[role="group"]');
-    expect(group).not.toBeNull();
-    expect(group?.getAttribute('aria-label')).toBe('Other sources');
+    const fieldset = container.querySelector('fieldset');
+    expect(fieldset).not.toBeNull();
+    const legend = fieldset?.querySelector('legend');
+    expect(legend?.textContent).toBe('Or pick from:');
   });
 
   it('renders the Dropbox chip when available', () => {
