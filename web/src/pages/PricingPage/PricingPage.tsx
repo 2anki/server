@@ -6,7 +6,6 @@ import { get2ankiApi } from '../../lib/backend/get2ankiApi';
 import { getVisibleText } from '../../lib/text/getVisibleText';
 import { AutoSyncCard } from './components/AutoSyncCard';
 import { PassCards } from './components/PassCards';
-import { PassToggleCard } from './components/PassToggleCard';
 import { PricingCard } from './components/PricingCard';
 import styles from './PricingPage.module.css';
 import { getLifetimeLink, getSubscribeLink } from './payment.links';
@@ -77,7 +76,6 @@ export default function PricingPage({
   const [dayPassState, setDayPassState] = useState<PassState>('idle');
   const [weekPassState, setWeekPassState] = useState<PassState>('idle');
   const [searchParams] = useSearchParams();
-  const pricingVariant = searchParams.get('variant');
   const fromPaywall = searchParams.get('source') === 'paywall-cancel';
   const fromContext = searchParams.get('from');
   const showContextBanner =
@@ -237,19 +235,12 @@ export default function PricingPage({
         </div>
       )}
 
-      {pricingVariant === 'toggle' ? (
-        <PassToggleCard
-          onCheckout={handlePassCheckout}
-          pending={dayPassState === 'pending' || weekPassState === 'pending'}
-        />
-      ) : (
-        <PassCards
-          onDayPass={() => handlePassCheckout('24h')}
-          onWeekPass={() => handlePassCheckout('7d')}
-          dayPassPending={dayPassState === 'pending'}
-          weekPassPending={weekPassState === 'pending'}
-        />
-      )}
+      <PassCards
+        onDayPass={() => handlePassCheckout('24h')}
+        onWeekPass={() => handlePassCheckout('7d')}
+        dayPassPending={dayPassState === 'pending'}
+        weekPassPending={weekPassState === 'pending'}
+      />
 
       <div className={styles.grid}>
         <PricingCard
