@@ -563,6 +563,11 @@
   justify-content: center;
 }
 
+.chipsRow {
+  max-width: 800px;
+  margin: 0.75rem auto 0;
+}
+
 .panelHidden {
   display: none !important;
 }
