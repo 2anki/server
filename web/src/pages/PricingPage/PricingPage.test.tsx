@@ -93,16 +93,7 @@ describe('PricingPage Auto Sync card', () => {
 
   it('shows waitlist caption for waitlisted user', () => {
     renderAt('/pricing', { isLoggedIn: true, hostedAnkiRequested: true });
-    expect(screen.getByText("You joined the waitlist — it's open now.")).toBeInTheDocument();
-  });
-
-  it('shows Unlimited caption for subscriber', () => {
-    renderAt('/pricing', {
-      isLoggedIn: true,
-      hostedAnkiRequested: false,
-    });
-    const caption = screen.queryByText('Upgrade from Unlimited — keep everything you have.');
-    expect(caption).not.toBeInTheDocument();
+    expect(screen.getByText('Waitlist is open — subscribe anytime.')).toBeInTheDocument();
   });
 
   it('shows Included in Lifetime plan caption for patreon user and hides price', () => {
@@ -113,6 +104,47 @@ describe('PricingPage Auto Sync card', () => {
   it('shows Join the waitlist when cap is reached', () => {
     renderAt('/pricing', { isLoggedIn: true, autoSyncCapReached: true });
     expect(screen.getByRole('button', { name: 'Join the waitlist' })).toBeInTheDocument();
+  });
+
+  it('shows the capacity caption when cap is reached', () => {
+    renderAt('/pricing', { isLoggedIn: true, autoSyncCapReached: true });
+    expect(
+      screen.getByText("We're at capacity — we'll email you when a seat opens.")
+    ).toBeInTheDocument();
+  });
+
+  it('surfaces an inline error when checkout fails instead of redirecting', async () => {
+    mockStartAutoSyncCheckout.mockResolvedValue({ status: 'error' });
+    const originalHref = globalThis.location.href;
+    Object.defineProperty(globalThis, 'location', {
+      writable: true,
+      value: { href: originalHref },
+    });
+
+    renderAt('/pricing', { isLoggedIn: true });
+    fireEvent.click(screen.getByRole('button', { name: 'Subscribe' }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("Couldn't start checkout. Try again, or email support@2anki.net.")
+      ).toBeInTheDocument();
+    });
+    expect(globalThis.location.href).toBe(originalHref);
+  });
+
+  it('redirects to /ankify/setup when the user is already subscribed', async () => {
+    mockStartAutoSyncCheckout.mockResolvedValue({ status: 'already_subscribed' });
+    Object.defineProperty(globalThis, 'location', {
+      writable: true,
+      value: { href: '' },
+    });
+
+    renderAt('/pricing', { isLoggedIn: true });
+    fireEvent.click(screen.getByRole('button', { name: 'Subscribe' }));
+
+    await waitFor(() => {
+      expect(globalThis.location.href).toBe('/ankify/setup');
+    });
   });
 
   it('shows Subscribed (disabled) when user already has Auto Sync', () => {
