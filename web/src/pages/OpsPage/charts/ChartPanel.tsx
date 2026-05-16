@@ -9,6 +9,7 @@ interface ChartPanelProps {
   isLoading: boolean;
   isEmpty: boolean;
   emptyText: string;
+  autoHeight?: boolean;
   children: ReactNode;
 }
 
@@ -35,13 +36,15 @@ export default function ChartPanel({
   isLoading,
   isEmpty,
   emptyText,
+  autoHeight = false,
   children,
 }: Readonly<ChartPanelProps>) {
+  const frameClass = autoHeight ? styles.chartFrameAuto : styles.chartFrame;
   return (
     <section className={`${sharedStyles.surface} ${styles.panel}`}>
       <h2 className={styles.panelTitle}>{title}</h2>
       {subtitle != null && <p className={styles.panelSubtitle}>{subtitle}</p>}
-      <div className={styles.chartFrame}>{renderBody({ isLoading, isEmpty, emptyText, children })}</div>
+      <div className={frameClass}>{renderBody({ isLoading, isEmpty, emptyText, children })}</div>
     </section>
   );
 }

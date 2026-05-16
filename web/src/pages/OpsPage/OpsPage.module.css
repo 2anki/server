@@ -184,6 +184,37 @@
   position: relative;
 }
 
+.chartFrameAuto {
+  width: 100%;
+  position: relative;
+  min-height: 220px;
+}
+
+.jobIdButton {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: var(--color-primary);
+  cursor: pointer;
+  text-decoration: none;
+  font-variant-numeric: tabular-nums;
+}
+
+.jobIdButton:hover {
+  text-decoration: underline;
+}
+
+.jobIdButton:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.jobIdCopied {
+  color: var(--color-success, #16a34a);
+}
+
 .skeletonBar {
   width: 100%;
   height: 100%;
