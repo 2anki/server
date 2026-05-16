@@ -1,0 +1,128 @@
+import { EventsRepository, EventRow } from './EventsRepository';
+
+interface FakeStore {
+  rows: Record<string, unknown>[];
+  insertCalls: number;
+}
+
+function makeFakeKnex() {
+  const store: FakeStore = { rows: [], insertCalls: 0 };
+
+  const buildBuilder = (rows: Record<string, unknown>[]) => {
+    const filters: Array<(r: Record<string, unknown>) => boolean> = [];
+    let distinctCol: string | null = null;
+
+    const applyFilters = () => rows.filter((r) => filters.every((f) => f(r)));
+
+    const builder = {
+      where(col: string | Record<string, unknown>, val?: unknown) {
+        if (typeof col === 'string') {
+          if (val === null) {
+            filters.push((r) => r[col] === null);
+          } else {
+            filters.push((r) => r[col] === val);
+          }
+        } else {
+          for (const [k, v] of Object.entries(col)) {
+            filters.push((r) => r[k] === v);
+          }
+        }
+        return builder;
+      },
+      whereNotNull(col: string) {
+        filters.push((r) => r[col] != null);
+        return builder;
+      },
+      whereNull(col: string) {
+        filters.push((r) => r[col] == null);
+        return builder;
+      },
+      count(expr: string) {
+        const alias = expr.split(' as ')[1] ?? 'count';
+        return {
+          first: () => {
+            const filtered = applyFilters();
+            const count = distinctCol
+              ? new Set(filtered.map((r) => r[distinctCol as string])).size
+              : filtered.length;
+            return Promise.resolve({ [alias]: count });
+          },
+        };
+      },
+      countDistinct(expr: string) {
+        const alias = expr.split(' as ')[1] ?? 'count';
+        const colName = expr.split(' as ')[0];
+        distinctCol = colName;
+        return {
+          first: () => {
+            const filtered = applyFilters();
+            const count = new Set(filtered.map((r) => r[colName])).size;
+            return Promise.resolve({ [alias]: count });
+          },
+        };
+      },
+    };
+    return builder;
+  };
+
+  const tableHandler = () => ({
+    insert: (insertRows: Record<string, unknown>[]) => {
+      store.insertCalls += 1;
+      for (const row of insertRows) {
+        store.rows.push({ ...row, created_at: row.created_at ?? new Date() });
+      }
+      return Promise.resolve(insertRows.length);
+    },
+    where: (col: string | Record<string, unknown>, val?: unknown) =>
+      buildBuilder(store.rows).where(col, val),
+  });
+
+  const fn = (() => tableHandler()) as never;
+  return { db: fn, store };
+}
+
+const baseEvent: EventRow = {
+  name: 'conversion_succeeded',
+  user_id: 1,
+  anonymous_id: null,
+  props: { source: 'upload' },
+  created_at: new Date('2026-06-01T10:00:00Z'),
+};
+
+describe('EventsRepository', () => {
+  it('insertEvents does nothing when given an empty array', async () => {
+    const { db, store } = makeFakeKnex();
+    const repo = new EventsRepository(db);
+    await repo.insertEvents([]);
+    expect(store.insertCalls).toBe(0);
+    expect(store.rows).toHaveLength(0);
+  });
+
+  it('insertEvents batches all rows in a single insert', async () => {
+    const { db, store } = makeFakeKnex();
+    const repo = new EventsRepository(db);
+    const rows: EventRow[] = [
+      baseEvent,
+      { ...baseEvent, name: 'deck_downloaded', user_id: 2 },
+    ];
+    await repo.insertEvents(rows);
+    expect(store.insertCalls).toBe(1);
+    expect(store.rows).toHaveLength(2);
+  });
+
+  it('insertEvents preserves nullable user_id and anonymous_id', async () => {
+    const { db, store } = makeFakeKnex();
+    const repo = new EventsRepository(db);
+    await repo.insertEvents([{ name: 'upload_error_chat_shown', props: {}, user_id: null, anonymous_id: 'anon-uuid-1' }]);
+    expect(store.rows[0].user_id).toBeNull();
+    expect(store.rows[0].anonymous_id).toBe('anon-uuid-1');
+  });
+
+  it('countByNameForUser returns 0 when both userId and anonymousId are null', async () => {
+    const { db } = makeFakeKnex();
+    const repo = new EventsRepository(db);
+    const since = new Date('2026-01-01');
+    const result = await repo.countByNameForUser('upload_error_chat_engaged', since, null, null);
+    expect(result).toBe(0);
+  });
+});
