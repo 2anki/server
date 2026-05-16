@@ -4,13 +4,21 @@ const initSqlJs = require('sql.js');
 
 import { exportNoteTypeToApkg, AnkiNoteType } from './exportNoteTypeToApkg';
 
-async function readDecksJson(apkg: Buffer): Promise<Record<string, { id: number; name: string }>> {
+async function readColJson<T>(apkg: Buffer, column: 'decks' | 'models'): Promise<Record<string, T>> {
   const entries = unzipSync(new Uint8Array(apkg));
   const SQL = await initSqlJs();
   const db = new SQL.Database(entries['collection.anki2']);
-  const res = db.exec('SELECT decks FROM col');
+  const res = db.exec(`SELECT ${column} FROM col`);
   db.close();
   return JSON.parse(res[0].values[0][0] as string);
+}
+
+function readDecksJson(apkg: Buffer) {
+  return readColJson<{ id: number; name: string }>(apkg, 'decks');
+}
+
+function readModelsJson(apkg: Buffer) {
+  return readColJson<{ id: number; did: number | null }>(apkg, 'models');
 }
 
 const basicNoteType: AnkiNoteType = {
@@ -78,6 +86,15 @@ describe('exportNoteTypeToApkg', () => {
     expect(decksList).toHaveLength(1);
     expect(decksList[0].name).toBe('2anki::Basic');
     expect(decksList[0].id).not.toBe(1);
+  });
+
+  it('links the note type to its deck so Add Card pre-selects the matching deck', async () => {
+    const buffer = await exportNoteTypeToApkg(basicNoteType);
+    const [model] = Object.values(await readModelsJson(buffer));
+    const [deck] = Object.values(await readDecksJson(buffer));
+
+    expect(typeof model.did).toBe('number');
+    expect(model.did).toBe(deck.id);
   });
 
   it('preserves the original template name casing and punctuation in the deck name', async () => {
