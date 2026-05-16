@@ -5,6 +5,7 @@ import TokenRepository from '../../data_layer/TokenRepository';
 import UsersRepository from '../../data_layer/UsersRepository';
 import { getDatabase } from '../../data_layer';
 import { hasAnkifyAccess } from '../../lib/ankify/access';
+import SubscriptionService from '../../services/SubscriptionService';
 
 export const makeRequireAnkifyAccess = (authService: AuthenticationService) => {
   return async (
@@ -19,7 +20,10 @@ export const makeRequireAnkifyAccess = (authService: AuthenticationService) => {
       return res.status(401).json({ message: 'Authentication required' });
     }
 
-    if (!hasAnkifyAccess(user)) {
+    const subscriptions = await SubscriptionService.getUserActiveSubscriptions(user.email);
+    const autoSyncProductId = process.env.AUTO_SYNC_PRODUCT_ID ?? '';
+
+    if (!hasAnkifyAccess(user, subscriptions, autoSyncProductId)) {
       return res.status(403).json({ message: 'Forbidden' });
     }
 
