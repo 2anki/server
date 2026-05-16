@@ -1,4 +1,5 @@
 import { SignupCountryPoint } from '../businessTypes';
+import { formatCount } from '../opsHelpers';
 import styles from '../OpsPage.module.css';
 
 interface SignupCountriesChartProps {
@@ -7,11 +8,6 @@ interface SignupCountriesChartProps {
 }
 
 const COUNTRY_BAR_COLOR = '#3b82f6';
-
-const formatCount = (n: number): string => {
-  if (n < 10_000) return String(n);
-  return n.toLocaleString('en', { useGrouping: true }).replaceAll(',', ' ');
-};
 
 export default function SignupCountriesChart({
   points,

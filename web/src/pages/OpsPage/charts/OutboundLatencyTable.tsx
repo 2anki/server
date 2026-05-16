@@ -1,3 +1,4 @@
+import { formatCount } from '../opsHelpers';
 import { OpsMetricsServiceLatencyPoint } from '../opsTypes';
 import styles from '../OpsPage.module.css';
 
@@ -8,11 +9,6 @@ interface OutboundLatencyTableProps {
 const formatMs = (value: number): string => {
   if (value < 1000) return `${value} ms`;
   return `${(value / 1000).toFixed(2)} s`;
-};
-
-const formatCount = (n: number): string => {
-  if (n < 10_000) return String(n);
-  return n.toLocaleString('en', { useGrouping: true }).replaceAll(',', ' ');
 };
 
 export default function OutboundLatencyTable({

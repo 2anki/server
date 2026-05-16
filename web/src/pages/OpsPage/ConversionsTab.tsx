@@ -9,29 +9,9 @@ import { ConversionMetricsResponse } from './conversionTypes';
 import ChartPanel from './charts/ChartPanel';
 import FailedConversionsWeeklyChart from './charts/FailedConversionsWeeklyChart';
 import FailureReasonsChart from './charts/FailureReasonsChart';
+import MetricCard, { formatNumberOrDash } from './MetricCard';
 import styles from './OpsPage.module.css';
 import { useConversionMetrics } from './useConversionMetrics';
-
-interface MetricCardProps {
-  title: string;
-  value: string;
-  footnote?: string;
-}
-
-function MetricCard({ title, value, footnote }: Readonly<MetricCardProps>) {
-  return (
-    <section className={`${sharedStyles.surface} ${styles.card}`}>
-      <h2 className={styles.cardTitle}>{title}</h2>
-      <p className={styles.cardValue}>{value}</p>
-      {footnote != null && <p className={styles.cardFootnote}>{footnote}</p>}
-    </section>
-  );
-}
-
-const formatNumberOrDash = (
-  value: number | null,
-  format: (n: number) => string
-): string => (value == null ? '—' : format(value));
 
 export default function ConversionsTab() {
   const { data, error, isLoading } = useConversionMetrics();

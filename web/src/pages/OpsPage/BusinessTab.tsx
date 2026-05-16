@@ -9,6 +9,7 @@ import {
   formatUsd,
 } from './businessHelpers';
 import { BusinessMetricsResponse } from './businessTypes';
+import MetricCard, { formatNumberOrDash } from './MetricCard';
 import ActiveSubsTimeseriesChart from './charts/ActiveSubsTimeseriesChart';
 import CancellationCommentsList from './charts/CancellationCommentsList';
 import CancellationReasonsChart from './charts/CancellationReasonsChart';
@@ -24,26 +25,6 @@ import SignupCountriesChart from './charts/SignupCountriesChart';
 import styles from './OpsPage.module.css';
 import { useBusinessMetrics } from './useBusinessMetrics';
 
-interface MetricCardProps {
-  title: string;
-  value: string;
-  footnote?: string;
-}
-
-function MetricCard({ title, value, footnote }: Readonly<MetricCardProps>) {
-  return (
-    <section className={`${sharedStyles.surface} ${styles.card}`}>
-      <h2 className={styles.cardTitle}>{title}</h2>
-      <p className={styles.cardValue}>{value}</p>
-      {footnote != null && <p className={styles.cardFootnote}>{footnote}</p>}
-    </section>
-  );
-}
-
-const formatNumberOrDash = (
-  value: number | null,
-  format: (n: number) => string
-): string => (value == null ? '—' : format(value));
 
 const buildMrrFootnote = (
   asOf: string | null,
