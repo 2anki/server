@@ -47,7 +47,10 @@ import emojiFeedbackRouter from './routes/EmojiFeedbackRouter';
 import reEngagementRouter from './routes/ReEngagementRouter';
 import imageOcclusionRouter from './routes/ImageOcclusionRouter';
 import chatRouter from './routes/ChatRouter';
+import eventsRouter from './routes/EventsRouter';
 import requestLoggingMiddleware from './routes/middleware/requestLoggingMiddleware';
+import { anonIdMiddleware } from './routes/middleware/anonIdMiddleware';
+import { getEventsSink } from './services/events/eventsSinkInstance';
 
 import { getDatabase, setupDatabase } from './data_layer';
 import JobRepository from './data_layer/JobRepository';
@@ -87,6 +90,7 @@ const serve = async () => {
   app.use(ankifyWebhookRouter());
   app.use(express.json({ limit: '1000mb' }) as RequestHandler);
   app.use(cookieParser());
+  app.use(anonIdMiddleware);
 
   app.use(morgan('combined') as RequestHandler);
   app.use(requestLoggingMiddleware);
@@ -125,6 +129,7 @@ const serve = async () => {
   app.use(reEngagementRouter());
   app.use(imageOcclusionRouter());
   app.use(chatRouter());
+  app.use(eventsRouter());
 
   app.use(rejectScannerProbes);
   // Note: this has to be the last router
@@ -156,6 +161,7 @@ const serve = async () => {
 
   const database = getDatabase();
   await setupDatabase(database);
+  getEventsSink();
   const interruptedCount = await new JobRepository(database).markInterruptedClaudeJobs();
   if (interruptedCount > 0) {
     console.info(`[startup] Marked ${interruptedCount} Claude job(s) as interrupted`);
