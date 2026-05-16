@@ -12,6 +12,8 @@ interface GetUserLocalsResponse {
       email: string;
       linked_email: string;
     };
+    passExpiresAt?: string | null;
+    passKind?: '24h' | '7d' | null;
   };
   linked_email: string;
   user?: Users & { ankify_welcome_seen?: boolean; trial_started_at?: string | null; email_verified?: boolean; signup_country?: string | null; chat_consent_at?: string | null };

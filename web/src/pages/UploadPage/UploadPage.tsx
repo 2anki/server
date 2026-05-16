@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { ErrorHandlerType } from '../../components/errors/helpers/getErrorMessage';
 import useQuery from '../../lib/hooks/useQuery';
 import { getVisibleText } from '../../lib/text/getVisibleText';
@@ -66,6 +66,17 @@ function VideoCard({
 export function UploadPage({ setErrorMessage }: Readonly<Props>) {
   const query = useQuery();
   const view = query.get('view');
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get('from') === 'pass') {
+      const next = new URLSearchParams(searchParams);
+      next.delete('from');
+      const qs = next.toString();
+      navigate(qs ? `/upload?${qs}` : '/upload', { replace: true });
+    }
+  }, [searchParams, navigate]);
 
   if (
     view === 'template' ||

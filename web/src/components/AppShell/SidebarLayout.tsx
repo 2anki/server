@@ -4,6 +4,7 @@ import { MobileTopBar } from './MobileTopBar';
 import { SkeletonPage } from '../Skeleton/Skeleton';
 import { ErrorPresenter } from '../errors/ErrorPresenter';
 import { MonthlyLimitBanner } from '../MonthlyLimitBanner/MonthlyLimitBanner';
+import { AccessBanner } from '../AccessBanner/AccessBanner';
 import { isPayingUser } from '../NavigationBar/helpers/getPlanLabel';
 import sharedStyles from '../../styles/shared.module.css';
 import styles from './AppShell.module.css';
@@ -62,6 +63,10 @@ export function SidebarLayout({
           onClose={() => setIsDrawerOpen(false)}
         />
         <MonthlyLimitBanner isPaying={isPayingUser(locals)} />
+        <AccessBanner
+          passExpiresAt={locals?.passExpiresAt}
+          passKind={locals?.passKind}
+        />
         {error && <ErrorPresenter error={error} />}
         <main className={sharedStyles.flexGrow}>
           <Suspense fallback={<SkeletonPage rows={5} />}>{children}</Suspense>

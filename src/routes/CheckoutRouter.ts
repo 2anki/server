@@ -1,7 +1,9 @@
 import express from 'express';
 import RequireAuthentication from './middleware/RequireAuthentication';
 import AutoSyncCheckoutController from '../controllers/AutoSyncCheckoutController';
+import PassCheckoutController from '../controllers/PassCheckoutController';
 import { AutoSyncCheckoutUseCase } from '../usecases/checkout/AutoSyncCheckoutUseCase';
+import { CreatePassCheckoutUseCase } from '../usecases/checkout/CreatePassCheckoutUseCase';
 import { getStripe } from '../lib/integrations/stripe';
 
 const DEFAULT_MAX_SUBSCRIBERS = 50;
@@ -23,6 +25,36 @@ const CheckoutRouter = () => {
       }
       const useCase = new AutoSyncCheckoutUseCase(getStripe(), priceId, productId, maxSubscribers);
       const controller = new AutoSyncCheckoutController(useCase);
+      return controller.createSession(req, res);
+    }
+  );
+
+  router.post(
+    '/api/checkout/pass/24h',
+    RequireAuthentication,
+    express.json(),
+    (req, res) => {
+      const pass24hPriceId = process.env.PASS_24H_PRICE_ID ?? '';
+      if (pass24hPriceId === '') {
+        return res.status(503).json({ message: 'Day Pass is not available right now.' });
+      }
+      const useCase = new CreatePassCheckoutUseCase(getStripe(), pass24hPriceId, '24h');
+      const controller = new PassCheckoutController(useCase);
+      return controller.createSession(req, res);
+    }
+  );
+
+  router.post(
+    '/api/checkout/pass/7d',
+    RequireAuthentication,
+    express.json(),
+    (req, res) => {
+      const pass7dPriceId = process.env.PASS_7D_PRICE_ID ?? '';
+      if (pass7dPriceId === '') {
+        return res.status(503).json({ message: 'Week Pass is not available right now.' });
+      }
+      const useCase = new CreatePassCheckoutUseCase(getStripe(), pass7dPriceId, '7d');
+      const controller = new PassCheckoutController(useCase);
       return controller.createSession(req, res);
     }
   );

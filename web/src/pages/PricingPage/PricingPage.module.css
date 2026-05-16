@@ -98,6 +98,47 @@
 }
 
 /* =====================================================================
+   PASS SECTION — two side-by-side one-time-payment cards
+   ===================================================================== */
+.passSection {
+  margin-bottom: 2.5rem;
+}
+
+.passPickerHelper {
+  text-align: center;
+  margin-bottom: 1.25rem;
+}
+
+.passPickerTitle {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  color: var(--color-text-primary);
+  margin: 0 0 0.35rem;
+}
+
+.passPickerHint {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.passGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+@media (max-width: 600px) {
+  .passGrid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+/* =====================================================================
    GRID
    ===================================================================== */
 .grid {

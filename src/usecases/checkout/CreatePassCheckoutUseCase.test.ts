@@ -1,0 +1,82 @@
+import { CreatePassCheckoutUseCase } from './CreatePassCheckoutUseCase';
+
+const mockStripeCreateSession = jest.fn();
+
+const makeStripe = () =>
+  ({ checkout: { sessions: { create: mockStripeCreateSession } } } as never);
+
+beforeEach(() => {
+  jest.resetAllMocks();
+  delete process.env.APP_URL;
+});
+
+describe('CreatePassCheckoutUseCase', () => {
+  it('creates a payment-mode session for 24h pass and returns url', async () => {
+    mockStripeCreateSession.mockResolvedValue({ url: 'https://checkout.stripe.com/24h' });
+
+    const uc = new CreatePassCheckoutUseCase(makeStripe(), 'price_24h', '24h');
+    const result = await uc.execute({ userEmail: 'user@example.com', userId: 7 });
+
+    expect(result).toEqual({ url: 'https://checkout.stripe.com/24h' });
+    expect(mockStripeCreateSession).toHaveBeenCalledWith(
+      expect.objectContaining({
+        mode: 'payment',
+        line_items: [{ price: 'price_24h', quantity: 1 }],
+        metadata: { user_id: '7', pass_kind: '24h' },
+        success_url: expect.stringContaining('/upload?from=pass'),
+        cancel_url: expect.stringContaining('/pricing'),
+      })
+    );
+  });
+
+  it('creates a payment-mode session for 7d pass and returns url', async () => {
+    mockStripeCreateSession.mockResolvedValue({ url: 'https://checkout.stripe.com/7d' });
+
+    const uc = new CreatePassCheckoutUseCase(makeStripe(), 'price_7d', '7d');
+    const result = await uc.execute({ userEmail: 'user@example.com', userId: 8 });
+
+    expect(result).toEqual({ url: 'https://checkout.stripe.com/7d' });
+    expect(mockStripeCreateSession).toHaveBeenCalledWith(
+      expect.objectContaining({
+        metadata: { user_id: '8', pass_kind: '7d' },
+      })
+    );
+  });
+
+  it('uses customer_email when no stripe customer ID provided', async () => {
+    mockStripeCreateSession.mockResolvedValue({ url: 'https://checkout.stripe.com/test' });
+
+    const uc = new CreatePassCheckoutUseCase(makeStripe(), 'price_24h', '24h');
+    await uc.execute({ userEmail: 'user@example.com', userId: 1 });
+
+    expect(mockStripeCreateSession).toHaveBeenCalledWith(
+      expect.objectContaining({ customer_email: 'user@example.com', customer: undefined })
+    );
+  });
+
+  it('uses customer ID when provided and omits customer_email', async () => {
+    mockStripeCreateSession.mockResolvedValue({ url: 'https://checkout.stripe.com/test' });
+
+    const uc = new CreatePassCheckoutUseCase(makeStripe(), 'price_24h', '24h');
+    await uc.execute({ userEmail: 'user@example.com', userId: 1, stripeCustomerId: 'cus_123' });
+
+    expect(mockStripeCreateSession).toHaveBeenCalledWith(
+      expect.objectContaining({ customer: 'cus_123', customer_email: undefined })
+    );
+  });
+
+  it('uses APP_URL env var for success and cancel URLs', async () => {
+    process.env.APP_URL = 'https://staging.2anki.net';
+    mockStripeCreateSession.mockResolvedValue({ url: 'https://checkout.stripe.com/test' });
+
+    const uc = new CreatePassCheckoutUseCase(makeStripe(), 'price_24h', '24h');
+    await uc.execute({ userEmail: 'user@example.com', userId: 1 });
+
+    expect(mockStripeCreateSession).toHaveBeenCalledWith(
+      expect.objectContaining({
+        success_url: 'https://staging.2anki.net/upload?from=pass',
+        cancel_url: 'https://staging.2anki.net/pricing',
+      })
+    );
+  });
+});
