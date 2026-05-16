@@ -10,7 +10,7 @@ The mock server runs on `http://localhost:2020` and provides mocked responses fo
 
 ## Security Considerations
 
-- **CORS Configuration**: Restricted to development origins only (`localhost:3000`, `localhost:5173`)
+- **CORS Configuration**: Restricted to development origins only (`localhost:3000`)
 - **Framework Fingerprinting**: X-Powered-By header disabled to prevent Express.js version disclosure
 - **Security Headers**: Additional security headers enabled (X-Content-Type-Options, X-Frame-Options, X-XSS-Protection, CSP)
 - **Environment Variables**: Use `MOCK_SERVER_ALLOWED_ORIGINS` to add custom origins (comma-separated)
