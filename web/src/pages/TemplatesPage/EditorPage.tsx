@@ -11,6 +11,7 @@ import {
   aiModifyNoteType,
   downloadNoteTypeApkg,
   getDefaultNoteTypes,
+  getOfficialNoteTypes,
   getUserTemplates,
   saveUserTemplate,
 } from '../../lib/backend/templates';
@@ -223,11 +224,12 @@ function AIGenerateSection({ onGenerated }: Readonly<AIGenerateSectionProps>) {
 }
 
 async function findStarter(id: string): Promise<NoteTypeStarter | null> {
-  const [defaults, user] = await Promise.all([
+  const [defaults, official, user] = await Promise.all([
     getDefaultNoteTypes().catch(() => []),
+    getOfficialNoteTypes().catch(() => []),
     getUserTemplates().catch(() => ({ templates: [], hiddenIds: [] })),
   ]);
-  const all = [...defaults, ...user.templates];
+  const all = [...user.templates, ...official, ...defaults];
   return all.find((s) => s.id === id) ?? null;
 }
 
