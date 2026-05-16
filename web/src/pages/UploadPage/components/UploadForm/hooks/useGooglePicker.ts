@@ -55,7 +55,10 @@ interface PickerGlobal {
   PickerBuilder: new () => PickerBuilder;
   ViewId: { DOCS: unknown };
   Action: { PICKED: 'picked'; CANCEL: 'cancel'; LOADED: 'loaded' };
-  DocsView: new () => { setIncludeFolders: (b: boolean) => unknown };
+  DocsView: new () => {
+    setIncludeFolders: (b: boolean) => unknown;
+    setMimeTypes: (mimes: string) => unknown;
+  };
 }
 
 interface TokenResponse {
