@@ -1,11 +1,11 @@
-import { describe, expect, it } from '@jest/globals';
 import {
   createGoogleDriveDownloadLink,
   createGoogleDriveExportLink,
   NATIVE_GOOGLE_APPS_EXPORT_MIMES,
 } from './createGoogleDriveDownloadLink';
+import { GoogleDriveFile } from '../../../data_layer/GoogleDriveRepository';
 
-const baseFile = {
+const baseFile: GoogleDriveFile = {
   id: 'file123',
   name: 'My Doc',
   mimeType: 'application/vnd.google-apps.document',
@@ -17,6 +17,8 @@ const baseFile = {
   driveSuccess: true,
   isShared: false,
   lastEditedUtc: 0,
+  rotation: 0,
+  rotationDegree: 0,
   serviceId: '',
   type: 'document',
 };
