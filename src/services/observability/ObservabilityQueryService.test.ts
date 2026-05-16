@@ -12,12 +12,14 @@ import {
   OutboundCallBucketRow,
   RouteErrorRateRow,
   ServiceErrorRateRow,
+  ServiceLatencyRow,
 } from '../../data_layer/ObservabilityRepository';
 
 class StubRepo implements IObservabilityRepository {
   inboundBuckets: AggregatedRequestRow[] = [];
   routeLatency: RouteLatencyRow[] = [];
   outboundBuckets: OutboundCallBucketRow[] = [];
+  outboundLatency: ServiceLatencyRow[] = [];
   routeErrors: RouteErrorRateRow[] = [];
   serviceErrors: ServiceErrorRateRow[] = [];
   capturedFromTime: Date | null = null;
@@ -34,6 +36,8 @@ class StubRepo implements IObservabilityRepository {
   topRoutesByLatency = async (_fromTime: Date, _limit: number) => this.routeLatency;
   aggregateOutboundByService = async (_fromTime: Date, _bucketSeconds: number) =>
     this.outboundBuckets;
+  outboundLatencyByService = async (_fromTime: Date, _limit: number) =>
+    this.outboundLatency;
   errorRateByRoute = async (_fromTime: Date, _limit: number) => this.routeErrors;
   errorRateByService = async (_fromTime: Date, _limit: number) => this.serviceErrors;
 }
@@ -77,6 +81,10 @@ describe('ObservabilityQueryService', () => {
     ];
     repo.outboundBuckets = [
       { bucket: new Date('2026-05-09T10:00:00Z'), service: 'notion', count: 4 },
+    ];
+    repo.outboundLatency = [
+      { service: 'notion', p50_ms: 110, p95_ms: 460, p99_ms: 820, count: 250 },
+      { service: 'claude', p50_ms: 380, p95_ms: 1200, p99_ms: 2100, count: 90 },
     ];
     repo.routeErrors = [
       { method: 'GET', route: '/api/upload', total: 100, errors: 3 },
@@ -124,5 +132,9 @@ describe('ObservabilityQueryService', () => {
       total: 50,
       errors: 2,
     });
+    expect(result.outbound_latency_by_service).toEqual([
+      { service: 'notion', p50_ms: 110, p95_ms: 460, p99_ms: 820, count: 250 },
+      { service: 'claude', p50_ms: 380, p95_ms: 1200, p99_ms: 2100, count: 90 },
+    ]);
   });
 });

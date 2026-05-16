@@ -11,6 +11,7 @@ class StubRepo implements IObservabilityRepository {
   aggregateInboundByStatusClass = async () => [];
   topRoutesByLatency = async () => [];
   aggregateOutboundByService = async () => [];
+  outboundLatencyByService = async () => [];
   errorRateByRoute = async () => [];
   errorRateByService = async () => [];
 }
@@ -45,6 +46,7 @@ describe('GetOpsMetricsUseCase', () => {
       inbound_volume: [],
       route_latency: [],
       outbound_volume: [],
+      outbound_latency_by_service: [],
       error_rate_by_route: [],
       error_rate_by_service: [],
     } as OpsMetricsResponse;

@@ -50,6 +50,7 @@ const AnkifyHistoryPage = lazy(
 const OpsLayout = lazy(() => import('./pages/OpsPage/OpsLayout'));
 const EngineeringTab = lazy(() => import('./pages/OpsPage/EngineeringTab'));
 const PerformanceTab = lazy(() => import('./pages/OpsPage/PerformanceTab'));
+const ConversionsTab = lazy(() => import('./pages/OpsPage/ConversionsTab'));
 const BusinessTab = lazy(() => import('./pages/OpsPage/BusinessTab'));
 const ShowcaseTab = lazy(() => import('./pages/OpsPage/ShowcaseTab'));
 const InterviewsTab = lazy(() => import('./pages/OpsPage/InterviewsTab'));
@@ -223,6 +224,7 @@ function AppContent({
           <Route path="/ops" element={requireAuth(<OpsLayout />)}>
             <Route index element={<EngineeringTab />} />
             <Route path="performance" element={<PerformanceTab />} />
+            <Route path="conversions" element={<ConversionsTab />} />
             <Route path="business" element={<BusinessTab />} />
             <Route path="showcase" element={<ShowcaseTab />} />
             <Route path="interviews" element={<InterviewsTab />} />

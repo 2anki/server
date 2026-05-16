@@ -808,10 +808,18 @@ export class Backend {
     return get(`${this.baseURL}ops/contact-messages`);
   }
 
-  async acknowledgeContactMessage(id: number): Promise<void> {
+  async acknowledgeContactMessage(
+    id: number,
+    isAcknowledged = true
+  ): Promise<void> {
     const response = await fetch(
       `${this.baseURL}ops/contact-messages/${id}/acknowledge`,
-      { method: 'PATCH', credentials: 'include' }
+      {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_acknowledged: isAcknowledged }),
+      }
     );
     if (!response.ok) {
       throw new Error('Failed to acknowledge message');

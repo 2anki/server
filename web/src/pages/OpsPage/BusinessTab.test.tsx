@@ -70,6 +70,23 @@ const buildSampleMetrics = (
       created_at: '2026-05-08T12:00:00.000Z',
     },
   ],
+  reengagement_reasons_top: [
+    { stopped_reason: 'Switched to another tool', count: 6 },
+    { stopped_reason: 'No longer studying', count: 3 },
+  ],
+  reengagement_comments_recent: [
+    {
+      stopped_reason: 'Switched to another tool',
+      content_type: 'pdf',
+      comment: 'I moved to RemNote',
+      created_at: '2026-05-07T09:00:00.000Z',
+    },
+  ],
+  signup_countries_90d: [
+    { country: 'NO', count: 240 },
+    { country: 'DE', count: 180 },
+    { country: 'US', count: 95 },
+  ],
   as_of: '2026-05-09T14:32:07.000Z',
   cache_age_seconds: 412,
   ...overrides,
@@ -144,6 +161,15 @@ describe('BusinessTab', () => {
     expect(
       screen.getByText('Recent cancellation comments')
     ).toBeInTheDocument();
+    expect(
+      screen.getByText('Why people stop, last 90 days')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('Recent re-engagement comments')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('Signups by country, last 90 days')
+    ).toBeInTheDocument();
   });
 
   test('shows ChartPanel empty state when time-series arrays are empty', async () => {
@@ -159,6 +185,9 @@ describe('BusinessTab', () => {
           failed_payments_weekly: [],
           cancellation_reasons_top: [],
           cancellation_comments_recent: [],
+          reengagement_reasons_top: [],
+          reengagement_comments_recent: [],
+          signup_countries_90d: [],
         }),
     });
 
@@ -178,6 +207,15 @@ describe('BusinessTab', () => {
       screen.getByText('No cancellations recorded yet.')
     ).toBeInTheDocument();
     expect(screen.getByText('No free-text comments yet.')).toBeInTheDocument();
+    expect(
+      screen.getByText('No re-engagement feedback recorded yet.')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('No re-engagement comments yet.')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('No countries captured yet.')
+    ).toBeInTheDocument();
   });
 
   test('renders cancellation comment text from the response', async () => {

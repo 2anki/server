@@ -4,6 +4,7 @@ import sharedStyles from '../../styles/shared.module.css';
 import styles from './OpsPage.module.css';
 import { usePerformanceMetrics } from './usePerformanceMetrics';
 import ChartPanel from './charts/ChartPanel';
+import { formatCount } from './opsHelpers';
 import {
   JobDurationPercentiles,
   PerformanceMetricsResponse,
@@ -14,11 +15,6 @@ const formatMs = (value: number | null): string => {
   if (value == null) return '—';
   if (value < 1000) return `${value} ms`;
   return `${(value / 1000).toFixed(2)} s`;
-};
-
-const formatCount = (n: number): string => {
-  if (n < 10_000) return String(n);
-  return n.toLocaleString('en', { useGrouping: true }).replaceAll(',', ' ');
 };
 
 const STATUS_COLORS: Record<string, string> = {

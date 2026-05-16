@@ -18,10 +18,12 @@ export default function ContactMessagesTab() {
       .finally(() => setLoading(false));
   }, []);
 
-  async function handleAcknowledge(id: number) {
-    await get2ankiApi().acknowledgeContactMessage(id);
+  async function handleToggle(id: number, nextValue: boolean) {
+    await get2ankiApi().acknowledgeContactMessage(id, nextValue);
     setMessages((prev) =>
-      prev.map((m) => (m.id === id ? { ...m, is_acknowledged: true } : m))
+      prev.map((m) =>
+        m.id === id ? { ...m, is_acknowledged: nextValue } : m
+      )
     );
   }
 
@@ -39,43 +41,33 @@ export default function ContactMessagesTab() {
     );
   }
 
-  const unread = messages.filter((m) => !m.is_acknowledged);
-  const read = messages.filter((m) => m.is_acknowledged);
+  const unreadCount = messages.filter((m) => !m.is_acknowledged).length;
 
   return (
     <div className={styles.contactMessages}>
-      {unread.length > 0 && (
-        <section>
-          <h2 className={sharedStyles.sectionTitle}>
-            Unread ({unread.length})
-          </h2>
-          <ul className={styles.messageList}>
-            {unread.map((m) => (
-              <MessageCard key={m.id} message={m} onAcknowledge={handleAcknowledge} />
-            ))}
-          </ul>
-        </section>
-      )}
-      {read.length > 0 && (
-        <section>
-          <h2 className={sharedStyles.sectionTitle}>Read ({read.length})</h2>
-          <ul className={styles.messageList}>
-            {read.map((m) => (
-              <MessageCard key={m.id} message={m} onAcknowledge={handleAcknowledge} />
-            ))}
-          </ul>
-        </section>
-      )}
+      <header className={styles.sectionHeader}>
+        <h2 className={styles.sectionTitle}>
+          Messages — {unreadCount} unread of {messages.length}
+        </h2>
+        <p className={styles.sectionHint}>
+          Acknowledged messages stay in the list, faded.
+        </p>
+      </header>
+      <ul className={styles.messageList}>
+        {messages.map((m) => (
+          <MessageCard key={m.id} message={m} onToggle={handleToggle} />
+        ))}
+      </ul>
     </div>
   );
 }
 
 interface MessageCardProps {
   message: ContactMessage;
-  onAcknowledge: (id: number) => void;
+  onToggle: (id: number, nextValue: boolean) => void;
 }
 
-function MessageCard({ message, onAcknowledge }: Readonly<MessageCardProps>) {
+function MessageCard({ message, onToggle }: Readonly<MessageCardProps>) {
   const attachments: string[] = (() => {
     try {
       return message.attachments ? JSON.parse(message.attachments) : [];
@@ -85,10 +77,11 @@ function MessageCard({ message, onAcknowledge }: Readonly<MessageCardProps>) {
   })();
 
   const date = new Date(message.created_at).toLocaleString();
+  const acked = message.is_acknowledged;
 
   return (
     <li
-      className={`${styles.messageCard} ${message.is_acknowledged ? styles.messageCardRead : ''}`}
+      className={`${styles.messageCard} ${acked ? styles.messageCardRead : ''}`}
     >
       <div className={styles.messageHeader}>
         <div>
@@ -109,23 +102,24 @@ function MessageCard({ message, onAcknowledge }: Readonly<MessageCardProps>) {
           {attachments.join(', ')}
         </p>
       )}
-      {!message.is_acknowledged && (
-        <div className={styles.messageActions}>
-          <button
-            type="button"
-            className={sharedStyles.btnSecondary}
-            onClick={() => onAcknowledge(message.id)}
-          >
-            Mark as read
-          </button>
+      <div className={styles.messageActions}>
+        <button
+          type="button"
+          className={sharedStyles.btnSmall}
+          aria-pressed={acked}
+          onClick={() => onToggle(message.id, !acked)}
+        >
+          {acked ? 'Acknowledged' : 'Mark as read'}
+        </button>
+        {!acked && (
           <a
             href={`mailto:${message.email}?subject=Re: your message to 2anki`}
             className={sharedStyles.btnPrimary}
           >
             Reply
           </a>
-        </div>
-      )}
+        )}
+      </div>
     </li>
   );
 }

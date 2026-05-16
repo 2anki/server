@@ -10,6 +10,7 @@ import ChartPanel from './charts/ChartPanel';
 import InboundVolumeChart from './charts/InboundVolumeChart';
 import LatencyByRouteChart from './charts/LatencyByRouteChart';
 import OutboundByServiceChart from './charts/OutboundByServiceChart';
+import OutboundLatencyTable from './charts/OutboundLatencyTable';
 import ErrorRateChart from './charts/ErrorRateChart';
 
 const WINDOW_LABEL: Record<OpsMetricsWindow, string> = {
@@ -33,6 +34,7 @@ const hasAnyData = (response: OpsMetricsResponse | undefined): boolean => {
     response.inbound_volume.length > 0 ||
     response.route_latency.length > 0 ||
     response.outbound_volume.length > 0 ||
+    (response.outbound_latency_by_service?.length ?? 0) > 0 ||
     response.error_rate_by_route.length > 0 ||
     response.error_rate_by_service.length > 0
   );
@@ -125,56 +127,98 @@ export default function EngineeringTab() {
         </div>
       )}
 
-      <div className={styles.grid}>
-        <ChartPanel
-          title={`Inbound requests, ${suffix}`}
-          isLoading={showInitialSkeleton}
-          isEmpty={(visible?.inbound_volume.length ?? 0) === 0}
-          emptyText="No requests in this window."
-        >
-          <InboundVolumeChart
-            points={visible?.inbound_volume ?? []}
-            window={window}
-          />
-        </ChartPanel>
+      <section className={styles.section} aria-labelledby="ops-section-inbound">
+        <header className={styles.sectionHeader}>
+          <h2 id="ops-section-inbound" className={styles.sectionTitle}>
+            Inbound
+          </h2>
+          <p className={styles.sectionHint}>Traffic hitting the server</p>
+        </header>
+        <div className={styles.grid}>
+          <ChartPanel
+            title={`Inbound requests, ${suffix}`}
+            isLoading={showInitialSkeleton}
+            isEmpty={(visible?.inbound_volume.length ?? 0) === 0}
+            emptyText="No requests in this window."
+          >
+            <InboundVolumeChart
+              points={visible?.inbound_volume ?? []}
+              window={window}
+            />
+          </ChartPanel>
 
-        <ChartPanel
-          title={`Latency by route, ${suffix}`}
-          isLoading={showInitialSkeleton}
-          isEmpty={(visible?.route_latency.length ?? 0) === 0}
-          emptyText="No requests in this window."
-        >
-          <LatencyByRouteChart points={visible?.route_latency ?? []} />
-        </ChartPanel>
+          <ChartPanel
+            title={`Latency by route, ${suffix}`}
+            isLoading={showInitialSkeleton}
+            isEmpty={(visible?.route_latency.length ?? 0) === 0}
+            emptyText="No requests in this window."
+          >
+            <LatencyByRouteChart points={visible?.route_latency ?? []} />
+          </ChartPanel>
+        </div>
+      </section>
 
-        <ChartPanel
-          title={`Outbound calls by service, ${suffix}`}
-          isLoading={showInitialSkeleton}
-          isEmpty={(visible?.outbound_volume.length ?? 0) === 0}
-          emptyText="No outbound calls in this window."
-        >
-          <OutboundByServiceChart
-            points={visible?.outbound_volume ?? []}
-            window={window}
-          />
-        </ChartPanel>
+      <section className={styles.section} aria-labelledby="ops-section-outbound">
+        <header className={styles.sectionHeader}>
+          <h2 id="ops-section-outbound" className={styles.sectionTitle}>
+            Outbound
+          </h2>
+          <p className={styles.sectionHint}>Calls we make to third parties</p>
+        </header>
+        <div className={styles.grid}>
+          <ChartPanel
+            title={`Outbound calls by service, ${suffix}`}
+            isLoading={showInitialSkeleton}
+            isEmpty={(visible?.outbound_volume.length ?? 0) === 0}
+            emptyText="No outbound calls in this window."
+          >
+            <OutboundByServiceChart
+              points={visible?.outbound_volume ?? []}
+              window={window}
+            />
+          </ChartPanel>
 
-        <ChartPanel
-          title={`Error rate, ${suffix}`}
-          subtitle="% non-2xx · top 10 routes / top 5 services"
-          isLoading={showInitialSkeleton}
-          isEmpty={
-            (visible?.error_rate_by_route.length ?? 0) === 0 &&
-            (visible?.error_rate_by_service.length ?? 0) === 0
-          }
-          emptyText="No errors in this window."
-        >
-          <ErrorRateChart
-            routes={visible?.error_rate_by_route ?? []}
-            services={visible?.error_rate_by_service ?? []}
-          />
-        </ChartPanel>
-      </div>
+          <ChartPanel
+            title={`Latency by service, ${suffix}`}
+            subtitle="p50 / p95 / p99 over duration_ms · top 10 services"
+            isLoading={showInitialSkeleton}
+            isEmpty={
+              (visible?.outbound_latency_by_service?.length ?? 0) === 0
+            }
+            emptyText="No outbound calls in this window."
+          >
+            <OutboundLatencyTable
+              rows={visible?.outbound_latency_by_service ?? []}
+            />
+          </ChartPanel>
+        </div>
+      </section>
+
+      <section className={styles.section} aria-labelledby="ops-section-errors">
+        <header className={styles.sectionHeader}>
+          <h2 id="ops-section-errors" className={styles.sectionTitle}>
+            Errors
+          </h2>
+          <p className={styles.sectionHint}>Non-2xx responses</p>
+        </header>
+        <div className={styles.grid}>
+          <ChartPanel
+            title={`Error rate, ${suffix}`}
+            subtitle="% non-2xx · top 10 routes / top 5 services"
+            isLoading={showInitialSkeleton}
+            isEmpty={
+              (visible?.error_rate_by_route.length ?? 0) === 0 &&
+              (visible?.error_rate_by_service.length ?? 0) === 0
+            }
+            emptyText="No errors in this window."
+          >
+            <ErrorRateChart
+              routes={visible?.error_rate_by_route ?? []}
+              services={visible?.error_rate_by_service ?? []}
+            />
+          </ChartPanel>
+        </div>
+      </section>
     </>
   );
 }

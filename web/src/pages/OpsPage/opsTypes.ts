@@ -35,6 +35,14 @@ export interface OpsMetricsServiceErrorPoint {
   errors: number;
 }
 
+export interface OpsMetricsServiceLatencyPoint {
+  service: string;
+  p50_ms: number;
+  p95_ms: number;
+  p99_ms: number;
+  count: number;
+}
+
 export interface OpsMetricsResponse {
   window: OpsMetricsWindow;
   bucket_seconds: number;
@@ -42,6 +50,7 @@ export interface OpsMetricsResponse {
   inbound_volume: OpsMetricsBucketPoint[];
   route_latency: OpsMetricsRouteLatencyPoint[];
   outbound_volume: OpsMetricsOutboundPoint[];
+  outbound_latency_by_service: OpsMetricsServiceLatencyPoint[];
   error_rate_by_route: OpsMetricsRouteErrorPoint[];
   error_rate_by_service: OpsMetricsServiceErrorPoint[];
 }
