@@ -38,6 +38,8 @@ export function PassCards({
       <div className={styles.passGrid}>
         <PricingCard
           title="Day Pass"
+          badge="Pay once"
+          badgeMuted
           price="$4"
           priceSuffix="— 24 hours"
           benefits={PASS_BENEFITS}
@@ -48,6 +50,8 @@ export function PassCards({
         />
         <PricingCard
           title="Week Pass"
+          badge="Pay once"
+          badgeMuted
           price="$9"
           priceSuffix="— 1 week"
           benefits={PASS_BENEFITS}
