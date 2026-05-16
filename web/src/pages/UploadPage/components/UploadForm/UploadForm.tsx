@@ -14,7 +14,7 @@ import {
   useGooglePicker,
   type GoogleDriveFile,
 } from './hooks/useGooglePicker';
-import { UploadSourceTabs, type UploadSource } from './UploadSourceTabs';
+import { UploadSourceChips, type UploadSource } from './UploadSourceChips';
 import { FeedbackWidget } from '../../../../components/FeedbackWidget/FeedbackWidget';
 import { useUserLocals } from '../../../../lib/hooks/useUserLocals';
 import { get2ankiApi } from '../../../../lib/backend/get2ankiApi';
@@ -762,28 +762,16 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
     return renderIdleState();
   };
 
-  const anyRemoteSource = isDropboxConfigured || isGoogleDriveConfigured;
-  const showTabs = anyRemoteSource && zoneState === 'idle' && !validation;
-  const showDropboxPanel = showTabs && source === 'dropbox';
-  const showGoogleDrivePanel = showTabs && source === 'google_drive';
-  const showLocalPanel = !showTabs || source === 'local';
+  const showChips = zoneState === 'idle' && !validation;
+  const showDropboxPanel = showChips && source === 'dropbox';
+  const showGoogleDrivePanel = showChips && source === 'google_drive';
+  const showLocalPanel = !showChips || source === 'local';
 
   return (
     <form encType="multipart/form-data" method="post" onSubmit={handleSubmit}>
-      {showTabs && (
-        <div className={formStyles.tabsRow}>
-          <UploadSourceTabs
-            active={source}
-            onChange={setSource}
-            dropboxAvailable={isDropboxConfigured}
-            googleDriveAvailable={isGoogleDriveConfigured}
-          />
-        </div>
-      )}
       <label
         htmlFor="pakker"
         id="upload-panel-local"
-        role={showTabs ? 'tabpanel' : undefined}
         className={`${zoneClassName} ${showLocalPanel ? '' : formStyles.panelHidden}`}
         aria-hidden={!showLocalPanel}
       >
@@ -805,10 +793,9 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
           }}
         />
       </label>
-      {showTabs && (
+      {showChips && (
         <div
           id="upload-panel-dropbox"
-          role="tabpanel"
           className={`${zoneClassName} ${showDropboxPanel ? '' : formStyles.panelHidden}`}
           aria-hidden={!showDropboxPanel}
         >
@@ -841,10 +828,9 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
           {dropboxError}
         </p>
       )}
-      {showTabs && isGoogleDriveConfigured && (
+      {showChips && isGoogleDriveConfigured && (
         <div
           id="upload-panel-google-drive"
-          role="tabpanel"
           className={`${zoneClassName} ${showGoogleDrivePanel ? '' : formStyles.panelHidden}`}
           aria-hidden={!showGoogleDrivePanel}
         >
@@ -876,6 +862,16 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
         <p className={formStyles.dropboxError} role="alert">
           {driveError}
         </p>
+      )}
+      {showChips && (
+        <div className={formStyles.chipsRow}>
+          <UploadSourceChips
+            active={source}
+            onChange={setSource}
+            dropboxAvailable={isDropboxConfigured}
+            googleDriveAvailable={isGoogleDriveConfigured}
+          />
+        </div>
       )}
       {downloadLink && (
         <a

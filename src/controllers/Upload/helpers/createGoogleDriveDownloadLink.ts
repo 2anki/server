@@ -1,10 +1,35 @@
 import { GoogleDriveFile } from '../../../data_layer/GoogleDriveRepository';
 
-/**
- * Create a download link for a Google Drive file. The default URL is just a preview link and request user interaction
- * to download the file. This link will directly download the file.
- * @param file
- */
+export const NATIVE_GOOGLE_APPS_EXPORT_MIMES: Record<
+  string,
+  { exportMime: string; extension: string }
+> = {
+  'application/vnd.google-apps.document': {
+    exportMime: 'text/html',
+    extension: '.html',
+  },
+  'application/vnd.google-apps.spreadsheet': {
+    exportMime: 'text/csv',
+    extension: '.csv',
+  },
+  'application/vnd.google-apps.presentation': {
+    exportMime: 'application/pdf',
+    extension: '.pdf',
+  },
+};
+
 export function createGoogleDriveDownloadLink(file: GoogleDriveFile) {
   return 'https://www.googleapis.com/drive/v3/files/' + file.id + '?alt=media';
+}
+
+export function createGoogleDriveExportLink(
+  file: GoogleDriveFile,
+  exportMime: string
+) {
+  return (
+    'https://www.googleapis.com/drive/v3/files/' +
+    file.id +
+    '/export?mimeType=' +
+    encodeURIComponent(exportMime)
+  );
 }

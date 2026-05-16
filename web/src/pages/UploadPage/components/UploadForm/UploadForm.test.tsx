@@ -30,7 +30,7 @@ describe('UploadForm', () => {
     expect(container.querySelector('.null')).toBeNull();
   });
 
-  test('renders the Google Drive tab when env vars are configured', () => {
+  test('renders the Google Drive chip enabled when env vars are configured', () => {
     const previousClient = process.env.REACT_APP_GOOGLE_CLIENT_ID;
     const previousKey = process.env.REACT_APP_GOOGLE_API_KEY;
     process.env.REACT_APP_GOOGLE_CLIENT_ID = 'test-client';
@@ -39,17 +39,16 @@ describe('UploadForm', () => {
       const { container } = renderUploadForm(
         <UploadForm setErrorMessage={vi.fn()} />
       );
-      const tabs = Array.from(
-        container.querySelectorAll('button[role="tab"]')
-      );
-      expect(tabs.map((b) => b.textContent)).toContain('Google Drive');
+      const chip = container.querySelector('button[aria-label="Google Drive"]');
+      expect(chip).not.toBeNull();
+      expect(chip?.hasAttribute('disabled')).toBe(false);
     } finally {
       process.env.REACT_APP_GOOGLE_CLIENT_ID = previousClient;
       process.env.REACT_APP_GOOGLE_API_KEY = previousKey;
     }
   });
 
-  test('omits the Google Drive tab when env vars are missing', () => {
+  test('renders the Google Drive chip disabled when env vars are missing', () => {
     const previousClient = process.env.REACT_APP_GOOGLE_CLIENT_ID;
     const previousKey = process.env.REACT_APP_GOOGLE_API_KEY;
     process.env.REACT_APP_GOOGLE_CLIENT_ID = '';
@@ -58,10 +57,9 @@ describe('UploadForm', () => {
       const { container } = renderUploadForm(
         <UploadForm setErrorMessage={vi.fn()} />
       );
-      const tabs = Array.from(
-        container.querySelectorAll('button[role="tab"]')
-      );
-      expect(tabs.map((b) => b.textContent)).not.toContain('Google Drive');
+      const chip = container.querySelector('button[aria-label="Google Drive"]');
+      expect(chip).not.toBeNull();
+      expect(chip?.hasAttribute('disabled')).toBe(true);
     } finally {
       process.env.REACT_APP_GOOGLE_CLIENT_ID = previousClient;
       process.env.REACT_APP_GOOGLE_API_KEY = previousKey;
@@ -198,16 +196,14 @@ describe('UploadForm analytics events', () => {
     process.env.REACT_APP_DROPBOX_APP_KEY = previousKey;
   });
 
-  it('reveals the Dropbox panel and hides the local panel when its tab is clicked', async () => {
+  it('reveals the Dropbox panel and hides the local panel when the Dropbox chip is clicked', async () => {
     const previousKey = process.env.REACT_APP_DROPBOX_APP_KEY;
     process.env.REACT_APP_DROPBOX_APP_KEY = 'test-key';
     const { container } = renderUploadForm(<UploadForm setErrorMessage={vi.fn()} />);
-    const dropboxTab = Array.from(
-      container.querySelectorAll('button[role="tab"]')
-    ).find((b) => b.textContent === 'Dropbox') as HTMLButtonElement;
-    expect(dropboxTab).toBeTruthy();
+    const dropboxChip = container.querySelector('button[aria-label="Dropbox"]') as HTMLButtonElement;
+    expect(dropboxChip).toBeTruthy();
     await act(async () => {
-      dropboxTab.click();
+      dropboxChip.click();
     });
     const localPanel = container.querySelector('#upload-panel-local')!;
     const dropboxPanel = container.querySelector('#upload-panel-dropbox')!;
@@ -216,19 +212,17 @@ describe('UploadForm analytics events', () => {
     process.env.REACT_APP_DROPBOX_APP_KEY = previousKey;
   });
 
-  it('keeps the same file input mounted across a tab switch round-trip', async () => {
+  it('keeps the same file input mounted across a chip switch round-trip', async () => {
     const previousKey = process.env.REACT_APP_DROPBOX_APP_KEY;
     process.env.REACT_APP_DROPBOX_APP_KEY = 'test-key';
     const { container } = renderUploadForm(<UploadForm setErrorMessage={vi.fn()} />);
     const before = container.querySelector('input#pakker');
-    const tabs = Array.from(container.querySelectorAll('button[role="tab"]'));
-    const dropboxTab = tabs.find((b) => b.textContent === 'Dropbox') as HTMLButtonElement;
-    const localTab = tabs.find((b) => b.textContent === 'Your computer') as HTMLButtonElement;
+    const dropboxChip = container.querySelector('button[aria-label="Dropbox"]') as HTMLButtonElement;
     await act(async () => {
-      dropboxTab.click();
+      dropboxChip.click();
     });
     await act(async () => {
-      localTab.click();
+      dropboxChip.click();
     });
     const after = container.querySelector('input#pakker');
     expect(after).toBe(before);
