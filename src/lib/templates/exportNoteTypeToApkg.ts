@@ -110,11 +110,11 @@ function buildModel(noteType: AnkiNoteType, modelId: number, now: number) {
   };
 }
 
-function buildDeck(deckId: number, now: number) {
+function buildDeck(deckId: number, name: string, now: number) {
   return {
     [deckId]: {
       id: deckId,
-      name: 'Default',
+      name,
       desc: '',
       conf: 1,
       extendRev: 50,
@@ -255,10 +255,11 @@ export async function exportNoteTypeToApkg(
 
   const now = Math.floor(Date.now() / 1000);
   const modelId = noteType.id || Date.now();
-  const deckId = 1;
+  const deckId = Date.now() + 1;
+  const deckName = `2anki::${noteType.name}`;
 
   const model = buildModel(noteType, modelId, now);
-  const deck = buildDeck(deckId, now);
+  const deck = buildDeck(deckId, deckName, now);
   const conf = buildConf(deckId, modelId);
   const dconf = buildDconf(now);
 

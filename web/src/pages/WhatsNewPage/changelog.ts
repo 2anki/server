@@ -5,6 +5,7 @@ export interface ChangelogEntry {
 }
 
 export const changelog: ChangelogEntry[] = [
+  { type: 'fix', title: 'Downloaded note types land in their own deck in Anki, grouped under 2anki, instead of mixing into Default', date: '2026-05-16' },
   { type: 'fix', title: 'Abhiyan templates open in Anki without a missing-field error', date: '2026-05-16' },
   { type: 'feature', title: 'Auto Sync — Notion edits flow into Anki every 5 minutes, $30/mo, cancel anytime', date: '2026-05-16' },
   { type: 'feature', title: "Stuck on an upload? Open a chat to figure out what to do with the file", date: '2026-05-16' },
