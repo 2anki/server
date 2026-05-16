@@ -39,8 +39,7 @@ function isAutoSyncNewChipVisible(): boolean {
 function autoSyncCaption(
   patreon: boolean | null | undefined,
   autoSyncActive: boolean,
-  hostedAnkiRequested: boolean,
-  isUnlimitedSubscriber: boolean
+  hostedAnkiRequested: boolean
 ): string | undefined {
   if (patreon === true) {
     return 'Included in your Lifetime plan';
@@ -49,10 +48,7 @@ function autoSyncCaption(
     return undefined;
   }
   if (hostedAnkiRequested) {
-    return 'You joined the waitlist — it\'s open now.';
-  }
-  if (isUnlimitedSubscriber) {
-    return 'Upgrade from Unlimited — keep everything you have.';
+    return 'Waitlist is open — subscribe anytime.';
   }
   return undefined;
 }
@@ -75,6 +71,7 @@ export default function PricingPage({
   const lifetimeLink = getLifetimeLink();
   const [waitlistState, setWaitlistState] = useState<RequestState>('idle');
   const [trialState, setTrialState] = useState<RequestState>('idle');
+  const [subscribeError, setSubscribeError] = useState<string | null>(null);
   const [searchParams] = useSearchParams();
   const fromPaywall = searchParams.get('source') === 'paywall-cancel';
   const fromContext = searchParams.get('from');
@@ -114,16 +111,21 @@ export default function PricingPage({
       globalThis.location.href = '/login?redirect=/pricing';
       return;
     }
-    try {
-      const result = await get2ankiApi().startAutoSyncCheckout();
-      if ('url' in result) {
-        globalThis.location.href = result.url;
-      } else if (result.status === 'cap_reached') {
-        await handleWaitlistRequest();
-      }
-    } catch {
-      globalThis.location.href = '/login?redirect=/pricing';
+    setSubscribeError(null);
+    const result = await get2ankiApi().startAutoSyncCheckout();
+    if ('url' in result) {
+      globalThis.location.href = result.url;
+      return;
     }
+    if (result.status === 'cap_reached') {
+      await handleWaitlistRequest();
+      return;
+    }
+    if (result.status === 'already_subscribed') {
+      globalThis.location.href = '/ankify/setup';
+      return;
+    }
+    setSubscribeError("Couldn't start checkout. Try again, or email support@2anki.net.");
   };
 
   const handleStartTrial = async () => {
@@ -141,12 +143,8 @@ export default function PricingPage({
     }
   };
 
-  const autoSyncCaptionText = autoSyncCaption(
-    patreon,
-    autoSyncActive,
-    hostedAnkiRequested,
-    false
-  );
+  const autoSyncCaptionText = subscribeError
+    ?? autoSyncCaption(patreon, autoSyncActive, hostedAnkiRequested);
 
   const showCapReached = autoSyncCapReached && !isLifetime && !autoSyncActive;
 

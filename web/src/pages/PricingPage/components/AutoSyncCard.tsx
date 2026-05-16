@@ -83,7 +83,7 @@ export function AutoSyncCard({
         onAction={onWaitlist}
         actionLabel={waitlistLabel}
         actionDisabled={waitlistDisabled}
-        caption={caption}
+        caption={caption ?? "We're at capacity — we'll email you when a seat opens."}
         learnMoreHref={LEARN_MORE_HREF}
       />
     );

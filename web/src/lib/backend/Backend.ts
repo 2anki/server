@@ -411,13 +411,32 @@ export class Backend {
   }
 
   async startAutoSyncCheckout(): Promise<
-    { url: string } | { status: 'cap_reached' | 'already_subscribed' }
+    { url: string } | { status: 'cap_reached' | 'already_subscribed' | 'error' }
   > {
-    const response = await post(`${this.baseURL}checkout/auto-sync`, {});
-    if (response.status === 404) {
-      return { status: 'cap_reached' };
+    try {
+      const response = await post(`${this.baseURL}checkout/auto-sync`, {});
+      if (response.status === 404) {
+        return { status: 'cap_reached' };
+      }
+      if (!response.ok) {
+        return { status: 'error' };
+      }
+      const body = (await response.json().catch(() => null)) as
+        | { url?: string; status?: 'cap_reached' | 'already_subscribed' }
+        | null;
+      if (body == null) {
+        return { status: 'error' };
+      }
+      if (typeof body.url === 'string') {
+        return { url: body.url };
+      }
+      if (body.status === 'cap_reached' || body.status === 'already_subscribed') {
+        return { status: body.status };
+      }
+      return { status: 'error' };
+    } catch {
+      return { status: 'error' };
     }
-    return response.json();
   }
 
   async startTrial(): Promise<{
