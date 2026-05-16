@@ -8,8 +8,6 @@ export default interface AccessTokens {
   token: string;
 
   created_at: Date | null;
-
-  host: string;
 }
 
 /** Represents the initializer for the table public.access_tokens */
@@ -20,9 +18,6 @@ export interface AccessTokensInitializer {
 
   /** Default value: CURRENT_TIMESTAMP */
   created_at?: Date | null;
-
-  /** Default value: '2anki.net'::character varying */
-  host?: string;
 }
 
 /** Represents the mutator for the table public.access_tokens */
@@ -32,6 +27,4 @@ export interface AccessTokensMutator {
   token?: string;
 
   created_at?: Date | null;
-
-  host?: string;
 }

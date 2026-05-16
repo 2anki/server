@@ -17,8 +17,6 @@ export default interface Uploads {
   object_id: string | null;
 
   size_mb: number | null;
-
-  external_url: string | null;
 }
 
 /** Represents the initializer for the table public.uploads */
@@ -35,8 +33,6 @@ export interface UploadsInitializer {
   object_id?: string | null;
 
   size_mb?: number | null;
-
-  external_url?: string | null;
 }
 
 /** Represents the mutator for the table public.uploads */
@@ -52,6 +48,4 @@ export interface UploadsMutator {
   object_id?: string | null;
 
   size_mb?: number | null;
-
-  external_url?: string | null;
 }
