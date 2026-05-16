@@ -55,10 +55,10 @@ describe('createGoogleDriveExportLink', () => {
 });
 
 describe('NATIVE_GOOGLE_APPS_EXPORT_MIMES', () => {
-  it('maps google-apps.document to text/html with .html extension', () => {
+  it('maps google-apps.document to docx mime with .docx extension', () => {
     expect(NATIVE_GOOGLE_APPS_EXPORT_MIMES['application/vnd.google-apps.document']).toEqual({
-      exportMime: 'text/html',
-      extension: '.html',
+      exportMime: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      extension: '.docx',
     });
   });
 
@@ -69,10 +69,10 @@ describe('NATIVE_GOOGLE_APPS_EXPORT_MIMES', () => {
     });
   });
 
-  it('maps google-apps.presentation to application/pdf with .pdf extension', () => {
+  it('maps google-apps.presentation to pptx mime with .pptx extension', () => {
     expect(NATIVE_GOOGLE_APPS_EXPORT_MIMES['application/vnd.google-apps.presentation']).toEqual({
-      exportMime: 'application/pdf',
-      extension: '.pdf',
+      exportMime: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      extension: '.pptx',
     });
   });
 

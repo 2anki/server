@@ -185,6 +185,7 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
   const [dropboxPending, setDropboxPending] = useState(false);
   const [dropboxError, setDropboxError] = useState<string | null>(null);
   const [driveFilename, setDriveFilename] = useState<string | null>(null);
+  const [driveMimeType, setDriveMimeType] = useState<string | null>(null);
   const [drivePending, setDrivePending] = useState(false);
   const [driveError, setDriveError] = useState<string | null>(null);
   const [source, setSource] = useState<UploadSource>('local');
@@ -233,6 +234,7 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
     setDropboxFilename(null);
     setDropboxError(null);
     setDriveFilename(null);
+    setDriveMimeType(null);
     setDriveError(null);
     setSource('local');
     resetValidation();
@@ -368,6 +370,7 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
   ) => {
     const first = files[0];
     setDriveFilename(first?.name ?? null);
+    setDriveMimeType(first?.mimeType ?? null);
     setDriveError(null);
     setZoneState('converting');
     fireAnalyticsEvent('upload_started');
@@ -622,41 +625,83 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
     </div>
   );
 
-  const renderEmptyDeckState = () => (
-    <div className={formStyles.stateContent}>
-      <WarningIcon className={formStyles.iconWarning} />
-      <p className={formStyles.emptyTitle}>No cards found in this file</p>
-      <p className={formStyles.emptyBody}>
-        2anki turns Notion toggle blocks (the little triangles you click to
-        expand) into flashcards. We didn't find any toggles in this file.
-      </p>
-      <p className={formStyles.emptyBody}>
-        If this came from Notion, open the page, add some toggle blocks, and
-        export again.
-        {' '}
-        <a href="/documentation/help/common-problems#could-not-create-a-deck-using-your-file-and-rules">
-          See examples
-        </a>
-        .
-      </p>
-      <div className={formStyles.emptyActions}>
-        <button
-          type="button"
-          className={formStyles.emptyDownloadButton}
-          onClick={() => downloadRef.current?.click()}
-        >
-          Download empty deck
-        </button>
-        <button
-          type="button"
-          className={formStyles.resetLink}
-          onClick={resetForm}
-        >
-          Try a different file
-        </button>
+  const renderEmptyDeckBody = () => {
+    if (driveMimeType === 'application/vnd.google-apps.document') {
+      return (
+        <p className={formStyles.emptyBody}>
+          Your Doc converted, but we didn't see the bullet shape we turn into cards.
+          Restructure your Doc so each question is a top-level bullet with its answer
+          indented underneath, then try again.{' '}
+          <a href="/documentation/help/common-problems#my-google-doc-converted-to-0-cards">
+            See a working example
+          </a>
+        </p>
+      );
+    }
+    if (driveMimeType === 'application/vnd.google-apps.spreadsheet') {
+      return (
+        <p className={formStyles.emptyBody}>
+          Sheets need a column of questions and a column of answers. Make sure your
+          Sheet has at least two columns, then try again.
+        </p>
+      );
+    }
+    if (driveMimeType === 'application/vnd.google-apps.presentation') {
+      return (
+        <p className={formStyles.emptyBody}>
+          Slides need a title and bullets per slide to produce cards. Add titles and
+          bullet points to your slides, then try again.
+        </p>
+      );
+    }
+    return (
+      <>
+        <p className={formStyles.emptyBody}>
+          2anki turns Notion toggle blocks (the little triangles you click to
+          expand) into flashcards. We didn't find any toggles in this file.
+        </p>
+        <p className={formStyles.emptyBody}>
+          If this came from Notion, open the page, add some toggle blocks, and
+          export again.{' '}
+          <a href="/documentation/help/common-problems#could-not-create-a-deck-using-your-file-and-rules">
+            See examples
+          </a>
+          .
+        </p>
+      </>
+    );
+  };
+
+  const renderEmptyDeckState = () => {
+    const isGoogleDriveFile = driveMimeType?.startsWith('application/vnd.google-apps.') ?? false;
+    const emptyTitle = isGoogleDriveFile
+      ? `No cards found in ${driveFilename ?? 'your file'}`
+      : 'No cards found in this file';
+
+    return (
+      <div className={formStyles.stateContent}>
+        <WarningIcon className={formStyles.iconWarning} />
+        <p className={formStyles.emptyTitle}>{emptyTitle}</p>
+        {renderEmptyDeckBody()}
+        <div className={formStyles.emptyActions}>
+          <button
+            type="button"
+            className={formStyles.emptyDownloadButton}
+            onClick={() => downloadRef.current?.click()}
+          >
+            Download empty deck
+          </button>
+          <button
+            type="button"
+            className={formStyles.resetLink}
+            onClick={resetForm}
+          >
+            Try a different file
+          </button>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderLimitState = () => (
     <div className={formStyles.limitContent}>
@@ -837,7 +882,10 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
           <div className={formStyles.stateContent}>
             <GoogleDriveIcon className={formStyles.dropboxIconLarge} />
             <span className={formStyles.dropText}>
-              Pick a file from your Google Drive to convert it into a deck
+              Pick a Doc, Sheet, Slide, or file from your Google Drive.
+            </span>
+            <span className={formStyles.dropHint}>
+              Docs work best as a bulleted outline — top bullet asks, indented bullet answers.
             </span>
             <button
               type="button"

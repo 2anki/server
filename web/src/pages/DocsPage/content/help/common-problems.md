@@ -69,6 +69,14 @@ If you saw an error and want the fix, find the heading below that matches what y
 
 **How to fix it.** Open the page in Notion → **Share** → **Add connections** → pick **2anki**. Then refresh the picker.
 
+## My Google Doc converted to 0 cards
+
+**What you saw.** You picked a Doc from Google Drive, the conversion finished, and the deck has no cards.
+
+**Why it happened.** 2anki reads Docs as bulleted outlines. A top-level bullet becomes the question; bullets indented under it become the answer. Docs written as flowing paragraphs, or with bullets that all sit at the same indent level, don't give us a question-and-answer shape to turn into cards. Headings followed by paragraphs work too, but only if every heading has a paragraph under it.
+
+**How to fix it.** Open your Doc, restructure the content as bullets where each question is at the top level and the answer is indented one step under it, then pick the Doc again. The full bullet example is on the [file formats](/documentation/reference/file-formats) page.
+
 ## Some images are missing from my deck
 
 **What you saw.** Cards show up but pictures are broken.

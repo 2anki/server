@@ -139,18 +139,18 @@ describe('handleGoogleDrive — native Google Apps mime types', () => {
     expect(reqFiles[0].originalname).toBe('lecture.pdf');
   });
 
-  it('uses export URL for Google Docs and sets .html extension', async () => {
+  it('uses export URL for Google Docs and sets .docx extension', async () => {
     const req = makeReq([baseDocFile]);
     const res = makeRes();
     const handleUpload = jest.fn();
     await handleGoogleDrive(req, res as unknown as express.Response, handleUpload);
     expect(mockedAxios.get).toHaveBeenCalledWith(
       'google_drive',
-      expect.stringContaining('/export?mimeType=text%2Fhtml'),
+      expect.stringContaining('/export?mimeType=application%2Fvnd.openxmlformats-officedocument.wordprocessingml.document'),
       expect.anything()
     );
     const reqFiles = (req as unknown as { files: { originalname: string }[] }).files;
-    expect(reqFiles[0].originalname).toMatch(/\.html$/);
+    expect(reqFiles[0].originalname).toMatch(/\.docx$/);
   });
 
   it('uses export URL for Google Sheets and sets .csv extension', async () => {
@@ -167,18 +167,18 @@ describe('handleGoogleDrive — native Google Apps mime types', () => {
     expect(reqFiles[0].originalname).toMatch(/\.csv$/);
   });
 
-  it('uses export URL for Google Slides and sets .pdf extension', async () => {
+  it('uses export URL for Google Slides and sets .pptx extension', async () => {
     const req = makeReq([baseSlidesFile]);
     const res = makeRes();
     const handleUpload = jest.fn();
     await handleGoogleDrive(req, res as unknown as express.Response, handleUpload);
     expect(mockedAxios.get).toHaveBeenCalledWith(
       'google_drive',
-      expect.stringContaining('/export?mimeType=application%2Fpdf'),
+      expect.stringContaining('/export?mimeType=application%2Fvnd.openxmlformats-officedocument.presentationml.presentation'),
       expect.anything()
     );
     const reqFiles = (req as unknown as { files: { originalname: string }[] }).files;
-    expect(reqFiles[0].originalname).toMatch(/\.pdf$/);
+    expect(reqFiles[0].originalname).toMatch(/\.pptx$/);
   });
 
   it('derives size from the downloaded buffer, not the picker-reported sizeBytes', async () => {
