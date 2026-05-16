@@ -1,0 +1,12 @@
+.body {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--leading-relaxed);
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-direction: column;
+}
