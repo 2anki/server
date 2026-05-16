@@ -1,10 +1,14 @@
-import { render, act, waitFor } from '@testing-library/react';
+import { render, act, waitFor, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { afterEach, beforeEach, describe, expect, it, test, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
 
 import UploadForm from './UploadForm';
+
+vi.mock('../../../../lib/analytics/track', () => ({
+  track: vi.fn(),
+}));
 
 type AnalyticsGlobals = {
   hj?: ReturnType<typeof vi.fn>;
@@ -272,6 +276,67 @@ describe('UploadForm analytics events', () => {
     const link = container.querySelector('a[href*="/chat"]') as HTMLAnchorElement;
     expect(link.textContent).toContain('Stuck?');
     expect(link.href).toContain('from=upload');
+  });
+
+  it('fires upload_error_chat_shown once when the error state mounts', async () => {
+    const { track } = await import('../../../../lib/analytics/track');
+    const trackMock = vi.mocked(track);
+    trackMock.mockClear();
+
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      redirected: false,
+      status: 400,
+      text: () => Promise.resolve('Bad request'),
+      headers: new Headers({ 'Content-Type': 'text/plain' }),
+    }));
+
+    const { container } = renderUploadForm(<UploadForm setErrorMessage={vi.fn()} />);
+    const form = container.querySelector('form')!;
+    await act(async () => {
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    });
+
+    await waitFor(() => {
+      expect(container.querySelector('a[href*="/chat"]')).not.toBeNull();
+    });
+
+    const chatShownCalls = trackMock.mock.calls.filter(
+      ([name]) => name === 'upload_error_chat_shown'
+    );
+    expect(chatShownCalls).toHaveLength(1);
+  });
+
+  it('fires upload_error_chat_engaged when the chat CTA is clicked', async () => {
+    const { track } = await import('../../../../lib/analytics/track');
+    const trackMock = vi.mocked(track);
+    trackMock.mockClear();
+
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      redirected: false,
+      status: 400,
+      text: () => Promise.resolve('Bad request'),
+      headers: new Headers({ 'Content-Type': 'text/plain' }),
+    }));
+
+    const { container } = renderUploadForm(<UploadForm setErrorMessage={vi.fn()} />);
+    const form = container.querySelector('form')!;
+    await act(async () => {
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    });
+
+    await waitFor(() => {
+      expect(container.querySelector('a[href*="/chat"]')).not.toBeNull();
+    });
+
+    const link = container.querySelector('a[href*="/chat"]') as HTMLAnchorElement;
+    await act(async () => {
+      fireEvent.click(link);
+    });
+
+    const engagedCalls = trackMock.mock.calls.filter(
+      ([name]) => name === 'upload_error_chat_engaged'
+    );
+    expect(engagedCalls).toHaveLength(1);
   });
 
   it('shows the chat CTA link in the empty-deck state', async () => {
