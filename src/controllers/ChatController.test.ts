@@ -5,7 +5,12 @@ import {
   ChatConversationNotFoundError,
 } from '../usecases/chat/ChatUseCase';
 
-function buildRes(owner = 42, patreon = false, subscriber = false): Response {
+function buildRes(
+  owner = 42,
+  patreon = false,
+  subscriber = false,
+  chatConsentAt: Date | null = new Date()
+): Response {
   return {
     status: jest.fn().mockReturnThis(),
     json: jest.fn().mockReturnThis(),
@@ -13,14 +18,19 @@ function buildRes(owner = 42, patreon = false, subscriber = false): Response {
     flushHeaders: jest.fn(),
     write: jest.fn(),
     end: jest.fn(),
-    locals: { owner, patreon, subscriber },
+    locals: { owner, patreon, subscriber, chat_consent_at: chatConsentAt },
   } as unknown as Response;
 }
 
-function buildMocks(owner = 42, patreon = false, subscriber = false) {
+function buildMocks(
+  owner = 42,
+  patreon = false,
+  subscriber = false,
+  chatConsentAt: Date | null = new Date()
+) {
   const execute = jest.fn();
   const controller = new ChatController({ execute } as never);
-  const res = buildRes(owner, patreon, subscriber);
+  const res = buildRes(owner, patreon, subscriber, chatConsentAt);
   return { execute, controller, res };
 }
 
@@ -59,6 +69,14 @@ function writtenEvents(res: Response): Array<{ event: string; data: unknown }> {
 }
 
 describe('ChatController.sendMessage', () => {
+  it('emits consent_required SSE error when chat_consent_at is null', async () => {
+    const { controller, res } = buildMocks(42, false, false, null);
+    await controller.sendMessage(buildReq({ content: 'Hello' }), res);
+    const events = writtenEvents(res);
+    expect(events).toContainEqual({ event: 'error', data: { type: 'consent_required' } });
+    expect(res.end).toHaveBeenCalled();
+  });
+
   it('returns 400 when content is missing', async () => {
     const { controller, res } = buildMocks();
     await controller.sendMessage(buildReq({}), res);

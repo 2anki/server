@@ -108,10 +108,24 @@ function emitChatError(res: Response, err: unknown): void {
   }
 }
 
+function hasConsented(locals: Record<string, unknown>): boolean {
+  return locals.chat_consent_at != null;
+}
+
 class ChatController {
   constructor(private readonly chatUseCase: ChatUseCase) {}
 
   async sendMessage(req: Request, res: Response) {
+    if (!hasConsented(res.locals as Record<string, unknown>)) {
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('Connection', 'keep-alive');
+      res.flushHeaders();
+      sseWrite(res, 'error', { type: 'consent_required' });
+      res.end();
+      return;
+    }
+
     const rawContent = req.body?.content;
     const content = typeof rawContent === 'string' ? rawContent.trim() : '';
 

@@ -1,13 +1,16 @@
 import express from 'express';
 import multer from 'multer';
 import ChatController from '../controllers/ChatController';
+import ChatConsentController from '../controllers/ChatConsentController';
 import ChatDeckController from '../controllers/ChatDeckController';
 import ConversationsController from '../controllers/ConversationsController';
 import { ChatUseCase } from '../usecases/chat/ChatUseCase';
+import { SetChatConsentUseCase } from '../usecases/chat/SetChatConsentUseCase';
 import { ChatDeckUseCase } from '../usecases/chat/ChatDeckUseCase';
 import { ConversationsUseCase } from '../usecases/chat/ConversationsUseCase';
 import { ChatMessagesRepository } from '../data_layer/ChatMessagesRepository';
 import { ConversationsRepository } from '../data_layer/ConversationsRepository';
+import UsersRepository from '../data_layer/UsersRepository';
 import { getDatabase } from '../data_layer';
 import { getAnthropicClient } from '../lib/claude/ClaudeService';
 import RequireAuthentication from './middleware/RequireAuthentication';
@@ -22,13 +25,32 @@ const ChatRouter = () => {
   const db = getDatabase();
   const messagesRepo = new ChatMessagesRepository(db);
   const conversationsRepo = new ConversationsRepository(db);
+  const usersRepo = new UsersRepository(db);
   const anthropic = getAnthropicClient();
   const useCase = new ChatUseCase(messagesRepo, conversationsRepo, anthropic);
   const controller = new ChatController(useCase);
+  const consentUseCase = new SetChatConsentUseCase(usersRepo);
+  const consentController = new ChatConsentController(consentUseCase);
   const deckUseCase = new ChatDeckUseCase();
   const deckController = new ChatDeckController(deckUseCase);
   const conversationsUseCase = new ConversationsUseCase(conversationsRepo);
   const conversationsController = new ConversationsController(conversationsUseCase);
+
+  /**
+   * @swagger
+   * /api/chat/consent:
+   *   post:
+   *     summary: Record chat consent for the authenticated user
+   *     tags: [Chat]
+   *     security:
+   *       - bearerAuth: []
+   *     responses:
+   *       204:
+   *         description: Consent recorded
+   */
+  router.post('/api/chat/consent', RequireAuthentication, (req, res) =>
+    consentController.recordConsent(req, res)
+  );
 
   /**
    * @swagger

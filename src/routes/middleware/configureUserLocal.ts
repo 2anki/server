@@ -13,6 +13,7 @@ export async function configureUserLocal(
     res.locals.owner = user.owner;
     res.locals.patreon = user.patreon;
     res.locals.trial_started_at = user.trial_started_at ?? null;
+    res.locals.chat_consent_at = user.chat_consent_at ?? null;
     res.locals.subscriber = await authService.getIsSubscriber(
       database,
       user.email

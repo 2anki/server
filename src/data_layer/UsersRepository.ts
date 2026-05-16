@@ -200,6 +200,13 @@ class UsersRepository {
       .update({ signup_country: country });
   }
 
+  setChatConsentAt(userId: number): Promise<void> {
+    return this.database(this.table)
+      .where({ id: userId })
+      .update({ chat_consent_at: this.database.fn.now() })
+      .then(() => undefined);
+  }
+
   getSignupCountry(id: string | number): Promise<string | null> {
     return this.database(this.table)
       .where({ id })
