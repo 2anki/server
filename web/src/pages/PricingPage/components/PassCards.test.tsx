@@ -56,7 +56,7 @@ describe('PassCards', () => {
     expect(onWeekPass).toHaveBeenCalledOnce();
   });
 
-  it('shows Redirecting… and disables both buttons when dayPassPending', () => {
+  it('disables only the Day Pass button when dayPassPending', () => {
     render(
       <PassCards
         onDayPass={vi.fn()}
@@ -66,10 +66,10 @@ describe('PassCards', () => {
       />
     );
     expect(screen.getByRole('button', { name: 'Redirecting…' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'Get Week Pass' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Get Week Pass' })).toBeEnabled();
   });
 
-  it('shows Redirecting… and disables both buttons when weekPassPending', () => {
+  it('disables only the Week Pass button when weekPassPending', () => {
     render(
       <PassCards
         onDayPass={vi.fn()}
@@ -78,7 +78,7 @@ describe('PassCards', () => {
         weekPassPending={true}
       />
     );
-    expect(screen.getByRole('button', { name: 'Get Day Pass' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Get Day Pass' })).toBeEnabled();
     expect(screen.getByRole('button', { name: 'Redirecting…' })).toBeDisabled();
   });
 

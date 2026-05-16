@@ -45,7 +45,7 @@ export function PassCards({
           benefits={PASS_BENEFITS}
           onAction={onDayPass}
           actionLabel={dayPassPending ? 'Redirecting…' : 'Get Day Pass'}
-          actionDisabled={dayPassPending || weekPassPending}
+          actionDisabled={dayPassPending}
           caption="Starts the moment you pay"
         />
         <PricingCard
@@ -57,7 +57,7 @@ export function PassCards({
           benefits={PASS_BENEFITS}
           onAction={onWeekPass}
           actionLabel={weekPassPending ? 'Redirecting…' : 'Get Week Pass'}
-          actionDisabled={dayPassPending || weekPassPending}
+          actionDisabled={weekPassPending}
           caption="Starts the moment you pay"
         />
       </div>
