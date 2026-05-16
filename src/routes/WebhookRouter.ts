@@ -158,14 +158,14 @@ const WebhooksRouter = () => {
             }
           }
           break;
-        case 'checkout.session.completed':
+        case 'checkout.session.completed': {
           const session: StripeTypes.Checkout.Session = event.data.object;
           const sessionMeta = (session.metadata ?? {}) as Record<string, string>;
           const passKind = sessionMeta.pass_kind as PassKind | undefined;
 
           if (passKind === '24h' || passKind === '7d') {
             const rawUserId = sessionMeta.user_id;
-            const passUserId = rawUserId == null ? NaN : Number.parseInt(rawUserId, 10);
+            const passUserId = rawUserId == null ? Number.NaN : Number.parseInt(rawUserId, 10);
             if (Number.isNaN(passUserId) || passUserId <= 0) {
               console.warn('pass.webhook.missing_metadata', {
                 raw_user_id: rawUserId,
@@ -265,6 +265,7 @@ const WebhooksRouter = () => {
 
           console.log('checkout.session.completed');
           break;
+        }
         default:
           console.log(`Unhandled event type ${event.type}`);
       }
