@@ -27,7 +27,7 @@ touch .env
 pnpm dev
 ```
 
-The server starts on `http://localhost:2020` and the frontend on `http://localhost:5173`. For server-only work: `pnpm dev:server`.
+The server starts on `http://localhost:2020` and the frontend on `http://localhost:3000`. For server-only work: `pnpm dev:server`.
 
 ## How we develop
 
