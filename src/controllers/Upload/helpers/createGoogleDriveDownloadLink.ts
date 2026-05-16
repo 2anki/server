@@ -5,16 +5,16 @@ export const NATIVE_GOOGLE_APPS_EXPORT_MIMES: Record<
   { exportMime: string; extension: string }
 > = {
   'application/vnd.google-apps.document': {
-    exportMime: 'text/html',
-    extension: '.html',
+    exportMime: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    extension: '.docx',
   },
   'application/vnd.google-apps.spreadsheet': {
     exportMime: 'text/csv',
     extension: '.csv',
   },
   'application/vnd.google-apps.presentation': {
-    exportMime: 'application/pdf',
-    extension: '.pdf',
+    exportMime: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    extension: '.pptx',
   },
 };
 
