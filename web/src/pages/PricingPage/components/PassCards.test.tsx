@@ -108,4 +108,16 @@ describe('PassCards', () => {
     expect(screen.getByText('$4')).toBeInTheDocument();
     expect(screen.getByText('$9')).toBeInTheDocument();
   });
+
+  it('shows a Pay once badge on each card', () => {
+    render(
+      <PassCards
+        onDayPass={vi.fn()}
+        onWeekPass={vi.fn()}
+        dayPassPending={false}
+        weekPassPending={false}
+      />
+    );
+    expect(screen.getAllByText('Pay once')).toHaveLength(2);
+  });
 });
