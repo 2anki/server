@@ -181,6 +181,35 @@ describe('handleGoogleDrive — native Google Apps mime types', () => {
     expect(reqFiles[0].originalname).toMatch(/\.pdf$/);
   });
 
+  it('derives size from the downloaded buffer, not the picker-reported sizeBytes', async () => {
+    const zeroSizeDoc = { ...baseDocFile, sizeBytes: 0 };
+    const req = makeReq([zeroSizeDoc]);
+    const res = makeRes();
+    const handleUpload = jest.fn();
+    mockedAxios.get.mockResolvedValue({
+      data: Buffer.from('<html><body><h1>hello</h1></body></html>'),
+    } as never);
+    await handleGoogleDrive(req, res as unknown as express.Response, handleUpload);
+    const reqFiles = (req as unknown as {
+      files: { size: number; buffer: Buffer }[];
+    }).files;
+    expect(reqFiles[0].size).toBeGreaterThan(0);
+    expect(Buffer.isBuffer(reqFiles[0].buffer)).toBe(true);
+    expect(handleUpload).toHaveBeenCalled();
+  });
+
+  it('requests arraybuffer responseType so bodies are not coerced to strings', async () => {
+    const req = makeReq([baseDocFile]);
+    const res = makeRes();
+    const handleUpload = jest.fn();
+    await handleGoogleDrive(req, res as unknown as express.Response, handleUpload);
+    expect(mockedAxios.get).toHaveBeenCalledWith(
+      'google_drive',
+      expect.any(String),
+      expect.objectContaining({ responseType: 'arraybuffer' })
+    );
+  });
+
   it('returns 400 and does not call handleUpload when googleDriveAuth is missing', async () => {
     const req = makeReq([basePdfFile], undefined);
     (req.body as Record<string, unknown>).googleDriveAuth = undefined;

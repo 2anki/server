@@ -75,20 +75,21 @@ export async function handleGoogleDrive(
     req.files = await Promise.all(
       files.map(async (file) => {
         const { url, originalname } = resolveUrlAndName(file);
-        const contents = await instrumentedAxios.get(
+        const contents = await instrumentedAxios.get<ArrayBuffer>(
           'google_drive',
           url,
           {
             headers: {
               Authorization: `Bearer ${googleDriveAuth}`,
             },
-            responseType: 'blob',
+            responseType: 'arraybuffer',
           }
         );
+        const buffer = Buffer.from(contents.data);
         return {
           originalname,
-          size: file.sizeBytes,
-          buffer: contents.data,
+          size: buffer.length,
+          buffer,
         };
       })
     );
