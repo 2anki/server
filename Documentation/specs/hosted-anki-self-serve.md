@@ -30,7 +30,24 @@ A waitlist exists (`users.hosted_anki_requested_at`) and the visible CTA is "Com
 
 **Assumption**: ≥2% of visitors who currently click "Join the waitlist" will pay $30/mo when shown a Stripe checkout instead. $30 is 5× Unlimited and 1/12× Lifetime — no comparable anchor exists in the current ladder.
 
-**Smallest test (before any code)**: Alexander emails the existing `hosted_anki_requested_at` cohort with a manually-generated Stripe payment link at $30/mo and a one-paragraph offer. If <5% of replies convert within 7 days, the price or the value prop is wrong — revisit before touching the pricing page. PM drafts the email via `/support-reply`; Alexander sends.
+**Smallest test (before any code)**: Alexander emails the existing `hosted_anki_requested_at` cohort with a manually-generated Stripe payment link at $30/mo and a one-paragraph offer. If <5% of replies convert within 7 days, the price or the value prop is wrong — revisit before touching the pricing page.
+
+**Draft email** (Alexander reviews and sends from `support@2anki.net`; subject and body below — no further drafting needed):
+
+> **Subject**: Auto Sync is opening — you're first in line
+>
+> Hi —
+>
+> You joined the Auto Sync waitlist on 2anki.net. It's ready: your Notion notes sync to Anki every 5 minutes, with Anki desktop in your browser so you can study from any device. No install, cancel anytime.
+>
+> $30 / month. Here's your checkout link: `<MANUAL_STRIPE_PAYMENT_LINK>`
+>
+> Reply to this email with any questions.
+>
+> — Alexander
+> 2anki.net
+
+The public CTA flip on `/pricing` is **gated on this test**: ≥5% of the waitlist converts within 7 days, or the spec returns to trio for a price/positioning revisit before any code lands.
 
 ## Scope
 
@@ -44,6 +61,7 @@ A waitlist exists (`users.hosted_anki_requested_at`) and the visible CTA is "Com
 - Soft cap env: `HOSTED_ANKI_MAX_SUBSCRIBERS` (default `50`). `AutoSyncCheckoutUseCase` counts active Auto Sync subscriptions and refuses with `{ status: 'cap_reached' }` when the cap is hit; the frontend interprets that response by flipping the card back to waitlist mode (existing `requestHostedAnkiAccess` flow). The card also receives a server-rendered flag in `getUserLocals` so first paint is correct.
 - Already-Auto-Sync-active short-circuit: `AutoSyncCheckoutUseCase` returns `{ status: 'already_subscribed' }` instead of creating a duplicate session.
 - A `Learn how it works` link under the card → `/docs/...` Auto Sync page (existing).
+- Changelog entry added to `web/src/pages/WhatsNewPage/changelog.ts` in the same PR (per CLAUDE.md). Draft line: `Auto Sync is live — Notion edits sync to Anki every 5 minutes, $30/mo, cancel anytime`. Tag `feature`. Sentence case, no trailing period.
 
 **Out**:
 - Trial period for Auto Sync (the 7-day Unlimited trial is a separate code path; bolting it on adds container-cost risk against an unproven price).
@@ -71,12 +89,27 @@ A waitlist exists (`users.hosted_anki_requested_at`) and the visible CTA is "Com
 - [ ] Sidebar shows the Auto Sync entry for both gate paths (patreon OR active Auto Sync sub).
 - [ ] When active Auto Sync subscriptions ≥ `HOSTED_ANKI_MAX_SUBSCRIBERS`, the card flips back to waitlist mode (server-side flag).
 - [ ] Tests: `access.ts` unit covers the new OR branch; `RequireAnkifyAccess` middleware test covers subscription-active path; `PricingPage.test.tsx` covers the new CTA label + click target and the three caption variants.
+- [ ] Changelog entry shipped in the same PR (`web/src/pages/WhatsNewPage/changelog.ts`, tag `feature`).
+- [ ] `AUTO_SYNC_PRICE_ID` unset → endpoint returns 404, card stays in waitlist mode (rollback path verified before prod flip).
 
 ## Leading indicator
 
 **Primary (leading)**: Stripe-checkout-start rate on the Auto Sync card (clicks per card view). Target ≥2% within 60 days.
 **Secondary (lagging)**: MRR delta and Auto Sync churn at month 2.
 Both are visible on the existing `/ops` dashboard once the new product ID is in the subscriptions table.
+
+**Instrumentation (launch-day, required)**: `AutoSyncCheckoutUseCase` emits one structured log line per outcome — `auto_sync.checkout.started`, `auto_sync.checkout.cap_reached`, `auto_sync.checkout.already_subscribed`, `auto_sync.checkout.session_created` — each with `user_id` and a hashed surrogate for any IDs (per `security.md`, never raw Stripe customer IDs). `WebhookRouter` adds `auto_sync.subscription.activated` and `auto_sync.subscription.canceled` on the product-ID match. Without these, the 2% target is unmeasurable. Watch the first 48h after the CTA flip; alert (manually) if `cap_reached` fires before active subs ≥ cap (bug) or `session_created` lags `started` by >5% (Stripe error).
+
+## Rollout order
+
+Ship in this order so each step is independently reversible:
+
+1. Land migration (`stripe_product_id` on `subscriptions`; `stripe_customer_id` on `users` if missing) and `pnpm kanel`. No behavior change yet.
+2. Land code (gate widening, endpoint, controller, use case, frontend wiring) **with `AUTO_SYNC_PRICE_ID` unset in prod**. The endpoint short-circuits to a 404 when the env var is empty; the card stays in waitlist mode for everyone. CI uses the test-mode price ID.
+3. Send the warm-up email (see riskiest-assumption test). Use the manual Stripe payment link, not the new endpoint — the endpoint stays disabled until the public flip.
+4. After ≥5% waitlist conversion confirms the price, set `AUTO_SYNC_PRICE_ID` + `AUTO_SYNC_PRODUCT_ID` on prod. Card flips to live the moment the env propagates; no code push needed.
+
+**Rollback**: unset `AUTO_SYNC_PRICE_ID` on prod and restart. Card reverts to waitlist mode, endpoint 404s, no data loss, no code revert. Existing Auto Sync subscriptions keep working — the gate reads `stripe_product_id` from the DB, not the env var.
 
 ## Open questions for engineering
 
