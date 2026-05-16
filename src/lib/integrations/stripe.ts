@@ -31,12 +31,31 @@ export const updateStoreSubscription = async (
     shouldRemainActive = currentDate < periodEndDate;
   }
 
+  const stripeProductId =
+    subscription.items?.data?.[0]?.price?.product != null
+      ? typeof subscription.items.data[0].price.product === 'string'
+        ? subscription.items.data[0].price.product
+        : (subscription.items.data[0].price.product as StripeTypes.Product).id
+      : null;
+
+  const customerId =
+    typeof subscription.customer === 'string'
+      ? subscription.customer
+      : (subscription.customer as StripeTypes.Customer | null)?.id ?? null;
+
   await db('subscriptions')
     .insert({
       email: email?.toLowerCase(),
       active: shouldRemainActive,
       payload: JSON.stringify(subscription),
+      stripe_product_id: stripeProductId,
     })
     .onConflict('email')
-    .merge();
+    .merge(['active', 'payload', 'stripe_product_id']);
+
+  if (email != null && customerId != null) {
+    await db('users')
+      .where({ email: email.toLowerCase() })
+      .update({ stripe_customer_id: customerId });
+  }
 };
