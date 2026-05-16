@@ -9,6 +9,7 @@ const PAGE_TITLE = 'Ops · 2anki';
 const TABS = [
   { to: '/ops', label: 'Engineering', match: (path: string) => path === '/ops' || path.startsWith('/ops?') },
   { to: '/ops/performance', label: 'Performance', match: (path: string) => path.startsWith('/ops/performance') },
+  { to: '/ops/conversions', label: 'Conversions', match: (path: string) => path.startsWith('/ops/conversions') },
   { to: '/ops/business', label: 'Business', match: (path: string) => path.startsWith('/ops/business') },
   { to: '/ops/showcase', label: 'Showcase', match: (path: string) => path.startsWith('/ops/showcase') },
   { to: '/ops/interviews', label: 'Interviews', match: (path: string) => path.startsWith('/ops/interviews') },
