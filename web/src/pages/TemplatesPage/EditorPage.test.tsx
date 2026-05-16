@@ -141,6 +141,7 @@ describe('EditorPage (edit)', () => {
     vi.spyOn(templatesApi, 'getDefaultNoteTypes').mockResolvedValue([
       sampleStarter,
     ]);
+    vi.spyOn(templatesApi, 'getOfficialNoteTypes').mockResolvedValue([]);
     vi.spyOn(templatesApi, 'getUserTemplates').mockResolvedValue({
       templates: [],
       hiddenIds: [],
@@ -184,5 +185,21 @@ describe('EditorPage (edit)', () => {
     vi.spyOn(templatesApi, 'getDefaultNoteTypes').mockResolvedValue([]);
     renderEditor('edit', '/templates/edit/missing-id');
     expect(await screen.findByText(/template not found/i)).toBeInTheDocument();
+  });
+
+  it('loads a starter that lives only in the official set', async () => {
+    const officialStarter: NoteTypeStarter = {
+      ...sampleStarter,
+      id: 'official-only-notion-basic',
+      name: 'Only Notion (Basic)',
+    };
+    vi.spyOn(templatesApi, 'getDefaultNoteTypes').mockResolvedValue([]);
+    vi.spyOn(templatesApi, 'getOfficialNoteTypes').mockResolvedValue([
+      officialStarter,
+    ]);
+    renderEditor('edit', `/templates/edit/${officialStarter.id}`);
+    expect(
+      await screen.findByDisplayValue('Only Notion (Basic)')
+    ).toBeInTheDocument();
   });
 });
