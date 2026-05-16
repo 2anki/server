@@ -204,7 +204,7 @@ export class ChatUseCase {
     const stream = this.anthropic.messages.stream({
       model,
       max_tokens: MAX_TOKENS,
-      system: STUDY_ASSISTANT_SYSTEM_PROMPT,
+      system: [{ type: 'text', text: STUDY_ASSISTANT_SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } }],
       messages,
     });
 
