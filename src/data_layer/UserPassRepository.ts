@@ -1,0 +1,156 @@
+import type { Knex } from 'knex';
+
+export type PassKind = '24h' | '7d';
+
+export interface UserPass {
+  id: number;
+  user_id: number;
+  kind: PassKind;
+  expires_at: Date;
+  stripe_payment_intent_id: string;
+}
+
+export interface IUserPassRepository {
+  findActive(userId: number, now: Date): Promise<UserPass | null>;
+  upsertWithExtension(
+    userId: number,
+    kind: PassKind,
+    durationMs: number,
+    stripePaymentIntentId: string,
+    now: Date
+  ): Promise<UserPass>;
+}
+
+interface UserPassRow {
+  id: number;
+  user_id: number;
+  kind: string;
+  expires_at: Date;
+  stripe_payment_intent_id: string;
+}
+
+function toUserPass(row: UserPassRow): UserPass {
+  return {
+    id: row.id,
+    user_id: row.user_id,
+    kind: row.kind as PassKind,
+    expires_at: row.expires_at instanceof Date ? row.expires_at : new Date(row.expires_at),
+    stripe_payment_intent_id: row.stripe_payment_intent_id,
+  };
+}
+
+export class UserPassRepository implements IUserPassRepository {
+  private readonly table = 'user_passes';
+
+  constructor(private readonly database: Knex) {}
+
+  async findActive(userId: number, now: Date): Promise<UserPass | null> {
+    const row = await this.database<UserPassRow>(this.table)
+      .where('user_id', userId)
+      .where('expires_at', '>', now)
+      .orderBy('expires_at', 'desc')
+      .first();
+    return row ? toUserPass(row) : null;
+  }
+
+  async upsertWithExtension(
+    userId: number,
+    kind: PassKind,
+    durationMs: number,
+    stripePaymentIntentId: string,
+    now: Date
+  ): Promise<UserPass> {
+    const existing = await this.database<UserPassRow>(this.table)
+      .where('stripe_payment_intent_id', stripePaymentIntentId)
+      .first();
+    if (existing) {
+      return toUserPass(existing);
+    }
+
+    const currentActive = await this.database<UserPassRow>(this.table)
+      .where('user_id', userId)
+      .where('expires_at', '>', now)
+      .orderBy('expires_at', 'desc')
+      .first();
+
+    const base = currentActive ? currentActive.expires_at : now;
+    const baseMs = base instanceof Date ? base.getTime() : new Date(base).getTime();
+    const expiresAt = new Date(baseMs + durationMs);
+
+    try {
+      const [row] = await this.database<UserPassRow>(this.table)
+        .insert({
+          user_id: userId,
+          kind,
+          expires_at: expiresAt,
+          stripe_payment_intent_id: stripePaymentIntentId,
+        })
+        .returning('*');
+      return toUserPass(row);
+    } catch (err: unknown) {
+      const pgErr = err as { code?: string };
+      if (pgErr.code === '23505') {
+        const idempotent = await this.database<UserPassRow>(this.table)
+          .where('stripe_payment_intent_id', stripePaymentIntentId)
+          .first();
+        if (idempotent) return toUserPass(idempotent);
+      }
+      throw err;
+    }
+  }
+}
+
+export class InMemoryUserPassRepository implements IUserPassRepository {
+  private readonly rows: UserPass[] = [];
+  private nextId = 1;
+
+  seed(row: Omit<UserPass, 'id'>): UserPass {
+    const entry: UserPass = { id: this.nextId++, ...row };
+    this.rows.push(entry);
+    return entry;
+  }
+
+  async findActive(userId: number, now: Date): Promise<UserPass | null> {
+    const active = this.rows
+      .filter((r) => r.user_id === userId && r.expires_at > now)
+      .sort((a, b) => b.expires_at.getTime() - a.expires_at.getTime());
+    return active[0] ?? null;
+  }
+
+  async upsertWithExtension(
+    userId: number,
+    kind: PassKind,
+    durationMs: number,
+    stripePaymentIntentId: string,
+    now: Date
+  ): Promise<UserPass> {
+    const existing = this.rows.find(
+      (r) => r.stripe_payment_intent_id === stripePaymentIntentId
+    );
+    if (existing) return existing;
+
+    const currentActive = this.rows
+      .filter((r) => r.user_id === userId && r.expires_at > now)
+      .sort((a, b) => b.expires_at.getTime() - a.expires_at.getTime())[0];
+
+    const base = currentActive ? currentActive.expires_at : now;
+    const expiresAt = new Date(base.getTime() + durationMs);
+
+    const entry: UserPass = {
+      id: this.nextId++,
+      user_id: userId,
+      kind,
+      expires_at: expiresAt,
+      stripe_payment_intent_id: stripePaymentIntentId,
+    };
+    this.rows.push(entry);
+    return entry;
+  }
+
+  clear(): void {
+    this.rows.length = 0;
+    this.nextId = 1;
+  }
+}
+
+export default UserPassRepository;

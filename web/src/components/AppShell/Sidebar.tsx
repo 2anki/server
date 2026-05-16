@@ -84,6 +84,8 @@ export interface SidebarLocals {
   patreon?: boolean;
   subscriber?: boolean;
   trial_started_at?: string | null;
+  passExpiresAt?: string | null;
+  passKind?: '24h' | '7d' | null;
 }
 
 export interface SidebarFeatures {

@@ -439,6 +439,30 @@ export class Backend {
     }
   }
 
+  async startPassCheckout(
+    kind: '24h' | '7d'
+  ): Promise<{ url: string } | { status: 'unavailable' | 'error' }> {
+    const path = kind === '24h' ? 'checkout/pass/24h' : 'checkout/pass/7d';
+    try {
+      const response = await post(`${this.baseURL}${path}`, {});
+      if (response.status === 503) {
+        return { status: 'unavailable' };
+      }
+      if (!response.ok) {
+        return { status: 'error' };
+      }
+      const body = (await response.json().catch(() => null)) as
+        | { url?: string }
+        | null;
+      if (body?.url != null) {
+        return { url: body.url };
+      }
+      return { status: 'error' };
+    } catch {
+      return { status: 'error' };
+    }
+  }
+
   async startTrial(): Promise<{
     ok: boolean;
     reason?: string;

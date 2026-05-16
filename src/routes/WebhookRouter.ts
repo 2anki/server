@@ -9,6 +9,11 @@ import {
 import { getDatabase } from '../data_layer';
 import { StripeController } from '../controllers/StripeController/StripeController';
 import UsersRepository from '../data_layer/UsersRepository';
+import UserPassRepository, { type PassKind } from '../data_layer/UserPassRepository';
+import hashToken from '../lib/misc/hashToken';
+
+const DURATION_24H_MS = 24 * 60 * 60 * 1000;
+const DURATION_7D_MS = 7 * 24 * 60 * 60 * 1000;
 
 const WebhooksRouter = () => {
   const router = express.Router();
@@ -155,6 +160,56 @@ const WebhooksRouter = () => {
           break;
         case 'checkout.session.completed':
           const session: StripeTypes.Checkout.Session = event.data.object;
+          const sessionMeta = (session.metadata ?? {}) as Record<string, string>;
+          const passKind = sessionMeta.pass_kind as PassKind | undefined;
+
+          if (passKind === '24h' || passKind === '7d') {
+            const rawUserId = sessionMeta.user_id;
+            const passUserId = rawUserId == null ? NaN : Number.parseInt(rawUserId, 10);
+            if (Number.isNaN(passUserId) || passUserId <= 0) {
+              console.warn('pass.webhook.missing_metadata', {
+                raw_user_id: rawUserId,
+                pass_kind: passKind,
+              });
+              response.send();
+              return;
+            }
+            const paymentIntentId = typeof session.payment_intent === 'string'
+              ? session.payment_intent
+              : null;
+            if (paymentIntentId == null) {
+              console.warn('pass.webhook.missing_metadata', {
+                user_id: passUserId,
+                pass_kind: passKind,
+                reason: 'no_payment_intent',
+              });
+              response.send();
+              return;
+            }
+            const durationMs = passKind === '24h' ? DURATION_24H_MS : DURATION_7D_MS;
+            const now = new Date();
+            try {
+              const passRepo = new UserPassRepository(getDatabase());
+              const granted = await passRepo.upsertWithExtension(
+                passUserId,
+                passKind,
+                durationMs,
+                paymentIntentId,
+                now
+              );
+              console.info('pass.granted', {
+                user_id: passUserId,
+                kind: passKind,
+                expires_at: granted.expires_at.toISOString(),
+                payment_intent_id_hash: hashToken(paymentIntentId),
+              });
+            } catch (passError) {
+              console.error('pass.webhook.grant_failed', passError);
+            }
+            response.send();
+            return;
+          }
+
           const amount = session.amount_total ?? 0;
 
           const LIFE_TIME_PRICE = 9600;

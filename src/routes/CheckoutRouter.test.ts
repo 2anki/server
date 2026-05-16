@@ -1,0 +1,108 @@
+import express from 'express';
+import http from 'node:http';
+import { AddressInfo } from 'node:net';
+
+const mockStripeCreate = jest.fn();
+
+jest.mock('../lib/integrations/stripe', () => ({
+  getStripe: jest.fn().mockReturnValue({
+    checkout: {
+      sessions: { create: mockStripeCreate },
+    },
+  }),
+}));
+
+jest.mock('./middleware/RequireAuthentication', () => {
+  const middleware = (_req: express.Request, res: express.Response, next: express.NextFunction) => {
+    res.locals.owner = 42;
+    res.locals.email = 'test@example.com';
+    next();
+  };
+  return middleware;
+});
+
+async function buildServer() {
+  const { default: CheckoutRouter } = await import('./CheckoutRouter');
+  const app = express();
+  app.use(express.json());
+  app.use(CheckoutRouter());
+  const server = http.createServer(app);
+  await new Promise<void>((resolve) => server.listen(0, resolve));
+  const { port } = server.address() as AddressInfo;
+  return { server, url: `http://127.0.0.1:${port}` };
+}
+
+describe('CheckoutRouter — pass routes', () => {
+  let server: http.Server;
+  let url: string;
+
+  beforeAll(async () => {
+    ({ server, url } = await buildServer());
+  });
+
+  afterAll(() => server.close());
+
+  beforeEach(() => {
+    mockStripeCreate.mockReset();
+    delete process.env.PASS_24H_PRICE_ID;
+    delete process.env.PASS_7D_PRICE_ID;
+  });
+
+  describe('POST /api/checkout/pass/24h', () => {
+    it('returns 503 when PASS_24H_PRICE_ID env var is not set', async () => {
+      const res = await fetch(`${url}/api/checkout/pass/24h`, { method: 'POST' });
+      expect(res.status).toBe(503);
+      const body = await res.json();
+      expect(body.message).toBe('Day Pass is not available right now.');
+    });
+
+    it('returns checkout url when env var is set', async () => {
+      process.env.PASS_24H_PRICE_ID = 'price_24h_test';
+      mockStripeCreate.mockResolvedValue({ url: 'https://checkout.stripe.com/24h' });
+
+      const res = await fetch(`${url}/api/checkout/pass/24h`, { method: 'POST' });
+      expect(res.status).toBe(200);
+      const body = await res.json();
+      expect(body.url).toBe('https://checkout.stripe.com/24h');
+    });
+
+    it('passes pass_kind=24h in session metadata', async () => {
+      process.env.PASS_24H_PRICE_ID = 'price_24h_test';
+      mockStripeCreate.mockResolvedValue({ url: 'https://checkout.stripe.com/24h' });
+
+      await fetch(`${url}/api/checkout/pass/24h`, { method: 'POST' });
+      expect(mockStripeCreate).toHaveBeenCalledWith(
+        expect.objectContaining({ metadata: expect.objectContaining({ pass_kind: '24h' }) })
+      );
+    });
+  });
+
+  describe('POST /api/checkout/pass/7d', () => {
+    it('returns 503 when PASS_7D_PRICE_ID env var is not set', async () => {
+      const res = await fetch(`${url}/api/checkout/pass/7d`, { method: 'POST' });
+      expect(res.status).toBe(503);
+      const body = await res.json();
+      expect(body.message).toBe('Week Pass is not available right now.');
+    });
+
+    it('returns checkout url when env var is set', async () => {
+      process.env.PASS_7D_PRICE_ID = 'price_7d_test';
+      mockStripeCreate.mockResolvedValue({ url: 'https://checkout.stripe.com/7d' });
+
+      const res = await fetch(`${url}/api/checkout/pass/7d`, { method: 'POST' });
+      expect(res.status).toBe(200);
+      const body = await res.json();
+      expect(body.url).toBe('https://checkout.stripe.com/7d');
+    });
+
+    it('passes pass_kind=7d in session metadata', async () => {
+      process.env.PASS_7D_PRICE_ID = 'price_7d_test';
+      mockStripeCreate.mockResolvedValue({ url: 'https://checkout.stripe.com/7d' });
+
+      await fetch(`${url}/api/checkout/pass/7d`, { method: 'POST' });
+      expect(mockStripeCreate).toHaveBeenCalledWith(
+        expect.objectContaining({ metadata: expect.objectContaining({ pass_kind: '7d' }) })
+      );
+    });
+  });
+});

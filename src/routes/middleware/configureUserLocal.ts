@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import AuthenticationService from '../../services/AuthenticationService';
 import { Knex } from 'knex';
+import UserPassRepository from '../../data_layer/UserPassRepository';
 
 export async function configureUserLocal(
   req: Request,
@@ -15,10 +16,16 @@ export async function configureUserLocal(
     res.locals.patreon = user.patreon;
     res.locals.trial_started_at = user.trial_started_at ?? null;
     res.locals.chat_consent_at = user.chat_consent_at ?? null;
-    res.locals.subscriber = await authService.getIsSubscriber(
-      database,
-      user.email
-    );
+    const isSubscriber = await authService.getIsSubscriber(database, user.email);
+    if (isSubscriber) {
+      res.locals.subscriber = true;
+    } else {
+      const passRepo = new UserPassRepository(database);
+      const activePass = await passRepo.findActive(user.owner, new Date());
+      res.locals.subscriber = activePass != null;
+      res.locals.passExpiresAt = activePass?.expires_at.toISOString() ?? null;
+      res.locals.passKind = activePass?.kind ?? null;
+    }
     res.locals.subscriptionInfo = await authService.getSubscriptionInfo(
       database,
       user.email

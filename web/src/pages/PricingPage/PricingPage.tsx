@@ -6,6 +6,7 @@ import { get2ankiApi } from '../../lib/backend/get2ankiApi';
 import { getLifetimeLink, getSubscribeLink } from './payment.links';
 import { PricingCard } from './components/PricingCard';
 import { AutoSyncCard } from './components/AutoSyncCard';
+import { PassCards } from './components/PassCards';
 import TopMessage from '../../components/TopMessage/TopMessage';
 import {
   MONTHLY_PRICE,
@@ -29,6 +30,7 @@ interface PricingPageProps {
 }
 
 type RequestState = 'idle' | 'pending' | 'sent' | 'error';
+type PassState = 'idle' | 'pending' | 'error';
 
 function isAutoSyncNewChipVisible(): boolean {
   const daysSinceLaunch =
@@ -72,6 +74,8 @@ export default function PricingPage({
   const [waitlistState, setWaitlistState] = useState<RequestState>('idle');
   const [trialState, setTrialState] = useState<RequestState>('idle');
   const [subscribeError, setSubscribeError] = useState<string | null>(null);
+  const [dayPassState, setDayPassState] = useState<PassState>('idle');
+  const [weekPassState, setWeekPassState] = useState<PassState>('idle');
   const [searchParams] = useSearchParams();
   const fromPaywall = searchParams.get('source') === 'paywall-cancel';
   const fromContext = searchParams.get('from');
@@ -143,6 +147,28 @@ export default function PricingPage({
     }
   };
 
+  const handlePassCheckout = async (kind: '24h' | '7d') => {
+    if (!isLoggedIn) {
+      globalThis.location.href = '/login?redirect=/pricing';
+      return;
+    }
+    if (kind === '24h') {
+      setDayPassState('pending');
+    } else {
+      setWeekPassState('pending');
+    }
+    const result = await get2ankiApi().startPassCheckout(kind);
+    if ('url' in result) {
+      globalThis.location.href = result.url;
+      return;
+    }
+    if (kind === '24h') {
+      setDayPassState('error');
+    } else {
+      setWeekPassState('error');
+    }
+  };
+
   const autoSyncCaptionText = subscribeError
     ?? autoSyncCaption(patreon, autoSyncActive, hostedAnkiRequested);
 
@@ -205,6 +231,13 @@ export default function PricingPage({
           </button>
         </div>
       )}
+
+      <PassCards
+        onDayPass={() => handlePassCheckout('24h')}
+        onWeekPass={() => handlePassCheckout('7d')}
+        dayPassPending={dayPassState === 'pending'}
+        weekPassPending={weekPassState === 'pending'}
+      />
 
       <div className={styles.grid}>
         <PricingCard
