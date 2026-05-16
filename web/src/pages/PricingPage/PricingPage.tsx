@@ -1,21 +1,21 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-
-import { getVisibleText } from '../../lib/text/getVisibleText';
+import TopMessage from '../../components/TopMessage/TopMessage';
+import { firePaywallEvent } from '../../lib/analytics/firePaywallEvent';
 import { get2ankiApi } from '../../lib/backend/get2ankiApi';
-import { getLifetimeLink, getSubscribeLink } from './payment.links';
-import { PricingCard } from './components/PricingCard';
+import { getVisibleText } from '../../lib/text/getVisibleText';
 import { AutoSyncCard } from './components/AutoSyncCard';
 import { PassCards } from './components/PassCards';
-import TopMessage from '../../components/TopMessage/TopMessage';
+import { PassToggleCard } from './components/PassToggleCard';
+import { PricingCard } from './components/PricingCard';
+import styles from './PricingPage.module.css';
+import { getLifetimeLink, getSubscribeLink } from './payment.links';
 import {
-  MONTHLY_PRICE,
-  MONTHLY_SUFFIX,
   AUTO_SYNC_LAUNCH_DATE,
   AUTO_SYNC_NEW_CHIP_DAYS,
+  MONTHLY_PRICE,
+  MONTHLY_SUFFIX,
 } from './pricing.constants';
-import { firePaywallEvent } from '../../lib/analytics/firePaywallEvent';
-import styles from './PricingPage.module.css';
 
 interface PricingPageProps {
   isLoggedIn: boolean;
@@ -77,9 +77,11 @@ export default function PricingPage({
   const [dayPassState, setDayPassState] = useState<PassState>('idle');
   const [weekPassState, setWeekPassState] = useState<PassState>('idle');
   const [searchParams] = useSearchParams();
+  const pricingVariant = searchParams.get('variant');
   const fromPaywall = searchParams.get('source') === 'paywall-cancel';
   const fromContext = searchParams.get('from');
-  const showContextBanner = fromContext != null && !isLoggedIn ? false : fromContext != null;
+  const showContextBanner =
+    fromContext != null && !isLoggedIn ? false : fromContext != null;
 
   const isLifetime = patreon === true;
   const showAutoSyncNew = isAutoSyncNewChipVisible();
@@ -129,7 +131,9 @@ export default function PricingPage({
       globalThis.location.href = '/ankify/setup';
       return;
     }
-    setSubscribeError("Couldn't start checkout. Try again, or email support@2anki.net.");
+    setSubscribeError(
+      "Couldn't start checkout. Try again, or email support@2anki.net."
+    );
   };
 
   const handleStartTrial = async () => {
@@ -169,8 +173,9 @@ export default function PricingPage({
     }
   };
 
-  const autoSyncCaptionText = subscribeError
-    ?? autoSyncCaption(patreon, autoSyncActive, hostedAnkiRequested);
+  const autoSyncCaptionText =
+    subscribeError ??
+    autoSyncCaption(patreon, autoSyncActive, hostedAnkiRequested);
 
   const showCapReached = autoSyncCapReached && !isLifetime && !autoSyncActive;
 
@@ -232,12 +237,19 @@ export default function PricingPage({
         </div>
       )}
 
-      <PassCards
-        onDayPass={() => handlePassCheckout('24h')}
-        onWeekPass={() => handlePassCheckout('7d')}
-        dayPassPending={dayPassState === 'pending'}
-        weekPassPending={weekPassState === 'pending'}
-      />
+      {pricingVariant === 'toggle' ? (
+        <PassToggleCard
+          onCheckout={handlePassCheckout}
+          pending={dayPassState === 'pending' || weekPassState === 'pending'}
+        />
+      ) : (
+        <PassCards
+          onDayPass={() => handlePassCheckout('24h')}
+          onWeekPass={() => handlePassCheckout('7d')}
+          dayPassPending={dayPassState === 'pending'}
+          weekPassPending={weekPassState === 'pending'}
+        />
+      )}
 
       <div className={styles.grid}>
         <PricingCard
@@ -265,7 +277,9 @@ export default function PricingPage({
           capReached={showCapReached}
           caption={autoSyncCaptionText}
           waitlistLabel={waitlistLabel}
-          waitlistDisabled={waitlistState === 'pending' || waitlistState === 'sent'}
+          waitlistDisabled={
+            waitlistState === 'pending' || waitlistState === 'sent'
+          }
           onSubscribe={handleAutoSyncSubscribe}
           onWaitlist={handleWaitlistRequest}
         />
