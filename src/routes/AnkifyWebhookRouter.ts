@@ -13,6 +13,7 @@ import { SyncNotionPageToRacUseCase } from '../usecases/ankify/SyncNotionPageToR
 import { verifyNotionWebhookSignature } from '../lib/ankify/notionWebhookSignature';
 import { hasAnkifyAccess } from '../lib/ankify/access';
 import UsersRepository from '../data_layer/UsersRepository';
+import SubscriptionService from '../services/SubscriptionService';
 
 const AnkifyWebhookRouter = () => {
   const router = express.Router();
@@ -73,7 +74,10 @@ const AnkifyWebhookRouter = () => {
         const matching = await subscriptions.findByPageId(pageId);
         for (const sub of matching) {
           const user = await usersRepo.getById(sub.owner.toString());
-          if (!hasAnkifyAccess(user)) {
+          const userSubs = user?.email
+            ? await SubscriptionService.getUserActiveSubscriptions(user.email)
+            : [];
+          if (!hasAnkifyAccess(user, userSubs, process.env.AUTO_SYNC_PRODUCT_ID ?? '')) {
             continue;
           }
           useCase

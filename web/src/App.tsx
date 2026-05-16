@@ -188,6 +188,8 @@ function AppContent({
                 trialStartedAt={data?.user?.trial_started_at ?? null}
                 patreon={data?.user?.patreon ?? null}
                 signupCountry={data?.user?.signup_country ?? null}
+                autoSyncCapReached={data?.autoSyncCapReached === true}
+                autoSyncActive={data?.autoSyncActive === true}
                 onTrialStarted={() => { refetch(); }}
               />
             }

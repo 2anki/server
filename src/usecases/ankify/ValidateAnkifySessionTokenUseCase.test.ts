@@ -1,3 +1,10 @@
+jest.mock('../../services/SubscriptionService', () => ({
+  __esModule: true,
+  default: {
+    getUserActiveSubscriptions: jest.fn().mockResolvedValue([]),
+  },
+}));
+
 import { ValidateAnkifySessionTokenUseCase } from './ValidateAnkifySessionTokenUseCase';
 import { RacService } from '../../services/ankify/RacService';
 import AuthenticationService from '../../services/AuthenticationService';

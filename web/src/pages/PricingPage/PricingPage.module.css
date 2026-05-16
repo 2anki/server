@@ -118,11 +118,11 @@
     order: 1;
   }
 
-  .cardLifetime {
+  .cardAutoSync {
     order: 2;
   }
 
-  .cardHosted {
+  .cardLifetime {
     order: 3;
   }
 }
@@ -262,53 +262,10 @@
 }
 
 /* =====================================================================
-   HOSTED ANKI — preview tier
+   AUTO SYNC — live tier
    ===================================================================== */
-.cardHosted {
-  background: repeating-linear-gradient(
-      135deg,
-      transparent 0 9px,
-      rgba(107, 114, 128, 0.028) 9px 10px
-    ),
-    var(--color-bg-secondary);
-  border-style: dashed;
+.cardAutoSync {
   border-color: var(--color-border);
-}
-
-.cardHosted:hover {
-  border-color: var(--color-text-tertiary);
-}
-
-.cardHosted .cardHeader::after {
-  content: '';
-  position: absolute;
-  top: 1.5rem;
-  right: 1.5rem;
-  width: 36px;
-  height: 8px;
-  background-image: radial-gradient(
-    circle,
-    var(--color-text-secondary) 1.4px,
-    transparent 1.6px
-  );
-  background-size: 9px 8px;
-  background-repeat: repeat-x;
-  opacity: 0.5;
-  animation: syncDots 2.6s linear infinite;
-}
-
-@keyframes syncDots {
-  0% {
-    background-position: 0 0;
-    opacity: 0.2;
-  }
-  50% {
-    opacity: 0.55;
-  }
-  100% {
-    background-position: -36px 0;
-    opacity: 0.2;
-  }
 }
 
 /* =====================================================================
@@ -514,8 +471,8 @@
   color: var(--color-gold-text);
 }
 
-.cardHosted .benefitIcon {
-  color: var(--color-text-secondary);
+.cardAutoSync .benefitIcon {
+  color: var(--color-primary);
 }
 
 /* =====================================================================
@@ -630,7 +587,48 @@
 }
 
 /* =====================================================================
-   COMING SOON BASE (hosted-anki shell)
+   MUTED BADGE (New chip — neutral, not the indigo gradient)
+   ===================================================================== */
+.cardBadgeMuted {
+  position: absolute;
+  top: 1rem;
+  right: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.32rem 0.7rem;
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  z-index: 2;
+}
+
+/* =====================================================================
+   LEARN MORE LINK (under Auto Sync card)
+   ===================================================================== */
+.cardLearnMore {
+  display: block;
+  text-align: center;
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  transition: color var(--transition-fast), text-decoration-color var(--transition-fast);
+}
+
+.cardLearnMore:hover {
+  color: var(--color-text-secondary);
+  text-decoration-color: currentColor;
+}
+
+/* =====================================================================
+   COMING SOON BASE (kept for comingSoon prop fallback)
    ===================================================================== */
 .cardComingSoon {
   composes: card;
@@ -646,8 +644,7 @@
   .cardButton,
   .cardButton::after,
   .introArrow,
-  .cardPriceChip::before,
-  .cardHosted .cardHeader::after {
+  .cardPriceChip::before {
     transition: none !important;
     animation: none !important;
   }

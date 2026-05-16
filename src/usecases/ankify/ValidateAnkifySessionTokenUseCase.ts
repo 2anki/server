@@ -1,6 +1,7 @@
 import AuthenticationService from '../../services/AuthenticationService';
 import { RacService } from '../../services/ankify/RacService';
 import { hasAnkifyAccess } from '../../lib/ankify/access';
+import SubscriptionService from '../../services/SubscriptionService';
 
 export type ValidateSessionTokenResult =
   | { ok: true; novnc_port: number }
@@ -35,7 +36,11 @@ export class ValidateAnkifySessionTokenUseCase {
     if (user.owner !== resolved.owner) {
       return { ok: false, status: 401, reason: 'cookie_owner_mismatch' };
     }
-    if (!hasAnkifyAccess(user)) {
+
+    const subscriptions = await SubscriptionService.getUserActiveSubscriptions(user.email);
+    const autoSyncProductId = process.env.AUTO_SYNC_PRODUCT_ID ?? '';
+
+    if (!hasAnkifyAccess(user, subscriptions, autoSyncProductId)) {
       return { ok: false, status: 403, reason: 'not_allowlisted' };
     }
 

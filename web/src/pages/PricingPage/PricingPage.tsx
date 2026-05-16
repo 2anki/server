@@ -5,8 +5,14 @@ import { getVisibleText } from '../../lib/text/getVisibleText';
 import { get2ankiApi } from '../../lib/backend/get2ankiApi';
 import { getLifetimeLink, getSubscribeLink } from './payment.links';
 import { PricingCard } from './components/PricingCard';
+import { AutoSyncCard } from './components/AutoSyncCard';
 import TopMessage from '../../components/TopMessage/TopMessage';
-import { MONTHLY_PRICE, MONTHLY_SUFFIX } from './pricing.constants';
+import {
+  MONTHLY_PRICE,
+  MONTHLY_SUFFIX,
+  AUTO_SYNC_LAUNCH_DATE,
+  AUTO_SYNC_NEW_CHIP_DAYS,
+} from './pricing.constants';
 import { firePaywallEvent } from '../../lib/analytics/firePaywallEvent';
 import styles from './PricingPage.module.css';
 
@@ -17,25 +23,49 @@ interface PricingPageProps {
   trialStartedAt?: string | null;
   patreon?: boolean | null;
   signupCountry?: string | null;
+  autoSyncCapReached?: boolean;
+  autoSyncActive?: boolean;
   onTrialStarted?: () => void;
 }
 
 type RequestState = 'idle' | 'pending' | 'sent' | 'error';
 
-const HOSTED_ANKI_LABELS: Record<RequestState, string> = {
-  idle: 'Join the waitlist',
-  pending: 'Joining…',
-  sent: 'On the waitlist ✓',
-  error: 'Try again',
-};
+function isAutoSyncNewChipVisible(): boolean {
+  const daysSinceLaunch =
+    (Date.now() - AUTO_SYNC_LAUNCH_DATE.getTime()) / (1000 * 60 * 60 * 24);
+  return daysSinceLaunch < AUTO_SYNC_NEW_CHIP_DAYS;
+}
+
+function autoSyncCaption(
+  patreon: boolean | null | undefined,
+  autoSyncActive: boolean,
+  hostedAnkiRequested: boolean,
+  isUnlimitedSubscriber: boolean
+): string | undefined {
+  if (patreon === true) {
+    return 'Included in your Lifetime plan';
+  }
+  if (autoSyncActive) {
+    return undefined;
+  }
+  if (hostedAnkiRequested) {
+    return 'You joined the waitlist — it\'s open now.';
+  }
+  if (isUnlimitedSubscriber) {
+    return 'Upgrade from Unlimited — keep everything you have.';
+  }
+  return undefined;
+}
 
 export default function PricingPage({
   isLoggedIn,
   email,
-  hostedAnkiRequested,
+  hostedAnkiRequested = false,
   trialStartedAt,
   patreon,
   signupCountry,
+  autoSyncCapReached = false,
+  autoSyncActive = false,
   onTrialStarted,
 }: Readonly<PricingPageProps>) {
   const isUS = signupCountry === 'US';
@@ -43,14 +73,15 @@ export default function PricingPage({
     ? getSubscribeLink(email)
     : '/login?redirect=/pricing';
   const lifetimeLink = getLifetimeLink();
-  const [hostedAnkiState, setHostedAnkiState] = useState<RequestState>(
-    hostedAnkiRequested ? 'sent' : 'idle'
-  );
+  const [waitlistState, setWaitlistState] = useState<RequestState>('idle');
   const [trialState, setTrialState] = useState<RequestState>('idle');
   const [searchParams] = useSearchParams();
   const fromPaywall = searchParams.get('source') === 'paywall-cancel';
   const fromContext = searchParams.get('from');
   const showContextBanner = fromContext != null && !isLoggedIn ? false : fromContext != null;
+
+  const isLifetime = patreon === true;
+  const showAutoSyncNew = isAutoSyncNewChipVisible();
 
   const showTrialCta =
     isLoggedIn &&
@@ -64,17 +95,34 @@ export default function PricingPage({
     }
   }, [fromPaywall]);
 
-  const handleHostedAnkiRequest = async () => {
+  const handleWaitlistRequest = async () => {
     if (!isLoggedIn) {
       globalThis.location.href = '/login?redirect=/pricing';
       return;
     }
-    setHostedAnkiState('pending');
+    setWaitlistState('pending');
     try {
       await get2ankiApi().requestHostedAnkiAccess();
-      setHostedAnkiState('sent');
+      setWaitlistState('sent');
     } catch {
-      setHostedAnkiState('error');
+      setWaitlistState('error');
+    }
+  };
+
+  const handleAutoSyncSubscribe = async () => {
+    if (!isLoggedIn) {
+      globalThis.location.href = '/login?redirect=/pricing';
+      return;
+    }
+    try {
+      const result = await get2ankiApi().startAutoSyncCheckout();
+      if ('url' in result) {
+        globalThis.location.href = result.url;
+      } else if (result.status === 'cap_reached') {
+        await handleWaitlistRequest();
+      }
+    } catch {
+      globalThis.location.href = '/login?redirect=/pricing';
     }
   };
 
@@ -92,6 +140,26 @@ export default function PricingPage({
       setTrialState('error');
     }
   };
+
+  const autoSyncCaptionText = autoSyncCaption(
+    patreon,
+    autoSyncActive,
+    hostedAnkiRequested,
+    false
+  );
+
+  const showCapReached = autoSyncCapReached && !isLifetime && !autoSyncActive;
+
+  function getWaitlistLabel(): string {
+    if (waitlistState === 'pending') {
+      return 'Joining…';
+    }
+    if (waitlistState === 'sent') {
+      return 'On the waitlist';
+    }
+    return 'Join the waitlist';
+  }
+  const waitlistLabel = getWaitlistLabel();
 
   return (
     <div className={styles.page}>
@@ -158,22 +226,19 @@ export default function PricingPage({
           link={subcribeLink}
           linkText="Upgrade"
         />
-        <PricingCard
-          className={styles.cardHosted}
-          priceChip="Coming soon"
-          title="Auto Sync"
-          benefits={[
-            'Convert once, sync forever',
-            'Notion edits flow to your decks automatically',
-            'No manual upload or download',
-          ]}
-          comingSoon
-          onAction={handleHostedAnkiRequest}
-          actionLabel={HOSTED_ANKI_LABELS[hostedAnkiState]}
-          actionDisabled={
-            hostedAnkiState === 'pending' || hostedAnkiState === 'sent'
-          }
+
+        <AutoSyncCard
+          showNewBadge={showAutoSyncNew}
+          isLifetime={isLifetime}
+          isActive={autoSyncActive}
+          capReached={showCapReached}
+          caption={autoSyncCaptionText}
+          waitlistLabel={waitlistLabel}
+          waitlistDisabled={waitlistState === 'pending' || waitlistState === 'sent'}
+          onSubscribe={handleAutoSyncSubscribe}
+          onWaitlist={handleWaitlistRequest}
         />
+
         <PricingCard
           className={styles.cardLifetime}
           price="$345"

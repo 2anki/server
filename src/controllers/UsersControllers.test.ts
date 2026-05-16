@@ -13,6 +13,8 @@ jest.mock('../services/SubscriptionService', () => ({
   default: {
     cancelUserSubscriptions: jest.fn(),
     findRecentStripeSubscriptions: jest.fn(),
+    countActiveByProductId: jest.fn().mockResolvedValue(0),
+    getUserActiveSubscriptions: jest.fn().mockResolvedValue([]),
   },
 }));
 

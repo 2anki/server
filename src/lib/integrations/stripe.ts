@@ -2,9 +2,14 @@ import Stripe from 'stripe';
 import type { Stripe as StripeTypes } from 'stripe/cjs/stripe.core';
 import { Knex } from 'knex';
 
-const stripe = new Stripe(process.env.STRIPE_KEY!);
+let stripeInstance: InstanceType<typeof Stripe> | null = null;
 
-export const getStripe = () => stripe;
+export const getStripe = () => {
+  if (stripeInstance == null) {
+    stripeInstance = new Stripe(process.env.STRIPE_KEY!);
+  }
+  return stripeInstance;
+};
 
 export const getCustomerId = (
   customer: string | StripeTypes.Customer | StripeTypes.DeletedCustomer | null
@@ -13,6 +18,19 @@ export const getCustomerId = (
     return customer;
   }
   return customer?.id;
+};
+
+const extractProductId = (
+  subscription: StripeTypes.Subscription
+): string | null => {
+  const product = subscription.items?.data?.[0]?.price?.product;
+  if (product == null) {
+    return null;
+  }
+  if (typeof product === 'string') {
+    return product;
+  }
+  return product.id;
 };
 
 export const updateStoreSubscription = async (
@@ -31,12 +49,26 @@ export const updateStoreSubscription = async (
     shouldRemainActive = currentDate < periodEndDate;
   }
 
+  const stripeProductId = extractProductId(subscription);
+
+  const customerId =
+    typeof subscription.customer === 'string'
+      ? subscription.customer
+      : subscription.customer?.id ?? null;
+
   await db('subscriptions')
     .insert({
       email: email?.toLowerCase(),
       active: shouldRemainActive,
       payload: JSON.stringify(subscription),
+      stripe_product_id: stripeProductId,
     })
     .onConflict('email')
-    .merge();
+    .merge(['active', 'payload', 'stripe_product_id']);
+
+  if (email != null && customerId != null) {
+    await db('users')
+      .where({ email: email.toLowerCase() })
+      .update({ stripe_customer_id: customerId });
+  }
 };

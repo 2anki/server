@@ -20,6 +20,8 @@ interface GetUserLocalsResponse {
     ops?: boolean;
   };
   hostedAnkiRequested?: boolean;
+  autoSyncCapReached?: boolean;
+  autoSyncActive?: boolean;
 }
 
 export const getUserLocals = async (): Promise<GetUserLocalsResponse> =>
