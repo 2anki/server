@@ -5,6 +5,7 @@ export interface ChangelogEntry {
 }
 
 export const changelog: ChangelogEntry[] = [
+  { type: 'feature', title: "Stuck on an upload? Open a chat to figure out what to do with the file", date: '2026-05-16' },
   { type: 'fix', title: 'Google Docs from your Drive convert with headings, bullets, and tables intact', date: '2026-05-16' },
   { type: 'feature', title: 'Google Docs, Sheets, and Slides from your Drive turn straight into decks', date: '2026-05-16' },
   { type: 'fix', title: 'Upload form: Google Drive picks convert into decks instead of erroring', date: '2026-05-16' },
