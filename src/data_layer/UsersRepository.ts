@@ -4,6 +4,18 @@ import Users from './public/Users';
 import Subscriptions from './public/Subscriptions';
 import { isNewMonth } from '../lib/User/isNewMonth';
 
+export interface SignupCountryCount {
+  country: string;
+  count: number;
+}
+
+export interface ISignupCountryRepository {
+  countBySignupCountry(
+    since: Date,
+    limit: number
+  ): Promise<SignupCountryCount[]>;
+}
+
 class UsersRepository {
   table: string;
 
@@ -229,6 +241,24 @@ class UsersRepository {
       .count<{ signup_country: string; count: string }[]>('* as count')
       .groupBy('signup_country')
       .orderBy('count', 'desc');
+  }
+
+  async countBySignupCountry(
+    since: Date,
+    limit: number
+  ): Promise<{ country: string; count: number }[]> {
+    const rows = (await this.database(this.table)
+      .whereNotNull('signup_country')
+      .where('created_at', '>=', since)
+      .select('signup_country')
+      .count<{ signup_country: string; count: string }[]>('* as count')
+      .groupBy('signup_country')
+      .orderBy('count', 'desc')
+      .limit(limit)) as { signup_country: string; count: string }[];
+    return rows.map((row) => ({
+      country: row.signup_country,
+      count: Number(row.count),
+    }));
   }
 
   incrementCardUsage(id: string | number, cardCount: number) {

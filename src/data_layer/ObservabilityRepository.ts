@@ -49,6 +49,14 @@ export interface ServiceErrorRateRow {
   errors: number;
 }
 
+export interface ServiceLatencyRow {
+  service: string;
+  p50_ms: number;
+  p95_ms: number;
+  p99_ms: number;
+  count: number;
+}
+
 export interface IObservabilityRepository {
   insertRequestLogs(rows: RequestLogRow[]): Promise<void>;
   insertOutboundCallLogs(rows: OutboundCallLogRow[]): Promise<void>;
@@ -61,6 +69,10 @@ export interface IObservabilityRepository {
     fromTime: Date,
     bucketSeconds: number
   ): Promise<OutboundCallBucketRow[]>;
+  outboundLatencyByService(
+    fromTime: Date,
+    limit: number
+  ): Promise<ServiceLatencyRow[]>;
   errorRateByRoute(fromTime: Date, limit: number): Promise<RouteErrorRateRow[]>;
   errorRateByService(
     fromTime: Date,
@@ -161,6 +173,41 @@ export class ObservabilityRepository implements IObservabilityRepository {
       (r: { bucket: Date; service: string; count: number }) => ({
         bucket: new Date(r.bucket),
         service: r.service,
+        count: Number(r.count),
+      })
+    );
+  }
+
+  async outboundLatencyByService(
+    fromTime: Date,
+    limit: number
+  ): Promise<ServiceLatencyRow[]> {
+    const result = await this.database.raw(
+      `SELECT
+         service,
+         percentile_disc(0.5) WITHIN GROUP (ORDER BY duration_ms)::int AS p50_ms,
+         percentile_disc(0.95) WITHIN GROUP (ORDER BY duration_ms)::int AS p95_ms,
+         percentile_disc(0.99) WITHIN GROUP (ORDER BY duration_ms)::int AS p99_ms,
+         COUNT(*)::int AS count
+       FROM ${this.outboundTable}
+       WHERE created_at >= ?
+       GROUP BY service
+       ORDER BY count DESC
+       LIMIT ?`,
+      [fromTime, limit]
+    );
+    return (result.rows ?? []).map(
+      (r: {
+        service: string;
+        p50_ms: number | null;
+        p95_ms: number | null;
+        p99_ms: number | null;
+        count: number;
+      }) => ({
+        service: r.service,
+        p50_ms: r.p50_ms == null ? 0 : Number(r.p50_ms),
+        p95_ms: r.p95_ms == null ? 0 : Number(r.p95_ms),
+        p99_ms: r.p99_ms == null ? 0 : Number(r.p99_ms),
         count: Number(r.count),
       })
     );

@@ -19,6 +19,16 @@ import {
   IEmojiFeedbackRepository,
   InMemoryEmojiFeedbackRepository,
 } from '../../data_layer/EmojiFeedbackRepository';
+import {
+  IReEngagementFeedbackRepository,
+  InMemoryReEngagementFeedbackRepository,
+  ReEngagementCommentEntry,
+  ReEngagementReasonCount,
+} from '../../data_layer/ReEngagementFeedbackRepository';
+import {
+  ISignupCountryRepository,
+  SignupCountryCount,
+} from '../../data_layer/UsersRepository';
 
 export type BusinessMetricKey =
   | 'mrr_usd'
@@ -34,7 +44,10 @@ export type BusinessMetricKey =
   | 'cancellation_reasons_top'
   | 'cancellation_comments_recent'
   | 'emoji_feedback_ratings'
-  | 'emoji_feedback_comments';
+  | 'emoji_feedback_comments'
+  | 'reengagement_reasons_top'
+  | 'reengagement_comments_recent'
+  | 'signup_countries_90d';
 
 export interface BusinessMetricError {
   metric: BusinessMetricKey;
@@ -77,6 +90,9 @@ export interface BusinessMetricsResponse {
   cancellation_comments_recent: CancellationCommentEntry[] | null;
   emoji_feedback_ratings: EmojiFeedbackRatingCount[] | null;
   emoji_feedback_comments: EmojiFeedbackCommentEntry[] | null;
+  reengagement_reasons_top: ReEngagementReasonCount[] | null;
+  reengagement_comments_recent: ReEngagementCommentEntry[] | null;
+  signup_countries_90d: SignupCountryCount[] | null;
   as_of: string;
   cache_age_seconds: number;
   errors?: BusinessMetricError[];
@@ -87,6 +103,10 @@ export const CANCELLATION_REASONS_LOOKBACK_DAYS = 90;
 export const CANCELLATION_COMMENTS_LIMIT = 20;
 export const EMOJI_FEEDBACK_LOOKBACK_DAYS = 30;
 export const EMOJI_FEEDBACK_COMMENTS_LIMIT = 20;
+export const REENGAGEMENT_REASONS_LOOKBACK_DAYS = 90;
+export const REENGAGEMENT_COMMENTS_LIMIT = 20;
+export const SIGNUP_COUNTRIES_LOOKBACK_DAYS = 90;
+export const SIGNUP_COUNTRIES_LIMIT = 10;
 
 interface BusinessMetricsServiceDeps {
   stripeFactory?: () => Stripe;
@@ -94,6 +114,8 @@ interface BusinessMetricsServiceDeps {
   cacheRepository?: IBusinessMetricsCacheRepository;
   cancellationRepository?: ICancellationFeedbackRepository;
   emojiFeedbackRepository?: IEmojiFeedbackRepository;
+  reengagementRepository?: IReEngagementFeedbackRepository;
+  signupCountryRepository?: ISignupCountryRepository;
 }
 
 const SECONDS_PER_DAY = 24 * 60 * 60;
@@ -135,6 +157,10 @@ export class BusinessMetricsService {
 
   private readonly emojiFeedbackRepository: IEmojiFeedbackRepository;
 
+  private readonly reengagementRepository: IReEngagementFeedbackRepository;
+
+  private readonly signupCountryRepository: ISignupCountryRepository | null;
+
   private allSubsPromise: Promise<NormalizedSubscription[]> | null = null;
 
   private invoicesPromise: Promise<NormalizedInvoice[]> | null = null;
@@ -150,6 +176,10 @@ export class BusinessMetricsService {
     this.emojiFeedbackRepository =
       deps.emojiFeedbackRepository ??
       new InMemoryEmojiFeedbackRepository();
+    this.reengagementRepository =
+      deps.reengagementRepository ??
+      new InMemoryReEngagementFeedbackRepository();
+    this.signupCountryRepository = deps.signupCountryRepository ?? null;
   }
 
   async getMetrics(): Promise<BusinessMetricsResponse> {
@@ -239,6 +269,38 @@ export class BusinessMetricsService {
             EMOJI_FEEDBACK_COMMENTS_LIMIT
           ),
       },
+      {
+        key: 'reengagement_reasons_top',
+        fetch: () =>
+          this.reengagementRepository.countByReason(
+            new Date(
+              now.getTime() -
+                REENGAGEMENT_REASONS_LOOKBACK_DAYS * SECONDS_PER_DAY * 1000
+            )
+          ),
+      },
+      {
+        key: 'reengagement_comments_recent',
+        fetch: () =>
+          this.reengagementRepository.recentComments(
+            REENGAGEMENT_COMMENTS_LIMIT
+          ),
+      },
+      ...(this.signupCountryRepository != null
+        ? [
+            {
+              key: 'signup_countries_90d' as BusinessMetricKey,
+              fetch: () =>
+                this.signupCountryRepository!.countBySignupCountry(
+                  new Date(
+                    now.getTime() -
+                      SIGNUP_COUNTRIES_LOOKBACK_DAYS * SECONDS_PER_DAY * 1000
+                  ),
+                  SIGNUP_COUNTRIES_LIMIT
+                ),
+            },
+          ]
+        : []),
     ];
 
     const usedEntries: BusinessMetricsCacheEntry[] = [];
@@ -301,6 +363,15 @@ export class BusinessMetricsService {
       ) as CancellationCommentEntry[] | null,
       emoji_feedback_ratings: valueByKey.get('emoji_feedback_ratings') as EmojiFeedbackRatingCount[] | null,
       emoji_feedback_comments: valueByKey.get('emoji_feedback_comments') as EmojiFeedbackCommentEntry[] | null,
+      reengagement_reasons_top: valueByKey.get(
+        'reengagement_reasons_top'
+      ) as ReEngagementReasonCount[] | null,
+      reengagement_comments_recent: valueByKey.get(
+        'reengagement_comments_recent'
+      ) as ReEngagementCommentEntry[] | null,
+      signup_countries_90d: valueByKey.has('signup_countries_90d')
+        ? (valueByKey.get('signup_countries_90d') as SignupCountryCount[] | null)
+        : null,
       as_of: now.toISOString(),
       cache_age_seconds: cacheAgeSeconds,
     };

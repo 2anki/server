@@ -16,6 +16,7 @@ Express controllers used to call `axios.get(...)` directly with user-controlled 
 - `OBSERVABILITY_SERVICES` — frozen list. Adding a new outbound integration means **adding it here first**, then writing the wrapper.
 - `FIXED_HOST_ALLOWLIST` — per-service host pin. Set to `null` for services that need wildcard hosts (e.g. Notion's per-tenant CDNs); set to an explicit list for services that only ever talk to one or two endpoints.
 - `getObservabilitySink()` / `ObservabilitySinkInstance` — singleton sink. The query service (`ObservabilityQueryService`) reads from it.
+- `ObservabilityQueryService.getMetrics(window)` — read API for `/ops`. Aggregates inbound volume + route latency, outbound volume + per-service latency percentiles (p50/p95/p99), and route/service error rates over a `1h | 24h | 7d` window. Adding a new aggregation means extending `IObservabilityRepository`, the `OpsMetricsResponse` shape, and the engineering tab in one PR.
 
 ## Adding a new service
 

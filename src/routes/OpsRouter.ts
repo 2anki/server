@@ -15,6 +15,8 @@ import { PerformanceMetricsService } from '../services/ops/PerformanceMetricsSer
 import { BusinessMetricsCacheRepository } from '../data_layer/BusinessMetricsCacheRepository';
 import { CancellationFeedbackRepository } from '../data_layer/CancellationFeedbackRepository';
 import { EmojiFeedbackRepository } from '../data_layer/EmojiFeedbackRepository';
+import { ReEngagementFeedbackRepository } from '../data_layer/ReEngagementFeedbackRepository';
+import UsersRepository from '../data_layer/UsersRepository';
 import { ShowcaseRepository } from '../data_layer/ShowcaseRepository';
 import DownloadRepository from '../data_layer/DownloadRepository';
 import NotionRepository from '../data_layer/NotionRespository';
@@ -37,6 +39,8 @@ const OpsRouter = () => {
     cacheRepository: new BusinessMetricsCacheRepository(database),
     cancellationRepository: new CancellationFeedbackRepository(database),
     emojiFeedbackRepository: new EmojiFeedbackRepository(database),
+    reengagementRepository: new ReEngagementFeedbackRepository(database),
+    signupCountryRepository: new UsersRepository(database),
   });
 
   const conversionMetricsService = new ConversionMetricsService(database);

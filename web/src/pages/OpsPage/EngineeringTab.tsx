@@ -10,6 +10,7 @@ import ChartPanel from './charts/ChartPanel';
 import InboundVolumeChart from './charts/InboundVolumeChart';
 import LatencyByRouteChart from './charts/LatencyByRouteChart';
 import OutboundByServiceChart from './charts/OutboundByServiceChart';
+import OutboundLatencyTable from './charts/OutboundLatencyTable';
 import ErrorRateChart from './charts/ErrorRateChart';
 
 const WINDOW_LABEL: Record<OpsMetricsWindow, string> = {
@@ -33,6 +34,7 @@ const hasAnyData = (response: OpsMetricsResponse | undefined): boolean => {
     response.inbound_volume.length > 0 ||
     response.route_latency.length > 0 ||
     response.outbound_volume.length > 0 ||
+    (response.outbound_latency_by_service?.length ?? 0) > 0 ||
     response.error_rate_by_route.length > 0 ||
     response.error_rate_by_service.length > 0
   );
@@ -173,6 +175,20 @@ export default function EngineeringTab() {
             <OutboundByServiceChart
               points={visible?.outbound_volume ?? []}
               window={window}
+            />
+          </ChartPanel>
+
+          <ChartPanel
+            title={`Latency by service, ${suffix}`}
+            subtitle="p50 / p95 / p99 over duration_ms · top 10 services"
+            isLoading={showInitialSkeleton}
+            isEmpty={
+              (visible?.outbound_latency_by_service?.length ?? 0) === 0
+            }
+            emptyText="No outbound calls in this window."
+          >
+            <OutboundLatencyTable
+              rows={visible?.outbound_latency_by_service ?? []}
             />
           </ChartPanel>
         </div>

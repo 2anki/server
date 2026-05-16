@@ -18,6 +18,9 @@ import EmojiFeedbackCommentsList from './charts/EmojiFeedbackCommentsList';
 import ConversionsChurnChart from './charts/ConversionsChurnChart';
 import FailedPaymentsWeeklyChart from './charts/FailedPaymentsWeeklyChart';
 import MrrTimeseriesChart from './charts/MrrTimeseriesChart';
+import ReEngagementCommentsList from './charts/ReEngagementCommentsList';
+import ReEngagementReasonsChart from './charts/ReEngagementReasonsChart';
+import SignupCountriesChart from './charts/SignupCountriesChart';
 import styles from './OpsPage.module.css';
 import { useBusinessMetrics } from './useBusinessMetrics';
 
@@ -129,95 +132,201 @@ export default function BusinessTab() {
         />
       </div>
 
-      <div className={styles.grid}>
-        <ChartPanel
-          title="MRR, last 90 days"
-          isLoading={showInitialSkeleton}
-          isEmpty={(visible?.mrr_timeseries?.length ?? 0) === 0}
-          emptyText="No MRR history yet."
-        >
-          <MrrTimeseriesChart points={visible?.mrr_timeseries ?? []} />
-        </ChartPanel>
+      <section
+        className={styles.section}
+        aria-labelledby="biz-section-revenue"
+      >
+        <header className={styles.sectionHeader}>
+          <h2 id="biz-section-revenue" className={styles.sectionTitle}>
+            Revenue & subscriptions
+          </h2>
+          <p className={styles.sectionHint}>MRR, active subs, churn, failed payments</p>
+        </header>
+        <div className={styles.grid}>
+          <ChartPanel
+            title="MRR, last 90 days"
+            isLoading={showInitialSkeleton}
+            isEmpty={(visible?.mrr_timeseries?.length ?? 0) === 0}
+            emptyText="No MRR history yet."
+          >
+            <MrrTimeseriesChart points={visible?.mrr_timeseries ?? []} />
+          </ChartPanel>
 
-        <ChartPanel
-          title="Active paying subs, last 90 days"
-          isLoading={showInitialSkeleton}
-          isEmpty={(visible?.active_subs_timeseries?.length ?? 0) === 0}
-          emptyText="No active-subs history yet."
-        >
-          <ActiveSubsTimeseriesChart
-            points={visible?.active_subs_timeseries ?? []}
-          />
-        </ChartPanel>
+          <ChartPanel
+            title="Active paying subs, last 90 days"
+            isLoading={showInitialSkeleton}
+            isEmpty={(visible?.active_subs_timeseries?.length ?? 0) === 0}
+            emptyText="No active-subs history yet."
+          >
+            <ActiveSubsTimeseriesChart
+              points={visible?.active_subs_timeseries ?? []}
+            />
+          </ChartPanel>
 
-        <ChartPanel
-          title="New vs churned, last 12 weeks"
-          isLoading={showInitialSkeleton}
-          isEmpty={(visible?.conversions_vs_churn_weekly?.length ?? 0) === 0}
-          emptyText="No subscription movements yet."
-        >
-          <ConversionsChurnChart
-            points={visible?.conversions_vs_churn_weekly ?? []}
-          />
-        </ChartPanel>
+          <ChartPanel
+            title="New vs churned, last 12 weeks"
+            isLoading={showInitialSkeleton}
+            isEmpty={(visible?.conversions_vs_churn_weekly?.length ?? 0) === 0}
+            emptyText="No subscription movements yet."
+          >
+            <ConversionsChurnChart
+              points={visible?.conversions_vs_churn_weekly ?? []}
+            />
+          </ChartPanel>
 
-        <ChartPanel
-          title="Failed payments, last 12 weeks"
-          isLoading={showInitialSkeleton}
-          isEmpty={(visible?.failed_payments_weekly?.length ?? 0) === 0}
-          emptyText="No failed payments in this window."
-        >
-          <FailedPaymentsWeeklyChart
-            points={visible?.failed_payments_weekly ?? []}
-          />
-        </ChartPanel>
+          <ChartPanel
+            title="Failed payments, last 12 weeks"
+            isLoading={showInitialSkeleton}
+            isEmpty={(visible?.failed_payments_weekly?.length ?? 0) === 0}
+            emptyText="No failed payments in this window."
+          >
+            <FailedPaymentsWeeklyChart
+              points={visible?.failed_payments_weekly ?? []}
+            />
+          </ChartPanel>
+        </div>
+      </section>
 
-        <ChartPanel
-          title="Why users cancel, last 90 days"
-          isLoading={showInitialSkeleton}
-          isEmpty={(visible?.cancellation_reasons_top?.length ?? 0) === 0}
-          emptyText="No cancellations recorded yet."
-        >
-          <CancellationReasonsChart
-            points={visible?.cancellation_reasons_top ?? []}
-          />
-        </ChartPanel>
+      <section
+        className={styles.section}
+        aria-labelledby="biz-section-cancellations"
+      >
+        <header className={styles.sectionHeader}>
+          <h2 id="biz-section-cancellations" className={styles.sectionTitle}>
+            Why users cancel
+          </h2>
+          <p className={styles.sectionHint}>Cancel-survey reasons and comments</p>
+        </header>
+        <div className={styles.grid}>
+          <ChartPanel
+            title="Why users cancel, last 90 days"
+            isLoading={showInitialSkeleton}
+            isEmpty={(visible?.cancellation_reasons_top?.length ?? 0) === 0}
+            emptyText="No cancellations recorded yet."
+          >
+            <CancellationReasonsChart
+              points={visible?.cancellation_reasons_top ?? []}
+            />
+          </ChartPanel>
 
-        <ChartPanel
-          title="Recent cancellation comments"
-          subtitle="Latest free-text feedback from the cancel survey"
-          isLoading={showInitialSkeleton}
-          isEmpty={(visible?.cancellation_comments_recent?.length ?? 0) === 0}
-          emptyText="No free-text comments yet."
-        >
-          <CancellationCommentsList
-            points={visible?.cancellation_comments_recent ?? []}
-          />
-        </ChartPanel>
+          <ChartPanel
+            title="Recent cancellation comments"
+            subtitle="Latest free-text feedback from the cancel survey"
+            isLoading={showInitialSkeleton}
+            isEmpty={
+              (visible?.cancellation_comments_recent?.length ?? 0) === 0
+            }
+            emptyText="No free-text comments yet."
+          >
+            <CancellationCommentsList
+              points={visible?.cancellation_comments_recent ?? []}
+            />
+          </ChartPanel>
+        </div>
+      </section>
 
-        <ChartPanel
-          title="Emoji feedback, last 30 days"
-          isLoading={showInitialSkeleton}
-          isEmpty={(visible?.emoji_feedback_ratings?.length ?? 0) === 0}
-          emptyText="No emoji feedback yet."
-        >
-          <EmojiFeedbackChart
-            points={visible?.emoji_feedback_ratings ?? []}
-          />
-        </ChartPanel>
+      <section
+        className={styles.section}
+        aria-labelledby="biz-section-reengagement"
+      >
+        <header className={styles.sectionHeader}>
+          <h2 id="biz-section-reengagement" className={styles.sectionTitle}>
+            Re-engagement feedback
+          </h2>
+          <p className={styles.sectionHint}>
+            Why people stop engaging after a re-engagement email
+          </p>
+        </header>
+        <div className={styles.grid}>
+          <ChartPanel
+            title="Why people stop, last 90 days"
+            isLoading={showInitialSkeleton}
+            isEmpty={(visible?.reengagement_reasons_top?.length ?? 0) === 0}
+            emptyText="No re-engagement feedback recorded yet."
+          >
+            <ReEngagementReasonsChart
+              points={visible?.reengagement_reasons_top ?? []}
+            />
+          </ChartPanel>
 
-        <ChartPanel
-          title="Recent feedback comments"
-          subtitle="Latest text feedback from the emoji widget"
-          isLoading={showInitialSkeleton}
-          isEmpty={(visible?.emoji_feedback_comments?.length ?? 0) === 0}
-          emptyText="No feedback comments yet."
-        >
-          <EmojiFeedbackCommentsList
-            points={visible?.emoji_feedback_comments ?? []}
-          />
-        </ChartPanel>
-      </div>
+          <ChartPanel
+            title="Recent re-engagement comments"
+            subtitle="Latest free-text feedback after a re-engagement email"
+            isLoading={showInitialSkeleton}
+            isEmpty={
+              (visible?.reengagement_comments_recent?.length ?? 0) === 0
+            }
+            emptyText="No re-engagement comments yet."
+          >
+            <ReEngagementCommentsList
+              points={visible?.reengagement_comments_recent ?? []}
+            />
+          </ChartPanel>
+        </div>
+      </section>
+
+      <section
+        className={styles.section}
+        aria-labelledby="biz-section-emoji"
+      >
+        <header className={styles.sectionHeader}>
+          <h2 id="biz-section-emoji" className={styles.sectionTitle}>
+            Emoji feedback
+          </h2>
+          <p className={styles.sectionHint}>
+            Ratings and comments from the in-app emoji widget
+          </p>
+        </header>
+        <div className={styles.grid}>
+          <ChartPanel
+            title="Emoji feedback, last 30 days"
+            isLoading={showInitialSkeleton}
+            isEmpty={(visible?.emoji_feedback_ratings?.length ?? 0) === 0}
+            emptyText="No emoji feedback yet."
+          >
+            <EmojiFeedbackChart
+              points={visible?.emoji_feedback_ratings ?? []}
+            />
+          </ChartPanel>
+
+          <ChartPanel
+            title="Recent feedback comments"
+            subtitle="Latest text feedback from the emoji widget"
+            isLoading={showInitialSkeleton}
+            isEmpty={(visible?.emoji_feedback_comments?.length ?? 0) === 0}
+            emptyText="No feedback comments yet."
+          >
+            <EmojiFeedbackCommentsList
+              points={visible?.emoji_feedback_comments ?? []}
+            />
+          </ChartPanel>
+        </div>
+      </section>
+
+      <section
+        className={styles.section}
+        aria-labelledby="biz-section-geography"
+      >
+        <header className={styles.sectionHeader}>
+          <h2 id="biz-section-geography" className={styles.sectionTitle}>
+            Geography
+          </h2>
+          <p className={styles.sectionHint}>Where new signups come from</p>
+        </header>
+        <div className={styles.grid}>
+          <ChartPanel
+            title="Signups by country, last 90 days"
+            subtitle="Top 10 by signup count · ISO country codes"
+            isLoading={showInitialSkeleton}
+            isEmpty={(visible?.signup_countries_90d?.length ?? 0) === 0}
+            emptyText="No countries captured yet."
+          >
+            <SignupCountriesChart
+              points={visible?.signup_countries_90d ?? []}
+            />
+          </ChartPanel>
+        </div>
+      </section>
     </>
   );
 }

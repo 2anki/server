@@ -22,6 +22,7 @@ export const OPS_METRICS_BUCKET_SECONDS_BY_WINDOW: Record<OpsMetricsWindow, numb
 const TOP_ROUTES_LIMIT = 15;
 const TOP_ROUTES_ERROR_LIMIT = 10;
 const TOP_SERVICES_ERROR_LIMIT = 5;
+const TOP_SERVICES_LATENCY_LIMIT = 10;
 
 export interface OpsMetricsBucketPoint {
   bucket: string;
@@ -56,6 +57,14 @@ export interface OpsMetricsServiceErrorPoint {
   errors: number;
 }
 
+export interface OpsMetricsServiceLatencyPoint {
+  service: string;
+  p50_ms: number;
+  p95_ms: number;
+  p99_ms: number;
+  count: number;
+}
+
 export interface OpsMetricsResponse {
   window: OpsMetricsWindow;
   bucket_seconds: number;
@@ -63,6 +72,7 @@ export interface OpsMetricsResponse {
   inbound_volume: OpsMetricsBucketPoint[];
   route_latency: OpsMetricsRouteLatencyPoint[];
   outbound_volume: OpsMetricsOutboundPoint[];
+  outbound_latency_by_service: OpsMetricsServiceLatencyPoint[];
   error_rate_by_route: OpsMetricsRouteErrorPoint[];
   error_rate_by_service: OpsMetricsServiceErrorPoint[];
 }
@@ -82,14 +92,24 @@ export class ObservabilityQueryService {
     const bucketSeconds = OPS_METRICS_BUCKET_SECONDS_BY_WINDOW[window];
     const fromTime = new Date(Date.now() - rangeMs);
 
-    const [inbound, latency, outbound, routeErrors, serviceErrors] =
-      await Promise.all([
-        this.repository.aggregateInboundByStatusClass(fromTime, bucketSeconds),
-        this.repository.topRoutesByLatency(fromTime, TOP_ROUTES_LIMIT),
-        this.repository.aggregateOutboundByService(fromTime, bucketSeconds),
-        this.repository.errorRateByRoute(fromTime, TOP_ROUTES_ERROR_LIMIT),
-        this.repository.errorRateByService(fromTime, TOP_SERVICES_ERROR_LIMIT),
-      ]);
+    const [
+      inbound,
+      latency,
+      outbound,
+      outboundLatency,
+      routeErrors,
+      serviceErrors,
+    ] = await Promise.all([
+      this.repository.aggregateInboundByStatusClass(fromTime, bucketSeconds),
+      this.repository.topRoutesByLatency(fromTime, TOP_ROUTES_LIMIT),
+      this.repository.aggregateOutboundByService(fromTime, bucketSeconds),
+      this.repository.outboundLatencyByService(
+        fromTime,
+        TOP_SERVICES_LATENCY_LIMIT
+      ),
+      this.repository.errorRateByRoute(fromTime, TOP_ROUTES_ERROR_LIMIT),
+      this.repository.errorRateByService(fromTime, TOP_SERVICES_ERROR_LIMIT),
+    ]);
 
     return {
       window,
@@ -110,6 +130,13 @@ export class ObservabilityQueryService {
       outbound_volume: outbound.map((row) => ({
         bucket: row.bucket.toISOString(),
         service: row.service,
+        count: row.count,
+      })),
+      outbound_latency_by_service: outboundLatency.map((row) => ({
+        service: row.service,
+        p50_ms: row.p50_ms,
+        p95_ms: row.p95_ms,
+        p99_ms: row.p99_ms,
         count: row.count,
       })),
       error_rate_by_route: routeErrors.map((row) => ({

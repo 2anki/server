@@ -29,6 +29,7 @@ class FakeRepo implements IObservabilityRepository {
   aggregateInboundByStatusClass = async () => [];
   topRoutesByLatency = async () => [];
   aggregateOutboundByService = async () => [];
+  outboundLatencyByService = async () => [];
   errorRateByRoute = async () => [];
   errorRateByService = async () => [];
 }

@@ -23,8 +23,13 @@ class ContactMessagesController {
     if (Number.isNaN(id)) {
       return res.status(400).json({ error: 'Invalid id' });
     }
+    const bodyValue = (req.body as { is_acknowledged?: unknown } | undefined)
+      ?.is_acknowledged;
+    const isAcknowledged = bodyValue === false ? false : true;
     const database = getDatabase();
-    await database('feedback').where({ id }).update({ is_acknowledged: true });
+    await database('feedback')
+      .where({ id })
+      .update({ is_acknowledged: isAcknowledged });
     return res.status(200).send();
   }
 }
