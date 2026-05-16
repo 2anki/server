@@ -10,6 +10,7 @@ import EyeIcon from '../../../components/icons/EyeIcon';
 import TrashIcon from '../../../components/icons/TrashIcon';
 import SendToAnkifyButton from './SendToAnkifyButton';
 import { fireAnalyticsEvent } from '../../../lib/analytics/fireAnalyticsEvent';
+import { track } from '../../../lib/analytics/track';
 import { useUserLocals } from '../../../lib/hooks/useUserLocals';
 import { isPayingUser } from '../../../components/NavigationBar/helpers/getPlanLabel';
 import {
@@ -105,7 +106,7 @@ export function FinishedJobs({ uploads, deleteUpload, doneJobs = [], deleteJob }
                       className={styles.iconButton}
                       aria-label={`Download ${j.title}`}
                       title="Download"
-                      onClick={() => fireAnalyticsEvent('deck_downloaded')}
+                      onClick={() => { fireAnalyticsEvent('deck_downloaded'); track('deck_downloaded'); }}
                     >
                       <DownloadIcon width={18} height={18} />
                     </a>
@@ -154,7 +155,7 @@ export function FinishedJobs({ uploads, deleteUpload, doneJobs = [], deleteJob }
                       className={styles.iconButton}
                       aria-label={`Download ${u.filename}`}
                       title="Download"
-                      onClick={() => fireAnalyticsEvent('deck_downloaded')}
+                      onClick={() => { fireAnalyticsEvent('deck_downloaded'); track('deck_downloaded'); }}
                     >
                       <DownloadIcon width={18} height={18} />
                     </a>

@@ -23,6 +23,24 @@ import { CompleteJobUseCase } from '../../../../usecases/jobs/CompleteJobUseCase
 import { NotifyUserUseCase } from '../../../../usecases/jobs/NotifyUserUseCase';
 import { jobFailureReasonFromError } from '../../../../usecases/jobs/jobFailureReason';
 import { PythonExitError } from '../../../anki/buildPythonExitError';
+import { track } from '../../../../services/events/track';
+import { EventsRepository } from '../../../../data_layer/EventsRepository';
+import { EventsQueryService } from '../../../../services/events/EventsQueryService';
+
+type CardCountBucket = '<50' | '50-499' | '500+';
+type ConversionSource = 'notion' | 'upload' | 'google_drive';
+
+function toCardCountBucket(count: number): CardCountBucket {
+  if (count < 50) return '<50';
+  if (count < 500) return '50-499';
+  return '500+';
+}
+
+function toConversionSource(type?: string): ConversionSource {
+  if (type === 'google_drive') return 'google_drive';
+  if (type === 'page') return 'notion';
+  return 'upload';
+}
 
 interface ConversionRequest {
   title: string;
@@ -161,6 +179,28 @@ export default async function performConversion(
 
     const completeJob = new CompleteJobUseCase(jobRepository, usersRepository);
     await completeJob.execute(id, owner, cardCount);
+
+    const userId = Number.isFinite(Number(owner)) ? Number(owner) : null;
+    track('conversion_succeeded', {
+      userId,
+      props: {
+        source: toConversionSource(type),
+        card_count_bucket: toCardCountBucket(cardCount),
+      },
+    });
+
+    const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
+    const eventsRepo = new EventsRepository(database);
+    const eventsQuery = new EventsQueryService(eventsRepo);
+    const priorEngagement = await eventsQuery.countByNameForUser(
+      'upload_error_chat_engaged',
+      thirtyMinutesAgo,
+      userId,
+      null
+    );
+    if (priorEngagement > 0) {
+      track('upload_error_chat_resolved_retry', { userId });
+    }
   } catch (error) {
     if (error instanceof PythonExitError) {
       console.error('[conversion] python crash', {

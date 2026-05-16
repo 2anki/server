@@ -19,6 +19,7 @@ import { FeedbackWidget } from '../../../../components/FeedbackWidget/FeedbackWi
 import { useUserLocals } from '../../../../lib/hooks/useUserLocals';
 import { get2ankiApi } from '../../../../lib/backend/get2ankiApi';
 import { fireAnalyticsEvent } from '../../../../lib/analytics/fireAnalyticsEvent';
+import { track } from '../../../../lib/analytics/track';
 import formStyles from './UploadForm.module.css';
 import sharedStyles from '../../../../styles/shared.module.css';
 
@@ -263,6 +264,7 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
     if (zoneState === 'success' && downloadLink && !showFallback) {
       if (cardCount !== 0) {
         fireAnalyticsEvent('deck_downloaded');
+        track('deck_downloaded');
         downloadRef.current?.click();
       }
       fallbackTimerRef.current = setTimeout(() => {
@@ -284,6 +286,12 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
       setProgressWidth(90);
     }, 2000);
     return () => clearTimeout(timer);
+  }, [zoneState]);
+
+  useEffect(() => {
+    if (zoneState === 'error') {
+      track('upload_error_chat_shown');
+    }
   }, [zoneState]);
 
   const handleDropboxFiles = async (files: DropboxFile[]) => {
@@ -783,7 +791,11 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
       >
         Try again
       </button>
-      <Link to={chatCtaHref('error')} className={formStyles.resetLink}>
+      <Link
+        to={chatCtaHref('error')}
+        className={formStyles.resetLink}
+        onClick={() => track('upload_error_chat_engaged')}
+      >
         Stuck? Ask Claude about this file →
       </Link>
     </div>
