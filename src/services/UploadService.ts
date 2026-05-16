@@ -22,6 +22,7 @@ import CustomExporter from '../lib/parser/exporters/CustomExporter';
 import Deck from '../lib/parser/Deck';
 import { isHTMLFile, isMarkdownFile } from '../lib/storage/checks';
 import { FileSizeInMegaBytes } from '../lib/misc/file';
+import { track } from './events/track';
 
 function walkHtmlFiles(dir: string): string[] {
   const results: string[] = [];
@@ -270,6 +271,13 @@ class UploadService {
         console.error(err);
       }
       res.attachment(`/${first.name}`);
+      const uploadSource = this.resolveUploadSource(req);
+      const bucket = this.toCardCountBucket(totalCards);
+      const userId = getOwner(res);
+      track('conversion_succeeded', {
+        userId: userId != null ? Number(userId) : null,
+        props: { source: uploadSource, card_count_bucket: bucket },
+      });
       return res.status(200).send(apkg);
     } else if (packages.length > 1) {
       const url = `/download/${ws.id}`;
@@ -279,6 +287,17 @@ class UploadService {
       logNoPackageDiagnostics(req.files as UploadedFile[]);
       ErrorHandler(res, req, getNoPackageError(isPaying(res.locals)));
     }
+  }
+
+  private resolveUploadSource(req: express.Request): 'upload' | 'google_drive' {
+    if (req.path?.includes('google_drive')) return 'google_drive';
+    return 'upload';
+  }
+
+  private toCardCountBucket(count: number): '<50' | '50-499' | '500+' {
+    if (count < 50) return '<50';
+    if (count < 500) return '50-499';
+    return '500+';
   }
 }
 
