@@ -2,9 +2,14 @@ import Stripe from 'stripe';
 import type { Stripe as StripeTypes } from 'stripe/cjs/stripe.core';
 import { Knex } from 'knex';
 
-const stripe = new Stripe(process.env.STRIPE_KEY!);
+let stripeInstance: InstanceType<typeof Stripe> | null = null;
 
-export const getStripe = () => stripe;
+export const getStripe = () => {
+  if (stripeInstance == null) {
+    stripeInstance = new Stripe(process.env.STRIPE_KEY!);
+  }
+  return stripeInstance;
+};
 
 export const getCustomerId = (
   customer: string | StripeTypes.Customer | StripeTypes.DeletedCustomer | null
