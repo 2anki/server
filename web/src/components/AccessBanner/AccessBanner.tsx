@@ -49,19 +49,19 @@ export function AccessBanner({
 
   if (remainingMs >= TWO_HOURS_MS) {
     return (
-      <div className={styles.banner} role="status">
+      <output className={styles.banner}>
         <span className={styles.message}>
           {passLabel} active — expires {formatExpiryDate(expiresAt)}. Convert as much as you want.
         </span>
-      </div>
+      </output>
     );
   }
 
   return (
-    <div className={styles.banner} role="status">
+    <output className={styles.banner}>
       <span className={styles.warning}>
         {passLabel} ends in {formatTimeRemaining(remainingMs)} — finish any pending conversions.
       </span>
-    </div>
+    </output>
   );
 }
