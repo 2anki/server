@@ -1,6 +1,17 @@
 import { unzipSync, strFromU8 } from 'fflate';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const initSqlJs = require('sql.js');
 
 import { exportNoteTypeToApkg, AnkiNoteType } from './exportNoteTypeToApkg';
+
+async function readDecksJson(apkg: Buffer): Promise<Record<string, { id: number; name: string }>> {
+  const entries = unzipSync(new Uint8Array(apkg));
+  const SQL = await initSqlJs();
+  const db = new SQL.Database(entries['collection.anki2']);
+  const res = db.exec('SELECT decks FROM col');
+  db.close();
+  return JSON.parse(res[0].values[0][0] as string);
+}
 
 const basicNoteType: AnkiNoteType = {
   id: 1000000000000,
@@ -57,5 +68,29 @@ describe('exportNoteTypeToApkg', () => {
     });
 
     expect(buffer.length).toBeGreaterThan(0);
+  });
+
+  it('names the deck "2anki::<noteType.name>" so cards do not land in Default on import', async () => {
+    const buffer = await exportNoteTypeToApkg(basicNoteType);
+    const decks = await readDecksJson(buffer);
+
+    const decksList = Object.values(decks);
+    expect(decksList).toHaveLength(1);
+    expect(decksList[0].name).toBe('2anki::Basic');
+    expect(decksList[0].id).not.toBe(1);
+  });
+
+  it('preserves the original template name casing and punctuation in the deck name', async () => {
+    const ornateNoteType: AnkiNoteType = {
+      ...basicNoteType,
+      name: 'Abhiyan Bhandari (Night Mode — Cloze)',
+    };
+
+    const buffer = await exportNoteTypeToApkg(ornateNoteType);
+    const decks = await readDecksJson(buffer);
+
+    expect(Object.values(decks)[0].name).toBe(
+      '2anki::Abhiyan Bhandari (Night Mode — Cloze)'
+    );
   });
 });
