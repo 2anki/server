@@ -644,6 +644,77 @@ describe('UsersController.getLocals', () => {
     expect(payload.user.email_verified).toBe(true);
   });
 
+  it('surfaces chat_consent_at on the user object so the consent modal closes after accept', async () => {
+    const consentAt = new Date('2026-05-16T20:00:00.000Z');
+    const mockUser = {
+      id: 3,
+      email: 'c@example.com',
+      email_verified: true,
+      patreon: false,
+      ankify_welcome_seen: false,
+      trial_started_at: null,
+      hosted_anki_requested_at: null,
+      chat_consent_at: consentAt,
+      owner: 3,
+    };
+    const userService = {
+      getSubscriptionLinkedEmail: jest.fn().mockResolvedValue(null),
+    } as unknown as UsersService;
+    const authService = {
+      getUserFrom: jest.fn().mockResolvedValue(mockUser),
+    } as unknown as AuthenticationService;
+    const controller = new UsersController(
+      userService,
+      authService,
+      {} as ReturnType<typeof import('../data_layer').getDatabase>
+    );
+    const req = { cookies: { token: 'valid' } } as unknown as express.Request;
+    const res = {
+      locals: {},
+      json: jest.fn(),
+    } as unknown as express.Response & { json: jest.Mock };
+
+    await controller.getLocals(req, res);
+
+    const payload = res.json.mock.calls[0][0];
+    expect(payload.user.chat_consent_at).toEqual(consentAt);
+  });
+
+  it('defaults chat_consent_at to null when the user has not consented', async () => {
+    const mockUser = {
+      id: 4,
+      email: 'd@example.com',
+      email_verified: true,
+      patreon: false,
+      ankify_welcome_seen: false,
+      trial_started_at: null,
+      hosted_anki_requested_at: null,
+      chat_consent_at: null,
+      owner: 4,
+    };
+    const userService = {
+      getSubscriptionLinkedEmail: jest.fn().mockResolvedValue(null),
+    } as unknown as UsersService;
+    const authService = {
+      getUserFrom: jest.fn().mockResolvedValue(mockUser),
+    } as unknown as AuthenticationService;
+    const controller = new UsersController(
+      userService,
+      authService,
+      {} as ReturnType<typeof import('../data_layer').getDatabase>
+    );
+    const req = { cookies: { token: 'valid' } } as unknown as express.Request;
+    const res = {
+      locals: {},
+      json: jest.fn(),
+    } as unknown as express.Response & { json: jest.Mock };
+
+    await controller.getLocals(req, res);
+
+    const payload = res.json.mock.calls[0][0];
+    expect(payload.user.chat_consent_at).toBeNull();
+  });
+
   it('defaults email_verified to false when user has no value', async () => {
     const mockUser = {
       id: 2,
