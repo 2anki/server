@@ -261,6 +261,20 @@ class UsersController {
 
     // featureFlags.kiUI = user?.patreon || res.locals.subscriber;
 
+    const autoSyncProductId = process.env.AUTO_SYNC_PRODUCT_ID ?? '';
+    const maxSubscribers = parseInt(process.env.HOSTED_ANKI_MAX_SUBSCRIBERS ?? '', 10) || 50;
+    const autoSyncActiveCount = autoSyncProductId !== ''
+      ? await SubscriptionService.countActiveByProductId(autoSyncProductId)
+      : 0;
+    const autoSyncCapReached = autoSyncActiveCount >= maxSubscribers;
+
+    const userSubs = user?.email
+      ? await SubscriptionService.getUserActiveSubscriptions(user.email)
+      : [];
+    const autoSyncActive = autoSyncProductId !== '' && userSubs.some(
+      (s) => s.active && (s as { stripe_product_id?: string | null }).stripe_product_id === autoSyncProductId
+    );
+
     const response = {
       user: {
         id: user?.id,
@@ -276,6 +290,8 @@ class UsersController {
       linked_email: linkedEmail,
       features: featureFlags,
       hostedAnkiRequested: user?.hosted_anki_requested_at != null,
+      autoSyncCapReached,
+      autoSyncActive,
     };
 
     return res.json(response);

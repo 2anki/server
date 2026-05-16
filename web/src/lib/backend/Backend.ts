@@ -410,6 +410,16 @@ export class Backend {
     await post(`${this.baseURL}users/debug/ankify-welcome-seen`, {});
   }
 
+  async startAutoSyncCheckout(): Promise<
+    { url: string } | { status: 'cap_reached' | 'already_subscribed' }
+  > {
+    const response = await post(`${this.baseURL}checkout/auto-sync`, {});
+    if (response.status === 404) {
+      return { status: 'cap_reached' };
+    }
+    return response.json();
+  }
+
   async startTrial(): Promise<{
     ok: boolean;
     reason?: string;

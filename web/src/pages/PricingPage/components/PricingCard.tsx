@@ -7,8 +7,10 @@ interface PricingCardProp {
   priceSuffix?: string;
   priceRange?: boolean;
   priceChip?: string;
+  hidePriceLine?: boolean;
   title: string;
   badge?: string;
+  badgeMuted?: boolean;
   benefits: string[];
   link?: string;
   linkText?: string;
@@ -18,6 +20,7 @@ interface PricingCardProp {
   comingSoon?: boolean;
   variant?: 'primary' | 'outline';
   caption?: string;
+  learnMoreHref?: string;
   className?: string;
 }
 
@@ -45,8 +48,10 @@ export function PricingCard({
   priceSuffix,
   priceRange,
   priceChip,
+  hidePriceLine,
   title,
   badge,
+  badgeMuted,
   benefits,
   linkText,
   link,
@@ -56,6 +61,7 @@ export function PricingCard({
   comingSoon,
   variant = 'primary',
   caption,
+  learnMoreHref,
   className,
 }: Readonly<PricingCardProp>) {
   const baseCardClass = comingSoon ? styles.cardComingSoon : styles.card;
@@ -67,25 +73,29 @@ export function PricingCard({
   const showLink = !showButton && link != null && linkText != null;
 
   let priceNode: ReactNode = null;
-  if (price != null) {
-    const priceLineClass = priceRange
-      ? `${styles.cardPriceLine} ${styles.cardPriceLineRange}`
-      : styles.cardPriceLine;
-    priceNode = (
-      <span className={priceLineClass}>
-        <span className={styles.cardPrice}>{price}</span>
-        {priceSuffix != null && (
-          <span className={styles.cardPriceSuffix}>{priceSuffix}</span>
-        )}
-      </span>
-    );
-  } else if (priceChip != null) {
-    priceNode = <span className={styles.cardPriceChip}>{priceChip}</span>;
+  if (!hidePriceLine) {
+    if (price != null) {
+      const priceLineClass = priceRange
+        ? `${styles.cardPriceLine} ${styles.cardPriceLineRange}`
+        : styles.cardPriceLine;
+      priceNode = (
+        <span className={priceLineClass}>
+          <span className={styles.cardPrice}>{price}</span>
+          {priceSuffix != null && (
+            <span className={styles.cardPriceSuffix}>{priceSuffix}</span>
+          )}
+        </span>
+      );
+    } else if (priceChip != null) {
+      priceNode = <span className={styles.cardPriceChip}>{priceChip}</span>;
+    }
   }
+
+  const badgeClass = badgeMuted ? styles.cardBadgeMuted : styles.cardBadge;
 
   return (
     <div className={cardClass}>
-      {badge != null && <span className={styles.cardBadge}>{badge}</span>}
+      {badge != null && <span className={badgeClass}>{badge}</span>}
       <div className={styles.cardHeader}>
         <p className={styles.cardTitle}>{title}</p>
         {priceNode}
@@ -98,7 +108,7 @@ export function PricingCard({
           </p>
         ))}
       </div>
-      {(showButton || showLink || caption != null) && (
+      {(showButton || showLink || caption != null || learnMoreHref != null) && (
         <div className={styles.cardFooter}>
           {showButton && (
             <button
@@ -116,6 +126,11 @@ export function PricingCard({
             </a>
           )}
           {caption != null && <p className={styles.cardCaption}>{caption}</p>}
+          {learnMoreHref != null && (
+            <a href={learnMoreHref} className={styles.cardLearnMore} target="_blank" rel="noopener noreferrer">
+              Learn how it works
+            </a>
+          )}
         </div>
       )}
     </div>
