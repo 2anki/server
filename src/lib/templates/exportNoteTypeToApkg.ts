@@ -64,7 +64,12 @@ function buildSchema(db: import('sql.js').Database) {
   `);
 }
 
-function buildModel(noteType: AnkiNoteType, modelId: number, now: number) {
+function buildModel(
+  noteType: AnkiNoteType,
+  modelId: number,
+  deckId: number,
+  now: number
+) {
   return {
     [modelId]: {
       id: modelId,
@@ -73,7 +78,7 @@ function buildModel(noteType: AnkiNoteType, modelId: number, now: number) {
       mod: now,
       usn: -1,
       sortf: 0,
-      did: null,
+      did: deckId,
       tmpls: noteType.tmpls.map((t) => ({
         name: t.name,
         ord: t.ord,
@@ -258,7 +263,7 @@ export async function exportNoteTypeToApkg(
   const deckId = Date.now() + 1;
   const deckName = `2anki::${noteType.name}`;
 
-  const model = buildModel(noteType, modelId, now);
+  const model = buildModel(noteType, modelId, deckId, now);
   const deck = buildDeck(deckId, deckName, now);
   const conf = buildConf(deckId, modelId);
   const dconf = buildDconf(now);
