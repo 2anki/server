@@ -22,8 +22,6 @@ export default interface Users {
 
   patreon: boolean | null;
 
-  picture: string | null;
-
   last_login_at: Date | null;
 
   hosted_anki_requested_at: Date | null;
@@ -59,9 +57,6 @@ export interface UsersInitializer {
   /** Default value: false */
   patreon?: boolean | null;
 
-  /** Default value: NULL::character varying */
-  picture?: string | null;
-
   last_login_at?: Date | null;
 
   hosted_anki_requested_at?: Date | null;
@@ -94,8 +89,6 @@ export interface UsersMutator {
   reset_token?: string | null;
 
   patreon?: boolean | null;
-
-  picture?: string | null;
 
   last_login_at?: Date | null;
 
