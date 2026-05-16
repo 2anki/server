@@ -22,7 +22,7 @@ export default function ConsentModal({ onAccept, onDismiss }: Readonly<ConsentMo
   };
 
   return (
-    <div className={sharedStyles.modal} role="dialog" aria-modal="true" aria-labelledby="consent-heading">
+    <dialog open className={styles.dialog} aria-modal="true" aria-labelledby="consent-heading">
       <div className={sharedStyles.modalBackdrop} />
       <div className={sharedStyles.modalCardNarrow}>
         <div className={sharedStyles.modalHeader}>
@@ -54,6 +54,6 @@ export default function ConsentModal({ onAccept, onDismiss }: Readonly<ConsentMo
           </div>
         </div>
       </div>
-    </div>
+    </dialog>
   );
 }
