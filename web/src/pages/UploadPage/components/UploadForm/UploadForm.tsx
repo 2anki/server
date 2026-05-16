@@ -625,17 +625,9 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
     </div>
   );
 
-  const renderEmptyDeckState = () => {
-    const isGoogleDoc = driveMimeType === 'application/vnd.google-apps.document';
-    const isGoogleSheet = driveMimeType === 'application/vnd.google-apps.spreadsheet';
-    const isGoogleSlide = driveMimeType === 'application/vnd.google-apps.presentation';
-
-    const emptyTitle = isGoogleDoc || isGoogleSheet || isGoogleSlide
-      ? `No cards found in ${driveFilename ?? 'your file'}`
-      : 'No cards found in this file';
-
-    const emptyBody = isGoogleDoc
-      ? (
+  const renderEmptyDeckBody = () => {
+    if (driveMimeType === 'application/vnd.google-apps.document') {
+      return (
         <p className={formStyles.emptyBody}>
           Your Doc converted, but we didn't see the bullet shape we turn into cards.
           Restructure your Doc so each question is a top-level bullet with its answer
@@ -644,43 +636,53 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
             See a working example
           </a>
         </p>
-      )
-      : isGoogleSheet
-      ? (
+      );
+    }
+    if (driveMimeType === 'application/vnd.google-apps.spreadsheet') {
+      return (
         <p className={formStyles.emptyBody}>
           Sheets need a column of questions and a column of answers. Make sure your
           Sheet has at least two columns, then try again.
         </p>
-      )
-      : isGoogleSlide
-      ? (
+      );
+    }
+    if (driveMimeType === 'application/vnd.google-apps.presentation') {
+      return (
         <p className={formStyles.emptyBody}>
           Slides need a title and bullets per slide to produce cards. Add titles and
           bullet points to your slides, then try again.
         </p>
-      )
-      : (
-        <>
-          <p className={formStyles.emptyBody}>
-            2anki turns Notion toggle blocks (the little triangles you click to
-            expand) into flashcards. We didn't find any toggles in this file.
-          </p>
-          <p className={formStyles.emptyBody}>
-            If this came from Notion, open the page, add some toggle blocks, and
-            export again.{' '}
-            <a href="/documentation/help/common-problems#could-not-create-a-deck-using-your-file-and-rules">
-              See examples
-            </a>
-            .
-          </p>
-        </>
       );
+    }
+    return (
+      <>
+        <p className={formStyles.emptyBody}>
+          2anki turns Notion toggle blocks (the little triangles you click to
+          expand) into flashcards. We didn't find any toggles in this file.
+        </p>
+        <p className={formStyles.emptyBody}>
+          If this came from Notion, open the page, add some toggle blocks, and
+          export again.{' '}
+          <a href="/documentation/help/common-problems#could-not-create-a-deck-using-your-file-and-rules">
+            See examples
+          </a>
+          .
+        </p>
+      </>
+    );
+  };
+
+  const renderEmptyDeckState = () => {
+    const isGoogleDriveFile = driveMimeType?.startsWith('application/vnd.google-apps.') ?? false;
+    const emptyTitle = isGoogleDriveFile
+      ? `No cards found in ${driveFilename ?? 'your file'}`
+      : 'No cards found in this file';
 
     return (
       <div className={formStyles.stateContent}>
         <WarningIcon className={formStyles.iconWarning} />
         <p className={formStyles.emptyTitle}>{emptyTitle}</p>
-        {emptyBody}
+        {renderEmptyDeckBody()}
         <div className={formStyles.emptyActions}>
           <button
             type="button"
