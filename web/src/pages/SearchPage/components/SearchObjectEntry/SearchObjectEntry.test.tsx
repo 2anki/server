@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
@@ -6,6 +6,7 @@ import { MemoryRouter } from 'react-router-dom';
 import SearchObjectEntry from './index';
 
 const mockNavigate = vi.fn();
+const mockConvert = vi.fn();
 
 vi.mock('react-router-dom', async (importOriginal) => {
   const actual = await importOriginal<typeof import('react-router-dom')>();
@@ -16,7 +17,7 @@ vi.mock('react-router-dom', async (importOriginal) => {
 });
 
 vi.mock('../../../../lib/backend/get2ankiApi', () => ({
-  get2ankiApi: () => ({ convert: vi.fn() }),
+  get2ankiApi: () => ({ convert: mockConvert }),
 }));
 
 function renderEntry(overrides: Partial<Parameters<typeof SearchObjectEntry>[0]> = {}) {
@@ -40,6 +41,7 @@ function renderEntry(overrides: Partial<Parameters<typeof SearchObjectEntry>[0]>
 describe('SearchObjectEntry rules link', () => {
   beforeEach(() => {
     mockNavigate.mockClear();
+    mockConvert.mockClear();
   });
 
   it('encodes page title into returnTo so /notion is pre-filled on return', () => {
@@ -65,5 +67,72 @@ describe('SearchObjectEntry rules link', () => {
     const destination: string = mockNavigate.mock.calls[0][0];
     expect(destination).toContain('returnTo=%2Fnotion%3Fq%3D');
     expect(destination).not.toContain('returnTo=/notion');
+  });
+});
+
+describe('SearchObjectEntry convert button', () => {
+  beforeEach(() => {
+    mockNavigate.mockClear();
+    mockConvert.mockClear();
+  });
+
+  it('shows idle label "Convert to Anki" initially', () => {
+    renderEntry();
+    expect(screen.getByRole('link', { name: 'Convert to Anki' })).toBeInTheDocument();
+  });
+
+  it('on 202: button becomes "In progress" (aria-disabled) and shows downloads link', async () => {
+    mockConvert.mockResolvedValue({ status: 202, json: async () => ({ jobId: 5 }) });
+
+    renderEntry();
+    fireEvent.click(screen.getByRole('link', { name: 'Convert to Anki' }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('link', { name: 'In progress' })).toBeInTheDocument();
+    });
+
+    expect(screen.getByText(/Added to your downloads/)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'view' })).toHaveAttribute('href', '/downloads');
+  });
+
+  it('on 402: shows paywall copy with Upgrade link to /pricing', async () => {
+    mockConvert.mockResolvedValue({
+      status: 402,
+      json: async () => ({ reason: 'free_plan_one_at_a_time' }),
+    });
+
+    renderEntry();
+    fireEvent.click(screen.getByRole('link', { name: 'Convert to Anki' }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/Free plan — one conversion at a time\./)).toBeInTheDocument();
+    });
+
+    expect(screen.getByRole('link', { name: 'Upgrade' })).toHaveAttribute('href', '/pricing');
+  });
+
+  it('on 409: shows already-converting copy', async () => {
+    mockConvert.mockResolvedValue({
+      status: 409,
+      json: async () => ({ reason: 'already_in_progress' }),
+    });
+
+    renderEntry();
+    fireEvent.click(screen.getByRole('link', { name: 'Convert to Anki' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Already converting this page.')).toBeInTheDocument();
+    });
+  });
+
+  it('on other failure: shows generic error copy', async () => {
+    mockConvert.mockResolvedValue({ status: 500, text: async () => '' });
+
+    renderEntry();
+    fireEvent.click(screen.getByRole('link', { name: 'Convert to Anki' }));
+
+    await waitFor(() => {
+      expect(screen.getByText("Couldn't queue this page. Try again.")).toBeInTheDocument();
+    });
   });
 });

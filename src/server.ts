@@ -175,9 +175,14 @@ const serve = async () => {
 
   const database = getDatabase();
   await setupDatabase(database);
-  const interruptedCount = await new JobRepository(database).markInterruptedClaudeJobs();
-  if (interruptedCount > 0) {
-    console.info(`[startup] Marked ${interruptedCount} Claude job(s) as interrupted`);
+  const jobRepo = new JobRepository(database);
+  const interruptedClaudeCount = await jobRepo.markInterruptedClaudeJobs();
+  if (interruptedClaudeCount > 0) {
+    console.info(`[startup] Marked ${interruptedClaudeCount} Claude job(s) as interrupted`);
+  }
+  const interruptedNotionCount = await jobRepo.markInterruptedNotionJobs();
+  if (interruptedNotionCount > 0) {
+    console.info(`[startup] Marked ${interruptedNotionCount} Notion job(s) as interrupted`);
   }
 
   new MagicTokenRepository(database).deleteExpired().then((count) => {
