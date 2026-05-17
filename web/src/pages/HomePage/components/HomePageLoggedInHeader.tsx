@@ -6,7 +6,7 @@ export function HomePageLoggedInHeader() {
   const title = data?.user?.name;
   return (
     <h2 className={styles.subHeading}>
-      Welcome back{title ? `, ${title}!` : ''}
+      Welcome back{title ? `, ${title}` : ''}
     </h2>
   );
 }

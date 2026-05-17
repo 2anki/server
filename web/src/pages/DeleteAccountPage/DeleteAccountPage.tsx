@@ -14,7 +14,7 @@ interface Prop {
 export function DeleteAccountPage({ setError }: Readonly<Prop>) {
   const [count, setCount] = React.useState(0);
   const [isDeleting, setIsDeleting] = React.useState(false);
-  const deleteButtonText = count === 0 ? 'Delete' : 'I am sure!';
+  const deleteButtonText = count === 0 ? 'Delete' : 'Yes, delete account';
 
   const handleDelete = async () => {
     if (count < 1) {
@@ -53,7 +53,7 @@ export function DeleteAccountPage({ setError }: Readonly<Prop>) {
 
         {isDeleting && (
           <div className={sharedStyles.infoBox}>
-            Deleting your account and cancelling subscriptions...
+            Deleting your account and cancelling subscriptions
           </div>
         )}
 
@@ -63,7 +63,7 @@ export function DeleteAccountPage({ setError }: Readonly<Prop>) {
           type="button"
           disabled={isDeleting}
         >
-          {isDeleting ? 'Deleting...' : deleteButtonText}
+          {isDeleting ? 'Deleting' : deleteButtonText}
         </button>
         <p
           className={`${sharedStyles.smallDescription} ${sharedStyles.marginTopLg}`}
