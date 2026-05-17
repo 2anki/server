@@ -1,16 +1,31 @@
 import type { IInactivityEmailRepository } from '../../data_layer/InactivityEmailRepository';
+import type { IUploadRepository } from '../../data_layer/UploadRespository';
 import type { IEmailService } from '../../services/EmailService/EmailService';
+import path from 'node:path';
 
 export interface SendInactivityWarningsResult {
   count: number;
   dryRun: boolean;
 }
 
+class NoOpUploadRepository implements IUploadRepository {
+  deleteUpload(): Promise<number> { return Promise.resolve(0); }
+  getUploadsByOwner(): Promise<never[]> { return Promise.resolve([]); }
+  findByIdAndOwner(): Promise<null> { return Promise.resolve(null); }
+  update(): Promise<never[]> { return Promise.resolve([]); }
+  getLastUploadForUser(): Promise<null> { return Promise.resolve(null); }
+}
+
 export class SendInactivityWarningsUseCase {
+  private readonly uploadsRepo: IUploadRepository;
+
   constructor(
     private readonly repo: IInactivityEmailRepository,
-    private readonly emailService: IEmailService
-  ) {}
+    private readonly emailService: IEmailService,
+    uploadsRepo?: IUploadRepository
+  ) {
+    this.uploadsRepo = uploadsRepo ?? new NoOpUploadRepository();
+  }
 
   async execute(dryRun: boolean, limit = 500): Promise<SendInactivityWarningsResult> {
     const users = await this.repo.getUsersToNotify(limit);
@@ -21,9 +36,14 @@ export class SendInactivityWarningsUseCase {
 
     let sent = 0;
     for (const user of users) {
-      await this.repo.recordSend(user.id, crypto.randomUUID());
+      const token = crypto.randomUUID();
+      await this.repo.recordSend(user.id, token);
       try {
-        await this.emailService.sendInactivityWarningEmail(user.email);
+        const lastUpload = await this.uploadsRepo.getLastUploadForUser(user.id);
+        const lastConversion = lastUpload != null
+          ? { deckName: path.basename(lastUpload.filename, path.extname(lastUpload.filename)) }
+          : null;
+        await this.emailService.sendInactivityWarningEmail(user.email, token, lastConversion);
         sent++;
       } catch (error) {
         console.error(`[inactivity] failed to email user ${user.id}:`, error);

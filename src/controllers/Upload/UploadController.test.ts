@@ -45,6 +45,9 @@ describe('Upload file', () => {
       ): Promise<Uploads[]> {
         return Promise.resolve([]);
       },
+      getLastUploadForUser: function (_userId: number) {
+        return Promise.resolve(null);
+      },
     };
     const notionRepository: INotionRepository = {
       getNotionData: function (owner: string | number): Promise<NotionTokens> {

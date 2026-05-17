@@ -56,7 +56,7 @@ export interface IEmailService {
     name: string,
     token: string
   ): Promise<void>;
-  sendInactivityWarningEmail(to: string): Promise<void>;
+  sendInactivityWarningEmail(to: string, token: string, lastConversion?: { deckName: string } | null): Promise<void>;
   sendAbandonedCheckoutRecoveryEmail(to: string): Promise<void>;
 }
 
@@ -257,9 +257,23 @@ class EmailService implements IEmailService {
     }
   }
 
-  async sendInactivityWarningEmail(to: string): Promise<void> {
+  async sendInactivityWarningEmail(
+    to: string,
+    token: string,
+    lastConversion?: { deckName: string } | null
+  ): Promise<void> {
     const domain = process.env.DOMAIN ?? 'https://2anki.net';
-    const markup = INACTIVITY_WARNING_TEMPLATE.replace('{{link}}', domain);
+
+    const hasConversion = lastConversion != null;
+    const bodyText = hasConversion
+      ? `Your last deck on 2anki was ${lastConversion.deckName}. If another exam or chapter is coming up, your account is ready — paste a Notion link or drop in a file and you'll have a deck in under a minute.`
+      : `You signed up for 2anki but haven't made a deck yet. When you're ready, paste a Notion link or drop in a file at 2anki.net and you'll have an Anki deck in under a minute.`;
+
+    const ctaUrl = `${domain}/r/email?t=${encodeURIComponent(token)}&c=inactivity&to=/upload`;
+
+    const markup = INACTIVITY_WARNING_TEMPLATE
+      .replace('{{bodyText}}', bodyText)
+      .replace('{{ctaUrl}}', ctaUrl);
 
     const $ = cheerio.load(markup);
     const text = $('body').text().replace(/\s+/g, ' ').trim();
@@ -267,7 +281,7 @@ class EmailService implements IEmailService {
     const msg = {
       to,
       from: this.defaultSender,
-      subject: 'Your 2anki account will be deleted soon',
+      subject: 'Your decks on 2anki — still here when you need them',
       text,
       html: markup,
       replyTo: 'support@2anki.net',
@@ -508,8 +522,8 @@ export class UnimplementedEmailService implements IEmailService {
     console.info('sendReEngagementEmail not handled', to, name, token);
   }
 
-  async sendInactivityWarningEmail(to: string): Promise<void> {
-    console.info('sendInactivityWarningEmail not handled', to);
+  async sendInactivityWarningEmail(to: string, token: string, lastConversion?: { deckName: string } | null): Promise<void> {
+    console.info('sendInactivityWarningEmail not handled', to, token, lastConversion);
   }
 
   async sendAbandonedCheckoutRecoveryEmail(to: string): Promise<void> {
