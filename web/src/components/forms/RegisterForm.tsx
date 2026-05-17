@@ -108,6 +108,8 @@ function RegisterForm({ setErrorMessage, redirect }: Props) {
                   }
                 }}
                 type="email"
+                autoComplete="email"
+                inputMode="email"
                 placeholder="Email address"
                 required
                 name="email"
@@ -126,6 +128,7 @@ function RegisterForm({ setErrorMessage, redirect }: Props) {
                 onChange={(event) => setPassword(event.target.value)}
                 required
                 type="password"
+                autoComplete="new-password"
                 placeholder="Password"
                 aria-describedby="password-help"
               />

@@ -42,9 +42,14 @@ export function CancellationSurveyModal({ mode, onConfirm, onClose }: Props) {
         onClick={onClose}
         aria-label="Close"
       />
-      <div className={sharedStyles.modalCardNarrow}>
+      <div
+        className={sharedStyles.modalCardNarrow}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="cancellation-survey-title"
+      >
         <div className={sharedStyles.modalHeader}>
-          <span className={sharedStyles.modalHeaderTitle}>
+          <span id="cancellation-survey-title" className={sharedStyles.modalHeaderTitle}>
             Before you go…
           </span>
           <button

@@ -1,4 +1,5 @@
 import styles from '../../../../styles/shared.module.css';
+import RefreshIcon from '../../../../components/icons/RefreshIcon';
 
 interface Prop {
   onRefresh: () => void;
@@ -8,11 +9,11 @@ export function RefreshButton({ onRefresh }: Readonly<Prop>) {
   return (
     <button
       onClick={() => onRefresh()}
-      aria-label="refresh"
+      aria-label="Refresh"
       type="button"
       className={styles.btnIcon}
     >
-      <i className="fa-solid fa-arrows-rotate" />
+      <RefreshIcon />
     </button>
   );
 }

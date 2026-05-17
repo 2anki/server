@@ -20,9 +20,16 @@ export function FeedbackModal({ isActive, onClose }: Readonly<Props>) {
         onClick={onClose}
         aria-label="Close feedback"
       />
-      <div className={sharedStyles.modalCardNarrow}>
+      <div
+        className={sharedStyles.modalCardNarrow}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="feedback-modal-title"
+      >
         <div className={sharedStyles.modalHeader}>
-          <div className={sharedStyles.modalHeaderTitle}>Send feedback</div>
+          <div id="feedback-modal-title" className={sharedStyles.modalHeaderTitle}>
+            Send feedback
+          </div>
           <button
             type="button"
             aria-label="close"

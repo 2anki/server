@@ -76,6 +76,7 @@ function NewPasswordForm({ setErrorMessage }: Readonly<Props>) {
                   setPassword(event.target.value);
                 }}
                 type="password"
+                autoComplete="new-password"
                 placeholder="New password"
                 required
               />
@@ -96,6 +97,7 @@ function NewPasswordForm({ setErrorMessage }: Readonly<Props>) {
                   setConfirmPassword(event.target.value);
                 }}
                 type="password"
+                autoComplete="new-password"
                 placeholder="Re-enter new password"
                 required
               />
