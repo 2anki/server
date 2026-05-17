@@ -18,6 +18,11 @@ jest.mock('../services/SubscriptionService', () => ({
   },
 }));
 
+jest.mock('../lib/misc/hashToken', () => ({
+  __esModule: true,
+  default: jest.fn().mockReturnValue('hashed-token'),
+}));
+
 import UsersController from './UsersControllers';
 import UsersService, { MagicLinkRateLimitError } from '../services/UsersService';
 import AuthenticationService from '../services/AuthenticationService';
@@ -606,6 +611,205 @@ describe('UsersController.verifyMagicLink', () => {
     await controller.verifyMagicLink(req, res, next);
 
     expect(markEmailVerified).toHaveBeenCalledWith('8');
+  });
+});
+
+describe('UsersController.loginWithGoogle', () => {
+  const buildGoogleController = (overrides?: {
+    getUserFrom?: jest.Mock;
+    register?: jest.Mock;
+    markEmailVerified?: jest.Mock;
+    newJWTToken?: jest.Mock;
+    persistToken?: jest.Mock;
+    updateLastLoginAt?: jest.Mock;
+    loginWithGoogle?: jest.Mock;
+  }) => {
+    const mockUser = { id: 7, email: 'g@example.com' };
+    const userService = {
+      getUserFrom:
+        overrides?.getUserFrom ??
+        jest
+          .fn()
+          .mockResolvedValueOnce(null)
+          .mockResolvedValue(mockUser),
+      register: overrides?.register ?? jest.fn().mockResolvedValue([{ id: 7 }]),
+      markEmailVerified:
+        overrides?.markEmailVerified ?? jest.fn().mockResolvedValue(1),
+      updateLastLoginAt:
+        overrides?.updateLastLoginAt ?? jest.fn().mockResolvedValue(undefined),
+    } as unknown as UsersService;
+    const authService = {
+      loginWithGoogle:
+        overrides?.loginWithGoogle ??
+        jest.fn().mockResolvedValue({ email: 'g@example.com', name: 'Google User' }),
+      getHashPassword: jest.fn().mockReturnValue('hashed'),
+      newJWTToken:
+        overrides?.newJWTToken ?? jest.fn().mockResolvedValue('google-jwt'),
+      persistToken:
+        overrides?.persistToken ?? jest.fn().mockResolvedValue(undefined),
+    } as unknown as AuthenticationService;
+    const controller = new UsersController(
+      userService,
+      authService,
+      {} as ReturnType<typeof import('../data_layer').getDatabase>
+    );
+    return { controller, userService, authService };
+  };
+
+  const buildGoogleRes = () => {
+    const redirect = jest.fn();
+    const cookie = jest.fn();
+    const status = jest.fn().mockReturnThis();
+    return { redirect, cookie, status } as unknown as express.Response & {
+      redirect: jest.Mock;
+      cookie: jest.Mock;
+      status: jest.Mock;
+    };
+  };
+
+  it("registers new Google users with signup_origin set to 'google'", async () => {
+    const register = jest.fn().mockResolvedValue([{ id: 7 }]);
+    const { controller } = buildGoogleController({ register });
+    const req = {
+      query: { code: 'gauth-code' },
+      cookies: {},
+      headers: {},
+    } as unknown as express.Request;
+    const res = buildGoogleRes();
+
+    await controller.loginWithGoogle(req, res);
+
+    expect(register).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.any(String),
+      'g@example.com',
+      'google'
+    );
+  });
+
+  it('does not call register for an existing Google user', async () => {
+    const existingUser = { id: 9, email: 'existing@example.com' };
+    const getUserFrom = jest.fn().mockResolvedValue(existingUser);
+    const register = jest.fn();
+    const { controller } = buildGoogleController({ getUserFrom, register });
+    const req = {
+      query: { code: 'gauth-code' },
+      cookies: {},
+      headers: {},
+    } as unknown as express.Request;
+    const res = buildGoogleRes();
+
+    await controller.loginWithGoogle(req, res);
+
+    expect(register).not.toHaveBeenCalled();
+  });
+
+});
+
+describe('UsersController.loginWithNotion', () => {
+  const buildNotionDb = () => {
+    const chainable: Record<string, jest.Mock> = {};
+    const methods = ['insert', 'where', 'first', 'whereNull', 'update', 'onConflict', 'merge'];
+    for (const m of methods) {
+      chainable[m] = jest.fn().mockReturnValue(Promise.resolve([1]));
+    }
+    for (const m of ['where', 'whereNull', 'onConflict']) {
+      chainable[m] = jest.fn().mockReturnValue(chainable);
+    }
+    chainable['insert'] = jest.fn().mockReturnValue(chainable);
+    chainable['merge'] = jest.fn().mockResolvedValue([1]);
+    const mockDb = jest.fn().mockReturnValue(chainable);
+    return mockDb as unknown as ReturnType<typeof import('../data_layer').getDatabase>;
+  };
+
+  const buildNotionController = (overrides?: {
+    getUserFrom?: jest.Mock;
+    register?: jest.Mock;
+    newJWTToken?: jest.Mock;
+    persistToken?: jest.Mock;
+    updateLastLoginAt?: jest.Mock;
+    loginWithNotion?: jest.Mock;
+  }) => {
+    const mockUser = { id: 11, email: 'n@example.com' };
+    const userService = {
+      getUserFrom:
+        overrides?.getUserFrom ??
+        jest
+          .fn()
+          .mockResolvedValueOnce(null)
+          .mockResolvedValue(mockUser),
+      register: overrides?.register ?? jest.fn().mockResolvedValue([{ id: 11 }]),
+      updateLastLoginAt:
+        overrides?.updateLastLoginAt ?? jest.fn().mockResolvedValue(undefined),
+    } as unknown as UsersService;
+    const authService = {
+      loginWithNotion:
+        overrides?.loginWithNotion ??
+        jest.fn().mockResolvedValue({
+          email: 'n@example.com',
+          name: 'Notion User',
+          accessData: {},
+        }),
+      getHashPassword: jest.fn().mockReturnValue('hashed'),
+      newJWTToken:
+        overrides?.newJWTToken ?? jest.fn().mockResolvedValue('notion-jwt'),
+      persistToken:
+        overrides?.persistToken ?? jest.fn().mockResolvedValue(undefined),
+    } as unknown as AuthenticationService;
+    const controller = new UsersController(
+      userService,
+      authService,
+      buildNotionDb()
+    );
+    return { controller, userService, authService };
+  };
+
+  const buildNotionRes = () => {
+    const redirect = jest.fn();
+    const cookie = jest.fn();
+    const status = jest.fn().mockReturnThis();
+    return { redirect, cookie, status } as unknown as express.Response & {
+      redirect: jest.Mock;
+      cookie: jest.Mock;
+      status: jest.Mock;
+    };
+  };
+
+  it("registers new Notion users with signup_origin set to 'notion_oauth'", async () => {
+    const register = jest.fn().mockResolvedValue([{ id: 11 }]);
+    const { controller } = buildNotionController({ register });
+    const req = {
+      query: { code: 'notion-code' },
+      cookies: {},
+      headers: {},
+    } as unknown as express.Request;
+    const res = buildNotionRes();
+
+    await controller.loginWithNotion(req, res);
+
+    expect(register).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.any(String),
+      'n@example.com',
+      'notion_oauth'
+    );
+  });
+
+  it('does not call register for an existing Notion user', async () => {
+    const existingUser = { id: 12, email: 'existing@example.com' };
+    const getUserFrom = jest.fn().mockResolvedValue(existingUser);
+    const register = jest.fn();
+    const { controller } = buildNotionController({ getUserFrom, register });
+    const req = {
+      query: { code: 'notion-code' },
+      cookies: {},
+      headers: {},
+    } as unknown as express.Request;
+    const res = buildNotionRes();
+
+    await controller.loginWithNotion(req, res);
+
+    expect(register).not.toHaveBeenCalled();
   });
 });
 
