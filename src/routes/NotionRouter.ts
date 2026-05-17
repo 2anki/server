@@ -5,6 +5,7 @@ import RequirePaying from './middleware/RequirePaying';
 import NotionController from '../controllers/NotionController';
 import NotionRepository from '../data_layer/NotionRespository';
 import NotionTopLevelPagesRepository from '../data_layer/NotionTopLevelPagesRepository';
+import BlocksCacheRepository from '../data_layer/BlocksCacheRepository';
 import NotionService from '../services/NotionService';
 import { getDatabase } from '../data_layer';
 
@@ -14,8 +15,9 @@ const NotionRouter = () => {
   const database = getDatabase();
   const repository = new NotionRepository(database);
   const topLevelPagesRepository = new NotionTopLevelPagesRepository(database);
+  const blocksCacheRepository = new BlocksCacheRepository(database);
   const controller = new NotionController(
-    new NotionService(repository, topLevelPagesRepository)
+    new NotionService(repository, topLevelPagesRepository, blocksCacheRepository)
   );
 
   /**

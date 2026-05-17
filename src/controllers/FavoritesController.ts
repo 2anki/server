@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 
 import { getDatabase } from '../data_layer';
 import NotionRepository from '../data_layer/NotionRespository';
+import BlocksCacheRepository from '../data_layer/BlocksCacheRepository';
 import sendErrorResponse from '../lib/sendErrorResponse';
 import FavoriteService from '../services/FavoriteService';
 import NotionService from '../services/NotionService';
@@ -41,8 +42,13 @@ class FavoritesController {
     const { owner } = res.locals;
 
     try {
-      const notionRepository = new NotionRepository(getDatabase());
-      const notionService = new NotionService(notionRepository);
+      const database = getDatabase();
+      const notionRepository = new NotionRepository(database);
+      const notionService = new NotionService(
+        notionRepository,
+        undefined,
+        new BlocksCacheRepository(database)
+      );
       const favorites = await this.service.getFavoritesByOwner(
         owner,
         notionService

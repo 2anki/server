@@ -10,6 +10,7 @@ import DownloadService from '../services/DownloadService';
 import DownloadRepository from '../data_layer/DownloadRepository';
 import JobRepository from '../data_layer/JobRepository';
 import NotionRepository from '../data_layer/NotionRespository';
+import BlocksCacheRepository from '../data_layer/BlocksCacheRepository';
 import { NotionService } from '../services/NotionService/NotionService';
 import { getDatabase } from '../data_layer';
 
@@ -17,7 +18,11 @@ const ApkgRouter = () => {
   const database = getDatabase();
   const downloadService = new DownloadService(new DownloadRepository(database));
   const previewService = new ApkgPreviewService();
-  const notionService = new NotionService(new NotionRepository(database));
+  const notionService = new NotionService(
+    new NotionRepository(database),
+    undefined,
+    new BlocksCacheRepository(database)
+  );
   const jobRepository = new JobRepository(database);
   const controller = new ApkgController(
     downloadService,
