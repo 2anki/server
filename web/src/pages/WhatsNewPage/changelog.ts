@@ -5,6 +5,7 @@ export interface ChangelogEntry {
 }
 
 export const changelog: ChangelogEntry[] = [
+  { type: 'fix', title: 'Homepage and limit messages match the pricing page — 100 cards per month, everywhere', date: '2026-05-17' },
   { type: 'fix', title: 'Chat — Start chatting closes the consent prompt and drops you straight into the conversation', date: '2026-05-16' },
   { type: 'feature', title: 'Day Pass and Week Pass — pay once for unlimited conversions over 24 hours or 1 week', date: '2026-05-16' },
   { type: 'fix', title: 'Editing an Official note type opens the editor instead of showing Template not found', date: '2026-05-16' },

@@ -717,7 +717,7 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
   const renderLimitState = () => (
     <div className={formStyles.limitContent}>
       <p className={formStyles.limitTitle}>
-        You've reached the free conversion limit
+        You've reached your monthly limit
       </p>
       <p className={formStyles.limitDescription}>
         {limitInfo?.isAnonymous

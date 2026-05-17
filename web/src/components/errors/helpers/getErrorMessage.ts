@@ -80,7 +80,7 @@ export function classifyError(error: unknown): FriendlyError {
 
   if (lower.includes('upload_limit') || lower.includes('upload limit')) {
     return {
-      title: "You've reached your conversion limit.",
+      title: "You've reached your monthly limit.",
       detail: 'Upgrade at /pricing to convert more decks.',
     };
   }

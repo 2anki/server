@@ -19,7 +19,7 @@ function TopMessage() {
     return (
       <div className={styles.alertDanger}>
         <p>
-          You&apos;ve reached your conversion limit.{' '}
+          You&apos;ve reached your monthly limit.{' '}
           <Link to="/pricing">Upgrade</Link> to convert more.
         </p>
       </div>

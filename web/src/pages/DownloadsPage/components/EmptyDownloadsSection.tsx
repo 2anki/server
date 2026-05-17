@@ -14,13 +14,12 @@ export function EmptyDownloadsSection({ hasActiveJobs, uploads }: Readonly<Prop>
   return (
     <div className={styles.card}>
       <div className={styles.empty}>
-        <div className={styles.emptyIcon}>📭</div>
         <p className={styles.emptyTitle}>No decks yet</p>
         <p className={styles.emptyDescription}>
           Paste a Notion link or upload a file to make your first deck.
         </p>
         <Link to="/notion" className={styles.emptyLink}>
-          Make your first deck
+          Make a deck
         </Link>
       </div>
     </div>
