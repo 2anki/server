@@ -38,9 +38,14 @@ function SettingsModal({
         onClick={onClickClose}
         aria-label="Close modal"
       />
-      <div className={sharedStyles.modalCard}>
+      <div
+        className={sharedStyles.modalCard}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="settings-modal-title"
+      >
         <div className={sharedStyles.modalHeader}>
-          <div className={sharedStyles.modalHeaderTitle}>
+          <div id="settings-modal-title" className={sharedStyles.modalHeaderTitle}>
             {getVisibleText('card.options')}
           </div>
           <div className={styles.headerActions}>

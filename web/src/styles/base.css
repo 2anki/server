@@ -1,11 +1,11 @@
 :root {
   --color-text-primary: #1f2937;
   --color-text-secondary: #6b7280;
-  --color-text-tertiary: #9ca3af;
+  --color-text-tertiary: #6b7280;
   --color-text-danger: #dc2626;
   --color-text-success: #059669;
-  --color-text-link: #3b82f6;
-  --color-text-link-hover: #2563eb;
+  --color-text-link: #2563eb;
+  --color-text-link-hover: #1d4ed8;
   --color-bg-primary: #ffffff;
   --color-bg-secondary: #f9fafb;
   --color-bg-tertiary: #f3f4f6;

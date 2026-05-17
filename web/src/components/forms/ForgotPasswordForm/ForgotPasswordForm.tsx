@@ -63,6 +63,8 @@ function ForgotPasswordForm({ setError }: Readonly<ForgotPasswordProps>) {
                   }
                 }}
                 type="email"
+                autoComplete="email"
+                inputMode="email"
                 placeholder="Email address"
                 required
               />

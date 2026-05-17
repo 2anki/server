@@ -14,6 +14,7 @@ import { UnfinishedJobsInfo } from './components/UnfinishedJobsInfo';
 import { PaywallBanner } from './components/PaywallBanner';
 import { ErrorHandlerType } from '../../components/errors/helpers/getErrorMessage';
 import { get2ankiApi } from '../../lib/backend/get2ankiApi';
+import RefreshIcon from '../../components/icons/RefreshIcon';
 import styles from './DownloadsPage.module.css';
 import sharedStyles from '../../styles/shared.module.css';
 
@@ -85,7 +86,7 @@ export function DownloadsPage({ setError }: Readonly<DownloadsPageProps>) {
           disabled={refreshing || loading}
           aria-label="Refresh my decks"
         >
-          <i className="fa-solid fa-arrows-rotate" aria-hidden="true" />
+          <RefreshIcon />
           {refreshing ? 'Refreshing…' : 'Refresh'}
         </button>
       </div>

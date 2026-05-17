@@ -87,6 +87,8 @@ function LoginForm() {
                       }
                     }}
                     type="email"
+                    autoComplete="email"
+                    inputMode="email"
                     placeholder="Email address"
                     required
                   />
@@ -140,6 +142,7 @@ function LoginForm() {
                   name="email"
                   value={email}
                   type="email"
+                  autoComplete="email"
                   readOnly
                 />
               </label>
@@ -168,6 +171,7 @@ function LoginForm() {
                   onChange={(event) => setPassword(event.target.value)}
                   required
                   type="password"
+                  autoComplete="current-password"
                   placeholder="Password"
                   autoFocus
                 />

@@ -5,6 +5,8 @@ export interface ChangelogEntry {
 }
 
 export const changelog: ChangelogEntry[] = [
+  { type: 'fix', title: 'Refresh button on My Decks shows its icon again', date: '2026-05-17' },
+  { type: 'fix', title: 'Sign in and signup prompt your password manager to autofill and save credentials', date: '2026-05-17' },
   { type: 'fix', title: 'Homepage and limit messages match the pricing page — 100 cards per month, everywhere', date: '2026-05-17' },
   { type: 'fix', title: 'Chat — Start chatting closes the consent prompt and drops you straight into the conversation', date: '2026-05-16' },
   { type: 'feature', title: 'Day Pass and Week Pass — pay once for unlimited conversions over 24 hours or 1 week', date: '2026-05-16' },
