@@ -38,9 +38,6 @@ function SettingsModal({
       ref={dialogRef}
       className={sharedStyles.dialog}
       aria-labelledby="settings-modal-title"
-      onClick={(event) => {
-        if (event.target === event.currentTarget) onClickClose();
-      }}
     >
       <div className={sharedStyles.modalCard}>
         <div className={sharedStyles.modalHeader}>

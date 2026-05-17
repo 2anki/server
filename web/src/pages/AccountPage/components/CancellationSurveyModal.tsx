@@ -41,9 +41,6 @@ export function CancellationSurveyModal({ mode, onConfirm, onClose }: Props) {
       ref={dialogRef}
       className={sharedStyles.dialog}
       aria-labelledby="cancellation-survey-title"
-      onClick={(event) => {
-        if (event.target === event.currentTarget) onClose();
-      }}
     >
       <div className={sharedStyles.modalCardNarrow}>
         <div className={sharedStyles.modalHeader}>

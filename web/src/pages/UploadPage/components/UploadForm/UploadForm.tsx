@@ -843,10 +843,9 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
   const renderLiveStatus = (): string => {
     if (zoneState === 'converting') return 'Converting your file.';
     if (zoneState === 'success') {
-      const count = cardCount == null
-        ? ''
-        : `${cardCount} ${cardCount === 1 ? 'card' : 'cards'}`;
-      return `Your deck is ready${count ? ` — ${count}` : ''}.`;
+      if (cardCount == null) return 'Your deck is ready.';
+      const noun = cardCount === 1 ? 'card' : 'cards';
+      return `Your deck is ready — ${cardCount} ${noun}.`;
     }
     if (zoneState === 'emptyDeck') {
       return 'Conversion finished, but no cards were found.';

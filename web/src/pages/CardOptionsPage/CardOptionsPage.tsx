@@ -294,9 +294,6 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
         ref={bulkResetDialogRef}
         className={sharedStyles.dialog}
         aria-labelledby="bulk-reset-dialog-title"
-        onClick={(event) => {
-          if (event.target === event.currentTarget) setConfirmOpen(false);
-        }}
       >
         <div className={sharedStyles.modalCardNarrow}>
           <div className={sharedStyles.modalHeader}>

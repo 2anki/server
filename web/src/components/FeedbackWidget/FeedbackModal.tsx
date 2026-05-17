@@ -19,9 +19,6 @@ export function FeedbackModal({ isActive, onClose }: Readonly<Props>) {
       ref={dialogRef}
       className={sharedStyles.dialog}
       aria-labelledby="feedback-modal-title"
-      onClick={(event) => {
-        if (event.target === event.currentTarget) onClose();
-      }}
     >
       <div className={sharedStyles.modalCardNarrow}>
         <div className={sharedStyles.modalHeader}>

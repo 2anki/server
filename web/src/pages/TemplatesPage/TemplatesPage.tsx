@@ -141,9 +141,6 @@ function PreviewModal({ starter, onClose }: Readonly<PreviewModalProps>) {
       ref={dialogRef}
       className={sharedStyles.dialog}
       aria-labelledby="note-type-preview-title"
-      onClick={(event) => {
-        if (event.target === event.currentTarget) onClose();
-      }}
     >
       <div className={`${sharedStyles.modalCard} ${styles.dialog}`}>
         <div className={sharedStyles.modalHeader}>
