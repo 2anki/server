@@ -44,7 +44,7 @@ beforeEach(() => {
 describe('emitLandingPages', () => {
   it('writes one HTML file per landing path', () => {
     const files = emitLandingPages(buildDir);
-    expect(files).toHaveLength(4);
+    expect(files).toHaveLength(10);
     expect(files.some((p) => p.endsWith('notion-to-anki/index.html'))).toBe(
       true
     );
@@ -55,6 +55,24 @@ describe('emitLandingPages', () => {
       true
     );
     expect(files.some((p) => p.endsWith('pdf-to-anki/index.html'))).toBe(true);
+    expect(
+      files.some((p) => p.endsWith('convert/notion-to-anki/index.html'))
+    ).toBe(true);
+    expect(
+      files.some((p) => p.endsWith('convert/pdf-to-anki/index.html'))
+    ).toBe(true);
+    expect(
+      files.some((p) => p.endsWith('convert/markdown-to-anki/index.html'))
+    ).toBe(true);
+    expect(
+      files.some((p) => p.endsWith('convert/csv-to-anki/index.html'))
+    ).toBe(true);
+    expect(
+      files.some((p) => p.endsWith('convert/html-to-anki/index.html'))
+    ).toBe(true);
+    expect(
+      files.some((p) => p.endsWith('convert/apkg-to-csv/index.html'))
+    ).toBe(true);
   });
 
   it('replaces the title with the per-route title', () => {
