@@ -14,6 +14,7 @@ interface PricingCardProp {
   benefits: string[];
   link?: string;
   linkText?: string;
+  onLinkClick?: () => void;
   onAction?: () => void;
   actionLabel?: string;
   actionDisabled?: boolean;
@@ -55,6 +56,7 @@ export function PricingCard({
   benefits,
   linkText,
   link,
+  onLinkClick,
   onAction,
   actionLabel,
   actionDisabled,
@@ -121,7 +123,7 @@ export function PricingCard({
             </button>
           )}
           {showLink && (
-            <a href={link} className={buttonClass}>
+            <a href={link} className={buttonClass} onClick={onLinkClick}>
               {linkText}
             </a>
           )}

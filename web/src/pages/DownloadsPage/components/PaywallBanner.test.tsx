@@ -5,6 +5,10 @@ import { MemoryRouter } from 'react-router-dom';
 import { PaywallBanner } from './PaywallBanner';
 import JobResponse from '../../../schemas/public/JobResponse';
 
+vi.mock('../../../lib/analytics/track', () => ({
+  track: vi.fn(),
+}));
+
 type AnalyticsGlobals = {
   hj?: ReturnType<typeof vi.fn>;
   gtag?: ReturnType<typeof vi.fn>;
@@ -107,5 +111,38 @@ describe('PaywallBanner', () => {
 
     expect(hj).toHaveBeenCalledWith('event', 'paywall_clicked_upgrade');
     expect(gtag).toHaveBeenCalledWith('event', 'paywall_clicked_upgrade');
+  });
+
+  it('tracks paywall_shown with surface=downloads_banner on mount', async () => {
+    const { track } = await import('../../../lib/analytics/track');
+    const trackMock = vi.mocked(track);
+    trackMock.mockClear();
+
+    render(
+      <MemoryRouter>
+        <PaywallBanner inProgressJob={null} />
+      </MemoryRouter>
+    );
+
+    expect(trackMock).toHaveBeenCalledWith('paywall_shown', { surface: 'downloads_banner' });
+  });
+
+  it('tracks paywall_upgrade_clicked with surface=downloads_banner when CTA is clicked', async () => {
+    const { track } = await import('../../../lib/analytics/track');
+    const trackMock = vi.mocked(track);
+    trackMock.mockClear();
+
+    render(
+      <MemoryRouter>
+        <PaywallBanner inProgressJob={null} />
+      </MemoryRouter>
+    );
+
+    const cta = screen.getByRole('link', {
+      name: /Upgrade to Unlimited — \$6 \/ mo/,
+    });
+    fireEvent.click(cta);
+
+    expect(trackMock).toHaveBeenCalledWith('paywall_upgrade_clicked', { surface: 'downloads_banner' });
   });
 });

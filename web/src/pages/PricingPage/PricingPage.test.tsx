@@ -7,16 +7,22 @@ import PricingPage from './PricingPage';
 
 const mockStartAutoSyncCheckout = vi.fn();
 const mockRequestHostedAnkiAccess = vi.fn();
+const mockStartPassCheckout = vi.fn();
 
 vi.mock('../../lib/backend/get2ankiApi', () => ({
   get2ankiApi: () => ({
     requestHostedAnkiAccess: mockRequestHostedAnkiAccess,
     startAutoSyncCheckout: mockStartAutoSyncCheckout,
+    startPassCheckout: mockStartPassCheckout,
   }),
 }));
 
 vi.mock('../../components/TopMessage/TopMessage', () => ({
   default: () => null,
+}));
+
+vi.mock('../../lib/analytics/track', () => ({
+  track: vi.fn(),
 }));
 
 type AnalyticsGlobals = {
@@ -175,5 +181,86 @@ describe('PricingPage Auto Sync card', () => {
     const link = screen.getByRole('link', { name: 'How sync works' });
     expect(link).toBeInTheDocument();
     expect(link).toHaveAttribute('href', '/documentation/sync/how-it-works');
+  });
+});
+
+describe('PricingPage internal event tracking', () => {
+  it('tracks paywall_shown with surface=pricing_page on mount', async () => {
+    const { track } = await import('../../lib/analytics/track');
+    const trackMock = vi.mocked(track);
+    trackMock.mockClear();
+
+    renderAt('/pricing');
+
+    expect(trackMock).toHaveBeenCalledWith('paywall_shown', { surface: 'pricing_page' });
+  });
+
+  it('tracks paywall_upgrade_clicked with plan=auto_sync when Subscribe is clicked', async () => {
+    const { track } = await import('../../lib/analytics/track');
+    const trackMock = vi.mocked(track);
+    trackMock.mockClear();
+    mockStartAutoSyncCheckout.mockResolvedValue({ url: 'https://checkout.stripe.com/session' });
+    Object.defineProperty(globalThis, 'location', { writable: true, value: { href: '' } });
+
+    renderAt('/pricing', { isLoggedIn: true });
+    fireEvent.click(screen.getByRole('button', { name: 'Subscribe' }));
+
+    await waitFor(() => {
+      expect(trackMock).toHaveBeenCalledWith('paywall_upgrade_clicked', {
+        surface: 'pricing_page',
+        plan: 'auto_sync',
+      });
+    });
+  });
+
+  it('tracks paywall_upgrade_clicked with plan=day_pass when Day Pass is clicked', async () => {
+    const { track } = await import('../../lib/analytics/track');
+    const trackMock = vi.mocked(track);
+    trackMock.mockClear();
+    mockStartPassCheckout.mockResolvedValue({ url: 'https://checkout.stripe.com/day' });
+    Object.defineProperty(globalThis, 'location', { writable: true, value: { href: '' } });
+
+    renderAt('/pricing', { isLoggedIn: true });
+    fireEvent.click(screen.getByRole('button', { name: 'Get Day Pass' }));
+
+    await waitFor(() => {
+      expect(trackMock).toHaveBeenCalledWith('paywall_upgrade_clicked', {
+        surface: 'pricing_page',
+        plan: 'day_pass',
+      });
+    });
+  });
+
+  it('tracks paywall_upgrade_clicked with plan=week_pass when Week Pass is clicked', async () => {
+    const { track } = await import('../../lib/analytics/track');
+    const trackMock = vi.mocked(track);
+    trackMock.mockClear();
+    mockStartPassCheckout.mockResolvedValue({ url: 'https://checkout.stripe.com/week' });
+    Object.defineProperty(globalThis, 'location', { writable: true, value: { href: '' } });
+
+    renderAt('/pricing', { isLoggedIn: true });
+    fireEvent.click(screen.getByRole('button', { name: 'Get Week Pass' }));
+
+    await waitFor(() => {
+      expect(trackMock).toHaveBeenCalledWith('paywall_upgrade_clicked', {
+        surface: 'pricing_page',
+        plan: 'week_pass',
+      });
+    });
+  });
+
+  it('tracks paywall_upgrade_clicked with plan=unlimited when Upgrade link is clicked', async () => {
+    const { track } = await import('../../lib/analytics/track');
+    const trackMock = vi.mocked(track);
+    trackMock.mockClear();
+
+    renderAt('/pricing', { isLoggedIn: true });
+    const upgradeLink = screen.getByRole('link', { name: 'Upgrade' });
+    fireEvent.click(upgradeLink);
+
+    expect(trackMock).toHaveBeenCalledWith('paywall_upgrade_clicked', {
+      surface: 'pricing_page',
+      plan: 'unlimited',
+    });
   });
 });
