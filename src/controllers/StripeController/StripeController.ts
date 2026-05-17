@@ -1,7 +1,7 @@
 import express from 'express';
 import type { Stripe as StripeTypes } from 'stripe/cjs/stripe.core';
 
-import { getIndexFileContents } from '../IndexController/getIndexFileContents';
+import { sendIndex } from '../IndexController/sendIndex';
 import type AuthenticationService from '../../services/AuthenticationService';
 import type UsersService from '../../services/UsersService';
 import { extractTokenFromCookies } from './extractTokenFromCookies';
@@ -23,7 +23,7 @@ export class StripeController {
     const token = extractTokenFromCookies(cookies);
 
     if (!token) {
-      return res.send(getIndexFileContents());
+      return sendIndex(res);
     }
 
     const loggedInUser = await this.authService.getUserFrom(token);
@@ -45,7 +45,7 @@ export class StripeController {
       }
     }
 
-    res.send(getIndexFileContents());
+    sendIndex(res);
   }
 
   async checkSubscriptionStatus(req: express.Request, res: express.Response) {
