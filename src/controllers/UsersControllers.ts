@@ -703,6 +703,7 @@ class UsersController {
       await this.userService.markEmailVerified(result.userId.toString());
       return res.redirect(`${base}?verified=1`);
     } catch (error) {
+      console.error('Email verification failed:', error);
       next(error);
     }
   }
