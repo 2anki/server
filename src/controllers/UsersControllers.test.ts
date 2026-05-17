@@ -319,6 +319,28 @@ describe('UsersController.verifyEmail', () => {
 
     expect(res.redirect).toHaveBeenCalledWith('/login?verify_error=expired');
   });
+
+  it('logs verifyEmail failures before forwarding them', async () => {
+    const error = new Error('magic token lookup failed');
+    const verifyMagicToken = jest.fn().mockRejectedValue(error);
+    const { controller } = buildVerifyEmailController({ verifyMagicToken });
+    const req = { params: { token: 'boom-tok' }, cookies: {} } as unknown as express.Request;
+    const res = buildVerifyEmailRes();
+    const next = jest.fn();
+    const consoleError = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => undefined);
+
+    try {
+      await controller.verifyEmail(req, res, next);
+    } finally {
+      consoleError.mockRestore();
+    }
+
+    expect(consoleError).toHaveBeenCalledWith('Email verification failed:', error);
+    expect(next).toHaveBeenCalledWith(error);
+    expect(res.redirect).not.toHaveBeenCalled();
+  });
 });
 
 describe('UsersController.requestMagicLink', () => {
