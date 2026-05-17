@@ -1,50 +1,23 @@
 import express from 'express';
+import type { Stripe as StripeTypes } from 'stripe/cjs/stripe.core';
+
 import { getIndexFileContents } from '../IndexController/getIndexFileContents';
-import { getDatabase } from '../../data_layer';
-import { getDefaultEmailService } from '../../services/EmailService/EmailService';
-import UsersRepository from '../../data_layer/UsersRepository';
-import UsersService from '../../services/UsersService';
-import TokenRepository from '../../data_layer/TokenRepository';
-import AuthenticationService from '../../services/AuthenticationService';
-import { getStripe, updateStoreSubscription } from '../../lib/integrations/stripe';
+import type AuthenticationService from '../../services/AuthenticationService';
+import type UsersService from '../../services/UsersService';
 import { extractTokenFromCookies } from './extractTokenFromCookies';
 import SubscriptionService from '../../services/SubscriptionService';
-import type { Stripe as StripeTypes } from 'stripe/cjs/stripe.core';
-import { Knex } from 'knex';
+import type { PersistStripeSessionUseCase } from '../../usecases/checkout/PersistStripeSessionUseCase';
 
-async function persistStripeSession(database: Knex, sessionId: string): Promise<boolean> {
-  const stripe = getStripe();
-  const session = await stripe.checkout.sessions.retrieve(sessionId);
-  if (session.payment_status !== 'paid') {
-    return false;
-  }
-  if (session.subscription) {
-    const subscriptionId = typeof session.subscription === 'string'
-      ? session.subscription
-      : session.subscription.id;
-    const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-    const customerId = typeof subscription.customer === 'string'
-      ? subscription.customer
-      : subscription.customer.id;
-    const customer = await stripe.customers.retrieve(customerId) as StripeTypes.Customer;
-    await updateStoreSubscription(database, customer, subscription);
-  }
-  return true;
-}
-
-async function getAuthenticatedUser(cookies: string | undefined) {
-  const token = extractTokenFromCookies(cookies);
-  if (!token) {
-    return null;
-  }
-  const database = getDatabase();
-  const userRepository = new UsersRepository(database);
-  const tokenRepository = new TokenRepository(database);
-  const authService = new AuthenticationService(tokenRepository, userRepository);
-  return authService.getUserFrom(token);
-}
+type StripeClient = Pick<StripeTypes, 'checkout'>;
 
 export class StripeController {
+  constructor(
+    private readonly authService: AuthenticationService,
+    private readonly usersService: UsersService,
+    private readonly persistStripeSessionUseCase: PersistStripeSessionUseCase,
+    private readonly stripe: StripeClient
+  ) {}
+
   async getSuccessfulCheckout(req: express.Request, res: express.Response) {
     const cookies = req.get('cookie');
     const token = extractTokenFromCookies(cookies);
@@ -53,30 +26,19 @@ export class StripeController {
       return res.send(getIndexFileContents());
     }
 
-    const database = getDatabase();
-    const emailService = getDefaultEmailService();
-    const userRepository = new UsersRepository(database);
-    const usersService = new UsersService(userRepository, emailService);
-    const tokenRepository = new TokenRepository(database);
-    const authService = new AuthenticationService(
-      tokenRepository,
-      userRepository
-    );
-
-    const loggedInUser = await authService.getUserFrom(token);
+    const loggedInUser = await this.authService.getUserFrom(token);
     const sessionId = req.query.session_id as string;
 
     if (loggedInUser && sessionId) {
       // Persist subscription before linking — without this, the link write is a
       // no-op when the webhook hasn't fired yet and the subscriptions row doesn't exist.
-      await persistStripeSession(database, sessionId);
+      await this.persistStripeSessionUseCase.execute(sessionId);
 
-      const stripe = getStripe();
-      const session = await stripe.checkout.sessions.retrieve(sessionId);
+      const session = await this.stripe.checkout.sessions.retrieve(sessionId);
       const email = session.customer_details?.email;
 
       if (loggedInUser.email !== email && email) {
-        await usersService.updateSubScriptionEmailUsingPrimaryEmail(
+        await this.usersService.updateSubScriptionEmailUsingPrimaryEmail(
           email.toLowerCase(),
           loggedInUser.email.toLowerCase()
         );
@@ -88,7 +50,8 @@ export class StripeController {
 
   async checkSubscriptionStatus(req: express.Request, res: express.Response) {
     try {
-      const user = await getAuthenticatedUser(req.get('cookie'));
+      const token = extractTokenFromCookies(req.get('cookie'));
+      const user = token ? await this.authService.getUserFrom(token) : null;
       if (!user) {
         return res.status(401).json({ authenticated: false, hasActiveSubscription: false });
       }
@@ -99,7 +62,7 @@ export class StripeController {
       if (!hasActiveSubscription) {
         const sessionId = req.query.session_id as string;
         if (sessionId) {
-          hasActiveSubscription = await persistStripeSession(getDatabase(), sessionId);
+          hasActiveSubscription = await this.persistStripeSessionUseCase.execute(sessionId);
         }
       }
 

@@ -10,6 +10,11 @@ import { getDatabase } from '../data_layer';
 import { StripeController } from '../controllers/StripeController/StripeController';
 import UsersRepository from '../data_layer/UsersRepository';
 import UserPassRepository, { type PassKind } from '../data_layer/UserPassRepository';
+import TokenRepository from '../data_layer/TokenRepository';
+import AuthenticationService from '../services/AuthenticationService';
+import UsersService from '../services/UsersService';
+import { getDefaultEmailService } from '../services/EmailService/EmailService';
+import { PersistStripeSessionUseCase } from '../usecases/checkout/PersistStripeSessionUseCase';
 import hashToken from '../lib/misc/hashToken';
 
 const DURATION_24H_MS = 24 * 60 * 60 * 1000;
@@ -17,7 +22,19 @@ const DURATION_7D_MS = 7 * 24 * 60 * 60 * 1000;
 
 const WebhooksRouter = () => {
   const router = express.Router();
-  const controller = new StripeController();
+  const database = getDatabase();
+  const stripe = getStripe();
+  const usersRepository = new UsersRepository(database);
+  const tokenRepository = new TokenRepository(database);
+  const authService = new AuthenticationService(tokenRepository, usersRepository);
+  const usersService = new UsersService(usersRepository, getDefaultEmailService());
+  const persistStripeSessionUseCase = new PersistStripeSessionUseCase(stripe, database);
+  const controller = new StripeController(
+    authService,
+    usersService,
+    persistStripeSessionUseCase,
+    stripe
+  );
 
   /**
    * @swagger
