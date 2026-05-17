@@ -107,6 +107,78 @@ describe('UploadForm analytics events', () => {
     expect(gtag).toHaveBeenCalledWith('event', 'upload_started');
   });
 
+  it('tracks upload_started with source=file on form submit', async () => {
+    const { track } = await import('../../../../lib/analytics/track');
+    const trackMock = vi.mocked(track);
+    trackMock.mockClear();
+
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      redirected: false,
+      status: 200,
+      headers: new Headers({
+        'Content-Type': 'application/octet-stream',
+        'Content-Disposition': 'attachment; filename="deck.apkg"',
+        'X-Card-Count': '5',
+      }),
+      blob: () => Promise.resolve(new Blob(['fake'])),
+    }));
+
+    const { container } = renderUploadForm(<UploadForm setErrorMessage={vi.fn()} />);
+    const form = container.querySelector('form')!;
+    await act(async () => {
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    });
+
+    expect(trackMock).toHaveBeenCalledWith('upload_started', { source: 'file' });
+  });
+
+  it('tracks upload_started with source=dropbox when Dropbox chooser returns a file', async () => {
+    const { track } = await import('../../../../lib/analytics/track');
+    const trackMock = vi.mocked(track);
+    trackMock.mockClear();
+
+    const previousKey = process.env.REACT_APP_DROPBOX_APP_KEY;
+    process.env.REACT_APP_DROPBOX_APP_KEY = 'test-key';
+    (window as unknown as { Dropbox?: unknown }).Dropbox = {
+      choose: ({ success }: { success: (files: unknown[]) => void }) => {
+        success([
+          {
+            id: 'id:2',
+            name: 'notes.pdf',
+            bytes: 100,
+            icon: 'page',
+            isDir: false,
+            link: 'https://dl.dropboxusercontent.com/x/notes.pdf',
+            linkType: 'direct',
+          },
+        ]);
+      },
+    };
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      redirected: false,
+      status: 200,
+      headers: new Headers({
+        'Content-Type': 'application/octet-stream',
+        'Content-Disposition': 'attachment; filename="deck.apkg"',
+        'X-Card-Count': '3',
+      }),
+      blob: () => Promise.resolve(new Blob(['fake'])),
+    }));
+
+    const { container } = renderUploadForm(<UploadForm setErrorMessage={vi.fn()} />);
+    const button = container.querySelector('button[aria-label="Choose from Dropbox"]') as HTMLButtonElement;
+    await act(async () => {
+      button.click();
+    });
+
+    await waitFor(() =>
+      expect(trackMock).toHaveBeenCalledWith('upload_started', { source: 'dropbox' })
+    );
+
+    delete (window as unknown as { Dropbox?: unknown }).Dropbox;
+    process.env.REACT_APP_DROPBOX_APP_KEY = previousKey;
+  });
+
   it('fires conversion_success on a successful conversion with cards', async () => {
     const gtag = (globalThis as AnalyticsGlobals).gtag!;
 

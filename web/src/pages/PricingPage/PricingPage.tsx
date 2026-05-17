@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import TopMessage from '../../components/TopMessage/TopMessage';
 import { firePaywallEvent } from '../../lib/analytics/firePaywallEvent';
+import { track } from '../../lib/analytics/track';
 import { get2ankiApi } from '../../lib/backend/get2ankiApi';
 import { getVisibleText } from '../../lib/text/getVisibleText';
 import { AutoSyncCard } from './components/AutoSyncCard';
@@ -91,6 +92,10 @@ export default function PricingPage({
     trialState !== 'sent';
 
   useEffect(() => {
+    track('paywall_shown', { surface: 'pricing_page' });
+  }, []);
+
+  useEffect(() => {
     if (fromPaywall) {
       firePaywallEvent('paywall_pricing_viewed');
     }
@@ -115,6 +120,7 @@ export default function PricingPage({
       globalThis.location.href = '/login?redirect=/pricing';
       return;
     }
+    track('paywall_upgrade_clicked', { surface: 'pricing_page', plan: 'auto_sync' });
     setSubscribeError(null);
     const result = await get2ankiApi().startAutoSyncCheckout();
     if ('url' in result) {
@@ -154,6 +160,10 @@ export default function PricingPage({
       globalThis.location.href = '/login?redirect=/pricing';
       return;
     }
+    track('paywall_upgrade_clicked', {
+      surface: 'pricing_page',
+      plan: kind === '24h' ? 'day_pass' : 'week_pass',
+    });
     if (kind === '24h') {
       setDayPassState('pending');
     } else {
@@ -259,6 +269,12 @@ export default function PricingPage({
           ]}
           link={subcribeLink}
           linkText="Upgrade"
+          onLinkClick={() =>
+            track('paywall_upgrade_clicked', {
+              surface: 'pricing_page',
+              plan: 'unlimited',
+            })
+          }
         />
 
         <AutoSyncCard

@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import { track } from '../../../lib/analytics/track';
 
 interface SubscriptionStatus {
   authenticated: boolean;
@@ -85,6 +86,8 @@ export const useSubscriptionStatus = () => {
       if (dedupeKey) {
         sessionStorage.setItem(dedupeKey, '1');
       }
+
+      track('purchase');
 
       setShouldPoll(false);
       setShowConfirmation(true);

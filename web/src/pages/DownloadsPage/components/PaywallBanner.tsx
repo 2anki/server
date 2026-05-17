@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import JobResponse from '../../../schemas/public/JobResponse';
 import { getDistance } from '../../../lib/getDistance';
 import { firePaywallEvent } from '../../../lib/analytics/firePaywallEvent';
+import { track } from '../../../lib/analytics/track';
 import {
   MONTHLY_PRICE,
   MONTHLY_SUFFIX,
@@ -18,10 +19,12 @@ const UPGRADE_HREF = '/pricing?source=paywall-cancel';
 export function PaywallBanner({ inProgressJob }: PaywallBannerProps) {
   useEffect(() => {
     firePaywallEvent('paywall_shown');
+    track('paywall_shown', { surface: 'downloads_banner' });
   }, []);
 
   const handleCtaClick = () => {
     firePaywallEvent('paywall_clicked_upgrade');
+    track('paywall_upgrade_clicked', { surface: 'downloads_banner' });
   };
 
   const startedDistance =
