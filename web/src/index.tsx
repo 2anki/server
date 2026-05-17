@@ -8,6 +8,7 @@ import BugsnagPluginReact from '@bugsnag/plugin-react';
 import App from './App';
 
 import { SkeletonPage } from './components/Skeleton/Skeleton';
+import { LocalDataRecoveryBoundary } from './components/LocalDataRecoveryBoundary/LocalDataRecoveryBoundary';
 import { initTheme } from './lib/theme';
 
 function main() {
@@ -27,7 +28,9 @@ function main() {
     <React.StrictMode>
       <Suspense fallback={<SkeletonPage />}>
         <ErrorBoundary>
-          <App />
+          <LocalDataRecoveryBoundary onError={(error) => Bugsnag.notify(error)}>
+            <App />
+          </LocalDataRecoveryBoundary>
         </ErrorBoundary>
       </Suspense>
     </React.StrictMode>
