@@ -1,5 +1,9 @@
 import DownloadController from './DownloadController';
 import { Request, Response } from 'express';
+import { Writable } from 'stream';
+import path from 'path';
+import os from 'os';
+import fs from 'fs';
 
 function mockResponse(): Response {
   const headers: Record<string, string> = {};
@@ -86,5 +90,70 @@ describe('DownloadController.getFile', () => {
       'Content-Disposition',
       "attachment; filename=\"owner-1234-uuid.apkg\"; filename*=UTF-8''owner-1234-uuid.apkg"
     );
+  });
+});
+
+describe('DownloadController.getBulkDownload', () => {
+  let workspaceBase: string;
+  let originalWorkspaceBase: string | undefined;
+
+  beforeEach(() => {
+    workspaceBase = fs.mkdtempSync(path.join(os.tmpdir(), 'bulk-test-'));
+    originalWorkspaceBase = process.env.WORKSPACE_BASE;
+    process.env.WORKSPACE_BASE = workspaceBase;
+  });
+
+  afterEach(() => {
+    fs.rmSync(workspaceBase, { recursive: true, force: true });
+    if (originalWorkspaceBase === undefined) {
+      delete process.env.WORKSPACE_BASE;
+    } else {
+      process.env.WORKSPACE_BASE = originalWorkspaceBase;
+    }
+  });
+
+  function streamingResponse(): { res: Response; chunks: Buffer[]; done: Promise<void> } {
+    const chunks: Buffer[] = [];
+    let resolveDone!: () => void;
+    const done = new Promise<void>((resolve) => {
+      resolveDone = resolve;
+    });
+
+    const sink = new Writable({
+      write(chunk, _enc, cb) {
+        chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+        cb();
+      },
+    });
+    sink.on('finish', () => resolveDone());
+
+    const res = Object.assign(sink, {
+      headersSent: false,
+      setHeader: jest.fn(),
+      status: jest.fn().mockReturnThis(),
+      send: jest.fn(),
+    }) as unknown as Response;
+
+    return { res, chunks, done };
+  }
+
+  it('streams a zip archive of the .apkg files in the workspace', async () => {
+    const id = 'workspace-with-decks';
+    const workspace = path.join(workspaceBase, id);
+    fs.mkdirSync(workspace);
+    fs.writeFileSync(path.join(workspace, 'deck-one.apkg'), 'fake-apkg-one');
+    fs.writeFileSync(path.join(workspace, 'deck-two.apkg'), 'fake-apkg-two');
+
+    const controller = new DownloadController(makeService() as any);
+    const req = { params: { id } } as unknown as Request;
+    const { res, chunks, done } = streamingResponse();
+
+    controller.getBulkDownload(req, res);
+    await done;
+
+    expect((res.status as jest.Mock)).not.toHaveBeenCalledWith(500);
+    expect(res.setHeader).toHaveBeenCalledWith('Content-Type', 'application/zip');
+    expect(chunks.length).toBeGreaterThan(0);
+    expect(Buffer.concat(chunks).subarray(0, 2).toString()).toBe('PK');
   });
 });

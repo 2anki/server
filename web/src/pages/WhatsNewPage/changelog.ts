@@ -5,6 +5,7 @@ export interface ChangelogEntry {
 }
 
 export const changelog: ChangelogEntry[] = [
+  { type: 'fix', title: 'Download all as ZIP works again on multi-deck conversions', date: '2026-05-18' },
   { type: 'fix', title: 'Inactivity email shows your last deck name and a Day Pass option for one-time converting', date: '2026-05-17' },
   { type: 'fix', title: 'Loading the site during an update shows a brief "updating" notice instead of a server error', date: '2026-05-17' },
   { type: 'fix', title: 'Recovery screen — reset stale browser data when 2anki gets stuck loading', date: '2026-05-17' },
