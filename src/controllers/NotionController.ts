@@ -1,6 +1,13 @@
 import { Request, Response } from 'express';
 
 import performConversion from '../lib/storage/jobs/helpers/performConversion';
+import { InProgressJobError, JobLimitError } from '../lib/storage/jobs/helpers/errors';
+import JobRepository from '../data_layer/JobRepository';
+import { FindOrCreateJobUseCase } from '../usecases/jobs/FindOrCreateJobUseCase';
+import { CheckInProgressJobUseCase } from '../usecases/jobs/CheckInProgressJobUseCase';
+import { CheckJobLimitUseCase } from '../usecases/jobs/CheckJobLimitUseCase';
+import { CancelJobUseCase } from '../usecases/jobs/CancelJobUseCase';
+import { StartJobUseCase } from '../usecases/jobs/StartJobUseCase';
 import CardOption from '../lib/parser/Settings';
 import BlockHandler from '../services/NotionService/BlockHandler/BlockHandler';
 import CustomExporter from '../lib/parser/exporters/CustomExporter';
@@ -180,14 +187,63 @@ class NotionController {
       return res.status(400).send({ error: 'id is required' });
     }
 
-    return performConversion(getDatabase(), {
-      api,
-      id,
-      type,
-      owner: res.locals.owner,
-      res,
-      title: title ?? 'Untitled',
-    });
+    const paying = isPaying(res.locals);
+    const owner = res.locals.owner as string;
+    const database = getDatabase();
+
+    try {
+      const jobRepository = new JobRepository(database);
+
+      const findOrCreate = new FindOrCreateJobUseCase(jobRepository);
+      const job = await findOrCreate.execute({
+        id,
+        owner,
+        title: title ?? 'Untitled',
+        type: type || 'conversion',
+      });
+
+      const checkInProgress = new CheckInProgressJobUseCase(jobRepository);
+      const canStart = await checkInProgress.execute(id, owner);
+      if (!canStart) {
+        throw new InProgressJobError(id);
+      }
+
+      const checkLimit = new CheckJobLimitUseCase(jobRepository);
+      const maxJobs = paying ? Infinity : 1;
+      const withinLimit = await checkLimit.execute({ owner, maxJobs });
+      if (!withinLimit) {
+        const cancelJob = new CancelJobUseCase(jobRepository);
+        await cancelJob.execute({ id, owner, reason: 'Free plan — one conversion at a time' });
+        console.info('[event] paywall_shown', { owner, attemptedJobId: id });
+        throw new JobLimitError(owner);
+      }
+
+      const startJob = new StartJobUseCase(jobRepository);
+      await startJob.execute({ id, owner });
+
+      performConversion(database, {
+        api,
+        id,
+        type,
+        owner,
+        isPaying: paying,
+        title: title ?? 'Untitled',
+        jobDbId: job.id,
+      }).catch((err: unknown) => {
+        console.error('notion convert worker:', err);
+      });
+
+      return res.status(202).json({ jobId: job.id });
+    } catch (err) {
+      if (err instanceof InProgressJobError) {
+        return res.status(409).json({ reason: 'already_in_progress' });
+      }
+      if (err instanceof JobLimitError) {
+        return res.status(402).json({ reason: 'free_plan_one_at_a_time' });
+      }
+      console.error('[notion/convert] enqueue failed:', err);
+      return res.status(500).json({ error: 'conversion failed' });
+    }
   }
 
   async getPage(req: Request, res: Response) {

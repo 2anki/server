@@ -45,6 +45,13 @@ class JobRepository {
       .update({ status: 'interrupted', last_edited_time: new Date() });
   }
 
+  markInterruptedNotionJobs() {
+    return this.database(this.tableName)
+      .whereNotIn('status', ['done', 'failed', 'cancelled', 'interrupted'])
+      .whereIn('type', ['page', 'database', 'conversion'])
+      .update({ status: 'interrupted', last_edited_time: new Date() });
+  }
+
   static readonly TERMINAL_STATUSES = ['done', 'failed', 'cancelled', 'interrupted'];
 
   async updateJobStatus(

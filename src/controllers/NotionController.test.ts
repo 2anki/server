@@ -2,6 +2,29 @@ import express from 'express';
 import { APIErrorCode, APIResponseError } from '@notionhq/client';
 import NotionController from './NotionController';
 import NotionService from '../services/NotionService';
+import { InProgressJobError, JobLimitError } from '../lib/storage/jobs/helpers/errors';
+
+jest.mock('../lib/storage/jobs/helpers/performConversion', () => ({
+  __esModule: true,
+  default: jest.fn().mockResolvedValue(undefined),
+}));
+jest.mock('../data_layer', () => ({
+  getDatabase: jest.fn().mockReturnValue({}),
+}));
+jest.mock('../data_layer/JobRepository');
+jest.mock('../usecases/jobs/FindOrCreateJobUseCase');
+jest.mock('../usecases/jobs/CheckInProgressJobUseCase');
+jest.mock('../usecases/jobs/CheckJobLimitUseCase');
+jest.mock('../usecases/jobs/CancelJobUseCase');
+jest.mock('../usecases/jobs/StartJobUseCase');
+
+import performConversion from '../lib/storage/jobs/helpers/performConversion';
+import JobRepository from '../data_layer/JobRepository';
+import { FindOrCreateJobUseCase } from '../usecases/jobs/FindOrCreateJobUseCase';
+import { CheckInProgressJobUseCase } from '../usecases/jobs/CheckInProgressJobUseCase';
+import { CheckJobLimitUseCase } from '../usecases/jobs/CheckJobLimitUseCase';
+import { CancelJobUseCase } from '../usecases/jobs/CancelJobUseCase';
+import { StartJobUseCase } from '../usecases/jobs/StartJobUseCase';
 
 describe('NotionController', () => {
   let service: NotionService;
@@ -22,7 +45,31 @@ describe('NotionController', () => {
       ...overrides,
     }) as any;
 
+  function setupConvertMocks({
+    canStart = true,
+    withinLimit = true,
+  }: { canStart?: boolean; withinLimit?: boolean } = {}) {
+    (JobRepository as unknown as jest.Mock).mockImplementation(() => ({}));
+    (FindOrCreateJobUseCase as jest.Mock).mockImplementation(() => ({
+      execute: jest.fn().mockResolvedValue({ id: 77, status: 'started' }),
+    }));
+    (CheckInProgressJobUseCase as jest.Mock).mockImplementation(() => ({
+      execute: jest.fn().mockResolvedValue(canStart),
+    }));
+    (CheckJobLimitUseCase as jest.Mock).mockImplementation(() => ({
+      execute: jest.fn().mockResolvedValue(withinLimit),
+    }));
+    (CancelJobUseCase as jest.Mock).mockImplementation(() => ({
+      execute: jest.fn().mockResolvedValue(undefined),
+    }));
+    (StartJobUseCase as jest.Mock).mockImplementation(() => ({
+      execute: jest.fn().mockResolvedValue(undefined),
+    }));
+    (performConversion as jest.Mock).mockResolvedValue(undefined);
+  }
+
   beforeEach(() => {
+    jest.clearAllMocks();
     service = {
       getNotionAPI: jest.fn(),
     } as any;
@@ -34,6 +81,7 @@ describe('NotionController', () => {
     res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn().mockReturnThis(),
+      send: jest.fn().mockReturnThis(),
       locals: { owner: 'owner1' },
     } as any;
   });
@@ -135,5 +183,67 @@ describe('NotionController', () => {
     const payload = (res.json as jest.Mock).mock.calls[0]?.[0];
     expect(payload.pageTitle).toBe('My Page');
     expect(payload.pageUrl).toBe('https://notion.so/My-Page');
+  });
+
+  describe('convert', () => {
+    beforeEach(() => {
+      req = {
+        body: { id: 'page-abc', title: 'Test Page', type: 'page' },
+        params: {},
+        query: {},
+      };
+      (service.getNotionAPI as jest.Mock).mockResolvedValue(buildApi());
+    });
+
+    it('returns 202 with jobId on happy path', async () => {
+      setupConvertMocks();
+
+      await controller.convert(req as express.Request, res as express.Response);
+
+      expect(res.status).toHaveBeenCalledWith(202);
+      expect(res.json).toHaveBeenCalledWith({ jobId: 77 });
+    });
+
+    it('returns 409 when job is already in progress', async () => {
+      setupConvertMocks({ canStart: false });
+
+      await controller.convert(req as express.Request, res as express.Response);
+
+      expect(res.status).toHaveBeenCalledWith(409);
+      expect(res.json).toHaveBeenCalledWith({ reason: 'already_in_progress' });
+    });
+
+    it('returns 402 when free user has hit the limit', async () => {
+      setupConvertMocks({ withinLimit: false });
+
+      await controller.convert(req as express.Request, res as express.Response);
+
+      expect(res.status).toHaveBeenCalledWith(402);
+      expect(res.json).toHaveBeenCalledWith({ reason: 'free_plan_one_at_a_time' });
+    });
+
+    it('fires performConversion without awaiting and catches worker rejections', async () => {
+      setupConvertMocks();
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+      const workerError = new Error('worker boom');
+      (performConversion as jest.Mock).mockRejectedValue(workerError);
+
+      await controller.convert(req as express.Request, res as express.Response);
+
+      expect(res.status).toHaveBeenCalledWith(202);
+
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      expect(consoleErrorSpy).toHaveBeenCalledWith('notion convert worker:', workerError);
+      consoleErrorSpy.mockRestore();
+    });
+
+    it('returns 400 when id is missing', async () => {
+      req = { body: {}, params: {}, query: {} };
+      (service.getNotionAPI as jest.Mock).mockResolvedValue(buildApi());
+
+      await controller.convert(req as express.Request, res as express.Response);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+    });
   });
 });
