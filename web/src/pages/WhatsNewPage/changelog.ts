@@ -5,6 +5,7 @@ export interface ChangelogEntry {
 }
 
 export const changelog: ChangelogEntry[] = [
+  { type: 'fix', title: 'Loading the site during an update shows a brief "updating" notice instead of a server error', date: '2026-05-17' },
   { type: 'fix', title: 'Recovery screen — reset stale browser data when 2anki gets stuck loading', date: '2026-05-17' },
   { type: 'fix', title: 'Auto Sync — "How sync works" on the pricing page opens the docs', date: '2026-05-17' },
   { type: 'fix', title: 'Auto Sync appears in the sidebar for $30/mo subscribers, not only Lifetime accounts', date: '2026-05-17' },
