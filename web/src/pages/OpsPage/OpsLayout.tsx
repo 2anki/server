@@ -26,7 +26,7 @@ export default function OpsLayout() {
   const fullPath = `${location.pathname}${location.search}`;
 
   return (
-    <main className={sharedStyles.pageWide}>
+    <main className={sharedStyles.pageWide} data-hj-suppress>
       <h1 className={sharedStyles.title}>Ops</h1>
       <nav aria-label="Ops sections" className={styles.tabs}>
         {TABS.map((tab) => {
