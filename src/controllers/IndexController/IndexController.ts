@@ -4,7 +4,7 @@ import AuthenticationService from '../../services/AuthenticationService';
 import TokenRepository from '../../data_layer/TokenRepository';
 import UsersRepository from '../../data_layer/UsersRepository';
 import { configureUserLocal } from '../../routes/middleware/configureUserLocal';
-import { getIndexFileContents } from './getIndexFileContents';
+import { sendIndex } from './sendIndex';
 import { getDefaultEmailService } from '../../services/EmailService/EmailService';
 
 class IndexController {
@@ -15,7 +15,7 @@ class IndexController {
       new UsersRepository(database)
     );
     configureUserLocal(request, response, authService, database).then(() => {
-      response.send(getIndexFileContents());
+      sendIndex(response);
     });
   }
 

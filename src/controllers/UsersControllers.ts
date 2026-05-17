@@ -8,7 +8,7 @@ import UsersService from '../services/UsersService';
 import { getRedirect } from './helpers/getRedirect';
 import { parseSignupOrigin } from './helpers/parseSignupOrigin';
 
-import { getIndexFileContents } from './IndexController/getIndexFileContents';
+import { sendIndex } from './IndexController/sendIndex';
 import { getRandomUUID } from '../shared/helpers/getRandomUUID';
 import SubscriptionService from '../services/SubscriptionService';
 import { OPS_OWNER_EMAIL } from '../routes/middleware/RequireOpsAccess';
@@ -212,7 +212,7 @@ class UsersController {
       const token = req.params.id;
       const isValid = await this.authService.isValidToken(token);
       if (isValid) {
-        return res.send(getIndexFileContents());
+        return sendIndex(res);
       }
       return res.redirect('/login');
     } catch (err) {
@@ -529,7 +529,7 @@ class UsersController {
   async checkUser(req: express.Request, res: express.Response) {
     const user = await this.authService.getUserFrom(req.cookies.token);
     if (!user) {
-      res.send(getIndexFileContents());
+      sendIndex(res);
     } else {
       res.redirect(getRedirect(req));
     }
