@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import {
   Link,
   useNavigate,
@@ -250,6 +251,10 @@ export default function RulesPage({ setErrorMessage }: Readonly<Props>) {
   const backLabel = returnTo === '/notion' ? '← Back to Notion' : '← Back';
 
   return (
+    <>
+      <Helmet>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
     <div className={styles.pageShell}>
       <div className={sharedStyles.page}>
         <header className={sharedStyles.pageHeader}>
@@ -412,5 +417,6 @@ export default function RulesPage({ setErrorMessage }: Readonly<Props>) {
         )}
       </div>
     </div>
+    </>
   );
 }

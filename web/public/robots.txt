@@ -3,5 +3,22 @@ User-agent: *
 Disallow: /rules/
 Disallow: /notion
 Disallow: /favorites
+Disallow: /downloads
+Disallow: /chat
+Disallow: /delete-account
+Disallow: /account
+Disallow: /import
+Disallow: /ankify
+Disallow: /ops
+Disallow: /feedback
+Disallow: /settings
+Disallow: /card-options
+Disallow: /templates/new
+Disallow: /templates/edit/
+Disallow: /preview/
+Disallow: /search
+Disallow: /uploads
+Disallow: /successful-checkout
+Disallow: /debug
 
 Sitemap: https://2anki.net/sitemap.xml
