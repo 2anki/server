@@ -24,6 +24,7 @@ import { ankiConnectFactory } from '../services/ankify/buildAnkiConnectClient';
 import { notionBlockChildrenFetcherFactory } from '../services/ankify/notionBlockChildrenFetcher';
 import NotionRepository from './NotionRespository';
 import NotionTopLevelPagesRepository from './NotionTopLevelPagesRepository';
+import BlocksCacheRepository from './BlocksCacheRepository';
 import {
   NotionService,
   TOP_LEVEL_PAGES_STALE_AFTER_MS,
@@ -234,9 +235,11 @@ export const setupDatabase = async (database: Knex) => {
         }
       );
       const topLevelPagesRepo = new NotionTopLevelPagesRepository(database);
+      const blocksCacheRepo = new BlocksCacheRepository(database);
       const notionServiceForRefresh = new NotionService(
         notionRepo,
-        topLevelPagesRepo
+        topLevelPagesRepo,
+        blocksCacheRepo
       );
       scheduleAnkifyPolling(subscriptionsRepo, syncUseCase, {
         refreshTopLevelPagesForOwner: async (owner) => {

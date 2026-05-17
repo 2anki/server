@@ -3,7 +3,7 @@ import styles from '../AccountPage.module.css';
 export function AccountDeletion() {
   return (
     <div className={styles.dangerSection}>
-      <h4 className={styles.dangerTitle}>Delete Account</h4>
+      <h4 className={styles.dangerTitle}>Delete account</h4>
       <div className={styles.dangerNotice}>
         <strong>Warning:</strong> Deleting your account will permanently remove
         all your data and cannot be undone.
@@ -21,7 +21,7 @@ export function AccountDeletion() {
           }
         }}
       >
-        Delete Account
+        Delete account
       </a>
     </div>
   );

@@ -9,9 +9,19 @@ vi.mock('../../lib/backend/get2ankiApi', () => ({
   get2ankiApi: () => mockApi,
 }));
 
+const cardOptionsFormProps = vi.fn();
 vi.mock('../../components/CardOptionsForm/CardOptionsForm', () => ({
-  CardOptionsForm: () => <div data-testid="card-options-form" />,
+  CardOptionsForm: (props: Record<string, unknown>) => {
+    cardOptionsFormProps(props);
+    return <div data-testid="card-options-form" />;
+  },
 }));
+
+const mockNavigate = vi.fn();
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
+  return { ...actual, useNavigate: () => mockNavigate };
+});
 
 const mockApi = {
   listSettings: vi.fn(),
@@ -31,6 +41,8 @@ function renderPage(search = '') {
 describe('CardOptionsPage per-page list', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    cardOptionsFormProps.mockClear();
+    mockNavigate.mockClear();
     mockApi.listSettings.mockResolvedValue({ items: [] });
     mockApi.deleteSettings.mockResolvedValue(undefined);
     mockApi.deleteRules.mockResolvedValue(undefined);
@@ -176,6 +188,31 @@ describe('CardOptionsPage per-page list', () => {
       expect(mockApi.deleteAllUserSettings).toHaveBeenCalledTimes(1);
       expect(mockApi.listSettings).toHaveBeenCalledTimes(2);
     });
+  });
+
+  it('wires onSaved to return to /upload when arriving with ?returnTo=/upload', async () => {
+    renderPage('?returnTo=/upload');
+    await screen.findByTestId('card-options-form');
+    const props = cardOptionsFormProps.mock.calls.at(-1)?.[0] as { onSaved?: () => void };
+    expect(props.onSaved).toBeDefined();
+    props.onSaved!();
+    expect(mockNavigate).toHaveBeenCalledWith('/upload');
+  });
+
+  it('leaves onSaved undefined for direct nav to /card-options', async () => {
+    renderPage();
+    await screen.findByTestId('card-options-form');
+    const props = cardOptionsFormProps.mock.calls.at(-1)?.[0] as { onSaved?: () => void };
+    expect(props.onSaved).toBeUndefined();
+  });
+
+  it('keeps onSaved wired when viewing a specific page', async () => {
+    renderPage('?pageId=abc-123');
+    await screen.findByTestId('card-options-form');
+    const props = cardOptionsFormProps.mock.calls.at(-1)?.[0] as { onSaved?: () => void };
+    expect(props.onSaved).toBeDefined();
+    props.onSaved!();
+    expect(mockNavigate).toHaveBeenCalledWith('/upload');
   });
 
   it('shows error strip when bulk reset fails', async () => {

@@ -11,6 +11,7 @@ import UploadService from '../services/UploadService';
 import { getDatabase } from '../data_layer';
 import UploadRepository from '../data_layer/UploadRespository';
 import NotionRepository from '../data_layer/NotionRespository';
+import BlocksCacheRepository from '../data_layer/BlocksCacheRepository';
 import NotionService from '../services/NotionService';
 import { DropboxRepository } from '../data_layer/DropboxRepository';
 import { GoogleDriveRepository } from '../data_layer/GoogleDriveRepository';
@@ -29,7 +30,11 @@ const UploadRouter = () => {
   const googleDriveRepository = new GoogleDriveRepository(database);
   const uploadController = new UploadController(
     new UploadService(new UploadRepository(database), new JobRepository(database)),
-    new NotionService(new NotionRepository(database)),
+    new NotionService(
+      new NotionRepository(database),
+      undefined,
+      new BlocksCacheRepository(database)
+    ),
     new GetDropboxUploadsUseCase(dropboxRepository),
     new DeleteDropboxUploadUseCase(dropboxRepository),
     new GetGoogleDriveUploadsUseCase(googleDriveRepository),

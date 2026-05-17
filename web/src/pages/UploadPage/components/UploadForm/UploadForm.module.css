@@ -26,6 +26,11 @@
   background: var(--color-primary-light);
 }
 
+.dropZone:focus-within {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
 .dropZoneConverting {
   border-color: var(--color-primary);
   border-style: solid;

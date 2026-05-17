@@ -10,6 +10,7 @@ import {
   getOfficialNoteTypes,
   getUserTemplates,
 } from '../../lib/backend/templates';
+import { useDialog } from '../../lib/hooks/useDialog';
 import sharedStyles from '../../styles/shared.module.css';
 import DownloadIcon from '../../components/icons/DownloadIcon';
 import PencilIcon from '../../components/icons/PencilIcon';
@@ -133,29 +134,15 @@ function PreviewModal({ starter, onClose }: Readonly<PreviewModalProps>) {
     () => buildPreviewDocument(starter.noteType, starter.previewData, 'back'),
     [starter]
   );
-
-  useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
-    };
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, [onClose]);
+  const dialogRef = useDialog(true, onClose);
 
   return (
-    <div className={sharedStyles.modal}>
-      <button
-        type="button"
-        className={sharedStyles.modalBackdrop}
-        onClick={onClose}
-        aria-label="Close preview"
-      />
-      <dialog
-        open
-        aria-modal="true"
-        aria-labelledby="note-type-preview-title"
-        className={`${sharedStyles.modalCard} ${styles.dialog}`}
-      >
+    <dialog
+      ref={dialogRef}
+      className={sharedStyles.dialog}
+      aria-labelledby="note-type-preview-title"
+    >
+      <div className={`${sharedStyles.modalCard} ${styles.dialog}`}>
         <div className={sharedStyles.modalHeader}>
           <h2
             id="note-type-preview-title"
@@ -196,8 +183,8 @@ function PreviewModal({ starter, onClose }: Readonly<PreviewModalProps>) {
             </div>
           </div>
         </div>
-      </dialog>
-    </div>
+      </div>
+    </dialog>
   );
 }
 

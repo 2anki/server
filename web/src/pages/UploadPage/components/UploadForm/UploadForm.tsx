@@ -840,8 +840,28 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
   const showGoogleDrivePanel = showChips && source === 'google_drive';
   const showLocalPanel = !showChips || source === 'local';
 
+  const renderLiveStatus = (): string => {
+    if (zoneState === 'converting') return 'Converting your file.';
+    if (zoneState === 'success') {
+      if (cardCount == null) return 'Your deck is ready.';
+      const noun = cardCount === 1 ? 'card' : 'cards';
+      return `Your deck is ready — ${cardCount} ${noun}.`;
+    }
+    if (zoneState === 'emptyDeck') {
+      return 'Conversion finished, but no cards were found.';
+    }
+    if (zoneState === 'error') return 'Conversion failed.';
+    if (zoneState === 'limitReached') {
+      return "You've reached your monthly limit.";
+    }
+    return '';
+  };
+
   return (
     <form encType="multipart/form-data" method="post" onSubmit={handleSubmit}>
+      <output aria-live="polite" className={sharedStyles.srOnly}>
+        {renderLiveStatus()}
+      </output>
       <label
         htmlFor="pakker"
         id="upload-panel-local"

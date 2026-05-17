@@ -79,7 +79,7 @@ function LandingPage({ copy, setErrorMessage }: Readonly<LandingPageProps>) {
               <a href={copy.ctaHref} className={sharedStyles.btnPrimary}>
                 {copy.ctaLabel}
               </a>
-              <p className={styles.secondaryLink}>Free · up to 1,000 cards per import</p>
+              <p className={styles.secondaryLink}>Free · up to 1 000 cards per import</p>
             </div>
           )}
         </div>

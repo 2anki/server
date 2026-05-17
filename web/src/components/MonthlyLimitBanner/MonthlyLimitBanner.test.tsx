@@ -18,7 +18,7 @@ describe('MonthlyLimitBanner', () => {
   it('renders the announcement for free users before the enforcement date', () => {
     renderWith({ isPaying: false, now: BEFORE });
     expect(
-      screen.getByText(/Free plan changes on 1 June/)
+      screen.getByText(/100 cards per month, starting 1 June/)
     ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'See plans' })).toHaveAttribute(
       'href',

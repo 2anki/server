@@ -14,8 +14,11 @@ Wraps the Notion SDK (`@notionhq/client`) and the OAuth dance. Owns token storag
 
 Every outbound call must go through `instrumentedAxios` (from `services/observability/`) or the wrapped `NotionAPIWrapper.ts`. Do not import `axios` or call `notion.request` directly from this dir.
 
+`NotionAPIWrapper`'s constructor takes `(key, owner, blocksCache?)`. The optional `blocksCache: IBlocksCacheRepository` (from `data_layer/BlocksCacheRepository.ts`) backs `getBlocks` — when present, `all`-mode reads check the cache before hitting Notion, and writes persist the response. Pass it in production via `NotionService`'s constructor; omit it in tests for a no-op (no caching, no DB access). Never import `getDatabase` here.
+
 ## Things to know before editing
 
+- **Authorize URL needs `redirect_uri`:** `getNotionAuthorizationLink` must include the `redirect_uri` query param (sourced from `NOTION_REDIRECT_URI`). Notion rejects the authorize request with "Missing or invalid redirect_uri" if it's absent. The companion `redirect_uri` on the token exchange (`oauth/token`) is separate but must match.
 - **Cache invalidation:** writes (e.g. user disconnects, token refresh) call `invalidateTopLevelPagesForOwner`. Forgetting this leaves stale pages visible to other tabs for up to 5 minutes.
 - **Refresh gate:** `tryClaimRefresh` returns false for the second concurrent caller — that caller should serve stale data, not block. Don't change this to a mutex without thinking about the perf tail.
 - **Webhooks:** the receiver in `routes/AnkifyWebhookRouter.ts` is intentionally inactive; see `Documentation/ankify/notion-webhooks-deferred.md`. Polling at 5 min carries the near-realtime story today.

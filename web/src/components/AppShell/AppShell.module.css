@@ -300,3 +300,25 @@
     z-index: 30;
   }
 }
+
+.skipLink {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 100;
+  padding: 0.5rem 1rem;
+  background: var(--color-primary);
+  color: var(--color-bg-primary);
+  border-radius: 0 0 var(--radius-md) 0;
+  text-decoration: none;
+  font-weight: var(--font-medium);
+  transform: translateY(-100%);
+  transition: transform var(--transition-fast);
+}
+
+.skipLink:focus,
+.skipLink:focus-visible {
+  transform: translateY(0);
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}

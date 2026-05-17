@@ -71,9 +71,8 @@ Free covers the conversion paths most people need: drag in a file, get a deck ba
 | Account features (history, favorites, templates) | sign-in required | ✓ | ✓ |
 | AI-generated flashcards (Claude) | — | ✓ | ✓ |
 | Chat (study assistant) | 20 msg / mo | Unlimited | Unlimited |
-| Notion sync | — | — | ✓ |
 | Long-term deck storage | 24 h | active sub | indefinite |
-| Hosted Anki | — | — | ✓ |
+| Auto Sync (Notion → Anki) | — | $30/mo add-on | ✓ |
 
 See the [pricing page](/pricing) for the current plan list. Privacy details — what we read, what we don't — are on the [privacy policy](/documentation/reference/privacy).
 

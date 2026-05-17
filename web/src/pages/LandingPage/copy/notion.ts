@@ -22,7 +22,7 @@ const notionCopy: LandingCopy = {
     },
     {
       q: 'Will it sync when I edit the Notion page later?',
-      a: 'A one-time conversion is a snapshot. Re-paste the link to make a fresh deck. If you want changes to flow automatically, see Hosted Anki on the pricing page — it polls Notion every few minutes.',
+      a: 'A one-time conversion is a snapshot. Re-paste the link to make a fresh deck. If you want changes to flow automatically, see Auto Sync on the pricing page — it polls Notion every few minutes.',
     },
   ],
 };

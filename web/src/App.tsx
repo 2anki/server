@@ -119,7 +119,7 @@ function AppContent({
         error={error}
         isLoggedIn={isLoggedIn}
         email={data?.user?.email}
-        locals={data?.locals == null ? data?.locals : { ...data.locals, trial_started_at: data?.user?.trial_started_at ?? null }}
+        locals={data?.locals == null ? data?.locals : { ...data.locals, trial_started_at: data?.user?.trial_started_at ?? null, autoSyncActive: data?.autoSyncActive === true }}
         features={data?.features}
       >
         <Routes>

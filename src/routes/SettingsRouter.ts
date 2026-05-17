@@ -6,6 +6,7 @@ import SettingsRepository from '../data_layer/SettingsRepository';
 import ParserRulesRepository from '../data_layer/ParserRulesRepository';
 import NotionRepository from '../data_layer/NotionRespository';
 import NotionTopLevelPagesRepository from '../data_layer/NotionTopLevelPagesRepository';
+import BlocksCacheRepository from '../data_layer/BlocksCacheRepository';
 import { getDatabase } from '../data_layer';
 import SettingsService from '../services/SettingsService';
 import NotionService from '../services/NotionService';
@@ -16,7 +17,8 @@ const SettingsRouter = () => {
   const database = getDatabase();
   const notionService = new NotionService(
     new NotionRepository(database),
-    new NotionTopLevelPagesRepository(database)
+    new NotionTopLevelPagesRepository(database),
+    new BlocksCacheRepository(database)
   );
   const settingsRepository = new SettingsRepository(database);
   const parserRulesRepository = new ParserRulesRepository(database);

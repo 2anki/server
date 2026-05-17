@@ -20,6 +20,7 @@ import UsersRepository from '../data_layer/UsersRepository';
 import { ShowcaseRepository } from '../data_layer/ShowcaseRepository';
 import DownloadRepository from '../data_layer/DownloadRepository';
 import NotionRepository from '../data_layer/NotionRespository';
+import BlocksCacheRepository from '../data_layer/BlocksCacheRepository';
 import DownloadService from '../services/DownloadService';
 import ApkgPreviewService from '../services/ApkgPreviewService/ApkgPreviewService';
 import { NotionService } from '../services/NotionService/NotionService';
@@ -49,7 +50,11 @@ const OpsRouter = () => {
   const showcaseRepo = new ShowcaseRepository(database);
   const populateShowcase = new PopulateShowcaseUseCase(
     showcaseRepo,
-    new NotionService(new NotionRepository(database)),
+    new NotionService(
+      new NotionRepository(database),
+      undefined,
+      new BlocksCacheRepository(database)
+    ),
     new ApkgPreviewService(),
     new DownloadService(new DownloadRepository(database))
   );

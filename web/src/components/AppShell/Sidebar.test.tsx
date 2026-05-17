@@ -16,6 +16,7 @@ interface SidebarRenderOpts {
   pathname?: string;
   patreon?: boolean;
   subscriber?: boolean;
+  autoSyncActive?: boolean;
   kiUI?: boolean;
   ops?: boolean;
   email?: string | null;
@@ -26,6 +27,7 @@ function renderSidebar({
   pathname = '/upload',
   patreon = false,
   subscriber = false,
+  autoSyncActive = false,
   kiUI = false,
   ops = false,
   email = 'alexander@alemayhu.com',
@@ -35,7 +37,7 @@ function renderSidebar({
     <MemoryRouter initialEntries={[pathname]}>
       <Sidebar
         email={email}
-        locals={{ patreon, subscriber }}
+        locals={{ patreon, subscriber, autoSyncActive }}
         features={{ kiUI, ops }}
         onLogOut={onLogOut}
       />
@@ -105,15 +107,23 @@ describe('Sidebar convert group', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('hides Auto Sync when the user does not have patreon access', () => {
+  it('hides Auto Sync from a subscriber without Auto Sync access', () => {
     renderSidebar({ subscriber: true });
     expect(
       screen.queryByRole('link', { name: 'Auto Sync' })
     ).not.toBeInTheDocument();
   });
 
-  it('shows Auto Sync when the user has patreon access', () => {
+  it('shows Auto Sync for a Lifetime (Patreon) user', () => {
     renderSidebar({ patreon: true });
+    expect(screen.getByRole('link', { name: 'Auto Sync' })).toHaveAttribute(
+      'href',
+      '/ankify'
+    );
+  });
+
+  it('shows Auto Sync for an Auto Sync subscriber', () => {
+    renderSidebar({ subscriber: true, autoSyncActive: true });
     expect(screen.getByRole('link', { name: 'Auto Sync' })).toHaveAttribute(
       'href',
       '/ankify'

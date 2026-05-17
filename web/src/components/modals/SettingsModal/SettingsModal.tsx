@@ -2,6 +2,7 @@ import { SyntheticEvent } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ErrorHandlerType } from '../../errors/helpers/getErrorMessage';
 import { getVisibleText } from '../../../lib/text/getVisibleText';
+import { useDialog } from '../../../lib/hooks/useDialog';
 import { CardOptionsForm } from '../../CardOptionsForm/CardOptionsForm';
 import sharedStyles from '../../../styles/shared.module.css';
 import styles from './SettingsModal.module.css';
@@ -30,20 +31,15 @@ function SettingsModal({
   params.set('returnTo', returnTo);
   const fullPageHref = `/card-options?${params.toString()}`;
 
+  const dialogRef = useDialog(isActive, () => onClickClose());
+
   return (
-    <div className={isActive ? sharedStyles.modal : sharedStyles.modalHidden}>
-      <button
-        type="button"
-        className={sharedStyles.modalBackdrop}
-        onClick={onClickClose}
-        aria-label="Close modal"
-      />
-      <div
-        className={sharedStyles.modalCard}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="settings-modal-title"
-      >
+    <dialog
+      ref={dialogRef}
+      className={sharedStyles.dialog}
+      aria-labelledby="settings-modal-title"
+    >
+      <div className={sharedStyles.modalCard}>
         <div className={sharedStyles.modalHeader}>
           <div id="settings-modal-title" className={sharedStyles.modalHeaderTitle}>
             {getVisibleText('card.options')}
@@ -72,7 +68,7 @@ function SettingsModal({
           />
         </section>
       </div>
-    </div>
+    </dialog>
   );
 }
 
