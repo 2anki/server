@@ -578,7 +578,7 @@ export default function ChatPage() {
         onDismiss={() => setShowConsentModal(false)}
       />
     )}
-    <div className={styles.layout}>
+    <div className={styles.layout} data-hj-suppress>
       <ConversationsSidebar
         conversations={conversations}
         activeId={activeConversationId}
