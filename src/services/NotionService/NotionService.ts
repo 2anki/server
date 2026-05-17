@@ -259,6 +259,7 @@ export class NotionService {
       const data = {
         grant_type: 'authorization_code',
         code,
+        redirect_uri: uri,
       };
       const options = {
         auth: {
