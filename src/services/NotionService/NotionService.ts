@@ -81,7 +81,7 @@ export class NotionService {
     if (!token) {
       throw new Error(APIErrorCode.Unauthorized);
     }
-    return new NotionAPIWrapper(token!, owner, this.blocksCacheRepository);
+    return new NotionAPIWrapper(token, owner, this.blocksCacheRepository);
   };
 
   tryGetNotionAPI = async (

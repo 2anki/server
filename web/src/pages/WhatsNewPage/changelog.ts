@@ -5,6 +5,9 @@ export interface ChangelogEntry {
 }
 
 export const changelog: ChangelogEntry[] = [
+  { type: 'fix', title: 'Auto Sync — "How sync works" on the pricing page opens the docs', date: '2026-05-17' },
+  { type: 'fix', title: 'Auto Sync appears in the sidebar for $30/mo subscribers, not only Lifetime accounts', date: '2026-05-17' },
+  { type: 'fix', title: 'Auto Sync is the name everywhere — pricing page, Notion FAQ, and limits table', date: '2026-05-17' },
   { type: 'fix', title: 'Escape closes settings, feedback, cancellation, and template-preview modals — and returns focus to the button that opened them', date: '2026-05-17' },
   { type: 'fix', title: 'Image occlusion toolbar buttons are reachable by screen readers — each tool announces its name', date: '2026-05-17' },
   { type: 'fix', title: 'Refresh button on My Decks shows its icon again', date: '2026-05-17' },

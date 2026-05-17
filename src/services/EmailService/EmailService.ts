@@ -170,15 +170,15 @@ class EmailService implements IEmailService {
     const msg = {
       to: SUPPORT_EMAIL_ADDRESS,
       from: DEFAULT_SENDER,
-      subject: 'Hosted Anki access request',
-      text: `User ${userId} <${userEmail}> requested access to Hosted Anki.`,
+      subject: 'Auto Sync access request',
+      text: `User ${userId} <${userEmail}> requested access to Auto Sync.`,
       replyTo: userEmail,
     };
     try {
       await sgMail.send(msg);
       return { didSend: true };
     } catch (e) {
-      console.error('Error sending Hosted Anki access request email', e);
+      console.error('Error sending Auto Sync access request email', e);
       return { didSend: false, error: e as Error };
     }
   }

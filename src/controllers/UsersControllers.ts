@@ -366,7 +366,7 @@ class UsersController {
         .status(200)
         .json({ ok: true, alreadyRequested: result.alreadyRequested ?? false });
     } catch (error) {
-      console.error('Hosted Anki access request failed', error);
+      console.error('Auto Sync access request failed', error);
       return res.status(500).json({ message: 'Could not send request' });
     }
   }

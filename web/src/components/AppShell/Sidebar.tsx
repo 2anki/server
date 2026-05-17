@@ -83,6 +83,7 @@ function useTrialCountdown(trialStartedAt: string | null | undefined): string | 
 export interface SidebarLocals {
   patreon?: boolean;
   subscriber?: boolean;
+  autoSyncActive?: boolean;
   trial_started_at?: string | null;
   passExpiresAt?: string | null;
   passKind?: '24h' | '7d' | null;
@@ -182,7 +183,8 @@ export function Sidebar({
   const navigate = useNavigate();
   const theme = useTheme();
   const logoSrc = theme === 'light' ? '/mascot/navbar-logo.png' : '/mascot/Notion 1.png';
-  const showAnkify = locals?.patreon === true;
+  const showAnkify =
+    locals?.patreon === true || locals?.autoSyncActive === true;
   const paying = isPayingUser(locals);
   const showPricing = !paying;
   const showKi = features?.kiUI === true;
