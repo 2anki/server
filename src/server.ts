@@ -154,10 +154,14 @@ const serve = async () => {
 
   const cwd = process.cwd();
   process.chdir(cwd);
-  process.env.SECRET ||= 'victory';
+  if (!process.env.SECRET) {
+    throw new Error(
+      'SECRET environment variable is required to sign JWTs. Refusing to boot with an unset secret.'
+    );
+  }
   const port = process.env.PORT || 2020;
   server.listen(port, () => {
-    console.info(`🟢 Running on http://localhost:${port}`);
+    console.info(`Running on http://localhost:${port}`);
   });
   registerSignalHandlers(server);
 

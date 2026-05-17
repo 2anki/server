@@ -120,6 +120,11 @@ class DownloadController {
 
       archive.on('error', (err) => {
         console.error('Archive error:', err);
+        if (res.headersSent) {
+          archive.abort();
+          res.destroy(err);
+          return;
+        }
         res.status(500).send('Error creating bulk download');
       });
 
@@ -135,8 +140,11 @@ class DownloadController {
       });
 
       archive.finalize();
-    } catch {
-      res.status(500).send('Error creating bulk download');
+    } catch (err) {
+      console.error('Bulk download failed:', err);
+      if (!res.headersSent) {
+        res.status(500).send('Error creating bulk download');
+      }
     }
   }
 }
