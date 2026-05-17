@@ -1,6 +1,6 @@
 # Ankify (in 2anki/server)
 
-Hosted Anki + Notion ↔ Anki sync, ported from the standalone `2anki/ankify` prototype into 2anki/server proper. All routes and UI are gated behind the email allowlist defined in `src/lib/constants.ts` (`ANKIFY_ALLOWLIST_EMAILS`).
+Auto Sync — Notion → Anki sync, ported from the standalone `2anki/ankify` prototype into 2anki/server proper. All routes and UI are gated behind the email allowlist defined in `src/lib/constants.ts` (`ANKIFY_ALLOWLIST_EMAILS`).
 
 ## State at PR #2042 merge
 

@@ -10,7 +10,7 @@ const AUTO_SYNC_BENEFITS = [
   'Cancel anytime',
 ];
 
-const LEARN_MORE_HREF = 'https://2anki.net/docs/auto-sync';
+const LEARN_MORE_HREF = '/documentation/sync/how-it-works';
 
 interface AutoSyncCardProps {
   showNewBadge: boolean;

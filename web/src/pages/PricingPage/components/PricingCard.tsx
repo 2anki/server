@@ -128,7 +128,7 @@ export function PricingCard({
           {caption != null && <p className={styles.cardCaption}>{caption}</p>}
           {learnMoreHref != null && (
             <a href={learnMoreHref} className={styles.cardLearnMore} target="_blank" rel="noopener noreferrer">
-              Learn how it works
+              How sync works
             </a>
           )}
         </div>

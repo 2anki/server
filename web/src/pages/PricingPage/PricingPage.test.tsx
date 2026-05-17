@@ -170,10 +170,10 @@ describe('PricingPage Auto Sync card', () => {
     });
   });
 
-  it('shows Learn how it works link', () => {
+  it('shows How sync works link', () => {
     renderAt('/pricing', { isLoggedIn: true });
-    const link = screen.getByRole('link', { name: 'Learn how it works' });
+    const link = screen.getByRole('link', { name: 'How sync works' });
     expect(link).toBeInTheDocument();
-    expect(link).toHaveAttribute('href', 'https://2anki.net/docs/auto-sync');
+    expect(link).toHaveAttribute('href', '/documentation/sync/how-it-works');
   });
 });

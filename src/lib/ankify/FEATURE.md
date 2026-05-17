@@ -1,4 +1,4 @@
-# ankify — bidirectional Notion ↔ Anki sync
+# ankify — Notion → Anki sync
 
 Background-job factories and pure helpers for the Ankify product (separate from the one-shot conversion path). No HTTP, no SQL, no third-party SDK clients here — those live in `src/services/ankify/`.
 
