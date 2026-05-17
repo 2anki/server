@@ -30,14 +30,15 @@ export class LocalDataRecoveryBoundary extends React.Component<
     this.props.onError?.(error, errorInfo);
   }
 
+  private readonly defaultReload = () => window.location.reload();
+
   private readonly reloadPage = () => {
-    const reload = this.props.reloadPage ?? (() => globalThis.location.reload());
-    reload();
+    (this.props.reloadPage ?? this.defaultReload)();
   };
 
   private readonly resetLocalData = () => {
     try {
-      globalThis.localStorage.clear();
+      window.localStorage.clear();
     } catch {
       this.setState({ resetFailed: true });
       return;
@@ -54,7 +55,7 @@ export class LocalDataRecoveryBoundary extends React.Component<
             <header className={styles.pageHeader}>
               <h1 className={styles.title}>2anki could not finish loading</h1>
               <p className={styles.subtitle}>
-                Something saved in this browser is out of date. Reset it to
+                Stored data from a past version is breaking this page. Reset to
                 recover.
               </p>
             </header>
