@@ -1,14 +1,12 @@
 import { Dispatch, SetStateAction, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-
-import ObjectAction from '../actions/ObjectAction';
+import { ErrorHandlerType } from '../../../../components/errors/helpers/getErrorMessage';
 import DotsHorizontal from '../../../../components/icons/DotsHorizontal';
 import EyeIcon from '../../../../components/icons/EyeIcon';
-import NotionObject from '../../../../lib/interfaces/NotionObject';
-import { OK } from '../../../../lib/backend/http';
-import { BlockIcon } from '../BlockIcon';
-import { ErrorHandlerType } from '../../../../components/errors/helpers/getErrorMessage';
 import { get2ankiApi } from '../../../../lib/backend/get2ankiApi';
+import NotionObject from '../../../../lib/interfaces/NotionObject';
+import ObjectAction from '../actions/ObjectAction';
+import { BlockIcon } from '../BlockIcon';
 import styles from './SearchObjectEntry.module.css';
 
 interface Props {
@@ -22,10 +20,14 @@ interface Props {
   setError: ErrorHandlerType;
 }
 
-/**
- * Unfortunately due to the implementation of favorites, there is some type mismatch.
- * When that is cleaned up this can be deleted.
- */
+type ConvertStatus =
+  | 'idle'
+  | 'queued'
+  | 'in_progress'
+  | 'paywall'
+  | 'conflict'
+  | 'error';
+
 const getType = (data: string | { object: string }): string | null => {
   if (typeof data === 'object' && 'object' in data) {
     return data.object;
@@ -37,7 +39,7 @@ function SearchObjectEntry(props: Readonly<Props>) {
   const { title, icon, url, id, type, setError } = props;
   const navigate = useNavigate();
   const location = useLocation();
-  const [converting, setConverting] = useState(false);
+  const [status, setStatus] = useState<ConvertStatus>('idle');
 
   const openRules = () => {
     const params = new URLSearchParams();
@@ -45,30 +47,40 @@ function SearchObjectEntry(props: Readonly<Props>) {
     const resolvedType = getType(type);
     if (resolvedType) params.set('type', resolvedType);
     const notionSearchReturn = new URLSearchParams({ q: title });
-    params.set('returnTo', `${location.pathname}?${notionSearchReturn.toString()}`);
+    params.set(
+      'returnTo',
+      `${location.pathname}?${notionSearchReturn.toString()}`
+    );
     navigate(`/rules/${encodeURIComponent(id)}?${params.toString()}`);
   };
 
   const handleConvert = (event: React.MouseEvent) => {
     event.preventDefault();
-    if (converting) return;
-    setConverting(true);
+    if (status !== 'idle') return;
+    setStatus('in_progress');
     get2ankiApi()
       .convert(id, getType(type), title)
       .then(async (response) => {
-        if (response.status === OK) {
-          const body = await response.json().catch(() => null);
-          globalThis.location.href = body?.redirect ?? '/downloads';
+        if (response.status === 202) {
+          setStatus('queued');
+        } else if (response.status === 409) {
+          setStatus('conflict');
+        } else if (response.status === 402) {
+          setStatus('paywall');
         } else {
-          setConverting(false);
-          response.text().then(setError);
+          setStatus('error');
+          const text = await response.text().catch(() => '');
+          if (text) setError(text);
         }
       })
       .catch((error) => {
-        setConverting(false);
+        setStatus('error');
         setError(error);
       });
   };
+
+  const isConverting = status === 'in_progress';
+  const isQueued = status === 'queued';
 
   return (
     <div className={styles.entry} data-hj-suppress>
@@ -77,17 +89,33 @@ function SearchObjectEntry(props: Readonly<Props>) {
         <span>{title}</span>
       </div>
       <div className={styles.objectActions}>
-        {converting && (
-          <output className={styles.convertingBadge}>
-            Starting conversion…
-          </output>
+        {status === 'queued' && (
+          <span className={styles.convertStatus}>
+            Added to your downloads — <Link to="/downloads">view</Link>
+          </span>
+        )}
+        {status === 'paywall' && (
+          <span className={styles.convertStatus}>
+            Free plan — one conversion at a time.{' '}
+            <Link to="/pricing">Upgrade</Link> or wait.
+          </span>
+        )}
+        {status === 'conflict' && (
+          <span className={styles.convertStatus}>
+            Already converting this page.
+          </span>
+        )}
+        {status === 'error' && (
+          <span className={styles.convertStatus}>
+            Couldn&apos;t queue this page. Try again.
+          </span>
         )}
         <ObjectAction
           url={url}
           image="/icons/Anki_app_logo.png"
-          label={converting ? `Converting ${title}…` : `Convert ${title} to Anki`}
+          label={isConverting || isQueued ? 'In progress' : 'Convert to Anki'}
           onClick={handleConvert}
-          disabled={converting}
+          disabled={isConverting || isQueued}
         />
         <ObjectAction
           url={url}

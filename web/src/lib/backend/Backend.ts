@@ -308,7 +308,7 @@ export class Backend {
     return post(`${this.baseURL}upload/jobs/${jobId}/restart`, {});
   }
 
-  async convert(id: string, type: string | null, title: string | null) {
+  async convert(id: string, type: string | null, title: string | null): Promise<Response> {
     const link = `${this.baseURL}notion/convert`;
     return post(link, { id, type, title });
   }
