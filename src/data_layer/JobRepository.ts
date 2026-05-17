@@ -54,6 +54,18 @@ class JobRepository {
 
   static readonly TERMINAL_STATUSES = ['done', 'failed', 'cancelled', 'interrupted'];
 
+  async restartJob(id: string, owner: string): Promise<Jobs> {
+    const rows = await this.database(this.tableName)
+      .where({ object_id: id, owner })
+      .update({
+        status: 'started',
+        job_reason_failure: '',
+        last_edited_time: new Date(),
+      })
+      .returning('*');
+    return rows[0] as Jobs;
+  }
+
   async updateJobStatus(
     id: string,
     owner: string,

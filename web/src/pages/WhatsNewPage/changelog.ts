@@ -5,6 +5,7 @@ export interface ChangelogEntry {
 }
 
 export const changelog: ChangelogEntry[] = [
+  { type: 'fix', title: 'Re-converting a Notion page you already converted now re-makes the deck', date: '2026-05-18' },
   { type: 'fix', title: 'Big Notion pages show up on Downloads while they convert', date: '2026-05-18' },
   { type: 'fix', title: 'Downloads page — one deck list with filters, source labels, and a fix for the empty state', date: '2026-05-18' },
   { type: 'fix', title: 'Download all as ZIP works again on multi-deck conversions', date: '2026-05-18' },

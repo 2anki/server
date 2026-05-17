@@ -202,6 +202,8 @@ class NotionController {
         type: type || 'conversion',
       });
 
+      const restarted = JobRepository.TERMINAL_STATUSES.includes(job.status);
+
       const checkInProgress = new CheckInProgressJobUseCase(jobRepository);
       const canStart = await checkInProgress.execute(id, owner);
       if (!canStart) {
@@ -233,7 +235,7 @@ class NotionController {
         console.error('notion convert worker:', err);
       });
 
-      return res.status(202).json({ jobId: job.id });
+      return res.status(202).json({ jobId: job.id, restarted });
     } catch (err) {
       if (err instanceof InProgressJobError) {
         return res.status(409).json({ reason: 'already_in_progress' });

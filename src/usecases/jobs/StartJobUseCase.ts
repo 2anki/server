@@ -21,6 +21,10 @@ export class StartJobUseCase {
       return job;
     }
 
+    if (JobRepository.TERMINAL_STATUSES.includes(job.status)) {
+      return this.jobRepository.restartJob(id, owner);
+    }
+
     return this.jobRepository.updateJobStatus(id, owner, 'started', '');
   }
 }
