@@ -564,7 +564,7 @@ class UsersController {
       const isNewUser = !user;
       if (!user) {
         const hashedPassword = this.authService.getHashPassword(getRandomUUID());
-        await this.userService.register(name ?? email, hashedPassword, email, null);
+        await this.userService.register(name ?? email, hashedPassword, email, 'google');
         user = await this.userService.getUserFrom(email);
       }
       if (isNewUser && user) {
