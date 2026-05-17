@@ -184,6 +184,23 @@ describe('PricingPage Auto Sync card', () => {
   });
 });
 
+describe('PricingPage pricing honesty', () => {
+  it('does not mention Anki desktop in browser anywhere on the page', () => {
+    renderAt('/pricing');
+    expect(screen.queryByText(/anki desktop in your browser/i)).not.toBeInTheDocument();
+  });
+
+  it('shows the 1,000-note cap on the free-plan import bullet (US copy)', () => {
+    renderAt('/pricing', { signupCountry: 'US' });
+    expect(screen.getByText(/1,000 notes/)).toBeInTheDocument();
+  });
+
+  it('shows the 1,000-note cap on the free-plan import bullet (non-US copy)', () => {
+    renderAt('/pricing', { signupCountry: 'DE' });
+    expect(screen.getByText(/1,000 notes/)).toBeInTheDocument();
+  });
+});
+
 describe('PricingPage internal event tracking', () => {
   it('tracks paywall_shown with surface=pricing_page on mount', async () => {
     const { track } = await import('../../lib/analytics/track');
