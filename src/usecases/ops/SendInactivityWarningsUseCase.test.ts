@@ -1,6 +1,7 @@
 import { SendInactivityWarningsUseCase } from './SendInactivityWarningsUseCase';
 import { InMemoryInactivityEmailRepository } from '../../data_layer/InactivityEmailRepository';
 import type { IEmailService } from '../../services/EmailService/EmailService';
+import type { IUploadRepository, LastUpload } from '../../data_layer/UploadRespository';
 
 function makeEmailService(
   overrides: Partial<IEmailService> = {}
@@ -18,6 +19,16 @@ function makeEmailService(
     sendInactivityWarningEmail: jest.fn().mockResolvedValue(undefined),
     sendAbandonedCheckoutRecoveryEmail: jest.fn().mockResolvedValue(undefined),
     ...overrides,
+  };
+}
+
+function makeUploadRepo(lastUpload: LastUpload | null = null): jest.Mocked<IUploadRepository> {
+  return {
+    deleteUpload: jest.fn(),
+    getUploadsByOwner: jest.fn(),
+    findByIdAndOwner: jest.fn(),
+    update: jest.fn(),
+    getLastUploadForUser: jest.fn().mockResolvedValue(lastUpload),
   };
 }
 
@@ -79,8 +90,8 @@ describe('SendInactivityWarningsUseCase', () => {
 
       expect(result).toEqual({ count: 2, dryRun: false });
       expect(emailService.sendInactivityWarningEmail).toHaveBeenCalledTimes(2);
-      expect(emailService.sendInactivityWarningEmail).toHaveBeenCalledWith('alice@example.com');
-      expect(emailService.sendInactivityWarningEmail).toHaveBeenCalledWith('bob@example.com');
+      expect(emailService.sendInactivityWarningEmail).toHaveBeenCalledWith('alice@example.com', expect.any(String), null);
+      expect(emailService.sendInactivityWarningEmail).toHaveBeenCalledWith('bob@example.com', expect.any(String), null);
       expect(repo.getSentUserIds()).toEqual(new Set([1, 2]));
     });
 
@@ -125,6 +136,55 @@ describe('SendInactivityWarningsUseCase', () => {
       expect(result).toEqual({ count: 2, dryRun: false });
       expect(emailService.sendInactivityWarningEmail).toHaveBeenCalledTimes(2);
       expect(repo.getSentUserIds().size).toBe(2);
+    });
+  });
+
+  describe('lastConversion lookup', () => {
+    it('passes deckName derived from filename when user has a prior upload', async () => {
+      repo.seedUsers([{ id: 1, name: 'Alice', email: 'alice@example.com' }]);
+      const emailService = makeEmailService();
+      const uploadsRepo = makeUploadRepo({
+        filename: 'Biochemistry Chapter 4.html',
+        created_at: new Date('2026-01-01'),
+      });
+      const useCase = new SendInactivityWarningsUseCase(repo, emailService, uploadsRepo);
+
+      await useCase.execute(false);
+
+      expect(emailService.sendInactivityWarningEmail).toHaveBeenCalledWith(
+        'alice@example.com',
+        expect.any(String),
+        { deckName: 'Biochemistry Chapter 4' }
+      );
+    });
+
+    it('passes null lastConversion when user has no prior upload', async () => {
+      repo.seedUsers([{ id: 1, name: 'Alice', email: 'alice@example.com' }]);
+      const emailService = makeEmailService();
+      const uploadsRepo = makeUploadRepo(null);
+      const useCase = new SendInactivityWarningsUseCase(repo, emailService, uploadsRepo);
+
+      await useCase.execute(false);
+
+      expect(emailService.sendInactivityWarningEmail).toHaveBeenCalledWith(
+        'alice@example.com',
+        expect.any(String),
+        null
+      );
+    });
+
+    it('falls back to null lastConversion when no uploadsRepo is provided', async () => {
+      repo.seedUsers([{ id: 1, name: 'Alice', email: 'alice@example.com' }]);
+      const emailService = makeEmailService();
+      const useCase = new SendInactivityWarningsUseCase(repo, emailService);
+
+      await useCase.execute(false);
+
+      expect(emailService.sendInactivityWarningEmail).toHaveBeenCalledWith(
+        'alice@example.com',
+        expect.any(String),
+        null
+      );
     });
   });
 });

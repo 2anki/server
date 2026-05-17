@@ -32,6 +32,7 @@ function makeController(
     getUploadsByOwner: jest.fn().mockResolvedValue([]),
     findByIdAndOwner: jest.fn().mockResolvedValue(null),
     update: jest.fn().mockResolvedValue([]),
+    getLastUploadForUser: jest.fn().mockResolvedValue(null),
   };
   const notionRepository: INotionRepository = {
     getNotionData: jest.fn().mockResolvedValue({ owner: 1, token: '...' } as NotionTokens),

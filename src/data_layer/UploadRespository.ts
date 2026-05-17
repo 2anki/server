@@ -1,6 +1,11 @@
 import { Knex } from 'knex';
 import Uploads from './public/Uploads';
 
+export interface LastUpload {
+  filename: string;
+  created_at: Date;
+}
+
 export interface IUploadRepository {
   deleteUpload(owner: number, key: string): Promise<number>;
   getUploadsByOwner(owner: number): Promise<Uploads[]>;
@@ -11,6 +16,7 @@ export interface IUploadRepository {
     key: string,
     size_mb: number
   ): Promise<Uploads[]>;
+  getLastUploadForUser(userId: number): Promise<LastUpload | null>;
 }
 class UploadRepository implements IUploadRepository {
   private readonly table = 'uploads';
@@ -61,6 +67,19 @@ class UploadRepository implements IUploadRepository {
       key,
       size_mb,
     });
+  }
+
+  async getLastUploadForUser(userId: number): Promise<LastUpload | null> {
+    const row = await this.database<Uploads>(this.table)
+      .select('filename', 'created_at')
+      .where({ owner: userId })
+      .whereNotNull('filename')
+      .orderBy('created_at', 'desc')
+      .first();
+    if (row == null || row.filename == null || row.created_at == null) {
+      return null;
+    }
+    return { filename: row.filename, created_at: row.created_at };
   }
 }
 

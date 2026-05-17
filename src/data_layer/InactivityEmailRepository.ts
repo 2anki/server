@@ -3,12 +3,18 @@ import type { Knex } from 'knex';
 export interface IInactivityEmailRepository {
   getUsersToNotify(limit?: number): Promise<Array<{ id: number; name: string; email: string }>>;
   recordSend(userId: number, token: string): Promise<void>;
+  findByToken(token: string): Promise<{ id: number; userId: number } | null>;
 }
 
 interface UserRow {
   id: number;
   name: string;
   email: string;
+}
+
+interface InactivityEmailRow {
+  id: number;
+  user_id: number;
 }
 
 export class InactivityEmailRepository implements IInactivityEmailRepository {
@@ -56,6 +62,17 @@ export class InactivityEmailRepository implements IInactivityEmailRepository {
   async recordSend(userId: number, token: string): Promise<void> {
     await this.database(this.table).insert({ user_id: userId, token });
   }
+
+  async findByToken(token: string): Promise<{ id: number; userId: number } | null> {
+    const row = await this.database<InactivityEmailRow>(this.table)
+      .select('id', 'user_id')
+      .where({ token })
+      .first();
+    if (row == null) {
+      return null;
+    }
+    return { id: row.id, userId: row.user_id };
+  }
 }
 
 export class InMemoryInactivityEmailRepository
@@ -64,6 +81,8 @@ export class InMemoryInactivityEmailRepository
   private usersToReturn: Array<{ id: number; name: string; email: string }> =
     [];
   private readonly sentUserIds = new Set<number>();
+  private emails: Array<{ id: number; userId: number; token: string }> = [];
+  private nextId = 1;
 
   seedUsers(users: Array<{ id: number; name: string; email: string }>): void {
     this.usersToReturn = users;
@@ -75,8 +94,18 @@ export class InMemoryInactivityEmailRepository
     return this.usersToReturn.filter((u) => !this.sentUserIds.has(u.id)).slice(0, limit);
   }
 
-  async recordSend(userId: number, _token: string): Promise<void> {
+  async recordSend(userId: number, token: string): Promise<void> {
+    const id = this.nextId++;
+    this.emails.push({ id, userId, token });
     this.sentUserIds.add(userId);
+  }
+
+  async findByToken(token: string): Promise<{ id: number; userId: number } | null> {
+    const found = this.emails.find((e) => e.token === token);
+    if (found == null) {
+      return null;
+    }
+    return { id: found.id, userId: found.userId };
   }
 
   getSentUserIds(): ReadonlySet<number> {
@@ -86,6 +115,8 @@ export class InMemoryInactivityEmailRepository
   clear(): void {
     this.usersToReturn = [];
     this.sentUserIds.clear();
+    this.emails = [];
+    this.nextId = 1;
   }
 }
 

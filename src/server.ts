@@ -45,6 +45,7 @@ import contactMessagesRouter from './routes/ContactMessagesRouter';
 import showcaseRouter from './routes/ShowcaseRouter';
 import emojiFeedbackRouter from './routes/EmojiFeedbackRouter';
 import reEngagementRouter from './routes/ReEngagementRouter';
+import emailRedirectRouter from './routes/EmailRedirectRouter';
 import imageOcclusionRouter from './routes/ImageOcclusionRouter';
 import chatRouter from './routes/ChatRouter';
 import eventsRouter from './routes/EventsRouter';
@@ -58,8 +59,9 @@ import JobRepository from './data_layer/JobRepository';
 import { MagicTokenRepository } from './data_layer/MagicTokenRepository';
 import ReEngagementRepository from './data_layer/ReEngagementRepository';
 import InactivityEmailRepository from './data_layer/InactivityEmailRepository';
+import UploadRepository from './data_layer/UploadRespository';
 import { updateStripeSubscriptions } from './lib/storage/jobs/helpers/updateStripeSubscriptions';
-import { sendReEngagementEmails } from './lib/storage/jobs/helpers/sendReEngagementEmails';
+import { scheduleReEngagementEmails } from './lib/reengagement/jobs/scheduleReEngagementEmails';
 import { scheduleInactivityWarnings } from './lib/inactivity/jobs/scheduleInactivityWarnings';
 import { getDefaultEmailService } from './services/EmailService/EmailService';
 import { SendInactivityWarningsUseCase } from './usecases/ops/SendInactivityWarningsUseCase';
@@ -128,6 +130,7 @@ const serve = async () => {
   app.use(contactMessagesRouter());
   app.use(emojiFeedbackRouter());
   app.use(reEngagementRouter());
+  app.use(emailRedirectRouter());
   app.use(imageOcclusionRouter());
   app.use(chatRouter());
   app.use(eventsRouter());
@@ -172,7 +175,6 @@ const serve = async () => {
 
   const database = getDatabase();
   await setupDatabase(database);
-  getEventsSink();
   const interruptedCount = await new JobRepository(database).markInterruptedClaudeJobs();
   if (interruptedCount > 0) {
     console.info(`[startup] Marked ${interruptedCount} Claude job(s) as interrupted`);
@@ -191,18 +193,15 @@ const serve = async () => {
     });
   }
 
+  const eventsSink = getEventsSink();
   const reEngagementRepo = new ReEngagementRepository(database);
   const emailService = getDefaultEmailService();
-  const ONE_DAY_MS = 24 * 60 * 60 * 1000;
-  setInterval(() => {
-    sendReEngagementEmails(reEngagementRepo, emailService).catch((error) => {
-      console.error('[re-engagement] daily job failed:', error);
-    });
-  }, ONE_DAY_MS);
+  scheduleReEngagementEmails(reEngagementRepo, emailService, eventsSink);
 
   const inactivityEmailRepo = new InactivityEmailRepository(database);
-  const sendInactivityWarningsUseCase = new SendInactivityWarningsUseCase(inactivityEmailRepo, emailService);
-  scheduleInactivityWarnings(sendInactivityWarningsUseCase);
+  const uploadRepo = new UploadRepository(database);
+  const sendInactivityWarningsUseCase = new SendInactivityWarningsUseCase(inactivityEmailRepo, emailService, uploadRepo);
+  scheduleInactivityWarnings(sendInactivityWarningsUseCase, { eventsSink });
 };
 
 serve();
