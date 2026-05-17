@@ -5,10 +5,6 @@ description: Edit a Notion page, get the updated deck — without re-uploading.
 
 Sync watches the Notion pages you've subscribed and keeps a matching deck up to date in Anki. When you edit a page in Notion, the next sync run picks up the changes and updates the deck — same deck name, same card IDs, no re-import drama.
 
-:::warning
-Sync is in private alpha. Today it's only enabled for the project owner's account while we shake out the data flow. Email [alexander@alemayhu.com](mailto:alexander@alemayhu.com) if you'd like to be on the early-access list.
-:::
-
 ## What sync does
 
 - Watches the Notion pages you mark for sync.
@@ -18,10 +14,10 @@ Sync is in private alpha. Today it's only enabled for the project owner's accoun
 
 ## Setting up sync on a page
 
-You'll do this from the **Ankify** area on 2anki.net once it's open to your account:
+You'll do this from the **Auto Sync** area on 2anki.net:
 
 1. Connect Notion (if you haven't already — see [Connect Notion in 5 minutes](/documentation/start-here/connect-notion)).
-2. Open the **Ankify** dashboard and pick a Notion page to subscribe.
+2. Open the **Auto Sync** dashboard and pick a Notion page to subscribe.
 3. Confirm the deck name. The deck is created the first time sync runs.
 4. Open Anki on the device that will hold the synced deck and let 2anki connect through AnkiConnect.
 
@@ -36,6 +32,6 @@ A background job polls your subscribed pages, diffs them against what's already 
 
 ## Free vs paid
 
-Sync is a paid feature (during private alpha it's gated by an allowlist; once it ships broadly, an active subscription will be required). The conversion features that ship today — Connect Notion + download deck, plus file uploads — stay free.
+Auto Sync is a paid feature — $30/mo, or included with a Lifetime account. The conversion features that ship today — Connect Notion + download deck, plus file uploads — stay free.
 
 See the [pricing page](/pricing) for current plans, and [When sync gets stuck](/documentation/sync/troubleshooting) if a sync isn't running.
