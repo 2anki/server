@@ -29,8 +29,8 @@ export function MobileTopBar({
         <span aria-hidden="true" />
         <span aria-hidden="true" />
       </button>
-      <a className={styles.mobileLogo} href="/">
-        <img src={logoSrc} alt="2anki Logo" />
+      <a className={styles.mobileLogo} href="/" aria-label="2anki home">
+        <img src={logoSrc} alt="" />
       </a>
       <span aria-hidden="true" />
     </div>

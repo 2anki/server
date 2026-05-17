@@ -159,6 +159,11 @@ const serve = async () => {
       'SECRET environment variable is required to sign JWTs. Refusing to boot with an unset secret.'
     );
   }
+  if (!process.env.WORKSPACE_BASE) {
+    throw new Error(
+      'WORKSPACE_BASE environment variable is required. Refusing to boot without a workspace root.'
+    );
+  }
   const port = process.env.PORT || 2020;
   server.listen(port, () => {
     console.info(`Running on http://localhost:${port}`);

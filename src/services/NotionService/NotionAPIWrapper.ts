@@ -374,7 +374,7 @@ class NotionAPIWrapper {
   }
 
   async search(query: string, all?: boolean) {
-    const searchLabel = uniqueTimerLabel(`search:${all}`);
+    const searchLabel = uniqueTimerLabel(all ? 'search:all' : 'search:single');
     console.time(searchLabel);
     const response = await withRetry(
       () =>

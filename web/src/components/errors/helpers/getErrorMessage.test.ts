@@ -21,7 +21,7 @@ describe('classifyError', () => {
   test('upload_limit_exceeded suggests upgrading', () => {
     expect(
       classifyError(new Error('upload_limit_exceeded')).detail
-    ).toMatch(/pricing/i);
+    ).toMatch(/upgrade/i);
   });
 
   test('rate_limited tells the user to wait', () => {

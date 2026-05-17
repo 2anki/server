@@ -18,7 +18,7 @@ export function MonthlyLimitBanner({
   return (
     <div className={styles.banner} role="status">
       <span className={styles.message}>
-        Free plan changes on 1 June — 100 cards per month.
+        Free plan: 100 cards per month, starting 1 June.
       </span>
       <Link to="/pricing?from=banner" className={styles.link}>
         See plans

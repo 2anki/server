@@ -48,7 +48,7 @@ export function FeedbackWidget({
   if (status === 'sent') {
     return (
       <div className={compact ? styles.inlineThank : styles.thankYou}>
-        Thanks for your feedback!
+        Thanks — feedback received.
       </div>
     );
   }
@@ -96,7 +96,7 @@ export function FeedbackWidget({
             onClick={handleSubmit}
             disabled={status === 'sending'}
           >
-            {status === 'sending' ? 'Sending...' : 'Send feedback'}
+            {status === 'sending' ? 'Sending' : 'Send feedback'}
           </button>
         </>
       )}

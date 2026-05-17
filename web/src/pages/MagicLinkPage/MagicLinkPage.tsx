@@ -136,7 +136,7 @@ function MagicLinkPage() {
                   className={styles.submitButton}
                   disabled={retrySending || retryEmail.length === 0}
                 >
-                  {retrySending ? 'Sending...' : 'Send a new link'}
+                  {retrySending ? 'Sending' : 'Send a new link'}
                 </button>
               </div>
             </form>

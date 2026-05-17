@@ -209,8 +209,13 @@ export function Sidebar({
       aria-label="primary"
       data-testid="app-sidebar"
     >
-      <Link className={styles.sidebarLogo} to="/" onClick={handleNavClick()}>
-        <img src={logoSrc} alt="2anki Logo" />
+      <Link
+        className={styles.sidebarLogo}
+        to="/"
+        aria-label="2anki home"
+        onClick={handleNavClick()}
+      >
+        <img src={logoSrc} alt="" />
       </Link>
       <nav className={styles.sidebarNav}>
         <div className={styles.sidebarGroup}>

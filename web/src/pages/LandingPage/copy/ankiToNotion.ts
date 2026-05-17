@@ -4,7 +4,7 @@ const ankiToNotionCopy: LandingCopy = {
   pathname: '/anki-to-notion',
   title: 'Anki to Notion — free import, no add-on | 2anki',
   description:
-    'Import any Anki deck into Notion. Upload your .apkg file and get every card as a Notion toggle. Free — up to 1,000 cards per import, no add-on required.',
+    'Import any Anki deck into Notion. Upload your .apkg file and get every card as a Notion toggle. Free — up to 1 000 cards per import, no add-on required.',
   h1: 'Import Anki decks into Notion in one click.',
   subhead:
     'Upload an .apkg file. Get every card as a toggle in a Notion page you can study, search, and edit.',
@@ -32,11 +32,11 @@ const ankiToNotionCopy: LandingCopy = {
     },
     {
       q: 'Is it free?',
-      a: 'Yes. Free covers up to 1,000 cards per import. For larger decks, upgrade to Unlimited or split your deck in Anki (File → Export → Selected Deck) and run two imports.',
+      a: 'Yes. Free covers up to 1 000 cards per import. For larger decks, upgrade to Unlimited or split your deck in Anki (File → Export → Selected Deck) and run two imports.',
     },
     {
       q: 'How big can my deck be?',
-      a: 'Free: 1,000 cards per import. Unlimited: up to 5,000 cards per import. For very large decks we split across multiple Notion pages automatically.',
+      a: 'Free: 1 000 cards per import. Unlimited: up to 5,000 cards per import. For very large decks we split across multiple Notion pages automatically.',
     },
   ],
 };
