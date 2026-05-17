@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { CancelMode } from '../../../lib/backend/cancelSubscription';
+import { useDialog } from '../../../lib/hooks/useDialog';
 import sharedStyles from '../../../styles/shared.module.css';
 import styles from '../AccountPage.module.css';
 
@@ -28,6 +29,7 @@ const MODE_LABELS: Record<CancelMode, string> = {
 export function CancellationSurveyModal({ mode, onConfirm, onClose }: Props) {
   const [reason, setReason] = useState<CancellationReason | ''>('');
   const [comment, setComment] = useState('');
+  const dialogRef = useDialog(true, onClose);
 
   const handleConfirm = () => {
     if (!reason) return;
@@ -35,19 +37,15 @@ export function CancellationSurveyModal({ mode, onConfirm, onClose }: Props) {
   };
 
   return (
-    <div className={sharedStyles.modal}>
-      <button
-        type="button"
-        className={sharedStyles.modalBackdrop}
-        onClick={onClose}
-        aria-label="Close"
-      />
-      <div
-        className={sharedStyles.modalCardNarrow}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="cancellation-survey-title"
-      >
+    <dialog
+      ref={dialogRef}
+      className={sharedStyles.dialog}
+      aria-labelledby="cancellation-survey-title"
+      onClick={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <div className={sharedStyles.modalCardNarrow}>
         <div className={sharedStyles.modalHeader}>
           <span id="cancellation-survey-title" className={sharedStyles.modalHeaderTitle}>
             Before you go…
@@ -109,6 +107,6 @@ export function CancellationSurveyModal({ mode, onConfirm, onClose }: Props) {
           </button>
         </div>
       </div>
-    </div>
+    </dialog>
   );
 }

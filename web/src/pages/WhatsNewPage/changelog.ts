@@ -5,6 +5,7 @@ export interface ChangelogEntry {
 }
 
 export const changelog: ChangelogEntry[] = [
+  { type: 'fix', title: 'Escape closes settings, feedback, cancellation, and template-preview modals — and returns focus to the button that opened them', date: '2026-05-17' },
   { type: 'fix', title: 'Image occlusion toolbar buttons are reachable by screen readers — each tool announces its name', date: '2026-05-17' },
   { type: 'fix', title: 'Refresh button on My Decks shows its icon again', date: '2026-05-17' },
   { type: 'fix', title: 'Sign in and signup prompt your password manager to autofill and save credentials', date: '2026-05-17' },
