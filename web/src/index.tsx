@@ -28,7 +28,15 @@ function main() {
     <React.StrictMode>
       <Suspense fallback={<SkeletonPage />}>
         <ErrorBoundary>
-          <LocalDataRecoveryBoundary onError={(error) => Bugsnag.notify(error)}>
+          <LocalDataRecoveryBoundary
+            onError={(error, errorInfo) =>
+              Bugsnag.notify(error, (event) =>
+                event.addMetadata('react', {
+                  componentStack: errorInfo.componentStack,
+                })
+              )
+            }
+          >
             <App />
           </LocalDataRecoveryBoundary>
         </ErrorBoundary>

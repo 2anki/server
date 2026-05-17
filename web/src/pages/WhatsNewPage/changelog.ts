@@ -5,6 +5,7 @@ export interface ChangelogEntry {
 }
 
 export const changelog: ChangelogEntry[] = [
+  { type: 'fix', title: 'If 2anki gets stuck loading, reset stale browser data from the recovery screen', date: '2026-05-17' },
   { type: 'fix', title: 'Refresh button on My Decks shows its icon again', date: '2026-05-17' },
   { type: 'fix', title: 'Sign in and signup prompt your password manager to autofill and save credentials', date: '2026-05-17' },
   { type: 'fix', title: 'Homepage and limit messages match the pricing page — 100 cards per month, everywhere', date: '2026-05-17' },
