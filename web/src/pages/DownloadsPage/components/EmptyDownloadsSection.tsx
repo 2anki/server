@@ -1,14 +1,12 @@
 import { Link } from 'react-router-dom';
-import UserUpload from '../../../lib/interfaces/UserUpload';
 import styles from '../DownloadsPage.module.css';
 
-interface Prop {
-  hasActiveJobs: boolean;
-  uploads: UserUpload[] | undefined;
+interface Props {
+  isEmpty: boolean;
 }
 
-export function EmptyDownloadsSection({ hasActiveJobs, uploads }: Readonly<Prop>) {
-  if (hasActiveJobs || (uploads ?? []).length > 0) {
+export function EmptyDownloadsSection({ isEmpty }: Readonly<Props>) {
+  if (!isEmpty) {
     return null;
   }
   return (
