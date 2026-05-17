@@ -26,7 +26,7 @@ export function toDeckRows(
   const rows: DeckRow[] = [];
 
   for (const job of jobs) {
-    const sortKey = job.created_at ?? EPOCH;
+    const sortKey = job.created_at == null ? EPOCH : new Date(job.created_at);
     const source = jobSource(job.type);
     rows.push({ source, kind: 'job', job, sortKey });
   }
