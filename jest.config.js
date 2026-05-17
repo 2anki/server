@@ -7,7 +7,6 @@ module.exports = {
   modulePathIgnorePatterns: ['<rootDir>/test/'],
   moduleNameMapper: {
     '^puppeteer$': '<rootDir>/src/test/mocks/puppeteer.ts',
-    '^archiver$': '<rootDir>/src/test/mocks/archiver.ts',
   },
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',
