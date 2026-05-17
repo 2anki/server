@@ -106,4 +106,15 @@ describe('toDeckRows — sorting', () => {
     const rows = toDeckRows([jobNoDate, jobWithDate], [], [], []);
     expect((rows[0] as { source: string; kind: string; job: JobResponse; sortKey: Date }).job.id).toBe(1);
   });
+
+  it('handles created_at when API returns it as an ISO string (not a Date)', () => {
+    const isoString = '2026-05-10T00:00:00.000Z';
+    const job = makeJob({
+      id: 1 as JobsId,
+      created_at: isoString as unknown as Date,
+    });
+    const rows = toDeckRows([job], [], [], []);
+    expect(rows[0].sortKey).toBeInstanceOf(Date);
+    expect(rows[0].sortKey.getTime()).toBe(new Date(isoString).getTime());
+  });
 });
