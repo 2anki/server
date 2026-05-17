@@ -2,6 +2,7 @@ import { APIErrorCode } from '@notionhq/client';
 
 import { INotionRepository } from '../../data_layer/NotionRespository';
 import instrumentedAxios from '../observability/instrumentedAxios';
+import type { IBlocksCacheRepository } from '../../data_layer/BlocksCacheRepository';
 import {
   INotionTopLevelPagesRepository,
   NotionTopLevelPageRow,
@@ -47,7 +48,8 @@ export class NotionService {
 
   constructor(
     private readonly notionRepository: INotionRepository,
-    private readonly topLevelPagesRepository?: INotionTopLevelPagesRepository
+    private readonly topLevelPagesRepository?: INotionTopLevelPagesRepository,
+    private readonly blocksCacheRepository?: IBlocksCacheRepository
   ) {
     this.clientId = process.env.NOTION_CLIENT_ID!;
     this.clientSecret = process.env.NOTION_CLIENT_SECRET!;
@@ -79,7 +81,7 @@ export class NotionService {
     if (!token) {
       throw new Error(APIErrorCode.Unauthorized);
     }
-    return new NotionAPIWrapper(token!, owner);
+    return new NotionAPIWrapper(token!, owner, this.blocksCacheRepository);
   };
 
   tryGetNotionAPI = async (
@@ -89,7 +91,7 @@ export class NotionService {
     if (!token) {
       return null;
     }
-    return new NotionAPIWrapper(token, owner);
+    return new NotionAPIWrapper(token, owner, this.blocksCacheRepository);
   };
 
   async getNotionDatabaseBlock(id: string, owner: string) {

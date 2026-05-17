@@ -20,10 +20,9 @@ import renderIcon from './helpers/renderIcon';
 import getBlockIcon, { WithIcon } from './blocks/getBlockIcon';
 import { isHeading } from './helpers/isHeading';
 import { getHeadingText } from './helpers/getHeadingText';
-import { getBlockCache } from './helpers/getBlockCache';
 import { uniqueTimerLabel } from './helpers/uniqueTimerLabel';
 import { withRetry } from './helpers/withRetry';
-import { getDatabase } from '../../data_layer';
+import type { IBlocksCacheRepository } from '../../data_layer/BlocksCacheRepository';
 import { isValidNotionId } from './isValidNotionId';
 import { ValidNotionType } from './types';
 
@@ -44,9 +43,16 @@ class NotionAPIWrapper {
 
   private owner: string;
 
-  constructor(key: string, owner: string) {
+  private blocksCache?: IBlocksCacheRepository;
+
+  constructor(
+    key: string,
+    owner: string,
+    blocksCache?: IBlocksCacheRepository
+  ) {
     this.notion = new Client({ auth: key });
     this.owner = owner;
+    this.blocksCache = blocksCache;
   }
 
   getPage(id: string): Promise<GetPageResponse | null> {
@@ -83,14 +89,14 @@ class NotionAPIWrapper {
     const getBlocksLabel = uniqueTimerLabel(`getBlocks:${id}${all}`);
     console.time(getBlocksLabel);
 
-    const cachedPayload = all
-      ? await getBlockCache({
-          database: getDatabase(),
-          id,
-          owner: this.owner,
-          lastEditedAt,
-        })
-      : null;
+    const cachedPayload =
+      all && this.blocksCache
+        ? await this.blocksCache.get({
+            id,
+            owner: this.owner,
+            lastEditedAt,
+          })
+        : null;
     if (cachedPayload) {
       console.log('using payload cache');
       console.timeEnd(getBlocksLabel);
@@ -129,19 +135,14 @@ class NotionAPIWrapper {
     }
     if (!createdAt || !lastEditedAt) {
       console.log('not enough input block cache');
-    } else {
-      const database = getDatabase();
-      await database('blocks')
-        .insert({
-          owner: this.owner,
-          object_id: id,
-          payload: JSON.stringify(response),
-          fetch: 1,
-          created_at: createdAt,
-          last_edited_time: lastEditedAt,
-        })
-        .onConflict('object_id')
-        .merge();
+    } else if (this.blocksCache) {
+      await this.blocksCache.save({
+        id,
+        owner: this.owner,
+        payload: response,
+        createdAt,
+        lastEditedAt,
+      });
     }
     console.timeEnd(getBlocksLabel);
     return response;
