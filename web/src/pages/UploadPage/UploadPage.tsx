@@ -97,7 +97,7 @@ export function UploadPage({ setErrorMessage }: Readonly<Props>) {
       <UploadForm setErrorMessage={setErrorMessage} />
       <p className={pageStyles.settingsHint}>
         Change deck names, templates, and conversion defaults in{' '}
-        <Link to="/card-options">Settings</Link>.
+        <Link to="/card-options?returnTo=/upload">Settings</Link>.
       </p>
       <p className={pageStyles.footnote}>
         Your uploaded files are deleted after 2 hours.

@@ -56,7 +56,9 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
 
   const pageId = params.get('pageId');
   const pageTitle = params.get('title');
-  const returnTo = params.get('returnTo') ?? '/upload';
+  const returnToParam = params.get('returnTo');
+  const returnTo = returnToParam ?? '/upload';
+  const shouldReturnAfterSave = pageId != null || returnToParam != null;
 
   const goBack = () => navigate(returnTo);
 
@@ -282,8 +284,8 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
         <CardOptionsForm
           pageId={pageId}
           pageTitle={pageTitle}
-          onSaved={pageId == null ? undefined : goBack}
-          onReset={pageId == null ? undefined : goBack}
+          onSaved={shouldReturnAfterSave ? goBack : undefined}
+          onReset={shouldReturnAfterSave ? goBack : undefined}
           setError={setErrorMessage}
         />
       </div>
