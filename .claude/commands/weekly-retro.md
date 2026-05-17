@@ -5,29 +5,77 @@ argument-hint: paste this week's numbers, or leave empty to ask for them
 
 Use the `pm` agent.
 
-1. Pull this week's traffic and engagement data using the `analytics-mcp` tools (GA4 property `properties/286902985`). Run these reports before asking the user for anything:
-   - Sessions + active users + new users by date (last 7 days vs prior 7 days).
-   - **Traffic Sources**: sessions, new users, and engagement rate by `sessionDefaultChannelGroup` + `sessionSource` — flag any channel that is up or down >20% week-over-week.
-   - Top events by event count.
-   - New vs returning users with avg session duration and engagement rate.
+## 1. Pull DB-backed metrics (top of retro)
 
-   Then ask the user to supply: churn signal and top 3 support themes (if not already pasted).
+Pull these **before** any GA4 work — they're the load-bearing numbers, GA4 is the qualifier:
 
-2. Compute:
-   - Week-over-week change for each metric (sessions, new users, engagement rate, paid conversions).
-   - Required weekly growth rate to reach the 300K-user goal in 24 / 18 / 12 months.
-   - Gap between actual and required.
-   - **Traffic Sources table**: which channels grew, which shrank, which drove engaged users vs bounce-and-leave.
+- **Total registered users** (vs the 300K goal in `CLAUDE.md`)
+- **Signups this week** (`users.created_at >= now() - interval '7 days'`)
+- **MRR (USD)**, **active paying subs**, **30d paid churn %**
+- **Top cancellation reasons (last 14d)** — replaces the manual "top 3 support themes" ask
 
-3. Identify the **single biggest gap** this week. Not three. One.
+The `BusinessMetricsService` (`src/services/ops/BusinessMetricsService.ts`) already computes all of these and is exposed at `GET /api/ops/business/metrics` (gated by `RequireOpsAccess`).
 
-4. Tie it to the goal in `CLAUDE.md` — does the gap come from making the product simpler/faster/more beautiful, or from scale? Be specific.
+Fetch it in this order — first one that works wins:
 
-5. Recommend **one** priority shift for the next 7 days. Either:
-   - Spec X this week (and which spec).
-   - Ship Y (and which spec is ready).
-   - Pause Z to focus on the gap.
+1. **Authenticated curl** to prod:
+   ```bash
+   curl -s -H "Cookie: $OPS_COOKIE" https://2anki.net/api/ops/business/metrics | jq
+   ```
+   Requires `OPS_COOKIE` env var set to the ops owner's session cookie (`session=...`). If unset, skip to step 2.
+2. **Ask the user to paste** the JSON from `https://2anki.net/api/ops/business/metrics` (they can visit `/ops` and copy the network response, or hit the endpoint directly in a logged-in browser).
+3. **Fallback:** ask the user to read the values off the `/ops` dashboard manually.
 
-6. Output is two screens max. Numbers in a table. Traffic Sources section required. Recommendation in one paragraph.
+For the **total registered users** number (not in `/api/ops/business/metrics`), ask the user to paste it, or query `SELECT count(*) FROM users` if a postgres MCP is wired for this project.
 
-Do not list five things. The point of the retro is to force a single decision.
+**If any of the above fails**, do not silently skip — record the missing field under "Gaps to close before next retro" in the output.
+
+## 2. Pull GA4 traffic + engagement (last 7 days vs prior 7 days)
+
+Use the `analytics-mcp` tools against GA4 property `properties/286902985`. Run these reports:
+
+- Sessions + active users + new users by date (last 7 days vs prior 7 days).
+- **Traffic Sources**: sessions, new users, and engagement rate by `sessionDefaultChannelGroup` + `sessionSource` — flag any channel that is up or down >20% week-over-week.
+- Top events by event count.
+- New vs returning users with avg session duration and engagement rate.
+
+## 3. Bot/spam self-check (run before drawing conclusions)
+
+The data can be distorted by a crawler surge faster than the GA4 admin UI can filter it. Run this check on the Traffic Sources output:
+
+- If **Direct/(direct) sessions WoW > +50% AND Direct engagement rate dropped > 20%**, flag bot/referrer-spam traffic. State explicitly in the retro that headline session/new-user numbers are distorted and treat real-user metrics (engagement rate, returning-user behaviour, paid conversions) as the load-bearing signal for the week.
+- If flagged: add "apply GA4 bot/referrer-spam filter" to the W+1 gaps list. The filter is a manual GA4 admin action — name it but don't try to fix it from the agent.
+
+## 4. Compute
+
+- Week-over-week change for each metric (sessions, new users, engagement rate, paid conversions, signups, MRR).
+- Required weekly growth rate to reach the 300K-user goal in 24 / 18 / 12 months from the **DB user count** (not GA4 new users).
+- Gap between actual and required.
+- **Traffic Sources table**: which channels grew, which shrank, which drove engaged users vs bounce-and-leave.
+
+## 5. Identify the single biggest gap
+
+Not three. One.
+
+## 6. Tie it to the goal in `CLAUDE.md`
+
+Does the gap come from making the product simpler/faster/more beautiful, or from scale? Be specific.
+
+## 7. Recommend one priority shift for the next 7 days
+
+Either:
+- Spec X this week (and which spec).
+- Ship Y (and which spec is ready).
+- Pause Z to focus on the gap.
+
+## 8. Emit a "Gaps to close before next retro" section
+
+Any DB field, support theme, or GA4 check that was skipped this run goes here so the next retro doesn't repeat the same blind spot. If nothing was skipped, omit the section.
+
+## Output rules
+
+- Two screens max.
+- Numbers in tables.
+- "Numbers" section (DB) and "Traffic Sources" section (GA4) both required.
+- Recommendation in one paragraph.
+- Do not list five things. The point of the retro is to force a single decision.
