@@ -55,7 +55,13 @@ export class NotionService {
   }
 
   getNotionAuthorizationLink(clientId: string) {
-    return `https://api.notion.com/v1/oauth/authorize?owner=user&client_id=${clientId}&response_type=code`;
+    const params = new URLSearchParams({
+      owner: 'user',
+      client_id: clientId,
+      response_type: 'code',
+      redirect_uri: this.redirectURI,
+    });
+    return `https://api.notion.com/v1/oauth/authorize?${params.toString()}`;
   }
 
   isValidUUID(id: string | undefined | null) {
