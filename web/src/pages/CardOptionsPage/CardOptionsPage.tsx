@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { CardOptionsForm } from '../../components/CardOptionsForm/CardOptionsForm';
 import { ErrorHandlerType } from '../../components/errors/helpers/getErrorMessage';
 import { get2ankiApi } from '../../lib/backend/get2ankiApi';
+import { useDialog } from '../../lib/hooks/useDialog';
 import sharedStyles from '../../styles/shared.module.css';
 import styles from './CardOptionsPage.module.css';
 
@@ -52,6 +53,7 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
   const [bulkError, setBulkError] = useState<string | null>(null);
   const [bulkSuccess, setBulkSuccess] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const bulkResetDialogRef = useDialog(confirmOpen, () => setConfirmOpen(false));
   const [bulkPending, setBulkPending] = useState(false);
 
   const pageId = params.get('pageId');
@@ -290,18 +292,11 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
         />
       </div>
 
-      <div
-        className={confirmOpen ? sharedStyles.modal : sharedStyles.modalHidden}
-        role="dialog"
-        aria-modal="true"
+      <dialog
+        ref={bulkResetDialogRef}
+        className={sharedStyles.dialog}
         aria-labelledby="bulk-reset-dialog-title"
       >
-        <button
-          type="button"
-          className={sharedStyles.modalBackdrop}
-          onClick={() => setConfirmOpen(false)}
-          aria-label="Close"
-        />
         <div className={sharedStyles.modalCardNarrow}>
           <div className={sharedStyles.modalHeader}>
             <span
@@ -345,7 +340,7 @@ export default function CardOptionsPage({ setErrorMessage }: Readonly<Props>) {
             </button>
           </div>
         </div>
-      </div>
+      </dialog>
     </div>
   );
 }

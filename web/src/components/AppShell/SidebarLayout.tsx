@@ -39,6 +39,9 @@ export function SidebarLayout({
 
   return (
     <div className={styles.shell} data-shell>
+      <a href="#main-content" className={styles.skipLink}>
+        Skip to content
+      </a>
       <Sidebar
         email={email}
         locals={locals}
@@ -68,7 +71,7 @@ export function SidebarLayout({
           passKind={locals?.passKind}
         />
         {error && <ErrorPresenter error={error} />}
-        <main className={sharedStyles.flexGrow}>
+        <main id="main-content" className={sharedStyles.flexGrow}>
           <Suspense fallback={<SkeletonPage rows={5} />}>{children}</Suspense>
         </main>
       </div>

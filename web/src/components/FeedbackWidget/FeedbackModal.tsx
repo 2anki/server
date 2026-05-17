@@ -1,6 +1,7 @@
 import { createPortal } from 'react-dom';
 import { useLocation } from 'react-router-dom';
 
+import { useDialog } from '../../lib/hooks/useDialog';
 import sharedStyles from '../../styles/shared.module.css';
 import { FeedbackWidget } from './FeedbackWidget';
 
@@ -11,21 +12,15 @@ interface Props {
 
 export function FeedbackModal({ isActive, onClose }: Readonly<Props>) {
   const { pathname } = useLocation();
+  const dialogRef = useDialog(isActive, onClose);
 
   return createPortal(
-    <div className={isActive ? sharedStyles.modal : sharedStyles.modalHidden}>
-      <button
-        type="button"
-        className={sharedStyles.modalBackdrop}
-        onClick={onClose}
-        aria-label="Close feedback"
-      />
-      <div
-        className={sharedStyles.modalCardNarrow}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="feedback-modal-title"
-      >
+    <dialog
+      ref={dialogRef}
+      className={sharedStyles.dialog}
+      aria-labelledby="feedback-modal-title"
+    >
+      <div className={sharedStyles.modalCardNarrow}>
         <div className={sharedStyles.modalHeader}>
           <div id="feedback-modal-title" className={sharedStyles.modalHeaderTitle}>
             Send feedback
@@ -43,7 +38,7 @@ export function FeedbackModal({ isActive, onClose }: Readonly<Props>) {
           <FeedbackWidget page={pathname} onSubmitted={onClose} />
         </section>
       </div>
-    </div>,
+    </dialog>,
     document.body
   );
 }

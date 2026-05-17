@@ -152,7 +152,7 @@
 .dangerTitle {
   font-size: var(--text-sm);
   font-weight: var(--font-semibold);
-  color: var(--color-danger);
+  color: var(--color-text-secondary);
   margin: 0 0 0.75rem;
 }
 
