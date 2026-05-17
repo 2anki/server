@@ -1,5 +1,12 @@
 import JobRepository from '../../data_layer/JobRepository';
 
+const RESTARTABLE_STATUSES = new Set([
+  'started',
+  'failed',
+  'done',
+  'interrupted',
+]);
+
 export class CheckInProgressJobUseCase {
   constructor(private readonly jobRepository: JobRepository) {}
 
@@ -9,10 +16,6 @@ export class CheckInProgressJobUseCase {
       throw new Error('Job not found');
     }
 
-    if (job.status === 'started') {
-      return true;
-    }
-
-    return job.status === 'failed';
+    return RESTARTABLE_STATUSES.has(job.status);
   }
 }

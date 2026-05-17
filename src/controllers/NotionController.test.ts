@@ -49,6 +49,12 @@ describe('NotionController', () => {
     canStart = true,
     withinLimit = true,
   }: { canStart?: boolean; withinLimit?: boolean } = {}) {
+    (JobRepository as unknown as { TERMINAL_STATUSES: string[] }).TERMINAL_STATUSES = [
+      'done',
+      'failed',
+      'cancelled',
+      'interrupted',
+    ];
     (JobRepository as unknown as jest.Mock).mockImplementation(() => ({}));
     (FindOrCreateJobUseCase as jest.Mock).mockImplementation(() => ({
       execute: jest.fn().mockResolvedValue({ id: 77, status: 'started' }),
@@ -201,7 +207,35 @@ describe('NotionController', () => {
       await controller.convert(req as express.Request, res as express.Response);
 
       expect(res.status).toHaveBeenCalledWith(202);
-      expect(res.json).toHaveBeenCalledWith({ jobId: 77 });
+      expect(res.json).toHaveBeenCalledWith({ jobId: 77, restarted: false });
+    });
+
+    it('returns restarted: true when re-converting a page whose job row is done', async () => {
+      (JobRepository as unknown as { TERMINAL_STATUSES: string[] }).TERMINAL_STATUSES = [
+        'done',
+        'failed',
+        'cancelled',
+        'interrupted',
+      ];
+      (JobRepository as unknown as jest.Mock).mockImplementation(() => ({}));
+      (FindOrCreateJobUseCase as jest.Mock).mockImplementation(() => ({
+        execute: jest.fn().mockResolvedValue({ id: 77, status: 'done' }),
+      }));
+      (CheckInProgressJobUseCase as jest.Mock).mockImplementation(() => ({
+        execute: jest.fn().mockResolvedValue(true),
+      }));
+      (CheckJobLimitUseCase as jest.Mock).mockImplementation(() => ({
+        execute: jest.fn().mockResolvedValue(true),
+      }));
+      (StartJobUseCase as jest.Mock).mockImplementation(() => ({
+        execute: jest.fn().mockResolvedValue(undefined),
+      }));
+      (performConversion as jest.Mock).mockResolvedValue(undefined);
+
+      await controller.convert(req as express.Request, res as express.Response);
+
+      expect(res.status).toHaveBeenCalledWith(202);
+      expect(res.json).toHaveBeenCalledWith({ jobId: 77, restarted: true });
     });
 
     it('returns 409 when job is already in progress', async () => {
