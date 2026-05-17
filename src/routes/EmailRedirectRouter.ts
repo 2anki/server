@@ -10,6 +10,39 @@ const ALLOWED_EMAIL_DESTINATIONS = new Set(['/', '/upload', '/pricing', '/login'
 const EmailRedirectRouter = () => {
   const router = express.Router();
 
+  /**
+   * @swagger
+   * /r/email:
+   *   get:
+   *     summary: Email click redirect
+   *     description: |
+   *       Records an `email_clicked` analytics event then 302s the user to a
+   *       validated destination. Destination is checked against a static
+   *       allowlist (`/`, `/upload`, `/pricing`, `/login`); unknown values fall
+   *       back to `/`. Unknown or missing tokens record an anonymous click and
+   *       still redirect — never fails user-visibly.
+   *     tags: [Email]
+   *     parameters:
+   *       - in: query
+   *         name: t
+   *         schema:
+   *           type: string
+   *         description: Email token from inactivity_emails.token or re_engagement_emails.token
+   *       - in: query
+   *         name: c
+   *         schema:
+   *           type: string
+   *           enum: [inactivity, reengagement]
+   *         description: Campaign — disambiguates which table to resolve the token against
+   *       - in: query
+   *         name: to
+   *         schema:
+   *           type: string
+   *         description: Destination path (allowlisted); falls back to `/` if unknown
+   *     responses:
+   *       302:
+   *         description: Redirect to the resolved destination
+   */
   router.get('/r/email', async (req, res) => {
     const token = typeof req.query.t === 'string' ? req.query.t : null;
     const campaign = typeof req.query.c === 'string' ? req.query.c : null;
