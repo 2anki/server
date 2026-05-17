@@ -444,10 +444,13 @@
   border: none;
   background: transparent;
   color: inherit;
+  overflow: visible;
+}
+
+.dialog[open] {
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: visible;
 }
 
 .dialog::backdrop {
