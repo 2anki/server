@@ -10,6 +10,7 @@ interface UseJobsResult {
   deleteJob: (id: JobsId) => Promise<void>;
   restartJob: (job: JobResponse) => Promise<void>;
   refreshJobs: () => Promise<void>;
+  lastFetchedAt: Date | null;
 }
 
 export default function useJobs(
@@ -17,11 +18,13 @@ export default function useJobs(
   setError: ErrorHandlerType
 ): UseJobsResult {
   const [jobs, setJobs] = useState<JobResponse[]>([]);
+  const [lastFetchedAt, setLastFetchedAt] = useState<Date | null>(null);
 
   async function fetchJobs() {
     try {
       const active = await backend.getJobs();
       setJobs(active);
+      setLastFetchedAt(new Date());
     } catch (error) {
       setError(error);
     }
@@ -64,5 +67,5 @@ export default function useJobs(
     return () => clearInterval(intervalId);
   }, [backend, hasActiveJobs]);
 
-  return { jobs, deleteJob, restartJob, refreshJobs: fetchJobs };
+  return { jobs, deleteJob, restartJob, refreshJobs: fetchJobs, lastFetchedAt };
 }
