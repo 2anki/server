@@ -100,7 +100,7 @@ export function UploadPage({ setErrorMessage }: Readonly<Props>) {
       </p>
       <p className={pageStyles.settingsHint}>
         Change deck names, templates, and conversion defaults in{' '}
-        <Link to="/card-options">Settings</Link>.
+        <Link to="/card-options?returnTo=/upload">Settings</Link>.
       </p>
       <div className={pageStyles.steps}>
         <div className={pageStyles.step}>
