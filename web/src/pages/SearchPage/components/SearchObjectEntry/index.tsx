@@ -40,6 +40,7 @@ function SearchObjectEntry(props: Readonly<Props>) {
   const navigate = useNavigate();
   const location = useLocation();
   const [status, setStatus] = useState<ConvertStatus>('idle');
+  const [restarted, setRestarted] = useState(false);
 
   const openRules = () => {
     const params = new URLSearchParams();
@@ -62,6 +63,8 @@ function SearchObjectEntry(props: Readonly<Props>) {
       .convert(id, getType(type), title)
       .then(async (response) => {
         if (response.status === 202) {
+          const body = await response.json().catch(() => null);
+          setRestarted(body?.restarted === true);
           setStatus('queued');
         } else if (response.status === 409) {
           setStatus('conflict');
@@ -91,7 +94,8 @@ function SearchObjectEntry(props: Readonly<Props>) {
       <div className={styles.objectActions}>
         {status === 'queued' && (
           <span className={styles.convertStatus}>
-            Added to your downloads — <Link to="/downloads">view</Link>
+            {restarted ? 'Re-making your deck — ' : 'Added to your downloads — '}
+            <Link to="/downloads">view</Link>
           </span>
         )}
         {status === 'paywall' && (

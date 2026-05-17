@@ -82,7 +82,10 @@ describe('SearchObjectEntry convert button', () => {
   });
 
   it('on 202: button becomes "In progress" (aria-disabled) and shows downloads link', async () => {
-    mockConvert.mockResolvedValue({ status: 202, json: async () => ({ jobId: 5 }) });
+    mockConvert.mockResolvedValue({
+      status: 202,
+      json: async () => ({ jobId: 5, restarted: false }),
+    });
 
     renderEntry();
     fireEvent.click(screen.getByRole('link', { name: 'Convert to Anki' }));
@@ -92,6 +95,23 @@ describe('SearchObjectEntry convert button', () => {
     });
 
     expect(screen.getByText(/Added to your downloads/)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'view' })).toHaveAttribute('href', '/downloads');
+  });
+
+  it('on 202 with restarted: true: shows "Re-making your deck" copy instead', async () => {
+    mockConvert.mockResolvedValue({
+      status: 202,
+      json: async () => ({ jobId: 5, restarted: true }),
+    });
+
+    renderEntry();
+    fireEvent.click(screen.getByRole('link', { name: 'Convert to Anki' }));
+
+    await waitFor(() => {
+      expect(screen.getByText(/Re-making your deck/)).toBeInTheDocument();
+    });
+
+    expect(screen.queryByText(/Added to your downloads/)).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'view' })).toHaveAttribute('href', '/downloads');
   });
 
