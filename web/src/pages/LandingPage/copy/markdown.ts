@@ -23,7 +23,7 @@ const markdownCopy: LandingCopy = {
     },
     {
       q: 'What if my file has thousands of bullets?',
-      a: "We'll convert all of them. Big files take longer — usually under a minute for 1,000 cards. The free upload limit is 100MB; over that, split the file or upload a zip of smaller files.",
+      a: "We'll convert all of them. Big files take longer — usually under a minute for 1 000 cards. The free upload limit is 100MB; over that, split the file or upload a zip of smaller files.",
     },
   ],
 };

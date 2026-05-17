@@ -111,7 +111,7 @@ export function SubscriptionManagement({
       />
     )}
     <div className={styles.managementCard}>
-      <h3 className={styles.managementTitle}>Subscription Management</h3>
+      <h3 className={styles.managementTitle}>Subscription</h3>
       {locals?.subscriber && (
         <div className={sharedStyles.marginBottomMd}>
           {view.kind === 'active' && (
@@ -225,7 +225,7 @@ export function SubscriptionManagement({
 
       {locals?.subscriber && (
         <div className={sharedStyles.marginTopLg}>
-          <h4 className={sharedStyles.smallHeading}>Linked 2anki.net Email</h4>
+          <h4 className={sharedStyles.smallHeading}>Linked 2anki.net email</h4>
           {isEmailLinked ? (
             <div className={styles.linkedEmail}>
               <p>
@@ -241,7 +241,7 @@ export function SubscriptionManagement({
           ) : (
             <div>
               <div className={styles.field}>
-                <label htmlFor="subscription-email">Subscription Email</label>
+                <label htmlFor="subscription-email">Subscription email</label>
                 <input
                   id="subscription-email"
                   value={linkEmail}
@@ -252,9 +252,7 @@ export function SubscriptionManagement({
                 />
                 {linkError && <p className={styles.helpDanger}>{linkError}</p>}
                 {linkSuccess && (
-                  <p className={styles.helpSuccess}>
-                    Email linked successfully!
-                  </p>
+                  <p className={styles.helpSuccess}>Email linked.</p>
                 )}
               </div>
 
@@ -264,7 +262,7 @@ export function SubscriptionManagement({
                 onClick={onLink}
                 disabled={isEmailLinked || !linkEmail.trim()}
               >
-                {isLinking ? 'Linking...' : 'Link Email'}
+                {isLinking ? 'Linking' : 'Link email'}
               </button>
             </div>
           )}

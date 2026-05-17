@@ -152,9 +152,8 @@ class TemplatesController {
       }
       res.json(result);
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'AI generation failed';
-      res.status(500).json({ error: message });
+      console.error('AI generation failed:', error);
+      res.status(500).json({ error: 'AI generation failed' });
     }
   }
 
@@ -183,9 +182,8 @@ class TemplatesController {
       }
       res.json(result);
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'AI modify failed';
-      res.status(500).json({ error: message });
+      console.error('AI modify failed:', error);
+      res.status(500).json({ error: 'AI modify failed' });
     }
   }
 

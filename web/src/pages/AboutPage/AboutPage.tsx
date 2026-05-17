@@ -19,7 +19,7 @@ export default function AboutPage() {
           learning, not formatting.
         </p>
         <a href="/upload" className={pageStyles.ctaButton}>
-          Get started
+          Convert a file
         </a>
       </section>
 

@@ -208,7 +208,7 @@ export default function ImportPage({ setError }: Readonly<ImportPageProps>) {
 
       {!paying && (
         <div className={styles.freeTierBanner}>
-          Free plan · up to 1,000 cards per import.{' '}
+          Free plan · up to 1 000 cards per import.{' '}
           <Link to="/pricing">Upgrade for unlimited imports</Link>
         </div>
       )}

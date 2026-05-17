@@ -64,6 +64,7 @@ export function CanvasToolbar({
         type="button"
         className={`${styles.btn} ${activeTool === 'rect' ? styles.btnActive : ''}`}
         title="Rectangle tool"
+        aria-label="Rectangle tool"
         onClick={() => onToolChange('rect')}
       >
         &#9633;
@@ -72,6 +73,7 @@ export function CanvasToolbar({
         type="button"
         className={`${styles.btn} ${activeTool === 'ellipse' ? styles.btnActive : ''}`}
         title="Ellipse tool"
+        aria-label="Ellipse tool"
         onClick={() => onToolChange('ellipse')}
       >
         &#9711;
@@ -80,6 +82,7 @@ export function CanvasToolbar({
         type="button"
         className={`${styles.btn} ${activeTool === 'polygon' ? styles.btnActive : ''}`}
         title="Polygon tool"
+        aria-label="Polygon tool"
         onClick={() => onToolChange('polygon')}
       >
         &#x2B20;
@@ -91,6 +94,7 @@ export function CanvasToolbar({
         type="button"
         className={`${styles.btn} ${masksHidden ? styles.btnActive : ''}`}
         title={masksHidden ? 'Show masks' : 'Hide masks'}
+        aria-label={masksHidden ? 'Show masks' : 'Hide masks'}
         onClick={onToggleMasks}
       >
         {masksHidden ? '\u{1F441}' : '\u{1F576}'}
@@ -102,6 +106,7 @@ export function CanvasToolbar({
         type="button"
         className={styles.btn}
         title="Undo"
+        aria-label="Undo"
         onClick={onUndo}
         disabled={!canUndo}
       >
@@ -111,6 +116,7 @@ export function CanvasToolbar({
         type="button"
         className={styles.btn}
         title="Redo"
+        aria-label="Redo"
         onClick={onRedo}
         disabled={!canRedo}
       >
@@ -123,6 +129,7 @@ export function CanvasToolbar({
         type="button"
         className={styles.btn}
         title="Duplicate selected"
+        aria-label="Duplicate selected"
         onClick={onDuplicate}
         disabled={!hasSelection}
       >
@@ -132,6 +139,7 @@ export function CanvasToolbar({
         type="button"
         className={styles.btn}
         title="Delete selected"
+        aria-label="Delete selected"
         onClick={onDelete}
         disabled={!hasSelection}
       >
@@ -145,6 +153,7 @@ export function CanvasToolbar({
           type="button"
           className={styles.zoomReadout}
           title="Zoom level"
+          aria-label="Zoom level"
           onClick={() => setZoomOpen((o) => !o)}
         >
           {Math.round(zoom * 100)}%
