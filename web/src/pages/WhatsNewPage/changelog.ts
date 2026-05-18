@@ -5,6 +5,8 @@ export interface ChangelogEntry {
 }
 
 export const changelog: ChangelogEntry[] = [
+  { type: 'feature', title: 'Upload errors — talk to Claude inline instead of jumping to a separate page', date: '2026-05-18' },
+  { type: 'fix', title: 'Recovery screen — reload first, only reset local data if that does not fix it', date: '2026-05-18' },
   { type: 'feature', title: 'Empty deck — ask Claude what to fix without leaving the upload page', date: '2026-05-18' },
   { type: 'feature', title: 'Auto Sync surfaces at the moment you need it — the monthly limit page now shows Unlimited and Auto Sync side by side, and a banner appears on upload when your Notion workspace is connected', date: '2026-05-18' },
   { type: 'feature', title: 'PDF files convert into decks — drop a PDF and each pair of pages becomes a card, front and back', date: '2026-05-18' },
