@@ -11,6 +11,10 @@ export interface IUploadRepository {
   getUploadsByOwner(owner: number): Promise<Uploads[]>;
   findByIdAndOwner(id: number, owner: number): Promise<Uploads | null>;
   findByKey(owner: number, key: string): Promise<Uploads | null>;
+  findAllByObjectIdAndOwner(
+    objectId: string,
+    owner: number
+  ): Promise<Uploads[]>;
   update(
     owner: number,
     filename: string,
@@ -65,6 +69,18 @@ class UploadRepository implements IUploadRepository {
       .where({ owner, key })
       .first();
     return row ?? null;
+  }
+
+  async findAllByObjectIdAndOwner(
+    objectId: string,
+    owner: number
+  ): Promise<Uploads[]> {
+    if (owner == null || objectId == null) {
+      return [];
+    }
+    return this.database<Uploads>(this.table)
+      .select('*')
+      .where({ owner, object_id: objectId });
   }
 
   update(
