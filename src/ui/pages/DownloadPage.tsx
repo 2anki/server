@@ -26,9 +26,8 @@ export const DownloadPage = ({ id, sourceTitle, files, totalSizeBytes }: Downloa
   const hasFiles = count > 0;
   const showStickyBar = count >= STICKY_THRESHOLD;
 
-  const title = hasFiles
-    ? `${count === 1 ? '1 deck' : `${count} decks`} ready — 2anki`
-    : 'Your decks — 2anki';
+  const deckWord = count === 1 ? 'deck' : 'decks';
+  const title = hasFiles ? `${count} ${deckWord} ready — 2anki` : 'Your decks — 2anki';
 
   return ReactDOMServer.renderToStaticMarkup(
     <html lang="en">
