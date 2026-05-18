@@ -13,6 +13,7 @@ class NoOpUploadRepository implements IUploadRepository {
   getUploadsByOwner(): Promise<never[]> { return Promise.resolve([]); }
   findByIdAndOwner(): Promise<null> { return Promise.resolve(null); }
   findByKey(): Promise<null> { return Promise.resolve(null); }
+  findAllByObjectIdAndOwner(): Promise<never[]> { return Promise.resolve([]); }
   update(): Promise<never[]> { return Promise.resolve([]); }
   getLastUploadForUser(): Promise<null> { return Promise.resolve(null); }
 }

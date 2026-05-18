@@ -29,6 +29,7 @@ function makeUploadRepo(lastUpload: LastUpload | null = null): jest.Mocked<IUplo
     getUploadsByOwner: jest.fn(),
     findByIdAndOwner: jest.fn(),
     findByKey: jest.fn(),
+    findAllByObjectIdAndOwner: jest.fn().mockResolvedValue([]),
     update: jest.fn(),
     getLastUploadForUser: jest.fn().mockResolvedValue(lastUpload),
   };

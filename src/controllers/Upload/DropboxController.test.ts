@@ -32,6 +32,7 @@ function makeController(
     getUploadsByOwner: jest.fn().mockResolvedValue([]),
     findByIdAndOwner: jest.fn().mockResolvedValue(null),
     findByKey: jest.fn().mockResolvedValue(null),
+    findAllByObjectIdAndOwner: jest.fn().mockResolvedValue([]),
     update: jest.fn().mockResolvedValue([]),
     getLastUploadForUser: jest.fn().mockResolvedValue(null),
   };

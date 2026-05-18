@@ -3,6 +3,7 @@ import { Knex } from 'knex';
 import NotionAPIWrapper from '../../../../services/NotionService/NotionAPIWrapper';
 import JobRepository from '../../../../data_layer/JobRepository';
 import UsersRepository from '../../../../data_layer/UsersRepository';
+import UploadRepository from '../../../../data_layer/UploadRespository';
 import {
   CheckMonthlyCardLimitUseCase,
   MonthlyLimitError,
@@ -99,7 +100,10 @@ export default async function performConversion(
       throw error;
     }
 
-    const buildDeck = new BuildDeckForJobUseCase(jobRepository);
+    const buildDeck = new BuildDeckForJobUseCase(
+      jobRepository,
+      new UploadRepository(database)
+    );
     const { size, key, apkg } = await buildDeck.execute({
       bl,
       exporter,

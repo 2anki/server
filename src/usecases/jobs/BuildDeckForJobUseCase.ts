@@ -1,4 +1,5 @@
 import JobRepository from '../../data_layer/JobRepository';
+import { IUploadRepository } from '../../data_layer/UploadRespository';
 import BlockHandler from '../../services/NotionService/BlockHandler/BlockHandler';
 import CustomExporter from '../../lib/parser/exporters/CustomExporter';
 import Deck from '../../lib/parser/Deck';
@@ -36,7 +37,10 @@ interface BuildDeckForJobUseCaseInput {
 }
 
 export class BuildDeckForJobUseCase {
-  constructor(private readonly jobRepository: JobRepository) {}
+  constructor(
+    private readonly jobRepository: JobRepository,
+    private readonly uploadRepository: IUploadRepository
+  ) {}
 
   async execute(
     input: BuildDeckForJobUseCaseInput
@@ -53,6 +57,11 @@ export class BuildDeckForJobUseCase {
       console.log('conversion.zero_cards', { id, owner, type });
       throw new EmptyDeckError();
     }
+
+    const priorUploads = await this.uploadRepository.findAllByObjectIdAndOwner(
+      id,
+      Number(owner)
+    );
 
     exporter.configure(filteredDecks);
     const gen = new CardGenerator(ws.location, id);
@@ -78,6 +87,21 @@ export class BuildDeckForJobUseCase {
       key,
       size_mb: size,
     });
+
+    for (const prior of priorUploads) {
+      try {
+        await storage.delete(prior.key);
+        await this.uploadRepository.deleteUpload(prior.owner, prior.key);
+      } catch (err) {
+        console.error('[BuildDeckForJobUseCase] prune prior upload failed', {
+          object_id: id,
+          owner,
+          key: prior.key,
+          err,
+        });
+      }
+    }
+
     return { size, key, apkg };
   }
 }

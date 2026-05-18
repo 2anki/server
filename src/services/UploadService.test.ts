@@ -47,6 +47,8 @@ function buildRepository(): IUploadRepository {
     getUploadsByOwner: (_owner: number) => Promise.resolve([] as Uploads[]),
     findByIdAndOwner: (_id: number, _owner: number) => Promise.resolve(null),
     findByKey: (_owner: number, _key: string) => Promise.resolve(null),
+    findAllByObjectIdAndOwner: (_objectId: string, _owner: number) =>
+      Promise.resolve([] as Uploads[]),
     update: (_owner: number, _filename: string, _key: string, _size_mb: number) =>
       Promise.resolve([] as Uploads[]),
     getLastUploadForUser: (_userId: number) => Promise.resolve(null),

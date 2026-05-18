@@ -12,14 +12,17 @@ class JobRepository {
   constructor(private readonly database: Knex) {}
 
   getJobsByOwner(owner: string): Promise<JobWithDownloadKey[]> {
+    const latestUpload = this.database('uploads')
+      .select('object_id')
+      .max({ max_id: 'id' })
+      .where({ owner })
+      .whereNotNull('object_id')
+      .groupBy('object_id')
+      .as('latest_upload');
+
     return this.database(this.tableName)
-      .leftJoin('uploads', function () {
-        this.on('uploads.object_id', '=', 'jobs.object_id').andOnVal(
-          'uploads.owner',
-          '=',
-          owner
-        );
-      })
+      .leftJoin(latestUpload, 'latest_upload.object_id', 'jobs.object_id')
+      .leftJoin('uploads', 'uploads.id', 'latest_upload.max_id')
       .where({ 'jobs.owner': owner })
       .select('jobs.*', 'uploads.key as download_key', 'uploads.id as upload_id');
   }
