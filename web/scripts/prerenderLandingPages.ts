@@ -4,6 +4,7 @@ import notionCopy from '../src/pages/LandingPage/copy/notion';
 import quizletCopy from '../src/pages/LandingPage/copy/quizlet';
 import markdownCopy from '../src/pages/LandingPage/copy/markdown';
 import pdfCopy from '../src/pages/LandingPage/copy/pdf';
+import ankiToNotionCopy from '../src/pages/LandingPage/copy/ankiToNotion';
 import { CONVERT_LANDING_PAGES } from '../src/pages/ConvertLandingPage/convertLandingConfig';
 import { ANSWERS_PAGES } from '../src/pages/AnswersPage/answersConfig';
 import type { LandingCopy } from '../src/pages/LandingPage/types';
@@ -13,6 +14,7 @@ const LANDING_COPIES: LandingCopy[] = [
   quizletCopy,
   markdownCopy,
   pdfCopy,
+  ankiToNotionCopy,
   ...Array.from(CONVERT_LANDING_PAGES.values()),
 ];
 
@@ -170,6 +172,68 @@ export function emitLandingPages(buildDir: string): string[] {
   return emitted;
 }
 
+export interface MetaOnlyPageMeta {
+  pathname: string;
+  title: string;
+  description: string;
+}
+
+const META_ONLY_PAGES: MetaOnlyPageMeta[] = [
+  {
+    pathname: '/upload',
+    title: 'Upload notes and get an Anki deck — 2anki',
+    description:
+      'Drop a Notion export, PDF, Markdown, CSV, HTML, or .apkg file. Get an Anki deck back. Free for the first 100 cards a month, no add-on required.',
+  },
+  {
+    pathname: '/pricing',
+    title: 'Pricing — Free, Day Pass, Unlimited, Auto Sync | 2anki',
+    description:
+      'Compare 2anki plans. Free converts 100 cards a month. Unlimited at $6/mo. Auto Sync at $30/mo polls your Notion workspace and keeps your decks current.',
+  },
+  {
+    pathname: '/about',
+    title: 'About 2anki — open-source Notion to Anki converter',
+    description:
+      'Why 2anki exists, who builds it, and how the project stays free and open source. Independent, no venture funding, supported by lifetime and subscription users.',
+  },
+];
+
+export function emitMetaOnlyPages(buildDir: string): string[] {
+  const indexPath = join(buildDir, 'index.html');
+  const source = readFileSync(indexPath, 'utf8');
+  const emitted: string[] = [];
+
+  for (const meta of META_ONLY_PAGES) {
+    const canonical = `https://2anki.net${meta.pathname}`;
+    const slug = meta.pathname.replace(/^\//, '');
+    const outDir = join(buildDir, slug);
+    const outPath = join(outDir, 'index.html');
+    mkdirSync(dirname(outPath), { recursive: true });
+
+    const titleTag = `<title>${escapeHtml(meta.title)}</title>`;
+    const descriptionTag = `<meta name="description" content="${escapeHtml(meta.description)}">`;
+    const ogTags = [
+      `<meta property="og:title" content="${escapeHtml(meta.title)}">`,
+      `<meta property="og:description" content="${escapeHtml(meta.description)}">`,
+      `<meta property="og:url" content="${canonical}">`,
+      '<meta property="og:type" content="website">',
+      `<meta name="twitter:title" content="${escapeHtml(meta.title)}">`,
+      `<meta name="twitter:description" content="${escapeHtml(meta.description)}">`,
+    ].join('\n  ');
+
+    let html = source.replace(/<title>[\s\S]*?<\/title>/, titleTag);
+    html = html.replace(/<meta\s+name="description"[^>]*>/, descriptionTag);
+    html = html.replace(/<link\s+rel="canonical"[^>]*>/, `<link rel="canonical" href="${canonical}">`);
+    html = stripExistingMeta(html);
+    html = html.replace(/<\/head>/, `  ${ogTags}\n</head>`);
+
+    writeFileSync(outPath, html, 'utf8');
+    emitted.push(outPath);
+  }
+  return emitted;
+}
+
 export function emitAnswersPages(buildDir: string): string[] {
   const indexPath = join(buildDir, 'index.html');
   const source = readFileSync(indexPath, 'utf8');
@@ -206,6 +270,10 @@ if (process.argv[1] && process.argv[1].endsWith('prerenderLandingPages.ts')) {
   process.stdout.write(`prerendered ${marketplacePage}\n`);
   const answerFiles = emitAnswersPages(buildDir);
   for (const file of answerFiles) {
+    process.stdout.write(`prerendered ${file}\n`);
+  }
+  const metaOnlyFiles = emitMetaOnlyPages(buildDir);
+  for (const file of metaOnlyFiles) {
     process.stdout.write(`prerendered ${file}\n`);
   }
 }

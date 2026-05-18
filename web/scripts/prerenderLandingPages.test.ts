@@ -2,7 +2,12 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { emitLandingPages, emitAnswersPages } from './prerenderLandingPages';
+import {
+  emitAnswersPages,
+  emitLandingPages,
+  emitMetaOnlyPages,
+  emitNotionMarketplacePage,
+} from './prerenderLandingPages';
 import notionCopy from '../src/pages/LandingPage/copy/notion';
 import { ANSWERS_PAGES } from '../src/pages/AnswersPage/answersConfig';
 
@@ -45,7 +50,7 @@ beforeEach(() => {
 describe('emitLandingPages', () => {
   it('writes one HTML file per landing path', () => {
     const files = emitLandingPages(buildDir);
-    expect(files).toHaveLength(10);
+    expect(files).toHaveLength(11);
     expect(files.some((p) => p.endsWith('notion-to-anki/index.html'))).toBe(
       true
     );
@@ -56,6 +61,9 @@ describe('emitLandingPages', () => {
       true
     );
     expect(files.some((p) => p.endsWith('pdf-to-anki/index.html'))).toBe(true);
+    expect(files.some((p) => p.endsWith('anki-to-notion/index.html'))).toBe(
+      true
+    );
     expect(
       files.some((p) => p.endsWith('convert/notion-to-anki/index.html'))
     ).toBe(true);
@@ -150,6 +158,58 @@ describe('emitLandingPages', () => {
     );
     expect(html).toContain('<meta property="og:image"');
     expect(html).toContain('<meta name="twitter:card"');
+  });
+});
+
+describe('emitMetaOnlyPages', () => {
+  it('writes one HTML file per meta-only route', () => {
+    const files = emitMetaOnlyPages(buildDir);
+    expect(files.some((p) => p.endsWith('upload/index.html'))).toBe(true);
+    expect(files.some((p) => p.endsWith('pricing/index.html'))).toBe(true);
+    expect(files.some((p) => p.endsWith('about/index.html'))).toBe(true);
+  });
+
+  it('sets a unique title per route', () => {
+    emitMetaOnlyPages(buildDir);
+    const upload = readFileSync(join(buildDir, 'upload', 'index.html'), 'utf8');
+    const pricing = readFileSync(join(buildDir, 'pricing', 'index.html'), 'utf8');
+    const about = readFileSync(join(buildDir, 'about', 'index.html'), 'utf8');
+    expect(upload).toContain('<title>Upload notes and get an Anki deck — 2anki</title>');
+    expect(pricing).toContain('<title>Pricing — Free, Day Pass, Unlimited, Auto Sync | 2anki</title>');
+    expect(about).toContain('<title>About 2anki — open-source Notion to Anki converter</title>');
+  });
+
+  it('points the canonical link at the route URL', () => {
+    emitMetaOnlyPages(buildDir);
+    const html = readFileSync(join(buildDir, 'pricing', 'index.html'), 'utf8');
+    expect(html).toContain('<link rel="canonical" href="https://2anki.net/pricing">');
+  });
+
+  it('leaves the root div empty so React mounts without a flash', () => {
+    emitMetaOnlyPages(buildDir);
+    const html = readFileSync(join(buildDir, 'upload', 'index.html'), 'utf8');
+    expect(html).toContain('<div id="root"></div>');
+  });
+
+  it('does not duplicate og:* tags from the source index', () => {
+    emitMetaOnlyPages(buildDir);
+    const html = readFileSync(join(buildDir, 'upload', 'index.html'), 'utf8');
+    expect(countMatches(html, /<meta\s+property="og:title"/g)).toBe(1);
+    expect(countMatches(html, /<meta\s+property="og:url"/g)).toBe(1);
+    expect(countMatches(html, /<meta\s+name="twitter:title"/g)).toBe(1);
+  });
+});
+
+describe('emitNotionMarketplacePage', () => {
+  it('writes a unique title and canonical', () => {
+    emitNotionMarketplacePage(buildDir);
+    const html = readFileSync(
+      join(buildDir, 'notion-marketplace', 'index.html'),
+      'utf8'
+    );
+    expect(html).toContain('<title>Notion to Anki — automatic sync | 2anki</title>');
+    expect(html).toContain('<link rel="canonical" href="https://2anki.net/notion-marketplace">');
+    expect(html).toContain('Your Notion notes become Anki cards');
   });
 });
 
