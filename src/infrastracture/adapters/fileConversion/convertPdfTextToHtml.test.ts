@@ -1,0 +1,98 @@
+import { convertPdfTextToHtml } from './convertPdfTextToHtml';
+
+jest.mock('../../../lib/parser/extractPdfText');
+jest.mock('../../../lib/parser/synthesizeCardsFromPdf');
+
+import { extractPdfText } from '../../../lib/parser/extractPdfText';
+import { synthesizeCardsFromPdf } from '../../../lib/parser/synthesizeCardsFromPdf';
+
+const mockExtract = extractPdfText as jest.MockedFunction<typeof extractPdfText>;
+const mockSynthesize = synthesizeCardsFromPdf as jest.MockedFunction<typeof synthesizeCardsFromPdf>;
+
+describe('convertPdfTextToHtml', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('returns empty html when the PDF is DRM-locked', async () => {
+    mockExtract.mockResolvedValue({
+      pages: [],
+      pageCount: 5,
+      avgCharsPerPage: 2,
+      isDrmLocked: true,
+    });
+
+    const result = await convertPdfTextToHtml(Buffer.from('x'), 'locked.pdf');
+
+    expect(result).toEqual({ html: '', cardCount: 0, isDrmLocked: true });
+    expect(mockSynthesize).not.toHaveBeenCalled();
+  });
+
+  it('wraps each synthesized card in a toggle and reports the count', async () => {
+    mockExtract.mockResolvedValue({
+      pages: [{ text: 'page one' }],
+      pageCount: 1,
+      avgCharsPerPage: 60,
+      isDrmLocked: false,
+    });
+    mockSynthesize.mockReturnValue([
+      { front: 'Q1', back: 'A1', tags: [] },
+      { front: 'Q2', back: 'A2', tags: [] },
+    ]);
+
+    const result = await convertPdfTextToHtml(Buffer.from('x'), 'study.pdf');
+
+    expect(result.isDrmLocked).toBe(false);
+    expect(result.cardCount).toBe(2);
+    expect(result.html).toContain('<title>study</title>');
+    expect(result.html.match(/<ul class="toggle">/g)).toHaveLength(2);
+    expect(result.html).toContain('<summary>Q1</summary>');
+    expect(result.html).toContain('<p>A1</p>');
+  });
+
+  it('escapes HTML-sensitive characters in card content', async () => {
+    mockExtract.mockResolvedValue({
+      pages: [{ text: 'p' }],
+      pageCount: 1,
+      avgCharsPerPage: 60,
+      isDrmLocked: false,
+    });
+    mockSynthesize.mockReturnValue([
+      { front: '<script>alert("x")</script>', back: 'a & b', tags: [] },
+    ]);
+
+    const result = await convertPdfTextToHtml(Buffer.from('x'), 'unsafe.pdf');
+
+    expect(result.html).not.toContain('<script>alert');
+    expect(result.html).toContain('&lt;script&gt;alert(&quot;x&quot;)&lt;/script&gt;');
+    expect(result.html).toContain('a &amp; b');
+  });
+
+  it('preserves line breaks inside cards by converting newlines to <br>', async () => {
+    mockExtract.mockResolvedValue({
+      pages: [{ text: 'p' }],
+      pageCount: 1,
+      avgCharsPerPage: 60,
+      isDrmLocked: false,
+    });
+    mockSynthesize.mockReturnValue([{ front: 'line1\nline2', back: 'b', tags: [] }]);
+
+    const result = await convertPdfTextToHtml(Buffer.from('x'), 'multi.pdf');
+
+    expect(result.html).toContain('line1<br>line2');
+  });
+
+  it('uses the basename without extension as the page title', async () => {
+    mockExtract.mockResolvedValue({
+      pages: [{ text: 'p' }],
+      pageCount: 1,
+      avgCharsPerPage: 60,
+      isDrmLocked: false,
+    });
+    mockSynthesize.mockReturnValue([{ front: 'q', back: 'a', tags: [] }]);
+
+    const result = await convertPdfTextToHtml(Buffer.from('x'), 'Chapter 3.PDF');
+
+    expect(result.html).toContain('<title>Chapter 3</title>');
+  });
+});

@@ -14,6 +14,7 @@ import { convertPDFToHTML } from './convertPDFToHTML';
 import { convertPPTToPDF } from './ConvertPPTToPDF';
 import { convertImageToHTML } from './convertImageToHTML';
 import { convertPDFToImages } from './convertPDFToImages';
+import { convertPdfTextToHtml } from './convertPdfTextToHtml';
 import { convertXLSXToHTML } from './convertXLSXToHTML';
 import { convertDocxToHTML } from './convertDocxToHTML';
 import { generateDeckInfo, DeckInfo } from '../../../lib/claude/ClaudeService';
@@ -102,6 +103,26 @@ async function convertFile(
   }
 
   if (isPDFFile(file.name) && input.settings.processPDFs !== false) {
+    const textResult = await convertPdfTextToHtml(
+      file.contents as Buffer,
+      file.name
+    );
+
+    if (!textResult.isDrmLocked && textResult.cardCount > 0) {
+      console.log('[PrepareDeck] convertFile pdf→text→html', {
+        file: file.name,
+        cardCount: textResult.cardCount,
+        durationMs: Date.now() - t0,
+      });
+      return { name: `${file.name}.html`, contents: Buffer.from(textResult.html) };
+    }
+
+    console.log('[PrepareDeck] convertFile pdf→images (text fallback)', {
+      file: file.name,
+      isDrmLocked: textResult.isDrmLocked,
+      cardCount: textResult.cardCount,
+      durationMs: Date.now() - t0,
+    });
     const result = {
       name: `${file.name}.html`,
       contents: Buffer.from(await convertPDFToImages({
@@ -112,7 +133,6 @@ async function convertFile(
         settings: input.settings,
       })),
     };
-    console.log('[PrepareDeck] convertFile pdf→images', { file: file.name, durationMs: Date.now() - t0 });
     return result;
   }
 
