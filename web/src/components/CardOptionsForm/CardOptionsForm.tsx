@@ -47,6 +47,20 @@ const DEFAULT_TEMPLATE = 'specialstyle';
 const DEFAULT_TOGGLE_MODE = 'close_toggle';
 const DEFAULT_PAGE_EMOJI = 'first_emoji';
 const DEFAULT_FONT_SIZE = '20';
+const DEFAULT_MCQ_SHOW_CHOICES = 'button';
+const DEFAULT_MCQ_SHUFFLE = true;
+const DEFAULT_MCQ_TTS_LANG = '';
+
+const MCQ_TTS_LANGUAGE_OPTIONS = [
+  { label: "Don't speak", value: '' },
+  { label: 'English (US)', value: 'en_US' },
+  { label: 'Spanish (Spain)', value: 'es_ES' },
+  { label: 'French (France)', value: 'fr_FR' },
+  { label: 'German', value: 'de_DE' },
+  { label: 'Japanese', value: 'ja_JP' },
+  { label: 'Mandarin (Simplified)', value: 'zh_CN' },
+  { label: 'Portuguese (Brazil)', value: 'pt_BR' },
+] as const;
 const DEFAULT_USER_INSTRUCTIONS = `Some extra rules and explanations:
 - Read the document from start to finish and identify any question and answers.
 - Use the same language as the document or infer the language based on what is mostly used.
@@ -114,6 +128,11 @@ function computeSnapshot(values: {
   inputName: string;
   userInstructions: string;
   checkboxValues: Record<string, boolean>;
+  mcqShowChoices: string;
+  mcqShuffle: boolean;
+  mcqTtsQuestion: string;
+  mcqTtsCorrectAnswer: string;
+  mcqTtsExtra: string;
 }) {
   const sortedCheckboxes = Object.keys(values.checkboxValues)
     .sort((a, b) => a.localeCompare(b))
@@ -180,6 +199,21 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
     const [checkboxValues, setCheckboxValues] = useState<
       Record<string, boolean>
     >({});
+    const [mcqShowChoices, setMcqShowChoices] = useState(
+      getLocalStorageValue('mcq-show-choices', DEFAULT_MCQ_SHOW_CHOICES, settings)
+    );
+    const [mcqShuffle, setMcqShuffle] = useState(
+      getLocalStorageBooleanValue('mcq-shuffle', DEFAULT_MCQ_SHUFFLE.toString(), settings)
+    );
+    const [mcqTtsQuestion, setMcqTtsQuestion] = useState(
+      getLocalStorageValue('mcq-tts-question', DEFAULT_MCQ_TTS_LANG, settings)
+    );
+    const [mcqTtsCorrectAnswer, setMcqTtsCorrectAnswer] = useState(
+      getLocalStorageValue('mcq-tts-correct-answer', DEFAULT_MCQ_TTS_LANG, settings)
+    );
+    const [mcqTtsExtra, setMcqTtsExtra] = useState(
+      getLocalStorageValue('mcq-tts-extra', DEFAULT_MCQ_TTS_LANG, settings)
+    );
     const [initialSnapshot, setInitialSnapshot] = useState<string | null>(null);
 
     useEffect(() => {
@@ -213,6 +247,11 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
       setUserInstructions(
         localStorage.getItem('user-instructions') ?? DEFAULT_USER_INSTRUCTIONS
       );
+      setMcqShowChoices(localStorage.getItem('mcq-show-choices') ?? DEFAULT_MCQ_SHOW_CHOICES);
+      setMcqShuffle((localStorage.getItem('mcq-shuffle') ?? DEFAULT_MCQ_SHUFFLE.toString()) === 'true');
+      setMcqTtsQuestion(localStorage.getItem('mcq-tts-question') ?? DEFAULT_MCQ_TTS_LANG);
+      setMcqTtsCorrectAnswer(localStorage.getItem('mcq-tts-correct-answer') ?? DEFAULT_MCQ_TTS_LANG);
+      setMcqTtsExtra(localStorage.getItem('mcq-tts-extra') ?? DEFAULT_MCQ_TTS_LANG);
       setSettings({});
 
       const applyPayload = (payload: SettingsPayload) => {
@@ -226,12 +265,19 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
           ['cloze_model_name', setClozeName],
           ['input_model_name', setInputName],
           ['user-instructions', setUserInstructions],
+          ['mcq-show-choices', setMcqShowChoices],
+          ['mcq-tts-question', setMcqTtsQuestion],
+          ['mcq-tts-correct-answer', setMcqTtsCorrectAnswer],
+          ['mcq-tts-extra', setMcqTtsExtra],
         ];
         assignments.forEach(([key, setter]) => {
           if (Object.hasOwn(payload, key)) {
             setter(payload[key] ?? '');
           }
         });
+        if (Object.hasOwn(payload, 'mcq-shuffle')) {
+          setMcqShuffle((payload['mcq-shuffle'] ?? 'true') === 'true');
+        }
         setSettings(payload);
       };
 
@@ -266,6 +312,11 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
           inputName,
           userInstructions,
           checkboxValues,
+          mcqShowChoices,
+          mcqShuffle,
+          mcqTtsQuestion,
+          mcqTtsCorrectAnswer,
+          mcqTtsExtra,
         }),
       [
         deckName,
@@ -278,6 +329,11 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
         inputName,
         userInstructions,
         checkboxValues,
+        mcqShowChoices,
+        mcqShuffle,
+        mcqTtsQuestion,
+        mcqTtsCorrectAnswer,
+        mcqTtsExtra,
       ]
     );
 
@@ -325,6 +381,11 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
       setClozeName('');
       setInputName('');
       setUserInstructions(DEFAULT_USER_INSTRUCTIONS);
+      setMcqShowChoices(DEFAULT_MCQ_SHOW_CHOICES);
+      setMcqShuffle(DEFAULT_MCQ_SHUFFLE);
+      setMcqTtsQuestion(DEFAULT_MCQ_TTS_LANG);
+      setMcqTtsCorrectAnswer(DEFAULT_MCQ_TTS_LANG);
+      setMcqTtsExtra(DEFAULT_MCQ_TTS_LANG);
       if (options) {
         const reset: Record<string, boolean> = {};
         options.forEach((o: CardOption) => {
@@ -351,6 +412,11 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
       payload['font-size'] = fontSize;
       payload['page-emoji'] = pageEmoji;
       payload['user-instructions'] = userInstructions;
+      payload['mcq-show-choices'] = mcqShowChoices;
+      payload['mcq-shuffle'] = mcqShuffle.toString();
+      payload['mcq-tts-question'] = mcqTtsQuestion;
+      payload['mcq-tts-correct-answer'] = mcqTtsCorrectAnswer;
+      payload['mcq-tts-extra'] = mcqTtsExtra;
 
       try {
         await get2ankiApi().saveSettings({
@@ -562,24 +628,114 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
           if (groupOptions.length === 0) return null;
 
           const isPdfAiGroup = group.label === 'PDF & AI';
+          const isCardTypesGroup = group.label === 'Card types';
 
           return (
-            <div key={group.label} className={fieldStyles.optionGroup}>
-              <h3 className={fieldStyles.groupHeading}>{group.label}</h3>
-              <div className={fieldStyles.groupOptions}>
-                {groupOptions.map((o: CardOption) => (
-                  <LocalCheckbox
-                    key={o.key}
-                    defaultValue={checkboxValues[o.key] ?? false}
-                    label={o.label}
-                    description={o.description}
-                    onChecked={(checked) => toggleCheckbox(o.key, checked)}
-                    badge={PREMIUM_KEYS.has(o.key) ? 'Premium' : undefined}
-                  />
-                ))}
-                {isPdfAiGroup && userInstructionsDisclosure}
+            <React.Fragment key={group.label}>
+              <div className={fieldStyles.optionGroup}>
+                <h3 className={fieldStyles.groupHeading}>{group.label}</h3>
+                <div className={fieldStyles.groupOptions}>
+                  {groupOptions.map((o: CardOption) => (
+                    <LocalCheckbox
+                      key={o.key}
+                      defaultValue={checkboxValues[o.key] ?? false}
+                      label={o.label}
+                      description={o.description}
+                      onChecked={(checked) => toggleCheckbox(o.key, checked)}
+                      badge={PREMIUM_KEYS.has(o.key) ? 'Premium' : undefined}
+                    />
+                  ))}
+                  {isPdfAiGroup && userInstructionsDisclosure}
+                </div>
               </div>
-            </div>
+              {isCardTypesGroup && (
+                <div className={fieldStyles.optionGroup}>
+                  <h3 className={fieldStyles.groupHeading}>Multiple choice</h3>
+                  <p className={fieldStyles.groupIntro}>
+                    Multiple choice cards generated from your notes. Learn the syntax in the{' '}
+                    <Link to="/documentation/cards/mcq" className={fieldStyles.groupIntroLink}>
+                      docs
+                    </Link>
+                    .
+                  </p>
+
+                  <div className={fieldStyles.section}>
+                    <div className={fieldStyles.labelRow}>
+                      <label className={fieldStyles.sectionLabel}>Show choices</label>
+                      <FieldHint text="Show all choices up front, or hide them behind a button you click during review." />
+                    </div>
+                    <div className={fieldStyles.segmented}>
+                      {(
+                        [
+                          { label: 'Show up front', value: 'auto' },
+                          { label: 'Hide behind button', value: 'button' },
+                        ] as const
+                      ).map(({ label, value }) => (
+                        <button
+                          key={value}
+                          type="button"
+                          className={`${fieldStyles.segment} ${mcqShowChoices === value ? fieldStyles.segmentActive : ''}`}
+                          onClick={() => {
+                            setMcqShowChoices(value);
+                            saveValueInLocalStorage('mcq-show-choices', value, pageId);
+                          }}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <LocalCheckbox
+                    defaultValue={mcqShuffle}
+                    label="Shuffle choices"
+                    description="Choices appear in a different order each review so position is not a hint."
+                    onChecked={(checked) => {
+                      setMcqShuffle(checked);
+                      saveValueInLocalStorage('mcq-shuffle', checked.toString(), pageId);
+                    }}
+                  />
+
+                  <div className={fieldStyles.section}>
+                    <p className={fieldStyles.sectionLabel}>Read aloud</p>
+                    <p className={fieldStyles.sectionHint}>
+                      Pick a voice for each field. Anki will speak it on the card.
+                    </p>
+
+                    {(
+                      [
+                        { label: 'Question', key: 'mcq-tts-question', value: mcqTtsQuestion, setter: setMcqTtsQuestion },
+                        { label: 'Correct answer', key: 'mcq-tts-correct-answer', value: mcqTtsCorrectAnswer, setter: setMcqTtsCorrectAnswer },
+                        { label: 'Extra', key: 'mcq-tts-extra', value: mcqTtsExtra, setter: setMcqTtsExtra },
+                      ] as const
+                    ).map(({ label, key, value, setter }) => (
+                      <div key={key} className={fieldStyles.section}>
+                        <div className={fieldStyles.labelRow}>
+                          <label htmlFor={key} className={fieldStyles.sectionLabel}>{label}</label>
+                        </div>
+                        <select
+                          id={key}
+                          className={fieldStyles.deckInput}
+                          value={value}
+                          onChange={(e) => {
+                            setter(e.target.value);
+                            saveValueInLocalStorage(key, e.target.value, pageId);
+                          }}
+                        >
+                          {MCQ_TTS_LANGUAGE_OPTIONS.map((opt) => (
+                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                          ))}
+                        </select>
+                      </div>
+                    ))}
+
+                    <p className={fieldStyles.sectionHint}>
+                      If your Anki device has no installed voice for the picked language, the audio stays silent.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </React.Fragment>
           );
         })}
 
