@@ -44,6 +44,12 @@ const ALLOWED_CARD_OPTION_KEYS = new Set([
   'input_model_name',
   'user-instructions',
   'skip-defaults',
+  'mcq-enabled',
+  'mcq-show-choices',
+  'mcq-shuffle',
+  'mcq-tts-question',
+  'mcq-tts-correct-answer',
+  'mcq-tts-extra',
 ]);
 
 function sanitizeCardOptions(raw: CardOptions): CardOptions {
