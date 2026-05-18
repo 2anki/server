@@ -33,7 +33,7 @@ import { withFontSize } from './withFontSize';
 import { NOTION_STYLE } from '../../templates/helper';
 import { transformDetailsTagToNotionToggleList } from './transformDetailsTagToNotionToggleList';
 import { findNotionToggleLists } from './findNotionToggleLists';
-import { getNoPackageError } from '../error/constants';
+import { EmptyDeckError } from '../../usecases/jobs/EmptyDeckError';
 import { extractName } from '../extractDeckName';
 
 export interface DeckParserInput {
@@ -602,7 +602,7 @@ export class DeckParser {
       this.payload.length === 0 ||
       this.totalCardCount() === 0
     ) {
-      throw getNoPackageError(this.noLimits);
+      throw new EmptyDeckError();
     }
 
     this.payload[0].settings = this.settings;

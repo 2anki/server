@@ -5,6 +5,7 @@ export interface ChangelogEntry {
 }
 
 export const changelog: ChangelogEntry[] = [
+  { type: 'fix', title: 'Upload page explains the toggle model before you drop a file — and names the file when no toggles are found', date: '2026-05-18' },
   { type: 'fix', title: 'Notion exports with toggles containing bullet points, pasted screenshots, or mixed-format cloze spans convert into complete decks', date: '2026-05-18' },
   { type: 'fix', title: 'Pricing page — Anki → Notion imports clarified as up to 1,000 notes each on the free plan', date: '2026-05-18' },
   { type: 'fix', title: 'Re-converting a Notion page you already converted now re-makes the deck', date: '2026-05-18' },

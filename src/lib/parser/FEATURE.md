@@ -8,7 +8,8 @@ The hot path. Every Notion page, HTML export, markdown file, or zip the user upl
 - `Deck.ts` / `Note.ts` / `Package.ts` — domain types for what a card looks like.
 - `findNotionToggleLists.ts` — toggle-list detection on the Notion HTML export. The original primitive the project was built on.
 - `guessMarkdownCards.ts` — fallback for raw markdown without toggle structure.
-- `exporters/CustomExporter.ts` + `embedFile.ts` — write the `.apkg` (sqlite + media) for download.
+- `exporters/CustomExporter.ts` + `embedFile.ts` — write the `.apkg` (sqlite + media) for download. `configure()` wraps `JSON.stringify` to convert `RangeError` (V8 "Invalid string length") into `DeckTooLargeError` so the caller gets a typed error instead of a raw engine exception.
+- `exporters/DeckTooLargeError.ts` — typed error thrown when the deck payload is too large to serialize. Caught by `UploadService` and mapped to a clean 400 response.
 - `xlsx/` — spreadsheet → cards path.
 
 ## Flow
