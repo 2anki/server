@@ -4,6 +4,7 @@ import notionCopy from '../src/pages/LandingPage/copy/notion';
 import quizletCopy from '../src/pages/LandingPage/copy/quizlet';
 import markdownCopy from '../src/pages/LandingPage/copy/markdown';
 import pdfCopy from '../src/pages/LandingPage/copy/pdf';
+import { CONVERT_LANDING_PAGES } from '../src/pages/ConvertLandingPage/convertLandingConfig';
 import type { LandingCopy } from '../src/pages/LandingPage/types';
 
 const LANDING_COPIES: LandingCopy[] = [
@@ -11,6 +12,7 @@ const LANDING_COPIES: LandingCopy[] = [
   quizletCopy,
   markdownCopy,
   pdfCopy,
+  ...Array.from(CONVERT_LANDING_PAGES.values()),
 ];
 
 const escapeHtml = (value: string): string =>
