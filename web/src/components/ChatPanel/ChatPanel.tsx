@@ -88,6 +88,21 @@ function visibleStreamingText(text: string): string {
   return rawArrayIndex === -1 ? text : text.slice(0, rawArrayIndex);
 }
 
+export function parseSseEvent(rawEvent: string): { eventType: string; data: string } | null {
+  if (!rawEvent.trim()) return null;
+  let eventType = '';
+  let data = '';
+  for (const line of rawEvent.split('\n')) {
+    if (line.startsWith('event: ')) {
+      eventType = line.slice(7).trim();
+    } else if (line.startsWith('data: ')) {
+      data = line.slice(6);
+    }
+  }
+  if (eventType === '') return null;
+  return { eventType, data };
+}
+
 async function downloadDeck(cards: ChatCard[], deckName: string): Promise<void> {
   const response = await post('/api/chat/deck', { cards, deckName });
   if (!response.ok) {
@@ -315,6 +330,59 @@ export default function ChatPanel({
       return;
     }
 
+    const handleSseToken = (data: string) => {
+      const text = JSON.parse(data) as string;
+      setStreamingText((prev) => prev + text);
+    };
+
+    const handleSseDone = (data: string) => {
+      const result = JSON.parse(data) as ApiDonePayload;
+      const assistantMessage: Message = {
+        role: 'assistant',
+        content: result.content,
+        contentBefore: result.contentBefore,
+        contentAfter: result.contentAfter,
+        cards: result.cards,
+      };
+      setMessages((prev) => [...prev, assistantMessage]);
+      setStreamingText('');
+      setMessagesUsedThisMonth((n) => n + 1);
+      setActiveConversationId(result.conversationId);
+      lastSavedDraftRef.current = '';
+      const provisionalTitle =
+        content.length > 60 ? `${content.slice(0, 60).trimEnd()}…` : content;
+      onConversationCreated?.(result.conversationId, provisionalTitle);
+      if (result.cards != null && result.cards.length > 0) {
+        onCardsGenerated?.(result.cards);
+      }
+    };
+
+    const handleSseError = (data: string) => {
+      const err = JSON.parse(data) as ApiErrorPayload;
+      if (err.type === 'rate_limit') {
+        setLimitReached(true);
+        if (err.resetDate != null) setResetDate(err.resetDate);
+        return;
+      }
+      if (err.type === 'conversation_not_found') {
+        setNetworkError('This conversation is gone. Start a new one.');
+        setActiveConversationId(null);
+        onConversationNotFound?.();
+        return;
+      }
+      if (err.type === 'consent_required') {
+        setShowConsentModal(true);
+        return;
+      }
+      setNetworkError("Couldn't send this message. Try again.");
+    };
+
+    const dispatchSseEvent = (eventType: string, data: string) => {
+      if (eventType === 'token') return handleSseToken(data);
+      if (eventType === 'done') return handleSseDone(data);
+      if (eventType === 'error') return handleSseError(data);
+    };
+
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
@@ -329,58 +397,8 @@ export default function ChatPanel({
         buffer = events.pop() ?? '';
 
         for (const rawEvent of events) {
-          if (!rawEvent.trim()) continue;
-
-          const lines = rawEvent.split('\n');
-          let eventType = '';
-          let data = '';
-
-          for (const line of lines) {
-            if (line.startsWith('event: ')) {
-              eventType = line.slice(7).trim();
-            } else if (line.startsWith('data: ')) {
-              data = line.slice(6);
-            }
-          }
-
-          if (eventType === 'token') {
-            const text = JSON.parse(data) as string;
-            setStreamingText((prev) => prev + text);
-          } else if (eventType === 'done') {
-            const result = JSON.parse(data) as ApiDonePayload;
-            const assistantMessage: Message = {
-              role: 'assistant',
-              content: result.content,
-              contentBefore: result.contentBefore,
-              contentAfter: result.contentAfter,
-              cards: result.cards,
-            };
-            setMessages((prev) => [...prev, assistantMessage]);
-            setStreamingText('');
-            setMessagesUsedThisMonth((n) => n + 1);
-            setActiveConversationId(result.conversationId);
-            lastSavedDraftRef.current = '';
-            const provisionalTitle =
-              content.length > 60 ? `${content.slice(0, 60).trimEnd()}…` : content;
-            onConversationCreated?.(result.conversationId, provisionalTitle);
-            if (result.cards != null && result.cards.length > 0) {
-              onCardsGenerated?.(result.cards);
-            }
-          } else if (eventType === 'error') {
-            const err = JSON.parse(data) as ApiErrorPayload;
-            if (err.type === 'rate_limit') {
-              setLimitReached(true);
-              if (err.resetDate != null) setResetDate(err.resetDate);
-            } else if (err.type === 'conversation_not_found') {
-              setNetworkError('This conversation is gone. Start a new one.');
-              setActiveConversationId(null);
-              onConversationNotFound?.();
-            } else if (err.type === 'consent_required') {
-              setShowConsentModal(true);
-            } else {
-              setNetworkError("Couldn't send this message. Try again.");
-            }
-          }
+          const parsed = parseSseEvent(rawEvent);
+          if (parsed != null) dispatchSseEvent(parsed.eventType, parsed.data);
         }
       }
     } catch {
