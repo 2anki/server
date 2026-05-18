@@ -79,6 +79,16 @@ class CardOption {
 
   readonly userInstructions?: string;
 
+  readonly mcqShowChoices: 'auto' | 'button';
+
+  readonly mcqShuffle: boolean;
+
+  readonly mcqTtsQuestion: string;
+
+  readonly mcqTtsCorrectAnswer: string;
+
+  readonly mcqTtsExtra: string;
+
   constructor(input: { [key: string]: string }) {
     this.deckName = input.deckName;
     if (this.deckName && !this.deckName.trim()) {
@@ -125,7 +135,15 @@ class CardOption {
     this.nestedBulletPoints = input['markdown-nested-bullet-points'] === 'true';
     this.userInstructions =
       input['user-instructions'] ?? getDefaultUserInstructions();
-    console.log('this.userInstructions', this.userInstructions);
+    const rawShowChoices = input['mcq-show-choices'];
+    this.mcqShowChoices =
+      rawShowChoices === 'auto' || rawShowChoices === 'button'
+        ? rawShowChoices
+        : 'button';
+    this.mcqShuffle = input['mcq-shuffle'] !== 'false';
+    this.mcqTtsQuestion = input['mcq-tts-question'] ?? '';
+    this.mcqTtsCorrectAnswer = input['mcq-tts-correct-answer'] ?? '';
+    this.mcqTtsExtra = input['mcq-tts-extra'] ?? '';
     this.retrieveTemplates(input);
   }
 
@@ -166,6 +184,11 @@ class CardOption {
       'markdown-nested-bullet-points': 'true',
       'claude-ai-flashcards': 'false',
       'share-files-for-debugging': 'false',
+      'mcq-show-choices': 'button',
+      'mcq-shuffle': 'true',
+      'mcq-tts-question': '',
+      'mcq-tts-correct-answer': '',
+      'mcq-tts-extra': '',
     };
   }
 }

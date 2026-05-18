@@ -9,6 +9,11 @@ export const CARD_OPTION_KEYS = [
   'input_model_name',
   'user-instructions',
   'skip-defaults',
+  'mcq-show-choices',
+  'mcq-shuffle',
+  'mcq-tts-question',
+  'mcq-tts-correct-answer',
+  'mcq-tts-extra',
 ] as const;
 
 const PREFERENCES_URL = '/api/users/me/preferences';
