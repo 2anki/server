@@ -49,7 +49,7 @@ The hot path. Every Notion page, HTML export, markdown file, or zip the user upl
 
 **Count threading:** `DeckParser.extractCards()` returns `{ cards, mcqCount, mcqSkippedCount }`. These are stored on the `Deck` object and summed in `PrepareDeck`, then sent as `X-MCQ-Count` / `X-MCQ-Skipped-Count` response headers.
 
-**Authoring guide:** `Documentation/authoring/notion-mcq.md` — user-facing guide to authoring MCQ cards in Notion.
+**Authoring guide:** `web/src/pages/DocsPage/content/cards/mcq.md` — user-facing guide rendered at `/documentation/cards/mcq`. Update both the body and the brief MCQ section in `card-types.md` when the detection contract changes.
 
 ## Things to know before editing
 

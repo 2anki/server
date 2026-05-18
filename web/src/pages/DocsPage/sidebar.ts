@@ -27,6 +27,7 @@ export const sidebar: SidebarGroup[] = [
     items: [
       { label: 'Card options', slug: 'cards/card-options' },
       { label: 'Card types', slug: 'cards/card-types' },
+      { label: 'Multiple choice questions', slug: 'cards/mcq' },
       { label: 'Notion blocks we support', slug: 'cards/notion-blocks' },
       { label: 'Markdown and Obsidian', slug: 'cards/markdown' },
       { label: 'HTML', slug: 'cards/html' },
