@@ -28,6 +28,7 @@ describe('extractPdfText', () => {
     const result: PdfExtractionResult = await extractPdfText(FIXTURE_BUFFER);
 
     expect(result.isDrmLocked).toBe(false);
+    expect(result.needsCredential).toBe(false);
     expect(result.pageCount).toBe(3);
     expect(result.pages.length).toBeGreaterThan(0);
     expect(result.avgCharsPerPage).toBeGreaterThan(10);
@@ -46,6 +47,7 @@ describe('extractPdfText', () => {
     const result = await extractPdfText(FIXTURE_BUFFER);
 
     expect(result.isDrmLocked).toBe(true);
+    expect(result.needsCredential).toBe(false);
     expect(result.pageCount).toBe(10);
   });
 
@@ -62,15 +64,58 @@ describe('extractPdfText', () => {
     const result = await extractPdfText(FIXTURE_BUFFER);
 
     expect(result.isDrmLocked).toBe(false);
+    expect(result.needsCredential).toBe(false);
     expect(result.pageCount).toBe(1);
     expect(result.pages).toHaveLength(1);
   });
 
-  it('propagates pdf-parse errors', async () => {
+  it('returns needsCredential true when pdf-parse throws a PasswordException', async () => {
+    const passwordError = new Error('No password given');
+    passwordError.name = 'PasswordException';
+    mockPdfParse.mockRejectedValueOnce(passwordError);
+
+    const result = await extractPdfText(FIXTURE_BUFFER);
+
+    expect(result.needsCredential).toBe(true);
+    expect(result.isDrmLocked).toBe(false);
+    expect(result.pageCount).toBe(0);
+    expect(result.pages).toHaveLength(0);
+  });
+
+  it('returns needsCredential true for encrypted PDF with wrong credential', async () => {
+    const passwordError = new Error('Incorrect Password');
+    passwordError.name = 'PasswordException';
+    mockPdfParse.mockRejectedValueOnce(passwordError);
+
+    const result = await extractPdfText(FIXTURE_BUFFER, 'wrong-password');
+
+    expect(result.needsCredential).toBe(true);
+    expect(result.isDrmLocked).toBe(false);
+  });
+
+  it('propagates non-password pdf-parse errors', async () => {
     mockPdfParse.mockRejectedValueOnce(new Error('Invalid PDF structure'));
 
     await expect(extractPdfText(FIXTURE_BUFFER)).rejects.toThrow(
       'Invalid PDF structure'
     );
+  });
+
+  it('passes credential to pdfParse as userPassword option', async () => {
+    mockPdfParse.mockResolvedValueOnce({
+      numpages: 2,
+      text: 'Secure content on page one.\n\nMore secure content on page two.',
+      info: {},
+      metadata: null,
+      version: 'v1.10.100' as const,
+      numrender: 2,
+    });
+
+    const result = await extractPdfText(FIXTURE_BUFFER, 'correct-password');
+
+    expect(mockPdfParse).toHaveBeenCalledWith(FIXTURE_BUFFER, { userPassword: 'correct-password' });
+    expect(result.needsCredential).toBe(false);
+    expect(result.isDrmLocked).toBe(false);
+    expect(result.pageCount).toBe(2);
   });
 });

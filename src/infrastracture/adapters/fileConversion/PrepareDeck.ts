@@ -105,8 +105,13 @@ async function convertFile(
   if (isPDFFile(file.name) && input.settings.processPDFs !== false) {
     const textResult = await convertPdfTextToHtml(
       file.contents as Buffer,
-      file.name
+      file.name,
+      input.pdfCredential
     );
+
+    if (textResult.needsCredential) {
+      throw new Error(`PDF_NEEDS_PASSWORD:${file.name}`);
+    }
 
     if (!textResult.isDrmLocked && textResult.cardCount > 0) {
       console.log('[PrepareDeck] convertFile pdf→text→html', {

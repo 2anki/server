@@ -9,6 +9,7 @@ export interface PdfExtractionResult {
   pageCount: number;
   avgCharsPerPage: number;
   isDrmLocked: boolean;
+  needsCredential: boolean;
 }
 
 const DRM_CHARS_PER_PAGE_THRESHOLD = 10;
@@ -34,11 +35,45 @@ function splitIntoPages(fullText: string, pageCount: number): PdfPage[] {
   }));
 }
 
+function isPasswordException(error: unknown): boolean {
+  return (
+    error instanceof Error &&
+    (error.name === 'PasswordException' ||
+      error.message.toLowerCase().includes('password') ||
+      error.message.toLowerCase().includes('encrypted'))
+  );
+}
+
 export async function extractPdfText(
-  buffer: Buffer
+  buffer: Buffer,
+  credential?: string
 ): Promise<PdfExtractionResult> {
   const t0 = Date.now();
-  const result = await pdfParse(buffer);
+
+  const parseOptions = credential != null ? { userPassword: credential } : undefined;
+
+  let result;
+  try {
+    result = credential != null
+      ? await pdfParse(buffer, parseOptions)
+      : await pdfParse(buffer);
+  } catch (error) {
+    if (isPasswordException(error)) {
+      console.info('[extractPdfText] password-protected PDF detected', {
+        credentialProvided: credential != null,
+        durationMs: Date.now() - t0,
+      });
+      return {
+        pages: [],
+        pageCount: 0,
+        avgCharsPerPage: 0,
+        isDrmLocked: false,
+        needsCredential: true,
+      };
+    }
+    throw error;
+  }
+
   const pageCount = result.numpages;
   const totalChars = result.text.length;
   const avgCharsPerPage = pageCount > 0 ? totalChars / pageCount : 0;
@@ -51,8 +86,9 @@ export async function extractPdfText(
     pageCount,
     avgCharsPerPage: Math.round(avgCharsPerPage),
     isDrmLocked,
+    credentialProvided: credential != null,
     durationMs: Date.now() - t0,
   });
 
-  return { pages, pageCount, avgCharsPerPage, isDrmLocked };
+  return { pages, pageCount, avgCharsPerPage, isDrmLocked, needsCredential: false };
 }

@@ -4,13 +4,13 @@ The hot path. Every Notion page, HTML export, markdown file, or zip the user upl
 
 ## Entry points
 
-- `DeckParser.ts` — orchestrates a full conversion: file → blocks → notes → packaged `Deck`.
+- `DeckParser.ts` — orchestrates a full conversion: file → blocks → notes → packaged `Deck`. `DeckParserInput` accepts an optional `pdfCredential?: string` that is threaded through to the PDF extraction layer; never log or store it.
 - `Deck.ts` / `Note.ts` / `Package.ts` — domain types for what a card looks like.
 - `findNotionToggleLists.ts` — toggle-list detection on the Notion HTML export. The original primitive the project was built on.
 - `guessMarkdownCards.ts` — fallback for raw markdown without toggle structure.
 - `exporters/CustomExporter.ts` + `embedFile.ts` — write the `.apkg` (sqlite + media) for download. `configure()` wraps `JSON.stringify` to convert `RangeError` (V8 "Invalid string length") into `DeckTooLargeError` so the caller gets a typed error instead of a raw engine exception.
 - `exporters/DeckTooLargeError.ts` — typed error thrown when the deck payload is too large to serialize. Caught by `UploadService` and mapped to a clean 400 response.
-- `extractPdfText.ts` — extracts per-page text from a PDF buffer using `pdf-parse`. Returns `isDrmLocked: true` when average chars/page is below 10 (DRM or image-only PDF). Logged via `[extractPdfText] result` for production monitoring.
+- `extractPdfText.ts` — extracts per-page text from a PDF buffer using `pdf-parse`. Accepts an optional `credential` parameter passed as `{ userPassword }` to `pdf-parse`. Returns `isDrmLocked: true` when average chars/page is below 10 (DRM or image-only PDF); returns `needsCredential: true` when `pdf-parse` throws a `PasswordException` (encrypted PDF with no or wrong credential). Logged via `[extractPdfText] result` for production monitoring.
 - `synthesizeCardsFromPdf.ts` — converts `PdfPage[]` into `PdfCard[]` using the slide-pair model: page N is the card front, page N+1 is the back. Blank pages in either slot are skipped. Pure function, no I/O.
 - `xlsx/` — spreadsheet → cards path.
 - `canary/scheduleParserCanary.ts` — daily job (03:00 UTC) that runs the fixture corpus through the live parser and emails `SUPPORT_EMAIL_ADDRESS` on any count divergence. Wired in `server.ts`.
