@@ -3,7 +3,30 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 import JobService from '../services/JobService';
+import { JobWithDownloadKey } from '../data_layer/JobRepository';
 import { getOwner } from '../lib/User/getOwner';
+
+interface JobListItem extends JobWithDownloadKey {
+  restartable: boolean;
+}
+
+function toJobListItem(job: JobWithDownloadKey): JobListItem {
+  return {
+    id: job.id,
+    owner: job.owner,
+    object_id: job.object_id,
+    status: job.status,
+    created_at: job.created_at,
+    last_edited_time: job.last_edited_time,
+    title: job.title,
+    type: job.type,
+    job_reason_failure: job.job_reason_failure,
+    card_count: job.card_count,
+    download_key: job.download_key,
+    upload_id: job.upload_id,
+    restartable: true,
+  };
+}
 
 class JobController {
   constructor(private readonly service: JobService) {}
@@ -15,7 +38,7 @@ class JobController {
       return;
     }
     const jobs = await this.service.getJobsByOwner(owner);
-    res.send(jobs.map((j) => ({ ...j, restartable: true })));
+    res.send(jobs.map(toJobListItem));
   }
 
   async downloadJobResult(req: express.Request, res: express.Response) {

@@ -7,4 +7,6 @@ import Jobs from './Jobs';
  */
 export default interface JobResponse extends Jobs {
   restartable: boolean;
+  download_key: string | null;
+  upload_id: number | null;
 }

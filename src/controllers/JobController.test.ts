@@ -13,7 +13,8 @@ describe('JobController', () => {
     jobService = {
       getJobsByOwner: jest.fn(),
       deleteJobById: jest.fn(),
-    } as any;
+      findJobByObjectId: jest.fn(),
+    } as unknown as JobService;
     jobController = new JobController(jobService);
     req = { params: { id: '123' } };
     res = {
@@ -27,8 +28,8 @@ describe('JobController', () => {
 
   it('should get jobs by owner and send them', async () => {
     const mockJobs = [
-      { id: 1, title: 'job1' },
-      { id: 2, title: 'job2' },
+      { id: 1, title: 'job1', download_key: null },
+      { id: 2, title: 'job2', download_key: null },
     ];
     (jobService.getJobsByOwner as jest.Mock).mockResolvedValue(mockJobs);
     await jobController.getJobsByOwner(
@@ -37,9 +38,93 @@ describe('JobController', () => {
     );
     expect(jobService.getJobsByOwner).toHaveBeenCalled();
     expect(res.send).toHaveBeenCalledWith([
-      { id: 1, title: 'job1', restartable: true },
-      { id: 2, title: 'job2', restartable: true },
+      { id: 1, title: 'job1', download_key: null, restartable: true },
+      { id: 2, title: 'job2', download_key: null, restartable: true },
     ]);
+  });
+
+  it('exposes download_key for a done Notion job with a matching upload', async () => {
+    const mockJobs = [
+      {
+        id: 1,
+        title: 'Notion Deck',
+        object_id: 'notion-page-uuid',
+        status: 'done',
+        owner: 'owner1',
+        type: 'page',
+        download_key: 'abc123.apkg',
+      },
+    ];
+    (jobService.getJobsByOwner as jest.Mock).mockResolvedValue(mockJobs);
+    await jobController.getJobsByOwner(
+      req as express.Request,
+      res as express.Response
+    );
+    const sent = (res.send as jest.Mock).mock.calls[0][0] as Array<{ download_key: string | null }>;
+    expect(sent[0].download_key).toBe('abc123.apkg');
+  });
+
+  it('returns download_key for a done upload job with a matching upload', async () => {
+    const mockJobs = [
+      {
+        id: 2,
+        title: 'Upload Deck',
+        object_id: 'upload-obj-id',
+        status: 'done',
+        owner: 'owner1',
+        type: 'claude',
+        download_key: 'upload-key.apkg',
+      },
+    ];
+    (jobService.getJobsByOwner as jest.Mock).mockResolvedValue(mockJobs);
+    await jobController.getJobsByOwner(
+      req as express.Request,
+      res as express.Response
+    );
+    const sent = (res.send as jest.Mock).mock.calls[0][0] as Array<{ download_key: string | null }>;
+    expect(sent[0].download_key).toBe('upload-key.apkg');
+  });
+
+  it('returns download_key: null for an in-progress job', async () => {
+    const mockJobs = [
+      {
+        id: 3,
+        title: 'In Progress',
+        object_id: 'in-progress-obj',
+        status: 'started',
+        owner: 'owner1',
+        type: 'page',
+        download_key: null,
+      },
+    ];
+    (jobService.getJobsByOwner as jest.Mock).mockResolvedValue(mockJobs);
+    await jobController.getJobsByOwner(
+      req as express.Request,
+      res as express.Response
+    );
+    const sent = (res.send as jest.Mock).mock.calls[0][0] as Array<{ download_key: string | null }>;
+    expect(sent[0].download_key).toBeNull();
+  });
+
+  it('cross-owner guard: user A does not receive user B download_key for same object_id', async () => {
+    const mockJobsForOwner1 = [
+      {
+        id: 4,
+        title: 'Shared Object',
+        object_id: 'shared-obj-id',
+        status: 'done',
+        owner: 'owner1',
+        type: 'page',
+        download_key: null,
+      },
+    ];
+    (jobService.getJobsByOwner as jest.Mock).mockResolvedValue(mockJobsForOwner1);
+    await jobController.getJobsByOwner(
+      req as express.Request,
+      res as express.Response
+    );
+    const sent = (res.send as jest.Mock).mock.calls[0][0] as Array<{ download_key: string | null }>;
+    expect(sent[0].download_key).toBeNull();
   });
 
   it('should delete job by owner and send 200', async () => {
