@@ -5,6 +5,7 @@ export interface ChangelogEntry {
 }
 
 export const changelog: ChangelogEntry[] = [
+  { type: 'feature', title: 'Sidebar collapses to icons only — toggle at the bottom, choice sticks across sessions', date: '2026-05-18' },
   { type: 'feature', title: 'Upload errors — talk to Claude inline instead of jumping to a separate page', date: '2026-05-18' },
   { type: 'fix', title: 'Recovery screen — reload first, only reset local data if that does not fix it', date: '2026-05-18' },
   { type: 'feature', title: 'Empty deck — ask Claude what to fix without leaving the upload page', date: '2026-05-18' },
