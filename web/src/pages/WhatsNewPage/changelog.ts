@@ -5,6 +5,7 @@ export interface ChangelogEntry {
 }
 
 export const changelog: ChangelogEntry[] = [
+  { type: 'feature', title: 'PDF files convert into decks — drop a PDF and each pair of pages becomes a card, front and back', date: '2026-05-18' },
   { type: 'fix', title: 'My decks — downloading a deck you converted from Notion works and the duplicate row is gone', date: '2026-05-18' },
   { type: 'feature', title: 'Cleaner download page after a multi-deck upload — clearer filenames, total size, and the expiry sits next to the download-all button', date: '2026-05-18' },
   { type: 'style', title: 'Pricing page — Auto Sync and Unlimited lead, Day Pass and Week Pass fold into a compact row below', date: '2026-05-18' },
