@@ -157,3 +157,79 @@ describe('DownloadController.getBulkDownload', () => {
     expect(Buffer.concat(chunks).subarray(0, 2).toString()).toBe('PK');
   });
 });
+
+describe('DownloadController.getDownloadPage view model', () => {
+  let workspaceBase: string;
+  let originalWorkspaceBase: string | undefined;
+
+  beforeEach(() => {
+    workspaceBase = fs.mkdtempSync(path.join(os.tmpdir(), 'dl-page-test-'));
+    originalWorkspaceBase = process.env.WORKSPACE_BASE;
+    process.env.WORKSPACE_BASE = workspaceBase;
+  });
+
+  afterEach(() => {
+    fs.rmSync(workspaceBase, { recursive: true, force: true });
+    if (originalWorkspaceBase === undefined) {
+      delete process.env.WORKSPACE_BASE;
+    } else {
+      process.env.WORKSPACE_BASE = originalWorkspaceBase;
+    }
+  });
+
+  function makeJobRepository(title: string | null = null) {
+    return {
+      findJobByObjectId: jest.fn().mockResolvedValue(title != null ? { title, created_at: new Date() } : undefined),
+    };
+  }
+
+  it('renders page HTML with displayName for each .apkg file', async () => {
+    const id = 'ws-view-model';
+    const workspace = path.join(workspaceBase, id);
+    fs.mkdirSync(workspace);
+    fs.writeFileSync(path.join(workspace, '-Biology-Notes-5827131637243234.apkg'), 'x'.repeat(1000));
+
+    const controller = new DownloadController(makeService() as any, makeJobRepository('My Source') as any);
+    const req = { params: { id } } as unknown as Request;
+    const res = mockResponse();
+
+    await controller.getDownloadPage(req, res);
+
+    const html = (res.send as jest.Mock).mock.calls[0][0] as string;
+    expect(html).toContain('Biology Notes');
+    expect(html).toContain('My Source');
+    expect(html).not.toContain('>-Biology-Notes-5827131637243234.apkg<');
+  });
+
+  it('renders without subhead when jobs row is missing', async () => {
+    const id = 'ws-no-job';
+    const workspace = path.join(workspaceBase, id);
+    fs.mkdirSync(workspace);
+    fs.writeFileSync(path.join(workspace, 'Deck-A.apkg'), 'data');
+
+    const controller = new DownloadController(makeService() as any, makeJobRepository(null) as any);
+    const req = { params: { id } } as unknown as Request;
+    const res = mockResponse();
+
+    await controller.getDownloadPage(req, res);
+
+    const html = (res.send as jest.Mock).mock.calls[0][0] as string;
+    expect(html).toContain('1 deck ready');
+    expect(html).not.toContain('From ');
+  });
+
+  it('renders empty state when workspace has no .apkg files', async () => {
+    const id = 'ws-empty';
+    const workspace = path.join(workspaceBase, id);
+    fs.mkdirSync(workspace);
+
+    const controller = new DownloadController(makeService() as any, makeJobRepository(null) as any);
+    const req = { params: { id } } as unknown as Request;
+    const res = mockResponse();
+
+    await controller.getDownloadPage(req, res);
+
+    const html = (res.send as jest.Mock).mock.calls[0][0] as string;
+    expect(html).toContain('No decks found in your upload');
+  });
+});

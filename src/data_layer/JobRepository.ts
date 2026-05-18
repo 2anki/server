@@ -38,6 +38,13 @@ class JobRepository {
       .first();
   }
 
+  findJobByObjectId(objectId: string): Promise<Jobs | undefined> {
+    return this.database<Jobs>(this.tableName)
+      .where({ object_id: objectId })
+      .select('title', 'created_at')
+      .first();
+  }
+
   markInterruptedClaudeJobs() {
     return this.database(this.tableName)
       .whereNotIn('status', ['done', 'failed', 'cancelled', 'interrupted'])
