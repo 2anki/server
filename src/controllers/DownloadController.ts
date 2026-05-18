@@ -10,6 +10,7 @@ import { buildContentDisposition } from '../lib/buildContentDisposition';
 import { getSafeFilename } from '../lib/getSafeFilename';
 import { formatDeckName } from '../lib/formatDeckName';
 import JobRepository from '../data_layer/JobRepository';
+import { track } from '../services/events/track';
 
 export interface DownloadFileViewModel {
   originalName: string;
@@ -145,6 +146,7 @@ class DownloadController {
     if (!canAccess(filePath, workspace) || !fs.existsSync(filePath)) {
       return res.status(404).end();
     }
+    track('deck_downloaded', { props: { workspace_id: id, bulk: false } });
     return res.sendFile(filePath);
   }
 
@@ -183,6 +185,10 @@ class DownloadController {
 
       res.setHeader('Content-Type', 'application/zip');
       res.setHeader('Content-Disposition', buildContentDisposition(`anki-decks-${id}.zip`));
+
+      track('deck_downloaded', {
+        props: { workspace_id: id, bulk: true, file_count: ankiFiles.length },
+      });
 
       archive.pipe(res);
       ankiFiles.forEach((file) => {
