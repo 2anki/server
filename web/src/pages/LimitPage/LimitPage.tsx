@@ -1,0 +1,149 @@
+import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
+import { track } from '../../lib/analytics/track';
+import { get2ankiApi } from '../../lib/backend/get2ankiApi';
+import { getSubscribeLink } from '../PricingPage/payment.links';
+import { useUserLocals } from '../../lib/hooks/useUserLocals';
+import {
+  AUTO_SYNC_PRICE,
+  MONTHLY_PRICE,
+  MONTHLY_SUFFIX,
+} from '../PricingPage/pricing.constants';
+import styles from './LimitPage.module.css';
+
+const REF = 'limit-wall';
+
+const UNLIMITED_BENEFITS = [
+  'Unlimited flashcards',
+  'Run multiple conversions at once',
+  'PDFs and large Notion exports',
+  'Cancel anytime',
+];
+
+const AUTO_SYNC_BENEFITS = [
+  'Everything in Unlimited',
+  'Notion edits sync to Anki every 5 minutes',
+  'No exports, no manual steps',
+  'Cancel anytime',
+];
+
+export function LimitPage() {
+  const { data: userLocals } = useUserLocals();
+  const email = userLocals?.user?.email;
+  const isLoggedIn = userLocals?.user?.id != null;
+  const [autoSyncPending, setAutoSyncPending] = useState(false);
+  const [autoSyncError, setAutoSyncError] = useState<string | null>(null);
+
+  useEffect(() => {
+    track('paywall_shown', { surface: REF });
+  }, []);
+
+  const handleAutoSyncClick = async () => {
+    if (!isLoggedIn) {
+      globalThis.location.href = `/login?redirect=/limit&ref=${REF}`;
+      return;
+    }
+    track('paywall_upgrade_clicked', { surface: REF, plan: 'auto_sync' });
+    setAutoSyncPending(true);
+    setAutoSyncError(null);
+    try {
+      const result = await get2ankiApi().startAutoSyncCheckout();
+      if ('url' in result) {
+        globalThis.location.href = result.url;
+        return;
+      }
+      if (result.status === 'already_subscribed') {
+        globalThis.location.href = '/ankify/setup';
+        return;
+      }
+      setAutoSyncError("Couldn't start checkout. Try again or email support@2anki.net.");
+    } finally {
+      setAutoSyncPending(false);
+    }
+  };
+
+  const unlimitedLink = isLoggedIn
+    ? `${getSubscribeLink(email)}&ref=${REF}`
+    : `/login?redirect=/pricing&ref=${REF}`;
+
+  return (
+    <div className={styles.page}>
+      <Helmet>
+        <title>You reached your monthly limit | 2anki</title>
+      </Helmet>
+
+      <header className={styles.header}>
+        <h1 className={styles.heading}>You reached 100 cards this month</h1>
+        <p className={styles.subheading}>
+          Upgrade to keep converting — no cap, no wait.
+        </p>
+      </header>
+
+      <div className={styles.plans}>
+        <div className={styles.planCard}>
+          <p className={styles.planBadge}>Most popular</p>
+          <p className={styles.planTitle}>Unlimited</p>
+          <p className={styles.planPrice}>
+            {MONTHLY_PRICE}
+            <span className={styles.planPriceSuffix}>{MONTHLY_SUFFIX}</span>
+          </p>
+          <ul className={styles.planBenefits}>
+            {UNLIMITED_BENEFITS.map((b) => (
+              <li key={b} className={styles.planBenefit}>
+                {b}
+              </li>
+            ))}
+          </ul>
+          <a
+            href={unlimitedLink}
+            className={styles.planCtaSecondary}
+            onClick={() =>
+              track('paywall_upgrade_clicked', {
+                surface: REF,
+                plan: 'unlimited',
+              })
+            }
+          >
+            Upgrade to Unlimited
+          </a>
+        </div>
+
+        <div className={`${styles.planCard} ${styles.planCardFeatured}`}>
+          <p className={styles.planBadge}>Never re-upload again</p>
+          <p className={styles.planTitle}>Auto Sync</p>
+          <p className={styles.planPrice}>
+            {AUTO_SYNC_PRICE}
+            <span className={styles.planPriceSuffix}>{MONTHLY_SUFFIX}</span>
+          </p>
+          <ul className={styles.planBenefits}>
+            {AUTO_SYNC_BENEFITS.map((b) => (
+              <li key={b} className={styles.planBenefit}>
+                {b}
+              </li>
+            ))}
+          </ul>
+          <button
+            type="button"
+            className={styles.planCtaPrimary}
+            onClick={handleAutoSyncClick}
+            disabled={autoSyncPending}
+          >
+            {autoSyncPending ? 'Starting checkout…' : 'Get Auto Sync'}
+          </button>
+          {autoSyncError && (
+            <p className={styles.planError} role="alert">
+              {autoSyncError}
+            </p>
+          )}
+        </div>
+      </div>
+
+      <p className={styles.backLink}>
+        <Link to="/upload">Back to upload</Link>
+      </p>
+    </div>
+  );
+}
+
+export default LimitPage;

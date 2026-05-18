@@ -38,9 +38,9 @@ export const handleUploadLimitError = async (
       } catch (err) {
         console.error('[handleUploadLimitError] Stripe sync failed:', err);
       }
-      return response.redirect('/pricing?error=upload_limit_exceeded');
+      return response.redirect('/limit');
     }
   }
 
-  response.redirect('/login?error=upload_limit_exceeded');
+  response.redirect('/limit');
 };
