@@ -11,6 +11,7 @@ The hot path. Every Notion page, HTML export, markdown file, or zip the user upl
 - `exporters/CustomExporter.ts` + `embedFile.ts` — write the `.apkg` (sqlite + media) for download. `configure()` wraps `JSON.stringify` to convert `RangeError` (V8 "Invalid string length") into `DeckTooLargeError` so the caller gets a typed error instead of a raw engine exception.
 - `exporters/DeckTooLargeError.ts` — typed error thrown when the deck payload is too large to serialize. Caught by `UploadService` and mapped to a clean 400 response.
 - `xlsx/` — spreadsheet → cards path.
+- `canary/scheduleParserCanary.ts` — daily job (03:00 UTC) that runs the fixture corpus through the live parser and emails `SUPPORT_EMAIL_ADDRESS` on any count divergence. Wired in `server.ts`.
 
 ## Flow
 
@@ -33,5 +34,5 @@ The hot path. Every Notion page, HTML export, markdown file, or zip the user upl
 - `helpers/handleClozeDeletions.ts` merges adjacent `<code>` siblings before numbering clozes. This handles the case where Notion emits one `<code>` per formatting run (bold, italic, color) within a single cloze span.
 - `experimental/` is exactly that — gated behind feature flags. Don't fold it into the main path until the flag is removed.
 - `Settings/` reads per-user parser overrides from `ParserRulesService`. New options need both a setting and a sensible default.
-- `getFileContents.ts` is the only file in this dir that touches the filesystem; keep it that way.
+- `getFileContents.ts` is the only conversion-path file in this dir that touches the filesystem at request time. `canary/scheduleParserCanary.ts` reads fixture files at job time — that is intentional and isolated to the canary subdirectory.
 - This module depends on `lib/anki/` for the lower-level Anki primitives (deck filename, cardgen, sanitization). Don't duplicate those helpers here.

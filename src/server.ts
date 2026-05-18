@@ -63,6 +63,7 @@ import UploadRepository from './data_layer/UploadRespository';
 import { updateStripeSubscriptions } from './lib/storage/jobs/helpers/updateStripeSubscriptions';
 import { scheduleReEngagementEmails } from './lib/reengagement/jobs/scheduleReEngagementEmails';
 import { scheduleInactivityWarnings } from './lib/inactivity/jobs/scheduleInactivityWarnings';
+import { scheduleParserCanary } from './lib/parser/canary/scheduleParserCanary';
 import { getDefaultEmailService } from './services/EmailService/EmailService';
 import { SendInactivityWarningsUseCase } from './usecases/ops/SendInactivityWarningsUseCase';
 
@@ -207,6 +208,7 @@ const serve = async () => {
   const uploadRepo = new UploadRepository(database);
   const sendInactivityWarningsUseCase = new SendInactivityWarningsUseCase(inactivityEmailRepo, emailService, uploadRepo);
   scheduleInactivityWarnings(sendInactivityWarningsUseCase, { eventsSink });
+  scheduleParserCanary(emailService);
 };
 
 serve();
