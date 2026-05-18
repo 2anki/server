@@ -3,9 +3,13 @@ title: Multiple choice questions
 description: Author MCQ-shaped toggles in Notion and get interactive multiple-choice cards in Anki.
 ---
 
-2anki detects multiple-choice questions directly from your Notion export — no plugins, no extra steps. Structure a toggle correctly and you get an interactive MCQ card in Anki instead of a basic front/back card.
+2anki detects multiple-choice questions directly from your notes — no plugins, no extra steps. Structure a toggle correctly and you get an interactive MCQ card in Anki instead of a basic front/back card.
 
-**Plan:** Free (MCQ detection runs on every Notion upload)
+**Plan:** Free
+
+## Enable it first
+
+Multiple choice is opt-in. Go to [Card options](/card-options), expand the **Multiple choice** group, and switch it **On**. Until you do, your toggles convert as Basic cards.
 
 ## What a valid MCQ looks like
 
@@ -81,4 +85,4 @@ If the parser can't determine a single correct answer, it creates a standard tog
 
 ## Scope
 
-MCQ detection runs on Notion HTML exports (`.zip` or `.html`). Markdown, XLSX, PPTX, and Google Docs uploads use the existing basic/cloze pipeline — see [Card types](/documentation/cards/card-types) for those.
+MCQ detection runs on Notion HTML exports (`.zip` or `.html`) and on plain markdown uploads — the same `- Question / - [x] Option` shape works in both. XLSX, PPTX, and Google Docs uploads use the existing basic/cloze pipeline — see [Card types](/documentation/cards/card-types) for those.

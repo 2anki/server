@@ -94,7 +94,7 @@ In Notion's markdown shortcuts:
 
 The full guide with step-by-step worked examples lives on [Multiple choice questions](/documentation/cards/mcq).
 
-MCQ detection runs automatically on Notion HTML exports — no card option to toggle. Toggles that don't match the MCQ shape fall through to Basic, Cloze, or Input as usual.
+MCQ is opt-in. Switch it **On** in [Card options](/card-options) under the **Multiple choice** group, then upload. Detection works on Notion HTML exports and on plain markdown. Toggles that don't match the MCQ shape fall through to Basic, Cloze, or Input as usual.
 
 ## How to switch between them
 

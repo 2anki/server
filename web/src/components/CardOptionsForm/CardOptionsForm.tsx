@@ -47,6 +47,7 @@ const DEFAULT_TEMPLATE = 'specialstyle';
 const DEFAULT_TOGGLE_MODE = 'close_toggle';
 const DEFAULT_PAGE_EMOJI = 'first_emoji';
 const DEFAULT_FONT_SIZE = '20';
+const DEFAULT_MCQ_ENABLED = false;
 const DEFAULT_MCQ_SHOW_CHOICES = 'button';
 const DEFAULT_MCQ_SHUFFLE = true;
 const DEFAULT_MCQ_TTS_LANG = '';
@@ -128,6 +129,7 @@ function computeSnapshot(values: {
   inputName: string;
   userInstructions: string;
   checkboxValues: Record<string, boolean>;
+  mcqEnabled: boolean;
   mcqShowChoices: string;
   mcqShuffle: boolean;
   mcqTtsQuestion: string;
@@ -199,6 +201,9 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
     const [checkboxValues, setCheckboxValues] = useState<
       Record<string, boolean>
     >({});
+    const [mcqEnabled, setMcqEnabled] = useState(
+      getLocalStorageBooleanValue('mcq-enabled', DEFAULT_MCQ_ENABLED.toString(), settings)
+    );
     const [mcqShowChoices, setMcqShowChoices] = useState(
       getLocalStorageValue('mcq-show-choices', DEFAULT_MCQ_SHOW_CHOICES, settings)
     );
@@ -247,6 +252,7 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
       setUserInstructions(
         localStorage.getItem('user-instructions') ?? DEFAULT_USER_INSTRUCTIONS
       );
+      setMcqEnabled((localStorage.getItem('mcq-enabled') ?? DEFAULT_MCQ_ENABLED.toString()) === 'true');
       setMcqShowChoices(localStorage.getItem('mcq-show-choices') ?? DEFAULT_MCQ_SHOW_CHOICES);
       setMcqShuffle((localStorage.getItem('mcq-shuffle') ?? DEFAULT_MCQ_SHUFFLE.toString()) === 'true');
       setMcqTtsQuestion(localStorage.getItem('mcq-tts-question') ?? DEFAULT_MCQ_TTS_LANG);
@@ -275,6 +281,9 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
             setter(payload[key] ?? '');
           }
         });
+        if (Object.hasOwn(payload, 'mcq-enabled')) {
+          setMcqEnabled((payload['mcq-enabled'] ?? 'false') === 'true');
+        }
         if (Object.hasOwn(payload, 'mcq-shuffle')) {
           setMcqShuffle((payload['mcq-shuffle'] ?? 'true') === 'true');
         }
@@ -312,6 +321,7 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
           inputName,
           userInstructions,
           checkboxValues,
+          mcqEnabled,
           mcqShowChoices,
           mcqShuffle,
           mcqTtsQuestion,
@@ -329,6 +339,7 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
         inputName,
         userInstructions,
         checkboxValues,
+        mcqEnabled,
         mcqShowChoices,
         mcqShuffle,
         mcqTtsQuestion,
@@ -412,6 +423,7 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
       payload['font-size'] = fontSize;
       payload['page-emoji'] = pageEmoji;
       payload['user-instructions'] = userInstructions;
+      payload['mcq-enabled'] = mcqEnabled.toString();
       payload['mcq-show-choices'] = mcqShowChoices;
       payload['mcq-shuffle'] = mcqShuffle.toString();
       payload['mcq-tts-question'] = mcqTtsQuestion;
@@ -650,7 +662,29 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
               </div>
               {isCardTypesGroup && (
                 <div className={fieldStyles.optionGroup}>
-                  <h3 className={fieldStyles.groupHeading}>Multiple choice</h3>
+                  <div className={fieldStyles.groupHeader}>
+                    <h3 className={fieldStyles.groupHeading}>Multiple choice</h3>
+                    <div className={fieldStyles.segmented} role="group" aria-label="Enable multiple choice">
+                      {(
+                        [
+                          { label: 'Off', value: false },
+                          { label: 'On', value: true },
+                        ] as const
+                      ).map(({ label, value }) => (
+                        <button
+                          key={label}
+                          type="button"
+                          className={`${fieldStyles.segment} ${mcqEnabled === value ? fieldStyles.segmentActive : ''}`}
+                          onClick={() => {
+                            setMcqEnabled(value);
+                            saveValueInLocalStorage('mcq-enabled', value.toString(), pageId);
+                          }}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                   <p className={fieldStyles.groupIntro}>
                     Multiple choice cards generated from your notes. Learn the syntax in the{' '}
                     <Link to="/documentation/cards/mcq" className={fieldStyles.groupIntroLink}>
@@ -659,80 +693,84 @@ export const CardOptionsForm = forwardRef<CardOptionsFormHandle, Props>(
                     .
                   </p>
 
-                  <div className={fieldStyles.section}>
-                    <div className={fieldStyles.labelRow}>
-                      <label className={fieldStyles.sectionLabel}>Show choices</label>
-                      <FieldHint text="Show all choices up front, or hide them behind a button you click during review." />
-                    </div>
-                    <div className={fieldStyles.segmented}>
-                      {(
-                        [
-                          { label: 'Show up front', value: 'auto' },
-                          { label: 'Hide behind button', value: 'button' },
-                        ] as const
-                      ).map(({ label, value }) => (
-                        <button
-                          key={value}
-                          type="button"
-                          className={`${fieldStyles.segment} ${mcqShowChoices === value ? fieldStyles.segmentActive : ''}`}
-                          onClick={() => {
-                            setMcqShowChoices(value);
-                            saveValueInLocalStorage('mcq-show-choices', value, pageId);
-                          }}
-                        >
-                          {label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <LocalCheckbox
-                    defaultValue={mcqShuffle}
-                    label="Shuffle choices"
-                    description="Choices appear in a different order each review so position is not a hint."
-                    onChecked={(checked) => {
-                      setMcqShuffle(checked);
-                      saveValueInLocalStorage('mcq-shuffle', checked.toString(), pageId);
-                    }}
-                  />
-
-                  <div className={fieldStyles.section}>
-                    <p className={fieldStyles.sectionLabel}>Read aloud</p>
-                    <p className={fieldStyles.sectionHint}>
-                      Pick a voice for each field. Anki will speak it on the card.
-                    </p>
-
-                    {(
-                      [
-                        { label: 'Question', key: 'mcq-tts-question', value: mcqTtsQuestion, setter: setMcqTtsQuestion },
-                        { label: 'Correct answer', key: 'mcq-tts-correct-answer', value: mcqTtsCorrectAnswer, setter: setMcqTtsCorrectAnswer },
-                        { label: 'Extra', key: 'mcq-tts-extra', value: mcqTtsExtra, setter: setMcqTtsExtra },
-                      ] as const
-                    ).map(({ label, key, value, setter }) => (
-                      <div key={key} className={fieldStyles.section}>
+                  {mcqEnabled && (
+                    <>
+                      <div className={fieldStyles.section}>
                         <div className={fieldStyles.labelRow}>
-                          <label htmlFor={key} className={fieldStyles.sectionLabel}>{label}</label>
+                          <label className={fieldStyles.sectionLabel}>Show choices</label>
+                          <FieldHint text="Show all choices up front, or hide them behind a button you click during review." />
                         </div>
-                        <select
-                          id={key}
-                          className={fieldStyles.deckInput}
-                          value={value}
-                          onChange={(e) => {
-                            setter(e.target.value);
-                            saveValueInLocalStorage(key, e.target.value, pageId);
-                          }}
-                        >
-                          {MCQ_TTS_LANGUAGE_OPTIONS.map((opt) => (
-                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        <div className={fieldStyles.segmented}>
+                          {(
+                            [
+                              { label: 'Show up front', value: 'auto' },
+                              { label: 'Hide behind button', value: 'button' },
+                            ] as const
+                          ).map(({ label, value }) => (
+                            <button
+                              key={value}
+                              type="button"
+                              className={`${fieldStyles.segment} ${mcqShowChoices === value ? fieldStyles.segmentActive : ''}`}
+                              onClick={() => {
+                                setMcqShowChoices(value);
+                                saveValueInLocalStorage('mcq-show-choices', value, pageId);
+                              }}
+                            >
+                              {label}
+                            </button>
                           ))}
-                        </select>
+                        </div>
                       </div>
-                    ))}
 
-                    <p className={fieldStyles.sectionHint}>
-                      If your Anki device has no installed voice for the picked language, the audio stays silent.
-                    </p>
-                  </div>
+                      <LocalCheckbox
+                        defaultValue={mcqShuffle}
+                        label="Shuffle choices"
+                        description="Choices appear in a different order each review so position is not a hint."
+                        onChecked={(checked) => {
+                          setMcqShuffle(checked);
+                          saveValueInLocalStorage('mcq-shuffle', checked.toString(), pageId);
+                        }}
+                      />
+
+                      <div className={fieldStyles.section}>
+                        <p className={fieldStyles.sectionLabel}>Read aloud</p>
+                        <p className={fieldStyles.sectionHint}>
+                          Pick a voice for each field. Anki will speak it on the card.
+                        </p>
+
+                        {(
+                          [
+                            { label: 'Question', key: 'mcq-tts-question', value: mcqTtsQuestion, setter: setMcqTtsQuestion },
+                            { label: 'Correct answer', key: 'mcq-tts-correct-answer', value: mcqTtsCorrectAnswer, setter: setMcqTtsCorrectAnswer },
+                            { label: 'Extra', key: 'mcq-tts-extra', value: mcqTtsExtra, setter: setMcqTtsExtra },
+                          ] as const
+                        ).map(({ label, key, value, setter }) => (
+                          <div key={key} className={fieldStyles.section}>
+                            <div className={fieldStyles.labelRow}>
+                              <label htmlFor={key} className={fieldStyles.sectionLabel}>{label}</label>
+                            </div>
+                            <select
+                              id={key}
+                              className={fieldStyles.deckInput}
+                              value={value}
+                              onChange={(e) => {
+                                setter(e.target.value);
+                                saveValueInLocalStorage(key, e.target.value, pageId);
+                              }}
+                            >
+                              {MCQ_TTS_LANGUAGE_OPTIONS.map((opt) => (
+                                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                              ))}
+                            </select>
+                          </div>
+                        ))}
+
+                        <p className={fieldStyles.sectionHint}>
+                          If your Anki device has no installed voice for the picked language, the audio stays silent.
+                        </p>
+                      </div>
+                    </>
+                  )}
                 </div>
               )}
             </React.Fragment>
