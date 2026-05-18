@@ -5,6 +5,7 @@ export interface ChangelogEntry {
 }
 
 export const changelog: ChangelogEntry[] = [
+  { type: 'style', title: 'Multiple choice cards — correct rows stand out with a deeper green tint and a green rule on the left', date: '2026-05-18' },
   { type: 'fix', title: 'Deleting a Notion conversion from Downloads removes it in one click instead of two', date: '2026-05-18' },
   { type: 'fix', title: 'Start 1-hour trial on the upload limit screen now actually starts the trial and resumes your upload', date: '2026-05-18' },
   { type: 'feature', title: 'Multiple choice cards (opt-in) — turn it on in Card options, then mark the correct option with a checkbox or bold in Notion or markdown', date: '2026-05-18' },
