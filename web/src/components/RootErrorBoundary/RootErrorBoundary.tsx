@@ -2,27 +2,27 @@ import React, { type ErrorInfo, type ReactNode } from 'react';
 
 import styles from '../../styles/shared.module.css';
 
-type LocalDataRecoveryBoundaryProps = Readonly<{
+type RootErrorBoundaryProps = Readonly<{
   children: ReactNode;
   onError?: (error: Error, errorInfo: ErrorInfo) => void;
   reloadPage?: () => void;
 }>;
 
-type LocalDataRecoveryBoundaryState = {
+type RootErrorBoundaryState = {
   error: Error | null;
   resetFailed: boolean;
 };
 
-export class LocalDataRecoveryBoundary extends React.Component<
-  LocalDataRecoveryBoundaryProps,
-  LocalDataRecoveryBoundaryState
+export class RootErrorBoundary extends React.Component<
+  RootErrorBoundaryProps,
+  RootErrorBoundaryState
 > {
-  state: LocalDataRecoveryBoundaryState = {
+  state: RootErrorBoundaryState = {
     error: null,
     resetFailed: false,
   };
 
-  static getDerivedStateFromError(error: Error): LocalDataRecoveryBoundaryState {
+  static getDerivedStateFromError(error: Error): RootErrorBoundaryState {
     return { error, resetFailed: false };
   }
 
@@ -53,10 +53,9 @@ export class LocalDataRecoveryBoundary extends React.Component<
         <main className={styles.pageNarrow}>
           <section className={styles.card} role="alert" aria-live="assertive">
             <header className={styles.pageHeader}>
-              <h1 className={styles.title}>2anki could not finish loading</h1>
+              <h1 className={styles.title}>Something went wrong loading 2anki</h1>
               <p className={styles.subtitle}>
-                Stored data from a past version is breaking this page. Reset to
-                recover.
+                Try reloading. If that doesn't help, reset local data and reload.
               </p>
             </header>
 
@@ -71,16 +70,16 @@ export class LocalDataRecoveryBoundary extends React.Component<
               <button
                 type="button"
                 className={`${styles.btnPrimary} ${styles.btnInline}`}
-                onClick={this.resetLocalData}
+                onClick={this.reloadPage}
               >
-                Reset local data
+                Reload
               </button>
               <button
                 type="button"
                 className={styles.btnSecondary}
-                onClick={this.reloadPage}
+                onClick={this.resetLocalData}
               >
-                Reload
+                Reset local data
               </button>
             </div>
           </section>
