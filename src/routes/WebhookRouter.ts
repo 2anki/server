@@ -230,34 +230,56 @@ const WebhooksRouter = () => {
           const amount = session.amount_total ?? 0;
 
           const LIFE_TIME_PRICE = 9600;
-          if (amount >= LIFE_TIME_PRICE) {
-            try {
-              const lifeTimeCustomer = await stripe.customers.retrieve(
-                // @ts-ignore
-                getCustomerId(session.customer)
-              );
-              const lifeTimeEmail =
-                'email' in lifeTimeCustomer ? lifeTimeCustomer.email : null;
+          const lifetimePriceIdsEnv = process.env.LIFETIME_PRICE_IDS ?? '';
+          const lifetimePriceIds = lifetimePriceIdsEnv
+            .split(',')
+            .map((s) => s.trim())
+            .filter((s) => s.length > 0);
 
-              if (!lifeTimeEmail) {
-                console.error(
-                  `[webhook] checkout.session.completed: lifetime customer ${lifeTimeCustomer.id} has no email; quota not unlocked`
+          if (amount >= LIFE_TIME_PRICE && lifetimePriceIds.length > 0) {
+            try {
+              const expandedSession = await stripe.checkout.sessions.retrieve(
+                session.id,
+                { expand: ['line_items'] }
+              );
+              const sessionProductId =
+                expandedSession.line_items?.data?.[0]?.price?.product;
+              const isAllowlistedProduct =
+                typeof sessionProductId === 'string' &&
+                lifetimePriceIds.includes(sessionProductId);
+
+              if (isAllowlistedProduct) {
+                const lifeTimeCustomer = await stripe.customers.retrieve(
+                  // @ts-ignore: session.customer is string here; Stripe types allow string | Stripe.Customer | Stripe.DeletedCustomer
+                  getCustomerId(session.customer)
                 );
-              } else {
-                const users = new UsersRepository(getDatabase());
-                const rowsAffected = await users.updatePatreonByEmail(
-                  lifeTimeEmail,
-                  true
-                );
-                if (rowsAffected === 0) {
+                const lifeTimeEmail =
+                  'email' in lifeTimeCustomer ? lifeTimeCustomer.email : null;
+
+                if (lifeTimeEmail == null) {
                   console.error(
-                    `[webhook] checkout.session.completed: no user row matched email=${lifeTimeEmail} for lifetime purchase; quota NOT unlocked. Check for email casing or whitespace mismatch.`
+                    `[webhook] checkout.session.completed: lifetime customer ${lifeTimeCustomer.id} has no email; quota not unlocked`
                   );
                 } else {
-                  console.info(
-                    `[webhook] checkout.session.completed: unlocked lifetime access for email=${lifeTimeEmail} (${rowsAffected} row(s) updated)`
+                  const users = new UsersRepository(getDatabase());
+                  const rowsAffected = await users.updatePatreonByEmail(
+                    lifeTimeEmail,
+                    true
                   );
+                  if (rowsAffected === 0) {
+                    console.error(
+                      `[webhook] checkout.session.completed: no user row matched email=${lifeTimeEmail} for lifetime purchase; quota NOT unlocked. Check for email casing or whitespace mismatch.`
+                    );
+                  } else {
+                    console.info(
+                      `[webhook] checkout.session.completed: unlocked lifetime access for email=${lifeTimeEmail} (${rowsAffected} row(s) updated)`
+                    );
+                  }
                 }
+              } else {
+                console.info(
+                  `[webhook] checkout.session.completed: session ${session.id} amount=${amount} but product=${String(sessionProductId)} not in LIFETIME_PRICE_IDS; skipping lifetime grant`
+                );
               }
             } catch (error) {
               console.error(
