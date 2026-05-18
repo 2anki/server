@@ -6,7 +6,7 @@ import Workspace from '../../lib/parser/WorkSpace';
 import CardOption from '../../lib/parser/Settings';
 import StorageHandler from '../../lib/storage/StorageHandler';
 import CardGenerator from '../../lib/anki/CardGenerator';
-import fs from 'fs/promises';
+import fs from 'node:fs/promises';
 import { toText } from '../../services/NotionService/BlockHandler/helpers/deckNameToText';
 import {
   addDeckNameSuffix,

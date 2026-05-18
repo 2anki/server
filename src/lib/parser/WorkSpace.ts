@@ -1,6 +1,6 @@
 import path from 'path';
 import fs from 'fs';
-import fsp from 'fs/promises';
+import fsp from 'node:fs/promises';
 import { getRandomUUID } from '../../shared/helpers/getRandomUUID';
 
 class Workspace {
