@@ -1,105 +1,142 @@
 import React from 'react';
 
 export const styles: {
-  downloadContainer: React.CSSProperties;
-  downloadHeader: React.CSSProperties;
-  downloadList: React.CSSProperties;
-  downloadItem: React.CSSProperties;
-  downloadItemName: React.CSSProperties;
-  downloadItemLinkHover: React.CSSProperties;
-  downloadItemLink: React.CSSProperties;
-  bulkDownloadButton: React.CSSProperties;
-  pageDescription: React.CSSProperties;
+  pageBackground: React.CSSProperties;
+  container: React.CSSProperties;
+  h1: React.CSSProperties;
+  subhead: React.CSSProperties;
+  ctaRow: React.CSSProperties;
+  ctaButton: React.CSSProperties;
+  expiryLine: React.CSSProperties;
+  list: React.CSSProperties;
+  listItem: React.CSSProperties;
+  itemLink: React.CSSProperties;
+  itemName: React.CSSProperties;
+  itemSize: React.CSSProperties;
+  itemDownload: React.CSSProperties;
+  stickyBar: React.CSSProperties;
+  stickyBarInner: React.CSSProperties;
   footer: React.CSSProperties;
   footerLink: React.CSSProperties;
 } = {
-  downloadContainer: {
-    margin: '0 auto',
-    maxWidth: '800px',
-    padding: '30px',
-    border: '1px solid #e1e4e8',
-    borderRadius: '8px',
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
-    backgroundColor: '#ffffff',
+  pageBackground: {
+    margin: 0,
+    padding: 0,
+    backgroundColor: '#f8fafc',
     fontFamily:
       '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif',
   },
-  downloadHeader: {
+  container: {
+    margin: '0 auto',
+    maxWidth: '720px',
+    padding: '32px 24px',
+  },
+  h1: {
     fontSize: '28px',
-    fontWeight: 'bold',
-    marginBottom: '24px',
-    color: '#2563eb',
+    fontWeight: '700',
+    color: '#0f172a',
+    margin: '0 0 8px 0',
   },
-  downloadList: {
-    listStyle: 'none',
-    padding: '0',
-    margin: '0',
-  },
-  downloadItem: {
-    marginBottom: '12px',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderRadius: '6px',
-    border: '1px solid #e1e4e8',
-    overflow: 'hidden',
-    transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
-  },
-  downloadItemName: {
-    display: 'block',
-    padding: '14px 20px',
-    backgroundColor: '#f8fafc',
-    textDecoration: 'none',
-    color: '#334155',
-    maxWidth: '70%',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
+  subhead: {
     fontSize: '15px',
-    fontWeight: 500,
-  },
-  downloadItemLinkHover: {
-    backgroundColor: '#dbeafe',
-  },
-  downloadItemLink: {
-    padding: '14px 20px',
-    backgroundColor: '#2563eb',
-    color: 'white',
-    textDecoration: 'none',
-    fontWeight: 500,
-    borderRadius: '0 4px 4px 0',
-    transition: 'background-color 0.2s ease-in-out',
-  },
-  bulkDownloadButton: {
-    display: 'inline-block',
-    padding: '12px 24px',
-    backgroundColor: '#2563eb',
-    color: 'white',
-    textDecoration: 'none',
-    fontWeight: 'bold',
-    fontSize: '16px',
-    borderRadius: '6px',
-    transition: 'background-color 0.2s ease-in-out, transform 0.1s ease',
-    boxShadow: '0 2px 4px rgba(37, 99, 235, 0.2)',
-    border: 'none',
-    cursor: 'pointer',
-  },
-  pageDescription: {
     color: '#64748b',
-    fontSize: '16px',
-    lineHeight: 1.6,
+    margin: '0 0 24px 0',
+  },
+  ctaRow: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '16px',
+    flexWrap: 'wrap' as const,
     marginBottom: '32px',
   },
-  footer: {
-    marginTop: '40px',
-    paddingTop: '20px',
-    borderTop: '1px solid #e1e4e8',
-    color: '#64748b',
-    fontSize: '14px',
-    textAlign: 'center' as const,
+  ctaButton: {
+    display: 'inline-block',
+    padding: '10px 20px',
+    backgroundColor: '#2563eb',
+    color: '#ffffff',
+    textDecoration: 'none',
+    fontWeight: '600',
+    fontSize: '15px',
+    borderRadius: '6px',
+    whiteSpace: 'nowrap' as const,
   },
-  footerLink: {
+  expiryLine: {
+    fontSize: '14px',
+    color: '#64748b',
+    margin: 0,
+  },
+  list: {
+    listStyle: 'none',
+    padding: 0,
+    margin: '0 0 40px 0',
+    borderTop: '1px solid #e2e8f0',
+  },
+  listItem: {
+    display: 'flex',
+    alignItems: 'center',
+    padding: '12px 0',
+    borderBottom: '1px solid #e2e8f0',
+    gap: '12px',
+  },
+  itemLink: {
+    display: 'flex',
+    alignItems: 'center',
+    flex: 1,
+    textDecoration: 'none',
+    color: 'inherit',
+    gap: '12px',
+    minWidth: 0,
+  },
+  itemName: {
+    flex: 1,
+    fontSize: '15px',
+    fontWeight: '500',
+    color: '#1e293b',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap' as const,
+  },
+  itemSize: {
+    fontSize: '13px',
+    color: '#94a3b8',
+    whiteSpace: 'nowrap' as const,
+  },
+  itemDownload: {
+    fontSize: '14px',
+    fontWeight: '500',
     color: '#2563eb',
     textDecoration: 'none',
-    fontWeight: 500,
+    padding: '4px 12px',
+    border: '1px solid #2563eb',
+    borderRadius: '4px',
+    whiteSpace: 'nowrap' as const,
+  },
+  stickyBar: {
+    position: 'sticky' as const,
+    top: 0,
+    zIndex: 10,
+    backgroundColor: '#1e293b',
+    borderBottom: '1px solid #334155',
+    padding: '10px 24px',
+  },
+  stickyBarInner: {
+    margin: '0 auto',
+    maxWidth: '720px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: '16px',
+  },
+  footer: {
+    paddingTop: '24px',
+    borderTop: '1px solid #e2e8f0',
+    textAlign: 'center' as const,
+    fontSize: '14px',
+    color: '#94a3b8',
+  },
+  footerLink: {
+    color: '#64748b',
+    textDecoration: 'none',
+    fontWeight: '500',
   },
 };
