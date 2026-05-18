@@ -5,6 +5,7 @@ import path from 'node:path';
 import JobService from '../services/JobService';
 import { JobWithDownloadKey } from '../data_layer/JobRepository';
 import { getOwner } from '../lib/User/getOwner';
+import DeleteJobUseCase from '../usecases/jobs/DeleteJobUseCase';
 
 interface JobListItem extends JobWithDownloadKey {
   restartable: boolean;
@@ -29,7 +30,10 @@ function toJobListItem(job: JobWithDownloadKey): JobListItem {
 }
 
 class JobController {
-  constructor(private readonly service: JobService) {}
+  constructor(
+    private readonly service: JobService,
+    private readonly deleteJobUseCase: DeleteJobUseCase
+  ) {}
 
   async getJobsByOwner(_req: express.Request, res: express.Response) {
     const owner = getOwner(res);
@@ -75,7 +79,7 @@ class JobController {
   async deleteJobByOwner(req: express.Request, res: express.Response) {
     try {
       const id = req.params.id;
-      await this.service.deleteJobById(id, getOwner(res));
+      await this.deleteJobUseCase.execute(id, getOwner(res));
 
       res.status(200).send();
     } catch (error) {

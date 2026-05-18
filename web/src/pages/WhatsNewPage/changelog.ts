@@ -5,6 +5,7 @@ export interface ChangelogEntry {
 }
 
 export const changelog: ChangelogEntry[] = [
+  { type: 'fix', title: 'Deleting a Notion conversion from Downloads removes it in one click instead of two', date: '2026-05-18' },
   { type: 'fix', title: 'Start 1-hour trial on the upload limit screen now actually starts the trial and resumes your upload', date: '2026-05-18' },
   { type: 'style', title: 'Upload page tips dismiss with an ✕ once you know the workflow, and the page stays cleaner above the upload form', date: '2026-05-18' },
   { type: 'fix', title: 'AI-generated decks from uploads with German, Swedish, or other non-English text convert into a finished deck', date: '2026-05-18' },

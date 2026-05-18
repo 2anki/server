@@ -21,6 +21,16 @@ jest.mock('../services/SubscriptionService', () => ({
   default: { findActiveStripeSubscriptions: jest.fn().mockResolvedValue([]) },
 }));
 
+const mockStorageDelete = jest.fn().mockResolvedValue(true);
+jest.mock('../lib/storage/StorageHandler', () => {
+  return {
+    __esModule: true,
+    default: jest.fn().mockImplementation(() => ({
+      delete: mockStorageDelete,
+    })),
+  };
+});
+
 import GeneratePackagesUseCase from '../usecases/uploads/GeneratePackagesUseCase';
 import { EmptyDeckError } from '../usecases/jobs/EmptyDeckError';
 import { DeckTooLargeError } from '../lib/parser/exporters/DeckTooLargeError';
@@ -36,6 +46,7 @@ function buildRepository(): IUploadRepository {
     deleteUpload: (_owner: number, _key: string) => Promise.resolve(1),
     getUploadsByOwner: (_owner: number) => Promise.resolve([] as Uploads[]),
     findByIdAndOwner: (_id: number, _owner: number) => Promise.resolve(null),
+    findByKey: (_owner: number, _key: string) => Promise.resolve(null),
     update: (_owner: number, _filename: string, _key: string, _size_mb: number) =>
       Promise.resolve([] as Uploads[]),
     getLastUploadForUser: (_userId: number) => Promise.resolve(null),
@@ -176,5 +187,83 @@ describe('UploadService.handleUpload — error paths', () => {
     const body = capturedJson() as { message: string };
     expect(body.message).not.toMatch(/at .*\(/);
     expect(body.message).not.toMatch(/RangeError/);
+  });
+});
+
+describe('UploadService.deleteUpload — cascade', () => {
+  beforeEach(() => {
+    mockStorageDelete.mockClear();
+  });
+
+  it('removes the upload row, the S3 object, and the linked job', async () => {
+    const repo: IUploadRepository = {
+      ...buildRepository(),
+      findByKey: jest.fn().mockResolvedValue({
+        id: 1,
+        owner: 7,
+        key: 'k.apkg',
+        filename: 'k.apkg',
+        object_id: 'obj-123',
+        size_mb: 1,
+        created_at: new Date(),
+      } as Uploads),
+      deleteUpload: jest.fn().mockResolvedValue(1),
+    };
+    const jobRepository = {
+      deleteJobByObjectId: jest.fn().mockResolvedValue(1),
+    } as unknown as JobRepository;
+
+    const service = new UploadService(repo, jobRepository);
+    await service.deleteUpload(7, 'k.apkg');
+
+    expect(repo.findByKey).toHaveBeenCalledWith(7, 'k.apkg');
+    expect(repo.deleteUpload).toHaveBeenCalledWith(7, 'k.apkg');
+    expect(mockStorageDelete).toHaveBeenCalledWith('k.apkg');
+    expect(jobRepository.deleteJobByObjectId).toHaveBeenCalledWith(
+      'obj-123',
+      '7'
+    );
+  });
+
+  it('skips the job delete when the upload row has no object_id', async () => {
+    const repo: IUploadRepository = {
+      ...buildRepository(),
+      findByKey: jest.fn().mockResolvedValue({
+        id: 1,
+        owner: 7,
+        key: 'k.apkg',
+        filename: 'k.apkg',
+        object_id: null,
+        size_mb: 1,
+        created_at: new Date(),
+      } as Uploads),
+      deleteUpload: jest.fn().mockResolvedValue(1),
+    };
+    const jobRepository = {
+      deleteJobByObjectId: jest.fn(),
+    } as unknown as JobRepository;
+
+    const service = new UploadService(repo, jobRepository);
+    await service.deleteUpload(7, 'k.apkg');
+
+    expect(repo.deleteUpload).toHaveBeenCalledWith(7, 'k.apkg');
+    expect(mockStorageDelete).toHaveBeenCalledWith('k.apkg');
+    expect(jobRepository.deleteJobByObjectId).not.toHaveBeenCalled();
+  });
+
+  it('skips the job delete when no matching upload row exists', async () => {
+    const repo: IUploadRepository = {
+      ...buildRepository(),
+      findByKey: jest.fn().mockResolvedValue(null),
+      deleteUpload: jest.fn().mockResolvedValue(0),
+    };
+    const jobRepository = {
+      deleteJobByObjectId: jest.fn(),
+    } as unknown as JobRepository;
+
+    const service = new UploadService(repo, jobRepository);
+    await service.deleteUpload(7, 'k.apkg');
+
+    expect(jobRepository.deleteJobByObjectId).not.toHaveBeenCalled();
   });
 });

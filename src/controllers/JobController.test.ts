@@ -1,10 +1,12 @@
 import express from 'express';
 import JobController from './JobController';
 import JobService from '../services/JobService';
+import DeleteJobUseCase from '../usecases/jobs/DeleteJobUseCase';
 import * as getOwnerModule from '../lib/User/getOwner';
 
 describe('JobController', () => {
   let jobService: JobService;
+  let deleteJobUseCase: DeleteJobUseCase;
   let jobController: JobController;
   let req: Partial<express.Request>;
   let res: Partial<express.Response>;
@@ -15,7 +17,10 @@ describe('JobController', () => {
       deleteJobById: jest.fn(),
       findJobByObjectId: jest.fn(),
     } as unknown as JobService;
-    jobController = new JobController(jobService);
+    deleteJobUseCase = {
+      execute: jest.fn(),
+    } as unknown as DeleteJobUseCase;
+    jobController = new JobController(jobService, deleteJobUseCase);
     req = { params: { id: '123' } };
     res = {
       send: jest.fn(),
@@ -127,19 +132,19 @@ describe('JobController', () => {
     expect(sent[0].download_key).toBeNull();
   });
 
-  it('should delete job by owner and send 200', async () => {
-    (jobService.deleteJobById as jest.Mock).mockResolvedValue(undefined);
+  it('should delegate delete to the use case and send 200', async () => {
+    (deleteJobUseCase.execute as jest.Mock).mockResolvedValue(undefined);
     await jobController.deleteJobByOwner(
       req as express.Request,
       res as express.Response
     );
-    expect(jobService.deleteJobById).toHaveBeenCalledWith('123', 'owner1');
+    expect(deleteJobUseCase.execute).toHaveBeenCalledWith('123', 'owner1');
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.send).toHaveBeenCalled();
   });
 
   it('should handle error in deleteJobByOwner', async () => {
-    (jobService.deleteJobById as jest.Mock).mockRejectedValue(
+    (deleteJobUseCase.execute as jest.Mock).mockRejectedValue(
       new Error('fail')
     );
     await jobController.deleteJobByOwner(
@@ -151,7 +156,7 @@ describe('JobController', () => {
   });
 
   it('should handle job in progress error with 409 status', async () => {
-    (jobService.deleteJobById as jest.Mock).mockRejectedValue(
+    (deleteJobUseCase.execute as jest.Mock).mockRejectedValue(
       new Error('Cannot delete job while it is in progress')
     );
     await jobController.deleteJobByOwner(
@@ -159,8 +164,8 @@ describe('JobController', () => {
       res as express.Response
     );
     expect(res.status).toHaveBeenCalledWith(409);
-    expect(res.json).toHaveBeenCalledWith({ 
-      error: 'Cannot delete job while it is in progress' 
+    expect(res.json).toHaveBeenCalledWith({
+      error: 'Cannot delete job while it is in progress',
     });
   });
 
