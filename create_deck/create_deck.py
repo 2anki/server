@@ -116,6 +116,9 @@ def build_one_deck(data_file, template_dir):
         INPUT_FRONT = n2aInput["front"]
         INPUT_BACK = n2aInput["back"]
 
+    mcq_model_name = mt.get('mcqModelName', "n2a-mcq") or "n2a-mcq"
+    mcq_model_id = mt.get('mcqModelId', get_model_id(mcq_model_name))
+
     for deck in data:
         cards = deck.get("cards", [])
         notes = []
@@ -126,7 +129,15 @@ def build_one_deck(data_file, template_dir):
             fields = [front, back, ",".join(card["media"])]
             model = get_model(("basic", basic_model_id, basic_model_name,
                                BASIC_STYLE, BASIC_FRONT, BASIC_BACK))
-            if card.get('cloze', False) and "{{c" in front:
+            if card.get('mcq', False):
+                options = card.get('options', [])
+                correct_indices = card.get('correctIndices', [])
+                options_html = "<br>".join(options)
+                correct_answer = options[correct_indices[0]] if correct_indices and correct_indices[0] < len(options) else ""
+                extra = back
+                model = get_model(("mcq", mcq_model_id, mcq_model_name, "", None, None))
+                fields = [front, options_html, correct_answer, extra]
+            elif card.get('cloze', False) and "{{c" in front:
                 model = get_model(
                     ("cloze", cloze_model_id, cloze_model_name,
                      CLOZE_STYLE, CLOZE_FRONT, CLOZE_BACK))

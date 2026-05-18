@@ -21,6 +21,10 @@ MODEL_INFO = {
     "io": {
         "file_name": "n2a-io.json",
         "model_type": Model.CLOZE
+    },
+    "mcq": {
+        "file_name": "n2a-mcq.json",
+        "model_type": Model.FRONT_BACK
     }
 }
 
