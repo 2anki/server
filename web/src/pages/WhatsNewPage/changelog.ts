@@ -5,6 +5,7 @@ export interface ChangelogEntry {
 }
 
 export const changelog: ChangelogEntry[] = [
+  { type: 'feature', title: 'Cleaner download page after a multi-deck upload — clearer filenames, total size, and the expiry sits next to the download-all button', date: '2026-05-18' },
   { type: 'style', title: 'Pricing page — Auto Sync and Unlimited lead, Day Pass and Week Pass fold into a compact row below', date: '2026-05-18' },
   { type: 'feature', title: 'Format-specific pages for Notion, PDF, Markdown, CSV, HTML, and .apkg — find the right conversion path at /convert/<format>', date: '2026-05-18' },
   { type: 'feature', title: 'Notion Marketplace landing page — Auto Sync and Unlimited plans side by side at /notion-marketplace', date: '2026-05-18' },
