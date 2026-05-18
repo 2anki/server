@@ -1,4 +1,5 @@
 import { Body } from 'aws-sdk/clients/s3';
+import pLimit from 'p-limit';
 import CardOption from '../../lib/parser/Settings/CardOption';
 import { ZipHandler } from '../../lib/zip/zip';
 import { PrepareDeck } from '../../infrastracture/adapters/fileConversion/PrepareDeck';
@@ -10,6 +11,11 @@ import { getMaxUploadCount } from '../../lib/misc/getMaxUploadCount';
 import { isZipContentFileSupported } from './isZipContentFileSupported';
 import { getRelevantFiles } from './getRelevantFiles';
 import { enableMarkdownForMarkdownUploads } from './enableMarkdownForMarkdownUploads';
+
+const resolveBuildConcurrency = (): number => {
+  const raw = parseInt(process.env.UPLOAD_BUILD_CONCURRENCY ?? '', 10);
+  return Number.isFinite(raw) && raw >= 1 ? raw : 4;
+};
 
 export const getPackagesFromZip = async (
   fileContents: Body | undefined,
@@ -53,16 +59,24 @@ export const getPackagesFromZip = async (
   }
 
   let cardCount = 0;
-  for (const fileName of supportedFileNames) {
-    const relevantFiles = getRelevantFiles(fileName, zipHandler.files);
-    const deck = await PrepareDeck({
-      name: fileName,
-      files: relevantFiles,
-      settings: effectiveSettings,
-      noLimits: paying,
-      workspace,
-    });
+  const limit = pLimit(resolveBuildConcurrency());
 
+  const results = await Promise.all(
+    supportedFileNames.map((fileName) =>
+      limit(() => {
+        const relevantFiles = getRelevantFiles(fileName, zipHandler.files);
+        return PrepareDeck({
+          name: fileName,
+          files: relevantFiles,
+          settings: effectiveSettings,
+          noLimits: paying,
+          workspace,
+        });
+      })
+    )
+  );
+
+  for (const deck of results) {
     if (deck) {
       packages.push(new Package(deck.name, deck.cardCount ?? 0));
       if (deck.warning) warnings.push(deck.warning);
