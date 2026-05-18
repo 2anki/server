@@ -13,57 +13,57 @@ A toggle whose **title is the question stem** and whose **children are the answe
 
 ## Method 1 — Notion to-do blocks (recommended)
 
-Use `/to-do` inside the toggle to create checkbox items. Check exactly one of them — that becomes the correct answer.
+Create a toggle (type `>` followed by a space, then the question stem). Inside the toggle, add one to-do block per option (`/to-do`) and check exactly one — the checked option is the correct answer.
 
-In Notion:
+The shape, written in Notion's markdown shortcuts:
 
-```
-▶ A 65-year-old man presents with crushing chest pain radiating to the jaw.
-    ☑  Acute MI
-    ☐  Stable angina
-    ☐  GERD
-    ☐  Aortic dissection
+```markdown
+> A 65-year-old man presents with crushing chest pain radiating to the jaw.
+- [x]  Acute MI
+- [ ]  Stable angina
+- [ ]  GERD
+- [ ]  Aortic dissection
 ```
 
 What you get in Anki:
 
-- Front: the question stem with four labelled options (A–D)
-- Back: the same layout with option A highlighted green and a checkmark
+- Front: the question stem with the options listed and labelled A–D
+- Back: the same layout with the correct option's row highlighted green and a checkmark
 
 ## Method 2 — Bulleted list with one option fully bolded
 
-Use `/bulleted list` inside the toggle. Make the correct option's full text bold (select all the text, press Cmd/Ctrl+B). Works well for content pasted from Word or Google Docs.
+Useful when you've pasted content from Word or Google Docs and the options are already a bulleted list. Inside the toggle, add a bulleted list (`/bulleted list`) and bold the full text of exactly one option (select the text, press Cmd/Ctrl+B).
 
-In Notion:
+The shape:
 
-```
-▶ Which antibiotic class inhibits cell wall synthesis by blocking transpeptidase?
-    • Fluoroquinolones
-    • **Beta-lactams**
-    • Macrolides
-    • Aminoglycosides
+```markdown
+> Which antibiotic class inhibits cell wall synthesis by blocking transpeptidase?
+- Fluoroquinolones
+- **Beta-lactams**
+- Macrolides
+- Aminoglycosides
 ```
 
 What you get in Anki:
 
-- Front: the question stem with four labelled options (A–D)
-- Back: option B highlighted green with the explanation block below
+- Front: the question stem with the options listed and labelled A–D
+- Back: the correct option's row highlighted green, with the explanation below
 
 ## Adding an explanation
 
-Any non-bullet content inside the toggle (paragraph, quote, callout) becomes the explanation shown on the card back. Put it below the options.
+Anything inside the toggle that isn't a to-do or a bullet becomes the explanation on the card back — a paragraph, a quote, or a callout works. Put it below the options.
 
-```
-▶ Which finding is most specific for PE on ECG?
-    ☑  S1Q3T3 pattern
-    ☐  ST elevation in V1–V4
-    ☐  Left bundle branch block
-    ☐  Peaked T waves
+```markdown
+> Which finding is most specific for PE on ECG?
+- [x]  S1Q3T3 pattern
+- [ ]  ST elevation in V1–V4
+- [ ]  Left bundle branch block
+- [ ]  Peaked T waves
 
-    S1Q3T3 (large S in lead I, Q wave in lead III, inverted T in lead III) is
-    a classic but uncommon finding in PE. Sinus tachycardia is the most
-    common ECG finding.
+S1Q3T3 (large S in lead I, Q wave in lead III, inverted T in lead III) is a classic but uncommon finding in PE. Sinus tachycardia is the most common ECG finding.
 ```
+
+It renders on the card back under an **Explanation** heading.
 
 ## What falls back to a basic card
 

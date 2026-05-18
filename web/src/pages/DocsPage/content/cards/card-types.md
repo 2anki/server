@@ -80,17 +80,19 @@ Best for facts where exact spelling matters — dates, names, equation results. 
 
 MCQ cards show a vignette plus 2–7 options; on the back, the correct option highlights green and the explanation reveals.
 
-Author one by making a Notion toggle whose children are either to-do blocks (check exactly one) or bulleted items (bold exactly one). The full guide with worked examples lives on [Multiple choice questions](/documentation/cards/mcq).
+Author one by making a Notion toggle whose title is the question. Inside the toggle, add a to-do block per option (`/to-do`) and check exactly one — or add a bulleted list and bold exactly one option's full text. The checked or bolded option is the correct answer.
 
-In Notion:
+In Notion's markdown shortcuts:
 
+```markdown
+> Which antibiotic class inhibits cell wall synthesis?
+- [ ]  Fluoroquinolones
+- [x]  Beta-lactams
+- [ ]  Macrolides
+- [ ]  Aminoglycosides
 ```
-▶ Which antibiotic class inhibits cell wall synthesis?
-    ☐  Fluoroquinolones
-    ☑  Beta-lactams
-    ☐  Macrolides
-    ☐  Aminoglycosides
-```
+
+The full guide with step-by-step worked examples lives on [Multiple choice questions](/documentation/cards/mcq).
 
 MCQ detection runs automatically on Notion HTML exports — no card option to toggle. Toggles that don't match the MCQ shape fall through to Basic, Cloze, or Input as usual.
 
