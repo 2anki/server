@@ -292,10 +292,14 @@ class UploadService {
         (sum, p) => sum + (p.cardCount ?? 0),
         0
       );
+      const totalMcqCount = packages.reduce((sum, p) => sum + (p.mcqCount ?? 0), 0);
+      const totalMcqSkippedCount = packages.reduce((sum, p) => sum + (p.mcqSkippedCount ?? 0), 0);
       res.set('Content-Type', 'application/apkg');
       res.set('Content-Length', plen.toString());
       res.set('X-Card-Count', totalCards.toString());
-      const exposedHeaders = ['File-Name', 'X-Card-Count'];
+      res.set('X-MCQ-Count', totalMcqCount.toString());
+      res.set('X-MCQ-Skipped-Count', totalMcqSkippedCount.toString());
+      const exposedHeaders = ['File-Name', 'X-Card-Count', 'X-MCQ-Count', 'X-MCQ-Skipped-Count'];
       if (warnings?.includes('markdown-heuristic')) {
         res.set(
           'X-Warning',
