@@ -42,6 +42,8 @@ interface LockedPdfInfo {
 
 interface LimitInfo {
   filename: string | null;
+  fileSizeBytes: number | null;
+  kind: 'file_size' | 'card_count';
 }
 
 interface UploadFormProps {
@@ -60,6 +62,17 @@ function isLimitRedirect(url: URL): boolean {
     url.pathname === '/limit' ||
     url.searchParams.get('error') === 'upload_limit_exceeded'
   );
+}
+
+function getLimitKind(url: URL): 'file_size' | 'card_count' {
+  return url.searchParams.get('kind') === 'card_count' ? 'card_count' : 'file_size';
+}
+
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024 * 1024) {
+    return `${Math.round(bytes / 1024)} KB`;
+  }
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 function toFriendlyThrownError(error: unknown): UploadErrorBody {
@@ -197,6 +210,7 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
   const [progressSlow, setProgressSlow] = useState(false);
   const [showFallback, setShowFallback] = useState(false);
   const [trialPending, setTrialPending] = useState(false);
+  const [trialError, setTrialError] = useState<string | null>(null);
   const [dropboxFilename, setDropboxFilename] = useState<string | null>(null);
   const [dropboxPending, setDropboxPending] = useState(false);
   const [dropboxError, setDropboxError] = useState<string | null>(null);
@@ -216,9 +230,12 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
   const autoSyncActive = userLocals?.autoSyncActive === true;
   const successPromptShown = globalThis.document?.cookie?.includes('auto_sync_prompt_shown=true') === true;
   const showAutoSyncPrompt = zoneState === 'success' && !autoSyncActive && !successPromptShown;
+  const isAuthenticated = userLocals?.user?.id != null;
   const showTrialButton =
+    isAuthenticated &&
     userLocals?.user?.trial_started_at == null &&
     userLocals?.locals?.patreon !== true;
+  const showSignInPrompt = userLocals != null && !isAuthenticated;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const convertRef = useRef<HTMLButtonElement>(null);
   const downloadRef = useRef<HTMLAnchorElement>(null);
@@ -228,13 +245,25 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
   const { openPicker, isConfigured: isGoogleDriveConfigured } = useGooglePicker();
 
   const handleStartTrial = async () => {
+    setTrialError(null);
     setTrialPending(true);
     try {
       const result = await get2ankiApi().startTrial();
       if (result.ok) {
         await queryClient.invalidateQueries({ queryKey: ['userLocals'] });
-        resetForm();
+        setLimitInfo(null);
+        setZoneState('converting');
+        convertRef.current?.click();
+      } else if (result.reason === 'already_paid') {
+        await queryClient.invalidateQueries({ queryKey: ['userLocals'] });
+        setTrialError("You're already on Unlimited. Refresh to continue.");
+      } else if (result.reason === 'already_used') {
+        setTrialError("You've already used your 1-hour trial. Upgrade for unlimited conversions.");
+      } else {
+        setTrialError("Couldn't start your trial. Try again, or email support@2anki.net.");
       }
+    } catch {
+      setTrialError("Couldn't start your trial. Check your connection and try again.");
     } finally {
       setTrialPending(false);
     }
@@ -251,6 +280,7 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
     setCardCount(null);
     setWarningMessage(null);
     setLimitInfo(null);
+    setTrialError(null);
     setLocalError(null);
     setProgressWidth(10);
     setProgressSlow(false);
@@ -352,7 +382,12 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
       if (request.redirected) {
         const redirectUrl = new URL(request.url, globalThis.location.origin);
         if (isLimitRedirect(redirectUrl)) {
-          setLimitInfo({ filename: first?.name ?? null });
+          const kind = getLimitKind(redirectUrl);
+          setLimitInfo({
+            filename: first?.name ?? null,
+            fileSizeBytes: kind === 'file_size' ? (first?.bytes ?? null) : null,
+            kind,
+          });
           setZoneState('limitReached');
           return;
         }
@@ -435,7 +470,12 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
       if (request.redirected) {
         const redirectUrl = new URL(request.url, globalThis.location.origin);
         if (isLimitRedirect(redirectUrl)) {
-          setLimitInfo({ filename: first?.name ?? null });
+          const kind = getLimitKind(redirectUrl);
+          setLimitInfo({
+            filename: first?.name ?? null,
+            fileSizeBytes: kind === 'file_size' ? (first?.sizeBytes ?? null) : null,
+            kind,
+          });
           setZoneState('limitReached');
           return;
         }
@@ -508,8 +548,11 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
         const redirectUrl = new URL(request.url, globalThis.location.origin);
         if (isLimitRedirect(redirectUrl)) {
           const firstFile = fileInputRef.current?.files?.[0];
+          const kind = getLimitKind(redirectUrl);
           setLimitInfo({
             filename: firstFile?.name ?? null,
+            fileSizeBytes: kind === 'file_size' ? (firstFile?.size ?? null) : null,
+            kind,
           });
           setZoneState('limitReached');
           return true;
@@ -784,46 +827,68 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
     );
   };
 
-  const renderLimitState = () => (
-    <div className={formStyles.limitContent}>
-      <p className={formStyles.limitTitle}>
-        You reached 100 cards this month
-      </p>
-      <p className={formStyles.limitDescription}>
-        Upgrade to keep converting.
-      </p>
-      {limitInfo?.filename && (
-        <span className={formStyles.limitFilename}>
-          {limitInfo.filename}
-        </span>
-      )}
-      <div className={formStyles.limitActions}>
-        <Link
-          to="/limit?ref=upload-limit-wall"
-          className={`${sharedStyles.btnPrimary} ${sharedStyles.btnInline}`}
-        >
-          See upgrade options
-        </Link>
-        {showTrialButton && (
+  const renderLimitState = () => {
+    const isFileSize = limitInfo?.kind === 'file_size';
+    const title = isFileSize
+      ? 'This file is over the 50 MB limit'
+      : 'You reached your monthly limit of 100 cards';
+    const description = isFileSize
+      ? 'Start a 1-hour trial to convert files of any size, or split the file and try again.'
+      : 'Start a 1-hour trial to keep converting, or upgrade for no monthly cap.';
+
+    return (
+      <div className={formStyles.limitContent}>
+        <p className={formStyles.limitTitle}>{title}</p>
+        <p className={formStyles.limitDescription}>{description}</p>
+        {limitInfo?.filename && (
+          <span className={formStyles.limitFilename} title={limitInfo.filename}>
+            {limitInfo.filename}
+            {isFileSize && limitInfo.fileSizeBytes != null && (
+              <> &mdash; {formatFileSize(limitInfo.fileSizeBytes)}</>
+            )}
+          </span>
+        )}
+        {trialError && (
+          <p className={formStyles.limitError} role="alert">
+            {trialError}
+          </p>
+        )}
+        <div className={formStyles.limitActions}>
+          <Link
+            to="/limit?ref=upload-limit-wall"
+            className={`${sharedStyles.btnPrimary} ${sharedStyles.btnInline}`}
+          >
+            See upgrade options
+          </Link>
+          {showTrialButton && (
+            <button
+              type="button"
+              className={`${sharedStyles.btnSecondary} ${sharedStyles.btnInline}`}
+              onClick={handleStartTrial}
+              disabled={trialPending}
+            >
+              {trialPending ? 'Starting trial' : 'Start 1-hour trial'}
+            </button>
+          )}
+          {showSignInPrompt && (
+            <Link
+              to="/login?redirect=/upload&ref=limit-wall"
+              className={`${sharedStyles.btnSecondary} ${sharedStyles.btnInline}`}
+            >
+              Sign in to start trial
+            </Link>
+          )}
           <button
             type="button"
-            className={`${sharedStyles.btnSecondary} ${sharedStyles.btnInline}`}
-            onClick={handleStartTrial}
-            disabled={trialPending}
+            className={formStyles.resetLink}
+            onClick={resetForm}
           >
-            {trialPending ? 'Starting trial…' : 'Start 1-hour trial'}
+            Try a different file
           </button>
-        )}
-        <button
-          type="button"
-          className={formStyles.resetLink}
-          onClick={resetForm}
-        >
-          Try a different file
-        </button>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const renderErrorState = () => {
     const classified = localError

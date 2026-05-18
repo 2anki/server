@@ -465,15 +465,24 @@ export class Backend {
 
   async startTrial(): Promise<{
     ok: boolean;
-    reason?: string;
+    reason?: 'already_used' | 'already_paid' | 'unauthenticated' | 'network';
     trialExpiresAt?: string;
   }> {
-    const response = await post(`${this.baseURL}users/start-trial`, {});
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({ ok: false }));
-      return error as { ok: boolean; reason?: string };
+    try {
+      const response = await post(`${this.baseURL}users/start-trial`, {});
+      if (response.status === 401) {
+        return { ok: false, reason: 'unauthenticated' };
+      }
+      if (!response.ok) {
+        return { ok: false };
+      }
+      const body = (await response.json().catch(() => null)) as
+        | { ok: boolean; reason?: 'already_used' | 'already_paid'; trialExpiresAt?: string }
+        | null;
+      return body ?? { ok: false };
+    } catch {
+      return { ok: false, reason: 'network' };
     }
-    return response.json();
   }
 
   async listAnkifyClients(): Promise<AnkifyClient[]> {

@@ -412,6 +412,15 @@
   white-space: nowrap;
 }
 
+.limitError {
+  font-size: var(--text-xs);
+  color: var(--color-danger);
+  margin: 0.25rem 0 0;
+  max-width: 380px;
+  text-align: center;
+  animation: fadeIn 150ms ease;
+}
+
 .limitActions {
   display: flex;
   justify-content: center;

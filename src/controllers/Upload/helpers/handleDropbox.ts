@@ -32,7 +32,7 @@ export async function handleDropbox(
     const limits = getUploadLimits(paying);
     const totalSize = files.reduce((acc, file) => acc + file.bytes, 0);
     if (!paying && totalSize > limits.fileSize) {
-      handleUploadLimitError(req, res);
+      handleUploadLimitError(req, res, new Error('File too large'));
       return;
     }
     const repo = new DropboxRepository(getDatabase());
