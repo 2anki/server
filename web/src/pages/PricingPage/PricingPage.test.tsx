@@ -42,6 +42,61 @@ describe('PricingPage Unlimited benefits', () => {
     renderAt('/pricing');
     expect(screen.getByText('Run multiple conversions at once')).toBeInTheDocument();
   });
+
+  it('shows Most popular badge on Unlimited card', () => {
+    renderAt('/pricing');
+    expect(screen.getByText('Most popular')).toBeInTheDocument();
+  });
+});
+
+describe('PricingPage layout', () => {
+  it('renders Unlimited and Auto Sync cards', () => {
+    renderAt('/pricing');
+    expect(screen.getByText('Unlimited')).toBeInTheDocument();
+    expect(screen.getByText('Auto Sync')).toBeInTheDocument();
+  });
+
+  it('shows Lifetime card with From $345 price', () => {
+    renderAt('/pricing');
+    expect(screen.getByText('From $345')).toBeInTheDocument();
+  });
+
+  it('shows pass row inline text', () => {
+    renderAt('/pricing');
+    expect(screen.getByText(/Need just a weekend/)).toBeInTheDocument();
+  });
+
+  it('shows Day Pass link in the pass row', () => {
+    renderAt('/pricing');
+    expect(screen.getByText('Day Pass $4')).toBeInTheDocument();
+  });
+
+  it('shows philosophy line', () => {
+    renderAt('/pricing');
+    expect(
+      screen.getByText('Free works forever. Paid plans support 2anki.net.')
+    ).toBeInTheDocument();
+  });
+});
+
+describe('PricingPage pass accordion', () => {
+  it('renders Week Pass details element closed by default', () => {
+    renderAt('/pricing');
+    const weekPassSummary = screen.getByText('Week Pass $9');
+    expect(weekPassSummary.closest('details')).not.toHaveAttribute('open');
+  });
+
+  it('shows Day Pass checkout button', () => {
+    renderAt('/pricing');
+    expect(screen.getByRole('button', { name: 'Get Day Pass' })).toBeInTheDocument();
+  });
+
+  it('opens Week Pass details element after clicking summary', () => {
+    renderAt('/pricing');
+    const weekPassSummary = screen.getByText('Week Pass $9');
+    fireEvent.click(weekPassSummary);
+    expect(weekPassSummary.closest('details')).toHaveAttribute('open');
+  });
 });
 
 describe('PricingPage paywall telemetry', () => {
@@ -78,6 +133,11 @@ describe('PricingPage Auto Sync card', () => {
   it('shows Subscribe button for logged-in free user', () => {
     renderAt('/pricing', { isLoggedIn: true });
     expect(screen.getByRole('button', { name: 'Subscribe' })).toBeInTheDocument();
+  });
+
+  it('shows New — built for Notion badge when Auto Sync is new', () => {
+    renderAt('/pricing');
+    expect(screen.getByText('New — built for Notion')).toBeInTheDocument();
   });
 
   it('redirects to login when logged-out user clicks Subscribe', () => {
@@ -256,6 +316,8 @@ describe('PricingPage internal event tracking', () => {
     Object.defineProperty(globalThis, 'location', { writable: true, value: { href: '' } });
 
     renderAt('/pricing', { isLoggedIn: true });
+    const weekPassSummary = screen.getByText('Week Pass $9');
+    fireEvent.click(weekPassSummary);
     fireEvent.click(screen.getByRole('button', { name: 'Get Week Pass' }));
 
     await waitFor(() => {

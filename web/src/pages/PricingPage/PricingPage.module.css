@@ -98,48 +98,92 @@
 }
 
 /* =====================================================================
-   PASS SECTION — two side-by-side one-time-payment cards
+   ANCHOR GRID — two main offer cards (Unlimited + Auto Sync)
    ===================================================================== */
-.passSection {
-  margin-bottom: 2.5rem;
-}
-
-.passPickerHelper {
-  text-align: center;
-  margin-bottom: 1.25rem;
-}
-
-.passPickerTitle {
-  font-family: var(--font-sans);
-  font-size: var(--text-sm);
-  font-weight: var(--font-semibold);
-  color: var(--color-text-primary);
-  margin: 0 0 0.35rem;
-}
-
-.passPickerHint {
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
-  margin: 0;
-}
-
-.passGrid {
+.anchorGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
-  max-width: 720px;
-  margin: 0 auto;
+  align-items: stretch;
+  position: relative;
+  margin-bottom: 1.5rem;
 }
 
-@media (max-width: 600px) {
-  .passGrid {
+@media (max-width: 900px) {
+  .anchorGrid {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
 }
 
 /* =====================================================================
-   GRID
+   PASS ROW — single muted line with accordion for each pass plan
+   ===================================================================== */
+.passRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  justify-content: center;
+  margin: 1.5rem 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.passRowLabel {
+  font-weight: var(--font-medium);
+}
+
+.passRowItems {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+
+.passRowDot {
+  color: var(--color-text-tertiary);
+  user-select: none;
+}
+
+.passRowLifetime {
+  color: var(--color-text-secondary);
+}
+
+.passAccordion {
+  display: inline;
+}
+
+.passAccordionSummary {
+  display: inline;
+  cursor: pointer;
+  color: var(--color-primary);
+  font-weight: var(--font-medium);
+  list-style: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--transition-fast);
+}
+
+.passAccordionSummary::-webkit-details-marker {
+  display: none;
+}
+
+.passAccordionSummary:hover {
+  border-bottom-color: var(--color-primary);
+}
+
+.passAccordionBody {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(380px, 90vw);
+  z-index: 10;
+  margin-top: 0.75rem;
+  filter: drop-shadow(0 8px 24px rgba(31, 41, 55, 0.12));
+}
+
+/* =====================================================================
+   GRID — single-card Lifetime row
    ===================================================================== */
 .grid {
   display: grid;
@@ -303,10 +347,29 @@
 }
 
 /* =====================================================================
-   AUTO SYNC — live tier
+   AUTO SYNC — live tier (raised surface with accent border)
    ===================================================================== */
 .cardAutoSync {
-  border-color: var(--color-border);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 1px var(--color-primary),
+    0 18px 44px -18px var(--color-focus-ring);
+}
+
+.cardAutoSync::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-indigo-dark) 100%);
+  z-index: 1;
+}
+
+.cardAutoSync:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 0 0 1px var(--color-primary),
+    0 24px 52px -18px var(--color-focus-ring);
 }
 
 /* =====================================================================

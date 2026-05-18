@@ -34,7 +34,7 @@ export function AutoSyncCard({
   onSubscribe,
   onWaitlist,
 }: Readonly<AutoSyncCardProps>) {
-  const newBadge = showNewBadge ? 'New' : undefined;
+  const newBadge = showNewBadge ? 'New — built for Notion' : undefined;
 
   if (isLifetime) {
     return (

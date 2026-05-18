@@ -245,17 +245,10 @@ export default function PricingPage({
         </div>
       )}
 
-      <PassCards
-        onDayPass={() => handlePassCheckout('24h')}
-        onWeekPass={() => handlePassCheckout('7d')}
-        dayPassPending={dayPassState === 'pending'}
-        weekPassPending={weekPassState === 'pending'}
-      />
-
-      <div className={styles.grid}>
+      <div className={styles.anchorGrid}>
         <PricingCard
           className={styles.cardPro}
-          badge="Best for most"
+          badge="Most popular"
           price={MONTHLY_PRICE}
           priceSuffix={MONTHLY_SUFFIX}
           title="Unlimited"
@@ -290,14 +283,21 @@ export default function PricingPage({
           onSubscribe={handleAutoSyncSubscribe}
           onWaitlist={handleWaitlistRequest}
         />
+      </div>
 
+      <PassCards
+        onDayPass={() => handlePassCheckout('24h')}
+        onWeekPass={() => handlePassCheckout('7d')}
+        dayPassPending={dayPassState === 'pending'}
+        weekPassPending={weekPassState === 'pending'}
+      />
+
+      <div className={styles.grid}>
         <PricingCard
           className={styles.cardLifetime}
           badge="Pay once"
           badgeMuted
-          price="$345"
-          priceSuffix="– $500"
-          priceRange
+          price="From $345"
           title="Lifetime"
           benefits={[
             'All Unlimited features, paid once',
@@ -307,13 +307,12 @@ export default function PricingPage({
           link={lifetimeLink}
           linkText="Apply"
           variant="outline"
-          caption="By application — we usually reply within a day."
+          caption="Reply within 24 hours."
         />
       </div>
 
       <p className={styles.philosophy}>
-        You don't have to upgrade — free works forever. Paid plans unlock more,
-        and help fund 2anki.net.
+        Free works forever. Paid plans support 2anki.net.
       </p>
     </div>
   );

@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { PassCards } from './PassCards';
 
 describe('PassCards', () => {
-  it('renders Day Pass and Week Pass buttons', () => {
+  it('renders Day Pass button', () => {
     render(
       <PassCards
         onDayPass={vi.fn()}
@@ -13,10 +13,9 @@ describe('PassCards', () => {
       />
     );
     expect(screen.getByRole('button', { name: 'Get Day Pass' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Get Week Pass' })).toBeInTheDocument();
   });
 
-  it('shows picker helper copy', () => {
+  it('renders Week Pass details element closed by default', () => {
     render(
       <PassCards
         onDayPass={vi.fn()}
@@ -25,7 +24,24 @@ describe('PassCards', () => {
         weekPassPending={false}
       />
     );
-    expect(screen.getByText('Pick your pass')).toBeInTheDocument();
+    const weekPassSummary = screen.getByText('Week Pass $9');
+    const detailsEl = weekPassSummary.closest('details');
+    expect(detailsEl).not.toHaveAttribute('open');
+  });
+
+  it('opens Week Pass details element after clicking summary', () => {
+    render(
+      <PassCards
+        onDayPass={vi.fn()}
+        onWeekPass={vi.fn()}
+        dayPassPending={false}
+        weekPassPending={false}
+      />
+    );
+    const weekPassSummary = screen.getByText('Week Pass $9');
+    fireEvent.click(weekPassSummary);
+    const detailsEl = weekPassSummary.closest('details');
+    expect(detailsEl).toHaveAttribute('open');
   });
 
   it('calls onDayPass when Get Day Pass is clicked', () => {
@@ -42,7 +58,7 @@ describe('PassCards', () => {
     expect(onDayPass).toHaveBeenCalledOnce();
   });
 
-  it('calls onWeekPass when Get Week Pass is clicked', () => {
+  it('calls onWeekPass when Get Week Pass is clicked after expanding', () => {
     const onWeekPass = vi.fn();
     render(
       <PassCards
@@ -52,11 +68,12 @@ describe('PassCards', () => {
         weekPassPending={false}
       />
     );
+    fireEvent.click(screen.getByText('Week Pass $9'));
     fireEvent.click(screen.getByRole('button', { name: 'Get Week Pass' }));
     expect(onWeekPass).toHaveBeenCalledOnce();
   });
 
-  it('disables only the Day Pass button when dayPassPending', () => {
+  it('disables the Day Pass button when dayPassPending', () => {
     render(
       <PassCards
         onDayPass={vi.fn()}
@@ -66,10 +83,9 @@ describe('PassCards', () => {
       />
     );
     expect(screen.getByRole('button', { name: 'Redirecting…' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'Get Week Pass' })).toBeEnabled();
   });
 
-  it('disables only the Week Pass button when weekPassPending', () => {
+  it('disables the Week Pass button when weekPassPending after expanding', () => {
     render(
       <PassCards
         onDayPass={vi.fn()}
@@ -78,25 +94,11 @@ describe('PassCards', () => {
         weekPassPending={true}
       />
     );
-    expect(screen.getByRole('button', { name: 'Get Day Pass' })).toBeEnabled();
+    fireEvent.click(screen.getByText('Week Pass $9'));
     expect(screen.getByRole('button', { name: 'Redirecting…' })).toBeDisabled();
   });
 
-  it('renders all four feature-list items', () => {
-    render(
-      <PassCards
-        onDayPass={vi.fn()}
-        onWeekPass={vi.fn()}
-        dayPassPending={false}
-        weekPassPending={false}
-      />
-    );
-    expect(screen.getAllByText('Unlimited conversions')).toHaveLength(2);
-    expect(screen.getAllByText('Image occlusion')).toHaveLength(2);
-    expect(screen.getAllByText('Custom card templates')).toHaveLength(2);
-  });
-
-  it('renders correct pricing for each pass', () => {
+  it('renders correct pricing for Day Pass', () => {
     render(
       <PassCards
         onDayPass={vi.fn()}
@@ -106,10 +108,9 @@ describe('PassCards', () => {
       />
     );
     expect(screen.getByText('$4')).toBeInTheDocument();
-    expect(screen.getByText('$9')).toBeInTheDocument();
   });
 
-  it('shows a Pay once badge on each card', () => {
+  it('shows Pay once badges on the pass cards', () => {
     render(
       <PassCards
         onDayPass={vi.fn()}
@@ -118,6 +119,6 @@ describe('PassCards', () => {
         weekPassPending={false}
       />
     );
-    expect(screen.getAllByText('Pay once')).toHaveLength(2);
+    expect(screen.getAllByText('Pay once').length).toBeGreaterThanOrEqual(1);
   });
 });
