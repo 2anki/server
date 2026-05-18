@@ -775,4 +775,45 @@ describe('limit state — start trial button', () => {
       expect(title?.textContent).toMatch(/50 MB/i);
     });
   });
+
+  it('shows trial-used description and no trial button when trial_started_at is set (file_size)', async () => {
+    mockUseUserLocals.mockReturnValue({
+      data: {
+        user: { id: 1, trial_started_at: '2025-01-01T00:00:00.000Z' },
+        locals: { owner: 1, patreon: false, subscriber: false, subscriptionInfo: { active: false, email: '', linked_email: '' } },
+        linked_email: '',
+      } as unknown as ReturnType<typeof useUserLocals>['data'],
+      isLoading: false,
+      error: null,
+      isError: false,
+      refetch: vi.fn(),
+    });
+
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      redirected: true,
+      url: 'http://localhost/limit?kind=file_size',
+      status: 200,
+      headers: new Headers({}),
+      blob: () => Promise.resolve(new Blob([])),
+    }));
+
+    const { container } = renderUploadForm(<UploadForm setErrorMessage={vi.fn()} />);
+    const form = container.querySelector('form')!;
+    await act(async () => {
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    });
+
+    await waitFor(() => {
+      expect(container.querySelector('[class*="limitContent"]')).not.toBeNull();
+    });
+
+    const trialBtn = Array.from(container.querySelectorAll('button')).find(
+      (b) => b.textContent?.match(/Start 1-hour trial/i)
+    );
+    expect(trialBtn).toBeUndefined();
+
+    const description = container.querySelector('[class*="limitDescription"]');
+    expect(description?.textContent).not.toMatch(/Start a 1-hour trial/i);
+    expect(description?.textContent).toMatch(/Your trial is used/i);
+  });
 });
