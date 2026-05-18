@@ -25,9 +25,14 @@ from backend.utils.email_error_alert import send_error_email
 
 
 def build_one_deck(data_file, template_dir):
+    # pylint: disable=invalid-name,too-many-locals,too-many-branches,too-many-statements,import-outside-toplevel
     """
     Builds a single .apkg from data_file, returns the output path printed by _write_new_apkg.
     All state is local — safe to call repeatedly in a single process.
+
+    UPPER_CASE locals (STYLING, CLOZE_STYLE, FMT_*) are conceptual template constants
+    that pylint can't recognize as constants inside a function body. The local-imports
+    of io/redirect_stdout are intentional — only used in legacy single-deck CLI mode.
     """
     import io
     from contextlib import redirect_stdout
