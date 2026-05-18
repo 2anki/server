@@ -8,9 +8,27 @@ import { canAccess } from '../lib/misc/canAccess';
 import { DownloadPage } from '../ui/pages/DownloadPage';
 import { buildContentDisposition } from '../lib/buildContentDisposition';
 import { getSafeFilename } from '../lib/getSafeFilename';
+import { formatDeckName } from '../lib/formatDeckName';
+import JobRepository from '../data_layer/JobRepository';
+
+export interface DownloadFileViewModel {
+  originalName: string;
+  displayName: string;
+  sizeBytes: number;
+}
+
+export interface DownloadPageViewModel {
+  id: string;
+  sourceTitle: string | null;
+  files: DownloadFileViewModel[];
+  totalSizeBytes: number;
+}
 
 class DownloadController {
-  constructor(private service: DownloadService) {}
+  constructor(
+    private service: DownloadService,
+    private jobRepository?: JobRepository
+  ) {}
 
   async getFile(req: Request, res: Response, storage: StorageHandler) {
     const { key } = req.params;
@@ -54,7 +72,7 @@ class DownloadController {
     }
   }
 
-  getDownloadPage(req: Request, res: Response) {
+  async getDownloadPage(req: Request, res: Response) {
     const { id } = req.params;
     const workspaceBase = process.env.WORKSPACE_BASE!;
     const workspace = path.join(workspaceBase, id);
@@ -63,23 +81,58 @@ class DownloadController {
       return res.status(404).end();
     }
 
-    if (fs.statSync(workspace).isDirectory()) {
-      fs.readdir(workspace, (err, files) => {
-        if (err) {
-          console.error(err);
-          res.status(500).send('Error reading directory');
-          return;
-        }
-
-        const page = DownloadPage({
-          id,
-          files: files.filter((file) => file.endsWith('.apkg')),
-        });
-        res.send(page);
-      });
-    } else {
+    if (!fs.statSync(workspace).isDirectory()) {
       const fileContent = fs.readFileSync(workspace, 'utf8');
       return res.send(fileContent);
+    }
+
+    try {
+      const allFiles = await fs.promises.readdir(workspace);
+      const apkgFiles = allFiles.filter((f) => f.endsWith('.apkg'));
+
+      const sourceTitle = await this.resolveSourceTitle(id);
+
+      const fileViewModels = await Promise.all(
+        apkgFiles.map(async (filename) => {
+          const filePath = path.join(workspace, filename);
+          const stat = await fs.promises.stat(filePath);
+          return {
+            originalName: filename,
+            displayName: formatDeckName(filename),
+            sizeBytes: stat.size,
+          };
+        })
+      );
+
+      const totalSizeBytes = fileViewModels.reduce((sum, f) => sum + f.sizeBytes, 0);
+
+      const viewModel: DownloadPageViewModel = {
+        id,
+        sourceTitle,
+        files: fileViewModels,
+        totalSizeBytes,
+      };
+
+      const page = DownloadPage(viewModel);
+      res.send(page);
+    } catch (err) {
+      console.error(err);
+      res.status(500).send('Error reading directory');
+    }
+  }
+
+  private async resolveSourceTitle(id: string): Promise<string | null> {
+    if (this.jobRepository == null) {
+      return null;
+    }
+    try {
+      const job = await this.jobRepository.findJobByObjectId(id);
+      if (job != null && job.title != null) {
+        return job.title;
+      }
+      return null;
+    } catch {
+      return null;
     }
   }
 
