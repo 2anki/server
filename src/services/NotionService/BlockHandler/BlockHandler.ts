@@ -236,9 +236,11 @@ class BlockHandler {
         }
       }
 
-      ankiNote.back = back || '';
+      if (!ankiNote.mcq) {
+        ankiNote.back = back || '';
+      }
       ankiNote.notionLink = this.__notionLink(block.id, notionBaseLink);
-      if (this.settings.addNotionLink) {
+      if (this.settings.addNotionLink && !ankiNote.mcq) {
         ankiNote.back += RenderNotionLink(ankiNote.notionLink!, this);
       }
       ankiNote.notionId = this.settings.useNotionId ? block.id : undefined;

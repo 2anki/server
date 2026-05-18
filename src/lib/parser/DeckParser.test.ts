@@ -673,6 +673,7 @@ describe('MCQ detection via DeckParser', () => {
     expect(card.correctIndices).toEqual([0]);
     expect(deck.mcqCount).toBe(1);
     expect(deck.mcqSkippedCount).toBe(0);
+    expect(card.back).toBe('');
   });
 
   test('real Notion export: fragmented ul.to-do-list under display:contents wrappers produces MCQ note', async () => {
@@ -689,6 +690,7 @@ describe('MCQ detection via DeckParser', () => {
     expect(card.isValidMCQNote()).toBe(true);
     expect(deck.mcqCount).toBe(1);
     expect(deck.mcqSkippedCount).toBe(0);
+    expect(card.back).toBe('');
   });
 
   test('no marker: MCQ-shaped toggle with all unchecked to-dos falls back to Basic note', async () => {
