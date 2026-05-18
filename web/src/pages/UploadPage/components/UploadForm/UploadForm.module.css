@@ -641,3 +641,21 @@
   display: flex;
   flex-direction: column;
 }
+
+.inlineChatContext {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  margin: 0;
+  padding: 0.5rem 1rem 0;
+}
+
+.inlineChatFilename {
+  font-weight: 500;
+  color: var(--color-text-primary);
+  display: inline-block;
+  max-width: 30ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+}

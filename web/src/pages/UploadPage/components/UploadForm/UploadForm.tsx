@@ -306,6 +306,12 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
     }
   }, [zoneState]);
 
+  useEffect(() => {
+    if (zoneState === 'emptyDeck') {
+      track('upload_empty_deck_chat_shown');
+    }
+  }, [zoneState]);
+
   const handleDropboxFiles = async (files: DropboxFile[]) => {
     const first = files[0];
     setDropboxFilename(first?.name ?? null);
@@ -906,20 +912,39 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
           <button
             type="button"
             className={formStyles.inlineChatToggle}
-            onClick={() => setShowInlineChat((prev) => !prev)}
+            onClick={() => {
+              setShowInlineChat((prev) => {
+                if (!prev) track('upload_empty_deck_chat_engaged');
+                return !prev;
+              });
+            }}
             aria-expanded={showInlineChat}
+            aria-controls="empty-deck-chat-panel"
           >
             <i className={`${formStyles.inlineChatToggleChevron} ${showInlineChat ? formStyles.inlineChatToggleChevronOpen : ''}`} aria-hidden="true">›</i>
             Ask Claude about this file
           </button>
           {showInlineChat && (
-            <div className={formStyles.inlineChatBody}>
+            <section
+              id="empty-deck-chat-panel"
+              className={formStyles.inlineChatBody}
+              aria-label={`Ask Claude about ${currentFilename() || 'this file'}`}
+            >
+              <p className={formStyles.inlineChatContext}>
+                About{' '}
+                <span
+                  className={formStyles.inlineChatFilename}
+                  title={currentFilename() || 'your file'}
+                >
+                  {currentFilename() || 'your file'}
+                </span>
+              </p>
               <ChatPanel
                 key={currentFilename()}
                 initialPrompt={getEmptyDeckChatPrompt(driveMimeType, currentFilename())}
                 cameFromUpload
               />
-            </div>
+            </section>
           )}
         </div>
       )}
