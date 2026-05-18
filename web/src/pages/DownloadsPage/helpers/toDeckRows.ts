@@ -17,44 +17,52 @@ function jobSource(type: string | null | undefined): 'notion' | 'upload' {
   return 'upload';
 }
 
+function toSortKey(value: string | Date | null | undefined): Date {
+  if (value == null) return EPOCH;
+  return new Date(value);
+}
+
+function buildSuppressedObjectIds(jobs: JobResponse[]): Set<string> {
+  const ids = new Set<string>();
+  for (const job of jobs) {
+    const isNotionDoneWithKey =
+      jobSource(job.type) === 'notion' &&
+      job.status === 'done' &&
+      job.download_key != null;
+    if (isNotionDoneWithKey) ids.add(job.object_id);
+  }
+  return ids;
+}
+
 export function toDeckRows(
   jobs: JobResponse[],
   uploads: UserUpload[],
   dropboxUploads: DropboxUpload[],
   googleDriveUploads: GoogleDriveUpload[],
 ): DeckRow[] {
+  const suppressedUploadObjectIds = buildSuppressedObjectIds(jobs);
   const rows: DeckRow[] = [];
 
-  const suppressedUploadObjectIds = new Set<string>();
   for (const job of jobs) {
-    const source = jobSource(job.type);
-    if (source === 'notion' && job.status === 'done' && job.download_key != null) {
-      suppressedUploadObjectIds.add(job.object_id);
-    }
-  }
-
-  for (const job of jobs) {
-    const sortKey = job.created_at == null ? EPOCH : new Date(job.created_at);
-    const source = jobSource(job.type);
-    rows.push({ source, kind: 'job', job, sortKey });
+    rows.push({
+      source: jobSource(job.type),
+      kind: 'job',
+      job,
+      sortKey: toSortKey(job.created_at),
+    });
   }
 
   for (const upload of uploads) {
-    if (upload.object_id != null && suppressedUploadObjectIds.has(upload.object_id)) {
-      continue;
-    }
-    const sortKey = upload.created_at == null ? EPOCH : new Date(upload.created_at);
-    rows.push({ source: 'upload', kind: 'file', upload, sortKey });
+    if (upload.object_id != null && suppressedUploadObjectIds.has(upload.object_id)) continue;
+    rows.push({ source: 'upload', kind: 'file', upload, sortKey: toSortKey(upload.created_at) });
   }
 
   for (const upload of dropboxUploads) {
-    const sortKey = upload.created_at == null ? EPOCH : new Date(upload.created_at);
-    rows.push({ source: 'dropbox', kind: 'dropbox', upload, sortKey });
+    rows.push({ source: 'dropbox', kind: 'dropbox', upload, sortKey: toSortKey(upload.created_at) });
   }
 
   for (const upload of googleDriveUploads) {
-    const sortKey = upload.last_converted_at == null ? EPOCH : new Date(upload.last_converted_at);
-    rows.push({ source: 'drive', kind: 'drive', upload, sortKey });
+    rows.push({ source: 'drive', kind: 'drive', upload, sortKey: toSortKey(upload.last_converted_at) });
   }
 
   rows.sort((a, b) => b.sortKey.getTime() - a.sortKey.getTime());
