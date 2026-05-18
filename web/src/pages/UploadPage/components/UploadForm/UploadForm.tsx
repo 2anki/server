@@ -199,6 +199,7 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
   const [driveError, setDriveError] = useState<string | null>(null);
   const [source, setSource] = useState<UploadSource>('local');
   const [showInlineChat, setShowInlineChat] = useState(false);
+  const [showErrorInlineChat, setShowErrorInlineChat] = useState(false);
   const { data: userLocals } = useUserLocals();
   const queryClient = useQueryClient();
   const autoSyncActive = userLocals?.autoSyncActive === true;
@@ -250,6 +251,7 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
     setDriveError(null);
     setSource('local');
     setShowInlineChat(false);
+    setShowErrorInlineChat(false);
     resetValidation();
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -790,13 +792,6 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
     </div>
   );
 
-  const chatCtaHref = (reason: 'error' | 'empty' | 'unsupported'): string => {
-    const filename = currentFilename();
-    const params = new URLSearchParams({ from: 'upload', reason });
-    if (filename) params.set('filename', filename);
-    return `/chat?${params.toString()}`;
-  };
-
   const renderErrorState = () => (
     <div className={formStyles.stateContent}>
       <WarningIcon className={formStyles.iconError} />
@@ -812,13 +807,6 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
       >
         Try again
       </button>
-      <Link
-        to={chatCtaHref('error')}
-        className={formStyles.resetLink}
-        onClick={() => track('upload_error_chat_engaged')}
-      >
-        Stuck? Ask Claude about this file →
-      </Link>
     </div>
   );
 
@@ -942,6 +930,47 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
               <ChatPanel
                 key={currentFilename()}
                 initialPrompt={getEmptyDeckChatPrompt(driveMimeType, currentFilename())}
+                cameFromUpload
+              />
+            </section>
+          )}
+        </div>
+      )}
+      {zoneState === 'error' && (
+        <div className={formStyles.inlineChatWrapper}>
+          <button
+            type="button"
+            className={formStyles.inlineChatToggle}
+            onClick={() => {
+              setShowErrorInlineChat((prev) => {
+                if (!prev) track('upload_error_chat_engaged');
+                return !prev;
+              });
+            }}
+            aria-expanded={showErrorInlineChat}
+            aria-controls="error-state-chat-panel"
+          >
+            <i className={`${formStyles.inlineChatToggleChevron} ${showErrorInlineChat ? formStyles.inlineChatToggleChevronOpen : ''}`} aria-hidden="true">›</i>
+            {showErrorInlineChat ? 'Hide chat' : 'Talk it through instead'}
+          </button>
+          {showErrorInlineChat && (
+            <section
+              id="error-state-chat-panel"
+              className={formStyles.inlineChatBody}
+              aria-label={`Talk to Claude about ${currentFilename() || 'this file'}`}
+            >
+              <p className={formStyles.inlineChatContext}>
+                About{' '}
+                <span
+                  className={formStyles.inlineChatFilename}
+                  title={currentFilename() || 'your file'}
+                >
+                  {currentFilename() || 'your file'}
+                </span>
+              </p>
+              <ChatPanel
+                key={`error-${currentFilename()}`}
+                initialPrompt={`I tried to convert ${currentFilename() || 'a file'} and got stuck. What can I do?`}
                 cameFromUpload
               />
             </section>
