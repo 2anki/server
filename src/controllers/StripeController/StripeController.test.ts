@@ -58,6 +58,7 @@ function buildUser(overrides: Partial<UserWithOwner> = {}): UserWithOwner {
     cards_month_started_at: new Date(0),
     signup_country: null,
     chat_consent_at: null,
+    stripe_customer_id: null,
     owner: 1,
     ...overrides,
   };
@@ -72,6 +73,7 @@ function buildSubscription(overrides: Partial<Subscriptions> = {}): Subscription
     created_at: null,
     updated_at: null,
     linked_email: null,
+    stripe_product_id: null,
     ...overrides,
   };
 }
