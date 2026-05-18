@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
-import { useQuery as useReactQuery } from '@tanstack/react-query';
+import {
+  useQuery as useReactQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { ErrorHandlerType } from '../../components/errors/helpers/getErrorMessage';
 import useQuery from '../../lib/hooks/useQuery';
 import { getVisibleText } from '../../lib/text/getVisibleText';
 import {
   dismissUploadPrimer,
   fetchUserPreferences,
-  UPLOAD_PRIMER_DISMISSED_KEY,
+  type ServerUserPreferences,
 } from '../../lib/data_layer/userPreferencesSync';
 import styles from '../../styles/shared.module.css';
 import UploadForm from './components/UploadForm/UploadForm';
@@ -69,20 +72,12 @@ function VideoCard({
   );
 }
 
-function readPrimerDismissedHint(): boolean {
-  try {
-    return globalThis.localStorage?.getItem(UPLOAD_PRIMER_DISMISSED_KEY) === 'true';
-  } catch {
-    return false;
-  }
-}
-
 export function UploadPage({ setErrorMessage }: Readonly<Props>) {
   const query = useQuery();
   const view = query.get('view');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [localDismissed, setLocalDismissed] = useState<boolean>(false);
+  const queryClient = useQueryClient();
 
   const prefsQuery = useReactQuery({
     queryKey: ['user-preferences'],
@@ -91,15 +86,10 @@ export function UploadPage({ setErrorMessage }: Readonly<Props>) {
     retry: false,
   });
 
-  const serverSaysDismissed = prefsQuery.data?.uploadPrimerDismissedAt != null;
-  const serverSaysNotDismissed =
-    prefsQuery.isSuccess && prefsQuery.data != null && prefsQuery.data.uploadPrimerDismissedAt == null;
-  // Server is the source of truth. Local hint (filled by hydrateFromServer on login) only avoids
-  // a flash of primer while the query is in flight; once the query resolves, the server wins.
-  const primerDismissed =
-    localDismissed ||
-    serverSaysDismissed ||
-    (!serverSaysNotDismissed && readPrimerDismissedHint());
+  // Server is the only source of truth. Until the query resolves, hide the primer rather
+  // than flash it — a brief delay before showing orientation copy is better than briefly
+  // showing it to someone who has already dismissed it.
+  const primerVisible = prefsQuery.isFetched && prefsQuery.data?.uploadPrimerDismissedAt == null;
 
   useEffect(() => {
     if (searchParams.get('from') === 'pass') {
@@ -111,8 +101,14 @@ export function UploadPage({ setErrorMessage }: Readonly<Props>) {
   }, [searchParams, navigate]);
 
   const handleDismissPrimer = () => {
-    setLocalDismissed(true);
-    void dismissUploadPrimer().then(() => prefsQuery.refetch());
+    const now = new Date().toISOString();
+    queryClient.setQueryData<ServerUserPreferences | null>(['user-preferences'], (current) => ({
+      cardOptions: current?.cardOptions ?? null,
+      theme: current?.theme ?? null,
+      ankiWebAcknowledgedAt: current?.ankiWebAcknowledgedAt ?? null,
+      uploadPrimerDismissedAt: now,
+    }));
+    void dismissUploadPrimer();
   };
 
   if (
@@ -131,7 +127,7 @@ export function UploadPage({ setErrorMessage }: Readonly<Props>) {
           Turn your notes into flashcards in seconds
         </p>
       </header>
-      {!primerDismissed && (
+      {primerVisible && (
         <section className={pageStyles.primer} aria-label="How 2anki works">
           <button
             type="button"

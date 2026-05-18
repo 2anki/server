@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 
@@ -10,7 +10,6 @@ const dismissUploadPrimer = vi.fn(async () => {});
 const fetchUserPreferences = vi.fn();
 
 vi.mock('../../lib/data_layer/userPreferencesSync', () => ({
-  UPLOAD_PRIMER_DISMISSED_KEY: 'upload_primer_dismissed',
   dismissUploadPrimer: () => dismissUploadPrimer(),
   fetchUserPreferences: () => fetchUserPreferences(),
 }));
@@ -41,11 +40,6 @@ describe('UploadPage primer', () => {
   beforeEach(() => {
     dismissUploadPrimer.mockClear();
     fetchUserPreferences.mockReset();
-    globalThis.localStorage?.removeItem('upload_primer_dismissed');
-  });
-
-  afterEach(() => {
-    globalThis.localStorage?.removeItem('upload_primer_dismissed');
   });
 
   it('renders the primer when the server says it is not dismissed', async () => {
@@ -68,12 +62,11 @@ describe('UploadPage primer', () => {
       uploadPrimerDismissedAt: '2026-05-18T12:00:00.000Z',
     });
     renderPage();
-    await waitFor(() =>
-      expect(screen.queryByText('Make cards from your Notion toggles')).not.toBeInTheDocument()
-    );
+    await waitFor(() => expect(fetchUserPreferences).toHaveBeenCalled());
+    expect(screen.queryByText('Make cards from your Notion toggles')).not.toBeInTheDocument();
   });
 
-  it('hides the primer after dismiss is clicked and persists to the server', async () => {
+  it('hides the primer on dismiss and persists to the server', async () => {
     fetchUserPreferences.mockResolvedValue({
       cardOptions: null,
       theme: null,
@@ -82,15 +75,15 @@ describe('UploadPage primer', () => {
     });
     renderPage();
     fireEvent.click(await screen.findByRole('button', { name: 'Dismiss tips' }));
-    expect(screen.queryByText('Make cards from your Notion toggles')).not.toBeInTheDocument();
+    await waitFor(() =>
+      expect(screen.queryByText('Make cards from your Notion toggles')).not.toBeInTheDocument()
+    );
     expect(dismissUploadPrimer).toHaveBeenCalledTimes(1);
   });
 
-  it('uses the localStorage hint to avoid a flash of primer for anonymous users', async () => {
-    fetchUserPreferences.mockResolvedValue(null);
-    globalThis.localStorage?.setItem('upload_primer_dismissed', 'true');
+  it('does not show the primer while the preferences query is loading', () => {
+    fetchUserPreferences.mockReturnValue(new Promise(() => {}));
     renderPage();
-    await waitFor(() => expect(fetchUserPreferences).toHaveBeenCalled());
     expect(screen.queryByText('Make cards from your Notion toggles')).not.toBeInTheDocument();
   });
 });
