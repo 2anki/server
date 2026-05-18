@@ -32,7 +32,10 @@ disable=
     useless-suppression,
     deprecated-pragma,
     use-symbolic-message-instead,
-    import-error
+    import-error,
+    redefined-outer-name,
+    missing-function-docstring,
+    duplicate-code
 
 # Enable specific messages
 enable=c-extension-no-member

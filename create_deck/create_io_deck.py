@@ -116,11 +116,11 @@ if __name__ == "__main__":
     except Exception as e:
         if os.getenv("NODE_ENV") != "production":
             raise e
-        error_details = f"""
+        ERROR_DETAILS = f"""
 Error: {str(e)}
 Traceback:
 {traceback.format_exc()}
 workspace_dir: {workspace_dir if workspace_dir else 'N/A'}
 """
-        send_error_email(f"[ERROR] [2anki.net] IO deck - {str(e)}", error_details)
+        send_error_email(f"[ERROR] [2anki.net] IO deck - {str(e)}", ERROR_DETAILS)
         raise
