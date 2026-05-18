@@ -593,7 +593,7 @@ describe('MCQ detection via DeckParser', () => {
     const workspace = new Workspace(true, 'fs');
     return new DeckParser({
       name: fixtureName,
-      settings: new CardOption({ cherry: 'false' }),
+      settings: new CardOption({ cherry: 'false', 'mcq-enabled': 'true' }),
       files: [{ name: fixtureName, contents: html }],
       noLimits: true,
       workspace,
@@ -628,6 +628,49 @@ describe('MCQ detection via DeckParser', () => {
     expect(card.options.length).toBe(4);
     expect(card.correctIndices).toEqual([1]);
     expect(card.isValidMCQNote()).toBe(true);
+    expect(deck.mcqCount).toBe(1);
+    expect(deck.mcqSkippedCount).toBe(0);
+  });
+
+  test('opt-in: mcq-enabled=false leaves an MCQ-shaped toggle as a Basic note', async () => {
+    const html = fs.readFileSync(path.join(fixtureDir, 'mcq-todo-checked.html')).toString();
+    const workspace = new Workspace(true, 'fs');
+    const parser = new DeckParser({
+      name: 'mcq-todo-checked.html',
+      settings: new CardOption({ cherry: 'false' }),
+      files: [{ name: 'mcq-todo-checked.html', contents: html }],
+      noLimits: true,
+      workspace,
+    });
+    parser.customExporter.save = jest.fn().mockResolvedValue('');
+    await parser.build(new Workspace(true, 'fs'));
+
+    const deck = parser.payload[0];
+    expect(deck.cards.length).toBe(1);
+    expect(deck.cards[0].mcq).toBe(false);
+    expect(deck.mcqCount).toBe(0);
+    expect(deck.mcqSkippedCount).toBe(0);
+  });
+
+  test('markdown: nested bulleted to-do produces MCQ note when mcq-enabled', async () => {
+    const md = `# Using TODO\n\n- A 65-year-old man presents with crushing chest pain radiating to the jaw.\n    - [x]  Acute MI\n    - [ ]  Stable angina\n    - [ ]  GERD\n    - [ ]  Aortic dissection\n`;
+    const workspace = new Workspace(true, 'fs');
+    const parser = new DeckParser({
+      name: 'mcq.md',
+      settings: new CardOption({ cherry: 'false', 'mcq-enabled': 'true' }),
+      files: [{ name: 'mcq.md', contents: md }],
+      noLimits: true,
+      workspace,
+    });
+    parser.customExporter.save = jest.fn().mockResolvedValue('');
+    await parser.build(new Workspace(true, 'fs'));
+
+    const deck = parser.payload[0];
+    expect(deck.cards.length).toBe(1);
+    const card = deck.cards[0];
+    expect(card.mcq).toBe(true);
+    expect(card.options).toEqual(['Acute MI', 'Stable angina', 'GERD', 'Aortic dissection']);
+    expect(card.correctIndices).toEqual([0]);
     expect(deck.mcqCount).toBe(1);
     expect(deck.mcqSkippedCount).toBe(0);
   });

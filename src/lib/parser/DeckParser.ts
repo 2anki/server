@@ -874,8 +874,9 @@ export class DeckParser {
             const toggleHTML = toggle.html();
             if (toggleHTML) {
               const toggleEl = toggle.get(0);
-              const correctIndex = toggleEl ? isMCQ(toggleEl, dom) : -1;
-              const hasMCQShape = toggleEl != null && (
+              const mcqEnabled = this.settings.mcqEnabled;
+              const correctIndex = mcqEnabled && toggleEl ? isMCQ(toggleEl, dom) : -1;
+              const hasMCQShape = mcqEnabled && toggleEl != null && (
                 dom(toggleEl).find('ul.to-do-list > li').length >= 2 ||
                 dom(toggleEl).find('ul.bulleted-list > li').length >= 2
               );

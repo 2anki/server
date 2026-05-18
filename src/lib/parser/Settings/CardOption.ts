@@ -79,6 +79,8 @@ class CardOption {
 
   readonly userInstructions?: string;
 
+  readonly mcqEnabled: boolean;
+
   readonly mcqShowChoices: 'auto' | 'button';
 
   readonly mcqShuffle: boolean;
@@ -135,6 +137,7 @@ class CardOption {
     this.nestedBulletPoints = input['markdown-nested-bullet-points'] === 'true';
     this.userInstructions =
       input['user-instructions'] ?? getDefaultUserInstructions();
+    this.mcqEnabled = input['mcq-enabled'] === 'true';
     const rawShowChoices = input['mcq-show-choices'];
     this.mcqShowChoices =
       rawShowChoices === 'auto' || rawShowChoices === 'button'
@@ -184,6 +187,7 @@ class CardOption {
       'markdown-nested-bullet-points': 'true',
       'claude-ai-flashcards': 'false',
       'share-files-for-debugging': 'false',
+      'mcq-enabled': 'false',
       'mcq-show-choices': 'button',
       'mcq-shuffle': 'true',
       'mcq-tts-question': '',

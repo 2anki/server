@@ -32,9 +32,13 @@ The hot path. Every Notion page, HTML export, markdown file, or zip the user upl
 
 ## MCQ detection
 
-`DeckParser.extractCards()` classifies a Notion toggle as MCQ when its children are either `to_do` blocks (one with `checked: true`) or bulleted list items (one fully bolded with `<strong>`). Detection runs on every upload at no extra cost — if no MCQ-shaped toggle is found the output is identical to pre-MCQ behaviour.
+**Opt-in.** The MCQ pipeline is disabled by default. Detection only fires when the user has enabled it under Card options (`mcq-enabled` key on `CardOption`, default `false`). When off, both the Notion-HTML and markdown paths skip MCQ classification entirely — output is bit-for-bit identical to pre-MCQ behaviour.
 
-**`isMCQ` predicate** lives inside `DeckParser.extractCards()`. It inspects `<span class="checkbox-on">` for the to-do path and `<strong>` annotations for the bold-fallback path. It returns the index of the marked option, or `-1` if none or more than one is marked.
+Two entry points when enabled: `DeckParser.extractCards()` classifies a Notion toggle as MCQ when its children are either `to_do` blocks (one with `checked: true`) or bulleted list items (one fully bolded with `<strong>`). For markdown uploads, `handleNestedBulletPointsInMarkdown.ts::buildNoteFromBack` runs `detectMarkdownMCQ` against the showdown-rendered HTML of the back side, matching `<ul><li><input type="checkbox" checked></li>...</ul>` (GFM task list).
+
+**`isMCQ` predicate** (Notion HTML) lives in `findNotionToggleLists.ts` and is called from `DeckParser.extractCards()`. It inspects `<span class="checkbox-on">` for the to-do path and `<strong>` annotations for the bold-fallback path. It returns the index of the marked option, or `-1` if none or more than one is marked.
+
+**`detectMarkdownMCQ` predicate** (markdown) lives in `findNotionToggleLists.ts`. It walks the back-side DOM, requires every `<ul>` it sees to consist entirely of `<li>` elements whose first child is an `<input type="checkbox">`, and returns `{ isMcqShape, correctIndex, options }`. The exact-one-checked rule mirrors the Notion path.
 
 **`Note` fields for MCQ cards:**
 - `mcq: boolean` — true when the note was classified as MCQ
