@@ -4,6 +4,15 @@ import { Writable } from 'stream';
 import path from 'path';
 import os from 'os';
 import fs from 'fs';
+import { track } from '../services/events/track';
+
+jest.mock('../services/events/track', () => ({ track: jest.fn() }));
+
+const trackMock = track as jest.Mock;
+
+beforeEach(() => {
+  trackMock.mockClear();
+});
 
 function mockResponse(): Response {
   const headers: Record<string, string> = {};
@@ -155,6 +164,103 @@ describe('DownloadController.getBulkDownload', () => {
     expect(res.setHeader).toHaveBeenCalledWith('Content-Type', 'application/zip');
     expect(chunks.length).toBeGreaterThan(0);
     expect(Buffer.concat(chunks).subarray(0, 2).toString()).toBe('PK');
+  });
+
+  it('fires deck_downloaded once with bulk:true and file_count', async () => {
+    const id = 'bulk-event-workspace';
+    const workspace = path.join(workspaceBase, id);
+    fs.mkdirSync(workspace);
+    fs.writeFileSync(path.join(workspace, 'one.apkg'), 'a');
+    fs.writeFileSync(path.join(workspace, 'two.apkg'), 'b');
+    fs.writeFileSync(path.join(workspace, 'three.apkg'), 'c');
+
+    const controller = new DownloadController(makeService() as any);
+    const req = { params: { id } } as unknown as Request;
+    const { res, done } = streamingResponse();
+
+    controller.getBulkDownload(req, res);
+    await done;
+
+    expect(trackMock).toHaveBeenCalledTimes(1);
+    expect(trackMock).toHaveBeenCalledWith('deck_downloaded', {
+      props: { workspace_id: id, bulk: true, file_count: 3 },
+    });
+  });
+
+  it('does not fire deck_downloaded when the workspace has no .apkg files', async () => {
+    const id = 'bulk-empty-workspace';
+    const workspace = path.join(workspaceBase, id);
+    fs.mkdirSync(workspace);
+
+    const controller = new DownloadController(makeService() as any);
+    const req = { params: { id } } as unknown as Request;
+    const res = mockResponse();
+
+    await controller.getBulkDownload(req, res);
+
+    expect(trackMock).not.toHaveBeenCalled();
+  });
+});
+
+describe('DownloadController.getLocalFile', () => {
+  let workspaceBase: string;
+  let originalWorkspaceBase: string | undefined;
+
+  beforeEach(() => {
+    workspaceBase = fs.mkdtempSync(path.join(os.tmpdir(), 'local-test-'));
+    originalWorkspaceBase = process.env.WORKSPACE_BASE;
+    process.env.WORKSPACE_BASE = workspaceBase;
+  });
+
+  afterEach(() => {
+    fs.rmSync(workspaceBase, { recursive: true, force: true });
+    if (originalWorkspaceBase === undefined) {
+      delete process.env.WORKSPACE_BASE;
+    } else {
+      process.env.WORKSPACE_BASE = originalWorkspaceBase;
+    }
+  });
+
+  function fileResponse() {
+    return {
+      sendFile: jest.fn(),
+      status: jest.fn().mockReturnThis(),
+      end: jest.fn(),
+    } as unknown as Response;
+  }
+
+  it('fires deck_downloaded once with bulk:false on a successful send', () => {
+    const id = 'local-event-workspace';
+    const workspace = path.join(workspaceBase, id);
+    fs.mkdirSync(workspace);
+    fs.writeFileSync(path.join(workspace, 'one.apkg'), 'a');
+
+    const controller = new DownloadController(makeService() as any);
+    const req = { params: { id, filename: 'one.apkg' } } as unknown as Request;
+    const res = fileResponse();
+
+    controller.getLocalFile(req, res);
+
+    expect(trackMock).toHaveBeenCalledTimes(1);
+    expect(trackMock).toHaveBeenCalledWith('deck_downloaded', {
+      props: { workspace_id: id, bulk: false },
+    });
+    expect(res.sendFile).toHaveBeenCalled();
+  });
+
+  it('does not fire deck_downloaded when the file is missing', () => {
+    const id = 'local-missing-workspace';
+    const workspace = path.join(workspaceBase, id);
+    fs.mkdirSync(workspace);
+
+    const controller = new DownloadController(makeService() as any);
+    const req = { params: { id, filename: 'gone.apkg' } } as unknown as Request;
+    const res = fileResponse();
+
+    controller.getLocalFile(req, res);
+
+    expect(trackMock).not.toHaveBeenCalled();
+    expect(res.status).toHaveBeenCalledWith(404);
   });
 });
 
