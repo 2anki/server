@@ -1,8 +1,17 @@
+import type { UploadErrorCode } from '../../types/UploadErrorBody';
+
 export type PythonCrashKind =
   | 'invalid-markup'
   | 'unsupported-data-source'
   | 'too-large'
   | 'unknown';
+
+export function toUploadErrorCode(kind: PythonCrashKind): UploadErrorCode {
+  if (kind === 'invalid-markup') return 'invalid_markup';
+  if (kind === 'unsupported-data-source') return 'malformed_notion';
+  if (kind === 'too-large') return 'too_large';
+  return 'unknown';
+}
 
 interface PythonExitInfo {
   code: number | null;

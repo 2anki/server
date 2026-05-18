@@ -1,4 +1,4 @@
-import { buildPythonExitError, PythonExitError } from './buildPythonExitError';
+import { buildPythonExitError, PythonExitError, toUploadErrorCode } from './buildPythonExitError';
 
 describe('buildPythonExitError', () => {
   it("classifies invalid HTML tag warnings as invalid-markup and tells the user to simplify the offending block", () => {
@@ -142,5 +142,23 @@ describe('buildPythonExitError', () => {
     });
     expect(error.rawOutput).toBe("Unsupported 'data_source'!");
     expect(error.code).toBe(1);
+  });
+});
+
+describe('toUploadErrorCode', () => {
+  it('maps invalid-markup to invalid_markup', () => {
+    expect(toUploadErrorCode('invalid-markup')).toBe('invalid_markup');
+  });
+
+  it('maps unsupported-data-source to malformed_notion', () => {
+    expect(toUploadErrorCode('unsupported-data-source')).toBe('malformed_notion');
+  });
+
+  it('maps too-large to too_large', () => {
+    expect(toUploadErrorCode('too-large')).toBe('too_large');
+  });
+
+  it('maps unknown to unknown', () => {
+    expect(toUploadErrorCode('unknown')).toBe('unknown');
   });
 });
