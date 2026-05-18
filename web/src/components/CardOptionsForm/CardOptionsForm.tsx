@@ -48,7 +48,7 @@ const DEFAULT_TOGGLE_MODE = 'close_toggle';
 const DEFAULT_PAGE_EMOJI = 'first_emoji';
 const DEFAULT_FONT_SIZE = '20';
 const DEFAULT_MCQ_ENABLED = false;
-const DEFAULT_MCQ_SHOW_CHOICES = 'button';
+const DEFAULT_MCQ_SHOW_CHOICES = 'auto';
 const DEFAULT_MCQ_SHUFFLE = true;
 const DEFAULT_MCQ_TTS_LANG = '';
 

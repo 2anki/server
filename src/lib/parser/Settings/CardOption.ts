@@ -188,7 +188,7 @@ class CardOption {
       'claude-ai-flashcards': 'false',
       'share-files-for-debugging': 'false',
       'mcq-enabled': 'false',
-      'mcq-show-choices': 'button',
+      'mcq-show-choices': 'auto',
       'mcq-shuffle': 'true',
       'mcq-tts-question': '',
       'mcq-tts-correct-answer': '',
