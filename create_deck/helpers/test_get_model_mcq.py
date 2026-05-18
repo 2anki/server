@@ -99,7 +99,7 @@ class TestApplyMcqSettings:
 
     def test_back_contains_correct_row_background_color(self):
         template = get_template("n2a-mcq.json")
-        assert "#ECFDF5" in template["styling"]
+        assert "#A7F3D0" in template["styling"]
 
     def test_back_contains_incorrect_row_background_color(self):
         template = get_template("n2a-mcq.json")
