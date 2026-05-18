@@ -113,6 +113,13 @@ function parseCardCountHeader(headers: Headers): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+function parseNonNegativeIntHeader(headers: Headers, name: string): number {
+  const raw = headers.get(name);
+  if (!raw) return 0;
+  const parsed = Number.parseInt(raw, 10);
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
+}
+
 function resolveDeckName(headers: Headers): string {
   const fileNameHeader = getHeadersFilename(headers);
   const fallback =
@@ -217,6 +224,10 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
   const [downloadLink, setDownloadLink] = useState<string | null>(null);
   const [deckName, setDeckName] = useState('');
   const [cardCount, setCardCount] = useState<number | null>(null);
+  const [mcqCount, setMcqCount] = useState<number>(0);
+  const [mcqSkippedCount, setMcqSkippedCount] = useState<number>(0);
+  const [mcqDrawerOpen, setMcqDrawerOpen] = useState(false);
+  const [mcqShowAnswer, setMcqShowAnswer] = useState(false);
   const [warningMessage, setWarningMessage] = useState<string | null>(null);
   const [limitInfo, setLimitInfo] = useState<LimitInfo | null>(null);
   const [localError, setLocalError] = useState<UploadErrorBody | null>(null);
@@ -292,6 +303,10 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
     setDownloadLink(null);
     setDeckName('');
     setCardCount(null);
+    setMcqCount(0);
+    setMcqSkippedCount(0);
+    setMcqDrawerOpen(false);
+    setMcqShowAnswer(false);
     setWarningMessage(null);
     setLimitInfo(null);
     setTrialError(null);
@@ -422,6 +437,8 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
       setDeckName(resolveDeckName(request.headers));
       const count = parseCardCountHeader(request.headers);
       setCardCount(count);
+      setMcqCount(parseNonNegativeIntHeader(request.headers, 'X-MCQ-Count'));
+      setMcqSkippedCount(parseNonNegativeIntHeader(request.headers, 'X-MCQ-Skipped-Count'));
       const blob = await request.blob();
       setDownloadLink(globalThis.URL.createObjectURL(blob));
       setProgressWidth(100);
@@ -510,6 +527,8 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
       setDeckName(resolveDeckName(request.headers));
       const count = parseCardCountHeader(request.headers);
       setCardCount(count);
+      setMcqCount(parseNonNegativeIntHeader(request.headers, 'X-MCQ-Count'));
+      setMcqSkippedCount(parseNonNegativeIntHeader(request.headers, 'X-MCQ-Skipped-Count'));
       const blob = await request.blob();
       setDownloadLink(globalThis.URL.createObjectURL(blob));
       setProgressWidth(100);
@@ -604,6 +623,8 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
       setDeckName(resolveDeckName(request.headers));
       const count = parseCardCountHeader(request.headers);
       setCardCount(count);
+      setMcqCount(parseNonNegativeIntHeader(request.headers, 'X-MCQ-Count'));
+      setMcqSkippedCount(parseNonNegativeIntHeader(request.headers, 'X-MCQ-Skipped-Count'));
       const blob = await request.blob();
       setDownloadLink(globalThis.URL.createObjectURL(blob));
       setProgressWidth(100);
@@ -708,6 +729,40 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
     globalThis.document.cookie = `auto_sync_prompt_shown=true; path=/; expires=${expires.toUTCString()}`;
   };
 
+  const renderMcqDrawer = () => (
+    <div className={formStyles.mcqDrawer}>
+      <p className={formStyles.mcqDrawerHeading}>Preview</p>
+      {mcqShowAnswer ? (
+        <>
+          <p className={formStyles.mcqDrawerQuestion}>
+            Open your downloaded deck in Anki to see the full question and correct answer highlighted.
+          </p>
+          <button
+            type="button"
+            className={formStyles.mcqDrawerToggle}
+            onClick={() => setMcqShowAnswer(false)}
+          >
+            Show question
+          </button>
+        </>
+      ) : (
+        <>
+          <p className={formStyles.mcqDrawerQuestion}>
+            Your deck contains {mcqCount} multiple-choice {mcqCount === 1 ? 'card' : 'cards'}.
+            Each card shows a question stem with labelled options — tap the correct one in Anki to reveal the answer.
+          </p>
+          <button
+            type="button"
+            className={formStyles.mcqDrawerToggle}
+            onClick={() => setMcqShowAnswer(true)}
+          >
+            Show answer
+          </button>
+        </>
+      )}
+    </div>
+  );
+
   const renderSuccessState = () => (
     <div className={formStyles.stateContent}>
       <CheckCircleIcon className={formStyles.iconSuccess} />
@@ -719,6 +774,27 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
           </span>
         )}
       </p>
+      {mcqCount > 0 && (
+        <>
+          <button
+            type="button"
+            className={formStyles.mcqBadge}
+            onClick={() => setMcqDrawerOpen((prev) => !prev)}
+            aria-expanded={mcqDrawerOpen}
+          >
+            {mcqCount} multiple choice
+            {mcqSkippedCount > 0 && (
+              <span
+                className={formStyles.mcqSkipped}
+                title="Mark the correct option in Notion to render these as multiple choice. Use a Notion checkbox or bold the correct bullet."
+              >
+                &nbsp;&mdash;&nbsp;{mcqSkippedCount} skipped, no answer marked
+              </span>
+            )}
+          </button>
+          {mcqDrawerOpen && renderMcqDrawer()}
+        </>
+      )}
       <p className={formStyles.successSecondary}>
         {deckName} was saved to your downloads
       </p>
@@ -979,6 +1055,8 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
         setDeckName(resolveDeckName(request.headers));
         const count = parseCardCountHeader(request.headers);
         setCardCount(count);
+        setMcqCount(parseNonNegativeIntHeader(request.headers, 'X-MCQ-Count'));
+        setMcqSkippedCount(parseNonNegativeIntHeader(request.headers, 'X-MCQ-Skipped-Count'));
         const blob = await request.blob();
         setDownloadLink(globalThis.URL.createObjectURL(blob));
         setProgressWidth(100);
