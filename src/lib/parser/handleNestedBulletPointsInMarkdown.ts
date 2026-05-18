@@ -68,6 +68,7 @@ function buildNoteFromBack(
     note.mcq = true;
     note.options = mcq.options;
     note.correctIndices = [mcq.correctIndex];
+    note.back = '';
     return { note, mcqShapedWithoutMarker: false };
   }
   return { note, mcqShapedWithoutMarker: mcq.isMcqShape };
