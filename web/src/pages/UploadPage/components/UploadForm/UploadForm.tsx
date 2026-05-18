@@ -32,7 +32,6 @@ type ZoneState =
   | 'error';
 
 interface LimitInfo {
-  isAnonymous: boolean;
   filename: string | null;
 }
 
@@ -46,6 +45,13 @@ const REJECTED_FALLBACK =
   'The server rejected the upload. Try again or email support@2anki.net.';
 const NETWORK_FALLBACK =
   "Couldn't upload your file. Check your connection and try again.";
+
+function isLimitRedirect(url: URL): boolean {
+  return (
+    url.pathname === '/limit' ||
+    url.searchParams.get('error') === 'upload_limit_exceeded'
+  );
+}
 
 function toFriendlyThrownError(error: unknown): string {
   const isNetworkError =
@@ -192,8 +198,10 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
   const [source, setSource] = useState<UploadSource>('local');
   const { data: userLocals } = useUserLocals();
   const queryClient = useQueryClient();
+  const autoSyncActive = userLocals?.autoSyncActive === true;
+  const successPromptShown = globalThis.document?.cookie?.includes('auto_sync_prompt_shown=true') === true;
+  const showAutoSyncPrompt = zoneState === 'success' && !autoSyncActive && !successPromptShown;
   const showTrialButton =
-    !limitInfo?.isAnonymous &&
     userLocals?.user?.trial_started_at == null &&
     userLocals?.locals?.patreon !== true;
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -316,9 +324,8 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
       });
       if (request.redirected) {
         const redirectUrl = new URL(request.url, globalThis.location.origin);
-        if (redirectUrl.searchParams.get('error') === 'upload_limit_exceeded') {
-          const isAnonymous = redirectUrl.pathname === '/login';
-          setLimitInfo({ isAnonymous, filename: first?.name ?? null });
+        if (isLimitRedirect(redirectUrl)) {
+          setLimitInfo({ filename: first?.name ?? null });
           setZoneState('limitReached');
           return;
         }
@@ -400,9 +407,8 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
       });
       if (request.redirected) {
         const redirectUrl = new URL(request.url, globalThis.location.origin);
-        if (redirectUrl.searchParams.get('error') === 'upload_limit_exceeded') {
-          const isAnonymous = redirectUrl.pathname === '/login';
-          setLimitInfo({ isAnonymous, filename: first?.name ?? null });
+        if (isLimitRedirect(redirectUrl)) {
+          setLimitInfo({ filename: first?.name ?? null });
           setZoneState('limitReached');
           return;
         }
@@ -473,11 +479,9 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
       });
       if (request.redirected) {
         const redirectUrl = new URL(request.url, globalThis.location.origin);
-        if (redirectUrl.searchParams.get('error') === 'upload_limit_exceeded') {
-          const isAnonymous = redirectUrl.pathname === '/login';
+        if (isLimitRedirect(redirectUrl)) {
           const firstFile = fileInputRef.current?.files?.[0];
           setLimitInfo({
-            isAnonymous,
             filename: firstFile?.name ?? null,
           });
           setZoneState('limitReached');
@@ -596,6 +600,12 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
     );
   };
 
+  const handleSuccessPromptClick = () => {
+    const expires = new Date();
+    expires.setDate(expires.getDate() + 30);
+    globalThis.document.cookie = `auto_sync_prompt_shown=true; path=/; expires=${expires.toUTCString()}`;
+  };
+
   const renderSuccessState = () => (
     <div className={formStyles.stateContent}>
       <CheckCircleIcon className={formStyles.iconSuccess} />
@@ -621,6 +631,18 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
         >
           Didn't get the file? Download it here.
         </button>
+      )}
+      {showAutoSyncPrompt && (
+        <p className={formStyles.autoSyncPrompt}>
+          Want this to update automatically?{' '}
+          <a
+            href="/pricing?ref=upload-success-prompt"
+            className={formStyles.autoSyncPromptLink}
+            onClick={handleSuccessPromptClick}
+          >
+            Try Auto Sync
+          </a>
+        </p>
       )}
       <button
         type="button"
@@ -720,12 +742,10 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
   const renderLimitState = () => (
     <div className={formStyles.limitContent}>
       <p className={formStyles.limitTitle}>
-        You've reached your monthly limit
+        You reached 100 cards this month
       </p>
       <p className={formStyles.limitDescription}>
-        {limitInfo?.isAnonymous
-          ? 'Create a free account to keep converting, or upgrade for unlimited decks.'
-          : 'Upgrade your plan to continue converting files.'}
+        Upgrade to keep converting.
       </p>
       {limitInfo?.filename && (
         <span className={formStyles.limitFilename}>
@@ -733,21 +753,12 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
         </span>
       )}
       <div className={formStyles.limitActions}>
-        {limitInfo?.isAnonymous ? (
-          <Link
-            to="/register?redirect=/upload"
-            className={`${sharedStyles.btnPrimary} ${sharedStyles.btnInline}`}
-          >
-            Create free account
-          </Link>
-        ) : (
-          <Link
-            to="/pricing"
-            className={`${sharedStyles.btnPrimary} ${sharedStyles.btnInline}`}
-          >
-            Upgrade to continue
-          </Link>
-        )}
+        <Link
+          to="/limit?ref=upload-limit-wall"
+          className={`${sharedStyles.btnPrimary} ${sharedStyles.btnInline}`}
+        >
+          See upgrade options
+        </Link>
         {showTrialButton && (
           <button
             type="button"

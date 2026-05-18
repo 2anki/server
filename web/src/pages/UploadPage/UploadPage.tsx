@@ -3,8 +3,10 @@ import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { ErrorHandlerType } from '../../components/errors/helpers/getErrorMessage';
 import useQuery from '../../lib/hooks/useQuery';
 import { getVisibleText } from '../../lib/text/getVisibleText';
+import { useUserLocals } from '../../lib/hooks/useUserLocals';
 import styles from '../../styles/shared.module.css';
 import UploadForm from './components/UploadForm/UploadForm';
+import { NotionSyncBanner } from './components/NotionSyncBanner';
 import pageStyles from './UploadPage.module.css';
 
 const WALKTHROUGHS: ReadonlyArray<[string, string]> = [
@@ -68,6 +70,8 @@ export function UploadPage({ setErrorMessage }: Readonly<Props>) {
   const view = query.get('view');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { data: userLocals } = useUserLocals();
+  const autoSyncActive = userLocals?.autoSyncActive === true;
 
   useEffect(() => {
     if (searchParams.get('from') === 'pass') {
@@ -108,6 +112,7 @@ export function UploadPage({ setErrorMessage }: Readonly<Props>) {
           See a 30-second example
         </a>
       </section>
+      <NotionSyncBanner autoSyncActive={autoSyncActive} />
       <UploadForm setErrorMessage={setErrorMessage} />
       <p className={pageStyles.footnote}>
         Your uploaded files are deleted after 2 hours.

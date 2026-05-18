@@ -5,6 +5,8 @@ export interface ChangelogEntry {
 }
 
 export const changelog: ChangelogEntry[] = [
+  { type: 'feature', title: 'Auto Sync surfaces at the moment you need it — the monthly limit page now shows Unlimited and Auto Sync side by side, and a banner appears on upload when your Notion workspace is connected', date: '2026-05-18' },
+  { type: 'feature', title: 'PDF files convert into decks — drop a PDF and each pair of pages becomes a card, front and back', date: '2026-05-18' },
   { type: 'feature', title: 'Format-specific pages for Notion, PDF, Markdown, CSV, HTML, and .apkg — find the right conversion path at /convert/<format>', date: '2026-05-18' },
   { type: 'feature', title: 'Notion Marketplace landing page — Auto Sync and Unlimited plans side by side at /notion-marketplace', date: '2026-05-18' },
   { type: 'fix', title: 'Upload page explains the toggle model before you drop a file — and names the file when no toggles are found', date: '2026-05-18' },

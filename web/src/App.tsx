@@ -78,6 +78,7 @@ const ImageOcclusionPage = lazy(() =>
 );
 const ChatPage = lazy(() => import('./pages/Chat/ChatPage'));
 const NotionLandingPage = lazy(() => import('./pages/NotionLandingPage/NotionLandingPage'));
+const LimitPage = lazy(() => import('./pages/LimitPage/LimitPage'));
 
 const queryClient = new QueryClient();
 
@@ -211,6 +212,7 @@ function AppContent({
             path="/successful-checkout"
             element={<SuccessfulCheckoutPage />}
           />
+          <Route path="/limit" element={<LimitPage />} />
           <Route path="/account" element={requireAuth(<AccountPage />)} />
           <Route
             path="/import"
