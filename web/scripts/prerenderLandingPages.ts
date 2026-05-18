@@ -5,6 +5,7 @@ import quizletCopy from '../src/pages/LandingPage/copy/quizlet';
 import markdownCopy from '../src/pages/LandingPage/copy/markdown';
 import pdfCopy from '../src/pages/LandingPage/copy/pdf';
 import { CONVERT_LANDING_PAGES } from '../src/pages/ConvertLandingPage/convertLandingConfig';
+import { ANSWERS_PAGES } from '../src/pages/AnswersPage/answersConfig';
 import type { LandingCopy } from '../src/pages/LandingPage/types';
 
 const LANDING_COPIES: LandingCopy[] = [
@@ -169,6 +170,32 @@ export function emitLandingPages(buildDir: string): string[] {
   return emitted;
 }
 
+export function emitAnswersPages(buildDir: string): string[] {
+  const indexPath = join(buildDir, 'index.html');
+  const source = readFileSync(indexPath, 'utf8');
+  const emitted: string[] = [];
+
+  for (const config of ANSWERS_PAGES.values()) {
+    const pathname = `/answers/${config.slug}`;
+    const copy: LandingCopy = {
+      pathname,
+      title: config.title,
+      description: config.description,
+      h1: config.h1,
+      subhead: config.intro,
+      faqs: [],
+    };
+    const slug = pathname.replace(/^\//, '');
+    const outDir = join(buildDir, slug);
+    const outPath = join(outDir, 'index.html');
+    mkdirSync(dirname(outPath), { recursive: true });
+    const html = rewriteRoot(rewriteHead(source, copy), copy);
+    writeFileSync(outPath, html, 'utf8');
+    emitted.push(outPath);
+  }
+  return emitted;
+}
+
 if (process.argv[1] && process.argv[1].endsWith('prerenderLandingPages.ts')) {
   const buildDir = join(process.cwd(), 'build');
   const files = emitLandingPages(buildDir);
@@ -177,4 +204,8 @@ if (process.argv[1] && process.argv[1].endsWith('prerenderLandingPages.ts')) {
   }
   const marketplacePage = emitNotionMarketplacePage(buildDir);
   process.stdout.write(`prerendered ${marketplacePage}\n`);
+  const answerFiles = emitAnswersPages(buildDir);
+  for (const file of answerFiles) {
+    process.stdout.write(`prerendered ${file}\n`);
+  }
 }
