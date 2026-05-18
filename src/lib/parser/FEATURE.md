@@ -28,6 +28,8 @@ The hot path. Every Notion page, HTML export, markdown file, or zip the user upl
 ## Things to know before editing
 
 - `DeckParser.test.ts` is the integration safety net. Anything that changes the output shape needs a green run there.
+- `__fixtures__/notion-html-2024/` is the permanent regression corpus for the late-2024 Notion HTML export format. Add new Notion export patterns here rather than as ad-hoc inline strings in tests.
+- `helpers/handleClozeDeletions.ts` merges adjacent `<code>` siblings before numbering clozes. This handles the case where Notion emits one `<code>` per formatting run (bold, italic, color) within a single cloze span.
 - `experimental/` is exactly that — gated behind feature flags. Don't fold it into the main path until the flag is removed.
 - `Settings/` reads per-user parser overrides from `ParserRulesService`. New options need both a setting and a sensible default.
 - `getFileContents.ts` is the only file in this dir that touches the filesystem; keep it that way.
