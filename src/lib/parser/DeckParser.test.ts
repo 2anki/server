@@ -632,6 +632,22 @@ describe('MCQ detection via DeckParser', () => {
     expect(deck.mcqSkippedCount).toBe(0);
   });
 
+  test('real Notion export: fragmented ul.to-do-list under display:contents wrappers produces MCQ note', async () => {
+    const parser = buildParserFromFixture('mcq-real-notion-export.html');
+    parser.customExporter.save = jest.fn().mockResolvedValue('');
+    await parser.build(new Workspace(true, 'fs'));
+
+    const deck = parser.payload[0];
+    expect(deck.cards.length).toBe(1);
+    const card = deck.cards[0];
+    expect(card.mcq).toBe(true);
+    expect(card.options.length).toBe(4);
+    expect(card.correctIndices).toEqual([0]);
+    expect(card.isValidMCQNote()).toBe(true);
+    expect(deck.mcqCount).toBe(1);
+    expect(deck.mcqSkippedCount).toBe(0);
+  });
+
   test('no marker: MCQ-shaped toggle with all unchecked to-dos falls back to Basic note', async () => {
     const parser = buildParserFromFixture('mcq-no-marker.html');
     parser.customExporter.save = jest.fn().mockResolvedValue('');
