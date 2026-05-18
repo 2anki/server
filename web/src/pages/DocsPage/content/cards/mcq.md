@@ -19,10 +19,10 @@ The shape, written in Notion's markdown shortcuts:
 
 ```markdown
 > A 65-year-old man presents with crushing chest pain radiating to the jaw.
-- [x]  Acute MI
-- [ ]  Stable angina
-- [ ]  GERD
-- [ ]  Aortic dissection
+    - [x]  Acute MI
+    - [ ]  Stable angina
+    - [ ]  GERD
+    - [ ]  Aortic dissection
 ```
 
 What you get in Anki:
@@ -38,10 +38,10 @@ The shape:
 
 ```markdown
 > Which antibiotic class inhibits cell wall synthesis by blocking transpeptidase?
-- Fluoroquinolones
-- **Beta-lactams**
-- Macrolides
-- Aminoglycosides
+    - Fluoroquinolones
+    - **Beta-lactams**
+    - Macrolides
+    - Aminoglycosides
 ```
 
 What you get in Anki:
@@ -55,12 +55,12 @@ Anything inside the toggle that isn't a to-do or a bullet becomes the explanatio
 
 ```markdown
 > Which finding is most specific for PE on ECG?
-- [x]  S1Q3T3 pattern
-- [ ]  ST elevation in V1–V4
-- [ ]  Left bundle branch block
-- [ ]  Peaked T waves
+    - [x]  S1Q3T3 pattern
+    - [ ]  ST elevation in V1–V4
+    - [ ]  Left bundle branch block
+    - [ ]  Peaked T waves
 
-S1Q3T3 (large S in lead I, Q wave in lead III, inverted T in lead III) is a classic but uncommon finding in PE. Sinus tachycardia is the most common ECG finding.
+    S1Q3T3 (large S in lead I, Q wave in lead III, inverted T in lead III) is a classic but uncommon finding in PE. Sinus tachycardia is the most common ECG finding.
 ```
 
 It renders on the card back under an **Explanation** heading.

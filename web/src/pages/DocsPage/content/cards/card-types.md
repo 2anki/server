@@ -86,10 +86,10 @@ In Notion's markdown shortcuts:
 
 ```markdown
 > Which antibiotic class inhibits cell wall synthesis?
-- [ ]  Fluoroquinolones
-- [x]  Beta-lactams
-- [ ]  Macrolides
-- [ ]  Aminoglycosides
+    - [ ]  Fluoroquinolones
+    - [x]  Beta-lactams
+    - [ ]  Macrolides
+    - [ ]  Aminoglycosides
 ```
 
 The full guide with step-by-step worked examples lives on [Multiple choice questions](/documentation/cards/mcq).
