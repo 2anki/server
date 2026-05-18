@@ -103,11 +103,11 @@ export const getErrorMessage = (error: unknown): string => {
 
 const PER_CODE_COPY: Partial<Record<UploadErrorBody['code'], FriendlyError>> = {
   unsupported_format: {
-    title: "We can't read this file type.",
-    detail: 'Use .zip, .html, .md, .pdf, .docx, .pptx, .csv, or .apkg.',
+    title: "This file type isn't supported.",
+    detail: 'Use .zip, .html, .md, .pdf, .docx, .xlsx, .pptx, or .csv.',
   },
   too_large: {
-    title: 'This file is too large to convert in one go.',
+    title: 'This file is too large.',
     detail: 'Split it into smaller files and try again.',
   },
   password_protected_pdf: {
@@ -115,8 +115,8 @@ const PER_CODE_COPY: Partial<Record<UploadErrorBody['code'], FriendlyError>> = {
     detail: 'Remove the password in your PDF reader, save a copy, and upload that.',
   },
   invalid_markup: {
-    title: "Something on this page has formatting we can't read.",
-    detail: 'Open it in Notion, remove or simplify the broken block, and convert again.',
+    title: "Part of this file has formatting we couldn't read.",
+    detail: 'Open the source, remove or simplify the block that broke, and try again.',
   },
 };
 
