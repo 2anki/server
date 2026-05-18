@@ -584,3 +584,147 @@ describe('notion-html-2024 regression corpus', () => {
     expect(clozeTokens).toBe(1);
   });
 });
+
+describe('MCQ detection via DeckParser', () => {
+  const fixtureDir = path.join(__dirname, '__fixtures__');
+
+  function buildParserFromFixture(fixtureName: string) {
+    const html = fs.readFileSync(path.join(fixtureDir, fixtureName)).toString();
+    const workspace = new Workspace(true, 'fs');
+    return new DeckParser({
+      name: fixtureName,
+      settings: new CardOption({ cherry: 'false', 'mcq-enabled': 'true' }),
+      files: [{ name: fixtureName, contents: html }],
+      noLimits: true,
+      workspace,
+    });
+  }
+
+  test('happy path: to-do checkbox produces MCQ note with correct shape', async () => {
+    const parser = buildParserFromFixture('mcq-todo-checked.html');
+    parser.customExporter.save = jest.fn().mockResolvedValue('');
+    await parser.build(new Workspace(true, 'fs'));
+
+    const deck = parser.payload[0];
+    expect(deck.cards.length).toBe(1);
+    const card = deck.cards[0];
+    expect(card.mcq).toBe(true);
+    expect(card.options.length).toBe(4);
+    expect(card.correctIndices).toEqual([1]);
+    expect(card.isValidMCQNote()).toBe(true);
+    expect(deck.mcqCount).toBe(1);
+    expect(deck.mcqSkippedCount).toBe(0);
+  });
+
+  test('happy path: fully-bolded bullet produces MCQ note via bold fallback', async () => {
+    const parser = buildParserFromFixture('mcq-bold-fallback.html');
+    parser.customExporter.save = jest.fn().mockResolvedValue('');
+    await parser.build(new Workspace(true, 'fs'));
+
+    const deck = parser.payload[0];
+    expect(deck.cards.length).toBe(1);
+    const card = deck.cards[0];
+    expect(card.mcq).toBe(true);
+    expect(card.options.length).toBe(4);
+    expect(card.correctIndices).toEqual([1]);
+    expect(card.isValidMCQNote()).toBe(true);
+    expect(deck.mcqCount).toBe(1);
+    expect(deck.mcqSkippedCount).toBe(0);
+  });
+
+  test('opt-in: mcq-enabled=false leaves an MCQ-shaped toggle as a Basic note', async () => {
+    const html = fs.readFileSync(path.join(fixtureDir, 'mcq-todo-checked.html')).toString();
+    const workspace = new Workspace(true, 'fs');
+    const parser = new DeckParser({
+      name: 'mcq-todo-checked.html',
+      settings: new CardOption({ cherry: 'false' }),
+      files: [{ name: 'mcq-todo-checked.html', contents: html }],
+      noLimits: true,
+      workspace,
+    });
+    parser.customExporter.save = jest.fn().mockResolvedValue('');
+    await parser.build(new Workspace(true, 'fs'));
+
+    const deck = parser.payload[0];
+    expect(deck.cards.length).toBe(1);
+    expect(deck.cards[0].mcq).toBe(false);
+    expect(deck.mcqCount).toBe(0);
+    expect(deck.mcqSkippedCount).toBe(0);
+  });
+
+  test('markdown: nested bulleted to-do produces MCQ note when mcq-enabled', async () => {
+    const md = `# Using TODO\n\n- A 65-year-old man presents with crushing chest pain radiating to the jaw.\n    - [x]  Acute MI\n    - [ ]  Stable angina\n    - [ ]  GERD\n    - [ ]  Aortic dissection\n`;
+    const workspace = new Workspace(true, 'fs');
+    const parser = new DeckParser({
+      name: 'mcq.md',
+      settings: new CardOption({ cherry: 'false', 'mcq-enabled': 'true' }),
+      files: [{ name: 'mcq.md', contents: md }],
+      noLimits: true,
+      workspace,
+    });
+    parser.customExporter.save = jest.fn().mockResolvedValue('');
+    await parser.build(new Workspace(true, 'fs'));
+
+    const deck = parser.payload[0];
+    expect(deck.cards.length).toBe(1);
+    const card = deck.cards[0];
+    expect(card.mcq).toBe(true);
+    expect(card.options).toEqual(['Acute MI', 'Stable angina', 'GERD', 'Aortic dissection']);
+    expect(card.correctIndices).toEqual([0]);
+    expect(deck.mcqCount).toBe(1);
+    expect(deck.mcqSkippedCount).toBe(0);
+    expect(card.back).toBe('');
+  });
+
+  test('real Notion export: fragmented ul.to-do-list under display:contents wrappers produces MCQ note', async () => {
+    const parser = buildParserFromFixture('mcq-real-notion-export.html');
+    parser.customExporter.save = jest.fn().mockResolvedValue('');
+    await parser.build(new Workspace(true, 'fs'));
+
+    const deck = parser.payload[0];
+    expect(deck.cards.length).toBe(1);
+    const card = deck.cards[0];
+    expect(card.mcq).toBe(true);
+    expect(card.options.length).toBe(4);
+    expect(card.correctIndices).toEqual([0]);
+    expect(card.isValidMCQNote()).toBe(true);
+    expect(deck.mcqCount).toBe(1);
+    expect(deck.mcqSkippedCount).toBe(0);
+    expect(card.back).toBe('');
+  });
+
+  test('no marker: MCQ-shaped toggle with all unchecked to-dos falls back to Basic note', async () => {
+    const parser = buildParserFromFixture('mcq-no-marker.html');
+    parser.customExporter.save = jest.fn().mockResolvedValue('');
+    await parser.build(new Workspace(true, 'fs'));
+
+    const deck = parser.payload[0];
+    expect(deck.cards.length).toBe(1);
+    expect(deck.cards[0].mcq).toBe(false);
+    expect(deck.mcqCount).toBe(0);
+    expect(deck.mcqSkippedCount).toBe(1);
+  });
+
+  test('regression: existing non-MCQ fixture produces mcq=false on all cards', async () => {
+    const fixtureHtml = fs.readFileSync(
+      path.join(__dirname, '../../test/fixtures/Nested Toggles.html')
+    ).toString();
+    const workspace = new Workspace(true, 'fs');
+    const parser = new DeckParser({
+      name: 'Nested Toggles.html',
+      settings: new CardOption({ cherry: 'true', reversed: 'true', 'basic-reversed': 'true' }),
+      files: [{ name: 'Nested Toggles.html', contents: fixtureHtml }],
+      noLimits: true,
+      workspace,
+    });
+    parser.customExporter.save = jest.fn().mockResolvedValue('');
+    await parser.build(workspace);
+
+    const deck = parser.payload[0];
+    expect(deck.cards.length).toBeGreaterThan(0);
+    expect(deck.mcqCount).toBe(0);
+    for (const card of deck.cards) {
+      expect(card.mcq).toBe(false);
+    }
+  });
+});

@@ -29,6 +29,8 @@ interface PrepareDeckResult {
   apkg: Buffer;
   deck: Deck[];
   cardCount: number;
+  mcqCount: number;
+  mcqSkippedCount: number;
   warning?: string;
 }
 
@@ -267,6 +269,8 @@ export async function PrepareDeck(
       apkg,
       deck: [],
       cardCount: claudeCardCount,
+      mcqCount: 0,
+      mcqSkippedCount: 0,
     };
   }
 
@@ -283,17 +287,23 @@ export async function PrepareDeck(
         apkg,
         deck: parser.payload,
         cardCount: parser.totalCardCount(),
+        mcqCount: 0,
+        mcqSkippedCount: 0,
         warning: parser.usedHeuristic ? 'markdown-heuristic' : undefined,
       };
     }
   }
 
+  const mcqCount = parser.payload.reduce((sum, d) => sum + d.mcqCount, 0);
+  const mcqSkippedCount = parser.payload.reduce((sum, d) => sum + d.mcqSkippedCount, 0);
   const apkg = await parser.build(input.workspace);
   return {
     name: getDeckFilename(parser.name),
     apkg,
     deck: parser.payload,
     cardCount: parser.totalCardCount(),
+    mcqCount,
+    mcqSkippedCount,
     warning: parser.usedHeuristic ? 'markdown-heuristic' : undefined,
   };
 }
@@ -305,6 +315,8 @@ export interface DeckInfoOnlyResult {
   inputFileName: string;
   deck: Deck[];
   cardCount: number;
+  mcqCount: number;
+  mcqSkippedCount: number;
   warning?: string;
   needsIndividualBuild: boolean;
 }
@@ -332,6 +344,8 @@ export async function prepareDeckInfoOnly(
         inputFileName: input.name,
         deck: parser.payload,
         cardCount: 0,
+        mcqCount: 0,
+        mcqSkippedCount: 0,
         warning: parser.usedHeuristic ? 'markdown-heuristic' : undefined,
         needsIndividualBuild: true,
       };
@@ -341,6 +355,9 @@ export async function prepareDeckInfoOnly(
   const outputPath = path.join(outputWorkspace.location, `${getDeckFilename(parser.name)}`);
   const deckInfoPath = parser.writeDeckInfo(deckSubWorkspace);
 
+  const mcqCount = parser.payload.reduce((sum, d) => sum + d.mcqCount, 0);
+  const mcqSkippedCount = parser.payload.reduce((sum, d) => sum + d.mcqSkippedCount, 0);
+
   return {
     deckInfoPath,
     outputPath,
@@ -348,6 +365,8 @@ export async function prepareDeckInfoOnly(
     inputFileName: input.name,
     deck: parser.payload,
     cardCount: parser.totalCardCount(),
+    mcqCount,
+    mcqSkippedCount,
     warning: parser.usedHeuristic ? 'markdown-heuristic' : undefined,
     needsIndividualBuild: false,
   };

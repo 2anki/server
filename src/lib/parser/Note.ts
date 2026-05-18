@@ -19,6 +19,12 @@ export default class Note {
 
   notionLink?: string;
 
+  mcq = false;
+
+  options: string[] = [];
+
+  correctIndices: number[] = [];
+
   constructor(name: string, back: string) {
     this.name = name;
     this.back = back;
@@ -53,6 +59,9 @@ export default class Note {
     this.media = clozeCard.media;
     this.notionId = clozeCard.notionId;
     this.notionLink = clozeCard.notionLink;
+    this.mcq = clozeCard.mcq;
+    this.options = clozeCard.options;
+    this.correctIndices = clozeCard.correctIndices;
   }
 
   hasRefreshIcon() {
@@ -65,6 +74,15 @@ export default class Note {
     note.media = input.media;
     note.number = input.number + 0.5;
     return note;
+  }
+
+  isValidMCQNote(): boolean {
+    return (
+      this.mcq &&
+      this.name.trim().length > 0 &&
+      this.options.length >= 2 &&
+      this.correctIndices.length === 1
+    );
   }
 
   isValidBasicNote(): boolean {

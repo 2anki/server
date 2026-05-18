@@ -40,7 +40,7 @@ export default function getListItems(
         <li id={result.id} className={`${styleWithColors(getListColor(list))}`}>
           {todo && (
             <div
-              className={`checkbox checkbox-${checked ? 'on' : 'off'}`}
+              className={`checkbox checkbox-${todo.checked ? 'on' : 'off'}`}
             ></div>
           )}
           <div

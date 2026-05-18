@@ -13,7 +13,8 @@ description: Words 2anki and Anki use, in plain language.
 - **Flashcard** — a single front/back pair. 2anki makes basic, reversed, cloze, and input cards.
 - **Input card** — a card where you type the answer. Triggered by bold text in HTML when **Treat Bold Text as Input** is on.
 - **Job** — the background task that turns your upload into a deck. It moves through pending → running → done (or failed).
-- **Note type** — Anki's term for the template behind a card. 2anki ships namespaced types like `n2a-basic`, `n2a-cloze`, and `n2a-input`.
+- **MCQ card** — a multiple-choice card with 2–7 options and one correct answer. Triggered by a Notion toggle whose children are to-do blocks with one checked, or bullets with one fully bolded.
+- **Note type** — Anki's term for the template behind a card. 2anki ships namespaced types like `n2a-basic`, `n2a-cloze`, `n2a-input`, and `n2a-mcq`.
 - **Rules** — user-defined transformations that override the default toggle-to-card mapping. Advanced, optional.
 - **Settings** — your account-level defaults. Per-upload options override settings.
 - **Sync** — keeps a Notion page and an Anki deck in step. See [How sync works](/documentation/sync/how-it-works).

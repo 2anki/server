@@ -14,6 +14,7 @@ import sanitizeTags from '../../../lib/anki/sanitizeTags';
 import { S3FileName, SuffixFrom } from '../../../lib/misc/file';
 import getUniqueFileName from '../../../lib/misc/getUniqueFileName';
 import Deck from '../../../lib/parser/Deck';
+import { detectNotionApiMCQ } from '../../../lib/parser/findNotionToggleLists';
 import Note from '../../../lib/parser/Note';
 import ParserRules from '../../../lib/parser/ParserRules';
 import CardOption from '../../../lib/parser/Settings';
@@ -208,8 +209,18 @@ class BlockHandler {
       const ankiNote = new Note(name, back ?? '');
       ankiNote.media = this.exporter.media;
       let isBasicType = true;
+      if (this.settings.mcqEnabled && back) {
+        const mcq = detectNotionApiMCQ(back);
+        if (mcq.isMcqShape && mcq.correctIndex >= 0) {
+          isBasicType = false;
+          ankiNote.mcq = true;
+          ankiNote.options = mcq.options;
+          ankiNote.correctIndices = [mcq.correctIndex];
+          ankiNote.back = '';
+        }
+      }
       // Look for cloze deletion cards
-      if (this.settings.isCloze) {
+      if (!ankiNote.mcq && this.settings.isCloze) {
         const clozeCard = await getClozeDeletionCard(block);
         if (clozeCard) {
           isBasicType = false;
@@ -217,7 +228,7 @@ class BlockHandler {
         }
       }
       // Look for input cards
-      if (this.settings.useInput) {
+      if (!ankiNote.mcq && this.settings.useInput) {
         const inputCard = await getInputCard(rules, block);
         if (inputCard) {
           isBasicType = false;
@@ -225,9 +236,11 @@ class BlockHandler {
         }
       }
 
-      ankiNote.back = back || '';
+      if (!ankiNote.mcq) {
+        ankiNote.back = back || '';
+      }
       ankiNote.notionLink = this.__notionLink(block.id, notionBaseLink);
-      if (this.settings.addNotionLink) {
+      if (this.settings.addNotionLink && !ankiNote.mcq) {
         ankiNote.back += RenderNotionLink(ankiNote.notionLink!, this);
       }
       ankiNote.notionId = this.settings.useNotionId ? block.id : undefined;

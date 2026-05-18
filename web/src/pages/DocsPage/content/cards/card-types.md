@@ -1,9 +1,9 @@
 ---
 title: Card types
-description: The three card shapes 2anki makes, and when each fires.
+description: The four card shapes 2anki makes, and when each fires.
 ---
 
-2anki produces three card shapes. Which one you get depends on what's in your source — bold text becomes a typed answer, code becomes a cloze, everything else stays as a basic front/back card.
+2anki produces four card shapes. Which one you get depends on what's in your source — bold text becomes a typed answer, code becomes a cloze, a checked option in a toggle becomes an MCQ, and everything else stays as a basic front/back card.
 
 **Plan:** Free (all three card types work on every plan)
 
@@ -76,6 +76,26 @@ Turn on **Treat Bold Text as Input** in card options. Then bold text on the back
 
 Best for facts where exact spelling matters — dates, names, equation results. Skip it for definitions or anything where wording can vary.
 
+## Multiple choice
+
+MCQ cards show a vignette plus 2–7 options; on the back, the correct option highlights green and the explanation reveals.
+
+Author one by making a Notion toggle whose title is the question. Inside the toggle, add a to-do block per option (`/to-do`) and check exactly one — or add a bulleted list and bold exactly one option's full text. The checked or bolded option is the correct answer.
+
+In Notion's markdown shortcuts:
+
+```markdown
+> Which antibiotic class inhibits cell wall synthesis?
+    - [ ]  Fluoroquinolones
+    - [x]  Beta-lactams
+    - [ ]  Macrolides
+    - [ ]  Aminoglycosides
+```
+
+The full guide with step-by-step worked examples lives on [Multiple choice questions](/documentation/cards/mcq).
+
+MCQ is opt-in. Switch it **On** in [Card options](/card-options) under the **Multiple choice** group, then upload. Detection works on Notion HTML exports and on plain markdown. Toggles that don't match the MCQ shape fall through to Basic, Cloze, or Input as usual.
+
 ## How to switch between them
 
 You don't pick a card type per card. You pick a card option, and 2anki applies it across the whole upload:
@@ -83,7 +103,8 @@ You don't pick a card type per card. You pick a card option, and 2anki applies i
 - **Basic** is the default whenever a toggle has nothing else going on.
 - **Cloze** fires automatically when **Cloze Deletion** is on (default) and your toggle contains code.
 - **Input** fires when **Treat Bold Text as Input** is on and your toggle has bold text on the back.
+- **Multiple choice** fires when a Notion toggle's children are to-do blocks with one checked, or bulleted items with one fully bolded.
 
 If a single toggle has both code and bold text, cloze wins. If you want a different mix, split the toggle in your source.
 
-The full card option list with defaults is on [Card options](/documentation/cards/card-options). The card templates Anki uses (`n2a-basic`, `n2a-cloze`, `n2a-input`) are listed in the [glossary](/documentation/reference/glossary).
+The full card option list with defaults is on [Card options](/documentation/cards/card-options). The card templates Anki uses (`n2a-basic`, `n2a-cloze`, `n2a-input`, `n2a-mcq`) are listed in the [glossary](/documentation/reference/glossary).

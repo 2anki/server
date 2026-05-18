@@ -81,7 +81,7 @@ async function processFile(
     });
 
     if (d) {
-      packages.push(new Package(d.name, d.cardCount ?? 0));
+      packages.push(new Package(d.name, d.cardCount ?? 0, d.mcqCount ?? 0, d.mcqSkippedCount ?? 0));
       if (d.warning) warnings.push(d.warning);
     }
   } else if (isCompressedFile(filename) || isCompressedFile(key)) {

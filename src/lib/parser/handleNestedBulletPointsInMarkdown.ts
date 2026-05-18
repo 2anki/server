@@ -12,6 +12,7 @@ import CustomExporter from './exporters/CustomExporter';
 import Workspace from './WorkSpace';
 
 import { File } from '../zip/zip';
+import { detectMarkdownMCQ } from './findNotionToggleLists';
 
 function dedent(text: string): string {
   const lines = text.split('\n');
@@ -22,13 +23,19 @@ function dedent(text: string): string {
   return lines.map((l) => l.slice(minIndent)).join('\n');
 }
 
+interface BuildNoteResult {
+  note: Note;
+  mcqShapedWithoutMarker: boolean;
+}
+
 function buildNoteFromBack(
   front: string,
   rawBack: string,
   exporter: CustomExporter,
   files: File[],
-  workspace: Workspace
-): Note {
+  workspace: Workspace,
+  mcqEnabled: boolean
+): BuildNoteResult {
   const convertedBack = markdownToHTML(dedent(rawBack), true);
   const dom = cheerio.load(convertedBack, { xmlMode: true });
   const media: string[] = [];
@@ -51,7 +58,20 @@ function buildNoteFromBack(
 
   const note = new Note(front, dom.html() || '');
   note.media = media;
-  return note;
+
+  if (!mcqEnabled) {
+    return { note, mcqShapedWithoutMarker: false };
+  }
+
+  const mcq = detectMarkdownMCQ(convertedBack);
+  if (mcq.isMcqShape && mcq.correctIndex >= 0) {
+    note.mcq = true;
+    note.options = mcq.options;
+    note.correctIndices = [mcq.correctIndex];
+    note.back = '';
+    return { note, mcqShapedWithoutMarker: false };
+  }
+  return { note, mcqShapedWithoutMarker: mcq.isMcqShape };
 }
 
 const BULLET_POINT_REGEX = /^-/;
@@ -96,13 +116,30 @@ export const handleNestedBulletPointsInMarkdown = (
   let currentFront = '';
   let currentBack = '';
 
+  const flushCurrent = () => {
+    const result = buildNoteFromBack(
+      currentFront,
+      currentBack,
+      exporter,
+      files,
+      workspace,
+      settings.mcqEnabled
+    );
+    deck.cards.push(result.note);
+    if (result.note.mcq) {
+      deck.mcqCount += 1;
+    } else if (result.mcqShapedWithoutMarker) {
+      deck.mcqSkippedCount += 1;
+    }
+  };
+
   for (const line of lines) {
     if (line.trim().length === 0) {
       continue;
     }
 
     if (BULLET_POINT_REGEX.exec(line) && isCreating) {
-      deck.cards.push(buildNoteFromBack(currentFront, currentBack, exporter, files, workspace));
+      flushCurrent();
       isCreating = false;
       currentFront = '';
       currentBack = '';
@@ -118,7 +155,7 @@ export const handleNestedBulletPointsInMarkdown = (
   }
 
   if (currentBack !== '' || currentFront !== '') {
-    deck.cards.push(buildNoteFromBack(currentFront, currentBack, exporter, files, workspace));
+    flushCurrent();
   }
 
   return decks;
