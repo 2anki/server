@@ -1,0 +1,72 @@
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 5rem;
+}
+
+.h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1.2;
+  margin: 0 0 1rem;
+  color: var(--color-text, #111827);
+}
+
+.intro {
+  font-size: 1.125rem;
+  color: var(--color-muted, #4b5563);
+  margin: 0 0 2.5rem;
+  line-height: 1.6;
+}
+
+.section {
+  margin-bottom: 2rem;
+}
+
+.sectionHeading {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem;
+  color: var(--color-text, #111827);
+}
+
+.sectionBody {
+  font-size: 1rem;
+  color: var(--color-muted, #374151);
+  line-height: 1.7;
+  margin: 0;
+}
+
+.related {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border, #e5e7eb);
+}
+
+.relatedHeading {
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-muted, #6b7280);
+  margin: 0 0 0.75rem;
+}
+
+.relatedList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.relatedLink {
+  color: var(--color-link, #2563eb);
+  text-decoration: none;
+  font-size: 0.9375rem;
+}
+
+.relatedLink:hover {
+  text-decoration: underline;
+}

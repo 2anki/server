@@ -45,6 +45,19 @@ function LandingPage({ copy, setErrorMessage }: Readonly<LandingPageProps>) {
   const canonical = `https://2anki.net${copy.pathname}`;
   const registerHref = `/register?source=${encodeURIComponent(copy.pathname)}`;
 
+  const faqJsonLd = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: copy.faqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.q,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.a,
+      },
+    })),
+  });
+
   return (
     <div className={styles.landing}>
       <Helmet>
@@ -57,6 +70,7 @@ function LandingPage({ copy, setErrorMessage }: Readonly<LandingPageProps>) {
         <meta property="og:type" content="website" />
         <meta name="twitter:title" content={copy.title} />
         <meta name="twitter:description" content={copy.description} />
+        <script type="application/ld+json">{faqJsonLd}</script>
       </Helmet>
 
       <section id="upload" className={styles.hero}>

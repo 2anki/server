@@ -78,6 +78,7 @@ const ImageOcclusionPage = lazy(() =>
 );
 const ChatPage = lazy(() => import('./pages/Chat/ChatPage'));
 const NotionLandingPage = lazy(() => import('./pages/NotionLandingPage/NotionLandingPage'));
+const AnswersPage = lazy(() => import('./pages/AnswersPage/AnswersPage'));
 
 const queryClient = new QueryClient();
 
@@ -307,6 +308,7 @@ function AppContent({
               <ConvertLandingPage setErrorMessage={setErrorMessage} />
             }
           />
+          <Route path="/answers/:slug" element={<AnswersPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </AppShell>

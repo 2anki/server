@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useSearchParams } from 'react-router-dom';
 import TopMessage from '../../components/TopMessage/TopMessage';
 import { firePaywallEvent } from '../../lib/analytics/firePaywallEvent';
@@ -198,8 +199,58 @@ export default function PricingPage({
   }
   const waitlistLabel = getWaitlistLabel();
 
+  const pricingFaqJsonLd = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: 'How many cards can I make for free?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: '100 cards per month on the free plan. No account required for one-off conversions — drop a file and download a deck.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'What is the Unlimited plan?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Unlimited is $6 per month. It removes the 100-card limit, adds PDF support, lets you run multiple conversions at once, and includes unlimited Anki to Notion imports.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'What is Auto Sync?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Auto Sync is $30 per month. Connect your Notion workspace once and 2anki checks your pages every 5 minutes. Edits in Notion flow into your Anki decks automatically — no exports, no manual steps.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'Is there a one-time payment option?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Yes — Lifetime starts at $345, paid once. It includes all Unlimited features plus Auto Sync. Apply on the pricing page; access is granted by review.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: 'What is a Day Pass or Week Pass?',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: 'Day Pass ($4) gives 24 hours of unlimited access. Week Pass ($9) gives 7 days. Both are one-time payments, no subscription required.',
+        },
+      },
+    ],
+  });
+
   return (
     <div className={styles.page}>
+      <Helmet>
+        <script type="application/ld+json">{pricingFaqJsonLd}</script>
+      </Helmet>
       <div className={styles.header}>
         <p className={styles.kicker}>
           <span className={styles.kickerDot} aria-hidden="true" />

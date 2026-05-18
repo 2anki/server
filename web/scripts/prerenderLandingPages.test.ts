@@ -2,8 +2,9 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { emitLandingPages } from './prerenderLandingPages';
+import { emitLandingPages, emitAnswersPages } from './prerenderLandingPages';
 import notionCopy from '../src/pages/LandingPage/copy/notion';
+import { ANSWERS_PAGES } from '../src/pages/AnswersPage/answersConfig';
 
 let buildDir: string;
 
@@ -149,5 +150,55 @@ describe('emitLandingPages', () => {
     );
     expect(html).toContain('<meta property="og:image"');
     expect(html).toContain('<meta name="twitter:card"');
+  });
+});
+
+describe('emitAnswersPages', () => {
+  it('writes one HTML file per answers slug', () => {
+    const files = emitAnswersPages(buildDir);
+    expect(files).toHaveLength(ANSWERS_PAGES.size);
+    expect(
+      files.some((p) => p.endsWith('answers/convert-notion-to-anki/index.html'))
+    ).toBe(true);
+    expect(
+      files.some((p) => p.endsWith('answers/notion-to-anki-sync/index.html'))
+    ).toBe(true);
+    expect(
+      files.some((p) => p.endsWith('answers/pdf-to-anki/index.html'))
+    ).toBe(true);
+    expect(
+      files.some((p) => p.endsWith('answers/quizlet-to-anki/index.html'))
+    ).toBe(true);
+  });
+
+  it('sets the title for each answers page', () => {
+    emitAnswersPages(buildDir);
+    const config = ANSWERS_PAGES.get('convert-notion-to-anki')!;
+    const html = readFileSync(
+      join(buildDir, 'answers', 'convert-notion-to-anki', 'index.html'),
+      'utf8'
+    );
+    expect(html).toContain(`<title>${config.title}</title>`);
+  });
+
+  it('sets the canonical link to the answers path', () => {
+    emitAnswersPages(buildDir);
+    const html = readFileSync(
+      join(buildDir, 'answers', 'pdf-to-anki', 'index.html'),
+      'utf8'
+    );
+    expect(html).toContain(
+      '<link rel="canonical" href="https://2anki.net/answers/pdf-to-anki">'
+    );
+  });
+
+  it('injects the h1 into the root div', () => {
+    emitAnswersPages(buildDir);
+    const config = ANSWERS_PAGES.get('quizlet-to-anki')!;
+    const html = readFileSync(
+      join(buildDir, 'answers', 'quizlet-to-anki', 'index.html'),
+      'utf8'
+    );
+    expect(html).toContain(config.h1);
   });
 });

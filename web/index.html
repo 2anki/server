@@ -58,21 +58,49 @@
     "url": "https://2anki.net",
     "applicationCategory": "EducationalApplication",
     "operatingSystem": "Web",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD"
-    },
-    "description": "Convert Notion pages, PDF, Markdown, and other formats into Anki flashcards. Free and open source.",
+    "offers": [
+      {
+        "@type": "Offer",
+        "name": "Free",
+        "price": "0",
+        "priceCurrency": "USD",
+        "description": "100 cards per month, no account required for one-off conversions"
+      },
+      {
+        "@type": "Offer",
+        "name": "Unlimited",
+        "price": "6",
+        "priceCurrency": "USD",
+        "description": "Unlimited flashcards, PDF support, concurrent conversions — billed monthly"
+      },
+      {
+        "@type": "Offer",
+        "name": "Auto Sync",
+        "price": "30",
+        "priceCurrency": "USD",
+        "description": "Automatic Notion to Anki sync every 5 minutes — billed monthly"
+      }
+    ],
+    "description": "Convert Notion pages, PDF, Markdown, HTML, CSV, Word, and Quizlet exports into Anki flashcard decks. Free up to 100 cards per month. Open source.",
     "featureList": [
-      "Notion to Anki conversion",
-      "PDF to Anki conversion",
-      "Markdown to Anki conversion",
+      "Notion to Anki conversion via OAuth or export zip",
+      "PDF to Anki conversion — lecture slides and textbook chapters",
+      "Markdown and Obsidian to Anki conversion",
       "HTML to Anki conversion",
-      "CSV to Anki conversion",
-      "Cloze deletion support",
-      "Image and audio embedding"
-    ]
+      "CSV and Excel to Anki conversion",
+      "Quizlet export to Anki conversion",
+      "Auto Sync — Notion edits reflect in Anki every 5 minutes",
+      "Cloze deletion support from Notion toggle nesting",
+      "Image and audio embedding in cards",
+      "Anki to Notion import — up to 1000 notes per import"
+    ],
+    "softwareVersion": "2",
+    "license": "https://github.com/2anki/server/blob/main/LICENSE",
+    "codeRepository": "https://github.com/2anki/server",
+    "author": {
+      "@type": "Person",
+      "name": "Alexander Alemayhu"
+    }
   }
   </script>
   <!-- Hotjar Tracking Code for https://2anki.net -->
