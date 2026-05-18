@@ -7,6 +7,7 @@ import getAcceptedContentTypes from '../../helpers/getAcceptedContentTypes';
 import { extractErrorMessage } from '../../helpers/extractErrorMessage';
 import getHeadersFilename from '../../helpers/getHeadersFilename';
 import { getDownloadFileName } from '../../../DownloadsPage/helpers/getDownloadFileName';
+import { getEmptyDeckChatPrompt } from '../../helpers/getEmptyDeckChatPrompt';
 import { useDrag } from './hooks/useDrag';
 import { useFileValidation } from './hooks/useFileValidation';
 import { useDropboxChooser, type DropboxFile } from './hooks/useDropboxChooser';
@@ -20,6 +21,7 @@ import { useUserLocals } from '../../../../lib/hooks/useUserLocals';
 import { get2ankiApi } from '../../../../lib/backend/get2ankiApi';
 import { fireAnalyticsEvent } from '../../../../lib/analytics/fireAnalyticsEvent';
 import { track } from '../../../../lib/analytics/track';
+import ChatPanel from '../../../../components/ChatPanel/ChatPanel';
 import formStyles from './UploadForm.module.css';
 import sharedStyles from '../../../../styles/shared.module.css';
 
@@ -196,6 +198,7 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
   const [drivePending, setDrivePending] = useState(false);
   const [driveError, setDriveError] = useState<string | null>(null);
   const [source, setSource] = useState<UploadSource>('local');
+  const [showInlineChat, setShowInlineChat] = useState(false);
   const { data: userLocals } = useUserLocals();
   const queryClient = useQueryClient();
   const autoSyncActive = userLocals?.autoSyncActive === true;
@@ -246,6 +249,7 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
     setDriveMimeType(null);
     setDriveError(null);
     setSource('local');
+    setShowInlineChat(false);
     resetValidation();
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -705,6 +709,9 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
     );
   };
 
+  const currentFilename = (): string =>
+    driveFilename ?? dropboxFilename ?? displayFilename(fileInputRef.current);
+
   const renderEmptyDeckState = () => {
     const isGoogleDriveFile = driveMimeType?.startsWith('application/vnd.google-apps.') ?? false;
     const emptyTitle = isGoogleDriveFile
@@ -731,9 +738,6 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
           >
             Try a different file
           </button>
-          <Link to={chatCtaHref('empty')} className={formStyles.resetLink}>
-            Stuck? Ask Claude about this file →
-          </Link>
         </div>
       </div>
     );
@@ -779,9 +783,6 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
       </div>
     </div>
   );
-
-  const currentFilename = (): string =>
-    driveFilename ?? dropboxFilename ?? displayFilename(fileInputRef.current);
 
   const chatCtaHref = (reason: 'error' | 'empty' | 'unsupported'): string => {
     const filename = currentFilename();
@@ -900,6 +901,28 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
           }}
         />
       </label>
+      {zoneState === 'emptyDeck' && (
+        <div className={formStyles.inlineChatWrapper}>
+          <button
+            type="button"
+            className={formStyles.inlineChatToggle}
+            onClick={() => setShowInlineChat((prev) => !prev)}
+            aria-expanded={showInlineChat}
+          >
+            <i className={`${formStyles.inlineChatToggleChevron} ${showInlineChat ? formStyles.inlineChatToggleChevronOpen : ''}`} aria-hidden="true">›</i>
+            Ask Claude about this file
+          </button>
+          {showInlineChat && (
+            <div className={formStyles.inlineChatBody}>
+              <ChatPanel
+                key={currentFilename()}
+                initialPrompt={getEmptyDeckChatPrompt(driveMimeType, currentFilename())}
+                cameFromUpload
+              />
+            </div>
+          )}
+        </div>
+      )}
       {showChips && (
         <div
           id="upload-panel-dropbox"
