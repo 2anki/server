@@ -20,11 +20,27 @@ describe('convertPdfTextToHtml', () => {
       pageCount: 5,
       avgCharsPerPage: 2,
       isDrmLocked: true,
+      needsCredential: false,
     });
 
     const result = await convertPdfTextToHtml(Buffer.from('x'), 'locked.pdf');
 
-    expect(result).toEqual({ html: '', cardCount: 0, isDrmLocked: true });
+    expect(result).toEqual({ html: '', cardCount: 0, isDrmLocked: true, needsCredential: false });
+    expect(mockSynthesize).not.toHaveBeenCalled();
+  });
+
+  it('returns needsCredential true when extractPdfText signals missing credential', async () => {
+    mockExtract.mockResolvedValue({
+      pages: [],
+      pageCount: 0,
+      avgCharsPerPage: 0,
+      isDrmLocked: false,
+      needsCredential: true,
+    });
+
+    const result = await convertPdfTextToHtml(Buffer.from('x'), 'protected.pdf');
+
+    expect(result).toEqual({ html: '', cardCount: 0, isDrmLocked: false, needsCredential: true });
     expect(mockSynthesize).not.toHaveBeenCalled();
   });
 
@@ -34,6 +50,7 @@ describe('convertPdfTextToHtml', () => {
       pageCount: 1,
       avgCharsPerPage: 60,
       isDrmLocked: false,
+      needsCredential: false,
     });
     mockSynthesize.mockReturnValue([
       { front: 'Q1', back: 'A1', tags: [] },
@@ -43,6 +60,7 @@ describe('convertPdfTextToHtml', () => {
     const result = await convertPdfTextToHtml(Buffer.from('x'), 'study.pdf');
 
     expect(result.isDrmLocked).toBe(false);
+    expect(result.needsCredential).toBe(false);
     expect(result.cardCount).toBe(2);
     expect(result.html).toContain('<title>study</title>');
     expect(result.html.match(/<ul class="toggle">/g)).toHaveLength(2);
@@ -56,6 +74,7 @@ describe('convertPdfTextToHtml', () => {
       pageCount: 1,
       avgCharsPerPage: 60,
       isDrmLocked: false,
+      needsCredential: false,
     });
     mockSynthesize.mockReturnValue([
       { front: '<script>alert("x")</script>', back: 'a & b', tags: [] },
@@ -74,6 +93,7 @@ describe('convertPdfTextToHtml', () => {
       pageCount: 1,
       avgCharsPerPage: 60,
       isDrmLocked: false,
+      needsCredential: false,
     });
     mockSynthesize.mockReturnValue([{ front: 'line1\nline2', back: 'b', tags: [] }]);
 
@@ -88,6 +108,7 @@ describe('convertPdfTextToHtml', () => {
       pageCount: 1,
       avgCharsPerPage: 60,
       isDrmLocked: false,
+      needsCredential: false,
     });
     mockSynthesize.mockReturnValue([{ front: 'q', back: 'a', tags: [] }]);
 

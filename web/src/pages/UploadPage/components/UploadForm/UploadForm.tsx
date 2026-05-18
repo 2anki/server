@@ -531,7 +531,6 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
               setPdfCredential('');
               setPdfUnlockError(null);
               setPdfAttemptCount(0);
-              setPdfSkipped(false);
               setZoneState('lockedPdf');
               return false;
             }

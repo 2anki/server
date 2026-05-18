@@ -50,12 +50,10 @@ export async function extractPdfText(
 ): Promise<PdfExtractionResult> {
   const t0 = Date.now();
 
-  const parseOptions = credential != null ? { userPassword: credential } : undefined;
-
   let result;
   try {
     result = credential != null
-      ? await pdfParse(buffer, parseOptions)
+      ? await pdfParse(buffer, { userPassword: credential } as Parameters<typeof pdfParse>[1])
       : await pdfParse(buffer);
   } catch (error) {
     if (isPasswordException(error)) {
