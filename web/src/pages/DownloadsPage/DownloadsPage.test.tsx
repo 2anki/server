@@ -3,7 +3,7 @@ import '@testing-library/jest-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
 
-import { DownloadsPage } from './DownloadsPage';
+import { DownloadsPage, renderJobStatusCell } from './DownloadsPage';
 import JobResponse from '../../schemas/public/JobResponse';
 import { JobsId } from '../../schemas/public/Jobs';
 
@@ -80,6 +80,8 @@ const buildJob = (overrides: Partial<JobResponse> = {}): JobResponse => ({
   type: 'page',
   job_reason_failure: null,
   restartable: false,
+  download_key: null,
+  upload_id: null,
   ...overrides,
 });
 
@@ -241,5 +243,37 @@ describe('DownloadsPage source labels', () => {
     mockJobs = [buildJob({ type: 'page', status: 'done', title: 'Notion deck' })];
     renderAt('/downloads');
     expect(screen.getAllByText('Notion').length).toBeGreaterThan(0);
+  });
+});
+
+describe('renderJobStatusCell — URL construction', () => {
+  it('uses /api/download/u/<download_key> when download_key is present', () => {
+    const job = buildJob({
+      status: 'done',
+      type: 'page',
+      download_key: 'abc123.apkg',
+      upload_id: 5,
+    });
+    const result = renderJobStatusCell(job);
+    const { container } = render(<>{result}</>);
+    const link = container.querySelector('a');
+    expect(link?.getAttribute('href')).toBe('/api/download/u/abc123.apkg');
+  });
+
+  it('renders no Download action when download_key is null on a done job', () => {
+    const job = buildJob({
+      status: 'done',
+      type: 'page',
+      download_key: null,
+      upload_id: null,
+    });
+    const result = renderJobStatusCell(job);
+    expect(result).toBeNull();
+  });
+
+  it('renders in-progress indicator for non-terminal status', () => {
+    const job = buildJob({ status: 'started', download_key: null, upload_id: null });
+    const result = renderJobStatusCell(job);
+    expect(result).not.toBeNull();
   });
 });

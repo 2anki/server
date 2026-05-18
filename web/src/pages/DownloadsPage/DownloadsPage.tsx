@@ -83,7 +83,7 @@ function applyFilter(rows: DeckRow[], filter: FilterValue): DeckRow[] {
   }
 }
 
-function renderJobStatusCell(j: JobResponse) {
+export function renderJobStatusCell(j: JobResponse) {
   if (isDoneJob(j.status)) {
     if (j.type === 'apkg_import') {
       let notionUrl: string | null = null;
@@ -99,17 +99,20 @@ function renderJobStatusCell(j: JobResponse) {
         </a>
       );
     }
-    return (
-      <a
-        href={`/api/upload/jobs/${j.object_id}/download`}
-        className={styles.iconButton}
-        aria-label={`Download ${j.title}`}
-        title="Download"
-        onClick={() => { fireAnalyticsEvent('deck_downloaded'); track('deck_downloaded'); }}
-      >
-        <DownloadIcon width={18} height={18} />
-      </a>
-    );
+    if (j.download_key != null) {
+      return (
+        <a
+          href={`/api/download/u/${j.download_key}`}
+          className={styles.iconButton}
+          aria-label={`Download ${j.title}`}
+          title="Download"
+          onClick={() => { fireAnalyticsEvent('deck_downloaded'); track('deck_downloaded'); }}
+        >
+          <DownloadIcon width={18} height={18} />
+        </a>
+      );
+    }
+    return null;
   }
   if (isFailedJob(j.status)) {
     return <StatusTag status={j.status as JobStatus} />;
@@ -284,6 +287,9 @@ export function DownloadsPage({ setError }: Readonly<DownloadsPageProps>) {
                               <td>
                                 <div className={styles.actions}>
                                   {renderJobStatusCell(row.job)}
+                                  {row.source === 'notion' && isDoneJob(row.job.status) && row.job.upload_id != null && (
+                                    <SendToAnkifyButton uploadId={row.job.upload_id} filename={row.job.title} />
+                                  )}
                                   <button
                                     type="button"
                                     onClick={() => deleteJob(row.job.id)}

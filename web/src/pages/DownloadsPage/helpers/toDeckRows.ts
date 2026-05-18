@@ -25,6 +25,14 @@ export function toDeckRows(
 ): DeckRow[] {
   const rows: DeckRow[] = [];
 
+  const suppressedUploadObjectIds = new Set<string>();
+  for (const job of jobs) {
+    const source = jobSource(job.type);
+    if (source === 'notion' && job.status === 'done' && job.download_key != null) {
+      suppressedUploadObjectIds.add(job.object_id);
+    }
+  }
+
   for (const job of jobs) {
     const sortKey = job.created_at == null ? EPOCH : new Date(job.created_at);
     const source = jobSource(job.type);
@@ -32,6 +40,9 @@ export function toDeckRows(
   }
 
   for (const upload of uploads) {
+    if (upload.object_id != null && suppressedUploadObjectIds.has(upload.object_id)) {
+      continue;
+    }
     const sortKey = upload.created_at == null ? EPOCH : new Date(upload.created_at);
     rows.push({ source: 'upload', kind: 'file', upload, sortKey });
   }
