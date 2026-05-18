@@ -33,6 +33,8 @@ export default interface GoogleDriveUploads {
   url: string;
 
   owner: number;
+
+  last_converted_at: Date | null;
 }
 
 /** Represents the initializer for the table public.google_drive_uploads */
@@ -64,6 +66,9 @@ export interface GoogleDriveUploadsInitializer {
   url: string;
 
   owner: number;
+
+  /** Default value: CURRENT_TIMESTAMP */
+  last_converted_at?: Date | null;
 }
 
 /** Represents the mutator for the table public.google_drive_uploads */
@@ -95,4 +100,6 @@ export interface GoogleDriveUploadsMutator {
   url?: string;
 
   owner?: number;
+
+  last_converted_at?: Date | null;
 }
