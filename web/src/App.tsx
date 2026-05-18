@@ -64,6 +64,9 @@ const MarkdownToAnki = lazy(
   () => import('./pages/LandingPage/MarkdownToAnki')
 );
 const PdfToAnki = lazy(() => import('./pages/LandingPage/PdfToAnki'));
+const ConvertLandingPage = lazy(
+  () => import('./pages/ConvertLandingPage/ConvertLandingPage')
+);
 const MagicLinkPage = lazy(() => import('./pages/MagicLinkPage'));
 const PrintPage = lazy(() => import('./pages/PrintPage'));
 const WhatsNewPage = lazy(() => import('./pages/WhatsNewPage/WhatsNewPage'));
@@ -298,6 +301,12 @@ function AppContent({
             element={<PdfToAnki setErrorMessage={setErrorMessage} />}
           />
           <Route path="/notion-marketplace" element={<NotionLandingPage />} />
+          <Route
+            path="/convert/:slug"
+            element={
+              <ConvertLandingPage setErrorMessage={setErrorMessage} />
+            }
+          />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </AppShell>
