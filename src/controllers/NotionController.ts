@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 
-import performConversion from '../lib/storage/jobs/helpers/performConversion';
+import { runConversion } from '../lib/conversionPool';
 import { InProgressJobError, JobLimitError } from '../lib/storage/jobs/helpers/errors';
 import JobRepository from '../data_layer/JobRepository';
 import { FindOrCreateJobUseCase } from '../usecases/jobs/FindOrCreateJobUseCase';
@@ -180,7 +180,9 @@ class NotionController {
   }
 
   async convert(req: Request, res: Response) {
-    const api = await this.service.getNotionAPI(res.locals.owner);
+    // Auth check: throws when the owner has no Notion token, preserving the
+    // pre-refactor 500 response shape. The worker re-fetches the token itself.
+    await this.service.getNotionAPI(res.locals.owner);
     const { id, title, type } = req.body;
 
     if (!id) {
@@ -223,8 +225,7 @@ class NotionController {
       const startJob = new StartJobUseCase(jobRepository);
       await startJob.execute({ id, owner });
 
-      performConversion(database, {
-        api,
+      runConversion({
         id,
         type,
         owner,

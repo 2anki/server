@@ -1,5 +1,6 @@
 import path from 'path';
 import fs from 'fs';
+import fsp from 'fs/promises';
 import { getRandomUUID } from '../../shared/helpers/getRandomUUID';
 
 class Workspace {
@@ -32,18 +33,14 @@ class Workspace {
     }
   }
 
-  public getFirstAPKG(): Promise<Buffer | null> {
-    return new Promise((resolve, reject) => {
-      fs.readdir(this.location, (err, files) => {
-        const apkg = files.find((file) => file.endsWith('.apkg'));
-        if (apkg) {
-          resolve(fs.readFileSync(path.join(this.location, apkg)));
-        } else {
-          console.log('No APKG file found', this.location);
-          reject(new Error('No APKG file found'));
-        }
-      });
-    });
+  public async getFirstAPKG(): Promise<Buffer | null> {
+    const files = await fsp.readdir(this.location);
+    const apkg = files.find((file) => file.endsWith('.apkg'));
+    if (!apkg) {
+      console.log('No APKG file found', this.location);
+      throw new Error('No APKG file found');
+    }
+    return fsp.readFile(path.join(this.location, apkg));
   }
 }
 
