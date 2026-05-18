@@ -328,7 +328,7 @@ describe('UploadForm analytics events', () => {
     expect(gtag).not.toHaveBeenCalledWith('event', 'conversion_success');
   });
 
-  it('shows the chat CTA link in the error state', async () => {
+  it('shows the inline chat toggle in the error state instead of a deep-link', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
       redirected: false,
       status: 400,
@@ -343,11 +343,11 @@ describe('UploadForm analytics events', () => {
     });
 
     await waitFor(() => {
-      expect(container.querySelector('a[href*="/chat"]')).not.toBeNull();
+      const toggle = container.querySelector('button[aria-controls="error-state-chat-panel"]');
+      expect(toggle).not.toBeNull();
+      expect(toggle?.textContent).toContain('Talk it through instead');
     });
-    const link = container.querySelector('a[href*="/chat"]') as HTMLAnchorElement;
-    expect(link.textContent).toContain('Stuck?');
-    expect(link.href).toContain('from=upload');
+    expect(container.querySelector('a[href*="/chat?from=upload"]')).toBeNull();
   });
 
   it('fires upload_error_chat_shown once when the error state mounts', async () => {
@@ -369,7 +369,7 @@ describe('UploadForm analytics events', () => {
     });
 
     await waitFor(() => {
-      expect(container.querySelector('a[href*="/chat"]')).not.toBeNull();
+      expect(container.querySelector('button[aria-controls="error-state-chat-panel"]')).not.toBeNull();
     });
 
     const chatShownCalls = trackMock.mock.calls.filter(
@@ -378,7 +378,7 @@ describe('UploadForm analytics events', () => {
     expect(chatShownCalls).toHaveLength(1);
   });
 
-  it('fires upload_error_chat_engaged when the chat CTA is clicked', async () => {
+  it('fires upload_error_chat_engaged on first expand of the inline panel', async () => {
     const { track } = await import('../../../../lib/analytics/track');
     const trackMock = vi.mocked(track);
     trackMock.mockClear();
@@ -397,12 +397,15 @@ describe('UploadForm analytics events', () => {
     });
 
     await waitFor(() => {
-      expect(container.querySelector('a[href*="/chat"]')).not.toBeNull();
+      expect(container.querySelector('button[aria-controls="error-state-chat-panel"]')).not.toBeNull();
     });
 
-    const link = container.querySelector('a[href*="/chat"]') as HTMLAnchorElement;
+    const toggle = container.querySelector('button[aria-controls="error-state-chat-panel"]') as HTMLButtonElement;
     await act(async () => {
-      fireEvent.click(link);
+      fireEvent.click(toggle);
+    });
+    await act(async () => {
+      fireEvent.click(toggle);
     });
 
     const engagedCalls = trackMock.mock.calls.filter(
