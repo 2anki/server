@@ -2,7 +2,12 @@ import { defineConfig, loadEnv, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import svgr from 'vite-plugin-svgr';
 import path from 'node:path';
-import { emitLandingPages } from './scripts/prerenderLandingPages';
+import {
+  emitAnswersPages,
+  emitLandingPages,
+  emitMetaOnlyPages,
+  emitNotionMarketplacePage,
+} from './scripts/prerenderLandingPages';
 
 function landingPrerender(): Plugin {
   return {
@@ -11,6 +16,9 @@ function landingPrerender(): Plugin {
     closeBundle() {
       const buildDir = path.resolve(__dirname, 'build');
       emitLandingPages(buildDir);
+      emitNotionMarketplacePage(buildDir);
+      emitAnswersPages(buildDir);
+      emitMetaOnlyPages(buildDir);
     },
   };
 }
