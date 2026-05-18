@@ -1,6 +1,12 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+function beforeEachReset() {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+}
 import { MemoryRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 
@@ -302,6 +308,41 @@ describe('Sidebar cards-used counter', () => {
     expect(
       screen.queryByText('/ 100 cards this month')
     ).not.toBeInTheDocument();
+  });
+});
+
+describe('Sidebar collapse toggle', () => {
+  beforeEachReset();
+
+  it('defaults to expanded when localStorage has no preference', () => {
+    renderSidebar();
+    const aside = screen.getByRole('complementary', { name: 'primary' });
+    expect(aside).toHaveAttribute('data-collapsed', 'false');
+    expect(screen.getByRole('button', { name: 'Collapse sidebar' })).toBeInTheDocument();
+  });
+
+  it('toggles the data-collapsed attribute on click', () => {
+    renderSidebar();
+    const toggle = screen.getByRole('button', { name: 'Collapse sidebar' });
+    fireEvent.click(toggle);
+    const aside = screen.getByRole('complementary', { name: 'primary' });
+    expect(aside).toHaveAttribute('data-collapsed', 'true');
+    expect(screen.getByRole('button', { name: 'Expand sidebar' })).toBeInTheDocument();
+  });
+
+  it('persists the collapsed state to localStorage', () => {
+    renderSidebar();
+    fireEvent.click(screen.getByRole('button', { name: 'Collapse sidebar' }));
+    expect(localStorage.getItem('sidebar.collapsed')).toBe('true');
+    fireEvent.click(screen.getByRole('button', { name: 'Expand sidebar' }));
+    expect(localStorage.getItem('sidebar.collapsed')).toBe('false');
+  });
+
+  it('reads the collapsed state from localStorage on mount', () => {
+    localStorage.setItem('sidebar.collapsed', 'true');
+    renderSidebar();
+    const aside = screen.getByRole('complementary', { name: 'primary' });
+    expect(aside).toHaveAttribute('data-collapsed', 'true');
   });
 });
 
