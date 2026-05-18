@@ -31,6 +31,13 @@ class JobRepository {
     });
   }
 
+  deleteJobByObjectId(objectId: string, owner: string): Promise<number> {
+    return this.database(this.tableName).delete().where({
+      object_id: objectId,
+      owner: owner,
+    });
+  }
+
   create(id: string, owner: string, title?: string | null, type?: string) {
     return this.database(this.tableName)
       .insert({

@@ -10,6 +10,7 @@ export interface IUploadRepository {
   deleteUpload(owner: number, key: string): Promise<number>;
   getUploadsByOwner(owner: number): Promise<Uploads[]>;
   findByIdAndOwner(id: number, owner: number): Promise<Uploads | null>;
+  findByKey(owner: number, key: string): Promise<Uploads | null>;
   update(
     owner: number,
     filename: string,
@@ -51,6 +52,17 @@ class UploadRepository implements IUploadRepository {
     const row = await this.database<Uploads>(this.table)
       .select('*')
       .where({ id, owner })
+      .first();
+    return row ?? null;
+  }
+
+  async findByKey(owner: number, key: string): Promise<Uploads | null> {
+    if (owner == null || key == null) {
+      return null;
+    }
+    const row = await this.database<Uploads>(this.table)
+      .select('*')
+      .where({ owner, key })
       .first();
     return row ?? null;
   }

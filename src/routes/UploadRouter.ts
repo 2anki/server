@@ -20,17 +20,25 @@ import { GetDropboxUploadsUseCase } from '../usecases/uploads/GetDropboxUploadsU
 import { DeleteDropboxUploadUseCase } from '../usecases/uploads/DeleteDropboxUploadUseCase';
 import { GetGoogleDriveUploadsUseCase } from '../usecases/uploads/GetGoogleDriveUploadsUseCase';
 import { DeleteGoogleDriveUploadUseCase } from '../usecases/uploads/DeleteGoogleDriveUploadUseCase';
+import DeleteJobUseCase from '../usecases/jobs/DeleteJobUseCase';
 
 const UploadRouter = () => {
   const router = express.Router();
   const database = getDatabase();
+  const jobRepository = new JobRepository(database);
+  const jobService = new JobService(jobRepository);
+  const uploadService = new UploadService(
+    new UploadRepository(database),
+    jobRepository
+  );
   const jobController = new JobController(
-    new JobService(new JobRepository(database))
+    jobService,
+    new DeleteJobUseCase(jobService, uploadService)
   );
   const dropboxRepository = new DropboxRepository(database);
   const googleDriveRepository = new GoogleDriveRepository(database);
   const uploadController = new UploadController(
-    new UploadService(new UploadRepository(database), new JobRepository(database)),
+    uploadService,
     new NotionService(
       new NotionRepository(database),
       undefined,

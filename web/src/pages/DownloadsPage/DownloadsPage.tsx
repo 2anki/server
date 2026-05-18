@@ -193,6 +193,16 @@ export function DownloadsPage({ setError }: Readonly<DownloadsPageProps>) {
 
   const activeJobs = jobs.filter((j) => isActiveJob(j.status));
 
+  const handleDeleteJob = async (id: Parameters<typeof deleteJob>[0]) => {
+    await deleteJob(id);
+    await refreshUploads();
+  };
+
+  const handleDeleteUpload = async (key: string) => {
+    await deleteUpload(key);
+    await refreshJobs();
+  };
+
   if (error) {
     redirectOnError(error);
     return null;
@@ -292,7 +302,7 @@ export function DownloadsPage({ setError }: Readonly<DownloadsPageProps>) {
                                   )}
                                   <button
                                     type="button"
-                                    onClick={() => deleteJob(row.job.id)}
+                                    onClick={() => handleDeleteJob(row.job.id)}
                                     className={`${styles.iconButton} ${styles.iconButtonDanger}`}
                                     aria-label={`Delete ${row.job.title}`}
                                     title={isFailedJob(row.job.status) ? 'Delete' : 'Cancel'}
@@ -361,7 +371,7 @@ export function DownloadsPage({ setError }: Readonly<DownloadsPageProps>) {
                                   )}
                                   <button
                                     type="button"
-                                    onClick={() => deleteUpload(u.key)}
+                                    onClick={() => handleDeleteUpload(u.key)}
                                     className={`${styles.iconButton} ${styles.iconButtonDanger}`}
                                     aria-label={`Delete ${u.filename}`}
                                     title="Delete"

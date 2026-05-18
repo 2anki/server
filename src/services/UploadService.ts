@@ -172,9 +172,16 @@ class UploadService {
   }
 
   async deleteUpload(owner: number, key: string) {
+    const upload = await this.uploadRepository.findByKey(owner, key);
     const s = new StorageHandler();
     await this.uploadRepository.deleteUpload(owner, key);
     await s.delete(key);
+    if (upload?.object_id) {
+      await this.jobRepository.deleteJobByObjectId(
+        upload.object_id,
+        String(owner)
+      );
+    }
   }
 
   async handleUpload(req: express.Request, res: express.Response) {

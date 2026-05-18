@@ -37,6 +37,12 @@ describe('Upload file', () => {
       ): Promise<Uploads | null> {
         return Promise.resolve(null);
       },
+      findByKey: function (
+        _owner: number,
+        _key: string
+      ): Promise<Uploads | null> {
+        return Promise.resolve(null);
+      },
       update: function (
         owner: number,
         filename: string,
