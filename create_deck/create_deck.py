@@ -118,6 +118,13 @@ def build_one_deck(data_file, template_dir):
 
     mcq_model_name = mt.get('mcqModelName', "n2a-mcq") or "n2a-mcq"
     mcq_model_id = mt.get('mcqModelId', get_model_id(mcq_model_name))
+    mcq_settings = {
+        "mcqShowChoices": mt.get("mcqShowChoices", "button"),
+        "mcqShuffle": mt.get("mcqShuffle", True),
+        "mcqTtsQuestion": mt.get("mcqTtsQuestion", ""),
+        "mcqTtsCorrectAnswer": mt.get("mcqTtsCorrectAnswer", ""),
+        "mcqTtsExtra": mt.get("mcqTtsExtra", ""),
+    }
 
     for deck in data:
         cards = deck.get("cards", [])
@@ -135,7 +142,7 @@ def build_one_deck(data_file, template_dir):
                 options_html = "<br>".join(options)
                 correct_answer = options[correct_indices[0]] if correct_indices and correct_indices[0] < len(options) else ""
                 extra = back
-                model = get_model(("mcq", mcq_model_id, mcq_model_name, "", None, None))
+                model = get_model(("mcq", mcq_model_id, mcq_model_name, "", None, None), mcq_settings=mcq_settings)
                 fields = [front, options_html, correct_answer, extra]
             elif card.get('cloze', False) and "{{c" in front:
                 model = get_model(
