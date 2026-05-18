@@ -1,9 +1,9 @@
-import JobRepository from '../data_layer/JobRepository';
+import JobRepository, { JobWithDownloadKey } from '../data_layer/JobRepository';
 
 class JobService {
   constructor(private readonly repository: JobRepository) {}
 
-  getJobsByOwner(owner: string) {
+  getJobsByOwner(owner: string): Promise<JobWithDownloadKey[]> {
     return this.repository.getJobsByOwner(owner);
   }
 

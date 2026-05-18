@@ -17,6 +17,8 @@ const makeJob = (overrides: Partial<JobResponse> = {}): JobResponse => ({
   type: 'page',
   job_reason_failure: null,
   restartable: false,
+  download_key: null,
+  upload_id: null,
   ...overrides,
 });
 
@@ -116,5 +118,88 @@ describe('toDeckRows — sorting', () => {
     const rows = toDeckRows([job], [], [], []);
     expect(rows[0].sortKey).toBeInstanceOf(Date);
     expect(rows[0].sortKey.getTime()).toBe(new Date(isoString).getTime());
+  });
+});
+
+describe('toDeckRows — Notion job dedupe', () => {
+  it('suppresses the file row when a done Notion job has a matching download_key for the same object_id', () => {
+    const notionJob = makeJob({
+      id: 1 as JobsId,
+      type: 'page',
+      status: 'done',
+      object_id: 'notion-page-uuid',
+      download_key: 'deck-abc123.apkg',
+      upload_id: 42,
+    });
+    const matchingUpload = makeUpload({
+      object_id: 'notion-page-uuid',
+      key: 'deck-abc123.apkg',
+    });
+    const rows = toDeckRows([notionJob], [matchingUpload], [], []);
+    expect(rows).toHaveLength(1);
+    expect(rows[0].kind).toBe('job');
+    expect(rows[0].source).toBe('notion');
+  });
+
+  it('keeps the file row when the Notion job is not done', () => {
+    const notionJob = makeJob({
+      id: 1 as JobsId,
+      type: 'page',
+      status: 'started',
+      object_id: 'notion-page-uuid',
+      download_key: null,
+      upload_id: null,
+    });
+    const upload = makeUpload({ object_id: 'notion-page-uuid' });
+    const rows = toDeckRows([notionJob], [upload], [], []);
+    expect(rows).toHaveLength(2);
+  });
+
+  it('keeps the file row when download_key is null even if Notion job is done', () => {
+    const notionJob = makeJob({
+      id: 1 as JobsId,
+      type: 'page',
+      status: 'done',
+      object_id: 'notion-page-uuid',
+      download_key: null,
+      upload_id: null,
+    });
+    const upload = makeUpload({ object_id: 'notion-page-uuid' });
+    const rows = toDeckRows([notionJob], [upload], [], []);
+    expect(rows).toHaveLength(2);
+  });
+
+  it('preserves the Notion source badge on the surviving row', () => {
+    const notionJob = makeJob({
+      id: 1 as JobsId,
+      type: 'page',
+      status: 'done',
+      object_id: 'notion-page-uuid',
+      download_key: 'deck-abc123.apkg',
+      upload_id: 42,
+    });
+    const matchingUpload = makeUpload({
+      object_id: 'notion-page-uuid',
+      key: 'deck-abc123.apkg',
+    });
+    const rows = toDeckRows([notionJob], [matchingUpload], [], []);
+    expect(rows[0].source).toBe('notion');
+  });
+
+  it('does not suppress file rows for different object_ids', () => {
+    const notionJob = makeJob({
+      id: 1 as JobsId,
+      type: 'page',
+      status: 'done',
+      object_id: 'notion-page-uuid',
+      download_key: 'deck-abc123.apkg',
+      upload_id: 42,
+    });
+    const unrelatedUpload = makeUpload({
+      object_id: 'different-object-id',
+      key: 'other-deck.apkg',
+    });
+    const rows = toDeckRows([notionJob], [unrelatedUpload], [], []);
+    expect(rows).toHaveLength(2);
   });
 });

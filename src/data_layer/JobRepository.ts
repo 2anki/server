@@ -1,13 +1,27 @@
 import { Knex } from 'knex';
 import Jobs from './public/Jobs';
 
+export interface JobWithDownloadKey extends Jobs {
+  download_key: string | null;
+  upload_id: number | null;
+}
+
 class JobRepository {
   tableName = 'jobs';
 
   constructor(private readonly database: Knex) {}
 
-  getJobsByOwner(owner: string) {
-    return this.database(this.tableName).where({ owner }).returning(['*']);
+  getJobsByOwner(owner: string): Promise<JobWithDownloadKey[]> {
+    return this.database(this.tableName)
+      .leftJoin('uploads', function () {
+        this.on('uploads.object_id', '=', 'jobs.object_id').andOnVal(
+          'uploads.owner',
+          '=',
+          owner
+        );
+      })
+      .where({ 'jobs.owner': owner })
+      .select('jobs.*', 'uploads.key as download_key', 'uploads.id as upload_id');
   }
 
   deleteJob(id: string, owner: string) {

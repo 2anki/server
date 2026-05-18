@@ -26,6 +26,8 @@ function buildJob(overrides: Partial<JobResponse> = {}): JobResponse {
     type: 'page',
     job_reason_failure: null,
     restartable: false,
+    download_key: null,
+    upload_id: null,
     ...overrides,
   };
 }
