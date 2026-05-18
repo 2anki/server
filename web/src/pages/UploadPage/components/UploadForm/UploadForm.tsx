@@ -68,6 +68,20 @@ function getLimitKind(url: URL): 'file_size' | 'card_count' {
   return url.searchParams.get('kind') === 'card_count' ? 'card_count' : 'file_size';
 }
 
+function getLimitDescription(
+  kind: 'file_size' | 'card_count',
+  trialAvailable: boolean
+): string {
+  if (kind === 'file_size') {
+    return trialAvailable
+      ? 'Start a 1-hour trial to convert files of any size, or split the file and try again.'
+      : 'Your trial is used. Split the file, or upgrade to convert files of any size.';
+  }
+  return trialAvailable
+    ? 'Start a 1-hour trial to keep converting, or upgrade for no monthly cap.'
+    : 'Your trial is used. Upgrade for no monthly cap, or wait until next month.';
+}
+
 function formatFileSize(bytes: number): string {
   if (bytes < 1024 * 1024) {
     return `${Math.round(bytes / 1024)} KB`;
@@ -832,9 +846,10 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
     const title = isFileSize
       ? 'This file is over the 50 MB limit'
       : 'You reached your monthly limit of 100 cards';
-    const description = isFileSize
-      ? 'Start a 1-hour trial to convert files of any size, or split the file and try again.'
-      : 'Start a 1-hour trial to keep converting, or upgrade for no monthly cap.';
+    const description = getLimitDescription(
+      isFileSize ? 'file_size' : 'card_count',
+      showTrialButton
+    );
 
     return (
       <div className={formStyles.limitContent}>
