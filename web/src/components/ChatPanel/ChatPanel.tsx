@@ -523,7 +523,7 @@ export default function ChatPanel({
                       {isCardStreaming && (
                         <span className={styles.buildingCards}>
                           <img
-                            src="/mascot/navbar-logo.png"
+                            src="/mascot/Notion%201.png"
                             alt=""
                             aria-hidden="true"
                             className={styles.buildingCardsMascot}
