@@ -6,7 +6,7 @@
 
 Med students (the heaviest power-user segment) want their Notion-authored practice questions to convert into interactive Anki cards that look like the question banks they already use — vignette → click an option → correct one highlights green → explanation reveals. 2anki today only emits Basic + Cloze cards from toggles; there is no MCQ pipeline. The closest path is hand-shaped HTML, which defeats the purpose of the converter.
 
-Source signal: Farah (medical student, WhatsApp via Alexander) — "more mcqs deck need in your website / Multiple choice questions / Not simple user needs attractive" — with two screenshots of a USMLE-style 7-option MCQ in Anki.
+Source signal: a medical-student user (via WhatsApp) — "more mcqs deck need in your website / Multiple choice questions / Not simple user needs attractive" — with two screenshots of a USMLE-style 7-option MCQ in Anki.
 
 ## Goal alignment
 
