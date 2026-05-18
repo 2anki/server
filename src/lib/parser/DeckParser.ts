@@ -461,6 +461,107 @@ export class DeckParser {
     return card;
   }
 
+  private embedImagesInCardContent(content: string, card: Note, ws: Workspace): string {
+    const dom = cheerio.load(content);
+    const images = dom('img');
+    if (images.length === 0) return content;
+
+    const { decodeURIComponent } = global;
+    images.each((_i, elem) => {
+      const originalName = dom(elem).attr('src');
+      if (!originalName || !isImageFileEmbedable(originalName)) return;
+
+      const newName = embedFile({
+        exporter: this.customExporter,
+        files: this.files,
+        filePath: decodeURIComponent(originalName),
+        workspace: ws,
+      });
+      if (newName) {
+        dom(elem).attr('src', newName);
+        card.media.push(newName);
+      } else {
+        const filename = decodeURIComponent(originalName).split('/').pop() ?? originalName;
+        dom(elem).attr('src', filename);
+      }
+    });
+    return dom.html();
+  }
+
+  private embedCardImages(card: Note, ws: Workspace) {
+    if (card.name) {
+      card.name = this.embedImagesInCardContent(card.name, card, ws);
+    }
+    if (card.back) {
+      card.back = this.embedImagesInCardContent(card.back, card, ws);
+    }
+  }
+
+  private embedCardAudio(card: Note, ws: Workspace) {
+    const audiofile = this.getMP3File(card.back);
+    if (!audiofile) return;
+
+    if (this.settings.removeMP3Links) {
+      card.back = card.back.replace(
+        /<figure.*<a\shref=["'].*\.mp3["']>.*<\/a>.*<\/figure>/,
+        ''
+      );
+    }
+    const newFileName = embedFile({
+      exporter: this.customExporter,
+      files: this.files,
+      filePath: global.decodeURIComponent(audiofile),
+      workspace: ws,
+    });
+    if (newFileName) {
+      card.back += `[sound:${newFileName}]`;
+      card.media.push(newFileName);
+    }
+  }
+
+  private appendCardVideoEmbeds(card: Note) {
+    const id = this._getYouTubeID(card.back);
+    if (id) {
+      const ytSrc = getYouTubeEmbedLink(id);
+      card.back += `<iframe width='560' height='315' src='${ytSrc}' frameborder='0' allowfullscreen></iframe>`;
+    }
+
+    const soundCloudUrl = this.getSoundCloudURL(card.back);
+    if (soundCloudUrl) {
+      card.back += `<iframe width='100%' height='166' scrolling='no' frameborder='no' src='https://w.soundcloud.com/player/?url=${soundCloudUrl}'></iframe>`;
+    }
+  }
+
+  private transformCard(card: Note, counter: number, ws: Workspace) {
+    card.enableInput = this.settings.useInput;
+    card.cloze = this.settings.isCloze;
+    card.number = counter;
+
+    if (card.cloze) {
+      card.name = handleClozeDeletions(card.name);
+    }
+
+    if (this.settings.useInput && card.name.includes('<strong>')) {
+      const inputInfo = this.treatBoldAsInput(card.name, false);
+      card.name = inputInfo.mangle;
+      card.answer = inputInfo.answer;
+    }
+
+    card.media = [];
+    this.embedCardImages(card, ws);
+    this.embedCardAudio(card, ws);
+    this.appendCardVideoEmbeds(card);
+
+    if (this.settings.useInput && card.back.includes('<strong>')) {
+      const inputInfo = this.treatBoldAsInput(card.back, true);
+      card.back = inputInfo.mangle;
+    }
+
+    if (!card.tags) {
+      card.tags = [];
+    }
+  }
+
   private processPayload(ws: Workspace) {
     for (const d of this.payload) {
       const deck = d;
@@ -470,95 +571,8 @@ export class DeckParser {
       const addThese: Note[] = [];
       for (const c of deck.cards) {
         let card = c;
-        card.enableInput = this.settings.useInput;
-        card.cloze = this.settings.isCloze;
-        card.number = counter++;
+        this.transformCard(card, counter++, ws);
 
-        if (card.cloze) {
-          card.name = handleClozeDeletions(card.name);
-        }
-
-        if (this.settings.useInput && card.name.includes('<strong>')) {
-          const inputInfo = this.treatBoldAsInput(card.name, false);
-          card.name = inputInfo.mangle;
-          card.answer = inputInfo.answer;
-        }
-
-        card.media = [];
-        [card.name, card.back].forEach((content) => {
-          if (content) {
-            const dom = cheerio.load(content);
-            const images = dom('img');
-            const decodeURIComponent = global.decodeURIComponent;
-            if (images.length > 0) {
-              images.each((_i, elem) => {
-                const originalName = dom(elem).attr('src');
-                if (originalName && isImageFileEmbedable(originalName)) {
-                  const newName = embedFile({
-                    exporter: this.customExporter,
-                    files: this.files,
-                    filePath: decodeURIComponent(originalName),
-                    workspace: ws,
-                  });
-                  if (newName) {
-                    dom(elem).attr('src', newName);
-                    card.media.push(newName);
-                  } else {
-                    const filename = decodeURIComponent(originalName).split('/').pop() ?? originalName;
-                    dom(elem).attr('src', filename);
-                  }
-                }
-              });
-              if (content === card.name) {
-                card.name = dom.html();
-              } else {
-                card.back = dom.html();
-              }
-            }
-          }
-        });
-
-        const audiofile = this.getMP3File(card.back);
-        if (audiofile) {
-          if (this.settings.removeMP3Links) {
-            card.back = card.back.replace(
-              /<figure.*<a\shref=["'].*\.mp3["']>.*<\/a>.*<\/figure>/,
-              ''
-            );
-          }
-          const newFileName = embedFile({
-            exporter: this.customExporter,
-            files: this.files,
-            filePath: global.decodeURIComponent(audiofile),
-            workspace: ws,
-          });
-          if (newFileName) {
-            card.back += `[sound:${newFileName}]`;
-            card.media.push(newFileName);
-          }
-        }
-        // Check YouTube
-        const id = this._getYouTubeID(card.back);
-        if (id) {
-          const ytSrc = getYouTubeEmbedLink(id);
-          const video = `<iframe width='560' height='315' src='${ytSrc}' frameborder='0' allowfullscreen></iframe>`;
-          card.back += video;
-        }
-
-        const soundCloudUrl = this.getSoundCloudURL(card.back);
-        if (soundCloudUrl) {
-          const audio = `<iframe width='100%' height='166' scrolling='no' frameborder='no' src='https://w.soundcloud.com/player/?url=${soundCloudUrl}'></iframe>`;
-          card.back += audio;
-        }
-
-        if (this.settings.useInput && card.back.includes('<strong>')) {
-          const inputInfo = this.treatBoldAsInput(card.back, true);
-          card.back = inputInfo.mangle;
-        }
-
-        if (!card.tags) {
-          card.tags = [];
-        }
         if (this.settings.useTags) {
           card = this.locateTags(card, deck.globalTags);
         }

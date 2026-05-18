@@ -1,4 +1,3 @@
-import fs from 'node:fs';
 import { Body } from 'aws-sdk/clients/s3';
 import pLimit from 'p-limit';
 import CardOption from '../../lib/parser/Settings/CardOption';
@@ -65,16 +64,35 @@ async function buildDeckBatch(
     const apkgPaths = await gen.runBatch(batchEntries);
 
     const batchResults = preparedResults.filter((r) => !r.needsIndividualBuild);
-    for (let i = 0; i < batchResults.length; i++) {
-      const result = batchResults[i];
-      const apkgPath = apkgPaths[i];
-      if (apkgPath) {
-        const apkg = fs.readFileSync(apkgPath);
-        packages.push(new Package(result.name, result.cardCount));
-        if (result.warning) warnings.push(result.warning);
-      }
-    }
+    batchResults.forEach((result, i) => {
+      if (!apkgPaths[i]) return;
+      packages.push(new Package(result.name, result.cardCount));
+      if (result.warning) warnings.push(result.warning);
+    });
   }
+
+  const stragglerOutcomes = await buildStragglerDecks(
+    stragglers,
+    zipHandler,
+    settings,
+    paying,
+    workspace
+  );
+  packages.push(...stragglerOutcomes.packages);
+  warnings.push(...stragglerOutcomes.warnings);
+
+  return { packages, warnings };
+}
+
+async function buildStragglerDecks(
+  stragglers: { inputFileName: string }[],
+  zipHandler: ZipHandler,
+  settings: CardOption,
+  paying: boolean,
+  workspace: Workspace
+): Promise<{ packages: Package[]; warnings: string[] }> {
+  const packages: Package[] = [];
+  const warnings: string[] = [];
 
   for (const straggler of stragglers) {
     const relevantFiles = getRelevantFiles(straggler.inputFileName, zipHandler.files);
@@ -94,6 +112,67 @@ async function buildDeckBatch(
   return { packages, warnings };
 }
 
+async function buildClaudeFlashcardDeck(
+  rootName: string,
+  zipHandler: ZipHandler,
+  settings: CardOption,
+  paying: boolean,
+  workspace: Workspace,
+  onProgress: ((step: string) => void) | undefined
+): Promise<PackageResult> {
+  const deck = await PrepareDeck({
+    name: rootName,
+    files: zipHandler.files,
+    settings,
+    noLimits: paying,
+    workspace,
+    onProgress,
+  });
+
+  const packages: Package[] = [];
+  const warnings: string[] = [];
+  if (deck) {
+    packages.push(new Package(deck.name, deck.cardCount ?? 0));
+    if (deck.warning) warnings.push(deck.warning);
+  }
+  return { packages, warnings };
+}
+
+async function buildAllInOneSlot(
+  supportedFileNames: string[],
+  zipHandler: ZipHandler,
+  settings: CardOption,
+  paying: boolean,
+  workspace: Workspace,
+  cap: number
+): Promise<PackageResult> {
+  const limit = pLimit(cap);
+  const results = await Promise.all(
+    supportedFileNames.map((fileName) =>
+      limit(() => {
+        const relevantFiles = getRelevantFiles(fileName, zipHandler.files);
+        return PrepareDeck({
+          name: fileName,
+          files: relevantFiles,
+          settings,
+          noLimits: paying,
+          workspace,
+        });
+      })
+    )
+  );
+
+  const packages: Package[] = [];
+  const warnings: string[] = [];
+  for (const deck of results) {
+    if (deck) {
+      packages.push(new Package(deck.name, deck.cardCount ?? 0));
+      if (deck.warning) warnings.push(deck.warning);
+    }
+  }
+  return { packages, warnings };
+}
+
 export const getPackagesFromZip = async (
   fileContents: Body | undefined,
   paying: boolean,
@@ -101,70 +180,40 @@ export const getPackagesFromZip = async (
   workspace: Workspace,
   onProgress?: (step: string) => void
 ): Promise<PackageResult> => {
-  const zipHandler = new ZipHandler(getMaxUploadCount(paying));
-  const packages = [];
-
   if (!fileContents) {
     return { packages: [] };
   }
 
+  const zipHandler = new ZipHandler(getMaxUploadCount(paying));
   await zipHandler.build(fileContents as Uint8Array, paying, settings);
 
   const fileNames = zipHandler.getFileNames();
   const supportedFileNames = fileNames.filter(isZipContentFileSupported);
   const effectiveSettings = enableMarkdownForMarkdownUploads(fileNames, settings);
 
-  const warnings: string[] = [];
-
   if (effectiveSettings.claudeAIFlashcards && paying && fileNames.length > 0) {
-    const rootName = fileNames[0];
-    const deck = await PrepareDeck({
-      name: rootName,
-      files: zipHandler.files,
-      settings: effectiveSettings,
-      noLimits: paying,
+    return buildClaudeFlashcardDeck(
+      fileNames[0],
+      zipHandler,
+      effectiveSettings,
+      paying,
       workspace,
-      onProgress,
-    });
-
-    if (deck) {
-      packages.push(new Package(deck.name, deck.cardCount ?? 0));
-      if (deck.warning) warnings.push(deck.warning);
-    }
-
-    return { packages, warnings };
+      onProgress
+    );
   }
 
   const cap = resolveBuildConcurrency();
   const batchSize = Math.ceil(supportedFileNames.length / cap);
 
   if (supportedFileNames.length <= 1 || batchSize <= 1) {
-    const limit = pLimit(cap);
-    const results = await Promise.all(
-      supportedFileNames.map((fileName) =>
-        limit(() => {
-          const relevantFiles = getRelevantFiles(fileName, zipHandler.files);
-          return PrepareDeck({
-            name: fileName,
-            files: relevantFiles,
-            settings: effectiveSettings,
-            noLimits: paying,
-            workspace,
-          });
-        })
-      )
+    return buildAllInOneSlot(
+      supportedFileNames,
+      zipHandler,
+      effectiveSettings,
+      paying,
+      workspace,
+      cap
     );
-
-    let cardCount = 0;
-    for (const deck of results) {
-      if (deck) {
-        packages.push(new Package(deck.name, deck.cardCount ?? 0));
-        if (deck.warning) warnings.push(deck.warning);
-        cardCount += deck.deck.reduce((acc, d) => acc + d.cards.length, 0);
-      }
-    }
-
-    return { packages, warnings };
   }
 
   const chunks = chunkArray(supportedFileNames, batchSize);
@@ -178,6 +227,8 @@ export const getPackagesFromZip = async (
     )
   );
 
+  const packages: Package[] = [];
+  const warnings: string[] = [];
   for (const result of batchResults) {
     packages.push(...result.packages);
     if (result.warnings) warnings.push(...result.warnings);
