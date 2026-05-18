@@ -521,7 +521,15 @@ export default function ChatPanel({
                         </AssistantMarkdown>
                       </div>
                       {isCardStreaming && (
-                        <span className={styles.buildingCards}>Building cards</span>
+                        <span className={styles.buildingCards}>
+                          <img
+                            src="/mascot/navbar-logo.png"
+                            alt=""
+                            aria-hidden="true"
+                            className={styles.buildingCardsMascot}
+                          />
+                          Building cards
+                        </span>
                       )}
                     </>
                   ) : (
