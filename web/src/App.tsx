@@ -74,6 +74,7 @@ const ImageOcclusionPage = lazy(() =>
   }))
 );
 const ChatPage = lazy(() => import('./pages/Chat/ChatPage'));
+const NotionLandingPage = lazy(() => import('./pages/NotionLandingPage/NotionLandingPage'));
 
 const queryClient = new QueryClient();
 
@@ -296,6 +297,7 @@ function AppContent({
             path="/pdf-to-anki"
             element={<PdfToAnki setErrorMessage={setErrorMessage} />}
           />
+          <Route path="/notion-marketplace" element={<NotionLandingPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </AppShell>
