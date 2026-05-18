@@ -1,4 +1,5 @@
 import express from 'express';
+import fs from 'node:fs';
 
 import { getOwner } from '../../lib/User/getOwner';
 import NotionService from '../../services/NotionService';
@@ -12,6 +13,12 @@ import { GetDropboxUploadsUseCase } from '../../usecases/uploads/GetDropboxUploa
 import { DeleteDropboxUploadUseCase } from '../../usecases/uploads/DeleteDropboxUploadUseCase';
 import { GetGoogleDriveUploadsUseCase } from '../../usecases/uploads/GetGoogleDriveUploadsUseCase';
 import { DeleteGoogleDriveUploadUseCase } from '../../usecases/uploads/DeleteGoogleDriveUploadUseCase';
+import { validatePdfCredential } from '../../lib/pdf/validatePdfCredential';
+import { RetryPdfWithCredentialUseCase } from '../../usecases/uploads/RetryPdfWithCredentialUseCase';
+import { isPaying } from '../../lib/isPaying';
+import CardOption from '../../lib/parser/Settings';
+import Workspace from '../../lib/parser/WorkSpace';
+import { toText } from '../../services/NotionService/BlockHandler/helpers/deckNameToText';
 
 const DROPBOX_PAGE_SIZE = 10;
 const GOOGLE_DRIVE_PAGE_SIZE = 10;
@@ -198,6 +205,64 @@ class UploadController {
     } catch (error) {
       return res.status(404).json({ message: 'Upload not found.' });
     }
+  }
+
+  async retryPdfWithCredential(req: express.Request, res: express.Response) {
+    const uploadedFile = req.file;
+    if (!uploadedFile) {
+      return res.status(400).json({ message: 'No file provided.' });
+    }
+
+    const credential = validatePdfCredential((req.body as Record<string, unknown>).credential);
+    if (credential == null) {
+      return res.status(400).json({ message: 'Invalid credential.' });
+    }
+
+    const unlinkTempFile = () => {
+      fs.promises.unlink(uploadedFile.path).catch((e) => {
+        console.error('[retryPdfWithCredential] temp file cleanup failed', {
+          error: e instanceof Error ? e.message : String(e),
+        });
+      });
+    };
+
+    let fileBuffer: Buffer;
+    try {
+      fileBuffer = fs.readFileSync(uploadedFile.path);
+      unlinkTempFile();
+    } catch {
+      unlinkTempFile();
+      return res.status(400).json({ message: 'Could not read uploaded file.' });
+    }
+
+    const filename = uploadedFile.originalname;
+    const paying = isPaying(res.locals);
+    const settings = new CardOption(req.body as Record<string, string> || {});
+    const workspace = new Workspace(true, 'fs');
+
+    const useCase = new RetryPdfWithCredentialUseCase();
+    const outcome = await useCase.execute(fileBuffer, filename, credential, paying, settings, workspace);
+
+    if ('needsCredential' in outcome) {
+      return res.status(400).json({
+        error: 'needs_password',
+        reason: outcome.reason,
+      });
+    }
+
+    const { apkg, cardCount, name } = outcome;
+    const deckName = toText(name);
+    res.set('Content-Type', 'application/apkg');
+    res.set('Content-Length', Buffer.byteLength(apkg).toString());
+    res.set('X-Card-Count', cardCount.toString());
+    res.set('Access-Control-Expose-Headers', 'File-Name, X-Card-Count');
+    try {
+      res.set('File-Name', encodeURIComponent(deckName));
+    } catch {
+      console.info(`retryPdfWithCredential: failed to encode filename ${deckName}`);
+    }
+    res.attachment(`/${deckName}`);
+    return res.status(200).send(apkg);
   }
 }
 

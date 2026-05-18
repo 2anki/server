@@ -1,5 +1,6 @@
 import express from 'express';
 import multer from 'multer';
+import path from 'path';
 
 import RequireAllowedOrigin from './middleware/RequireAllowedOrigin';
 import RequireAuthentication from './middleware/RequireAuthentication';
@@ -90,6 +91,19 @@ const UploadRouter = () => {
    */
   router.post('/api/upload/file', RequireAllowedOrigin, (req, res) =>
     uploadController.file(req, res)
+  );
+
+  router.post(
+    '/api/upload/retry-with-credential',
+    RequireAllowedOrigin,
+    multer({
+      dest: '/tmp',
+      limits: { fileSize: 50 * 1024 * 1024 },
+      fileFilter: (_req, file, cb) => {
+        cb(null, path.extname(file.originalname).toLowerCase() === '.pdf');
+      },
+    }).single('file'),
+    (req, res) => uploadController.retryPdfWithCredential(req, res)
   );
 
   /**

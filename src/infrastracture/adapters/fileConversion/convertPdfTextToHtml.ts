@@ -28,17 +28,23 @@ export interface ConvertPdfTextToHtmlResult {
   html: string;
   cardCount: number;
   isDrmLocked: boolean;
+  needsCredential: boolean;
 }
 
 export async function convertPdfTextToHtml(
   buffer: Buffer,
-  name: string
+  name: string,
+  credential?: string
 ): Promise<ConvertPdfTextToHtmlResult> {
   const title = path.basename(name, path.extname(name));
-  const extraction = await extractPdfText(buffer);
+  const extraction = await extractPdfText(buffer, credential);
+
+  if (extraction.needsCredential) {
+    return { html: '', cardCount: 0, isDrmLocked: false, needsCredential: true };
+  }
 
   if (extraction.isDrmLocked) {
-    return { html: '', cardCount: 0, isDrmLocked: true };
+    return { html: '', cardCount: 0, isDrmLocked: true, needsCredential: false };
   }
 
   const cards = synthesizeCardsFromPdf(extraction.pages, title);
@@ -52,5 +58,5 @@ ${toggles}
 </body>
 </html>`;
 
-  return { html, cardCount: cards.length, isDrmLocked: false };
+  return { html, cardCount: cards.length, isDrmLocked: false, needsCredential: false };
 }

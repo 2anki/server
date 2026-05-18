@@ -15,6 +15,7 @@ import { convertPPTToPDF } from './ConvertPPTToPDF';
 import { convertImageToHTML } from './convertImageToHTML';
 import { convertPDFToImages } from './convertPDFToImages';
 import { convertPdfTextToHtml } from './convertPdfTextToHtml';
+import { buildPdfPasswordSentinel } from '../../../lib/pdf/pdfPasswordSentinel';
 import { convertXLSXToHTML } from './convertXLSXToHTML';
 import { convertDocxToHTML } from './convertDocxToHTML';
 import { generateDeckInfo, DeckInfo } from '../../../lib/claude/ClaudeService';
@@ -105,8 +106,13 @@ async function convertFile(
   if (isPDFFile(file.name) && input.settings.processPDFs !== false) {
     const textResult = await convertPdfTextToHtml(
       file.contents as Buffer,
-      file.name
+      file.name,
+      input.pdfCredential
     );
+
+    if (textResult.needsCredential) {
+      throw new Error(buildPdfPasswordSentinel(file.name));
+    }
 
     if (!textResult.isDrmLocked && textResult.cardCount > 0) {
       console.log('[PrepareDeck] convertFile pdf→text→html', {

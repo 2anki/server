@@ -32,7 +32,13 @@ type ZoneState =
   | 'success'
   | 'emptyDeck'
   | 'limitReached'
-  | 'error';
+  | 'error'
+  | 'lockedPdf';
+
+interface LockedPdfInfo {
+  filename: string;
+  file: File;
+}
 
 interface LimitInfo {
   filename: string | null;
@@ -201,6 +207,10 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
   const [source, setSource] = useState<UploadSource>('local');
   const [showInlineChat, setShowInlineChat] = useState(false);
   const [showErrorInlineChat, setShowErrorInlineChat] = useState(false);
+  const [lockedPdfInfo, setLockedPdfInfo] = useState<LockedPdfInfo | null>(null);
+  const [pdfCredential, setPdfCredential] = useState('');
+  const [pdfUnlockError, setPdfUnlockError] = useState<string | null>(null);
+  const [pdfAttemptCount, setPdfAttemptCount] = useState(0);
   const { data: userLocals } = useUserLocals();
   const queryClient = useQueryClient();
   const autoSyncActive = userLocals?.autoSyncActive === true;
@@ -253,6 +263,10 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
     setSource('local');
     setShowInlineChat(false);
     setShowErrorInlineChat(false);
+    setLockedPdfInfo(null);
+    setPdfCredential('');
+    setPdfUnlockError(null);
+    setPdfAttemptCount(0);
     resetValidation();
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -507,6 +521,23 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
         return true;
       }
       if (request.status !== 200) {
+        const cloned = request.clone();
+        try {
+          const body = await cloned.json();
+          if (body?.error === 'needs_password') {
+            const firstFile = fileInputRef.current?.files?.[0];
+            if (firstFile) {
+              setLockedPdfInfo({ filename: firstFile.name, file: firstFile });
+              setPdfCredential('');
+              setPdfUnlockError(null);
+              setPdfAttemptCount(0);
+              setZoneState('lockedPdf');
+              return false;
+            }
+          }
+        } catch {
+          // non-JSON response — fall through to error
+        }
         const message = await extractErrorMessage(request);
         setLocalError(message);
         setZoneState('error');
@@ -541,6 +572,7 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
     zoneState === 'emptyDeck' ? formStyles.dropZoneEmpty : '',
     zoneState === 'error' ? formStyles.dropZoneError : '',
     zoneState === 'limitReached' ? formStyles.dropZoneLimit : '',
+    zoneState === 'lockedPdf' ? formStyles.dropZoneLocked : '',
     validation?.status === 'warning' ? formStyles.dropZoneWarning : '',
     validation?.status === 'error' ? formStyles.dropZoneError : '',
     validation?.status === 'info' ? formStyles.dropZoneInfo : '',
@@ -840,12 +872,112 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
     </div>
   );
 
+  const handleUnlock = async () => {
+    if (!lockedPdfInfo) return;
+
+    const credential = pdfCredential.trim();
+    if (!credential) return;
+
+    setZoneState('converting');
+    setPdfUnlockError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', lockedPdfInfo.file, lockedPdfInfo.filename);
+      formData.append('credential', credential);
+      for (const [key, value] of Object.entries(globalThis.localStorage)) {
+        formData.append(key, value);
+      }
+
+      const request = await globalThis.fetch('/api/upload/retry-with-credential', {
+        method: 'post',
+        body: formData,
+      });
+
+      if (request.status === 200) {
+        setWarningMessage(request.headers.get('X-Warning'));
+        setDeckName(resolveDeckName(request.headers));
+        const count = parseCardCountHeader(request.headers);
+        setCardCount(count);
+        const blob = await request.blob();
+        setDownloadLink(globalThis.URL.createObjectURL(blob));
+        setProgressWidth(100);
+        setLockedPdfInfo(null);
+        if (count === 0) {
+          setZoneState('emptyDeck');
+        } else {
+          fireAnalyticsEvent('conversion_success');
+          setZoneState('success');
+        }
+        return;
+      }
+
+      const newAttemptCount = pdfAttemptCount + 1;
+      setPdfAttemptCount(newAttemptCount);
+      setPdfUnlockError('That didn\'t open the file. Check for typos and try again.');
+      setZoneState('lockedPdf');
+    } catch (error) {
+      setPdfUnlockError(toFriendlyThrownError(error).message);
+      setZoneState('lockedPdf');
+    }
+  };
+
+  const renderLockedPdfState = () => (
+    <div className={formStyles.stateContent}>
+      <span className={formStyles.lockedIcon} aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="40" height="40">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+          <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+        </svg>
+      </span>
+      <div className={formStyles.lockedBadge}>Locked</div>
+      <p className={formStyles.lockedFilename}>{lockedPdfInfo?.filename}</p>
+      <p className={formStyles.lockedHeadline}>Credential required to read this PDF</p>
+      <div className={formStyles.lockedInputRow}>
+        <input
+          type="password"
+          className={formStyles.lockedInput}
+          placeholder="Enter credential"
+          value={pdfCredential}
+          autoFocus
+          onChange={(e) => setPdfCredential(e.target.value)}
+          onKeyDown={(e) => { if (e.key === 'Enter') handleUnlock(); }}
+          aria-label="PDF credential"
+        />
+        <button
+          type="button"
+          className={formStyles.lockedUnlockButton}
+          onClick={handleUnlock}
+          disabled={!pdfCredential.trim()}
+        >
+          Unlock
+        </button>
+      </div>
+      {pdfUnlockError && (
+        <p className={formStyles.lockedError} role="alert">{pdfUnlockError}</p>
+      )}
+      {pdfAttemptCount >= 3 && (
+        <p className={formStyles.lockedHint}>
+          Still stuck? Some PDFs have owner-only protection that can't be entered here — open the file in Preview or Adobe Reader, save a copy, and upload that.
+        </p>
+      )}
+      <button
+        type="button"
+        className={formStyles.resetLink}
+        onClick={resetForm}
+      >
+        Skip this file
+      </button>
+    </div>
+  );
+
   const renderZoneContent = () => {
     if (validation && zoneState === 'idle') return renderValidationState();
     if (zoneState === 'converting') return renderConvertingState();
     if (zoneState === 'success') return renderSuccessState();
     if (zoneState === 'emptyDeck') return renderEmptyDeckState();
     if (zoneState === 'limitReached' && limitInfo) return renderLimitState();
+    if (zoneState === 'lockedPdf') return renderLockedPdfState();
     if (zoneState === 'error') return renderErrorState();
     return renderIdleState();
   };
@@ -868,6 +1000,9 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
     if (zoneState === 'error') return 'Conversion failed.';
     if (zoneState === 'limitReached') {
       return "You've reached your monthly limit.";
+    }
+    if (zoneState === 'lockedPdf') {
+      return 'This PDF is password-protected. Enter the credential to continue.';
     }
     return '';
   };

@@ -2,14 +2,19 @@ import { spawn } from 'child_process';
 import path from 'path';
 import fs from 'fs/promises';
 
-export function getPageCount(pdfPath: string): Promise<number> {
+export function getPageCount(pdfPath: string, credential?: string): Promise<number> {
   return new Promise((resolve, reject) => {
     const pdfinfoBin =
       process.platform === 'darwin'
         ? '/usr/local/bin/pdfinfo'
         : '/usr/bin/pdfinfo';
 
-    const pdfinfoProcess = spawn(pdfinfoBin, [pdfPath]);
+    const args =
+      credential != null
+        ? ['-upw', credential, pdfPath]
+        : [pdfPath];
+
+    const pdfinfoProcess = spawn(pdfinfoBin, args);
 
     let stdout = '';
     let stderr = '';
@@ -36,13 +41,8 @@ export function getPageCount(pdfPath: string): Promise<number> {
       );
 
       if (code !== 0) {
-        // Check if the error is due to a password-protected PDF
         if (stderr.includes('Encrypted') || stderr.includes('password')) {
-          reject(
-            new Error(
-              'The PDF file is password-protected. Please remove the password protection and try again, or you can turn off PDF processing by unchecking "Process PDF Files" in the settings to skip PDF processing of ZIP files containing PDFs.'
-            )
-          );
+          reject(new Error('PDF_NEEDS_PASSWORD'));
           return;
         }
         reject(new Error('Failed to execute pdfinfo'));
