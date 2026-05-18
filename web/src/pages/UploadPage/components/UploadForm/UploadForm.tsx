@@ -917,7 +917,7 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
       setPdfUnlockError('That didn\'t open the file. Check for typos and try again.');
       setZoneState('lockedPdf');
     } catch (error) {
-      setPdfUnlockError(toFriendlyThrownError(error));
+      setPdfUnlockError(toFriendlyThrownError(error).message);
       setZoneState('lockedPdf');
     }
   };
