@@ -67,7 +67,7 @@ async function buildDeckBatch(
     const batchResults = preparedResults.filter((r) => !r.needsIndividualBuild);
     batchResults.forEach((result, i) => {
       if (!apkgPaths[i]) return;
-      packages.push(new Package(result.name, result.cardCount));
+      packages.push(new Package(result.name, result.cardCount, result.mcqCount, result.mcqSkippedCount));
       if (result.warning) warnings.push(result.warning);
     });
   }
@@ -105,7 +105,7 @@ async function buildStragglerDecks(
       workspace,
     });
     if (deck) {
-      packages.push(new Package(deck.name, deck.cardCount ?? 0));
+      packages.push(new Package(deck.name, deck.cardCount ?? 0, deck.mcqCount ?? 0, deck.mcqSkippedCount ?? 0));
       if (deck.warning) warnings.push(deck.warning);
     }
   }
@@ -133,7 +133,7 @@ async function buildClaudeFlashcardDeck(
   const packages: Package[] = [];
   const warnings: string[] = [];
   if (deck) {
-    packages.push(new Package(deck.name, deck.cardCount ?? 0));
+    packages.push(new Package(deck.name, deck.cardCount ?? 0, deck.mcqCount ?? 0, deck.mcqSkippedCount ?? 0));
     if (deck.warning) warnings.push(deck.warning);
   }
   return { packages, warnings };
@@ -167,7 +167,7 @@ async function buildAllInOneSlot(
   const warnings: string[] = [];
   for (const deck of results) {
     if (deck) {
-      packages.push(new Package(deck.name, deck.cardCount ?? 0));
+      packages.push(new Package(deck.name, deck.cardCount ?? 0, deck.mcqCount ?? 0, deck.mcqSkippedCount ?? 0));
       if (deck.warning) warnings.push(deck.warning);
     }
   }
