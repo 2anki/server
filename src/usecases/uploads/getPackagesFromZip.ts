@@ -13,7 +13,7 @@ import { getRelevantFiles } from './getRelevantFiles';
 import { enableMarkdownForMarkdownUploads } from './enableMarkdownForMarkdownUploads';
 
 const resolveBuildConcurrency = (): number => {
-  const raw = parseInt(process.env.UPLOAD_BUILD_CONCURRENCY ?? '', 10);
+  const raw = Number.parseInt(process.env.UPLOAD_BUILD_CONCURRENCY ?? '', 10);
   return Number.isFinite(raw) && raw >= 1 ? raw : 4;
 };
 
