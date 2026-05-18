@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
+import { useQuery as useReactQuery } from '@tanstack/react-query';
 import { ErrorHandlerType } from '../../components/errors/helpers/getErrorMessage';
 import useQuery from '../../lib/hooks/useQuery';
 import { getVisibleText } from '../../lib/text/getVisibleText';
 import {
   dismissUploadPrimer,
+  fetchUserPreferences,
   UPLOAD_PRIMER_DISMISSED_KEY,
 } from '../../lib/data_layer/userPreferencesSync';
 import styles from '../../styles/shared.module.css';
@@ -67,7 +69,7 @@ function VideoCard({
   );
 }
 
-function readPrimerDismissed(): boolean {
+function readPrimerDismissedHint(): boolean {
   try {
     return globalThis.localStorage?.getItem(UPLOAD_PRIMER_DISMISSED_KEY) === 'true';
   } catch {
@@ -80,7 +82,24 @@ export function UploadPage({ setErrorMessage }: Readonly<Props>) {
   const view = query.get('view');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [primerDismissed, setPrimerDismissed] = useState<boolean>(readPrimerDismissed);
+  const [localDismissed, setLocalDismissed] = useState<boolean>(false);
+
+  const prefsQuery = useReactQuery({
+    queryKey: ['user-preferences'],
+    queryFn: fetchUserPreferences,
+    staleTime: 60_000,
+    retry: false,
+  });
+
+  const serverSaysDismissed = prefsQuery.data?.uploadPrimerDismissedAt != null;
+  const serverSaysNotDismissed =
+    prefsQuery.isSuccess && prefsQuery.data != null && prefsQuery.data.uploadPrimerDismissedAt == null;
+  // Server is the source of truth. Local hint (filled by hydrateFromServer on login) only avoids
+  // a flash of primer while the query is in flight; once the query resolves, the server wins.
+  const primerDismissed =
+    localDismissed ||
+    serverSaysDismissed ||
+    (!serverSaysNotDismissed && readPrimerDismissedHint());
 
   useEffect(() => {
     if (searchParams.get('from') === 'pass') {
@@ -92,8 +111,8 @@ export function UploadPage({ setErrorMessage }: Readonly<Props>) {
   }, [searchParams, navigate]);
 
   const handleDismissPrimer = () => {
-    setPrimerDismissed(true);
-    void dismissUploadPrimer();
+    setLocalDismissed(true);
+    void dismissUploadPrimer().then(() => prefsQuery.refetch());
   };
 
   if (

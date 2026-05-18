@@ -79,6 +79,23 @@ export async function acknowledgeAnkiWeb(): Promise<void> {
   }
 }
 
+export interface ServerUserPreferences {
+  cardOptions: Record<string, string> | null;
+  theme: string | null;
+  ankiWebAcknowledgedAt: string | null;
+  uploadPrimerDismissedAt: string | null;
+}
+
+export async function fetchUserPreferences(): Promise<ServerUserPreferences | null> {
+  try {
+    const res = await fetch(PREFERENCES_URL, { credentials: 'include' });
+    if (!res.ok) return null;
+    return (await res.json()) as ServerUserPreferences;
+  } catch {
+    return null;
+  }
+}
+
 export async function dismissUploadPrimer(): Promise<void> {
   try {
     localStorage.setItem(UPLOAD_PRIMER_DISMISSED_KEY, 'true');
