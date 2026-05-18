@@ -1,107 +1,40 @@
-// No path import needed anymore
 import React from 'react';
+import { DownloadFileViewModel } from '../../../controllers/DownloadController';
+import { styles } from './styles';
 
 interface DownloadListProps {
-  apkgFiles: string[];
+  files: DownloadFileViewModel[];
   id: string;
-  styles: {
-    downloadList: React.CSSProperties;
-    downloadItem: React.CSSProperties;
-    downloadItemName: React.CSSProperties;
-    downloadItemLink: React.CSSProperties;
-    bulkDownloadButton: React.CSSProperties;
-  };
 }
 
-const DownloadList: React.FC<DownloadListProps> = ({
-  apkgFiles,
-  id,
-  styles,
-}) => {
-  const showBulkDownload = apkgFiles.length > 0;
-  const buttonHoverStyle = {
-    backgroundColor: '#1d4ed8',
-  };
+function formatKB(bytes: number): string {
+  return `${Math.round(bytes / 1024)}`;
+}
 
+const DownloadList: React.FC<DownloadListProps> = ({ files, id }) => {
   return (
-    <>
-      {showBulkDownload && (
-        <div style={{ marginBottom: '30px', textAlign: 'center' }}>
+    <ul style={styles.list}>
+      {files.map((file) => (
+        <li key={file.originalName} style={styles.listItem}>
           <a
-            href={`/download/${id}/bulk`}
-            style={{
-              ...styles.bulkDownloadButton,
-              textDecoration: 'none',
-              display: 'inline-block',
-              padding: '10px 20px',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontFamily: 'inherit',
-              fontSize: 'inherit',
-            }}
-            role="button"
-            aria-label="Download all Anki decks"
-            onMouseOver={(e) => {
-              Object.assign(e.currentTarget.style, buttonHoverStyle);
-            }}
-            onFocus={(e) => {
-              Object.assign(e.currentTarget.style, buttonHoverStyle);
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.backgroundColor = styles.bulkDownloadButton
-                .backgroundColor as string;
-            }}
-            onBlur={(e) => {
-              e.currentTarget.style.backgroundColor = styles.bulkDownloadButton
-                .backgroundColor as string;
-            }}
+            href={`/download/${id}/${file.originalName}`}
+            title={file.originalName}
+            download={file.originalName}
+            style={styles.itemLink}
           >
-            <span style={{ marginRight: '8px' }}>📦</span> Download All Files
+            <span style={styles.itemName}>{file.displayName}</span>
+            <span style={styles.itemSize}>· {formatKB(file.sizeBytes)} KB</span>
           </a>
-        </div>
-      )}
-      <ul style={styles.downloadList}>
-        {apkgFiles.map((file) => (
-          <li key={file} style={styles.downloadItem}>
-            <span style={styles.downloadItemName}>
-              <span style={{ marginRight: '10px', fontSize: '18px' }}>📄</span>
-              {file}
-            </span>
-            <a
-              href={`${id}/${file}`}
-              style={{
-                ...styles.downloadItemLink,
-                textDecoration: 'none',
-                display: 'inline-block',
-                padding: '8px 16px',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontFamily: 'inherit',
-                fontSize: 'inherit',
-              }}
-              role="button"
-              aria-label={`Download ${file}`}
-              onMouseOver={(e) => {
-                Object.assign(e.currentTarget.style, buttonHoverStyle);
-              }}
-              onFocus={(e) => {
-                Object.assign(e.currentTarget.style, buttonHoverStyle);
-              }}
-              onMouseOut={(e) => {
-                e.currentTarget.style.backgroundColor = styles.downloadItemLink
-                  .backgroundColor as string;
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.backgroundColor = styles.downloadItemLink
-                  .backgroundColor as string;
-              }}
-            >
-              Download
-            </a>
-          </li>
-        ))}
-      </ul>
-    </>
+          <a
+            href={`/download/${id}/${file.originalName}`}
+            download={file.originalName}
+            style={styles.itemDownload}
+          >
+            Download
+          </a>
+        </li>
+      ))}
+    </ul>
   );
 };
 
