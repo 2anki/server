@@ -1,4 +1,5 @@
 import { stripHtmlTags } from '../../../lib/text/stripHtmlTags';
+import type { UploadErrorBody } from '../../../types/UploadErrorBody';
 
 export type ErrorHandlerType = (error: unknown) => void;
 
@@ -99,3 +100,32 @@ export const getErrorMessage = (error: unknown): string => {
     ? `${friendly.title} ${friendly.detail}`
     : friendly.title;
 };
+
+const PER_CODE_COPY: Partial<Record<UploadErrorBody['code'], FriendlyError>> = {
+  unsupported_format: {
+    title: "We can't read this file type.",
+    detail: 'Use .zip, .html, .md, .pdf, .docx, .pptx, .csv, or .apkg.',
+  },
+  too_large: {
+    title: 'This file is too large to convert in one go.',
+    detail: 'Split it into smaller files and try again.',
+  },
+  password_protected_pdf: {
+    title: 'This PDF is password-protected.',
+    detail: 'Remove the password in your PDF reader, save a copy, and upload that.',
+  },
+  invalid_markup: {
+    title: "Something on this page has formatting we can't read.",
+    detail: 'Open it in Notion, remove or simplify the broken block, and convert again.',
+  },
+};
+
+export function classifyUploadError(body: UploadErrorBody): FriendlyError {
+  const perCode = PER_CODE_COPY[body.code];
+  if (perCode) return perCode;
+  const stripped = stripHtmlTags(body.message);
+  if (stripped.length > 0 && stripped.length < 280) {
+    return { title: stripped };
+  }
+  return FALLBACK;
+}

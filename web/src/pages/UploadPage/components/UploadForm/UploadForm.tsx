@@ -1,10 +1,11 @@
 import { type SyntheticEvent, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { ErrorHandlerType } from '../../../../components/errors/helpers/getErrorMessage';
+import { ErrorHandlerType, classifyUploadError } from '../../../../components/errors/helpers/getErrorMessage';
 import handleRedirect from '../../../../lib/handleRedirect';
 import getAcceptedContentTypes from '../../helpers/getAcceptedContentTypes';
 import { extractErrorMessage } from '../../helpers/extractErrorMessage';
+import type { UploadErrorBody } from '../../../../types/UploadErrorBody';
 import getHeadersFilename from '../../helpers/getHeadersFilename';
 import { getDownloadFileName } from '../../../DownloadsPage/helpers/getDownloadFileName';
 import { getEmptyDeckChatPrompt } from '../../helpers/getEmptyDeckChatPrompt';
@@ -55,13 +56,13 @@ function isLimitRedirect(url: URL): boolean {
   );
 }
 
-function toFriendlyThrownError(error: unknown): string {
+function toFriendlyThrownError(error: unknown): UploadErrorBody {
   const isNetworkError =
     error instanceof TypeError ||
     (error instanceof Error && /fetch|network/i.test(error.message));
-  if (isNetworkError) return NETWORK_FALLBACK;
-  if (error instanceof Error) return error.message;
-  return REJECTED_FALLBACK;
+  if (isNetworkError) return { code: 'unknown', message: NETWORK_FALLBACK };
+  if (error instanceof Error) return { code: 'unknown', message: error.message };
+  return { code: 'unknown', message: REJECTED_FALLBACK };
 }
 
 function buildFormData(form: HTMLFormElement): FormData {
@@ -185,7 +186,7 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
   const [cardCount, setCardCount] = useState<number | null>(null);
   const [warningMessage, setWarningMessage] = useState<string | null>(null);
   const [limitInfo, setLimitInfo] = useState<LimitInfo | null>(null);
-  const [localError, setLocalError] = useState<string | null>(null);
+  const [localError, setLocalError] = useState<UploadErrorBody | null>(null);
   const [progressWidth, setProgressWidth] = useState(10);
   const [progressSlow, setProgressSlow] = useState(false);
   const [showFallback, setShowFallback] = useState(false);
@@ -792,23 +793,28 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
     </div>
   );
 
-  const renderErrorState = () => (
-    <div className={formStyles.stateContent}>
-      <WarningIcon className={formStyles.iconError} />
-      <p className={formStyles.errorTitle}>Something went wrong</p>
-      <p className={formStyles.errorBody}>
-        {localError ??
-          "We couldn't make your deck. Try again, or email us at support@2anki.net."}
-      </p>
-      <button
-        type="button"
-        className={formStyles.actionButton}
-        onClick={resetForm}
-      >
-        Try again
-      </button>
-    </div>
-  );
+  const renderErrorState = () => {
+    const classified = localError
+      ? classifyUploadError(localError)
+      : { title: "We couldn't make your deck.", detail: 'Try again, or email us at support@2anki.net.' };
+    const errorText = classified.detail
+      ? `${classified.title} ${classified.detail}`
+      : classified.title;
+    return (
+      <div className={formStyles.stateContent}>
+        <WarningIcon className={formStyles.iconError} />
+        <p className={formStyles.errorTitle}>Something went wrong</p>
+        <p className={formStyles.errorBody}>{errorText}</p>
+        <button
+          type="button"
+          className={formStyles.actionButton}
+          onClick={resetForm}
+        >
+          Try again
+        </button>
+      </div>
+    );
+  };
 
   const renderIdleState = () => (
     <div className={formStyles.stateContent}>
