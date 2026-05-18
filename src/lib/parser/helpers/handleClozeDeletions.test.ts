@@ -90,4 +90,36 @@ describe('handleClozeDeletions', () => {
     const expected = '<details><summary>Some text</summary></details>';
     expect(handleClozeDeletions(input)).toBe(expected);
   });
+
+  it('adjacent code siblings within the same parent merge into one cloze', () => {
+    const input = '<p><code>bold</code><code>italic</code> is one concept</p>';
+    const result = handleClozeDeletions(input);
+    const matches = result.match(/\{\{c\d+::/g) ?? [];
+    expect(matches.length).toBe(1);
+    expect(result).toContain('bolditalic');
+  });
+
+  it('non-adjacent code elements in the same parent remain separate clozes', () => {
+    const input = '<p><code>first</code> and then <code>second</code></p>';
+    const result = handleClozeDeletions(input);
+    const matches = result.match(/\{\{c\d+::/g) ?? [];
+    expect(matches.length).toBe(2);
+  });
+
+  it('adjacent code siblings across different parents each become their own cloze', () => {
+    const input = '<p><code>alpha</code><code>beta</code></p><p><code>gamma</code><code>delta</code></p>';
+    const result = handleClozeDeletions(input);
+    const matches = result.match(/\{\{c\d+::/g) ?? [];
+    expect(matches.length).toBe(2);
+    expect(result).toContain('alphabeta');
+    expect(result).toContain('gammadelta');
+  });
+
+  it('single code element in a paragraph still becomes one cloze', () => {
+    const input = '<p>The capital is <code>Paris</code></p>';
+    const result = handleClozeDeletions(input);
+    const matches = result.match(/\{\{c\d+::/g) ?? [];
+    expect(matches.length).toBe(1);
+    expect(result).toContain('{{c1::Paris}}');
+  });
 });

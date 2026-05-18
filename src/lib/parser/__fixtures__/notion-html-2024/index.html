@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>Notion HTML 2024 Regression Fixture</title>
+<style>
+body { line-height: 1.5; white-space: pre-wrap; }
+ul > li { list-style: disc; }
+ul.toggle > li { list-style: none; }
+.toggle { padding-inline-start: 0em; list-style-type: none; }
+</style>
+</head>
+<body>
+<article id="notion-html-2024-fixture" class="page sans">
+<header><h1 class="page-title">Notion HTML 2024 Regression Fixture</h1></header>
+<div class="page-body">
+
+<!-- Bug 1: Toggle with plain text AND bulleted list children (new format) -->
+<div style="display:contents" dir="auto">
+<ul id="toggle-plain-text" class="toggle"><li>
+<details open="">
+<summary>What are the main symptoms of influenza?</summary>
+<div style="display:contents" dir="auto"><p class="">Influenza is a viral respiratory infection.</p></div>
+<div style="display:contents" dir="auto">
+<ul class="bulleted-list"><li style="list-style-type:disc">Fever</li></ul>
+</div>
+<div style="display:contents" dir="auto">
+<ul class="bulleted-list"><li style="list-style-type:disc">Myalgia</li></ul>
+</div>
+<div style="display:contents" dir="auto">
+<ul class="bulleted-list"><li style="list-style-type:disc">Cough</li></ul>
+</div>
+</details>
+</li></ul>
+</div>
+
+<!-- Bug 2: Pasted screenshot embedded in a toggle (new format) -->
+<div style="display:contents" dir="auto">
+<ul id="toggle-with-image" class="toggle"><li>
+<details open="">
+<summary>What does this diagram show?</summary>
+<div style="display:contents" dir="ltr">
+<figure id="img-fig-1" class="image">
+<a href="notion-html-2024/pasted-screenshot.png">
+<img style="width:400px" src="notion-html-2024/pasted-screenshot.png"/>
+</a>
+</figure>
+</div>
+</details>
+</li></ul>
+</div>
+
+<!-- Bug 3: Cloze with mixed-format adjacent code siblings (new format) -->
+<div style="display:contents" dir="auto">
+<ul id="toggle-cloze-mixed" class="toggle"><li>
+<details open="">
+<summary><code>bold part</code><code>italic part</code> is one cloze concept</summary>
+</details>
+</li></ul>
+</div>
+
+</div>
+</article>
+</body>
+</html>

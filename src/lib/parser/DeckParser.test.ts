@@ -520,3 +520,67 @@ describe('removeNewlinesInSVGPathAttributeD', () => {
     expect(newParser().removeNewlinesInSVGPathAttributeD(input)).toBe(input);
   });
 });
+
+describe('notion-html-2024 regression corpus', () => {
+  const fixtureDir = path.join(__dirname, '__fixtures__/notion-html-2024');
+  const html = fs.readFileSync(path.join(fixtureDir, 'index.html')).toString();
+  const pngPath = path.join(fixtureDir, 'notion-html-2024/pasted-screenshot.png');
+  const pngContents = fs.readFileSync(pngPath);
+
+  function buildParser(settings: CardOption) {
+    return new DeckParser({
+      name: 'index.html',
+      settings,
+      files: [
+        { name: 'index.html', contents: html },
+        { name: 'notion-html-2024/pasted-screenshot.png', contents: pngContents },
+      ],
+      noLimits: true,
+      workspace: new Workspace(true, 'fs'),
+    });
+  }
+
+  test('Bug 1: toggle with bulleted-list children produces one card with list items', async () => {
+    const parser = buildParser(new CardOption({ 'max-one-toggle-per-card': 'true', cherry: 'false' }));
+    parser.customExporter.save = jest.fn().mockResolvedValue('');
+    await parser.build(new Workspace(true, 'fs'));
+
+    const symptomCard = parser.payload[0].cards.find((c) =>
+      c.name.includes('influenza') || c.name.includes('symptoms')
+    );
+    expect(symptomCard).toBeDefined();
+    expect(symptomCard!.back).toContain('<li');
+    expect(symptomCard!.back).toContain('Fever');
+    expect(symptomCard!.back).toContain('Myalgia');
+    expect(symptomCard!.back).toContain('Cough');
+  });
+
+  test('Bug 2: pasted screenshot image is embedded into the card media list', async () => {
+    const parser = buildParser(new CardOption({ 'max-one-toggle-per-card': 'true', cherry: 'false' }));
+    parser.customExporter.save = jest.fn().mockResolvedValue('');
+    await parser.build(new Workspace(true, 'fs'));
+
+    const imageCard = parser.payload[0].cards.find((c) =>
+      c.name.includes('diagram') || c.name.includes('Diagram')
+    );
+    expect(imageCard).toBeDefined();
+    expect(imageCard!.media.length).toBeGreaterThan(0);
+    expect(imageCard!.back).toMatch(/src="[^"]+\.png"/);
+    expect(imageCard!.back).not.toContain('src="notion-html-2024/pasted-screenshot.png"');
+  });
+
+  test('Bug 3: adjacent code siblings in a cloze summary produce exactly one cloze token', async () => {
+    const parser = buildParser(
+      new CardOption({ 'max-one-toggle-per-card': 'true', cherry: 'false', cloze: 'true' })
+    );
+    parser.customExporter.save = jest.fn().mockResolvedValue('');
+    await parser.build(new Workspace(true, 'fs'));
+
+    const clozeCard = parser.payload[0].cards.find((c) =>
+      c.name.includes('cloze concept') || c.back.includes('cloze concept')
+    );
+    expect(clozeCard).toBeDefined();
+    const clozeTokens = (clozeCard!.name.match(/\{\{c\d+::/g) ?? []).length;
+    expect(clozeTokens).toBe(1);
+  });
+});
