@@ -5,7 +5,6 @@ import styles from '../PricingPage.module.css';
 const AUTO_SYNC_BENEFITS = [
   'Everything in Unlimited',
   'Notion edits sync to Anki every 5 minutes',
-  'Anki desktop in your browser — no install',
   'Multi-device — study from any browser',
   'Cancel anytime',
 ];

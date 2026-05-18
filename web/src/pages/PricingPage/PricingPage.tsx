@@ -214,8 +214,8 @@ export default function PricingPage({
         )}
         <p className={styles.intro}>
           {isUS
-            ? 'Built for spaced repetition — MCAT, USMLE, bar exam, and language prep. 100 cards a month free, plus one Anki → Notion import.'
-            : 'Free for everyone — 100 cards per month, plus one Anki → Notion import to try it out.'}
+            ? 'Built for spaced repetition — MCAT, USMLE, bar exam, and language prep. 100 cards a month free, plus Anki → Notion imports up to 1,000 notes each.'
+            : 'Free for everyone — 100 cards per month, plus Anki → Notion imports up to 1,000 notes each.'}
           {!isLoggedIn && (
             <>
               {' '}

@@ -6,13 +6,18 @@ import { InMemoryUserPassRepository } from '../data_layer/UserPassRepository';
 const mockUpsert = jest.fn();
 const inMemoryRepo = new InMemoryUserPassRepository();
 
+const mockCustomersRetrieve = jest.fn();
+const mockSessionsRetrieve = jest.fn();
+
 jest.mock('../lib/integrations/stripe', () => ({
   getStripe: jest.fn().mockReturnValue({
     webhooks: {
       constructEvent: jest.fn((_body: Buffer, _sig: string) => mockWebhookEvent),
     },
+    customers: { retrieve: mockCustomersRetrieve },
+    checkout: { sessions: { retrieve: mockSessionsRetrieve } },
   }),
-  getCustomerId: jest.fn(),
+  getCustomerId: jest.fn().mockReturnValue('cus_abc'),
   updateStoreSubscription: jest.fn(),
 }));
 
@@ -27,7 +32,12 @@ jest.mock('../data_layer/UserPassRepository', () => {
   };
 });
 
-jest.mock('../data_layer/UsersRepository', () => jest.fn().mockImplementation(() => ({})));
+const mockUpdatePatreonByEmail = jest.fn();
+jest.mock('../data_layer/UsersRepository', () =>
+  jest.fn().mockImplementation(() => ({
+    updatePatreonByEmail: mockUpdatePatreonByEmail,
+  }))
+);
 
 jest.mock('../lib/misc/hashToken', () => (s: string) => `hashed:${s}`);
 
@@ -172,5 +182,103 @@ describe('WebhookRouter — pass grant', () => {
     const res = await postWebhook();
     expect(res.status).toBe(200);
     expect(mockUpsert).not.toHaveBeenCalled();
+  });
+});
+
+describe('WebhookRouter — lifetime product-ID allowlist', () => {
+  const LIFETIME_PRODUCT_ID = 'prod_lifetime_abc';
+
+  let server: http.Server;
+  let url: string;
+
+  beforeAll(async () => {
+    ({ server, url } = await buildServer());
+  });
+
+  afterAll(() => server.close());
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    process.env.LIFETIME_PRICE_IDS = LIFETIME_PRODUCT_ID;
+    mockCustomersRetrieve.mockResolvedValue({ id: 'cus_abc', email: 'user@example.com' });
+    mockUpdatePatreonByEmail.mockResolvedValue(1);
+  });
+
+  afterEach(() => {
+    delete process.env.LIFETIME_PRICE_IDS;
+  });
+
+  function makeLifetimeEvent(productId: string | undefined) {
+    return {
+      type: 'checkout.session.completed',
+      data: {
+        object: {
+          id: 'cs_lifetime_test',
+          amount_total: 9600,
+          currency: 'usd',
+          customer: 'cus_abc',
+          payment_intent: null,
+          metadata: {},
+        },
+      },
+    };
+  }
+
+  function postWebhookLifetime() {
+    return fetch(`${url}/webhook`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'stripe-signature': 'sig_test' },
+      body: JSON.stringify({}),
+    });
+  }
+
+  it('grants lifetime access when product is in LIFETIME_PRICE_IDS and amount meets threshold', async () => {
+    mockSessionsRetrieve.mockResolvedValue({
+      id: 'cs_lifetime_test',
+      line_items: { data: [{ price: { product: LIFETIME_PRODUCT_ID } }] },
+    });
+    mockWebhookEvent = makeLifetimeEvent(LIFETIME_PRODUCT_ID);
+
+    const res = await postWebhookLifetime();
+    expect(res.status).toBe(200);
+    expect(mockUpdatePatreonByEmail).toHaveBeenCalledWith('user@example.com', true);
+  });
+
+  it('does not grant lifetime access when product is NOT in LIFETIME_PRICE_IDS', async () => {
+    mockSessionsRetrieve.mockResolvedValue({
+      id: 'cs_lifetime_test',
+      line_items: { data: [{ price: { product: 'prod_some_other_thing' } }] },
+    });
+    mockWebhookEvent = makeLifetimeEvent('prod_some_other_thing');
+
+    const res = await postWebhookLifetime();
+    expect(res.status).toBe(200);
+    expect(mockUpdatePatreonByEmail).not.toHaveBeenCalled();
+  });
+
+  it('does not grant lifetime access when LIFETIME_PRICE_IDS is not configured', async () => {
+    delete process.env.LIFETIME_PRICE_IDS;
+    mockSessionsRetrieve.mockResolvedValue({
+      id: 'cs_lifetime_test',
+      line_items: { data: [{ price: { product: LIFETIME_PRODUCT_ID } }] },
+    });
+    mockWebhookEvent = makeLifetimeEvent(LIFETIME_PRODUCT_ID);
+
+    const res = await postWebhookLifetime();
+    expect(res.status).toBe(200);
+    expect(mockUpdatePatreonByEmail).not.toHaveBeenCalled();
+  });
+
+  it('supports multiple comma-separated product IDs in LIFETIME_PRICE_IDS', async () => {
+    process.env.LIFETIME_PRICE_IDS = `prod_other,${LIFETIME_PRODUCT_ID},prod_another`;
+    mockSessionsRetrieve.mockResolvedValue({
+      id: 'cs_lifetime_test',
+      line_items: { data: [{ price: { product: LIFETIME_PRODUCT_ID } }] },
+    });
+    mockWebhookEvent = makeLifetimeEvent(LIFETIME_PRODUCT_ID);
+
+    const res = await postWebhookLifetime();
+    expect(res.status).toBe(200);
+    expect(mockUpdatePatreonByEmail).toHaveBeenCalledWith('user@example.com', true);
   });
 });
