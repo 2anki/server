@@ -11,6 +11,12 @@ export type CardOptions = Partial<{
   input_model_name: string;
   'user-instructions': string;
   'skip-defaults': string;
+  'mcq-enabled': string;
+  'mcq-show-choices': string;
+  'mcq-shuffle': string;
+  'mcq-tts-question': string;
+  'mcq-tts-correct-answer': string;
+  'mcq-tts-extra': string;
 }>;
 
 export interface UserPreferences {

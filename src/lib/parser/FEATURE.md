@@ -40,6 +40,8 @@ Two entry points when enabled: `DeckParser.extractCards()` classifies a Notion t
 
 **`detectMarkdownMCQ` predicate** (markdown) lives in `findNotionToggleLists.ts`. It walks the back-side DOM, requires every `<ul>` it sees to consist entirely of `<li>` elements whose first child is an `<input type="checkbox">`, and returns `{ isMcqShape, correctIndex, options }`. The exact-one-checked rule mirrors the Notion path.
 
+**`detectNotionApiMCQ` predicate** (Notion sync at `/notion`) lives in `findNotionToggleLists.ts`. The Notion SDK renderer emits `<ul class="to-do-list"><li><div class="checkbox checkbox-on|checkbox-off">…</li></ul>` for to-do children; this detector looks for that shape and returns the same result type as the others. Called from `services/NotionService/BlockHandler` when `mcqEnabled` is true.
+
 **`Note` fields for MCQ cards:**
 - `mcq: boolean` — true when the note was classified as MCQ
 - `options: string[]` — the text of each option in order
