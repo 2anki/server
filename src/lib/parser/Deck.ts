@@ -16,6 +16,10 @@ export default class Deck {
 
   globalTags: string[];
 
+  mcqCount = 0;
+
+  mcqSkippedCount = 0;
+
   get cardCount() {
     return this.cards.length;
   }
@@ -41,6 +45,7 @@ export default class Deck {
   static CleanCards(cards: Note[]) {
     return cards.filter(
       (note) =>
+        note.isValidMCQNote() ||
         note.isValidClozeNote() ||
         note.isValidInputNote() ||
         note.isValidBasicNote()

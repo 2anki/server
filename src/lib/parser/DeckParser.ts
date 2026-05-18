@@ -32,7 +32,7 @@ import { extractStyles } from './extractStyles';
 import { withFontSize } from './withFontSize';
 import { NOTION_STYLE } from '../../templates/helper';
 import { transformDetailsTagToNotionToggleList } from './transformDetailsTagToNotionToggleList';
-import { findNotionToggleLists } from './findNotionToggleLists';
+import { findNotionToggleLists, isMCQ } from './findNotionToggleLists';
 import { EmptyDeckError } from '../../usecases/jobs/EmptyDeckError';
 import { extractName } from '../extractDeckName';
 
@@ -314,7 +314,8 @@ export class DeckParser {
 
     const toggleList = this.extractToggleLists(dom);
     const paragraphs = this.extractCardsFromParagraph(dom);
-    let cards: Note[] = this.extractCards(dom, toggleList, isNewFormat);
+    const extractResult = this.extractCards(dom, toggleList, isNewFormat);
+    let cards: Note[] = extractResult.cards;
 
     const disableIndentedBullets = this.settings.disableIndentedBulletPoints;
     if (cards.length === 0) {
@@ -334,6 +335,8 @@ export class DeckParser {
 
     const deck = new Deck(name, cards, image, style, get16DigitRandomId(), this.settings);
     deck.globalTags = fileGlobalTags;
+    deck.mcqCount = extractResult.mcqCount;
+    deck.mcqSkippedCount = extractResult.mcqSkippedCount;
     decks.push(deck);
 
     const subpages = dom('.link-to-page').toArray();
@@ -532,9 +535,18 @@ export class DeckParser {
   }
 
   private transformCard(card: Note, counter: number, ws: Workspace) {
+    card.number = counter;
+
+    if (card.mcq) {
+      card.media = [];
+      if (!card.tags) {
+        card.tags = [];
+      }
+      return;
+    }
+
     card.enableInput = this.settings.useInput;
     card.cloze = this.settings.isCloze;
-    card.number = counter;
 
     if (card.cloze) {
       card.name = handleClozeDeletions(card.name);
@@ -791,8 +803,40 @@ export class DeckParser {
     ];
   }
 
-  private extractCards(dom: cheerio.CheerioAPI, toggleList: Element[], isNewFormat: boolean = false) {
-    let cards: Note[] = [];
+  private buildMCQNote(
+    front: string,
+    toggleElement: cheerio.Cheerio<Element>,
+    dom: cheerio.CheerioAPI,
+    correctIndex: number
+  ): Note {
+    const listItems = toggleElement.find('ul.to-do-list > li, ul.bulleted-list > li').toArray();
+    const options = listItems.map((li) => {
+      const $li = dom(li);
+      $li.find('.checkbox').remove();
+      return $li.text().trim();
+    });
+
+    const explanation = toggleElement
+      .find('> p, > blockquote, > .callout')
+      .map((_i, el) => dom(el).html() ?? '')
+      .toArray()
+      .join('');
+
+    const note = new Note(front, explanation);
+    note.mcq = true;
+    note.options = options;
+    note.correctIndices = [correctIndex];
+    return note;
+  }
+
+  private extractCards(dom: cheerio.CheerioAPI, toggleList: Element[], isNewFormat: boolean = false): {
+    cards: Note[];
+    mcqCount: number;
+    mcqSkippedCount: number;
+  } {
+    const cards: Note[] = [];
+    let mcqCount = 0;
+    let mcqSkippedCount = 0;
     const pageId = dom('article').attr('id');
 
     toggleList.forEach((t) => {
@@ -829,6 +873,32 @@ export class DeckParser {
           if (toggle || this.settings.maxOne) {
             const toggleHTML = toggle.html();
             if (toggleHTML) {
+              const toggleEl = toggle.get(0);
+              const correctIndex = toggleEl ? isMCQ(toggleEl, dom) : -1;
+              const hasMCQShape = toggleEl != null && (
+                dom(toggleEl).find('ul.to-do-list > li').length >= 2 ||
+                dom(toggleEl).find('ul.bulleted-list > li').length >= 2
+              );
+
+              if (hasMCQShape && correctIndex >= 0) {
+                const note = this.buildMCQNote(front || '', toggle, dom, correctIndex);
+                note.notionId = parentUL.attr('id');
+                mcqCount++;
+                if (
+                  (this.settings.isAvocado && this.noteHasAvocado(note)) ||
+                  (this.settings.isCherry && !this.noteHasCherry(note))
+                ) {
+                  console.debug('dropping due to matching rules');
+                } else {
+                  cards.push(note);
+                }
+                return;
+              }
+
+              if (hasMCQShape && correctIndex === -1) {
+                mcqSkippedCount++;
+              }
+
               let b = toggleHTML.replace(summary.html() || '', '');
               if (this.settings.isTextOnlyBack) {
                 const paragraphs = dom(toggle).find('> p').toArray();
@@ -843,7 +913,7 @@ export class DeckParser {
               const backSide = (() => {
                 let mangleBackSide = b;
                 if (this.settings.maxOne) {
-                  mangleBackSide = isNewFormat 
+                  mangleBackSide = isNewFormat
                     ? this.removeNestedTogglesNewFormat(b)
                     : this.removeNestedTogglesLegacy(b);
                 }
@@ -873,7 +943,7 @@ export class DeckParser {
         }
       }
     });
-    return cards;
+    return { cards, mcqCount, mcqSkippedCount };
   }
 
   private extractCardsFromParagraph(dom: cheerio.CheerioAPI) {

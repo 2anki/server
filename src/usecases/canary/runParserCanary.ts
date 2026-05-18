@@ -36,6 +36,10 @@ export const CANARY_FIXTURES: CanaryFixtureDefinition[] = [
     name: 'notion-html-2024',
     snapshot: { cardCount: 3, imageCount: 1, clozeCount: 3 },
   },
+  {
+    name: 'mcq-canary',
+    snapshot: { cardCount: 1, imageCount: 0, clozeCount: 0 },
+  },
 ];
 
 async function measureFixture(name: string): Promise<CanarySnapshot> {
