@@ -64,3 +64,4 @@ The existing FPs in `instrumentedAxios.ts` (S5144/S7044) are already marked in t
 | `test1` | `javascript:S2068` (hardcoded credential) | `web/tests/**` | Playwright fixtures use placeholder credentials |
 | `test2` | `javascript:S1481` (unused variable) | `web/tests/**` | Test helpers declare but don't always use locals |
 | `gen1/gen2` | all rules | `web/src/generated/**`, `web/src/schemas/**` | Generated code — don't edit |
+| (exclusions) | all rules | `src/data_layer/public/**` | Kanel-generated from Postgres schema; rerun `pnpm kanel` instead |
