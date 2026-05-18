@@ -100,6 +100,9 @@ def get_model(descriptor, mcq_settings=None):
     if afmt is None:
         afmt = template_file.get('back')
 
+    if not css:
+        css = template_file.get('styling') or ''
+
     if model_type == "mcq" and mcq_settings:
         qfmt, afmt = _apply_mcq_settings(qfmt, afmt, mcq_settings)
 
