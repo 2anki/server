@@ -61,6 +61,27 @@ describe('parseDeckResponse', () => {
   it('throws generic error when there is no ] at all', () => {
     expect(() => parseDeckResponse('not json', 'not json', 0)).toThrow('Claude returned invalid JSON');
   });
+
+  it('recovers a card whose value contains an unescaped ASCII " (the German-quote prod failure)', () => {
+    // Claude emits raw ASCII " when source HTML has „kaputt macht" (German low/high quotes).
+    // The premature " closes the string and JSON.parse dies on the following character.
+    const broken =
+      '[{"deck":"Corporate Finance","cards":[{"q":"Erkläre","a":"Linie „kaputt macht".</p> mehr text"}]}]';
+    expect(() => JSON.parse(broken)).toThrow();
+    const parsed = parseDeckResponse(broken, broken, 0);
+    expect(parsed).toHaveLength(1);
+    expect(parsed[0].deck).toBe('Corporate Finance');
+    expect(parsed[0].cards).toHaveLength(1);
+    expect(parsed[0].cards[0].q).toBe('Erkläre');
+    expect(parsed[0].cards[0].a).toContain('kaputt macht');
+  });
+
+  it('still throws when jsonrepair cannot recover the response', () => {
+    const unrepairable = '[{"deck":"X","cards":[{"q":"a","a"';
+    expect(() => parseDeckResponse(unrepairable, unrepairable, 0)).toThrow(
+      'Claude returned invalid JSON'
+    );
+  });
 });
 
 describe('rewriteAudioAnchors', () => {
