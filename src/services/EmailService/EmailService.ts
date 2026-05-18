@@ -58,6 +58,7 @@ export interface IEmailService {
   ): Promise<void>;
   sendInactivityWarningEmail(to: string, token: string, lastConversion?: { deckName: string } | null): Promise<void>;
   sendAbandonedCheckoutRecoveryEmail(to: string): Promise<void>;
+  sendParserCanaryAlert(to: string, summary: string): Promise<void>;
 }
 
 class EmailService implements IEmailService {
@@ -441,6 +442,22 @@ class EmailService implements IEmailService {
       throw error;
     }
   }
+
+  async sendParserCanaryAlert(to: string, summary: string): Promise<void> {
+    const msg = {
+      to,
+      from: this.defaultSender,
+      subject: '[2anki] Parser canary failure — fixture count mismatch',
+      text: summary,
+      replyTo: 'support@2anki.net',
+    };
+    try {
+      await sgMail.send(msg);
+    } catch (error) {
+      console.error('[parser-canary] failed to send alert email:', error);
+      throw error;
+    }
+  }
 }
 
 export class UnimplementedEmailService implements IEmailService {
@@ -528,6 +545,10 @@ export class UnimplementedEmailService implements IEmailService {
 
   async sendAbandonedCheckoutRecoveryEmail(to: string): Promise<void> {
     console.info('sendAbandonedCheckoutRecoveryEmail not handled', to);
+  }
+
+  async sendParserCanaryAlert(to: string, summary: string): Promise<void> {
+    console.info('sendParserCanaryAlert not handled', to, summary);
   }
 }
 

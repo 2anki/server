@@ -10,6 +10,7 @@ The hot path. Every Notion page, HTML export, markdown file, or zip the user upl
 - `guessMarkdownCards.ts` — fallback for raw markdown without toggle structure.
 - `exporters/CustomExporter.ts` + `embedFile.ts` — write the `.apkg` (sqlite + media) for download.
 - `xlsx/` — spreadsheet → cards path.
+- `canary/scheduleParserCanary.ts` — daily job (03:00 UTC) that runs the fixture corpus through the live parser and emails `SUPPORT_EMAIL_ADDRESS` on any count divergence. Wired in `server.ts`.
 
 ## Flow
 
@@ -30,5 +31,5 @@ The hot path. Every Notion page, HTML export, markdown file, or zip the user upl
 - `DeckParser.test.ts` is the integration safety net. Anything that changes the output shape needs a green run there.
 - `experimental/` is exactly that — gated behind feature flags. Don't fold it into the main path until the flag is removed.
 - `Settings/` reads per-user parser overrides from `ParserRulesService`. New options need both a setting and a sensible default.
-- `getFileContents.ts` is the only file in this dir that touches the filesystem; keep it that way.
+- `getFileContents.ts` is the only conversion-path file in this dir that touches the filesystem at request time. `canary/scheduleParserCanary.ts` reads fixture files at job time — that is intentional and isolated to the canary subdirectory.
 - This module depends on `lib/anki/` for the lower-level Anki primitives (deck filename, cardgen, sanitization). Don't duplicate those helpers here.
