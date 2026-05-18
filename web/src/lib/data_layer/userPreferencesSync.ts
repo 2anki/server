@@ -78,6 +78,36 @@ export async function acknowledgeAnkiWeb(): Promise<void> {
   }
 }
 
+export interface ServerUserPreferences {
+  cardOptions: Record<string, string> | null;
+  theme: string | null;
+  ankiWebAcknowledgedAt: string | null;
+  uploadPrimerDismissedAt: string | null;
+}
+
+export async function fetchUserPreferences(): Promise<ServerUserPreferences | null> {
+  try {
+    const res = await fetch(PREFERENCES_URL, { credentials: 'include' });
+    if (!res.ok) return null;
+    return (await res.json()) as ServerUserPreferences;
+  } catch {
+    return null;
+  }
+}
+
+export async function dismissUploadPrimer(): Promise<void> {
+  try {
+    await fetch(PREFERENCES_URL, {
+      method: 'PATCH',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uploadPrimerDismissedAt: new Date().toISOString() }),
+    });
+  } catch {
+    // silent — the caller already updated the query cache optimistically
+  }
+}
+
 export async function hydrateFromServer(): Promise<void> {
   try {
     const res = await fetch(PREFERENCES_URL, { credentials: 'include' });

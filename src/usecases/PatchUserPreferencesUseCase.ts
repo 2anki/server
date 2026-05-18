@@ -5,6 +5,7 @@ export interface PatchUserPreferencesInput {
   cardOptions?: CardOptions;
   theme?: string;
   ankiWebAcknowledgedAt?: string;
+  uploadPrimerDismissedAt?: string;
 }
 
 export class PatchUserPreferencesUseCase {
@@ -15,6 +16,7 @@ export class PatchUserPreferencesUseCase {
       cardOptions: input.cardOptions,
       theme: input.theme,
       ankiWebAcknowledgedAt: input.ankiWebAcknowledgedAt,
+      uploadPrimerDismissedAt: input.uploadPrimerDismissedAt,
     });
   }
 }

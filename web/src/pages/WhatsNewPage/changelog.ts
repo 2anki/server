@@ -5,6 +5,7 @@ export interface ChangelogEntry {
 }
 
 export const changelog: ChangelogEntry[] = [
+  { type: 'style', title: 'Upload page tips dismiss with an ✕ once you know the workflow, and the page stays cleaner above the upload form', date: '2026-05-18' },
   { type: 'fix', title: 'AI-generated decks from uploads with German, Swedish, or other non-English text convert into a finished deck', date: '2026-05-18' },
   { type: 'feature', title: 'Multi-page Notion exports convert several times faster — large uploads finish in seconds instead of waiting through each page', date: '2026-05-18' },
   { type: 'feature', title: 'Password-protected PDFs — type the password during upload and the file converts without third-party tools', date: '2026-05-18' },
