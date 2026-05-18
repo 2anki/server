@@ -94,6 +94,20 @@ export function UploadPage({ setErrorMessage }: Readonly<Props>) {
           Turn your notes into flashcards in seconds
         </p>
       </header>
+      <section className={pageStyles.primer} aria-label="How 2anki works">
+        <p className={pageStyles.primerHeading}>Make cards from your Notion toggles</p>
+        <p className={pageStyles.primerBody}>
+          Each toggle becomes one card — the toggle title is the front, what's
+          inside is the back. Export your page from Notion as HTML and drop the
+          .zip below.
+        </p>
+        <a
+          href="/documentation/start-here/upload-a-file"
+          className={pageStyles.primerLink}
+        >
+          See a 30-second example
+        </a>
+      </section>
       <UploadForm setErrorMessage={setErrorMessage} />
       <p className={pageStyles.footnote}>
         Your uploaded files are deleted after 2 hours.

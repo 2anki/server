@@ -1,0 +1,180 @@
+import os from 'os';
+import path from 'path';
+import express from 'express';
+
+jest.mock('../usecases/uploads/GeneratePackagesUseCase', () => {
+  return {
+    __esModule: true,
+    default: jest.fn(),
+  };
+});
+
+jest.mock('../lib/integrations/stripe', () => ({
+  getStripe: jest.fn().mockReturnValue({
+    customers: { retrieve: jest.fn() },
+  }),
+  updateStoreSubscription: jest.fn().mockResolvedValue(undefined),
+}));
+
+jest.mock('../services/SubscriptionService', () => ({
+  __esModule: true,
+  default: { findActiveStripeSubscriptions: jest.fn().mockResolvedValue([]) },
+}));
+
+import GeneratePackagesUseCase from '../usecases/uploads/GeneratePackagesUseCase';
+import { EmptyDeckError } from '../usecases/jobs/EmptyDeckError';
+import { DeckTooLargeError } from '../lib/parser/exporters/DeckTooLargeError';
+import UploadService from './UploadService';
+import { IUploadRepository } from '../data_layer/UploadRespository';
+import JobRepository from '../data_layer/JobRepository';
+import Uploads from '../data_layer/public/Uploads';
+
+const MockGeneratePackagesUseCase = GeneratePackagesUseCase as jest.MockedClass<typeof GeneratePackagesUseCase>;
+
+function buildRepository(): IUploadRepository {
+  return {
+    deleteUpload: (_owner: number, _key: string) => Promise.resolve(1),
+    getUploadsByOwner: (_owner: number) => Promise.resolve([] as Uploads[]),
+    findByIdAndOwner: (_id: number, _owner: number) => Promise.resolve(null),
+    update: (_owner: number, _filename: string, _key: string, _size_mb: number) =>
+      Promise.resolve([] as Uploads[]),
+    getLastUploadForUser: (_userId: number) => Promise.resolve(null),
+  };
+}
+
+function buildRequest(overrides: Partial<express.Request> = {}): express.Request {
+  return {
+    files: [{ originalname: 'study-notes.zip', mimetype: 'application/zip', size: 1024, path: '/tmp/study-notes.zip' }],
+    body: {},
+    path: '/api/upload/file',
+    ...overrides,
+  } as unknown as express.Request;
+}
+
+function buildResponse(): {
+  res: express.Response;
+  capturedStatus: () => number;
+  capturedJson: () => unknown;
+} {
+  let status = 0;
+  let json: unknown = null;
+
+  const jsonFn = jest.fn((body: unknown) => {
+    json = body;
+    return res; // eslint-disable-line @typescript-eslint/no-use-before-define
+  });
+  const statusFn = jest.fn((code: number) => {
+    status = code;
+    return res; // eslint-disable-line @typescript-eslint/no-use-before-define
+  });
+  const setFn = jest.fn(() => res); // eslint-disable-line @typescript-eslint/no-use-before-define
+  const sendFn = jest.fn(() => res); // eslint-disable-line @typescript-eslint/no-use-before-define
+  const contentTypeFn = jest.fn(() => res); // eslint-disable-line @typescript-eslint/no-use-before-define
+  const attachmentFn = jest.fn(() => res); // eslint-disable-line @typescript-eslint/no-use-before-define
+  const redirectFn = jest.fn(() => res); // eslint-disable-line @typescript-eslint/no-use-before-define
+
+  const res = {
+    status: statusFn,
+    json: jsonFn,
+    set: setFn,
+    send: sendFn,
+    contentType: contentTypeFn,
+    attachment: attachmentFn,
+    redirect: redirectFn,
+    locals: {},
+    headersSent: false,
+  } as unknown as express.Response;
+
+  return {
+    res,
+    capturedStatus: () => status,
+    capturedJson: () => json,
+  };
+}
+
+describe('UploadService.handleUpload — error paths', () => {
+  const originalWorkspaceBase = process.env.WORKSPACE_BASE;
+
+  beforeAll(() => {
+    process.env.WORKSPACE_BASE = path.join(os.tmpdir(), 'upload-service-test');
+  });
+
+  afterAll(() => {
+    process.env.WORKSPACE_BASE = originalWorkspaceBase;
+  });
+
+  beforeEach(() => {
+    MockGeneratePackagesUseCase.mockClear();
+  });
+
+  it('returns 400 JSON with filename in message when no packages are produced', async () => {
+    MockGeneratePackagesUseCase.mockImplementation(() => ({
+      execute: jest.fn().mockResolvedValue({ packages: [] }),
+    }) as unknown as InstanceType<typeof GeneratePackagesUseCase>);
+
+    const service = new UploadService(buildRepository(), {} as JobRepository);
+    const req = buildRequest();
+    const { res, capturedStatus, capturedJson } = buildResponse();
+
+    await service.handleUpload(req, res);
+
+    expect(capturedStatus()).toBe(400);
+    const body = capturedJson() as { message: string; filename: string };
+    expect(typeof body.message).toBe('string');
+    expect(body.message).not.toMatch(/rules/i);
+    expect(body.message).not.toMatch(/valid toggle/i);
+    expect(body.message).not.toMatch(/<[a-z]/i);
+    expect(body.message).toContain('study-notes.zip');
+    expect(body.filename).toBe('study-notes.zip');
+  });
+
+  it('EmptyDeckError response body contains no HTML tags', async () => {
+    MockGeneratePackagesUseCase.mockImplementation(() => ({
+      execute: jest.fn().mockResolvedValue({ packages: [] }),
+    }) as unknown as InstanceType<typeof GeneratePackagesUseCase>);
+
+    const service = new UploadService(buildRepository(), {} as JobRepository);
+    const req = buildRequest();
+    const { res, capturedJson } = buildResponse();
+
+    await service.handleUpload(req, res);
+
+    const body = capturedJson() as { message: string };
+    expect(body.message).not.toMatch(/<[a-z]/i);
+  });
+
+  it('returns 400 JSON when deck serialization overflows (DeckTooLargeError path)', async () => {
+    MockGeneratePackagesUseCase.mockImplementation(() => ({
+      execute: jest.fn().mockRejectedValue(new DeckTooLargeError()),
+    }) as unknown as InstanceType<typeof GeneratePackagesUseCase>);
+
+    const service = new UploadService(buildRepository(), {} as JobRepository);
+    const req = buildRequest();
+    const { res, capturedStatus, capturedJson } = buildResponse();
+
+    await service.handleUpload(req, res);
+
+    expect(capturedStatus()).toBe(400);
+    const body = capturedJson() as { message: string };
+    expect(typeof body.message).toBe('string');
+    expect(body.message).not.toMatch(/<[a-z]/i);
+    expect(body.message).not.toMatch(/Invalid string length/i);
+    expect(body.message).toMatch(/split/i);
+  });
+
+  it('DeckTooLargeError response body contains no stack trace or V8 internals', async () => {
+    MockGeneratePackagesUseCase.mockImplementation(() => ({
+      execute: jest.fn().mockRejectedValue(new DeckTooLargeError()),
+    }) as unknown as InstanceType<typeof GeneratePackagesUseCase>);
+
+    const service = new UploadService(buildRepository(), {} as JobRepository);
+    const req = buildRequest();
+    const { res, capturedJson } = buildResponse();
+
+    await service.handleUpload(req, res);
+
+    const body = capturedJson() as { message: string };
+    expect(body.message).not.toMatch(/at .*\(/);
+    expect(body.message).not.toMatch(/RangeError/);
+  });
+});

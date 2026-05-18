@@ -14,8 +14,9 @@ import { toText } from './NotionService/BlockHandler/helpers/deckNameToText';
 import { isPaying } from '../lib/isPaying';
 import { isLimitError } from '../lib/misc/isLimitError';
 import { handleUploadLimitError } from '../controllers/Upload/helpers/handleUploadLimitError';
-import { getNoPackageError } from '../lib/error/constants';
 import { getUploadValidationError } from '../lib/upload/getUploadValidationError';
+import { EmptyDeckError } from '../usecases/jobs/EmptyDeckError';
+import { DeckTooLargeError } from '../lib/parser/exporters/DeckTooLargeError';
 import { getOwner } from '../lib/User/getOwner';
 import { generateDeckInfo, DeckInfo } from '../lib/claude/ClaudeService';
 import CustomExporter from '../lib/parser/exporters/CustomExporter';
@@ -23,6 +24,15 @@ import Deck from '../lib/parser/Deck';
 import { isHTMLFile, isMarkdownFile } from '../lib/storage/checks';
 import { FileSizeInMegaBytes } from '../lib/misc/file';
 import { track } from './events/track';
+
+interface EmptyDeckResponse {
+  message: string;
+  filename: string;
+}
+
+interface DeckTooLargeResponse {
+  message: string;
+}
 
 function walkHtmlFiles(dir: string): string[] {
   const results: string[] = [];
@@ -184,6 +194,19 @@ class UploadService {
     } catch (err) {
       if (isLimitError(err as Error)) {
         handleUploadLimitError(req, res);
+      } else if (err instanceof EmptyDeckError) {
+        const files = req.files as UploadedFile[] | undefined;
+        const filename = files?.[0]?.originalname ?? 'your file';
+        const body: EmptyDeckResponse = {
+          message: `No toggles found in ${filename}. 2anki turns Notion toggle blocks into cards — the toggle title becomes the question, what's inside becomes the answer. Open the page in Notion, wrap your content in toggles (/toggle), export as HTML, and upload again.`,
+          filename,
+        };
+        return res.status(400).json(body);
+      } else if (err instanceof DeckTooLargeError) {
+        const body: DeckTooLargeResponse = {
+          message: 'This export is too large to process in one go. Try splitting it into smaller pages, removing embedded images, or enabling Claude AI in settings to process it in chunks.',
+        };
+        return res.status(400).json(body);
       } else {
         return ErrorHandler(res, req, err as Error);
       }
@@ -285,7 +308,7 @@ class UploadService {
       return res.redirect(url);
     } else {
       logNoPackageDiagnostics(req.files as UploadedFile[]);
-      ErrorHandler(res, req, getNoPackageError(isPaying(res.locals)));
+      throw new EmptyDeckError();
     }
   }
 

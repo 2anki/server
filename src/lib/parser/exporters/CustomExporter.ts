@@ -3,6 +3,7 @@ import fs, { PathLike } from 'fs';
 
 import CardGenerator from '../../anki/CardGenerator';
 import Deck from '../Deck';
+import { DeckTooLargeError } from './DeckTooLargeError';
 
 class CustomExporter {
   firstDeckName: string;
@@ -26,10 +27,16 @@ class CustomExporter {
   }
 
   configure(payload: Deck[]) {
-    fs.writeFileSync(
-      this.getPayloadInfoPath(),
-      JSON.stringify(payload, null, 2)
-    );
+    let serialized: string;
+    try {
+      serialized = JSON.stringify(payload, null, 2);
+    } catch (err) {
+      if (err instanceof RangeError) {
+        throw new DeckTooLargeError();
+      }
+      throw err;
+    }
+    fs.writeFileSync(this.getPayloadInfoPath(), serialized);
   }
 
   async save(): Promise<Buffer> {
