@@ -466,23 +466,22 @@ export class DeckParser {
     const images = dom('img');
     if (images.length === 0) return content;
 
-    const { decodeURIComponent } = global;
     images.each((_i, elem) => {
       const originalName = dom(elem).attr('src');
       if (!originalName || !isImageFileEmbedable(originalName)) return;
 
+      const decodedPath = decodeURIComponent(originalName);
       const newName = embedFile({
         exporter: this.customExporter,
         files: this.files,
-        filePath: decodeURIComponent(originalName),
+        filePath: decodedPath,
         workspace: ws,
       });
       if (newName) {
         dom(elem).attr('src', newName);
         card.media.push(newName);
       } else {
-        const filename = decodeURIComponent(originalName).split('/').pop() ?? originalName;
-        dom(elem).attr('src', filename);
+        dom(elem).attr('src', decodedPath.split('/').pop() ?? originalName);
       }
     });
     return dom.html();
