@@ -38,7 +38,7 @@ class JobRepository {
       .first();
   }
 
-  findJobByObjectId(objectId: string): Promise<Jobs | undefined> {
+  findJobByObjectId(objectId: string): Promise<Pick<Jobs, 'title' | 'created_at'> | undefined> {
     return this.database<Jobs>(this.tableName)
       .where({ object_id: objectId })
       .select('title', 'created_at')
