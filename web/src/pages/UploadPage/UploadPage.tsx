@@ -3,10 +3,12 @@ import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { ErrorHandlerType } from '../../components/errors/helpers/getErrorMessage';
 import useQuery from '../../lib/hooks/useQuery';
 import { getVisibleText } from '../../lib/text/getVisibleText';
-import { useUserLocals } from '../../lib/hooks/useUserLocals';
+import {
+  dismissUploadPrimer,
+  UPLOAD_PRIMER_DISMISSED_KEY,
+} from '../../lib/data_layer/userPreferencesSync';
 import styles from '../../styles/shared.module.css';
 import UploadForm from './components/UploadForm/UploadForm';
-import { NotionSyncBanner } from './components/NotionSyncBanner';
 import pageStyles from './UploadPage.module.css';
 
 const WALKTHROUGHS: ReadonlyArray<[string, string]> = [
@@ -65,13 +67,20 @@ function VideoCard({
   );
 }
 
+function readPrimerDismissed(): boolean {
+  try {
+    return globalThis.localStorage?.getItem(UPLOAD_PRIMER_DISMISSED_KEY) === 'true';
+  } catch {
+    return false;
+  }
+}
+
 export function UploadPage({ setErrorMessage }: Readonly<Props>) {
   const query = useQuery();
   const view = query.get('view');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { data: userLocals } = useUserLocals();
-  const autoSyncActive = userLocals?.autoSyncActive === true;
+  const [primerDismissed, setPrimerDismissed] = useState<boolean>(readPrimerDismissed);
 
   useEffect(() => {
     if (searchParams.get('from') === 'pass') {
@@ -81,6 +90,11 @@ export function UploadPage({ setErrorMessage }: Readonly<Props>) {
       navigate(qs ? `/upload?${qs}` : '/upload', { replace: true });
     }
   }, [searchParams, navigate]);
+
+  const handleDismissPrimer = () => {
+    setPrimerDismissed(true);
+    void dismissUploadPrimer();
+  };
 
   if (
     view === 'template' ||
@@ -98,21 +112,30 @@ export function UploadPage({ setErrorMessage }: Readonly<Props>) {
           Turn your notes into flashcards in seconds
         </p>
       </header>
-      <section className={pageStyles.primer} aria-label="How 2anki works">
-        <p className={pageStyles.primerHeading}>Make cards from your Notion toggles</p>
-        <p className={pageStyles.primerBody}>
-          Each toggle becomes one card — the toggle title is the front, what's
-          inside is the back. Export your page from Notion as HTML and drop the
-          .zip below.
-        </p>
-        <a
-          href="/documentation/start-here/upload-a-file"
-          className={pageStyles.primerLink}
-        >
-          See a 30-second example
-        </a>
-      </section>
-      <NotionSyncBanner autoSyncActive={autoSyncActive} />
+      {!primerDismissed && (
+        <section className={pageStyles.primer} aria-label="How 2anki works">
+          <button
+            type="button"
+            className={pageStyles.primerDismiss}
+            onClick={handleDismissPrimer}
+            aria-label="Dismiss tips"
+          >
+            ✕
+          </button>
+          <p className={pageStyles.primerHeading}>Make cards from your Notion toggles</p>
+          <p className={pageStyles.primerBody}>
+            Each toggle becomes one card — the toggle title is the front, what's
+            inside is the back. Export your page from Notion as HTML and drop the
+            .zip below.
+          </p>
+          <a
+            href="/documentation/start-here/upload-a-file"
+            className={pageStyles.primerLink}
+          >
+            See a 30-second example
+          </a>
+        </section>
+      )}
       <UploadForm setErrorMessage={setErrorMessage} />
       <p className={pageStyles.footnote}>
         Your uploaded files are deleted after 2 hours.

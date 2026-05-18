@@ -38,6 +38,8 @@ export default interface Users {
 
   anki_web_acknowledged_at: Date | null;
 
+  upload_primer_dismissed_at: Date | null;
+
   email_verified: boolean;
 
   ai_template_generate_count: number;
@@ -92,6 +94,8 @@ export interface UsersInitializer {
 
   anki_web_acknowledged_at?: Date | null;
 
+  upload_primer_dismissed_at?: Date | null;
+
   /** Default value: false */
   email_verified?: boolean;
 
@@ -145,6 +149,8 @@ export interface UsersMutator {
   theme?: string | null;
 
   anki_web_acknowledged_at?: Date | null;
+
+  upload_primer_dismissed_at?: Date | null;
 
   email_verified?: boolean;
 

@@ -17,6 +17,7 @@ export interface UserPreferences {
   cardOptions: CardOptions | null;
   theme: string | null;
   ankiWebAcknowledgedAt: string | null;
+  uploadPrimerDismissedAt: string | null;
 }
 
 export interface IUserPreferencesRepository {
@@ -56,13 +57,14 @@ export class UserPreferencesRepository implements IUserPreferencesRepository {
 
   async get(userId: number): Promise<UserPreferences> {
     const row = await this.database('users')
-      .select('card_options', 'theme', 'anki_web_acknowledged_at')
+      .select('card_options', 'theme', 'anki_web_acknowledged_at', 'upload_primer_dismissed_at')
       .where({ id: userId })
       .first();
     return {
       cardOptions: row?.card_options ?? null,
       theme: row?.theme ?? null,
       ankiWebAcknowledgedAt: row?.anki_web_acknowledged_at?.toISOString() ?? null,
+      uploadPrimerDismissedAt: row?.upload_primer_dismissed_at?.toISOString() ?? null,
     };
   }
 
@@ -78,6 +80,12 @@ export class UserPreferencesRepository implements IUserPreferencesRepository {
       update.anki_web_acknowledged_at = this.database.raw(
         'GREATEST(anki_web_acknowledged_at, ?::timestamptz)',
         [prefs.ankiWebAcknowledgedAt]
+      );
+    }
+    if (prefs.uploadPrimerDismissedAt != null) {
+      update.upload_primer_dismissed_at = this.database.raw(
+        'GREATEST(upload_primer_dismissed_at, ?::timestamptz)',
+        [prefs.uploadPrimerDismissedAt]
       );
     }
     if (Object.keys(update).length > 0) {
@@ -97,6 +105,9 @@ export class UserPreferencesRepository implements IUserPreferencesRepository {
     }
     if (prefs.ankiWebAcknowledgedAt != null && current.ankiWebAcknowledgedAt == null) {
       update.anki_web_acknowledged_at = prefs.ankiWebAcknowledgedAt;
+    }
+    if (prefs.uploadPrimerDismissedAt != null && current.uploadPrimerDismissedAt == null) {
+      update.upload_primer_dismissed_at = prefs.uploadPrimerDismissedAt;
     }
     if (Object.keys(update).length > 0) {
       await this.database('users').where({ id: userId }).update(update);
@@ -119,7 +130,14 @@ export class InMemoryUserPreferencesRepository implements IUserPreferencesReposi
   private readonly store = new Map<number, UserPreferences>();
 
   async get(userId: number): Promise<UserPreferences> {
-    return this.store.get(userId) ?? { cardOptions: null, theme: null, ankiWebAcknowledgedAt: null };
+    return (
+      this.store.get(userId) ?? {
+        cardOptions: null,
+        theme: null,
+        ankiWebAcknowledgedAt: null,
+        uploadPrimerDismissedAt: null,
+      }
+    );
   }
 
   async patch(userId: number, prefs: Partial<UserPreferences>): Promise<UserPreferences> {
@@ -130,6 +148,9 @@ export class InMemoryUserPreferencesRepository implements IUserPreferencesReposi
       ankiWebAcknowledgedAt: prefs.ankiWebAcknowledgedAt == null
         ? current.ankiWebAcknowledgedAt
         : laterOf(current.ankiWebAcknowledgedAt, prefs.ankiWebAcknowledgedAt),
+      uploadPrimerDismissedAt: prefs.uploadPrimerDismissedAt == null
+        ? current.uploadPrimerDismissedAt
+        : laterOf(current.uploadPrimerDismissedAt, prefs.uploadPrimerDismissedAt),
     };
     this.store.set(userId, next);
     return next;
@@ -141,6 +162,8 @@ export class InMemoryUserPreferencesRepository implements IUserPreferencesReposi
       cardOptions: current.cardOptions ?? prefs.cardOptions ?? null,
       theme: current.theme ?? prefs.theme ?? null,
       ankiWebAcknowledgedAt: current.ankiWebAcknowledgedAt ?? prefs.ankiWebAcknowledgedAt ?? null,
+      uploadPrimerDismissedAt:
+        current.uploadPrimerDismissedAt ?? prefs.uploadPrimerDismissedAt ?? null,
     };
     this.store.set(userId, next);
     return next;

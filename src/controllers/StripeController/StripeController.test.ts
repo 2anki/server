@@ -50,6 +50,7 @@ function buildUser(overrides: Partial<UserWithOwner> = {}): UserWithOwner {
     card_options: null,
     theme: null,
     anki_web_acknowledged_at: null,
+    upload_primer_dismissed_at: null,
     email_verified: false,
     ai_template_generate_count: 0,
     ai_template_modify_count: 0,

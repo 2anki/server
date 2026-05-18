@@ -22,7 +22,12 @@ describe('UserPreferencesController.get', () => {
     await controller.get({} as Request, res);
 
     expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith({ cardOptions: null, theme: null, ankiWebAcknowledgedAt: null });
+    expect(res.json).toHaveBeenCalledWith({
+      cardOptions: null,
+      theme: null,
+      ankiWebAcknowledgedAt: null,
+      uploadPrimerDismissedAt: null,
+    });
   });
 
   it('returns stored prefs after a patch', async () => {
@@ -98,6 +103,27 @@ describe('UserPreferencesController.patch', () => {
     await controller.patch(req, res);
 
     expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it('returns 400 when uploadPrimerDismissedAt is not a valid timestamp', async () => {
+    const { controller, res } = buildMocks(1);
+    const req = { body: { uploadPrimerDismissedAt: 'whenever' } } as unknown as Request;
+
+    await controller.patch(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(400);
+  });
+
+  it('persists uploadPrimerDismissedAt and returns it on subsequent get', async () => {
+    const { repo, controller, res } = buildMocks(7);
+    const dismissedAt = '2026-05-18T12:00:00.000Z';
+    const req = { body: { uploadPrimerDismissedAt: dismissedAt } } as unknown as Request;
+
+    await controller.patch(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    const stored = await repo.get(7);
+    expect(stored.uploadPrimerDismissedAt).toBe(dismissedAt);
   });
 });
 
