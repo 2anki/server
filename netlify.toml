@@ -1,9 +1,9 @@
 [build]
-  base = "web"
-  publish = "build"
-  command = "npm run build"
-[[headers]]
-  # Define which paths this specific [[headers]] block will cover.
-  for = "*"
-    [headers.values]
-    Access-Control-Allow-Origin = "*"
+  publish = "deploy/netlify-redirect"
+  command = "echo 'redirect-only site; no build'"
+
+[[redirects]]
+  from = "/*"
+  to = "https://2anki.net/:splat"
+  status = 301
+  force = true
