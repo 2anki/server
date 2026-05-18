@@ -20,6 +20,7 @@ import { convertXLSXToHTML } from './convertXLSXToHTML';
 import { convertDocxToHTML } from './convertDocxToHTML';
 import { generateDeckInfo, DeckInfo } from '../../../lib/claude/ClaudeService';
 import CustomExporter from '../../../lib/parser/exporters/CustomExporter';
+import Workspace from '../../../lib/parser/WorkSpace';
 import fs from 'fs';
 import path from 'path';
 
@@ -294,5 +295,59 @@ export async function PrepareDeck(
     deck: parser.payload,
     cardCount: parser.totalCardCount(),
     warning: parser.usedHeuristic ? 'markdown-heuristic' : undefined,
+  };
+}
+
+export interface DeckInfoOnlyResult {
+  deckInfoPath: string;
+  outputPath: string;
+  name: string;
+  inputFileName: string;
+  deck: Deck[];
+  cardCount: number;
+  warning?: string;
+  needsIndividualBuild: boolean;
+}
+
+export async function prepareDeckInfoOnly(
+  input: DeckParserInput,
+  deckSubWorkspace: Workspace
+): Promise<DeckInfoOnlyResult> {
+  const results = await Promise.all(input.files.map((file) => convertFile(file, input)));
+  const convertedFiles = results.flatMap((r) => (r ? [r] : []));
+  const allFiles = [...input.files, ...convertedFiles];
+
+  const parser = new DeckParser({ ...input, files: allFiles });
+
+  if (parser.totalCardCount() === 0) {
+    if (convertedFiles.length > 0) {
+      const htmlFile = convertedFiles.find((file) => isHTMLFile(file.name));
+      parser.processFirstFile(htmlFile?.name ?? input.name);
+    } else {
+      return {
+        deckInfoPath: '',
+        outputPath: '',
+        name: getDeckFilename(parser.name ?? input.name),
+        inputFileName: input.name,
+        deck: parser.payload,
+        cardCount: 0,
+        warning: parser.usedHeuristic ? 'markdown-heuristic' : undefined,
+        needsIndividualBuild: true,
+      };
+    }
+  }
+
+  const outputPath = path.join(deckSubWorkspace.location, `${getDeckFilename(parser.name)}`);
+  const deckInfoPath = parser.writeDeckInfo(deckSubWorkspace);
+
+  return {
+    deckInfoPath,
+    outputPath,
+    name: getDeckFilename(parser.name),
+    inputFileName: input.name,
+    deck: parser.payload,
+    cardCount: parser.totalCardCount(),
+    warning: parser.usedHeuristic ? 'markdown-heuristic' : undefined,
+    needsIndividualBuild: false,
   };
 }

@@ -461,20 +461,11 @@ export class DeckParser {
     return card;
   }
 
-  build(ws: Workspace) {
-    if (ws.location !== this.workspace.location) {
-      console.debug('workspace location changed for build');
-      console.debug(ws.location);
-      this.customExporter = new CustomExporter(this.firstDeckName, ws.location);
-    }
-
+  private processPayload(ws: Workspace) {
     for (const d of this.payload) {
       const deck = d;
       deck.id = get16DigitRandomId();
-      // Is it necessary to delete the style here?
-      // delete deck.style;
 
-      // Counter for perserving the order in Anki deck.
       let counter = 0;
       const addThese: Note[] = [];
       for (const c of deck.cards) {
@@ -591,7 +582,26 @@ export class DeckParser {
 
     this.payload[0].settings = this.settings;
     this.customExporter.configure(this.payload);
+  }
+
+  build(ws: Workspace) {
+    if (ws.location !== this.workspace.location) {
+      console.debug('workspace location changed for build');
+      console.debug(ws.location);
+      this.customExporter = new CustomExporter(this.firstDeckName, ws.location);
+    }
+
+    this.processPayload(ws);
     return this.customExporter.save();
+  }
+
+  writeDeckInfo(ws: Workspace): string {
+    if (ws.location !== this.workspace.location) {
+      this.customExporter = new CustomExporter(this.firstDeckName, ws.location);
+    }
+
+    this.processPayload(ws);
+    return this.customExporter.deckInfoPath();
   }
 
   tryExperimental() {

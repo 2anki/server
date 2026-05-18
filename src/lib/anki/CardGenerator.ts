@@ -1,7 +1,8 @@
-import { existsSync } from 'node:fs';
+import { existsSync, writeFileSync } from 'node:fs';
 import { execFileSync, spawn } from 'node:child_process';
 import { homedir } from 'node:os';
 import path from 'node:path';
+import { randomUUID } from 'node:crypto';
 
 import { CREATE_DECK_DIR, CREATE_DECK_SCRIPT_PATH, resolvePath } from '../constants';
 import { buildPythonExitError } from './buildPythonExitError';
@@ -116,6 +117,52 @@ class CardGenerator {
           return reject(new Error(`Python script did not return a valid .apkg path. stdout: ${output || '(empty)'}`));
         }
         resolve(lastLine);
+      });
+    });
+  }
+
+  runBatch(entries: Array<{ input: string; output: string }>): Promise<string[]> {
+    const manifestPath = path.join(this.currentDirectory, `batch_manifest_${randomUUID()}.json`);
+    writeFileSync(manifestPath, JSON.stringify(entries));
+    const templateDirectory = resolvePath(__dirname, '../../templates/');
+
+    const args = [CREATE_DECK_SCRIPT_PATH, '--batch', manifestPath, templateDirectory];
+    const jobId = this.jobId;
+
+    return new Promise((resolve, reject) => {
+      const proc = spawn(PYTHON(), args, { cwd: this.currentDirectory });
+
+      proc.on('error', (err) => {
+        reject(err);
+      });
+
+      const stdoutData: string[] = [];
+      proc.stdout.on('data', (data: Buffer) => {
+        stdoutData.push(data.toString());
+      });
+
+      const stderrData: string[] = [];
+      proc.stderr.on('data', (data: Buffer) => {
+        stderrData.push(data.toString());
+      });
+
+      proc.on('close', (code) => {
+        if (code !== 0) {
+          return reject(
+            buildPythonExitError({
+              code,
+              stdout: stdoutData.join(''),
+              stderr: stderrData.join(''),
+              jobId,
+            })
+          );
+        }
+        const lines = stdoutData
+          .join('')
+          .split('\n')
+          .map((l) => l.trim())
+          .filter((l) => l.endsWith('.apkg'));
+        resolve(lines);
       });
     });
   }

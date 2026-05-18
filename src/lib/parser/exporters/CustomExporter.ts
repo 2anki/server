@@ -48,8 +48,12 @@ class CustomExporter {
     return fs.readFileSync(apkgPath);
   }
 
-  getPayloadInfoPath(): PathLike {
+  deckInfoPath(): string {
     return path.join(this.workspace, 'deck_info.json');
+  }
+
+  getPayloadInfoPath(): PathLike {
+    return this.deckInfoPath();
   }
 }
 

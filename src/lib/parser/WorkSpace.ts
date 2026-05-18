@@ -7,6 +7,14 @@ class Workspace {
 
   id: string;
 
+  static subdir(parentLocation: string): Workspace {
+    const ws = Object.create(Workspace.prototype) as Workspace;
+    ws.id = getRandomUUID();
+    ws.location = path.join(parentLocation, ws.id);
+    fs.mkdirSync(ws.location, { recursive: true });
+    return ws;
+  }
+
   constructor(isNew: boolean, type: string) {
     if (isNew && type === 'fs') {
       this.id = getRandomUUID();

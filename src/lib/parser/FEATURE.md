@@ -4,11 +4,12 @@ The hot path. Every Notion page, HTML export, markdown file, or zip the user upl
 
 ## Entry points
 
-- `DeckParser.ts` — orchestrates a full conversion: file → blocks → notes → packaged `Deck`. `DeckParserInput` accepts an optional `pdfCredential?: string` that is threaded through to the PDF extraction layer; never log or store it.
+- `DeckParser.ts` — orchestrates a full conversion: file → blocks → notes → packaged `Deck`. `DeckParserInput` accepts an optional `pdfCredential?: string` that is threaded through to the PDF extraction layer; never log or store it. Exposes `writeDeckInfo(ws)` alongside `build(ws)`: the former runs the full card-processing phase and writes `deck_info.json` but stops before spawning Python, returning the path — used by the batch build path in `getPackagesFromZip`.
 - `Deck.ts` / `Note.ts` / `Package.ts` — domain types for what a card looks like.
 - `findNotionToggleLists.ts` — toggle-list detection on the Notion HTML export. The original primitive the project was built on.
 - `guessMarkdownCards.ts` — fallback for raw markdown without toggle structure.
-- `exporters/CustomExporter.ts` + `embedFile.ts` — write the `.apkg` (sqlite + media) for download. `configure()` wraps `JSON.stringify` to convert `RangeError` (V8 "Invalid string length") into `DeckTooLargeError` so the caller gets a typed error instead of a raw engine exception.
+- `exporters/CustomExporter.ts` + `embedFile.ts` — write the `.apkg` (sqlite + media) for download. `configure()` wraps `JSON.stringify` to convert `RangeError` (V8 "Invalid string length") into `DeckTooLargeError` so the caller gets a typed error instead of a raw engine exception. `deckInfoPath()` returns the absolute path to the written `deck_info.json` — used by the batch build path.
+- `WorkSpace.ts` — `Workspace.subdir(parentLocation)` creates an isolated subdirectory workspace within an existing workspace location. Used by the batch build path to give each deck in a batch its own `deck_info.json` without collision.
 - `exporters/DeckTooLargeError.ts` — typed error thrown when the deck payload is too large to serialize. Caught by `UploadService` and mapped to a clean 400 response.
 - `extractPdfText.ts` — extracts per-page text from a PDF buffer using `pdf-parse`. Accepts an optional `credential` parameter passed as `{ userPassword }` to `pdf-parse`. Returns `isDrmLocked: true` when average chars/page is below 10 (DRM or image-only PDF); returns `needsCredential: true` when `pdf-parse` throws a `PasswordException` (encrypted PDF with no or wrong credential). Logged via `[extractPdfText] result` for production monitoring.
 - `synthesizeCardsFromPdf.ts` — converts `PdfPage[]` into `PdfCard[]` using the slide-pair model: page N is the card front, page N+1 is the back. Blank pages in either slot are skipped. Pure function, no I/O.
