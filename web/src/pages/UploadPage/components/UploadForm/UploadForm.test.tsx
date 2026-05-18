@@ -511,4 +511,48 @@ describe('UploadForm analytics events', () => {
     const panel = container.querySelector('#empty-deck-chat-panel');
     expect(panel === null || panel.getAttribute('aria-label')?.startsWith('Ask Claude about')).toBe(true);
   });
+
+  it('shows per-code copy for too_large errors', async () => {
+    const jsonBody = { code: 'too_large', message: 'original server message' };
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      redirected: false,
+      status: 400,
+      clone: () => ({ json: () => Promise.resolve(jsonBody) }),
+      text: () => Promise.resolve(JSON.stringify(jsonBody)),
+      headers: new Headers({ 'Content-Type': 'application/json' }),
+    }));
+
+    const { container } = renderUploadForm(<UploadForm setErrorMessage={vi.fn()} />);
+    const form = container.querySelector('form')!;
+    await act(async () => {
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    });
+
+    await waitFor(() => {
+      const errorBody = container.querySelector('[class*="errorBody"]');
+      expect(errorBody?.textContent).toMatch(/too large/i);
+    });
+  });
+
+  it('shows per-code copy for unsupported_format errors', async () => {
+    const jsonBody = { code: 'unsupported_format', message: 'original server message' };
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      redirected: false,
+      status: 400,
+      clone: () => ({ json: () => Promise.resolve(jsonBody) }),
+      text: () => Promise.resolve(JSON.stringify(jsonBody)),
+      headers: new Headers({ 'Content-Type': 'application/json' }),
+    }));
+
+    const { container } = renderUploadForm(<UploadForm setErrorMessage={vi.fn()} />);
+    const form = container.querySelector('form')!;
+    await act(async () => {
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    });
+
+    await waitFor(() => {
+      const errorBody = container.querySelector('[class*="errorBody"]');
+      expect(errorBody?.textContent).toMatch(/file type/i);
+    });
+  });
 });

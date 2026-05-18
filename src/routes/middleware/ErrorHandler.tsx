@@ -7,6 +7,8 @@ import { isEmptyPayload } from '../../lib/misc/isEmptyPayload';
 import { preserveFilesForDebugging } from '../../lib/debug/preserveFilesForDebugging';
 import { shouldShareFilesForDebugging } from './shouldShareFilesForDebugging';
 import * as cheerio from 'cheerio';
+import { PythonExitError, toUploadErrorCode } from '../../lib/anki/buildPythonExitError';
+import type { UploadErrorBody, UploadErrorCode } from '../../types/UploadErrorBody';
 
 const transporter = nodemailer.createTransport({
   sendmail: true,
@@ -98,6 +100,8 @@ export default async function ErrorHandler(
     return;
   }
 
-  res.set('Content-Type', 'text/plain');
-  res.status(400).send(err.message);
+  const code: UploadErrorCode =
+    err instanceof PythonExitError ? toUploadErrorCode(err.kind) : 'unknown';
+  const body: UploadErrorBody = { code, message: err.message };
+  res.status(400).json(body);
 }

@@ -14,47 +14,62 @@ function textResponse(body: string, status = 400): Response {
 describe('extractErrorMessage', () => {
   test('extracts message from JSON response body', async () => {
     const response = jsonResponse({ message: 'No active subscription.' });
-    expect(await extractErrorMessage(response)).toBe(
-      'No active subscription.'
-    );
+    const result = await extractErrorMessage(response);
+    expect(result.message).toBe('No active subscription.');
+  });
+
+  test('extracts code from JSON response body when present', async () => {
+    const response = jsonResponse({ code: 'too_large', message: 'File too big.' });
+    const result = await extractErrorMessage(response);
+    expect(result.code).toBe('too_large');
+    expect(result.message).toBe('File too big.');
+  });
+
+  test('defaults code to unknown when JSON has no code field', async () => {
+    const response = jsonResponse({ message: 'No active subscription.' });
+    const result = await extractErrorMessage(response);
+    expect(result.code).toBe('unknown');
   });
 
   test('strips HTML tags from plain-text error response', async () => {
     const response = textResponse(
       '<p>Could not create a deck using your file</p>'
     );
-    expect(await extractErrorMessage(response)).toBe(
-      'Could not create a deck using your file'
-    );
+    const result = await extractErrorMessage(response);
+    expect(result.message).toBe('Could not create a deck using your file');
+  });
+
+  test('code is unknown for plain text response', async () => {
+    const response = textResponse('Something broke on our end');
+    const result = await extractErrorMessage(response);
+    expect(result.code).toBe('unknown');
   });
 
   test('strips rich HTML with links from error response', async () => {
     const html =
       '<div class="info">Could not create a deck using your file(s) and rules. Make sure to at least create on valid toggle or verify your <a href="/upload?view=template">settings</a>.</div>';
     const response = textResponse(html);
-    expect(await extractErrorMessage(response)).toBe(
+    const result = await extractErrorMessage(response);
+    expect(result.message).toBe(
       'Could not create a deck using your file(s) and rules. Make sure to at least create on valid toggle or verify your settings.'
     );
   });
 
   test('returns fallback for empty response body', async () => {
     const response = textResponse('');
-    expect(await extractErrorMessage(response)).toMatch(
-      /server rejected the upload/i
-    );
+    const result = await extractErrorMessage(response);
+    expect(result.message).toMatch(/server rejected the upload/i);
   });
 
   test('returns fallback for very long response body', async () => {
     const response = textResponse('x'.repeat(600));
-    expect(await extractErrorMessage(response)).toMatch(
-      /server rejected the upload/i
-    );
+    const result = await extractErrorMessage(response);
+    expect(result.message).toMatch(/server rejected the upload/i);
   });
 
   test('returns plain text when response is not JSON', async () => {
     const response = textResponse('Something broke on our end');
-    expect(await extractErrorMessage(response)).toBe(
-      'Something broke on our end'
-    );
+    const result = await extractErrorMessage(response);
+    expect(result.message).toBe('Something broke on our end');
   });
 });

@@ -1,4 +1,5 @@
-import { classifyError, getErrorMessage } from './getErrorMessage';
+import { classifyError, getErrorMessage, classifyUploadError } from './getErrorMessage';
+import type { UploadErrorBody } from '../../../types/UploadErrorBody';
 
 describe('classifyError', () => {
   test('TypeError: Failed to fetch is a network error', () => {
@@ -68,5 +69,45 @@ describe('getErrorMessage', () => {
   test('returns plain text — no HTML', () => {
     const msg = getErrorMessage(new Error('Failed to fetch'));
     expect(msg).not.toMatch(/</);
+  });
+});
+
+describe('classifyUploadError', () => {
+  test('unsupported_format returns specific copy about file type', () => {
+    const body: UploadErrorBody = { code: 'unsupported_format', message: 'original' };
+    const result = classifyUploadError(body);
+    expect(result.title).toBe("This file type isn't supported.");
+    expect(result.detail).toBe('Use .zip, .html, .md, .pdf, .docx, .xlsx, .pptx, or .csv.');
+  });
+
+  test('too_large returns specific copy about splitting the file', () => {
+    const body: UploadErrorBody = { code: 'too_large', message: 'original' };
+    const result = classifyUploadError(body);
+    expect(result.title).toBe('This file is too large.');
+  });
+
+  test('password_protected_pdf returns specific copy about removing the password', () => {
+    const body: UploadErrorBody = { code: 'password_protected_pdf', message: 'original' };
+    const result = classifyUploadError(body);
+    expect(result.title).toMatch(/password/i);
+  });
+
+  test('invalid_markup returns specific copy about simplifying the block', () => {
+    const body: UploadErrorBody = { code: 'invalid_markup', message: 'original' };
+    const result = classifyUploadError(body);
+    expect(result.title).toBe("Part of this file has formatting we couldn't read.");
+    expect(result.detail).toBe('Open the source, remove or simplify the block that broke, and try again.');
+  });
+
+  test('unknown falls back to the server message', () => {
+    const body: UploadErrorBody = { code: 'unknown', message: 'Something broke.' };
+    const result = classifyUploadError(body);
+    expect(result.title).toBe('Something broke.');
+  });
+
+  test('malformed_notion falls back to the server message', () => {
+    const body: UploadErrorBody = { code: 'malformed_notion', message: 'Notion error.' };
+    const result = classifyUploadError(body);
+    expect(result.title).toBe('Notion error.');
   });
 });

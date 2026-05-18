@@ -1,6 +1,7 @@
 import express from 'express';
 
 import ErrorHandler from './ErrorHandler';
+import { PythonExitError } from '../../lib/anki/buildPythonExitError';
 
 const makeRequest = (): express.Request =>
   ({
@@ -15,10 +16,11 @@ interface FakeResponse {
   headersSent: boolean;
   statusCode: number;
   headers: Record<string, string>;
-  body: string | undefined;
+  body: unknown;
   set: jest.Mock;
   status: jest.Mock;
   send: jest.Mock;
+  json: jest.Mock;
 }
 
 const makeResponse = (headersSent: boolean): FakeResponse => {
@@ -51,7 +53,13 @@ const makeResponse = (headersSent: boolean): FakeResponse => {
     return state;
   });
 
-  state.send = jest.fn((body: string) => {
+  state.send = jest.fn((body: unknown) => {
+    state.body = body;
+    state.headersSent = true;
+    return state;
+  });
+
+  state.json = jest.fn((body: unknown) => {
     state.body = body;
     state.headersSent = true;
     return state;
@@ -61,7 +69,7 @@ const makeResponse = (headersSent: boolean): FakeResponse => {
 };
 
 describe('ErrorHandler', () => {
-  test('writes 400 response with error message when headers not yet sent', async () => {
+  test('emits JSON with code=unknown and message for a plain error', async () => {
     const res = makeResponse(false);
     const req = makeRequest();
 
@@ -71,9 +79,62 @@ describe('ErrorHandler', () => {
       new Error('something failed')
     );
 
-    expect(res.headers['Content-Type']).toBe('text/plain');
     expect(res.statusCode).toBe(400);
-    expect(res.body).toBe('something failed');
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ code: 'unknown', message: 'something failed' })
+    );
+  });
+
+  test('emits code=invalid_markup for a PythonExitError with kind invalid-markup', async () => {
+    const res = makeResponse(false);
+    const req = makeRequest();
+
+    const err = new PythonExitError('markup error', {
+      kind: 'invalid-markup',
+      rawOutput: 'UserWarning: ...',
+      code: 1,
+    });
+
+    await ErrorHandler(res as unknown as express.Response, req, err);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ code: 'invalid_markup', message: 'markup error' })
+    );
+  });
+
+  test('emits code=too_large for a PythonExitError with kind too-large', async () => {
+    const res = makeResponse(false);
+    const req = makeRequest();
+
+    const err = new PythonExitError('too large', {
+      kind: 'too-large',
+      rawOutput: 'MemoryError',
+      code: null,
+    });
+
+    await ErrorHandler(res as unknown as express.Response, req, err);
+
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ code: 'too_large' })
+    );
+  });
+
+  test('emits code=malformed_notion for a PythonExitError with kind unsupported-data-source', async () => {
+    const res = makeResponse(false);
+    const req = makeRequest();
+
+    const err = new PythonExitError('notion error', {
+      kind: 'unsupported-data-source',
+      rawOutput: "Unsupported 'data_source'!",
+      code: 1,
+    });
+
+    await ErrorHandler(res as unknown as express.Response, req, err);
+
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ code: 'malformed_notion' })
+    );
   });
 
   test('does not throw when headers have already been sent', async () => {
@@ -91,5 +152,6 @@ describe('ErrorHandler', () => {
     expect(res.set).not.toHaveBeenCalled();
     expect(res.status).not.toHaveBeenCalled();
     expect(res.send).not.toHaveBeenCalled();
+    expect(res.json).not.toHaveBeenCalled();
   });
 });
