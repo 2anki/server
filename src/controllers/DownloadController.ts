@@ -25,10 +25,16 @@ export interface DownloadPageViewModel {
   totalSizeBytes: number;
 }
 
+const WORKSPACE_ID_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
+
+function isValidWorkspaceId(id: string): boolean {
+  return WORKSPACE_ID_PATTERN.test(id);
+}
+
 class DownloadController {
   constructor(
-    private service: DownloadService,
-    private jobRepository?: JobRepository
+    private readonly service: DownloadService,
+    private readonly jobRepository?: JobRepository
   ) {}
 
   async getFile(req: Request, res: Response, storage: StorageHandler) {
@@ -75,16 +81,18 @@ class DownloadController {
 
   async getDownloadPage(req: Request, res: Response) {
     const { id } = req.params;
+    if (!isValidWorkspaceId(id)) {
+      return res.status(404).end();
+    }
     const workspaceBase = process.env.WORKSPACE_BASE!;
     const workspace = path.join(workspaceBase, id);
 
-    if (!fs.existsSync(workspace) || !canAccess(workspace, workspaceBase)) {
+    if (
+      !fs.existsSync(workspace) ||
+      !canAccess(workspace, workspaceBase) ||
+      !fs.statSync(workspace).isDirectory()
+    ) {
       return res.status(404).end();
-    }
-
-    if (!fs.statSync(workspace).isDirectory()) {
-      const fileContent = fs.readFileSync(workspace, 'utf8');
-      return res.send(fileContent);
     }
 
     try {
@@ -128,10 +136,7 @@ class DownloadController {
     }
     try {
       const job = await this.jobRepository.findJobByObjectId(id);
-      if (job != null && job.title != null) {
-        return job.title;
-      }
-      return null;
+      return job?.title ?? null;
     } catch {
       return null;
     }
@@ -139,6 +144,9 @@ class DownloadController {
 
   getLocalFile(req: Request, res: Response) {
     const { id, filename } = req.params;
+    if (!isValidWorkspaceId(id)) {
+      return res.status(404).end();
+    }
     const workspaceBase = process.env.WORKSPACE_BASE!;
     const workspace = path.join(workspaceBase, id);
     const filePath = path.join(workspace, filename);
@@ -152,15 +160,18 @@ class DownloadController {
 
   async getBulkDownload(req: Request, res: Response) {
     const { id } = req.params;
+    if (!isValidWorkspaceId(id)) {
+      return res.status(404).end();
+    }
     const workspaceBase = process.env.WORKSPACE_BASE!;
     const workspace = path.join(workspaceBase, id);
 
-    if (!fs.existsSync(workspace) || !canAccess(workspace, workspaceBase)) {
+    if (
+      !fs.existsSync(workspace) ||
+      !canAccess(workspace, workspaceBase) ||
+      !fs.statSync(workspace).isDirectory()
+    ) {
       return res.status(404).end();
-    }
-
-    if (!fs.statSync(workspace).isDirectory()) {
-      return res.status(400).send('Not a valid workspace');
     }
 
     try {
