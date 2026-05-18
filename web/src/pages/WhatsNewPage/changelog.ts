@@ -5,6 +5,7 @@ export interface ChangelogEntry {
 }
 
 export const changelog: ChangelogEntry[] = [
+  { type: 'fix', title: 'AI-generated decks from uploads with German, Swedish, or other non-English text convert into a finished deck', date: '2026-05-18' },
   { type: 'feature', title: 'Multi-page Notion exports convert several times faster — large uploads finish in seconds instead of waiting through each page', date: '2026-05-18' },
   { type: 'feature', title: 'Password-protected PDFs — type the password during upload and the file converts without third-party tools', date: '2026-05-18' },
   { type: 'fix', title: 'Upload errors — too large, wrong file type, password-protected PDF, and broken Notion formatting each show what to fix', date: '2026-05-18' },

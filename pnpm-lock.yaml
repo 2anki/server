@@ -97,6 +97,9 @@ importers:
       http-proxy-middleware:
         specifier: ^4.0.0
         version: 4.0.0
+      jsonrepair:
+        specifier: ^3.14.0
+        version: 3.14.0
       jsonwebtoken:
         specifier: ^9.0.0
         version: 9.0.3
@@ -5439,6 +5442,10 @@ packages:
 
   jsonrepair@3.13.3:
     resolution: {integrity: sha512-BTznj0owIt2CBAH/LTo7+1I5pMvl1e1033LRl/HUowlZmJOIhzC0zbX5bxMngLkfT4WnzPP26QnW5wMr2g9tsQ==}
+    hasBin: true
+
+  jsonrepair@3.14.0:
+    resolution: {integrity: sha512-tWPGKMZf/8UPim+fcW2EfcQ/d/7aKUrP6IECz9G3Tu6Q5dX0orSleqJ9z6sSw7qrQkjF8/Edo4DvsWBZ8H+HNg==}
     hasBin: true
 
   jsonwebtoken@9.0.3:
@@ -14024,6 +14031,8 @@ snapshots:
   json5@2.2.3: {}
 
   jsonrepair@3.13.3: {}
+
+  jsonrepair@3.14.0: {}
 
   jsonwebtoken@9.0.3:
     dependencies:

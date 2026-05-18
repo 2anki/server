@@ -2,6 +2,7 @@ import type Anthropic from '@anthropic-ai/sdk';
 import type { Message } from '@anthropic-ai/sdk/resources/messages';
 import * as cheerio from 'cheerio';
 import { createHash } from 'node:crypto';
+import { jsonrepair } from 'jsonrepair';
 
 const SYSTEM_PROMPT = `
 You are an Anki flashcard generator. Output ONLY a compact JSON array.
@@ -288,6 +289,28 @@ function buildUserMessage(
   return `Convert this HTML content into the compact deck JSON:\n\n${strippedContent}${mediaFilesList}${instructionsSection}`;
 }
 
+function tryRepairDeckArray(toParse: string): unknown[] | null {
+  let candidate: unknown;
+  try {
+    candidate = JSON.parse(jsonrepair(toParse));
+  } catch {
+    return null;
+  }
+  if (!Array.isArray(candidate) || candidate.length === 0) return null;
+  const hasUsableCard = candidate.some((deck) => {
+    if (!deck || typeof deck !== 'object') return false;
+    const cards = (deck as { cards?: unknown }).cards;
+    if (!Array.isArray(cards)) return false;
+    return cards.some((card) => {
+      if (!card || typeof card !== 'object') return false;
+      const q = (card as { q?: unknown }).q;
+      const a = (card as { a?: unknown }).a;
+      return typeof q === 'string' && q.length > 0 && typeof a === 'string' && a.length > 0;
+    });
+  });
+  return hasUsableCard ? candidate : null;
+}
+
 export function parseDeckResponse(
   cleaned: string,
   raw: string,
@@ -302,16 +325,23 @@ export function parseDeckResponse(
   try {
     parsed = JSON.parse(toParse);
   } catch {
-    console.error('[Claude] Failed to parse response as JSON', {
-      raw,
-      cleaned,
-      toParse,
-      chunkIndex,
-    });
-    if (looksLikeEmptyContentExplanation(cleaned)) {
-      throw new Error(EMPTY_CONTENT_USER_MESSAGE);
+    // Repairs Claude's occasional unescaped " in string values (common with German „…" and other non-English quoting); plausibility check guards against over-eager repair on truncated content.
+    const repaired = tryRepairDeckArray(toParse);
+    if (repaired) {
+      parsed = repaired;
+      console.warn('[Claude] Recovered malformed JSON via jsonrepair', { chunkIndex });
+    } else {
+      console.error('[Claude] Failed to parse response as JSON', {
+        raw,
+        cleaned,
+        toParse,
+        chunkIndex,
+      });
+      if (looksLikeEmptyContentExplanation(cleaned)) {
+        throw new Error(EMPTY_CONTENT_USER_MESSAGE);
+      }
+      throw new Error(`Claude returned invalid JSON:\n${raw}`);
     }
-    throw new Error(`Claude returned invalid JSON:\n${raw}`);
   }
 
   if (!Array.isArray(parsed)) {
