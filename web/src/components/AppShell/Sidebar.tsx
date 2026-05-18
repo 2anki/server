@@ -21,6 +21,7 @@ import UserCircleIcon from '../icons/UserCircleIcon';
 import SettingsIcon from '../icons/SettingsIcon';
 import WrenchIcon from '../icons/WrenchIcon';
 import { ThemeSwitcher } from '../ThemeSwitcher/ThemeSwitcher';
+import { ThemeToggle } from '../ThemeSwitcher/ThemeToggle';
 import styles from './AppShell.module.css';
 
 const TRIAL_DURATION_MS = 60 * 60 * 1000;
@@ -240,14 +241,26 @@ export function Sidebar({
       data-testid="app-sidebar"
       data-collapsed={collapsed ? 'true' : 'false'}
     >
-      <Link
-        className={styles.sidebarLogo}
-        to="/"
-        aria-label="2anki home"
-        onClick={handleNavClick()}
-      >
-        <img src={logoSrc} alt="" />
-      </Link>
+      <div className={styles.sidebarHeader}>
+        <Link
+          className={styles.sidebarLogo}
+          to="/"
+          aria-label="2anki home"
+          onClick={handleNavClick()}
+        >
+          <img src={logoSrc} alt="" />
+        </Link>
+        <button
+          type="button"
+          onClick={() => setCollapsed(!collapsed)}
+          className={styles.sidebarCollapseToggle}
+          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          aria-pressed={collapsed}
+          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        >
+          {collapsed ? <ArrowRightIcon width={16} height={16} /> : <ArrowLeftIcon width={16} height={16} />}
+        </button>
+      </div>
       <nav className={styles.sidebarNav}>
         <div className={styles.sidebarGroup}>
           <SidebarRow
@@ -401,7 +414,7 @@ export function Sidebar({
         )}
       </nav>
       <div className={styles.sidebarTheme}>
-        <ThemeSwitcher />
+        {collapsed ? <ThemeToggle /> : <ThemeSwitcher />}
       </div>
       <div className={styles.sidebarSpacer} />
       <div className={styles.identity}>
@@ -427,24 +440,14 @@ export function Sidebar({
           className={styles.sidebarRow}
           href="/users/logout"
           onClick={handleNavClick(onLogOut)}
+          title={getVisibleText('navigation.logout')}
         >
           <ArrowRightOnRectangleIcon width={20} height={20} />
-          {getVisibleText('navigation.logout')}
+          <span className={styles.sidebarRowLabel}>
+            {getVisibleText('navigation.logout')}
+          </span>
         </a>
       </div>
-      <button
-        type="button"
-        onClick={() => setCollapsed(!collapsed)}
-        className={styles.sidebarCollapseToggle}
-        aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        aria-pressed={collapsed}
-        title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-      >
-        {collapsed ? <ArrowRightIcon width={16} height={16} /> : <ArrowLeftIcon width={16} height={16} />}
-        <span className={styles.sidebarRowLabel}>
-          {collapsed ? 'Expand' : 'Collapse'}
-        </span>
-      </button>
       <div className={styles.sidebarMore}>
         <div className={styles.sidebarMoreLinks}>
           <Link to="/whats-new" onClick={handleNavClick()}>
