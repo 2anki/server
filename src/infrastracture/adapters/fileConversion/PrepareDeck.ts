@@ -311,7 +311,8 @@ export interface DeckInfoOnlyResult {
 
 export async function prepareDeckInfoOnly(
   input: DeckParserInput,
-  deckSubWorkspace: Workspace
+  deckSubWorkspace: Workspace,
+  outputWorkspace: Workspace
 ): Promise<DeckInfoOnlyResult> {
   const results = await Promise.all(input.files.map((file) => convertFile(file, input)));
   const convertedFiles = results.flatMap((r) => (r ? [r] : []));
@@ -337,7 +338,7 @@ export async function prepareDeckInfoOnly(
     }
   }
 
-  const outputPath = path.join(deckSubWorkspace.location, `${getDeckFilename(parser.name)}`);
+  const outputPath = path.join(outputWorkspace.location, `${getDeckFilename(parser.name)}`);
   const deckInfoPath = parser.writeDeckInfo(deckSubWorkspace);
 
   return {

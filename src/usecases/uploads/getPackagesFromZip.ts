@@ -48,7 +48,8 @@ async function buildDeckBatch(
           noLimits: paying,
           workspace: deckSubWorkspace,
         },
-        deckSubWorkspace
+        deckSubWorkspace,
+        workspace
       );
     })
   );

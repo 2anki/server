@@ -83,6 +83,56 @@ describe('getPackagesFromZip — batch concurrency', () => {
     expect(result.packages).toHaveLength(fileCount);
   });
 
+  it('passes parent workspace as outputWorkspace so .apkg files land where the downloader looks', async () => {
+    const fileNames = ['deck0.html', 'deck1.html', 'deck2.html'];
+
+    mockZipHandlerClass.mockImplementation(() => ({
+      build: jest.fn().mockResolvedValue(undefined),
+      getFileNames: jest.fn().mockReturnValue(fileNames),
+      files: fileNames.map((name) => ({ name, contents: '<html></html>' })),
+    }));
+
+    mockPrepareDeckInfoOnly.mockImplementation(({ name }: { name: string }) =>
+      Promise.resolve({
+        deckInfoPath: `/fake/${name}/deck_info.json`,
+        outputPath: `${FAKE_WORKSPACE_LOCATION}/${name}.apkg`,
+        name,
+        inputFileName: name,
+        deck: [],
+        cardCount: 1,
+        needsIndividualBuild: false,
+      })
+    );
+
+    mockCardGeneratorClass.mockImplementation(() => ({
+      runBatch: jest.fn().mockImplementation((entries: Array<{ output: string }>) =>
+        Promise.resolve(entries.map((e) => e.output))
+      ),
+    }));
+
+    process.env.UPLOAD_BUILD_CONCURRENCY = '1';
+
+    const settings = new CardOption({});
+    const workspace = { location: FAKE_WORKSPACE_LOCATION } as Workspace;
+
+    await getPackagesFromZip(
+      Buffer.from('fake-zip') as unknown as Uint8Array,
+      false,
+      settings,
+      workspace
+    );
+
+    delete process.env.UPLOAD_BUILD_CONCURRENCY;
+
+    expect(mockPrepareDeckInfoOnly).toHaveBeenCalled();
+    for (const call of mockPrepareDeckInfoOnly.mock.calls) {
+      const [, deckSubWorkspace, outputWorkspace] = call;
+      expect(outputWorkspace).toBe(workspace);
+      expect(outputWorkspace.location).toBe(FAKE_WORKSPACE_LOCATION);
+      expect(deckSubWorkspace.location).not.toBe(FAKE_WORKSPACE_LOCATION);
+    }
+  });
+
   it('falls through to single-file path when only one file is in the zip', async () => {
     const fileNames = ['only.html'];
 
