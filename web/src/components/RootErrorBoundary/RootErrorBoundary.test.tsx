@@ -2,13 +2,13 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import type { ReactElement } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { LocalDataRecoveryBoundary } from './LocalDataRecoveryBoundary';
+import { RootErrorBoundary } from './RootErrorBoundary';
 
 function BrokenApp(): ReactElement {
-  throw new Error('stale localStorage shape');
+  throw new Error('boom');
 }
 
-describe('LocalDataRecoveryBoundary', () => {
+describe('RootErrorBoundary', () => {
   let consoleError: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
@@ -23,25 +23,28 @@ describe('LocalDataRecoveryBoundary', () => {
 
   it('renders children while the app is healthy', () => {
     render(
-      <LocalDataRecoveryBoundary>
+      <RootErrorBoundary>
         <p>App loaded</p>
-      </LocalDataRecoveryBoundary>
+      </RootErrorBoundary>
     );
 
     expect(screen.getByText('App loaded')).toBeInTheDocument();
   });
 
-  it('shows a reset recovery path after a render crash', () => {
+  it('shows the generic recovery screen after a render crash', () => {
     const onError = vi.fn();
 
     render(
-      <LocalDataRecoveryBoundary onError={onError}>
+      <RootErrorBoundary onError={onError}>
         <BrokenApp />
-      </LocalDataRecoveryBoundary>
+      </RootErrorBoundary>
     );
 
     expect(
-      screen.getByRole('heading', { name: /could not finish loading/i })
+      screen.getByRole('heading', { name: /something went wrong loading 2anki/i })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /^reload$/i })
     ).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: /reset local data/i })
@@ -49,14 +52,28 @@ describe('LocalDataRecoveryBoundary', () => {
     expect(onError).toHaveBeenCalled();
   });
 
+  it('reloads the page when the user clicks Reload', () => {
+    const reloadPage = vi.fn();
+
+    render(
+      <RootErrorBoundary reloadPage={reloadPage}>
+        <BrokenApp />
+      </RootErrorBoundary>
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /^reload$/i }));
+
+    expect(reloadPage).toHaveBeenCalledOnce();
+  });
+
   it('clears localStorage and reloads when the user resets local data', () => {
     const reloadPage = vi.fn();
     localStorage.setItem('stale-key', '{"old":true}');
 
     render(
-      <LocalDataRecoveryBoundary reloadPage={reloadPage}>
+      <RootErrorBoundary reloadPage={reloadPage}>
         <BrokenApp />
-      </LocalDataRecoveryBoundary>
+      </RootErrorBoundary>
     );
 
     fireEvent.click(screen.getByRole('button', { name: /reset local data/i }));
