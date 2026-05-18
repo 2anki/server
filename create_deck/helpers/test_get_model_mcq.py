@@ -1,19 +1,15 @@
 """
 Tests for MCQ settings injection in get_model.
 """
-import json
-import os
 import sys
-import tempfile
 from pathlib import Path
-
-import pytest
 
 REPO_ROOT = Path(__file__).parents[2]
 CREATE_DECK_DIR = str(REPO_ROOT / "create_deck")
 if CREATE_DECK_DIR not in sys.path:
     sys.path.insert(0, CREATE_DECK_DIR)
 
+# pylint: disable=wrong-import-position
 from helpers.get_model import get_model, _apply_mcq_settings
 from helpers.get_model_id import get_model_id
 from helpers.get_template import get_template
@@ -25,9 +21,11 @@ def _base_descriptor(model_id=None):
 
 
 class TestApplyMcqSettings:
+    """Apply-MCQ-settings substitution behaviour."""
+
     def test_show_choices_auto_sets_true(self):
         template = get_template("n2a-mcq.json")
-        qfmt, afmt = _apply_mcq_settings(
+        qfmt, _afmt = _apply_mcq_settings(
             template["front"],
             template["back"],
             {"mcqShowChoices": "auto", "mcqShuffle": True, "mcqTtsQuestion": "", "mcqTtsCorrectAnswer": "", "mcqTtsExtra": ""},
@@ -113,6 +111,8 @@ class TestApplyMcqSettings:
 
 
 class TestGetModelMcqIntegration:
+    """End-to-end behaviour of get_model when the mcq descriptor is passed."""
+
     def test_happy_path_all_settings(self):
         settings = {
             "mcqShowChoices": "auto",

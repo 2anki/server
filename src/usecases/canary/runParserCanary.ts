@@ -60,7 +60,7 @@ async function measureFixture(name: string): Promise<CanarySnapshot> {
     }
   }
 
-  const settings = new CardOption({ 'max-one-toggle-per-card': 'true', cherry: 'false', cloze: 'true' });
+  const settings = new CardOption({ 'max-one-toggle-per-card': 'true', cherry: 'false', cloze: 'true', 'mcq-enabled': 'true' });
   const parser = new DeckParser({
     name: 'index.html',
     settings,
