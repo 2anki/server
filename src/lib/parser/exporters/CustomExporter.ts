@@ -42,10 +42,10 @@ class CustomExporter {
   async save(): Promise<Buffer> {
     const gen = new CardGenerator(this.workspace);
     if (process.env.SKIP_CREATE_DECK) {
-      return fs.readFileSync(this.getPayloadInfoPath());
+      return fs.promises.readFile(this.getPayloadInfoPath());
     }
     const apkgPath = (await gen.run()) as string;
-    return fs.readFileSync(apkgPath);
+    return fs.promises.readFile(apkgPath);
   }
 
   deckInfoPath(): string {

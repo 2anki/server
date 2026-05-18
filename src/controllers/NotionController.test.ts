@@ -4,9 +4,9 @@ import NotionController from './NotionController';
 import NotionService from '../services/NotionService';
 import { InProgressJobError, JobLimitError } from '../lib/storage/jobs/helpers/errors';
 
-jest.mock('../lib/storage/jobs/helpers/performConversion', () => ({
+jest.mock('../lib/conversionPool', () => ({
   __esModule: true,
-  default: jest.fn().mockResolvedValue(undefined),
+  runConversion: jest.fn().mockResolvedValue(undefined),
 }));
 jest.mock('../data_layer', () => ({
   getDatabase: jest.fn().mockReturnValue({}),
@@ -18,7 +18,7 @@ jest.mock('../usecases/jobs/CheckJobLimitUseCase');
 jest.mock('../usecases/jobs/CancelJobUseCase');
 jest.mock('../usecases/jobs/StartJobUseCase');
 
-import performConversion from '../lib/storage/jobs/helpers/performConversion';
+import { runConversion } from '../lib/conversionPool';
 import JobRepository from '../data_layer/JobRepository';
 import { FindOrCreateJobUseCase } from '../usecases/jobs/FindOrCreateJobUseCase';
 import { CheckInProgressJobUseCase } from '../usecases/jobs/CheckInProgressJobUseCase';
@@ -71,7 +71,7 @@ describe('NotionController', () => {
     (StartJobUseCase as jest.Mock).mockImplementation(() => ({
       execute: jest.fn().mockResolvedValue(undefined),
     }));
-    (performConversion as jest.Mock).mockResolvedValue(undefined);
+    (runConversion as jest.Mock).mockResolvedValue(undefined);
   }
 
   beforeEach(() => {
@@ -230,7 +230,7 @@ describe('NotionController', () => {
       (StartJobUseCase as jest.Mock).mockImplementation(() => ({
         execute: jest.fn().mockResolvedValue(undefined),
       }));
-      (performConversion as jest.Mock).mockResolvedValue(undefined);
+      (runConversion as jest.Mock).mockResolvedValue(undefined);
 
       await controller.convert(req as express.Request, res as express.Response);
 
@@ -256,11 +256,11 @@ describe('NotionController', () => {
       expect(res.json).toHaveBeenCalledWith({ reason: 'free_plan_one_at_a_time' });
     });
 
-    it('fires performConversion without awaiting and catches worker rejections', async () => {
+    it('fires runConversion without awaiting and catches worker rejections', async () => {
       setupConvertMocks();
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
       const workerError = new Error('worker boom');
-      (performConversion as jest.Mock).mockRejectedValue(workerError);
+      (runConversion as jest.Mock).mockRejectedValue(workerError);
 
       await controller.convert(req as express.Request, res as express.Response);
 

@@ -1,0 +1,102 @@
+import path from 'node:path';
+import fs from 'node:fs';
+import Piscina from 'piscina';
+import knex, { Knex } from 'knex';
+import performConversion from './storage/jobs/helpers/performConversion';
+import NotionAPIWrapper from '../services/NotionService/NotionAPIWrapper';
+import NotionRepository from '../data_layer/NotionRespository';
+import BlocksCacheRepository from '../data_layer/BlocksCacheRepository';
+
+export interface ConversionWorkerRequest {
+  id: string;
+  owner: string;
+  isPaying: boolean;
+  type?: string;
+  title: string;
+  jobDbId: string | number;
+}
+
+let pool: Piscina | null = null;
+
+// CONVERSION_WORKERS caps concurrent Notion conversions (one per pool thread).
+// It composes with UPLOAD_BUILD_CONCURRENCY (per-conversion Python spawn cap)
+// — worst-case Python concurrency is the product. Defaults keep that at 16,
+// matching today's behavior; rationalizing the two into one budget is a
+// separate follow-up.
+export function resolveConversionWorkers(): number {
+  const raw = Number.parseInt(process.env.CONVERSION_WORKERS ?? '', 10);
+  return Number.isFinite(raw) && raw >= 1 ? raw : 4;
+}
+
+function workerEntry(): { filename: string; execArgv: string[] } {
+  const tsPath = path.resolve(__dirname, './conversionWorker.ts');
+  const jsPath = path.resolve(__dirname, './conversionWorker.js');
+  const filename = fs.existsSync(tsPath) ? tsPath : jsPath;
+  const execArgv = filename.endsWith('.ts') ? ['--require', 'tsx/cjs'] : [];
+  return { filename, execArgv };
+}
+
+export function initConversionPool(): Piscina {
+  if (pool) return pool;
+  const { filename, execArgv } = workerEntry();
+  const maxThreads = resolveConversionWorkers();
+  pool = new Piscina({
+    filename,
+    execArgv,
+    maxThreads,
+    minThreads: 1,
+  });
+  return pool;
+}
+
+export function getConversionPool(): Piscina {
+  return initConversionPool();
+}
+
+export async function runConversion(
+  request: ConversionWorkerRequest
+): Promise<void> {
+  await getConversionPool().run(request);
+}
+
+export async function shutdownConversionPool(): Promise<void> {
+  if (!pool) return;
+  const handle = pool;
+  pool = null;
+  await handle.destroy();
+}
+
+let workerKnex: Knex | null = null;
+
+function defaultKnexFactory(): Knex {
+  if (workerKnex) return workerKnex;
+  workerKnex = knex({
+    client: 'pg',
+    connection: process.env.DATABASE_URL,
+    pool: { min: 0, max: 2 },
+  });
+  return workerKnex;
+}
+
+export async function runConversionInWorker(
+  request: ConversionWorkerRequest,
+  knexFactory: () => Knex = defaultKnexFactory
+): Promise<void> {
+  const database = knexFactory();
+  const notionRepo = new NotionRepository(database);
+  const token = await notionRepo.getNotionToken(request.owner);
+  if (!token) {
+    throw new Error(`No Notion token available for owner ${request.owner}`);
+  }
+  const blocksCache = new BlocksCacheRepository(database);
+  const api = new NotionAPIWrapper(token, request.owner, blocksCache);
+  await performConversion(database, {
+    api,
+    id: request.id,
+    owner: request.owner,
+    isPaying: request.isPaying,
+    type: request.type,
+    title: request.title,
+    jobDbId: request.jobDbId,
+  });
+}

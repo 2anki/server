@@ -6,7 +6,7 @@ import Workspace from '../../lib/parser/WorkSpace';
 import CardOption from '../../lib/parser/Settings';
 import StorageHandler from '../../lib/storage/StorageHandler';
 import CardGenerator from '../../lib/anki/CardGenerator';
-import fs from 'fs';
+import fs from 'node:fs/promises';
 import { toText } from '../../services/NotionService/BlockHandler/helpers/deckNameToText';
 import {
   addDeckNameSuffix,
@@ -57,7 +57,7 @@ export class BuildDeckForJobUseCase {
     exporter.configure(filteredDecks);
     const gen = new CardGenerator(ws.location, id);
     const payload = (await gen.run()) as string;
-    const apkg = fs.readFileSync(payload);
+    const apkg = await fs.readFile(payload);
     const filename = toText(
       (() => {
         const f = settings.deckName || bl.firstPageTitle || id;

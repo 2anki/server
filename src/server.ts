@@ -67,23 +67,27 @@ import { scheduleInactivityWarnings } from './lib/inactivity/jobs/scheduleInacti
 import { scheduleParserCanary } from './lib/parser/canary/scheduleParserCanary';
 import { getDefaultEmailService } from './services/EmailService/EmailService';
 import { SendInactivityWarningsUseCase } from './usecases/ops/SendInactivityWarningsUseCase';
+import {
+  initConversionPool,
+  shutdownConversionPool,
+} from './lib/conversionPool';
 
 function registerSignalHandlers(server: http.Server) {
   process.on('uncaughtException', (error) => {
     console.error('Uncaught Exception:', error);
     process.exit(1);
   });
-  process.on('SIGTERM', () => {
-    console.debug('SIGTERM signal received: closing HTTP server');
+  const drainAndClose = (signal: string) => {
+    console.debug(`${signal} signal received: closing HTTP server`);
     server.close(() => {
       console.debug('HTTP server closed');
     });
-  });
-  process.on('SIGINT', () => {
-    server.close(() => {
-      console.debug('HTTP server closed');
+    shutdownConversionPool().catch((err) => {
+      console.error('Conversion pool shutdown failed:', err);
     });
-  });
+  };
+  process.on('SIGTERM', () => drainAndClose('SIGTERM'));
+  process.on('SIGINT', () => drainAndClose('SIGINT'));
 }
 
 const serve = async () => {
@@ -170,6 +174,7 @@ const serve = async () => {
       'WORKSPACE_BASE environment variable is required. Refusing to boot without a workspace root.'
     );
   }
+  initConversionPool();
   const port = process.env.PORT || 2020;
   server.listen(port, () => {
     console.info(`Running on http://localhost:${port}`);
