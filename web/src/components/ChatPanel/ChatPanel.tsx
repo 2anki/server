@@ -487,7 +487,9 @@ export default function ChatPanel({
                   {m.role === 'assistant' && (
                     <>
                       {m.contentBefore != null && (
-                        <AssistantMarkdown>{m.contentBefore}</AssistantMarkdown>
+                        <div className={`${styles.messageBubble} ${styles.messageBubbleAssistant}`}>
+                          <AssistantMarkdown>{m.contentBefore}</AssistantMarkdown>
+                        </div>
                       )}
                       {m.cards != null && m.cards.length > 0 && (
                         <CardPreview
@@ -496,10 +498,14 @@ export default function ChatPanel({
                         />
                       )}
                       {m.contentAfter != null && (
-                        <AssistantMarkdown>{m.contentAfter}</AssistantMarkdown>
+                        <div className={`${styles.messageBubble} ${styles.messageBubbleAssistant}`}>
+                          <AssistantMarkdown>{m.contentAfter}</AssistantMarkdown>
+                        </div>
                       )}
                       {m.cards == null && (
-                        <AssistantMarkdown>{m.content}</AssistantMarkdown>
+                        <div className={`${styles.messageBubble} ${styles.messageBubbleAssistant}`}>
+                          <AssistantMarkdown>{m.content}</AssistantMarkdown>
+                        </div>
                       )}
                     </>
                   )}
@@ -509,9 +515,11 @@ export default function ChatPanel({
                 <div className={`${styles.message} ${styles.messageAssistant}`}>
                   {streamingText.length > 0 ? (
                     <>
-                      <AssistantMarkdown isStreaming={!isCardStreaming}>
-                        {visibleStreamingText(streamingText)}
-                      </AssistantMarkdown>
+                      <div className={`${styles.messageBubble} ${styles.messageBubbleAssistant}`}>
+                        <AssistantMarkdown isStreaming={!isCardStreaming}>
+                          {visibleStreamingText(streamingText)}
+                        </AssistantMarkdown>
+                      </div>
                       {isCardStreaming && (
                         <span className={styles.buildingCards}>Building cards</span>
                       )}
