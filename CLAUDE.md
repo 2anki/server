@@ -57,7 +57,7 @@ Every PR is checked against both — does it make the experience simpler/faster/
 - **Before flipping a PR ready (or before pushing a non-trivial code change), run `sonar-scanner` locally.** `/check` does not run SonarCloud's rule engine; cognitive complexity, nesting depth, redundant type assertions, and a11y smells only surface after the push. See `.claude/rules/sonar.md` for setup and the exact command. Skip only for pure doc/dep/test/typo changes.
 - Before `gh pr merge`: every `statusCheckRollup` entry must be non-FAILURE (not just required ones). The `check-merge-status.py` hook enforces this.
 - Touching auth, payments, or external-API integration? Run `/security-review` before merge.
-- Document scope/follow-ups in commit bodies, not new GitHub issues.
+- GitHub issues for follow-ups that need cross-cutting visibility, labels, or contributor pickup. Commit bodies for inline scope notes that travel with the change.
 
 ## Working speed
 
