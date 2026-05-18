@@ -19,6 +19,8 @@ export default interface Subscriptions {
   updated_at: Date | null;
 
   linked_email: string | null;
+
+  stripe_product_id: string | null;
 }
 
 /** Represents the initializer for the table public.subscriptions */
@@ -40,6 +42,8 @@ export interface SubscriptionsInitializer {
   updated_at?: Date | null;
 
   linked_email?: string | null;
+
+  stripe_product_id?: string | null;
 }
 
 /** Represents the mutator for the table public.subscriptions */
@@ -57,4 +61,6 @@ export interface SubscriptionsMutator {
   updated_at?: Date | null;
 
   linked_email?: string | null;
+
+  stripe_product_id?: string | null;
 }

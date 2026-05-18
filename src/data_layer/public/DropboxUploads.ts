@@ -23,6 +23,8 @@ export default interface DropboxUploads {
   name: string;
 
   owner: number;
+
+  created_at: Date | null;
 }
 
 /** Represents the initializer for the table public.dropbox_uploads */
@@ -45,6 +47,9 @@ export interface DropboxUploadsInitializer {
   name: string;
 
   owner: number;
+
+  /** Default value: CURRENT_TIMESTAMP */
+  created_at?: Date | null;
 }
 
 /** Represents the mutator for the table public.dropbox_uploads */
@@ -66,4 +71,6 @@ export interface DropboxUploadsMutator {
   name?: string;
 
   owner?: number;
+
+  created_at?: Date | null;
 }

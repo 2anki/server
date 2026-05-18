@@ -38,8 +38,6 @@ export default interface Users {
 
   anki_web_acknowledged_at: Date | null;
 
-  upload_primer_dismissed_at: Date | null;
-
   email_verified: boolean;
 
   ai_template_generate_count: number;
@@ -53,6 +51,10 @@ export default interface Users {
   signup_country: string | null;
 
   chat_consent_at: Date | null;
+
+  stripe_customer_id: string | null;
+
+  upload_primer_dismissed_at: Date | null;
 }
 
 /** Represents the initializer for the table public.users */
@@ -94,8 +96,6 @@ export interface UsersInitializer {
 
   anki_web_acknowledged_at?: Date | null;
 
-  upload_primer_dismissed_at?: Date | null;
-
   /** Default value: false */
   email_verified?: boolean;
 
@@ -114,6 +114,10 @@ export interface UsersInitializer {
   signup_country?: string | null;
 
   chat_consent_at?: Date | null;
+
+  stripe_customer_id?: string | null;
+
+  upload_primer_dismissed_at?: Date | null;
 }
 
 /** Represents the mutator for the table public.users */
@@ -150,8 +154,6 @@ export interface UsersMutator {
 
   anki_web_acknowledged_at?: Date | null;
 
-  upload_primer_dismissed_at?: Date | null;
-
   email_verified?: boolean;
 
   ai_template_generate_count?: number;
@@ -165,4 +167,8 @@ export interface UsersMutator {
   signup_country?: string | null;
 
   chat_consent_at?: Date | null;
+
+  stripe_customer_id?: string | null;
+
+  upload_primer_dismissed_at?: Date | null;
 }
