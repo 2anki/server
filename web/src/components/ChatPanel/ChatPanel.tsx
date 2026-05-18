@@ -143,6 +143,13 @@ export default function ChatPanel({
   const [expandedUserMessages, setExpandedUserMessages] = useState<Set<number>>(new Set());
   const [streamingText, setStreamingText] = useState('');
   const [inputValue, setInputValue] = useState(initialPrompt ?? '');
+
+  useEffect(() => {
+    if (initialPrompt != null && initialPrompt !== '') {
+      setInputValue(initialPrompt);
+    }
+  }, [initialPrompt]);
+
   const [isLoading, setIsLoading] = useState(false);
   const [networkError, setNetworkError] = useState<string | null>(null);
   const [limitReached, setLimitReached] = useState(false);

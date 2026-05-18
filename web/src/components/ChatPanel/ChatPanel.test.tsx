@@ -66,6 +66,23 @@ describe('ChatPanel', () => {
     expect(screen.getByRole('textbox', { name: 'Message input' })).toBeInTheDocument();
   });
 
+  it('syncs the textarea when initialPrompt changes after mount', () => {
+    const { rerender } = render(
+      <MemoryRouter>
+        <ChatPanel initialPrompt="" />
+      </MemoryRouter>
+    );
+    const textarea = screen.getByRole('textbox', { name: 'Message input' }) as HTMLTextAreaElement;
+    expect(textarea.value).toBe('');
+
+    rerender(
+      <MemoryRouter>
+        <ChatPanel initialPrompt="Turn this into cloze cards: [paste]" />
+      </MemoryRouter>
+    );
+    expect(textarea.value).toBe('Turn this into cloze cards: [paste]');
+  });
+
   it('calls /api/chat/message when message is sent', async () => {
     mockPost.mockResolvedValueOnce(
       makeSseResponse([
