@@ -2,7 +2,11 @@ import * as cheerio from 'cheerio';
 
 import replaceAll from './replaceAll';
 
-// Helper functions first
+function mergeAdjacentCodeSiblingsInString(input: string): string {
+  const adjacentCodePattern = /<\/code><code>/g;
+  return input.replace(adjacentCodePattern, '');
+}
+
 function findHighestClozeNumber(input: string): number {
   const clozeRegex = /c(\d+)::/g;
   const numbers = Array.from(input.matchAll(clozeRegex)).map((match) =>
@@ -27,10 +31,11 @@ function handleRegularCloze(content: string, num: number): string {
 }
 
 export default function handleClozeDeletions(input: string) {
-  let num = findHighestClozeNumber(input);
-  const dom = cheerio.load(input);
+  const merged = mergeAdjacentCodeSiblingsInString(input);
+  let num = findHighestClozeNumber(merged);
+  const dom = cheerio.load(merged);
   const clozeDeletions = dom('code');
-  let mangle = input;
+  let mangle = merged;
 
   clozeDeletions.each((_i, elem) => {
     const v = dom(elem).html();
