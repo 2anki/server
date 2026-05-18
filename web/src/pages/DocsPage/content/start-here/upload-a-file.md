@@ -3,6 +3,17 @@ title: Upload a file instead
 description: For PDFs, slides, spreadsheets, or a Notion HTML export.
 ---
 
+<figure>
+  <iframe
+    src="https://www.youtube.com/embed/y3Fcx-WGWnA"
+    title="2anki — make Anki cards from your Notion toggles in 30 seconds"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    allowfullscreen
+    width="100%"
+    style="aspect-ratio: 16 / 9; border: 0; border-radius: var(--radius-md);"
+  ></iframe>
+</figure>
+
 Upload works without an account. You drop in a file, 2anki builds the deck, and you download an `.apkg`. Good for one-off conversions or sources that don't live in Notion.
 
 **Plan:** Free (anonymous, no sign-in needed)

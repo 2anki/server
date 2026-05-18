@@ -411,7 +411,7 @@ describe('UploadForm analytics events', () => {
     expect(engagedCalls).toHaveLength(1);
   });
 
-  it('shows the chat CTA link in the empty-deck state', async () => {
+  it('shows the inline chat toggle in the empty-deck state', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
       redirected: false,
       status: 200,
@@ -429,11 +429,83 @@ describe('UploadForm analytics events', () => {
     });
 
     await waitFor(() => {
-      expect(container.querySelector('a[href*="/chat"]')).not.toBeNull();
+      const toggle = container.querySelector('button[aria-expanded]');
+      expect(toggle).not.toBeNull();
+      expect(toggle?.textContent).toContain('Ask Claude about this file');
+      expect(toggle?.getAttribute('aria-controls')).toBe('empty-deck-chat-panel');
     });
-    const link = container.querySelector('a[href*="/chat"]') as HTMLAnchorElement;
-    expect(link.textContent).toContain('Stuck?');
-    expect(link.href).toContain('from=upload');
-    expect(link.href).toContain('reason=empty');
+  });
+
+  it('fires upload_empty_deck_chat_shown once when the empty-deck state mounts', async () => {
+    const { track } = await import('../../../../lib/analytics/track');
+    const trackMock = vi.mocked(track);
+    trackMock.mockClear();
+
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      redirected: false,
+      status: 200,
+      headers: new Headers({
+        'Content-Type': 'application/octet-stream',
+        'X-Card-Count': '0',
+      }),
+      blob: () => Promise.resolve(new Blob(['fake'])),
+    }));
+
+    const { container } = renderUploadForm(<UploadForm setErrorMessage={vi.fn()} />);
+    const form = container.querySelector('form')!;
+    await act(async () => {
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    });
+
+    await waitFor(() => {
+      expect(container.querySelector('button[aria-expanded]')).not.toBeNull();
+    });
+
+    const shownCalls = trackMock.mock.calls.filter(
+      ([name]) => name === 'upload_empty_deck_chat_shown'
+    );
+    expect(shownCalls).toHaveLength(1);
+  });
+
+  it('fires upload_empty_deck_chat_engaged on first expand', async () => {
+    const { track } = await import('../../../../lib/analytics/track');
+    const trackMock = vi.mocked(track);
+    trackMock.mockClear();
+
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      redirected: false,
+      status: 200,
+      headers: new Headers({
+        'Content-Type': 'application/octet-stream',
+        'X-Card-Count': '0',
+      }),
+      blob: () => Promise.resolve(new Blob(['fake'])),
+    }));
+
+    const { container } = renderUploadForm(<UploadForm setErrorMessage={vi.fn()} />);
+    const form = container.querySelector('form')!;
+    await act(async () => {
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    });
+
+    await waitFor(() => {
+      expect(container.querySelector('button[aria-expanded]')).not.toBeNull();
+    });
+
+    const toggle = container.querySelector('button[aria-expanded]') as HTMLButtonElement;
+    await act(async () => {
+      fireEvent.click(toggle);
+    });
+    await act(async () => {
+      fireEvent.click(toggle);
+    });
+
+    const engagedCalls = trackMock.mock.calls.filter(
+      ([name]) => name === 'upload_empty_deck_chat_engaged'
+    );
+    expect(engagedCalls).toHaveLength(1);
+
+    const panel = container.querySelector('#empty-deck-chat-panel');
+    expect(panel === null || panel.getAttribute('aria-label')?.startsWith('Ask Claude about')).toBe(true);
   });
 });

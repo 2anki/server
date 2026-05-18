@@ -591,3 +591,71 @@
 .autoSyncPromptLink:hover {
   text-decoration: underline;
 }
+
+/* ── Inline chat panel (empty-deck state) ── */
+
+.inlineChatWrapper {
+  max-width: 800px;
+  margin: 1rem auto 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-primary);
+  overflow: hidden;
+}
+
+.inlineChatToggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  text-align: left;
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.inlineChatToggle:hover {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+}
+
+.inlineChatToggleChevron {
+  display: inline-block;
+  transition: transform var(--transition-fast);
+  font-style: normal;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+.inlineChatToggleChevronOpen {
+  transform: rotate(90deg);
+}
+
+.inlineChatBody {
+  border-top: 1px solid var(--color-border);
+  min-height: 240px;
+  display: flex;
+  flex-direction: column;
+}
+
+.inlineChatContext {
+  font-size: var(--text-xs);
+  color: var(--color-text-tertiary);
+  margin: 0;
+  padding: 0.5rem 1rem 0;
+}
+
+.inlineChatFilename {
+  font-weight: 500;
+  color: var(--color-text-primary);
+  display: inline-block;
+  max-width: 30ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+}

@@ -8,6 +8,8 @@ export const KNOWN_EVENTS = new Set([
   'upload_error_chat_shown',
   'upload_error_chat_engaged',
   'upload_error_chat_resolved_retry',
+  'upload_empty_deck_chat_shown',
+  'upload_empty_deck_chat_engaged',
   'paywall_shown',
   'paywall_upgrade_clicked',
   'purchase',
