@@ -1,4 +1,4 @@
-import { render, act, waitFor, fireEvent } from '@testing-library/react';
+import { render, act, waitFor, fireEvent, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { afterEach, beforeEach, describe, expect, it, test, vi } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -9,6 +9,28 @@ import UploadForm from './UploadForm';
 vi.mock('../../../../lib/analytics/track', () => ({
   track: vi.fn(),
 }));
+
+vi.mock('../../../../lib/hooks/useUserLocals', () => ({
+  useUserLocals: vi.fn(() => ({
+    data: undefined,
+    isLoading: false,
+    error: null,
+    isError: false,
+    refetch: vi.fn(),
+  })),
+}));
+
+vi.mock('../../../../lib/backend/get2ankiApi', () => ({
+  get2ankiApi: vi.fn(() => ({
+    startTrial: vi.fn().mockResolvedValue({ ok: false }),
+  })),
+}));
+
+import { useUserLocals } from '../../../../lib/hooks/useUserLocals';
+import { get2ankiApi } from '../../../../lib/backend/get2ankiApi';
+
+const mockUseUserLocals = vi.mocked(useUserLocals);
+const mockGet2ankiApi = vi.mocked(get2ankiApi);
 
 type AnalyticsGlobals = {
   hj?: ReturnType<typeof vi.fn>;
@@ -553,6 +575,204 @@ describe('UploadForm analytics events', () => {
     await waitFor(() => {
       const errorBody = container.querySelector('[class*="errorBody"]');
       expect(errorBody?.textContent).toMatch(/file type/i);
+    });
+  });
+});
+
+describe('limit state — start trial button', () => {
+  beforeEach(() => {
+    mockGet2ankiApi.mockReturnValue({
+      startTrial: vi.fn().mockResolvedValue({ ok: false }),
+    } as unknown as ReturnType<typeof get2ankiApi>);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  function renderWithLimitReached(userLocalsData: ReturnType<typeof useUserLocals>['data']) {
+    mockUseUserLocals.mockReturnValue({
+      data: userLocalsData,
+      isLoading: false,
+      error: null,
+      isError: false,
+      refetch: vi.fn(),
+    });
+
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      redirected: true,
+      url: 'http://localhost/limit?kind=file_size',
+      status: 200,
+      headers: new Headers({}),
+      blob: () => Promise.resolve(new Blob([])),
+    }));
+
+    const { container } = renderUploadForm(<UploadForm setErrorMessage={vi.fn()} />);
+    return container;
+  }
+
+  it('shows "Sign in to start trial" and hides "Start 1-hour trial" for anonymous users', async () => {
+    const container = renderWithLimitReached({
+      user: null,
+      locals: { owner: 0, patreon: false, subscriber: false, subscriptionInfo: { active: false, email: '', linked_email: '' } },
+      linked_email: '',
+    } as unknown as ReturnType<typeof useUserLocals>['data']);
+
+    const form = container.querySelector('form')!;
+    await act(async () => {
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    });
+
+    await waitFor(() => {
+      expect(container.querySelector('[class*="limitContent"]')).not.toBeNull();
+    });
+
+    const trialBtn = Array.from(container.querySelectorAll('button')).find(
+      (b) => b.textContent?.includes('Start 1-hour trial')
+    );
+    expect(trialBtn).toBeUndefined();
+
+    const signInLink = container.querySelector('a[href*="login"]');
+    expect(signInLink).not.toBeNull();
+    expect(signInLink?.textContent).toContain('Sign in to start trial');
+  });
+
+  it('renders error message and preserves form when startTrial returns already_used', async () => {
+    mockUseUserLocals.mockReturnValue({
+      data: {
+        user: { id: 1, trial_started_at: null },
+        locals: { owner: 1, patreon: false, subscriber: false, subscriptionInfo: { active: false, email: '', linked_email: '' } },
+        linked_email: '',
+      } as unknown as ReturnType<typeof useUserLocals>['data'],
+      isLoading: false,
+      error: null,
+      isError: false,
+      refetch: vi.fn(),
+    });
+
+    const startTrialMock = vi.fn().mockResolvedValue({ ok: false, reason: 'already_used' });
+    mockGet2ankiApi.mockReturnValue({
+      startTrial: startTrialMock,
+    } as unknown as ReturnType<typeof get2ankiApi>);
+
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      redirected: true,
+      url: 'http://localhost/limit?kind=file_size',
+      status: 200,
+      headers: new Headers({}),
+      blob: () => Promise.resolve(new Blob([])),
+    }));
+
+    const { container } = renderUploadForm(<UploadForm setErrorMessage={vi.fn()} />);
+    const form = container.querySelector('form')!;
+    await act(async () => {
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    });
+
+    await waitFor(() => {
+      expect(container.querySelector('[class*="limitContent"]')).not.toBeNull();
+    });
+
+    const trialBtn = Array.from(container.querySelectorAll('button')).find(
+      (b) => b.textContent?.includes('Start 1-hour trial')
+    ) as HTMLButtonElement | undefined;
+    expect(trialBtn).toBeDefined();
+
+    await act(async () => {
+      fireEvent.click(trialBtn!);
+    });
+
+    await waitFor(() => {
+      const errorEl = container.querySelector('[role="alert"]');
+      expect(errorEl?.textContent).toMatch(/already used your 1-hour trial/i);
+    });
+
+    expect(container.querySelector('[class*="limitContent"]')).not.toBeNull();
+  });
+
+  it('renders error message and preserves form when startTrial throws a network error', async () => {
+    mockUseUserLocals.mockReturnValue({
+      data: {
+        user: { id: 1, trial_started_at: null },
+        locals: { owner: 1, patreon: false, subscriber: false, subscriptionInfo: { active: false, email: '', linked_email: '' } },
+        linked_email: '',
+      } as unknown as ReturnType<typeof useUserLocals>['data'],
+      isLoading: false,
+      error: null,
+      isError: false,
+      refetch: vi.fn(),
+    });
+
+    const startTrialMock = vi.fn().mockRejectedValue(new Error('Network failure'));
+    mockGet2ankiApi.mockReturnValue({
+      startTrial: startTrialMock,
+    } as unknown as ReturnType<typeof get2ankiApi>);
+
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      redirected: true,
+      url: 'http://localhost/limit?kind=file_size',
+      status: 200,
+      headers: new Headers({}),
+      blob: () => Promise.resolve(new Blob([])),
+    }));
+
+    const { container } = renderUploadForm(<UploadForm setErrorMessage={vi.fn()} />);
+    const form = container.querySelector('form')!;
+    await act(async () => {
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    });
+
+    await waitFor(() => {
+      expect(container.querySelector('[class*="limitContent"]')).not.toBeNull();
+    });
+
+    const trialBtn = Array.from(container.querySelectorAll('button')).find(
+      (b) => b.textContent?.includes('Start 1-hour trial')
+    ) as HTMLButtonElement | undefined;
+    expect(trialBtn).toBeDefined();
+
+    await act(async () => {
+      fireEvent.click(trialBtn!);
+    });
+
+    await waitFor(() => {
+      const errorEl = container.querySelector('[role="alert"]');
+      expect(errorEl?.textContent).toMatch(/couldn't start your trial/i);
+    });
+
+    expect(container.querySelector('[class*="limitContent"]')).not.toBeNull();
+  });
+
+  it('uses file_size copy when kind=file_size', async () => {
+    mockUseUserLocals.mockReturnValue({
+      data: {
+        user: { id: 1, trial_started_at: null },
+        locals: { owner: 1, patreon: false, subscriber: false, subscriptionInfo: { active: false, email: '', linked_email: '' } },
+        linked_email: '',
+      } as unknown as ReturnType<typeof useUserLocals>['data'],
+      isLoading: false,
+      error: null,
+      isError: false,
+      refetch: vi.fn(),
+    });
+
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      redirected: true,
+      url: 'http://localhost/limit?kind=file_size',
+      status: 200,
+      headers: new Headers({}),
+      blob: () => Promise.resolve(new Blob([])),
+    }));
+
+    const { container } = renderUploadForm(<UploadForm setErrorMessage={vi.fn()} />);
+    const form = container.querySelector('form')!;
+    await act(async () => {
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    });
+
+    await waitFor(() => {
+      const title = container.querySelector('[class*="limitTitle"]');
+      expect(title?.textContent).toMatch(/50 MB/i);
     });
   });
 });

@@ -54,21 +54,38 @@ describe('handleUploadLimitError', () => {
     jest.clearAllMocks();
   });
 
-  it('redirects unauthenticated users to /limit', async () => {
+  it('redirects unauthenticated users to /limit with file_size kind by default', async () => {
     const res = mockResponse(undefined);
     await handleUploadLimitError(mockRequest(), res);
-    expect(res.redirect).toHaveBeenCalledWith('/limit');
+    expect(res.redirect).toHaveBeenCalledWith('/limit?kind=file_size');
   });
 
-  it('redirects authenticated users with no Stripe subscription to /limit', async () => {
+  it('redirects with card_count kind when error message matches', async () => {
+    const res = mockResponse(undefined);
+    await handleUploadLimitError(mockRequest(), res, new Error('You can only add 100 cards'));
+    expect(res.redirect).toHaveBeenCalledWith('/limit?kind=card_count');
+  });
+
+  it('redirects authenticated users with no Stripe subscription to /limit?kind=file_size', async () => {
     (UsersService as jest.MockedClass<typeof UsersService>).prototype.getUserById =
       jest.fn().mockResolvedValue({ id: '1', email: 'user@example.com' });
     mockedFindActive.mockResolvedValue([]);
 
     const res = mockResponse('owner-1');
-    await handleUploadLimitError(mockRequest(), res);
+    await handleUploadLimitError(mockRequest(), res, new Error('File too large'));
 
-    expect(res.redirect).toHaveBeenCalledWith('/limit');
+    expect(res.redirect).toHaveBeenCalledWith('/limit?kind=file_size');
+  });
+
+  it('redirects authenticated users with card_count error to /limit?kind=card_count', async () => {
+    (UsersService as jest.MockedClass<typeof UsersService>).prototype.getUserById =
+      jest.fn().mockResolvedValue({ id: '1', email: 'user@example.com' });
+    mockedFindActive.mockResolvedValue([]);
+
+    const res = mockResponse('owner-1');
+    await handleUploadLimitError(mockRequest(), res, new Error('You can only add 100 cards'));
+
+    expect(res.redirect).toHaveBeenCalledWith('/limit?kind=card_count');
   });
 
   it('syncs subscription and redirects to upload when active Stripe sub exists but is missing from DB', async () => {
@@ -85,7 +102,7 @@ describe('handleUploadLimitError', () => {
     expect(res.redirect).toHaveBeenCalledWith('/upload');
   });
 
-  it('falls back to /limit when Stripe call throws', async () => {
+  it('falls back to /limit?kind=file_size when Stripe call throws', async () => {
     (UsersService as jest.MockedClass<typeof UsersService>).prototype.getUserById =
       jest.fn().mockResolvedValue({ id: '1', email: 'user@example.com' });
     mockedFindActive.mockRejectedValue(new Error('Stripe unavailable'));
@@ -93,6 +110,6 @@ describe('handleUploadLimitError', () => {
     const res = mockResponse('owner-1');
     await handleUploadLimitError(mockRequest(), res);
 
-    expect(res.redirect).toHaveBeenCalledWith('/limit');
+    expect(res.redirect).toHaveBeenCalledWith('/limit?kind=file_size');
   });
 });

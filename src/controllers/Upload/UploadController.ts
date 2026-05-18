@@ -77,7 +77,7 @@ class UploadController {
 
       handleUploadEndpoint(req, res, async (error) => {
         if (isLimitError(error)) {
-          return handleUploadLimitError(req, res);
+          return handleUploadLimitError(req, res, error instanceof Error ? error : null);
         }
         await this.service.handleUpload(req, res);
       });

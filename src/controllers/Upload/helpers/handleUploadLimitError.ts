@@ -7,11 +7,20 @@ import SubscriptionService from '../../../services/SubscriptionService';
 import { getStripe, updateStoreSubscription } from '../../../lib/integrations/stripe';
 import type { Stripe as StripeTypes } from 'stripe/cjs/stripe.core';
 
+function determineLimitKind(error: Error | null | undefined): 'file_size' | 'card_count' {
+  if (error?.message?.includes('You can only add 100 cards')) {
+    return 'card_count';
+  }
+  return 'file_size';
+}
+
 export const handleUploadLimitError = async (
   req: express.Request,
-  response: express.Response
+  response: express.Response,
+  error?: Error | null
 ) => {
   const owner = response.locals.owner;
+  const kind = determineLimitKind(error);
 
   if (owner) {
     const database = getDatabase();
@@ -38,9 +47,9 @@ export const handleUploadLimitError = async (
       } catch (err) {
         console.error('[handleUploadLimitError] Stripe sync failed:', err);
       }
-      return response.redirect('/limit');
+      return response.redirect(`/limit?kind=${kind}`);
     }
   }
 
-  response.redirect('/limit');
+  response.redirect(`/limit?kind=${kind}`);
 };
