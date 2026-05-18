@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from '../../lib/hooks/useTheme';
 import { useCardUsage } from '../../lib/hooks/useCardUsage';
@@ -24,6 +24,30 @@ import { ThemeSwitcher } from '../ThemeSwitcher/ThemeSwitcher';
 import styles from './AppShell.module.css';
 
 const TRIAL_DURATION_MS = 60 * 60 * 1000;
+const COLLAPSED_STORAGE_KEY = 'sidebar.collapsed';
+
+function readCollapsedFromStorage(): boolean {
+  try {
+    return globalThis.localStorage?.getItem(COLLAPSED_STORAGE_KEY) === 'true';
+  } catch {
+    return false;
+  }
+}
+
+function useSidebarCollapsed(): [boolean, (next: boolean) => void] {
+  const [collapsed, setCollapsedState] = useState<boolean>(readCollapsedFromStorage);
+
+  const setCollapsed = useCallback((next: boolean) => {
+    setCollapsedState(next);
+    try {
+      globalThis.localStorage?.setItem(COLLAPSED_STORAGE_KEY, next ? 'true' : 'false');
+    } catch {
+      // localStorage unavailable (private mode, blocked) — state still updates in memory
+    }
+  }, []);
+
+  return [collapsed, setCollapsed];
+}
 
 interface CardUsageCounterProps {
   used: number;
@@ -128,17 +152,19 @@ function SidebarRow({
   children,
 }: Readonly<SidebarRowProps>) {
   const active = isActiveRoute(pathname, href, matchPrefix);
+  const label = typeof children === 'string' ? children : undefined;
   return (
     <Link
       to={href}
       onClick={onClick}
       aria-current={active ? 'page' : undefined}
+      title={label}
       className={`${styles.sidebarRow} ${
         active ? styles.sidebarRowActive : ''
       }`}
     >
       {Icon && <Icon width={20} height={20} />}
-      {children}
+      <span className={styles.sidebarRowLabel}>{children}</span>
     </Link>
   );
 }
@@ -161,6 +187,7 @@ function LockedSidebarRow({
       type="button"
       onClick={onActivate}
       aria-label={`${label} — upgrade to unlock`}
+      title={`${label} — upgrade to unlock`}
       className={`${styles.sidebarRow} ${styles.sidebarRowLocked}`}
     >
       {Icon && <Icon width={20} height={20} />}
@@ -182,6 +209,7 @@ export function Sidebar({
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const theme = useTheme();
+  const [collapsed, setCollapsed] = useSidebarCollapsed();
   const logoSrc = theme === 'light' ? '/mascot/navbar-logo.png' : '/mascot/Notion 1.png';
   const showAnkify =
     locals?.patreon === true || locals?.autoSyncActive === true;
@@ -207,9 +235,10 @@ export function Sidebar({
   return (
     <aside
       id={drawerId}
-      className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''}`}
+      className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : ''} ${collapsed ? styles.sidebarCollapsed : ''}`}
       aria-label="primary"
       data-testid="app-sidebar"
+      data-collapsed={collapsed ? 'true' : 'false'}
     >
       <Link
         className={styles.sidebarLogo}
@@ -403,6 +432,19 @@ export function Sidebar({
           {getVisibleText('navigation.logout')}
         </a>
       </div>
+      <button
+        type="button"
+        onClick={() => setCollapsed(!collapsed)}
+        className={styles.sidebarCollapseToggle}
+        aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        aria-pressed={collapsed}
+        title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+      >
+        {collapsed ? <ArrowRightIcon width={16} height={16} /> : <ArrowLeftIcon width={16} height={16} />}
+        <span className={styles.sidebarRowLabel}>
+          {collapsed ? 'Expand' : 'Collapse'}
+        </span>
+      </button>
       <div className={styles.sidebarMore}>
         <div className={styles.sidebarMoreLinks}>
           <Link to="/whats-new" onClick={handleNavClick()}>
