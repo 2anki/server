@@ -44,6 +44,7 @@ Every PR is checked against both — does it make the experience simpler/faster/
 @.claude/rules/email-templates.md
 @.claude/rules/dependencies.md
 @.claude/rules/sonar.md
+@.claude/rules/parallel-pr-coordination.md
 
 ## Git
 
