@@ -1,6 +1,7 @@
 import { PrepareDeck } from '../../infrastracture/adapters/fileConversion/PrepareDeck';
 import Workspace from '../../lib/parser/WorkSpace';
 import CardOption from '../../lib/parser/Settings';
+import { isPdfPasswordSentinel } from '../../lib/pdf/pdfPasswordSentinel';
 
 export interface RetryPdfResult {
   apkg: Buffer;
@@ -40,7 +41,7 @@ export class RetryPdfWithCredentialUseCase {
         name: result.name,
       };
     } catch (error) {
-      if (error instanceof Error && error.message.startsWith('PDF_NEEDS_PASSWORD:')) {
+      if (error instanceof Error && isPdfPasswordSentinel(error.message)) {
         return { needsCredential: true, reason: 'wrong_password' };
       }
       throw error;

@@ -218,12 +218,20 @@ class UploadController {
       return res.status(400).json({ message: 'Invalid credential.' });
     }
 
+    const unlinkTempFile = () => {
+      fs.promises.unlink(uploadedFile.path).catch((e) => {
+        console.error('[retryPdfWithCredential] temp file cleanup failed', {
+          error: e instanceof Error ? e.message : String(e),
+        });
+      });
+    };
+
     let fileBuffer: Buffer;
     try {
       fileBuffer = fs.readFileSync(uploadedFile.path);
-      fs.unlink(uploadedFile.path, () => undefined);
+      unlinkTempFile();
     } catch {
-      fs.unlink(uploadedFile.path, () => undefined);
+      unlinkTempFile();
       return res.status(400).json({ message: 'Could not read uploaded file.' });
     }
 

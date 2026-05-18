@@ -24,6 +24,10 @@ import Deck from '../lib/parser/Deck';
 import { isHTMLFile, isMarkdownFile } from '../lib/storage/checks';
 import { FileSizeInMegaBytes } from '../lib/misc/file';
 import { track } from './events/track';
+import {
+  isPdfPasswordSentinel,
+  parsePdfPasswordSentinel,
+} from '../lib/pdf/pdfPasswordSentinel';
 
 interface EmptyDeckResponse {
   message: string;
@@ -207,8 +211,8 @@ class UploadService {
           message: 'This export is too large to process in one go. Try splitting it into smaller pages, removing embedded images, or enabling Claude AI in settings to process it in chunks.',
         };
         return res.status(400).json(body);
-      } else if ((err as Error).message?.startsWith('PDF_NEEDS_PASSWORD:')) {
-        const filename = (err as Error).message.slice('PDF_NEEDS_PASSWORD:'.length);
+      } else if (err instanceof Error && isPdfPasswordSentinel(err.message)) {
+        const filename = parsePdfPasswordSentinel(err.message) ?? 'your file';
         return res.status(400).json({
           error: 'needs_password',
           reason: 'missing_password',

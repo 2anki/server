@@ -36,12 +36,7 @@ function splitIntoPages(fullText: string, pageCount: number): PdfPage[] {
 }
 
 function isPasswordException(error: unknown): boolean {
-  return (
-    error instanceof Error &&
-    (error.name === 'PasswordException' ||
-      error.message.toLowerCase().includes('password') ||
-      error.message.toLowerCase().includes('encrypted'))
-  );
+  return error instanceof Error && error.name === 'PasswordException';
 }
 
 export async function extractPdfText(

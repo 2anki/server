@@ -15,6 +15,7 @@ import { convertPPTToPDF } from './ConvertPPTToPDF';
 import { convertImageToHTML } from './convertImageToHTML';
 import { convertPDFToImages } from './convertPDFToImages';
 import { convertPdfTextToHtml } from './convertPdfTextToHtml';
+import { buildPdfPasswordSentinel } from '../../../lib/pdf/pdfPasswordSentinel';
 import { convertXLSXToHTML } from './convertXLSXToHTML';
 import { convertDocxToHTML } from './convertDocxToHTML';
 import { generateDeckInfo, DeckInfo } from '../../../lib/claude/ClaudeService';
@@ -110,7 +111,7 @@ async function convertFile(
     );
 
     if (textResult.needsCredential) {
-      throw new Error(`PDF_NEEDS_PASSWORD:${file.name}`);
+      throw new Error(buildPdfPasswordSentinel(file.name));
     }
 
     if (!textResult.isDrmLocked && textResult.cardCount > 0) {
