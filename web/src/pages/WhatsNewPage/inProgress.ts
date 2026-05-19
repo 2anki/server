@@ -11,8 +11,13 @@ export const inProgress: InProgressItem[] = [
     type: 'FIX',
   },
   {
-    title: 'Images and media inside Notion pages carry through to your deck without breaking',
+    title: 'Notion images and media land in your deck intact',
     startedAt: '2026-05-19T09:58:01Z',
+    type: 'FIX',
+  },
+  {
+    title: 'More Notion page types convert cleanly into cards',
+    startedAt: '2026-05-19T09:55:02Z',
     type: 'FIX',
   },
   {
@@ -21,13 +26,8 @@ export const inProgress: InProgressItem[] = [
     type: 'FEATURE',
   },
   {
-    title: 'Abandoned-checkout recovery — get a follow-up if you left before completing an upgrade',
+    title: 'Recovery email if you start an upgrade and don’t finish',
     startedAt: '2026-05-19T06:56:04Z',
     type: 'FEATURE',
-  },
-  {
-    title: 'Notion path conversion audited — more page types convert cleanly into cards',
-    startedAt: '2026-05-19T09:55:02Z',
-    type: 'FIX',
   },
 ];

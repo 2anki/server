@@ -5,8 +5,6 @@ import { backlog } from './backlog';
 import sharedStyles from '../../styles/shared.module.css';
 import styles from './WhatsNewPage.module.css';
 
-const IN_PROGRESS_CAP = 5;
-
 interface DateGroup {
   date: string;
   label: string;
@@ -67,8 +65,6 @@ function startedAgoLabel(iso: string): string {
 
 export default function WhatsNewPage() {
   const shipped = groupByDate(changelog);
-  const visibleInProgress = inProgress.slice(0, IN_PROGRESS_CAP);
-  const overflowCount = inProgress.length - IN_PROGRESS_CAP;
 
   return (
     <div className={sharedStyles.page}>
@@ -132,7 +128,7 @@ export default function WhatsNewPage() {
             <p className={styles.emptyState}>Nothing in flight.</p>
           ) : (
             <ul className={styles.cardList}>
-              {visibleInProgress.map((item, idx) => (
+              {inProgress.map((item, idx) => (
                 <li key={`${item.startedAt}-${idx}`} className={styles.card}>
                   {item.type && (
                     <span className={styles.typeTag}>{item.type}</span>
@@ -142,9 +138,6 @@ export default function WhatsNewPage() {
                 </li>
               ))}
             </ul>
-          )}
-          {overflowCount > 0 && (
-            <p className={styles.overflowNote}>+ {overflowCount} more in the queue</p>
           )}
         </div>
 
