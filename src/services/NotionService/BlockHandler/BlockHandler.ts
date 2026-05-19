@@ -7,6 +7,7 @@ import {
   ImageBlockObjectResponse,
   ListBlockChildrenResponse,
   PageObjectResponse,
+  TableBlockObjectResponse,
 } from '@notionhq/client/build/src/api-endpoints';
 
 import getDeckName from '../../../lib/anki/getDeckname';
@@ -25,6 +26,7 @@ import get16DigitRandomId from '../../../shared/helpers/get16DigitRandomId';
 import { NOTION_STYLE } from '../../../templates/helper';
 import NotionAPIWrapper from '../NotionAPIWrapper';
 import BlockColumn from '../blocks/lists/BlockColumn';
+import { tableRowsToCards } from '../blocks/lists/BlockTable';
 import { blockToStaticMarkup } from '../helpers/blockToStaticMarkup';
 import { getToggleSummaryRichText } from '../helpers/getToggleSummaryRichText';
 import { isToggleHeading } from '../helpers/isToggleHeading';
@@ -168,11 +170,35 @@ class BlockHandler {
     let counter = 0;
 
     for (const block of flashcardBlocks) {
+      if (isFullBlock(block) && block.type === 'table') {
+        const tableBlock = block as TableBlockObjectResponse;
+        const tableChildren = await this.api.getBlocks({
+          createdAt: tableBlock.created_time,
+          lastEditedAt: tableBlock.last_edited_time,
+          id: tableBlock.id,
+          all: this.useAll,
+          type: tableBlock.type,
+        });
+        const tableCards = tableRowsToCards(tableBlock, tableChildren, this);
+        for (const { front, back: tableBack } of tableCards) {
+          const ankiNote = new Note(front, tableBack);
+          ankiNote.media = this.exporter.media;
+          ankiNote.notionLink = this.__notionLink(tableBlock.id, notionBaseLink);
+          ankiNote.notionId = this.settings.useNotionId ? tableBlock.id : undefined;
+          ankiNote.tags =
+            rules.TAGS === 'heading'
+              ? TagRegistry.getInstance().headings
+              : TagRegistry.getInstance().strikethroughs;
+          ankiNote.number = counter++;
+          cards.push(ankiNote);
+        }
+        TagRegistry.getInstance().clear();
+        continue;
+      }
+
       let name: string;
       let back: null | string = '';
-      
-      // Handle toggle blocks (including toggle-headings) specially for
-      // flashcard extraction: front = the summary rich_text, back = children
+
       const fullBlock = isFullBlock(block) ? block : null;
       const toggleSummary = fullBlock
         ? getToggleSummaryRichText(fullBlock)

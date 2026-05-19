@@ -565,4 +565,34 @@ describe('BlockHandler', () => {
     const cardsOff = await blOff.getFlashcards(new ParserRules(), [mockToggleBlock], [], undefined);
     expect(cardsOff[0].name).not.toContain('<br />');
   });
+
+  test('Table block produces one Note per data row with single getBlocks call', async () => {
+    const tablePageId = 'a9678fc8-77df-41a6-b6e4-e9c884ab5948';
+    const tableBlockId = '1e2fc662-0bdd-49c1-978b-cb4d8cb8b33f';
+
+    const rules = new ParserRules();
+    rules.setFlashcardTypes(['table']);
+
+    const getBlocksSpy = jest.spyOn(api, 'getBlocks');
+
+    const flashcards = await loadCards(
+      {},
+      tablePageId,
+      new Workspace(true, 'fs'),
+      rules
+    );
+
+    expect(flashcards).toHaveLength(2);
+    expect(flashcards[0].name).toContain('hello');
+    expect(flashcards[0].back).toContain('world');
+    expect(flashcards[1].name).toContain('goodbye');
+    expect(flashcards[1].back).toContain('moon');
+
+    const tableBlockCalls = getBlocksSpy.mock.calls.filter(
+      (call) => call[0].id === tableBlockId
+    );
+    expect(tableBlockCalls).toHaveLength(1);
+
+    getBlocksSpy.mockRestore();
+  });
 });
