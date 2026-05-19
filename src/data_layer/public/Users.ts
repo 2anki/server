@@ -55,6 +55,8 @@ export default interface Users {
   stripe_customer_id: string | null;
 
   upload_primer_dismissed_at: Date | null;
+
+  onboarded_at: Date | null;
 }
 
 /** Represents the initializer for the table public.users */
@@ -118,6 +120,8 @@ export interface UsersInitializer {
   stripe_customer_id?: string | null;
 
   upload_primer_dismissed_at?: Date | null;
+
+  onboarded_at?: Date | null;
 }
 
 /** Represents the mutator for the table public.users */
@@ -171,4 +175,6 @@ export interface UsersMutator {
   stripe_customer_id?: string | null;
 
   upload_primer_dismissed_at?: Date | null;
+
+  onboarded_at?: Date | null;
 }
