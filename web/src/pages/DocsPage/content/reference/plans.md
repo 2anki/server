@@ -1,0 +1,68 @@
+---
+title: Short plans and trial
+description: Day Pass, Week Pass, and the 1-hour Unlimited trial — when one-time access makes sense.
+---
+
+Most people use Free or a monthly Subscription. But three short options exist for when neither fits — a deck for the weekend, a one-off cram session, or trying the paid features before paying.
+
+For the full plan list and prices, see the [pricing page](/pricing).
+
+## 1-hour Unlimited trial
+
+Free for any signed-in account that hasn't used it yet. One hour of Unlimited — no payment, no card on file.
+
+- **Length:** 1 hour from the moment you start it.
+- **Cost:** Free.
+- **Where:** the **Try Unlimited free for 1 hour** button on the [pricing page](/pricing). Visible only if you're signed in, on Free, and haven't used the trial before.
+- **What you get:** the full Unlimited feature set — unlimited cards, larger uploads, PDF support, [AI flashcards](/documentation/cards/ai-flashcards), the works.
+- **What happens after:** your account goes back to Free at the end of the hour. Decks built during the trial follow the [Free storage window](/documentation/help/limits#storage) — 24 hours.
+
+Use this when you have one big upload to do and want to confirm the paid path works for your source before subscribing.
+
+## Day Pass — $4
+
+24 hours of Unlimited access, paid once.
+
+- **Length:** 24 hours from purchase.
+- **Cost:** $4, one-time.
+- **What you get:** Unlimited conversions, every upload format (`.zip`, `.html`, `.md`, `.csv`, `.apkg`), image occlusion, custom card templates.
+- **Where:** **Day Pass** on the [pricing page](/pricing).
+
+Use this when you have a weekend of cards to build and don't want a recurring charge.
+
+## Week Pass — $9
+
+7 days of Unlimited access, paid once.
+
+- **Length:** 7 days from purchase.
+- **Cost:** $9, one-time.
+- **What you get:** same feature set as the Day Pass.
+- **Where:** **Week Pass** on the [pricing page](/pricing).
+
+Use this when you have a week to prep for an exam or a sprint to digitize a stack of notes.
+
+## How the short plans differ from Subscription
+
+| | Free | Day Pass | Week Pass | Unlimited (sub) | Lifetime |
+|---|---|---|---|---|---|
+| Cost | $0 | $4 | $9 | $6 / mo | from $345 once |
+| Length | forever | 24 h | 7 days | until cancelled | forever |
+| Cards per month | 100 | unlimited | unlimited | unlimited | unlimited |
+| PDF support | — | ✓ | ✓ | ✓ | ✓ |
+| [AI flashcards](/documentation/cards/ai-flashcards) | — | ✓ | ✓ | ✓ | ✓ |
+| [Auto Sync](/documentation/sync/how-it-works) | — | — | — | $30/mo add-on | ✓ |
+| Recurring charge | — | — | — | monthly | — |
+
+Day Pass and Week Pass do not include Auto Sync. If you need ongoing Notion → Anki sync, you need a Subscription with Auto Sync or a Lifetime plan.
+
+## Common mistakes
+
+- **Buying a pass while the trial is running.** The 1-hour trial runs its course — passes are added on top. If you've already started the trial, finish it before paying.
+- **Expecting the pass to renew.** Day and Week passes are one-time. When the window closes, you go back to Free. Buy another pass or move to a Subscription if you want continuous access.
+- **Mixing payment paths.** Lifetime is a separate, application-based plan paid through Patreon (see [pricing](/pricing)). Day and Week passes are Stripe checkouts.
+
+## Related
+
+- [Pricing](/pricing) — current plan list and purchase links
+- [Limits and quotas](/documentation/help/limits) — what's in each plan
+- [Privacy policy](/documentation/reference/privacy) — payment processing and data

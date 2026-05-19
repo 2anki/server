@@ -20,6 +20,10 @@ export const sidebar: SidebarGroup[] = [
       },
       { label: 'Upload a file instead', slug: 'start-here/upload-a-file' },
       { label: 'Open your deck in Anki', slug: 'start-here/open-in-anki' },
+      {
+        label: 'Import an Anki deck into Notion',
+        slug: 'start-here/import-from-anki',
+      },
     ],
   },
   {
@@ -29,6 +33,8 @@ export const sidebar: SidebarGroup[] = [
       { label: 'Card types', slug: 'cards/card-types' },
       { label: 'Multiple choice questions', slug: 'cards/mcq' },
       { label: 'Notion blocks we support', slug: 'cards/notion-blocks' },
+      { label: 'Parser rules', slug: 'cards/parser-rules' },
+      { label: 'AI flashcard generation', slug: 'cards/ai-flashcards' },
       { label: 'Markdown and Obsidian', slug: 'cards/markdown' },
       { label: 'HTML', slug: 'cards/html' },
     ],
@@ -58,6 +64,7 @@ export const sidebar: SidebarGroup[] = [
     items: [
       { label: 'Glossary', slug: 'reference/glossary' },
       { label: 'File formats', slug: 'reference/file-formats' },
+      { label: 'Short plans and trial', slug: 'reference/plans' },
       { label: 'Self-hosting', slug: 'reference/self-hosting' },
       { label: 'API access', slug: 'reference/api' },
       { label: 'Privacy policy', slug: 'reference/privacy' },

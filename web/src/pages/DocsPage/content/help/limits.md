@@ -12,7 +12,7 @@ description: What's allowed on each plan, and how long your decks stick around.
 | Free | 100 MB per request |
 | Subscription / Lifetime | ~10 GB per request |
 
-Free covers anonymous and signed-in users without a paid plan. The file-size limit lives in `src/lib/misc/getUploadLimits.ts`.
+Free covers anonymous and signed-in users without a paid plan.
 
 ## PDF pages
 
