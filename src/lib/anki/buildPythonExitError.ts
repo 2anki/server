@@ -4,12 +4,14 @@ export type PythonCrashKind =
   | 'invalid-markup'
   | 'unsupported-data-source'
   | 'too-large'
+  | 'bad-title'
   | 'unknown';
 
 export function toUploadErrorCode(kind: PythonCrashKind): UploadErrorCode {
   if (kind === 'invalid-markup') return 'invalid_markup';
   if (kind === 'unsupported-data-source') return 'malformed_notion';
   if (kind === 'too-large') return 'too_large';
+  if (kind === 'bad-title') return 'unknown';
   return 'unknown';
 }
 
@@ -49,6 +51,9 @@ const UNSUPPORTED_DATA_SOURCE_MESSAGE =
 const TOO_LARGE_MESSAGE =
   'This page is too large for us to convert in one go. Split it into smaller pages — or convert it section by section — and try again.';
 
+const BAD_TITLE_MESSAGE =
+  'Your page title has a "/" in it, which we can\'t save as a filename. Rename the page in Notion (try a dash or "and") and convert again.';
+
 function genericMessage(jobId = 'unavailable'): string {
   return `Something went wrong on our end converting this page. Email support@2anki.net with job ID ${jobId} and we'll take a look.`;
 }
@@ -76,6 +81,10 @@ function hasTooLargeSignature(output: string, code: number | null): boolean {
   return output.split('\n').some((line) => line.trim() === 'Killed');
 }
 
+function hasBadTitleSignature(output: string): boolean {
+  return output.includes('FileNotFoundError') && output.includes("-> '");
+}
+
 function classify(
   output: string,
   code: number | null
@@ -89,6 +98,9 @@ function classify(
   if (hasTooLargeSignature(output, code)) {
     return 'too-large';
   }
+  if (hasBadTitleSignature(output)) {
+    return 'bad-title';
+  }
   return null;
 }
 
@@ -101,6 +113,9 @@ function messageFor(kind: PythonCrashKind, jobId: string | undefined): string {
   }
   if (kind === 'too-large') {
     return TOO_LARGE_MESSAGE;
+  }
+  if (kind === 'bad-title') {
+    return BAD_TITLE_MESSAGE;
   }
   return genericMessage(jobId);
 }

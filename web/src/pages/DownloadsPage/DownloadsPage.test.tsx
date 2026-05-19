@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
@@ -275,5 +275,116 @@ describe('renderJobStatusCell — URL construction', () => {
     const job = buildJob({ status: 'started', download_key: null, upload_id: null });
     const result = renderJobStatusCell(job);
     expect(result).not.toBeNull();
+  });
+});
+
+describe('DownloadsPage failure reason panel', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-05-19T12:00:00Z'));
+    (globalThis as AnalyticsGlobals).hj = vi.fn();
+    (globalThis as AnalyticsGlobals).gtag = vi.fn();
+    mockUploads = [];
+    mockDropboxUploads = [];
+    mockGoogleDriveUploads = [];
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    delete (globalThis as AnalyticsGlobals).hj;
+    delete (globalThis as AnalyticsGlobals).gtag;
+  });
+
+  it('expands failure reason panel when clicking failed status tag', () => {
+    mockJobs = [
+      buildJob({
+        status: 'failed',
+        title: 'Failed deck',
+        job_reason_failure: 'Your page title has a "/" in it, which we can\'t save as a filename. Rename the page in Notion (try a dash or "and") and convert again.',
+      }),
+    ];
+    renderAt('/downloads');
+
+    const statusButton = screen.getByRole('button', { name: /Show failure reason/i });
+    fireEvent.click(statusButton);
+
+    expect(screen.getByText(/Your page title has a "\/" in it/)).toBeInTheDocument();
+  });
+
+  it('collapses panel when clicking chevron again', () => {
+    mockJobs = [
+      buildJob({
+        status: 'failed',
+        job_reason_failure: 'Your page title has a "/" in it, which we can\'t save as a filename. Rename the page in Notion (try a dash or "and") and convert again.',
+      }),
+    ];
+    renderAt('/downloads');
+
+    const statusButton = screen.getByRole('button', { name: /Show failure reason/i });
+    fireEvent.click(statusButton);
+    expect(screen.getByText(/Your page title has a "\/" in it/)).toBeInTheDocument();
+
+    const collapseButton = screen.getByRole('button', { name: /Collapse failure reason/i });
+    fireEvent.click(collapseButton);
+    expect(screen.queryByText(/Your page title has a "\/" in it/)).not.toBeInTheDocument();
+  });
+
+  it('auto-expands most recent failed job if last_edited_time is within 10 minutes', () => {
+    mockJobs = [
+      buildJob({
+        id: 1 as JobsId,
+        status: 'failed',
+        last_edited_time: new Date('2026-05-19T11:55:00Z'),
+        job_reason_failure: 'Your page title has a "/" in it, which we can\'t save as a filename. Rename the page in Notion (try a dash or "and") and convert again.',
+      }),
+    ];
+    renderAt('/downloads');
+
+    expect(screen.getByText(/Your page title has a "\/" in it/)).toBeInTheDocument();
+  });
+
+  it('does not auto-expand if last_edited_time is older than 10 minutes', () => {
+    mockJobs = [
+      buildJob({
+        status: 'failed',
+        last_edited_time: new Date('2026-05-19T11:45:00Z'),
+        job_reason_failure: 'Your page title has a "/" in it, which we can\'t save as a filename. Rename the page in Notion (try a dash or "and") and convert again.',
+      }),
+    ];
+    renderAt('/downloads');
+
+    expect(screen.queryByText(/Your page title has a "\/" in it/)).not.toBeInTheDocument();
+  });
+
+  it('shows Learn more link for empty deck errors', () => {
+    mockJobs = [
+      buildJob({
+        status: 'failed',
+        job_reason_failure: 'No cards in this deck yet. 2anki turns Notion toggle blocks into flashcards — the toggle title becomes the question, what\'s inside is the answer. Wrap your key terms in toggles in Notion, then convert again.',
+      }),
+    ];
+    renderAt('/downloads');
+
+    const statusButton = screen.getByRole('button', { name: /Show failure reason/i });
+    fireEvent.click(statusButton);
+
+    const learnMoreLink = screen.getByText(/Learn more/);
+    expect(learnMoreLink).toBeInTheDocument();
+    expect(learnMoreLink).toHaveAttribute('href', '/documentation/help/common-problems');
+  });
+
+  it('does not show Learn more link for non-empty-deck errors', () => {
+    mockJobs = [
+      buildJob({
+        status: 'failed',
+        job_reason_failure: 'Your page title has a "/" in it, which we can\'t save as a filename. Rename the page in Notion (try a dash or "and") and convert again.',
+      }),
+    ];
+    renderAt('/downloads');
+
+    const statusButton = screen.getByRole('button', { name: /Show failure reason/i });
+    fireEvent.click(statusButton);
+
+    expect(screen.queryByText(/Learn more/)).not.toBeInTheDocument();
   });
 });

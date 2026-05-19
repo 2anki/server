@@ -83,6 +83,12 @@ function applyFilter(rows: DeckRow[], filter: FilterValue): DeckRow[] {
   }
 }
 
+interface RenderJobStatusOptions {
+  job: JobResponse;
+  isExpanded: boolean;
+  onToggle: () => void;
+}
+
 export function renderJobStatusCell(j: JobResponse) {
   if (isDoneJob(j.status)) {
     if (j.type === 'apkg_import') {
@@ -122,6 +128,31 @@ export function renderJobStatusCell(j: JobResponse) {
   }
   const { step, substep } = jobStepFromStatus(j.status);
   return <StepIndicator currentStep={step} substep={substep} />;
+}
+
+function renderJobStatusWithToggle({ job, isExpanded, onToggle }: RenderJobStatusOptions) {
+  if (isFailedJob(job.status)) {
+    return (
+      <button
+        type="button"
+        className={styles.statusToggle}
+        onClick={onToggle}
+        aria-label={isExpanded ? 'Collapse failure reason' : 'Show failure reason'}
+        aria-expanded={isExpanded}
+      >
+        <StatusTag status={job.status as JobStatus} />
+        <span className={`${styles.statusChevron} ${isExpanded ? styles.statusChevronExpanded : ''}`}>
+          ▾
+        </span>
+      </button>
+    );
+  }
+  return renderJobStatusCell(job);
+}
+
+function isEmptyDeckError(message: string | null): boolean {
+  if (message == null) return false;
+  return message.includes('No cards in this deck yet');
 }
 
 function formatUpdatedLabel(lastFetchedAt: Date | null): string {
@@ -166,6 +197,7 @@ export function DownloadsPage({ setError }: Readonly<DownloadsPageProps>) {
   const [showVerifiedBanner, setShowVerifiedBanner] = useState(
     searchParams.get('verified') === '1'
   );
+  const [expandedFailureJobId, setExpandedFailureJobId] = useState<number | string | null>(null);
 
   const rawFilter = searchParams.get('filter') ?? 'all';
   const activeFilter: FilterValue = VALID_FILTERS.has(rawFilter as FilterValue)
@@ -180,6 +212,30 @@ export function DownloadsPage({ setError }: Readonly<DownloadsPageProps>) {
     const timer = setTimeout(() => setShowVerifiedBanner(false), 6000);
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    const failedJobs = jobs.filter((j) => isFailedJob(j.status));
+    if (failedJobs.length === 0) return;
+
+    const now = new Date();
+    const tenMinutesAgo = new Date(now.getTime() - 10 * 60 * 1000);
+
+    const recentFailedJob = failedJobs
+      .filter((j) => {
+        if (j.last_edited_time == null) return false;
+        const lastEditedDate = new Date(j.last_edited_time);
+        return lastEditedDate >= tenMinutesAgo;
+      })
+      .sort((a, b) => {
+        const dateA = new Date(a.last_edited_time!).getTime();
+        const dateB = new Date(b.last_edited_time!).getTime();
+        return dateB - dateA;
+      })[0];
+
+    if (recentFailedJob != null) {
+      setExpandedFailureJobId(recentFailedJob.id);
+    }
+  }, [jobs]);
 
   const setFilter = (value: FilterValue) => {
     const params = new URLSearchParams(searchParams);
@@ -273,56 +329,86 @@ export function DownloadsPage({ setError }: Readonly<DownloadsPageProps>) {
                       )}
                       {filteredRows.map((row) => {
                         if (row.kind === 'job') {
+                          const isExpanded = expandedFailureJobId === row.job.id;
+                          const isFailed = isFailedJob(row.job.status);
+                          const toggleFailurePanel = () => {
+                            setExpandedFailureJobId(isExpanded ? null : row.job.id);
+                          };
+
                           return (
-                            <tr key={`job-${row.job.id}`}>
-                              <td>
-                                <span data-hj-suppress className={styles.fileName}>
-                                  {row.job.title ?? '—'}
-                                </span>
-                              </td>
-                              <td>
-                                <span className={sharedStyles.badge}>
-                                  {row.source === 'upload' && row.job.type === 'claude'
-                                    ? 'AI-generated from upload'
-                                    : getSourceLabel(row.source)}
-                                </span>
-                              </td>
-                              <td>
-                                {row.job.created_at != null && (
-                                  <span className={styles.timeAgo}>
-                                    {getDistance(row.job.created_at)} ago
+                            <>
+                              <tr key={`job-${row.job.id}`} className={isFailed ? styles.failedRow : ''}>
+                                <td>
+                                  <span data-hj-suppress className={styles.fileName}>
+                                    {row.job.title ?? '—'}
                                   </span>
-                                )}
-                              </td>
-                              <td>
-                                <div className={styles.actions}>
-                                  {renderJobStatusCell(row.job)}
-                                  {row.source === 'notion' && isDoneJob(row.job.status) && row.job.upload_id != null && (
-                                    <SendToAnkifyButton uploadId={row.job.upload_id} filename={row.job.title} />
+                                </td>
+                                <td>
+                                  <span className={sharedStyles.badge}>
+                                    {row.source === 'upload' && row.job.type === 'claude'
+                                      ? 'AI-generated from upload'
+                                      : getSourceLabel(row.source)}
+                                  </span>
+                                </td>
+                                <td>
+                                  {row.job.created_at != null && (
+                                    <span className={styles.timeAgo}>
+                                      {getDistance(row.job.created_at)} ago
+                                    </span>
                                   )}
-                                  <button
-                                    type="button"
-                                    onClick={() => handleDeleteJob(row.job.id)}
-                                    className={`${styles.iconButton} ${styles.iconButtonDanger}`}
-                                    aria-label={`Delete ${row.job.title}`}
-                                    title={isFailedJob(row.job.status) ? 'Delete' : 'Cancel'}
-                                  >
-                                    <TrashIcon width={18} height={18} />
-                                  </button>
-                                  {isFailedJob(row.job.status) && row.job.restartable && (
+                                </td>
+                                <td>
+                                  <div className={styles.actions}>
+                                    {isFailed ? (
+                                      renderJobStatusWithToggle({
+                                        job: row.job,
+                                        isExpanded,
+                                        onToggle: toggleFailurePanel,
+                                      })
+                                    ) : (
+                                      renderJobStatusCell(row.job)
+                                    )}
+                                    {row.source === 'notion' && isDoneJob(row.job.status) && row.job.upload_id != null && (
+                                      <SendToAnkifyButton uploadId={row.job.upload_id} filename={row.job.title} />
+                                    )}
                                     <button
                                       type="button"
-                                      onClick={() => restartJob(row.job)}
-                                      className={styles.iconButton}
-                                      aria-label="Restart job"
-                                      title="Restart"
+                                      onClick={() => handleDeleteJob(row.job.id)}
+                                      className={`${styles.iconButton} ${styles.iconButtonDanger}`}
+                                      aria-label={`Delete ${row.job.title}`}
+                                      title={isFailed ? 'Delete' : 'Cancel'}
                                     >
-                                      ↺
+                                      <TrashIcon width={18} height={18} />
                                     </button>
-                                  )}
-                                </div>
-                              </td>
-                            </tr>
+                                    {isFailed && row.job.restartable && (
+                                      <button
+                                        type="button"
+                                        onClick={() => restartJob(row.job)}
+                                        className={styles.iconButton}
+                                        aria-label="Restart job"
+                                        title="Restart"
+                                      >
+                                        ↺
+                                      </button>
+                                    )}
+                                  </div>
+                                </td>
+                              </tr>
+                              {isFailed && isExpanded && row.job.job_reason_failure != null && (
+                                <tr key={`job-${row.job.id}-panel`}>
+                                  <td colSpan={4} className={styles.failurePanel}>
+                                    {row.job.job_reason_failure}
+                                    {isEmptyDeckError(row.job.job_reason_failure) && (
+                                      <div>
+                                        <Link to="/documentation/help/common-problems" className={styles.failureLearnMore}>
+                                          Learn more →
+                                        </Link>
+                                      </div>
+                                    )}
+                                  </td>
+                                </tr>
+                              )}
+                            </>
                           );
                         }
 

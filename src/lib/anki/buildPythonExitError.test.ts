@@ -143,6 +143,22 @@ describe('buildPythonExitError', () => {
     expect(error.rawOutput).toBe("Unsupported 'data_source'!");
     expect(error.code).toBe(1);
   });
+
+  it('classifies FileNotFoundError with rename signature as bad-title', () => {
+    const error = buildPythonExitError({
+      code: 1,
+      stdout: '',
+      stderr: `Traceback (most recent call last):
+  File "/app/create_deck.py", line 123, in <module>
+    os.replace(tmp_path, final_path)
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/deck.apkg' -> '/output/Biology / Chapter 1.apkg'`,
+      jobId: 'job-slash-title',
+    });
+    expect(error.kind).toBe('bad-title');
+    expect(error.message).toBe(
+      'Your page title has a "/" in it, which we can\'t save as a filename. Rename the page in Notion (try a dash or "and") and convert again.'
+    );
+  });
 });
 
 describe('toUploadErrorCode', () => {
