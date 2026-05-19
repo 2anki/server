@@ -106,68 +106,21 @@ What could break. Rollback plan if relevant.
 How does this move us toward the 300K-user goal in CLAUDE.md? If it doesn't, justify.
 ```
 
-## Reviewing PRs (especially from contributors)
+## Reviewing PRs
 
-The repo is open source. Contributor PR quality varies. Be welcoming but rigorous.
+The repo is open source. When asked to review, use the `/review-pr` command — it fans out three parallel forks (security / engineering / ux-voice) and synthesizes one comment. Never call `gh pr review --approve`; use `--comment` (Alexander authors most PRs, self-approval is blocked).
 
-For every PR, check:
+## Rules (already in context via CLAUDE.md imports)
 
-1. **Does it solve a real user problem?** If the PR doesn't tie to a tracked issue or the 300K-user goal, ask why before reviewing the code.
-2. **Tests.** Missing tests = blocking comment. Don't merge without them.
-3. **Types.** No `any`, no untyped exports.
-4. **Comments.** Per RULES.md, comments get replaced with meaningful names. Flag any new comments and suggest a rename.
-5. **Layering.** Business logic in `usecases/` / `services/`, not in `routes/` or `controllers/`. DB access only in `data_layer/`.
-6. **Scope creep.** A 200-line feature PR with 800 lines of "while I'm here" refactors gets split.
-7. **Performance.** Anything in the conversion hot path gets extra scrutiny.
-8. **Security.** PRs that touch auth, file upload, billing, or user input get extra scrutiny. For auth/payments/external-API changes, run `/security-review` before merging.
+Security, testing, code-quality, and dependency rules live in `.claude/rules/*.md` and are loaded by `CLAUDE.md`. Don't restate them here — read them when in doubt.
 
-Comment style: be specific, suggest the fix in code, link to existing patterns in the repo. Don't pile up nits — bundle them in one comment.
+## Stack gotchas (the non-obvious ones)
 
-If the PR is good, post a comment-only review with a clear "approve" verdict, then merge. Never call `gh pr review --approve` — Alexander authors most PRs on this repo and GitHub blocks self-approval, so the call errors out and wastes a round trip. Use `gh pr review <n> --comment --body-file -` for the verdict and `gh pr merge` to ship. Don't sit on it. First-time contributors get extra encouragement.
-
-## Security guardrails (from CLAUDE.md)
-
-- Use `== null` to check for absent values — not `!value`, which rejects falsy IDs like `0`.
-- Never use `knex.raw()` with string concatenation — always parameterized queries.
-- Validate and sanitize user input at the handler level.
-- Never log sensitive data (passwords, tokens, personal info).
-- Use `res.locals` for authenticated user data through middleware.
-- `ErrorHandler` sends raw `err.message` to the client (`res.status(400).send(err.message)`) — ensure error messages from internal code are user-safe before throwing.
-- Never send raw database rows, Knex query results, or untyped objects directly to the client. Map results to an explicit typed response shape before calling `res.json()`.
-- Never use `localStorage` for user data, preferences, history, or anything that should persist across sessions — unless Alexander explicitly asked for it or existing code already does so for that specific purpose. Persist in the database with a Knex migration.
-
-## Framework-specific patterns
-
-**Express 5 (server)**
-- Async errors propagate to the error middleware natively — do not add `express-async-errors` or try/catch wrappers around route handlers.
-- `ErrorHandler` has a non-standard signature `(res, req, err)`, not Express's `(err, req, res, next)`. It is wired through a wrapper in `server.ts` — never mount it directly as middleware.
-- `req.query` values can be `undefined` — always validate before use.
-
-**React 19 + React Router 7 (web)**
-- `forwardRef` is unnecessary in React 19 — pass `ref` as a regular prop.
-- We use React Router 7 in **library mode** (`<BrowserRouter>` + `<Routes>`), not the data router. Do not introduce `createBrowserRouter`, loaders, or actions.
-- Lazy-load non-critical pages with `React.lazy()` — critical pages (`HomePage`, `UploadPage`) are eagerly imported.
-
-**TanStack Query 5 (web)**
-- All server-state fetching uses `useQuery`/`useMutation` from `@tanstack/react-query`, backed by `Backend.ts` as the fetch wrapper.
-- Invalidate caches via `useQueryClient().invalidateQueries()` after mutations.
-- Local UI state uses plain `useState` — do not reach for React Query for client-only state.
-
-**Vite 8 + Biome (web)**
-- Dev proxy: `/api` and `/v` route to `localhost:2020` (configured in `vite.config.ts`).
-- Env vars use `REACT_APP_*` prefix (CRA compatibility layer in vite config). Do not use `VITE_*` or bare `process.env.*`.
-- Biome enforces: `useOptionalChain`, `noNestedTernary`, `noNegationElse`, `noUselessTernary`. Run `pnpm --filter 2anki-web lint` locally.
-
-**Testing**
-- Server: **Jest** + ts-jest. Use `jest.mock()`, `jest.fn()`, `jest.spyOn()`.
-- Web: **Vitest**. Use `vi.mock()`, `vi.fn()`, `vi.spyOn()`. Do not use Jest API in web tests.
-- E2E: **Playwright**. Config in `web/playwright.config.ts`.
-
-**create_deck (Python bridge)**
-- `CardGenerator.ts` spawns Python to run `create_deck/create_deck.py`. The contract: it reads `deck_info.json` from the workspace, writes an `.apkg` file, and prints its path to stdout.
-- Changes to the JSON shape (`deck_info.json`) require coordinated updates in both TypeScript (the parser that writes it) and Python (the script that reads it).
-- Test Python changes with `pytest` in the `create_deck/` directory.
-- Python discovery: venv → platform lookup → env override (`PYTHON` / `ANKI_PYTHON`). Do not hardcode Python paths.
+- **Express 5 `ErrorHandler`** has a non-standard signature `(res, req, err)`, wired through a wrapper in `server.ts`. Never mount it directly as middleware. Async errors propagate natively — no `express-async-errors`, no try/catch wrappers.
+- **React 19** — `forwardRef` is unnecessary; pass `ref` as a regular prop. Router is in library mode (`<BrowserRouter>`/`<Routes>`), not the data router — no `createBrowserRouter`, loaders, or actions.
+- **Web env vars** use `REACT_APP_*` (CRA compatibility shim in `vite.config.ts`), not `VITE_*` or bare `process.env.*`.
+- **Server tests use Jest, web tests use Vitest.** Wrong API → confusing runtime errors. Check the nearest config.
+- **create_deck (Python bridge)** — `CardGenerator.ts` spawns `create_deck/create_deck.py`, which reads `deck_info.json` and writes the `.apkg`. Changing the JSON shape requires coordinated TS + Python edits. Python discovery is venv → platform lookup → `PYTHON`/`ANKI_PYTHON` env override; do not hardcode paths.
 
 ## When stuck
 

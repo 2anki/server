@@ -6,6 +6,14 @@ set -euo pipefail
 
 prompt=$(cat | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('prompt',''))" 2>/dev/null || true)
 
+# Exclusion: skip when the prompt is clearly about internal tooling, CI, deps, or .claude/ config.
+# These false-positive on the keyword regex below (e.g. "user-facing copy" appears in design rules)
+# and a wasted trio costs 3 forks (opus + opus + sonnet) per fire.
+if echo "$prompt" | grep -qiE \
+  '\.claude/|/hooks/|/rules/|/agents/|/commands/|/skills/|\bCI\b|dependabot|dependenc(y|ies)|tooling|claude setup|sub.?agent|prompt cache|model routing'; then
+  exit 0
+fi
+
 # Heuristic: product-relevant keywords. Tune this list as false-positive/negative patterns emerge.
 if echo "$prompt" | grep -qiE \
   'feature|user.facing|ux|ui\b|flow|onboard|sign.?up|pricing|limit|button|screen|page|copy|error message|landing|conversion|upload|deck|card|notion|export|first.run|retention|churn'; then

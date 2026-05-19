@@ -19,16 +19,7 @@ pm, designer, and engineer work as a trio, not an assembly line. Decisions happe
 
 ## Ship-ready gate (required for every trio feature)
 
-A trio feature is not done until every item below is true. Do not declare a task complete, open a non-draft PR, or hand off to Alexander until all boxes can be checked.
-
-- `/check` is all green (server tsc + web typecheck + web vitest + web lint).
-- SonarCloud Security Rating on new code is A — run Sonar locally (`sonar-scanner`) before pushing if any new code touches HTTP calls, user input, file handling, or auth.
-- Every user-facing flow has an error state and a loading state — no blank screens, no unhandled rejections visible to the user.
-- No `// TODO`, `// FIXME`, placeholder copy, or stub implementations visible to users in the shipped build.
-- No raw JSON, internal error messages, stack traces, or database row shapes exposed to the client. All API responses are mapped to an explicit typed shape.
-- No data persisted to `localStorage` unless Alexander explicitly asked for it or the code being touched already uses `localStorage` for that specific purpose. Server-side state lives in the database with a Knex migration.
-- If the database schema changed: the migration file exists, `pnpm kanel` has been rerun, and `src/data_layer/public/` reflects the new shape.
-- The feature has been manually exercised on the golden path and at least one edge case (empty state, error, limit hit).
+A trio feature is not done until: `/check` is green; SonarCloud Security Rating on new code is A (run `sonar-scanner` locally for HTTP / user-input / file-handling / auth changes); every user-facing flow has an error and a loading state; no `// TODO`, scaffolding, or stubs visible to users; no raw DB rows or stack traces in API responses (map to a typed shape); no `localStorage` unless Alexander asked or existing code already uses it for that purpose; if the schema changed, the migration exists and `pnpm kanel` has been rerun; the feature has been manually exercised on the golden path and one edge case.
 
 ## Trio check (required)
 

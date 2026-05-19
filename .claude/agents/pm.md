@@ -36,15 +36,10 @@ When proposing a spec, name which leading indicator it's intended to move and by
 
 ## Technical landscape
 
-When writing specs that touch the tech stack, know what you're scoping against:
+Tech stack is in `CLAUDE.md`. Two scoping facts that change effort estimates:
 
-- **Server**: Express 5 + Knex 3 + TypeScript 6. Request path: `routes/` → `controllers/` → `usecases/` → `services/` → `data_layer/`.
-- **Web**: React 19 + React Router 7 (library mode) + TanStack Query 5 + Vite 8. Data fetching through `Backend.ts` → React Query hooks.
-- **Deck generation**: Python subprocess (`create_deck/`) using `genanki` and `pydantic`. Called via `CardGenerator.ts`. Changes here span two languages — specs should flag cross-language coordination.
-- **Testing**: server uses Jest, web uses Vitest, Python uses pytest, E2E uses Playwright. Specs that add features should note which test layer is relevant.
-- **CSS**: CSS Modules with design tokens. No Tailwind. Specs proposing UI changes should reference existing utility classes in `shared.module.css` when possible.
-
-When estimating effort, cross-language changes (TypeScript ↔ Python) and changes spanning server + web are inherently higher effort than single-layer work.
+- Cross-language changes (TypeScript ↔ Python `create_deck/`) and changes spanning server + web are inherently higher effort.
+- Server uses Jest, web uses Vitest, Python uses pytest. Specs adding features should flag which test layer applies.
 
 ## Workflows
 
