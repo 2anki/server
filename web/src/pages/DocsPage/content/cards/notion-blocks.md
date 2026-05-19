@@ -25,23 +25,32 @@ These blocks are rendered in the exported deck.
 - [x] [Video](https://developers.notion.com/reference/block#video-blocks)
 - [x] [Audio](https://developers.notion.com/reference/block#audio-blocks)
 - [x] [File](https://developers.notion.com/reference/block#file-blocks)
-- [x] [PDF embed](https://developers.notion.com/reference/block#pdf-blocks)
 - [x] [Embed](https://developers.notion.com/reference/block#embed-blocks)
 - [x] [Bookmark](https://developers.notion.com/reference/block#bookmark-blocks)
 - [x] [Link to page](https://developers.notion.com/reference/block#link-to-page-blocks)
-- [x] [Child page](https://developers.notion.com/reference/block#child-page-blocks)
+- [x] [Child page](https://developers.notion.com/reference/block#child-page-blocks) — also usable as a sub-deck via [Parser rules](/documentation/cards/parser-rules).
 - [x] [Column list and column](https://developers.notion.com/reference/block#column-list-and-column-blocks)
 - [x] [Table](https://developers.notion.com/reference/block#table-blocks) and [Table row](https://developers.notion.com/reference/block#table-row-blocks) — one row, one card. Column 1 is the front, column 2 is the back. Turn on the **Table** chip in your rule to opt in. If the table has a header row, the first row is skipped. Columns 3 and beyond show up on the back as a small inline table.
 
+## Sub-deck-only
+
+These blocks don't render as cards, but they can structure your deck when used in [Parser rules](/documentation/cards/parser-rules):
+
+- [Child database](https://developers.notion.com/reference/block#child-database-blocks) — pick it as a sub-deck source. The database's rows then convert through the table path.
+
 ## Unsupported
 
-These blocks are skipped or rendered as a fallback.
+These blocks are skipped or rendered as a fallback. If one of them shows up on a card as raw text like `unsupported: <type>`, that's the fallback firing.
 
+- [ ] [PDF](https://developers.notion.com/reference/block#pdf-blocks) — Notion's embedded PDF block. Upload the PDF file directly through the [upload page](/documentation/start-here/upload-a-file) instead.
+- [ ] [Heading 4](https://developers.notion.com/reference/block#heading) — Notion's deepest heading level. H1, H2, and H3 work; H4 doesn't.
 - [ ] [Table of contents](https://developers.notion.com/reference/block#table-of-contents-blocks)
-- [ ] [Child database](https://developers.notion.com/reference/block#child-database-blocks)
 - [ ] [Breadcrumb](https://developers.notion.com/reference/block#breadcrumb-blocks)
 - [ ] [Link preview](https://developers.notion.com/reference/block#link-preview-blocks)
 - [ ] [Template](https://developers.notion.com/reference/block#template-blocks)
 - [ ] [Synced block](https://developers.notion.com/reference/block#synced-block-blocks)
+- [ ] [Meeting notes](https://developers.notion.com/reference/block#meeting-notes) — Notion's AI-meeting block.
+- [ ] [Tab](https://developers.notion.com/reference/block#tab) — Notion's tab block.
+- [ ] [Transcription](https://developers.notion.com/reference/block#transcription) — Notion's AI transcription block.
 
 Missing a block you need? [Open an issue](https://github.com/2anki/server/issues).

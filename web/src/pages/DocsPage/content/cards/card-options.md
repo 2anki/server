@@ -11,31 +11,84 @@ Card options change how 2anki turns your source into flashcards. Most are off-or
 - **In account settings** — `Settings → Card options` saves defaults that apply to every new upload. You can still override per upload.
 - **Per Notion page** — when you convert through the Notion integration, options are saved against the page so the next sync uses the same shape.
 
-## Reference
+## Deck shape
+
+| Option | Default | What it does |
+|---|---|---|
+| Deck name | — | Custom name for the downloaded `.apkg`. Leave empty to use the source's name. |
+| Font size | 20 | Base font size for card text, in pixels. |
+| Toggle mode | Close nested toggles | Controls whether nested toggles render open or closed on the card back. |
+| Page emoji | Icon first | Where the page emoji shows up in the deck title — first, last, or disabled. |
+| Basic note type | `n2a-basic` | The Anki note type name 2anki uses for basic cards. Change it to plug your own template in. |
+| Cloze note type | `n2a-cloze` | Same, for cloze cards. |
+| Input note type | `n2a-input` | Same, for typed-input cards. |
+
+## Card content
+
+| Option | Default | What it does |
+|---|---|---|
+| Use All Toggle Lists | On | Picks up toggle lists nested anywhere in the page. Off means only top-level toggles are used. |
+| Use Plain Text for Back | Off | Strips formatting from the back of cards so only the text content remains. |
+| Maximum One Toggle Per Card | On | Splits nested toggles into separate cards instead of stacking them in one. |
+| Preserve Newlines in the Toggle Header and Body | On | Keeps SHIFT-Enter line breaks inside toggles instead of collapsing them. |
+| Markdown Nested Bullet Points | On | Reads Markdown bullet hierarchies (Obsidian-style) as front/back pairs. |
+| Disable Indented Bullets | Off | Stops indented bullets from each becoming their own card. |
+
+## Card types
+
+| Option | Default | What it does |
+|---|---|---|
+| Cloze Deletion | On | Creates cloze cards from inline `code` snippets. |
+| Treat Bold Text as Input | Off | Bold text is removed and turned into a typed-answer field. Good for fact recall. |
+| Basic and Reversed | Off | Creates the front/back card and a reversed copy. |
+| Just the Reversed Flashcards | Off | Only creates the reversed card. Useful when the back is more useful as a prompt (e.g. an image). |
+
+## Filtering
+
+| Option | Default | What it does |
+|---|---|---|
+| Enable Cherry Picking Using 🍒 Emoji | Off | Only creates cards from toggles that contain a 🍒 emoji. Useful for picking out a few cards from a long page. |
+| Only Create Flashcards From Toggles That Don't Have The 🥑 Emoji | Off | Skips toggles that contain a 🥑 emoji. Useful for marking parts of a page as not-yet-ready. |
+| Treat Strikethrough as Tags | Off | Treats strikethrough text as Anki tags. Strikethrough inside a toggle becomes a tag local to that card; outside, it's a global tag. |
+
+## Links and formatting
 
 | Option | Default | What it does |
 |---|---|---|
 | Add Notion Link | Off | Adds a link to the Notion page where the toggle was created. Use this with **Use Notion ID** to avoid duplicates. |
 | Use Notion ID | On | Uses Notion's ID to match cards across re-uploads instead of regenerating IDs from the field text. Reduces duplicates. |
-| Use All Toggle Lists | On | Picks up toggle lists nested anywhere in the page. Off means only top-level toggles are used. |
-| Use Plain Text for Back | Off | Strips formatting from the back of cards so only the text content remains. |
-| Enable Cherry Picking Using 🍒 Emoji | Off | Only creates cards from toggles that contain a 🍒 emoji. Useful for picking out a few cards from a long page. |
-| Only Create Flashcards From Toggles That Don't Have The 🥑 Emoji | Off | Skips toggles that contain a 🥑 emoji. Useful for marking parts of a page as not-yet-ready. |
-| Treat Strikethrough as Tags | Off | Treats strikethrough text as Anki tags. Strikethrough inside a toggle becomes a tag local to that card; outside, it's a global tag. |
-| Cloze Deletion | On | Creates cloze cards from inline `code` snippets. |
-| Treat Bold Text as Input | Off | Bold text is removed and turned into a typed-answer field. Good for fact recall. |
-| Basic and Reversed | Off | Creates the front/back card and a reversed copy. |
-| Just the Reversed Flashcards | Off | Only creates the reversed card. Useful when the back is more useful as a prompt (e.g. an image). |
 | Remove Underlines | Off | Drops underline formatting. Helps when Notion underlines clash with Anki's link styling. |
-| Maximum One Toggle Per Card | On | Splits nested toggles into separate cards instead of stacking them in one. |
 | Remove the MP3 Links Created From Audio Files | On | Strips the auto-generated `.mp3` links left behind by some Notion exports. |
-| Preserve Newlines in the Toggle Header and Body | On | Keeps SHIFT-Enter line breaks inside toggles instead of collapsing them. |
+
+## PDF and AI
+
+| Option | Default | What it does |
+|---|---|---|
 | Process PDF Files | On | Converts PDFs found in ZIP uploads. Turn off to skip PDFs and speed up large archives. |
-| Markdown Nested Bullet Points | On | Reads Markdown bullet hierarchies (Obsidian-style) as front/back pairs. |
 | Generate Questions from Single PDF File Uploads | Off | Sends the PDF to Google Vertex AI to generate questions. Paid; sends content to Google Cloud. |
-| Disable Indented Bullets | Off | Stops indented bullets from each becoming their own card. |
-| Convert Image Quiz HTML to Anki Cards | Off | Uses OCR to pull image-and-answer pairs from HTML quizzes. Premium experimental. |
 | Generate Flashcards with Claude AI | Off | Sends content to Anthropic Claude and uses its output as the deck. Paid. |
+| User instructions | — | Free-form prompt sent to Claude when **Generate Flashcards with Claude AI** is on. Example: *"Focus on USMLE high-yield. Skip the introduction."* |
+| Convert Image Quiz HTML to Anki Cards | Off | Uses OCR to pull image-and-answer pairs from HTML quizzes. Premium experimental. |
+
+## Multiple choice
+
+These only fire when **Enable MCQ** is on. See [Multiple choice questions](/documentation/cards/mcq) for the full guide.
+
+| Option | Default | What it does |
+|---|---|---|
+| Enable MCQ | Off | Detects multiple-choice toggles and produces interactive MCQ cards instead of basic ones. |
+| Show choices | Show up front | Whether the options appear on the front of the card, or behind a button you click to reveal. |
+| Shuffle options | On | Randomize the option order on every review so position can't be a hint. |
+| TTS for the question | Don't speak | Read the question aloud. Languages: English (US), Spanish, French, German, Japanese, Mandarin (Simplified), Portuguese (Brazil). |
+| TTS for the correct answer | Don't speak | Read the correct answer aloud. Same language list. |
+| TTS for extra | Don't speak | Read the explanation aloud. Same language list. |
+
+## Debugging
+
+| Option | Default | What it does |
+|---|---|---|
 | Share Files for Debugging When Conversion Fails | Off | If a conversion fails, sends the file and error details to the 2anki team. Off by default to keep your notes private. |
 
-The option keys 2anki uses internally (handy if you're filing a bug report): `add-notion-link`, `use-notion-id`, `all`, `paragraph`, `cherry`, `avocado`, `tags`, `cloze`, `enable-input`, `basic-reversed`, `reversed`, `no-underline`, `max-one-toggle-per-card`, `remove-mp3-links`, `perserve-newlines`, `process-pdfs`, `markdown-nested-bullet-points`, `vertex-ai-pdf-questions`, `disable-indented-bullets`, `image-quiz-html-to-anki`, `claude-ai-flashcards`, `share-files-for-debugging`.
+## Internal option keys
+
+The option keys 2anki uses internally (handy if you're filing a bug report): `add-notion-link`, `use-notion-id`, `all`, `paragraph`, `cherry`, `avocado`, `tags`, `cloze`, `enable-input`, `basic-reversed`, `reversed`, `no-underline`, `max-one-toggle-per-card`, `remove-mp3-links`, `perserve-newlines`, `process-pdfs`, `markdown-nested-bullet-points`, `vertex-ai-pdf-questions`, `disable-indented-bullets`, `image-quiz-html-to-anki`, `claude-ai-flashcards`, `share-files-for-debugging`, `mcq-enabled`, `mcq-show-choices`, `mcq-shuffle`, `mcq-tts-question`, `mcq-tts-correct-answer`, `mcq-tts-extra`, `font-size`, `toggle-mode`, `page-emoji`, `basic_model_name`, `cloze_model_name`, `input_model_name`, `user-instructions`.

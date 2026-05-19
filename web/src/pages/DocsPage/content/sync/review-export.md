@@ -3,33 +3,28 @@ title: Send your reviews back to Notion
 description: Push how often you got each card right back into your Notion database.
 ---
 
-:::note
-This is an early-access feature for **Lifetime** supporters only. It builds on [Sync](/documentation/sync/how-it-works), which is itself in private alpha. If you'd like to be on the list, email [alexander@alemayhu.com](mailto:alexander@alemayhu.com).
-:::
+Review export writes your Anki review history into a Notion database. After a study session, each card's row updates with the date you studied and how many reviews it has — visible right next to your notes in Notion.
 
-Review export pushes your Anki review history back into a Notion database. After a study session, you'll see — for each card — how many times you got it right, how many times you got it wrong, and when you last saw it.
+**Plan:** Available to Auto Sync subscribers and Lifetime members. The feature lives in the Ankify dashboard.
 
 ## What you'll see in Notion
 
-Each card maps to one row in the database you pick. After a sync runs, the row's properties update with:
+Each card 2anki originally made from your Notion page maps to one row in the database you pick. After a sync runs, two properties update:
 
-- **Reviews** — total times you've seen the card.
-- **Lapses** — times you forgot.
-- **Ease** — Anki's ease factor for the card.
-- **Last review** — when you last studied it.
-- **Due** — when Anki wants to show it next.
+- **Date** — when you last reviewed the card.
+- **Reviews** — total times you've reviewed the card.
 
-Notion stays your source of truth for the question and answer. 2anki only writes the review numbers — it doesn't touch your card content.
+Notion stays your source of truth for the question and answer. 2anki only writes those two numbers — it never touches your card content.
 
 ## Turning it on
 
-You'll do this from the Ankify dashboard once you have access:
-
-1. Make sure the source page is already syncing — see [How sync works](/documentation/sync/how-it-works).
-2. In the Notion database that holds the cards, add the required properties (below).
-3. From the Ankify dashboard, open the page's settings and toggle **Export reviews to Notion**.
-4. Pick the database you want the data written to.
-5. Run a sync. After your next Anki study session, the database rows fill in.
+1. Make sure the source page is already syncing through Auto Sync — see [How sync works](/documentation/sync/how-it-works).
+2. Pick a destination database. You have two options:
+   - Use an existing database that already has the right shape (a **Date** date-typed property and a **Reviews** number-typed property).
+   - Let 2anki create a fresh database for you from the Ankify dashboard. It comes pre-set with the right shape.
+3. From the Ankify dashboard, open the page's settings and turn on **Export reviews to Notion**.
+4. Pick the destination database.
+5. After your next Anki study session, the database rows fill in on the next sync cycle.
 
 ## Required Notion properties
 
@@ -37,22 +32,19 @@ The database needs these properties. Names must match exactly. Types in parenthe
 
 | Property | Type |
 |---|---|
+| Date | Date |
 | Reviews | Number |
-| Lapses | Number |
-| Ease | Number |
-| Last review | Date |
-| Due | Date |
 
-You can have other properties too — 2anki only writes the ones above.
+You can have other properties on the database too — 2anki only writes the two above. The Ankify dashboard shows a green check next to databases that already have the right shape, so you can pick one without guessing.
 
 :::warning
-If a property is missing or the wrong type, the sync skips it silently for that row. Check the Ankify dashboard's run log to see which rows updated.
+If a property is missing or the wrong type, the sync skips that row silently. The Ankify dashboard run log shows which rows updated and which didn't.
 :::
 
 ## Limits
 
-- Review export runs at the same five-minute cadence as sync. It isn't real-time.
-- Only cards 2anki originally created from that Notion page are tracked. Cards you added by hand in Anki aren't matched back.
+- Review export runs on the same five-minute cadence as sync. It isn't real-time.
+- Only cards 2anki originally created from that Notion page are tracked. Cards you added by hand in Anki don't match back.
 - If you delete the Notion row, the matching Anki card stays — Anki is the source of truth for what you study, Notion is the source of truth for what you wrote.
 
 If a row isn't updating, see [When sync gets stuck](/documentation/sync/troubleshooting).
