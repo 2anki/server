@@ -183,7 +183,7 @@ const notionTablesToAnki: LandingCopy = {
     },
     {
       q: 'Does the header row become a card?',
-      a: "If Notion's "header row" toggle is on for that table, we skip it. Otherwise the first row becomes a card like the rest — you can delete it in Anki.",
+      a: 'If Notion\'s "header row" toggle is on for that table, we skip it. Otherwise the first row becomes a card like the rest — you can delete it in Anki.',
     },
     {
       q: 'Can I keep using toggles too?',

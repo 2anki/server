@@ -31,7 +31,7 @@ These blocks are rendered in the exported deck.
 - [x] [Link to page](https://developers.notion.com/reference/block#link-to-page-blocks)
 - [x] [Child page](https://developers.notion.com/reference/block#child-page-blocks)
 - [x] [Column list and column](https://developers.notion.com/reference/block#column-list-and-column-blocks)
-- [x] [Table](https://developers.notion.com/reference/block#table-blocks) and [Table row](https://developers.notion.com/reference/block#table-row-blocks) — one row, one card. Column 1 is the front, column 2 is the back. Turn on the **Table** chip in [Rules](/rules) to opt in. If the table has a header row, the first row is skipped. Columns 3 and beyond show up on the back as a small inline table.
+- [x] [Table](https://developers.notion.com/reference/block#table-blocks) and [Table row](https://developers.notion.com/reference/block#table-row-blocks) — one row, one card. Column 1 is the front, column 2 is the back. Turn on the **Table** chip in your rule to opt in. If the table has a header row, the first row is skipped. Columns 3 and beyond show up on the back as a small inline table.
 
 ## Unsupported
 
