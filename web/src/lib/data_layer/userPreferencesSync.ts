@@ -21,6 +21,11 @@ const PREFERENCES_URL = '/api/users/me/preferences';
 const MIGRATE_URL = '/api/users/me/preferences/migrate';
 export const ANKI_WEB_ACK_KEY = 'ankify_anki_web_acknowledged';
 
+function isAuthed(): boolean {
+  if (typeof document === 'undefined') return false;
+  return document.cookie.split(';').some((c) => c.trim().startsWith('token='));
+}
+
 let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
 export function cancelPendingSync(): void {
@@ -45,6 +50,7 @@ export function scheduleSync(): void {
   cancelPendingSync();
   debounceTimer = setTimeout(async () => {
     debounceTimer = null;
+    if (!isAuthed()) return;
     const cardOptions = collectCardOptions();
     const theme = localStorage.getItem('2anki-theme');
     const body: Record<string, unknown> = {};
@@ -72,6 +78,7 @@ export async function acknowledgeAnkiWeb(): Promise<void> {
   try {
     localStorage.setItem(ANKI_WEB_ACK_KEY, 'true');
   } catch {}
+  if (!isAuthed()) return;
   try {
     await fetch(PREFERENCES_URL, {
       method: 'PATCH',
@@ -92,6 +99,7 @@ export interface ServerUserPreferences {
 }
 
 export async function fetchUserPreferences(): Promise<ServerUserPreferences | null> {
+  if (!isAuthed()) return null;
   try {
     const res = await fetch(PREFERENCES_URL, { credentials: 'include' });
     if (!res.ok) return null;
@@ -102,6 +110,7 @@ export async function fetchUserPreferences(): Promise<ServerUserPreferences | nu
 }
 
 export async function dismissUploadPrimer(): Promise<void> {
+  if (!isAuthed()) return;
   try {
     await fetch(PREFERENCES_URL, {
       method: 'PATCH',
@@ -115,6 +124,7 @@ export async function dismissUploadPrimer(): Promise<void> {
 }
 
 export async function hydrateFromServer(): Promise<void> {
+  if (!isAuthed()) return;
   try {
     const res = await fetch(PREFERENCES_URL, { credentials: 'include' });
     if (!res.ok) return;
@@ -138,6 +148,7 @@ export async function hydrateFromServer(): Promise<void> {
 }
 
 export async function migrateToServer(): Promise<void> {
+  if (!isAuthed()) return;
   const cardOptions = collectCardOptions();
   const theme = localStorage.getItem('2anki-theme');
   const body: Record<string, unknown> = {};

@@ -6,8 +6,15 @@ interface CardFrameProps {
   card: ApkgPreviewCard;
 }
 
+function stripScripts(input: string): string {
+  return input
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/\s+on\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '');
+}
+
 function buildSrcDoc(card: ApkgPreviewCard, side: 'front' | 'back'): string {
-  const html = side === 'front' ? card.front : card.back;
+  const html = stripScripts(side === 'front' ? card.front : card.back);
+  const css = stripScripts(card.css);
   return `<!doctype html>
 <html>
 <head>
@@ -16,7 +23,7 @@ function buildSrcDoc(card: ApkgPreviewCard, side: 'front' | 'back'): string {
 <style>
   html, body { margin: 0; padding: 1rem; background: #fff; color: #111; font-family: system-ui, sans-serif; }
   img, video { max-width: 100%; height: auto; }
-${card.css}
+${css}
 </style>
 </head>
 <body>
