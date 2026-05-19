@@ -159,6 +159,15 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(mockApiSpec));
 
 // API Routes
 app.get('/api/users/debug/locals', (req, res) => {
+  const cookieHeader = req.headers.cookie ?? '';
+  const tokenMatch = cookieHeader.match(/(?:^|;\s*)token=([^;]+)/);
+  const tokenValue = tokenMatch ? tokenMatch[1] : null;
+
+  if (tokenValue === 'stale-jwt-token') {
+    res.status(401).json({ error: 'Unauthorized' });
+    return;
+  }
+
   res.json({
     locals: {
       owner: 1,
