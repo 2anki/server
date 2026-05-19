@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useTheme } from '../../lib/hooks/useTheme';
 import { useCardUsage } from '../../lib/hooks/useCardUsage';
 import { getVisibleText } from '../../lib/text/getVisibleText';
@@ -170,34 +170,6 @@ function SidebarRow({
   );
 }
 
-interface LockedSidebarRowProps {
-  label: string;
-  pill: string;
-  onActivate: () => void;
-  icon?: React.ComponentType<{ width?: number; height?: number }>;
-}
-
-function LockedSidebarRow({
-  label,
-  pill,
-  onActivate,
-  icon: Icon,
-}: Readonly<LockedSidebarRowProps>) {
-  return (
-    <button
-      type="button"
-      onClick={onActivate}
-      aria-label={`${label} — upgrade to unlock`}
-      title={`${label} — upgrade to unlock`}
-      className={`${styles.sidebarRow} ${styles.sidebarRowLocked}`}
-    >
-      {Icon && <Icon width={20} height={20} />}
-      <span className={styles.sidebarRowLockedLabel}>{label}</span>
-      <span className={styles.sidebarRowPill}>{pill}</span>
-    </button>
-  );
-}
-
 export function Sidebar({
   email,
   locals,
@@ -208,7 +180,6 @@ export function Sidebar({
   drawerId,
 }: Readonly<SidebarProps>) {
   const { pathname } = useLocation();
-  const navigate = useNavigate();
   const theme = useTheme();
   const [collapsed, setCollapsed] = useSidebarCollapsed();
   const logoSrc = theme === 'light' ? '/mascot/navbar-logo.png' : '/mascot/Notion 1.png';
