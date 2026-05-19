@@ -284,6 +284,14 @@ class UsersController {
       (s) => s.active && (s as { stripe_product_id?: string | null }).stripe_product_id === autoSyncProductId
     );
 
+    let freePrintAvailable: boolean | null = null;
+    if (user?.owner != null) {
+      const { prints_used } = await new UsersRepository(this.db).getPrintUsage(
+        user.owner
+      );
+      freePrintAvailable = prints_used < 1;
+    }
+
     const response = {
       user: {
         id: user?.id,
@@ -304,6 +312,7 @@ class UsersController {
       hostedAnkiRequested: user?.hosted_anki_requested_at != null,
       autoSyncCapReached,
       autoSyncActive,
+      freePrintAvailable,
     };
 
     return res.json(response);

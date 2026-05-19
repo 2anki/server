@@ -48,9 +48,9 @@ describe('UpsellCard', () => {
   it('renders three CTAs for free users', () => {
     mockUseUserLocals.mockReturnValue(freeUser);
     render(<UpsellCard surface="downloads_upsell" />);
-    expect(screen.getByRole('button', { name: 'Day Pass $4' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Week Pass $9' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Unlimited $6/mo' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Day Pass' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Week Pass' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Unlimited' })).toBeInTheDocument();
   });
 
   it('renders nothing for paying users', () => {
@@ -59,10 +59,24 @@ describe('UpsellCard', () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it('renders for anonymous users', () => {
+  it('renders for anonymous users by default', () => {
     mockUseUserLocals.mockReturnValue(anonymousUser);
     render(<UpsellCard surface="downloads_upsell" />);
-    expect(screen.getByRole('button', { name: 'Day Pass $4' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Day Pass' })).toBeInTheDocument();
+  });
+
+  it('hides for anonymous users when hideForAnonymous is true', () => {
+    mockUseUserLocals.mockReturnValue(anonymousUser);
+    const { container } = render(
+      <UpsellCard surface="upload_idle_upsell" hideForAnonymous />
+    );
+    expect(container).toBeEmptyDOMElement();
+  });
+
+  it('still shows for free logged-in users when hideForAnonymous is true', () => {
+    mockUseUserLocals.mockReturnValue(freeUser);
+    render(<UpsellCard surface="upload_idle_upsell" hideForAnonymous />);
+    expect(screen.getByRole('button', { name: 'Day Pass' })).toBeInTheDocument();
   });
 
   it('uses the downloads surface headline on /downloads', () => {
@@ -95,7 +109,7 @@ describe('UpsellCard', () => {
     Object.defineProperty(globalThis, 'location', { writable: true, value: { href: '' } });
 
     render(<UpsellCard surface="downloads_upsell" />);
-    fireEvent.click(screen.getByRole('button', { name: 'Day Pass $4' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Day Pass' }));
 
     await waitFor(() => {
       expect(mockTrack).toHaveBeenCalledWith('paywall_upgrade_clicked', {
@@ -112,7 +126,7 @@ describe('UpsellCard', () => {
     Object.defineProperty(globalThis, 'location', { writable: true, value: { href: '' } });
 
     render(<UpsellCard surface="upload_success_upsell" />);
-    fireEvent.click(screen.getByRole('button', { name: 'Week Pass $9' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Week Pass' }));
 
     await waitFor(() => {
       expect(mockTrack).toHaveBeenCalledWith('paywall_upgrade_clicked', {
@@ -126,7 +140,7 @@ describe('UpsellCard', () => {
   it('fires paywall_upgrade_clicked with plan=unlimited when Unlimited is clicked', () => {
     mockUseUserLocals.mockReturnValue(freeUser);
     render(<UpsellCard surface="downloads_upsell" />);
-    fireEvent.click(screen.getByRole('link', { name: 'Unlimited $6/mo' }));
+    fireEvent.click(screen.getByRole('link', { name: 'Unlimited' }));
     expect(mockTrack).toHaveBeenCalledWith('paywall_upgrade_clicked', {
       surface: 'downloads_upsell',
       plan: 'unlimited',
@@ -143,7 +157,7 @@ describe('UpsellCard', () => {
     );
 
     render(<UpsellCard surface="downloads_upsell" />);
-    fireEvent.click(screen.getByRole('button', { name: 'Day Pass $4' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Day Pass' }));
 
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'Redirecting…' })).toBeDisabled();
@@ -151,7 +165,7 @@ describe('UpsellCard', () => {
 
     resolveCheckout({ status: 'error' });
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: 'Day Pass $4' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Day Pass' })).toBeInTheDocument();
     });
   });
 });

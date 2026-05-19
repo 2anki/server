@@ -5,6 +5,9 @@ export interface ChangelogEntry {
 }
 
 export const changelog: ChangelogEntry[] = [
+  { type: 'feature', title: 'Print 1 PDF a month for free — drop your .apkg on the Print page and we make the PDF, no subscription needed for the first one', date: '2026-05-19' },
+  { type: 'style', title: 'Upload page — quiet upsell appears under the form for free users explaining the 100-card monthly limit', date: '2026-05-19' },
+  { type: 'fix', title: 'Sidebar — your free-plan card count stays on one line instead of wrapping over three rows', date: '2026-05-19' },
   { type: 'feature', title: 'Just finished a conversion? Day Pass and Week Pass appear on Downloads and upload success, with the free-plan limits explained up front', date: '2026-05-19' },
   { type: 'style', title: 'Pricing page — Lifetime now sits in its own One-time payment section and the three pricing rows share the same spacing', date: '2026-05-19' },
   { type: 'style', title: 'Chat replies — tighter line spacing, lists, and paragraphs so a full answer fits on one screen', date: '2026-05-19' },

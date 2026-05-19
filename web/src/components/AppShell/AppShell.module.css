@@ -235,9 +235,7 @@
 }
 
 .identityUsage {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
+  display: block;
   font-size: var(--text-sm);
   color: var(--color-text-tertiary);
   font-variant-numeric: tabular-nums;
@@ -258,7 +256,7 @@
 }
 
 .identityUsageUpgrade {
-  flex-basis: 100%;
+  display: block;
   font-size: var(--text-sm);
   color: var(--color-text-link);
   text-decoration: none;

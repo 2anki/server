@@ -67,39 +67,15 @@ describe('Sidebar convert group', () => {
     ).toHaveAttribute('href', '/notion');
   });
 
-  it('shows Print locked with a Subscriber pill for free users', () => {
+  it('shows Print as a normal link for free users (1 free PDF per month)', () => {
     renderSidebar();
-    const locked = screen.getByRole('button', {
-      name: /Print Decks — upgrade to unlock/i,
-    });
-    expect(locked).toBeInTheDocument();
-    expect(locked).toHaveTextContent('Subscriber');
-  });
-
-  it('navigates to /pricing?from=print when the locked Print row is clicked', () => {
-    function LocationProbe() {
-      const location = useLocation();
-      return <div data-testid="path">{location.pathname + location.search}</div>;
-    }
-    render(
-      <MemoryRouter initialEntries={['/upload']}>
-        <Sidebar
-          email="x@y.z"
-          locals={{ patreon: false, subscriber: false }}
-          features={{}}
-          onLogOut={vi.fn()}
-        />
-        <Routes>
-          <Route path="*" element={<LocationProbe />} />
-        </Routes>
-      </MemoryRouter>
+    expect(screen.getByRole('link', { name: 'Print Decks' })).toHaveAttribute(
+      'href',
+      '/print'
     );
-    fireEvent.click(
-      screen.getByRole('button', { name: /Print Decks — upgrade to unlock/i })
-    );
-    expect(screen.getByTestId('path')).toHaveTextContent(
-      '/pricing?from=print'
-    );
+    expect(
+      screen.queryByRole('button', { name: /Print Decks — upgrade to unlock/i })
+    ).not.toBeInTheDocument();
   });
 
   it('shows Print as a real link for paying users', () => {
@@ -108,9 +84,6 @@ describe('Sidebar convert group', () => {
       'href',
       '/print'
     );
-    expect(
-      screen.queryByRole('button', { name: /Print Decks — upgrade to unlock/i })
-    ).not.toBeInTheDocument();
   });
 
   it('hides Auto Sync from a subscriber without Auto Sync access', () => {

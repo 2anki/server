@@ -316,27 +316,15 @@ export function Sidebar({
           >
             Chat
           </SidebarRow>
-          {paying ? (
-            <SidebarRow
-              href="/print"
-              pathname={pathname}
-              matchPrefix={false}
-              onClick={handleNavClick()}
-              icon={PrinterIcon}
-            >
-              {getVisibleText('navigation.print')}
-            </SidebarRow>
-          ) : (
-            <LockedSidebarRow
-              label={getVisibleText('navigation.print')}
-              pill="Subscriber"
-              icon={PrinterIcon}
-              onActivate={() => {
-                onNavigate?.();
-                navigate('/pricing?from=print');
-              }}
-            />
-          )}
+          <SidebarRow
+            href="/print"
+            pathname={pathname}
+            matchPrefix={false}
+            onClick={handleNavClick()}
+            icon={PrinterIcon}
+          >
+            {getVisibleText('navigation.print')}
+          </SidebarRow>
           {showAnkify && (
             <SidebarRow
               href="/ankify"
