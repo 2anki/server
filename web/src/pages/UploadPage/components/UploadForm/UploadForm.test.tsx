@@ -577,6 +577,69 @@ describe('UploadForm analytics events', () => {
       expect(errorBody?.textContent).toMatch(/file type/i);
     });
   });
+
+  it('renders empty-deck spec copy with docs link on the 200 + 0-cards path', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      redirected: false,
+      status: 200,
+      headers: new Headers({
+        'Content-Type': 'application/octet-stream',
+        'X-Card-Count': '0',
+      }),
+      blob: () => Promise.resolve(new Blob(['fake'])),
+    }));
+
+    const { container } = renderUploadForm(<UploadForm setErrorMessage={vi.fn()} />);
+    const form = container.querySelector('form')!;
+    await act(async () => {
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    });
+
+    await waitFor(() => {
+      const body = container.querySelector('[class*="emptyBody"]');
+      expect(body?.textContent).toContain(
+        'No cards were found in this file.'
+      );
+      expect(body?.textContent).toContain(
+        'Most files need a toggle-list (Notion) or a question/answer pair'
+      );
+      const link = container.querySelector('a[href="/documentation/help/common-problems"]');
+      expect(link?.textContent).toBe('common problems');
+    });
+  });
+
+  it('routes a 400 with code=empty_export into the emptyDeck info card', async () => {
+    const jsonBody = {
+      code: 'empty_export',
+      message:
+        'No cards were found in this file. Most files need a toggle-list (Notion) or a question/answer pair to become cards. See common problems for the formats that work.',
+      filename: 'notes.zip',
+      docsLink: '/documentation/help/common-problems',
+    };
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      redirected: false,
+      status: 400,
+      clone: () => ({ json: () => Promise.resolve(jsonBody) }),
+      text: () => Promise.resolve(JSON.stringify(jsonBody)),
+      headers: new Headers({ 'Content-Type': 'application/json' }),
+    }));
+
+    const { container } = renderUploadForm(<UploadForm setErrorMessage={vi.fn()} />);
+    const form = container.querySelector('form')!;
+    await act(async () => {
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    });
+
+    await waitFor(() => {
+      const body = container.querySelector('[class*="emptyBody"]');
+      expect(body?.textContent).toContain(
+        'Most files need a toggle-list (Notion) or a question/answer pair'
+      );
+      expect(container.querySelector('[class*="errorBody"]')).toBeNull();
+      expect(container.querySelector('[class*="emptyDownloadButton"]')).toBeNull();
+    });
+  });
+
 });
 
 describe('limit state — start trial button', () => {

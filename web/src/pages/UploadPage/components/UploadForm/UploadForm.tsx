@@ -98,6 +98,10 @@ function toFriendlyThrownError(error: unknown): UploadErrorBody {
   return { code: 'unknown', message: REJECTED_FALLBACK };
 }
 
+function zoneStateForUploadError(message: UploadErrorBody): 'emptyDeck' | 'error' {
+  return message.code === 'empty_export' ? 'emptyDeck' : 'error';
+}
+
 function buildFormData(form: HTMLFormElement): FormData {
   const formData = new FormData(form);
   for (const [key, value] of Object.entries(globalThis.localStorage)) {
@@ -430,7 +434,7 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
       if (request.status !== 200) {
         const message = await extractErrorMessage(request);
         setLocalError(message);
-        setZoneState('error');
+        setZoneState(zoneStateForUploadError(message));
         return;
       }
       setWarningMessage(request.headers.get('X-Warning'));
@@ -520,7 +524,7 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
       if (request.status !== 200) {
         const message = await extractErrorMessage(request);
         setLocalError(message);
-        setZoneState('error');
+        setZoneState(zoneStateForUploadError(message));
         return;
       }
       setWarningMessage(request.headers.get('X-Warning'));
@@ -616,7 +620,7 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
         }
         const message = await extractErrorMessage(request);
         setLocalError(message);
-        setZoneState('error');
+        setZoneState(zoneStateForUploadError(message));
         return false;
       }
       setWarningMessage(request.headers.get('X-Warning'));
@@ -866,20 +870,12 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
       );
     }
     return (
-      <>
-        <p className={formStyles.emptyBody}>
-          2anki turns Notion toggle blocks (the little triangles you click to
-          expand) into flashcards. We didn't find any toggles in this file.
-        </p>
-        <p className={formStyles.emptyBody}>
-          If this came from Notion, open the page, add some toggle blocks, and
-          export again.{' '}
-          <a href="/documentation/help/common-problems#could-not-create-a-deck-using-your-file-and-rules">
-            See examples
-          </a>
-          .
-        </p>
-      </>
+      <p className={formStyles.emptyBody}>
+        No cards were found in this file. Most files need a toggle-list (Notion)
+        or a question/answer pair to become cards. See{' '}
+        <a href="/documentation/help/common-problems">common problems</a> for the
+        formats that work.
+      </p>
     );
   };
 
@@ -898,13 +894,15 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
         <p className={formStyles.emptyTitle}>{emptyTitle}</p>
         {renderEmptyDeckBody()}
         <div className={formStyles.emptyActions}>
-          <button
-            type="button"
-            className={formStyles.emptyDownloadButton}
-            onClick={() => downloadRef.current?.click()}
-          >
-            Download empty deck
-          </button>
+          {downloadLink && (
+            <button
+              type="button"
+              className={formStyles.emptyDownloadButton}
+              onClick={() => downloadRef.current?.click()}
+            >
+              Download empty deck
+            </button>
+          )}
           <button
             type="button"
             className={formStyles.resetLink}
@@ -984,7 +982,11 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
   const renderErrorState = () => {
     const classified = localError
       ? classifyUploadError(localError)
-      : { title: "We couldn't make your deck.", detail: 'Try again, or email us at support@2anki.net.' };
+      : {
+          title: 'Something broke while reading this file.',
+          detail:
+            'Try again, or send the file to support@2anki.net so we can fix the parser.',
+        };
     const errorText = classified.detail
       ? `${classified.title} ${classified.detail}`
       : classified.title;

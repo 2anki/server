@@ -30,8 +30,10 @@ import {
 } from '../lib/pdf/pdfPasswordSentinel';
 
 interface EmptyDeckResponse {
+  code: 'empty_export';
   message: string;
   filename: string;
+  docsLink: string;
 }
 
 interface DeckTooLargeResponse {
@@ -209,8 +211,11 @@ class UploadService {
         const files = req.files as UploadedFile[] | undefined;
         const filename = files?.[0]?.originalname ?? 'your file';
         const body: EmptyDeckResponse = {
-          message: `No toggles found in ${filename}. 2anki turns Notion toggle blocks into cards — the toggle title becomes the question, what's inside becomes the answer. Open the page in Notion, wrap your content in toggles (/toggle), export as HTML, and upload again.`,
+          code: 'empty_export',
+          message:
+            'No cards were found in this file. Most files need a toggle-list (Notion) or a question/answer pair to become cards. See common problems for the formats that work.',
           filename,
+          docsLink: '/documentation/help/common-problems',
         };
         return res.status(400).json(body);
       } else if (err instanceof DeckTooLargeError) {

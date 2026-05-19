@@ -110,4 +110,13 @@ describe('classifyUploadError', () => {
     const result = classifyUploadError(body);
     expect(result.title).toBe('Notion error.');
   });
+
+  test('empty message under an unknown code returns the parser-error spec copy', () => {
+    const body: UploadErrorBody = { code: 'unknown', message: '' };
+    const result = classifyUploadError(body);
+    expect(result.title).toBe('Something broke while reading this file.');
+    expect(result.detail).toBe(
+      'Try again, or send the file to support@2anki.net so we can fix the parser.'
+    );
+  });
 });
