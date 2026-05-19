@@ -1,4 +1,5 @@
 import Knex from 'knex';
+import type { ListBlockChildrenResponse } from '@notionhq/client/build/src/api-endpoints';
 
 import { BlocksCacheRepository } from './BlocksCacheRepository';
 
@@ -65,8 +66,14 @@ describe('BlocksCacheRepository', () => {
   });
 
   it('save for user A does not clobber user B row', async () => {
-    const payloadA = { ...payload, results: [{ id: 'a' }] };
-    const payloadB = { ...payload, results: [{ id: 'b' }] };
+    const payloadA = {
+      ...payload,
+      results: [{ id: 'a' }],
+    } as unknown as ListBlockChildrenResponse;
+    const payloadB = {
+      ...payload,
+      results: [{ id: 'b' }],
+    } as unknown as ListBlockChildrenResponse;
 
     await repo.save({
       id: 'shared-page',
