@@ -26,11 +26,13 @@ Inside the deck:
 - Three card shapes: basic, cloze, and typed-input. See [Card types](/documentation/cards/card-types).
 - Images, audio, and other assets are bundled in.
 
-## Two ways to use it
+## Three ways to use it
 
-**Connect Notion.** Sign in with Notion, pick a page, get a deck. The recommended path. Edits in Notion can flow back into your deck without re-uploading. Walkthrough: [Connect Notion in 5 minutes](/documentation/start-here/connect-notion).
+**Connect Notion.** Sign in with Notion, pick a page, get a deck. The recommended path for content that lives in Notion. Re-run the conversion when your notes change to refresh the deck. Walkthrough: [Connect Notion in 5 minutes](/documentation/start-here/connect-notion).
 
 **Upload a file.** No account needed. Good for PDFs, slide decks, Markdown vaults, or a one-off CSV. Walkthrough: [Upload a file instead](/documentation/start-here/upload-a-file).
+
+**Auto Sync.** Paid. Connect Notion once and 2anki checks your pages every 5 minutes — edits in Notion flow into a hosted Anki container automatically, no manual re-export. Use this if you study daily and update your notes between sessions. Walkthrough: [How sync works](/documentation/sync/how-it-works).
 
 ## Free and paid
 
