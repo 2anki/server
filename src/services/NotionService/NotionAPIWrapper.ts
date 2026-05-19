@@ -422,12 +422,18 @@ class NotionAPIWrapper {
     return process.env.NOTION_CLIENT_ID!;
   }
 
-  async getTopLevelTags(pageId: string, rules: ParserRules) {
+  async getTopLevelTags(
+    pageId: string,
+    rules: ParserRules,
+    createdAt: string,
+    lastEditedAt: string
+  ) {
     const useHeadings = rules.TAGS === 'heading';
     const response = await this.getBlocks({
-      createdAt: '',
-      lastEditedAt: '',
+      createdAt,
+      lastEditedAt,
       id: pageId,
+      all: true,
       type: 'page',
     });
     const globalTags = [];
