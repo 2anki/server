@@ -70,6 +70,8 @@ Every PR is checked against both — does it make the experience simpler/faster/
 
 ## Process
 
+- Surface assumptions before coding. If a request has multiple valid interpretations, present them — don't pick silently. If something is unclear, stop and ask. If a simpler approach exists, say so.
+- Every changed line should trace directly to the user's request. If a diff includes lines that don't connect back to what was asked, remove them before committing.
 - TDD by default: failing test → verify it fails for the right reason → simplest pass → refactor. If asked to skip tests, confirm first.
 - Outside-in testing. Mock only external dependencies (HTTP, third-party APIs, email) — never internal services.
 - A passing suite is not proof of correctness — review affected user flows for regressions before committing.
