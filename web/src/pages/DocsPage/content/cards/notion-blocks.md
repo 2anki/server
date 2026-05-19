@@ -28,13 +28,13 @@ These blocks are rendered in the exported deck.
 - [x] [Embed](https://developers.notion.com/reference/block#embed-blocks)
 - [x] [Bookmark](https://developers.notion.com/reference/block#bookmark-blocks)
 - [x] [Link to page](https://developers.notion.com/reference/block#link-to-page-blocks)
-- [x] [Child page](https://developers.notion.com/reference/block#child-page-blocks) — also usable as a sub-deck when you opt into it on the page's rule.
+- [x] [Child page](https://developers.notion.com/reference/block#child-page-blocks) — also usable as a sub-deck via [Parser rules](/documentation/cards/parser-rules).
 - [x] [Column list and column](https://developers.notion.com/reference/block#column-list-and-column-blocks)
 - [x] [Table](https://developers.notion.com/reference/block#table-blocks) and [Table row](https://developers.notion.com/reference/block#table-row-blocks) — one row, one card. Column 1 is the front, column 2 is the back. Turn on the **Table** chip in your rule to opt in. If the table has a header row, the first row is skipped. Columns 3 and beyond show up on the back as a small inline table.
 
 ## Sub-deck-only
 
-These blocks don't render as cards, but they can structure your deck when you opt into them as sub-decks on the page's rule:
+These blocks don't render as cards, but they can structure your deck when used in [Parser rules](/documentation/cards/parser-rules):
 
 - [Child database](https://developers.notion.com/reference/block#child-database-blocks) — pick it as a sub-deck source. The database's rows then convert through the table path.
 

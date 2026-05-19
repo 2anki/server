@@ -35,7 +35,7 @@ A clear prompt beats a long one. Three patterns that work:
 
 **Hand off a stuck upload.** If the upload page told you 0 cards were created, click **Open in chat** from the error. The conversation prefills with the filename and you can describe what's in the file.
 
-The same advice that works for the **Generate Flashcards with Claude AI** card option works here — be specific about what to focus on, what to skip, and what tone you want.
+The same advice that works for [AI flashcards](/documentation/cards/ai-flashcards) works here — be specific about what to focus on, what to skip, and what tone you want.
 
 ## Conversation limits
 
@@ -63,6 +63,6 @@ Delete a conversation any time using the trash icon in the sidebar. Deletion is 
 
 ## Related
 
-- [Card options](/documentation/cards/card-options) — the upload-time **Generate Flashcards with Claude AI** option, for files instead of pasted text
+- [AI flashcards](/documentation/cards/ai-flashcards) — automatic Claude generation as part of upload, for files instead of pasted text
 - [Limits and quotas](/documentation/help/limits) — message quotas by plan
 - [Privacy policy](/documentation/reference/privacy) — what we store, what we don't
