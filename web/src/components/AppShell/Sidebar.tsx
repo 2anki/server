@@ -415,6 +415,15 @@ export function Sidebar({
       </nav>
       <div className={styles.sidebarTheme}>
         {collapsed ? <ThemeToggle /> : <ThemeSwitcher />}
+        {!collapsed && (
+          <Link
+            to="/whats-new"
+            onClick={handleNavClick()}
+            className={styles.whatsNewLink}
+          >
+            What's new
+          </Link>
+        )}
       </div>
       <div className={styles.sidebarSpacer} />
       <div className={styles.identity}>
@@ -450,9 +459,6 @@ export function Sidebar({
       </div>
       <div className={styles.sidebarMore}>
         <div className={styles.sidebarMoreLinks}>
-          <Link to="/whats-new" onClick={handleNavClick()}>
-            What's new
-          </Link>
           <Link to="/contact" onClick={handleNavClick()}>
             {getVisibleText('navigation.contact')}
           </Link>

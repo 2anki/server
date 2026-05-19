@@ -271,7 +271,21 @@
 
 .sidebarTheme {
   display: flex;
+  align-items: center;
+  gap: 0.75rem;
   padding: 0.5rem 0.75rem;
+}
+
+.whatsNewLink {
+  font-size: var(--text-sm);
+  color: var(--color-text-tertiary);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.whatsNewLink:hover {
+  color: var(--color-text-secondary);
+  text-decoration: underline;
 }
 
 .sidebarMore {
