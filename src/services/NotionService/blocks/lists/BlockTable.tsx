@@ -35,7 +35,8 @@ export function tableRowsToCards(
   handler: BlockHandler
 ): TableCard[] {
   const rows = children.results.filter(
-    (r): r is TableRowBlockObjectResponse => r.type === 'table_row'
+    (r): r is TableRowBlockObjectResponse =>
+      'type' in r && r.type === 'table_row'
   );
 
   if (block.table.table_width < 2) {
@@ -90,7 +91,8 @@ export async function BlockTable(
   });
 
   const rows = children.results.filter(
-    (r): r is TableRowBlockObjectResponse => r.type === 'table_row'
+    (r): r is TableRowBlockObjectResponse =>
+      'type' in r && r.type === 'table_row'
   );
 
   if (rows.length === 0) {
