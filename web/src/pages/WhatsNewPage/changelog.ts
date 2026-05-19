@@ -5,6 +5,7 @@ export interface ChangelogEntry {
 }
 
 export const changelog: ChangelogEntry[] = [
+  { type: 'style', title: 'Chat replies sit closer together so conversations stay on one screen', date: '2026-05-19' },
   { type: 'style', title: 'Pricing page — Day Pass and Week Pass sit at the top as full cards, no more accordion to click open', date: '2026-05-19' },
   { type: 'fix', title: 'The landing page paints faster on phones over slow connections', date: '2026-05-19' },
   { type: 'style', title: 'What\'s new page redesigned as a board — backlog, in progress, and shipped', date: '2026-05-19' },
