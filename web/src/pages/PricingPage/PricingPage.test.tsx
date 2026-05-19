@@ -61,14 +61,21 @@ describe('PricingPage layout', () => {
     expect(screen.getByText('From $345')).toBeInTheDocument();
   });
 
-  it('shows pass row inline text', () => {
+  it('shows the Pay once section label', () => {
     renderAt('/pricing');
-    expect(screen.getByText(/Need just a weekend/)).toBeInTheDocument();
+    expect(screen.getByText('Pay once — no subscription')).toBeInTheDocument();
   });
 
-  it('shows Day Pass link in the pass row', () => {
+  it('shows the Monthly plans section label', () => {
     renderAt('/pricing');
-    expect(screen.getByText('Day Pass $4')).toBeInTheDocument();
+    expect(screen.getByText('Monthly plans')).toBeInTheDocument();
+  });
+
+  it('shows Day Pass and Week Pass as full cards without an accordion', () => {
+    const { container } = renderAt('/pricing');
+    expect(screen.getByRole('button', { name: 'Get Day Pass' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Get Week Pass' })).toBeInTheDocument();
+    expect(container.querySelector('details')).toBeNull();
   });
 
   it('shows philosophy line', () => {
@@ -76,26 +83,6 @@ describe('PricingPage layout', () => {
     expect(
       screen.getByText('Free works forever. Paid plans support 2anki.net.')
     ).toBeInTheDocument();
-  });
-});
-
-describe('PricingPage pass accordion', () => {
-  it('renders Week Pass details element closed by default', () => {
-    renderAt('/pricing');
-    const weekPassSummary = screen.getByText('Week Pass $9');
-    expect(weekPassSummary.closest('details')).not.toHaveAttribute('open');
-  });
-
-  it('shows Day Pass checkout button', () => {
-    renderAt('/pricing');
-    expect(screen.getByRole('button', { name: 'Get Day Pass' })).toBeInTheDocument();
-  });
-
-  it('opens Week Pass details element after clicking summary', () => {
-    renderAt('/pricing');
-    const weekPassSummary = screen.getByText('Week Pass $9');
-    fireEvent.click(weekPassSummary);
-    expect(weekPassSummary.closest('details')).toHaveAttribute('open');
   });
 });
 
@@ -316,8 +303,6 @@ describe('PricingPage internal event tracking', () => {
     Object.defineProperty(globalThis, 'location', { writable: true, value: { href: '' } });
 
     renderAt('/pricing', { isLoggedIn: true });
-    const weekPassSummary = screen.getByText('Week Pass $9');
-    fireEvent.click(weekPassSummary);
     fireEvent.click(screen.getByRole('button', { name: 'Get Week Pass' }));
 
     await waitFor(() => {

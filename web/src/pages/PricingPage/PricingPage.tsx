@@ -296,6 +296,15 @@ export default function PricingPage({
         </div>
       )}
 
+      <p className={styles.sectionLabel}>Pay once — no subscription</p>
+      <PassCards
+        onDayPass={() => handlePassCheckout('24h')}
+        onWeekPass={() => handlePassCheckout('7d')}
+        dayPassPending={dayPassState === 'pending'}
+        weekPassPending={weekPassState === 'pending'}
+      />
+
+      <p className={styles.sectionLabel}>Monthly plans</p>
       <div className={styles.anchorGrid}>
         <PricingCard
           className={styles.cardPro}
@@ -335,13 +344,6 @@ export default function PricingPage({
           onWaitlist={handleWaitlistRequest}
         />
       </div>
-
-      <PassCards
-        onDayPass={() => handlePassCheckout('24h')}
-        onWeekPass={() => handlePassCheckout('7d')}
-        dayPassPending={dayPassState === 'pending'}
-        weekPassPending={weekPassState === 'pending'}
-      />
 
       <div className={styles.grid}>
         <PricingCard
