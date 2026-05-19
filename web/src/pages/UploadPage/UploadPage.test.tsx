@@ -37,10 +37,10 @@ const renderPage = () => {
 };
 
 const renderPageWithSession = (sessionKey: string, sessionValue: string | null) => {
-  if (sessionValue != null) {
-    globalThis.sessionStorage.setItem(sessionKey, sessionValue);
-  } else {
+  if (sessionValue == null) {
     globalThis.sessionStorage.removeItem(sessionKey);
+  } else {
+    globalThis.sessionStorage.setItem(sessionKey, sessionValue);
   }
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false } },
