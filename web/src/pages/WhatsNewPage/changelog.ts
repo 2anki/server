@@ -5,6 +5,7 @@ export interface ChangelogEntry {
 }
 
 export const changelog: ChangelogEntry[] = [
+  { type: 'style', title: 'What\'s new page redesigned as a board — backlog, in progress, and shipped', date: '2026-05-19' },
   { type: 'feature', title: 'First upload — clearer no-cards message, one button to create an account and start a trial, and a quick first-visit tour', date: '2026-05-19' },
   { type: 'feature', title: 'Notion tables convert to flashcards — one row per card, column 1 on the front, column 2 on the back', date: '2026-05-19' },
   { type: 'fix', title: 'Failed conversions tell you what went wrong and what to try next on the Downloads page', date: '2026-05-19' },
