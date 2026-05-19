@@ -33,6 +33,7 @@ jest.mock('../data_layer/UsersRepository', () => {
     markTrialStarted: mockMarkTrialStarted,
     getById: mockGetById,
     getCardUsage: jest.fn().mockResolvedValue({ cards_used: 0 }),
+    getPrintUsage: jest.fn().mockResolvedValue({ prints_used: 0, month_started_at: null }),
   }));
 });
 
