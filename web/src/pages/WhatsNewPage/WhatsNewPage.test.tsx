@@ -32,18 +32,18 @@ const renderPage = async () => {
 };
 
 describe('WhatsNewPage kanban columns', () => {
-  it('renders all three column headers in board order: Backlog then In progress then Shipped', async () => {
+  it('renders all three column headers in board order: Shipped then In progress then Backlog', async () => {
     await renderPage();
     const headings = screen.getAllByRole('heading', { level: 2 });
     const texts = headings.map((h) => h.textContent ?? '');
-    const backlogIdx = texts.findIndex((t) => t.startsWith('Backlog'));
-    const inProgressIdx = texts.findIndex((t) => t.startsWith('In progress'));
     const shippedIdx = texts.findIndex((t) => t.startsWith('Shipped'));
-    expect(backlogIdx).toBeGreaterThanOrEqual(0);
-    expect(inProgressIdx).toBeGreaterThanOrEqual(0);
+    const inProgressIdx = texts.findIndex((t) => t.startsWith('In progress'));
+    const backlogIdx = texts.findIndex((t) => t.startsWith('Backlog'));
     expect(shippedIdx).toBeGreaterThanOrEqual(0);
-    expect(backlogIdx).toBeLessThan(inProgressIdx);
-    expect(inProgressIdx).toBeLessThan(shippedIdx);
+    expect(inProgressIdx).toBeGreaterThanOrEqual(0);
+    expect(backlogIdx).toBeGreaterThanOrEqual(0);
+    expect(shippedIdx).toBeLessThan(inProgressIdx);
+    expect(inProgressIdx).toBeLessThan(backlogIdx);
   });
 });
 
