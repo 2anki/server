@@ -1,18 +1,20 @@
+import {
+  useQueryClient,
+  useQuery as useReactQuery,
+} from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
-import {
-  useQuery as useReactQuery,
-  useQueryClient,
-} from '@tanstack/react-query';
 import { ErrorHandlerType } from '../../components/errors/helpers/getErrorMessage';
-import useQuery from '../../lib/hooks/useQuery';
-import { getVisibleText } from '../../lib/text/getVisibleText';
 import {
   dismissUploadPrimer,
   fetchUserPreferences,
   type ServerUserPreferences,
 } from '../../lib/data_layer/userPreferencesSync';
+import useQuery from '../../lib/hooks/useQuery';
+import { useUserLocals } from '../../lib/hooks/useUserLocals';
+import { getVisibleText } from '../../lib/text/getVisibleText';
 import styles from '../../styles/shared.module.css';
+import { OnboardingTour } from './components/OnboardingTour/OnboardingTour';
 import UploadForm from './components/UploadForm/UploadForm';
 import pageStyles from './UploadPage.module.css';
 
@@ -84,6 +86,7 @@ export function UploadPage({ setErrorMessage }: Readonly<Props>) {
     const stored = globalThis.sessionStorage?.getItem(REATTACH_KEY) ?? null;
     return stored != null && stored.length > 0 ? stored : null;
   });
+  const { data: userLocals } = useUserLocals();
 
   const prefsQuery = useReactQuery({
     queryKey: ['user-preferences'],
@@ -95,7 +98,8 @@ export function UploadPage({ setErrorMessage }: Readonly<Props>) {
   // Server is the only source of truth. Until the query resolves, hide the primer rather
   // than flash it — a brief delay before showing orientation copy is better than briefly
   // showing it to someone who has already dismissed it.
-  const primerVisible = prefsQuery.isFetched && prefsQuery.data?.uploadPrimerDismissedAt == null;
+  const primerVisible =
+    prefsQuery.isFetched && prefsQuery.data?.uploadPrimerDismissedAt == null;
 
   useEffect(() => {
     if (searchParams.get('from') === 'pass') {
@@ -108,12 +112,15 @@ export function UploadPage({ setErrorMessage }: Readonly<Props>) {
 
   const handleDismissPrimer = () => {
     const now = new Date().toISOString();
-    queryClient.setQueryData<ServerUserPreferences | null>(['user-preferences'], (current) => ({
-      cardOptions: current?.cardOptions ?? null,
-      theme: current?.theme ?? null,
-      ankiWebAcknowledgedAt: current?.ankiWebAcknowledgedAt ?? null,
-      uploadPrimerDismissedAt: now,
-    }));
+    queryClient.setQueryData<ServerUserPreferences | null>(
+      ['user-preferences'],
+      (current) => ({
+        cardOptions: current?.cardOptions ?? null,
+        theme: current?.theme ?? null,
+        ankiWebAcknowledgedAt: current?.ankiWebAcknowledgedAt ?? null,
+        uploadPrimerDismissedAt: now,
+      })
+    );
     void dismissUploadPrimer();
   };
 
@@ -133,6 +140,10 @@ export function UploadPage({ setErrorMessage }: Readonly<Props>) {
           Turn your notes into flashcards in seconds
         </p>
       </header>
+      <OnboardingTour
+        createdAt={userLocals?.user?.created_at ?? null}
+        onboardedAt={userLocals?.user?.onboarded_at ?? null}
+      />
       {reattachFilename != null && (
         <div className={pageStyles.reattachBanner} role="status">
           <span>Re-attach </span>
@@ -150,11 +161,13 @@ export function UploadPage({ setErrorMessage }: Readonly<Props>) {
           >
             ✕
           </button>
-          <p className={pageStyles.primerHeading}>Make cards from your Notion toggles</p>
+          <p className={pageStyles.primerHeading}>
+            Make cards from your Notion toggles
+          </p>
           <p className={pageStyles.primerBody}>
             Each toggle becomes one card — the toggle title is the front, what's
-            inside is the back. Export your page from Notion as HTML and drop the
-            .zip below.
+            inside is the back. Export your page from Notion as HTML and drop
+            the .zip below.
           </p>
           <a
             href="/documentation/start-here/upload-a-file"
