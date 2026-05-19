@@ -168,6 +168,34 @@ const apkgToCsv: LandingCopy = {
   ],
 };
 
+const notionTablesToAnki: LandingCopy = {
+  pathname: '/convert/notion-tables-to-anki',
+  title: 'Notion tables to Anki — one row, one card | 2anki',
+  description:
+    'Convert a Notion table into Anki flashcards. Column 1 becomes the front, column 2 becomes the back. Download a .apkg deck.',
+  h1: 'Notion tables to Anki — one row, one card',
+  subhead:
+    'Paste a Notion page with a table. Column 1 becomes the front, column 2 becomes the back.',
+  faqs: [
+    {
+      q: 'What if my table has more than two columns?',
+      a: 'Columns 3 and beyond show up on the back of the card as a small inline table, below the main answer. Use it for example sentences, mnemonics, or notes.',
+    },
+    {
+      q: 'Does the header row become a card?',
+      a: "If Notion's "header row" toggle is on for that table, we skip it. Otherwise the first row becomes a card like the rest — you can delete it in Anki.",
+    },
+    {
+      q: 'Can I keep using toggles too?',
+      a: 'Yes. Tables, toggles, and headings can all source cards from the same page. The Rules page lets you turn each one on or off.',
+    },
+    {
+      q: 'Will images inside cells convert?',
+      a: 'Not yet — image-in-cell support is on the roadmap. For now, cells with only an image render as empty; cells with text + image keep the text.',
+    },
+  ],
+};
+
 export const CONVERT_LANDING_PAGES: ReadonlyMap<string, LandingCopy> = new Map([
   ['notion-to-anki', notionToAnki],
   ['pdf-to-anki', pdfToAnki],
@@ -175,4 +203,5 @@ export const CONVERT_LANDING_PAGES: ReadonlyMap<string, LandingCopy> = new Map([
   ['csv-to-anki', csvToAnki],
   ['html-to-anki', htmlToAnki],
   ['apkg-to-csv', apkgToCsv],
+  ['notion-tables-to-anki', notionTablesToAnki],
 ]);

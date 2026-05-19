@@ -34,6 +34,7 @@ const flashCardOptions = [
   'bulleted_list_item',
   'numbered_list_item',
   'column_list',
+  'table',
   'heading_1',
   'heading_2',
   'heading_3',
