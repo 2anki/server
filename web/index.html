@@ -103,20 +103,22 @@
     }
   }
   </script>
-  <!-- Hotjar Tracking Code for https://2anki.net -->
+  <!-- Hotjar Tracking Code for https://2anki.net (deferred until after load) -->
   <script>
-    (function(h,o,t,j,a,r) {
-      h.hj=h.hj||function() {
-        const hjQueue=h.hj.q=h.hj.q||[];
-        hjQueue.push(arguments);
-      };
-      h._hjSettings={hjid: 2603407,hjsv: 6};
-      var headElement=o.getElementsByTagName('head')[0];
-      var scriptElement=o.createElement('script');
-      scriptElement.async=1;
-      scriptElement.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
-      headElement.appendChild(scriptElement);
-    })(globalThis,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+    globalThis.addEventListener('load', function () {
+      (function (h, o, t, j) {
+        h.hj = h.hj || function () {
+          const hjQueue = h.hj.q = h.hj.q || [];
+          hjQueue.push(arguments);
+        };
+        h._hjSettings = { hjid: 2603407, hjsv: 6 };
+        var headElement = o.getElementsByTagName('head')[0];
+        var scriptElement = o.createElement('script');
+        scriptElement.async = 1;
+        scriptElement.src = t + h._hjSettings.hjid + j + h._hjSettings.hjsv;
+        headElement.appendChild(scriptElement);
+      })(globalThis, document, 'https://static.hotjar.com/c/hotjar-', '.js?sv=');
+    });
   </script>
 
   <!-- Legacy redirect (early + preserve URL) -->
@@ -135,30 +137,33 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/bulma-switch.css">
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  </noscript>
 
-  <!-- Global site tag (gtag.js) - Google Analytics -->
-  <!-- Note: SRI not used for gtag.js as Google frequently updates this script, 
+  <!-- Global site tag (gtag.js) - Google Analytics (deferred until after load) -->
+  <!-- Note: SRI not used for gtag.js as Google frequently updates this script,
        which would break the integrity hash. Using secure loading with error handling instead. -->
   <script>
-    (function() {
-      globalThis.dataLayer=globalThis.dataLayer||[];
+    globalThis.addEventListener('load', function () {
+      globalThis.dataLayer = globalThis.dataLayer || [];
       function gtag() {
         dataLayer.push(arguments);
       }
-      const script=document.createElement('script');
-      script.async=true;
-      script.src='https://www.googletagmanager.com/gtag/js?id=G-X6K69TY3EX';
-      script.onerror=function() {
+      const script = document.createElement('script');
+      script.async = true;
+      script.src = 'https://www.googletagmanager.com/gtag/js?id=G-X6K69TY3EX';
+      script.onerror = function () {
         console.warn('Failed to load Google Analytics');
       };
-      script.onload=function() {
-        gtag('js',new Date());
-        gtag('config','G-X6K69TY3EX',{anonymize_ip: true});
+      script.onload = function () {
+        gtag('js', new Date());
+        gtag('config', 'G-X6K69TY3EX', { anonymize_ip: true });
       };
       document.head.appendChild(script);
-    })();
+    });
   </script>
 </head>
 

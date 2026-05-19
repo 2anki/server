@@ -112,6 +112,14 @@ const serve = async () => {
   attachAnkifySessionProxy(app, server, ankifySessionValidate);
 
   app.use('/templates', express.static(templateDir));
+  // Hashed Vite output under /assets/* is content-addressed and immutable.
+  app.use(
+    '/assets',
+    express.static(`${BUILD_DIR}/assets`, {
+      immutable: true,
+      maxAge: '1y',
+    })
+  );
   app.use(express.static(BUILD_DIR));
 
   // API Documentation
