@@ -380,12 +380,16 @@ export class Backend {
     name: string,
     email: string,
     password: string,
-    source?: string | null
+    source?: string | null,
+    startTrial?: boolean
   ): Promise<Response> {
     const endpoint = `${this.baseURL}users/register`;
     const payload: Record<string, string> = { name, email, password };
     if (source != null && source.length > 0) {
       payload.source = source;
+    }
+    if (startTrial === true) {
+      payload.start_trial = '1';
     }
     return post(endpoint, payload);
   }

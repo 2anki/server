@@ -11,11 +11,18 @@ import styles from '../../styles/auth.module.css';
 interface Props {
   readonly setErrorMessage: ErrorHandlerType;
   readonly redirect?: string | null;
+  readonly startTrial?: boolean;
 }
 
 const MIN_PASSWORD_LENGTH = 8;
 
-function RegisterForm({ setErrorMessage, redirect }: Props) {
+function submitLabel(loading: boolean, startTrial: boolean | undefined): string {
+  if (loading) return 'Creating account…';
+  if (startTrial) return 'Create account and start trial';
+  return 'Create account';
+}
+
+function RegisterForm({ setErrorMessage, redirect, startTrial }: Props) {
   const [email, setEmail] = useState(localStorage.getItem('email') || '');
   const [tos, setTos] = useState(false);
   const [password, setPassword] = useState('');
@@ -44,7 +51,7 @@ function RegisterForm({ setErrorMessage, redirect }: Props) {
     setLoading(true);
 
     try {
-      const res = await get2ankiApi().register('', email, password, signupOrigin);
+      const res = await get2ankiApi().register('', email, password, signupOrigin, startTrial);
       if (res.status === 200) {
         globalThis.sessionStorage?.setItem('email_verification_pending', 'true');
         globalThis.location.href = redirect ? `/${redirect.replace(/^\//, '')}` : '/';
@@ -174,7 +181,7 @@ function RegisterForm({ setErrorMessage, redirect }: Props) {
               className={styles.submitButton}
               disabled={!isValid() || loading}
             >
-              {loading ? 'Creating account…' : 'Create account'}
+              {submitLabel(loading, startTrial)}
             </button>
           </div>
         </form>
