@@ -120,7 +120,7 @@ describe('UploadService.handleUpload — error paths', () => {
     MockGeneratePackagesUseCase.mockClear();
   });
 
-  it('returns 400 JSON with filename in message when no packages are produced', async () => {
+  it('returns 400 JSON with empty_export code, spec copy and docs link when no packages are produced', async () => {
     MockGeneratePackagesUseCase.mockImplementation(() => ({
       execute: jest.fn().mockResolvedValue({ packages: [] }),
     }) as unknown as InstanceType<typeof GeneratePackagesUseCase>);
@@ -132,13 +132,22 @@ describe('UploadService.handleUpload — error paths', () => {
     await service.handleUpload(req, res);
 
     expect(capturedStatus()).toBe(400);
-    const body = capturedJson() as { message: string; filename: string };
+    const body = capturedJson() as {
+      code: string;
+      message: string;
+      filename: string;
+      docsLink: string;
+    };
+    expect(body.code).toBe('empty_export');
     expect(typeof body.message).toBe('string');
     expect(body.message).not.toMatch(/rules/i);
     expect(body.message).not.toMatch(/valid toggle/i);
     expect(body.message).not.toMatch(/<[a-z]/i);
-    expect(body.message).toContain('study-notes.zip');
+    expect(body.message).toBe(
+      'No cards were found in this file. Most files need a toggle-list (Notion) or a question/answer pair to become cards. See common problems for the formats that work.'
+    );
     expect(body.filename).toBe('study-notes.zip');
+    expect(body.docsLink).toBe('/documentation/help/common-problems');
   });
 
   it('EmptyDeckError response body contains no HTML tags', async () => {
