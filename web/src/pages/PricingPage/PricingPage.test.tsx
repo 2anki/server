@@ -71,6 +71,11 @@ describe('PricingPage layout', () => {
     expect(screen.getByText('Monthly plans')).toBeInTheDocument();
   });
 
+  it('shows the One-time payment section label above Lifetime', () => {
+    renderAt('/pricing');
+    expect(screen.getByText('One-time payment')).toBeInTheDocument();
+  });
+
   it('shows Day Pass and Week Pass as full cards without an accordion', () => {
     const { container } = renderAt('/pricing');
     expect(screen.getByRole('button', { name: 'Get Day Pass' })).toBeInTheDocument();

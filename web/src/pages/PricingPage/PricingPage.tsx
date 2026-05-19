@@ -345,6 +345,7 @@ export default function PricingPage({
         />
       </div>
 
+      <p className={styles.sectionLabel}>One-time payment</p>
       <div className={styles.grid}>
         <PricingCard
           className={styles.cardLifetime}
