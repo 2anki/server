@@ -39,7 +39,7 @@ export class BlocksCacheRepository implements IBlocksCacheRepository {
       return undefined;
     }
     this.database(this.table)
-      .where({ object_id: id })
+      .where({ object_id: id, owner })
       .update({ fetch: cache.fetch + 1 });
     return cache.payload as ListBlockChildrenResponse;
   }
@@ -60,7 +60,7 @@ export class BlocksCacheRepository implements IBlocksCacheRepository {
         created_at: createdAt,
         last_edited_time: lastEditedAt,
       })
-      .onConflict('object_id')
+      .onConflict(['object_id', 'owner'])
       .merge();
   }
 }

@@ -328,10 +328,17 @@ class BlockHandler {
     if (!globalSeenIds) globalSeenIds = new Set<string>();
 
     const page = await this.api.getPage(topLevelId);
-    const tags = await this.api.getTopLevelTags(topLevelId, rules);
+    const createdAt = (page as PageObjectResponse).created_time;
+    const lastEditedAt = (page as PageObjectResponse).last_edited_time;
+    const tags = await this.api.getTopLevelTags(
+      topLevelId,
+      rules,
+      createdAt,
+      lastEditedAt
+    );
     const response = await this.api.getBlocks({
-      createdAt: (page as PageObjectResponse).created_time,
-      lastEditedAt: (page as PageObjectResponse).last_edited_time,
+      createdAt,
+      lastEditedAt,
       id: topLevelId,
       all: this.useAll,
       type: 'page',
