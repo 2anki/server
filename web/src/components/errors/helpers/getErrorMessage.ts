@@ -13,6 +13,11 @@ const FALLBACK: FriendlyError = {
   detail: 'Try again. If the problem keeps happening, email support@2anki.net.',
 };
 
+const UPLOAD_FALLBACK: FriendlyError = {
+  title: 'Something broke while reading this file.',
+  detail: 'Try again, or send the file to support@2anki.net so we can fix the parser.',
+};
+
 function toText(error: unknown): string {
   if (typeof error === 'string') return error;
   if (error instanceof Error) return error.message;
@@ -127,5 +132,5 @@ export function classifyUploadError(body: UploadErrorBody): FriendlyError {
   if (stripped.length > 0 && stripped.length < 280) {
     return { title: stripped };
   }
-  return FALLBACK;
+  return UPLOAD_FALLBACK;
 }
