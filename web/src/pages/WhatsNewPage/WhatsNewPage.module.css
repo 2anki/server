@@ -137,37 +137,17 @@
   margin: 0 0 8px;
 }
 
-/* ── Report an issue row ── */
+/* ── Report an issue link (sits next to FeedbackWidget) ── */
 
-.reportRow {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  width: 100%;
-  padding: 8px 12px;
-  border-radius: 6px;
-  text-decoration: none;
-  color: #787774;
+.reportLink {
   font-size: 13px;
-  font-weight: 400;
-  margin-top: 8px;
-  transition: background var(--transition-fast), color var(--transition-fast);
-}
-
-.reportRow:hover {
-  background: #fbfbfa;
-  color: var(--color-text-primary);
-}
-
-.reportPlus {
-  font-size: 14px;
-  line-height: 1;
-}
-
-.reportHint {
-  font-size: 12px;
   color: #787774;
-  margin: 2px 0 0 12px;
+  text-decoration: none;
+}
+
+.reportLink:hover {
+  color: var(--color-text-primary);
+  text-decoration: underline;
 }
 
 /* ── Shipped column ── */
