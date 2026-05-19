@@ -26,7 +26,7 @@ const STEPS: ReadonlyArray<Step> = [
   },
 ];
 
-const MIGRATION_CUTOFF = '2026-06-08T00:00:00.000Z';
+const MIGRATION_CUTOFF = '2026-05-19T00:00:00.000Z';
 
 interface OnboardingTourProps {
   createdAt: string | null;
