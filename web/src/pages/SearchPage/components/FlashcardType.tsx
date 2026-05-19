@@ -3,10 +3,16 @@ import styles from '../../../styles/shared.module.css';
 interface FlashcardTypeProps {
   active: boolean;
   name: string;
+  isNew?: boolean;
   onSwitch: (name: string) => void;
 }
 
-export default function FlashcardType({ name, onSwitch, active }: Readonly<FlashcardTypeProps>) {
+export default function FlashcardType({
+  name,
+  onSwitch,
+  active,
+  isNew = false,
+}: Readonly<FlashcardTypeProps>) {
   return (
     <button
       type="button"
@@ -14,6 +20,7 @@ export default function FlashcardType({ name, onSwitch, active }: Readonly<Flash
       className={`${styles.chip} ${active ? styles.chipActive : ''}`}
     >
       {name}
+      {isNew ? <span className={styles.chipNewBadge}>New</span> : null}
     </button>
   );
 }
