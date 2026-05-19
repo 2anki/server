@@ -511,6 +511,7 @@ export default function ChatPanel({
                   })()}
                   {m.role === 'assistant' && (
                     <>
+                      <span className={styles.messageSenderLabel}>Claude</span>
                       {m.contentBefore != null && (
                         <div className={`${styles.messageBubble} ${styles.messageBubbleAssistant}`}>
                           <AssistantMarkdown>{m.contentBefore}</AssistantMarkdown>
@@ -540,6 +541,7 @@ export default function ChatPanel({
                 <div className={`${styles.message} ${styles.messageAssistant}`}>
                   {streamingText.length > 0 ? (
                     <>
+                      <span className={styles.messageSenderLabel}>Claude</span>
                       <div className={`${styles.messageBubble} ${styles.messageBubbleAssistant}`}>
                         <AssistantMarkdown isStreaming={!isCardStreaming}>
                           {visibleStreamingText(streamingText)}
