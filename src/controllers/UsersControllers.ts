@@ -187,6 +187,15 @@ class UsersController {
         } catch {
           // country capture is best-effort
         }
+        if (req.body.start_trial === '1' || req.body.start_trial === true) {
+          try {
+            const trialRepo = new UsersRepository(this.db);
+            const trialUseCase = new StartTrialUseCase(trialRepo);
+            await trialUseCase.execute(newUser.id);
+          } catch (trialError) {
+            console.info('Trial start failed after registration', trialError);
+          }
+        }
         const token = await this.authService.newJWTToken(newUser.id);
         if (token) {
           await this.authService.persistToken(token, newUser.id.toString());
