@@ -13,6 +13,8 @@ function stripTrailingSlashes(value: string): string {
   return end === value.length ? value : value.slice(0, end);
 }
 
+const LEGAL_SLUGS = new Set(['reference/privacy', 'reference/terms']);
+
 export default function DocsPage() {
   const params = useParams();
   const slug = stripTrailingSlashes(params['*'] ?? '');
@@ -42,7 +44,7 @@ export default function DocsPage() {
       <DocsDrawer isOpen={menuOpen} onClose={closeMenu} activeSlug={slug} />
 
       <main className={styles.main}>
-        <WipBanner />
+        {!LEGAL_SLUGS.has(slug) && <WipBanner />}
         {slug ? <DocContent slug={slug} /> : <DocsHome />}
       </main>
     </div>
