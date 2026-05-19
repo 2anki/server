@@ -16,8 +16,6 @@ vi.mock('./DocsDrawer', () => ({
   DocsDrawer: () => null,
 }));
 
-const WIP_TEXT = /These docs are being rewritten with help from AI/;
-
 function renderAt(path: string) {
   return render(
     <MemoryRouter initialEntries={[path]}>
@@ -28,29 +26,33 @@ function renderAt(path: string) {
   );
 }
 
+function mainEl(): HTMLElement {
+  return screen.getByRole('main');
+}
+
 describe('DocsPage', () => {
-  it('shows the WIP banner on the docs home', () => {
+  it('does not mark the docs home as legal', () => {
     renderAt('/documentation');
-    expect(screen.getByText(WIP_TEXT)).toBeInTheDocument();
+    expect(mainEl()).not.toHaveAttribute('data-legal');
   });
 
-  it('shows the WIP banner on a regular doc page', () => {
+  it('does not mark a regular doc page as legal', () => {
     renderAt('/documentation/start-here/connect-notion');
-    expect(screen.getByText(WIP_TEXT)).toBeInTheDocument();
+    expect(mainEl()).not.toHaveAttribute('data-legal');
   });
 
-  it('hides the WIP banner on the privacy policy page', () => {
+  it('marks the privacy policy page as legal', () => {
     renderAt('/documentation/reference/privacy');
-    expect(screen.queryByText(WIP_TEXT)).not.toBeInTheDocument();
+    expect(mainEl()).toHaveAttribute('data-legal', 'true');
   });
 
-  it('hides the WIP banner on the terms of service page', () => {
+  it('marks the terms of service page as legal', () => {
     renderAt('/documentation/reference/terms');
-    expect(screen.queryByText(WIP_TEXT)).not.toBeInTheDocument();
+    expect(mainEl()).toHaveAttribute('data-legal', 'true');
   });
 
-  it('hides the WIP banner even with a trailing slash on the legal slug', () => {
+  it('marks the legal page even with a trailing slash', () => {
     renderAt('/documentation/reference/privacy/');
-    expect(screen.queryByText(WIP_TEXT)).not.toBeInTheDocument();
+    expect(mainEl()).toHaveAttribute('data-legal', 'true');
   });
 });

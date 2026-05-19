@@ -101,6 +101,10 @@
   line-height: var(--leading-normal);
 }
 
+.main[data-legal="true"] .wipBanner {
+  display: none;
+}
+
 .wipBanner a {
   color: var(--color-warning-text);
   font-weight: var(--font-medium);
