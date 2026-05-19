@@ -43,8 +43,11 @@ export default function DocsPage() {
 
       <DocsDrawer isOpen={menuOpen} onClose={closeMenu} activeSlug={slug} />
 
-      <main className={styles.main}>
-        {!LEGAL_SLUGS.has(slug) && <WipBanner />}
+      <main
+        className={styles.main}
+        data-legal={LEGAL_SLUGS.has(slug) ? 'true' : undefined}
+      >
+        <WipBanner />
         {slug ? <DocContent slug={slug} /> : <DocsHome />}
       </main>
     </div>
