@@ -106,7 +106,7 @@
   gap: 1.5rem;
   align-items: stretch;
   position: relative;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2.5rem;
 }
 
 @media (max-width: 900px) {
@@ -149,41 +149,33 @@
 }
 
 .sectionLabel + .anchorGrid,
-.sectionLabel + .passGrid {
+.sectionLabel + .passGrid,
+.sectionLabel + .grid {
   margin-top: 0;
 }
 
-.passGrid + .sectionLabel {
+.passGrid + .sectionLabel,
+.anchorGrid + .sectionLabel {
   margin-top: 1rem;
 }
 
 /* =====================================================================
-   GRID — single-card Lifetime row
+   GRID — single centered Lifetime card row
    ===================================================================== */
 .grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: minmax(0, 480px);
+  justify-content: center;
   gap: 1.5rem;
   align-items: stretch;
   position: relative;
+  margin-bottom: 2.5rem;
 }
 
 @media (max-width: 900px) {
   .grid {
     grid-template-columns: 1fr;
     gap: 1rem;
-  }
-
-  .cardPro {
-    order: 1;
-  }
-
-  .cardAutoSync {
-    order: 2;
-  }
-
-  .cardLifetime {
-    order: 3;
   }
 }
 
