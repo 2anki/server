@@ -45,6 +45,16 @@ If you saw an error and want the fix, find the heading below that matches what y
 
 **How to fix it.** Split the PDF into smaller files (every PDF reader has a "split" option), or [subscribe](/pricing) to remove the cap. See [Limits and quotas](/documentation/help/limits) for the full list.
 
+## "This PDF is password-protected."
+
+**What you saw.** You uploaded a PDF and the upload area switched to a password input with the file name shown above it.
+
+**Why it happened.** The PDF was created with an open password — Anki can't read it, and neither can 2anki, until you unlock it.
+
+**How to fix it.** Type the password into the input and click **Unlock**. The file is decrypted in memory, converted, and the password is discarded — we don't store it. If you don't know the password, ask whoever shared the PDF, or remove the password in your PDF reader (most readers have a **File → Save as → Properties → Security → No Security** option) and re-upload.
+
+If you click anywhere else and the input goes away, drop the file in again — the password prompt comes back.
+
 ## "Could not create a deck using your file and rules."
 
 **What you saw.** The upload finishes but produces no deck.

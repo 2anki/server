@@ -36,6 +36,15 @@ Use [Connect Notion](/documentation/start-here/connect-notion) when the source i
 4. Click **Convert**. When it finishes, click **Download** to grab the `.apkg`.
 5. Open the file in Anki — see [Open your deck in Anki](/documentation/start-here/open-in-anki).
 
+## Upload from Dropbox or Google Drive
+
+If your file lives in cloud storage, you don't have to download it first.
+
+- **Dropbox** — click **Choose from Dropbox** on the upload screen, sign in once, and pick the file. The chooser supports the same formats as the regular upload.
+- **Google Drive** — click **Choose from Google Drive**. You can pick any file 2anki accepts, plus native Google Docs, Sheets, and Slides. Native Google files are converted to a bulleted outline first — see [Common problems](/documentation/help/common-problems#my-google-doc-converted-to-0-cards) for the shape that produces cards.
+
+Both buttons are visible only when the integration is configured for the page you're on. If you don't see them, drag the file in from your computer instead.
+
 :::tip
 Toggle lists make the cleanest cards. If your source is plain prose, the conversion will still work, but you'll get better results from a structure where each card is one toggle, one bullet pair, or one row.
 :::
