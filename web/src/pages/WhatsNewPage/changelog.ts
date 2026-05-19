@@ -5,6 +5,7 @@ export interface ChangelogEntry {
 }
 
 export const changelog: ChangelogEntry[] = [
+  { type: 'feature', title: 'Notion tables convert to flashcards — one row per card, column 1 on the front, column 2 on the back', date: '2026-05-19' },
   { type: 'fix', title: 'Failed conversions tell you what went wrong and what to try next on the Downloads page', date: '2026-05-19' },
   { type: 'fix', title: 'Notion pages with a slash in the title convert into a deck instead of failing silently', date: '2026-05-19' },
   { type: 'style', title: 'Multiple choice cards — correct rows stand out with a deeper green tint and a green rule on the left', date: '2026-05-18' },

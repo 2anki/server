@@ -34,10 +34,13 @@ const flashCardOptions = [
   'bulleted_list_item',
   'numbered_list_item',
   'column_list',
+  'table',
   'heading_1',
   'heading_2',
   'heading_3',
 ];
+
+const newFlashCardOptions = ['table'];
 const tagOptions = ['heading', 'strikethrough'];
 const subDeckOptions = [
   'child_page',
@@ -330,6 +333,7 @@ export default function RulesPage({ setErrorMessage }: Readonly<Props>) {
               <RuleDefinition
                 value={rules.flashcard_is}
                 options={flashCardOptions}
+                newOptions={newFlashCardOptions}
                 onSelected={(fco) => toggleSelection('flashcard_is', fco)}
               />
             </section>

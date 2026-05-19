@@ -16,6 +16,7 @@ import LinkToPage from '../blocks/LinkToPage/LinkToPage';
 import { BlockBulletList } from '../blocks/lists/BlockBulletList';
 import BlockColumnList from '../blocks/lists/BlockColumnList';
 import { BlockNumberedList } from '../blocks/lists/BlockNumberedList';
+import { BlockTable } from '../blocks/lists/BlockTable';
 import { BlockTodoList } from '../blocks/lists/BlockTodoList';
 import { BlockToggleList } from '../blocks/lists/BlockToggleList';
 import BlockBookmark from '../blocks/media/BlockBookmark';
@@ -97,6 +98,9 @@ export const blockToStaticMarkup = async (
       break;
     case 'link_to_page':
       back += await LinkToPage(c, handler);
+      break;
+    case 'table':
+      back += await BlockTable(c, handler);
       break;
     default:
       back += `unsupported: ${c.type}`;

@@ -31,12 +31,12 @@ These blocks are rendered in the exported deck.
 - [x] [Link to page](https://developers.notion.com/reference/block#link-to-page-blocks)
 - [x] [Child page](https://developers.notion.com/reference/block#child-page-blocks)
 - [x] [Column list and column](https://developers.notion.com/reference/block#column-list-and-column-blocks)
+- [x] [Table](https://developers.notion.com/reference/block#table-blocks) and [Table row](https://developers.notion.com/reference/block#table-row-blocks) — one row, one card. Column 1 is the front, column 2 is the back. Turn on the **Table** chip in your rule to opt in. If the table has a header row, the first row is skipped. Columns 3 and beyond show up on the back as a small inline table.
 
 ## Unsupported
 
 These blocks are skipped or rendered as a fallback.
 
-- [ ] [Table](https://developers.notion.com/reference/block#table-blocks) and [Table row](https://developers.notion.com/reference/block#table-row-blocks)
 - [ ] [Table of contents](https://developers.notion.com/reference/block#table-of-contents-blocks)
 - [ ] [Child database](https://developers.notion.com/reference/block#child-database-blocks)
 - [ ] [Breadcrumb](https://developers.notion.com/reference/block#breadcrumb-blocks)

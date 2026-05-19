@@ -1035,6 +1035,21 @@
   color: var(--color-bg-primary);
 }
 
+.chipNewBadge {
+  margin-left: 0.375rem;
+  padding: 0.0625rem 0.375rem;
+  font-size: var(--text-xs);
+  font-weight: var(--font-medium);
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  color: var(--color-bg-primary);
+}
+
+.chipActive .chipNewBadge {
+  background: var(--color-bg-primary);
+  color: var(--color-primary);
+}
+
 .marginTopSm {
   margin-top: 0.75rem;
 }
