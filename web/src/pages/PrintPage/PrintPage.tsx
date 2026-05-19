@@ -1,7 +1,22 @@
 import styles from '../../styles/shared.module.css';
+import { useUserLocals } from '../../lib/hooks/useUserLocals';
+import { isPayingUser } from '../../components/NavigationBar/helpers/getPlanLabel';
 import PrintForm from './components/PrintForm';
 
 export function PrintPage() {
+  const { data } = useUserLocals();
+  const paying = isPayingUser(data?.locals);
+  const freePrintAvailable = data?.freePrintAvailable;
+
+  let statusLine: string | null = null;
+  if (!paying) {
+    if (freePrintAvailable === false) {
+      statusLine = 'Your free PDF for this month has been used.';
+    } else if (freePrintAvailable === true) {
+      statusLine = '1 free PDF this month. Subscribe for unlimited.';
+    }
+  }
+
   return (
     <div className={styles.page}>
       <header className={styles.pageHeader}>
@@ -11,6 +26,9 @@ export function PrintPage() {
           share.
         </p>
       </header>
+      {statusLine != null && (
+        <p className={styles.smallDescription}>{statusLine}</p>
+      )}
       <PrintForm />
       <p className={styles.smallDescription}>
         All files uploaded here are automatically deleted after 2 hours.

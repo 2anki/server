@@ -282,6 +282,40 @@ class UsersRepository {
         ),
       });
   }
+
+  async getPrintUsage(
+    id: string | number
+  ): Promise<{ prints_used: number; month_started_at: Date | null }> {
+    const row = await this.database
+      .table(this.table)
+      .where({ id })
+      .select('pdf_prints_this_month', 'prints_month_started_at')
+      .first();
+    if (!row) {
+      return { prints_used: 0, month_started_at: null };
+    }
+    const startedAt: Date | null = row.prints_month_started_at ?? null;
+    if (startedAt && isNewMonth(startedAt, new Date())) {
+      return { prints_used: 0, month_started_at: startedAt };
+    }
+    return {
+      prints_used: row.pdf_prints_this_month ?? 0,
+      month_started_at: startedAt,
+    };
+  }
+
+  incrementPrintUsage(id: string | number) {
+    return this.database(this.table)
+      .where({ id })
+      .update({
+        pdf_prints_this_month: this.database.raw(
+          `CASE WHEN prints_month_started_at < date_trunc('month', NOW()) THEN 1 ELSE pdf_prints_this_month + 1 END`
+        ),
+        prints_month_started_at: this.database.raw(
+          `CASE WHEN prints_month_started_at < date_trunc('month', NOW()) THEN date_trunc('month', NOW()) ELSE prints_month_started_at END`
+        ),
+      });
+  }
 }
 
 export default UsersRepository;

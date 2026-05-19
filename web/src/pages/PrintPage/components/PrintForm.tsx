@@ -34,12 +34,11 @@ async function extractErrorMessage(response: Response): Promise<string> {
 }
 
 const AUTH_MESSAGE = 'Log in to use PDF export.';
-const UPGRADE_MESSAGE =
-  'PDF export is available to subscribers and lifetime members.';
+const UPGRADE_MESSAGE = 'Your free PDF for this month has been used.';
 
 function toUserMessage(serverMessage: string, status: number): string {
   if (status === 401) return AUTH_MESSAGE;
-  if (status === 403) return UPGRADE_MESSAGE;
+  if (status === 402 || status === 403) return UPGRADE_MESSAGE;
   if (/Invalid .apkg/i.test(serverMessage)) return CORRUPTED_MESSAGE;
   if (/PDF export supports up to/i.test(serverMessage)) return TOO_LARGE_MESSAGE;
   return serverMessage;

@@ -5,6 +5,7 @@ import {
 import { useEffect, useState } from 'react';
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { ErrorHandlerType } from '../../components/errors/helpers/getErrorMessage';
+import { UpsellCard } from '../../components/UpsellCard';
 import {
   dismissUploadPrimer,
   fetchUserPreferences,
@@ -178,6 +179,9 @@ export function UploadPage({ setErrorMessage }: Readonly<Props>) {
         </section>
       )}
       <UploadForm setErrorMessage={setErrorMessage} />
+      <div className={pageStyles.upsellWrapper}>
+        <UpsellCard surface="upload_idle_upsell" hideForAnonymous />
+      </div>
       <p className={pageStyles.footnote}>
         Your uploaded files are deleted after 2 hours.
       </p>

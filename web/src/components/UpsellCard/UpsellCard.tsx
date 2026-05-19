@@ -7,15 +7,20 @@ import { isPayingUser } from '../NavigationBar/helpers/getPlanLabel';
 import { getSubscribeLink } from '../../pages/PricingPage/payment.links';
 import styles from './UpsellCard.module.css';
 
-type Surface = 'downloads_upsell' | 'upload_success_upsell';
+type Surface =
+  | 'downloads_upsell'
+  | 'upload_success_upsell'
+  | 'upload_idle_upsell';
 
 interface UpsellCardProps {
   readonly surface: Surface;
+  readonly hideForAnonymous?: boolean;
 }
 
 const HEADLINE: Record<Surface, string> = {
   downloads_upsell: 'Converting more this month?',
   upload_success_upsell: 'More decks coming?',
+  upload_idle_upsell: 'Converting more this month?',
 };
 
 const BODY: Record<Surface, string> = {
@@ -23,20 +28,24 @@ const BODY: Record<Surface, string> = {
     'Free plan is 100 cards a month and one conversion at a time. A pass removes both limits without a subscription.',
   upload_success_upsell:
     'Free plan caps at 100 cards a month and one job at a time. A pass removes both for the next day or week.',
+  upload_idle_upsell:
+    'Free plan is 100 cards a month and one conversion at a time. A pass removes both limits without a subscription.',
 };
 
-export function UpsellCard({ surface }: UpsellCardProps) {
+export function UpsellCard({ surface, hideForAnonymous = false }: UpsellCardProps) {
   const { data } = useUserLocals();
   const [pendingKind, setPendingKind] = useState<'24h' | '7d' | null>(null);
 
   const paying = isPayingUser(data?.locals);
+  const isAnonymous = data?.user?.email == null;
+  const suppress = paying || (hideForAnonymous && isAnonymous);
 
   useEffect(() => {
-    if (paying) return;
+    if (suppress) return;
     track('paywall_shown', { surface });
-  }, [paying, surface]);
+  }, [suppress, surface]);
 
-  if (paying) return null;
+  if (suppress) return null;
 
   const email = data?.user?.email;
 
@@ -69,7 +78,7 @@ export function UpsellCard({ surface }: UpsellCardProps) {
           onClick={() => handlePassClick('24h')}
           disabled={pendingKind != null}
         >
-          {pendingKind === '24h' ? 'Redirecting…' : 'Day Pass $4'}
+          {pendingKind === '24h' ? 'Redirecting…' : 'Day Pass'}
         </button>
         <button
           type="button"
@@ -77,7 +86,7 @@ export function UpsellCard({ surface }: UpsellCardProps) {
           onClick={() => handlePassClick('7d')}
           disabled={pendingKind != null}
         >
-          {pendingKind === '7d' ? 'Redirecting…' : 'Week Pass $9'}
+          {pendingKind === '7d' ? 'Redirecting…' : 'Week Pass'}
         </button>
         <span className={styles.dot} aria-hidden="true">·</span>
         <a
@@ -85,7 +94,7 @@ export function UpsellCard({ surface }: UpsellCardProps) {
           href={getSubscribeLink(email)}
           onClick={handleUnlimitedClick}
         >
-          Unlimited $6/mo
+          Unlimited
         </a>
       </div>
     </section>

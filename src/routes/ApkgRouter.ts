@@ -3,7 +3,7 @@ import multer from 'multer';
 
 import RequireAuthentication from './middleware/RequireAuthentication';
 import RequireAllowedOrigin from './middleware/RequireAllowedOrigin';
-import { isPaying } from '../lib/isPaying';
+import { printQuotaMiddleware } from './middleware/PrintQuotaMiddleware';
 import ApkgController from '../controllers/ApkgController';
 import ApkgPreviewService from '../services/ApkgPreviewService/ApkgPreviewService';
 import DownloadService from '../services/DownloadService';
@@ -11,6 +11,7 @@ import DownloadRepository from '../data_layer/DownloadRepository';
 import JobRepository from '../data_layer/JobRepository';
 import NotionRepository from '../data_layer/NotionRespository';
 import BlocksCacheRepository from '../data_layer/BlocksCacheRepository';
+import UsersRepository from '../data_layer/UsersRepository';
 import { NotionService } from '../services/NotionService/NotionService';
 import { getDatabase } from '../data_layer';
 
@@ -24,6 +25,7 @@ const ApkgRouter = () => {
     new BlocksCacheRepository(database)
   );
   const jobRepository = new JobRepository(database);
+  const usersRepository = new UsersRepository(database);
   const controller = new ApkgController(
     downloadService,
     previewService,
@@ -180,12 +182,7 @@ const ApkgRouter = () => {
     '/api/apkg/pdf',
     RequireAllowedOrigin,
     RequireAuthentication,
-    (req, res, next) => {
-      if (isPaying(res.locals)) return next();
-      return res.status(403).json({
-        message: 'PDF export is available to subscribers and lifetime members.',
-      });
-    },
+    printQuotaMiddleware(usersRepository),
     pdfUpload.single('file'),
     (req, res) => controller.exportPdf(req, res)
   );
