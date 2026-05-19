@@ -70,16 +70,16 @@ function getLimitKind(url: URL): 'file_size' | 'card_count' {
 
 function getLimitDescription(
   kind: 'file_size' | 'card_count',
-  trialAvailable: boolean
+  context: 'anonymous' | 'trial_available' | 'trial_used'
 ): string {
   if (kind === 'file_size') {
-    return trialAvailable
-      ? 'Start a 1-hour trial to convert files of any size, or split the file and try again.'
-      : 'Your trial is used. Split the file, or upgrade to convert files of any size.';
+    if (context === 'anonymous') return 'Create a free account to convert files of any size, or split the file and try again.';
+    if (context === 'trial_available') return 'Start a 1-hour trial to convert files of any size, or split the file and try again.';
+    return 'Your trial is used. Split the file, or upgrade to convert files of any size.';
   }
-  return trialAvailable
-    ? 'Start a 1-hour trial to keep converting, or upgrade for no monthly cap.'
-    : 'Your trial is used. Upgrade for no monthly cap, or wait until next month.';
+  if (context === 'anonymous') return 'Create a free account to start converting, or upgrade for no monthly cap.';
+  if (context === 'trial_available') return 'Start a 1-hour trial to keep converting, or upgrade for no monthly cap.';
+  return 'Your trial is used. Upgrade for no monthly cap, or wait until next month.';
 }
 
 function formatFileSize(bytes: number): string {
@@ -354,6 +354,7 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
 
   useEffect(() => {
     if (zoneState === 'success' && downloadLink && !showFallback) {
+      globalThis.sessionStorage?.removeItem('upload_pending_filename');
       if (cardCount !== 0) {
         fireAnalyticsEvent('deck_downloaded');
         track('deck_downloaded');
@@ -915,14 +916,28 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
     );
   };
 
+  const saveFilenameForReattach = (filename: string | null) => {
+    if (filename != null && filename.length > 0) {
+      globalThis.sessionStorage?.setItem('upload_pending_filename', filename);
+    }
+  };
+
   const renderLimitState = () => {
     const isFileSize = limitInfo?.kind === 'file_size';
     const title = isFileSize
       ? 'This file is over the 50 MB limit'
       : 'You reached your monthly limit of 100 cards';
+    let limitContext: 'anonymous' | 'trial_available' | 'trial_used';
+    if (showSignInPrompt) {
+      limitContext = 'anonymous';
+    } else if (showTrialButton) {
+      limitContext = 'trial_available';
+    } else {
+      limitContext = 'trial_used';
+    }
     const description = getLimitDescription(
       isFileSize ? 'file_size' : 'card_count',
-      showTrialButton
+      limitContext
     );
 
     return (
@@ -943,29 +958,33 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
           </p>
         )}
         <div className={formStyles.limitActions}>
-          <Link
-            to="/limit?ref=upload-limit-wall"
-            className={`${sharedStyles.btnPrimary} ${sharedStyles.btnInline}`}
-          >
-            See upgrade options
-          </Link>
-          {showTrialButton && (
-            <button
-              type="button"
-              className={`${sharedStyles.btnSecondary} ${sharedStyles.btnInline}`}
-              onClick={handleStartTrial}
-              disabled={trialPending}
-            >
-              {trialPending ? 'Starting trial' : 'Start 1-hour trial'}
-            </button>
-          )}
-          {showSignInPrompt && (
+          {showSignInPrompt ? (
             <Link
-              to="/login?redirect=/upload&ref=limit-wall"
-              className={`${sharedStyles.btnSecondary} ${sharedStyles.btnInline}`}
+              to="/register?redirect=/upload&start_trial=1"
+              className={`${sharedStyles.btnPrimary} ${sharedStyles.btnInline}`}
+              onClick={() => saveFilenameForReattach(limitInfo?.filename ?? null)}
             >
-              Sign in to start trial
+              Create account and start trial
             </Link>
+          ) : (
+            <>
+              <Link
+                to="/limit?ref=upload-limit-wall"
+                className={`${sharedStyles.btnPrimary} ${sharedStyles.btnInline}`}
+              >
+                See upgrade options
+              </Link>
+              {showTrialButton && (
+                <button
+                  type="button"
+                  className={`${sharedStyles.btnSecondary} ${sharedStyles.btnInline}`}
+                  onClick={handleStartTrial}
+                  disabled={trialPending}
+                >
+                  {trialPending ? 'Starting trial' : 'Start 1-hour trial'}
+                </button>
+              )}
+            </>
           )}
           <button
             type="button"

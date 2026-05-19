@@ -1,3 +1,21 @@
+/* ── Re-attach banner (shown after trial-on-register redirect) ── */
+
+.reattachBanner {
+  max-width: 800px;
+  margin: 0 0 1rem;
+  padding: 0.625rem 1rem;
+  background: var(--color-bg-secondary);
+  border-left: 3px solid var(--color-text-link);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.reattachBanner strong {
+  font-weight: var(--font-medium);
+  color: var(--color-text-primary);
+}
+
 /* ── Toggle-model primer ── */
 
 .primer {

@@ -674,7 +674,7 @@ describe('limit state — start trial button', () => {
     return container;
   }
 
-  it('shows "Sign in to start trial" and hides "Start 1-hour trial" for anonymous users', async () => {
+  it('shows a single "Create account and start trial" CTA for anonymous users and no "Start 1-hour trial" button', async () => {
     const container = renderWithLimitReached({
       user: null,
       locals: { owner: 0, patreon: false, subscriber: false, subscriptionInfo: { active: false, email: '', linked_email: '' } },
@@ -695,9 +695,13 @@ describe('limit state — start trial button', () => {
     );
     expect(trialBtn).toBeUndefined();
 
-    const signInLink = container.querySelector('a[href*="login"]');
-    expect(signInLink).not.toBeNull();
-    expect(signInLink?.textContent).toContain('Sign in to start trial');
+    const registerLink = container.querySelector('a[href*="register"]');
+    expect(registerLink).not.toBeNull();
+    expect(registerLink?.textContent).toContain('Create account and start trial');
+    expect(registerLink?.getAttribute('href')).toContain('start_trial=1');
+
+    const loginLink = container.querySelector('a[href*="login"]');
+    expect(loginLink).toBeNull();
   });
 
   it('renders error message and preserves form when startTrial returns already_used', async () => {

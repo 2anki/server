@@ -36,6 +36,55 @@ const renderPage = () => {
   );
 };
 
+const renderPageWithSession = (sessionKey: string, sessionValue: string | null) => {
+  if (sessionValue != null) {
+    globalThis.sessionStorage.setItem(sessionKey, sessionValue);
+  } else {
+    globalThis.sessionStorage.removeItem(sessionKey);
+  }
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter initialEntries={['/upload']}>
+        <Routes>
+          <Route
+            path="/upload"
+            element={<UploadPage setErrorMessage={() => {}} />}
+          />
+        </Routes>
+      </MemoryRouter>
+    </QueryClientProvider>
+  );
+};
+
+describe('UploadPage reattach banner', () => {
+  beforeEach(() => {
+    fetchUserPreferences.mockResolvedValue({
+      cardOptions: null,
+      theme: null,
+      ankiWebAcknowledgedAt: null,
+      uploadPrimerDismissedAt: '2026-01-01',
+    });
+  });
+
+  it('shows the reattach banner when upload_pending_filename is set in sessionStorage', async () => {
+    renderPageWithSession('upload_pending_filename', 'biochemistry.zip');
+    expect(await screen.findByRole('status')).toBeInTheDocument();
+    expect(screen.getByRole('status').textContent).toContain('Re-attach');
+    expect(screen.getByRole('status').textContent).toContain('biochemistry.zip');
+    expect(screen.getByRole('status').textContent).toContain('to convert');
+    globalThis.sessionStorage.removeItem('upload_pending_filename');
+  });
+
+  it('does not show the reattach banner when upload_pending_filename is absent', async () => {
+    renderPageWithSession('upload_pending_filename', null);
+    await waitFor(() => expect(fetchUserPreferences).toHaveBeenCalled());
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  });
+});
+
 describe('UploadPage primer', () => {
   beforeEach(() => {
     dismissUploadPrimer.mockClear();
