@@ -23,6 +23,7 @@ import { get2ankiApi } from '../../../../lib/backend/get2ankiApi';
 import { fireAnalyticsEvent } from '../../../../lib/analytics/fireAnalyticsEvent';
 import { track } from '../../../../lib/analytics/track';
 import ChatPanel from '../../../../components/ChatPanel/ChatPanel';
+import { UpsellCard } from '../../../../components/UpsellCard';
 import formStyles from './UploadForm.module.css';
 import sharedStyles from '../../../../styles/shared.module.css';
 
@@ -826,6 +827,9 @@ function UploadForm({ setErrorMessage }: Readonly<UploadFormProps>) {
             Try Auto Sync
           </a>
         </p>
+      )}
+      {!showAutoSyncPrompt && (
+        <UpsellCard surface="upload_success_upsell" />
       )}
       <button
         type="button"

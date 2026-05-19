@@ -5,6 +5,7 @@ export interface ChangelogEntry {
 }
 
 export const changelog: ChangelogEntry[] = [
+  { type: 'feature', title: 'Just finished a conversion? Day Pass and Week Pass appear on Downloads and upload success, with the free-plan limits explained up front', date: '2026-05-19' },
   { type: 'style', title: 'Pricing page — Lifetime now sits in its own One-time payment section and the three pricing rows share the same spacing', date: '2026-05-19' },
   { type: 'style', title: 'Chat replies — tighter line spacing, lists, and paragraphs so a full answer fits on one screen', date: '2026-05-19' },
   { type: 'style', title: 'Pricing page — Day Pass and Week Pass sit at the top as full cards, no more accordion to click open', date: '2026-05-19' },

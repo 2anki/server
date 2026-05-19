@@ -24,10 +24,7 @@ import { fireAnalyticsEvent } from '../../lib/analytics/fireAnalyticsEvent';
 import { track } from '../../lib/analytics/track';
 import { useUserLocals } from '../../lib/hooks/useUserLocals';
 import { isPayingUser } from '../../components/NavigationBar/helpers/getPlanLabel';
-import {
-  MONTHLY_PRICE,
-  MONTHLY_SUFFIX,
-} from '../PricingPage/pricing.constants';
+import { UpsellCard } from '../../components/UpsellCard';
 import JobResponse from '../../schemas/public/JobResponse';
 import styles from './DownloadsPage.module.css';
 import sharedStyles from '../../styles/shared.module.css';
@@ -549,10 +546,7 @@ export function DownloadsPage({ setError }: Readonly<DownloadsPageProps>) {
                 </div>
                 {showUpgradeFooter && !isGloballyEmpty && (
                   <div className={styles.upgradeFooter}>
-                    Hitting the 100-card limit?{' '}
-                    <Link to="/pricing">
-                      Upgrade to Unlimited — {MONTHLY_PRICE} {MONTHLY_SUFFIX}, cancel anytime →
-                    </Link>
+                    <UpsellCard surface="downloads_upsell" />
                   </div>
                 )}
               </div>
