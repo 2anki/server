@@ -12,7 +12,9 @@ function NavigationBar({ isLoggedIn }: Readonly<NavigationBarProps>) {
   const [active, setActive] = useState(false);
   const path = globalThis.location.pathname;
   const theme = useTheme();
-  const logoSrc = theme === 'light' ? '/mascot/navbar-logo.png' : '/mascot/Notion 1.png';
+  const isLight = theme === 'light';
+  const logoSrc = isLight ? '/mascot/navbar-logo.png' : '/mascot/Notion 1.png';
+  const logoWidth = isLight ? 103 : 33;
 
   const isResolved = isLoggedIn !== undefined;
 
@@ -20,7 +22,13 @@ function NavigationBar({ isLoggedIn }: Readonly<NavigationBarProps>) {
     <nav className={styles.navbar} aria-label="main navigation">
       <div className={styles.brand}>
         <a className={styles.logoLink} href="/">
-          <img src={logoSrc} alt="2anki Logo" />
+          <img
+            src={logoSrc}
+            alt="2anki Logo"
+            width={logoWidth}
+            height={28}
+            fetchPriority="high"
+          />
         </a>
         <button
           type="button"
