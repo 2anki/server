@@ -30,7 +30,7 @@ const OLD_USER_LOCALS = {
   ...NEW_USER_LOCALS,
   user: {
     ...NEW_USER_LOCALS.user,
-    created_at: '2026-06-07T10:00:00.000Z',
+    created_at: '2026-04-15T10:00:00.000Z',
     onboarded_at: null,
   },
 };
