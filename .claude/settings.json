@@ -5,6 +5,11 @@
   "permissions": {
     "allow": [
       "Bash(git commit *)",
+      "Bash(git branch -D *)",
+      "Bash(git branch -d *)",
+      "Bash(git fetch --prune *)",
+      "Bash(git worktree remove *)",
+      "Bash(git worktree prune)",
 
       "Write(src/**/*.test.ts)",
       "Write(web/src/**/*.test.ts)",
