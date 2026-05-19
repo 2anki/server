@@ -85,7 +85,7 @@ export const get = async (
   if (!response.ok) {
     if (response.status === UNAUTHORIZED) {
       redirectToLogin();
-      return undefined;
+      throw new Error('Unauthorized');
     }
     if (response.status === NOT_FOUND) {
       throw new Error(
