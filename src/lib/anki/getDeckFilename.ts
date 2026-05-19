@@ -1,4 +1,5 @@
 import Package from '../parser/Package';
+import { getSafeFilename } from '../getSafeFilename';
 
 function isPackage(something: unknown): something is Package {
   return something instanceof Package;
@@ -15,5 +16,6 @@ export default function getDeckFilename(something: Package | string): string {
   } else if (isString(something)) {
     name = something;
   }
-  return name.endsWith('.apkg') ? name : `${name}.apkg`;
+  const safe = getSafeFilename(name);
+  return safe.endsWith('.apkg') ? safe : `${safe}.apkg`;
 }
