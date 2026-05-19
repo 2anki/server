@@ -23,6 +23,19 @@ jest.mock('../lib/misc/hashToken', () => ({
   default: jest.fn().mockReturnValue('hashed-token'),
 }));
 
+const mockMarkTrialStarted = jest.fn().mockResolvedValue(undefined);
+const mockGetById = jest.fn().mockResolvedValue({ patreon: false, trial_started_at: null });
+
+jest.mock('../data_layer/UsersRepository', () => {
+  return jest.fn().mockImplementation(() => ({
+    setSignupCountryIfMissing: jest.fn().mockResolvedValue(undefined),
+    getSignupCountry: jest.fn().mockResolvedValue(null),
+    markTrialStarted: mockMarkTrialStarted,
+    getById: mockGetById,
+    getCardUsage: jest.fn().mockResolvedValue({ cards_used: 0 }),
+  }));
+});
+
 import UsersController from './UsersControllers';
 import UsersService, { MagicLinkRateLimitError } from '../services/UsersService';
 import AuthenticationService from '../services/AuthenticationService';
@@ -195,6 +208,66 @@ describe('UsersController.register', () => {
       'al@example.com',
       null
     );
+  });
+
+  it('starts the trial after registration when start_trial flag is set', async () => {
+    const register = jest.fn().mockResolvedValue([{ id: 1 }]);
+    const newJWTToken = jest.fn().mockResolvedValue('jwt-trial-tok');
+    const persistToken = jest.fn().mockResolvedValue(undefined);
+    const updateLastLoginAt = jest.fn().mockResolvedValue(undefined);
+    mockMarkTrialStarted.mockClear();
+    mockGetById.mockResolvedValue({ patreon: false, trial_started_at: null });
+
+    const { controller } = buildController({ register, newJWTToken, persistToken, updateLastLoginAt });
+    const req = {
+      body: { email: 'trial@example.com', password: SAMPLE_PW, start_trial: '1' },
+      query: {},
+    } as unknown as express.Request;
+    const res = buildRes();
+    const next = jest.fn();
+
+    await controller.register(req, res, next);
+
+    expect(res.cookie).toHaveBeenCalledWith('token', 'jwt-trial-tok');
+    expect(mockMarkTrialStarted).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not fail registration when start_trial is set but trial already used', async () => {
+    const register = jest.fn().mockResolvedValue([{ id: 1 }]);
+    const newJWTToken = jest.fn().mockResolvedValue('jwt-tok2');
+    mockMarkTrialStarted.mockClear();
+    mockGetById.mockResolvedValue({ patreon: false, trial_started_at: new Date() });
+
+    const { controller } = buildController({ register, newJWTToken });
+    const req = {
+      body: { email: 'existing@example.com', password: SAMPLE_PW, start_trial: '1' },
+      query: {},
+    } as unknown as express.Request;
+    const res = buildRes();
+    const next = jest.fn();
+
+    await controller.register(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(mockMarkTrialStarted).not.toHaveBeenCalled();
+  });
+
+  it('does not start trial when start_trial flag is absent', async () => {
+    const register = jest.fn().mockResolvedValue([{ id: 1 }]);
+    mockMarkTrialStarted.mockClear();
+
+    const { controller } = buildController({ register });
+    const req = {
+      body: { email: 'notrial@example.com', password: SAMPLE_PW },
+      query: {},
+    } as unknown as express.Request;
+    const res = buildRes();
+    const next = jest.fn();
+
+    await controller.register(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(mockMarkTrialStarted).not.toHaveBeenCalled();
   });
 
   it('returns 400 when the email is already registered', async () => {

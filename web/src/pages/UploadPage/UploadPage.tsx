@@ -16,6 +16,8 @@ import styles from '../../styles/shared.module.css';
 import UploadForm from './components/UploadForm/UploadForm';
 import pageStyles from './UploadPage.module.css';
 
+const REATTACH_KEY = 'upload_pending_filename';
+
 const WALKTHROUGHS: ReadonlyArray<[string, string]> = [
   ['UnTo_fN1jpc', 'How I use Notion to Anki as a medical student'],
   ['JrYdp18Hbs8', 'Notion to Anki — complete guide'],
@@ -78,6 +80,10 @@ export function UploadPage({ setErrorMessage }: Readonly<Props>) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
+  const [reattachFilename, setReattachFilename] = useState<string | null>(() => {
+    const stored = globalThis.sessionStorage?.getItem(REATTACH_KEY) ?? null;
+    return stored != null && stored.length > 0 ? stored : null;
+  });
 
   const prefsQuery = useReactQuery({
     queryKey: ['user-preferences'],
@@ -127,6 +133,13 @@ export function UploadPage({ setErrorMessage }: Readonly<Props>) {
           Turn your notes into flashcards in seconds
         </p>
       </header>
+      {reattachFilename != null && (
+        <div className={pageStyles.reattachBanner} role="status">
+          <span>Re-attach </span>
+          <strong>{reattachFilename}</strong>
+          <span> to convert</span>
+        </div>
+      )}
       {primerVisible && (
         <section className={pageStyles.primer} aria-label="How 2anki works">
           <button
