@@ -261,6 +261,13 @@ class UsersRepository {
     }));
   }
 
+  markOnboarded(id: string | number) {
+    return this.database(this.table)
+      .where({ id })
+      .whereNull('onboarded_at')
+      .update({ onboarded_at: this.database.fn.now() });
+  }
+
   incrementCardUsage(id: string | number, cardCount: number) {
     if (cardCount <= 0) return Promise.resolve(0);
     return this.database(this.table)

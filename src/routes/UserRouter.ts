@@ -735,6 +735,12 @@ const UserRouter = () => {
     (req, res) => userPreferencesController.deleteCardOptions(req, res)
   );
 
+  router.patch(
+    '/api/users/me/onboarded',
+    RequireAuthentication,
+    (req, res) => controller.markOnboarded(req, res)
+  );
+
   return router;
 };
 

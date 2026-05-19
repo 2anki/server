@@ -295,6 +295,8 @@ class UsersController {
         trial_started_at: user?.trial_started_at ?? null,
         signup_country: signupCountry,
         chat_consent_at: user?.chat_consent_at ?? null,
+        created_at: user?.created_at ?? null,
+        onboarded_at: user?.onboarded_at ?? null,
       },
       locals,
       linked_email: linkedEmail,
@@ -771,6 +773,16 @@ class UsersController {
       console.error('Magic link verification failed:', error);
       next(error);
     }
+  }
+
+  async markOnboarded(_req: express.Request, res: express.Response) {
+    const { owner } = res.locals;
+    if (owner == null) {
+      return res.status(401).json({ message: 'Authentication required' });
+    }
+    const repository = new UsersRepository(this.db);
+    await repository.markOnboarded(owner);
+    return res.status(204).end();
   }
 
 }
